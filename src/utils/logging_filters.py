@@ -73,23 +73,48 @@ class PIIRedactingFilter(logging.Filter):
                     val = getattr(record, key)
                     if isinstance(val, str):
                         setattr(record, key, _redact_text(val))
+
+            self._redact_traceback(record)
         except Exception:
             # Fail-safe: nooit logging breken
             return True
         return True
 
+    @staticmethod
+    def _redact_traceback(record: logging.LogRecord) -> None:
+        """Redigeer de traceback vóór de formatter hem rendert (DEF-575).
+
+        `Formatter.format()` roept `formatException()` alleen aan als
+        `exc_text` nog leeg is. Door hem hier gevuld én geredigeerd achter te
+        laten, komt de onbewerkte traceback nooit in de output. `exc_info`
+        blijft staan voor handlers die hem zelf lezen.
+        """
+        if not record.exc_info:
+            return
+        if not record.exc_text:
+            record.exc_text = logging.Formatter().formatException(record.exc_info)
+        record.exc_text = _redact_text(record.exc_text)
+
     def _redact_args(self, args: Any) -> Any:
         if isinstance(args, dict):
-            return {
-                k: (_redact_text(v) if isinstance(v, str) else v)
-                for k, v in args.items()
-            }
+            return {k: self._redact_value(v) for k, v in args.items()}
         if isinstance(args, list | tuple):
-            red = [(_redact_text(v) if isinstance(v, str) else v) for v in args]
-            return type(args)(red)
-        if isinstance(args, str):
-            return _redact_text(args)
-        return args
+            return type(args)(self._redact_value(v) for v in args)
+        return self._redact_value(args)
+
+    @staticmethod
+    def _redact_value(value: Any) -> Any:
+        """Redigeer strings en exceptions; laat de rest ongemoeid.
+
+        Een `Exception` als ``%s``-argument (``logger.error("...: %s", exc)``)
+        is een veelgebruikt patroon en droeg voorheen ongeredigeerde PII. Andere
+        types blijven intact zodat ``%d``-formatting niet breekt.
+        """
+        if isinstance(value, str):
+            return _redact_text(value)
+        if isinstance(value, BaseException):
+            return _redact_text(str(value))
+        return value
 
 
 def install_pii_redaction_filter(logger: logging.Logger | None = None) -> None:

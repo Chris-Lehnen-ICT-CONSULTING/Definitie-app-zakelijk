@@ -5,6 +5,8 @@ Feature Status API voor real-time dashboard updates
 import json
 import logging
 import threading
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
@@ -20,6 +22,7 @@ from security.security_middleware import (
     get_security_middleware,
 )
 from utils.logging_bootstrap import ensure_logging_configured
+from utils.logging_filters import install_pii_redaction_filter
 
 # DEF-571: eigen entrypoint (uvicorn-import én __main__) — main.py draait hier
 # niet, dus zonder deze aanroep ontbreekt de PII-redactie in dit proces.
@@ -27,7 +30,29 @@ ensure_logging_configured()
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Feature Status API")
+#: Loggers die uvicorn met ``propagate = False`` opzet — records daarvan
+#: bereiken de root-handlers nooit, dus de root-filter dekt ze niet.
+#: ``uvicorn.access`` logt het volledige request-pad, inclusief query-string.
+_UVICORN_LOGGERS = ("uvicorn", "uvicorn.access", "uvicorn.error")
+
+
+def install_uvicorn_pii_redaction() -> None:
+    """Hang de PII-redactie op uvicorn's eigen loggers (DEF-571/DEF-574).
+
+    Moet ná uvicorn's ``dictConfig`` draaien — die handlers bestaan pas bij
+    server-startup, niet bij import. Vandaar de lifespan-hook.
+    """
+    for naam in _UVICORN_LOGGERS:
+        install_pii_redaction_filter(logging.getLogger(naam))
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    install_uvicorn_pii_redaction()
+    yield
+
+
+app = FastAPI(title="Feature Status API", lifespan=lifespan)
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

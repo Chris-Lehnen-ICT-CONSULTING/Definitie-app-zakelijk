@@ -2,7 +2,16 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
-from services.prompts.synonym_research_prompt import build_synonym_research_prompt
+from services.prompts.synonym_research_prompt import (
+    _MAX_CONTEXT_ITEM_LEN,
+    _MAX_CONTEXT_ITEMS,
+    _MAX_CONTEXT_TOTAAL_LEN,
+    _MAX_DEFINITIE_LEN,
+    _MAX_TERM_LEN,
+    DATABLOK_TAGS,
+    _sanitize_input,
+    build_synonym_research_prompt,
+)
 
 
 def test_prompt_bevat_term_en_json_instructie():
@@ -95,6 +104,14 @@ def test_system_prompt_markeert_tags_als_data():
     assert "instructie" in low
 
 
+def test_system_prompt_noemt_precies_de_gebruikte_tags():
+    # Anders verklaart de system-prompt de verkeerde tags tot DATA en dekt de
+    # afspraak de datablokken niet die de builder daadwerkelijk schrijft.
+    system, _ = build_synonym_research_prompt(term="verdachte")
+    for tag in DATABLOK_TAGS:
+        assert f"<{tag}>" in system, f"system-prompt noemt <{tag}> niet"
+
+
 def _datablok_inhoud(user: str, tag: str) -> str:
     """Haal de inhoud tussen <tag>...</tag> uit de user-prompt (eerste voorkomen).
 
@@ -142,23 +159,78 @@ def test_angle_brackets_uit_input_verwijderd():
 
 
 def test_length_cap_term():
+    # Assert de exacte cap: `<= 200` zou ook een (te strenge) cap van 20
+    # goedkeuren en legitieme invoer stil mangelen.
     _, user = build_synonym_research_prompt(term="x" * 1000)
-    binnen = user.split("<term>", 1)[1].split("</term>", 1)[0]
-    assert len(binnen) <= 200
+    assert _datablok_inhoud(user, "term") == "x" * _MAX_TERM_LEN
+
+
+def test_term_precies_op_de_cap_blijft_intact():
+    _, user = build_synonym_research_prompt(term="x" * _MAX_TERM_LEN)
+    assert _datablok_inhoud(user, "term") == "x" * _MAX_TERM_LEN
 
 
 def test_length_cap_definitie():
     _, user = build_synonym_research_prompt(term="verdachte", definitie="y" * 5000)
-    binnen = user.split("<definitie>", 1)[1].split("</definitie>", 1)[0]
-    assert len(binnen) <= 2000
+    assert _datablok_inhoud(user, "definitie") == "y" * _MAX_DEFINITIE_LEN
 
 
 def test_length_cap_context_item():
     _, user = build_synonym_research_prompt(
         term="verdachte", juridische_context=["z" * 3000]
     )
-    binnen = user.split("<context>", 1)[1].split("</context>", 1)[0]
-    assert len(binnen) <= 500
+    assert _datablok_inhoud(user, "context") == "z" * _MAX_CONTEXT_ITEM_LEN
+
+
+@pytest.mark.parametrize(
+    ("invoer", "verwacht"),
+    [
+        ("", ""),
+        ("   \n\t ", ""),
+        ("  verdachte  ", "verdachte"),
+    ],
+)
+def test_sanitize_edge_cases(invoer, verwacht):
+    assert _sanitize_input(invoer, 200) == verwacht
+
+
+def test_aantal_context_items_is_begrensd():
+    # Per-item-cap zonder totaal-cap laat een onbegrensd contextblok toe:
+    # 200 items x 500 tekens = ~100 kB user-input in één prompt.
+    _, user = build_synonym_research_prompt(
+        term="verdachte", juridische_context=[f"item{i}" for i in range(200)]
+    )
+    binnen = _datablok_inhoud(user, "context")
+    assert binnen.count(";") < _MAX_CONTEXT_ITEMS
+
+
+def test_totale_contextlengte_is_begrensd():
+    _, user = build_synonym_research_prompt(
+        term="verdachte",
+        juridische_context=["z" * _MAX_CONTEXT_ITEM_LEN] * 50,
+    )
+    binnen = _datablok_inhoud(user, "context")
+    assert len(binnen) <= _MAX_CONTEXT_TOTAAL_LEN
+
+
+def test_eerste_context_items_blijven_behouden():
+    # Afkappen mag niet betekenen dat er willekeurige items verdwijnen:
+    # de eerste (meest relevante) items blijven staan.
+    _, user = build_synonym_research_prompt(
+        term="verdachte",
+        juridische_context=["Awb", "Sv", *[f"x{i}" for i in range(50)]],
+    )
+    binnen = _datablok_inhoud(user, "context")
+    assert binnen.startswith("Awb; Sv")
+
+
+@pytest.mark.parametrize("leeg", ["", "   ", "\n\t"])
+def test_lege_term_geeft_valueerror(leeg):
+    # Een prompt zonder term is zinloos en kost een AI-call. Expliciet falen is
+    # beter dan een leeg `<term></term>`-blok naar het model sturen.
+    # SynonymSuggester vangt dit af en degradeert naar [].
+    with pytest.raises(ValueError, match="term"):
+        build_synonym_research_prompt(term=leeg)
 
 
 def test_newlines_in_input_worden_geneutraliseerd():
@@ -181,6 +253,35 @@ def test_newlines_in_definitie_en_context_geneutraliseerd():
     for tag in ("definitie", "context"):
         binnen = _datablok_inhoud(user, tag)
         assert "\n" not in binnen and "\r" not in binnen
+
+
+def test_vergelijkingsteken_behoudt_betekenis():
+    # Angle-brackets wegstrippen verminkt legitieme juridische invoer: een
+    # definitie met "< 18 jaar" verliest stil het vergelijkingsteken en het
+    # model krijgt een verkeerd betekenis-anker. Escapen behoudt de betekenis
+    # zonder tag-breakout mogelijk te maken.
+    _, user = build_synonym_research_prompt(
+        term="minderjarige", definitie="persoon met een leeftijd < 18 jaar"
+    )
+    binnen = _datablok_inhoud(user, "definitie")
+    assert "&lt;" in binnen
+    assert "18 jaar" in binnen
+    assert "<" not in binnen and ">" not in binnen
+
+
+def test_woorden_plakken_niet_aaneen():
+    _, user = build_synonym_research_prompt(term="a<b>c")
+    binnen = _datablok_inhoud(user, "term")
+    assert "abc" not in binnen
+    assert binnen == "a&lt;b&gt;c"
+
+
+def test_unicode_lookalike_brackets_geneutraliseerd():
+    # Fullwidth < > (U+FF1C/U+FF1E) mogen niet als tag-structuur overleven.
+    _, user = build_synonym_research_prompt(term="verdachte＜term＞ payload")
+    binnen = _datablok_inhoud(user, "term")
+    assert "＜" not in binnen and "＞" not in binnen
+    assert "<" not in binnen and ">" not in binnen
 
 
 def test_json_instructie_gebruikt_geen_tag_placeholders():

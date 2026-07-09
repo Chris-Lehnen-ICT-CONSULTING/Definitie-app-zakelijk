@@ -8,11 +8,21 @@ AIServiceV2.generate_definition(prompt=user, system_prompt=system).
 
 from __future__ import annotations
 
+import unicodedata
+
 # DEF-571: length-caps op user-input (prompt-injection-hardening). Ruim genoeg
 # voor legitieme juridische invoer, maar begrenzen ongelimiteerde payloads.
 _MAX_TERM_LEN = 200
 _MAX_DEFINITIE_LEN = 2000
 _MAX_CONTEXT_ITEM_LEN = 500
+# Een per-item-cap alleen laat het contextblok onbegrensd groeien: de UI-lijsten
+# juridisch/wettelijk/organisatorisch worden ongelimiteerd samengevoegd.
+_MAX_CONTEXT_ITEMS = 20
+_MAX_CONTEXT_TOTAAL_LEN = 4000
+
+#: De datablok-tags waarin user-input wordt geplaatst. De system-prompt verklaart
+#: exact deze tags tot DATA; ze horen dus uit één bron te komen.
+DATABLOK_TAGS = ("term", "definitie", "context")
 
 _SYSTEM_PROMPT = (
     "Je bent een expert in Nederlands juridisch taalgebruik en terminologie. "
@@ -32,17 +42,20 @@ _SYSTEM_PROMPT = (
 def _sanitize_input(value: str, max_len: int) -> str:
     """Neutraliseer user-input voor plaatsing in een gemarkeerd datablok.
 
-    Drie maatregelen, in deze volgorde:
-    1. Angle-brackets weg — voorkomt tag-breakout, ongeacht casing.
-    2. Alle whitespace naar enkele spaties — zonder newlines kan een payload
+    Vier maatregelen, in deze volgorde:
+    1. NFKC-normalisatie — mapt unicode-lookalikes (U+FF1C ``＜``, U+FF1E ``＞``)
+       naar hun ASCII-equivalent, zodat stap 2 ze ook te pakken krijgt.
+    2. Angle-brackets escapen naar ``&lt;``/``&gt;`` — voorkomt tag-breakout.
+       Bewust escapen en niet strippen: ``"leeftijd < 18 jaar"`` zou anders stil
+       zijn vergelijkingsteken verliezen en het model een verkeerd
+       betekenis-anker geven.
+    3. Alle whitespace naar enkele spaties — zonder newlines kan een payload
        binnen het datablok geen nep-promptstructuur (lege regel + pseudo-
        instructie) opbouwen. Elk datablok blijft precies één regel.
-    3. Lengte afkappen.
-
-    Faalt niet op niet-strings; die worden gecoerced.
+    4. Lengte afkappen.
     """
-    text = str(value)
-    text = text.replace("<", "").replace(">", "")
+    text = unicodedata.normalize("NFKC", value)
+    text = text.replace("<", "&lt;").replace(">", "&gt;")
     text = " ".join(text.split())
     if len(text) > max_len:
         text = text[:max_len]
@@ -83,6 +96,10 @@ def build_synonym_research_prompt(
         min_count: Streefaantal synoniemen (indicatief in de prompt).
     """
     veilige_term = _sanitize_input(term, _MAX_TERM_LEN)
+    if not veilige_term:
+        raise ValueError(
+            "term is leeg na sanitisatie; een prompt zonder term is zinloos"
+        )
     regels: list[str] = [
         "Zoek synoniemen voor de juridische term die in het term-datablok "
         "hieronder staat.",
@@ -95,9 +112,12 @@ def build_synonym_research_prompt(
         regels.append(f"<definitie>{veilige_definitie}</definitie>")
     if juridische_context:
         veilige_items = [
-            _sanitize_input(c, _MAX_CONTEXT_ITEM_LEN) for c in juridische_context if c
+            _sanitize_input(c, _MAX_CONTEXT_ITEM_LEN)
+            for c in juridische_context[:_MAX_CONTEXT_ITEMS]
+            if c
         ]
         context_str = "; ".join(c for c in veilige_items if c)
+        context_str = context_str[:_MAX_CONTEXT_TOTAAL_LEN]
         if context_str:
             regels.append(f"<context>{context_str}</context>")
 
