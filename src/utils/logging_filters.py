@@ -37,8 +37,14 @@ def _redact_text(text: str) -> str:
     # 2) Lange hex tokens (32-64 tekens)
     s = re.sub(r"\b[0-9a-fA-F]{32,64}\b", REDACTED, s)
 
-    # 3) Base64-achtige tokens (minimaal 32 tekens)
-    s = re.sub(r"\b[A-Za-z0-9+/]{32,}={0,2}\b", REDACTED, s)
+    # 3) Base64-achtige tokens (minimaal 32 tekens).
+    # DEF-580: `/` staat bewust NIET in de charset. Met slash matchte elk
+    # filesystem-pad van 32+ tekens als token, waardoor DB-paden, importpaden en
+    # tracebacks onleesbaar werden. Base64 mét slashes wordt daardoor alleen nog
+    # gevangen als een segment zelf 32+ tekens haalt; de sk-, hex- en
+    # api_key=-regels hierboven/hieronder draaien onafhankelijk en dekken de
+    # praktische secret-vormen.
+    s = re.sub(r"\b[A-Za-z0-9+]{32,}={0,2}\b", REDACTED, s)
 
     # 4) API key velden in key=value of JSON-achtig formaat
     s = re.sub(
