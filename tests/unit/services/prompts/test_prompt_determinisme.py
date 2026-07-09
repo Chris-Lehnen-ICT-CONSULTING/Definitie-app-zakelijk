@@ -21,7 +21,10 @@ from services.definition_generator_context import EnrichedContext
 from services.prompts.modular_prompt_builder import ModularPromptBuilder
 
 # Datum- of tijdachtige patronen die niet in een prompt thuishoren.
-_TIJD_PATROON = re.compile(r"\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}")
+# Bewust ook een datum ZONDER tijd: die zou de sleep-test hieronder ontglippen
+# (verandert pas om middernacht) en zo een zeldzamere flakiness-klasse
+# introduceren.
+_TIJD_PATROON = re.compile(r"\d{4}-\d{2}-\d{2}|\d{2}:\d{2}:\d{2}")
 
 
 def _context(category: str = "proces") -> EnrichedContext:
@@ -47,10 +50,15 @@ def test_prompt_bevat_geen_wisselende_tijdstempel():
 def test_zelfde_invoer_geeft_zelfde_prompt_over_de_tijd():
     """Twee builds met een echte secondewissel ertussen — de kern van DEF-581.
 
-    Bewust een echte `sleep` en geen patch op de klok: `datetime.now()` leest de
-    C-level klok, dus `patch("time.time")` doet niets en zou deze test
-    vals-groen maken. Ruim één seconde, zodat het formaat "%H:%M:%S" gegarandeerd
-    omrolt — precies wat onder CI-load spontaan gebeurde.
+    Bewust een black-box-test met een echte `sleep`: de fix verwijdert de
+    `datetime`-import uit de module, dus er valt niets meer te patchen. Een
+    patch op `time.time` zou sowieso niets doen (`datetime.now()` leest de
+    C-level klok) en de test vals-groen maken.
+
+    Complementair aan de regex-test hierboven: die vangt één formaat, deze vangt
+    élke per-build-variatie (epoch-int, uuid, sub-seconde). Ruim één seconde,
+    zodat "%H:%M:%S" gegarandeerd omrolt — precies wat onder CI-load spontaan
+    gebeurde.
     """
     builder = ModularPromptBuilder()
     eerste = builder.build_prompt("test", _context(), UnifiedGeneratorConfig())

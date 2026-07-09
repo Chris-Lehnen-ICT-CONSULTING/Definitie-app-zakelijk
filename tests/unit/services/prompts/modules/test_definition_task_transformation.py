@@ -289,8 +289,9 @@ class TestDefinitionTaskTransformation:
         assert "METADATA" in result.content or "Metadata" in result.content
         assert "Begrip" in result.content
         assert "Builder versie" in result.content
-        # Geen wisselend tijdstempel (zie tests/unit/services/prompts/test_prompt_determinisme.py)
-        assert "Timestamp" not in result.content
+        # Geen wisselend tijdstempel (zie tests/unit/services/prompts/test_prompt_determinisme.py).
+        # Case-insensitief: een herintroductie als "- timestamp: ..." moet ook falen.
+        assert "timestamp" not in result.content.lower()
 
     @pytest.mark.parametrize(
         ("ontological_category", "expected_hint"),
