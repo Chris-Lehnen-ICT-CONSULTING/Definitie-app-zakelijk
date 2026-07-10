@@ -27,6 +27,20 @@ from __future__ import annotations
 
 import html
 import unicodedata
+from typing import NewType
+
+#: Tekst die door een van de sanitize-functies is gegaan. `datablok()` accepteert
+#: niets anders, dus mypy vangt de ontwikkelaar die vergeet te sanitiseren vóór
+#: de merge (DEF-591).
+#:
+#: Op runtime is dit gewoon `str` — `NewType` is een identity-functie. De
+#: `ValueError`-guard in `datablok()` blijft daarom bestaan: die vangt wat de
+#: typechecker niet ziet (`Any`-paden, `cast`, `# type: ignore`).
+#:
+#: Roep `VeiligeTekst(...)` NERGENS anders aan dan aan de uitgang van de
+#: sanitize-functies hieronder. Een `cast` of een her-verpakking na een `join`
+#: breekt het contract stil — join eerst de rauwe tekst, sanitiseer als laatste.
+VeiligeTekst = NewType("VeiligeTekst", str)
 
 #: De tagnamen van de datablokken. Uit één bron, zodat de `DATABLOK_AFSPRAAK`
 #: nooit naar andere tags kan wijzen dan de builders daadwerkelijk schrijven.
@@ -79,7 +93,7 @@ def _escape(text: str) -> str:
     return html.escape(text, quote=False)
 
 
-def sanitize_prompt_regel(value: str, max_len: int) -> str:
+def sanitize_prompt_regel(value: str, max_len: int) -> VeiligeTekst:
     """Neutraliseer een enkelregelig veld voor plaatsing in een datablok.
 
     Alle whitespace wordt één spatie: het datablok blijft precies één regel, en
@@ -90,10 +104,10 @@ def sanitize_prompt_regel(value: str, max_len: int) -> str:
     escape-inflatie (1 teken → tot 5) veel eerder worden afgekapt dan bedoeld.
     """
     text = " ".join(_normaliseer(value).split())
-    return _escape(text[:max_len])
+    return VeiligeTekst(_escape(text[:max_len]))
 
 
-def sanitize_prompt_blok(value: str, max_len: int) -> str:
+def sanitize_prompt_blok(value: str, max_len: int) -> VeiligeTekst:
     """Neutraliseer een meerregelig blok (bv. de tekst van een document).
 
     Anders dan `sanitize_prompt_regel` blijven newlines bestaan — meerregelige
@@ -102,18 +116,31 @@ def sanitize_prompt_blok(value: str, max_len: int) -> str:
     de aanvaller geen visuele scheiding kan forceren.
 
     Afkappen vóór escapen, om dezelfde reden als bij `sanitize_prompt_regel`.
+
+    Restrisico (DEF-592): binnen het blok kan een document nog regels en
+    pseudo-koppen zetten. Escaping dicht de tag-breakout, niet dat. De
+    `DATABLOK_AFSPRAAK` is daar de enige laag tegen — een instructie aan een
+    taalmodel, geen garantie.
     """
     regels = [" ".join(regel.split()) for regel in _normaliseer(value).split("\n")]
     blok = "\n".join(regel for regel in regels if regel)
-    return _escape(blok[:max_len])
+    return VeiligeTekst(_escape(blok[:max_len]))
 
 
-def datablok(naam: str, inhoud: str) -> str:
+def datablok(naam: str, inhoud: VeiligeTekst) -> str:
     """Omhul gesaniteerde inhoud in een `<naam>`-datablok.
 
-    Faalt luid als de inhoud nog angle-brackets bevat. Zonder die controle is de
-    omhulling schijnveiligheid: een caller die vergeet te sanitiseren krijgt een
-    datablok dat de aanvaller gewoon kan sluiten, en niets dat hem waarschuwt.
+    Twee lagen bewaken het contract, en ze dekken verschillende gaten:
+
+    * Het `VeiligeTekst`-type laat mypy de ontwikkelaar corrigeren die een rauwe
+      `str` doorgeeft — vóór de merge, met een duidelijke foutmelding.
+    * De `ValueError` hieronder vangt wat de typechecker niet ziet: waarden die
+      als `Any` binnenkomen, een `cast`, of een `# type: ignore`. `NewType` is op
+      runtime een identity-functie en borgt uit zichzelf niets.
+
+    Zonder die tweede laag is de omhulling schijnveiligheid: een caller die
+    vergeet te sanitiseren krijgt een datablok dat de aanvaller gewoon kan
+    sluiten, en niets dat hem waarschuwt.
 
     Raises:
         ValueError: Als `inhoud` een `<` of `>` bevat, oftewel niet door

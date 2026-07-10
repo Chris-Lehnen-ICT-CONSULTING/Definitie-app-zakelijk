@@ -14,6 +14,7 @@ from typing import Any
 from services.prompts.sanitization import (
     DATABLOK_AFSPRAAK,
     TAG_BEGRIP,
+    VeiligeTekst,
     datablok,
     sanitize_prompt_regel,
 )
@@ -194,7 +195,7 @@ class DefinitionTaskModule(BasePromptModule):
             "Verwijs naar bronnen via hun nr attribuut met [Bron nr]."
         )
 
-    def _build_task_assignment(self, begrip: str) -> str:
+    def _build_task_assignment(self, begrip: VeiligeTekst) -> str:
         """Bouw de definitie opdracht.
 
         Het begrip staat in een `begrip`-datablok (DEF-590). De bijbehorende
