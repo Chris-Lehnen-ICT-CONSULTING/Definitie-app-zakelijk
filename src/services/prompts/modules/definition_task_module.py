@@ -13,6 +13,7 @@ from typing import Any
 
 from services.prompts.sanitization import (
     DATABLOK_AFSPRAAK,
+    TAG_BEGRIP,
     datablok,
     sanitize_prompt_regel,
 )
@@ -203,7 +204,7 @@ class DefinitionTaskModule(BasePromptModule):
         """
         return f"""#### ✏️ Definitieopdracht:
 Formuleer nu de definitie van het begrip in dit datablok, volgens deze specificaties:
-{datablok("begrip", begrip)}"""
+{datablok(TAG_BEGRIP, begrip)}"""
 
     def _build_checklist(self, ontological_category: str | None) -> str:
         """
