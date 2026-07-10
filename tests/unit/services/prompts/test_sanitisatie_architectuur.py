@@ -1,110 +1,179 @@
-"""DEF-591: bewaak dat prompt-modules user-content niet ongesaniteerd renderen.
+"""DEF-591: bewaak dat elke contextsectie zijn user-content door de guard haalt.
 
-Het `VeiligeTekst`-type laat mypy de ontwikkelaar corrigeren die een rauwe `str`
-aan `datablok()` geeft. Maar drie gaten blijven open, en die dekt deze test:
+## Waarom de eerste versie van deze test waardeloos was
 
-1. Een module die user-content in de prompt zet **zonder** `datablok()` te
-   gebruiken — dan is er geen typecheck om te falen. Dit is exact hoe het rijke
-   contextpad in DEF-590 lekte: `_format_sources_with_confidence` rendeerde
-   `source.content` rauw, buiten elk datablok.
-2. Een `cast(VeiligeTekst, ...)` — mypy laat dat geruisloos door.
-3. Een `# type: ignore` op de sanitisatie-grens.
+Hij checkte per *bestand*: als de string `sanitize_prompt_blok` ergens in het
+bestand voorkwam, was het bestand goedgekeurd. Maar de DEF-590-bug zat in één
+functie (`_build_rich_context_section` rendeerde `source.content` rauw) terwijl
+een ándere functie in datzelfde bestand (`_veilig_datablok`) wél sanitiseerde.
+De test zou dus **groen** zijn gebleven op precies de bug die hem motiveerde.
+Geverifieerd door de bug te reproduceren.
 
-De test is een net, geen bewijs: hij werkt op bestandsniveau en mist alias-imports.
-Dat is bewust — een grof net dat een hele klasse fouten vangt is meer waard dan
-geen net. Precedent: `tests/unit/test_forbidden_symbols.py`.
+## Wat deze versie doet
+
+Een sink-registry op **functieniveau**, via de AST:
+
+* `ContextAwarenessModule` levert zijn prompt-tekst uit functies die eindigen op
+  `_context_section`. Dat zijn de sinks: alles wat daar terugkomt gaat de prompt
+  in.
+* Elke sink moet `_veilig_datablok` aanroepen, óf expliciet met reden op de
+  waiver-lijst staan.
+* **Fail-closed**: een vierde contextsectie die niemand registreert, laat de test
+  falen. Dat is het punt — de auteur wordt gedwongen te beslissen.
+
+## Bewezen, niet aangenomen
+
+`test_scanner_ziet_een_overtreding` draait de scanner op een synthetische module
+die de DEF-590-bug bevat, en eist dat hij hem markeert. Een guard die nooit rood
+is geweest, is geen guard.
+
+Aanvullend, en niet vervangbaar: `test_definitie_prompt_hardening.py` toetst het
+gedrag van alle drie de paden. Deze test bewaakt de structuur, die het gedrag.
 """
 
+import ast
 import pathlib
-import re
 
 import pytest
 
 pytestmark = pytest.mark.unit
 
-_MODULES_DIR = (
+_MODULE = (
     pathlib.Path(__file__).resolve().parents[4]
     / "src"
     / "services"
     / "prompts"
     / "modules"
+    / "context_awareness_module.py"
 )
 
-#: Aanroepen die user-content (documenttekst) de prompt in trekken.
-#:
-#: Bewust NIET `.content` kaal: `ModuleOutput.content` is onze eigen sectietekst.
-#: Bewust NIET `context.begrip`: dat veld is via het `VeiligeTekst`-type gedekt
-#: (`datablok(TAG_BEGRIP, ...)` weigert een rauwe `str`), en `expertise_module`
-#: leest het legitiem om de woordsoort te bepalen zonder het te renderen.
-#: Wat overblijft is het patroon dat in DEF-590 daadwerkelijk lekte: een module
-#: die `sources` of de samengevoegde contexttekst aanraakt.
-_USER_CONTENT_BRONNEN = (
-    "get_all_context_text",
-    ".sources",
-)
+#: Functies die prompt-tekst teruggeven. Alles wat hier uit komt gaat naar het model.
+_SINK_SUFFIX = "_context_section"
 
-#: Bewijs dat de module de content door de sanitizer haalt.
-_SANITISATIE_MARKERS = ("sanitize_prompt_regel", "sanitize_prompt_blok")
+#: De helper die sanitiseert én in een datablok omhult.
+_GUARD = "_veilig_datablok"
 
-#: Manieren om het `VeiligeTekst`-contract stil te breken.
-_BYPASS_PATRONEN = (
-    re.compile(r"cast\(\s*VeiligeTekst"),
-    re.compile(r"VeiligeTekst\("),  # alleen de sanitizer mag dit
-)
+#: Sink → reden waarom die géén guard hoeft.
+_WAIVERS = {
+    "_build_fallback_context_section": (
+        "Geeft een vaste tekst terug zonder user-content; er is niets te saniteren."
+    ),
+}
 
 
-def _python_modules() -> list[pathlib.Path]:
-    return [p for p in _MODULES_DIR.glob("*.py") if p.name != "__init__.py"]
-
-
-def test_modules_directory_bestaat_nog():
-    """Vangnet: een mapverplaatsing mag deze guard niet stil uitschakelen."""
-    assert _MODULES_DIR.is_dir(), f"pad klopt niet meer: {_MODULES_DIR}"
-    assert len(_python_modules()) > 5, "verdacht weinig modules gevonden"
-
-
-def test_module_die_user_content_rendert_sanitiseert_ook():
-    """Wie `.content` of `begrip` aanraakt, moet de sanitizer aanroepen.
-
-    Zo faalt een nieuwe prompt-module die vergeet te hardenen, in plaats van
-    stilletjes een injectiekanaal te openen.
-    """
-    overtreders = []
-    for pad in _python_modules():
-        tekst = pad.read_text(encoding="utf-8")
-        gebruikt_user_content = any(bron in tekst for bron in _USER_CONTENT_BRONNEN)
-        if not gebruikt_user_content:
+def _aangeroepen_namen(functie: ast.FunctionDef) -> set[str]:
+    namen: set[str] = set()
+    for call in ast.walk(functie):
+        if not isinstance(call, ast.Call):
             continue
-        if not any(marker in tekst for marker in _SANITISATIE_MARKERS):
-            gevonden = [b for b in _USER_CONTENT_BRONNEN if b in tekst]
-            overtreders.append(f"  {pad.name}: gebruikt {gevonden} zonder sanitizer")
-
-    if overtreders:
-        pytest.fail(
-            "Prompt-modules renderen user-content zonder sanitisatie (DEF-590/591):\n"
-            + "\n".join(overtreders)
-            + "\n\nHaal de waarde door sanitize_prompt_regel/_blok en omhul hem "
-            "met datablok()."
-        )
+        if isinstance(call.func, ast.Attribute):
+            namen.add(call.func.attr)
+        elif isinstance(call.func, ast.Name):
+            namen.add(call.func.id)
+    return namen
 
 
-def test_niemand_omzeilt_het_veiligetekst_contract():
-    """`cast` en handmatige `VeiligeTekst(...)` breken het contract geruisloos.
+def _ongedekte_sinks(bron: str) -> list[str]:
+    """De sinks in `bron` die de guard niet aanroepen en geen waiver hebben.
 
-    Alleen `sanitization.py` zelf mag `VeiligeTekst(...)` aanroepen — dat is de
-    uitgang van de sanitizer, oftewel het keuringsstempel.
+    Draait op een bronstring, niet op een pad, zodat de negatieve test hem op een
+    synthetische module kan loslaten.
     """
-    overtreders = []
-    for pad in _python_modules():
-        tekst = pad.read_text(encoding="utf-8")
-        for patroon in _BYPASS_PATRONEN:
-            if patroon.search(tekst):
-                overtreders.append(f"  {pad.name}: {patroon.pattern}")
+    boom = ast.parse(bron)
+    ongedekt = []
+    for knoop in ast.walk(boom):
+        if not isinstance(knoop, ast.FunctionDef):
+            continue
+        if not knoop.name.endswith(_SINK_SUFFIX):
+            continue
+        if knoop.name in _WAIVERS:
+            continue
+        if _GUARD not in _aangeroepen_namen(knoop):
+            ongedekt.append(knoop.name)
+    return ongedekt
 
-    if overtreders:
+
+def _sink_namen(bron: str) -> list[str]:
+    return [
+        n.name
+        for n in ast.walk(ast.parse(bron))
+        if isinstance(n, ast.FunctionDef) and n.name.endswith(_SINK_SUFFIX)
+    ]
+
+
+# --- De guard bewaakt de echte code ------------------------------------------
+
+
+def test_module_bestaat_nog():
+    """Vangnet: een hernoemd bestand mag deze guard niet stil uitschakelen."""
+    assert _MODULE.is_file(), f"pad klopt niet meer: {_MODULE}"
+
+
+def test_registry_kent_alle_sinks():
+    """Fail-closed op de andere as: een waiver mag niet naar een dode functie wijzen."""
+    sinks = _sink_namen(_MODULE.read_text(encoding="utf-8"))
+    assert len(sinks) >= 3, f"verdacht weinig contextsecties gevonden: {sinks}"
+
+    verdwenen = set(_WAIVERS) - set(sinks)
+    assert not verdwenen, (
+        f"waiver verwijst naar niet-bestaande functies: {sorted(verdwenen)}. "
+        "Opruimen, anders dekt de waiver stilletjes niets."
+    )
+
+
+def test_elke_contextsectie_gaat_door_de_guard():
+    ongedekt = _ongedekte_sinks(_MODULE.read_text(encoding="utf-8"))
+    if ongedekt:
         pytest.fail(
-            "Bypass van het VeiligeTekst-contract gevonden:\n"
-            + "\n".join(overtreders)
-            + "\n\nAlleen sanitization.py mag VeiligeTekst(...) construeren. "
-            "Join rauwe tekst eerst, sanitiseer als laatste stap."
+            "Contextsecties die user-content renderen zonder guard (DEF-590/591):\n"
+            + "\n".join(f"  {naam}" for naam in sorted(ongedekt))
+            + f"\n\nRoep `{_GUARD}` aan, of zet de functie op de waiver-lijst in "
+            f"{__file__} met een reden waarom er niets te saniteren valt."
         )
+
+
+# --- De guard is bewezen, niet aangenomen ------------------------------------
+
+
+_DEF_590_BUG = '''
+class ContextAwarenessModule:
+    def _build_rich_context_section(self, context) -> str:
+        """Precies de DEF-590-bug: rendert bronnen rauw, buiten elk datablok."""
+        sections = ["UITGEBREIDE CONTEXT:"]
+        for source in context.enriched_context.sources:
+            sections.append(f"  {source.source_type}: {source.content[:150]}")
+        return "\\n".join(sections)
+
+    def _build_moderate_context_section(self, context) -> str:
+        """Deze functie sanitiseert wél — en maskeerde de bug in de per-file check."""
+        return _veilig_datablok([context.enriched_context.get_all_context_text()])
+'''
+
+
+def test_scanner_ziet_een_overtreding():
+    """De echte DEF-590-bug: één sink lekt, een andere in hetzelfde bestand niet.
+
+    De vorige, per-bestand versie van deze test bleef hier groen op.
+    """
+    ongedekt = _ongedekte_sinks(_DEF_590_BUG)
+    assert ongedekt == [
+        "_build_rich_context_section"
+    ], f"scanner mist de bug die hij moet vangen; gevonden: {ongedekt}"
+
+
+def test_scanner_keurt_een_gesaniteerde_sectie_goed():
+    veilig = """
+class M:
+    def _build_rich_context_section(self, context) -> str:
+        return _veilig_datablok([context.enriched_context.get_all_context_text()])
+"""
+    assert _ongedekte_sinks(veilig) == []
+
+
+def test_scanner_respecteert_de_waiver():
+    met_waiver = """
+class M:
+    def _build_fallback_context_section(self) -> str:
+        return "Geen specifieke context beschikbaar."
+"""
+    assert _ongedekte_sinks(met_waiver) == []

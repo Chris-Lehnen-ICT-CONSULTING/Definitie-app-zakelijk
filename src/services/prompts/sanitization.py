@@ -127,6 +127,12 @@ def sanitize_prompt_blok(value: str, max_len: int) -> VeiligeTekst:
     return VeiligeTekst(_escape(blok[:max_len]))
 
 
+#: De enige tagnamen die een datablok mag dragen. Voorkomt dat een toekomstige
+#: caller een user-controlled naam doorgeeft — daar helpt `VeiligeTekst` niet
+#: tegen, want die bewaakt de inhoud, niet de tag.
+_TOEGESTANE_TAGS = frozenset({TAG_BEGRIP, TAG_CONTEXT})
+
+
 def datablok(naam: str, inhoud: VeiligeTekst) -> str:
     """Omhul gesaniteerde inhoud in een `<naam>`-datablok.
 
@@ -138,14 +144,23 @@ def datablok(naam: str, inhoud: VeiligeTekst) -> str:
       als `Any` binnenkomen, een `cast`, of een `# type: ignore`. `NewType` is op
       runtime een identity-functie en borgt uit zichzelf niets.
 
-    Zonder die tweede laag is de omhulling schijnveiligheid: een caller die
-    vergeet te sanitiseren krijgt een datablok dat de aanvaller gewoon kan
-    sluiten, en niets dat hem waarschuwt.
+    **Wat deze guard níét is.** Hij toetst uitsluitend op angle-brackets, oftewel
+    op tag-breakout. Hij controleert niet of de inhoud NFKC-genormaliseerd is,
+    of `&` geëscaped is, of de lengtecap is toegepast. Een `cast`-waarde zonder
+    brackets passeert dus. Het is een breakout-vangnet, geen
+    "is-dit-gesaniteerd"-check — dat laatste kán een runtime-guard niet weten.
 
     Raises:
-        ValueError: Als `inhoud` een `<` of `>` bevat, oftewel niet door
-            `sanitize_prompt_regel`/`sanitize_prompt_blok` is gegaan.
+        ValueError: Als `naam` geen bekende datablok-tag is, of als `inhoud` een
+            `<` of `>` bevat en dus niet door `sanitize_prompt_regel`/
+            `sanitize_prompt_blok` is gegaan.
     """
+    if naam not in _TOEGESTANE_TAGS:
+        raise ValueError(
+            f"onbekende datablok-tag {naam!r}; toegestaan: "
+            f"{sorted(_TOEGESTANE_TAGS)}. De `DATABLOK_AFSPRAAK` verklaart alleen "
+            "die tags tot DATA, dus een andere tag is schijnveiligheid."
+        )
     if "<" in inhoud or ">" in inhoud:
         raise ValueError(
             f"datablok({naam!r}) kreeg niet-gesaniteerde inhoud: er staan nog "

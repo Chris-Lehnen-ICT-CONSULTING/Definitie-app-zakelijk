@@ -110,6 +110,13 @@ def test_datablok_omhult_de_inhoud():
     assert datablok("begrip", "x") == "<begrip>x</begrip>"
 
 
+def test_datablok_weigert_een_onbekende_tag():
+    """`VeiligeTekst` bewaakt de inhoud, niet de tagnaam."""
+    veilig = sanitize_prompt_regel("x", 10)
+    with pytest.raises(ValueError, match="onbekende datablok-tag"):
+        datablok("instructie", veilig)
+
+
 @pytest.mark.parametrize("rauw", ["<b>", "a > b", "</context>"])
 def test_datablok_faalt_luid_op_niet_gesaniteerde_inhoud(rauw):
     """Een caller die vergeet te sanitiseren krijgt een fout, geen schijnveiligheid."""
