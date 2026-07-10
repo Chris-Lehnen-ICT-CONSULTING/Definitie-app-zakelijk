@@ -24,8 +24,11 @@ from utils.logging_filters import PIIRedactingFilter
 def verse_enrichment_logger():
     """Draai `_setup_enrichment_logger()` opnieuw op een lege handlerlijst.
 
-    Zo toetsen we uitsluitend de handlers die de productiecode zélf aanmaakt,
-    niet wat pytest of een eerdere test erbij hing.
+    Levert `(logger, eigen_handlers)`. Die tweede is een **snapshot** van de
+    handlers die de productiecode zelf aanmaakte. Live over `logger.handlers`
+    itereren gaat mis: pytest hangt er tijdens de test een `LogCaptureHandler`
+    bij, die uiteraard geen PII-filter heeft. Dat maakte de guard rood in CI
+    terwijl er niets mis was met de productie-wiring.
     """
     import services.synonym_orchestrator as so
 
@@ -35,18 +38,20 @@ def verse_enrichment_logger():
 
     logger.handlers = []
     so._setup_enrichment_logger()
+    eigen_handlers = list(logger.handlers)
     try:
-        yield logger
+        yield logger, eigen_handlers
     finally:
-        for handler in logger.handlers:
+        for handler in eigen_handlers:
             handler.close()
         logger.handlers = originele_handlers
         logger.propagate = originele_propagate
 
 
 def test_setup_installeert_pii_filter_op_elke_eigen_handler(verse_enrichment_logger):
-    assert verse_enrichment_logger.handlers, "setup maakte geen handlers aan"
-    for handler in verse_enrichment_logger.handlers:
+    _, eigen_handlers = verse_enrichment_logger
+    assert eigen_handlers, "setup maakte geen handlers aan"
+    for handler in eigen_handlers:
         assert any(isinstance(f, PIIRedactingFilter) for f in handler.filters), (
             f"handler {type(handler).__name__} van de enrichment-logger mist de "
             "PII-redactie; propagate=False dus de root-filter dekt hem niet"
@@ -56,7 +61,8 @@ def test_setup_installeert_pii_filter_op_elke_eigen_handler(verse_enrichment_log
 def test_enrichment_logger_propageert_niet_naar_root(verse_enrichment_logger):
     # Vangnet: als dit ooit True wordt, dekt de root-filter hem alsnog en is de
     # bovenstaande test niet langer de enige bescherming.
-    assert verse_enrichment_logger.propagate is False
+    logger, _ = verse_enrichment_logger
+    assert logger.propagate is False
 
 
 def test_enrichment_logger_redigeert_email_in_term(verse_enrichment_logger):
@@ -67,7 +73,8 @@ def test_enrichment_logger_redigeert_email_in_term(verse_enrichment_logger):
     Hij hangt een spion ná de PII-filter op een productie-handler en leest het
     record zoals de handler het zou schrijven.
     """
-    productie_handler = verse_enrichment_logger.handlers[0]
+    logger, eigen_handlers = verse_enrichment_logger
+    productie_handler = eigen_handlers[0]
     opgevangen: list[logging.LogRecord] = []
 
     class _Spion(logging.Filter):
@@ -79,7 +86,7 @@ def test_enrichment_logger_redigeert_email_in_term(verse_enrichment_logger):
     productie_handler.addFilter(spion)
     try:
         term = "jan.jansen@gemeente.nl valt onder art. 27 Sv"
-        verse_enrichment_logger.info("Starting AI-enrichment for '%s'", term)
+        logger.info("Starting AI-enrichment for '%s'", term)
         assert opgevangen, "er is niets gelogd"
         tekst = opgevangen[-1].getMessage()
         assert "jan.jansen@gemeente.nl" not in tekst
@@ -92,10 +99,16 @@ def test_vreemde_handler_maakt_de_guard_niet_rood(verse_enrichment_logger):
     """Een handler die een testframework toevoegt (pytest's LogCaptureHandler)
     hoort de guard niet te breken — die toetst de productie-wiring.
 
-    Deze test legt vast waaróm de fixture bestaat: zonder hem faalde de suite in
-    CI zodra caplog een handler op deze logger zette.
+    Deze test legt vast waaróm de fixture een snapshot teruggeeft: zonder dat
+    faalde de suite in CI zodra pytest een handler op deze logger zette.
     """
-    verse_enrichment_logger.addHandler(logging.NullHandler())
-    eigen = [h for h in verse_enrichment_logger.handlers if h.filters]
-    assert eigen, "productie-handlers verdwenen"
-    assert all(any(isinstance(f, PIIRedactingFilter) for f in h.filters) for h in eigen)
+    logger, eigen_handlers = verse_enrichment_logger
+    logger.addHandler(logging.NullHandler())
+
+    # De vreemde handler zit er nu bij...
+    assert len(logger.handlers) > len(eigen_handlers)
+    # ...maar de guard kijkt alleen naar de handlers uit de setup.
+    assert all(
+        any(isinstance(f, PIIRedactingFilter) for f in h.filters)
+        for h in eigen_handlers
+    )
