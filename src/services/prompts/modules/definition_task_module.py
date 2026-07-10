@@ -9,7 +9,6 @@ Deze module is verantwoordelijk voor:
 """
 
 import logging
-from datetime import UTC, datetime
 from typing import Any
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
@@ -241,11 +240,12 @@ Stel jezelf deze vragen:
         Returns:
             Metadata sectie
         """
-        timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
-
+        # DEF-581: bewust GEEN timestamp. Een wall-clock in de prompt maakt
+        # dezelfde invoer elke seconde een andere prompt: niet reproduceerbaar,
+        # en het maakte een required check flaky. Traceerbaarheid hoort in de
+        # logging, niet in wat het model te lezen krijgt.
         return f"""#### 📊 METADATA voor traceerbaarheid:
 - Begrip: {begrip}
-- Timestamp: {timestamp}
 - Context beschikbaar: {"Ja" if has_context else "Nee"}
 - Builder versie: Modular Architecture v2.0"""
 
