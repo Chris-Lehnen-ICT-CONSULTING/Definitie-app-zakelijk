@@ -342,9 +342,22 @@ class PromptOrchestrator:
                 if output.success and not output.is_empty:
                     ordered_sections.append(output.content)
 
-        # Voeg ook outputs toe van modules die niet in de standaard volgorde staan
-        for module_id, output in outputs.items():
+        # Voeg ook outputs toe van modules die niet in de standaard volgorde staan.
+        # DEF-582: `sorted()` is wezenlijk. `outputs` wordt gevuld in
+        # `as_completed`-volgorde (zie _execute_batch_parallel), dus itereren over
+        # `outputs.items()` liet de thread-voltooiingsvolgorde de prompt bepalen.
+        for module_id in sorted(outputs):
+            output = outputs[module_id]
             if module_id not in module_order and output.success and not output.is_empty:
+                # Fail-loud: deze tak plakt de sectie achter `definition_task`, dus
+                # ná de finale opdracht. Een vergeten module verwatert daarmee stil
+                # de slotinstructie. Niet raisen — `_get_active_modules` laat
+                # onbekende modules bewust toe voor tests en backwards-compat.
+                logger.warning(
+                    "Module '%s' staat niet in module_order; output wordt aan het "
+                    "eind toegevoegd (na de finale opdracht)",
+                    module_id,
+                )
                 ordered_sections.append(output.content)
 
         # Combineer met consistent spacing
