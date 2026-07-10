@@ -279,12 +279,19 @@ class TestDefinitionTaskTransformation:
 
         Metadata can remain mostly unchanged as it's for traceability,
         not instruction.
+
+        DEF-581: de Timestamp-regel is bewust verwijderd. Een wall-clock in de
+        prompt maakte dezelfde invoer elke seconde een andere prompt.
         """
         result = self.module.execute(self.context)
 
         # Metadata should still be present
         assert "METADATA" in result.content or "Metadata" in result.content
-        assert "Timestamp" in result.content or "timestamp" in result.content
+        assert "Begrip" in result.content
+        assert "Builder versie" in result.content
+        # Geen wisselend tijdstempel (zie tests/unit/services/prompts/test_prompt_determinisme.py).
+        # Case-insensitief: een herintroductie als "- timestamp: ..." moet ook falen.
+        assert "timestamp" not in result.content.lower()
 
     @pytest.mark.parametrize(
         ("ontological_category", "expected_hint"),
