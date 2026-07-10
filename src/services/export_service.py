@@ -8,6 +8,7 @@ Gebruikt DataAggregationService om data te verzamelen zonder directe UI dependen
 import json
 import logging
 import re
+import unicodedata
 from datetime import UTC, datetime, timedelta
 
 UTC = UTC  # Python 3.10 compatibility
@@ -23,30 +24,52 @@ from services.data_aggregation_service import (
 
 logger = logging.getLogger(__name__)
 
-#: Tekens waarmee Excel, LibreOffice Calc en Google Sheets een celwaarde als
-#: formule beginnen te lezen. Tab en carriage return staan erbij omdat sommige
-#: parsers ze als veldscheiding interpreteren en de rest van de cel dan alsnog
-#: als formule aanbieden (DEF-593).
-_FORMULE_PREFIXEN = ("=", "+", "-", "@", "\t", "\r")
+#: Tekens waarmee een spreadsheet een celwaarde als formule begint te lezen.
+_FORMULE_TEKENS = ("=", "+", "-", "@")
+
+#: Control-tekens die sommige parsers als veldscheiding lezen, waarna de rest van
+#: de cel alsnog als formule wordt aangeboden.
+_CONTROL_PREFIXEN = ("\t", "\r", "\n")
+
+#: Whitespace en BOM die vóór een formule-teken kunnen staan. Excel en zeker
+#: LibreOffice trimmen die weg vóór ze de cel evalueren, dus `" =SUM(1)"` is
+#: net zo gevaarlijk als `"=SUM(1)"`. Alleen het eerste teken toetsen laat die
+#: payload er ongemoeid door.
+_TRIMBARE_KOP = " \t\r\n\v\f ﻿"
 
 
 def _veilige_cel(waarde: Any) -> Any:
     """Neutraliseer een celwaarde die een spreadsheet als formule zou lezen.
 
-    Prefix met een apostrof: de spreadsheet leest de cel dan als tekst en toont
-    de apostrof niet. Bewust prefixen en niet strippen — de lezer moet de
-    oorspronkelijke tekst nog kunnen zien.
+    Prefix met een apostrof. In een CSV die Excel importeert werkt dat als
+    tekstmarkering. In een `.xlsx` is het effect anders maar even veilig: pandas
+    schrijft `"=HYPERLINK(1)"` als cel met `data_type="f"` — een échte formule —
+    terwijl `"'=HYPERLINK(1)"` als `data_type="s"` (string) wordt weggeschreven.
+    De apostrof blijft daar wél zichtbaar in de cel; dat is de prijs.
+
+    Bewust prefixen en niet strippen: de lezer moet de oorspronkelijke tekst nog
+    kunnen zien.
 
     Niet-strings (getallen, datums) blijven ongemoeid: die zijn geen vector, en
-    een `-5` als `int` moet een `int` blijven. Alleen een string die met een
-    formule-teken begint wordt aangeraakt, dus `"a = b"` blijft intact.
+    een `-5` als `int` moet een `int` blijven. Alleen het eerste betekenisvolle
+    teken telt, dus `"a = b"` blijft intact.
 
-    DEF-593 — het enige geverifieerde pad waarlangs deze app schade buiten
-    zichzelf kan aanrichten: `=HYPERLINK(...)` of een DDE-payload draait op de
-    machine van wie de export opent.
+    Idempotent: een reeds geprefixte waarde begint met `'`, wat geen formule-
+    teken is, en krijgt er dus geen tweede bij.
+
+    DEF-593.
     """
-    if isinstance(waarde, str) and waarde[:1] in _FORMULE_PREFIXEN:
+    if not isinstance(waarde, str) or not waarde:
+        return waarde
+
+    # Een leidend control-teken is zelf al gevaarlijk (veldscheiding).
+    if waarde[0] in _CONTROL_PREFIXEN:
         return "'" + waarde
+
+    # `" =SUM(1)"` en `"﻿=SUM(1)"`: de spreadsheet trimt de kop en evalueert.
+    if waarde.lstrip(_TRIMBARE_KOP)[:1] in _FORMULE_TEKENS:
+        return "'" + waarde
+
     return waarde
 
 
@@ -70,10 +93,20 @@ def _bestandsnaam_slug(begrip: str) -> str:
     Een whitelist, geen blacklist: alles wat geen letter, cijfer, `_` of `-` is
     wordt een underscore. Daarmee sneuvelen `/`, `\\`, `..` en `:` in één keer,
     en hoeven we niet te raden welk teken op welk platform gevaarlijk is.
+
+    Accenten worden eerst getranslitereerd, niet weggegooid: dit is een
+    Nederlandstalige juridische app, en `privé` → `priv` of `coöperatie` →
+    `co_peratie` maakt de bestandsnaam onherkenbaar. Via NFKD splitsen we de
+    combining accents af en laten we de basisletter staan (`é` → `e`).
+
+    Afkappen gebeurt vóór het strippen, zodat de slug nooit op een `_` eindigt.
     """
-    slug = begrip.replace(" ", "_").lower()
+    ontleed = unicodedata.normalize("NFKD", begrip)
+    zonder_accenten = "".join(t for t in ontleed if not unicodedata.combining(t))
+
+    slug = zonder_accenten.replace(" ", "_").lower()
     slug = re.sub(r"[^a-z0-9_-]", "_", slug)
-    slug = slug.strip("_")[:_MAX_SLUG_LEN]
+    slug = slug[:_MAX_SLUG_LEN].strip("_")
     return slug or "definitie"
 
 

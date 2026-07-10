@@ -92,9 +92,12 @@ def test_bestandsnaam_bevat_geen_gevaarlijke_tekens(service):
         assert teken not in naam, f"{teken!r} zit nog in de bestandsnaam: {naam}"
 
 
-def test_leeg_begrip_geeft_nog_steeds_een_geldige_naam(service, export_dir):
+@pytest.mark.parametrize("begrip", ["///", "", "   ", "___"])
+def test_begrip_dat_wegvalt_geeft_nog_steeds_een_geldige_naam(
+    service, export_dir, begrip
+):
     """Een begrip dat volledig wegvalt mag geen bestand zonder naam opleveren."""
-    pad = Path(service._export_to_csv(_export_data("///")))
+    pad = Path(service._export_to_csv(_export_data(begrip)))
     assert pad.is_file()
     assert pad.parent.resolve() == export_dir.resolve()
     assert pad.name.startswith("definitie_")
@@ -104,3 +107,31 @@ def test_normaal_begrip_blijft_leesbaar_in_de_bestandsnaam(service):
     """De naam moet bruikbaar blijven — hardening mag niet alles wegvagen."""
     pad = Path(service._export_to_csv(_export_data("toezichthouder bestuursrecht")))
     assert "toezichthouder_bestuursrecht" in pad.name
+
+
+@pytest.mark.parametrize(
+    ("begrip", "verwacht"),
+    [
+        ("privé", "prive"),
+        ("coöperatie", "cooperatie"),
+        ("reëel", "reeel"),
+        ("naïef", "naief"),
+    ],
+)
+def test_nederlandse_accenten_worden_getranslitereerd(service, begrip, verwacht):
+    """Dit is een Nederlandstalige juridische app.
+
+    Een whitelist op `[a-z0-9_-]` alléén zou `privé` tot `priv` reduceren en
+    `coöperatie` tot `co_peratie`. NFKD splitst het accent van de basisletter,
+    zodat de bestandsnaam herkenbaar blijft.
+    """
+    pad = Path(service._export_to_csv(_export_data(begrip)))
+    assert verwacht in pad.name, f"{begrip!r} werd {pad.name!r}"
+
+
+def test_slug_eindigt_nooit_op_een_underscore(service):
+    """Afkappen vóór strippen; anders levert de lengtecap een trailing `_`."""
+    lang = "a" * 58 + " " + "b" * 20
+    pad = Path(service._export_to_csv(_export_data(lang)))
+    kern = pad.name.split("definitie_", 1)[1].rsplit("_", 1)[0]
+    assert not kern.endswith("_"), f"slug eindigt op underscore: {kern!r}"
