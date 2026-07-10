@@ -17,8 +17,10 @@ from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 from typing import Any, ClassVar, cast
 
 import yaml  # YAML bestand parser voor configuratie bestanden
-from dotenv import load_dotenv  # .env laden ongeacht entry-point (DEF-572)
 
+from config.dotenv_loader import (  # .env laden ongeacht entry-point (DEF-572/573)
+    load_project_dotenv,
+)
 from domain.rechtsgebieden import RECHTSGEBIEDEN
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
@@ -53,7 +55,11 @@ class ConfigSection(Enum):
 class APIConfig:
     """API configuratie instellingen voor externe service communicatie."""
 
-    openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
+    # DEF-583: `repr=False` houdt de sleutel uit `repr()`/`str()` van deze
+    # dataclass. Zonder dat lekt `logger.debug("%s", config)` de key volledig:
+    # de PII-filter bewerkt `record.args` en laat niet-string objecten met rust,
+    # waarna de formatter pas ná de filter `str(config)` aanroept.
+    openai_api_key: str = field(default="", repr=False)
     # DEF-458: geen hardcoded model; leeg = resolve via ModelRouter (single source).
     default_model: str = ""
     default_temperature: float = (
@@ -68,7 +74,8 @@ class APIConfig:
     rate_limit_max_retries: int = 3
     rate_limit_backoff_factor: float = 1.5
     ai_provider: str = "anthropic"  # AI provider: "anthropic" (default) or "openai"
-    anthropic_api_key: str = ""  # Anthropic API key for Claude models
+    # DEF-583: zie openai_api_key — nooit in repr/str van de config.
+    anthropic_api_key: str = field(default="", repr=False)
 
     # Model-specifieke instellingen per AI model type.
     # DEF-458: leeg by default — per-model overrides zijn optioneel; modelnaam +
@@ -459,13 +466,12 @@ class ConfigManager:
     def _load_configuration(self) -> None:
         """Load configuration from files and environment variables."""
         # DEF-572: laad .env vóór het lezen van env-vars. Streamlit-subpagina's
-        # draaien main.py (met diens load_dotenv) NIET als entry-point; zonder
-        # dit leest een directe navigatie naar bv. /synonym_admin een lege env,
-        # cachet een keyless config, en crasht met "API key is required".
-        # Expliciet project-root-pad i.p.v. find_dotenv()-stackwalk (deterministisch
-        # ongeacht CWD). override=False: expliciet gezette env-vars (CI/tests) leiden.
-        env_path = Path(__file__).resolve().parents[2] / ".env"
-        load_dotenv(env_path, override=False)
+        # draaien main.py NIET als entry-point; zonder dit leest een directe
+        # navigatie naar bv. /synonym_admin een lege env, cachet een keyless
+        # config, en crasht met "API key is required".
+        # DEF-573: via de gedeelde loader — deterministisch pad, override=False,
+        # en één keer per proces in plaats van bij elke ConfigManager().
+        load_project_dotenv()
 
         # Load from YAML files
         self._load_from_yaml()

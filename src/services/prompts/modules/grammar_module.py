@@ -120,12 +120,18 @@ class GrammarModule(BasePromptModule):
 
     def get_dependencies(self) -> list[str]:
         """
-        Deze module kan afhankelijk zijn van ExpertiseModule voor woordsoort.
+        Deze module leest `word_type` uit shared state; ExpertiseModule schrijft het.
+
+        DEF-582: dat was een "soft dependency via shared state" met een lege
+        lijst, waardoor beide modules in dezelfde parallelle batch landden. Deze
+        module won dan regelmatig de race, las de default "overig", en liet de
+        woordsoort-specifieke regels uit de prompt weg. De dependency is dus
+        hard, en hoort hier te staan.
 
         Returns:
-            Lijst met optionele dependencies
+            Lijst met dependencies
         """
-        return []  # Soft dependency op expertise module via shared state
+        return ["expertise"]
 
     def _build_basic_grammar_rules(self) -> list[str]:
         """Bouw basis grammaticaregels."""

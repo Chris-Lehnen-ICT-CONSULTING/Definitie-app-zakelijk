@@ -9,7 +9,6 @@ Deze module is verantwoordelijk voor:
 """
 
 import logging
-from datetime import UTC, datetime
 from typing import Any
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
@@ -152,12 +151,19 @@ class DefinitionTaskModule(BasePromptModule):
 
     def get_dependencies(self) -> list[str]:
         """
-        Deze module is afhankelijk van SemanticCategorisationModule en ContextAwarenessModule.
+        Deze module leest shared state van drie andere modules.
+
+        DEF-582: `expertise` stond hier niet bij, terwijl `execute()` wél
+        `word_type` uit shared state leest. Dat ging vandaag goed door toeval:
+        de twee gedeclareerde deps zitten op niveau 0, dus deze module belandt
+        op niveau 1, ná `expertise`. Die garantie is transitief-per-ongeluk en
+        verdwijnt zodra `expertise` zelf een dependency krijgt of iemand een
+        deelverzameling van de modules registreert.
 
         Returns:
-            Lijst met dependency
+            Lijst met dependencies
         """
-        return ["semantic_categorisation", "context_awareness"]
+        return ["expertise", "semantic_categorisation", "context_awareness"]
 
     def _build_bronnen_instructie(self) -> str:
         """DEF-315: Instructie aan model over XML bronnenformat."""
@@ -241,11 +247,12 @@ Stel jezelf deze vragen:
         Returns:
             Metadata sectie
         """
-        timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
-
+        # DEF-581: bewust GEEN timestamp. Een wall-clock in de prompt maakt
+        # dezelfde invoer elke seconde een andere prompt: niet reproduceerbaar,
+        # en het maakte een required check flaky. Traceerbaarheid hoort in de
+        # logging, niet in wat het model te lezen krijgt.
         return f"""#### 📊 METADATA voor traceerbaarheid:
 - Begrip: {begrip}
-- Timestamp: {timestamp}
 - Context beschikbaar: {"Ja" if has_context else "Nee"}
 - Builder versie: Modular Architecture v2.0"""
 

@@ -15,15 +15,6 @@ from typing import Any
 REDACTED = "[REDACTED]"
 
 
-def _mask_token(value: str) -> str:
-    """Redact gevoelige token-achtige waarden, behoudt desgewenst de laatste 4 chars."""
-    if not value:
-        return value
-    if len(value) <= 8:
-        return REDACTED
-    return f"{value[:2]}***{value[-4:]}"
-
-
 def _redact_text(text: str) -> str:
     """Pas maskering toe op bekende patronen in de gegeven tekst."""
     if not text or not isinstance(text, str):
@@ -31,8 +22,28 @@ def _redact_text(text: str) -> str:
 
     s = text
 
-    # 1) OpenAI sleutelpatroon (sk-<alnum>..)
-    s = re.sub(r"sk-[A-Za-z0-9]{16,}", lambda m: _mask_token(m.group(0)), s)
+    # 1) API-sleutels met `sk-`-prefix (OpenAI én Anthropic).
+    #
+    # DEF-583: `-` en `_` horen in de charset. De oude regel eiste 16+ *alfanumerieke*
+    # tekens direct ná `sk-`, waardoor de moderne formaten er ongeredigeerd door
+    # glipten: `sk-proj-...` breekt af na 4 tekens, `sk-ant-api03-...` na 3.
+    # Anthropic is de default provider, dus dat was de sleutel die in productie in
+    # een traceback kon belanden.
+    #
+    # Twee restricties houden de match strak — zonder beide vreet hij logs op,
+    # precies de fout die DEF-580 voor de base64-regel repareerde:
+    #   * de lookbehind voorkomt dat `sk` als achtervoegsel telt: `risk-...`,
+    #     `asterisk-...`, `task-...` zijn geen sleutels;
+    #   * de lookahead eist érgens een alfanumerieke reeks van 12+ tekens. Elke
+    #     echte sleutel heeft zo'n base62-body; `sk-583-api-key-redactie`
+    #     (branchnaam) en `risk-assessment_module` halen dat niet.
+    # Een verzonnen sleutel met een streepje om de vier tekens ontsnapt hieraan,
+    # maar dat formaat bestaat bij OpenAI noch Anthropic.
+    s = re.sub(
+        r"(?<![A-Za-z0-9])sk-(?=[A-Za-z0-9_-]*[A-Za-z0-9]{12})[A-Za-z0-9_-]{16,}",
+        REDACTED,
+        s,
+    )
 
     # 2) Lange hex tokens (32-64 tekens)
     s = re.sub(r"\b[0-9a-fA-F]{32,64}\b", REDACTED, s)
