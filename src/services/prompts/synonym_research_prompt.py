@@ -9,7 +9,8 @@ AIServiceV2.generate_definition(prompt=user, system_prompt=system).
 from __future__ import annotations
 
 import secrets
-import unicodedata
+
+from services.prompts.sanitization import sanitize_prompt_regel
 
 # DEF-571: length-caps op user-input (prompt-injection-hardening). Ruim genoeg
 # voor legitieme juridische invoer, maar begrenzen ongelimiteerde payloads.
@@ -78,24 +79,11 @@ def _bouw_system_prompt(nonce: str) -> str:
 def _sanitize_input(value: str, max_len: int) -> str:
     """Neutraliseer user-input voor plaatsing in een gemarkeerd datablok.
 
-    Vier maatregelen, in deze volgorde:
-    1. NFKC-normalisatie — mapt unicode-lookalikes (U+FF1C ``＜``, U+FF1E ``＞``)
-       naar hun ASCII-equivalent, zodat stap 2 ze ook te pakken krijgt.
-    2. Angle-brackets escapen naar ``&lt;``/``&gt;`` — voorkomt tag-breakout.
-       Bewust escapen en niet strippen: ``"leeftijd < 18 jaar"`` zou anders stil
-       zijn vergelijkingsteken verliezen en het model een verkeerd
-       betekenis-anker geven.
-    3. Alle whitespace naar enkele spaties — zonder newlines kan een payload
-       binnen het datablok geen nep-promptstructuur (lege regel + pseudo-
-       instructie) opbouwen. Elk datablok blijft precies één regel.
-    4. Lengte afkappen.
+    Dunne alias op de gedeelde `sanitize_prompt_regel` (DEF-590 trok de
+    implementatie hierheen zodat de definitie-prompt dezelfde bescherming kreeg).
+    De naam blijft bestaan omdat hij het injectiepunt is van de regressietests.
     """
-    text = unicodedata.normalize("NFKC", value)
-    text = text.replace("<", "&lt;").replace(">", "&gt;")
-    text = " ".join(text.split())
-    if len(text) > max_len:
-        text = text[:max_len]
-    return text
+    return sanitize_prompt_regel(value, max_len)
 
 
 # Het voorbeeld gebruikt bewust GEEN angle-bracket-placeholders: die zouden

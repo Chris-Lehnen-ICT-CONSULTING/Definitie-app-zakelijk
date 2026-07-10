@@ -14,11 +14,30 @@ import logging
 from typing import Any
 
 from services.definition_generator_context import ContextSource, EnrichedContext
+from services.prompts.sanitization import datablok, sanitize_prompt_blok
 from utils.xml_source_formatter import confidence_to_level
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
 logger = logging.getLogger(__name__)
+
+# DEF-590: ruim bemeten — documenten worden elders al samengevat. De cap is een
+# vangnet tegen een prompt die door één upload onwerkbaar groot wordt, geen
+# functionele limiet.
+_MAX_CONTEXT_BLOK_LEN = 20_000
+
+
+def _veilige_context(enriched_context: EnrichedContext) -> str:
+    """De contexttekst, gesaniteerd voor plaatsing in een `context`-datablok.
+
+    `get_all_context_text()` voegt `source.content` samen van elke bron met
+    confidence > 0.7. Daar zit `document_context` (0.9) bij: de tekst van een
+    geüpload PDF of Word-bestand. Die tekst is niet door de gebruiker geschreven
+    en is dus een indirect prompt-injection-kanaal.
+    """
+    return sanitize_prompt_blok(
+        enriched_context.get_all_context_text(), _MAX_CONTEXT_BLOK_LEN
+    )
 
 
 class ContextAwarenessModule(BasePromptModule):
@@ -278,11 +297,13 @@ Refereer context-specifieke verbanden.
         )
         sections.append("")
 
-        # Basis context formatting
-        context_text = enriched_context.get_all_context_text()
+        # Basis context formatting. DEF-590: de contexttekst bevat de inhoud van
+        # geüploade documenten (`source.content`, confidence > 0.7) — tekst die de
+        # gebruiker niet zelf schreef. Sanitiseren en in een datablok.
+        context_text = _veilige_context(enriched_context)
         if context_text:
             sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
-            sections.append(context_text)
+            sections.append(datablok("context", context_text))
         else:
             sections.append("Geen specifieke context beschikbaar.")
 
@@ -311,13 +332,14 @@ Refereer context-specifieke verbanden.
             Minimale context sectie
         """
         enriched_context = context.enriched_context
-        context_text = enriched_context.get_all_context_text()
+        # DEF-590: ook het minimale pad draagt document-content; zelfde behandeling.
+        context_text = _veilige_context(enriched_context)
 
         # DEF-188: Add mechanisms even for minimal context
         mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
         if context_text:
-            base = f"📍 VERPLICHTE CONTEXT: {context_text}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+            base = f"📍 VERPLICHTE CONTEXT:\n{datablok('context', context_text)}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
             return base + mechanisms
 
         return "📍 Context: Geen specifieke context beschikbaar." + mechanisms
