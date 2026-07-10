@@ -55,7 +55,11 @@ class ConfigSection(Enum):
 class APIConfig:
     """API configuratie instellingen voor externe service communicatie."""
 
-    openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
+    # DEF-583: `repr=False` houdt de sleutel uit `repr()`/`str()` van deze
+    # dataclass. Zonder dat lekt `logger.debug("%s", config)` de key volledig:
+    # de PII-filter bewerkt `record.args` en laat niet-string objecten met rust,
+    # waarna de formatter pas ná de filter `str(config)` aanroept.
+    openai_api_key: str = field(default="", repr=False)
     # DEF-458: geen hardcoded model; leeg = resolve via ModelRouter (single source).
     default_model: str = ""
     default_temperature: float = (
@@ -70,7 +74,8 @@ class APIConfig:
     rate_limit_max_retries: int = 3
     rate_limit_backoff_factor: float = 1.5
     ai_provider: str = "anthropic"  # AI provider: "anthropic" (default) or "openai"
-    anthropic_api_key: str = ""  # Anthropic API key for Claude models
+    # DEF-583: zie openai_api_key — nooit in repr/str van de config.
+    anthropic_api_key: str = field(default="", repr=False)
 
     # Model-specifieke instellingen per AI model type.
     # DEF-458: leeg by default — per-model overrides zijn optioneel; modelnaam +
