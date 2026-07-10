@@ -135,12 +135,17 @@ class TemplateModule(BasePromptModule):
 
     def get_dependencies(self) -> list[str]:
         """
-        Deze module is optioneel afhankelijk van semantic categorisation.
+        Deze module leest `word_type` uit shared state; ExpertiseModule schrijft het.
+
+        DEF-582: zonder deze declaratie liep de module parallel aan zijn eigen
+        schrijver en las soms de default "overig". De afhankelijkheid op
+        semantic categorisation loopt via context-metadata (niet via shared
+        state) en wordt door `validate_input` afgevangen.
 
         Returns:
-            Lege lijst (soft dependency via metadata)
+            Lijst met dependencies
         """
-        return []
+        return ["expertise"]
 
     def _get_category_template(self, category: str) -> str | None:
         """
