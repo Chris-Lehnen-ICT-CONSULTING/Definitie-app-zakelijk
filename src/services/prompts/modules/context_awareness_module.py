@@ -14,7 +14,11 @@ import logging
 from typing import Any
 
 from services.definition_generator_context import ContextSource, EnrichedContext
-from services.prompts.sanitization import datablok, sanitize_prompt_blok
+from services.prompts.sanitization import (
+    TAG_CONTEXT,
+    datablok,
+    sanitize_prompt_blok,
+)
 from utils.xml_source_formatter import confidence_to_level
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
@@ -27,17 +31,16 @@ logger = logging.getLogger(__name__)
 _MAX_CONTEXT_BLOK_LEN = 20_000
 
 
-def _veilige_context(enriched_context: EnrichedContext) -> str:
-    """De contexttekst, gesaniteerd voor plaatsing in een `context`-datablok.
+def _veilig_datablok(regels: list[str]) -> str:
+    """Sanitiseer de regels en omhul ze in één `context`-datablok.
 
-    `get_all_context_text()` voegt `source.content` samen van elke bron met
-    confidence > 0.7. Daar zit `document_context` (0.9) bij: de tekst van een
-    geüpload PDF of Word-bestand. Die tekst is niet door de gebruiker geschreven
-    en is dus een indirect prompt-injection-kanaal.
+    Alle drie de contextsecties (rich/moderate/minimal) lopen hierlangs. Dat is
+    de enige plek waar user-data de definitie-prompt in gaat, dus de enige plek
+    die het hoeft te weten. `datablok()` faalt luid als hier ooit iets
+    ongesaniteerds doorheen glipt.
     """
-    return sanitize_prompt_blok(
-        enriched_context.get_all_context_text(), _MAX_CONTEXT_BLOK_LEN
-    )
+    tekst = sanitize_prompt_blok("\n".join(regels), _MAX_CONTEXT_BLOK_LEN)
+    return datablok(TAG_CONTEXT, tekst)
 
 
 class ContextAwarenessModule(BasePromptModule):
@@ -251,24 +254,28 @@ Refereer context-specifieke verbanden.
         )
         sections.append("")
 
-        # Base context met categorieën
-        sections.extend(
+        # DEF-590: alles hieronder is user-data (base_context, de tekst van
+        # geüploade documenten via `sources`, en de afkortingen). Die hoort in
+        # één datablok — onze eigen instructies blijven er bewust buiten.
+        blok_regels: list[str] = list(
             self._format_detailed_base_context(enriched_context.base_context)
         )
 
         # Sources met confidence indicators
         if enriched_context.sources:
-            sections.append("")
-            sections.extend(
+            blok_regels.append("")
+            blok_regels.extend(
                 self._format_sources_with_confidence(enriched_context.sources)
             )
 
         # Expanded terms
         if self.include_abbreviations and enriched_context.expanded_terms:
-            sections.append("")
-            sections.extend(
+            blok_regels.append("")
+            blok_regels.extend(
                 self._format_abbreviations_detailed(enriched_context.expanded_terms)
             )
+
+        sections.append(_veilig_datablok(blok_regels))
 
         # DEF-188: Add implicit context mechanisms
         sections.append("")
@@ -300,20 +307,27 @@ Refereer context-specifieke verbanden.
         # Basis context formatting. DEF-590: de contexttekst bevat de inhoud van
         # geüploade documenten (`source.content`, confidence > 0.7) — tekst die de
         # gebruiker niet zelf schreef. Sanitiseren en in een datablok.
-        context_text = _veilige_context(enriched_context)
-        if context_text:
-            sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
-            sections.append(datablok("context", context_text))
-        else:
-            sections.append("Geen specifieke context beschikbaar.")
+        context_text = enriched_context.get_all_context_text()
 
-        # Afkortingen indien beschikbaar
+        # De afkortingen horen binnen hetzelfde datablok: ook al zijn hun sleutels
+        # whitelist-gebonden, ze zijn afgeleid van user-input en horen niet als
+        # instructie-tekst gelezen te worden.
+        blok_regels: list[str] = []
+        if context_text:
+            blok_regels.append(context_text)
         if self.include_abbreviations and enriched_context.expanded_terms:
-            sections.append("")
-            sections.append("AFKORTINGEN:")
-            sections.extend(
+            if blok_regels:
+                blok_regels.append("")
+            blok_regels.append("AFKORTINGEN:")
+            blok_regels.extend(
                 self._format_abbreviations_simple(enriched_context.expanded_terms)
             )
+
+        if blok_regels:
+            sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
+            sections.append(_veilig_datablok(blok_regels))
+        else:
+            sections.append("Geen specifieke context beschikbaar.")
 
         # DEF-188: Add implicit context mechanisms
         sections.append("")
@@ -333,13 +347,13 @@ Refereer context-specifieke verbanden.
         """
         enriched_context = context.enriched_context
         # DEF-590: ook het minimale pad draagt document-content; zelfde behandeling.
-        context_text = _veilige_context(enriched_context)
+        context_text = enriched_context.get_all_context_text()
 
         # DEF-188: Add mechanisms even for minimal context
         mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
         if context_text:
-            base = f"📍 VERPLICHTE CONTEXT:\n{datablok('context', context_text)}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+            base = f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text])}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
             return base + mechanisms
 
         return "📍 Context: Geen specifieke context beschikbaar." + mechanisms
