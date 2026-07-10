@@ -25,9 +25,13 @@ _MAX_CONTEXT_TOTAAL_LEN = 4000
 #: De werkelijke tag krijgt per call een nonce-suffix (DEF-578).
 DATABLOK_TAGS = ("term", "definitie", "context")
 
-#: Lengte van de nonce in hex-tekens. 8 hex = 32 bits: ruim voldoende, want de
-#: aanvaller heeft één poging per call en ziet de nonce nooit.
-_NONCE_HEX_LEN = 8
+#: Entropie van de nonce. 4 bytes = 32 bits: ruim voldoende, want de aanvaller
+#: heeft één poging per call en ziet de nonce nooit.
+_NONCE_BYTES = 4
+
+#: Lengte van de nonce in hex-tekens; volgt uit `_NONCE_BYTES` en is dus per
+#: constructie in sync met wat `_nieuwe_nonce()` oplevert.
+_NONCE_HEX_LEN = _NONCE_BYTES * 2
 
 
 def _nieuwe_nonce() -> str:
@@ -39,8 +43,11 @@ def _nieuwe_nonce() -> str:
     nonce per call kan de aanvaller de sluit-tag niet formuleren, want hij kent
     hem niet. De mitigatie wordt daarmee structureel in plaats van afhankelijk
     van modelgedrag én van de volledigheid van onze escaping.
+
+    Moet een CSPRNG blijven: een teller of `random` maakt de nonce voorspelbaar
+    en daarmee de hele mitigatie waardeloos.
     """
-    return secrets.token_hex(_NONCE_HEX_LEN // 2)
+    return secrets.token_hex(_NONCE_BYTES)
 
 
 def _tag(naam: str, nonce: str) -> str:
