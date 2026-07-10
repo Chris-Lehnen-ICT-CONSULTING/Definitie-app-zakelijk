@@ -11,16 +11,17 @@ import sys
 import time
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-# Load .env file before any other imports that might need env vars
-# override=True ensures .env takes precedence over any existing shell env vars
-load_dotenv(override=True)
-
 # Add src directory to Python path for proper imports
 src_path = Path(__file__).parent
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
+
+# DEF-573: laad .env vóór alles wat env-vars leest (STRUCTURED_LOGGING, API-keys).
+# Eén gedeelde loader met override=False; ConfigManager gebruikt dezelfde, zodat
+# het gedrag niet meer afhangt van het entry-point.
+from config.dotenv_loader import load_project_dotenv
+
+load_project_dotenv()
 
 import streamlit as st
 
