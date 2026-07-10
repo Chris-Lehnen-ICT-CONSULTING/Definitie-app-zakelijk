@@ -151,12 +151,19 @@ class DefinitionTaskModule(BasePromptModule):
 
     def get_dependencies(self) -> list[str]:
         """
-        Deze module is afhankelijk van SemanticCategorisationModule en ContextAwarenessModule.
+        Deze module leest shared state van drie andere modules.
+
+        DEF-582: `expertise` stond hier niet bij, terwijl `execute()` wél
+        `word_type` uit shared state leest. Dat ging vandaag goed door toeval:
+        de twee gedeclareerde deps zitten op niveau 0, dus deze module belandt
+        op niveau 1, ná `expertise`. Die garantie is transitief-per-ongeluk en
+        verdwijnt zodra `expertise` zelf een dependency krijgt of iemand een
+        deelverzameling van de modules registreert.
 
         Returns:
-            Lijst met dependency
+            Lijst met dependencies
         """
-        return ["semantic_categorisation", "context_awareness"]
+        return ["expertise", "semantic_categorisation", "context_awareness"]
 
     def _build_bronnen_instructie(self) -> str:
         """DEF-315: Instructie aan model over XML bronnenformat."""
