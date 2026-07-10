@@ -7,6 +7,7 @@ Gebruikt DataAggregationService om data te verzamelen zonder directe UI dependen
 
 import json
 import logging
+import re
 from datetime import UTC, datetime, timedelta
 
 UTC = UTC  # Python 3.10 compatibility
@@ -21,6 +22,59 @@ from services.data_aggregation_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+#: Tekens waarmee Excel, LibreOffice Calc en Google Sheets een celwaarde als
+#: formule beginnen te lezen. Tab en carriage return staan erbij omdat sommige
+#: parsers ze als veldscheiding interpreteren en de rest van de cel dan alsnog
+#: als formule aanbieden (DEF-593).
+_FORMULE_PREFIXEN = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _veilige_cel(waarde: Any) -> Any:
+    """Neutraliseer een celwaarde die een spreadsheet als formule zou lezen.
+
+    Prefix met een apostrof: de spreadsheet leest de cel dan als tekst en toont
+    de apostrof niet. Bewust prefixen en niet strippen — de lezer moet de
+    oorspronkelijke tekst nog kunnen zien.
+
+    Niet-strings (getallen, datums) blijven ongemoeid: die zijn geen vector, en
+    een `-5` als `int` moet een `int` blijven. Alleen een string die met een
+    formule-teken begint wordt aangeraakt, dus `"a = b"` blijft intact.
+
+    DEF-593 — het enige geverifieerde pad waarlangs deze app schade buiten
+    zichzelf kan aanrichten: `=HYPERLINK(...)` of een DDE-payload draait op de
+    machine van wie de export opent.
+    """
+    if isinstance(waarde, str) and waarde[:1] in _FORMULE_PREFIXEN:
+        return "'" + waarde
+    return waarde
+
+
+def _veilige_rij(rij: dict[str, Any]) -> dict[str, Any]:
+    """Pas `_veilige_cel` toe op elke waarde in een exportrij."""
+    return {sleutel: _veilige_cel(waarde) for sleutel, waarde in rij.items()}
+
+
+#: Maximale lengte van de begrip-slug in een bestandsnaam. Ruim genoeg om de
+#: naam herkenbaar te houden, kort genoeg om onder de padlimiet te blijven.
+_MAX_SLUG_LEN = 60
+
+
+def _bestandsnaam_slug(begrip: str) -> str:
+    """Maak van een begrip een veilig fragment voor een bestandsnaam.
+
+    DEF-594: het begrip is vrije invoer en ging ongefilterd de bestandsnaam in.
+    `export_dir / "definitie_../../../tmp/pwned_....csv"` resolvet buiten de
+    exportmap — arbitrary file write.
+
+    Een whitelist, geen blacklist: alles wat geen letter, cijfer, `_` of `-` is
+    wordt een underscore. Daarmee sneuvelen `/`, `\\`, `..` en `:` in één keer,
+    en hoeven we niet te raden welk teken op welk platform gevaarlijk is.
+    """
+    slug = begrip.replace(" ", "_").lower()
+    slug = re.sub(r"[^a-z0-9_-]", "_", slug)
+    slug = slug.strip("_")[:_MAX_SLUG_LEN]
+    return slug or "definitie"
 
 
 class ExportFormat(Enum):
@@ -303,7 +357,7 @@ class ExportService:
         """Exporteer naar JSON formaat."""
         # Genereer bestandsnaam
         tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        begrip_clean = export_data.begrip.replace(" ", "_").lower()
+        begrip_clean = _bestandsnaam_slug(export_data.begrip)
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.json"
         pad = self.export_dir / bestandsnaam
 
@@ -374,7 +428,7 @@ class ExportService:
 
         # Genereer bestandsnaam
         tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        begrip_clean = export_data.begrip.replace(" ", "_").lower()
+        begrip_clean = _bestandsnaam_slug(export_data.begrip)
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.csv"
         pad = self.export_dir / bestandsnaam
 
@@ -430,7 +484,7 @@ class ExportService:
                 ),
             }
 
-            writer.writerow(row)
+            writer.writerow(_veilige_rij(row))
 
         logger.info(f"Definitie geëxporteerd naar CSV: {pad}")
         return str(pad)
@@ -628,7 +682,7 @@ class ExportService:
                 for field in fieldnames:
                     if field in row and isinstance(row[field], datetime):
                         row[field] = row[field].isoformat()
-                writer.writerow(row)
+                writer.writerow(_veilige_rij(row))
 
         logger.info(
             f"{len(data)} definities geëxporteerd naar CSV ({level.value}): {path}"
@@ -647,8 +701,10 @@ class ExportService:
         data, fieldnames = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.EXCEL)
 
-        # Format-specific: Excel writing with pandas
-        df = pd.DataFrame(data, columns=fieldnames)
+        # Format-specific: Excel writing with pandas. DEF-593: openpyxl schrijft
+        # de celwaarde rauw, dus Excel leest `=...` als formule — zelfde vector
+        # als bij CSV.
+        df = pd.DataFrame([_veilige_rij(row) for row in data], columns=fieldnames)
         df.to_excel(path, index=False, engine="openpyxl")
 
         logger.info(
