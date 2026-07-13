@@ -38,6 +38,18 @@ _CONTROL_PREFIXEN = ("\t", "\r", "\n")
 _TRIMBARE_KOP = " \t\r\n\v\f ﻿"
 
 
+#: Control-tekens (incl. newline en ESC) waarmee een begrip logregels of de
+#: TXT-header zou kunnen vervalsen (CWE-117). DEF-553 valideert het begrip
+#: alleen op het generatiepad; de CLI en de edit-tab kunnen ze in de database
+#: krijgen, dus de export saneert zelf.
+_CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
+
+
+def _zonder_control_chars(tekst: str) -> str:
+    """Vervang control-tekens door een spatie vóór log- of headergebruik."""
+    return _CONTROL_CHARS.sub(" ", tekst)
+
+
 def _veilige_cel(waarde: Any) -> Any:
     """Neutraliseer een celwaarde die een spreadsheet als formule zou lezen.
 
@@ -615,7 +627,8 @@ class ExportService:
             except Exception as e:
                 # Log maar skip deze definitie - geen hele export laten falen
                 logger.warning(
-                    f"Definitie {d.id} ({d.begrip}) overgeslagen bij export: {e}",
+                    f"Definitie {d.id} ({_zonder_control_chars(d.begrip)}) "
+                    f"overgeslagen bij export: {e}",
                     exc_info=True,
                 )
                 skipped.append(d.begrip)
@@ -635,7 +648,8 @@ class ExportService:
         basis = f"{len(data)} definities geëxporteerd naar {formaat} ({level.value}): {path}"
         if skipped:
             logger.warning(
-                f"{basis} — ONVOLLEDIG: {len(skipped)} overgeslagen: {', '.join(skipped)}"
+                f"{basis} — ONVOLLEDIG: {len(skipped)} overgeslagen: "
+                f"{_zonder_control_chars(', '.join(skipped))}"
             )
         else:
             logger.info(basis)
@@ -817,7 +831,10 @@ class ExportService:
             "=" * 80,
             f"Aantal definities: {len(data)}",
             *(
-                [f"LET OP — overgeslagen door fouten: {', '.join(skipped)}"]
+                [
+                    "LET OP — overgeslagen door fouten: "
+                    f"{_zonder_control_chars(', '.join(skipped))}"
+                ]
                 if skipped
                 else []
             ),
