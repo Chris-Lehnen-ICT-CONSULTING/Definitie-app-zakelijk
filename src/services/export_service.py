@@ -574,7 +574,7 @@ class ExportService:
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel,
-    ) -> tuple[list[dict[str, Any]], list[str]]:
+    ) -> tuple[list[dict[str, Any]], list[str], list[str]]:
         """
         Collect and build export rows for all definitions.
 
@@ -583,15 +583,18 @@ class ExportService:
             level: Export level determining which fields to include
 
         Returns:
-            Tuple of (rows, fieldnames) where:
+            Tuple of (rows, fieldnames, skipped) where:
             - rows: List of dictionaries with export data
             - fieldnames: List of field names in order
+            - skipped: begrippen van definities die door een fout zijn overgeslagen
 
         Raises:
-            No exceptions raised - skips definitions with errors and logs warning
+            No exceptions raised - skips definitions with errors; the caller
+            MUST surface `skipped` so an incomplete export never looks complete
+            (DEF-597)
 
         Example:
-            >>> data, fields = self._prepare_export_data(definitions, ExportLevel.BASIS)
+            >>> data, fields, skipped = self._prepare_export_data(definitions, ExportLevel.BASIS)
             >>> len(fields)  # BASIS has 17 fields
             17
         """
@@ -599,6 +602,7 @@ class ExportService:
         fieldnames = fields_config["definitie"] + fields_config["voorbeelden"]
 
         data = []
+        skipped: list[str] = []
         for d in definitions:
             try:
                 export_data = (
@@ -614,9 +618,27 @@ class ExportService:
                     f"Definitie {d.id} ({d.begrip}) overgeslagen bij export: {e}",
                     exc_info=True,
                 )
+                skipped.append(d.begrip)
                 continue
 
-        return data, fieldnames
+        return data, fieldnames, skipped
+
+    def _log_export_result(
+        self,
+        data: list[dict[str, Any]],
+        skipped: list[str],
+        formaat: str,
+        level: ExportLevel,
+        path: Path,
+    ) -> None:
+        """Meld het exportresultaat; een onvolledige export is een warning."""
+        basis = f"{len(data)} definities geëxporteerd naar {formaat} ({level.value}): {path}"
+        if skipped:
+            logger.warning(
+                f"{basis} — ONVOLLEDIG: {len(skipped)} overgeslagen: {', '.join(skipped)}"
+            )
+        else:
+            logger.info(basis)
 
     def _build_export_row(
         self,
@@ -702,7 +724,7 @@ class ExportService:
         import csv
 
         # Prepare data using helper
-        data, fieldnames = self._prepare_export_data(definitions, level)
+        data, fieldnames, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.CSV)
 
         # Format-specific: CSV writing
@@ -717,9 +739,7 @@ class ExportService:
                         row[field] = row[field].isoformat()
                 writer.writerow(_veilige_rij(row))
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar CSV ({level.value}): {path}"
-        )
+        self._log_export_result(data, skipped, "CSV", level, path)
         return str(path)
 
     def _export_multiple_to_excel(
@@ -731,7 +751,7 @@ class ExportService:
         import pandas as pd
 
         # Prepare data using helper (datetime already timezone-naive in helper)
-        data, fieldnames = self._prepare_export_data(definitions, level)
+        data, fieldnames, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.EXCEL)
 
         # Format-specific: Excel writing with pandas. DEF-593: openpyxl schrijft
@@ -740,9 +760,7 @@ class ExportService:
         df = pd.DataFrame([_veilige_rij(row) for row in data], columns=fieldnames)
         df.to_excel(path, index=False, engine="openpyxl")
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar Excel ({level.value}): {path}"
-        )
+        self._log_export_result(data, skipped, "Excel", level, path)
         return str(path)
 
     def _export_multiple_to_json(
@@ -752,7 +770,7 @@ class ExportService:
     ) -> str:
         """Exporteer meerdere definities naar JSON."""
         # Prepare data using helper
-        data, _ = self._prepare_export_data(definitions, level)
+        data, _, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.JSON)
 
         # Format-specific: JSON structure with metadata
@@ -764,6 +782,7 @@ class ExportService:
                 "format": "json",
                 "export_level": level.value,
                 "total_definitions": len(data),
+                "skipped_definitions": skipped,
             },
             "definities": definities_list,
         }
@@ -779,9 +798,7 @@ class ExportService:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar JSON ({level.value}): {path}"
-        )
+        self._log_export_result(data, skipped, "JSON", level, path)
         return str(path)
 
     def _export_multiple_to_txt(
@@ -791,7 +808,7 @@ class ExportService:
     ) -> str:
         """Exporteer meerdere definities naar TXT."""
         # Prepare data using helper
-        data, _ = self._prepare_export_data(definitions, level)
+        data, _, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.TXT)
 
         # Format-specific: Human-readable text with headers
@@ -799,6 +816,11 @@ class ExportService:
             "DEFINITIE EXPORT",
             "=" * 80,
             f"Aantal definities: {len(data)}",
+            *(
+                [f"LET OP — overgeslagen door fouten: {', '.join(skipped)}"]
+                if skipped
+                else []
+            ),
             f"Export niveau: {level.value.upper()}",
             f"Export datum: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
             "=" * 80,
@@ -877,9 +899,7 @@ class ExportService:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar TXT ({level.value}): {path}"
-        )
+        self._log_export_result(data, skipped, "TXT", level, path)
         return str(path)
 
     def get_export_history(self, begrip: str | None = None) -> list[dict[str, Any]]:
