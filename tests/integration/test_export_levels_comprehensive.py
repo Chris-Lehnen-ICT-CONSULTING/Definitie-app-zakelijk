@@ -243,7 +243,7 @@ class TestExportLevelsFormats:
             definitions=all_defs,
             format=format,
             level=level,
-        )
+        ).path
 
         # Verify file was created
         assert Path(export_path).exists()
@@ -317,7 +317,7 @@ class TestVoorbeeldenDelimiter:
             definitions=[vonnis_def],
             format=ExportFormat.CSV,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         # Re-read CSV and verify semicolons are preserved
         with open(export_path, encoding="utf-8") as f:
@@ -341,7 +341,7 @@ class TestVoorbeeldenDelimiter:
             definitions=[vonnis_def],
             format=ExportFormat.JSON,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         # Verify no parsing errors
         with open(export_path, encoding="utf-8") as f:
@@ -361,7 +361,7 @@ class TestVoorbeeldenDelimiter:
             definitions=[wet_def],
             format=ExportFormat.CSV,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         # Verify export succeeded
         assert Path(export_path).exists()
@@ -411,7 +411,7 @@ class TestDatabaseIntegration:
             definitions=[],
             format=ExportFormat.CSV,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         # Verify file exists but is empty (header only)
         assert Path(export_path).exists()
@@ -436,7 +436,7 @@ class TestDatabaseIntegration:
             definitions=draft_defs,
             format=ExportFormat.CSV,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         # Verify only DRAFT definitions in output
         with open(export_path, encoding="utf-8") as f:
@@ -461,7 +461,7 @@ class TestDatabaseIntegration:
             definitions=[rechtspersoon],
             format=ExportFormat.JSON,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         with open(export_path, encoding="utf-8") as f:
             data = json.load(f)
@@ -524,7 +524,7 @@ class TestFailureScenarios:
             definitions=definitions,
             format=ExportFormat.CSV,
             level=ExportLevel.BASIS,
-        )
+        ).path
 
         # Verify export completed
         assert Path(export_path).exists()
@@ -552,7 +552,7 @@ class TestExportMetadata:
             definitions=definitions,
             format=ExportFormat.JSON,
             level=ExportLevel.COMPLEET,
-        )
+        ).path
 
         with open(export_path, encoding="utf-8") as f:
             data = json.load(f)
@@ -573,7 +573,7 @@ class TestExportMetadata:
             definitions=definitions,
             format=ExportFormat.EXCEL,
             level=ExportLevel.COMPLEET,
-        )
+        ).path
 
         # Verify file is valid Excel
         df = pd.read_excel(export_path, engine="openpyxl")
@@ -655,7 +655,7 @@ class TestLargeDataset:
             definitions=definitions,
             format=ExportFormat.CSV,
             level=ExportLevel.BASIS,
-        )
+        ).path
         duration = time.time() - start
 
         # Should complete in under 10 seconds (generous threshold)
