@@ -7,6 +7,9 @@ Gebruikt DataAggregationService om data te verzamelen zonder directe UI dependen
 
 import json
 import logging
+import re
+import unicodedata
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 UTC = UTC  # Python 3.10 compatibility
@@ -21,6 +24,103 @@ from services.data_aggregation_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+#: Tekens waarmee een spreadsheet een celwaarde als formule begint te lezen.
+_FORMULE_TEKENS = ("=", "+", "-", "@")
+
+#: Control-tekens die sommige parsers als veldscheiding lezen, waarna de rest van
+#: de cel alsnog als formule wordt aangeboden.
+_CONTROL_PREFIXEN = ("\t", "\r", "\n")
+
+#: Whitespace en BOM die vóór een formule-teken kunnen staan. Excel en zeker
+#: LibreOffice trimmen die weg vóór ze de cel evalueren, dus `" =SUM(1)"` is
+#: net zo gevaarlijk als `"=SUM(1)"`. Alleen het eerste teken toetsen laat die
+#: payload er ongemoeid door.
+_TRIMBARE_KOP = " \t\r\n\v\f ﻿"
+
+
+#: Control-tekens (incl. newline en ESC) waarmee een begrip logregels of de
+#: TXT-header zou kunnen vervalsen (CWE-117). DEF-553 valideert het begrip
+#: alleen op het generatiepad; de CLI en de edit-tab kunnen ze in de database
+#: krijgen, dus de export saneert zelf.
+_CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
+
+
+def _zonder_control_chars(tekst: str) -> str:
+    """Vervang control-tekens door een spatie vóór log- of headergebruik."""
+    return _CONTROL_CHARS.sub(" ", tekst)
+
+
+def _veilige_cel(waarde: Any) -> Any:
+    """Neutraliseer een celwaarde die een spreadsheet als formule zou lezen.
+
+    Prefix met een apostrof. In een CSV die Excel importeert werkt dat als
+    tekstmarkering. In een `.xlsx` is het effect anders maar even veilig: pandas
+    schrijft `"=HYPERLINK(1)"` als cel met `data_type="f"` — een échte formule —
+    terwijl `"'=HYPERLINK(1)"` als `data_type="s"` (string) wordt weggeschreven.
+    De apostrof blijft daar wél zichtbaar in de cel; dat is de prijs.
+
+    Bewust prefixen en niet strippen: de lezer moet de oorspronkelijke tekst nog
+    kunnen zien.
+
+    Niet-strings (getallen, datums) blijven ongemoeid: die zijn geen vector, en
+    een `-5` als `int` moet een `int` blijven. Alleen het eerste betekenisvolle
+    teken telt, dus `"a = b"` blijft intact.
+
+    Idempotent: een reeds geprefixte waarde begint met `'`, wat geen formule-
+    teken is, en krijgt er dus geen tweede bij.
+
+    DEF-593.
+    """
+    if not isinstance(waarde, str) or not waarde:
+        return waarde
+
+    # Een leidend control-teken is zelf al gevaarlijk (veldscheiding).
+    if waarde[0] in _CONTROL_PREFIXEN:
+        return "'" + waarde
+
+    # `" =SUM(1)"` en `"﻿=SUM(1)"`: de spreadsheet trimt de kop en evalueert.
+    if waarde.lstrip(_TRIMBARE_KOP)[:1] in _FORMULE_TEKENS:
+        return "'" + waarde
+
+    return waarde
+
+
+def _veilige_rij(rij: dict[str, Any]) -> dict[str, Any]:
+    """Pas `_veilige_cel` toe op elke waarde in een exportrij."""
+    return {sleutel: _veilige_cel(waarde) for sleutel, waarde in rij.items()}
+
+
+#: Maximale lengte van de begrip-slug in een bestandsnaam. Ruim genoeg om de
+#: naam herkenbaar te houden, kort genoeg om onder de padlimiet te blijven.
+_MAX_SLUG_LEN = 60
+
+
+def _bestandsnaam_slug(begrip: str) -> str:
+    """Maak van een begrip een veilig fragment voor een bestandsnaam.
+
+    DEF-594: het begrip is vrije invoer en ging ongefilterd de bestandsnaam in.
+    `export_dir / "definitie_../../../tmp/pwned_....csv"` resolvet buiten de
+    exportmap — arbitrary file write.
+
+    Een whitelist, geen blacklist: alles wat geen letter, cijfer, `_` of `-` is
+    wordt een underscore. Daarmee sneuvelen `/`, `\\`, `..` en `:` in één keer,
+    en hoeven we niet te raden welk teken op welk platform gevaarlijk is.
+
+    Accenten worden eerst getranslitereerd, niet weggegooid: dit is een
+    Nederlandstalige juridische app, en `privé` → `priv` of `coöperatie` →
+    `co_peratie` maakt de bestandsnaam onherkenbaar. Via NFKD splitsen we de
+    combining accents af en laten we de basisletter staan (`é` → `e`).
+
+    Afkappen gebeurt vóór het strippen, zodat de slug nooit op een `_` eindigt.
+    """
+    ontleed = unicodedata.normalize("NFKD", begrip)
+    zonder_accenten = "".join(t for t in ontleed if not unicodedata.combining(t))
+
+    slug = zonder_accenten.replace(" ", "_").lower()
+    slug = re.sub(r"[^a-z0-9_-]", "_", slug)
+    slug = slug[:_MAX_SLUG_LEN].strip("_")
+    return slug or "definitie"
 
 
 class ExportFormat(Enum):
@@ -141,6 +241,25 @@ EXPORT_LEVEL_FIELDS = {
         ],
     },
 }
+
+
+@dataclass(frozen=True)
+class BulkExportResult:
+    """Resultaat van een bulk-export: het pad plus wat er ontbreekt.
+
+    DEF-597: een pad-string alléén liet `skipped` sterven bij de service-grens,
+    waarna de UI het gevráágde aantal als succes meldde. De aanroeper krijgt nu
+    expliciet hoeveel rijen het bestand écht bevat en welke begrippen door een
+    fout zijn overgeslagen.
+    """
+
+    path: str
+    skipped: list[str]
+    exported: int
+
+    @property
+    def is_compleet(self) -> bool:
+        return not self.skipped
 
 
 class ExportService:
@@ -303,7 +422,7 @@ class ExportService:
         """Exporteer naar JSON formaat."""
         # Genereer bestandsnaam
         tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        begrip_clean = export_data.begrip.replace(" ", "_").lower()
+        begrip_clean = _bestandsnaam_slug(export_data.begrip)
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.json"
         pad = self.export_dir / bestandsnaam
 
@@ -374,7 +493,7 @@ class ExportService:
 
         # Genereer bestandsnaam
         tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-        begrip_clean = export_data.begrip.replace(" ", "_").lower()
+        begrip_clean = _bestandsnaam_slug(export_data.begrip)
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.csv"
         pad = self.export_dir / bestandsnaam
 
@@ -430,7 +549,7 @@ class ExportService:
                 ),
             }
 
-            writer.writerow(row)
+            writer.writerow(_veilige_rij(row))
 
         logger.info(f"Definitie geëxporteerd naar CSV: {pad}")
         return str(pad)
@@ -440,7 +559,7 @@ class ExportService:
         definitions: list[DefinitieRecord],
         format: ExportFormat = ExportFormat.CSV,
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """
         Exporteer meerdere definities naar het opgegeven formaat.
 
@@ -450,7 +569,8 @@ class ExportService:
             level: Export detail level (BASIS, UITGEBREID, COMPLEET)
 
         Returns:
-            Pad naar het geëxporteerde bestand
+            BulkExportResult met het bestandspad, het aantal geëxporteerde
+            rijen en de begrippen die door een fout zijn overgeslagen (DEF-597)
         """
         if format == ExportFormat.CSV:
             return self._export_multiple_to_csv(definitions, level)
@@ -487,7 +607,7 @@ class ExportService:
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel,
-    ) -> tuple[list[dict[str, Any]], list[str]]:
+    ) -> tuple[list[dict[str, Any]], list[str], list[str]]:
         """
         Collect and build export rows for all definitions.
 
@@ -496,15 +616,18 @@ class ExportService:
             level: Export level determining which fields to include
 
         Returns:
-            Tuple of (rows, fieldnames) where:
+            Tuple of (rows, fieldnames, skipped) where:
             - rows: List of dictionaries with export data
             - fieldnames: List of field names in order
+            - skipped: begrippen van definities die door een fout zijn overgeslagen
 
         Raises:
-            No exceptions raised - skips definitions with errors and logs warning
+            No exceptions raised - skips definitions with errors; the caller
+            MUST surface `skipped` so an incomplete export never looks complete
+            (DEF-597)
 
         Example:
-            >>> data, fields = self._prepare_export_data(definitions, ExportLevel.BASIS)
+            >>> data, fields, skipped = self._prepare_export_data(definitions, ExportLevel.BASIS)
             >>> len(fields)  # BASIS has 17 fields
             17
         """
@@ -512,6 +635,7 @@ class ExportService:
         fieldnames = fields_config["definitie"] + fields_config["voorbeelden"]
 
         data = []
+        skipped: list[str] = []
         for d in definitions:
             try:
                 export_data = (
@@ -524,12 +648,32 @@ class ExportService:
             except Exception as e:
                 # Log maar skip deze definitie - geen hele export laten falen
                 logger.warning(
-                    f"Definitie {d.id} ({d.begrip}) overgeslagen bij export: {e}",
+                    f"Definitie {d.id} ({_zonder_control_chars(d.begrip)}) "
+                    f"overgeslagen bij export: {e}",
                     exc_info=True,
                 )
+                skipped.append(d.begrip)
                 continue
 
-        return data, fieldnames
+        return data, fieldnames, skipped
+
+    def _log_export_result(
+        self,
+        data: list[dict[str, Any]],
+        skipped: list[str],
+        formaat: str,
+        level: ExportLevel,
+        path: Path,
+    ) -> None:
+        """Meld het exportresultaat; een onvolledige export is een warning."""
+        basis = f"{len(data)} definities geëxporteerd naar {formaat} ({level.value}): {path}"
+        if skipped:
+            logger.warning(
+                f"{basis} — ONVOLLEDIG: {len(skipped)} overgeslagen: "
+                f"{_zonder_control_chars(', '.join(skipped))}"
+            )
+        else:
+            logger.info(basis)
 
     def _build_export_row(
         self,
@@ -610,12 +754,12 @@ class ExportService:
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar CSV."""
         import csv
 
         # Prepare data using helper
-        data, fieldnames = self._prepare_export_data(definitions, level)
+        data, fieldnames, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.CSV)
 
         # Format-specific: CSV writing
@@ -628,42 +772,40 @@ class ExportService:
                 for field in fieldnames:
                     if field in row and isinstance(row[field], datetime):
                         row[field] = row[field].isoformat()
-                writer.writerow(row)
+                writer.writerow(_veilige_rij(row))
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar CSV ({level.value}): {path}"
-        )
-        return str(path)
+        self._log_export_result(data, skipped, "CSV", level, path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def _export_multiple_to_excel(
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar Excel."""
         import pandas as pd
 
         # Prepare data using helper (datetime already timezone-naive in helper)
-        data, fieldnames = self._prepare_export_data(definitions, level)
+        data, fieldnames, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.EXCEL)
 
-        # Format-specific: Excel writing with pandas
-        df = pd.DataFrame(data, columns=fieldnames)
+        # Format-specific: Excel writing with pandas. DEF-593: openpyxl schrijft
+        # de celwaarde rauw, dus Excel leest `=...` als formule — zelfde vector
+        # als bij CSV.
+        df = pd.DataFrame([_veilige_rij(row) for row in data], columns=fieldnames)
         df.to_excel(path, index=False, engine="openpyxl")
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar Excel ({level.value}): {path}"
-        )
-        return str(path)
+        self._log_export_result(data, skipped, "Excel", level, path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def _export_multiple_to_json(
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar JSON."""
         # Prepare data using helper
-        data, _ = self._prepare_export_data(definitions, level)
+        data, _, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.JSON)
 
         # Format-specific: JSON structure with metadata
@@ -675,6 +817,7 @@ class ExportService:
                 "format": "json",
                 "export_level": level.value,
                 "total_definitions": len(data),
+                "skipped_definitions": skipped,
             },
             "definities": definities_list,
         }
@@ -690,19 +833,17 @@ class ExportService:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar JSON ({level.value}): {path}"
-        )
-        return str(path)
+        self._log_export_result(data, skipped, "JSON", level, path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def _export_multiple_to_txt(
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar TXT."""
         # Prepare data using helper
-        data, _ = self._prepare_export_data(definitions, level)
+        data, _, skipped = self._prepare_export_data(definitions, level)
         path = self._generate_export_path(ExportFormat.TXT)
 
         # Format-specific: Human-readable text with headers
@@ -710,6 +851,14 @@ class ExportService:
             "DEFINITIE EXPORT",
             "=" * 80,
             f"Aantal definities: {len(data)}",
+            *(
+                [
+                    "LET OP — overgeslagen door fouten: "
+                    f"{_zonder_control_chars(', '.join(skipped))}"
+                ]
+                if skipped
+                else []
+            ),
             f"Export niveau: {level.value.upper()}",
             f"Export datum: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
             "=" * 80,
@@ -788,10 +937,8 @@ class ExportService:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
 
-        logger.info(
-            f"{len(data)} definities geëxporteerd naar TXT ({level.value}): {path}"
-        )
-        return str(path)
+        self._log_export_result(data, skipped, "TXT", level, path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def get_export_history(self, begrip: str | None = None) -> list[dict[str, Any]]:
         """
