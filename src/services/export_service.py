@@ -9,6 +9,7 @@ import json
 import logging
 import re
 import unicodedata
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 UTC = UTC  # Python 3.10 compatibility
@@ -240,6 +241,25 @@ EXPORT_LEVEL_FIELDS = {
         ],
     },
 }
+
+
+@dataclass(frozen=True)
+class BulkExportResult:
+    """Resultaat van een bulk-export: het pad plus wat er ontbreekt.
+
+    DEF-597: een pad-string alléén liet `skipped` sterven bij de service-grens,
+    waarna de UI het gevráágde aantal als succes meldde. De aanroeper krijgt nu
+    expliciet hoeveel rijen het bestand écht bevat en welke begrippen door een
+    fout zijn overgeslagen.
+    """
+
+    path: str
+    skipped: list[str]
+    exported: int
+
+    @property
+    def is_compleet(self) -> bool:
+        return not self.skipped
 
 
 class ExportService:
@@ -539,7 +559,7 @@ class ExportService:
         definitions: list[DefinitieRecord],
         format: ExportFormat = ExportFormat.CSV,
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """
         Exporteer meerdere definities naar het opgegeven formaat.
 
@@ -549,7 +569,8 @@ class ExportService:
             level: Export detail level (BASIS, UITGEBREID, COMPLEET)
 
         Returns:
-            Pad naar het geëxporteerde bestand
+            BulkExportResult met het bestandspad, het aantal geëxporteerde
+            rijen en de begrippen die door een fout zijn overgeslagen (DEF-597)
         """
         if format == ExportFormat.CSV:
             return self._export_multiple_to_csv(definitions, level)
@@ -733,7 +754,7 @@ class ExportService:
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar CSV."""
         import csv
 
@@ -754,13 +775,13 @@ class ExportService:
                 writer.writerow(_veilige_rij(row))
 
         self._log_export_result(data, skipped, "CSV", level, path)
-        return str(path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def _export_multiple_to_excel(
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar Excel."""
         import pandas as pd
 
@@ -775,13 +796,13 @@ class ExportService:
         df.to_excel(path, index=False, engine="openpyxl")
 
         self._log_export_result(data, skipped, "Excel", level, path)
-        return str(path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def _export_multiple_to_json(
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar JSON."""
         # Prepare data using helper
         data, _, skipped = self._prepare_export_data(definitions, level)
@@ -813,13 +834,13 @@ class ExportService:
             json.dump(json_data, f, ensure_ascii=False, indent=2)
 
         self._log_export_result(data, skipped, "JSON", level, path)
-        return str(path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def _export_multiple_to_txt(
         self,
         definitions: list[DefinitieRecord],
         level: ExportLevel = ExportLevel.BASIS,
-    ) -> str:
+    ) -> BulkExportResult:
         """Exporteer meerdere definities naar TXT."""
         # Prepare data using helper
         data, _, skipped = self._prepare_export_data(definitions, level)
@@ -917,7 +938,7 @@ class ExportService:
             f.write("\n".join(lines))
 
         self._log_export_result(data, skipped, "TXT", level, path)
-        return str(path)
+        return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
 
     def get_export_history(self, begrip: str | None = None) -> list[dict[str, Any]]:
         """
