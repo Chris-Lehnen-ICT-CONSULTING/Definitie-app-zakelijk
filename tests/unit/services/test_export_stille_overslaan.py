@@ -122,11 +122,11 @@ def test_csv_export_bevat_alleen_de_geslaagde_rijen(een_van_de_drie_faalt):
 
     Via de publieke API, zodat de format-dispatch gratis meegetest wordt.
     """
-    pad = een_van_de_drie_faalt.export_multiple_definitions(
+    resultaat = een_van_de_drie_faalt.export_multiple_definitions(
         _drie(), ExportFormat.CSV, ExportLevel.BASIS
     )
 
-    with open(pad, encoding="utf-8") as f:
+    with open(resultaat.path, encoding="utf-8") as f:
         rijen = list(csv.DictReader(f))
     assert [r["begrip"] for r in rijen] == ["eerste", "derde"]
 
@@ -150,8 +150,12 @@ def test_alles_faalt_geeft_geen_stil_geslaagde_lege_export(export_dir):
 
 def test_een_kapotte_definitie_blaast_de_export_niet_op(een_van_de_drie_faalt):
     """De reden dat `continue` er staat, blijft geldig."""
-    pad = een_van_de_drie_faalt._export_multiple_to_csv(_drie(), ExportLevel.BASIS)
-    assert pad, "de export moet een bestand opleveren, ook met één kapotte definitie"
+    resultaat = een_van_de_drie_faalt._export_multiple_to_csv(
+        _drie(), ExportLevel.BASIS
+    )
+    assert (
+        resultaat.path
+    ), "de export moet een bestand opleveren, ook met één kapotte definitie"
 
 
 def test_volledig_geslaagde_export_meldt_niets_overgeslagen(export_dir):
@@ -164,6 +168,21 @@ def test_volledig_geslaagde_export_meldt_niets_overgeslagen(export_dir):
     )
     assert len(data) == 3
     assert overgeslagen == []
+
+
+def test_publieke_api_geeft_het_exportresultaat_terug(een_van_de_drie_faalt):
+    """De UI kan alleen eerlijk rapporteren als de service het resultaat teruggeeft.
+
+    Review 13 juli (High): het pad-string-contract liet `skipped` sterven bij
+    de service-grens, waarna de UI het gevráágde aantal meldde.
+    """
+    resultaat = een_van_de_drie_faalt.export_multiple_definitions(
+        _drie(), ExportFormat.CSV, ExportLevel.BASIS
+    )
+
+    assert resultaat.skipped == ["kapot"]
+    assert resultaat.exported == 2
+    assert Path(resultaat.path).exists()
 
 
 # --- De zichtbaarheidsketen zelf ------------------------------------------------
@@ -212,9 +231,11 @@ def test_onvolledige_export_is_een_warning_volledige_een_info(export_dir, caplog
 
 def test_json_export_info_benoemt_de_overgeslagen_definities(een_van_de_drie_faalt):
     """Het machine-leesbare contract: de export vertelt zélf wat er mist."""
-    pad = een_van_de_drie_faalt._export_multiple_to_json(_drie(), ExportLevel.BASIS)
+    resultaat = een_van_de_drie_faalt._export_multiple_to_json(
+        _drie(), ExportLevel.BASIS
+    )
 
-    with open(pad, encoding="utf-8") as f:
+    with open(resultaat.path, encoding="utf-8") as f:
         inhoud = json.load(f)
     assert inhoud["export_info"]["skipped_definitions"] == ["kapot"]
     assert inhoud["export_info"]["total_definitions"] == 2
@@ -223,16 +244,18 @@ def test_json_export_info_benoemt_de_overgeslagen_definities(een_van_de_drie_faa
 def test_txt_header_waarschuwt_alleen_bij_overgeslagen_definities(
     een_van_de_drie_faalt, export_dir
 ):
-    pad = een_van_de_drie_faalt._export_multiple_to_txt(_drie(), ExportLevel.BASIS)
-    header = Path(pad).read_text(encoding="utf-8").split("-" * 80)[0]
+    resultaat = een_van_de_drie_faalt._export_multiple_to_txt(
+        _drie(), ExportLevel.BASIS
+    )
+    header = Path(resultaat.path).read_text(encoding="utf-8").split("-" * 80)[0]
     assert "LET OP" in header and "kapot" in header
 
     alles_goed = _service(export_dir, Mock(spec=DataAggregationService))
     alles_goed.data_aggregation_service.aggregate_definitie_for_export.return_value = (
         _export_data()
     )
-    pad = alles_goed._export_multiple_to_txt(_drie(), ExportLevel.BASIS)
-    assert "LET OP" not in Path(pad).read_text(
+    resultaat = alles_goed._export_multiple_to_txt(_drie(), ExportLevel.BASIS)
+    assert "LET OP" not in Path(resultaat.path).read_text(
         encoding="utf-8"
     ), "vals alarm is de spiegelregressie"
 
@@ -255,7 +278,7 @@ def test_melding_en_txt_header_zijn_immuun_voor_control_chars_in_begrip(
     service = _service(export_dir, aggregation)
 
     with caplog.at_level(logging.WARNING):
-        pad = service._export_multiple_to_txt([_record(boos)], ExportLevel.BASIS)
+        resultaat = service._export_multiple_to_txt([_record(boos)], ExportLevel.BASIS)
 
     for record in caplog.records:
         boodschap = record.getMessage()
@@ -263,7 +286,7 @@ def test_melding_en_txt_header_zijn_immuun_voor_control_chars_in_begrip(
             "\n" not in boodschap and "\x1b" not in boodschap
         ), f"logregel bevat rauwe control-tekens: {boodschap!r}"
 
-    header = Path(pad).read_text(encoding="utf-8").split("-" * 80)[0]
+    header = Path(resultaat.path).read_text(encoding="utf-8").split("-" * 80)[0]
     regels_met_let_op = [r for r in header.splitlines() if "LET OP" in r]
     assert len(regels_met_let_op) == 1
     assert "\x1b" not in header

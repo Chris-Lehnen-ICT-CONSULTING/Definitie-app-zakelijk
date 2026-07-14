@@ -172,7 +172,7 @@ def _lees_excel_kolom(pad: str, kolom: str) -> list:
 
 def test_meervoudige_csv_neutraliseert_de_payload(service):
     records = [_record("toezichthouder", _PAYLOAD)]
-    pad = service._export_multiple_to_csv(records, ExportLevel.BASIS)
+    pad = service._export_multiple_to_csv(records, ExportLevel.BASIS).path
 
     with open(pad, encoding="utf-8") as f:
         rij = next(iter(csv.DictReader(f)))
@@ -182,7 +182,7 @@ def test_meervoudige_csv_neutraliseert_de_payload(service):
 def test_excel_export_neutraliseert_de_payload(service):
     """pandas schrijft `=...` als cel met data_type 'f' — een échte formule."""
     records = [_record("toezichthouder", _PAYLOAD)]
-    pad = service._export_multiple_to_excel(records, ExportLevel.BASIS)
+    pad = service._export_multiple_to_excel(records, ExportLevel.BASIS).path
 
     waarden = _lees_excel_kolom(pad, "definitie")
     assert waarden[0].startswith("'"), f"Excel lekt: {waarden[0]!r}"
@@ -193,7 +193,7 @@ def test_excel_cel_is_tekst_en_geen_formule(service):
     import openpyxl
 
     records = [_record("toezichthouder", _PAYLOAD)]
-    pad = service._export_multiple_to_excel(records, ExportLevel.BASIS)
+    pad = service._export_multiple_to_excel(records, ExportLevel.BASIS).path
 
     ws = openpyxl.load_workbook(pad).active
     kop = [c.value for c in next(ws.iter_rows(max_row=1))]

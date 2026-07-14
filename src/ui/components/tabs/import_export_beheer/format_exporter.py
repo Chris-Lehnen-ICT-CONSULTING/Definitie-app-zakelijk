@@ -299,12 +299,12 @@ class FormatExporter:
         export_level = level_map.get(level, ExportLevel.BASIS)
 
         # Gebruik ExportService voor export met geselecteerd niveau
-        file_path = self.export_service.export_multiple_definitions(
+        resultaat = self.export_service.export_multiple_definitions(
             definitions=definitions, format=export_format, level=export_level
         )
 
         # Lees bestand en toon download button
-        with open(file_path, "rb") as f:
+        with open(resultaat.path, "rb") as f:
             file_data = f.read()
 
         # Bepaal mime type
@@ -319,10 +319,10 @@ class FormatExporter:
         # Download button
         import os
 
-        filename = os.path.basename(file_path)
+        filename = os.path.basename(resultaat.path)
 
         st.download_button(
-            label=f"📥 Download {format} ({len(definitions)} definitie(s))",
+            label=f"📥 Download {format} ({resultaat.exported} definitie(s))",
             data=file_data,
             file_name=filename,
             mime=mime_type,
@@ -337,8 +337,17 @@ class FormatExporter:
         }
         field_count = field_counts.get(level, "17 velden")
 
-        st.success(
-            f"✅ Export gegenereerd: {len(definitions)} definitie(s) "
-            f"met {level} niveau ({field_count})"
-        )
-        st.info(f"📁 Bestand opgeslagen: {file_path}")
+        # DEF-597: een onvolledige export mag niet als geslaagd overkomen.
+        if resultaat.skipped:
+            st.warning(
+                f"⚠️ Onvolledige export: {resultaat.exported} van "
+                f"{len(definitions)} definitie(s) geëxporteerd "
+                f"met {level} niveau ({field_count}). "
+                f"Overgeslagen door fouten: {', '.join(resultaat.skipped)}"
+            )
+        else:
+            st.success(
+                f"✅ Export gegenereerd: {resultaat.exported} definitie(s) "
+                f"met {level} niveau ({field_count})"
+            )
+        st.info(f"📁 Bestand opgeslagen: {resultaat.path}")
