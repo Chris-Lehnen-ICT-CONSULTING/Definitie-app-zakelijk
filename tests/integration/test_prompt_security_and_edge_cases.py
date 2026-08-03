@@ -155,30 +155,41 @@ class TestPromptEdgeCases:
         assert "UNKNOWN_CATEGORY CATEGORIE" not in prompt
 
     def test_special_characters_in_begrip(self):
-        """Test special characters in begrip."""
+        """Test special characters in begrip.
+
+        Sinds DEF-590 gaat het begrip door `sanitize_prompt_regel`: `&`, `<`
+        en `>` worden HTML-geëscaped tegen tag-breakout en entity-planting
+        (zie services/prompts/sanitization.py). Alle overige tekens blijven
+        letterlijk behouden. De verwachte weergave staat hier hardcoded —
+        bewust niet via de sanitizer berekend, anders toetst de test de
+        implementatie tegen zichzelf.
+        """
         builder = ModularPromptBuilder()
-        special_chars = [
-            "test/slash",
-            "test\\backslash",
-            "test|pipe",
-            "test&ampersand",
-            "test@at",
-            "test#hash",
-            "test$dollar",
-            "test%percent",
-            "test^caret",
-            "test*asterisk",
-            "test(parentheses)",
-            "test{curly}",
-            "test[square]",
-            "test<angle>",
+        cases = [
+            ("test/slash", "test/slash"),
+            ("test\\backslash", "test\\backslash"),
+            ("test|pipe", "test|pipe"),
+            ("test&ampersand", "test&amp;ampersand"),
+            ("test@at", "test@at"),
+            ("test#hash", "test#hash"),
+            ("test$dollar", "test$dollar"),
+            ("test%percent", "test%percent"),
+            ("test^caret", "test^caret"),
+            ("test*asterisk", "test*asterisk"),
+            ("test(parentheses)", "test(parentheses)"),
+            ("test{curly}", "test{curly}"),
+            ("test[square]", "test[square]"),
+            ("test<angle>", "test&lt;angle&gt;"),
         ]
 
-        for begrip in special_chars:
+        for begrip, verwacht in cases:
             context = create_test_context()
             prompt = builder.build_prompt(begrip, context, UnifiedGeneratorConfig())
-            assert begrip in prompt  # Special chars should be preserved
+            assert verwacht in prompt
             assert len(prompt) > 1000  # Full prompt generated
+            if begrip != verwacht:
+                # Tag-breakout blijft dicht: rauwe vorm mag niet terugkomen.
+                assert begrip not in prompt
 
     def test_mixed_case_categories(self):
         """Test case sensitivity in category handling."""

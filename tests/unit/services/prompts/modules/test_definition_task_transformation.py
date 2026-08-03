@@ -474,7 +474,16 @@ class TestDefinitionTaskEdgeCases:
         assert "CONSTRUCTIE GUIDE" in result.content or "Bouw" in result.content.lower()
 
     def test_special_characters_handled(self):
-        """Test handling of special characters in begrip."""
+        """Test handling of special characters in begrip.
+
+        DEF-590: `&` wordt sinds de prompt-injection-hardening geëscaped naar
+        `&amp;`. Dat is bewust — zonder `&`-escaping passeert een geplante
+        entity (`&lt;/context&gt;`) ongewijzigd en kan het model hem als
+        sluit-tag decoderen. De betekenis blijft behouden (het model decodeert
+        `&amp;` terug naar `&`); alleen de letterlijke bytes verschillen.
+        Deze test bewaakt dus dat de tekens niet gemangeld of weggegooid worden,
+        niet dat ze byte-identiek zijn.
+        """
         context = MagicMock(spec=ModuleContext)
         context.begrip = "e-mail & web-based"
         context.enriched_context = None
@@ -485,4 +494,6 @@ class TestDefinitionTaskEdgeCases:
         result = module.execute(context)
 
         assert result.success is True
-        assert context.begrip in result.content  # Special chars preserved
+        assert "e-mail &amp; web-based" in result.content
+        # Het koppelteken en de woorden blijven onaangetast.
+        assert "e-mail" in result.content and "web-based" in result.content

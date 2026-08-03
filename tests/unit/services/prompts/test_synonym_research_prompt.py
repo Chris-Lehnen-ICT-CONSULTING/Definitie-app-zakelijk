@@ -12,8 +12,8 @@ from services.prompts.synonym_research_prompt import (
     _MAX_TERM_LEN,
     _NONCE_HEX_LEN,
     DATABLOK_TAGS,
-    _sanitize_input,
     build_synonym_research_prompt,
+    sanitize_prompt_regel,
 )
 
 # DEF-578: de datablok-tags dragen per call een onvoorspelbaar achtervoegsel,
@@ -172,7 +172,9 @@ def test_geraden_sluit_tag_zonder_nonce_sluit_het_datablok_niet(monkeypatch):
     import services.prompts.synonym_research_prompt as srp
 
     # Escaping uit: alleen afkappen, geen &lt;/&gt;-vervanging.
-    monkeypatch.setattr(srp, "_sanitize_input", lambda v, max_len: str(v)[:max_len])
+    monkeypatch.setattr(
+        srp, "sanitize_prompt_regel", lambda v, max_len: str(v)[:max_len]
+    )
     # Nonce vastgezet: anders zou een echte nonce van `00000000` (kans 2^-32) de
     # geraden sluit-tag alsnog laten matchen en de test willekeurig laten falen.
     # De guard moet deterministisch zijn, niet bijna-altijd-groen.
@@ -245,7 +247,7 @@ def test_length_cap_context_item():
     ],
 )
 def test_sanitize_edge_cases(invoer, verwacht):
-    assert _sanitize_input(invoer, 200) == verwacht
+    assert sanitize_prompt_regel(invoer, 200) == verwacht
 
 
 def test_aantal_context_items_is_begrensd():
