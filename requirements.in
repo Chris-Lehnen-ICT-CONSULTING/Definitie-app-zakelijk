@@ -18,6 +18,9 @@ defusedxml==0.7.1
 distro==1.9.0
 docstring-parser==0.18.0
 frozenlist==1.8.0
+# Transitief via streamlit; expliciet gepind op de fix voor GHSA-94p4-4cq8-9g67
+# (env-var-exfiltratie via Remote.create). Zie DEF-599.
+gitpython==3.1.55
 idna==3.18
 Jinja2==3.1.6
 jiter==0.16.0
