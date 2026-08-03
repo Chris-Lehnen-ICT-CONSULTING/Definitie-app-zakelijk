@@ -6,12 +6,12 @@ pytest-mock>=3.15.1
 pytest-randomly>=4.1.0
 pytest-xdist>=3.5.0
 pytest-timeout>=2.4.0
-coverage[toml]>=7.15.0
+coverage[toml]>=7.15.2
 # DEF-430/442: gate-bepalende tools exact gepind voor reproduceerbare lint/type
 # + complexity/mypy-ratchet-baselines. Dit bestand is de single source — de
 # quality-gates.yml-jobs installeren hieruit (DEF-442). Bij bump: de pre-commit rev
 # meebumpen (bewaakt door check_tool_pins, CI-gate) en de baselines herverifiëren.
-ruff==0.15.20
+ruff==0.16.1
 mypy==2.3.0
 types-PyYAML==6.0.12.20260724
 # black exact-gepind op de format-autoriteit (.pre-commit-config.yaml rev) — DEF-432.
@@ -22,19 +22,19 @@ isort>=8.0.1
 
 # Documentation
 mkdocs>=1.5.0
-mkdocs-material>=9.7.6
+mkdocs-material>=9.7.7
 
 # Code quality
-pre-commit>=3.6.0
+pre-commit>=4.6.1
 pylint>=4.0.6
 
 # Testing utilities
-faker>=40.28.1
+faker>=40.36.0
 factory-boy>=3.3.0
 responses>=0.26.2
 freezegun>=1.4.0
 
 # Performance testing
 pytest-benchmark>=4.0.0
-locust>=2.44.3
+locust>=2.46.2
 memory-profiler>=0.61.0
