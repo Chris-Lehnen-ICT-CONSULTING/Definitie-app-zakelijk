@@ -11,9 +11,21 @@ Deze module is verantwoordelijk voor:
 import logging
 from typing import Any
 
+from services.prompts.sanitization import (
+    DATABLOK_AFSPRAAK,
+    TAG_BEGRIP,
+    VeiligeTekst,
+    datablok,
+    sanitize_prompt_regel,
+)
+
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
 logger = logging.getLogger(__name__)
+
+# DEF-590: een begrip is een term, geen tekst. Ruim genoeg voor samenstellingen,
+# krap genoeg om een geplakte payload af te kappen.
+_MAX_BEGRIP_LEN = 200
 
 
 class DefinitionTaskModule(BasePromptModule):
@@ -74,7 +86,9 @@ class DefinitionTaskModule(BasePromptModule):
             ModuleOutput met finale instructies
         """
         try:
-            begrip = context.begrip
+            # DEF-590: vanaf hier is `begrip` prompt-tekst. Sanitiseer bij de
+            # rand, zodat geen enkele sectie hieronder de rauwe waarde ziet.
+            begrip = sanitize_prompt_regel(context.begrip, _MAX_BEGRIP_LEN)
 
             # Haal gedeelde informatie op
             word_type = context.get_shared("word_type", "onbekend")
@@ -97,6 +111,11 @@ class DefinitionTaskModule(BasePromptModule):
 
             # DEF-315: XML bronnen instructie
             sections.append(self._build_bronnen_instructie())
+
+            # DEF-590: verklaart de `begrip`- en `context`-datablokken tot DATA.
+            # Eigen sectie, vlak vóór de opdracht: het model leest de afspraak
+            # vlak voordat het de data gebruikt.
+            sections.append(DATABLOK_AFSPRAAK)
 
             # Definitie opdracht
             sections.append(self._build_task_assignment(begrip))
@@ -176,10 +195,17 @@ class DefinitionTaskModule(BasePromptModule):
             "Verwijs naar bronnen via hun nr attribuut met [Bron nr]."
         )
 
-    def _build_task_assignment(self, begrip: str) -> str:
-        """Bouw de definitie opdracht."""
+    def _build_task_assignment(self, begrip: VeiligeTekst) -> str:
+        """Bouw de definitie opdracht.
+
+        Het begrip staat in een `begrip`-datablok (DEF-590). De bijbehorende
+        DATA-afspraak staat als eigen sectie hierboven — niet hierin, want dan
+        verdwijnt het constructieve werkwoord uit de kop van de opdracht.
+        `begrip` is al gesaniteerd door `_build_content`.
+        """
         return f"""#### ✏️ Definitieopdracht:
-Formuleer nu de definitie van **{begrip}** volgens deze specificaties:"""
+Formuleer nu de definitie van het begrip in dit datablok, volgens deze specificaties:
+{datablok(TAG_BEGRIP, begrip)}"""
 
     def _build_checklist(self, ontological_category: str | None) -> str:
         """

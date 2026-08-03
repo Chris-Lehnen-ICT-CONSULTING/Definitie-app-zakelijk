@@ -9,7 +9,8 @@ AIServiceV2.generate_definition(prompt=user, system_prompt=system).
 from __future__ import annotations
 
 import secrets
-import unicodedata
+
+from services.prompts.sanitization import sanitize_prompt_regel
 
 # DEF-571: length-caps op user-input (prompt-injection-hardening). Ruim genoeg
 # voor legitieme juridische invoer, maar begrenzen ongelimiteerde payloads.
@@ -75,29 +76,6 @@ def _bouw_system_prompt(nonce: str) -> str:
     )
 
 
-def _sanitize_input(value: str, max_len: int) -> str:
-    """Neutraliseer user-input voor plaatsing in een gemarkeerd datablok.
-
-    Vier maatregelen, in deze volgorde:
-    1. NFKC-normalisatie — mapt unicode-lookalikes (U+FF1C ``＜``, U+FF1E ``＞``)
-       naar hun ASCII-equivalent, zodat stap 2 ze ook te pakken krijgt.
-    2. Angle-brackets escapen naar ``&lt;``/``&gt;`` — voorkomt tag-breakout.
-       Bewust escapen en niet strippen: ``"leeftijd < 18 jaar"`` zou anders stil
-       zijn vergelijkingsteken verliezen en het model een verkeerd
-       betekenis-anker geven.
-    3. Alle whitespace naar enkele spaties — zonder newlines kan een payload
-       binnen het datablok geen nep-promptstructuur (lege regel + pseudo-
-       instructie) opbouwen. Elk datablok blijft precies één regel.
-    4. Lengte afkappen.
-    """
-    text = unicodedata.normalize("NFKC", value)
-    text = text.replace("<", "&lt;").replace(">", "&gt;")
-    text = " ".join(text.split())
-    if len(text) > max_len:
-        text = text[:max_len]
-    return text
-
-
 # Het voorbeeld gebruikt bewust GEEN angle-bracket-placeholders: die zouden
 # botsen met de datablok-tags die de system-prompt tot DATA verklaart.
 _JSON_INSTRUCTIE = (
@@ -138,7 +116,7 @@ def build_synonym_research_prompt(
     Raises:
         ValueError: Als de term na sanitisatie leeg is.
     """
-    veilige_term = _sanitize_input(term, _MAX_TERM_LEN)
+    veilige_term = sanitize_prompt_regel(term, _MAX_TERM_LEN)
     if not veilige_term:
         raise ValueError(
             "term is leeg na sanitisatie; een prompt zonder term is zinloos"
@@ -154,12 +132,12 @@ def build_synonym_research_prompt(
         f"<{term_tag}>{veilige_term}</{term_tag}>",
     ]
     if definitie:
-        veilige_definitie = _sanitize_input(definitie, _MAX_DEFINITIE_LEN)
+        veilige_definitie = sanitize_prompt_regel(definitie, _MAX_DEFINITIE_LEN)
         def_tag = _tag("definitie", nonce)
         regels.append(f"<{def_tag}>{veilige_definitie}</{def_tag}>")
     if juridische_context:
         veilige_items = [
-            _sanitize_input(c, _MAX_CONTEXT_ITEM_LEN)
+            sanitize_prompt_regel(c, _MAX_CONTEXT_ITEM_LEN)
             for c in juridische_context[:_MAX_CONTEXT_ITEMS]
             if c
         ]
