@@ -13,7 +13,7 @@ coverage[toml]>=7.15.0
 # meebumpen (bewaakt door check_tool_pins, CI-gate) en de baselines herverifiëren.
 ruff==0.15.20
 mypy==1.18.2
-types-PyYAML==6.0.12.20250915
+types-PyYAML==6.0.12.20260724
 # black exact-gepind op de format-autoriteit (.pre-commit-config.yaml rev) — DEF-432.
 # 26.5.1 is CVE-vrij (25.11.0 had GHSA-3936-cmfr-pm3m/CVE-2026-32274). Bewaakt door
 # scripts/check_tool_pins.py zodat de pin en de pre-commit-rev niet driften.
