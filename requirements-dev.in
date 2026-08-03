@@ -12,7 +12,7 @@ coverage[toml]>=7.15.0
 # quality-gates.yml-jobs installeren hieruit (DEF-442). Bij bump: de pre-commit rev
 # meebumpen (bewaakt door check_tool_pins, CI-gate) en de baselines herverifiëren.
 ruff==0.15.20
-mypy==1.18.2
+mypy==2.3.0
 types-PyYAML==6.0.12.20260724
 # black exact-gepind op de format-autoriteit (.pre-commit-config.yaml rev) — DEF-432.
 # 26.5.1 is CVE-vrij (25.11.0 had GHSA-3936-cmfr-pm3m/CVE-2026-32274). Bewaakt door
