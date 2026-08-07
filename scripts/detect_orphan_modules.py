@@ -57,7 +57,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
+
+# Waar we naar importers zoeken (een import híer telt als "leeft").
 SCAN_ROOTS = ("src", "tests", "scripts")
+
+# Waar we naar wezen zoeken. `scripts/` staat erbij omdat dode tooling
+# net zo goed meelift in refactors als dode productiecode -- DEF-609 vond
+# daar een script dat al maanden crashte op een verwijderde import.
+CANDIDATE_ROOTS = ("src", "scripts")
 
 BASELINE_PATH = Path(__file__).with_name("orphan_modules_baseline.txt")
 ALLOWLIST_PATH = Path(__file__).with_name("allowlist_orphan_modules.txt")
@@ -200,6 +207,127 @@ def has_main_block(path: Path) -> bool:
     return False
 
 
+# Statements die op moduleniveau geen "uitvoering" zijn: definities, imports,
+# docstrings, constanten en type-aliassen.
+_DECLARATIEF = (
+    ast.Import,
+    ast.ImportFrom,
+    ast.FunctionDef,
+    ast.AsyncFunctionDef,
+    ast.ClassDef,
+    ast.Assign,
+    ast.AnnAssign,
+    ast.Expr,  # docstrings (verder gefilterd op ast.Constant)
+    ast.Pass,
+)
+
+
+def has_toplevel_code(path: Path) -> bool:
+    """True als de module uitvoerbare code op moduleniveau heeft.
+
+    Een script dat je start met ``python pad/naar/script.py`` of
+    ``streamlit run script.py`` heeft vaak geen ``__main__``-guard: het doet
+    zijn werk gewoon op moduleniveau. Zulke bestanden zijn entrypoints, geen
+    wezen -- ``debug_session_state.py`` roept bijvoorbeeld direct ``st.title()``
+    aan.
+
+    Alleen echte uitvoering telt: imports, definities, constanten en
+    docstrings blijven declaratief.
+    """
+    tree = parse(path)
+    if tree is None:
+        return False
+    for node in tree.body:
+        if isinstance(node, ast.Expr):
+            # Docstring of losse constante -> declaratief; een call wel niet.
+            if isinstance(node.value, ast.Constant):
+                continue
+            return True
+        if not isinstance(node, _DECLARATIEF):
+            return True
+    return False
+
+
+def broken_src_imports(path: Path, root: Path) -> tuple[list[str], list[str]]:
+    """Imports naar een ``src``-module die niet (meer) bestaat.
+
+    Geeft ``(runtime, type_only)`` terug -- twee verschillende ernstniveaus:
+
+    * **runtime**: een gewone import. Het bestand crasht met
+      ``ModuleNotFoundError`` zodra het wordt uitgevoerd of geimporteerd.
+    * **type_only**: een import onder ``if TYPE_CHECKING:``. Die draait niet,
+      dus er crasht niets, maar de annotatie verwijst naar het niets. Mypy
+      vangt dat hier niet: de services-gate draait met
+      ``--ignore-missing-imports``.
+
+    Een wees en een kapot bestand zijn verschillende problemen: DEF-609 vond
+    een script met een ``__main__``-block -- dus geen wees -- dat al maanden
+    crashte omdat de geimporteerde module in een eerdere opruiming was
+    verdwenen. Alleen wezen tellen zou dat gemist hebben.
+
+    Er wordt uitsluitend gekeken naar imports waarvan het eerste pad-segment
+    een bestaand top-level item in ``src/`` is; externe pakketten blijven
+    buiten beschouwing (die horen bij de dependency-audit).
+    """
+    src = root / "src"
+    tree = parse(path)
+    if tree is None:
+        return [], []
+
+    def hoort_bij_src(dotted: str) -> bool:
+        top = dotted.split(".", maxsplit=1)[0]
+        return (src / top).is_dir() or (src / f"{top}.py").exists()
+
+    def bestaat(dotted: str) -> bool:
+        target = src / Path(*dotted.split("."))
+        return target.with_suffix(".py").exists() or (target / "__init__.py").exists()
+
+    # Verzamel de regelnummers die onder `if TYPE_CHECKING:` vallen.
+    type_only_regels: set[int] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.If):
+            continue
+        test = node.test
+        is_tc = (isinstance(test, ast.Name) and test.id == "TYPE_CHECKING") or (
+            isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING"
+        )
+        if is_tc:
+            for kind in ast.walk(node):
+                type_only_regels.add(kind.lineno) if hasattr(kind, "lineno") else None
+
+    runtime: list[str] = []
+    type_only: list[str] = []
+
+    def registreer(dotted: str, lineno: int) -> None:
+        (type_only if lineno in type_only_regels else runtime).append(dotted)
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            if node.level == 0 and node.module and hoort_bij_src(node.module):
+                if not bestaat(node.module):
+                    registreer(node.module, node.lineno)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                if hoort_bij_src(alias.name) and not bestaat(alias.name):
+                    registreer(alias.name, node.lineno)
+    return sorted(set(runtime)), sorted(set(type_only))
+
+
+def is_entrypoint(path: Path, rel: str) -> bool:
+    """Een module die vanaf de commandline gestart wordt, is geen wees.
+
+    De top-level-code-heuristiek geldt **alleen voor** ``scripts/``. Daar is
+    uitvoering op moduleniveau de normale vorm voor een tool zonder
+    ``__main__``-guard. In ``src/`` zou dezelfde heuristiek te ruim zijn: een
+    configuratiemodule met bijvoorbeeld ``__all__.append(...)`` op moduleniveau
+    is geen entrypoint maar gewoon een module -- die moet als wees zichtbaar
+    blijven.
+    """
+    if has_main_block(path):
+        return True
+    return rel.startswith("scripts/") and has_toplevel_code(path)
+
+
 def exported_symbols(path: Path) -> list[str]:
     """Publieke top-level namen (class/def/constante)."""
     tree = parse(path)
@@ -239,19 +367,31 @@ def find_orphans(
     root: Path | None = None,
     scan_roots: tuple[str, ...] | None = None,
     min_expected: int | None = None,
-) -> tuple[list[tuple[str, int]], list[str]]:
-    """Geef (wezen, cli_entrypoints) terug.
+    candidate_roots: tuple[str, ...] | None = None,
+) -> tuple[
+    list[tuple[str, int]],
+    list[str],
+    list[tuple[str, list[str]]],
+    list[tuple[str, list[str]]],
+]:
+    """Geef (wezen, cli_entrypoints, kapotte_imports, type_only_kapot) terug.
 
     CLI-entrypoints worden vanaf de commandline gestart en hebben per definitie
     geen importer; ze tellen niet als wees maar worden wel apart gemeld, zodat
     een ongebruikte tool niet ongemerkt blijft rondslingeren.
+
+    Kapotte imports staan hier los van: een bestand met een ``__main__``-block
+    is geen wees, maar kan wel crashen op een module die in een eerdere
+    opruiming is verdwenen. Die twee categorieen overlappen niet.
 
     ``root``/``scan_roots``/``min_expected`` zijn parameters zodat tests tegen
     een tmp-boom kunnen draaien zonder module-globals te monkeypatchen.
     """
     root = root if root is not None else ROOT
     roots = scan_roots if scan_roots is not None else SCAN_ROOTS
-    src = root / "src"
+    kandidaat_mappen = (
+        candidate_roots if candidate_roots is not None else CANDIDATE_ROOTS
+    )
 
     allowlist = read_allowlist()
     all_files = iter_python_files(roots, root=root, min_expected=min_expected)
@@ -259,8 +399,16 @@ def find_orphans(
 
     orphans: list[tuple[str, int]] = []
     entrypoints: list[str] = []
+    broken: list[tuple[str, list[str]]] = []
+    type_only_broken: list[tuple[str, list[str]]] = []
 
-    for path in sorted(src.rglob("*.py")):
+    kandidaten = sorted(
+        p
+        for m in kandidaat_mappen
+        if (root / m).exists()
+        for p in (root / m).rglob("*.py")
+    )
+    for path in kandidaten:
         if (
             SKIP_DIR_PARTS & set(path.relative_to(root).parts)
             or path.name == "__init__.py"
@@ -269,6 +417,13 @@ def find_orphans(
         rel = path.relative_to(root).as_posix()
         if is_exempt(rel, allowlist):
             continue
+
+        # Onafhankelijk van wees-zijn: verwijst dit bestand naar een verdwenen module?
+        runtime_kapot, type_kapot = broken_src_imports(path, root)
+        if runtime_kapot:
+            broken.append((rel, runtime_kapot))
+        if type_kapot:
+            type_only_broken.append((rel, type_kapot))
 
         importers = {f for f in modules.get(path.stem, set()) if f != rel}
         if importers:
@@ -287,14 +442,14 @@ def find_orphans(
                 print(f"  LEEFT  {rel}  <- {', '.join(sorted(symbol_importers)[:3])}")
             continue
 
-        if has_main_block(path):
+        if is_entrypoint(path, rel):
             entrypoints.append(rel)
             continue
 
         loc = len(path.read_text(encoding="utf-8", errors="replace").splitlines())
         orphans.append((rel, loc))
 
-    return orphans, entrypoints
+    return orphans, entrypoints, broken, type_only_broken
 
 
 def read_baseline() -> int:
@@ -342,21 +497,53 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    orphans, entrypoints = find_orphans(verbose=args.verbose)
+    orphans, entrypoints, broken, type_only_broken = find_orphans(verbose=args.verbose)
     current = len(orphans)
     total_loc = sum(loc for _, loc in orphans)
 
-    print(f"Verweesde modules in src/: {current}  ({total_loc} regels)")
+    print(f"Verweesde modules: {current}  ({total_loc} regels)")
     for rel, loc in sorted(orphans, key=lambda x: -x[1]):
         print(f"  {rel}  ({loc}r)")
 
-    if entrypoints:
+    if entrypoints and args.verbose:
         print(
             f"\nCLI-entrypoints zonder importer: {len(entrypoints)} "
             "(tellen niet als wees -- worden vanaf de commandline gestart)"
         )
         for rel in entrypoints:
             print(f"  {rel}")
+    elif entrypoints:
+        print(
+            f"\n{len(entrypoints)} CLI-entrypoints zonder importer "
+            "(niet als wees geteld; --verbose toont de lijst)"
+        )
+
+    # Waarschuwing, niet blokkerend: een TYPE_CHECKING-import draait niet, dus
+    # er crasht niets. De annotatie wijst wel naar het niets, en de mypy-gate
+    # ziet het niet (die draait met --ignore-missing-imports).
+    if type_only_broken:
+        print(
+            f"\nLET OP: {len(type_only_broken)} bestand(en) hebben een "
+            "TYPE_CHECKING-import naar een src-module die niet bestaat. "
+            "Crasht niet, maar de annotatie klopt niet:"
+        )
+        for rel, mods in type_only_broken:
+            print(f"  {rel}")
+            for mod in mods:
+                print(f"      -> {mod}")
+
+    # Blokkerend: dit is geen schuld-met-baseline maar kapotte code.
+    if broken:
+        print(
+            f"\nFAIL: {len(broken)} bestand(en) importeren een src-module die "
+            "niet bestaat -- deze crashen bij uitvoering:",
+            file=sys.stderr,
+        )
+        for rel, mods in broken:
+            print(f"  {rel}", file=sys.stderr)
+            for mod in mods:
+                print(f"      -> {mod}", file=sys.stderr)
+        return 1
 
     if args.update:
         # De baseline belooft "mag alleen dalen"; dwing dat hier af, anders

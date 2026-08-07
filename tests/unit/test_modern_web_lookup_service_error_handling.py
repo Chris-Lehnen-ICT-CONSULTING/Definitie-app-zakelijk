@@ -1,5 +1,7 @@
 """Tests for defensive paths in ModernWebLookupService."""
 
+import asyncio
+
 import pytest
 
 from services.interfaces import LookupRequest, LookupResult, WebSource
@@ -96,3 +98,57 @@ def test_to_contract_dict_logs_metadata_errors(service, caplog):
     assert contract["snippet"].startswith("Definitie")
     assert "Kon juridische metadata niet verrijken" in caplog.text
     assert "Kon ECLI-boost niet toepassen" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_lookup_filtert_baseexception_uit_gather(monkeypatch, caplog):
+    """Een geannuleerde source-lookup mag niet als resultaat doorstromen.
+
+    Regressie (DEF-609): de filtering gebruikte `isinstance(result, Exception)`,
+    maar `asyncio.gather(return_exceptions=True)` levert ook BaseException-
+    subklassen op en `asyncio.CancelledError` erft sinds Python 3.8 van
+    BaseException. Het exception-object belandde daardoor in `valid_results` en
+    werd doorgegeven aan de juridische ranking.
+
+    Deze test faalt als de check terugvalt naar `Exception`.
+    """
+    goed = LookupResult(
+        term="foo",
+        source=WebSource(name="Wikipedia", url="", confidence=1.0),
+        definition="Een geldige definitie.",
+        success=True,
+    )
+
+    async def _ok(*_args, **_kwargs):
+        return goed
+
+    async def _cancelled(*_args, **_kwargs):
+        raise asyncio.CancelledError
+
+    def _setup(self):
+        self.sources = {
+            "wikipedia": SourceConfig(name="Wikipedia", base_url="", api_type="rest"),
+            "kapot": SourceConfig(name="Kapot", base_url="", api_type="rest"),
+        }
+
+    monkeypatch.setattr(ModernWebLookupService, "_setup_sources", _setup)
+    svc = ModernWebLookupService()
+    svc._debug_attempts = []  # type: ignore[attr-defined]
+    svc._classify_context_tokens = lambda _ctx: ([], [], [])  # type: ignore[attr-defined]
+    # Beperk tot de twee gemockte bronnen; de echte lijst bevat namen die deze
+    # fixture niet definieert.
+    svc._determine_sources = lambda _req: ["wikipedia", "kapot"]  # type: ignore[method-assign]
+
+    async def _dispatch(term, source_name, request):
+        return await (_cancelled() if source_name == "kapot" else _ok())
+
+    monkeypatch.setattr(svc, "_lookup_source", _dispatch)
+
+    caplog.set_level("WARNING")
+    resultaten = await svc.lookup(LookupRequest(term="foo", timeout=5))
+
+    assert all(
+        isinstance(r, LookupResult) for r in resultaten
+    ), "een BaseException lekte door de filtering heen"
+    assert not any(isinstance(r, BaseException) for r in resultaten)
+    assert "Source lookup failed" in caplog.text
