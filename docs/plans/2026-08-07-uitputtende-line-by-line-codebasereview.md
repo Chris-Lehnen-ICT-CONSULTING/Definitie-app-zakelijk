@@ -79,6 +79,7 @@ docs/reviews/2026-08-07-line-by-line/
 │   ├── symbol-inventory.csv
 │   ├── line-coverage.csv
 │   ├── batch-membership.csv
+│   ├── batch-index.csv
 │   ├── review-infrastructure.csv
 │   ├── tooling-snapshot.md
 │   ├── untracked-inventory.csv
@@ -129,13 +130,19 @@ symbol_id,path,path_b64,qualified_name,kind,start_line,start_col,end_line,end_co
 `line-coverage.csv`:
 
 ```csv
-path,path_b64,start_line,end_line,classification,batch,status,reviewer,verified_by,finding_ids,notes
+path,path_b64,reviewed_object_id,start_line,end_line,classification,batch,status,reviewer,verified_by,finding_ids,notes
 ```
 
 `batch-membership.csv`:
 
 ```csv
-batch,path,path_b64,start_line,end_line,symbol_id,role,reviewer,verified_by
+batch,path,path_b64,reviewed_object_id,start_line,end_line,symbol_id,role,reviewer,verified_by
+```
+
+`batch-index.csv`:
+
+```csv
+batch,status,reviewer,verified_by,manifest_sha256,membership_sha256
 ```
 
 `review-infrastructure.csv`:
@@ -144,18 +151,26 @@ batch,path,path_b64,start_line,end_line,symbol_id,role,reviewer,verified_by
 path,tooling_sha,blob_sha,physical_lines,status,reviewer,verified_by,test_result,notes
 ```
 
+`untracked-inventory.csv`:
+
+```csv
+path,path_b64,source_root,captured_at,content_sha256,file_type,bytes,scope_tier,status,reviewer,verified_by,owner,notes
+```
+
 `findings.csv`:
 
 ```csv
 finding_id,priority,certainty,review_area,title,path,start_line,end_line,evidence,reproduction,recommendation,status,reviewer,verified_by
 ```
 
-Toegestane statussen zijn: `pending`, `in_review`, `reviewed`, `verified`, `blocked` en `out_of_scope`. `out_of_scope` vereist een concrete reden in `exclusions.csv`. Bij `--require-final` is `blocked` niet verenigbaar met een 100%-claim.
+Toegestane statussen zijn: `pending`, `in_review`, `reviewed`, `verified`, `blocked` en `out_of_scope`. `out_of_scope` is alleen toegestaan voor tier-F generated/vendor/binaire inhoud en vereist een concrete reden, approval en twee onafhankelijke reviewers. Bij `--require-final` is `blocked` niet verenigbaar met een 100%-claim. Iedere regel- en batchrij pint `reviewed_object_id` aan het object-ID uit de immutable base-tree.
 
 De applicatiescope gebruikt uitsluitend `REVIEW_BASE_SHA`. Reviewtools die daarna
 ontstaan krijgen een afzonderlijke immutable `TOOLING_SHA` en worden via
 `review-infrastructure.csv` beoordeeld; zij worden nooit achteraf in de
-applicatie-inventaris gemengd.
+applicatie-inventaris gemengd. Na de eerste scopefreeze wordt de commit met de
+immutable untracked-metadata vastgelegd als `SCOPE_SHA`; de finale validator
+vergelijkt de actuele reviewstatus tegen exact die committed set.
 
 ## 3. Batchmodel en capaciteit
 
@@ -224,6 +239,9 @@ git commit -m "docs(DEF-XX): start exhaustive codebase review"
 - duplicate blobs op verschillende paden afzonderlijke rijen blijven;
 - object-ID, Git-mode, objecttype, bytes en regeldefinitie vanuit Git-objecten
   worden berekend en werkboomdrift de base-inventaris niet verandert;
+- line- en batchrijen het daadwerkelijk beoordeelde base-object via
+  `reviewed_object_id` pinnen en een gewijzigde checkout niet als bewijsbron kan
+  gelden;
 - Python parsing `tokenize.detect_encoding` gebruikt en AST alle classes,
   sync/async functies, methods, nested definities, decorated ranges,
   property getter/setter/deleter, overloads/herdefinities en lambda’s opneemt;
@@ -236,7 +254,8 @@ git commit -m "docs(DEF-XX): start exhaustive codebase review"
 - `verified` onmogelijk is zonder verschillende `reviewer` en `verified_by`.
 - findings geldige enums, foreign keys, ranges en bidirectionele referenties hebben;
 - untracked alleen via `git ls-files --others --exclude-standard -z` wordt
-  geïnventariseerd en ignored/secrets nooit inhoudelijk worden gescand.
+  geïnventariseerd, met expliciete bronwerkboom, capturetijd en contenthash, en
+  ignored/secrets nooit inhoudelijk worden gescand.
 
 **Step 2:** Run de tests vóór implementatie:
 
@@ -286,6 +305,7 @@ De resulterende commit wordt in Task 3 immutable vastgelegd als `TOOLING_SHA`.
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/symbol-inventory.csv`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/line-coverage.csv`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/batch-membership.csv`
+- Create: `docs/reviews/2026-08-07-line-by-line/scope/batch-index.csv`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/review-infrastructure.csv`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/tooling-snapshot.md`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/untracked-inventory.csv`
@@ -297,7 +317,8 @@ rechtstreeks uit de immutable base-tree, niet uit index of worktree:
 ```bash
 python3 docs/reviews/2026-08-07-line-by-line/tools/build_inventory.py \
   --base-sha "$REVIEW_BASE_SHA" \
-  --output-dir docs/reviews/2026-08-07-line-by-line/scope
+  --output-dir docs/reviews/2026-08-07-line-by-line/scope \
+  --untracked-root /Users/chrislehnen/Projecten/Definitie-app
 ```
 
 **Step 2:** Vergelijk aantallen met onafhankelijke base-treecommando’s:
@@ -323,9 +344,20 @@ Expected: de CSV-aantallen sluiten exact aan.
 **Step 5:** Leg de aparte `TOOLING_SHA` vast, genereer de review-
 infrastructuurinventaris en bewijs dat application- en tooling-scope niet mengen.
 
-**Step 6:** Run de validator.
+**Step 6:** Run de non-final validator tegen dezelfde expliciete bronwerkboom:
+
+```bash
+python3 docs/reviews/2026-08-07-line-by-line/tools/validate_inventory.py \
+  --base-sha "$REVIEW_BASE_SHA" \
+  --review-dir docs/reviews/2026-08-07-line-by-line \
+  --untracked-root /Users/chrislehnen/Projecten/Definitie-app
+```
 
 Expected: PASS voor scopevolledigheid; reviewstatus mag nog `pending` zijn.
+
+**Step 7:** Commit uitsluitend de scopefreeze en leg de volledige resulterende
+commit-SHA vast als `SCOPE_SHA`. De finale validator gebruikt deze commit als
+trust anchor voor de exacte untracked set en immutable metadata.
 
 ### Task 4: Leg de baseline vast
 
@@ -379,6 +411,11 @@ Expected: ieder bestand krijgt `pass`, `fail`, `timeout`, `skip` of `blocked`; g
 range-rijen hebben, maar iedere regel en ieder symbool heeft exact één primaire
 eigenaar.
 
+**Step 2b:** Genereer `batch-index.csv`. Pin per batch de SHA-256 van het
+manifest en de canonieke, volgorde-onafhankelijke SHA-256 van alle membership-
+rijen. De batchindex bevat status, eerste reviewer en onafhankelijke verifier;
+een leeg of inhoudelijk afwijkend manifest faalt.
+
 **Step 3:** Gebruik deze reviewvolgorde:
 
 1. entrypoints, build, dependencies en configuratie;
@@ -411,10 +448,12 @@ primaire batch hebben, zonder gaten/overlap en binnen de code-/databatchlimieten
 
 **Step 1:** Selecteer een representatieve pilot met één entrypoint, één service, één databasebestand, één UI-component en hun tests.
 
-**Step 2:** Lees ieder bestand volledig met regelnummers:
+**Step 2:** Lees ieder bestand volledig met regelnummers, rechtstreeks uit het
+`reviewed_object_id` van de immutable base-tree en nooit impliciet uit de
+checkout:
 
 ```bash
-nl -ba <pad> | sed -n '<start>,<einde>p'
+git cat-file blob <reviewed_object_id> | nl -ba | sed -n '<start>,<einde>p'
 ```
 
 **Step 3:** Controleer per symbool callers en referenties:
@@ -597,6 +636,8 @@ Herhaal per testbatch:
 python3 docs/reviews/2026-08-07-line-by-line/tools/validate_inventory.py \
   --base-sha "$REVIEW_BASE_SHA" \
   --review-dir docs/reviews/2026-08-07-line-by-line \
+  --untracked-root /Users/chrislehnen/Projecten/Definitie-app \
+  --scope-sha "$SCOPE_SHA" \
   --require-final
 ```
 
