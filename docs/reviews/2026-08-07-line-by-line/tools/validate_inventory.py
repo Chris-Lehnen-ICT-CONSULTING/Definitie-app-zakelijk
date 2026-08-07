@@ -368,12 +368,14 @@ def _validate_batch_membership(
     batch_paths: dict[str, set[str]] = defaultdict(set)
     batch_lines: Counter[str] = Counter()
     batch_symbols: Counter[str] = Counter()
+    line_owner_ranges: dict[tuple[str, str], list[tuple[int, int]]] = defaultdict(list)
+    symbol_owners: list[tuple[str, str, str, int]] = []
     for index, row in enumerate(rows, start=2):
         label = f"batch membership row {index}"
         batch = row.get("batch", "")
         path_b64 = row.get("path_b64", "")
         role = row.get("role", "")
-        if not re.fullmatch(r"BATCH-\d{3,}", batch):
+        if not re.fullmatch(r"BATCH-\d{3}", batch):
             errors.append(f"{label}: invalid batch ID")
         if path_b64 not in files:
             errors.append(f"{label}: unknown path")
@@ -388,6 +390,7 @@ def _validate_batch_membership(
             if values is not None:
                 line_groups[path_b64].append(values)
                 start, end = values
+                line_owner_ranges[(batch, path_b64)].append(values)
                 batch_lines[batch] += 0 if start == end == 0 else end - start + 1
             if row.get("symbol_id"):
                 errors.append(f"{label}: line owner must not name a symbol")
@@ -405,6 +408,11 @@ def _validate_batch_membership(
                     errors.append(f"symbol owner range drift: {symbol_id}")
                 symbol_counts[symbol_id] += 1
                 batch_symbols[batch] += 1
+                try:
+                    symbol_start = int(symbol.get("start_line", ""))
+                except ValueError:
+                    symbol_start = -1
+                symbol_owners.append((symbol_id, batch, path_b64, symbol_start))
         else:
             errors.append(f"{label}: invalid role")
         reviewer = row.get("reviewer", "").strip()
@@ -432,6 +440,14 @@ def _validate_batch_membership(
             errors.append(f"batch symbol ownership gap: {symbol_id}")
         elif count > 1:
             errors.append(f"batch symbol ownership overlap: {symbol_id}")
+    for symbol_id, batch, path_b64, symbol_start in symbol_owners:
+        if not any(
+            start <= symbol_start <= end
+            for start, end in line_owner_ranges.get((batch, path_b64), [])
+        ):
+            errors.append(
+                f"symbol owner batch does not contain symbol start line: {symbol_id}"
+            )
 
     for batch, path_ids in batch_paths.items():
         if not (review_dir / "batches" / f"{batch}.md").is_file():
@@ -457,7 +473,7 @@ def _validate_line_batch_foreign_keys(
     memberships: list[dict[str, str]],
     require_final: bool,
 ) -> list[str]:
-    if not require_final:
+    if not memberships and not require_final:
         return []
     owners = {
         (
@@ -503,9 +519,45 @@ def _validate_batch_index(
     for batch in sorted(actual.keys() - expected_ids):
         errors.append(f"unexpected batch index: {batch}")
 
+    numbered_ids = sorted(expected_ids)
+    contiguous_ids = [
+        f"BATCH-{number:03d}" for number in range(1, len(expected_ids) + 1)
+    ]
+    if numbered_ids != contiguous_ids:
+        errors.append(
+            "batch IDs are not contiguous: "
+            f"expected {contiguous_ids}, got {numbered_ids}"
+        )
+
+    manifest_dir = review_dir / "batches"
+    manifest_names = {path.name for path in manifest_dir.glob("BATCH-*.md")}
+    expected_names = {f"{batch}.md" for batch in expected_ids}
+    for name in sorted(manifest_names - expected_names):
+        errors.append(f"unexpected batch manifest filename: {name}")
+    for name in sorted(expected_names - manifest_names):
+        errors.append(f"batch manifest missing: {name.removesuffix('.md')}")
+
     grouped: dict[str, list[dict[str, str]]] = defaultdict(list)
+    path_reviewers: dict[str, set[tuple[str, str]]] = defaultdict(set)
     for membership in memberships:
         grouped[membership.get("batch", "")].append(membership)
+        path_reviewers[membership.get("path_b64", "")].add(
+            (
+                membership.get("reviewer", "").strip(),
+                membership.get("verified_by", "").strip(),
+            )
+        )
+    for path_b64, reviewer_pairs in path_reviewers.items():
+        if len(reviewer_pairs) > 1:
+            path = next(
+                (
+                    row.get("path", path_b64)
+                    for row in memberships
+                    if row.get("path_b64") == path_b64
+                ),
+                path_b64,
+            )
+            errors.append(f"multi-batch file has inconsistent reviewers: {path}")
     for batch in sorted(expected_ids & actual.keys()):
         row = actual[batch]
         status = row.get("status", "")
@@ -519,26 +571,41 @@ def _validate_batch_index(
             errors.append(f"batch index row requires two reviewers: {batch}")
         elif reviewer and verifier and reviewer.casefold() == verifier.casefold():
             errors.append(f"batch index row requires a different reviewer: {batch}")
+        for membership in grouped[batch]:
+            if membership.get("reviewer", "").strip() != reviewer:
+                errors.append(f"reviewer differs between index and membership: {batch}")
+            if membership.get("verified_by", "").strip() != verifier:
+                errors.append(
+                    f"verified_by differs between index and membership: {batch}"
+                )
 
         manifest = review_dir / "batches" / f"{batch}.md"
         try:
             content = manifest.read_bytes()
         except OSError:
             continue
+        decoded = ""
         if not content:
             errors.append(f"batch manifest is empty: {batch}")
         else:
             try:
-                heading = content.decode("utf-8").splitlines()[0]
+                decoded = content.decode("utf-8")
+                heading = decoded.splitlines()[0]
             except UnicodeDecodeError:
                 heading = ""
             if heading != f"# {batch}":
                 errors.append(f"batch manifest heading mismatch: {batch}")
+        for section in builder.MANIFEST_REQUIRED_SECTIONS:
+            if section not in decoded:
+                errors.append(f"batch manifest section missing: {batch}: {section}")
         if row.get("manifest_sha256") != hashlib.sha256(content).hexdigest():
             errors.append(f"batch manifest_sha256 drift: {batch}")
         membership_digest = builder.canonical_membership_sha256(grouped[batch])
         if row.get("membership_sha256") != membership_digest:
             errors.append(f"batch membership_sha256 drift: {batch}")
+        manifest_digest = re.search(r"Membership-SHA256: `([0-9a-f]{64})`", decoded)
+        if manifest_digest is None or manifest_digest.group(1) != membership_digest:
+            errors.append(f"batch manifest membership digest mismatch: {batch}")
     return errors
 
 
@@ -913,7 +980,7 @@ def validate_inventory(
         repo,
         base_sha,
         untracked_root=untracked_root,
-        include_untracked=not require_final,
+        include_untracked=not require_final and scope_sha is None,
     )
 
     files = _read_csv(scope / "file-inventory.csv", builder.FILE_FIELDS, errors)
@@ -963,16 +1030,17 @@ def validate_inventory(
     errors.extend(_validate_line_batch_foreign_keys(lines, batches, require_final))
     errors.extend(_validate_batch_index(batch_index, batches, review, require_final))
     comparison: str | None
-    if require_final:
+    if scope_sha is not None:
         expected_untracked: list[dict[str, str]] = []
         comparison = None
-        if not scope_sha:
-            errors.append("SCOPE_SHA is required for final validation")
-        else:
-            frozen = _read_frozen_untracked(repo, review, scope_sha, errors)
-            if frozen is not None:
-                expected_untracked = frozen
-                comparison = "frozen"
+        frozen = _read_frozen_untracked(repo, review, scope_sha, errors)
+        if frozen is not None:
+            expected_untracked = frozen
+            comparison = "frozen"
+    elif require_final:
+        expected_untracked = []
+        comparison = None
+        errors.append("SCOPE_SHA is required for final validation")
     else:
         expected_untracked = expected["untracked"]
         comparison = "live"
