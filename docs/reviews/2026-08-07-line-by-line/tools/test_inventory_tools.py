@@ -2666,6 +2666,28 @@ def test_safe_batch_writer_refuses_stale_manifest_without_partial_write(
     assert (review_dir / "scope" / "batch-index.csv").read_bytes() == before
 
 
+def test_safe_batch_writer_uses_lf_only_csv(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, _ = inventory_tools
+    plan = builder.plan_batches(
+        synthetic_inventory(builder, [("src/security/a.py", "A", 3, False)]),
+        base_sha="a" * 40,
+        pilot_paths=(),
+    )
+
+    builder.write_batch_plan(plan, tmp_path, update=False)
+
+    for filename in (
+        "line-coverage.csv",
+        "batch-membership.csv",
+        "batch-index.csv",
+    ):
+        content = (tmp_path / "scope" / filename).read_bytes()
+        assert b"\r\n" not in content, filename
+        assert content.endswith(b"\n"), filename
+
+
 def test_existing_review_planner_never_regenerates_full_inventory(
     inventory_tools: tuple[ModuleType, ModuleType],
     tmp_path: Path,
