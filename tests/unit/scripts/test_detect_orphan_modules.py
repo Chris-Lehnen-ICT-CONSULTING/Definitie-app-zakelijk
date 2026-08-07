@@ -32,13 +32,22 @@ def _repo(tmp_path: Path, files: dict[str, str]) -> Path:
     return tmp_path
 
 
+def _run(root: Path, candidate_roots: tuple[str, ...] = ("src",)):
+    return dom.find_orphans(
+        root=root,
+        scan_roots=("src", "scripts"),
+        candidate_roots=candidate_roots,
+        min_expected=1,
+    )
+
+
 def _orphans(root: Path) -> set[str]:
-    orphans, _ = dom.find_orphans(root=root, scan_roots=("src",), min_expected=1)
+    orphans, _, _, _ = _run(root)
     return {rel for rel, _ in orphans}
 
 
 def _entrypoints(root: Path) -> set[str]:
-    _, eps = dom.find_orphans(root=root, scan_roots=("src",), min_expected=1)
+    _, eps, _, _ = _run(root)
     return set(eps)
 
 
@@ -185,6 +194,126 @@ class TestFailClosed:
         gevonden = dom.iter_python_files(("src",), root=tmp_path, min_expected=1)
 
         assert [p.name for p in gevonden] == ["echt.py"]
+
+
+class TestKapotteImports:
+    """Een kapot bestand is iets anders dan een wees (DEF-609).
+
+    Het script dat deze check aanleidde had een `__main__`-block -- dus geen
+    wees -- maar crashte al maanden op een verwijderde import.
+    """
+
+    def test_runtime_import_naar_verdwenen_module_faalt(self, tmp_path: Path):
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                "src/bestaat.py": "X = 1\n",
+                "scripts/tool.py": (
+                    "from services.weg import Iets\n"
+                    "\n"
+                    'if __name__ == "__main__":\n'
+                    "    print(Iets)\n"
+                ),
+                # maak services/ een bestaand top-level item in src/
+                "src/services/__init__.py": "",
+            },
+        )
+        _, _, broken, type_only = _run(root, candidate_roots=("src", "scripts"))
+
+        assert [rel for rel, _ in broken] == ["scripts/tool.py"]
+        assert broken[0][1] == ["services.weg"]
+        assert type_only == []
+
+    def test_type_checking_import_is_alleen_waarschuwing(self, tmp_path: Path):
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                "src/services/__init__.py": "",
+                "src/gebruiker.py": (
+                    "from typing import TYPE_CHECKING\n"
+                    "\n"
+                    "if TYPE_CHECKING:\n"
+                    "    from services.weg import Iets\n"
+                    "\n"
+                    "def f() -> None:\n"
+                    "    return None\n"
+                ),
+                "src/app.py": "from gebruiker import f\n",
+            },
+        )
+        _, _, broken, type_only = _run(root)
+
+        assert broken == [], "TYPE_CHECKING draait niet, dus geen runtime-crash"
+        assert [rel for rel, _ in type_only] == ["src/gebruiker.py"]
+
+    def test_bestaande_import_is_geen_probleem(self, tmp_path: Path):
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                "src/doel.py": "X = 1\n",
+                "src/app.py": "from doel import X\n",
+            },
+        )
+        _, _, broken, type_only = _run(root)
+        assert broken == []
+        assert type_only == []
+
+    def test_externe_pakketten_worden_genegeerd(self, tmp_path: Path):
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                "src/app.py": "import nonexistent_external_pkg\n",
+            },
+        )
+        _, _, broken, _ = _run(root)
+        assert broken == [], "externe deps horen bij de dependency-audit"
+
+
+class TestScriptsAlsKandidaat:
+    """`scripts/` telt mee als kandidaatmap, met eigen entrypoint-regels."""
+
+    def test_script_met_toplevel_code_is_entrypoint(self, tmp_path: Path):
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                "scripts/tool.py": 'print("ik doe iets")\n',
+            },
+        )
+        orphans, eps, _, _ = _run(root, candidate_roots=("src", "scripts"))
+        assert {rel for rel, _ in orphans} == set()
+        assert "scripts/tool.py" in eps
+
+    def test_script_met_alleen_definities_is_wees(self, tmp_path: Path):
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                "scripts/helpers.py": "def hulp():\n    return 1\n",
+            },
+        )
+        orphans, _, _, _ = _run(root, candidate_roots=("src", "scripts"))
+        assert {rel for rel, _ in orphans} == {"scripts/helpers.py"}
+
+    def test_toplevel_code_in_src_maakt_geen_entrypoint(self, tmp_path: Path):
+        """In src/ is top-level code een smell, geen entrypoint-signaal."""
+        root = _repo(
+            tmp_path,
+            {
+                "src/__init__.py": "",
+                # patroon uit context_options.py: __all__.append(...)
+                "src/config_module.py": (
+                    'NAMEN = ["a"]\n__all__ = ["NAMEN"]\n__all__.append("X")\n'
+                ),
+            },
+        )
+        orphans, eps, _, _ = _run(root)
+        assert {rel for rel, _ in orphans} == {"src/config_module.py"}
+        assert eps == []
 
 
 class TestHasMainBlock:
