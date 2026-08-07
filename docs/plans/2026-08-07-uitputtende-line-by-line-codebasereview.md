@@ -18,7 +18,7 @@ De aantallen worden bij uitvoering opnieuw tegen `REVIEW_BASE_SHA` vastgesteld:
 
 | Categorie | Huidige telling |
 |---|---:|
-| Alle tracked bestanden | 1.883 |
+| Alle tracked bestanden | 1.884 |
 | Pythonbestanden totaal | 870 |
 | Python in `src/` | 372 bestanden, 96.308 regels, 2.836 functies/methoden |
 | Python in `tests/` | 354 bestanden, 83.960 regels, 4.408 functies/methoden |
@@ -53,7 +53,9 @@ De term “ieder bestand” betekent:
 Een bestand is pas volledig beoordeeld wanneer:
 
 - de blob-SHA overeenkomt met de scope-inventaris;
-- alle fysieke regels zijn gelezen of als lege/commentaar/generated/data-regel zijn geclassificeerd;
+- mode, objecttype, object-ID, grootte en inhoud overeenkomen met de base-tree;
+- `line-coverage.csv` de fysieke regels 1..N exact partitioneert zonder gaten,
+  overlap of ranges buiten het bestand; binaries krijgen één equivalente reviewrij;
 - elke module, class, functie, async functie, methode, property en geneste functie in de symboleninventaris staat;
 - imports, publieke contracten, callers en callees zijn gevolgd;
 - correctness, randgevallen, foutafhandeling, security, privacy, logging, resources, concurrency, performance, typen en onderhoudbaarheid zijn beoordeeld;
@@ -75,6 +77,10 @@ docs/reviews/2026-08-07-line-by-line/
 │   ├── snapshot.md
 │   ├── file-inventory.csv
 │   ├── symbol-inventory.csv
+│   ├── line-coverage.csv
+│   ├── batch-membership.csv
+│   ├── review-infrastructure.csv
+│   ├── tooling-snapshot.md
 │   ├── untracked-inventory.csv
 │   └── exclusions.csv
 ├── tools/
@@ -107,16 +113,35 @@ docs/reviews/2026-08-07-line-by-line/
 
 ### Verplichte CSV-schema’s
 
-`file-inventory.csv`:
+`file-inventory.csv` (`path_b64` is de lossless representatie; `path` is alleen
+de leesbare UTF-8-weergave):
 
 ```csv
-path,blob_sha,file_type,bytes,physical_lines,logical_lines,scope_tier,batch,status,reviewer,verified_by,reviewed_at,finding_ids,notes
+path,path_b64,git_mode,object_type,object_id,file_type,bytes,physical_lines,logical_lines,scope_tier,status,reviewer,verified_by,reviewed_at,finding_ids,notes
 ```
 
 `symbol-inventory.csv`:
 
 ```csv
-symbol_id,path,qualified_name,kind,start_line,end_line,parent_symbol,complexity,status,reviewer,verified_by,test_ids,finding_ids,notes
+symbol_id,path,path_b64,qualified_name,kind,start_line,start_col,end_line,end_col,parent_symbol,decorators,complexity,status,reviewer,verified_by,test_ids,finding_ids,notes
+```
+
+`line-coverage.csv`:
+
+```csv
+path,path_b64,start_line,end_line,classification,batch,status,reviewer,verified_by,finding_ids,notes
+```
+
+`batch-membership.csv`:
+
+```csv
+batch,path,path_b64,start_line,end_line,symbol_id,role,reviewer,verified_by
+```
+
+`review-infrastructure.csv`:
+
+```csv
+path,tooling_sha,blob_sha,physical_lines,status,reviewer,verified_by,test_result,notes
 ```
 
 `findings.csv`:
@@ -125,7 +150,12 @@ symbol_id,path,qualified_name,kind,start_line,end_line,parent_symbol,complexity,
 finding_id,priority,certainty,review_area,title,path,start_line,end_line,evidence,reproduction,recommendation,status,reviewer,verified_by
 ```
 
-Toegestane statussen zijn: `pending`, `in_review`, `reviewed`, `verified`, `blocked` en `out_of_scope`. `out_of_scope` vereist een concrete reden in `exclusions.csv`.
+Toegestane statussen zijn: `pending`, `in_review`, `reviewed`, `verified`, `blocked` en `out_of_scope`. `out_of_scope` vereist een concrete reden in `exclusions.csv`. Bij `--require-final` is `blocked` niet verenigbaar met een 100%-claim.
+
+De applicatiescope gebruikt uitsluitend `REVIEW_BASE_SHA`. Reviewtools die daarna
+ontstaan krijgen een afzonderlijke immutable `TOOLING_SHA` en worden via
+`review-infrastructure.csv` beoordeeld; zij worden nooit achteraf in de
+applicatie-inventaris gemengd.
 
 ## 3. Batchmodel en capaciteit
 
@@ -187,13 +217,26 @@ git commit -m "docs(DEF-XX): start exhaustive codebase review"
 
 **Step 1:** Schrijf tests die eisen dat:
 
-- ieder pad uit `git ls-files` exact één file-row krijgt;
-- blob-SHA’s tegen `REVIEW_BASE_SHA` worden berekend;
-- Python AST alle sync/async functies, methods en nested functies opneemt;
+- `REVIEW_BASE_SHA` een volledige commit-SHA is en de scope uitsluitend uit
+  `git ls-tree -rz --full-tree REVIEW_BASE_SHA` komt;
+- ieder raw Git-pad exact één file-row krijgt, ook bij spaties, komma’s, quotes,
+  tabs, newlines, leading dashes, NFC/NFD- en case-only namen;
+- duplicate blobs op verschillende paden afzonderlijke rijen blijven;
+- object-ID, Git-mode, objecttype, bytes en regeldefinitie vanuit Git-objecten
+  worden berekend en werkboomdrift de base-inventaris niet verandert;
+- Python parsing `tokenize.detect_encoding` gebruikt en AST alle classes,
+  sync/async functies, methods, nested definities, decorated ranges,
+  property getter/setter/deleter, overloads/herdefinities en lambda’s opneemt;
 - syntaxfouten als blocking finding worden geregistreerd;
 - binaire bestanden geen line-by-line claim krijgen maar een binary-reviewstatus;
-- duplicate, ontbrekende of onbekende rijen de validator laten falen;
+- line coverage voor tekstbestanden exact 1..N partitioneert en binaries één
+  equivalente reviewrij hebben;
+- batchmembership geen gat/overlap heeft en de batchlimieten afdwingt;
+- duplicate, ontbrekende, onbekende of inhoudelijk verschoven rijen falen;
 - `verified` onmogelijk is zonder verschillende `reviewer` en `verified_by`.
+- findings geldige enums, foreign keys, ranges en bidirectionele referenties hebben;
+- untracked alleen via `git ls-files --others --exclude-standard -z` wordt
+  geïnventariseerd en ignored/secrets nooit inhoudelijk worden gescand.
 
 **Step 2:** Run de tests vóór implementatie:
 
@@ -203,14 +246,19 @@ pytest docs/reviews/2026-08-07-line-by-line/tools/test_inventory_tools.py -q
 
 Expected: FAIL omdat de inventoryfuncties nog ontbreken.
 
-**Step 3:** Implementeer `build_inventory.py` met uitsluitend standaardbibliotheekmodules `ast`, `csv`, `hashlib`, `mimetypes`, `pathlib`, `subprocess` en `tokenize`.
+**Step 3:** Implementeer `build_inventory.py` uitsluitend met de Python-
+standaardbibliotheek. Verwerk Git-output NUL-delimited, lees blobs via
+`git cat-file`, representeer raw paden lossless en geef syntax-/encodingfouten
+als blocking inventoryrecords terug.
 
 **Step 4:** Implementeer `validate_inventory.py` met exitcode 1 voor:
 
 - ontbrekende tracked bestanden;
-- SHA-drift;
+- drift in pad, mode, objecttype, object-ID, grootte of regels;
 - uncovered Python-symbolen;
+- ontbrekende/overlappende line-ranges en batchmembership;
 - `pending`/`in_review`-rijen bij finalisatie;
+- `blocked`-rijen bij een 100%-finalisatie;
 - ontbrekende tweede reviewer;
 - findings zonder verplichte velden.
 
@@ -218,7 +266,9 @@ Expected: FAIL omdat de inventoryfuncties nog ontbreken.
 
 Expected: PASS.
 
-**Step 6:** Review de twee reviewtools zelf line-by-line en noteer dit in hun file-rows.
+**Step 6:** Laat een andere reviewer de drie reviewtoolbestanden line-by-line
+controleren vóór de commit. Registreer de review later afzonderlijk in
+`review-infrastructure.csv`; meng de tools niet in de applicatie-inventaris.
 
 **Step 7:** Commit:
 
@@ -227,15 +277,22 @@ git add docs/reviews/2026-08-07-line-by-line/tools/
 git commit -m "test(DEF-XX): add review inventory gates"
 ```
 
+De resulterende commit wordt in Task 3 immutable vastgelegd als `TOOLING_SHA`.
+
 ### Task 3: Genereer en verifieer de volledige scope-inventaris
 
 **Files:**
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/file-inventory.csv`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/symbol-inventory.csv`
+- Create: `docs/reviews/2026-08-07-line-by-line/scope/line-coverage.csv`
+- Create: `docs/reviews/2026-08-07-line-by-line/scope/batch-membership.csv`
+- Create: `docs/reviews/2026-08-07-line-by-line/scope/review-infrastructure.csv`
+- Create: `docs/reviews/2026-08-07-line-by-line/scope/tooling-snapshot.md`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/untracked-inventory.csv`
 - Create: `docs/reviews/2026-08-07-line-by-line/scope/exclusions.csv`
 
-**Step 1:** Genereer de inventaris tegen `REVIEW_BASE_SHA`:
+**Step 1:** Verifieer `REVIEW_BASE_SHA^{commit}` en genereer de inventaris
+rechtstreeks uit de immutable base-tree, niet uit index of worktree:
 
 ```bash
 python3 docs/reviews/2026-08-07-line-by-line/tools/build_inventory.py \
@@ -243,14 +300,11 @@ python3 docs/reviews/2026-08-07-line-by-line/tools/build_inventory.py \
   --output-dir docs/reviews/2026-08-07-line-by-line/scope
 ```
 
-**Step 2:** Vergelijk aantallen met onafhankelijke shellcommando’s:
+**Step 2:** Vergelijk aantallen met onafhankelijke base-treecommando’s:
 
 ```bash
-git ls-files | wc -l
-git ls-files '*.py' | wc -l
-git ls-files 'src/**/*.py' 'src/*.py' | wc -l
-git ls-files 'tests/**/*.py' 'tests/*.py' | wc -l
-git ls-files 'scripts/**/*.py' 'scripts/*.py' | wc -l
+git ls-tree -r --name-only "$REVIEW_BASE_SHA" | wc -l
+git ls-tree -r --name-only "$REVIEW_BASE_SHA" | rg '\.py$' | wc -l
 ```
 
 Expected: de CSV-aantallen sluiten exact aan.
@@ -266,7 +320,10 @@ Expected: de CSV-aantallen sluiten exact aan.
 
 **Step 4:** Registreer iedere uitzondering expliciet. Alleen technisch onleesbare generated/vendor-inhoud mag worden uitgezonderd; het bestand zelf blijft in de matrix.
 
-**Step 5:** Run de validator.
+**Step 5:** Leg de aparte `TOOLING_SHA` vast, genereer de review-
+infrastructuurinventaris en bewijs dat application- en tooling-scope niet mengen.
+
+**Step 6:** Run de validator.
 
 Expected: PASS voor scopevolledigheid; reviewstatus mag nog `pending` zijn.
 
@@ -318,6 +375,10 @@ Expected: ieder bestand krijgt `pass`, `fail`, `timeout`, `skip` of `blocked`; g
 
 **Step 2:** Geef ieder bestand en ieder Python-symbool precies één primaire batch.
 
+**Step 2a:** Genereer `batch-membership.csv`; grote bestanden mogen meerdere
+range-rijen hebben, maar iedere regel en ieder symbool heeft exact één primaire
+eigenaar.
+
 **Step 3:** Gebruik deze reviewvolgorde:
 
 1. entrypoints, build, dependencies en configuratie;
@@ -339,7 +400,8 @@ Expected: ieder bestand krijgt `pass`, `fail`, `timeout`, `skip` of `blocked`; g
 17. documentatie, plannen en handovers;
 18. binaire en overige artefacten.
 
-**Step 4:** Laat de validator bewijzen dat alle scope-rijen exact één batch hebben.
+**Step 4:** Laat de validator bewijzen dat alle line-ranges en symbolen exact één
+primaire batch hebben, zonder gaten/overlap en binnen de code-/databatchlimieten.
 
 ### Task 6: Voer de pilotbatch uit en kalibreer het protocol
 
@@ -545,7 +607,10 @@ Tracked files missing: 0
 Files pending: 0
 Python symbols missing: 0
 Symbols pending: 0
+Line ranges missing/overlapping: 0
+Batch memberships invalid: 0
 SHA drift: 0
+Tooling SHA drift: 0
 Unverified batches: 0
 Invalid findings: 0
 ```
@@ -607,9 +672,13 @@ Menselijke checkpoints zijn verplicht na:
 ## 6. Definition of Done
 
 - [ ] Alle tracked bestanden staan exact eenmaal in de file-inventaris.
-- [ ] Alle Pythonfuncties/methoden/classes staan in de symboleninventaris.
-- [ ] Alle file- en symbolenrijen zijn `verified` of expliciet gemotiveerd `blocked/out_of_scope`.
+- [ ] Mode, objecttype, object-ID en raw pad zijn voor ieder base-object bewezen.
+- [ ] Alle fysieke tekstregels zijn zonder gat/overlap `verified`; binaries hebben equivalente inspectie.
+- [ ] Alle Pythonfuncties/methoden/classes/lambda’s staan in de symboleninventaris.
+- [ ] Alle file- en symbolenrijen zijn `verified` of onafhankelijk gemotiveerd `out_of_scope`.
+- [ ] `blocked` komt niet voor in een geslaagde 100%-finalisatie.
 - [ ] Iedere batch heeft twee verschillende reviewers.
+- [ ] Reviewtools zijn afzonderlijk vastgezet en geverifieerd tegen `TOOLING_SHA`.
 - [ ] Alle baseline-, marker- en per-file integration-tests hebben een resultaat.
 - [ ] Alle productie-symbolen hebben een testmapping of gemotiveerde uitzondering.
 - [ ] Alle findings bevatten prioriteit, zekerheid, bewijs, locatie, reproductie en oplossing.
