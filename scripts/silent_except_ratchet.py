@@ -69,24 +69,31 @@ BROAD_NAMES = {"Exception", "BaseException"}
 MIN_EXPECTED_FILES = 100
 
 
-def iter_source_files() -> list[Path]:
+def iter_source_files(
+    src: Path | None = None, min_expected: int | None = None
+) -> list[Path]:
     """Verzamel te scannen bestanden; faalt hard bij een verdacht lege scan.
 
     Skip-filters op het pad **relatief aan de repo-root**: met ``p.parts`` zou
     een checkout onder ``~/archive/`` de hele boom wegfilteren en zou de gate
     "0 stille handlers -- OK" melden. Fail-open in een gate is erger dan geen
     gate, want het geeft valse zekerheid.
+
+    ``src``/``min_expected`` zijn parameters zodat tests tegen een tmp-boom
+    kunnen draaien zonder module-globals te monkeypatchen.
     """
-    root = SRC.parent
+    src = src if src is not None else SRC
+    threshold = min_expected if min_expected is not None else MIN_EXPECTED_FILES
+    root = src.parent
     files = [
         p
-        for p in sorted(SRC.rglob("*.py"))
+        for p in sorted(src.rglob("*.py"))
         if not SKIP_DIR_PARTS & set(p.relative_to(root).parts)
     ]
-    if len(files) < MIN_EXPECTED_FILES:
+    if len(files) < threshold:
         raise SystemExit(
             f"silent_except_ratchet: slechts {len(files)} bestanden gevonden onder "
-            f"{SRC} (verwacht >= {MIN_EXPECTED_FILES}). Afgebroken om een "
+            f"{src} (verwacht >= {threshold}). Afgebroken om een "
             "vals-groene gate te voorkomen."
         )
     return files
@@ -134,11 +141,19 @@ def classify(handler: ast.ExceptHandler, lines: list[str]) -> str:
     return "A"
 
 
-def scan() -> tuple[Counter[str], list[tuple[str, int, str]]]:
+def scan(
+    files: list[Path] | None = None, base: Path | None = None
+) -> tuple[Counter[str], list[tuple[str, int, str]]]:
+    """Classificeer alle brede handlers in ``files``.
+
+    ``files``/``base`` zijn parameters zodat tests een eigen bestandenlijst
+    kunnen aanleveren; zonder argumenten scant hij ``src/``.
+    """
     counts: Counter[str] = Counter()
     silent: list[tuple[str, int, str]] = []
+    base = base if base is not None else SRC.parent
 
-    for path in iter_source_files():
+    for path in files if files is not None else iter_source_files():
         try:
             source = path.read_text(encoding="utf-8", errors="replace")
             tree = ast.parse(source)
@@ -153,7 +168,10 @@ def scan() -> tuple[Counter[str], list[tuple[str, int, str]]]:
             category = classify(node, lines)
             counts[category] += 1
             if category == "A":
-                rel = path.relative_to(SRC.parent).as_posix()
+                try:
+                    rel = path.relative_to(base).as_posix()
+                except ValueError:
+                    rel = path.as_posix()
                 snippet = lines[node.lineno - 1].strip()[:70]
                 silent.append((rel, node.lineno, snippet))
 
