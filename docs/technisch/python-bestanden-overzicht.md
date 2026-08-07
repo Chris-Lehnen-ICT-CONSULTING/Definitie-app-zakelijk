@@ -11,7 +11,8 @@
 >
 > Voor de actuele stand: `find src -name "*.py" | xargs wc -l` en
 > `python scripts/detect_orphan_modules.py`. Actualisatie van dit document staat
-> getrackt; verwijderde bestanden zijn er tot die tijd handmatig uit gehaald.
+> getrackt in **DEF-608**; verwijderde bestanden zijn er tot die tijd handmatig
+> uit gehaald.
 
 ## 📊 PROJECT STATISTIEKEN
 > Onderstaande cijfers dateren van de oorspronkelijke inventarisatie. Werkelijke stand
@@ -251,7 +252,7 @@
 | `ontological_categories.py` | - | ✅ **ACTIEF** | Ontologische categorisatie systeem |
 | `autoriteit/betrouwbaarheid.py` | - | ✅ **ACTIEF** | Autoriteit en betrouwbaarheid validatie |
 | `juridisch/patronen.py` | - | ✅ **ACTIEF** | Juridische patronen herkenning |
-| `linguistisch/pluralia_tantum.py` | - | ✅ **ACTIEF** | Nederlandse linguïstische regels |
+| `linguistisch/pluralia_tantum.py` | - | ⚠️ **WEES** | 100 pluralia tantum; nog niet aangesloten op de validator — zie DEF-605 |
 
 ---
 

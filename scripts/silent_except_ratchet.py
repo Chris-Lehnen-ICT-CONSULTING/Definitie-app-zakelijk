@@ -64,8 +64,32 @@ INTENTIONAL_MARKER = "intentional broad catch"
 BROAD_NAMES = {"Exception", "BaseException"}
 
 
+# Onder dit aantal klopt er iets niet met de checkout of de skip-filters; dan
+# faalt het script liever hard dan dat het "0 stille handlers" meldt.
+MIN_EXPECTED_FILES = 100
+
+
 def iter_source_files() -> list[Path]:
-    return [p for p in sorted(SRC.rglob("*.py")) if not SKIP_DIR_PARTS & set(p.parts)]
+    """Verzamel te scannen bestanden; faalt hard bij een verdacht lege scan.
+
+    Skip-filters op het pad **relatief aan de repo-root**: met ``p.parts`` zou
+    een checkout onder ``~/archive/`` de hele boom wegfilteren en zou de gate
+    "0 stille handlers -- OK" melden. Fail-open in een gate is erger dan geen
+    gate, want het geeft valse zekerheid.
+    """
+    root = SRC.parent
+    files = [
+        p
+        for p in sorted(SRC.rglob("*.py"))
+        if not SKIP_DIR_PARTS & set(p.relative_to(root).parts)
+    ]
+    if len(files) < MIN_EXPECTED_FILES:
+        raise SystemExit(
+            f"silent_except_ratchet: slechts {len(files)} bestanden gevonden onder "
+            f"{SRC} (verwacht >= {MIN_EXPECTED_FILES}). Afgebroken om een "
+            "vals-groene gate te voorkomen."
+        )
+    return files
 
 
 def is_broad(handler: ast.ExceptHandler) -> bool:
@@ -145,7 +169,13 @@ def read_baseline() -> int:
     for line in BASELINE_PATH.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if stripped and not stripped.startswith("#"):
-            return int(stripped)
+            try:
+                return int(stripped)
+            except ValueError:
+                raise SystemExit(
+                    f"silent_except_ratchet: baseline bevat geen geldig getal "
+                    f"({BASELINE_PATH}): {stripped!r}"
+                ) from None
     raise SystemExit("silent_except_ratchet: baseline bevat geen getal")
 
 
@@ -163,6 +193,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Silent-except ratchet (DEF-393)")
     parser.add_argument(
         "--update", action="store_true", help="schrijf de huidige telling als baseline"
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="sta toe dat --update de baseline VERHOOGT (vereist een reden in de PR)",
     )
     parser.add_argument(
         "--list", action="store_true", help="toon alle stille handlers met locatie"
@@ -185,6 +220,18 @@ def main() -> int:
             print(f"  {rel}:{lineno}  {snippet}")
 
     if args.update:
+        # De baseline belooft "mag alleen dalen"; dwing dat af.
+        if BASELINE_PATH.exists():
+            previous = read_baseline()
+            if current > previous and not args.force:
+                print(
+                    f"\nFAIL: --update zou de baseline VERHOGEN "
+                    f"({previous} -> {current}).\n"
+                    "   Los de nieuwe stille handlers op, markeer ze bewust, of\n"
+                    "   gebruik --force met een expliciete reden in de PR.",
+                    file=sys.stderr,
+                )
+                return 1
         write_baseline(current)
         print(f"\nBaseline bijgewerkt naar {current}.")
         return 0

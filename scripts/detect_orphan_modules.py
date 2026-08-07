@@ -8,18 +8,26 @@ van de acht gevonden wezen hun laatste commit kregen van de mypy-campagne
 
 Waarom AST en niet grep
 -----------------------
-Een grep op de modulenaam geeft zowel vals-negatieven als vals-positieven:
+Een grep op de modulenaam mist relatieve imports (``from .x import y``) en
+dynamisch laden. Dit script bouwt daarom een importindex via de AST van elk
+bestand in ``src/``, ``tests/`` en ``scripts/``, en kijkt per kandidaat zowel
+naar module-imports als naar imports van de symbolen die de module exporteert.
 
-* Vals-positief: een module lijkt te leven omdat een *andere* module toevallig
-  een symbool met dezelfde naam exporteert. In DEF-600 gebeurde dit bij
-  ``RuleViolation`` (services.validation.interfaces vs validation.definitie_validator)
-  en ``safe_execute`` (utils.exceptions vs utils.error_helpers).
-* Vals-negatief: relatieve imports (``from .x import y``) matchen niet op het
-  volledige modulepad.
+Bekende onnauwkeurigheid -- de uitkomst is een ONDERGRENS
+----------------------------------------------------------
+De symbool-index is gesleuteld op de kále symboolnaam, niet op
+``(module, symbool)``. Een import van ``RuleViolation`` uit
+``services.validation.interfaces`` houdt dus ook een andere module die
+``RuleViolation`` exporteert "levend". Idem voor de module-index, die op
+``path.stem`` matcht: twee gelijknamige modules in verschillende packages
+houden elkaar overeind.
 
-Dit script bouwt daarom een importindex via de AST van elk bestand in
-``src/``, ``tests/`` en ``scripts/``, en kijkt per kandidaat zowel naar
-module-imports als naar imports van de symbolen die de module exporteert.
+Beide fouten wijzen dezelfde kant op: het script meldt eerder **te weinig**
+wezen dan te veel. Dat is de veilige richting voor een gate (geen vals alarm),
+maar het betekent dat de baseline een ondergrens is en dat een gemelde wees
+altijd handmatig geverifieerd moet worden op de *herkomst* van schijnbare
+referenties -- niet alleen op het aantal. Verfijning naar
+``(module, symbool)`` staat getrackt in DEF-609.
 
 Bekende uitzonderingen (worden nooit als wees gemeld)
 -----------------------------------------------------
@@ -68,13 +76,37 @@ EXEMPT_FILES = ("src/main.py",)
 GENERIC_SYMBOLS = {"logger", "T", "F", "main", "setup", "run", "app", "config"}
 
 
+# Onder dit aantal gescande bestanden klopt er iets niet met de checkout of de
+# skip-filters; dan faalt het script liever hard dan dat het "0 wezen" meldt.
+MIN_EXPECTED_FILES = 100
+
+
 def iter_python_files(roots: tuple[str, ...]) -> list[Path]:
+    """Verzamel te scannen bestanden; faalt hard bij een verdacht lege scan.
+
+    De skip-filters worden op het pad **relatief aan de repo-root** toegepast.
+    Zou je ``p.parts`` gebruiken, dan filtert een checkout onder bijvoorbeeld
+    ``~/archive/`` of ``~/archief/`` de hele boom weg en meldt de gate vrolijk
+    "0 wezen -- OK": fail-open precies daar waar het niet mag.
+    """
     files: list[Path] = []
     for root in roots:
         base = ROOT / root
         if not base.exists():
             continue
-        files.extend(p for p in base.rglob("*.py") if not SKIP_DIR_PARTS & set(p.parts))
+        files.extend(
+            p
+            for p in base.rglob("*.py")
+            if not SKIP_DIR_PARTS & set(p.relative_to(ROOT).parts)
+        )
+
+    if len(files) < MIN_EXPECTED_FILES:
+        raise SystemExit(
+            f"detect_orphan_modules: slechts {len(files)} bestanden gevonden onder "
+            f"{ROOT} (verwacht >= {MIN_EXPECTED_FILES}). Klopt de working directory, "
+            "of filtert SKIP_DIR_PARTS te veel weg? Afgebroken om een vals-groene "
+            "gate te voorkomen."
+        )
     return sorted(files)
 
 
@@ -121,6 +153,12 @@ def build_import_index(
                             modules[node.module.split(".")[-1]].add(rel)
                     else:
                         symbols[alias.name].add(rel)
+                        # `from . import x` / `from .pkg import x`: x kan zelf een
+                        # module zijn. Zonder deze regel belandt hij alleen in de
+                        # symbol-index en wordt een module die niets exporteert
+                        # onterecht als wees gemeld -- de gevaarlijke richting.
+                        if node.level > 0:
+                            modules[alias.name].add(rel)
             elif isinstance(node, ast.Constant) and isinstance(node.value, str):
                 # Dotted string die een modulepad kan zijn (dynamische import).
                 value = node.value
@@ -202,21 +240,30 @@ def find_orphans(verbose: bool = False) -> tuple[list[tuple[str, int]], list[str
     entrypoints: list[str] = []
 
     for path in sorted(SRC.rglob("*.py")):
-        if SKIP_DIR_PARTS & set(path.parts) or path.name == "__init__.py":
+        if (
+            SKIP_DIR_PARTS & set(path.relative_to(ROOT).parts)
+            or path.name == "__init__.py"
+        ):
             continue
         rel = path.relative_to(ROOT).as_posix()
         if is_exempt(rel, allowlist):
             continue
 
         importers = {f for f in modules.get(path.stem, set()) if f != rel}
+        if importers:
+            # Short-circuit: scheelt een tweede AST-parse (exported_symbols) voor
+            # de ~95% modules die sowieso leven.
+            if verbose:
+                print(f"  LEEFT  {rel}  <- {', '.join(sorted(importers)[:3])}")
+            continue
+
         symbol_importers: set[str] = set()
         for sym in exported_symbols(path):
             symbol_importers |= {f for f in symbols.get(sym, set()) if f != rel}
 
-        if importers or symbol_importers:
+        if symbol_importers:
             if verbose:
-                who = sorted(importers | symbol_importers)[:3]
-                print(f"  LEEFT  {rel}  <- {', '.join(who)}")
+                print(f"  LEEFT  {rel}  <- {', '.join(sorted(symbol_importers)[:3])}")
             continue
 
         if has_main_block(path):
@@ -238,7 +285,13 @@ def read_baseline() -> int:
     for line in BASELINE_PATH.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if stripped and not stripped.startswith("#"):
-            return int(stripped)
+            try:
+                return int(stripped)
+            except ValueError:
+                raise SystemExit(
+                    f"detect_orphan_modules: baseline bevat geen geldig getal "
+                    f"({BASELINE_PATH}): {stripped!r}"
+                ) from None
     raise SystemExit("detect_orphan_modules: baseline bevat geen getal")
 
 
@@ -257,6 +310,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Orphan-module detector (DEF-600)")
     parser.add_argument(
         "--update", action="store_true", help="schrijf de huidige telling als baseline"
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="sta toe dat --update de baseline VERHOOGT (vereist een reden in de PR)",
     )
     parser.add_argument(
         "--verbose", action="store_true", help="toon ook de levende modules"
@@ -280,6 +338,19 @@ def main() -> int:
             print(f"  {rel}")
 
     if args.update:
+        # De baseline belooft "mag alleen dalen"; dwing dat hier af, anders
+        # betonneert een enkele --update na een groei de regressie.
+        if BASELINE_PATH.exists():
+            previous = read_baseline()
+            if current > previous and not args.force:
+                print(
+                    f"\nFAIL: --update zou de baseline VERHOGEN "
+                    f"({previous} -> {current}).\n"
+                    "   Ruim de nieuwe wezen op, of gebruik --force met een "
+                    "expliciete reden in de PR.",
+                    file=sys.stderr,
+                )
+                return 1
         write_baseline(current)
         print(f"\nBaseline bijgewerkt naar {current}.")
         return 0
