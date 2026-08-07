@@ -81,29 +81,37 @@ GENERIC_SYMBOLS = {"logger", "T", "F", "main", "setup", "run", "app", "config"}
 MIN_EXPECTED_FILES = 100
 
 
-def iter_python_files(roots: tuple[str, ...]) -> list[Path]:
+def iter_python_files(
+    roots: tuple[str, ...], root: Path | None = None, min_expected: int | None = None
+) -> list[Path]:
     """Verzamel te scannen bestanden; faalt hard bij een verdacht lege scan.
 
     De skip-filters worden op het pad **relatief aan de repo-root** toegepast.
     Zou je ``p.parts`` gebruiken, dan filtert een checkout onder bijvoorbeeld
     ``~/archive/`` of ``~/archief/`` de hele boom weg en meldt de gate vrolijk
     "0 wezen -- OK": fail-open precies daar waar het niet mag.
+
+    ``root``/``min_expected`` zijn parameters zodat tests tegen een tmp-boom
+    kunnen draaien zonder module-globals te monkeypatchen.
     """
+    base_root = root if root is not None else ROOT
+    threshold = min_expected if min_expected is not None else MIN_EXPECTED_FILES
+
     files: list[Path] = []
-    for root in roots:
-        base = ROOT / root
+    for sub in roots:
+        base = base_root / sub
         if not base.exists():
             continue
         files.extend(
             p
             for p in base.rglob("*.py")
-            if not SKIP_DIR_PARTS & set(p.relative_to(ROOT).parts)
+            if not SKIP_DIR_PARTS & set(p.relative_to(base_root).parts)
         )
 
-    if len(files) < MIN_EXPECTED_FILES:
+    if len(files) < threshold:
         raise SystemExit(
             f"detect_orphan_modules: slechts {len(files)} bestanden gevonden onder "
-            f"{ROOT} (verwacht >= {MIN_EXPECTED_FILES}). Klopt de working directory, "
+            f"{base_root} (verwacht >= {threshold}). Klopt de working directory, "
             "of filtert SKIP_DIR_PARTS te veel weg? Afgebroken om een vals-groene "
             "gate te voorkomen."
         )
@@ -119,7 +127,7 @@ def parse(path: Path) -> ast.Module | None:
 
 
 def build_import_index(
-    files: list[Path],
+    files: list[Path], root: Path | None = None
 ) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
     """Bouw (module-stem -> importers, symboolnaam -> importers).
 
@@ -129,6 +137,7 @@ def build_import_index(
     ``monkeypatch.setattr("services.x.y", ...)`` in tests -- zonder die
     heuristiek zou zulke code onterecht als wees worden gemeld.
     """
+    base_root = root if root is not None else ROOT
     modules: dict[str, set[str]] = defaultdict(set)
     symbols: dict[str, set[str]] = defaultdict(set)
 
@@ -136,7 +145,7 @@ def build_import_index(
         tree = parse(path)
         if tree is None:
             continue
-        rel = path.relative_to(ROOT).as_posix()
+        rel = path.relative_to(base_root).as_posix()
 
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -225,27 +234,39 @@ def read_allowlist() -> set[str]:
     return entries
 
 
-def find_orphans(verbose: bool = False) -> tuple[list[tuple[str, int]], list[str]]:
+def find_orphans(
+    verbose: bool = False,
+    root: Path | None = None,
+    scan_roots: tuple[str, ...] | None = None,
+    min_expected: int | None = None,
+) -> tuple[list[tuple[str, int]], list[str]]:
     """Geef (wezen, cli_entrypoints) terug.
 
     CLI-entrypoints worden vanaf de commandline gestart en hebben per definitie
     geen importer; ze tellen niet als wees maar worden wel apart gemeld, zodat
     een ongebruikte tool niet ongemerkt blijft rondslingeren.
+
+    ``root``/``scan_roots``/``min_expected`` zijn parameters zodat tests tegen
+    een tmp-boom kunnen draaien zonder module-globals te monkeypatchen.
     """
+    root = root if root is not None else ROOT
+    roots = scan_roots if scan_roots is not None else SCAN_ROOTS
+    src = root / "src"
+
     allowlist = read_allowlist()
-    all_files = iter_python_files(SCAN_ROOTS)
-    modules, symbols = build_import_index(all_files)
+    all_files = iter_python_files(roots, root=root, min_expected=min_expected)
+    modules, symbols = build_import_index(all_files, root=root)
 
     orphans: list[tuple[str, int]] = []
     entrypoints: list[str] = []
 
-    for path in sorted(SRC.rglob("*.py")):
+    for path in sorted(src.rglob("*.py")):
         if (
-            SKIP_DIR_PARTS & set(path.relative_to(ROOT).parts)
+            SKIP_DIR_PARTS & set(path.relative_to(root).parts)
             or path.name == "__init__.py"
         ):
             continue
-        rel = path.relative_to(ROOT).as_posix()
+        rel = path.relative_to(root).as_posix()
         if is_exempt(rel, allowlist):
             continue
 

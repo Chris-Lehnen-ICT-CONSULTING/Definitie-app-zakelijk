@@ -2,7 +2,7 @@
 # prefereer de project-venv, val terug op python3. Overridebaar: `make PY=... <target>`.
 PY?=$(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-.PHONY: dev lint complexity-check mypy-check overrides-check pins-check audit lock lock-check test status validation-status
+.PHONY: dev lint complexity-check mypy-check overrides-check pins-check orphan-check silent-except-check audit lock lock-check test status validation-status
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -29,6 +29,14 @@ overrides-check:
 pins-check:
 	@echo "[pins] Tool-pin consistency (DEF-430) — ruff/mypy must match across all sources"
 	@$(PY) scripts/check_tool_pins.py
+
+orphan-check:
+	@echo "[orphan] Ratchet on src/ (DEF-600) — fails if modules without any importer grow"
+	@$(PY) scripts/detect_orphan_modules.py
+
+silent-except-check:
+	@echo "[silent-except] Ratchet on src/ (DEF-393) — fails if silent broad excepts grow"
+	@$(PY) scripts/silent_except_ratchet.py
 
 audit:
 	@echo "[audit] pip-audit CVE-scan op requirements.txt (DEF-426)"
