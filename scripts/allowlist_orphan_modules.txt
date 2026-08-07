@@ -1,0 +1,18 @@
+# Allowlist voor scripts/detect_orphan_modules.py (DEF-600)
+#
+# Modules in src/ die bewust geen importer hebben. Eén pad per regel,
+# relatief aan de repo-root. Zet er altijd een reden bij: zonder reden is
+# een allowlist-regel niet te onderscheiden van vergeten opruimwerk.
+#
+# Structurele uitzonderingen (Streamlit pages, dynamisch geladen validators,
+# src/main.py, CLI-entrypoints met een __main__-block) staan hard in het
+# script zelf en horen hier niet.
+#
+# Op dit moment is de allowlist leeg. De twee resterende wezen staan
+# bewust IN de telling, zodat ze zichtbaar blijven tot hun issue is opgelost:
+#
+#   src/domain/linguistisch/pluralia_tantum.py  -> DEF-605 (aansluiten op
+#       _lemma_is_singular; niet verwijderen, het is de enige overgebleven
+#       kopie van de 100-woordenlijst)
+#   src/config/context_options.py               -> DEF-603 (bron voor het
+#       herstel van IND/NFI/RvdK; verwijderen zodra die data in config staat)
