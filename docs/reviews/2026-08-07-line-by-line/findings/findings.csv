@@ -1,0 +1,2 @@
+finding_id,priority,certainty,review_area,title,path,start_line,end_line,evidence,reproduction,recommendation,status,reviewer,verified_by
+INV-ENCODING-D2C4CCDFC47C,P1,proven,inventory,Blocking text encoding error,docs/voorbeelden/Identiteitsbehandeling_fixed_v2.json,1,1,UnicodeDecodeError: 'utf-8' codec can't decode byte 0xeb in position 399962: invalid continuation byte,Parse the frozen Git blob with the inventory builder,Resolve or explicitly exclude the invalid source before review,blocked,inventory-tool,
