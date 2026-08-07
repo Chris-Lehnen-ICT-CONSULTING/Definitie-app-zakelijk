@@ -1,6 +1,22 @@
 # VOLLEDIG PYTHON BESTANDEN OVERZICHT - DefinitieAgent
 
+> ⚠️ **Dit overzicht is verouderd — gebruik het niet als bron van waarheid.**
+> Gemeten op 2026-08-07 (DEF-600): **38 van de 97 genoemde bestanden bestaan niet meer**
+> in `src/`, en de LOC-getallen lopen ver achter (`container.py` staat op 439 terwijl het
+> er 1067 zijn; `service_factory.py` 379 vs 790). Ook `definition_orchestrator.py` is
+> vervangen door `definition_orchestrator_v2.py`.
+>
+> De ✅ **ACTIEF**-markering is daardoor onbetrouwbaar: `ab_testing_framework.py` stond
+> hier als "actief" terwijl het nooit door iets werd geïmporteerd.
+>
+> Voor de actuele stand: `find src -name "*.py" | xargs wc -l` en
+> `python scripts/detect_orphan_modules.py`. Actualisatie van dit document staat
+> getrackt; verwijderde bestanden zijn er tot die tijd handmatig uit gehaald.
+
 ## 📊 PROJECT STATISTIEKEN
+> Onderstaande cijfers dateren van de oorspronkelijke inventarisatie. Werkelijke stand
+> op 2026-08-07: **366 bestanden, 94.602 LOC** in `src/`.
+
 - **Totaal Python bestanden**: 337 bestanden
 - **Totaal regels code**: 85,476 LOC
 - **Hoofdfunctie**: AI-gedreven juridische definitie generator
@@ -42,7 +58,6 @@
 |---------|-----|---------|----------------|
 | `definition_validator.py` | 357 | ✅ **ACTIEF** | Hoofdvalidatie service voor definities |
 | `cleaning_service.py` | 277 | ✅ **ACTIEF** | AI output opschoning en normalisatie |
-| `ab_testing_framework.py` | 564 | ✅ **ACTIEF** | A/B testing voor verschillende AI modellen |
 
 ### 🔍 EXTERNAL INTEGRATION
 | Bestand | LOC | Status | Functionaliteit |
@@ -72,7 +87,6 @@
 | `cache_manager.py` | - | ✅ **ACTIEF** | UI cache management |
 | `async_progress.py` | - | ✅ **ACTIEF** | Asynchrone progress indicators |
 | `components_adapter.py` | - | ✅ **ACTIEF** | Adapter voor component integratie |
-| `regeneration_handler.py` | - | ✅ **ACTIEF** | UI regeneratie handling |
 
 ### 🧩 UI COMPONENTEN (12 bestanden)
 | Bestand | Status | Functionaliteit |
@@ -104,7 +118,6 @@
 |---------|-----|---------|----------------|
 | `manager.py` | - | ✅ **ACTIEF** | Validatie regel management systeem |
 | `loader.py` | - | 🔄 **LEGACY** | Legacy regel loader |
-| `modular_loader.py` | - | ✅ **ACTIEF** | Moderne modulaire regel loader |
 | `adapter.py` | - | ✅ **ACTIEF** | Interface adapter voor regel systeem |
 
 ### 📏 VALIDATIEREGELS (38 regels x 2 implementaties = 76 bestanden)
@@ -237,7 +250,6 @@
 |---------|-----|---------|----------------|
 | `ontological_categories.py` | - | ✅ **ACTIEF** | Ontologische categorisatie systeem |
 | `autoriteit/betrouwbaarheid.py` | - | ✅ **ACTIEF** | Autoriteit en betrouwbaarheid validatie |
-| `context/organisatie_wetten.py` | - | ✅ **ACTIEF** | Organisatie wetgeving context |
 | `juridisch/patronen.py` | - | ✅ **ACTIEF** | Juridische patronen herkenning |
 | `linguistisch/pluralia_tantum.py` | - | ✅ **ACTIEF** | Nederlandse linguïstische regels |
 
