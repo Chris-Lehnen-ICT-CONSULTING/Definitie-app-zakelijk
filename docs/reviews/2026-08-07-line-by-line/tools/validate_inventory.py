@@ -502,11 +502,138 @@ def _validate_line_batch_foreign_keys(
     return errors
 
 
+def _manifest_value(content: str, label: str) -> str | None:
+    matches = re.findall(
+        rf"^- {re.escape(label)}: `([^`\r\n]*)`$", content, re.MULTILINE
+    )
+    return matches[0] if len(matches) == 1 else None
+
+
+def _manifest_semantic_errors(
+    batch: str,
+    index_row: dict[str, str],
+    memberships: list[dict[str, str]],
+    content: str,
+    *,
+    require_final: bool,
+    base_sha: str | None,
+) -> list[str]:
+    errors: list[str] = []
+    comparisons = (
+        ("Status", index_row.get("status", ""), "status"),
+        ("Reviewer", index_row.get("reviewer", "").strip(), "reviewer"),
+        (
+            "Onafhankelijke verifier",
+            index_row.get("verified_by", "").strip(),
+            "verifier",
+        ),
+    )
+    for label, expected, error_label in comparisons:
+        actual = _manifest_value(content, label)
+        if actual is None or actual.strip() != expected:
+            errors.append(f"manifest {error_label} mismatch: {batch}")
+    if base_sha is not None and _manifest_value(content, "Review-base") != base_sha:
+        errors.append(f"manifest review-base mismatch: {batch}")
+
+    line_owners = [row for row in memberships if row.get("role") == "line_owner"]
+    symbol_owners = [row for row in memberships if row.get("role") == "symbol_owner"]
+    expected_counts = (
+        ("Bestanden", len({row.get("path_b64", "") for row in line_owners}), "file"),
+        (
+            "Fysieke regels",
+            sum(
+                (
+                    0
+                    if row.get("start_line") == row.get("end_line") == "0"
+                    else int(row.get("end_line", "0"))
+                    - int(row.get("start_line", "0"))
+                    + 1
+                )
+                for row in line_owners
+            ),
+            "line",
+        ),
+        ("Python-symbolen", len(symbol_owners), "symbol"),
+    )
+    for label, expected, error_label in expected_counts:
+        if _manifest_value(content, label) != str(expected):
+            errors.append(f"manifest {error_label} count mismatch: {batch}")
+
+    expected_scope: Counter[tuple[str, ...]] = Counter()
+    for row in line_owners:
+        start, end = int(row["start_line"]), int(row["end_line"])
+        symbol_count = sum(
+            owner.get("path_b64") == row.get("path_b64")
+            and start <= int(owner.get("start_line", "-1")) <= end
+            for owner in symbol_owners
+        )
+        expected_scope[
+            (
+                builder._manifest_path(row.get("path", "")),
+                row.get("path_b64", ""),
+                row.get("start_line", ""),
+                row.get("end_line", ""),
+                str(symbol_count),
+                row.get("reviewed_object_id", ""),
+            )
+        ] += 1
+    actual_scope: Counter[tuple[str, ...]] = Counter()
+    try:
+        scope = content.split("## Scope", 1)[1].split(
+            "## Verplichte reviewchecklist", 1
+        )[0]
+        scope_lines = [line for line in scope.splitlines() if line]
+    except IndexError:
+        scope_lines = []
+    expected_header = [
+        "| Pad | path_b64 | Regelbereik | Symbolen | Object-ID |",
+        "|---|---|---:|---:|---|",
+    ]
+    scope_pattern = re.compile(
+        r"^\| `([^`]*)` \| `([A-Za-z0-9+/=]+)` \| "
+        r"`([0-9]+)-([0-9]+)` \| ([0-9]+) \| `([0-9a-f]+)` \|$"
+    )
+    scope_valid = scope_lines[:2] == expected_header
+    for line in scope_lines[2:]:
+        match = scope_pattern.fullmatch(line)
+        if match is None:
+            scope_valid = False
+            continue
+        actual_scope[match.groups()] += 1
+    if not scope_valid or actual_scope != expected_scope:
+        errors.append(f"manifest scope mismatch: {batch}")
+
+    if require_final:
+        try:
+            checklist = content.split("## Verplichte reviewchecklist", 1)[1].split(
+                "## Bevindingen", 1
+            )[0]
+        except IndexError:
+            checklist = ""
+        expected_checklist = Counter(
+            f"- [x] {item}" for item in builder.MANIFEST_CHECKLIST_ITEMS
+        )
+        actual_checklist = Counter(
+            line for line in checklist.splitlines() if line.startswith("- [")
+        )
+        if actual_checklist != expected_checklist:
+            errors.append(f"manifest final checklist incomplete: {batch}")
+        try:
+            result = content.split("## Resultaat", 1)[1].strip()
+        except IndexError:
+            result = ""
+        if not result or result == "Nog niet uitgevoerd.":
+            errors.append(f"manifest final result incomplete: {batch}")
+    return errors
+
+
 def _validate_batch_index(
     rows: list[dict[str, str]],
     memberships: list[dict[str, str]],
     review_dir: pathlib.Path,
     require_final: bool,
+    *,
+    base_sha: str | None = None,
 ) -> list[str]:
     errors: list[str] = []
     actual_ids = [row.get("batch", "") for row in rows]
@@ -606,6 +733,16 @@ def _validate_batch_index(
         manifest_digest = re.search(r"Membership-SHA256: `([0-9a-f]{64})`", decoded)
         if manifest_digest is None or manifest_digest.group(1) != membership_digest:
             errors.append(f"batch manifest membership digest mismatch: {batch}")
+        errors.extend(
+            _manifest_semantic_errors(
+                batch,
+                row,
+                grouped[batch],
+                decoded,
+                require_final=require_final,
+                base_sha=base_sha,
+            )
+        )
     return errors
 
 
@@ -1028,7 +1165,15 @@ def validate_inventory(
         )
     )
     errors.extend(_validate_line_batch_foreign_keys(lines, batches, require_final))
-    errors.extend(_validate_batch_index(batch_index, batches, review, require_final))
+    errors.extend(
+        _validate_batch_index(
+            batch_index,
+            batches,
+            review,
+            require_final,
+            base_sha=base_sha,
+        )
+    )
     comparison: str | None
     if scope_sha is not None:
         expected_untracked: list[dict[str, str]] = []

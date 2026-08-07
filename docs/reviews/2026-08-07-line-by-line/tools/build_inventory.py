@@ -173,6 +173,18 @@ MANIFEST_REQUIRED_SECTIONS = (
     "## Bevindingen",
     "## Resultaat",
 )
+MANIFEST_CHECKLIST_ITEMS = (
+    "Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.",
+    "Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.",
+    "Callers, afhankelijkheden, tests en foutpaden gecontroleerd.",
+    "Codekwaliteit en architectuur beoordeeld.",
+    "Bugs, security en foutafhandeling beoordeeld.",
+    "Functionaliteit en relevante tests beoordeeld.",
+    "UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.",
+    "Findings bevatten prioriteit, bewijs, reproductie en oplossing.",
+    "Bewezen, vermoed en niet-getest expliciet onderscheiden.",
+    "Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.",
+)
 
 
 def _git(
@@ -1041,6 +1053,11 @@ def _line_template(
     )
 
 
+def _manifest_path(path: str) -> str:
+    escaped = json.dumps(path, ensure_ascii=True)[1:-1]
+    return escaped.replace("|", r"\u007c").replace("`", r"\u0060")
+
+
 def _render_manifest(
     batch: str,
     group: int,
@@ -1050,7 +1067,6 @@ def _render_manifest(
 ) -> bytes:
     line_owners = [row for row in memberships if row["role"] == "line_owner"]
     symbol_owners = [row for row in memberships if row["role"] == "symbol_owner"]
-    symbol_counts = Counter((row["path_b64"], row["batch"]) for row in symbol_owners)
     digest = canonical_membership_sha256(memberships)
     physical_lines = sum(
         (
@@ -1061,6 +1077,8 @@ def _render_manifest(
         for row in line_owners
     )
     unique_files = len({row["path_b64"] for row in line_owners})
+    final = index_lifecycle.get("status") == "verified"
+    checkbox = "x" if final else " "
     lines = [
         f"# {batch}",
         "",
@@ -1076,30 +1094,25 @@ def _render_manifest(
         "",
         "## Scope",
         "",
-        "| Pad | Regelbereik | Symbolen | Object-ID |",
-        "|---|---:|---:|---|",
+        "| Pad | path_b64 | Regelbereik | Symbolen | Object-ID |",
+        "|---|---|---:|---:|---|",
     ]
     for row in line_owners:
+        start, end = int(row["start_line"]), int(row["end_line"])
+        symbol_count = sum(
+            owner["path_b64"] == row["path_b64"]
+            and start <= int(owner["start_line"]) <= end
+            for owner in symbol_owners
+        )
         lines.append(
-            f"| `{row['path']}` | `{row['start_line']}-{row['end_line']}` | "
-            f"{symbol_counts[(row['path_b64'], row['batch'])]} | "
+            f"| `{_manifest_path(row['path'])}` | `{row['path_b64']}` | "
+            f"`{row['start_line']}-{row['end_line']}` | {symbol_count} | "
             f"`{row['reviewed_object_id']}` |"
         )
+    lines.extend(["", "## Verplichte reviewchecklist", ""])
+    lines.extend(f"- [{checkbox}] {item}" for item in MANIFEST_CHECKLIST_ITEMS)
     lines.extend(
         [
-            "",
-            "## Verplichte reviewchecklist",
-            "",
-            "- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.",
-            "- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.",
-            "- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.",
-            "- [ ] Codekwaliteit en architectuur beoordeeld.",
-            "- [ ] Bugs, security en foutafhandeling beoordeeld.",
-            "- [ ] Functionaliteit en relevante tests beoordeeld.",
-            "- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.",
-            "- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.",
-            "- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.",
-            "- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.",
             "",
             "## Bevindingen",
             "",
@@ -1107,11 +1120,23 @@ def _render_manifest(
             "",
             "## Resultaat",
             "",
-            "Nog niet uitgevoerd.",
+            "Geverifieerd." if final else "Nog niet uitgevoerd.",
             "",
         ]
     )
     return "\n".join(lines).encode("utf-8")
+
+
+def _ownership_fingerprint(rows: list[dict[str, str]]) -> tuple[tuple[str, ...], ...]:
+    fields = (
+        "path_b64",
+        "reviewed_object_id",
+        "start_line",
+        "end_line",
+        "symbol_id",
+        "role",
+    )
+    return tuple(sorted(tuple(row.get(field, "") for field in fields) for row in rows))
 
 
 def plan_batches(
@@ -1256,10 +1281,6 @@ def plan_batches(
     for number, packed_batch in enumerate(packed, start=1):
         batch = f"BATCH-{number:03d}"
         batch_groups[batch] = int(packed_batch["group"])
-        lifecycle = old_indexes.get(
-            batch,
-            {"status": "pending", "reviewer": "", "verified_by": ""},
-        )
         for chunk in packed_batch["chunks"]:  # type: ignore[assignment]
             file_row = chunk["file"]
             start, end = int(chunk["start"]), int(chunk["end"])
@@ -1291,12 +1312,8 @@ def plan_batches(
                     "end_line": str(end),
                     "symbol_id": "",
                     "role": "line_owner",
-                    "reviewer": old_line_owner.get(
-                        "reviewer", lifecycle.get("reviewer", "")
-                    ),
-                    "verified_by": old_line_owner.get(
-                        "verified_by", lifecycle.get("verified_by", "")
-                    ),
+                    "reviewer": old_line_owner.get("reviewer", ""),
+                    "verified_by": old_line_owner.get("verified_by", ""),
                 }
             )
             for symbol in chunk["symbols"]:
@@ -1319,22 +1336,41 @@ def plan_batches(
                         "end_line": symbol["end_line"],
                         "symbol_id": symbol["symbol_id"],
                         "role": "symbol_owner",
-                        "reviewer": old_symbol_owner.get(
-                            "reviewer", lifecycle.get("reviewer", "")
-                        ),
-                        "verified_by": old_symbol_owner.get(
-                            "verified_by", lifecycle.get("verified_by", "")
-                        ),
+                        "reviewer": old_symbol_owner.get("reviewer", ""),
+                        "verified_by": old_symbol_owner.get("verified_by", ""),
                     }
                 )
+
+    old_by_batch: dict[str, list[dict[str, str]]] = {}
+    new_by_batch: dict[str, list[dict[str, str]]] = {}
+    for row in old_memberships:
+        old_by_batch.setdefault(row["batch"], []).append(row)
+    for row in memberships:
+        new_by_batch.setdefault(row["batch"], []).append(row)
+    stable_batches = {
+        batch
+        for batch, batch_memberships in new_by_batch.items()
+        if batch in old_indexes
+        and _ownership_fingerprint(batch_memberships)
+        == _ownership_fingerprint(old_by_batch.get(batch, []))
+    }
+    for row in memberships:
+        if row["batch"] not in stable_batches:
+            row.update(reviewer="", verified_by="")
+    for row in new_lines:
+        if row["batch"] not in stable_batches:
+            if row.get("status") != "blocked":
+                row["status"] = "pending"
+            row.update(reviewer="", verified_by="")
 
     indexes: list[dict[str, str]] = []
     manifests: dict[str, bytes] = {}
     for batch in sorted(batch_groups):
         batch_memberships = [row for row in memberships if row["batch"] == batch]
-        lifecycle = old_indexes.get(
-            batch,
-            {"status": "pending", "reviewer": "", "verified_by": ""},
+        lifecycle = (
+            old_indexes[batch]
+            if batch in stable_batches
+            else {"status": "pending", "reviewer": "", "verified_by": ""}
         )
         manifest = _render_manifest(
             batch,

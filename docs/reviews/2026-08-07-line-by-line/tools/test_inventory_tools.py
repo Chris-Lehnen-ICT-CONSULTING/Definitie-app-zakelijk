@@ -332,6 +332,51 @@ def synthetic_inventory(
     }
 
 
+def reviewed_planning_inventory(
+    builder: ModuleType,
+    specs: list[tuple[str, str, int, bool]],
+    symbol_starts: dict[str, list[int]] | None = None,
+) -> dict[str, list[dict[str, str]]]:
+    inventory = synthetic_inventory(builder, specs, symbol_starts)
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+    for row in plan["line_coverage"]:
+        row.update(status="verified", reviewer="reviewer-a", verified_by="reviewer-b")
+    for row in plan["batch_membership"]:
+        row.update(reviewer="reviewer-a", verified_by="reviewer-b")
+    for row in plan["batch_index"]:
+        row.update(status="verified", reviewer="reviewer-a", verified_by="reviewer-b")
+    inventory.update(
+        line_coverage=plan["line_coverage"],
+        batch_membership=plan["batch_membership"],
+        batch_index=plan["batch_index"],
+    )
+    return inventory
+
+
+def finalized_manifest_fixture(
+    builder: ModuleType,
+    memberships: list[dict[str, str]],
+    *,
+    base_sha: str,
+) -> bytes:
+    content = builder._render_manifest(
+        "BATCH-001",
+        2,
+        base_sha,
+        memberships,
+        {
+            "status": "verified",
+            "reviewer": "reviewer-a",
+            "verified_by": "reviewer-b",
+        },
+    ).decode("utf-8")
+    return (
+        content.replace("- [ ]", "- [x]")
+        .replace("Nog niet uitgevoerd.", "Geverifieerd.")
+        .encode("utf-8")
+    )
+
+
 def test_writer_creates_every_scope_schema(
     inventory_tools: tuple[ModuleType, ModuleType],
     sample_repo: tuple[Path, str],
@@ -2951,3 +2996,237 @@ def test_validator_enforces_manifest_and_contiguous_batch_contract(
     errors = validator._validate_batch_index(indexes, memberships, tmp_path, False)
 
     assert any(expected_error in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_error"),
+    [
+        ("status", "manifest status mismatch"),
+        ("reviewer", "manifest reviewer mismatch"),
+        ("verifier", "manifest verifier mismatch"),
+        ("file_count", "manifest file count mismatch"),
+        ("line_count", "manifest line count mismatch"),
+        ("symbol_count", "manifest symbol count mismatch"),
+        ("path", "manifest scope mismatch"),
+        ("range", "manifest scope mismatch"),
+        ("object", "manifest scope mismatch"),
+        ("duplicate_scope", "manifest scope mismatch"),
+        ("checklist", "manifest final checklist incomplete"),
+        ("result", "manifest final result incomplete"),
+    ],
+)
+def test_final_batch_manifest_semantics_are_not_hash_bypassable(
+    inventory_tools: tuple[ModuleType, ModuleType],
+    tmp_path: Path,
+    mutation: str,
+    expected_error: str,
+) -> None:
+    builder, validator = inventory_tools
+    base_sha = "a" * 40
+    plan = builder.plan_batches(
+        synthetic_inventory(
+            builder,
+            [("src/security/safe.py", "A", 3, False)],
+            {"src/security/safe.py": [2]},
+        ),
+        base_sha=base_sha,
+        pilot_paths=(),
+    )
+    memberships = plan["batch_membership"]
+    for row in memberships:
+        row.update(reviewer="reviewer-a", verified_by="reviewer-b")
+    content = finalized_manifest_fixture(
+        builder, memberships, base_sha=base_sha
+    ).decode("utf-8")
+    replacements = {
+        "status": ("- Status: `verified`", "- Status: `pending`"),
+        "reviewer": ("- Reviewer: `reviewer-a`", "- Reviewer: `reviewer-x`"),
+        "verifier": (
+            "- Onafhankelijke verifier: `reviewer-b`",
+            "- Onafhankelijke verifier: `reviewer-x`",
+        ),
+        "file_count": ("- Bestanden: `1`", "- Bestanden: `2`"),
+        "line_count": ("- Fysieke regels: `3`", "- Fysieke regels: `99`"),
+        "symbol_count": ("- Python-symbolen: `1`", "- Python-symbolen: `2`"),
+        "path": ("src/security/safe.py", "src/security/fake.py"),
+        "range": ("`1-3`", "`2-3`"),
+        "object": ("`0000000000000000000000000000000000000001`", f"`{'b' * 40}`"),
+        "checklist": ("- [x] Iedere toegewezen regel", "- [ ] Iedere toegewezen regel"),
+        "result": ("Geverifieerd.", "Nog niet uitgevoerd."),
+    }
+    if mutation == "duplicate_scope":
+        scope_row = next(
+            line
+            for line in content.splitlines()
+            if line.startswith("| `src/security/safe.py`")
+        )
+        content = content.replace(scope_row, f"{scope_row}\n{scope_row}")
+    else:
+        old, new = replacements[mutation]
+        content = content.replace(old, new, 1)
+    manifest_content = content.encode("utf-8")
+    manifest_dir = tmp_path / "batches"
+    manifest_dir.mkdir()
+    (manifest_dir / "BATCH-001.md").write_bytes(manifest_content)
+    index = [
+        {
+            "batch": "BATCH-001",
+            "status": "verified",
+            "reviewer": "reviewer-a",
+            "verified_by": "reviewer-b",
+            "manifest_sha256": hashlib.sha256(manifest_content).hexdigest(),
+            "membership_sha256": builder.canonical_membership_sha256(memberships),
+        }
+    ]
+
+    errors = validator._validate_batch_index(
+        index, memberships, tmp_path, True, base_sha=base_sha
+    )
+
+    assert any(expected_error in error for error in errors), errors
+
+
+def test_final_batch_manifest_must_pin_exact_review_base(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    base_sha = "a" * 40
+    plan = builder.plan_batches(
+        synthetic_inventory(builder, [("src/security/safe.py", "A", 3, False)]),
+        base_sha=base_sha,
+        pilot_paths=(),
+    )
+    memberships = plan["batch_membership"]
+    for row in memberships:
+        row.update(reviewer="reviewer-a", verified_by="reviewer-b")
+    content = finalized_manifest_fixture(builder, memberships, base_sha="b" * 40)
+    manifest_dir = tmp_path / "batches"
+    manifest_dir.mkdir()
+    (manifest_dir / "BATCH-001.md").write_bytes(content)
+    index = [
+        {
+            "batch": "BATCH-001",
+            "status": "verified",
+            "reviewer": "reviewer-a",
+            "verified_by": "reviewer-b",
+            "manifest_sha256": hashlib.sha256(content).hexdigest(),
+            "membership_sha256": builder.canonical_membership_sha256(memberships),
+        }
+    ]
+
+    errors = validator._validate_batch_index(
+        index, memberships, tmp_path, True, base_sha=base_sha
+    )
+
+    assert any("manifest review-base mismatch" in error for error in errors), errors
+
+
+def test_exact_ownership_fingerprint_preserves_verified_lifecycle(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    inventory = reviewed_planning_inventory(
+        builder, [("src/security/a.py", "A", 3, False)]
+    )
+
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+
+    assert {row["status"] for row in plan["batch_index"]} == {"verified"}
+    assert {
+        (row["reviewer"], row["verified_by"]) for row in plan["batch_membership"]
+    } == {("reviewer-a", "reviewer-b")}
+
+
+@pytest.mark.parametrize(
+    "mutation", ["added", "removed", "reassigned", "split", "renumbered"]
+)
+def test_ownership_fingerprint_drift_resets_entire_affected_batch(
+    inventory_tools: tuple[ModuleType, ModuleType], mutation: str
+) -> None:
+    builder, _ = inventory_tools
+    if mutation in {"removed", "renumbered"}:
+        specs = [
+            ("src/security/a.py", "A", 3, False),
+            (
+                "src/security/z.py" if mutation == "removed" else "docs/z.md",
+                "A" if mutation == "removed" else "D",
+                3,
+                False,
+            ),
+        ]
+    else:
+        specs = [("src/security/a.py", "A", 3, False)]
+    inventory = reviewed_planning_inventory(builder, specs)
+
+    if mutation == "added":
+        added = synthetic_inventory(builder, [("src/security/z.py", "A", 3, False)])
+        added["files"][0]["object_id"] = "f" * 40
+        added["line_coverage"][0]["reviewed_object_id"] = "f" * 40
+        inventory["files"].extend(added["files"])
+        inventory["line_coverage"].extend(added["line_coverage"])
+    elif mutation == "removed":
+        removed_b64 = inventory["files"][1]["path_b64"]
+        inventory["files"] = [inventory["files"][0]]
+        inventory["line_coverage"] = [
+            row for row in inventory["line_coverage"] if row["path_b64"] != removed_b64
+        ]
+    elif mutation == "reassigned":
+        for row in inventory["line_coverage"]:
+            row["batch"] = "BATCH-002"
+        for row in inventory["batch_membership"]:
+            row["batch"] = "BATCH-002"
+        inventory["batch_index"][0]["batch"] = "BATCH-002"
+    elif mutation == "split":
+        inventory["files"][0].update(physical_lines="4001", logical_lines="4001")
+    elif mutation == "renumbered":
+        removed_b64 = inventory["files"][0]["path_b64"]
+        inventory["files"] = [inventory["files"][1]]
+        inventory["line_coverage"] = [
+            row for row in inventory["line_coverage"] if row["path_b64"] != removed_b64
+        ]
+
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+
+    assert {
+        (row["status"], row["reviewer"], row["verified_by"])
+        for row in plan["batch_index"]
+    } == {("pending", "", "")}
+    assert {
+        (row["reviewer"], row["verified_by"]) for row in plan["batch_membership"]
+    } == {("", "")}
+    assert {
+        (row["status"], row["reviewer"], row["verified_by"])
+        for row in plan["line_coverage"]
+    } == {("pending", "", "")}
+
+
+def test_manifest_escapes_hostile_path_and_validates_losslessly(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    hostile_path = "src/security/bad\r\n| `INJECTED` |.py"
+    base_sha = "a" * 40
+    plan = builder.plan_batches(
+        synthetic_inventory(builder, [(hostile_path, "A", 1, False)]),
+        base_sha=base_sha,
+        pilot_paths=(),
+    )
+    manifest = plan["manifests"]["BATCH-001.md"]
+    decoded = manifest.decode("utf-8")
+
+    assert hostile_path not in decoded
+    assert "bad\\r\\n\\u007c \\u0060INJECTED\\u0060 \\u007c.py" in decoded
+    assert plan["batch_membership"][0]["path_b64"] in decoded
+    manifest_dir = tmp_path / "batches"
+    manifest_dir.mkdir()
+    (manifest_dir / "BATCH-001.md").write_bytes(manifest)
+
+    errors = validator._validate_batch_index(
+        plan["batch_index"],
+        plan["batch_membership"],
+        tmp_path,
+        False,
+        base_sha=base_sha,
+    )
+
+    assert errors == []
