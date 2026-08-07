@@ -509,6 +509,14 @@ def _manifest_value(content: str, label: str) -> str | None:
     return matches[0] if len(matches) == 1 else None
 
 
+def _manifest_section(content: str, heading: str) -> str | None:
+    matches = re.findall(
+        rf"(?ms)^{re.escape(heading)}[ \t]*\r?\n(.*?)(?=^## [^\r\n]+[ \t]*\r?$|\Z)",
+        content,
+    )
+    return matches[0] if len(matches) == 1 else None
+
+
 def _manifest_semantic_errors(
     batch: str,
     index_row: dict[str, str],
@@ -578,13 +586,8 @@ def _manifest_semantic_errors(
             )
         ] += 1
     actual_scope: Counter[tuple[str, ...]] = Counter()
-    try:
-        scope = content.split("## Scope", 1)[1].split(
-            "## Verplichte reviewchecklist", 1
-        )[0]
-        scope_lines = [line for line in scope.splitlines() if line]
-    except IndexError:
-        scope_lines = []
+    scope = _manifest_section(content, "## Scope")
+    scope_lines = [line for line in (scope or "").splitlines() if line]
     expected_header = [
         "| Pad | path_b64 | Regelbereik | Symbolen | Object-ID |",
         "|---|---|---:|---:|---|",
@@ -604,12 +607,7 @@ def _manifest_semantic_errors(
         errors.append(f"manifest scope mismatch: {batch}")
 
     if require_final:
-        try:
-            checklist = content.split("## Verplichte reviewchecklist", 1)[1].split(
-                "## Bevindingen", 1
-            )[0]
-        except IndexError:
-            checklist = ""
+        checklist = _manifest_section(content, "## Verplichte reviewchecklist") or ""
         expected_checklist = Counter(
             f"- [x] {item}" for item in builder.MANIFEST_CHECKLIST_ITEMS
         )
@@ -618,10 +616,7 @@ def _manifest_semantic_errors(
         )
         if actual_checklist != expected_checklist:
             errors.append(f"manifest final checklist incomplete: {batch}")
-        try:
-            result = content.split("## Resultaat", 1)[1].strip()
-        except IndexError:
-            result = ""
+        result = (_manifest_section(content, "## Resultaat") or "").strip()
         if not result or result == "Nog niet uitgevoerd.":
             errors.append(f"manifest final result incomplete: {batch}")
     return errors
@@ -723,7 +718,7 @@ def _validate_batch_index(
             if heading != f"# {batch}":
                 errors.append(f"batch manifest heading mismatch: {batch}")
         for section in builder.MANIFEST_REQUIRED_SECTIONS:
-            if section not in decoded:
+            if _manifest_section(decoded, section) is None:
                 errors.append(f"batch manifest section missing: {batch}: {section}")
         if row.get("manifest_sha256") != hashlib.sha256(content).hexdigest():
             errors.append(f"batch manifest_sha256 drift: {batch}")
