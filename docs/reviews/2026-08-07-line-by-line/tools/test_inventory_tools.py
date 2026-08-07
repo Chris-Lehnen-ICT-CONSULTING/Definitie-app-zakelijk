@@ -3230,3 +3230,58 @@ def test_manifest_escapes_hostile_path_and_validates_losslessly(
     )
 
     assert errors == []
+
+
+def test_result_heading_in_path_cannot_bypass_final_result_gate(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    hostile_path = "src/security/name ## Resultaat bypass.py"
+    base_sha = "a" * 40
+    inventory = reviewed_planning_inventory(builder, [(hostile_path, "A", 1, False)])
+    plan = builder.plan_batches(inventory, base_sha=base_sha, pilot_paths=())
+    content = plan["manifests"]["BATCH-001.md"].replace(
+        b"Geverifieerd.", b"Nog niet uitgevoerd."
+    )
+    assert hostile_path.encode() not in content
+    assert b"\\u0023\\u0023 Resultaat" in content
+    plan["batch_index"][0]["manifest_sha256"] = hashlib.sha256(content).hexdigest()
+    manifest_dir = tmp_path / "batches"
+    manifest_dir.mkdir()
+    (manifest_dir / "BATCH-001.md").write_bytes(content)
+
+    errors = validator._validate_batch_index(
+        plan["batch_index"],
+        plan["batch_membership"],
+        tmp_path,
+        True,
+        base_sha=base_sha,
+    )
+
+    assert any("manifest final result incomplete" in error for error in errors), errors
+
+
+def test_checklist_heading_in_path_is_benign_manifest_content(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    hostile_path = "src/security/name ## Verplichte reviewchecklist benign.py"
+    base_sha = "a" * 40
+    inventory = reviewed_planning_inventory(builder, [(hostile_path, "A", 1, False)])
+    plan = builder.plan_batches(inventory, base_sha=base_sha, pilot_paths=())
+    content = plan["manifests"]["BATCH-001.md"]
+    assert hostile_path.encode() not in content
+    assert b"\\u0023\\u0023 Verplichte reviewchecklist" in content
+    manifest_dir = tmp_path / "batches"
+    manifest_dir.mkdir()
+    (manifest_dir / "BATCH-001.md").write_bytes(content)
+
+    errors = validator._validate_batch_index(
+        plan["batch_index"],
+        plan["batch_membership"],
+        tmp_path,
+        True,
+        base_sha=base_sha,
+    )
+
+    assert errors == []

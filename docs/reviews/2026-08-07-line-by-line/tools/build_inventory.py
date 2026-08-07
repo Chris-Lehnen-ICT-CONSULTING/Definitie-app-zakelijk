@@ -1055,7 +1055,9 @@ def _line_template(
 
 def _manifest_path(path: str) -> str:
     escaped = json.dumps(path, ensure_ascii=True)[1:-1]
-    return escaped.replace("|", r"\u007c").replace("`", r"\u0060")
+    return (
+        escaped.replace("#", r"\u0023").replace("|", r"\u007c").replace("`", r"\u0060")
+    )
 
 
 def _render_manifest(
