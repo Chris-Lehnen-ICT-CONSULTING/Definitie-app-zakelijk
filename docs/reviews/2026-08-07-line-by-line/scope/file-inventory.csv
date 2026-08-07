@@ -1068,7 +1068,7 @@ src/config/verboden_woorden.json,c3JjL2NvbmZpZy92ZXJib2Rlbl93b29yZGVuLmpzb24=,10
 src/config/verboden_woorden.py,c3JjL2NvbmZpZy92ZXJib2Rlbl93b29yZGVuLnB5,100644,blob,4709b736efc8af202fa2f3ab63487af5c48a59b4,text/x-python,4807,138,76,A,pending,,,,,
 src/database/__init__.py,c3JjL2RhdGFiYXNlL19faW5pdF9fLnB5,100644,blob,69adb9e381b19a00ed2ca9bd35763662cd214e07,text/x-python,243,7,1,A,pending,,,,,
 src/database/audit_helpers.py,c3JjL2RhdGFiYXNlL2F1ZGl0X2hlbHBlcnMucHk=,100644,blob,3c44a6259ff14a4aa8cbc435a8567ba7fda86242,text/x-python,7486,195,162,A,pending,,,,,
-src/database/db_connection.py,c3JjL2RhdGFiYXNlL2RiX2Nvbm5lY3Rpb24ucHk=,100644,blob,51dd314b50eee56ba0378bb93f9dced0457addbb,text/x-python,7881,192,120,A,pending,,,,,
+src/database/db_connection.py,c3JjL2RhdGFiYXNlL2RiX2Nvbm5lY3Rpb24ucHk=,100644,blob,51dd314b50eee56ba0378bb93f9dced0457addbb,text/x-python,7881,192,120,A,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,PILOT-001;PILOT-003;PILOT-011,BATCH-001 immutable blob reviewed
 src/database/definitie_crud.py,c3JjL2RhdGFiYXNlL2RlZmluaXRpZV9jcnVkLnB5,100644,blob,e23cebbb0776f129d54b56a31e3265f8daa59eab,text/x-python,11843,337,258,A,pending,,,,,
 src/database/definitie_duplicates.py,c3JjL2RhdGFiYXNlL2RlZmluaXRpZV9kdXBsaWNhdGVzLnB5,100644,blob,24d4d3399be1d22d202c03be04d93aaae334aef2,text/x-python,5002,134,99,A,pending,,,,,
 src/database/definitie_import_export.py,c3JjL2RhdGFiYXNlL2RlZmluaXRpZV9pbXBvcnRfZXhwb3J0LnB5,100644,blob,8cc01281feacda9b192fa4d081b48453e38e0a0a,text/x-python,5569,169,126,A,pending,,,,,
@@ -1114,7 +1114,7 @@ src/export/__init__.py,c3JjL2V4cG9ydC9fX2luaXRfXy5weQ==,100644,blob,3cc7d52e0b5d
 src/export/export_txt.py,c3JjL2V4cG9ydC9leHBvcnRfdHh0LnB5,100644,blob,7e9255d3e3e6280c4306f36964f4d1db1a949ae8,text/x-python,4480,105,84,A,pending,,,,,
 src/integration/__init__.py,c3JjL2ludGVncmF0aW9uL19faW5pdF9fLnB5,100644,blob,8ef23d2646a5fc319a71864fc7fbfcd27582b011,text/x-python,47,1,1,A,pending,,,,,
 src/integration/definitie_checker.py,c3JjL2ludGVncmF0aW9uL2RlZmluaXRpZV9jaGVja2VyLnB5,100644,blob,b582a3ccac666c34ce2b70bab3835ebd221ecdc5,text/x-python,34247,885,618,A,pending,,,,,
-src/main.py,c3JjL21haW4ucHk=,100644,blob,ee962dd7534bb56c0c107b6dbfb280922f0fa258,text/x-python,11295,285,139,A,pending,,,,,
+src/main.py,c3JjL21haW4ucHk=,100644,blob,ee962dd7534bb56c0c107b6dbfb280922f0fa258,text/x-python,11295,285,139,A,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,PILOT-010,BATCH-001 immutable blob reviewed
 src/models/category_models.py,c3JjL21vZGVscy9jYXRlZ29yeV9tb2RlbHMucHk=,100644,blob,2993e0daedd73d19ba4a13dd0a4cdb6594cdd7f1,text/x-python,1581,62,48,A,pending,,,,,
 src/models/ontology_models.py,c3JjL21vZGVscy9vbnRvbG9neV9tb2RlbHMucHk=,100644,blob,512be718b4a40d629a9acd5549028b58ce330467,text/x-python,1421,53,37,A,pending,,,,,
 src/models/synonym_models.py,c3JjL21vZGVscy9zeW5vbnltX21vZGVscy5weQ==,100644,blob,5103ce3d777700125e87ec84a7fcbd7037660dc9,text/x-python,5304,171,111,A,pending,,,,,
@@ -1217,7 +1217,7 @@ src/services/rag/rag_management_service.py,c3JjL3NlcnZpY2VzL3JhZy9yYWdfbWFuYWdlb
 src/services/rag/rag_service.py,c3JjL3NlcnZpY2VzL3JhZy9yYWdfc2VydmljZS5weQ==,100644,blob,9f362083ac3d10f295089806eca659b542fe1db5,text/x-python,18117,516,371,A,pending,,,,,
 src/services/rag/token_counter.py,c3JjL3NlcnZpY2VzL3JhZy90b2tlbl9jb3VudGVyLnB5,100644,blob,9f211b0263cff28a16d2c6f5ed7d520c96ef8050,text/x-python,693,31,17,A,pending,,,,,
 src/services/security_service.py,c3JjL3NlcnZpY2VzL3NlY3VyaXR5X3NlcnZpY2UucHk=,100644,blob,c504625fe2716847882b7eafc20a134b7d9a3048,text/x-python,5897,128,76,A,pending,,,,,
-src/services/service_factory.py,c3JjL3NlcnZpY2VzL3NlcnZpY2VfZmFjdG9yeS5weQ==,100644,blob,94b431234cbdfc3d8ccc25776ea5dec145698f01,text/x-python,32935,790,536,A,pending,,,,,
+src/services/service_factory.py,c3JjL3NlcnZpY2VzL3NlcnZpY2VfZmFjdG9yeS5weQ==,100644,blob,94b431234cbdfc3d8ccc25776ea5dec145698f01,text/x-python,32935,790,536,A,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,PILOT-004;PILOT-005;PILOT-013;PILOT-014,BATCH-001 immutable blob reviewed
 src/services/synonym_orchestrator.py,c3JjL3NlcnZpY2VzL3N5bm9ueW1fb3JjaGVzdHJhdG9yLnB5,100644,blob,86de54564307143afa899b08495c7d6b4f320c1e,text/x-python,23381,629,327,A,pending,,,,,
 src/services/synonym_suggester.py,c3JjL3NlcnZpY2VzL3N5bm9ueW1fc3VnZ2VzdGVyLnB5,100644,blob,aaac291bbe95edb2aec147879b20d2d200f62e3f,text/x-python,3717,100,63,A,pending,,,,,
 src/services/unified_definition_service_v2.py,c3JjL3NlcnZpY2VzL3VuaWZpZWRfZGVmaW5pdGlvbl9zZXJ2aWNlX3YyLnB5,100644,blob,828b6c147266fe3ca764d8569777889968798436,text/x-python,505,18,9,A,pending,,,,,
@@ -1436,7 +1436,7 @@ src/ui/components/category_regeneration_helper.py,c3JjL3VpL2NvbXBvbmVudHMvY2F0ZW
 src/ui/components/category_renderer.py,c3JjL3VpL2NvbXBvbmVudHMvY2F0ZWdvcnlfcmVuZGVyZXIucHk=,100644,blob,ad5f5ab729c7995bd221b9f41dfb96effe7b13ba,text/x-python,22466,595,493,A,pending,,,,,
 src/ui/components/context_state_cleaner.py,c3JjL3VpL2NvbXBvbmVudHMvY29udGV4dF9zdGF0ZV9jbGVhbmVyLnB5,100644,blob,fc08a58745fe1d37c892089e56202c86ef00beec,text/x-python,5179,136,79,A,pending,,,,,
 src/ui/components/definition_edit_tab.py,c3JjL3VpL2NvbXBvbmVudHMvZGVmaW5pdGlvbl9lZGl0X3RhYi5weQ==,100644,blob,d1072b75d52b6742c1913f3886e13d1fcee187c8,text/x-python,83788,1924,1524,A,pending,,,,,
-src/ui/components/definition_generator_tab.py,c3JjL3VpL2NvbXBvbmVudHMvZGVmaW5pdGlvbl9nZW5lcmF0b3JfdGFiLnB5,100644,blob,d6e5808a00cda5048f6a171227a9be09bd4c3a1c,text/x-python,30705,723,566,A,pending,,,,,
+src/ui/components/definition_generator_tab.py,c3JjL3VpL2NvbXBvbmVudHMvZGVmaW5pdGlvbl9nZW5lcmF0b3JfdGFiLnB5,100644,blob,d6e5808a00cda5048f6a171227a9be09bd4c3a1c,text/x-python,30705,723,566,A,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,PILOT-002;PILOT-007;PILOT-008;PILOT-009;PILOT-015;PILOT-016,BATCH-001 immutable blob reviewed
 src/ui/components/duplicate_check_renderer.py,c3JjL3VpL2NvbXBvbmVudHMvZHVwbGljYXRlX2NoZWNrX3JlbmRlcmVyLnB5,100644,blob,7e317bbf5fa439ff0acf293b3b58fd57c1ac7449,text/x-python,7450,185,127,A,pending,,,,,
 src/ui/components/enhanced_context_manager_selector.py,c3JjL3VpL2NvbXBvbmVudHMvZW5oYW5jZWRfY29udGV4dF9tYW5hZ2VyX3NlbGVjdG9yLnB5,100644,blob,2fc723809c140def9ae8fee99193b0f8cdec4c03,text/x-python,11128,315,206,A,pending,,,,,
 src/ui/components/examples_block.py,c3JjL3VpL2NvbXBvbmVudHMvZXhhbXBsZXNfYmxvY2sucHk=,100644,blob,959b0d6e174ad3ce9b78cdf54ebd86a93c905bbe,text/x-python,25891,617,434,A,pending,,,,,
@@ -1631,7 +1631,7 @@ tests/output/test_baseline.txt,dGVzdHMvb3V0cHV0L3Rlc3RfYmFzZWxpbmUudHh0,100644,b
 tests/output/test_baseline_continue.txt,dGVzdHMvb3V0cHV0L3Rlc3RfYmFzZWxpbmVfY29udGludWUudHh0,100644,blob,7a6d3fb7b02e225cbac041a7e5fe0ee9e28c8c96,text/plain,699,12,11,B,pending,,,,,
 tests/pytest_per007.ini,dGVzdHMvcHl0ZXN0X3BlcjAwNy5pbmk=,100644,blob,0b645d55dcd3f49042ca1b781b45669d662654e8,text/plain,2278,77,64,B,pending,,,,,
 tests/smoke/test_anthropic_generation_smoke.py,dGVzdHMvc21va2UvdGVzdF9hbnRocm9waWNfZ2VuZXJhdGlvbl9zbW9rZS5weQ==,100644,blob,b8c8111c77e40e3369e9e340730c1d6dfb79eb69,text/x-python,8419,233,167,B,pending,,,,,
-tests/smoke/test_critical_paths.py,dGVzdHMvc21va2UvdGVzdF9jcml0aWNhbF9wYXRocy5weQ==,100644,blob,39fc06e022556007c4d5b55acbdde04d7eb2a5a0,text/x-python,6303,170,81,B,pending,,,,,
+tests/smoke/test_critical_paths.py,dGVzdHMvc21va2UvdGVzdF9jcml0aWNhbF9wYXRocy5weQ==,100644,blob,39fc06e022556007c4d5b55acbdde04d7eb2a5a0,text/x-python,6303,170,81,B,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,PILOT-006;PILOT-012,BATCH-001 immutable blob reviewed
 tests/smoke/test_smoke_generation.py,dGVzdHMvc21va2UvdGVzdF9zbW9rZV9nZW5lcmF0aW9uLnB5,100644,blob,7b52b804166060701ecd772edef43bc03c9ca25c,text/x-python,2936,96,63,B,pending,,,,,
 tests/smoke/test_sru_context_usage.py,dGVzdHMvc21va2UvdGVzdF9zcnVfY29udGV4dF91c2FnZS5weQ==,100644,blob,92200e5b81b01925bd4a643bb383bcd820d3e433,text/x-python,3029,86,60,B,pending,,,,,
 tests/smoke/test_sru_gzd_parser.py,dGVzdHMvc21va2UvdGVzdF9zcnVfZ3pkX3BhcnNlci5weQ==,100644,blob,740effb6901c59326c89a07b96830a53c7cfcca4,text/x-python,1473,42,20,B,pending,,,,,
@@ -1645,7 +1645,7 @@ tests/unit/api/test_feature_status_api.py,dGVzdHMvdW5pdC9hcGkvdGVzdF9mZWF0dXJlX3
 tests/unit/api/test_uvicorn_pii_redaction.py,dGVzdHMvdW5pdC9hcGkvdGVzdF91dmljb3JuX3BpaV9yZWRhY3Rpb24ucHk=,100644,blob,1451b7fb5cc1c5a84bfcaecc46240afc68741905,text/x-python,3615,99,59,B,pending,,,,,
 tests/unit/config/test_dotenv_loader.py,dGVzdHMvdW5pdC9jb25maWcvdGVzdF9kb3RlbnZfbG9hZGVyLnB5,100644,blob,7c756102bb56d015395fce2db1968d9b2008ede2,text/x-python,8621,230,140,B,pending,,,,,
 tests/unit/conftest.py,dGVzdHMvdW5pdC9jb25mdGVzdC5weQ==,100644,blob,c15a7eaa8d18aaa8dfd7135e7bc4e8a0823bc6bc,text/x-python,1873,41,10,B,pending,,,,,
-tests/unit/database/test_transactie_atomiciteit.py,dGVzdHMvdW5pdC9kYXRhYmFzZS90ZXN0X3RyYW5zYWN0aWVfYXRvbWljaXRlaXQucHk=,100644,blob,fa9fd400e87bb979e5630a975d15f7137e6b6909,text/x-python,9539,251,163,B,pending,,,,,
+tests/unit/database/test_transactie_atomiciteit.py,dGVzdHMvdW5pdC9kYXRhYmFzZS90ZXN0X3RyYW5zYWN0aWVfYXRvbWljaXRlaXQucHk=,100644,blob,fa9fd400e87bb979e5630a975d15f7137e6b6909,text/x-python,9539,251,163,B,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,,BATCH-001 immutable blob reviewed
 tests/unit/database/test_v6_migration.py,dGVzdHMvdW5pdC9kYXRhYmFzZS90ZXN0X3Y2X21pZ3JhdGlvbi5weQ==,100644,blob,3c8462ad2226f9cf5e909f905d4cc2fd80ed6165,text/x-python,12921,373,231,B,pending,,,,,
 tests/unit/database/test_voorbeelden_voorkeursterm.py,dGVzdHMvdW5pdC9kYXRhYmFzZS90ZXN0X3Zvb3JiZWVsZGVuX3Zvb3JrZXVyc3Rlcm0ucHk=,100644,blob,2cfaaa40eec39f3a52885feb13d0c09855776c5f,text/x-python,3615,109,62,B,pending,,,,,
 tests/unit/document_processing/test_document_processor_cache_bounds.py,dGVzdHMvdW5pdC9kb2N1bWVudF9wcm9jZXNzaW5nL3Rlc3RfZG9jdW1lbnRfcHJvY2Vzc29yX2NhY2hlX2JvdW5kcy5weQ==,100644,blob,167e552c61d7218fe6e4a02e3808f49db170d8ae,text/x-python,4392,109,73,B,pending,,,,,
@@ -1728,7 +1728,7 @@ tests/unit/services/test_pandas3_na_contract.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0
 tests/unit/services/test_security_service.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlY3VyaXR5X3NlcnZpY2UucHk=,100644,blob,cc1c31db3674c70675ddb5331dee18c8f2b817f4,text/x-python,4542,122,96,B,pending,,,,,
 tests/unit/services/test_service_container.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlcnZpY2VfY29udGFpbmVyLnB5,100644,blob,f6ee62baeaf4c21ad0f8005cbabff567bc00f35f,text/x-python,7566,243,140,B,pending,,,,,
 tests/unit/services/test_service_factory.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlcnZpY2VfZmFjdG9yeS5weQ==,100644,blob,de66f9e45ad9f8d698e93a6e4550fb1ea4f8420d,text/x-python,45013,1230,861,B,pending,,,,,
-tests/unit/services/test_service_factory_caching.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlcnZpY2VfZmFjdG9yeV9jYWNoaW5nLnB5,100644,blob,113c8e8f07e9978a9d4df948f31646411d5c4789,text/x-python,1071,32,15,B,pending,,,,,
+tests/unit/services/test_service_factory_caching.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlcnZpY2VfZmFjdG9yeV9jYWNoaW5nLnB5,100644,blob,113c8e8f07e9978a9d4df948f31646411d5c4789,text/x-python,1071,32,15,B,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,,BATCH-001 immutable blob reviewed
 tests/unit/services/test_service_factory_overall_score_fix.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlcnZpY2VfZmFjdG9yeV9vdmVyYWxsX3Njb3JlX2ZpeC5weQ==,100644,blob,0c5d0ee2e8c6b3893151d5f7b252c71303f8bb6c,text/x-python,26408,676,505,B,pending,,,,,
 tests/unit/services/test_service_factory_scores_param.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NlcnZpY2VfZmFjdG9yeV9zY29yZXNfcGFyYW0ucHk=,100644,blob,f91129c290d24f701ea5e4cef4226d7a6fc6310c,text/x-python,2586,85,67,B,pending,,,,,
 tests/unit/services/test_silent_failures_2b.py,dGVzdHMvdW5pdC9zZXJ2aWNlcy90ZXN0X3NpbGVudF9mYWlsdXJlc18yYi5weQ==,100644,blob,b0f3bd40014795c2cd079f604fc9562ed0eb6f9e,text/x-python,4921,127,78,B,pending,,,,,
@@ -1838,7 +1838,7 @@ tests/unit/ui/renderers/test_global_context_renderer_begrip_sync.py,dGVzdHMvdW5p
 tests/unit/ui/test_async_bridge_run_async.py,dGVzdHMvdW5pdC91aS90ZXN0X2FzeW5jX2JyaWRnZV9ydW5fYXN5bmMucHk=,100644,blob,3230e22a1c90ea68e6ac3bccc14802a3703ca444,text/x-python,3242,108,52,B,pending,,,,,
 tests/unit/ui/test_context_selector_anders_fix.py,dGVzdHMvdW5pdC91aS90ZXN0X2NvbnRleHRfc2VsZWN0b3JfYW5kZXJzX2ZpeC5weQ==,100644,blob,fdf934c1f8d9fd6d271a6f4be58188af2dfbe6f5,text/x-python,7468,202,119,B,pending,,,,,
 tests/unit/ui/test_context_session_isolation.py,dGVzdHMvdW5pdC91aS90ZXN0X2NvbnRleHRfc2Vzc2lvbl9pc29sYXRpb24ucHk=,100644,blob,eacc94433920cad0a3c9c60c44de37ae3d1eca45,text/x-python,4934,119,74,B,pending,,,,,
-tests/unit/ui/test_definition_generator_tab_generation_details.py,dGVzdHMvdW5pdC91aS90ZXN0X2RlZmluaXRpb25fZ2VuZXJhdG9yX3RhYl9nZW5lcmF0aW9uX2RldGFpbHMucHk=,100644,blob,05941581ea560a4059dfc446e0de7fa04ba4d2f1,text/x-python,5269,138,92,B,pending,,,,,
+tests/unit/ui/test_definition_generator_tab_generation_details.py,dGVzdHMvdW5pdC91aS90ZXN0X2RlZmluaXRpb25fZ2VuZXJhdG9yX3RhYl9nZW5lcmF0aW9uX2RldGFpbHMucHk=,100644,blob,05941581ea560a4059dfc446e0de7fa04ba4d2f1,text/x-python,5269,138,92,B,verified,codex-root,codex-kierkegaard,2026-08-07T11:33:18Z,,BATCH-001 immutable blob reviewed
 tests/unit/ui/test_document_snippets_docx.py,dGVzdHMvdW5pdC91aS90ZXN0X2RvY3VtZW50X3NuaXBwZXRzX2RvY3gucHk=,100644,blob,8540da642522f4a55d294f0bc48db9c216d6f0ba,text/x-python,1567,55,37,B,pending,,,,,
 tests/unit/ui/test_session_state_manager.py,dGVzdHMvdW5pdC91aS90ZXN0X3Nlc3Npb25fc3RhdGVfbWFuYWdlci5weQ==,100644,blob,1cc33a91ded697c0d177c52ef803d5b75b374481,text/x-python,26116,606,441,B,pending,,,,,
 tests/unit/ui/test_status_flags.py,dGVzdHMvdW5pdC91aS90ZXN0X3N0YXR1c19mbGFncy5weQ==,100644,blob,930f31442ca723cc8b632f38bc7f7aa78cdc2aa9,text/x-python,16718,423,282,B,pending,,,,,

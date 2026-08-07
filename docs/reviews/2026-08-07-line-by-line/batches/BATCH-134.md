@@ -1,0 +1,59 @@
+# BATCH-134
+
+- Status: `pending`
+- Reviewgroep: `17` — Documentatie, plannen en handovers
+- Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
+- Membership-SHA256: `b0a60cde9ade3801331542658de2098d7b23dc96dc2af9a6e83362b6ebbd086e`
+- Bestanden: `22`
+- Fysieke regels: `5429`
+- Python-symbolen: `0`
+- Reviewer: ``
+- Onafhankelijke verifier: ``
+
+## Scope
+
+| Pad | path_b64 | Regelbereik | Symbolen | Object-ID |
+|---|---|---:|---:|---|
+| `docs/ARCHIEF/EA_prompt_management_concept.md` | `ZG9jcy9BUkNISUVGL0VBX3Byb21wdF9tYW5hZ2VtZW50X2NvbmNlcHQubWQ=` | `1-235` | 0 | `bd630758c44e26210256de0d965d12c26b75cb21` |
+| `docs/ARCHIEF/ENTERPRISE_ARCHITECTURE_DASHBOARD.html` | `ZG9jcy9BUkNISUVGL0VOVEVSUFJJU0VfQVJDSElURUNUVVJFX0RBU0hCT0FSRC5odG1s` | `1-587` | 0 | `5ac1e133f27690209b1664f4a0cba61e28e1518c` |
+| `docs/ARCHIEF/INTEGRATE_TRUE_MODULAR_SYSTEM_WORKFLOW.md` | `ZG9jcy9BUkNISUVGL0lOVEVHUkFURV9UUlVFX01PRFVMQVJfU1lTVEVNX1dPUktGTE9XLm1k` | `1-126` | 0 | `360cd23fb3a87c3398aba518687924439ac8c349` |
+| `docs/ARCHIEF/LEGACY_CODE_MIGRATION_ROADMAP.md` | `ZG9jcy9BUkNISUVGL0xFR0FDWV9DT0RFX01JR1JBVElPTl9ST0FETUFQLm1k` | `1-327` | 0 | `bd1abdbe7bc78d6525eaf20fcee3724249d80d7a` |
+| `docs/ARCHIEF/LOGICAL_PROMPT_BLOCKS_BUSINESS_VIEW.md` | `ZG9jcy9BUkNISUVGL0xPR0lDQUxfUFJPTVBUX0JMT0NLU19CVVNJTkVTU19WSUVXLm1k` | `1-156` | 0 | `d75c4c27f059b8c0efa8300a9fd8e9a348bf9999` |
+| `docs/ARCHIEF/MIGRATION_IMPLEMENTATION_PLAN.md` | `ZG9jcy9BUkNISUVGL01JR1JBVElPTl9JTVBMRU1FTlRBVElPTl9QTEFOLm1k` | `1-242` | 0 | `fe85fd19916dfcb20aeb4ecf79c67bf458978618` |
+| `docs/ARCHIEF/MIGRATION_ROADMAP.md` | `ZG9jcy9BUkNISUVGL01JR1JBVElPTl9ST0FETUFQLm1k` | `1-533` | 0 | `6bd5f3ead2d3148df3461373a747b946a0f566ee` |
+| `docs/ARCHIEF/MODULAIRE_PROMPT_ARCHITECTUUR_WORKFLOW.md` | `ZG9jcy9BUkNISUVGL01PRFVMQUlSRV9QUk9NUFRfQVJDSElURUNUVVVSX1dPUktGTE9XLm1k` | `1-350` | 0 | `6dda1b123fc7a363c94cc5a76fb5ee6b1e3daf75` |
+| `docs/ARCHIEF/MODULAR_PROMPT_REFACTORING_WORKFLOW.md` | `ZG9jcy9BUkNISUVGL01PRFVMQVJfUFJPTVBUX1JFRkFDVE9SSU5HX1dPUktGTE9XLm1k` | `1-233` | 0 | `4b80e9a72455c5533d8353765a0afae782dfe3fb` |
+| `docs/ARCHIEF/MODULE_1_CORE_INSTRUCTIONS_WORKFLOW.md` | `ZG9jcy9BUkNISUVGL01PRFVMRV8xX0NPUkVfSU5TVFJVQ1RJT05TX1dPUktGTE9XLm1k` | `1-191` | 0 | `d92fc4f816e451029488c55e1f82fae4e9725e7b` |
+| `docs/ARCHIEF/MODULE_1_EVALUATION_REPORT.md` | `ZG9jcy9BUkNISUVGL01PRFVMRV8xX0VWQUxVQVRJT05fUkVQT1JULm1k` | `1-128` | 0 | `d62177574d1edd0a0078b1e278b1224e8365a1bc` |
+| `docs/ARCHIEF/MODULE_1_IMPLEMENTATION_SUMMARY.md` | `ZG9jcy9BUkNISUVGL01PRFVMRV8xX0lNUExFTUVOVEFUSU9OX1NVTU1BUlkubWQ=` | `1-93` | 0 | `4b7644523ea1c1d7552e9cbeed6479ec93c579a3` |
+| `docs/ARCHIEF/MODULE_1_MONOLITH_VS_MODULAR.md` | `ZG9jcy9BUkNISUVGL01PRFVMRV8xX01PTk9MSVRIX1ZTX01PRFVMQVIubWQ=` | `1-162` | 0 | `f504185f80bd57b8b71b475683c8038ceb4f45f1` |
+| `docs/ARCHIEF/MODULE_1_REQUIREMENTS_BASED_IMPLEMENTATION.md` | `ZG9jcy9BUkNISUVGL01PRFVMRV8xX1JFUVVJUkVNRU5UU19CQVNFRF9JTVBMRU1FTlRBVElPTi5tZA==` | `1-233` | 0 | `cf6bd23c2630248ceafb1e25b2e61f392c8bc6e2` |
+| `docs/ARCHIEF/MODULE_DEPENDENCY_MAPPING.md` | `ZG9jcy9BUkNISUVGL01PRFVMRV9ERVBFTkRFTkNZX01BUFBJTkcubWQ=` | `1-187` | 0 | `04555d36cf062215f75b012dd19ae17ac12777e8` |
+| `docs/ARCHIEF/NEW_SERVICE_ARCHITECTURE_ANALYSIS.md` | `ZG9jcy9BUkNISUVGL05FV19TRVJWSUNFX0FSQ0hJVEVDVFVSRV9BTkFMWVNJUy5tZA==` | `1-290` | 0 | `969f36c1a4797bd231b37d5736b425e3b5ddf7f5` |
+| `docs/ARCHIEF/OVERLAP_ANALYSIS_EA_SA.md` | `ZG9jcy9BUkNISUVGL09WRVJMQVBfQU5BTFlTSVNfRUFfU0EubWQ=` | `1-137` | 0 | `b5e703fd33ee923074ff5179e3b1f25348fde3d5` |
+| `docs/ARCHIEF/PHASE_2_PROGRESS_SUMMARY.md` | `ZG9jcy9BUkNISUVGL1BIQVNFXzJfUFJPR1JFU1NfU1VNTUFSWS5tZA==` | `1-114` | 0 | `a8e59b180f5d5132519eda5970005c26b5cf5760` |
+| `docs/ARCHIEF/PROMPT_COMPONENTS_MAPPING.md` | `ZG9jcy9BUkNISUVGL1BST01QVF9DT01QT05FTlRTX01BUFBJTkcubWQ=` | `1-192` | 0 | `260a142e091f64815c7be95f2f5e3bf356b2cf5e` |
+| `docs/ARCHIEF/README_FEATURE_STATUS.md` | `ZG9jcy9BUkNISUVGL1JFQURNRV9GRUFUVVJFX1NUQVRVUy5tZA==` | `1-123` | 0 | `3e6130569eb18b1554a27c66f870dd4478ca399c` |
+| `docs/ARCHIEF/REORGANIZATION_PLAN.md` | `ZG9jcy9BUkNISUVGL1JFT1JHQU5JWkFUSU9OX1BMQU4ubWQ=` | `1-235` | 0 | `0746b4a7df6da57b1dbc0b4bcd3aa2ab643717df` |
+| `docs/ARCHIEF/SA_three_fixes_concept.md` | `ZG9jcy9BUkNISUVGL1NBX3RocmVlX2ZpeGVzX2NvbmNlcHQubWQ=` | `1-555` | 0 | `e1b255e3dda32ed4f6f8ec452f8eef2762aadd7a` |
+
+## Verplichte reviewchecklist
+
+- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [ ] Codekwaliteit en architectuur beoordeeld.
+- [ ] Bugs, security en foutafhandeling beoordeeld.
+- [ ] Functionaliteit en relevante tests beoordeeld.
+- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+
+## Bevindingen
+
+Nog niet geregistreerd.
+
+## Resultaat
+
+Nog niet uitgevoerd.
