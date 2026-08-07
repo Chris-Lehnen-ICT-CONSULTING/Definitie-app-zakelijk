@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import base64
+import copy
 import csv
 import hashlib
 import importlib.util
+import itertools
 import json
 import os
 import subprocess
@@ -236,6 +238,98 @@ def freeze_untracked_scope(
     git(repo, "add", frozen_path.relative_to(repo).as_posix())
     git(repo, "commit", "-qm", "freeze untracked scope")
     return review_dir, inventory, git(repo, "rev-parse", "HEAD")
+
+
+def synthetic_inventory(
+    builder: ModuleType,
+    specs: list[tuple[str, str, int, bool]],
+    symbol_starts: dict[str, list[int]] | None = None,
+) -> dict[str, list[dict[str, str]]]:
+    files: list[dict[str, str]] = []
+    lines: list[dict[str, str]] = []
+    symbols: list[dict[str, str]] = []
+    for number, (path, tier, physical_lines, binary) in enumerate(specs, start=1):
+        raw_path = path.encode("utf-8")
+        path_b64 = base64.b64encode(raw_path).decode("ascii")
+        object_id = f"{number:040x}"
+        files.append(
+            {
+                "path": path,
+                "path_b64": path_b64,
+                "git_mode": "100644",
+                "object_type": "blob",
+                "object_id": object_id,
+                "file_type": "application/octet-stream" if binary else "text/plain",
+                "bytes": str(physical_lines),
+                "physical_lines": "" if binary else str(physical_lines),
+                "logical_lines": "" if binary else str(physical_lines),
+                "scope_tier": tier,
+                "status": "blocked" if path.endswith("blocked.py") else "pending",
+                "reviewer": "",
+                "verified_by": "",
+                "reviewed_at": "",
+                "finding_ids": "F-001" if path.endswith("blocked.py") else "",
+                "notes": "fixture",
+            }
+        )
+        start = "0" if binary or physical_lines == 0 else "1"
+        end = "0" if binary or physical_lines == 0 else str(physical_lines)
+        lines.append(
+            {
+                "path": path,
+                "path_b64": path_b64,
+                "reviewed_object_id": object_id,
+                "start_line": start,
+                "end_line": end,
+                "classification": (
+                    "binary_equivalent_review"
+                    if binary
+                    else "empty_file" if physical_lines == 0 else "pending_line_review"
+                ),
+                "batch": "",
+                "status": files[-1]["status"],
+                "reviewer": "",
+                "verified_by": "",
+                "finding_ids": files[-1]["finding_ids"],
+                "notes": "fixture-line",
+            }
+        )
+        for symbol_number, start_line in enumerate(
+            (symbol_starts or {}).get(path, []), start=1
+        ):
+            symbols.append(
+                {
+                    "symbol_id": f"SYM-{number:04d}-{symbol_number:04d}",
+                    "path": path,
+                    "path_b64": path_b64,
+                    "qualified_name": f"symbol_{symbol_number}",
+                    "kind": "function",
+                    "start_line": str(start_line),
+                    "start_col": "0",
+                    "end_line": str(start_line),
+                    "end_col": "1",
+                    "parent_symbol": "",
+                    "decorators": "",
+                    "complexity": "1",
+                    "status": "pending",
+                    "reviewer": "",
+                    "verified_by": "",
+                    "test_ids": "",
+                    "finding_ids": "",
+                    "notes": "",
+                }
+            )
+    return {
+        "files": files,
+        "symbols": symbols,
+        "line_coverage": lines,
+        "batch_membership": [],
+        "batch_index": [],
+        "review_infrastructure": [],
+        "untracked": [],
+        "exclusions": [],
+        "findings": [],
+    }
 
 
 def test_writer_creates_every_scope_schema(
@@ -2356,5 +2450,482 @@ def test_final_batch_index_requires_verified_independent_review(
     errors = validator.validate_inventory(
         repo, base_sha, review_dir, require_final=True
     )
+
+    assert any(expected_error in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    ("path", "expected_group"),
+    [
+        ("Makefile", 1),
+        ("src/api/routes/definitions.py", 2),
+        ("src/domain/entities/definition.py", 3),
+        ("src/database/migrations/001.sql.py", 4),
+        ("src/services/ai/model_router.py", 5),
+        ("src/services/orchestrators/generation.py", 6),
+        ("src/services/validation/sanitizer.py", 7),
+        ("src/services/web_lookup/rag.py", 8),
+        ("src/services/export/cache.py", 9),
+        ("src/ui/renderers/result.py", 10),
+        ("src/ui/components/definition_generator_tab.py", 11),
+        ("src/utils/monitoring.py", 12),
+        ("tests/unit/services/test_cache.py", 13),
+        ("tests/integration/test_api.py", 14),
+        ("scripts/check_quality.sh", 15),
+        ("data/wetteksten/wid.txt", 16),
+        ("docs/plans/review.md", 17),
+        ("assets/logo.png", 18),
+    ],
+)
+def test_review_group_policy_has_eighteen_first_match_groups(
+    inventory_tools: tuple[ModuleType, ModuleType], path: str, expected_group: int
+) -> None:
+    builder, _ = inventory_tools
+
+    assert builder.review_group(path) == expected_group
+
+
+def test_batch_planner_is_deterministic_and_raw_path_sorted(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    inventory = synthetic_inventory(
+        builder,
+        [
+            ("src/misc/z.py", "A", 1, False),
+            ("src/misc/é.py", "A", 1, False),
+            ("src/misc/a.py", "A", 1, False),
+        ],
+    )
+
+    first = builder.plan_batches(
+        copy.deepcopy(inventory), base_sha="a" * 40, pilot_paths=()
+    )
+    second = builder.plan_batches(
+        {
+            **copy.deepcopy(inventory),
+            "files": list(reversed(inventory["files"])),
+            "line_coverage": list(reversed(inventory["line_coverage"])),
+        },
+        base_sha="a" * 40,
+        pilot_paths=(),
+    )
+
+    assert first == second
+    assert [
+        row["path"] for row in first["batch_membership"] if row["role"] == "line_owner"
+    ] == ["src/misc/a.py", "src/misc/z.py", "src/misc/é.py"]
+
+
+def test_batch_planner_splits_large_json_into_eleven_ranges(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    inventory = synthetic_inventory(builder, [("runtime/huge.json", "D", 60001, False)])
+
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+    ranges = [
+        (int(row["start_line"]), int(row["end_line"])) for row in plan["line_coverage"]
+    ]
+
+    assert len(ranges) == 11
+    assert ranges[0] == (1, 6000)
+    assert ranges[-1] == (60001, 60001)
+    assert all(
+        previous[1] + 1 == current[0]
+        for previous, current in itertools.pairwise(ranges)
+    )
+
+
+@pytest.mark.parametrize(
+    ("tier", "count", "expected_batches"),
+    [("A", 21, 2), ("D", 31, 2)],
+)
+def test_batch_planner_enforces_file_caps(
+    inventory_tools: tuple[ModuleType, ModuleType],
+    tier: str,
+    count: int,
+    expected_batches: int,
+) -> None:
+    builder, _ = inventory_tools
+    root = "src/security" if tier == "A" else "assets"
+    inventory = synthetic_inventory(
+        builder,
+        [(f"{root}/file-{number:02d}.txt", tier, 1, False) for number in range(count)],
+    )
+
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+
+    assert len(plan["batch_index"]) == expected_batches
+
+
+def test_batch_planner_splits_one_file_at_symbol_cap(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    starts = list(range(1, 152))
+    inventory = synthetic_inventory(
+        builder,
+        [("src/security/many.py", "A", 151, False)],
+        {"src/security/many.py": starts},
+    )
+
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+
+    assert len(plan["batch_index"]) == 2
+    assert [
+        sum(
+            row["role"] == "symbol_owner" and row["batch"] == index["batch"]
+            for row in plan["batch_membership"]
+        )
+        for index in plan["batch_index"]
+    ] == [150, 1]
+
+
+def test_batch_planner_rejects_151_symbols_on_same_line(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    inventory = synthetic_inventory(
+        builder,
+        [("src/security/same-line.py", "A", 1, False)],
+        {"src/security/same-line.py": [1] * 151},
+    )
+
+    with pytest.raises(ValueError, match="151 symbols share line 1"):
+        builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+
+
+def test_batch_planner_preserves_immutable_review_fields_when_splitting(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    inventory = synthetic_inventory(
+        builder,
+        [
+            ("runtime/blocked.py", "D", 7000, False),
+            ("runtime/empty.txt", "D", 0, False),
+            ("runtime/binary.bin", "F", 0, True),
+        ],
+    )
+
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+    split = [row for row in plan["line_coverage"] if row["path"].endswith("blocked.py")]
+    equivalent = [row for row in plan["line_coverage"] if row["start_line"] == "0"]
+
+    assert len(split) == 2
+    assert {
+        (row["reviewed_object_id"], row["status"], row["finding_ids"], row["notes"])
+        for row in split
+    } == {("0" * 39 + "1", "blocked", "F-001", "fixture-line")}
+    assert len(equivalent) == 2
+    assert all(row["start_line"] == row["end_line"] == "0" for row in equivalent)
+
+
+def test_rendered_manifest_and_index_pin_membership_hashes(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    plan = builder.plan_batches(
+        synthetic_inventory(builder, [("src/security/a.py", "A", 3, False)]),
+        base_sha="a" * 40,
+        pilot_paths=(),
+    )
+    index = plan["batch_index"][0]
+    manifest = plan["manifests"]["BATCH-001.md"]
+    memberships = [
+        row for row in plan["batch_membership"] if row["batch"] == "BATCH-001"
+    ]
+
+    assert all(
+        section.encode() in manifest for section in builder.MANIFEST_REQUIRED_SECTIONS
+    )
+    assert index["membership_sha256"] == builder.canonical_membership_sha256(
+        memberships
+    )
+    assert f"Membership-SHA256: `{index['membership_sha256']}`".encode() in manifest
+    assert index["manifest_sha256"] == hashlib.sha256(manifest).hexdigest()
+
+
+def test_safe_batch_writer_refuses_stale_manifest_without_partial_write(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, _ = inventory_tools
+    review_dir = tmp_path / "review"
+    inventory = synthetic_inventory(builder, [("src/security/a.py", "A", 3, False)])
+    builder.write_inventory(inventory, review_dir / "scope")
+    plan = builder.plan_batches(inventory, base_sha="a" * 40, pilot_paths=())
+    builder.write_batch_plan(plan, review_dir, update=False)
+    stale = review_dir / "batches" / "BATCH-999.md"
+    stale.write_text("stale\n", encoding="utf-8")
+    before = (review_dir / "scope" / "batch-index.csv").read_bytes()
+
+    with pytest.raises(ValueError, match="unexpected batch manifest set"):
+        builder.write_batch_plan(plan, review_dir, update=True)
+
+    assert (review_dir / "scope" / "batch-index.csv").read_bytes() == before
+
+
+def test_existing_review_planner_never_regenerates_full_inventory(
+    inventory_tools: tuple[ModuleType, ModuleType],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    builder, _ = inventory_tools
+    review_dir = tmp_path / "review"
+    inventory = synthetic_inventory(builder, [("src/security/a.py", "A", 3, False)])
+    builder.write_inventory(inventory, review_dir / "scope")
+    monkeypatch.setattr(
+        builder,
+        "build_inventory",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("regenerated")),
+    )
+
+    plan = builder.plan_existing_review(
+        review_dir, base_sha="a" * 40, update=False, pilot_paths=()
+    )
+
+    assert len(plan["batch_index"]) == 1
+
+
+def test_current_snapshot_batch_plan_is_the_184_batch_golden(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    builder, _ = inventory_tools
+    review_dir = TOOLS_DIR.parents[0]
+    inventory = builder.load_planning_inventory(review_dir / "scope")
+
+    plan = builder.plan_batches(
+        copy.deepcopy(inventory),
+        base_sha="b958ddb139b4754d1644ca4b4f22b1683d8ad108",
+    )
+
+    assert len(plan["batch_index"]) == 184
+    assert len(plan["line_coverage"]) == 1904
+    assert len(plan["batch_membership"]) == 12485
+    assert plan["batch_membership"] == inventory["batch_membership"]
+    pilot_paths = {
+        row["path"]
+        for row in plan["batch_membership"]
+        if row["batch"] == "BATCH-001" and row["role"] == "line_owner"
+    }
+    assert pilot_paths == set(builder.PILOT_PATHS)
+
+
+def test_nonfinal_line_coverage_requires_matching_membership_when_present(
+    inventory_tools: tuple[ModuleType, ModuleType],
+) -> None:
+    _, validator = inventory_tools
+    line = {
+        "batch": "BATCH-001",
+        "path": "a.py",
+        "path_b64": base64.b64encode(b"a.py").decode("ascii"),
+        "reviewed_object_id": "a" * 40,
+        "start_line": "1",
+        "end_line": "2",
+    }
+    wrong_owner = dict(line, start_line="1", end_line="1", role="line_owner")
+
+    errors = validator._validate_line_batch_foreign_keys(
+        [line], [wrong_owner], require_final=False
+    )
+
+    assert any("no matching ownership" in error for error in errors)
+
+
+def test_supplied_scope_sha_uses_frozen_untracked_snapshot_nonfinal(
+    inventory_tools: tuple[ModuleType, ModuleType],
+    sample_repo: tuple[Path, str],
+) -> None:
+    builder, validator = inventory_tools
+    repo, base_sha = sample_repo
+    review_dir, _, scope_sha = freeze_untracked_scope(builder, repo, base_sha)
+    (repo / "visible-untracked.txt").write_text("live drift\n", encoding="utf-8")
+
+    errors = validator.validate_inventory(
+        repo, base_sha, review_dir, scope_sha=scope_sha
+    )
+
+    assert not any("untracked content_sha256 drift" in error for error in errors)
+
+
+def test_batch_lifecycle_requires_index_membership_reviewer_consistency(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    membership = {
+        "batch": "BATCH-001",
+        "path": "a.py",
+        "path_b64": base64.b64encode(b"a.py").decode("ascii"),
+        "reviewed_object_id": "a" * 40,
+        "start_line": "1",
+        "end_line": "1",
+        "symbol_id": "",
+        "role": "line_owner",
+        "reviewer": "reviewer-a",
+        "verified_by": "reviewer-b",
+    }
+    content = b"# BATCH-001\n"
+    manifest = tmp_path / "batches" / "BATCH-001.md"
+    manifest.parent.mkdir()
+    manifest.write_bytes(content)
+    index = [
+        {
+            "batch": "BATCH-001",
+            "status": "verified",
+            "reviewer": "reviewer-x",
+            "verified_by": "reviewer-b",
+            "manifest_sha256": hashlib.sha256(content).hexdigest(),
+            "membership_sha256": builder.canonical_membership_sha256([membership]),
+        }
+    ]
+
+    errors = validator._validate_batch_index(index, [membership], tmp_path, False)
+
+    assert any(
+        "reviewer differs between index and membership" in error for error in errors
+    )
+
+
+def test_multi_batch_file_requires_one_reviewer_pair(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    base = {
+        "path": "a.py",
+        "path_b64": base64.b64encode(b"a.py").decode("ascii"),
+        "reviewed_object_id": "a" * 40,
+        "symbol_id": "",
+        "role": "line_owner",
+        "verified_by": "reviewer-b",
+    }
+    memberships = [
+        dict(
+            base, batch="BATCH-001", start_line="1", end_line="5", reviewer="reviewer-a"
+        ),
+        dict(
+            base,
+            batch="BATCH-002",
+            start_line="6",
+            end_line="10",
+            reviewer="reviewer-x",
+        ),
+    ]
+    indexes = []
+    for membership in memberships:
+        content = f"# {membership['batch']}\n".encode()
+        path = tmp_path / "batches" / f"{membership['batch']}.md"
+        path.parent.mkdir(exist_ok=True)
+        path.write_bytes(content)
+        indexes.append(
+            {
+                "batch": membership["batch"],
+                "status": "verified",
+                "reviewer": membership["reviewer"],
+                "verified_by": "reviewer-b",
+                "manifest_sha256": hashlib.sha256(content).hexdigest(),
+                "membership_sha256": builder.canonical_membership_sha256([membership]),
+            }
+        )
+
+    errors = validator._validate_batch_index(indexes, memberships, tmp_path, False)
+
+    assert any(
+        "multi-batch file has inconsistent reviewers" in error for error in errors
+    )
+
+
+def test_symbol_owner_batch_must_contain_symbol_start_line(
+    inventory_tools: tuple[ModuleType, ModuleType], tmp_path: Path
+) -> None:
+    builder, validator = inventory_tools
+    inventory = synthetic_inventory(
+        builder,
+        [("src/security/a.py", "A", 10, False)],
+        {"src/security/a.py": [6]},
+    )
+    file_row = inventory["files"][0]
+    symbol = inventory["symbols"][0]
+    line_one = dict(
+        line_membership(file_row, "BATCH-001"), start_line="1", end_line="5"
+    )
+    line_two = dict(
+        line_membership(file_row, "BATCH-002"), start_line="6", end_line="10"
+    )
+    symbol_owner = {
+        **line_one,
+        "start_line": symbol["start_line"],
+        "end_line": symbol["end_line"],
+        "symbol_id": symbol["symbol_id"],
+        "role": "symbol_owner",
+    }
+
+    errors = validator._validate_batch_membership(
+        [line_one, line_two, symbol_owner],
+        {file_row["path_b64"]: file_row},
+        {symbol["symbol_id"]: symbol},
+        False,
+        tmp_path,
+    )
+
+    assert any("does not contain symbol start line" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_error"),
+    [
+        ("sections", "batch manifest section missing"),
+        ("digest", "batch manifest membership digest mismatch"),
+        ("stale", "unexpected batch manifest filename"),
+        ("gap", "batch IDs are not contiguous"),
+    ],
+)
+def test_validator_enforces_manifest_and_contiguous_batch_contract(
+    inventory_tools: tuple[ModuleType, ModuleType],
+    tmp_path: Path,
+    mutation: str,
+    expected_error: str,
+) -> None:
+    builder, validator = inventory_tools
+    membership = {
+        "batch": "BATCH-001",
+        "path": "a.py",
+        "path_b64": base64.b64encode(b"a.py").decode("ascii"),
+        "reviewed_object_id": "a" * 40,
+        "start_line": "1",
+        "end_line": "1",
+        "symbol_id": "",
+        "role": "line_owner",
+        "reviewer": "",
+        "verified_by": "",
+    }
+    memberships = [membership]
+    digest = builder.canonical_membership_sha256(memberships)
+    batch_id = "BATCH-002" if mutation == "gap" else "BATCH-001"
+    if mutation == "gap":
+        membership["batch"] = batch_id
+        digest = builder.canonical_membership_sha256(memberships)
+    content = f"# {batch_id}\n\n- Membership-SHA256: `{digest}`\n".encode()
+    if mutation != "sections":
+        content += b"\n## Scope\n\n## Verplichte reviewchecklist\n\n## Bevindingen\n\n## Resultaat\n"
+    if mutation == "digest":
+        content = content.replace(digest.encode(), b"0" * 64)
+    manifest_dir = tmp_path / "batches"
+    manifest_dir.mkdir()
+    (manifest_dir / f"{batch_id}.md").write_bytes(content)
+    if mutation == "stale":
+        (manifest_dir / "BATCH-999.md").write_text("stale\n", encoding="utf-8")
+    indexes = [
+        {
+            "batch": batch_id,
+            "status": "pending",
+            "reviewer": "",
+            "verified_by": "",
+            "manifest_sha256": hashlib.sha256(content).hexdigest(),
+            "membership_sha256": digest,
+        }
+    ]
+
+    errors = validator._validate_batch_index(indexes, memberships, tmp_path, False)
 
     assert any(expected_error in error for error in errors)

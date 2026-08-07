@@ -16,7 +16,9 @@ import pathlib
 import stat
 import subprocess
 import sys
+import tempfile
 import tokenize
+from collections import Counter
 
 FILE_FIELDS = [
     "path",
@@ -133,6 +135,44 @@ FINDING_FIELDS = [
     "reviewer",
     "verified_by",
 ]
+
+PILOT_PATHS = (
+    "src/main.py",
+    "src/services/service_factory.py",
+    "src/database/db_connection.py",
+    "src/ui/components/definition_generator_tab.py",
+    "tests/smoke/test_critical_paths.py",
+    "tests/unit/database/test_transactie_atomiciteit.py",
+    "tests/unit/services/test_service_factory_caching.py",
+    "tests/unit/ui/test_definition_generator_tab_generation_details.py",
+)
+REVIEW_GROUP_TITLES = {
+    0: "Pilot: entrypoint, service, database, UI en gekoppelde tests",
+    1: "Entrypoints, build, dependencies en configuratie",
+    2: "Security en FastAPI",
+    3: "Domain, models, ontologie en classificatie",
+    4: "Database, repositories, schema en migraties",
+    5: "AI-clients, interfaces, container en modelrouter",
+    6: "Prompts, orchestrators en generatieflow",
+    7: "Validatie, toetsregels, opschoning en sanitization",
+    8: "Web lookup, document processing en RAG",
+    9: "Workflow, import/export, cache en voorbeelden",
+    10: "Streamlit state, helpers, renderers en handlers",
+    11: "Generatie-, edit-, expert- en beheer-UI",
+    12: "Monitoring, utils, CLI, tools en integrations",
+    13: "Unit-tests gekoppeld aan productieonderdelen",
+    14: "Integration-, contract-, smoke-, performance- en archived-tests",
+    15: "Operationele scripts en shellcode",
+    16: "JSON, YAML, SQL, prompts en overige runtime-data",
+    17: "Documentatie, plannen en handovers",
+    18: "Binaire en overige artefacten",
+}
+MANIFEST_REQUIRED_SECTIONS = (
+    "## Scope",
+    "## Verplichte reviewchecklist",
+    "## Bevindingen",
+    "## Resultaat",
+)
 
 
 def _git(
@@ -754,6 +794,656 @@ def canonical_membership_sha256(rows: list[dict[str, str]]) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def review_group(
+    path: str, scope_tier: str | None = None, file_type: str | None = None
+) -> int:
+    """Return the first matching review group from the eighteen-group policy."""
+    lowered = path.casefold()
+    suffix = pathlib.PurePosixPath(lowered).suffix
+    binary_suffixes = {
+        ".7z",
+        ".db",
+        ".gif",
+        ".gz",
+        ".ico",
+        ".jpeg",
+        ".jpg",
+        ".pdf",
+        ".png",
+        ".tar",
+        ".webp",
+        ".zip",
+    }
+    if (
+        scope_tier == "F"
+        or suffix in binary_suffixes
+        or (file_type or "").startswith(("image/", "application/pdf"))
+    ):
+        return 18
+    if lowered.startswith(
+        (".github/", ".trunk/", "config/", ".claude/rules/", ".prompt-forge/")
+    ) or pathlib.PurePosixPath(lowered).name in {
+        ".gitleaks.toml",
+        ".gitleaksignore",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        "makefile",
+        "pyproject.toml",
+        "pytest.ini",
+        "requirements-dev.in",
+        "requirements-dev.txt",
+        "requirements.in",
+        "requirements.txt",
+    }:
+        return 1
+    if lowered.startswith("tests/unit/"):
+        return 13
+    if lowered.startswith("tests/"):
+        return 14
+    if lowered.startswith("scripts/") or suffix in {".sh", ".bash", ".zsh"}:
+        return 15
+    if lowered.startswith(("docs/", "project-documentation/")):
+        return 17
+    if lowered == "src/validation/sanitizer.py":
+        return 2
+    if lowered.startswith(
+        ("src/toetsregels/", "src/services/validation/", "src/validation/")
+    ) or any(
+        token in lowered
+        for token in (
+            "cleaning_service",
+            "validation_renderer",
+            "validation_rules",
+            "validation_view",
+        )
+    ):
+        return 7
+    if lowered.startswith(("src/api/", "src/security/")) or any(
+        token in lowered for token in ("rate_limit", "security_service", "sanitization")
+    ):
+        return 2
+    if lowered.startswith(
+        (
+            "src/domain/",
+            "src/models/",
+            "src/ontologie/",
+            "src/services/classification/",
+            "src/services/ontology/",
+        )
+    ):
+        return 3
+    if lowered.startswith(("src/database/", "src/repositories/")) or any(
+        token in lowered
+        for token in ("repository", "metadata_schema", "/migrations/", "schema.sql")
+    ):
+        return 4
+    if (
+        lowered.startswith("src/services/ai/")
+        or lowered
+        in {
+            "src/services/container.py",
+            "src/services/interfaces.py",
+        }
+        or any(token in lowered for token in ("model_router", "ai_client"))
+    ):
+        return 5
+    if lowered.startswith(("prompts/", "src/services/definition_generator")) or any(
+        token in lowered
+        for token in (
+            "generation_handler",
+            "orchestrator",
+            "prompt_",
+            "/prompts/",
+            "regeneration",
+        )
+    ):
+        return 6
+    if lowered.startswith(
+        (
+            "src/document_processing/",
+            "src/services/rag/",
+            "src/services/web_lookup/",
+            "data/uploads/documents/",
+        )
+    ) or any(token in lowered for token in ("modern_web_lookup", "document_upload")):
+        return 8
+    if (
+        lowered == "src/ui/session_state.py"
+        or lowered.startswith(
+            ("src/ui/helpers/", "src/ui/handlers/", "src/ui/renderers/")
+        )
+        or any(
+            token in lowered
+            for token in (
+                "category_renderer",
+                "context_state_cleaner",
+                "duplicate_check_renderer",
+                "examples_renderer",
+                "sources_renderer",
+            )
+        )
+    ):
+        return 10
+    if lowered.startswith(("src/export/", "src/voorbeelden/")) or any(
+        token in lowered
+        for token in (
+            "/cache",
+            "_cache",
+            "definition_import",
+            "import_export",
+            "workflow",
+            "export",
+            "voorbeelden",
+        )
+    ):
+        return 9
+    if lowered.startswith("src/ui/"):
+        return 11
+    if lowered.startswith(("src/", "tools/")):
+        return 12
+    if lowered.startswith(("data/", "runtime/")) or suffix in {
+        ".json",
+        ".sql",
+        ".yaml",
+        ".yml",
+    }:
+        return 16
+    if suffix in {".html", ".md", ".rst"}:
+        return 17
+    return 18
+
+
+def _raw_path_sort_key(row: dict[str, str]) -> bytes:
+    return base64.b64decode(row["path_b64"], validate=True)
+
+
+def _symbols_for_path(
+    symbols: list[dict[str, str]], path_b64: str
+) -> list[dict[str, str]]:
+    return sorted(
+        (row for row in symbols if row["path_b64"] == path_b64),
+        key=lambda row: (
+            int(row["start_line"]),
+            int(row["start_col"]),
+            int(row["end_line"]),
+            int(row["end_col"]),
+            row["symbol_id"],
+        ),
+    )
+
+
+def _file_chunks(
+    file_row: dict[str, str],
+    symbols: list[dict[str, str]],
+    line_limit: int,
+) -> list[tuple[int, int, list[dict[str, str]]]]:
+    physical = int(file_row.get("physical_lines") or 0)
+    if physical == 0:
+        return [(0, 0, symbols)]
+    starts = Counter(int(symbol["start_line"]) for symbol in symbols)
+    for line, count in starts.items():
+        if count > 150:
+            raise ValueError(f"{count} symbols share line {line} in {file_row['path']}")
+    chunks: list[tuple[int, int, list[dict[str, str]]]] = []
+    start = 1
+    while start <= physical:
+        end = min(start + line_limit - 1, physical)
+        candidates = [
+            symbol for symbol in symbols if start <= int(symbol["start_line"]) <= end
+        ]
+        if len(candidates) > 150:
+            count = 0
+            split_before: int | None = None
+            for line in sorted({int(symbol["start_line"]) for symbol in candidates}):
+                line_count = starts[line]
+                if count + line_count > 150:
+                    split_before = line
+                    break
+                count += line_count
+            if split_before is None or split_before <= start:
+                raise ValueError(
+                    f"cannot split symbols safely at line {start} in {file_row['path']}"
+                )
+            end = split_before - 1
+            candidates = [
+                symbol
+                for symbol in symbols
+                if start <= int(symbol["start_line"]) <= end
+            ]
+        chunks.append((start, end, candidates))
+        start = end + 1
+    return chunks
+
+
+def _line_template(
+    rows: list[dict[str, str]], path_b64: str, start: int, end: int
+) -> dict[str, str]:
+    candidates = [row for row in rows if row["path_b64"] == path_b64]
+    if not candidates:
+        raise ValueError(f"line coverage missing for {path_b64}")
+    exact = next(
+        (
+            row
+            for row in candidates
+            if row["start_line"] == str(start) and row["end_line"] == str(end)
+        ),
+        None,
+    )
+    if exact is not None:
+        return exact
+    return next(
+        (
+            row
+            for row in candidates
+            if int(row["start_line"]) <= start <= int(row["end_line"])
+        ),
+        candidates[0],
+    )
+
+
+def _render_manifest(
+    batch: str,
+    group: int,
+    base_sha: str,
+    memberships: list[dict[str, str]],
+    index_lifecycle: dict[str, str],
+) -> bytes:
+    line_owners = [row for row in memberships if row["role"] == "line_owner"]
+    symbol_owners = [row for row in memberships if row["role"] == "symbol_owner"]
+    symbol_counts = Counter((row["path_b64"], row["batch"]) for row in symbol_owners)
+    digest = canonical_membership_sha256(memberships)
+    physical_lines = sum(
+        (
+            0
+            if row["start_line"] == row["end_line"] == "0"
+            else int(row["end_line"]) - int(row["start_line"]) + 1
+        )
+        for row in line_owners
+    )
+    unique_files = len({row["path_b64"] for row in line_owners})
+    lines = [
+        f"# {batch}",
+        "",
+        f"- Status: `{index_lifecycle.get('status', 'pending')}`",
+        f"- Reviewgroep: `{group}` — {REVIEW_GROUP_TITLES[group]}",
+        f"- Review-base: `{base_sha}`",
+        f"- Membership-SHA256: `{digest}`",
+        f"- Bestanden: `{unique_files}`",
+        f"- Fysieke regels: `{physical_lines}`",
+        f"- Python-symbolen: `{len(symbol_owners)}`",
+        f"- Reviewer: `{index_lifecycle.get('reviewer', '')}`",
+        f"- Onafhankelijke verifier: `{index_lifecycle.get('verified_by', '')}`",
+        "",
+        "## Scope",
+        "",
+        "| Pad | Regelbereik | Symbolen | Object-ID |",
+        "|---|---:|---:|---|",
+    ]
+    for row in line_owners:
+        lines.append(
+            f"| `{row['path']}` | `{row['start_line']}-{row['end_line']}` | "
+            f"{symbol_counts[(row['path_b64'], row['batch'])]} | "
+            f"`{row['reviewed_object_id']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Verplichte reviewchecklist",
+            "",
+            "- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.",
+            "- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.",
+            "- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.",
+            "- [ ] Codekwaliteit en architectuur beoordeeld.",
+            "- [ ] Bugs, security en foutafhandeling beoordeeld.",
+            "- [ ] Functionaliteit en relevante tests beoordeeld.",
+            "- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.",
+            "- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.",
+            "- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.",
+            "- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.",
+            "",
+            "## Bevindingen",
+            "",
+            "Nog niet geregistreerd.",
+            "",
+            "## Resultaat",
+            "",
+            "Nog niet uitgevoerd.",
+            "",
+        ]
+    )
+    return "\n".join(lines).encode("utf-8")
+
+
+def plan_batches(
+    inventory: dict[str, object],
+    *,
+    base_sha: str,
+    pilot_paths: tuple[str, ...] | list[str] = PILOT_PATHS,
+) -> dict[str, object]:
+    """Plan deterministic ownership without rebuilding the frozen inventory."""
+    files = [dict(row) for row in inventory["files"]]  # type: ignore[index]
+    symbols = [dict(row) for row in inventory["symbols"]]  # type: ignore[index]
+    old_lines = [dict(row) for row in inventory["line_coverage"]]  # type: ignore[index]
+    old_memberships = [
+        dict(row) for row in inventory.get("batch_membership", [])  # type: ignore[union-attr]
+    ]
+    old_indexes = {
+        row["batch"]: dict(row)
+        for row in inventory.get("batch_index", [])  # type: ignore[union-attr]
+    }
+    files_by_path = {row["path"]: row for row in files}
+    missing_pilot = sorted(set(pilot_paths) - files_by_path.keys())
+    if missing_pilot:
+        raise ValueError(f"pilot paths missing: {', '.join(missing_pilot)}")
+
+    chunks: list[dict[str, object]] = []
+    pilot_set = set(pilot_paths)
+    if pilot_paths:
+        for path in sorted(pilot_paths, key=lambda item: item.encode("utf-8")):
+            file_row = files_by_path[path]
+            path_symbols = _symbols_for_path(symbols, file_row["path_b64"])
+            physical = int(file_row.get("physical_lines") or 0)
+            chunks.append(
+                {
+                    "file": file_row,
+                    "start": 0 if physical == 0 else 1,
+                    "end": physical,
+                    "symbols": path_symbols,
+                    "group": 0,
+                    "code_class": "ABC",
+                }
+            )
+
+    regular_files = sorted(
+        (row for row in files if row["path"] not in pilot_set),
+        key=lambda row: (
+            review_group(row["path"], row["scope_tier"], row["file_type"]),
+            0 if row["scope_tier"] in {"A", "B", "C"} else 1,
+            row["scope_tier"],
+            _raw_path_sort_key(row),
+        ),
+    )
+    for file_row in regular_files:
+        code_class = "ABC" if file_row["scope_tier"] in {"A", "B", "C"} else "DEF"
+        group = review_group(
+            file_row["path"], file_row["scope_tier"], file_row["file_type"]
+        )
+        line_limit = 4000 if code_class == "ABC" else 6000
+        path_symbols = _symbols_for_path(symbols, file_row["path_b64"])
+        for start, end, chunk_symbols in _file_chunks(
+            file_row, path_symbols, line_limit
+        ):
+            chunks.append(
+                {
+                    "file": file_row,
+                    "start": start,
+                    "end": end,
+                    "symbols": chunk_symbols,
+                    "group": group,
+                    "code_class": code_class,
+                }
+            )
+
+    packed: list[dict[str, object]] = []
+    current: dict[str, object] | None = None
+    for chunk in chunks:
+        group = int(chunk["group"])
+        code_class = str(chunk["code_class"])
+        if group == 0:
+            if current is None or int(current["group"]) != 0:
+                if current is not None:
+                    packed.append(current)
+                current = {"group": 0, "code_class": "ABC", "chunks": []}
+            current["chunks"].append(chunk)  # type: ignore[union-attr]
+            continue
+        file_limit = 20 if code_class == "ABC" else 30
+        line_limit = 4000 if code_class == "ABC" else 6000
+        chunk_lines = (
+            0
+            if chunk["start"] == chunk["end"] == 0
+            else int(chunk["end"]) - int(chunk["start"]) + 1
+        )
+        must_start = (
+            current is None
+            or int(current["group"]) != group
+            or str(current["code_class"]) != code_class
+        )
+        if not must_start:
+            candidate_chunks = [*current["chunks"], chunk]  # type: ignore[index]
+            candidate_files = {
+                item["file"]["path_b64"] for item in candidate_chunks  # type: ignore[index]
+            }
+            candidate_lines = sum(
+                (
+                    0
+                    if item["start"] == item["end"] == 0
+                    else int(item["end"]) - int(item["start"]) + 1
+                )
+                for item in candidate_chunks
+            )
+            candidate_symbols = sum(
+                len(item["symbols"]) for item in candidate_chunks  # type: ignore[arg-type]
+            )
+            must_start = (
+                len(candidate_files) > file_limit
+                or candidate_lines > line_limit
+                or candidate_symbols > 150
+            )
+        if must_start:
+            if current is not None:
+                packed.append(current)
+            current = {"group": group, "code_class": code_class, "chunks": []}
+        current["chunks"].append(chunk)  # type: ignore[union-attr]
+        if chunk_lines > line_limit or len(chunk["symbols"]) > 150:  # type: ignore[arg-type]
+            raise ValueError(f"unsplittable batch item: {chunk['file']['path']}")  # type: ignore[index]
+    if current is not None:
+        packed.append(current)
+
+    old_membership_map = {
+        (
+            row["batch"],
+            row["path_b64"],
+            row["start_line"],
+            row["end_line"],
+            row["role"],
+            row["symbol_id"],
+        ): row
+        for row in old_memberships
+    }
+    new_lines: list[dict[str, str]] = []
+    memberships: list[dict[str, str]] = []
+    batch_groups: dict[str, int] = {}
+    for number, packed_batch in enumerate(packed, start=1):
+        batch = f"BATCH-{number:03d}"
+        batch_groups[batch] = int(packed_batch["group"])
+        lifecycle = old_indexes.get(
+            batch,
+            {"status": "pending", "reviewer": "", "verified_by": ""},
+        )
+        for chunk in packed_batch["chunks"]:  # type: ignore[assignment]
+            file_row = chunk["file"]
+            start, end = int(chunk["start"]), int(chunk["end"])
+            template = _line_template(old_lines, file_row["path_b64"], start, end)
+            line_row = dict(template)
+            line_row.update(
+                start_line=str(start),
+                end_line=str(end),
+                batch=batch,
+                reviewed_object_id=file_row["object_id"],
+            )
+            new_lines.append(line_row)
+            line_key = (
+                batch,
+                file_row["path_b64"],
+                str(start),
+                str(end),
+                "line_owner",
+                "",
+            )
+            old_line_owner = old_membership_map.get(line_key, {})
+            memberships.append(
+                {
+                    "batch": batch,
+                    "path": file_row["path"],
+                    "path_b64": file_row["path_b64"],
+                    "reviewed_object_id": file_row["object_id"],
+                    "start_line": str(start),
+                    "end_line": str(end),
+                    "symbol_id": "",
+                    "role": "line_owner",
+                    "reviewer": old_line_owner.get(
+                        "reviewer", lifecycle.get("reviewer", "")
+                    ),
+                    "verified_by": old_line_owner.get(
+                        "verified_by", lifecycle.get("verified_by", "")
+                    ),
+                }
+            )
+            for symbol in chunk["symbols"]:
+                symbol_key = (
+                    batch,
+                    file_row["path_b64"],
+                    symbol["start_line"],
+                    symbol["end_line"],
+                    "symbol_owner",
+                    symbol["symbol_id"],
+                )
+                old_symbol_owner = old_membership_map.get(symbol_key, {})
+                memberships.append(
+                    {
+                        "batch": batch,
+                        "path": file_row["path"],
+                        "path_b64": file_row["path_b64"],
+                        "reviewed_object_id": file_row["object_id"],
+                        "start_line": symbol["start_line"],
+                        "end_line": symbol["end_line"],
+                        "symbol_id": symbol["symbol_id"],
+                        "role": "symbol_owner",
+                        "reviewer": old_symbol_owner.get(
+                            "reviewer", lifecycle.get("reviewer", "")
+                        ),
+                        "verified_by": old_symbol_owner.get(
+                            "verified_by", lifecycle.get("verified_by", "")
+                        ),
+                    }
+                )
+
+    indexes: list[dict[str, str]] = []
+    manifests: dict[str, bytes] = {}
+    for batch in sorted(batch_groups):
+        batch_memberships = [row for row in memberships if row["batch"] == batch]
+        lifecycle = old_indexes.get(
+            batch,
+            {"status": "pending", "reviewer": "", "verified_by": ""},
+        )
+        manifest = _render_manifest(
+            batch,
+            batch_groups[batch],
+            base_sha,
+            batch_memberships,
+            lifecycle,
+        )
+        manifests[f"{batch}.md"] = manifest
+        indexes.append(
+            {
+                "batch": batch,
+                "status": lifecycle.get("status", "pending"),
+                "reviewer": lifecycle.get("reviewer", ""),
+                "verified_by": lifecycle.get("verified_by", ""),
+                "manifest_sha256": hashlib.sha256(manifest).hexdigest(),
+                "membership_sha256": canonical_membership_sha256(batch_memberships),
+            }
+        )
+    return {
+        "line_coverage": new_lines,
+        "batch_membership": memberships,
+        "batch_index": indexes,
+        "manifests": manifests,
+    }
+
+
+def _read_inventory_csv(path: pathlib.Path, fields: list[str]) -> list[dict[str, str]]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames != fields:
+            raise ValueError(f"invalid header in {path.name}")
+        return [{field: row.get(field) or "" for field in fields} for row in reader]
+
+
+def load_planning_inventory(scope_dir: pathlib.Path | str) -> dict[str, object]:
+    scope = pathlib.Path(scope_dir)
+    return {
+        "files": _read_inventory_csv(scope / "file-inventory.csv", FILE_FIELDS),
+        "symbols": _read_inventory_csv(scope / "symbol-inventory.csv", SYMBOL_FIELDS),
+        "line_coverage": _read_inventory_csv(
+            scope / "line-coverage.csv", LINE_COVERAGE_FIELDS
+        ),
+        "batch_membership": _read_inventory_csv(
+            scope / "batch-membership.csv", BATCH_MEMBERSHIP_FIELDS
+        ),
+        "batch_index": _read_inventory_csv(
+            scope / "batch-index.csv", BATCH_INDEX_FIELDS
+        ),
+    }
+
+
+def write_batch_plan(
+    plan: dict[str, object], review_dir: pathlib.Path | str, *, update: bool
+) -> None:
+    review = pathlib.Path(review_dir)
+    manifest_dir = review / "batches"
+    expected_names = set(plan["manifests"])  # type: ignore[arg-type]
+    existing_names = {path.name for path in manifest_dir.glob("BATCH-*.md")}
+    if existing_names and not update:
+        raise ValueError("batch manifests already exist; use update mode")
+    if existing_names and existing_names != expected_names:
+        raise ValueError(
+            "unexpected batch manifest set: "
+            f"expected {sorted(expected_names)}, got {sorted(existing_names)}"
+        )
+    stage = pathlib.Path(tempfile.mkdtemp(prefix="batch-plan-"))
+    stage_scope = stage / "scope"
+    stage_manifests = stage / "batches"
+    _write_csv(
+        stage_scope / "line-coverage.csv",
+        LINE_COVERAGE_FIELDS,
+        plan["line_coverage"],  # type: ignore[arg-type]
+    )
+    _write_csv(
+        stage_scope / "batch-membership.csv",
+        BATCH_MEMBERSHIP_FIELDS,
+        plan["batch_membership"],  # type: ignore[arg-type]
+    )
+    _write_csv(
+        stage_scope / "batch-index.csv",
+        BATCH_INDEX_FIELDS,
+        plan["batch_index"],  # type: ignore[arg-type]
+    )
+    stage_manifests.mkdir(parents=True, exist_ok=True)
+    for name, content in plan["manifests"].items():  # type: ignore[union-attr]
+        (stage_manifests / name).write_bytes(content)
+    (review / "scope").mkdir(parents=True, exist_ok=True)
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("line-coverage.csv", "batch-membership.csv", "batch-index.csv"):
+        os.replace(stage_scope / name, review / "scope" / name)
+    for name in sorted(expected_names):
+        os.replace(stage_manifests / name, manifest_dir / name)
+
+
+def plan_existing_review(
+    review_dir: pathlib.Path | str,
+    *,
+    base_sha: str,
+    update: bool,
+    pilot_paths: tuple[str, ...] | list[str] = PILOT_PATHS,
+) -> dict[str, object]:
+    review = pathlib.Path(review_dir)
+    inventory = load_planning_inventory(review / "scope")
+    plan = plan_batches(inventory, base_sha=base_sha, pilot_paths=pilot_paths)
+    write_batch_plan(plan, review, update=update)
+    return plan
+
+
 def build_inventory(
     repo_root: pathlib.Path | str,
     base_sha: str,
@@ -977,7 +1667,10 @@ def write_inventory(
 def _parse_args(arguments: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-sha", required=True)
-    parser.add_argument("--output-dir", required=True, type=pathlib.Path)
+    parser.add_argument("--output-dir", type=pathlib.Path)
+    parser.add_argument("--plan-batches", action="store_true")
+    parser.add_argument("--review-dir", type=pathlib.Path)
+    parser.add_argument("--update-batches", action="store_true")
     parser.add_argument("--repo-root", type=pathlib.Path, default=pathlib.Path.cwd())
     parser.add_argument("--untracked-root", type=pathlib.Path)
     return parser.parse_args(arguments)
@@ -986,6 +1679,25 @@ def _parse_args(arguments: list[str] | None = None) -> argparse.Namespace:
 def main(arguments: list[str] | None = None) -> int:
     args = _parse_args(arguments)
     try:
+        if args.plan_batches:
+            if args.review_dir is None:
+                raise ValueError("--review-dir is required with --plan-batches")
+            full_sha = verify_full_commit_sha(args.repo_root.resolve(), args.base_sha)
+            plan = plan_existing_review(
+                args.review_dir,
+                base_sha=full_sha,
+                update=args.update_batches,
+            )
+            print(
+                f"Planned {len(plan['batch_index'])} batches, "
+                f"{len(plan['line_coverage'])} line ranges and "
+                f"{len(plan['batch_membership'])} ownership rows."
+            )
+            return 0
+        if args.update_batches:
+            raise ValueError("--update-batches requires --plan-batches")
+        if args.output_dir is None:
+            raise ValueError("--output-dir is required unless --plan-batches is used")
         inventory = build_inventory(
             args.repo_root,
             args.base_sha,
