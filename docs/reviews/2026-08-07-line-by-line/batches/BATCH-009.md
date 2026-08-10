@@ -1,14 +1,14 @@
 # BATCH-009
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `4` — Database, repositories, schema en migraties
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `075818312b59ae24e33dc62f7e4a2352b1be233f112837c35e7ce4fc38cddf2d`
+- Membership-SHA256: `3d39d4b5aba5d173a601df8be6619cc8a21b9acd1b9397f0ff9c6a990b046994`
 - Bestanden: `20`
 - Fysieke regels: `2511`
 - Python-symbolen: `84`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -37,21 +37,25 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B009-001` — Migration rebuild drops generation prompt data.
+- P1/proven: `B009-002` — Failed destructive rebuild returns success.
+- P2/proven: `B009-003` — Preference-term backfill is conditionally skipped.
+- P2/proven: `B009-004` — Migration integration test resolves the wrong project root.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-009/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden en 84 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

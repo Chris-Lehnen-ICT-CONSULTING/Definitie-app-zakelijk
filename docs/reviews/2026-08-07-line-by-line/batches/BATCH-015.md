@@ -1,14 +1,14 @@
 # BATCH-015
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `6` — Prompts, orchestrators en generatieflow
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `9e3d77052bfbfdea45b7b1d533b6dca4c328fe249ab416e91a013ddc9e0968bb`
+- Membership-SHA256: `9a68474f80d5d07f2c870768d00dd2a4e558033e2c99f5f2167fcf611d86c0be`
 - Bestanden: `11`
 - Fysieke regels: `3990`
 - Python-symbolen: `133`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -28,21 +28,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B015-001` — Prompt cap removes the term and final instruction.
+- P1/proven: `B015-002` — Raw term is logged before sanitization.
+- P2/proven: `B015-003` — Global prompt orchestrator leaks configuration between adapters.
+- P2/proven: `B015-004` — Prompt include flags have no effect.
+- P1/proven: `B015-005` — Invalid RAG minimum score breaks generation without RAG.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-015/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 11 bestanden en 133 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

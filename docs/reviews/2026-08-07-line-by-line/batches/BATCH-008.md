@@ -1,14 +1,14 @@
 # BATCH-008
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `3` — Domain, models, ontologie en classificatie
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `449c1643578ec2e2b7f05cf386d586f8d92dea442e510936714862fcf3304456`
+- Membership-SHA256: `b444749ae0a996e722a2ba645d2ce880a40ee51e74872ce77287522421f30a19`
 - Bestanden: `2`
 - Fysieke regels: `294`
 - Python-symbolen: `18`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -19,21 +19,22 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B008-001` — Cyclic and isolated taxonomy components disappear.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-008/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 2 bestanden en 18 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

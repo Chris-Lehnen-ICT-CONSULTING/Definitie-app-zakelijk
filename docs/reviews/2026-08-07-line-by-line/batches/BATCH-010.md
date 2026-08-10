@@ -1,14 +1,14 @@
 # BATCH-010
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `4` — Database, repositories, schema en migraties
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `f1f0832ca4bf6d6aa5c10068f0daeb381da9e918f2fa2c8385196bdb4c9aae82`
+- Membership-SHA256: `233fb83ac49454091027482c57e4bc94e5f265beb6ae6262d5d6dbbeefbc8bdc`
 - Bestanden: `11`
 - Fysieke regels: `3909`
 - Python-symbolen: `88`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -28,21 +28,28 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B010-001` — SQLite backup omits committed WAL data but verifies successfully.
+- P1/proven: `B010-002` — Synonym uniqueness ignores per-definition ownership.
+- P1/proven: `B010-003` — Synonym synchronization commits partially after failure.
+- P2/proven: `B010-004` — Production schema seeds invalid test definitions.
+- P2/proven: `B010-005` — Fresh schema contradicts migration version seven.
+- P2/proven: `B010-006` — SynonymRegistry leaks SQLite connections.
+- P3/proven: `B010-007` — Dormant category migration fails on the current schema.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-010/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 11 bestanden en 88 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

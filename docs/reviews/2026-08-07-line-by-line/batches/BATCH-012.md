@@ -1,14 +1,14 @@
 # BATCH-012
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `5` — AI-clients, interfaces, container en modelrouter
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `ba95ca6b535473e3a1ae28241e5f5625bb79b9fa82a2bacc375c801a03d0bf97`
+- Membership-SHA256: `784983ae1f98f9a76010a116e3a8d867d059caebf2eb3f7bf8ff34712441a89c`
 - Bestanden: `6`
 - Fysieke regels: `1714`
 - Python-symbolen: `87`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-root`
 
 ## Scope
 
@@ -23,21 +23,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B012-001` — Sanitized AI errors retain the raw SDK cause.
+- P1/proven: `B012-002` — Provider reset leaves singleton configuration stale.
+- P2/proven: `B012-003` — Container singleton factories race during construction.
+- P2/proven: `B012-004` — Container reset discards resources without closing them.
+- P2/proven: `B012-005` — Malformed provider responses escape consistent handling.
+- P2/proven: `B012-006` — Web lookup initialization failure is cached permanently.
+- P2/proven: `B012-007` — Shallow provider configuration merge breaks partial overrides.
+- P3/proven: `B012-008` — Unknown models receive plausible default pricing.
+- P3/proven: `B012-009` — Synonym registry fallback imports the same implementation.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-012/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 6 bestanden en 87 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

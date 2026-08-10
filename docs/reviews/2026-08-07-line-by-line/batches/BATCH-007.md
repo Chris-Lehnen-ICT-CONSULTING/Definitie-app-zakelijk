@@ -1,14 +1,14 @@
 # BATCH-007
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `3` — Domain, models, ontologie en classificatie
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `9da94485a60edebbd7f21e480d9c4a2707a30fc89fb8be75ef4ceea4450a1434`
+- Membership-SHA256: `6799afc1e8b7c6720bb0d10efd3a5c9b92f8f9465b09f1deac60411c54528afa`
 - Bestanden: `20`
 - Fysieke regels: `2381`
 - Python-symbolen: `119`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -37,21 +37,28 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B007-001` — Legal reference regex misses or corrupts citations.
+- P1/proven: `B007-002` — Trusted-host predicate accepts substring-spoofed URLs.
+- P2/proven: `B007-003` — Mixed-case organization keys are unreachable.
+- P2/proven: `B007-004` — Four legal abbreviation expansions are broken.
+- P2/proven: `B007-005` — Geographic pluralia fail case-insensitive lookup.
+- P2/proven: `B007-006` — Classifier accepts semantically invalid AI JSON.
+- P2/proven: `B007-007` — Definition validation ignores definition text.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-007/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden en 119 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.
