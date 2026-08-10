@@ -1,14 +1,14 @@
 # BATCH-039
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `9` — Workflow, import/export, cache en voorbeelden
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `9b10b85cd85db3fd315341006be5f13ca02996e2bd1564896ffe9102f85e4032`
+- Membership-SHA256: `3cee18db16fa714b5f8917d81fa06b4730aa3e83c9c201cdb6363fef04a7471a`
 - Bestanden: `14`
 - Fysieke regels: `3998`
 - Python-symbolen: `125`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -31,21 +31,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B039-001` — Direct status adapter bypasses workflow transition policy.
+- P1/proven: `B039-002` — Critical workflow validation issues can pass the gate.
+- P2/proven: `B039-003` — Configured soft score gate is unreachable.
+- P2/proven: `B039-004` — Workflow mutation commits before audit and can return false failure.
+- P2/proven: `B039-005` — CSV auto-validation does not enforce preview outcomes.
+- P2/proven: `B039-006` — TXT export ignores output directory and fails on slash terms.
+- P3/proven: `B039-007` — Export drops zero scores and uses inconsistent history slugs.
+- P3/proven: `B039-008` — Partial CSV import is announced as full success.
+- P3/proven: `B040-004` — Cache dashboard expects an incompatible statistics schema.
+- P3/proven: `B040-012` — Cache UI is English and clears data without confirmation.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 14 bestanden, 3998 fysieke regels en 125 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

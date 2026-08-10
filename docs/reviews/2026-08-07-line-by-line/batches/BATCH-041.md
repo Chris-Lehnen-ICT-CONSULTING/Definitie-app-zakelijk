@@ -1,14 +1,14 @@
 # BATCH-041
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `10` — Streamlit state, helpers, renderers en handlers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `e7933f7bd088d746539ee9615af05cc69731e661a61dc048a89cef877a1d9401`
+- Membership-SHA256: `4732da1e8de08928f917fe8acc3eda1b6537774b2044b8741eea2d7c40772338`
 - Bestanden: `17`
 - Fysieke regels: `3994`
 - Python-symbolen: `148`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -34,21 +34,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B041-001` — RAG uploads can overwrite files across collections.
+- P1/proven: `B041-002` — Examples from the last generation leak into another record.
+- P2/proven: `B041-003` — Async bridge timeout still waits for the worker.
+- P2/proven: `B041-004` — RAG search results persist across collection changes.
+- P2/proven: `B041-005` — Document filtering happens after the collection result limit.
+- P2/proven: `B041-006` — Category workflow records every actor as web_user.
+- P2/proven: `B041-007` — Category UI ignores failed writes.
+- P2/proven: `B041-008` — UI context flow logs raw user terms.
+- P3/proven: `B041-009` — Transient confirmation checkbox cannot complete an action.
+- P3/suspected: `B041-010` — Emoji-only delete button may lack an accessible name.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 17 bestanden, 3994 fysieke regels en 148 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

@@ -1,14 +1,14 @@
 # BATCH-043
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `11` — Generatie-, edit-, expert- en beheer-UI
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `ce15ab058272eac61428f0aa5be4cc547b9659b98148d321b3945ca078f496a2`
+- Membership-SHA256: `f7bcb1958ff928d9f7c98447cc0379b1bfd0c54701d2c761c706b328fa00e4a5`
 - Bestanden: `7`
 - Fysieke regels: `2993`
 - Python-symbolen: `107`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -24,21 +24,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B043-001` — Expert edits persist before an impossible approval transition.
+- P1/proven: `B043-002` — UFO update is outside the approval transaction.
+- P2/proven: `B043-003` — Expert preview crashes on an invalid format specifier.
+- P2/proven: `B043-004` — Synonym review swallows partial failures and reports success.
+- P2/proven: `B043-005` — Synonym reviews use a hardcoded actor.
+- P2/proven: `B043-006` — Save Draft claims success without persisting.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 7 bestanden, 2993 fysieke regels en 107 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
