@@ -1,14 +1,14 @@
 # BATCH-046
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `12` — Monitoring, utils, CLI, tools en integrations
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `b1e17add6ea739cda3c95945ddb50b9d6037d3f89862b1c03c6ae5e75221a690`
+- Membership-SHA256: `3763d9e3406ca53088ab3ff239b7b28c8bb014c92502d49b8adfe5da7716b450`
 - Bestanden: `12`
 - Fysieke regels: `3586`
 - Python-symbolen: `90`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -29,21 +29,31 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B046-001` — Cleaning strips valid term prefixes from definitions.
+- P2/proven: `B046-002` — Empty cleaning term causes a non-progressing loop.
+- P2/proven: `B046-003` — Legal-basis parse failure can accept a malformed existing definition.
+- P3/proven: `B046-004` — Zero performance baseline disables regression monitoring.
+- P2/proven: `B046-005` — API monitoring history is never persisted.
+- P3/proven: `B046-006` — API monitoring readers race with deque mutation.
+- P3/proven: `B046-007` — Synonym admin reports failed mutations as success.
+- P3/proven: `B046-008` — Hardcoded secondary text fails dark-theme contrast.
+- P3/proven: `B046-009` — Four intended checker methods are unreachable nested definitions.
+- P3/proven: `B046-010` — Definition checker discards supplied legal context.
+- P2/proven: `B046-011` — Performance tracker leaks SQLite connections on a hot path.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 12 bestanden, 3586 fysieke regels en 90 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

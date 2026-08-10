@@ -1,14 +1,14 @@
 # BATCH-047
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `12` — Monitoring, utils, CLI, tools en integrations
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `58d0e6e626cd38c4f4ff8f6e7802c922ccceff92925e7ad8c2a27a7c73daf1eb`
+- Membership-SHA256: `73acbd75926178a32a2f4cc801a826944ff1aa059c8d556074897bd653cc01ae`
 - Bestanden: `15`
 - Fysieke regels: `3441`
 - Python-symbolen: `147`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -32,21 +32,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B047-001` — JSON export fails on aggregated datetime metadata.
+- P1/proven: `B047-002` — Definition edits erase process explanation.
+- P1/proven: `B047-003` — Invalid approval thresholds can bypass quality gates.
+- P2/proven: `B047-004` — Feature-flag rollout API contradicts its own tests.
+- P2/proven: `B047-005` — AI token and cost accounting omits the system prompt.
+- P2/proven: `B047-006` — Context update deadlocks on its own non-reentrant lock.
+- P2/proven: `B047-007` — Bulk definition replacement can partially save destructive edits.
+- P3/proven: `B047-008` — Feature canaries depend on process-random hash state.
+- P3/proven: `B047-009` — A/B framework fabricates legacy comparison results.
+- P3/proven: `B047-010` — Service context adapter silently drops arbitrary context.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 15 bestanden, 3441 fysieke regels en 147 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
