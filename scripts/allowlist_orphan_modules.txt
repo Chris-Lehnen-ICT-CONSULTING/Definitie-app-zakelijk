@@ -8,11 +8,7 @@
 # src/main.py, CLI-entrypoints met een __main__-block) staan hard in het
 # script zelf en horen hier niet.
 #
-# Op dit moment is de allowlist leeg. De twee resterende wezen staan
-# bewust IN de telling, zodat ze zichtbaar blijven tot hun issue is opgelost:
-#
-#   src/domain/linguistisch/pluralia_tantum.py  -> DEF-605 (aansluiten op
-#       _lemma_is_singular; niet verwijderen, het is de enige overgebleven
-#       kopie van de 100-woordenlijst)
-#   src/config/context_options.py               -> DEF-603 (bron voor het
-#       herstel van IND/NFI/RvdK; verwijderen zodra die data in config staat)
+# Op dit moment is de allowlist leeg en de baseline 0: de laatste twee
+# wezen zijn opgelost (DEF-605: pluralia_tantum.py aangesloten op
+# _lemma_is_singular; DEF-603: context_options.py verwijderd nadat
+# IND/NFI/RvdK in config_manager.py + config.yaml zijn hersteld).
