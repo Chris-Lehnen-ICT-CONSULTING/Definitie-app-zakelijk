@@ -22,7 +22,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
-    from services.web_lookup.modern_web_lookup import LookupResult
+    # DEF-609: verwees naar services.web_lookup.modern_web_lookup — die module
+    # bestaat niet. LookupResult woont in services/interfaces.py, zoals de
+    # andere web_lookup-modules hem ook importeren.
+    from ..interfaces import LookupResult
 
 try:
     import yaml

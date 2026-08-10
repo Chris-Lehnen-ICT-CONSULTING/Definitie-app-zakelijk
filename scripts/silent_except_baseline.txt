@@ -1,0 +1,4 @@
+# Silent-except baseline (DEF-393) -- aantal brede handlers zonder
+# logging en zonder re-raise. Mag alleen dalen.
+# Bijwerken: python scripts/silent_except_ratchet.py --update
+57
