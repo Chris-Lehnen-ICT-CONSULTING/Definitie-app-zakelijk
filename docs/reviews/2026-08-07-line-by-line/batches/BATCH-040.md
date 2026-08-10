@@ -1,14 +1,14 @@
 # BATCH-040
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `9` — Workflow, import/export, cache en voorbeelden
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `1d1e21730a2932bbcafdc7435d5c3b17e3a4bc787775eefd5d7b2634f2a9abb8`
+- Membership-SHA256: `4ef37624b0f5270370512ab6c048f74de58f116ecd324573bf6de13954c5f922`
 - Bestanden: `7`
 - Fysieke regels: `3368`
 - Python-symbolen: `136`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -24,21 +24,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B040-001` — Cache deserializes pickle payloads.
+- P3/proven: `B040-002` — Raw cache keys can escape the cache directory.
+- P3/proven: `B040-003` — Expired cache cleanup leaves payload orphans.
+- P2/proven: `B040-005` — Example comparison repeatedly persists unchanged examples.
+- P2/proven: `B040-006` — Async example batches bypass temperature and observability.
+- P2/proven: `B040-007` — Duplicate display labels export the wrong definition.
+- P2/proven: `B040-008` — Async cache misses stampede the producer.
+- P3/suspected: `B040-009` — Timeout can leave example worker running.
+- P3/proven: `B040-011` — Example success rate can become negative.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 7 bestanden, 3368 fysieke regels en 136 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

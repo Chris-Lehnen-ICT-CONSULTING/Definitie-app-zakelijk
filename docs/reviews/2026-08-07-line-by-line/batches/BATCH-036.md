@@ -1,14 +1,14 @@
 # BATCH-036
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `8` — Web lookup, document processing en RAG
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `fa6d783571dad7b7fbc8f3de8ba3b2cd5f95dcb923e08683092079fd9a315acf`
+- Membership-SHA256: `4117d71c910eb5aa19d870d2181634c498931312912e459bc9b50ba460ccc75e`
 - Bestanden: `14`
 - Fysieke regels: `3097`
 - Python-symbolen: `119`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-root`
 
 ## Scope
 
@@ -31,21 +31,24 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B036-001` — Offline tokenizer initialization breaks RAG.
+- P2/proven: `B036-002` — Concurrent collection creation races on a unique key.
+- P2/proven: `B036-003` — Malformed chunk metadata crashes management queries.
+- P2/proven: `B036-004` — Trusted legal domains are accepted by substring.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 14 bestanden, 3097 fysieke regels en 119 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

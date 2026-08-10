@@ -1,14 +1,14 @@
 # BATCH-044
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `11` — Generatie-, edit-, expert- en beheer-UI
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `35a0cc2f8da30cf23114f86b7d9e12b1ce305131caeff4bae46c09c0fc0049f5`
+- Membership-SHA256: `a3feb2c5c392f0accd790d86d5e08c1a7d405eaf170ca57adb64248fa4a82f62`
 - Bestanden: `3`
 - Fysieke regels: `1175`
 - Python-symbolen: `56`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -20,21 +20,24 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B044-001` — Empty RAG selection is converted to the default document set.
+- P3/proven: `B044-002` — Timeout metric counts events outside the selected time window.
+- P2/proven: `B044-003` — Tabbed UI exposes raw exception details.
+- P2/proven: `B044-004` — Cache metrics eagerly require an AI credential.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 3 bestanden, 1175 fysieke regels en 56 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

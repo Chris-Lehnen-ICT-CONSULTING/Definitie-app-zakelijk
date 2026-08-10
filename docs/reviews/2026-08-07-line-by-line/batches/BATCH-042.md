@@ -1,14 +1,14 @@
 # BATCH-042
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `11` — Generatie-, edit-, expert- en beheer-UI
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `d036f0a8a2102582387d1802b61fc2d936bd0a9204e2344683cc4ca2de144869`
+- Membership-SHA256: `4e671eaf763c46eef47239bf66f73b03e1b7c5cc2102d8ba5014deda4656252f`
 - Bestanden: `7`
 - Fysieke regels: `3509`
 - Python-symbolen: `91`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -24,21 +24,28 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B042-001` — Provider and API key are process-global across sessions.
+- P1/proven: `B042-002` — Established definitions still allow category mutation.
+- P1/proven: `B042-003` — Undo and revert leave stale widget edits active.
+- P2/proven: `B042-004` — Successful save reruns before refreshing the definition.
+- P2/proven: `B042-005` — Conflict recovery button is transient and cannot run.
+- P2/proven: `B042-006` — Anthropic example generation is disabled by an OpenAI-only check.
+- P2/proven: `B042-007` — Definition edit UI exposes backend exceptions and logs raw terms.
+- P3/proven: `B042-008` — ui/components.py is shadowed by the components package.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 7 bestanden, 3509 fysieke regels en 91 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
