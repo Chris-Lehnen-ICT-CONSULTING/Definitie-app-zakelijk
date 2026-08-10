@@ -1,14 +1,14 @@
 # BATCH-027
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `7` — Validatie, toetsregels, opschoning en sanitization
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `10279ebf333249ac757f5eae40ab2b113dc8a9f5f2837bb381413475089c7c90`
+- Membership-SHA256: `b6ab213f748e72dfcce27c1330b4dde995d56605978f526e3c483b364135e65e`
 - Bestanden: `20`
 - Fysieke regels: `1789`
 - Python-symbolen: `60`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -37,21 +37,25 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B027-001` — INT-07 flags ordinary lowercase words as abbreviations.
+- P2/proven: `B027-002` — SAM-04 only works for colon-prefixed definitions.
+- P3/proven: `B027-003` — INT-09 cannot match the abbreviation o.a..
+- P3/proven: `B027-004` — Legacy SAM validators implement different JSON contracts.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-027/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 1789 fysieke regels en 60 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

@@ -1,14 +1,14 @@
 # BATCH-032
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `7` — Validatie, toetsregels, opschoning en sanitization
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `7017a647947c7bd820811ad096313f469158c9247536c3ec3a8c36178dfc44dc`
+- Membership-SHA256: `57305794dc9493cb6adc33040017e1e7606879c89cc425e2ed163e1530811ddd`
 - Bestanden: `20`
 - Fysieke regels: `2712`
 - Python-symbolen: `120`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-root`
 
 ## Scope
 
@@ -37,21 +37,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B032-001` — INT-08 lets multiple invalid negations pass together.
+- P3/proven: `B032-002` — INT-09 makes period-ending regexes unmatchable.
+- P2/proven: `B032-003` — Six SAM validators implement a different contract.
+- P3/proven: `B032-004` — STR-01 and STR-02 miss capitalization and term kick-off.
+- P3/proven: `B032-005` — STR-08 and STR-09 create false positives and misleading labels.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-032/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 2712 fysieke regels en 120 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

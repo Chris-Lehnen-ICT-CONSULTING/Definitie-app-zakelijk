@@ -1,14 +1,14 @@
 # BATCH-035
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `8` — Web lookup, document processing en RAG
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `613e9ef1fa68b2bb2081f7afc1db3a8fd26d44ee91ccf2b91128f8248186a0bf`
+- Membership-SHA256: `7bdae370bdb2adcf1d8be81a918847746a752a4dd1d8bf8ebc8d3b7cb3381679`
 - Bestanden: `11`
 - Fysieke regels: `3902`
 - Python-symbolen: `125`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -28,21 +28,33 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B035-001` — Partial metadata writes are reported as document success.
+- P3/proven: `B035-002` — Failure cache ignores MIME type and prevents retry.
+- P2/proven: `B035-003` — DOC is advertised but unsupported and DOCX tables are lost.
+- P2/suspected: `B035-004` — Document extraction lacks resource limits.
+- P2/proven: `B035-005` — RAG overlap and maximum chunk size contracts are ineffective.
+- P2/proven: `B035-006` — Duplicate URL reconstruction corrupts ranked results.
+- P2/proven: `B035-007` — Substring sr classifies administrative law as criminal law.
+- P2/proven: `B035-008` — Singleton web debug state mixes concurrent requests.
+- P3/proven: `B035-009` — Every lookup stage receives the full timeout budget.
+- P2/proven: `B035-010` — Embedding search materializes the full collection twice.
+- P2/suspected: `B035-011` — Global document processor can share session data.
+- P3/proven: `B035-012` — Upload UI counts error records as successfully processed.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-035/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 11 bestanden, 3902 fysieke regels en 125 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
