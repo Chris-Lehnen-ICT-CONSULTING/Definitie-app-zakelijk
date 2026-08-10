@@ -1,14 +1,14 @@
 # BATCH-024
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `7` — Validatie, toetsregels, opschoning en sanitization
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `c31256726336040116eecc70c7560aa35f800e3b72d71d9e883e0fb0a89380b8`
+- Membership-SHA256: `bad3bbcd9e8d01c75c2d8822c8c7ecd6ecdea44c217533ba46facfa746f35e38`
 - Bestanden: `11`
 - Fysieke regels: `2974`
 - Python-symbolen: `150`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -28,21 +28,27 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P3/proven: `B024-001` — Dormant schema factories validate only key presence.
+- P3/proven: `B024-002` — Compatibility validator always returns pass.
+- P2/proven: `B024-003` — Cached manager is not a drop-in replacement.
+- P2/proven: `B024-004` — Critical ARAI-06 is lost through identifier mismatch.
+- P3/proven: `B024-005` — Dormant modular loader reverses ARAI-01 examples.
+- P3/proven: `B024-006` — Evaluation context metadata is not read-only.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-024/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle toegewezen bestanden, regels en symbolen van BATCH-024 zijn line-by-line beoordeeld; beperkingen staan expliciet in het bewijsdossier.
