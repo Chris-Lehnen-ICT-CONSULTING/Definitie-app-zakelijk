@@ -138,6 +138,10 @@ class UIConfig:
             "KMAR",
             "FIOD",
             "CJIB",
+            # DEF-603: IND, NFI en RvdK verdwenen onbedoeld in US-442
+            "IND",
+            "NFI",
+            "Raad voor de Kinderbescherming",
             "Strafrechtketen",
             "Migratieketen",
             "Justitie en Veiligheid",
