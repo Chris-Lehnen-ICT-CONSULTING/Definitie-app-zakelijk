@@ -5,6 +5,8 @@ Geëxtraheerd uit legacy lookup.py om Nederlandse taalkundige
 kennis te bewaren voor correcte grammatica validatie.
 """
 
+from functools import lru_cache
+
 
 class PluraliatantumChecker:
     """
@@ -128,6 +130,12 @@ class PluraliatantumChecker:
         "Amerikaanse Maagdeneilanden",
     }
 
+    # Productieve samenstellings-koppen: elk Nederlands woord dat hierop
+    # eindigt is zelf een plurale tantum (verhuiskosten, neveninkomsten).
+    # Bewust géén korte koppen als 'erven' of 'manen' — die geven false
+    # accepts op gewone meervouden (scherven, Germanen).
+    SAMENSTELLINGS_KOPPEN = ("kosten", "inkomsten")
+
     @classmethod
     def is_plurale_tantum(cls, woord: str) -> bool:
         """
@@ -139,7 +147,25 @@ class PluraliatantumChecker:
         Returns:
             True als het woord alleen in meervoud bestaat
         """
-        return woord.lower() in cls.PLURALIA_TANTUM_WOORDEN
+        return woord.lower() in _woorden_lower()
+
+    @classmethod
+    def is_plurale_tantum_of_samenstelling(cls, woord: str) -> bool:
+        """
+        Check op plurale tantum, inclusief samenstellingen met een
+        productieve plurale-tantum-kop (bv. 'verhuiskosten').
+
+        Args:
+            woord: Het te controleren woord (case-insensitive)
+
+        Returns:
+            True bij exacte match of een samenstelling op een kop
+            uit SAMENSTELLINGS_KOPPEN
+        """
+        lemma = woord.lower()
+        if lemma in _woorden_lower():
+            return True
+        return lemma.endswith(cls.SAMENSTELLINGS_KOPPEN)
 
     @classmethod
     def get_alle_woorden(cls) -> set[str]:
@@ -208,3 +234,11 @@ class PluraliatantumChecker:
             "Amerikaanse Maagdeneilanden",
         }
         return woord in geografische_woorden
+
+
+@lru_cache(maxsize=1)
+def _woorden_lower() -> frozenset[str]:
+    """Lowercase lookup-set; de bronset bevat gekapitaliseerde namen."""
+    return frozenset(
+        woord.lower() for woord in PluraliatantumChecker.PLURALIA_TANTUM_WOORDEN
+    )
