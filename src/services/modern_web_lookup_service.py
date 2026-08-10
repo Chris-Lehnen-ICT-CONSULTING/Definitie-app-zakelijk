@@ -282,9 +282,15 @@ class ModernWebLookupService(WebLookupServiceInterface):
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Filter succesvolle resultaten
-        valid_results = []
+        # DEF-609: BaseException, niet Exception. asyncio.gather(
+        # return_exceptions=True) levert ook BaseException-subklassen op, en
+        # asyncio.CancelledError erft sinds 3.8 van BaseException. Met de oude
+        # check belandde een geannuleerde lookup als exception-object in
+        # valid_results en crashte de juridische ranking erop. Zelfde bugklasse
+        # als DEF-439 (ai_service_v2.batch_generate).
+        valid_results: list[LookupResult] = []
         for result in results:
-            if isinstance(result, Exception):
+            if isinstance(result, BaseException):
                 logger.warning(
                     f"Source lookup failed: {result}",
                     exc_info=result,  # Include stack trace for observability

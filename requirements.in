@@ -1,7 +1,8 @@
 # Runtime dependencies for DefinitieAgent
 # Dev tools (pytest, ruff, black, mypy, etc.) are in requirements-dev.txt
 aiohappyeyeballs==2.7.1
-aiohttp==3.14.1
+# Kern-dep voor de web-lookup-providers. 3.14.3 dekt PYSEC-2026-3545/3546/3547.
+aiohttp==3.14.3
 aiosignal==1.4.0
 annotated-types==0.7.0
 anthropic==0.116.0
@@ -18,9 +19,12 @@ defusedxml==0.7.1
 distro==1.9.0
 docstring-parser==0.18.0
 frozenlist==1.8.0
-# Transitief via streamlit; expliciet gepind op de fix voor GHSA-94p4-4cq8-9g67
-# (env-var-exfiltratie via Remote.create). Zie DEF-599.
-gitpython==3.1.55
+# Transitief via streamlit; expliciet gepind op de fix voor GHSA-3f7w-8rr8-f37f
+# (arbitrary file overwrite via IndexFile.checkout --prefix) en
+# GHSA-p538-c434-8v24 (file truncation via Commit.count --output).
+# Eerder gepind op 3.1.55 voor GHSA-94p4-4cq8-9g67 (DEF-599); die CVE's zijn
+# dezelfde klasse: **kwargs doorgegeven aan git zonder check_unsafe_options.
+gitpython==3.1.57
 idna==3.18
 Jinja2==3.1.6
 jiter==0.16.0
