@@ -2,4 +2,4 @@
 # importer. Mag alleen dalen.
 # Bijwerken: python scripts/detect_orphan_modules.py --update
 # Bewuste uitzondering? Zet het pad in allowlist_orphan_modules.txt
-2
+1

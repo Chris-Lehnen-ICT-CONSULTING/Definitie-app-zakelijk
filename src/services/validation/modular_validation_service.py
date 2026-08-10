@@ -14,6 +14,7 @@ import uuid
 from collections.abc import ItemsView, KeysView, ValuesView
 from typing import Any
 
+from domain.linguistisch.pluralia_tantum import PluraliatantumChecker
 from services.validation.interfaces import CONTRACT_VERSION
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_list, ensure_string
@@ -1364,10 +1365,10 @@ class ModularValidationService:
         )
 
     def _lemma_is_singular(self, begrip: str) -> bool:
-        # Heuristic: NL plural often ends with 'en'; whitelist of plurale tantum could be extended
+        # Heuristic: NL plural often ends with 'en'; plurale tantum komen
+        # uit de gecureerde domeinlijst (DEF-605)
         lemma = (begrip or "").strip().lower()
-        plurale_tantum = {"kosten", "hersenen"}
-        if lemma in plurale_tantum:
+        if PluraliatantumChecker.is_plurale_tantum_of_samenstelling(lemma):
             return True
         # Plurals often end with 'en' or 'ens' (bv. gegeven → gegevens)
         if re.search(r"\w+ens$", lemma):
