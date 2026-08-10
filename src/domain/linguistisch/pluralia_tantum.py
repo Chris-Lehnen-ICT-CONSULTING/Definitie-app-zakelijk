@@ -5,8 +5,6 @@ Geëxtraheerd uit legacy lookup.py om Nederlandse taalkundige
 kennis te bewaren voor correcte grammatica validatie.
 """
 
-from functools import lru_cache
-
 
 class PluraliatantumChecker:
     """
@@ -17,9 +15,28 @@ class PluraliatantumChecker:
     gemarkeerd worden in tekst validatie.
     """
 
+    # Geografische pluralia tantum (eilanden, bergketens)
+    GEOGRAFISCHE_NAMEN = {
+        "Aleoeten",
+        "Azoren",
+        "Balearen",
+        "Caraïben",
+        "Ardennen",
+        "Apennijnen",
+        "Dolomieten",
+        "Karpaten",
+        "Pyreneeën",
+        "Lofoten",
+        "Filipijnen",
+        "Salomonseilanden",
+        "Bahama's",
+        "Dardanellen",
+        "Amerikaanse Maagdeneilanden",
+    }
+
     # Volledige Nederlandse pluralia tantum set (104 woorden)
     # Geëxtraheerd uit nl_pluralia_tantum_100.json
-    PLURALIA_TANTUM_WOORDEN = {
+    _BASIS_WOORDEN = {
         # Basis Nederlandse pluralia tantum
         "aanstalten",
         "alcoholica",
@@ -112,29 +129,21 @@ class PluraliatantumChecker:
         # Militaire/wetenschappelijke termen
         "ABC-wapens",
         "analecten",
-        # Geografische namen (eilanden, bergketens)
-        "Aleoeten",
-        "Azoren",
-        "Balearen",
-        "Caraïben",
-        "Ardennen",
-        "Apennijnen",
-        "Dolomieten",
-        "Karpaten",
-        "Pyreneeën",
-        "Lofoten",
-        "Filipijnen",
-        "Salomonseilanden",
-        "Bahama's",
-        "Dardanellen",
-        "Amerikaanse Maagdeneilanden",
     }
+
+    PLURALIA_TANTUM_WOORDEN = _BASIS_WOORDEN | GEOGRAFISCHE_NAMEN
+
+    # Afgeleide lookup-sets: de bronsets bevatten gekapitaliseerde namen,
+    # alle publieke checks zijn case-insensitief.
+    _WOORDEN_LOWER = frozenset(w.lower() for w in PLURALIA_TANTUM_WOORDEN)
+    _GEOGRAFISCH_LOWER = frozenset(w.lower() for w in GEOGRAFISCHE_NAMEN)
 
     # Productieve samenstellings-koppen: elk Nederlands woord dat hierop
     # eindigt is zelf een plurale tantum (verhuiskosten, neveninkomsten).
-    # Bewust géén korte koppen als 'erven' of 'manen' — die geven false
-    # accepts op gewone meervouden (scherven, Germanen).
-    SAMENSTELLINGS_KOPPEN = ("kosten", "inkomsten")
+    # Bewust géén korte koppen (< 6 tekens) als 'erven' of 'manen' — die
+    # geven false accepts op gewone meervouden (scherven, Germanen). Een
+    # guard-test bewaakt deze grens bij uitbreiding van de tuple.
+    SAMENSTELLINGS_KOPPEN: tuple[str, ...] = ("kosten", "inkomsten")
 
     @classmethod
     def is_plurale_tantum(cls, woord: str) -> bool:
@@ -147,7 +156,7 @@ class PluraliatantumChecker:
         Returns:
             True als het woord alleen in meervoud bestaat
         """
-        return woord.lower() in _woorden_lower()
+        return woord.lower() in cls._WOORDEN_LOWER
 
     @classmethod
     def is_plurale_tantum_of_samenstelling(cls, woord: str) -> bool:
@@ -163,7 +172,7 @@ class PluraliatantumChecker:
             uit SAMENSTELLINGS_KOPPEN
         """
         lemma = woord.lower()
-        if lemma in _woorden_lower():
+        if lemma in cls._WOORDEN_LOWER:
             return True
         return lemma.endswith(cls.SAMENSTELLINGS_KOPPEN)
 
@@ -216,29 +225,4 @@ class PluraliatantumChecker:
         Returns:
             True als het een geografische plurale tantum is
         """
-        geografische_woorden = {
-            "Aleoeten",
-            "Azoren",
-            "Balearen",
-            "Caraïben",
-            "Ardennen",
-            "Apennijnen",
-            "Dolomieten",
-            "Karpaten",
-            "Pyreneeën",
-            "Lofoten",
-            "Filipijnen",
-            "Salomonseilanden",
-            "Bahama's",
-            "Dardanellen",
-            "Amerikaanse Maagdeneilanden",
-        }
-        return woord in geografische_woorden
-
-
-@lru_cache(maxsize=1)
-def _woorden_lower() -> frozenset[str]:
-    """Lowercase lookup-set; de bronset bevat gekapitaliseerde namen."""
-    return frozenset(
-        woord.lower() for woord in PluraliatantumChecker.PLURALIA_TANTUM_WOORDEN
-    )
+        return woord.lower() in cls._GEOGRAFISCH_LOWER
