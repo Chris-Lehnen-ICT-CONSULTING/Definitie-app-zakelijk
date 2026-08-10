@@ -1,14 +1,14 @@
 # BATCH-006
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `2` — Security en FastAPI
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `55c8300c60b6744bf40af1ca70f0710afae6c2fd74315305a9c585bf2a7ea718`
+- Membership-SHA256: `3de1d08ae2a9ed5276fc90de0e380f68ec1ca1cf1476d2b5e12ed8ccae9c24ab`
 - Bestanden: `9`
 - Fysieke regels: `2923`
 - Python-symbolen: `123`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -26,21 +26,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B006-001` — Security events disappear from audit reporting.
+- P3/suspected: `B006-002` — Up to five ERROR validations are allowed.
+- P3/proven: `B006-003` — Mutating feature routes would ignore sanitized request data.
+- P2/proven: `B006-004` — Sanitizer levels are compared lexicographically.
+- P2/proven: `B006-005` — Email validation removes valid addresses.
+- P2/proven: `B006-006` — Nested dictionaries in lists lose their type.
+- P2/proven: `B006-007` — Endpoint rate limiters contaminate each other.
+- P3/proven: `B006-008` — Queue-time metric is never updated.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-006/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 9 bestanden en 123 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

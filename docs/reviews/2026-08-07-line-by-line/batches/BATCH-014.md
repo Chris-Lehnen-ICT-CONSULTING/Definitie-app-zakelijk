@@ -1,14 +1,14 @@
 # BATCH-014
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `6` — Prompts, orchestrators en generatieflow
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `79eb45ba2c11fa996d35813e23a6d9f89c7d6c04ddef40abf55f3f986755a7b1`
+- Membership-SHA256: `3b301edd8a558e3ce94ed423ee76a51b7cd9b99c7beb6f559d650e5996aba00f`
 - Bestanden: `4`
 - Fysieke regels: `1901`
 - Python-symbolen: `132`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -21,21 +21,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B014-001` — Redis cache deserializes attacker-controlled bytes with pickle.
+- P1/proven: `B014-002` — Cache identity and invalidation mishandle context variants.
+- P1/proven: `B014-003` — Document-only context is omitted from the active prompt.
+- P2/proven: `B014-004` — Linguistic enhancement always fails with a regex replacement error.
+- P2/proven: `B014-005` — Later enhancements overwrite earlier applied results.
+- P2/proven: `B014-006` — Definition reconstruction drops domain and audit fields.
+- P2/proven: `B014-007` — Completeness heuristic fabricates ungrounded facts.
+- P2/proven: `B014-008` — Explicit nested generator configuration is overwritten.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-014/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 4 bestanden en 132 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.
