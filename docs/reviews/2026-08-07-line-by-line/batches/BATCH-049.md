@@ -1,14 +1,14 @@
 # BATCH-049
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `12` — Monitoring, utils, CLI, tools en integrations
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `5f5de0de55ebe05bbf72c694c7dcefebb21c918b9648046344b0d3e455afbf26`
+- Membership-SHA256: `d3a62cf944ff4955963eef2a507d751a79ea4fe533912e86b6e2f0fd12435a29`
 - Bestanden: `7`
 - Fysieke regels: `1454`
 - Python-symbolen: `80`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -24,21 +24,24 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B049-001` — Durable retry queue cannot persist or replay failed requests.
+- P2/proven: `B049-002` — Repeated logging bootstrap installs duplicate handlers.
+- P2/proven: `B049-003` — Concurrent serializer startup creates incompatible HMAC keys.
+- P3/proven: `B049-004` — Fallback cache keys collide across functions.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 7 bestanden, 1454 fysieke regels en 80 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

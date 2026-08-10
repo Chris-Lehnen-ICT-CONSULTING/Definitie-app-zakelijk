@@ -1,14 +1,14 @@
 # BATCH-051
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `13` — Unit-tests gekoppeld aan productieonderdelen
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `efd282d198ca97d0cb3b995f2650af0c957054608cf41961e64e3980041142e4`
+- Membership-SHA256: `0b3404c1bdef380684446a2c12fdfffd0aa41019fcab9e067386ae92fe60fb01`
 - Bestanden: `13`
 - Fysieke regels: `1644`
 - Python-symbolen: `148`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -30,21 +30,25 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B051-001` — Dotenv guard misses common load_dotenv call shapes.
+- P2/proven: `B051-002` — V6 verifier accepts rows with NULL metadata.
+- P3/proven: `B051-003` — Document-processor exception tests contain vacuous alternatives.
+- P3/proven: `B051-004` — Placeholder test writes persistent metadata to a hardcoded data path.
+- P3/proven: `B051-005` — RAG budget tests permit an oversized first chunk.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 13 bestanden, 1644 fysieke regels en 148 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
