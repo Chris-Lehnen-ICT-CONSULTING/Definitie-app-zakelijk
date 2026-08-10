@@ -1,14 +1,14 @@
 # BATCH-017
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `6` — Prompts, orchestrators en generatieflow
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `90244a8f70469fa2839246f3647fc588a614c75afe397ebfa7c42701b9299124`
+- Membership-SHA256: `2a246345afa37c59459eaf5db3e5a2a1429ba0f7aadcc0eb6a66f6f1eac0c37d`
 - Bestanden: `6`
 - Fysieke regels: `1801`
 - Python-symbolen: `43`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-root`
 
 ## Scope
 
@@ -23,21 +23,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B017-001` — Import-time logging writes to the project root.
+- P1/proven: `B017-002` — Force-duplicate bypass persists after a generation.
+- P2/proven: `B017-003` — Serialized duplicate context replaces the primary organization.
+- P2/proven: `B017-004` — Failed generation is shown as success.
+- P2/proven: `B017-005` — Synonym cache check and read are not atomic.
+- P2/proven: `B017-006` — Duplicate flow hardcodes the process category.
+- P3/proven: `B017-007` — Explicit zero synonym weight is replaced by the default.
+- P3/proven: `B017-008` — Active Test Prompt button performs no test.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-017/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle toegewezen bestanden, regels en symbolen van BATCH-017 zijn line-by-line beoordeeld; beperkingen staan expliciet in het bewijsdossier.

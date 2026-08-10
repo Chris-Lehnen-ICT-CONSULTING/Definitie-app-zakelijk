@@ -1,14 +1,14 @@
 # BATCH-016
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `6` — Prompts, orchestrators en generatieflow
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `b575a1d896663c595628f51402113e1fb254220e10934a4329fc012bafa86c82`
+- Membership-SHA256: `fe2339c76dca7501a7d5b2412764563fc75c2a9f7453fb7dbff7e60b98e9873f`
 - Bestanden: `14`
 - Fysieke regels: `3690`
 - Python-symbolen: `150`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -31,21 +31,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B016-001` — Essential prompt module failures are silently omitted.
+- P2/proven: `B016-002` — Raw terms persist in process-global execution metadata.
+- P2/proven: `B016-003` — Feedback history is ignored but reported as integrated.
+- P2/proven: `B016-004` — Documented prompt token limit is not enforced.
+- P2/proven: `B016-005` — Result category is mapped to a measure template.
+- P2/proven: `B016-006` — Authority selection trusts substrings in attacker-controlled URLs.
+- P2/proven: `B016-007` — One malformed source score drops every valid web source.
+- P2/proven: `B016-008` — NaN synonym confidence becomes maximum confidence.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-016/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle toegewezen bestanden, regels en symbolen van BATCH-016 zijn line-by-line beoordeeld; beperkingen staan expliciet in het bewijsdossier.

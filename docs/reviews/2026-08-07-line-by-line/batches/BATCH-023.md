@@ -1,14 +1,14 @@
 # BATCH-023
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `7` — Validatie, toetsregels, opschoning en sanitization
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `885058188f19869c2a6f1cc50a08bd9ae1e9ecd28290f033660f3a07f2742d7c`
+- Membership-SHA256: `a843be35409662920907ac4e7c95e06f72087bd0be06094e85bbca7a0f2bab18`
 - Bestanden: `11`
 - Fysieke regels: `3501`
 - Python-symbolen: `123`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-root`
 
 ## Scope
 
@@ -28,21 +28,32 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B023-001` — Soft floor overrides failed critical acceptance gates.
+- P1/proven: `B023-002` — Degraded validation fallback crashes on first use.
+- P1/proven: `B023-003` — Category and domain context disappear from active validation.
+- P2/proven: `B023-004` — Cleaning configuration flags have no effect.
+- P2/proven: `B023-005` — Schema compliance helper accepts arbitrary shapes.
+- P2/proven: `B023-006` — Raw exception detail is returned to validation clients.
+- P2/proven: `B023-007` — Public batch validation deadlocks and fails whole batches.
+- P3/proven: `B023-008` — Context validator crashes after reporting invalid root types.
+- P3/proven: `B023-009` — Empty legal reference crashes ASTRA validation.
+- P3/proven: `B023-010` — Concrete cleaning service is called with the wrong signature.
+- P3/proven: `B023-011` — Fallback redundancy regex uses literal backslashes.
+- Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-023/review-evidence.md`.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle toegewezen bestanden, regels en symbolen van BATCH-023 zijn line-by-line beoordeeld; beperkingen staan expliciet in het bewijsdossier.
