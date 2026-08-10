@@ -24,7 +24,7 @@ frozenlist==1.8.0
 # GHSA-p538-c434-8v24 (file truncation via Commit.count --output).
 # Eerder gepind op 3.1.55 voor GHSA-94p4-4cq8-9g67 (DEF-599); die CVE's zijn
 # dezelfde klasse: **kwargs doorgegeven aan git zonder check_unsafe_options.
-gitpython==3.1.57
+gitpython==3.1.58
 idna==3.18
 Jinja2==3.1.6
 jiter==0.16.0
