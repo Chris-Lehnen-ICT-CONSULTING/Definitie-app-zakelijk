@@ -66,12 +66,14 @@ Contextdetectie gebruikt substrings voor korte afkortingen. `bestuursrecht`
 leverde `Wetboek van Strafrecht` en `Sr`. Aanbevolen: exacte tokens/woordgrenzen,
 langste frases eerst en aliascontracttests.
 
-### B035-008 — P2 — singleton webdebug mengt gelijktijdige requests
+### B035-008 — P1 — singleton webdebug mengt gelijktijdige requests
 
 `_last_attempts/_last_debug/_last_error` zijn gedeelde mutable servicevelden en
-de container is procesglobaal. Een ALICE/BOB-interleaving liet BOB attempts van
-beide requests bevatten. De race is proven; cross-user privacy-impact is
-deploymentafhankelijk. Aanbevolen: request-local accumulator in het resultaat.
+de container is procesglobaal. Een nieuwe gecontroleerde ALICE/BOB-interleaving
+liet request A een raw BOB-SECRET-attempt ontvangen; de actieve orchestrator
+persistenteert dit in gewone resultaatmetadata die de UI toont. De cross-user
+impact is daarmee bewezen. Aanbevolen: request-local accumulator in het resultaat
+en geen raw debug in gewone gebruikersmetadata.
 
 ### B035-009 — P3 — iedere lookupfase krijgt opnieuw het volledige timeoutbudget
 
