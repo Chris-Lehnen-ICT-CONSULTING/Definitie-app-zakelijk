@@ -48,7 +48,7 @@
 - P2/proven: `B035-005` — RAG overlap and maximum chunk size contracts are ineffective.
 - P2/proven: `B035-006` — Duplicate URL reconstruction corrupts ranked results.
 - P2/proven: `B035-007` — Substring sr classifies administrative law as criminal law.
-- P2/proven: `B035-008` — Singleton web debug state mixes concurrent requests.
+- P1/proven: `B035-008` — Singleton web debug state mixes concurrent requests.
 - P3/proven: `B035-009` — Every lookup stage receives the full timeout budget.
 - P2/proven: `B035-010` — Embedding search materializes the full collection twice.
 - P2/suspected: `B035-011` — Global document processor can share session data.
