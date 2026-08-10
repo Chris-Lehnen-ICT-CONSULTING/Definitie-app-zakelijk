@@ -1,0 +1,852 @@
+# DEF-503/DEF-606: runtime-matrix per toetsregel.
+#
+# Contract per rule-ID:
+#   evaluator:        json_generiek | special_case | positieve_indicator
+#   scoringstatus:    automatisch | niet_automatisch_toetsbaar |
+#                     bewust_niet_scorend | defect_inert
+#   required_fields:  velden waarop de failure branch steunt
+#   positief/negatief/grens (bij automatisch): begrip, tekst,
+#     optioneel categorie, verwacht_in_melding, verwacht (grens),
+#     tekst_herhaal: {token, n} voor lengtecases
+#   probe (bij niet-automatisch): sterkst denkbare poging de regel te
+#     laten afgaan; de runner bewijst dat er dan géén violation komt.
+#
+# RED-bewijs stap 4 (2026-08-10): met SAM-06 als 'automatisch' faalde de
+# runner exact zoals bedoeld — negatieve case gaf geen violation
+# (vereist_param wordt door geen evaluator-tak gelezen) én de
+# stil-genegeerd-check sloeg aan. Classificatie hieronder is de uitkomst.
+# Tweede RED-vondst: VER-03 retourneert ná de lemma-check altijd pass,
+# dus de herkenbaar_patronen van VER-03 zijn onbereikbaar (dood pad).
+
+ARAI-03:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: maatregel
+    tekst: "maatregel: ingreep die effectief bijdraagt"
+    verwacht_in_melding: "Verboden patroon"
+  positief:
+    begrip: maatregel
+    tekst: "maatregel: ingreep met een vastgesteld doel"
+  grens:
+    begrip: maatregel
+    tekst: "maatregel: ingreep gericht op effectiviteit"
+    verwacht: geen_violation
+
+VAL-LEN-001:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [min_words, min_chars]
+  negatief:
+    begrip: definitie
+    tekst: "te kort"
+    verwacht_in_melding: "Te weinig"
+  positief:
+    begrip: definitie
+    tekst: "omschrijving met ruim voldoende woorden en voldoende tekens"
+  grens:
+    begrip: definitie
+    tekst: "vijf woorden zijn precies genoeg"
+    verwacht: geen_violation
+
+VER-03:
+  evaluator: special_case
+  scoringstatus: automatisch
+  required_fields: []
+  # herkenbaar_patronen (".+t\b", ".+d\b") staan in de JSON maar zijn
+  # ONBEREIKBAAR: de special-case retourneert altijd vóór het patroonpad.
+  negatief:
+    begrip: controleert
+    tekst: "vorm van omgang binnen een organisatie"
+    verwacht_in_melding: "infinitief"
+  positief:
+    begrip: controleren
+    tekst: "vorm van omgang binnen een organisatie"
+  grens:
+    # Zou via het (dode) patroonpad falen ("waardeert" eindigt op -t);
+    # bewijst dat alleen het lemma-pad bestaat.
+    begrip: controleren
+    tekst: "vorm van omgang die men waardeert"
+    verwacht: geen_violation
+
+ESS-02:
+  evaluator: special_case
+  scoringstatus: automatisch
+  required_fields: []
+  negatief:
+    begrip: waarde
+    tekst: "waarde zonder nadere duiding"
+    verwacht_in_melding: "ontologische marker"
+  positief:
+    # Precies één categorie-hit (type: "klasse").
+    begrip: waarde
+    tekst: "klasse van waarderingsvormen"
+  grens:
+    # Twee categorieën (type "soort" + proces "handeling") -> ambigu.
+    begrip: waarde
+    tekst: "soort handeling binnen toezicht"
+    verwacht: violation
+
+SAM-06:
+  evaluator: json_generiek
+  scoringstatus: defect_inert
+  required_fields: [vereist_param]
+  reden: >
+    vereist_param wordt door geen enkele evaluator-tak gelezen (stil
+    genegeerd); de regel kan in runtime nooit falen. Herstel vergt een
+    voorkeursterm-evaluator (DEF-606-vervolg).
+  probe:
+    begrip: synoniemenpaar
+    tekst: "aanduiding naast de voorkeursterm zonder consistent gebruik"
+
+# ── Volledige uitbreiding naar alle 53 rule-IDs (stap 5) ──────────────
+
+ARAI-01:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: besluit
+    tekst: "besluit: is een vastgestelde keuze"
+    verwacht_in_melding: "Verboden patroon"
+  positief:
+    begrip: besluit
+    tekst: "besluit: vastgestelde keuze na afweging"
+  grens:
+    begrip: besluit
+    tekst: "besluit: keuze die er is"
+    verwacht: geen_violation
+
+ARAI-02:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: systeemonderdeel
+    tekst: "systeemonderdeel: aspect van de werking"
+  positief:
+    begrip: werkwijze
+    tekst: "werkwijze: reeks geordende stappen"
+  grens:
+    begrip: werkwijze
+    tekst: "werkwijze: proces dat stappen ordent"
+    verwacht: geen_violation
+
+ARAI-02SUB1:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: kenmerk
+    tekst: "kenmerk: factor die invloed uitoefent"
+  positief:
+    begrip: kenmerk
+    tekst: "kenmerk: eigenschap met invloed"
+  grens:
+    begrip: kenmerk
+    tekst: "kenmerk: factoren in samenhang"
+    verwacht: geen_violation
+
+ARAI-02SUB2:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: opvang
+    tekst: "opvang: voorziening voor verblijf"
+  positief:
+    begrip: opvang
+    tekst: "opvang: plek voor verblijf"
+  grens:
+    begrip: opvang
+    tekst: "opvang: procesmatige regeling"
+    verwacht: geen_violation
+
+ARAI-04:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: vergunning
+    tekst: "vergunning: document dat kan vervallen"
+  positief:
+    begrip: vergunning
+    tekst: "vergunning: document voor toestemming"
+  grens:
+    begrip: vergunning
+    tekst: "vergunning: document van de kandidaat"
+    verwacht: geen_violation
+
+ARAI-04SUB1:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: recht
+    tekst: "recht: bevoegdheid die mag vervallen"
+  positief:
+    begrip: recht
+    tekst: "recht: bevoegdheid tot handelen"
+  grens:
+    begrip: recht
+    tekst: "recht: bevoegdheid in het magazijn"
+    verwacht: geen_violation
+
+ARAI-05:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: termijn
+    tekst: "termijn: periode zoals gebruikelijk gehanteerd"
+  positief:
+    begrip: termijn
+    tekst: "termijn: vaste periode voor afhandeling"
+  grens:
+    begrip: termijn
+    tekst: "termijn: periode zoals vastgelegd in regels"
+    verwacht: geen_violation
+
+ARAI-06:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  gewicht_nul: true
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: maatregel
+    tekst: "de maatregel voor toezicht"
+  positief:
+    begrip: maatregel
+    tekst: "maatregel: corrigerende ingreep"
+  grens:
+    begrip: maatregel
+    tekst: "maatregel: de corrigerende ingreep"
+    verwacht: geen_violation
+
+CON-01:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: afspraak
+    tekst: "afspraak die in de context van toezicht geldt"
+  positief:
+    begrip: afspraak
+    tekst: "afspraak: schriftelijke overeenkomst tussen partijen"
+  grens:
+    begrip: afspraak
+    tekst: "afspraak: overeenkomst met contextafhankelijke inhoud"
+    verwacht: geen_violation
+
+CON-02:
+  evaluator: positieve_indicator
+  scoringstatus: automatisch
+  required_fields: []
+  negatief:
+    begrip: protocol
+    tekst: "protocol: werkinstructie binnen de organisatie"
+    verwacht_in_melding: "authentieke bron"
+  positief:
+    begrip: protocol
+    tekst: "protocol: werkinstructie volgens de richtlijn"
+  grens:
+    begrip: protocol
+    tekst: "protocol: werkinstructie in de wetgeving"
+    verwacht: violation
+
+CON-CIRC-001:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [circular_definition]
+  negatief:
+    begrip: sanctie
+    tekst: "straf die als sanctie geldt"
+    verwacht_in_melding: "Circulaire"
+  positief:
+    begrip: sanctie
+    tekst: "opgelegde straf na overtreding"
+  grens:
+    begrip: sanctie
+    tekst: "straf met sanctionerende werking"
+    verwacht: geen_violation
+
+DUP_01:
+  evaluator: json_generiek
+  scoringstatus: niet_automatisch_toetsbaar
+  required_fields: []
+  reden: >
+    duplicaatdetectie vereist een repository/database; de evaluator
+    heeft geen velden (lege herkenbaar_patronen) en de DUP-flow draait
+    via het aparte repositorypad (zie test_DUP_01.py).
+  probe:
+    begrip: besluit
+    tekst: "vastgelegde keuze van een orgaan"
+
+ESS-01:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: subsidie
+    tekst: "subsidie: bijdrage om te stimuleren"
+  positief:
+    begrip: subsidie
+    tekst: "subsidie: geldelijke bijdrage van de overheid"
+  grens:
+    begrip: subsidie
+    tekst: "subsidie: bijdrage om innovatie"
+    verwacht: geen_violation
+
+ESS-03:
+  evaluator: positieve_indicator
+  scoringstatus: automatisch
+  required_fields: []
+  negatief:
+    begrip: registratie
+    tekst: "vastlegging van feiten over personen"
+    verwacht_in_melding: "uniek identificatiecriterium"
+  positief:
+    begrip: registratie
+    tekst: "vastlegging met een uniek volgnummer per geval"
+  grens:
+    begrip: registratie
+    tekst: "vastlegging met uniekheid"
+    verwacht: violation
+
+ESS-04:
+  evaluator: positieve_indicator
+  scoringstatus: automatisch
+  required_fields: []
+  negatief:
+    begrip: controle
+    tekst: "controle: toets van naleving door de dienst"
+    verwacht_in_melding: "toetsbaar element"
+  positief:
+    begrip: controle
+    tekst: "controle: toets die binnen 30 dagen plaatsvindt"
+  grens:
+    begrip: controle
+    tekst: "controle: toets voor naleving"
+    verwacht: geen_violation
+
+ESS-05:
+  evaluator: positieve_indicator
+  scoringstatus: automatisch
+  required_fields: []
+  negatief:
+    begrip: profiel
+    tekst: "profiel: beschrijving van een persoon"
+    verwacht_in_melding: "onderscheidend kenmerk"
+  positief:
+    begrip: profiel
+    tekst: "profiel: beschrijving met onderscheidend kenmerk"
+  grens:
+    begrip: profiel
+    tekst: "profiel: specifieke beschrijving"
+    verwacht: violation
+
+ESS-CONT-001:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [min_words]
+  negatief:
+    begrip: definitie
+    tekst: "korte tekst hier"
+    verwacht_in_melding: "Te weinig woorden"
+  positief:
+    begrip: definitie
+    tekst: "uitgebreide omschrijving met ruim voldoende woorden erin"
+  grens:
+    begrip: definitie
+    tekst: "zes woorden zijn hier precies goed"
+    verwacht: geen_violation
+
+INT-01:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: dossier
+    tekst: "dossier: map, met stukken"
+  positief:
+    begrip: dossier
+    tekst: "dossier: verzameling stukken per zaak"
+  grens:
+    begrip: dossier
+    tekst: "dossier: verzameling stukken uit onderzoeken"
+    verwacht: geen_violation
+
+INT-02:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: korting
+    tekst: "korting: verlaging indien tijdig betaald"
+  positief:
+    begrip: korting
+    tekst: "korting: verlaging van het tarief"
+  grens:
+    begrip: korting
+    tekst: "korting: verlaging bij tijdige betaling"
+    verwacht: geen_violation
+
+INT-03:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: regeling
+    tekst: "regeling waarbij deze afspraak geldt"
+  positief:
+    begrip: regeling
+    tekst: "regeling: afspraak over vergoeding"
+  grens:
+    begrip: regeling
+    tekst: "regeling: afspraak over dienstverlening"
+    verwacht: geen_violation
+
+INT-04:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: toezicht
+    tekst: "toezicht door de toezichthouder"
+  positief:
+    begrip: toezicht
+    tekst: "toezicht: controle op naleving"
+  grens:
+    begrip: toezicht
+    tekst: "toezicht: controle door een toezichthouder"
+    verwacht: geen_violation
+
+INT-06:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: voertuig
+    tekst: "voertuig: vervoermiddel bijvoorbeeld een auto"
+  positief:
+    begrip: voertuig
+    tekst: "voertuig: middel voor vervoer over land"
+  grens:
+    begrip: voertuig
+    tekst: "voertuig: middel voor voorbeeldig vervoer"
+    verwacht: geen_violation
+
+INT-07:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  overtriggerend: true
+  # DEFECT (gevonden door deze matrix): alle patronen worden met
+  # re.IGNORECASE gecompileerd, dus "\b[A-Z]{2,6}\b" (bedoeld voor
+  # afkortingen) matcht elk woord van 2-6 letters. Vrijwel elke
+  # Nederlandse definitie faalt hierdoor op INT-07.
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: instantie
+    tekst: "instantie: orgaan onder de AVG"
+  positief:
+    # Alleen woorden van 7+ letters passeren het kapotte patroon.
+    begrip: instantie
+    tekst: "instantie: overheidsorganisatie verantwoordelijk betreffende identiteitscontrole"
+  grens:
+    # Documenteert het defect: een tekst zonder enige afkorting faalt.
+    begrip: instantie
+    tekst: "instantie: orgaan in Amsterdam"
+    verwacht: violation
+
+INT-08:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: verbod
+    tekst: "verbod: regel die niet toestaat"
+  positief:
+    begrip: verbod
+    tekst: "verbod: regel tot onthouding van gedrag"
+  grens:
+    begrip: verbod
+    tekst: "verbod: regel over nietigheid"
+    verwacht: geen_violation
+
+INT-09:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: lijst
+    tekst: "lijst: overzicht met onder andere namen"
+  positief:
+    begrip: lijst
+    tekst: "lijst: overzicht van items op volgorde"
+  grens:
+    begrip: lijst
+    tekst: "lijst: overzicht van inclusieve regelingen"
+    verwacht: geen_violation
+
+INT-10:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: term
+    tekst: "term: begrip zie handboek"
+  positief:
+    begrip: term
+    tekst: "term: benaming voor een begrip"
+  grens:
+    begrip: term
+    tekst: "term: begrip uit het overzicht"
+    verwacht: geen_violation
+
+SAM-01:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: koppeling
+    tekst: "koppeling: technisch verband tussen delen"
+  positief:
+    begrip: koppeling
+    tekst: "koppeling: verband tussen twee registraties"
+  grens:
+    begrip: koppeling
+    tekst: "koppeling: verband via techniek"
+    verwacht: geen_violation
+
+SAM-02:
+  evaluator: special_case
+  scoringstatus: automatisch
+  required_fields: []
+  # Lege herkenbaar_patronen in de JSON; de werkelijke check is de
+  # special-case op meerwoordige begrippen (kop-herhaling na dubbele punt).
+  negatief:
+    begrip: economisch delict
+    tekst: "delict: gedraging die de economie raakt"
+    verwacht_in_melding: "hoofdbegrip"
+  positief:
+    begrip: economisch delict
+    tekst: "economisch delict: gedraging binnen het economische verkeer"
+  grens:
+    begrip: delict
+    tekst: "delict: strafbare gedraging"
+    verwacht: geen_violation
+
+SAM-03:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: artikel
+    tekst: "artikel: bepaling zie definitie van wet"
+  positief:
+    begrip: artikel
+    tekst: "artikel: genummerde bepaling in een wet"
+  grens:
+    begrip: artikel
+    tekst: "artikel: bepaling zoals omschreven hieronder"
+    verwacht: geen_violation
+
+SAM-04:
+  evaluator: special_case
+  scoringstatus: automatisch
+  required_fields: []
+  negatief:
+    begrip: procesmodel
+    tekst: "procesmodel: schema van stappen"
+    verwacht_in_melding: "genus"
+  positief:
+    begrip: procesmodel
+    tekst: "procesmodel: model van stappen"
+  grens:
+    begrip: beleidskader breed
+    tekst: "kader: overzicht van beleid"
+    verwacht: geen_violation
+
+SAM-05:
+  evaluator: json_generiek
+  scoringstatus: bewust_niet_scorend
+  required_fields: []
+  reden: >
+    geen runtime-velden en geen special-case; circulariteit wordt
+    functioneel gedekt door CON-CIRC-001 (circular_definition).
+  probe:
+    begrip: lus
+    tekst: "lus: verwijzing die naar een lus verwijst"
+
+SAM-07:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: pakket
+    tekst: "pakket: verzameling en eventueel toebehoren"
+  positief:
+    begrip: pakket
+    tekst: "pakket: samenhangende verzameling onderdelen"
+  grens:
+    begrip: pakket
+    tekst: "pakket: verzameling plus toebehoren"
+    verwacht: geen_violation
+
+SAM-08:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: benaming
+    tekst: "benaming: aanduiding ook wel roepnaam"
+  positief:
+    begrip: benaming
+    tekst: "benaming: officiële aanduiding van een zaak"
+  grens:
+    begrip: benaming
+    tekst: "benaming: aanduiding in het spraakgebruik"
+    verwacht: geen_violation
+
+STR-01:
+  evaluator: special_case
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: gedragsregel
+    tekst: "is een regel voor gedrag"
+  positief:
+    begrip: gedragsregel
+    tekst: "gedragsregel: norm voor gedrag"
+  grens:
+    begrip: gedragsregel
+    tekst: "gedragsregel: norm die er is"
+    verwacht: geen_violation
+
+STR-02:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  # additional_patterns voegt een genus-zonder-differentia-patroon toe
+  # dat ook afgaat op een kaal genuswoord direct vóór de dubbele punt.
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: proces
+    tekst: "proces: proces van behandeling"
+  positief:
+    begrip: werkstroom
+    tekst: "werkstroom: reeks behandelstappen"
+  grens:
+    begrip: werkstroom
+    tekst: "werkstroom: processtappen in volgorde"
+    verwacht: geen_violation
+
+STR-03:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: aanduiding
+    tekst: "aanduiding"
+  positief:
+    begrip: aanduiding
+    tekst: "aanduiding: naam voor een zaak"
+  grens:
+    begrip: aanduiding
+    tekst: "aanduiding (kort)"
+    verwacht: violation
+
+STR-04:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: maatregel
+    tekst: "maatregel"
+  positief:
+    begrip: maatregel
+    tekst: "maatregel: corrigerende ingreep na overtreding"
+  grens:
+    begrip: maatregel
+    tekst: "maatregelen"
+    verwacht: geen_violation
+
+STR-05:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: samenstel
+    tekst: "samenstel: geheel dat bestaat uit delen"
+  positief:
+    begrip: samenstel
+    tekst: "samenstel: geheel van verbonden delen"
+  grens:
+    begrip: samenstel
+    tekst: "samenstel: geheel met omvattende werking"
+    verwacht: geen_violation
+
+STR-06:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: fonds
+    tekst: "fonds: reserve om te sparen"
+  positief:
+    begrip: fonds
+    tekst: "fonds: afgezonderd vermogen met een bestemming"
+  grens:
+    begrip: fonds
+    tekst: "fonds: vermogen gericht aan derden"
+    verwacht: geen_violation
+
+STR-07:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: toegang
+    tekst: "toegang: recht dat niet zonder pas geldt"
+  positief:
+    begrip: toegang
+    tekst: "toegang: recht op het betreden van een ruimte"
+  grens:
+    begrip: toegang
+    tekst: "toegang: recht zonder beperkingen"
+    verwacht: geen_violation
+
+STR-08:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: eis
+    tekst: "eis: voorwaarde en aanvullende norm"
+  positief:
+    begrip: eis
+    tekst: "eis: voorwaarde voor toelating"
+  grens:
+    begrip: eis
+    tekst: "eis: voorwaarden binnen grenzen"
+    verwacht: geen_violation
+
+STR-09:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: legitimatie
+    tekst: "legitimatie: paspoort of identiteitskaart"
+  positief:
+    begrip: legitimatie
+    tekst: "legitimatie: bewijs van identiteit"
+  grens:
+    begrip: legitimatie
+    tekst: "legitimatie: bewijsvoering rond identiteit"
+    verwacht: geen_violation
+
+STR-ORG-001:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [min_commas, max_chars, redundancy_patterns]
+  negatief:
+    begrip: aanpak
+    tekst: "aanpak: werkwijze die simpel oogt maar complex is"
+    verwacht_in_melding: "Redundantie"
+  positief:
+    begrip: aanpak
+    tekst: "aanpak: vaste werkwijze voor behandeling"
+  grens:
+    # Zes kommas maar onder de 300 tekens: beide voorwaarden vereist.
+    begrip: aanpak
+    tekst: "aanpak: a, b, c, d, e, f, g"
+    verwacht: geen_violation
+
+STR-TERM-001:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [forbidden_phrases]
+  negatief:
+    begrip: koppelvlak
+    tekst: "koppelvlak: uitwisseling via het HTTP protocol"
+    verwacht_in_melding: "Verboden term"
+  positief:
+    begrip: koppelvlak
+    tekst: "koppelvlak: uitwisseling van berichten"
+  grens:
+    begrip: koppelvlak
+    tekst: "koppelvlak: uitwisseling via HTTPS"
+    verwacht: geen_violation
+
+VAL-EMP-001:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [min_chars]
+  negatief:
+    begrip: definitie
+    tekst: ""
+    verwacht_in_melding: "Te weinig tekens"
+  positief:
+    begrip: definitie
+    tekst: "aanwezig stuk met inhoud"
+  grens:
+    begrip: definitie
+    tekst: "x"
+    verwacht: geen_violation
+
+VAL-LEN-002:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [max_words, max_chars]
+  negatief:
+    begrip: definitie
+    tekst_herhaal: {token: "woord", n: 85}
+    verwacht_in_melding: "Te veel"
+  positief:
+    begrip: definitie
+    tekst: "omschrijving van gebruikelijke lengte voor een begrip"
+  grens:
+    begrip: definitie
+    tekst_herhaal: {token: "woord", n: 80}
+    verwacht: geen_violation
+
+VER-01:
+  evaluator: special_case
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: besluiten
+    tekst: "officieel stuk dat als bewijs geldt"
+    verwacht_in_melding: "lijkt meervoud"
+  positief:
+    begrip: besluit
+    tekst: "officieel stuk dat als bewijs geldt"
+  grens:
+    # Plurale tantum (DEF-605): meervoudsvorm zonder enkelvoud is geldig.
+    begrip: kosten
+    tekst: "officieel stuk dat als bewijs geldt"
+    verwacht: geen_violation
+
+VER-02:
+  evaluator: json_generiek
+  scoringstatus: automatisch
+  required_fields: [herkenbaar_patronen]
+  negatief:
+    begrip: gegeven
+    tekst: "vastgelegde gegevens zijn feiten"
+  positief:
+    begrip: gegeven
+    tekst: "vastgelegd feit over een persoon"
+  grens:
+    begrip: gegeven
+    tekst: "reeks feiten zijnde vastgesteld"
+    verwacht: geen_violation
