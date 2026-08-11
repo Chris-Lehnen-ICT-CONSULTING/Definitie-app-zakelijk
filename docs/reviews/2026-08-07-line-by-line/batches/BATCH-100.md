@@ -1,14 +1,14 @@
 # BATCH-100
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `a55bbe2967ad905a80626d1a372316ecfb4b60cc42a6197ea13923e01178c45e`
+- Membership-SHA256: `cd3c1e9230f2b5760a1ceba87155142bacf723264fee845c26292c94b458de84`
 - Bestanden: `13`
 - Fysieke regels: `3870`
 - Python-symbolen: `95`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -30,21 +30,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B100-001` — Documentation normalizer corrupts prose and structured dates and targets another checkout.
+- P1/proven: `B100-002` — Production baseline export publishes audit identities and internal provenance into tracked documentation.
+- P2/proven: `B100-003` — Translation scripts fabricate performance, legal and integration claims.
+- P2/proven: `B100-004` — Requirements renumbering has no fail-fast, collision or reference-integrity safeguards.
+- P3/proven: `B100-005` — Backlog restructuring never copies epic files because its wildcard is quoted.
+- P2/proven: `B100-006` — Active feature-status workflow always resolves its dashboard HTML below scripts.
+- P2/proven: `B100-007` — GitHub issue titles are interpolated into executable feature-status JavaScript.
+- P2/proven: `B100-008` — Traceability auto-fix makes semantic assignments from weak heuristics in a hardcoded checkout.
+- P2/proven: `B100-009` — Migration validator reports success for an empty scope and never signals detected defects.
+- P2/proven: `B100-010` — Global frontmatter normalizer flattens nested link mappings.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 13 bestanden, 3870 fysieke regels en 95 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

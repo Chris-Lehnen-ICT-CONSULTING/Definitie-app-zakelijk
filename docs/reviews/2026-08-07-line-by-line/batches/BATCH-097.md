@@ -1,14 +1,14 @@
 # BATCH-097
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `1cb1dd3bd55d570c52a7b01e1560c59ed4171d880f75b1487066ca1f5b7eb294`
+- Membership-SHA256: `5ae384ce96eae95b6a24025e44d12e35f495bcd0244786ba277ae8e7a2ebd117`
 - Bestanden: `20`
 - Fysieke regels: `3457`
 - Python-symbolen: `79`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -37,21 +37,28 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B097-001` — Archive deletion uses every historical archive ID instead of the successful copy set.
+- P1/proven: `B097-002` — Hourly backup copies only the SQLite main file and silently omits committed WAL data.
+- P2/proven: `B097-003` — Restore overwrites the live database non-atomically and has no rollback.
+- P2/proven: `B097-004` — Archive and restore CLIs open log files before creating the log directory.
+- P2/proven: `B097-005` — Partial synonym failures are reported as no results and still exit successfully.
+- P2/proven: `B097-006` — Streamlit anti-pattern gate misses multiline widget calls.
+- P2/proven: `B097-007` — Active legacy gate treats an invalid ripgrep regex as PASS.
+- P3/proven: `B097-008` — File-size checker word-splits filenames and skips large files containing spaces.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 3457 fysieke regels en 79 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

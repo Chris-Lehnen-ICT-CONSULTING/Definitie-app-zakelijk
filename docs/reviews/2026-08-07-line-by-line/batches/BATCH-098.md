@@ -1,14 +1,14 @@
 # BATCH-098
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `7f98348a3c11d47b9ad85c71d5523c45b743394002f2b015895d0010367438d4`
+- Membership-SHA256: `3df354ddcddff8f96d4a1a268cfd939f558c539c377b65902fdc91316d08a09f`
 - Bestanden: `20`
 - Fysieke regels: `3309`
 - Python-symbolen: `58`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -37,21 +37,28 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B098-001` — Baseline comparison compares the baseline with itself.
+- P3/proven: `B098-002` — Empty validation comparisons crash report generation.
+- P2/proven: `B098-003` — Untrusted definition names are inserted into HTML without escaping.
+- P3/proven: `B098-004` — Generated comparison HTML lacks table semantics and sufficient header contrast.
+- P2/proven: `B098-005` — AI-review installers leave partially modified environments on failure.
+- P3/proven: `B098-006` — Dormant deployment scripts reference files absent from the immutable base.
+- P3/proven: `B098-007` — Local branch-name validator rejects names accepted by active CI.
+- P3/proven: `B098-008` — Installed launchd backup job hardcodes one developer checkout.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 3309 fysieke regels en 58 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

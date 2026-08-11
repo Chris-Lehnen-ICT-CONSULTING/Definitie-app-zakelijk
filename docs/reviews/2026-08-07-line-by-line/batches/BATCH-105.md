@@ -1,14 +1,14 @@
 # BATCH-105
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `3ad85807ec213f9e56b3bba849f4c20766465e33d9588a84ab7a49c5a5fde435`
+- Membership-SHA256: `bee92815e999c9673d449778d991da72c071e969d42407c128e0824f4001f91e`
 - Bestanden: `20`
 - Fysieke regels: `3232`
 - Python-symbolen: `81`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -37,21 +37,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B105-001` — Actieve quick-check-workflow slaagt zonder uitvoerbare checks.
+- P3/proven: `B105-002` — Markercontrole accepteert modifiers en docstringtekst als classificatie.
+- P2/proven: `B105-003` — Live operationele tests rapporteren volledige mislukking met exitcode 0.
+- P3/proven: `B105-004` — Gedocumenteerde synonym-orchestrator-test importeert verwijderd modulepad.
+- P2/proven: `B105-005` — Migratieverificatie verklaart een lege of andere worktree volledig voltooid.
+- P2/proven: `B105-006` — PER-007 TDD-runner slikt een lege falende GREEN- en CONFIRM-run.
+- P3/proven: `B105-007` — Story-2.4-runner weigert een geldige gekozen suite wegens drie stale globale paden.
+- P3/proven: `B105-008` — Gedocumenteerde fast- en performanceprofielen wijzen naar ontbrekende paden.
+- P3/proven: `B105-009` — History-removal-verificatie skipt of slikt de enige pytest-suite.
+- P3/proven: `B105-010` — Cachebenchmark accepteert negatieve verbetering zonder cachebewijs.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 3232 fysieke regels en 81 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

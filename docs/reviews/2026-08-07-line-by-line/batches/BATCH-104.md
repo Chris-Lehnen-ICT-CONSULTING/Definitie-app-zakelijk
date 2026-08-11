@@ -1,14 +1,14 @@
 # BATCH-104
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `66dbf3c086a811506d21aa961045a233e59a8eac5e5b5beb3cb50842cbeb0146`
+- Membership-SHA256: `4c11fa02acbcf8502656309069de922ae7111306ee4b44a9485964538982be7c`
 - Bestanden: `20`
 - Fysieke regels: `2728`
 - Python-symbolen: `64`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-root`
 
 ## Scope
 
@@ -37,21 +37,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B104-001` — Orphan cleanup drops backup tables even when restore refused rows.
+- P2/proven: `B104-002` — Recovery tool auto-confirms live writes in non-interactive sessions.
+- P2/proven: `B104-003` — Endpoint smoke script prints total failures but exits zero.
+- P3/proven: `B104-004` — Monitoring test runner targets a nonexistent test directory.
+- P3/proven: `B104-005` — MVP test ignores --no-cleanup and lacks signal cleanup traps.
+- P3/proven: `B104-006` — Rebuild dashboard is placeholder-only and keyboard-inaccessible.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 2728 fysieke regels en 64 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

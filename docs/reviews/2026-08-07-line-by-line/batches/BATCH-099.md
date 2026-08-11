@@ -1,14 +1,14 @@
 # BATCH-099
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `99f24e9c9feb40def0847d98436f229462aa6ee4b4801b33c1b54cb354b1792c`
+- Membership-SHA256: `934217211eda6bd03c6b98224c8d427eb7ccb551bbc4dc1eeafb2fcee64689de`
 - Bestanden: `11`
 - Fysieke regels: `3848`
 - Python-symbolen: `100`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -28,21 +28,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B099-001` — AI review tools fail open when checks are unavailable or malformed.
+- P2/proven: `B099-002` — Dashboard Make target points to a missing script and the real generator uses the wrong root.
+- P2/proven: `B099-003` — Documentation compliance audit scans an empty scripts directory and exits successfully.
+- P2/proven: `B099-004` — Requirements frontmatter normalizer destroys nested YAML and lists.
+- P2/proven: `B099-005` — Documentation link fixer writes workstation-absolute paths for sibling targets.
+- P2/proven: `B099-006` — Requirements dashboard emits unescaped Markdown and metadata into HTML and script.
+- P3/proven: `B099-007` — Markdown dashboard fallback links every requirement to the last source path.
+- P2/proven: `B099-008` — Source-tree generator can replace architecture documentation with an empty tree.
+- P3/proven: `B099-009` — Generated dashboard interactions lack keyboard semantics, labels and responsive containment.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 11 bestanden, 3848 fysieke regels en 100 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
