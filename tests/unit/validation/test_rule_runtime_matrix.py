@@ -84,13 +84,28 @@ RULE_IDS_OP_DISK = sorted(p.stem for p in REGELS_DIR.glob("*.json"))
 def _tekst_van(case: dict) -> str:
     herhaal = case.get("tekst_herhaal")
     if herhaal:
-        return (str(herhaal["token"]) + " ") * int(herhaal["n"])
+        return " ".join([str(herhaal["token"])] * int(herhaal["n"]))
     return case.get("tekst", "")
 
 
-@pytest.fixture(scope="module")
-def svc() -> ModularValidationService:
-    return ModularValidationService(get_toetsregel_manager(), None, None)
+@pytest.fixture(
+    scope="module", params=["toetsregel_manager", "cached_manager (productiepad)"]
+)
+def svc(request) -> ModularValidationService:
+    # De matrix draait over BEIDE regelbronnen: de volledige
+    # ToetsregelManager (unit-testpad) én de CachedToetsregelManager →
+    # RuleCache-keten (productiepad). De DEF-606-bug zat precies in de
+    # divergentie tussen die twee; laat RuleCache opnieuw een veld
+    # vallen, dan wordt deze matrix rood op het productiepad.
+    if request.param.startswith("cached_manager"):
+        from toetsregels.cached_manager import get_cached_toetsregel_manager
+        from toetsregels.rule_cache import get_rule_cache
+
+        get_rule_cache().clear_cache()  # geen stale FileCache-entries
+        manager = get_cached_toetsregel_manager()
+    else:
+        manager = get_toetsregel_manager()
+    return ModularValidationService(manager, None, None)
 
 
 async def _violations_voor(svc, rule_id: str, case: dict) -> list[dict]:
@@ -132,6 +147,25 @@ class TestMatrixVolledigheid:
         else:
             assert "probe" in entry, f"{rule_id}: adversariële probe ontbreekt"
             assert entry.get("reden"), f"{rule_id}: reden verplicht bij {status}"
+        # Dispositie-koppeling (ALG-375): elke niet-automatische status en
+        # elk gedocumenteerd defect (overtriggerend) vereist een tracker-ID
+        # zodat een defect niet stil kan blijven staan.
+        if status != AUTOMATISCH or entry.get("overtriggerend"):
+            import re as _re
+
+            issue = str(entry.get("issue", ""))
+            assert _re.fullmatch(r"DEF-\d+", issue), (
+                f"{rule_id}: 'issue: DEF-nnn' verplicht bij status {status!r} "
+                f"of overtriggerend-vlag (gevonden: {issue!r})"
+            )
+
+    def test_evaluator_leesset_is_deel_van_runtime_contract(self):
+        # EVALUATOR_GELEZEN_VELDEN is declaratief (grep-inventaris van
+        # rule.get-calls). Leesregressies op velden mét cases worden al
+        # door de reachability-cases gevangen; deze assert bewaakt alleen
+        # de consistentie met het cache-contract. Waargenomen leesset:
+        # DEF-621 (hardening).
+        assert set(RUNTIME_VELDEN) >= EVALUATOR_GELEZEN_VELDEN
 
     @pytest.mark.parametrize("rule_id", sorted(MATRIX), ids=str)
     def test_geen_stil_genegeerde_velden(self, rule_id):
@@ -200,7 +234,13 @@ class TestReachability:
         verwacht = grens.get("verwacht", "geen_violation")
         vios = await _violations_voor(svc, rule_id, grens)
         if verwacht == "violation":
-            assert vios, f"{rule_id}: grenscase zou moeten falen maar passeert"
+            hint = (
+                f" (gedocumenteerd defect: {entry['issue']} — is het defect "
+                f"gefixt? Werk dan deze fixture-entry bij)"
+                if entry.get("issue")
+                else ""
+            )
+            assert vios, f"{rule_id}: grenscase zou moeten falen maar passeert{hint}"
         else:
             assert not vios, (
                 f"{rule_id}: grenscase zou moeten passeren maar faalt: "
@@ -224,13 +264,26 @@ class TestReachability:
 
 
 class TestAfgeleideTelling:
+    # Het bewezen contract van dit moment. Dit is GEEN vrije aanname
+    # (vgl. de afgewezen "37/10/3"-telling): elke case hierachter is door
+    # de reachability-tests afgedwongen. Verschuift een regel van
+    # categorie, dan hoort deze verdeling bewust mee te veranderen.
+    VERWACHTE_VERDELING = {
+        "automatisch": 50,
+        "bewust_niet_scorend": 1,
+        "defect_inert": 1,
+        "niet_automatisch_toetsbaar": 1,
+    }
+
     def test_telling_sluit_op_53(self):
         telling: dict[str, int] = {}
         for entry in MATRIX.values():
             telling[entry["scoringstatus"]] = telling.get(entry["scoringstatus"], 0) + 1
-        totaal = sum(telling.values())
         assert (
-            totaal == len(RULE_IDS_OP_DISK) == 53
+            sum(telling.values()) == len(RULE_IDS_OP_DISK) == 53
         ), f"telling {telling} sluit niet op de 53 regels op disk"
-        # Zichtbaar bewijs in de testoutput (geen hardcoded verwachting).
-        print(f"\nRuntime-matrix telling: {dict(sorted(telling.items()))}")
+        assert telling == self.VERWACHTE_VERDELING, (
+            f"categorieverdeling verschoven: {dict(sorted(telling.items()))} "
+            f"!= {self.VERWACHTE_VERDELING} — bewuste wijziging? Werk dan "
+            f"ook fixture en verwachting bij"
+        )

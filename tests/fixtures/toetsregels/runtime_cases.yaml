@@ -57,6 +57,7 @@ VER-03:
   required_fields: []
   # herkenbaar_patronen (".+t\b", ".+d\b") staan in de JSON maar zijn
   # ONBEREIKBAAR: de special-case retourneert altijd vóór het patroonpad.
+  # Dood-pad-opruiming getrackt in DEF-621.
   negatief:
     begrip: controleert
     tekst: "vorm van omgang binnen een organisatie"
@@ -92,6 +93,7 @@ ESS-02:
 SAM-06:
   evaluator: json_generiek
   scoringstatus: defect_inert
+  issue: DEF-621
   required_fields: [vereist_param]
   reden: >
     vereist_param wordt door geen enkele evaluator-tak gelezen (stil
@@ -282,6 +284,7 @@ CON-CIRC-001:
 DUP_01:
   evaluator: json_generiek
   scoringstatus: niet_automatisch_toetsbaar
+  issue: DEF-621
   required_fields: []
   reden: >
     duplicaatdetectie vereist een repository/database; de evaluator
@@ -449,6 +452,7 @@ INT-07:
   evaluator: json_generiek
   scoringstatus: automatisch
   overtriggerend: true
+  issue: DEF-621
   # DEFECT (gevonden door deze matrix): alle patronen worden met
   # re.IGNORECASE gecompileerd, dus "\b[A-Z]{2,6}\b" (bedoeld voor
   # afkortingen) matcht elk woord van 2-6 letters. Vrijwel elke
@@ -579,6 +583,7 @@ SAM-04:
 SAM-05:
   evaluator: json_generiek
   scoringstatus: bewust_niet_scorend
+  issue: DEF-621
   required_fields: []
   reden: >
     geen runtime-velden en geen special-case; circulariteit wordt
