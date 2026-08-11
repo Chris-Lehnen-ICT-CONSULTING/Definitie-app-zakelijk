@@ -1,14 +1,14 @@
 # BATCH-101
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `d61ccf4e66c19e07ff0a78db8534f0ec288b31b1da40ae117e3ebf206d4f9582`
+- Membership-SHA256: `5bcaabcdb79323ec42a33ad8c2fd9d31f49abd9aa0ff81edbddd909fffce5111`
 - Bestanden: `20`
 - Fysieke regels: `3739`
 - Python-symbolen: `104`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -37,21 +37,30 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B101-001` — Generation-log table rebuild leaves SQLite views pointing to the dropped old table.
+- P1/proven: `B101-002` — Unicode fixer can turn valid Python string literals into invalid syntax.
+- P1/proven: `B101-003` — TXT recovery parser truncates definitions at ordinary colon-prefixed continuation lines.
+- P1/proven: `B101-004` — NaN-context cleanup silently replaces malformed context data with empty arrays.
+- P2/proven: `B101-005` — Secret cleanup prints complete discovered keys and executes commands through eval.
+- P2/proven: `B101-006` — Functional verification accepts unrelated configuration and fewer rules than it claims.
+- P3/proven: `B101-007` — Documentation link checker treats valid file links with fragments as broken and is not wired.
+- P3/proven: `B101-008` — Changed-file formatter hooks split valid Git paths and silently restage files.
+- P3/suspected: `B101-009` — Linear issue fetch can hang indefinitely and emits raw remote error bodies.
+- P3/suspected: `B101-010` — Wikipedia synonym export preserves spreadsheet formula prefixes from external data.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 bestanden, 3739 fysieke regels en 104 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
