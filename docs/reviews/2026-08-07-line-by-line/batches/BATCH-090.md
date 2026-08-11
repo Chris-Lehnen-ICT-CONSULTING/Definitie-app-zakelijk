@@ -1,14 +1,14 @@
 # BATCH-090
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `14` — Integration-, contract-, smoke-, performance- en archived-tests
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `7a51f5ad430ee0944653d90b5502f8a4a1bbd2924a6143d16169fdb0b18da635`
+- Membership-SHA256: `41bb15f7c8fc4bfd682d8cf1aeaeddbc91713c31568e14cda5ed3c1362a1244e`
 - Bestanden: `7`
 - Fysieke regels: `2321`
 - Python-symbolen: `138`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -24,21 +24,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B090-001` — Duplicate integration tests delete from the default application database.
+- P2/proven: `B090-002` — Offline orchestrator test can reach the global examples generator.
+- P2/proven: `B090-003` — SRU integration performs real HTTP and includes a vacuous dead-endpoint case.
+- P3/proven: `B090-004` — Brave integration can pass without exercising Brave.
+- P3/proven: `B090-005` — DEF-154 pipeline fabricates token savings and module reads.
+- P3/proven: `B090-006` — Definition-save tests neither verify metadata nor concurrency.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 7 bestanden, 2321 fysieke regels en 138 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
