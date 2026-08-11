@@ -417,3 +417,11 @@ class TestWaargenomenLeesset:
             f"{sorted(niet_gelezen)} — EVALUATOR_GELEZEN_VELDEN loopt "
             f"achter op de evaluator"
         )
+
+
+class TestVerwachteTelling:
+    def test_expected_count_uit_contract(self):
+        # DEF-621: de service leidde zijn verwachte regeltelling niet
+        # meer uit een hardcoded 45 af maar uit de bestanden op disk.
+        svc = ModularValidationService(get_toetsregel_manager(), None, None)
+        assert svc._rules_expected_count == len(RULE_IDS_OP_DISK) == 53

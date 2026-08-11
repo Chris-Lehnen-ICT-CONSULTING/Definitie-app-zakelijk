@@ -55,9 +55,11 @@ VER-03:
   evaluator: special_case
   scoringstatus: automatisch
   required_fields: []
-  # herkenbaar_patronen (".+t\b", ".+d\b") staan in de JSON maar zijn
-  # ONBEREIKBAAR: de special-case retourneert altijd vóór het patroonpad.
-  # Dood-pad-opruiming getrackt in DEF-621.
+  # DEF-621-fix: de twee dode én kwadratische patronen (".+t\b",
+  # ".+d\b") zijn uit VER-03.json verwijderd — ze waren onbereikbaar
+  # (de special-case retourneert altijd eerst) en zouden bij
+  # heraansluiting elke tekst afkeuren. De special-case op het lemma
+  # is de enige check.
   negatief:
     begrip: controleert
     tekst: "vorm van omgang binnen een organisatie"
@@ -66,8 +68,7 @@ VER-03:
     begrip: controleren
     tekst: "vorm van omgang binnen een organisatie"
   grens:
-    # Zou via het (dode) patroonpad falen ("waardeert" eindigt op -t);
-    # bewijst dat alleen het lemma-pad bestaat.
+    # Tekst met -t-woorden raakt VER-03 niet: alleen het lemma telt.
     begrip: controleren
     tekst: "vorm van omgang die men waardeert"
     verwacht: geen_violation
@@ -451,25 +452,22 @@ INT-06:
 INT-07:
   evaluator: json_generiek
   scoringstatus: automatisch
-  overtriggerend: true
-  issue: DEF-621
-  # DEFECT (gevonden door deze matrix): alle patronen worden met
-  # re.IGNORECASE gecompileerd, dus "\b[A-Z]{2,6}\b" (bedoeld voor
-  # afkortingen) matcht elk woord van 2-6 letters. Vrijwel elke
-  # Nederlandse definitie faalt hierdoor op INT-07.
+  # DEF-621-fix: de patronen zijn case-sensitief gemaakt via (?-i:...)
+  # zodat het afkortingenpatroon onder de globale IGNORECASE-compilatie
+  # alleen échte hoofdletterreeksen matcht — niet elk woord van 2-6
+  # letters.
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: instantie
     tekst: "instantie: orgaan onder de AVG"
   positief:
-    # Alleen woorden van 7+ letters passeren het kapotte patroon.
     begrip: instantie
-    tekst: "instantie: overheidsorganisatie verantwoordelijk betreffende identiteitscontrole"
+    tekst: "instantie: orgaan met wettelijke taak"
   grens:
-    # Documenteert het defect: een tekst zonder enige afkorting faalt.
+    # Eén beginhoofdletter is geen afkortingenreeks.
     begrip: instantie
     tekst: "instantie: orgaan in Amsterdam"
-    verwacht: violation
+    verwacht: geen_violation
 
 INT-08:
   evaluator: json_generiek

@@ -246,17 +246,14 @@ class TestPatroonBudget:
             "required_patterns",
         )
         budget_s = 0.1
-        # Gedocumenteerde uitzonderingen (DEF-621): de dode VER-03-patronen
-        # zijn kwadratisch (.+t\b op input zonder t) maar onbereikbaar in
-        # productie — bij heraansluiting eerst herschrijven.
-        uitzonderingen = {("VER-03", ".+t\\b"), ("VER-03", ".+d\\b")}
+        # Geen uitzonderingen: de kwadratische VER-03-patronen zijn in
+        # DEF-621 uit de bron verwijderd. Elk nieuw patroon moet binnen
+        # het budget blijven.
         overschrijdingen = []
         for json_path in ALLE_REGEL_JSONS:
             raw = json.loads(json_path.read_text(encoding="utf-8"))
             for veld in patroon_velden:
                 for pat in raw.get(veld) or []:
-                    if (json_path.stem, pat) in uitzonderingen:
-                        continue
                     try:
                         compiled = re.compile(pat, re.IGNORECASE)
                     except re.error:
