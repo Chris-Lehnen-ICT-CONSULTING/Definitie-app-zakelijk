@@ -17,18 +17,23 @@ from pathlib import Path
 
 import pytest
 
-from toetsregels.rule_cache import RuleCache, _load_all_rules_cached
+import toetsregels.rule_cache as rule_cache_module
+from toetsregels.rule_cache import (
+    _RECORD_DEFAULTS,
+    RuleCache,
+    _load_all_rules_cached,
+)
 
 pytestmark = [pytest.mark.unit]
 
-REGELS_DIR = Path(_load_all_rules_cached.__wrapped__.__code__.co_filename).parent / (
-    "regels"
-)
+REGELS_DIR = Path(rule_cache_module.__file__).parent / "regels"
 
 ALLE_REGEL_JSONS = sorted(REGELS_DIR.glob("*.json"))
 
 # Velden die _evaluate_json_rule (modular_validation_service) leest —
-# het uitvoerbare deel van het regelcontract.
+# het uitvoerbare deel van het regelcontract. BEWUST een golden copy
+# naast de productie-constante (importeren en ertegen toetsen zou een
+# tautologie zijn); wijzigen vereist een bewuste update aan beide kanten.
 RUNTIME_VELDEN = (
     "aanbeveling",
     "circular_definition",
@@ -45,18 +50,14 @@ RUNTIME_VELDEN = (
     "vereist_param",
 )
 
-# Defaults die het cache-record altijd garandeerde (consumers rekenen
-# op aanwezigheid van deze sleutels).
-GEGARANDEERDE_DEFAULTS = {
-    "naam": "",
-    "prioriteit": "midden",
-    "aanbeveling": "optioneel",
-    "herkenbaar_patronen": [],
-    "uitleg": "",
-    "toetsvraag": "",
-    "goede_voorbeelden": [],
-    "foute_voorbeelden": [],
-}
+# Defaults die het cache-record garandeert: het productiecontract zelf
+# (import), zodat een verdwijnende default-sleutel hier direct faalt.
+GEGARANDEERDE_DEFAULTS = dict(_RECORD_DEFAULTS)
+
+# Runtime-velden die (nu) in geen enkele regel-JSON voorkomen; de
+# dekkingstest bewaakt dat deze verzameling niet stil groeit door
+# hernoemde of verwijderde velden in de bronbestanden.
+VELDEN_ZONDER_VOORKOMEN = {"required_patterns"}
 
 
 def _laad_projectie() -> dict[str, dict]:
@@ -102,12 +103,60 @@ class TestRoundtripVerliestNiets:
 
     def test_defaults_blijven_gegarandeerd(self, cache_records):
         for regel_id, record in cache_records.items():
+            raw = json.loads(
+                (REGELS_DIR / f"{regel_id}.json").read_text(encoding="utf-8")
+            )
             for veld, default in GEGARANDEERDE_DEFAULTS.items():
                 assert veld in record, (
                     f"{regel_id}: gegarandeerde sleutel '{veld}' ontbreekt "
                     f"(default was {default!r})"
                 )
+                if veld not in raw:
+                    # Niet alleen aanwezigheid: de default-wáárde is deel
+                    # van het contract (een geflipte default is normatief).
+                    assert record[veld] == default, (
+                        f"{regel_id}: default van '{veld}' gewijzigd: "
+                        f"{record[veld]!r} != {default!r}"
+                    )
             assert record.get("id"), f"{regel_id}: id ontbreekt of leeg"
+            # Bekende ID-drift (DEF-606): JSON-ids wijken af van de
+            # bestandsnaam in scheidingstekens (VER_01 vs VER-01, ARAI01
+            # vs ARAI-01). Zonder scheidingstekens moeten ze overeenkomen;
+            # uniformering van de ID-vormen is DEF-606-scope.
+            import re as _re
+
+            genorm_id = _re.sub(r"[-_]", "", str(record["id"])).upper()
+            genorm_key = _re.sub(r"[-_]", "", regel_id).upper()
+            assert genorm_id == genorm_key, (
+                f"{regel_id}: record-id {record['id']!r} wijst naar een "
+                f"andere regel dan de cache-sleutel"
+            )
+
+    def test_runtime_velden_komen_ergens_voor(self, cache_records):
+        # Vangt drift: een hernoemd/verwijderd runtime-veld in de bron-
+        # JSONs zou test_runtime_velden_expliciet stil tot no-op maken.
+        zonder_voorkomen = set()
+        for veld in RUNTIME_VELDEN:
+            if not any(
+                veld in json.loads(p.read_text(encoding="utf-8"))
+                for p in ALLE_REGEL_JSONS
+            ):
+                zonder_voorkomen.add(veld)
+        assert zonder_voorkomen == VELDEN_ZONDER_VOORKOMEN, (
+            f"runtime-velden zonder enig voorkomen gewijzigd: "
+            f"{sorted(zonder_voorkomen)} != {sorted(VELDEN_ZONDER_VOORKOMEN)}"
+        )
+
+    def test_records_delen_geen_default_containers(self, cache_records):
+        # Regressie op gedeelde mutable defaults: records zonder eigen
+        # herkenbaar_patronen mogen niet hetzelfde list-object delen —
+        # één .append() zou anders naar alle 53 regels lekken.
+        sam05 = cache_records["SAM-05"]["herkenbaar_patronen"]
+        concirc = cache_records["CON-CIRC-001"]["herkenbaar_patronen"]
+        assert sam05 is not concirc, "records delen één default-list"
+        assert (
+            sam05 is not _RECORD_DEFAULTS["herkenbaar_patronen"]
+        ), "record deelt de list uit de module-constante"
 
 
 class TestPubliekPad:
@@ -122,3 +171,23 @@ class TestPubliekPad:
         assert (
             record.get("vereist_param") == raw["vereist_param"]
         ), "SAM-06: vereist_param overleeft het publieke get_rule-pad niet"
+
+    def test_volledige_roundtrip_via_publiek_pad(self):
+        # Dezelfde 53x-roundtrip maar dan door de echte cacheketen
+        # (get_all_rules incl. FileCache-serialisatie), zodat veldverlies
+        # in de cachelaag zelf ook gedekt is — niet alleen de loader.
+        cache = RuleCache()
+        cache.clear_cache()
+        records = cache.get_all_rules()
+        assert len(records) == 53
+        for json_path in ALLE_REGEL_JSONS:
+            raw = json.loads(json_path.read_text(encoding="utf-8"))
+            record = records[json_path.stem]
+            verloren = {
+                veld
+                for veld, waarde in raw.items()
+                if veld not in record or record[veld] != waarde
+            }
+            assert (
+                not verloren
+            ), f"{json_path.stem}: publiek pad verliest velden: {sorted(verloren)}"

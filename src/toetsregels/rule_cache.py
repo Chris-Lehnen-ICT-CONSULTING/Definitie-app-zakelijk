@@ -72,6 +72,23 @@ _RECORD_DEFAULTS: dict[str, Any] = {
 }
 
 
+def _vers_record(regel_id: str, regel_data: dict[str, Any]) -> dict[str, Any]:
+    """Bouw een record met vérse default-containers per regel.
+
+    Een kale ``{**_RECORD_DEFAULTS, **regel_data}`` zou de default-lists
+    delen tussen alle records die het veld niet zelf zetten; één in-place
+    mutatie downstream zou dan naar alle regels lekken (en clear_cache
+    overleven, want de lists zitten in de module-constante).
+    """
+    record: dict[str, Any] = {
+        veld: (list(waarde) if isinstance(waarde, list) else waarde)
+        for veld, waarde in _RECORD_DEFAULTS.items()
+    }
+    record["id"] = regel_data.get("id", regel_id)
+    record.update(regel_data)
+    return record
+
+
 @cached(ttl=3600)
 def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
     """
@@ -109,11 +126,7 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
                 # mee (normatieve uitvoeringsvelden mogen niet stil
                 # verdwijnen), defaults garanderen sleutel-aanwezigheid.
                 # Memory cost: ~300KB voor 53 regels (negligible).
-                all_rules[regel_id] = {
-                    **_RECORD_DEFAULTS,
-                    "id": regel_data.get("id", regel_id),
-                    **regel_data,
-                }
+                all_rules[regel_id] = _vers_record(regel_id, regel_data)
         except Exception as e:
             logger.error(f"Fout bij laden regel {regel_id}: {e}")
             continue
