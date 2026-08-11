@@ -1,14 +1,14 @@
 # BATCH-154
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `e5916d63dd02ef78e9b99fc8b43f09b9ab95aa714193c41837d9e40e014f5687`
+- Membership-SHA256: `5b110757812dcc9919e331f248a2ae66d1f79fe41086408e912cb49a4045ac3e`
 - Bestanden: `14`
 - Fysieke regels: `5567`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -31,21 +31,22 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B154-001` — Web-lookup-startgids presenteert teruggedraaide Rechtspraak-tekstzoeking en een uitgevoerde schemawijziging als nog te implementeren.
+- P2/proven: `B154-002` — API-key-herstelgids laat gebruikers geheimen tonen en als platte tekst in shellconfig opslaan.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 14 toegewezen bereiken, 5567 fysieke regels en 0 symbolen zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.

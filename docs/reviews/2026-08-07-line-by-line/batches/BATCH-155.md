@@ -1,14 +1,14 @@
 # BATCH-155
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `c0e2b00ccdd51558af114d14aeaaa74e8bf504ddfe9fbb570490e84281e2ac3f`
+- Membership-SHA256: `c76508fd21de547dba2ce08d95a3b076a5ee0715840e91ed9c4585c26ea7c724`
 - Bestanden: `24`
 - Fysieke regels: `5904`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -41,21 +41,22 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B155-001` — Cleanup-roadmap adviseert verwijdering van resilience-modules die de actieve generatieflow importeert.
+- P3/proven: `B155-002` — Officiële validatie-API-documentatie configureert de service met een niet-bestaand Config-type.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 24 toegewezen bereiken, 5904 fysieke regels en 0 symbolen zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.
