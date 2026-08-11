@@ -1,14 +1,14 @@
 # BATCH-075
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `13` — Unit-tests gekoppeld aan productieonderdelen
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `9f03b81589094be7f029a4fa775bf6679221002659e25ccd3722992be21279c3`
+- Membership-SHA256: `1614b87183d4d987be422e2a7ad6788211f320ea1bc493e78bad81b4330f2485`
 - Bestanden: `8`
 - Fysieke regels: `1207`
 - Python-symbolen: `131`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -25,21 +25,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B075-001` — Smart rate limiter does not enforce its timeout contract.
+- P2/proven: `B075-002` — Concurrent safe serializer writes collide on one temporary path.
+- P3/proven: `B075-003` — Serializer reserves ordinary __datetime__ dictionaries without an envelope.
+- P3/proven: `B075-004` — Moderate HTML sanitization preserves executable SVG onbegin.
+- P3/proven: `B075-005` — Rule cache monitoring suite passes when monitoring is absent.
+- P3/proven: `B075-006` — Default local unit command excludes every TokenBucket behavior test.
+- P3/proven: `B075-007` — Export sink AST guard ignores async functions and dead guard calls.
+- P3/proven: `B075-008` — Normal security middleware test accepts server errors as success.
+- P3/proven: `B075-009` — Token bucket accepts a zero refill rate and then divides by zero.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 8 bestanden, 1207 fysieke regels en 131 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
