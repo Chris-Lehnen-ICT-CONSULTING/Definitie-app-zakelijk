@@ -131,6 +131,15 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
             logger.error(f"Fout bij laden regel {regel_id}: {e}")
             continue
 
+    if len(all_rules) != len(json_files):
+        # Zichtbare degraded-state (DEF-621): een regel die niet laadt is
+        # een stille validatie-bypass; maak het gat expliciet benoembaar.
+        ontbrekend = sorted({p.stem for p in json_files} - set(all_rules))
+        logger.error(
+            f"Regelset INCOMPLEET: {len(all_rules)} van {len(json_files)} "
+            f"regelbestanden geladen; ontbrekend: {ontbrekend}"
+        )
+
     logger.info(f"✅ {len(all_rules)} regels succesvol geladen en gecached")
     return all_rules
 
@@ -378,10 +387,16 @@ class RuleCache:
     def get_stats(self) -> dict[str, Any]:
         """Haal cache statistieken op."""
         all_rules = self.get_all_rules()
+        files_on_disk = len(list(self.regels_dir.glob("*.json")))
         stats = {
             **self.stats,
             "total_rules_cached": len(all_rules),
             "cache_dir": str(self.regels_dir),
+            # DEF-621: zichtbare degraded-state — health/monitoring kan
+            # hierop alarmeren i.p.v. dat een kapot regelbestand een uur
+            # lang stil uit de set verdwijnt.
+            "rules_files_on_disk": files_on_disk,
+            "rules_load_complete": len(all_rules) == files_on_disk,
         }
 
         # Add monitoring snapshot if available

@@ -287,3 +287,133 @@ class TestAfgeleideTelling:
             f"!= {self.VERWACHTE_VERDELING} — bewuste wijziging? Werk dan "
             f"ook fixture en verwachting bij"
         )
+
+
+class _StubManager:
+    """Minimale manager voor synthetische regels (waarde-doorwerking)."""
+
+    def __init__(self, regels: dict):
+        self._regels = regels
+
+    def get_all_regels(self) -> dict:
+        return self._regels
+
+
+def _svc_met(regels: dict) -> ModularValidationService:
+    return ModularValidationService(_StubManager(regels), None, None)
+
+
+async def _syn_violations(regels: dict, begrip: str, tekst: str) -> list[dict]:
+    svc = _svc_met(regels)
+    res = await svc.validate_definition(
+        begrip=begrip, text=tekst, ontologische_categorie=None, context={}
+    )
+    return [
+        v for v in res.get("violations", []) if v.get("code", "").startswith("SYN-")
+    ]
+
+
+class TestVeldDoorwerking:
+    """Bewijst dat de evaluator de WAARDE van elk baselineveld gebruikt.
+
+    De roundtrip-test toont alleen dat velden de cache overleven; deze
+    mutatietests (grens +-1, vlag aan/uit) tonen dat de uitkomst met de
+    waarde meebeweegt (review PR #396, test-agent).
+    """
+
+    TEKST = "definitie van precies zeven woorden lang hier"
+    _CHARS = len(TEKST)  # zelf-kalibrerend: geen handgetelde lengtes
+    _WORDS = len(TEKST.split())
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("veld", "faalwaarde", "slaagwaarde"),
+        [
+            ("min_chars", _CHARS + 1, _CHARS),
+            ("max_chars", _CHARS - 1, _CHARS),
+            ("min_words", _WORDS + 1, _WORDS),
+            ("max_words", _WORDS - 1, _WORDS),
+        ],
+    )
+    async def test_numerieke_grens_werkt_door(self, veld, faalwaarde, slaagwaarde):
+        faal = await _syn_violations({"SYN-01": {veld: faalwaarde}}, "x", self.TEKST)
+        slaag = await _syn_violations({"SYN-01": {veld: slaagwaarde}}, "x", self.TEKST)
+        assert (
+            faal
+        ), f"{veld}={faalwaarde} zou moeten falen op {self._WORDS}w/{self._CHARS}t"
+        assert not slaag, (
+            f"{veld}={slaagwaarde} zou moeten passeren op "
+            f"{self._WORDS}w/{self._CHARS}t"
+        )
+
+    @pytest.mark.asyncio
+    async def test_circular_definition_vlag_werkt_door(self):
+        tekst = "een sanctie is een opgelegde straf"
+        aan = await _syn_violations(
+            {"SYN-01": {"circular_definition": True}}, "sanctie", tekst
+        )
+        uit = await _syn_violations(
+            {"SYN-01": {"circular_definition": False}}, "sanctie", tekst
+        )
+        assert aan and not uit
+
+    @pytest.mark.asyncio
+    async def test_forbidden_phrase_werkt_door(self):
+        met = await _syn_violations(
+            {"SYN-01": {"forbidden_phrases": ["verboden frase"]}},
+            "x",
+            "tekst met een verboden frase erin",
+        )
+        zonder = await _syn_violations(
+            {"SYN-01": {"forbidden_phrases": ["komt niet voor"]}},
+            "x",
+            "tekst met een verboden frase erin",
+        )
+        assert met and not zonder
+
+
+class TestWaargenomenLeesset:
+    def test_evaluator_leest_alle_gedeclareerde_velden(self):
+        # Review PR #396 (arch + tests): EVALUATOR_GELEZEN_VELDEN was
+        # louter declaratief; als de evaluator een veld niet meer leest,
+        # bleef de stil-genegeerd-check ten onrechte streng lijken. Hier
+        # observeren we de echte reads via een recording-dict over de 53
+        # regels heen: elk gedeclareerd veld moet daadwerkelijk gelezen
+        # worden.
+        import asyncio
+        import json
+
+        gelezen: set[str] = set()
+
+        class _RecordingDict(dict):
+            def get(self, sleutel, default=None):
+                gelezen.add(sleutel)
+                return super().get(sleutel, default)
+
+            def __getitem__(self, sleutel):
+                gelezen.add(sleutel)
+                return super().__getitem__(sleutel)
+
+            def __contains__(self, sleutel):
+                gelezen.add(sleutel)
+                return super().__contains__(sleutel)
+
+        regels = {
+            p.stem: _RecordingDict(json.loads(p.read_text(encoding="utf-8")))
+            for p in REGELS_DIR.glob("*.json")
+        }
+        svc = _svc_met(regels)
+        asyncio.run(
+            svc.validate_definition(
+                begrip="besluiten",
+                text="de tekst, die effectief en niet zonder context is",
+                ontologische_categorie=None,
+                context={},
+            )
+        )
+        niet_gelezen = EVALUATOR_GELEZEN_VELDEN - gelezen
+        assert not niet_gelezen, (
+            f"gedeclareerde evaluator-velden zonder waargenomen read: "
+            f"{sorted(niet_gelezen)} — EVALUATOR_GELEZEN_VELDEN loopt "
+            f"achter op de evaluator"
+        )

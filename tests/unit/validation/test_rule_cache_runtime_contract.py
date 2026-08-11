@@ -191,3 +191,85 @@ class TestPubliekPad:
             assert (
                 not verloren
             ), f"{json_path.stem}: publiek pad verliest velden: {sorted(verloren)}"
+
+
+class TestDegradedState:
+    def test_loader_meldt_incompleet_bij_corrupt_bestand(self, tmp_path, caplog):
+        # Fail-open zichtbaar maken (DEF-621): een corrupt regelbestand
+        # verdwijnt niet meer stil - de loader logt de incomplete set met
+        # de ontbrekende rule-IDs.
+        (tmp_path / "GOED-01.json").write_text(
+            '{"id": "GOED-01", "naam": "ok"}', encoding="utf-8"
+        )
+        (tmp_path / "KAPOT-01.json").write_text("{niet-json", encoding="utf-8")
+        import logging
+
+        with caplog.at_level(logging.ERROR):
+            records = _load_all_rules_cached.__wrapped__(str(tmp_path))
+        assert set(records) == {"GOED-01"}
+        assert any(
+            "INCOMPLEET" in r.message and "KAPOT-01" in r.message
+            for r in caplog.records
+        ), "loader meldt de incomplete regelset niet"
+
+    def test_stats_tonen_volledige_lading(self):
+        cache = RuleCache()
+        cache.clear_cache()
+        stats = cache.get_stats()
+        assert stats["rules_files_on_disk"] == 53
+        assert stats["total_rules_cached"] == 53
+        assert stats["rules_load_complete"] is True
+
+
+class TestPatroonBudget:
+    def test_alle_patronen_binnen_tijdsbudget(self):
+        # ReDoS-vangnet (security-review PR #396): elk patroon uit elke
+        # regel-JSON moet op pathologische input binnen het budget blijven.
+        # Catastrophic backtracking (geneste kwantoren) valt hier direct
+        # door de mand in CI.
+        import re
+        import time
+
+        pathologisch = [
+            "a" * 5000,
+            ("woord " * 1500).strip(),
+            "A" * 3000 + "!",
+            ("simpel en complex " * 300).strip(),
+        ]
+        patroon_velden = (
+            "herkenbaar_patronen",
+            "herkenbaar_patronen_type",
+            "herkenbaar_patronen_particulier",
+            "herkenbaar_patronen_proces",
+            "herkenbaar_patronen_resultaat",
+            "redundancy_patterns",
+            "required_patterns",
+        )
+        budget_s = 0.1
+        # Gedocumenteerde uitzonderingen (DEF-621): de dode VER-03-patronen
+        # zijn kwadratisch (.+t\b op input zonder t) maar onbereikbaar in
+        # productie — bij heraansluiting eerst herschrijven.
+        uitzonderingen = {("VER-03", ".+t\\b"), ("VER-03", ".+d\\b")}
+        overschrijdingen = []
+        for json_path in ALLE_REGEL_JSONS:
+            raw = json.loads(json_path.read_text(encoding="utf-8"))
+            for veld in patroon_velden:
+                for pat in raw.get(veld) or []:
+                    if (json_path.stem, pat) in uitzonderingen:
+                        continue
+                    try:
+                        compiled = re.compile(pat, re.IGNORECASE)
+                    except re.error:
+                        continue  # kapot patroon is een ander defect
+                    for tekst in pathologisch:
+                        start = time.perf_counter()
+                        compiled.search(tekst)
+                        duur = time.perf_counter() - start
+                        if duur > budget_s:
+                            overschrijdingen.append(
+                                (json_path.stem, veld, pat, round(duur, 3))
+                            )
+        assert not overschrijdingen, (
+            f"patronen boven het {budget_s * 1000:.0f}ms-budget "
+            f"(ReDoS-risico): {overschrijdingen}"
+        )
