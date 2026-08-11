@@ -1,14 +1,14 @@
 # BATCH-179
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `3778bc55218af64a957f276e6e6277ee77cfa1411fb101db27dce956cf551073`
+- Membership-SHA256: `a2fef7bd5edd7f9c69c634910001f46e946b907e26a5a47f01db1feb069ef4cc`
 - Bestanden: `19`
 - Fysieke regels: `5815`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -36,21 +36,25 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B179-001` — Promptopslagspecificatie stelt volledige PII-bevattende prompts en tracebacks centraal beschikbaar zonder privacycontrols.
+- P3/proven: `B179-002` — Actieve canonieke agentarchitectuur vereist een workflow-router en elf agents die in de huidige omgeving niet bestaan.
+- P3/proven: `B179-003` — Canonieke Anders-root-causeanalyse bevat niet-reproduceerbare code-, gebruikers-, prestatie- en aansprakelijkheidsclaims.
+- P2/proven: `B179-004` — Promptopslagschema blokkeert zowel pending logs als meerdere generatiepogingen.
+- P2/proven: `B179-005` — Canonieke uploadgids belooft metadata-only logging terwijl productie ruwe bestandsnamen logt.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 19 toegewezen bereiken, 5815 fysieke regels en 0 symbolen zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.
