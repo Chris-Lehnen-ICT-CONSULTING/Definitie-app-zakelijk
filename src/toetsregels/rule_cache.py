@@ -31,6 +31,63 @@ except ImportError:
     MONITORING_AVAILABLE = False
     logger.warning("Cache monitoring not available, continuing without monitoring")
 
+# DEF-606: het uitvoerbare (normatieve) deel van het regelcontract — de
+# velden die ModularValidationService._evaluate_json_rule leest. De
+# overige JSON-velden zijn prompt-/documentatiemetadata (uitleg,
+# toelichting, voorbeelden, brondocument, …). Het runtime-record bewaart
+# ALLE bronvelden: de eerdere whitelist-projectie liet deze velden stil
+# verdwijnen, waardoor de betrokken checks in productie nooit vuurden.
+RUNTIME_VELDEN: tuple[str, ...] = (
+    "aanbeveling",
+    "circular_definition",
+    "forbidden_phrases",
+    "herkenbaar_patronen",
+    "max_chars",
+    "max_words",
+    "min_chars",
+    "min_commas",
+    "min_words",
+    "prioriteit",
+    "redundancy_patterns",
+    "required_patterns",
+    "vereist_param",
+)
+
+# Sleutels waarvan consumers (validatie + prompt generation) op
+# aanwezigheid rekenen; het record garandeert ze met deze defaults.
+_RECORD_DEFAULTS: dict[str, Any] = {
+    "naam": "",
+    "prioriteit": "midden",
+    "aanbeveling": "optioneel",
+    "herkenbaar_patronen": [],
+    "herkenbaar_patronen_type": [],
+    "herkenbaar_patronen_particulier": [],
+    "herkenbaar_patronen_proces": [],
+    "herkenbaar_patronen_resultaat": [],
+    "weight": None,
+    "uitleg": "",
+    "toetsvraag": "",
+    "goede_voorbeelden": [],
+    "foute_voorbeelden": [],
+}
+
+
+def _vers_record(regel_id: str, regel_data: dict[str, Any]) -> dict[str, Any]:
+    """Bouw een record met vérse default-containers per regel.
+
+    Een kale ``{**_RECORD_DEFAULTS, **regel_data}`` zou de default-lists
+    delen tussen alle records die het veld niet zelf zetten; één in-place
+    mutatie downstream zou dan naar alle regels lekken (en clear_cache
+    overleven, want de lists zitten in de module-constante).
+    """
+    record: dict[str, Any] = {
+        veld: (list(waarde) if isinstance(waarde, list) else waarde)
+        for veld, waarde in _RECORD_DEFAULTS.items()
+    }
+    record["id"] = regel_data.get("id", regel_id)
+    record.update(regel_data)
+    return record
+
 
 @cached(ttl=3600)
 def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
@@ -62,37 +119,26 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
         try:
             with open(json_file, encoding="utf-8") as f:
                 regel_data = json.load(f)
-                # Bewaar alle velden voor completeness (validatie + prompt generation)
-                # Memory cost: ~300KB extra voor 45 regels (negligible)
-                all_rules[regel_id] = {
-                    "id": regel_data.get("id", regel_id),
-                    "naam": regel_data.get("naam", ""),
-                    "prioriteit": regel_data.get("prioriteit", "midden"),
-                    "aanbeveling": regel_data.get("aanbeveling", "optioneel"),
-                    # Pattern fields (voor validatie)
-                    "herkenbaar_patronen": regel_data.get("herkenbaar_patronen", []),
-                    "herkenbaar_patronen_type": regel_data.get(
-                        "herkenbaar_patronen_type", []
-                    ),
-                    "herkenbaar_patronen_particulier": regel_data.get(
-                        "herkenbaar_patronen_particulier", []
-                    ),
-                    "herkenbaar_patronen_proces": regel_data.get(
-                        "herkenbaar_patronen_proces", []
-                    ),
-                    "herkenbaar_patronen_resultaat": regel_data.get(
-                        "herkenbaar_patronen_resultaat", []
-                    ),
-                    "weight": regel_data.get("weight"),  # Als aanwezig
-                    # Content fields (voor prompt generation) - DEF-156 fix
-                    "uitleg": regel_data.get("uitleg", ""),
-                    "toetsvraag": regel_data.get("toetsvraag", ""),
-                    "goede_voorbeelden": regel_data.get("goede_voorbeelden", []),
-                    "foute_voorbeelden": regel_data.get("foute_voorbeelden", []),
-                }
+                if not isinstance(regel_data, dict):
+                    logger.error(f"Regel {regel_id} is geen JSON-object; overgeslagen")
+                    continue
+                # DEF-606: volledig runtime-record — álle bronvelden gaan
+                # mee (normatieve uitvoeringsvelden mogen niet stil
+                # verdwijnen), defaults garanderen sleutel-aanwezigheid.
+                # Memory cost: ~300KB voor 53 regels (negligible).
+                all_rules[regel_id] = _vers_record(regel_id, regel_data)
         except Exception as e:
             logger.error(f"Fout bij laden regel {regel_id}: {e}")
             continue
+
+    if len(all_rules) != len(json_files):
+        # Zichtbare degraded-state (DEF-621): een regel die niet laadt is
+        # een stille validatie-bypass; maak het gat expliciet benoembaar.
+        ontbrekend = sorted({p.stem for p in json_files} - set(all_rules))
+        logger.error(
+            f"Regelset INCOMPLEET: {len(all_rules)} van {len(json_files)} "
+            f"regelbestanden geladen; ontbrekend: {ontbrekend}"
+        )
 
     logger.info(f"✅ {len(all_rules)} regels succesvol geladen en gecached")
     return all_rules
@@ -341,10 +387,16 @@ class RuleCache:
     def get_stats(self) -> dict[str, Any]:
         """Haal cache statistieken op."""
         all_rules = self.get_all_rules()
+        files_on_disk = len(list(self.regels_dir.glob("*.json")))
         stats = {
             **self.stats,
             "total_rules_cached": len(all_rules),
             "cache_dir": str(self.regels_dir),
+            # DEF-621: zichtbare degraded-state — health/monitoring kan
+            # hierop alarmeren i.p.v. dat een kapot regelbestand een uur
+            # lang stil uit de set verdwijnt.
+            "rules_files_on_disk": files_on_disk,
+            "rules_load_complete": len(all_rules) == files_on_disk,
         }
 
         # Add monitoring snapshot if available

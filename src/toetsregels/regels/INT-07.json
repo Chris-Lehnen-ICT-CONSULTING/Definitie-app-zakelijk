@@ -5,15 +5,15 @@
   "toelichting": "Het vermijden van onverklaarde afkortingen bevordert leesbaarheid. Elke afkorting moet in de definitie direct worden toegelicht(bijv. DJI (Dienst Justitiële Inrichtingen), OM (Openbaar Ministerie)), of worden aangeboden als hyperlink of Wiki-link.",
   "toetsvraag": "Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?",
   "herkenbaar_patronen": [
-    "\\b[A-Z]{2,6}\\b",
-    "\\bDJI\\b",
-    "\\bOM\\b",
-    "\\bICT\\b",
-    "\\bAVG\\b",
-    "\\bWpg\\b",
-    "\\bGGZ\\b",
-    "\\bNCTV\\b",
-    "\\bKvK\\b"
+    "\\b(?-i:[A-Z]{2,6})\\b",
+    "\\b(?-i:DJI)\\b",
+    "\\b(?-i:OM)\\b",
+    "\\b(?-i:ICT)\\b",
+    "\\b(?-i:AVG)\\b",
+    "\\b(?-i:Wpg)\\b",
+    "\\b(?-i:GGZ)\\b",
+    "\\b(?-i:NCTV)\\b",
+    "\\b(?-i:KvK)\\b"
   ],
   "goede_voorbeelden": [
     "Dienst Justitiële Inrichtingen (DJI)"
