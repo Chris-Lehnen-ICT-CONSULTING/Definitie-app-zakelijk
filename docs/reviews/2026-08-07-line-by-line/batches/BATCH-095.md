@@ -1,14 +1,14 @@
 # BATCH-095
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `ec8a96db58ea8800df221594a00d75f349e509153eee694760d9afbac0a8db01`
+- Membership-SHA256: `63566961cc82c1b02e37df7b15931a3cb87130d7f835ecfc46a788610b4aedf9`
 - Bestanden: `16`
 - Fysieke regels: `3941`
 - Python-symbolen: `70`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-root`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -33,21 +33,32 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B095-001` — Flat documentation archive silently overwrites same-named files.
+- P1/proven: `B095-002` — Documentation reorganization mutates reviews before a guaranteed invalid move.
+- P1/proven: `B095-003` — Rename tool stages all user changes and creates its backup inside the source tree.
+- P1/proven: `B095-004` — Failed rename rolls back the filename but not rewritten references.
+- P2/proven: `B095-005` — Installed AI pre-commit hook references missing script paths.
+- P2/proven: `B095-006` — AI metrics CLI is unreachable whenever Streamlit is installed.
+- P2/proven: `B095-007` — Coverage analyzers accept stale output and hardcode one workstation.
+- P2/proven: `B095-008` — Agent scoreboard integration uses a missing path and unsafe branch switching.
+- P3/proven: `B095-009` — Core prompt analyzer uses removed private APIs but exits successfully.
+- P3/proven: `B095-010` — Dependency analyzer scans and writes during import.
+- P3/proven: `B095-011` — Modular prompt analyzer crashes on empty or zero-sized reports.
+- P3/proven: `B095-012` — Synonym validation documentation points to a missing green suite.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 16 bestanden, 3941 fysieke regels en 70 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
