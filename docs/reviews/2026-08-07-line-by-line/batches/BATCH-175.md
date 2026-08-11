@@ -1,14 +1,14 @@
 # BATCH-175
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `232e1514f4e95af2bf4be6448a304b027fd0c48fa56ae18df7efc7d2f74718eb`
+- Membership-SHA256: `5dad84b066d77307bb836d25c8e516252790fac30f6005b4c15806da568a9175`
 - Bestanden: `13`
 - Fysieke regels: `5553`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -30,21 +30,21 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B175-001` — Ready-for-execution noodrollback herstelt geen gepinde versie en kan de applicatie niet starten.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 13 toegewezen bereiken, 5553 fysieke regels en 0 symbolen zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.

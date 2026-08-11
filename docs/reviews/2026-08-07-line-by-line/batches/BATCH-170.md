@@ -1,14 +1,14 @@
 # BATCH-170
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `aaa127f8c94083850a8eb232b9fd44c009a252133e5f039c9d81d7d505b07695`
+- Membership-SHA256: `93cf29f04fb3b6cca14d2da269fc3f3eef2da611c35d73cf57c7e1195da4ef1e`
 - Bestanden: `16`
 - Fysieke regels: `5847`
 - Python-symbolen: `29`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -33,21 +33,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B170-001` — Canonieke agentrichtlijn staat kleine verwijderingen en bestaande-bestandsformattering zonder toestemming toe.
+- P2/proven: `B170-002` — Centraal geïndexeerde frontendprompt laat AI een niet-bestaande Next.js-stack en backend-authcontract bouwen.
+- P2/proven: `B170-003` — Ontologie-integratievoorbeelden importeren niet en gebruiken daarna incompatibele async- en requestcontracten.
+- P2/proven: `B170-004` — Actieve AI-configuratiegids beschrijft een OpenAI- en multi-environmentconfiguratie die niet bestaat.
+- P2/proven: `B170-005` — Verplichte documentcreatieworkflow verwijst naar afgeschaft backlog- en architectuurbeleid.
+- P3/proven: `B170-006` — Dormant synoniemvoorbeeld faalt op de enrichmentroute en negeert geldige nulwaarden.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 16 toegewezen bereiken, 5847 fysieke regels en 29 symbolen zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.
