@@ -1,14 +1,14 @@
 # BATCH-106
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `15` — Operationele scripts en shellcode
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `303dacf1e9f2aefd08d1b07325da685bcd3826df5261367cc07fa2eb3458ccc5`
+- Membership-SHA256: `f7f42094e1caae39eb060a541e360dee151f60248c72d6d13683289ae5598e00`
 - Bestanden: `16`
 - Fysieke regels: `3976`
 - Python-symbolen: `89`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -33,21 +33,33 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P3/proven: `B106-001` — Consolidation-runner gebruikt verwijderde testpaden en stopt voor rapportage.
+- P2/proven: `B106-002` — History-removal-verificatie muteert standaard de live applicatiedatabase.
+- P3/proven: `B106-003` — Requirements-verifier is checkout-gebonden en crasht op de verdwenen scope.
+- P3/proven: `B106-004` — Een kopje Acceptatiecriteria maakt alle vijf SMART-criteria waar.
+- P3/proven: `B106-005` — Bulk title updater schrijft ongeldige YAML bij aanhalingstekens.
+- P3/proven: `B106-006` — Afwijkende juridische boostfactoren worden gewaarschuwd maar goedgekeurd.
+- P3/proven: `B106-007` — Geen webresultaten geldt als bewijs dat double-weighting is opgelost.
+- P3/proven: `B106-008` — Negatieve SynonymRegistry-contractchecks kunnen falen terwijl de suite slaagt.
+- P2/proven: `B106-009` — SynonymRegistry-validatie persisteert fixtures in de standaarddatabase zonder cleanup.
+- P2/proven: `B106-011` — Niet-eindige synonym weights passeren de validator.
+- P3/proven: `B106-012` — Week1-validator retourneert succes wanneer alle controles falen.
+- P2/proven: `B106-013` — Make validation-status draait een verwijderd testpad en schrijft niet naar de geclaimde locatie.
+- P2/proven: `B106-014` — V2-migratieverificatie negeert een ontbrekende of falende smoke-test.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 16 toegewezen bereiken, 3976 fysieke regels en 89 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

@@ -1,14 +1,14 @@
 # BATCH-109
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `c7059b411a93874d0305c89e4830ba6be7e781a046f395e32a90dc2e0aed9e67`
+- Membership-SHA256: `e42b760f256d8376f610a14725dfa0b60ae9020076cadb7f2b82f05c277f5252`
 - Bestanden: `8`
 - Fysieke regels: `3715`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -25,21 +25,23 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B109-001` — Pinned v1 validation schema is published without the promised compatibility adapter or regression gate.
+- P2/proven: `B109-002` — Critical active test plan reports stale rule counts, coverage and system contracts as current.
+- P2/proven: `B109-003` — Published traceability matrix points only to missing canonical documents and assigns stories to multiple parent epics.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 8 toegewezen bereiken, 3715 fysieke regels en 0 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

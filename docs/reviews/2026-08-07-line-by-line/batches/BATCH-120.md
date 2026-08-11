@@ -3,12 +3,12 @@
 - Status: `pending`
 - Reviewgroep: `17` — Documentatie, plannen en handovers
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `fcef9699a13ece61854163a0b2fd128d112b5cde433f7394f80fc8e4b4c13dc8`
+- Membership-SHA256: `45c3d7e9a7ce699c602f443077d8666cfb00a9db30492c80fc0440f720d5590d`
 - Bestanden: `1`
 - Fysieke regels: `2543`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
