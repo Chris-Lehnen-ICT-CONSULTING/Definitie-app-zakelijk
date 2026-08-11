@@ -105,7 +105,9 @@ class ModularValidationService:
         self._is_degraded_mode: bool = False
         self._degradation_reason: str | None = None
         self._rules_loaded_count: int = 0
-        self._rules_expected_count: int = 45  # Full rule set target
+        # DEF-621: verwachte telling uit het contract (regelbestanden op
+        # disk) i.p.v. hardcoded — de eerdere 45 liep achter op de 53.
+        self._rules_expected_count: int = self._tel_regelbestanden()
 
         # Baseline interne regels (altijd beschikbaar voor policies zoals scoring-uitsluiting)
         self._baseline_internal: list[str] = [
@@ -166,6 +168,23 @@ class ModularValidationService:
                     f"Ongeldige threshold config 'category_accept': {e}. "
                     f"Gebruik default={self._category_threshold}"
                 )
+
+    @staticmethod
+    def _tel_regelbestanden() -> int:
+        """Aantal regelbestanden op disk — de contract-telling (DEF-621)."""
+        try:
+            from pathlib import Path
+
+            import toetsregels
+
+            regels_dir = Path(toetsregels.__file__).parent / "regels"
+            return len(list(regels_dir.glob("*.json"))) or 45
+        except (ImportError, OSError) as e:
+            logger.warning(
+                f"Contract-telling regelbestanden niet bepaalbaar, "
+                f"fallback 45: {type(e).__name__}: {e}"
+            )
+            return 45
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
     def _load_rules_from_manager(self) -> None:
