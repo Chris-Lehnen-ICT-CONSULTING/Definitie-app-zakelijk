@@ -12,6 +12,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from .runtime_contract import build_rule_record, lees_regelbestand, valideer_regelset
+
 logger = logging.getLogger(__name__)
 
 
@@ -158,24 +160,26 @@ class ToetsregelManager:
         # Laad van bestand
         regel_file = self.regels_dir / f"{regel_id}.json"
 
-        try:
-            if regel_file.exists():
-                with open(regel_file, encoding="utf-8") as f:
-                    regel_data: dict[str, Any] = json.load(f)
-
-                # Cache regel
-                self._regels_cache[regel_id] = regel_data
-                self.stats["regels_geladen"] += 1
-                self.stats["cache_misses"] += 1
-
-                logger.debug(f"Regel {regel_id} geladen van {regel_file}")
-                return regel_data
+        if not regel_file.exists():
             logger.warning(f"Regel bestand niet gevonden: {regel_file}")
             return None
 
-        except Exception as e:
-            logger.error(f"Fout bij laden regel {regel_id}: {e}")
-            return None
+        # DEF-606: een bestaand maar kapot regelbestand is géén afwezige
+        # regel. Eerder werd het met logger.error + return None afgedaan,
+        # waarna de regel stil uit de validatie verdween. Nu faalt het
+        # zichtbaar; alleen een ontbrekend bestand levert None.
+        regel_data = lees_regelbestand(regel_file)
+        # Even streng als het bulkpad: het volledige RuleRecord-contract,
+        # niet alleen de JSON-vorm. Pas ná validatie de cache vullen, zodat
+        # een afgekeurd record niet alsnog blijft hangen.
+        build_rule_record(regel_id, regel_data)
+
+        self._regels_cache[regel_id] = regel_data
+        self.stats["regels_geladen"] += 1
+        self.stats["cache_misses"] += 1
+
+        logger.debug(f"Regel {regel_id} geladen van {regel_file}")
+        return regel_data
 
     def load_regelset(self, set_naam: str) -> RegelSet | None:
         """
@@ -385,26 +389,42 @@ class ToetsregelManager:
         """
         Haal alle beschikbare regels op als dictionary.
 
+        DEF-606: fail-closed. De vorige versie sloeg een onleesbare regel
+        over met ``logger.warning`` + ``continue`` en leverde de rest af —
+        een stille validatie-bypass, want de ontbrekende regel kan dan nooit
+        meer falen en de kwaliteitsscore gaat omhoog. Nu wordt de volledige
+        set gevalideerd voordat er iets wordt teruggegeven: is één regel
+        kapot of ontbreekt zij, dan komt er geen halve set maar een
+        ``RuleContractError``.
+
+        De verwachte regel-ID-set komt uit het ``rule_ids``-manifest in de
+        root-SSOT, niet uit de directory-glob. Die glob was zijn eigen
+        verwachting en daarmee tautologisch: een verdwenen regelbestand werd
+        dan ook niet meer verwacht.
+
         Returns:
             Dict[str, Dict[str, Any]]: Dictionary met regel_id als key en regel data als value
+
+        Raises:
+            RuleContractError: bij een onleesbare regel, een geschonden
+                regelcontract, een ontbrekend of een onverwacht regelbestand.
         """
-        all_rules = {}
+        # Lees wat er wérkelijk op disk staat; de vergelijking met het
+        # manifest gebeurt in valideer_regelset en werkt zo beide kanten op.
+        op_disk = self.get_available_regels()
+        bronrecords = {
+            regel_id: lees_regelbestand(self.regels_dir / f"{regel_id}.json")
+            for regel_id in op_disk
+        }
 
-        # Haal alle beschikbare regel IDs op
-        available_regels = self.get_available_regels()
+        valideer_regelset(bronrecords, bron=f"ToetsregelManager({self.regels_dir})")
 
-        # Laad elke regel
-        for regel_id in available_regels:
-            try:
-                regel = self.load_regel(regel_id)
-                if regel:
-                    all_rules[regel_id] = regel
-            except Exception as e:
-                logger.warning(f"Kon regel {regel_id} niet laden: {e}")
-                continue
+        # Pas ná een geslaagde validatie de cache vullen.
+        self._regels_cache.update(bronrecords)
+        self.stats["regels_geladen"] = len(bronrecords)
 
-        logger.info(f"Totaal {len(all_rules)} regels geladen")
-        return all_rules
+        logger.info(f"Totaal {len(bronrecords)} regels geladen en gevalideerd")
+        return bronrecords
 
     def clear_cache(self) -> None:
         """Leeg alle caches."""

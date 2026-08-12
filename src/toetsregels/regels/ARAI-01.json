@@ -25,5 +25,15 @@
       "fulltext": "Definitie ≠ beschrijving van gedrag",
       "fullurl": "https://www.astraonline.nl/index.php/Definitie_≠_beschrijving_van_gedrag"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "normative"
+  }
 }

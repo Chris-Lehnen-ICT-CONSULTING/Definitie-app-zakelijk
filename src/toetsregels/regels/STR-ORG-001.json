@@ -12,6 +12,15 @@
   "redundancy_patterns": [
     "\\bsimpel\\b.*\\bcomplex\\b",
     "\\bcomplex\\b.*\\bsimpel\\b"
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score"
+  }
 }
 

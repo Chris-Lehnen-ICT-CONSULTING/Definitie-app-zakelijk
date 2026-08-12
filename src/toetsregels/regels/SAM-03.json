@@ -27,5 +27,19 @@
       "fulltext": "Definitieteksten niet nesten",
       "fullurl": "https://www.astraonline.nl/index.php/Definitieteksten_niet_nesten"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "definition_overlap",
+    "required_inputs": [
+      "definition_text",
+      "term",
+      "definition_repository"
+    ],
+    "executability": "repository",
+    "automation_status": "not_evaluated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "requires_repository",
+    "example_pair_reason": "Nesting van definitietekst is alleen vast te stellen tegen andere opgeslagen definities.",
+    "example_pair_issue": "DEF-623"
+  }
 }

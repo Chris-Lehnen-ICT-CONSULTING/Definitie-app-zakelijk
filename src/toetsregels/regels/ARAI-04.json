@@ -34,5 +34,15 @@
       "fulltext": "Definitie bevat geen toelichting",
       "fullurl": "https://www.astraonline.nl/index.php/Definitie_bevat_geen_toelichting"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "normative"
+  }
 }

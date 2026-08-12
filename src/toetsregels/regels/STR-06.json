@@ -30,5 +30,17 @@
       "fulltext": "Essentie ≠ informatiebehoefte",
       "fullurl": "https://www.astraonline.nl/index.php/Essentie_≠_informatiebehoefte"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "essentie versus informatiebehoefte is een inhoudelijk oordeel; het patroon deelt zijn markers met ESS-01 en mist de gesplitste om-te-constructie.",
+    "example_pair_issue": "DEF-624"
+  }
 }

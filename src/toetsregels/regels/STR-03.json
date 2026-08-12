@@ -26,5 +26,17 @@
       "fulltext": "Definitie ≠ synoniem",
       "fullurl": "https://www.astraonline.nl/index.php/Definitie_%E2%89%A0_synoniem"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "of een definitie meer is dan een synoniem vergt een semantisch oordeel; het eenwoords-patroon raakt de vorm term: woord niet.",
+    "example_pair_issue": "DEF-624"
+  }
 }

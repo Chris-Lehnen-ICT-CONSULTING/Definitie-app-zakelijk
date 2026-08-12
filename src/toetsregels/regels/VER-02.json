@@ -30,5 +30,15 @@
       "fulltext": "Definitie in enkelvoud",
       "fullurl": "https://www.astraonline.nl/index.php/Definitie_in_enkelvoud"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

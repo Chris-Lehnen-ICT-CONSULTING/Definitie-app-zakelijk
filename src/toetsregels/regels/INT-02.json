@@ -31,5 +31,17 @@
       "fulltext": "Geen beslisregel",
       "fullurl": "https://www.astraonline.nl/index.php/Geen_beslisregel"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "het gedocumenteerde paar verschilt uitsluitend in het modale werkwoord moet, wat de norm van ARAI-04 is; beslisregel-herkenning blijft daarnaast een inhoudelijk oordeel.",
+    "example_pair_issue": "DEF-624"
+  }
 }

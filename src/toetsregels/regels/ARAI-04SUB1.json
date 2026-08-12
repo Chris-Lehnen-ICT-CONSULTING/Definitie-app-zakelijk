@@ -31,5 +31,15 @@
       "fulltext": "Geen beslisregel",
       "fullurl": "https://www.astraonline.nl/index.php/Geen_beslisregel"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "normative"
+  }
 }

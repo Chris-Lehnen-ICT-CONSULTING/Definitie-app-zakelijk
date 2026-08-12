@@ -23,5 +23,16 @@
       "fulltext": "Kwalificatie omvat geen herhaling",
       "fullurl": "https://www.astraonline.nl/index.php/Kwalificatie_omvat_geen_herhaling"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "qualification",
+    "required_inputs": [
+      "definition_text",
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

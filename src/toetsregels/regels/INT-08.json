@@ -31,5 +31,15 @@
       "fulltext": "Positieve formulering",
       "fullurl": "https://www.astraonline.nl/index.php/Positieve_formulering"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

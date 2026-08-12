@@ -25,5 +25,16 @@
       "fulltext": "Kick-off vervolgen met toespitsing",
       "fullurl": "https://www.astraonline.nl/index.php/Kick-off_vervolgen_met_toespitsing"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text",
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

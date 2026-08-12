@@ -7,7 +7,6 @@ behoudt een kleine memory footprint en is direct integreerbaar met
 ModularValidationService — zonder UI/Streamlit-afhankelijkheid.
 """
 
-import json
 import logging
 import threading
 import time
@@ -15,6 +14,8 @@ from pathlib import Path
 from typing import Any, cast
 
 from utils.cache import cached, clear_cache as _global_cache_clear
+
+from .runtime_contract import build_rule_record, lees_regelbestand, valideer_regelset
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ except ImportError:
     logger.warning("Cache monitoring not available, continuing without monitoring")
 
 # DEF-606: het uitvoerbare (normatieve) deel van het regelcontract — de
-# velden die ModularValidationService._evaluate_json_rule leest. De
+# velden die de evaluators onder services/validation/evaluators/ lezen. De
 # overige JSON-velden zijn prompt-/documentatiemetadata (uitleg,
 # toelichting, voorbeelden, brondocument, …). Het runtime-record bewaart
 # ALLE bronvelden: de eerdere whitelist-projectie liet deze velden stil
@@ -55,9 +56,14 @@ RUNTIME_VELDEN: tuple[str, ...] = (
 
 # Sleutels waarvan consumers (validatie + prompt generation) op
 # aanwezigheid rekenen; het record garandeert ze met deze defaults.
+#
+# DEF-606: hier staan uitsluitend OPTIONELE/compatibiliteitsvelden. De
+# root-required velden (id, naam, uitleg, prioriteit, runtime_contract)
+# stonden hier eerder óók — met lege defaults. Een bronrecord zonder `naam`
+# of `prioriteit` kreeg die dan aangevuld en passeerde de contractcontrole
+# alsnog: de default verborg precies het gat dat de controle moest vinden.
+# Defaults worden nu pas toegepast ná succesvolle bronvalidatie.
 _RECORD_DEFAULTS: dict[str, Any] = {
-    "naam": "",
-    "prioriteit": "midden",
     "aanbeveling": "optioneel",
     "herkenbaar_patronen": [],
     "herkenbaar_patronen_type": [],
@@ -65,7 +71,6 @@ _RECORD_DEFAULTS: dict[str, Any] = {
     "herkenbaar_patronen_proces": [],
     "herkenbaar_patronen_resultaat": [],
     "weight": None,
-    "uitleg": "",
     "toetsvraag": "",
     "goede_voorbeelden": [],
     "foute_voorbeelden": [],
@@ -74,6 +79,8 @@ _RECORD_DEFAULTS: dict[str, Any] = {
 
 def _vers_record(regel_id: str, regel_data: dict[str, Any]) -> dict[str, Any]:
     """Bouw een record met vérse default-containers per regel.
+
+    Uitsluitend aan te roepen op een reeds gevalideerd bronrecord.
 
     Een kale ``{**_RECORD_DEFAULTS, **regel_data}`` zou de default-lists
     delen tussen alle records die het veld niet zelf zetten; één in-place
@@ -84,7 +91,6 @@ def _vers_record(regel_id: str, regel_data: dict[str, Any]) -> dict[str, Any]:
         veld: (list(waarde) if isinstance(waarde, list) else waarde)
         for veld, waarde in _RECORD_DEFAULTS.items()
     }
-    record["id"] = regel_data.get("id", regel_id)
     record.update(regel_data)
     return record
 
@@ -104,43 +110,37 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
         Dictionary met regel_id als key en regel data als value
     """
     rules_path = Path(regels_dir)
-    all_rules: dict[str, dict[str, Any]] = {}
 
     if not rules_path.exists():
         logger.warning(f"Regels directory bestaat niet: {regels_dir}")
-        return all_rules
+        return {}
 
     # Load alle JSON files in één keer
     json_files = sorted(rules_path.glob("*.json"))
     logger.info(f"Loading {len(json_files)} regel files van {regels_dir}")
 
-    for json_file in json_files:
-        regel_id = json_file.stem
-        try:
-            with open(json_file, encoding="utf-8") as f:
-                regel_data = json.load(f)
-                if not isinstance(regel_data, dict):
-                    logger.error(f"Regel {regel_id} is geen JSON-object; overgeslagen")
-                    continue
-                # DEF-606: volledig runtime-record — álle bronvelden gaan
-                # mee (normatieve uitvoeringsvelden mogen niet stil
-                # verdwijnen), defaults garanderen sleutel-aanwezigheid.
-                # Memory cost: ~300KB voor 53 regels (negligible).
-                all_rules[regel_id] = _vers_record(regel_id, regel_data)
-        except Exception as e:
-            logger.error(f"Fout bij laden regel {regel_id}: {e}")
-            continue
+    # DEF-606: fail-closed. De vorige versie sloeg een kapot bestand over met
+    # logger.error + continue; die regel verdween dan een uur lang stil uit de
+    # gecachte set. Een uitzondering hier laat het laden zichtbaar mislukken
+    # en zet niets in de cache.
+    bronrecords = {
+        json_file.stem: lees_regelbestand(json_file) for json_file in json_files
+    }
 
-    if len(all_rules) != len(json_files):
-        # Zichtbare degraded-state (DEF-621): een regel die niet laadt is
-        # een stille validatie-bypass; maak het gat expliciet benoembaar.
-        ontbrekend = sorted({p.stem for p in json_files} - set(all_rules))
-        logger.error(
-            f"Regelset INCOMPLEET: {len(all_rules)} van {len(json_files)} "
-            f"regelbestanden geladen; ontbrekend: {ontbrekend}"
-        )
+    # Valideer het ÓNBEWERKTE bronrecord: volledigheid tegen het manifest in
+    # de root-SSOT plus het volledige RuleRecord-contract. Defaults mogen pas
+    # daarna, anders vult een default een verplicht veld in en passeert een
+    # kapot record alsnog.
+    valideer_regelset(bronrecords, bron=f"RuleCache({regels_dir})")
 
-    logger.info(f"✅ {len(all_rules)} regels succesvol geladen en gecached")
+    # Volledig runtime-record — álle bronvelden gaan mee (normatieve
+    # uitvoeringsvelden mogen niet stil verdwijnen), defaults garanderen
+    # sleutel-aanwezigheid voor de optionele velden. ~300KB voor 53 regels.
+    all_rules = {
+        regel_id: _vers_record(regel_id, data) for regel_id, data in bronrecords.items()
+    }
+
+    logger.info(f"✅ {len(all_rules)} regels geladen, gevalideerd en gecached")
     return all_rules
 
 
@@ -162,12 +162,13 @@ def _load_single_rule_cached(regels_dir: str, regel_id: str) -> dict[str, Any] |
         logger.warning(f"Regel bestand niet gevonden: {regel_path}")
         return None
 
-    try:
-        with open(regel_path, encoding="utf-8") as f:
-            return cast(dict[str, Any], json.load(f))
-    except Exception as e:
-        logger.error(f"Fout bij laden regel {regel_id}: {e}")
-        return None
+    # DEF-606: alleen een ontbrekend bestand levert None; een bestaand maar
+    # kapot bestand faalt zichtbaar in plaats van stil te verdwijnen. Het
+    # losse pad is even streng als het bulkpad: ook hier moet het volledige
+    # RuleRecord-contract kloppen, niet alleen de JSON-vorm.
+    regel_data = lees_regelbestand(regel_path)
+    build_rule_record(regel_id, regel_data)
+    return regel_data
 
 
 class RuleCache:
