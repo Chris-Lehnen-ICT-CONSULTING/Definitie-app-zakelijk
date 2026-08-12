@@ -10,15 +10,26 @@ Definieert het contract voor alle ValidationOrchestrator implementaties met:
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, NotRequired
+from typing import Any, Literal, NotRequired
 from uuid import UUID
 
 from typing_extensions import TypedDict
 
 from services.interfaces import Definition
 
-# Contract version voor schema compliance
-CONTRACT_VERSION = "1.0.0"
+# Contract version voor schema compliance.
+#
+# 1.1.0 (DEF-624): additief uitgebreid met rule_statuses,
+# evaluation_coverage en review_required. SemVer-minor, want bestaande
+# consumers blijven werken: er is geen veld verdwenen of van betekenis
+# veranderd. De pinned validation_result_v1.0.0.schema.json blijft als
+# historisch schema staan.
+CONTRACT_VERSION = "1.1.0"
+
+# Uitkomst van één regelevaluatie. Alleen "pass" en "fail" zijn werkelijk
+# uitgevoerde, betrouwbare beoordelingen; uitsluitend die twee beïnvloeden
+# overall_score. Spiegelt toetsregels.runtime_contract.ResultStatus.
+RuleResultStatus = Literal["pass", "fail", "review_required", "not_evaluated", "error"]
 
 
 class ValidationResult(TypedDict, total=False):
@@ -39,6 +50,58 @@ class ValidationResult(TypedDict, total=False):
 
     # Optional fields
     improvement_suggestions: NotRequired[list["ImprovementSuggestion"]]
+
+    # Stond al in het JSON-schema maar niet in dit TypedDict; meegenomen
+    # zodat schema en binding weer sluiten.
+    acceptance_gate: NotRequired["AcceptanceGate"]
+
+    # DEF-624: score en dekking zijn twee getallen, geen één.
+    rule_statuses: NotRequired[dict[str, RuleResultStatus]]
+    evaluation_coverage: NotRequired["EvaluationCoverage"]
+    review_required: NotRequired[list["ReviewRequirement"]]
+
+
+class AcceptanceGate(TypedDict, total=False):
+    """Uitkomst van de vaststelgate."""
+
+    status: NotRequired[str]  # "pass" | "blocked" | "override_required"
+    acceptable: NotRequired[bool]
+    gates_passed: NotRequired[list[str]]
+    gates_failed: NotRequired[list[str]]
+    reasons: NotRequired[list[str]]
+    thresholds: NotRequired[dict[str, float]]
+
+
+class EvaluationCoverage(TypedDict):
+    """Hoeveel regels werkelijk zijn beoordeeld, naast de kwaliteitsscore.
+
+    Zonder dit blok kan een lagere dekking als hogere kwaliteit verschijnen:
+    regels die niet zijn uitgevoerd vallen uit de scoreberekening en zouden
+    anders onzichtbaar blijven.
+    """
+
+    evaluated: int  # pass + fail
+    passed: int
+    failed: int
+    review_required: int
+    not_evaluated: int
+    error: int
+    total: int
+    coverage_ratio: float  # evaluated / total
+
+
+class ReviewRequirement(TypedDict):
+    """Een regel die menselijk oordeel vraagt.
+
+    Bewust geen violation: reviewplicht is geen kwaliteitsprobleem en telt
+    ook niet als pass. De signalen wijzen de reviewer waar te kijken; het
+    zijn aanwijzingen, geen bewijs.
+    """
+
+    rule_id: str
+    category: str
+    reason: str
+    signals: list[str]
 
 
 class RuleViolation(TypedDict, total=False):

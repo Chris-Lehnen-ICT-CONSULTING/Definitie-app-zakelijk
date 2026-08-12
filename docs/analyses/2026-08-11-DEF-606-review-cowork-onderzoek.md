@@ -1,8 +1,8 @@
 # DEF-606 — Review van het Cowork-onderzoek
 
-**Datum:** 11 augustus 2026  
-**Beoordeeld document:** `2026-08-11-DEF-606-inhoudelijk-antwoord.md`  
-**Repo-HEAD van onderzoek en hercontrole:** `5cf2cd80`
+- **Datum:** 11 augustus 2026
+- **Beoordeeld document:** `2026-08-11-DEF-606-inhoudelijk-antwoord.md`
+- **Repo-HEAD van onderzoek en hercontrole:** `5cf2cd80`
 
 ## Samenvatting
 

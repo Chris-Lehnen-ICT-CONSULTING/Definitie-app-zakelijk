@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/your-org/definitie-app/schemas/validation_result.schema.json",
   "title": "ValidationResult",
-  "description": "Contract schema for validation results from ValidationOrchestratorV2",
+  "description": "Contract schema for validation results from ValidationOrchestratorV2. Contractversie 1.1.0 (DEF-624): additief uitgebreid met rule_statuses, evaluation_coverage en review_required. Bestaande consumers blijven werken; additionalProperties blijft bewust false zodat een nieuw veld niet stil kan binnenglippen.",
   "type": "object",
   "required": [
     "version",
@@ -268,6 +268,104 @@
         }
       },
       "additionalProperties": false
+    },
+    "rule_statuses": {
+      "type": "object",
+      "description": "Resultaatstatus per rule-ID (DEF-624). Alleen pass en fail zijn werkelijk uitgevoerde beoordelingen; de overige statussen wegen niet mee in overall_score.",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["pass", "fail", "review_required", "not_evaluated", "error"]
+      }
+    },
+    "evaluation_coverage": {
+      "type": "object",
+      "description": "Evaluatiedekking naast de kwaliteitsscore (DEF-624). Een lagere dekking mag nooit als hogere kwaliteit verschijnen; daarom staan score en dekking hier los van elkaar.",
+      "required": [
+        "evaluated",
+        "passed",
+        "failed",
+        "review_required",
+        "not_evaluated",
+        "error",
+        "total",
+        "coverage_ratio"
+      ],
+      "properties": {
+        "evaluated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Aantal regels met status pass of fail"
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "review_required": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Regels die menselijk oordeel vragen"
+        },
+        "not_evaluated": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Regels waarvoor vereiste invoer ontbrak"
+        },
+        "error": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Regels waarvan de evaluator faalde"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Totaal beoordeelde rule-IDs"
+        },
+        "coverage_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "evaluated gedeeld door total"
+        }
+      },
+      "additionalProperties": false
+    },
+    "review_required": {
+      "type": "array",
+      "description": "Regels die een inhoudelijk oordeel vragen (DEF-624). Geen violations: zij tellen niet als kwaliteitsprobleem en niet als pass.",
+      "items": {
+        "type": "object",
+        "required": ["rule_id", "category", "reason", "signals"],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "enum": ["taal", "juridisch", "structuur", "samenhang", "system"]
+          },
+          "reason": {
+            "type": "string",
+            "description": "Waarom de regel menselijk oordeel vraagt"
+          },
+          "signals": {
+            "type": "array",
+            "description": "Patroontreffers die de reviewer wijzen waar te kijken; aanwijzing, geen bewijs",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "additionalProperties": false

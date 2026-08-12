@@ -1,7 +1,6 @@
 # ADR-001: JSON-rulecontract met expliciete evaluatorstrategieën
 
-**Status:** Geaccepteerd  
-**Datum:** 2026-08-11 · **Beslisser:** Chris
+**Status:** Geaccepteerd · **Datum:** 2026-08-11 · **Beslisser:** Chris
 
 ## Context
 
@@ -85,29 +84,30 @@ en nooit automatisch in productieconfiguratie overgenomen.
 
 ### Optie A — Oude Pythonvalidatorlaag alsnog aansluiten
 
-**Voordelen:** bestaande classes en loader kunnen deels worden hergebruikt.  
-**Nadelen:** activeert 12.893 regels gedupliceerde code; minimaal acht validators
-hebben een ander regeldoel; de laag mist zeven baseline-regels; onderhoud en
-drift blijven per regel verdubbeld.  
-**Beoordeling:** hoge migratie- en onderhoudslast, lage betrouwbaarheid.
+- **Voordelen:** bestaande classes en loader kunnen deels worden hergebruikt.
+- **Nadelen:** activeert 12.893 regels gedupliceerde code; minimaal acht
+  validators hebben een ander regeldoel; de laag mist zeven baseline-regels;
+  onderhoud en drift blijven per regel verdubbeld.
+- **Beoordeling:** hoge migratie- en onderhoudslast, lage betrouwbaarheid.
 
 ### Optie B — Alle regels in `_evaluate_json_rule` houden
 
-**Voordelen:** minimale structurele wijziging; huidig productiepad blijft intact.  
-**Nadelen:** vergroot het bestaande god-object; repository- en contextregels
-blijven impliciet; vereiste invoer en evaluatorbereikbaarheid zijn niet als
-contract afdwingbaar.  
-**Beoordeling:** lage korte-termijnkosten, hoge structurele onderhoudslast.
+- **Voordelen:** minimale structurele wijziging; huidig productiepad blijft
+  intact.
+- **Nadelen:** vergroot het bestaande god-object; repository- en contextregels
+  blijven impliciet; vereiste invoer en evaluatorbereikbaarheid zijn niet als
+  contract afdwingbaar.
+- **Beoordeling:** lage korte-termijnkosten, hoge structurele onderhoudslast.
 
 ### Optie C — JSON-rulecontract plus evaluatorstrategieën
 
-**Voordelen:** één normatieve regelbron; expliciete invoercontracten; eenvoudige
-regels blijven declaratief; complexe logica is afzonderlijk testbaar; oude
-duplicatie kan verdwijnen.  
-**Nadelen:** vraagt een contractmigratie voor 53 records en gerichte evaluators
-voor de semantisch complexe regels; repositoryregels kunnen meer rekentijd
-vragen.  
-**Beoordeling:** middelgrote migratielast, laagste blijvende onderhoudslast.
+- **Voordelen:** één normatieve regelbron; expliciete invoercontracten;
+  eenvoudige regels blijven declaratief; complexe logica is afzonderlijk
+  testbaar; oude duplicatie kan verdwijnen.
+- **Nadelen:** vraagt een contractmigratie voor 53 records en gerichte
+  evaluators voor de semantisch complexe regels; repositoryregels kunnen meer
+  rekentijd vragen.
+- **Beoordeling:** middelgrote migratielast, laagste blijvende onderhoudslast.
 
 ## Trade-offs
 

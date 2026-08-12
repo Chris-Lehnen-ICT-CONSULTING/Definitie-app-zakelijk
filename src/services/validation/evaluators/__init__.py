@@ -46,9 +46,14 @@ __all__ = [
 
 
 def build_default_registry() -> EvaluatorRegistry:
-    """Bouw een register met alle standaard evaluatorstrategieën."""
-    registry = EvaluatorRegistry()
-    for evaluator in (
+    """Bouw een register met alle standaard evaluatorstrategieën.
+
+    De annotatie is nodig, niet cosmetisch: zonder haar leidt mypy uit de
+    heterogene tuple het gemeenschappelijke supertype `object` af, en dan
+    accepteert `register` het argument niet meer. Expliciet typen bewijst
+    tegelijk dat elke strategie het `RuleEvaluator`-protocol nakomt.
+    """
+    strategieen: tuple[RuleEvaluator, ...] = (
         GenericEvaluator(),
         PositiveIndicatorEvaluator(),
         OntologicalCategoryEvaluator(),
@@ -58,6 +63,8 @@ def build_default_registry() -> EvaluatorRegistry:
         ContextMetadataEvaluator(),
         JudgmentReviewEvaluator(),
         *DEFERRED_EVALUATORS,
-    ):
+    )
+    registry = EvaluatorRegistry()
+    for evaluator in strategieen:
         registry.register(evaluator)
     return registry
