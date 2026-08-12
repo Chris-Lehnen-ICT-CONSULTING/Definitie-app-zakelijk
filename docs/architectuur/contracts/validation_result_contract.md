@@ -26,8 +26,15 @@ Dit document definieert het bindende contract voor `ValidationResult` objecten i
 ## Scope & Status
 
 - **Scope**: Alle validation responses van ValidationOrchestratorV2
-- **Versie**: 1.0.0 (SemVer)
+- **Versie**: 1.1.0 (SemVer)
 - **Backward Compatibility**: Gegarandeerd binnen major version
+
+### Wijzigingen
+
+| Versie | Wijziging |
+| --- | --- |
+| 1.1.0 | DEF-624: `rule_statuses`, `evaluation_coverage` en `review_required` toegevoegd. Additief; geen veld verdwenen of van betekenis veranderd. `additionalProperties` blijft bewust `false` — een nieuw veld mag niet stil binnenglippen. |
+| 1.0.0 | Initieel contract. Gepind als `schemas/validation_result_v1.0.0.schema.json`. |
 
 ## Versie Beheer
 
@@ -66,8 +73,54 @@ interface ValidationResult {
 
   // System metadata (optional)
   system?: SystemMetadata;
+
+  // Evaluatiedekking naast de score (1.1.0, optioneel)
+  rule_statuses?: Record<string, RuleResultStatus>;
+  evaluation_coverage?: EvaluationCoverage;
+  review_required?: ReviewRequirement[];
 }
 ```
+
+### Score versus evaluatiedekking (1.1.0)
+
+`overall_score` wordt uitsluitend berekend over regels met status `pass` of
+`fail`. `review_required`, `not_evaluated` en `error` vallen uit de noemer:
+zij tellen nooit als 1,0 mee. Zonder die scheiding zou een lagere dekking als
+hogere kwaliteit verschijnen — een regel die niet draait, kan immers ook niet
+falen.
+
+Consumers die kwaliteit tonen, horen beide getallen te tonen.
+
+```typescript
+type RuleResultStatus =
+  | "pass"              // uitgevoerd, voldoet
+  | "fail"              // uitgevoerd, voldoet niet
+  | "review_required"   // vraagt menselijk oordeel
+  | "not_evaluated"     // vereiste invoer ontbrak
+  | "error";            // evaluator faalde
+
+interface EvaluationCoverage {
+  evaluated: number;        // pass + fail
+  passed: number;
+  failed: number;
+  review_required: number;
+  not_evaluated: number;
+  error: number;
+  total: number;
+  coverage_ratio: number;   // evaluated / total, 0.0 - 1.0
+}
+
+interface ReviewRequirement {
+  rule_id: string;
+  category: string;
+  reason: string;
+  signals: string[];        // patroontreffers als aanwijzing, geen bewijs
+}
+```
+
+`review_required` is bewust géén `violations`-entry: reviewplicht is geen
+geconstateerd kwaliteitsprobleem. De `signals` wijzen de beoordelaar waar te
+kijken en mogen niet als bewijs worden gepresenteerd.
 
 ### ValidationViolation Structure
 

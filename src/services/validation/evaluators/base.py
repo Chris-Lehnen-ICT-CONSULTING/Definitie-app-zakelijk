@@ -16,7 +16,12 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
 from services.validation.types_internal import EvaluationContext
-from toetsregels.runtime_contract import EvaluatorType, RequiredInput, ResultStatus
+from toetsregels.runtime_contract import (
+    EvaluatorType,
+    RequiredInput,
+    ResultStatus,
+    RuleRecord,
+)
 
 __all__ = [
     "EvaluationDeps",
@@ -113,10 +118,17 @@ class EvaluationDeps:
 
 
 class RuleEvaluator(Protocol):
-    """Iedere evaluatorstrategie implementeert precies dit contract."""
+    """Iedere evaluatorstrategie implementeert precies dit contract.
 
-    evaluator_type: EvaluatorType
+    Structureel, niet nominaal: evaluators erven van niets en hoeven alleen
+    `evaluator_type` en `evaluate` te bieden. Het register controleert bij
+    registratie of `evaluator_type` werkelijk een `EvaluatorType` is, zodat
+    een verkeerd gevormde evaluator niet stil geregistreerd raakt.
+    """
+
+    @property
+    def evaluator_type(self) -> EvaluatorType: ...
 
     def evaluate(
-        self, record: Any, ctx: EvaluationContext, deps: EvaluationDeps
+        self, record: RuleRecord, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> EvaluationOutcome: ...
