@@ -3,22 +3,26 @@
 Per rule-ID bewijst deze runner tegen het échte validatiepad
 (`validate_definition`) dat de geclassificeerde runtime-uitkomst klopt:
 
-- ``automatisch`` (evt. ``gewicht_nul: true``): de negatieve case MOET een
-  violation voor die regel opleveren, de positieve case NIET, en de
-  grenscase precies wat het fixture zegt. Een regel die "automatisch"
-  claimt maar nooit kan falen (inert/default-pass) laat de runner falen.
-- ``niet_automatisch_toetsbaar`` / ``bewust_niet_scorend`` /
-  ``defect_inert``: de adversariële probe MOET géén violation geven —
-  dat documenteert de onbereikbaarheid; gaat de regel tóch af, dan is de
-  classificatie verouderd en faalt de runner eveneens.
+- ``automated``: de negatieve case MOET een violation voor die regel
+  opleveren, de positieve case NIET, en de grenscase precies wat de fixture
+  zegt. Een regel die "automated" claimt maar nooit kan falen
+  (inert/default-pass) laat de runner falen.
+- ``review_required`` / ``not_evaluated``: de adversariële probe MOET géén
+  violation geven — dat documenteert de uitkomst; gaat de regel tóch af,
+  dan is de classificatie verouderd en faalt de runner eveneens.
+
+De classificatie komt sinds DEF-624 uit het gevalideerde ``runtime_contract``
+in het regelrecord zelf, niet meer uit deze fixture: die was een tweede
+waarheid naast het record. De fixture draagt alleen nog de cases.
 
 Verder faalt de runner bij: een rule-ID op disk zonder fixture-entry (en
-andersom), een onbekende evaluator, en een gedeclareerd veld dat de
-evaluator stil negeert (bv. ``vereist_param``) zonder expliciete
-``defect_inert``-classificatie. De aantallen per categorie worden uit de
-fixture afgeleid en door de asserties bewezen — nergens hardcoded.
+andersom), een fixture-entry die zijn eigen classificatie meebrengt, en een
+gedeclareerd veld dat de evaluator stil negeert (bv. ``vereist_param``)
+terwijl het record zich automatisch noemt. De aantallen per categorie worden
+uit de records afgeleid en door de asserties bewezen — nergens hardcoded.
 """
 
+import json
 from pathlib import Path
 
 import pytest
@@ -27,6 +31,7 @@ import yaml
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 from toetsregels.rule_cache import RUNTIME_VELDEN
+from toetsregels.runtime_contract import AutomationStatus, build_rule_records
 
 pytestmark = [pytest.mark.unit]
 
@@ -59,17 +64,6 @@ EVALUATOR_GELEZEN_VELDEN = frozenset(
     }
 )
 
-GELDIGE_EVALUATORS = frozenset({"json_generiek", "special_case", "positieve_indicator"})
-GELDIGE_STATUSSEN = frozenset(
-    {
-        "automatisch",
-        "niet_automatisch_toetsbaar",
-        "bewust_niet_scorend",
-        "defect_inert",
-    }
-)
-AUTOMATISCH = "automatisch"
-
 
 def _laad_fixture() -> dict[str, dict]:
     data = yaml.safe_load(FIXTURE.read_text(encoding="utf-8"))
@@ -79,6 +73,24 @@ def _laad_fixture() -> dict[str, dict]:
 
 MATRIX = _laad_fixture()
 RULE_IDS_OP_DISK = sorted(p.stem for p in REGELS_DIR.glob("*.json"))
+
+# DEF-624: de classificatie stond in deze fixture en was daarmee een tweede
+# waarheid naast de regelrecords. Zij komt nu uit het gevalideerde contract;
+# de fixture houdt alleen nog de cases.
+RECORDS = build_rule_records(
+    {
+        pad.stem: json.loads(pad.read_text(encoding="utf-8"))
+        for pad in REGELS_DIR.glob("*.json")
+    }
+)
+
+
+def _is_automatisch(rule_id: str) -> bool:
+    return RECORDS[rule_id].automation_status is AutomationStatus.AUTOMATED
+
+
+AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if _is_automatisch(r))
+NIET_AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if not _is_automatisch(r))
 
 
 def _tekst_van(case: dict) -> str:
@@ -134,30 +146,36 @@ class TestMatrixVolledigheid:
     @pytest.mark.parametrize("rule_id", sorted(MATRIX), ids=str)
     def test_entry_contract(self, rule_id):
         entry = MATRIX[rule_id]
-        assert (
-            entry.get("evaluator") in GELDIGE_EVALUATORS
-        ), f"{rule_id}: onbekende evaluator {entry.get('evaluator')!r}"
-        status = entry.get("scoringstatus")
-        assert (
-            status in GELDIGE_STATUSSEN
-        ), f"{rule_id}: onbekende scoringstatus {status!r}"
-        if status == AUTOMATISCH:
+        status = RECORDS[rule_id].automation_status
+        if _is_automatisch(rule_id):
             for verplicht in ("positief", "negatief", "grens"):
                 assert verplicht in entry, f"{rule_id}: case '{verplicht}' ontbreekt"
         else:
             assert "probe" in entry, f"{rule_id}: adversariële probe ontbreekt"
-            assert entry.get("reden"), f"{rule_id}: reden verplicht bij {status}"
+            assert entry.get("reden"), f"{rule_id}: reden verplicht bij {status.value}"
         # Dispositie-koppeling (ALG-375): elke niet-automatische status en
         # elk gedocumenteerd defect (overtriggerend) vereist een tracker-ID
         # zodat een defect niet stil kan blijven staan.
-        if status != AUTOMATISCH or entry.get("overtriggerend"):
+        if not _is_automatisch(rule_id) or entry.get("overtriggerend"):
             import re as _re
 
             issue = str(entry.get("issue", ""))
             assert _re.fullmatch(r"DEF-\d+", issue), (
-                f"{rule_id}: 'issue: DEF-nnn' verplicht bij status {status!r} "
-                f"of overtriggerend-vlag (gevonden: {issue!r})"
+                f"{rule_id}: 'issue: DEF-nnn' verplicht bij status "
+                f"{status.value!r} of overtriggerend-vlag (gevonden: {issue!r})"
             )
+
+    def test_fixture_dupliceert_de_classificatie_niet(self):
+        # De classificatie hoort in het RuleRecord, niet in twee bronnen.
+        gedupliceerd = sorted(
+            rule_id
+            for rule_id, entry in MATRIX.items()
+            if {"evaluator", "scoringstatus"} & set(entry)
+        )
+        assert not gedupliceerd, (
+            f"fixture-entries met een eigen classificatie naast het "
+            f"regelrecord: {gedupliceerd}"
+        )
 
     def test_evaluator_leesset_is_deel_van_runtime_contract(self):
         # EVALUATOR_GELEZEN_VELDEN is declaratief (grep-inventaris van
@@ -179,11 +197,11 @@ class TestMatrixVolledigheid:
         # Runtime-velden in de JSON die geen enkele evaluator-tak leest
         # mogen alleen bestaan onder een expliciete defect_inert-vlag.
         stil = sorted((set(raw) & set(RUNTIME_VELDEN)) - EVALUATOR_GELEZEN_VELDEN)
-        if stil and entry.get("scoringstatus") != "defect_inert":
+        if stil and _is_automatisch(rule_id):
             pytest.fail(
                 f"{rule_id}: veld(en) {stil} worden door geen evaluator-tak "
-                f"gelezen (stil genegeerd) — classificeer defect_inert of "
-                f"implementeer de tak"
+                f"gelezen (stil genegeerd) terwijl de regel automatisch "
+                f"heet — implementeer de tak of herclassificeer het record"
             )
 
 
@@ -191,7 +209,7 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        [r for r in sorted(MATRIX) if MATRIX[r]["scoringstatus"] == AUTOMATISCH],
+        AUTOMATISCHE_IDS,
         ids=str,
     )
     async def test_negatieve_case_faalt(self, svc, rule_id):
@@ -211,7 +229,7 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        [r for r in sorted(MATRIX) if MATRIX[r]["scoringstatus"] == AUTOMATISCH],
+        AUTOMATISCHE_IDS,
         ids=str,
     )
     async def test_positieve_case_passeert(self, svc, rule_id):
@@ -225,7 +243,7 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        [r for r in sorted(MATRIX) if MATRIX[r]["scoringstatus"] == AUTOMATISCH],
+        AUTOMATISCHE_IDS,
         ids=str,
     )
     async def test_grenscase(self, svc, rule_id):
@@ -250,14 +268,15 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        [r for r in sorted(MATRIX) if MATRIX[r]["scoringstatus"] != AUTOMATISCH],
+        NIET_AUTOMATISCHE_IDS,
         ids=str,
     )
     async def test_niet_scorende_regel_is_echt_onbereikbaar(self, svc, rule_id):
         entry = MATRIX[rule_id]
         vios = await _violations_voor(svc, rule_id, entry["probe"])
         assert not vios, (
-            f"{rule_id}: geclassificeerd als {entry['scoringstatus']!r} maar "
+            f"{rule_id}: contract zegt "
+            f"{RECORDS[rule_id].automation_status.value!r} maar "
             f"de probe triggert wél een violation — herclassificeer naar "
             f"automatisch: {[v.get('message') for v in vios]}"
         )
@@ -265,28 +284,83 @@ class TestReachability:
 
 class TestAfgeleideTelling:
     # Het bewezen contract van dit moment. Dit is GEEN vrije aanname
-    # (vgl. de afgewezen "37/10/3"-telling): elke case hierachter is door
-    # de reachability-tests afgedwongen. Verschuift een regel van
-    # categorie, dan hoort deze verdeling bewust mee te veranderen.
+    # (vgl. de afgewezen 37/10/3-telling): elke case hierachter is door de
+    # reachability-tests afgedwongen. De verdeling komt uit de regelrecords;
+    # verschuift een regel van klasse, dan hoort deze verwachting bewust mee
+    # te veranderen.
     VERWACHTE_VERDELING = {
-        "automatisch": 50,
-        "bewust_niet_scorend": 1,
-        "defect_inert": 1,
-        "niet_automatisch_toetsbaar": 1,
+        "automated": 36,
+        "review_required": 12,
+        "not_evaluated": 5,
     }
 
     def test_telling_sluit_op_53(self):
         telling: dict[str, int] = {}
-        for entry in MATRIX.values():
-            telling[entry["scoringstatus"]] = telling.get(entry["scoringstatus"], 0) + 1
+        for record in RECORDS.values():
+            sleutel = record.automation_status.value
+            telling[sleutel] = telling.get(sleutel, 0) + 1
         assert (
             sum(telling.values()) == len(RULE_IDS_OP_DISK) == 53
         ), f"telling {telling} sluit niet op de 53 regels op disk"
         assert telling == self.VERWACHTE_VERDELING, (
-            f"categorieverdeling verschoven: {dict(sorted(telling.items()))} "
+            f"klasseverdeling verschoven: {dict(sorted(telling.items()))} "
             f"!= {self.VERWACHTE_VERDELING} — bewuste wijziging? Werk dan "
-            f"ook fixture en verwachting bij"
+            f"ook de regelrecords en deze verwachting bij"
         )
+
+    def test_alleen_automatische_regels_wegen_mee_in_de_score(self):
+        # DEF-624: een regel die niet automatisch wordt beoordeeld mag de
+        # kwaliteitsscore niet raken, anders wordt dekking als kwaliteit
+        # gepresenteerd.
+        fout = sorted(
+            record.rule_id
+            for record in RECORDS.values()
+            if record.counts_toward_score
+            and record.automation_status is not AutomationStatus.AUTOMATED
+        )
+        assert not fout, f"niet-automatische regels met scorepolicy scored: {fout}"
+
+
+# DEF-606: ook een synthetische regel heeft een gevalideerd contract nodig;
+# zonder dat is er geen aanwijsbare evaluator en weigert de service te laden.
+SYNTHETISCH_CONTRACT = {
+    "evaluator": "generic",
+    "required_inputs": ["definition_text", "term"],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+}
+
+# De verplichte recordvelden komen uit de root-SSOT; een synthetische regel
+# moet daar net zo goed aan voldoen. `prioriteit: midden` houdt gewicht en
+# severity gelijk aan wat een veldloos record eerder kreeg.
+SYNTHETISCHE_RECORDVELDEN = {
+    "naam": "Synthetische testregel",
+    "uitleg": "Alleen voor waarde-doorwerkingstests.",
+    "prioriteit": "midden",
+}
+
+
+def _met_contract(regels: dict) -> dict:
+    """Vul een contract aan waar het ontbreekt; laat echte records intact.
+
+    Records die al een contract dragen worden ongemoeid teruggegeven — ook
+    hun type, zodat een observerende mapping (TestWaargenomenLeesset) niet
+    stilletjes in een gewone dict verandert en de reads verloren gaan.
+    """
+    return {
+        rule_id: (
+            data
+            if data.get("runtime_contract")
+            else {
+                "id": rule_id,
+                **SYNTHETISCHE_RECORDVELDEN,
+                "runtime_contract": {**SYNTHETISCH_CONTRACT},
+                **data,
+            }
+        )
+        for rule_id, data in regels.items()
+    }
 
 
 class _StubManager:
@@ -300,7 +374,7 @@ class _StubManager:
 
 
 def _svc_met(regels: dict) -> ModularValidationService:
-    return ModularValidationService(_StubManager(regels), None, None)
+    return ModularValidationService(_StubManager(_met_contract(regels)), None, None)
 
 
 async def _syn_violations(regels: dict, begrip: str, tekst: str) -> list[dict]:

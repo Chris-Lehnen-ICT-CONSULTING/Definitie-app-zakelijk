@@ -29,7 +29,14 @@ async def test_additional_patterns_ess01_detects_goal_phrases():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ESS-01" for v in res.get("violations", [])), res
+    # ESS-01 is sinds DEF-624 een oordeelregel: de doelfrase is een signaal
+    # voor de reviewer, geen bewijs. Valt het signaal weg, dan faalt deze
+    # test alsnog — de assertie is verschoven, niet verzwakt.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "ESS-01" in review, res
+    assert review["ESS-01"]["signals"], review
+    assert "ESS-01" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "ESS-01" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio

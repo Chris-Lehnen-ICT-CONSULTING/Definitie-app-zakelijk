@@ -101,6 +101,10 @@ async def test_ess01_goal_phrases_forbidden():
         ontologische_categorie=None,
         context={},
     )
-    assert any(
-        v.get("code") == "ESS-01" for v in res["violations"]
-    )  # forbidden pattern
+    # ESS-01 is sinds DEF-624 een oordeelregel; de doelfrase blijft een
+    # reviewersignaal maar is geen bewijs meer.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "ESS-01" in review, res
+    assert review["ESS-01"]["signals"], review
+    assert "ESS-01" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "ESS-01" for v in res["violations"]), res
