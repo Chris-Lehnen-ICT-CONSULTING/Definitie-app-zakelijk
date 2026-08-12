@@ -49,6 +49,8 @@
 - P3/proven: `B006-008` — Queue-time metric is never updated.
 - Volledig bewijs en niet-geteste onderdelen: `evidence/BATCH-006/review-evidence.md`.
 
+- P3/proven: `B006-009` — Alle data-afhankelijke feature-status-GET-routes retourneren 500 doordat hun enige JSON-bron ontbreekt.
+
 ## Resultaat
 
 Geverifieerd door twee verschillende reviewers. Alle 9 bestanden en 123 symbolen zijn line-by-line beoordeeld; functionele beperkingen en niet-geteste externe of visuele flows staan expliciet in het bewijsdossier.

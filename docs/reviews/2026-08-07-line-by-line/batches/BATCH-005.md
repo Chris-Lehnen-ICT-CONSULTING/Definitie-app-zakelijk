@@ -1,14 +1,14 @@
 # BATCH-005
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `1` — Entrypoints, build, dependencies en configuratie
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `54927c17e08818c20d054f360c87ecc7dfe7e2b367f998c18f5a88e6bf0e46a6`
+- Membership-SHA256: `8db11e15c2ad081e3074a8867df0e9cfb3cff227e867f160c08385ae348d7cee`
 - Bestanden: `14`
 - Fysieke regels: `5181`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-hypatia`
+- Onafhankelijke verifier: `codex-galileo`
 
 ## Scope
 
@@ -31,21 +31,29 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B005-001` — UV-hashlocks laten de dependency-confusion-gate nul dependencies controleren.
+- P2/proven: `B005-002` — Productie-lock mist de parser voor een actief aangeboden RTF-uploadpad.
+- P2/proven: `B005-003` — Uitvoerbare Prompt-Forge-werklijst instrueert verouderde fixes en onveilige dependency-mutaties.
+- P3/proven: `B005-004` — Bedoelde handover-uitzondering blijft door de uitgesloten parentdirectory genegeerd.
+- P3/proven: `B005-005` — Projectregel verbiedt zeven bestaande rootbestanden inclusief de canonieke lockbronnen.
+
+- P2/proven: `B005-006` — Actieve aiohttp-client gebruikt een versie met een bereikbaar malformed-response-DoS.
+- P3/proven: `B005-007` — Verouderde expliciete GitPython-pin houdt zeven advisories in de runtime-lock.
+- P2/suspected: `B005-008` — Actieve PyMuPDF-PDF/RAG-flow mist aantoonbare keuze tussen AGPL-compliance en commerciële licentie.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 14 toegewezen bereiken en 5181 fysieke regels zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.

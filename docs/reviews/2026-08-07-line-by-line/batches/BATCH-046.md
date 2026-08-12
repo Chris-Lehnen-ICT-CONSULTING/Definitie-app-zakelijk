@@ -54,6 +54,8 @@
 - P3/proven: `B046-010` — Definition checker discards supplied legal context.
 - P2/proven: `B046-011` — Performance tracker leaks SQLite connections on a hot path.
 
+- P3/proven: `B046-012` — Synonym Metrics-footer verwijst naar verwijderde /synonym_review-pagina.
+
 ## Resultaat
 
 Geverifieerd door twee verschillende reviewers. Alle 12 bestanden, 3586 fysieke regels en 90 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.
