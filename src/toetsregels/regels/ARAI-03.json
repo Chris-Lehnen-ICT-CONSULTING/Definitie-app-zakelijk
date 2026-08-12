@@ -33,5 +33,17 @@
       "fulltext": "Verwant aan ARAI05 (Vermijd impliciete aannames)",
       "fullurl": "https://www.astraonline.nl/index.php/Geen_ontoegankelijke_achtergrondkennis_nodig"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "subjectieve bijvoeglijke naamwoorden zijn contextgebonden; het patroon mist de verbogen vorm in het eigen foute voorbeeld en zou bij verbreding op vrijwel elk bijvoeglijk naamwoord vuren.",
+    "example_pair_issue": "DEF-624"
+  }
 }

@@ -48,5 +48,16 @@
       "fulltext": "Eigen definitie voor elke context",
       "fullurl": "https://www.astraonline.nl/index.php/Eigen_definitie_voor_elke_context"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "context_metadata",
+    "required_inputs": [
+      "definition_text",
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

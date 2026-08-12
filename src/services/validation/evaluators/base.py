@@ -1,0 +1,122 @@
+"""Evaluatorcontract voor de JSON-toetsregels (DEF-606 / ADR-001).
+
+Eén protocol, één uitkomsttype. Iedere evaluator krijgt een gevalideerd
+`RuleRecord` plus de `EvaluationContext` en geeft een `EvaluationOutcome`
+terug die zonder adapterverlies in het bestaande `RuleResult`/violation-
+formaat past.
+
+De uitkomst draagt expliciet een `ResultStatus`. Alleen `PASS` en `FAIL`
+zijn werkelijk uitgevoerde beoordelingen; `REVIEW_REQUIRED`,
+`NOT_EVALUATED` en `ERROR` mogen nooit als pass worden genormaliseerd.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any, Protocol, runtime_checkable
+
+from services.validation.types_internal import EvaluationContext
+from toetsregels.runtime_contract import EvaluatorType, RequiredInput, ResultStatus
+
+__all__ = [
+    "EvaluationDeps",
+    "EvaluationOutcome",
+    "EvaluationSupport",
+    "Finding",
+    "RuleEvaluator",
+]
+
+
+@dataclass(frozen=True)
+class Finding:
+    """Eén geconstateerd probleem binnen een regelevaluatie.
+
+    `reason` is de sleutel waarmee de service een concrete NL-suggestie
+    opbouwt; `details` levert de variabele invulling daarvan.
+    """
+
+    message: str
+    reason: str
+    details: str | None = None
+
+
+@dataclass(frozen=True)
+class EvaluationOutcome:
+    """Uitkomst van één regelevaluatie."""
+
+    status: ResultStatus
+    score: float | None = None
+    findings: tuple[Finding, ...] = ()
+    pattern_hits: tuple[str, ...] = ()
+    first_hit_pattern: str | None = None
+    first_hit_pos: int | None = None
+    violation: dict[str, Any] | None = None
+    reason: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def passed(cls) -> EvaluationOutcome:
+        return cls(status=ResultStatus.PASS, score=1.0)
+
+    @classmethod
+    def not_evaluated(cls, reason: str) -> EvaluationOutcome:
+        return cls(status=ResultStatus.NOT_EVALUATED, reason=reason)
+
+    @classmethod
+    def review_required(
+        cls, reason: str, *, signals: tuple[str, ...] = ()
+    ) -> EvaluationOutcome:
+        return cls(
+            status=ResultStatus.REVIEW_REQUIRED,
+            reason=reason,
+            metadata={"signals": list(signals)} if signals else {},
+        )
+
+
+@runtime_checkable
+class EvaluationSupport(Protocol):
+    """De weinige diensten die evaluators van de orchestrator lenen.
+
+    Bewust smal gehouden: severity-afleiding en suggestieopbouw blijven bij
+    de service, zodat het violation-formaat op één plek wordt bepaald en er
+    geen brede god-objectrefactor (DEF-424) nodig is om dit contract te
+    kunnen invoeren.
+    """
+
+    def severity_for(self, rule: dict[str, Any]) -> str: ...
+
+    def severity_level_for(self, rule: dict[str, Any]) -> str: ...
+
+    def build_suggestion(
+        self,
+        code: str,
+        rule: dict[str, Any] | None,
+        text: str,
+        ctx: EvaluationContext,
+        *,
+        reason: str,
+        details: str | None = None,
+    ) -> str: ...
+
+
+@dataclass(frozen=True)
+class EvaluationDeps:
+    """Runtime-invoer die niet uit het regelrecord of de tekst komt."""
+
+    support: EvaluationSupport
+    available_inputs: frozenset[RequiredInput]
+    repository: Any | None = None
+    pattern_cache: dict[str, Any] = field(default_factory=dict)
+
+    def has(self, vereist: RequiredInput) -> bool:
+        return vereist in self.available_inputs
+
+
+class RuleEvaluator(Protocol):
+    """Iedere evaluatorstrategie implementeert precies dit contract."""
+
+    evaluator_type: EvaluatorType
+
+    def evaluate(
+        self, record: Any, ctx: EvaluationContext, deps: EvaluationDeps
+    ) -> EvaluationOutcome: ...

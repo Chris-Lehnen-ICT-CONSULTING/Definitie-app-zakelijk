@@ -35,5 +35,15 @@
       "fulltext": "Compacte en begrijpelijke zin",
       "fullurl": "https://www.astraonline.nl/index.php/Compacte_en_begrijpelijke_zin"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

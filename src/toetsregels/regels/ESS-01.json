@@ -34,5 +34,17 @@
       "fulltext": "Essentie, niet doel",
       "fullurl": "https://www.astraonline.nl/index.php/Essentie,_niet_doel"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "essentie versus doel is een inhoudelijk oordeel; het om-te-patroon herkent de gesplitste constructie in het eigen foute voorbeeld niet.",
+    "example_pair_issue": "DEF-624"
+  }
 }

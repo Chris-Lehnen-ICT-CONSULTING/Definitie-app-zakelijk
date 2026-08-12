@@ -25,5 +25,15 @@
       "fulltext": "Term in enkelvoud",
       "fullurl": "https://www.astraonline.nl/index.php/Term_in_enkelvoud"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "lemma_morphology",
+    "required_inputs": [
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

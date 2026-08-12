@@ -7,6 +7,16 @@
   "aanbeveling": "verplicht",
   "type": "samenhang",
   "thema": "circulair",
-  "circular_definition": true
+  "circular_definition": true,
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text",
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score"
+  }
 }
 

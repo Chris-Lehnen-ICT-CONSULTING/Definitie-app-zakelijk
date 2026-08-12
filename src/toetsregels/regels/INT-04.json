@@ -26,5 +26,15 @@
       "fulltext": "Lidwoord-verwijzing duidelijk",
       "fullurl": "https://www.astraonline.nl/index.php/Lidwoord-verwijzing_duidelijk"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

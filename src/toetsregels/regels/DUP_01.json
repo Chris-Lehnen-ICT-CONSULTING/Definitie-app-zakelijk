@@ -18,5 +18,19 @@
   "type": "database",
   "thema": "datakwaliteit",
   "brondocument": "Interne richtlijn",
-  "relatie": []
+  "relatie": [],
+  "runtime_contract": {
+    "evaluator": "duplicate_detection",
+    "required_inputs": [
+      "definition_text",
+      "term",
+      "definition_repository"
+    ],
+    "executability": "repository",
+    "automation_status": "not_evaluated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "requires_repository",
+    "example_pair_reason": "Het foute voorbeeld beschrijft in proza een duplicaatsituatie; duplicaatdetectie vereist de begrippenverzameling.",
+    "example_pair_issue": "DEF-624"
+  }
 }
