@@ -1,3 +1,3 @@
 path,path_b64,source_root,captured_at,content_sha256,file_type,bytes,scope_tier,status,reviewer,verified_by,owner,notes
-AGENTS.md,QUdFTlRTLm1k,/Users/chrislehnen/Projecten/Definitie-app,2026-08-07T10:09:14Z,e5490a5bffd81156f9ecc8db6dbe4f201997c7720c0c0f5544964c49a4120a1e,text/markdown,4162,E,pending,,,user-owned,content_hashed_not_stored
-AGENTS.md.backup-20260714-135130,QUdFTlRTLm1kLmJhY2t1cC0yMDI2MDcxNC0xMzUxMzA=,/Users/chrislehnen/Projecten/Definitie-app,2026-08-07T10:09:14Z,d314cebb2154b4c2f91a96ce36f4eda58aca1f848f8bb68e72d57354597e5d52,text/plain,4161,E,pending,,,user-owned,content_hashed_not_stored
+AGENTS.md,QUdFTlRTLm1k,/Users/chrislehnen/Projecten/Definitie-app,2026-08-07T10:09:14Z,e5490a5bffd81156f9ecc8db6dbe4f201997c7720c0c0f5544964c49a4120a1e,text/markdown,4162,E,verified,codex-kierkegaard,codex-hypatia,user-owned,content_hashed_not_stored
+AGENTS.md.backup-20260714-135130,QUdFTlRTLm1kLmJhY2t1cC0yMDI2MDcxNC0xMzUxMzA=,/Users/chrislehnen/Projecten/Definitie-app,2026-08-07T10:09:14Z,d314cebb2154b4c2f91a96ce36f4eda58aca1f848f8bb68e72d57354597e5d52,text/plain,4161,E,verified,codex-kierkegaard,codex-hypatia,user-owned,content_hashed_not_stored

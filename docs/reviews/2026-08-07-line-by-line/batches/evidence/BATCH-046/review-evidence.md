@@ -103,6 +103,14 @@ Alle regels en symbolen zijn rechtstreeks uit immutable Git-objecten gelezen. Ca
 
 **Aanbevolen oplossing:** Use contextlib.closing around connections with explicit transactions and run warning-as-error lifecycle tests.
 
+### B046-012 — P3 — Synonym Metrics-footer verwijst naar verwijderde /synonym_review-pagina
+
+**Bewijs:** De actieve multipage-footer bevat href=/synonym_review. De immutable src/pages bevat alleen rag_management.py, synonym_admin.py en synonym_metrics.py; synonym_admin.py:17 documenteert expliciet dat die pagina de verwijderde synonym_review.py vervangt. Er bestaat geen route/page/caller met de slug synonym_review. Browserbewijs bevestigde terugval naar home/not-found.
+
+**Reproductie:** Open Synonym Metrics en activeer Synonym Review; de doelpagina bestaat niet. Vergelijk de href met de door Streamlit geregistreerde pagina src/pages/synonym_admin.py.
+
+**Aanbevolen oplossing:** Vervang raw HTML-navigatie door st.page_link naar pages/synonym_admin.py of de correcte geregistreerde route en voeg een multipage-navigatieregressietest/linkintegriteitsgate toe.
+
 ## Niet getest
 
 - Geen echte provider/netwerkcall, malformed productie-DB-record, multi-session loadtest of browsermatige dark-theme/keyboard/screenreadertest; maintenance execute is bewust niet uitgevoerd.

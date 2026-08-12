@@ -1,14 +1,14 @@
 # BATCH-002
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `1` — Entrypoints, build, dependencies en configuratie
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `ce98934732ef4b54800f123a503dd73c276cebb3bec717af787fa4b4bbb7b73e`
+- Membership-SHA256: `3be63cd059018114777f97116e8010e07efe99b899837f489acf700e191a7f4e`
 - Bestanden: `20`
 - Fysieke regels: `1995`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-kierkegaard`
+- Onafhankelijke verifier: `codex-hypatia`
 
 ## Scope
 
@@ -37,21 +37,26 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P2/proven: `B002-001` — Branchnaam wordt als shellcode in de validatiestap geïnterpoleerd.
+- P2/proven: `B002-002` — Preflight-scans zijn afhankelijk van stdin en scannen niet deterministisch de repository.
+- P2/proven: `B002-003` — Epic- en storyworkflow valideert geen huidige documenten en heeft tegenstrijdige gates.
+- P2/proven: `B002-004` — CI voert externe acties uit via wijzigbare refs, inclusief een actie met een secret.
+- P3/proven: `B002-005` — Always-run epicrapport claimt succes na gefaalde of overgeslagen controles.
+- P3/proven: `B002-006` — Gefaalde contracttest kan een groene PR-comment plaatsen.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 20 toegewezen bereiken en 1995 fysieke regels zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.

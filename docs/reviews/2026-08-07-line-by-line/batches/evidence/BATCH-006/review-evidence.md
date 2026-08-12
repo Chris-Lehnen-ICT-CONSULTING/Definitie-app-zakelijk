@@ -87,6 +87,14 @@ bij `popleft()` berekenen en de statistiek vóór future-completion bijwerken.
 - Ongebruikte exportpad- en SecurityService-configobservaties zijn niet als
   bewezen productfinding ingediend.
 
+### B006-009 — P3 — Alle data-afhankelijke feature-status-GET-routes retourneren 500 doordat hun enige JSON-bron ontbreekt
+
+**Bewijs:** get_feature_status construeert uitsluitend docs/architectuur/feature-status.json en opent dit bestand; de immutable tree bevat het niet. Verse TestClient-repro gaf 500 voor /api/feature-status, /summary, /epic/E-1 en /by-status/complete. Met gemockte geldige JSON waren de respectieve happy paths 200, een ontbrekende epic 404 en ongeldige status 400. De updater/workflow schrijft alleen ARCHITECTURE_VISUALIZATION_DETAILED.html en genereert het JSON-bestand niet. De FastAPI-module heeft een eigen __main__-entrypoint, maar geen verdere productiecaller werd gevonden.
+
+**Reproductie:** Start de immutable FastAPI-app via TestClient met lege modulecache en GET de vier data-afhankelijke routes; observeer vier 500-responses met FileNotFoundError in de serverlog. Patch uitsluitend de file-read met een geldige epics-fixture en herhaal voor 200/404/400.
+
+**Aanbevolen oplossing:** Maak één werkelijk gegenereerde/gepackageerde canonieke statusbron en laat workflow en API hetzelfde artefactcontract gebruiken. Valideer het schema bij startup, geef 503 bij ontbrekende dependency en voeg ongepatchte packaged-artifact/TestClient-happy-pathtests toe.
+
 ## Niet getest
 
 - Echte muterende FastAPI-route, externe credentials/netwerk en productiebelasting.

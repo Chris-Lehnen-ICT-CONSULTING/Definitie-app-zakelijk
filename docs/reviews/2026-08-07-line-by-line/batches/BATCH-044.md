@@ -38,6 +38,9 @@
 - P2/proven: `B044-003` — Tabbed UI exposes raw exception details.
 - P2/proven: `B044-004` — Cache metrics eagerly require an AI credential.
 
+- P3/proven: `B044-005` — Drie actieve light-theme tekstcombinaties missen WCAG AA-contrast.
+- P3/proven: `B044-006` — Negen actieve Streamlit-calls gebruiken de verwijderingsgevoelige use_container_width-API.
+
 ## Resultaat
 
 Geverifieerd door twee verschillende reviewers. Alle 3 bestanden, 1175 fysieke regels en 56 symbolen zijn line-by-line beoordeeld; gerichte tests, veilige reproducties en beperkingen staan in het bewijsdossier.

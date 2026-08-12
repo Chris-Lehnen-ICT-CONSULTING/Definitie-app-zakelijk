@@ -1,14 +1,14 @@
 # BATCH-004
 
-- Status: `pending`
+- Status: `verified`
 - Reviewgroep: `1` — Entrypoints, build, dependencies en configuratie
 - Review-base: `b958ddb139b4754d1644ca4b4f22b1683d8ad108`
-- Membership-SHA256: `560f8f15884aa886a5a697b6f35bb941db33d80f768afa205eb9ac93cdebeb38`
+- Membership-SHA256: `74c7ae56681975291196233481c501a6e6d2eb4a1fa27a07fd2e40c3c6712257`
 - Bestanden: `26`
 - Fysieke regels: `5226`
 - Python-symbolen: `0`
-- Reviewer: ``
-- Onafhankelijke verifier: ``
+- Reviewer: `codex-galileo`
+- Onafhankelijke verifier: `codex-kierkegaard`
 
 ## Scope
 
@@ -43,21 +43,27 @@
 
 ## Verplichte reviewchecklist
 
-- [ ] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
-- [ ] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
-- [ ] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
-- [ ] Codekwaliteit en architectuur beoordeeld.
-- [ ] Bugs, security en foutafhandeling beoordeeld.
-- [ ] Functionaliteit en relevante tests beoordeeld.
-- [ ] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
-- [ ] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
-- [ ] Bewezen, vermoed en niet-getest expliciet onderscheiden.
-- [ ] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
+- [x] Iedere toegewezen regel rechtstreeks uit het immutable object-ID gelezen.
+- [x] Ieder toegewezen symbool en iedere functie line-by-line beoordeeld.
+- [x] Callers, afhankelijkheden, tests en foutpaden gecontroleerd.
+- [x] Codekwaliteit en architectuur beoordeeld.
+- [x] Bugs, security en foutafhandeling beoordeeld.
+- [x] Functionaliteit en relevante tests beoordeeld.
+- [x] UI/UX, toegankelijkheid en responsive gedrag beoordeeld indien van toepassing.
+- [x] Findings bevatten prioriteit, bewijs, reproductie en oplossing.
+- [x] Bewezen, vermoed en niet-getest expliciet onderscheiden.
+- [x] Onafhankelijke tweede reviewer heeft scope en findings geverifieerd.
 
 ## Bevindingen
 
-Nog niet geregistreerd.
+- P1/proven: `B004-001` — Globale Gitleaks-allowlists schakelen secret-detectie uit voor alle tests en documentatie.
+- P2/proven: `B004-002` — Pre-commit smokehook maskeert iedere test- en runnerfout als succes.
+- P2/proven: `B004-003` — AI-service leest rate-limitwaarden uit de verkeerde configuratiesectie.
+- P2/proven: `B004-004` — Weblookup-hoofdschakelaar en drie ingeschakelde providers hebben geen runtime-effect.
+- P2/proven: `B004-005` — De vermeende toetsregels-single-source-of-truth voert vrijwel geen beleidssecties uit.
+- P3/proven: `B004-006` — Trunk declareert een afwijkende Python- en linttoolchain buiten de pin-consistentiecheck.
+- P3/proven: `B004-007` — Meerdere omvangrijke production-gelabelde ontologieconfiguraties hebben geen runtimeconsumer.
 
 ## Resultaat
 
-Nog niet uitgevoerd.
+Geverifieerd door twee verschillende reviewers. Alle 26 toegewezen bereiken en 5226 fysieke regels zijn line-by-line beoordeeld; reproducties en beperkingen staan in het bewijsdossier.
