@@ -41,9 +41,12 @@ async def test_ess04_testable_element_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
+    # ESS-04 is sinds DEF-624 een oordeelregel: ook een goede tekst levert
+    # geen pass maar een reviewpunt. De afwezigheid van een violation blijft.
     assert not any(
         v.get("code") == "ESS-04" for v in res_ok.get("violations", [])
     ), res_ok
+    assert "ESS-04" not in res_ok.get("passed_rules", []), res_ok
 
     res_bad = await svc.validate_definition(
         begrip="termijn",
@@ -51,7 +54,10 @@ async def test_ess04_testable_element_pass_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(
+    review = {r["rule_id"]: r for r in res_bad.get("review_required", [])}
+    assert "ESS-04" in review, res_bad
+    assert "ESS-04" not in res_bad.get("passed_rules", []), res_bad
+    assert not any(
         v.get("code") == "ESS-04" for v in res_bad.get("violations", [])
     ), res_bad
 

@@ -15,7 +15,13 @@ async def test_int02_no_decision_rules_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "INT-02" for v in res.get("violations", [])), res
+    # INT-02 is sinds DEF-624 een oordeelregel; het voorwaardelijke patroon
+    # is een reviewersignaal, geen bewijs van een beslisregel.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "INT-02" in review, res
+    assert review["INT-02"]["signals"], review
+    assert "INT-02" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "INT-02" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio

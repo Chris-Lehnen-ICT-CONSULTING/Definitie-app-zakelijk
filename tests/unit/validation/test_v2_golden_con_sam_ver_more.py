@@ -29,7 +29,12 @@ async def test_sam01_qualification_word_detected():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "SAM-01" for v in res.get("violations", [])), res
+    # SAM-01 vergt de begrippenverzameling: zonder repository valt er niets
+    # te beoordelen, dus not_evaluated in plaats van een stille pass. Het
+    # reviewgedrag mét repository staat in
+    # test_rule_contract.py::TestOordeelregels.
+    assert res.get("rule_statuses", {}).get("SAM-01") == "not_evaluated", res
+    assert "SAM-01" not in res.get("passed_rules", []), res
 
 
 @pytest.mark.asyncio
@@ -42,7 +47,9 @@ async def test_sam03_nested_definition_phrases():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "SAM-03" for v in res.get("violations", [])), res
+    statuses = res.get("rule_statuses", {})
+    assert statuses.get("SAM-03") == "not_evaluated", res
+    assert "SAM-03" not in res.get("passed_rules", []), res
 
 
 @pytest.mark.asyncio
