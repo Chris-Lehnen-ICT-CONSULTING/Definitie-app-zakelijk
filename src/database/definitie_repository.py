@@ -172,6 +172,10 @@ class DefinitieRepository:
             wettelijke_basis,
         )
 
+    def find_active_by_begrip(self, begrip: str) -> list[DefinitieRecord]:
+        """Actieve records met dit begrip, begrensd (DEF-672)."""
+        return self._duplicates.find_active_by_begrip(begrip)
+
     def count_exact_by_context(
         self,
         *,

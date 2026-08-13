@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from domain.context.normalisatie import contextsleutel
 from services.validation.evaluators.base import (
     EvaluationDeps,
     EvaluationOutcome,
@@ -36,9 +37,11 @@ __all__ = [
     "normaliseer_contextlijst",
 ]
 
-# De repository-capability die de duplicaatcontrole nodig heeft. Eén constante,
-# zodat de guard en de test niet elk hun eigen naam dragen (DEF-672).
-DUPLICATE_LOOKUP_METHODE = "_get_all_definitions"
+# De publieke repository-capability die de duplicaatcontrole nodig heeft. Eén
+# constante, zodat de guard en de test niet elk hun eigen naam dragen. Was een
+# privémethode die in DEF-176 als dode code is verwijderd, waardoor de controle
+# in productie nooit liep (DEF-672).
+DUPLICATE_LOOKUP_METHODE = "find_duplicate_candidates"
 
 CONTEXT_VELDEN: tuple[str, str, str] = (
     "organisatorische_context",
@@ -49,18 +52,18 @@ DUPLICATE_STASH_KEY = "__con01_dup_warnings__"
 
 
 def normaliseer_contextlijst(waarden: Any) -> list[str]:
-    """Trim, casefold, dedupliceer en sorteer een contextlijst.
+    """Vergelijkingssleutel van één contextlijst, als lijst.
 
-    Volgorde-onafhankelijk en Unicode-correct; dit is de enige
-    normalisatiefunctie die de contextinvariant, CON-01 en de
-    duplicaatcontrole delen (besluit DEF-622).
+    Dunne laag over `domain.context.normalisatie.contextsleutel` — dé gedeelde
+    normalisatie die de opslag, de contextinvariant en de duplicaatcontrole
+    delen (DEF-672, vervroegd uit DEF-622). Blijft bestaan omdat bestaande
+    aanroepers een `list` verwachten.
 
     Geen foutafhandeling (DEF-667): een niet-itereerbare contextwaarde leverde
     eerder een lege lijst op, en dan vergelijkt een kandidaat met échte
-    context ongelijk — het duplicaat verdwijnt en de regel slaagt. De
-    `TypeError` loopt nu door naar de ERROR-grens.
+    context ongelijk — het duplicaat verdwijnt en de regel slaagt.
     """
-    return sorted({str(item or "").strip().casefold() for item in list(waarden or [])})
+    return list(contextsleutel(waarden))
 
 
 class ContextMetadataEvaluator:
@@ -99,19 +102,12 @@ class ContextMetadataEvaluator:
         if not any(contexten):
             return
         if not hasattr(deps.repository, DUPLICATE_LOOKUP_METHODE):
-            # DEF-672: dit is géén niet-van-toepassing-geval maar een
-            # bedradingsdefect. De caller heeft om een duplicaat-bewuste
-            # validatie gevraagd en krijgt die niet, terwijl CON-01 daarna een
-            # gemeten `pass` meldt. Gemeten op de productieketen: de
-            # geïnjecteerde `DefinitionRepository` heeft deze methode niet
-            # (verwijderd in DEF-176), dus deze tak wordt élke aanroep genomen.
-            #
-            # Nog niet fail-closed op status: `error` zou met de errorblokkade
-            # elke productievalidatie afkeuren, en `not_evaluated` zou CON-01
-            # uit de automatische set halen. De echte bedrading vraagt een
-            # genormaliseerde duplicaatquery over de persistentiegrens
-            # (specificatiebesluit 2) en is belegd bij DEF-672/DEF-622. Tot dan
-            # is de fout minstens niet meer stil.
+            # Een repository zonder de publieke capability is een
+            # bedradingsdefect, geen niet-van-toepassing-geval: de caller vroeg
+            # om een duplicaat-bewuste validatie en krijgt die niet, terwijl
+            # CON-01 daarna een gemeten `pass` meldt. Zichtbaar loggen, maar
+            # niet op `error` zetten — dat zou met de errorblokkade een
+            # verkeerd gebbedradeerde omgeving volledig lamleggen.
             logger.error(
                 "Duplicaatcontrole overgeslagen: repository %s biedt geen "
                 "%s(); CON-01 rapporteert daardoor een patroontoets zonder "
@@ -140,21 +136,24 @@ class ContextMetadataEvaluator:
         contexten: list[Any],
         metadata: dict[str, Any],
     ) -> dict[str, Any] | None:
-        """Exacte match op begrip plus de drie genormaliseerde contextlijsten."""
-        genormaliseerd = [normaliseer_contextlijst(lijst) for lijst in contexten]
-        categorie = metadata.get("categorie") or metadata.get("ontologische_categorie")
-        begrip_norm = str(begrip).strip().casefold()
+        """Match op begrip plus de drie genormaliseerde contextlijsten (DEF-672).
 
-        for kandidaat in repository._get_all_definitions():
-            if (
-                getattr(kandidaat, "begrip", "") or ""
-            ).strip().casefold() != begrip_norm:
-                continue
-            if any(
-                normaliseer_contextlijst(getattr(kandidaat, veld, []))
-                != genormaliseerd[index]
-                for index, veld in enumerate(CONTEXT_VELDEN)
-            ):
+        De repository begrenst de kandidaten op begrip en status; hier beslist
+        de genormaliseerde gestructureerde context. Beide zijden gaan door
+        dezelfde `contextsleutel`, dus volgorde, hoofdletters, whitespace en
+        duplicaten maken geen verschil — en een bestaand record met een
+        niet-canonieke schrijfwijze wordt gewoon herkend.
+        """
+        gezocht = tuple(contextsleutel(lijst) for lijst in contexten)
+        categorie = metadata.get("categorie") or metadata.get("ontologische_categorie")
+
+        for kandidaat in repository.find_duplicate_candidates(begrip):
+            kandidaat_context = (
+                kandidaat.organisatorische_context,
+                kandidaat.juridische_context,
+                kandidaat.wettelijke_basis,
+            )
+            if kandidaat_context != gezocht:
                 continue
             kandidaat_categorie = getattr(kandidaat, "categorie", None)
             if categorie and kandidaat_categorie:

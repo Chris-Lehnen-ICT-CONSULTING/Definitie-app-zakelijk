@@ -56,7 +56,9 @@ HARDE_DREMPEL = 0.75
 
 
 class _KapotteRepository:
-    def _get_all_definitions(self) -> list[Any]:
+    """Een aanwezige repository die op de publieke capability stukloopt."""
+
+    def find_duplicate_candidates(self, begrip: str) -> list[Any]:
         raise RuntimeError("SQLite: database is locked")
 
 
