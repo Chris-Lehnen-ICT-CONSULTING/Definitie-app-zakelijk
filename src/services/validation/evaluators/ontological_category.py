@@ -112,15 +112,16 @@ class OntologicalCategoryEvaluator:
         sleutel = f"__ess02__{record.rule_id}"
         gecompileerd = deps.pattern_cache.get(sleutel)
         if gecompileerd is None:
-            gecompileerd = {}
-            for categorie, veld in _CATEGORIEVELDEN:
-                patronen = record.get(veld, []) or []
-                try:
-                    gecompileerd[categorie] = [
-                        re.compile(p, re.IGNORECASE) for p in patronen
-                    ]
-                except re.error:
-                    gecompileerd[categorie] = []
+            # Zie generic.py: geen `except re.error` die de categorie stil op
+            # een lege patroonlijst zet. Een categorie zonder patronen kan dan
+            # nooit meer treffen, waardoor de regel van "ambigu" naar
+            # "eenduidig" verschuift zonder dat er iets is gemeten (DEF-667).
+            gecompileerd = {
+                categorie: [
+                    re.compile(p, re.IGNORECASE) for p in (record.get(veld, []) or [])
+                ]
+                for categorie, veld in _CATEGORIEVELDEN
+            }
             deps.pattern_cache[sleutel] = gecompileerd
 
         return {

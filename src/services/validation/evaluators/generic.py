@@ -62,10 +62,13 @@ def _gecompileerde_patronen(
     extra = get_additional_patterns(code)
     if extra:
         patronen = list(dict.fromkeys([*patronen, *extra]))
-    try:
-        gecompileerd = [re.compile(pat, re.IGNORECASE) for pat in patronen]
-    except re.error:
-        gecompileerd = []
+    # Geen foutafhandeling: `build_rule_record` heeft de compileerbaarheid al
+    # afgedwongen, en de hardgecodeerde `additional_patterns` hebben hun eigen
+    # guard. Blijkt een patroon hier tóch onbruikbaar, dan is dat een
+    # contractbreuk die naar de ERROR-grens in de service moet doorlopen. De
+    # oude `except re.error: gecompileerd = []` zette álle patronen van de
+    # regel uit én cachete die leegte procesbreed (DEF-667).
+    gecompileerd = [re.compile(pat, re.IGNORECASE) for pat in patronen]
     deps.pattern_cache[code] = gecompileerd
     return list(gecompileerd)
 
@@ -115,12 +118,7 @@ def verzamel_generieke_bevindingen(
     # 2) Vereiste patronen
     vereiste_patronen = list(record.get("required_patterns", []) or [])
     if vereiste_patronen:
-        try:
-            vereist_gecompileerd = [
-                re.compile(p, re.IGNORECASE) for p in vereiste_patronen
-            ]
-        except re.error:
-            vereist_gecompileerd = []
+        vereist_gecompileerd = [re.compile(p, re.IGNORECASE) for p in vereiste_patronen]
         if not any(p.search(text) for p in vereist_gecompileerd):
             findings.append(
                 Finding(
@@ -176,10 +174,7 @@ def verzamel_generieke_bevindingen(
 
     # 7) Redundantie/tegenstrijdigheid
     for patroon_tekst in record.get("redundancy_patterns", []) or []:
-        try:
-            samengesteld = re.compile(patroon_tekst, re.IGNORECASE)
-        except re.error:
-            continue
+        samengesteld = re.compile(patroon_tekst, re.IGNORECASE)
         if samengesteld.search(text_norm):
             findings.append(
                 Finding(

@@ -26,7 +26,9 @@ from toetsregels.cached_manager import CachedToetsregelManager
 from toetsregels.manager import ToetsregelManager
 from toetsregels.rule_cache import _load_single_rule_cached, get_rule_cache
 from toetsregels.runtime_contract import (
+    REGEX_PATROONVELDEN,
     RuleContractError,
+    build_rule_records,
     root_contract_policy,
 )
 
@@ -220,6 +222,100 @@ class TestKapotteRegelsetFaaltZichtbaar:
         _schrijf(regelmap, PROEFREGEL, data)
         with pytest.raises(RuleContractError, match=PROEFREGEL):
             laad(regelmap)
+
+
+class TestPatrooncontract:
+    """Een ongeldig regexpatroon is een contractfout, geen runtime-detail.
+
+    De evaluators compileerden hun patronen pas tijdens de evaluatie en
+    vingen `re.error` daar af met een lege lijst. Eén onbruikbaar patroon
+    zette daarmee álle patronen van de regel uit — en omdat die lege lijst
+    de patrooncache in ging, gold de bypass de hele procesduur. Gemeten op
+    de oude HEAD ging een regel daardoor van `fail` (0,52) naar `pass`
+    (0,75): precies de stille validatie-bypass die DEF-606 elders sluit.
+
+    De patronen horen daarom bij het laden gecontroleerd te worden, op alle
+    vier de laadpaden, en op elk veld dat een evaluator als regex leest.
+    """
+
+    # Onafhankelijk opgeschreven: leende deze verwachting haar velden uit de
+    # runtime, dan zou een veld dat de runtime vergeet te valideren ook uit
+    # de verwachting verdwijnen en bleef de test groen.
+    VERWACHTE_REGEXVELDEN = (
+        "herkenbaar_patronen",
+        "herkenbaar_patronen_particulier",
+        "herkenbaar_patronen_proces",
+        "herkenbaar_patronen_resultaat",
+        "herkenbaar_patronen_type",
+        "redundancy_patterns",
+        "required_patterns",
+    )
+
+    def test_runtime_valideert_exact_deze_velden(self):
+        assert set(REGEX_PATROONVELDEN) == set(self.VERWACHTE_REGEXVELDEN), (
+            f"alleen in runtime: "
+            f"{sorted(set(REGEX_PATROONVELDEN) - set(self.VERWACHTE_REGEXVELDEN))} · "
+            f"alleen verwacht: "
+            f"{sorted(set(self.VERWACHTE_REGEXVELDEN) - set(REGEX_PATROONVELDEN))}"
+        )
+
+    @pytest.mark.parametrize("veld", VERWACHTE_REGEXVELDEN)
+    @pytest.mark.parametrize("laad", BULKPADEN)
+    def test_ongeldig_patroon_faalt_bij_laden(self, regelmap, laad, veld):
+        data = _lees(regelmap, PROEFREGEL)
+        data[veld] = [r"\bgeldig\b", r"([onafgesloten"]
+        _schrijf(regelmap, PROEFREGEL, data)
+        with pytest.raises(RuleContractError) as exc:
+            laad(regelmap)
+        melding = str(exc.value)
+        assert PROEFREGEL in melding, melding
+        assert veld in melding, melding
+        assert "[1]" in melding, f"index van het kapotte patroon ontbreekt: {melding}"
+
+    @pytest.mark.parametrize("veld", VERWACHTE_REGEXVELDEN)
+    @pytest.mark.parametrize("los", LOSSE_PADEN)
+    def test_ongeldig_patroon_faalt_bij_losse_load(self, regelmap, los, veld):
+        data = _lees(regelmap, PROEFREGEL)
+        data[veld] = [r"(?P<naamloos"]
+        _schrijf(regelmap, PROEFREGEL, data)
+        with pytest.raises(RuleContractError, match=veld):
+            los(regelmap, PROEFREGEL)
+
+    @pytest.mark.parametrize("laad", BULKPADEN)
+    def test_niet_tekstueel_patroon_faalt(self, regelmap, laad):
+        # `re.compile(3)` geeft geen re.error maar een TypeError; ook die mag
+        # niet als "regel zonder patronen" eindigen.
+        data = _lees(regelmap, PROEFREGEL)
+        data["herkenbaar_patronen"] = [r"\bgeldig\b", 3]
+        _schrijf(regelmap, PROEFREGEL, data)
+        with pytest.raises(RuleContractError, match="herkenbaar_patronen"):
+            laad(regelmap)
+
+    @pytest.mark.parametrize("laad", BULKPADEN)
+    def test_patroonveld_dat_geen_lijst_is_faalt(self, regelmap, laad):
+        data = _lees(regelmap, PROEFREGEL)
+        data["required_patterns"] = r"\bgeen lijst\b"
+        _schrijf(regelmap, PROEFREGEL, data)
+        with pytest.raises(RuleContractError, match="required_patterns"):
+            laad(regelmap)
+
+    @pytest.mark.parametrize("laad", BULKPADEN)
+    def test_geldige_patronen_blijven_doorkomen(self, regelmap, laad):
+        data = _lees(regelmap, PROEFREGEL)
+        data["herkenbaar_patronen"] = [r"\bwel geldig\b", r"^(a|b)+$"]
+        _schrijf(regelmap, PROEFREGEL, data)
+        assert set(laad(regelmap)) == set(root_contract_policy().rule_ids)
+
+    def test_echte_regelset_heeft_uitsluitend_geldige_patronen(self):
+        # Geen mutatie: bewijst dat de 53 productierecords zelf door de
+        # nieuwe controle komen. Zou één van hen een kapot patroon dragen,
+        # dan zou de hele applicatie niet meer starten — dat moet hier
+        # zichtbaar worden en niet pas in productie.
+        regels = {
+            pad.stem: json.loads(pad.read_text(encoding="utf-8"))
+            for pad in ECHTE_REGELS_DIR.glob("*.json")
+        }
+        build_rule_records(regels)
 
 
 class TestManifestVolledigheid:

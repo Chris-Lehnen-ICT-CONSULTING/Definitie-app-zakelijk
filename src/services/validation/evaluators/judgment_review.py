@@ -64,10 +64,10 @@ class JudgmentReviewEvaluator:
             extra = get_additional_patterns(code)
             if extra:
                 patronen = list(dict.fromkeys([*patronen, *extra]))
-            try:
-                gecompileerd = [re.compile(p, re.IGNORECASE) for p in patronen]
-            except re.error:
-                gecompileerd = []
+            # Zie generic.py: compileerbaarheid is bij het laden afgedwongen;
+            # een fout hier is een contractbreuk die naar de ERROR-grens moet
+            # doorlopen in plaats van de signalen stil weg te laten (DEF-667).
+            gecompileerd = [re.compile(p, re.IGNORECASE) for p in patronen]
             deps.pattern_cache[sleutel] = gecompileerd
 
         tekst = ctx.cleaned_text or ""
