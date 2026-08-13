@@ -1,5 +1,7 @@
 import pytest
 
+from domain.context.normalisatie import contextsleutel
+from services.interfaces import DuplicateCandidate
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 
@@ -17,11 +19,32 @@ class _FakeDef:
 
 
 class _FakeRepo:
+    """Bootst de publieke duplicaat-capability na (DEF-672).
+
+    Was gebouwd op `_get_all_definitions`, een privémethode die in DEF-176 is
+    verwijderd en die de productie-repository dus niet had — waardoor deze test
+    een pad toetste dat in werkelijkheid nooit liep. Filtert nu net als de echte
+    repository op begrip en status, en levert genormaliseerde sleutels.
+    """
+
     def __init__(self, defs):
         self._defs = defs
 
-    def _get_all_definitions(self):
-        return list(self._defs)
+    def find_duplicate_candidates(self, begrip):
+        gezocht = str(begrip or "").strip().casefold()
+        return [
+            DuplicateCandidate(
+                id=d.id,
+                status=d.status,
+                categorie=d.categorie,
+                organisatorische_context=contextsleutel(d.organisatorische_context),
+                juridische_context=contextsleutel(d.juridische_context),
+                wettelijke_basis=contextsleutel(getattr(d, "wettelijke_basis", [])),
+            )
+            for d in self._defs
+            if str(d.begrip or "").strip().casefold() == gezocht
+            and str(d.status or "") != "archived"
+        ]
 
 
 @pytest.mark.asyncio

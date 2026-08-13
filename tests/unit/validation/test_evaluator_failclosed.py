@@ -220,7 +220,7 @@ class TestHardgecodeerdePatronen:
 class _KapotteRepository:
     """Een aanwezige repository die tijdens de duplicaatcontrole faalt."""
 
-    def _get_all_definitions(self) -> list[Any]:
+    def find_duplicate_candidates(self, begrip: str) -> list[Any]:
         raise RuntimeError("database niet bereikbaar")
 
 
@@ -328,16 +328,17 @@ class TestOnbereikbareDuplicaatcontroleIsNietStil:
             ResultStatus.FAIL.value,
         ), res["rule_statuses"]
 
-    def test_de_echte_repository_mist_de_capability_nog(self):
-        """Pin de aanleiding vast, zodat de fix van DEF-672 hier opvalt.
+    def test_de_echte_repository_biedt_de_capability(self):
+        """De aanleiding van DEF-672 is weg: de bedrading klopt nu.
 
-        Zodra `DefinitionRepository` de capability wél biedt, faalt deze test
-        en is dat het signaal om de guard en deze suite bij te werken — in
-        plaats van dat de melding hierboven jaren blijft vuren.
+        De guard hierboven blijft staan voor repositories die de capability
+        niet bieden — een test- of integratie-implementatie die achterloopt
+        mag niet stilzwijgend een gemeten `pass` opleveren. Maar de
+        productieketen mag hem nooit meer raken.
         """
         from services.definition_repository import DefinitionRepository
 
-        assert not hasattr(DefinitionRepository, DUPLICATE_LOOKUP_METHODE), (
-            f"DefinitionRepository biedt nu {DUPLICATE_LOOKUP_METHODE!r} — werk "
-            f"DEF-672 af en verwijder de bedradingsmelding"
+        assert hasattr(DefinitionRepository, DUPLICATE_LOOKUP_METHODE), (
+            f"DefinitionRepository biedt {DUPLICATE_LOOKUP_METHODE!r} niet meer — "
+            f"de duplicaatcontrole is opnieuw onbereikbaar (DEF-672)"
         )

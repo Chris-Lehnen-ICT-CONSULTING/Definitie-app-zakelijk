@@ -401,12 +401,54 @@ class DefinitionValidatorInterface(ABC):
         """
 
 
+@dataclass(frozen=True)
+class DuplicateCandidate:
+    """Eén actieve definitie die met dit begrip kan botsen (DEF-672).
+
+    De contextvelden dragen de **genormaliseerde vergelijkingssleutel**, niet de
+    ruwe opgeslagen waarde: de repository normaliseert bij het lezen, zodat
+    bestaande, niet-canoniek opgeslagen records worden herkend zonder
+    datamigratie. Zie `domain.context.normalisatie`.
+
+    Bewust een eigen, smal type en geen `Definition`: de duplicaatcontrole heeft
+    alleen identiteit en context nodig, geen definitietekst. Zo kan zij ook niet
+    per ongeluk tekst en context door elkaar halen.
+    """
+
+    id: int | None
+    status: str | None
+    categorie: str | None
+    organisatorische_context: tuple[str, ...]
+    juridische_context: tuple[str, ...]
+    wettelijke_basis: tuple[str, ...]
+
+
 class DefinitionRepositoryInterface(ABC):
     """Interface voor definitie opslag services met database operaties."""
 
     def get_stats(self) -> dict[str, Any]:
         """Statistieken van deze repository (DEF-439: default leeg; impls overriden)."""
         return {}
+
+    @abstractmethod
+    def find_duplicate_candidates(self, begrip: str) -> list[DuplicateCandidate]:
+        """Actieve definities die met dit begrip een duplicaat kunnen vormen.
+
+        Expliciete, publieke capability voor de CON-01-duplicaatcontrole
+        (DEF-672). Die controle duckte eerder op `_get_all_definitions`, een
+        privémethode die in DEF-176 als dode code is verwijderd — waardoor zij
+        in productie nooit liep en CON-01 een gemeten `pass` meldde.
+
+        Implementaties begrenzen de query op het begrip en op niet-gearchiveerde
+        records; een volledige tabelscan is niet toegestaan. De contextvergelijking
+        gebeurt daarná, op de genormaliseerde sleutels in `DuplicateCandidate`.
+
+        Args:
+            begrip: Het begrip waarvoor kandidaten worden gezocht
+
+        Returns:
+            Lijst van kandidaten; leeg wanneer er geen actieve match is
+        """
 
     @abstractmethod
     def save(self, definition: Definition) -> int:
