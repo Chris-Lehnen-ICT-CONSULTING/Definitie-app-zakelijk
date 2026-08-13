@@ -80,6 +80,11 @@ async def test_str03_not_just_synonym():
     assert "STR-03" in review, res
     assert "STR-03" not in res.get("passed_rules", []), res
     assert not any(v.get("code") == "STR-03" for v in res.get("violations", [])), res
+    # DEF-670 (bevinding 7): deze test miste als enige van zijn zusters de
+    # signals-assertie. Zonder haar toetst hij alleen dat STR-03 op review
+    # staat, niet dat de reviewer een aanwijzing krijgt — hier: dat de
+    # definitie uit één enkel woord bestaat.
+    assert review["STR-03"]["signals"], review
 
 
 @pytest.mark.asyncio

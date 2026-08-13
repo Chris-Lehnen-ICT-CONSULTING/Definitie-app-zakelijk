@@ -226,6 +226,39 @@ def test_incompleet_dekkingsblok_wordt_geweigerd():
 
 
 @pytest.mark.contract
+def test_statusset_heeft_geen_tweede_waarheid():
+    """De vijf resultaatstatussen staan op vier plekken; hier sluiten ze.
+
+    `ResultStatus` (runtime), `runtime_contract.result_status` (root-SSOT),
+    de enum in dit JSON-schema en `RuleResultStatus` (TypedDict-binding).
+    De eerste twee worden al door test_root_ssot_contract.py aan elkaar
+    gebonden; zonder deze test konden schema en Literal stil uit elkaar
+    lopen — precies de tweede waarheid die DEF-606 wil uitbannen.
+    """
+    from typing import get_args
+
+    from services.validation.interfaces import RuleResultStatus
+    from toetsregels.runtime_contract import ResultStatus
+
+    runtime = {status.value for status in ResultStatus}
+    schema_enum = set(
+        _schema()["properties"]["rule_statuses"]["additionalProperties"]["enum"]
+    )
+    binding = set(get_args(RuleResultStatus))
+
+    assert schema_enum == runtime, (
+        f"JSON-schema en ResultStatus lopen uiteen: "
+        f"alleen in schema {sorted(schema_enum - runtime)}, "
+        f"alleen in runtime {sorted(runtime - schema_enum)}"
+    )
+    assert binding == runtime, (
+        f"RuleResultStatus en ResultStatus lopen uiteen: "
+        f"alleen in binding {sorted(binding - runtime)}, "
+        f"alleen in runtime {sorted(runtime - binding)}"
+    )
+
+
+@pytest.mark.contract
 def test_typeddict_dekt_de_schemavelden():
     """TypedDict en JSON-schema mogen niet uit elkaar lopen."""
     from services.validation.interfaces import (

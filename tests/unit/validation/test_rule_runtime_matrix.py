@@ -120,18 +120,56 @@ def svc(request) -> ModularValidationService:
     return ModularValidationService(manager, None, None)
 
 
-async def _violations_voor(svc, rule_id: str, case: dict) -> list[dict]:
-    res = await svc.validate_definition(
+async def _resultaat_voor(svc, case: dict) -> dict:
+    return await svc.validate_definition(
         begrip=case.get("begrip", "begrip"),
         text=_tekst_van(case),
         ontologische_categorie=case.get("categorie"),
         context={},
     )
+
+
+def _violations_uit(res: dict, rule_id: str) -> list[dict]:
     return [
         v
         for v in res.get("violations", [])
         if str(v.get("code", "")).upper() == rule_id.upper()
     ]
+
+
+async def _violations_voor(svc, rule_id: str, case: dict) -> list[dict]:
+    return _violations_uit(await _resultaat_voor(svc, case), rule_id)
+
+
+def _beschikbare_invoer(case: dict) -> set[str]:
+    """Welke gedeclareerde invoer heeft de probe daadwerkelijk?
+
+    Spiegelt `ModularValidationService._available_inputs` voor de argumenten
+    die deze runner meegeeft: tekst en begrip altijd, categorie alleen als de
+    case er een noemt, en géén repository of contextlijsten. Bewust hier
+    uitgeschreven en niet uit de service geleend — dat laatste zou de
+    verwachting met de implementatie mee laten bewegen.
+    """
+    beschikbaar = {"definition_text"}
+    if str(case.get("begrip", "begrip")).strip():
+        beschikbaar.add("term")
+    if case.get("categorie"):
+        beschikbaar.add("ontological_category")
+    return beschikbaar
+
+
+def _verwachte_runtimestatus(rule_id: str, case: dict) -> str:
+    """De status die het contract voor deze probe voorschrijft.
+
+    Ontbreekt vereiste invoer, dan is `not_evaluated` het contractuele
+    antwoord; anders moet de runtime exact de gedeclareerde
+    automatiseringsstatus opleveren.
+    """
+    record = RECORDS[rule_id]
+    beschikbaar = _beschikbare_invoer(case)
+    if any(vereist.value not in beschikbaar for vereist in record.required_inputs):
+        return "not_evaluated"
+    return record.automation_status.value
 
 
 class TestMatrixVolledigheid:
@@ -272,13 +310,58 @@ class TestReachability:
         ids=str,
     )
     async def test_niet_scorende_regel_is_echt_onbereikbaar(self, svc, rule_id):
+        """De probe moet de werkelijke status raken, niet alleen violations.
+
+        DEF-670 (review PR #397, bevinding 8): deze test asserteerde alleen
+        `not vios`. Voor de niet-automatische regels kan die assertie
+        structureel niet falen — `judgment_review` en de uitgestelde
+        strategieën leveren nooit een violation, wat de invoer ook is. De test
+        bevestigde dus de classificatie in plaats van haar te toetsen.
+
+        Daarom kijkt hij nu naar `rule_statuses`: staat een als
+        `review_required` geclassificeerde regel opeens op `pass` of `fail`,
+        dan draait er wél een automatische beoordeling en is de classificatie
+        verouderd. De verwachting komt uit het regelrecord (root-SSOT), niet
+        uit een tweede tabel in de fixture.
+        """
         entry = MATRIX[rule_id]
-        vios = await _violations_voor(svc, rule_id, entry["probe"])
+        res = await _resultaat_voor(svc, entry["probe"])
+        vios = _violations_uit(res, rule_id)
         assert not vios, (
             f"{rule_id}: contract zegt "
             f"{RECORDS[rule_id].automation_status.value!r} maar "
             f"de probe triggert wél een violation — herclassificeer naar "
             f"automatisch: {[v.get('message') for v in vios]}"
+        )
+
+        status = res["rule_statuses"].get(rule_id)
+        assert status is not None, f"{rule_id}: geen rule_status in het resultaat"
+        assert status not in ("pass", "fail"), (
+            f"{rule_id}: contract zegt "
+            f"{RECORDS[rule_id].automation_status.value!r} maar de runtime "
+            f"levert {status!r} — er draait dus tóch een automatische "
+            f"beoordeling; herclassificeer het record"
+        )
+        assert status == _verwachte_runtimestatus(rule_id, entry["probe"]), (
+            f"{rule_id}: runtime levert {status!r}, contract schrijft "
+            f"{_verwachte_runtimestatus(rule_id, entry['probe'])!r} voor"
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("rule_id", AUTOMATISCHE_IDS, ids=str)
+    async def test_automatische_regel_levert_een_gemeten_status(self, svc, rule_id):
+        """De keerzijde: een automatische regel moet écht meten.
+
+        Zonder deze test kon een als `automated` geclassificeerde regel
+        stilzwijgend `not_evaluated` of `error` opleveren en toch groen
+        blijven, zolang de negatieve case ergens een violation opleverde.
+        """
+        entry = MATRIX[rule_id]
+        res = await _resultaat_voor(svc, entry["positief"])
+        status = res["rule_statuses"].get(rule_id)
+        assert status in ("pass", "fail"), (
+            f"{rule_id}: heet automatisch maar levert {status!r} op de "
+            f"positieve case — die regel wordt niet werkelijk beoordeeld"
         )
 
 
