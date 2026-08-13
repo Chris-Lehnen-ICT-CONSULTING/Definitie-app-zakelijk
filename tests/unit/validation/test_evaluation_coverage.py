@@ -136,6 +136,48 @@ class TestVolledigeSetDektDeNoemer:
         assert dekking["review_required"] + dekking["not_evaluated"] > 0, dekking
 
 
+class TestNoemerEnManifestVallenSamenInProductie:
+    """DEF-673: `total` is de unie, dus die moet in productie het manifest zijn.
+
+    `_vul_niet_uitgevoerde_regels` vult alleen contract-ID_s aan, dus
+    `rule_statuses` is de unie van het manifest en de codes die werkelijk
+    hebben gedraaid. Zolang die twee samenvallen is `coverage_ratio` een
+    percentage van het contract. Vallen ze uiteen, dan verschuift de betekenis
+    van dat getal — en dat mag niet stil gebeuren.
+    """
+
+    @pytest.mark.asyncio
+    async def test_geladen_set_is_exact_het_manifest(self):
+        res = await _resultaat(
+            ModularValidationService(get_toetsregel_manager(), None, None)
+        )
+        statussen = set(res["rule_statuses"])
+        manifest = set(CONTRACT_IDS)
+        assert statussen == manifest, (
+            f"buiten het manifest: {sorted(statussen - manifest)} · "
+            f"manifest zonder status: {sorted(manifest - statussen)}"
+        )
+        assert res["evaluation_coverage"]["total"] == len(manifest)
+
+    @pytest.mark.asyncio
+    async def test_code_buiten_het_manifest_wordt_gemeld(self, caplog):
+        import logging
+
+        svc = ModularValidationService(None, None, None)
+        svc._internal_rules = ["SYN-99"]
+        svc._default_weights = {"SYN-99": 1.0}
+        with caplog.at_level(logging.WARNING):
+            res = await _resultaat(svc)
+        assert "SYN-99" in res["rule_statuses"], res["rule_statuses"]
+        assert any(
+            "SYN-99" in bericht.getMessage() for bericht in caplog.records
+        ), "een code buiten het manifest verschoof de noemer zonder melding"
+        # De unie blijft intern sluiten; dat is de bewuste keuze uit DEF-673.
+        dekking = res["evaluation_coverage"]
+        assert _som_van_de_statussen(dekking) == dekking["total"]
+        assert dekking["total"] == len(CONTRACT_IDS) + 1
+
+
 class TestGeenMagischGetalAlsNoemer:
     """De root-SSOT is de enige bron; een kapotte config faalt zichtbaar.
 
