@@ -14,7 +14,17 @@ Nu is er een expliciete publieke capability op de repository-interface, en de
 vergelijking loopt over de gedeelde contextnormalisatie. De databasequery
 begrenst eerst op actieve kandidaten voor het begrip; de genormaliseerde
 gestructureerde context beslist daarna. Geen `get_all()`, geen volledige
-tabelscan, geen schemawijziging, geen datamigratie.
+tabelscan, geen datamigratie.
+
+Drie gaten uit de tweede review zijn hier eveneens gedekt:
+
+- de query raakte geen index (`SCAN definities`), omdat `COLLATE NOCASE` de
+  bestaande BINARY-index niet kan gebruiken — er is nu een partiële
+  NOCASE-index, index-only en niet-brekend;
+- `LIMIT 200` miste een duplicaat vanaf kandidaat 201 stil — de query pagineert
+  nu tot de kandidaten op zijn, met een fail-closed plafond als vangnet;
+- `_definition_to_updates` omzeilde de canonicalisatie, dus een bijgewerkte
+  definitie belandde niet-canoniek in de database.
 """
 
 from __future__ import annotations
@@ -26,6 +36,11 @@ from typing import Any
 
 import pytest
 
+from database.definitie_duplicates import (
+    KANDIDATEN_INDEX,
+    KANDIDATEN_QUERY,
+    DuplicaatKandidatenOverschredenError,
+)
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 from domain.context.normalisatie import contextsleutel
 from services.definition_repository import DefinitionRepository
@@ -154,13 +169,203 @@ class TestPublickeCapability:
         ), "de evaluator verwijst nog naar de verwijderde privémethode"
 
     def test_capability_gebruikt_geen_volledige_tabelscan(self):
-        from database.definitie_duplicates import KANDIDATEN_QUERY
-
         genormaliseerd = " ".join(KANDIDATEN_QUERY.split()).lower()
         assert "where" in genormaliseerd, KANDIDATEN_QUERY
         assert "begrip" in genormaliseerd, "query begrenst niet op begrip"
         assert "status" in genormaliseerd, "query filtert niet op status"
-        assert "limit" in genormaliseerd, "query heeft geen bovengrens"
+
+    def test_query_selecteert_alleen_de_benodigde_kolommen(self):
+        # `SELECT *` haalt de volledige definitietekst en alle metadata op voor
+        # een controle die alleen identiteit en context nodig heeft.
+        genormaliseerd = " ".join(KANDIDATEN_QUERY.split()).lower()
+        assert "select *" not in genormaliseerd, KANDIDATEN_QUERY
+        for kolom in (
+            "id",
+            "status",
+            "categorie",
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+        ):
+            assert kolom in genormaliseerd, f"kolom {kolom} ontbreekt in de selectie"
+        assert "definitie," not in genormaliseerd, (
+            "de definitietekst wordt opgehaald terwijl de duplicaatcontrole "
+            "die niet nodig heeft"
+        )
+
+
+class TestQueryplan:
+    """De query moet een index raken, niet de tabel scannen.
+
+    `EXPLAIN QUERY PLAN` rapporteerde `SCAN definities`: `COLLATE NOCASE` kan
+    de bestaande BINARY-index `idx_definities_begrip` niet gebruiken. Een
+    partiële NOCASE-index op actieve begrippen lost dat op — index-only,
+    niet-brekend, geen kolom- of typewijziging.
+    """
+
+    def test_productiequery_gebruikt_een_index(self, db_pad):
+        with sqlite3.connect(db_pad) as conn:
+            plan = list(
+                conn.execute(
+                    "EXPLAIN QUERY PLAN " + KANDIDATEN_QUERY, ("besluit", 0, 10)
+                )
+            )
+        tekst = " ".join(str(rij[3]) for rij in plan)
+        assert "SCAN definities" not in tekst, f"volledige tabelscan: {tekst}"
+        assert "SEARCH" in tekst and "USING INDEX" in tekst, tekst
+
+    def test_index_bestaat_op_een_verse_database(self, db_pad):
+        with sqlite3.connect(db_pad) as conn:
+            namen = {
+                rij[0]
+                for rij in conn.execute(
+                    "SELECT name FROM sqlite_master "
+                    "WHERE type='index' AND tbl_name='definities'"
+                )
+            }
+        assert KANDIDATEN_INDEX in namen, sorted(namen)
+
+    def test_index_staat_in_schema_sql(self):
+        schema = Path("src/database/schema.sql").read_text(encoding="utf-8")
+        assert KANDIDATEN_INDEX in schema, "verse databases krijgen de index niet"
+
+    def test_bestaande_database_krijgt_de_index_via_het_migratiemechanisme(
+        self, tmp_path
+    ):
+        # Een database van vóór deze wijziging: schema zonder de nieuwe index.
+        from database.migrate_database import _ensure_definities_indexes
+
+        pad = tmp_path / "oud.db"
+        DefinitieRepository(str(pad))
+        with sqlite3.connect(str(pad)) as conn:
+            conn.execute(f"DROP INDEX IF EXISTS {KANDIDATEN_INDEX}")
+            aanwezig_voor = bool(
+                conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='index' AND name=?",
+                    (KANDIDATEN_INDEX,),
+                ).fetchone()
+            )
+            assert not aanwezig_voor, "opzet klopt niet: index stond er al"
+
+            _ensure_definities_indexes(conn)
+
+            aanwezig_na = bool(
+                conn.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='index' AND name=?",
+                    (KANDIDATEN_INDEX,),
+                ).fetchone()
+            )
+        assert aanwezig_na, "het migratiemechanisme voegt de index niet toe"
+
+    def test_migratie_is_idempotent(self, db_pad):
+        from database.migrate_database import _ensure_definities_indexes
+
+        with sqlite3.connect(db_pad) as conn:
+            _ensure_definities_indexes(conn)
+            _ensure_definities_indexes(conn)  # mag niet klappen
+
+
+class TestAlleKandidatenWordenOnderzocht:
+    """Een duplicaat voorbij de eerste pagina mag niet stil wegvallen.
+
+    De vorige `LIMIT 200` was een willekeurige grens: kandidaat 201 werd nooit
+    bekeken en de uitkomst was "geen duplicaat" — een stille fail-open op
+    precies de as die deze PR sluit.
+    """
+
+    def _vul(self, db_pad: str, aantal: int, match_achteraan: bool) -> int:
+        """Zet `aantal` kandidaten neer; optioneel de match als laatste."""
+        laatste = 0
+        for index in range(aantal):
+            is_match = match_achteraan and index == aantal - 1
+            laatste = _zet_record(
+                db_pad,
+                organisatorische_context=json.dumps(
+                    ORG if is_match else [f"ORG-{index}"]
+                ),
+                juridische_context=json.dumps(JUR if is_match else [f"JUR-{index}"]),
+                wettelijke_basis=json.dumps(WET if is_match else [f"WET-{index}"]),
+            )
+        return laatste
+
+    def test_kandidaat_voorbij_de_oude_grens_wordt_gevonden(self, repo, db_pad):
+        gezet = self._vul(db_pad, 250, match_achteraan=True)
+        kandidaten = repo.find_duplicate_candidates(BEGRIP)
+        assert len(kandidaten) == 250, "niet alle kandidaten zijn opgehaald"
+        assert gezet in [k.id for k in kandidaten]
+
+    @pytest.mark.asyncio
+    async def test_duplicaat_voorbij_de_oude_grens_wordt_gesignaleerd(
+        self, repo, db_pad
+    ):
+        gezet = self._vul(db_pad, 250, match_achteraan=True)
+        res = await _valideer(repo, _context())
+        meldingen = _duplicaatmeldingen(res)
+        assert meldingen, "duplicaat op positie 250 werd stil gemist"
+        assert meldingen[0]["metadata"]["existing_definition_id"] == gezet
+
+    @pytest.mark.asyncio
+    async def test_zonder_match_blijft_het_geen_duplicaat(self, repo, db_pad):
+        # De tegenhanger: 250 kandidaten zónder match mogen geen melding geven.
+        self._vul(db_pad, 250, match_achteraan=False)
+        res = await _valideer(repo, _context())
+        assert not _duplicaatmeldingen(res)
+
+
+class TestVeiligheidsgrensIsFailClosed:
+    """Een grens mag nooit als "geen duplicaat" eindigen.
+
+    Er is een absoluut plafond tegen een oneindige lus. Wordt dat geraakt, dan
+    is het antwoord onbekend, niet negatief: de fout loopt door naar de
+    ERROR-grens en blokkeert de acceptatie.
+    """
+
+    def test_plafond_werpt_een_fout(self, repo, db_pad, monkeypatch):
+        import database.definitie_duplicates as dup
+
+        for index in range(5):
+            _zet_record(
+                db_pad,
+                organisatorische_context=json.dumps([f"ORG-{index}"]),
+                juridische_context=json.dumps(JUR),
+                wettelijke_basis=json.dumps(WET),
+            )
+        monkeypatch.setattr(dup, "KANDIDATEN_PLAFOND", 3)
+        monkeypatch.setattr(dup, "KANDIDATEN_PAGINA", 2)
+        with pytest.raises(DuplicaatKandidatenOverschredenError):
+            repo.find_duplicate_candidates(BEGRIP)
+
+    @pytest.mark.asyncio
+    async def test_plafond_levert_error_en_geen_goedkeuring(
+        self, repo, db_pad, monkeypatch
+    ):
+        import database.definitie_duplicates as dup
+
+        for index in range(5):
+            _zet_record(
+                db_pad,
+                organisatorische_context=json.dumps([f"ORG-{index}"]),
+                juridische_context=json.dumps(JUR),
+                wettelijke_basis=json.dumps(WET),
+            )
+        monkeypatch.setattr(dup, "KANDIDATEN_PLAFOND", 3)
+        monkeypatch.setattr(dup, "KANDIDATEN_PAGINA", 2)
+
+        res = await _valideer(repo, _context())
+        assert res["rule_statuses"]["CON-01"] == ResultStatus.ERROR.value, res[
+            "rule_statuses"
+        ]
+        assert res["is_acceptable"] is False, res
+
+    def test_plafond_ligt_ruim_boven_de_paginagrootte(self):
+        # Zou het plafond onder of gelijk aan de paginagrootte liggen, dan zou
+        # elke normale lading al fail-closed eindigen.
+        from database.definitie_duplicates import (
+            KANDIDATEN_PAGINA,
+            KANDIDATEN_PLAFOND,
+        )
+
+        assert KANDIDATEN_PLAFOND > KANDIDATEN_PAGINA * 10
 
     def test_repository_roept_get_all_niet_aan(self, repo, monkeypatch):
         def _verboden(*args: Any, **kwargs: Any):
@@ -299,6 +504,105 @@ class TestOpslagIsCanoniek:
             assert (
                 waarde not in tekst
             ), f"contextwaarde {waarde!r} is in de definitietekst beland"
+
+    def test_update_slaat_context_canoniek_op(self, repo, db_pad):
+        """create → update met rommelige context → canonieke opslag.
+
+        `_definition_to_updates` omzeilde `canoniseer_contextlijst` volledig,
+        dus een bijgewerkte definitie belandde ongesorteerd, ongetrimd en met
+        duplicaten in de database — terwijl `save()` wél canoniseerde.
+        """
+        definitie_id = repo.save(
+            Definition(
+                begrip=BEGRIP,
+                definitie=DEFINITIETEKST,
+                organisatorische_context=["DJI"],
+                juridische_context=["strafrecht"],
+                wettelijke_basis=["Awb"],
+                categorie="type",
+            )
+        )
+        assert definitie_id
+
+        repo.update(
+            definitie_id,
+            Definition(
+                id=definitie_id,
+                begrip=BEGRIP,
+                definitie=DEFINITIETEKST,
+                organisatorische_context=["  OM ", "DJI", "DJI", "", "dji"],
+                juridische_context=["  Strafrecht ", "strafrecht"],
+                wettelijke_basis=["Awb", "  awb  ", ""],
+                categorie="type",
+            ),
+        )
+
+        with sqlite3.connect(db_pad) as conn:
+            rij = conn.execute(
+                "SELECT organisatorische_context, juridische_context, "
+                "wettelijke_basis FROM definities WHERE id = ?",
+                (definitie_id,),
+            ).fetchone()
+        assert json.loads(rij[0]) == ["DJI", "OM"], rij[0]
+        assert json.loads(rij[1]) == ["Strafrecht"], rij[1]
+        assert json.loads(rij[2]) == ["Awb"], rij[2]
+
+    @pytest.mark.asyncio
+    async def test_na_update_is_het_record_vindbaar_als_duplicaat(self, repo, db_pad):
+        definitie_id = repo.save(
+            Definition(
+                begrip=BEGRIP,
+                definitie=DEFINITIETEKST,
+                organisatorische_context=["KMAR"],
+                juridische_context=["bestuursrecht"],
+                wettelijke_basis=["Sv"],
+                categorie="type",
+            )
+        )
+        repo.update(
+            definitie_id,
+            Definition(
+                id=definitie_id,
+                begrip=BEGRIP,
+                definitie=DEFINITIETEKST,
+                organisatorische_context=["  om ", "DJI"],
+                juridische_context=["Strafrecht"],
+                wettelijke_basis=["  awb"],
+                categorie="type",
+            ),
+        )
+        res = await _valideer(repo, _context())
+        meldingen = _duplicaatmeldingen(res)
+        assert meldingen, "de bijgewerkte context wordt niet als duplicaat herkend"
+        assert meldingen[0]["metadata"]["existing_definition_id"] == definitie_id
+
+    def test_update_zet_geen_context_in_de_definitietekst(self, repo, db_pad):
+        definitie_id = repo.save(
+            Definition(
+                begrip=BEGRIP,
+                definitie=DEFINITIETEKST,
+                organisatorische_context=["KMAR"],
+                categorie="type",
+            )
+        )
+        repo.update(
+            definitie_id,
+            Definition(
+                id=definitie_id,
+                begrip=BEGRIP,
+                definitie=DEFINITIETEKST,
+                organisatorische_context=ORG,
+                juridische_context=JUR,
+                wettelijke_basis=WET,
+                categorie="type",
+            ),
+        )
+        with sqlite3.connect(db_pad) as conn:
+            tekst = conn.execute(
+                "SELECT definitie FROM definities WHERE id = ?", (definitie_id,)
+            ).fetchone()[0]
+        for waarde in (*ORG, *JUR, *WET):
+            assert waarde not in tekst, f"{waarde!r} is in de definitietekst beland"
 
     def test_canonieke_opslag_is_vindbaar_als_duplicaat(self, repo):
         repo.save(

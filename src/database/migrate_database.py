@@ -10,6 +10,8 @@ import logging
 import sqlite3
 from pathlib import Path
 
+from database.definitie_duplicates import KANDIDATEN_INDEX_DDL
+
 DEFINITIE_VOORBEELDEN_TABLE_SQL = """
 CREATE TABLE {table_name} (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -144,6 +146,11 @@ def _ensure_definities_indexes(conn: sqlite3.Connection) -> None:
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_definities_datum_voorstel ON definities(datum_voorstel)"
     )
+    # DEF-672: bedient de CON-01-kandidatenquery, die op
+    # `begrip = ? COLLATE NOCASE AND status != 'archived'` zoekt. Zonder deze
+    # partiele index valt die query terug op een volledige tabelscan. Index-only
+    # en idempotent; bestaande databases krijgen hem via deze migratie.
+    conn.execute(KANDIDATEN_INDEX_DDL)
 
 
 from utils.logging_bootstrap import ensure_logging_configured

@@ -13,7 +13,10 @@ from typing import Any
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
 from database.definitie_crud import DefinitieCrudRepository
-from database.definitie_duplicates import DefinitieDuplicateRepository
+from database.definitie_duplicates import (
+    DefinitieDuplicateRepository,
+    DuplicaatKandidaatRij,
+)
 from database.definitie_import_export import DefinitieImportExportRepository
 from database.definitie_search import DefinitieSearchRepository
 from database.models import (
@@ -172,8 +175,8 @@ class DefinitieRepository:
             wettelijke_basis,
         )
 
-    def find_active_by_begrip(self, begrip: str) -> list[DefinitieRecord]:
-        """Actieve records met dit begrip, begrensd (DEF-672)."""
+    def find_active_by_begrip(self, begrip: str) -> list[DuplicaatKandidaatRij]:
+        """Alle actieve kandidaten met dit begrip, gepagineerd (DEF-672)."""
         return self._duplicates.find_active_by_begrip(begrip)
 
     def count_exact_by_context(

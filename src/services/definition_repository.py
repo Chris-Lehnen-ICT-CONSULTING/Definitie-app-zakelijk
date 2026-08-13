@@ -373,23 +373,23 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         met een niet-canonieke schrijfwijze gewoon worden herkend en er geen
         datamigratie nodig is.
         """
-        kandidaten: list[DuplicateCandidate] = []
-        for record in self.legacy_repo.find_active_by_begrip(begrip):
-            kandidaten.append(
-                DuplicateCandidate(
-                    id=getattr(record, "id", None),
-                    status=getattr(record, "status", None),
-                    categorie=getattr(record, "categorie", None),
-                    organisatorische_context=contextsleutel(
-                        self._contextwaarden(record.organisatorische_context)
-                    ),
-                    juridische_context=contextsleutel(
-                        self._contextwaarden(record.juridische_context)
-                    ),
-                    wettelijke_basis=contextsleutel(record.get_wettelijke_basis_list()),
-                )
+        return [
+            DuplicateCandidate(
+                id=rij.id,
+                status=rij.status,
+                categorie=rij.categorie,
+                organisatorische_context=contextsleutel(
+                    self._contextwaarden(rij.organisatorische_context)
+                ),
+                juridische_context=contextsleutel(
+                    self._contextwaarden(rij.juridische_context)
+                ),
+                wettelijke_basis=contextsleutel(
+                    self._contextwaarden(rij.wettelijke_basis)
+                ),
             )
-        return kandidaten
+            for rij in self.legacy_repo.find_active_by_begrip(begrip)
+        ]
 
     @staticmethod
     def _contextwaarden(opgeslagen: Any) -> list[str]:
@@ -1014,18 +1014,28 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         updates["ufo_categorie"] = getattr(definition, "ufo_categorie", None)
         # Procesmatige velden
         updates["toelichting_proces"] = getattr(definition, "toelichting_proces", None)
-        # Contextvelden (JSON strings)
+        # Contextvelden (JSON strings). DEF-672: dezelfde canonieke vorm als bij
+        # `save()`. Deze tak omzeilde de normalisatie volledig, waardoor een
+        # bijgewerkte definitie ongesorteerd, ongetrimd en met duplicaten in de
+        # database belandde — en dus niet meer als duplicaat werd herkend.
         updates["organisatorische_context"] = _json.dumps(
-            definition.organisatorische_context or [], ensure_ascii=False
+            canoniseer_contextlijst(definition.organisatorische_context),
+            ensure_ascii=False,
         )
         updates["juridische_context"] = _json.dumps(
-            definition.juridische_context or [], ensure_ascii=False
+            canoniseer_contextlijst(definition.juridische_context),
+            ensure_ascii=False,
         )
         try:
+            # `None` blijft `None`: dat betekent "niet gezet" en is iets anders
+            # dan een lege lijst.
             updates["wettelijke_basis"] = (
                 None
                 if definition.wettelijke_basis is None
-                else _json.dumps(list(definition.wettelijke_basis), ensure_ascii=False)
+                else _json.dumps(
+                    canoniseer_contextlijst(definition.wettelijke_basis),
+                    ensure_ascii=False,
+                )
             )
         except Exception as exc:
             logger.warning(

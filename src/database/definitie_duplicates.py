@@ -1,15 +1,12 @@
 """Duplicate detection voor definities."""
 
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
-from database.models import (
-    DefinitieRecord,
-    DuplicateMatch,
-    normalize_wettelijke_basis,
-)
+from database.models import DuplicateMatch, normalize_wettelijke_basis
 
 logger = logging.getLogger(__name__)
 
@@ -17,23 +14,69 @@ logger = logging.getLogger(__name__)
 # DEF-672: begrensde kandidaatquery voor de CON-01-duplicaatcontrole.
 #
 # Bewust géén `get_all()`: dat is de volledige tabelscan die DEF-176 juist heeft
-# weggehaald. Deze query filtert op het begrip (index `idx_definities_begrip`),
-# sluit gearchiveerde records uit en draagt een harde bovengrens, zodat het
-# resultaat nooit met de tabel meegroeit.
+# weggehaald. De query filtert op het begrip, sluit gearchiveerde records uit en
+# haalt alléén de kolommen op die de duplicaatcontrole nodig heeft — geen
+# `SELECT *`, dus niet de definitietekst en niet de overige metadata.
 #
-# `COLLATE NOCASE` op het begrip vangt de gewone hoofdlettervarianten af; de
-# gezaghebbende vergelijking gebeurt daarna in Python op de genormaliseerde
+# `COLLATE NOCASE` op het begrip vangt de gewone hoofdlettervarianten af. Dat
+# kan de BINARY-index `idx_definities_begrip` niet gebruiken; `EXPLAIN QUERY
+# PLAN` gaf daarop `SCAN definities`. Vandaar de partiële NOCASE-index
+# hieronder, die precies deze query bedient.
+#
+# De gezaghebbende vergelijking gebeurt daarna in Python op de genormaliseerde
 # context (`domain.context.normalisatie`), niet in SQL. Dat is precies waarom de
 # oude vergelijking faalde: zij legde ruwe, ordegevoelige JSON-strings naast
 # elkaar.
-KANDIDATEN_LIMIET = 200
+KANDIDATEN_INDEX = "idx_definities_begrip_nocase_actief"
+KANDIDATEN_INDEX_DDL = (
+    f"CREATE INDEX IF NOT EXISTS {KANDIDATEN_INDEX} "
+    "ON definities(begrip COLLATE NOCASE) WHERE status != 'archived'"
+)
+
+# Keyset-paginatie op `id`. Er is géén willekeurige resultaatgrens meer: een
+# duplicaat op positie 201 viel daar stil buiten en de uitkomst werd "geen
+# duplicaat" — een fail-open op precies de as die DEF-624 sluit. De paginering
+# loopt door tot de kandidaten voor dit begrip op zijn.
+KANDIDATEN_PAGINA = 500
+
+# Absoluut plafond tegen een oneindige lus. Wordt dit geraakt, dan is de
+# uitkomst ónbekend, niet negatief: `DuplicaatKandidatenOverschredenError` loopt door
+# naar de ERROR-grens in de validatieservice en blokkeert de acceptatie. Nooit
+# stil afkappen.
+KANDIDATEN_PLAFOND = 50_000
+
 KANDIDATEN_QUERY = """
-    SELECT * FROM definities
+    SELECT id, status, categorie,
+           organisatorische_context, juridische_context, wettelijke_basis
+    FROM definities
     WHERE begrip = ? COLLATE NOCASE
       AND status != 'archived'
+      AND id > ?
     ORDER BY id
     LIMIT ?
 """
+
+
+class DuplicaatKandidatenOverschredenError(RuntimeError):
+    """Het kandidatenplafond is geraakt; de duplicaatcontrole is onvolledig."""
+
+
+@dataclass(frozen=True)
+class DuplicaatKandidaatRij:
+    """Eén ruwe kandidaatrij: identiteit plus de drie opgeslagen contextvelden.
+
+    Bewust géén `DefinitieRecord`: dat vraagt alle kolommen, inclusief de
+    definitietekst die de duplicaatcontrole niet nodig heeft. De normalisatie
+    van de contextwaarden gebeurt een laag hoger, bij de repository die de
+    vergelijkingssleutels opbouwt.
+    """
+
+    id: int | None
+    status: str | None
+    categorie: str | None
+    organisatorische_context: str | None
+    juridische_context: str | None
+    wettelijke_basis: str | None
 
 
 class DefinitieDuplicateRepository:
@@ -43,21 +86,53 @@ class DefinitieDuplicateRepository:
         self._db = db
         self._audit = audit
 
-    def find_active_by_begrip(
-        self, begrip: str, limiet: int = KANDIDATEN_LIMIET
-    ) -> list[DefinitieRecord]:
-        """Actieve records met dit begrip, begrensd (DEF-672).
+    def find_active_by_begrip(self, begrip: str) -> list[DuplicaatKandidaatRij]:
+        """Álle actieve kandidaten met dit begrip (DEF-672).
 
-        Levert de ruwe records; de aanroeper normaliseert de context. Een leeg
-        of alleen-whitespace begrip levert niets op — dan is er geen identiteit
-        om op te matchen en zou de query zinloos de hele tabel raken.
+        Pagineert op `id` tot de kandidaten op zijn, zodat er geen duplicaat
+        buiten een willekeurige grens kan vallen. Het plafond is een vangnet
+        tegen een oneindige lus en eindigt fail-closed met een uitzondering,
+        nooit met een ingekorte lijst die als "geen duplicaat" leest.
+
+        Een leeg of alleen-whitespace begrip levert niets op — dan is er geen
+        identiteit om op te matchen.
         """
         genormaliseerd = str(begrip or "").strip()
         if not genormaliseerd:
             return []
+
+        kandidaten: list[DuplicaatKandidaatRij] = []
+        laatste_id = 0
         with self._db.get_connection() as conn:
-            cursor = conn.execute(KANDIDATEN_QUERY, (genormaliseerd, limiet))
-            return [self._audit.row_to_record(rij) for rij in cursor.fetchall()]
+            while True:
+                rijen = conn.execute(
+                    KANDIDATEN_QUERY,
+                    (genormaliseerd, laatste_id, KANDIDATEN_PAGINA),
+                ).fetchall()
+                if not rijen:
+                    break
+                for rij in rijen:
+                    kandidaten.append(
+                        DuplicaatKandidaatRij(
+                            id=rij[0],
+                            status=rij[1],
+                            categorie=rij[2],
+                            organisatorische_context=rij[3],
+                            juridische_context=rij[4],
+                            wettelijke_basis=rij[5],
+                        )
+                    )
+                laatste_id = int(rijen[-1][0])
+                if len(kandidaten) > KANDIDATEN_PLAFOND:
+                    msg = (
+                        f"meer dan {KANDIDATEN_PLAFOND} actieve kandidaten voor "
+                        f"begrip {genormaliseerd!r}; de duplicaatcontrole is "
+                        f"onvolledig en mag niet als 'geen duplicaat' eindigen"
+                    )
+                    raise DuplicaatKandidatenOverschredenError(msg)
+                if len(rijen) < KANDIDATEN_PAGINA:
+                    break
+        return kandidaten
 
     def find_duplicates(
         self,
