@@ -72,6 +72,77 @@ def _indexen(pad: str, tabel: str = "definities") -> set[str]:
         }
 
 
+def _schemaobjecten(pad: str) -> set[tuple[str, str]]:
+    with sqlite3.connect(pad) as conn:
+        return {
+            (rij[0], rij[1])
+            for rij in conn.execute(
+                "SELECT type, name FROM sqlite_master "
+                "WHERE type IN ('table','index','trigger','view') "
+                "AND name NOT LIKE 'sqlite_%'"
+            )
+        }
+
+
+def _rijen(pad: str, tabel: str = "definities") -> int:
+    with sqlite3.connect(pad) as conn:
+        return int(conn.execute(f"SELECT COUNT(*) FROM {tabel}").fetchone()[0])
+
+
+def _sentinel(pad: str) -> str | None:
+    with sqlite3.connect(pad) as conn:
+        rij = conn.execute(
+            "SELECT generation_prompt_data FROM definities WHERE begrip = ?",
+            ("besluit",),
+        ).fetchone()
+    return rij[0] if rij else None
+
+
+def _pragmas(pad: str) -> dict[str, int]:
+    with sqlite3.connect(pad) as conn:
+        return {
+            naam: int(conn.execute(f"PRAGMA {naam}").fetchone()[0])
+            for naam in ("foreign_keys", "legacy_alter_table")
+        }
+
+
+def _injecteer_fout(monkeypatch, doelwit: str) -> None:
+    """Laat één migratiestap falen met een echte SQLite-fout.
+
+    Voor `herstel-ddl` wordt niet de hele functie vervangen maar één bewaarde
+    DDL onbruikbaar gemaakt. Dat raakt de foutafhandeling *binnen*
+    `_herstel_afhankelijke_objecten` — een injectie die de functie zelf
+    vervangt zou nooit merken dat die functie haar fouten slikt.
+    """
+    import database.migrate_database as md
+
+    if doelwit == "herstel-ddl":
+        origineel = md._bewaar_afhankelijke_objecten
+
+        def _met_kapotte_ddl(conn, tabel):
+            bewaard = origineel(conn, tabel)
+            return [*bewaard, "CREATE INDEX dit is geen geldige ddl"]
+
+        monkeypatch.setattr(md, "_bewaar_afhankelijke_objecten", _met_kapotte_ddl)
+        return
+
+    if doelwit == "datakopie":
+        # Laat de INSERT … SELECT falen. De kopieerlijst wordt gefilterd op wat
+        # de óude tabel heeft, dus een verzonnen naam valt weg; een kolom die
+        # wél in de oude maar niet in de nieuwe tabel zit breekt de INSERT echt.
+        monkeypatch.setattr(
+            md,
+            "DEFINITIES_KOLOMMEN",
+            (*md.DEFINITIES_KOLOMMEN, "voorkeursterm_is_begrip"),
+        )
+        return
+
+    def _klapt(*args, **kwargs):
+        raise sqlite3.OperationalError(f"geïnjecteerde fout in {doelwit}")
+
+    monkeypatch.setattr(md, doelwit, _klapt)
+
+
 @pytest.fixture
 def bestaande_database(tmp_path: Path) -> str:
     """Een tijdelijke database zoals een gegroeide productie-installatie.
@@ -307,6 +378,202 @@ class TestMigratieLevertDeIndex:
                 ("besluit",),
             ).fetchone()[0]
         assert waarde == SENTINEL
+
+
+class TestFoutpadIsAtomair:
+    """Een mislukte migratie mag niets slopen en nooit succes melden.
+
+    Gemeten vóór deze reparatie, met een `OperationalError` in
+    `_create_definities_table()`: `migrate_database()` gaf **True**, `definities`
+    bestond niet meer, alleen `definities_old` restte, en de sentineldata stond
+    nog uitsluitend in die oude tabel.
+
+    Drie oorzaken: de rebuild ving fouten af met een warning en ging door,
+    `executescript()` committe de voorafgaande rename impliciet, en het herstel
+    van indexen en triggers slikte zijn eigen fouten.
+    """
+
+    INJECTIES = [
+        pytest.param("_create_definities_table", id="CREATE van de nieuwe tabel"),
+        pytest.param("herstel-ddl", id="herstel van een index/trigger"),
+        pytest.param("datakopie", id="datakopie"),
+    ]
+
+    @pytest.fixture
+    def voor_toestand(self, bestaande_database):
+        pad = bestaande_database
+        return {
+            "kolommen": _kolommen(pad, "definities"),
+            "indexen": _indexen(pad),
+            "triggers": _triggers(pad),
+            "objecten": _schemaobjecten(pad),
+            "rijen": _rijen(pad),
+            "sentinel": _sentinel(pad),
+            "pragmas": _pragmas(pad),
+        }
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_mislukte_migratie_meldt_geen_succes(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        _injecteer_fout(monkeypatch, doelwit)
+        assert (
+            migrate_database(bestaande_database) is False
+        ), f"migratie meldde succes terwijl {doelwit} faalde"
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_de_data_blijft_volledig_intact(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        _injecteer_fout(monkeypatch, doelwit)
+        migrate_database(bestaande_database)
+
+        pad = bestaande_database
+        assert _kolommen(pad, "definities") == voor_toestand["kolommen"]
+        assert _rijen(pad) == voor_toestand["rijen"]
+        assert _sentinel(pad) == voor_toestand["sentinel"] == SENTINEL
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_de_schemaobjecten_blijven_intact(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        _injecteer_fout(monkeypatch, doelwit)
+        migrate_database(bestaande_database)
+
+        pad = bestaande_database
+        assert _indexen(pad) >= voor_toestand["indexen"]
+        assert _triggers(pad) >= voor_toestand["triggers"]
+        verdwenen = voor_toestand["objecten"] - _schemaobjecten(pad)
+        assert (
+            not verdwenen
+        ), f"schemaobjecten verdwenen bij een mislukte migratie: {verdwenen}"
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_geen_tijdelijke_tabellen_blijven_staan(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        _injecteer_fout(monkeypatch, doelwit)
+        migrate_database(bestaande_database)
+
+        with sqlite3.connect(bestaande_database) as conn:
+            tabellen = {
+                rij[0]
+                for rij in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+        resten = {naam for naam in tabellen if naam.endswith(("_old", "_old2"))}
+        assert not resten, f"tijdelijke rebuild-tabellen blijven staan: {resten}"
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_de_views_blijven_werken(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        _injecteer_fout(monkeypatch, doelwit)
+        migrate_database(bestaande_database)
+
+        with sqlite3.connect(bestaande_database) as conn:
+            for view in (
+                "actieve_definities",
+                "vastgestelde_definities",
+                "definitie_statistieken",
+            ):
+                conn.execute(f"SELECT * FROM {view} LIMIT 1").fetchall()
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_pragmas_zijn_hersteld(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        # `foreign_keys` en `legacy_alter_table` horen terug op hun
+        # oorspronkelijke waarde, ook als de rebuild halverwege afbreekt.
+        _injecteer_fout(monkeypatch, doelwit)
+        migrate_database(bestaande_database)
+        assert _pragmas(bestaande_database) == voor_toestand["pragmas"]
+
+    @pytest.mark.parametrize("doelwit", INJECTIES)
+    def test_de_database_blijft_consistent(
+        self, bestaande_database, voor_toestand, monkeypatch, doelwit
+    ):
+        _injecteer_fout(monkeypatch, doelwit)
+        migrate_database(bestaande_database)
+
+        with sqlite3.connect(bestaande_database) as conn:
+            assert conn.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+            assert conn.execute("PRAGMA foreign_key_check").fetchall() == []
+
+    def test_een_mislukte_migratie_is_daarna_alsnog_uitvoerbaar(
+        self, bestaande_database, monkeypatch
+    ):
+        # De sluitsteen: na een rollback moet een tweede, ongestoorde poging
+        # gewoon slagen. Anders zou "niets kapot" nog steeds een doodlopende
+        # database kunnen betekenen.
+        _injecteer_fout(monkeypatch, "_create_definities_table")
+        assert migrate_database(bestaande_database) is False
+        monkeypatch.undo()
+        assert migrate_database(bestaande_database) is True
+        assert "generation_prompt_data" in _kolommen(bestaande_database, "definities")
+        assert _sentinel(bestaande_database) == SENTINEL
+
+
+class TestSuccesIsGemetenNietAangenomen:
+    """`migrate_database()` mag alleen True melden als de uitkomst klopt.
+
+    Een migratie kan zonder uitzondering aflopen en tóch een halve database
+    achterlaten. De eindverificatie controleert daarom de werkelijke toestand:
+    geen verdwenen schemaobjecten, geen tijdelijke tabellen, de vereiste index
+    aanwezig, en `foreign_key_check` en `integrity_check` schoon.
+    """
+
+    def test_ontbrekende_index_levert_geen_succes(
+        self, bestaande_database, monkeypatch
+    ):
+        import database.migrate_database as md
+
+        # Een database van vóór DEF-672 heeft de NOCASE-index nog niet, dus
+        # `_ensure_definities_indexes` is dan de énige bron. Zonder die stap
+        # loopt de migratie zonder uitzondering af en zou zij zonder
+        # eindverificatie succes melden.
+        with sqlite3.connect(bestaande_database) as conn:
+            conn.execute(f"DROP INDEX IF EXISTS {KANDIDATEN_INDEX}")
+        monkeypatch.setattr(md, "_ensure_definities_indexes", lambda conn: None)
+
+        assert (
+            migrate_database(bestaande_database) is False
+        ), "migratie meldde succes terwijl de vereiste index ontbreekt"
+
+    def test_achtergebleven_tijdelijke_tabel_levert_geen_succes(
+        self, bestaande_database, monkeypatch
+    ):
+        import database.migrate_database as md
+
+        origineel = md._rebuild_tabel_atomair
+
+        def _laat_rest_achter(conn, **kwargs):
+            origineel(conn, **kwargs)
+            conn.execute("CREATE TABLE IF NOT EXISTS definities_old (id INTEGER)")
+
+        monkeypatch.setattr(md, "_rebuild_tabel_atomair", _laat_rest_achter)
+        assert migrate_database(bestaande_database) is False
+
+    def test_de_ongestoorde_migratie_meldt_wel_succes(self, bestaande_database):
+        # De tegenhanger: zonder deze assert zou een verificatie die altijd
+        # faalt ook "geslaagd" lijken in de tests hierboven.
+        assert migrate_database(bestaande_database) is True
+
+
+class TestNormalisatiefoutMeldtGeenSucces:
+    def test_falende_normalisatie_levert_false(self, bestaande_database, monkeypatch):
+        _injecteer_fout(monkeypatch, "_normalize_wettelijke_basis")
+        assert migrate_database(bestaande_database) is False
+
+    def test_data_blijft_intact_bij_normalisatiefout(
+        self, bestaande_database, monkeypatch
+    ):
+        voor = _rijen(bestaande_database)
+        _injecteer_fout(monkeypatch, "_normalize_wettelijke_basis")
+        migrate_database(bestaande_database)
+        assert _rijen(bestaande_database) == voor
+        assert _sentinel(bestaande_database) == SENTINEL
 
 
 class TestSchemaDefinitiesLopenNietUiteen:

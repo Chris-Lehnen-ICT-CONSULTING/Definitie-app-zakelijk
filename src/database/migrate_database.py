@@ -9,9 +9,11 @@ import json
 import logging
 import re
 import sqlite3
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
-from database.definitie_duplicates import KANDIDATEN_INDEX_DDL
+from database.definitie_duplicates import KANDIDATEN_INDEX, KANDIDATEN_INDEX_DDL
 
 DEFINITIE_VOORBEELDEN_TABLE_SQL = """
 CREATE TABLE {table_name} (
@@ -97,12 +99,21 @@ DEFINITIES_KOLOMMEN: tuple[str, ...] = tuple(
 )
 
 
+DEFINITIE_VOORBEELDEN_KOLOMMEN: tuple[str, ...] = tuple(
+    re.findall(r"^\s{4}(\w+)\s", DEFINITIE_VOORBEELDEN_TABLE_SQL, flags=re.MULTILINE)
+)
+
+
 def _create_definitie_voorbeelden_table(
     conn: sqlite3.Connection, table_name: str = "definitie_voorbeelden"
 ) -> None:
-    """(Re)create the definitie_voorbeelden table with the canonical schema."""
+    """(Re)create the definitie_voorbeelden table with the canonical schema.
 
-    conn.executescript(DEFINITIE_VOORBEELDEN_TABLE_SQL.format(table_name=table_name))
+    DEF-672: `execute` en niet `executescript`. Die laatste commit een lopende
+    transactie impliciet, waardoor de voorafgaande RENAME vastgezet werd en een
+    fout daarna niet meer terug te draaien was.
+    """
+    conn.execute(DEFINITIE_VOORBEELDEN_TABLE_SQL.format(table_name=table_name))
 
 
 def _ensure_definitie_voorbeelden_indexes(conn: sqlite3.Connection) -> None:
@@ -135,7 +146,9 @@ def _create_definities_table(
 ) -> None:
     """(Re)create the definities table with the canonical schema."""
 
-    conn.executescript(DEFINITIES_TABLE_SQL.format(table_name=table_name))
+    # DEF-672: `execute`, niet `executescript` — zie
+    # `_create_definitie_voorbeelden_table` voor de reden.
+    conn.execute(DEFINITIES_TABLE_SQL.format(table_name=table_name))
 
 
 def _bewaar_afhankelijke_objecten(conn: sqlite3.Connection, tabel: str) -> list[str]:
@@ -157,30 +170,150 @@ def _bewaar_afhankelijke_objecten(conn: sqlite3.Connection, tabel: str) -> list[
 
 
 def _herstel_afhankelijke_objecten(conn: sqlite3.Connection, ddls: list[str]) -> None:
-    """Zet bewaarde indexen en triggers terug op de herbouwde tabel."""
-    for ddl in ddls:
-        try:
-            conn.execute(ddl)
-        except sqlite3.Error as e:
-            logger.warning(f"Schemaobject kon niet worden hersteld: {e} — DDL: {ddl}")
+    """Zet bewaarde indexen en triggers terug op de herbouwde tabel.
 
-
-def _hernoem_zonder_referenties_te_herschrijven(
-    conn: sqlite3.Connection, van: str, naar: str
-) -> None:
-    """Hernoem een tabel zonder views en foreign keys mee te herschrijven.
-
-    Zonder `legacy_alter_table` herschrijft SQLite elke verwijzing naar de
-    tijdelijke naam. Na `DROP TABLE` wijzen views en FK-clausules dan naar een
-    tabel die niet meer bestaat — waarna zelfs het uitlezen van het schema
-    faalt. Dit is de door SQLite gedocumenteerde route voor het
-    rename-recreate-drop-patroon (DEF-672).
+    Bewust zonder foutafhandeling (DEF-672): een index of trigger die niet
+    terugkomt is een halve migratie. De fout loopt door naar de rollbackgrens
+    in `_rebuild_tabel_atomair`, zodat de oorspronkelijke tabel intact blijft
+    in plaats van kaal achter te blijven met een warning in het log.
     """
+    for ddl in ddls:
+        conn.execute(ddl)
+
+
+def _schemaobjecten(conn: sqlite3.Connection) -> set[tuple[str, str]]:
+    """Alle door ons beheerde schemaobjecten, als (type, naam)."""
+    return {
+        (rij[0], rij[1])
+        for rij in conn.execute(
+            "SELECT type, name FROM sqlite_master "
+            "WHERE type IN ('table', 'index', 'trigger', 'view') "
+            "AND name NOT LIKE 'sqlite_%'"
+        )
+    }
+
+
+def _verifieer_migratie(
+    conn: sqlite3.Connection, verwacht: set[tuple[str, str]]
+) -> list[str]:
+    """Controleer of de migratie werkelijk is afgerond (DEF-672).
+
+    Levert een lijst problemen; leeg betekent geslaagd. `migrate_database()`
+    mag alleen True melden als deze lijst leeg is — succes moet gemeten zijn,
+    niet aangenomen.
+    """
+    problemen: list[str] = []
+
+    aanwezig = _schemaobjecten(conn)
+    verdwenen = sorted(f"{soort} {naam}" for soort, naam in verwacht - aanwezig)
+    if verdwenen:
+        problemen.append(f"schemaobjecten verdwenen: {verdwenen}")
+
+    resten = sorted(
+        naam
+        for soort, naam in aanwezig
+        if soort == "table" and naam.endswith(("_old", "_old2"))
+    )
+    if resten:
+        problemen.append(f"tijdelijke rebuild-tabellen blijven staan: {resten}")
+
+    if not any(naam == KANDIDATEN_INDEX for _, naam in aanwezig):
+        problemen.append(f"index {KANDIDATEN_INDEX} ontbreekt")
+
+    try:
+        schendingen = conn.execute("PRAGMA foreign_key_check").fetchall()
+    except sqlite3.Error as exc:
+        problemen.append(f"foreign_key_check kon niet draaien: {exc}")
+    else:
+        if schendingen:
+            problemen.append(
+                f"foreign_key_check meldt {len(schendingen)} schending(en)"
+            )
+
+    try:
+        integriteit = conn.execute("PRAGMA integrity_check").fetchone()[0]
+    except sqlite3.Error as exc:
+        problemen.append(f"integrity_check kon niet draaien: {exc}")
+    else:
+        if str(integriteit).lower() != "ok":
+            problemen.append(f"integrity_check: {integriteit}")
+
+    return problemen
+
+
+@contextmanager
+def _migratiemodus(conn: sqlite3.Connection) -> Iterator[None]:
+    """Zet de PRAGMA's voor een tabelrebuild en herstel ze altijd (DEF-672).
+
+    `foreign_keys` moet uit vóór de transactie: binnen een transactie is die
+    PRAGMA een no-op. `legacy_alter_table` zorgt dat `ALTER TABLE … RENAME`
+    verwijzingen in views en FK-clausules niet herschrijft — de door SQLite
+    gedocumenteerde route voor het rename-recreate-drop-patroon.
+
+    Beide worden hersteld op hun oorspronkelijke waarde, niet op een aanname.
+    """
+    oude_fk = conn.execute("PRAGMA foreign_keys").fetchone()[0]
+    oude_legacy = conn.execute("PRAGMA legacy_alter_table").fetchone()[0]
+    conn.execute("PRAGMA foreign_keys=OFF")
     conn.execute("PRAGMA legacy_alter_table=ON")
     try:
-        conn.execute(f"ALTER TABLE {van} RENAME TO {naar}")
+        yield
     finally:
-        conn.execute("PRAGMA legacy_alter_table=OFF")
+        conn.execute(f"PRAGMA legacy_alter_table={int(oude_legacy)}")
+        conn.execute(f"PRAGMA foreign_keys={int(oude_fk)}")
+
+
+def _rebuild_tabel_atomair(
+    conn: sqlite3.Connection,
+    *,
+    tabel: str,
+    tijdelijke_naam: str,
+    maak_tabel: Callable[[sqlite3.Connection], None],
+    kolommen: tuple[str, ...],
+    zorg_voor_indexen: Callable[[sqlite3.Connection], None],
+) -> None:
+    """Bouw één tabel opnieuw op in één transactie (DEF-672).
+
+    Alles of niets. Faalt een stap — het aanmaken van de nieuwe tabel, de
+    datakopie, de `DROP`, of het herstel van indexen en triggers — dan gaat de
+    hele rebuild terug en staat de oorspronkelijke tabel er onaangeroerd. De
+    uitzondering loopt door naar de aanroeper, die de migratie als mislukt
+    rapporteert.
+
+    Vóór deze wijziging vingen die stappen hun eigen fouten af met een warning
+    en liep de migratie door. Met een fout in het aanmaken van de nieuwe tabel
+    bleef alleen `<tabel>_old` over en meldde `migrate_database()` tóch succes:
+    destructief én fail-open.
+    """
+    bewaard = _bewaar_afhankelijke_objecten(conn, tabel)
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        conn.execute(f"ALTER TABLE {tabel} RENAME TO {tijdelijke_naam}")
+        maak_tabel(conn)
+
+        # Kolommen die de oude tabel nog niet heeft (bv. na een ALTER-migratie
+        # die nooit draaide) worden overgeslagen in plaats van de hele rebuild
+        # te laten falen.
+        aanwezig = {
+            rij[1] for rij in conn.execute(f"PRAGMA table_info({tijdelijke_naam})")
+        }
+        over_te_zetten = [kolom for kolom in kolommen if kolom in aanwezig]
+        kolomlijst = ", ".join(over_te_zetten)
+        conn.execute(
+            f"INSERT INTO {tabel} ({kolomlijst}) "
+            f"SELECT {kolomlijst} FROM {tijdelijke_naam}"
+        )
+
+        conn.execute(f"DROP TABLE {tijdelijke_naam}")
+        # Pas ná de DROP: de oude indexen en triggers verhuisden bij de RENAME
+        # mee en hielden hun naam, dus een CREATE … IF NOT EXISTS ervóór is een
+        # no-op en de nieuwe tabel bleef kaal achter.
+        _herstel_afhankelijke_objecten(conn, bewaard)
+        zorg_voor_indexen(conn)
+    except Exception:
+        conn.rollback()
+        raise
+    conn.commit()
 
 
 def _ensure_definities_indexes(conn: sqlite3.Connection) -> None:
@@ -338,8 +471,17 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
 
     try:
         with sqlite3.connect(db_path) as conn:
+            # DEF-672: autocommit, zodat `_rebuild_tabel_atomair` zijn eigen
+            # BEGIN/COMMIT/ROLLBACK kan voeren. Met de impliciete transactie van
+            # de sqlite3-module zou een expliciete BEGIN botsen.
+            conn.isolation_level = None
+
             # Enable foreign keys
             conn.execute("PRAGMA foreign_keys = ON")
+
+            # Momentopname vóór de migratie: elk schemaobject dat er nu is moet
+            # er ná de migratie nog zijn (DEF-672).
+            verwachte_objecten = _schemaobjecten(conn)
 
             # Check welke kolommen ontbreken
             missing_columns = get_missing_columns(conn)
@@ -468,51 +610,28 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
             # Commit changes so far
             conn.commit()
 
-            # Drop deprecated preference columns by rebuilding tables (SQLite limitation)
-            try:
-                # Helper to check column existence
-                def _col_exists(table: str, col: str) -> bool:
-                    c = conn.execute(f"PRAGMA table_info({table})")
-                    return any(r[1] == col for r in c.fetchall())
+            # DEF-672: de rebuilds hieronder zijn atomair. Elke stap die faalt
+            # rolt de héle rebuild terug; de uitzondering loopt door naar de
+            # buitenste handler, die de migratie als mislukt rapporteert. Geen
+            # warning-plus-doorgaan meer voor verplichte migratiestappen.
+            def _col_exists(table: str, col: str) -> bool:
+                c = conn.execute(f"PRAGMA table_info({table})")
+                return any(r[1] == col for r in c.fetchall())
 
+            with _migratiemodus(conn):
                 # 1) definitie_voorbeelden: drop is_voorkeursterm if present
                 if _col_exists("definitie_voorbeelden", "is_voorkeursterm"):
                     logger.info(
                         "🔧 Rebuild 'definitie_voorbeelden' zonder kolom 'is_voorkeursterm'"
                     )
-                    conn.execute("PRAGMA foreign_keys=OFF")
-                    bewaard_voorbeelden = _bewaar_afhankelijke_objecten(
-                        conn, "definitie_voorbeelden"
+                    _rebuild_tabel_atomair(
+                        conn,
+                        tabel="definitie_voorbeelden",
+                        tijdelijke_naam="definitie_voorbeelden_old",
+                        maak_tabel=_create_definitie_voorbeelden_table,
+                        kolommen=DEFINITIE_VOORBEELDEN_KOLOMMEN,
+                        zorg_voor_indexen=_ensure_definitie_voorbeelden_indexes,
                     )
-                    _hernoem_zonder_referenties_te_herschrijven(
-                        conn, "definitie_voorbeelden", "definitie_voorbeelden_old"
-                    )
-                    _create_definitie_voorbeelden_table(conn)
-                    conn.execute("""
-                        INSERT INTO definitie_voorbeelden (
-                            id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                            gegenereerd_door, generation_model, generation_parameters, actief,
-                            beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
-                            aangemaakt_op, bijgewerkt_op
-                        )
-                        SELECT
-                            id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                            gegenereerd_door, generation_model, generation_parameters, actief,
-                            beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
-                            aangemaakt_op, bijgewerkt_op
-                        FROM definitie_voorbeelden_old
-                        """)
-                    conn.execute("DROP TABLE definitie_voorbeelden_old")
-                    # Pas ná de DROP: vóór die tijd zijn de oude namen nog bezet
-                    # door de objecten die met de hernoemde tabel meeverhuisden.
-                    _herstel_afhankelijke_objecten(conn, bewaard_voorbeelden)
-                    try:
-                        _ensure_definitie_voorbeelden_indexes(conn)
-                    except sqlite3.Error as e:
-                        logger.warning(
-                            f"Indexes/triggers hercreatie mislukt voor definitie_voorbeelden: {e}"
-                        )
-                    conn.execute("PRAGMA foreign_keys=ON")
                     logger.info("✅ Kolom 'is_voorkeursterm' verwijderd")
 
                 # 2) definities: drop voorkeursterm_is_begrip if present
@@ -520,94 +639,51 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
                     logger.info(
                         "🔧 Rebuild 'definities' zonder kolom 'voorkeursterm_is_begrip'"
                     )
-                    conn.execute("PRAGMA foreign_keys=OFF")
-                    bewaard_definities = _bewaar_afhankelijke_objecten(
-                        conn, "definities"
+                    _rebuild_tabel_atomair(
+                        conn,
+                        tabel="definities",
+                        tijdelijke_naam="definities_old",
+                        maak_tabel=_create_definities_table,
+                        kolommen=DEFINITIES_KOLOMMEN,
+                        zorg_voor_indexen=_ensure_definities_indexes,
                     )
-                    _hernoem_zonder_referenties_te_herschrijven(
-                        conn, "definities", "definities_old"
-                    )
-                    _create_definities_table(conn)
-                    # DEF-672: kolomlijst uit DEFINITIES_TABLE_SQL i.p.v. een
-                    # handgeschreven opsomming, die stil kon achterlopen op de
-                    # tabeldefinitie. Kolommen die de oude tabel nog niet heeft
-                    # (bv. na een ALTER-migratie die nooit draaide) worden
-                    # overgeslagen in plaats van de hele rebuild te laten falen.
-                    aanwezig = {
-                        rij[1]
-                        for rij in conn.execute("PRAGMA table_info(definities_old)")
-                    }
-                    over_te_zetten = [
-                        kolom for kolom in DEFINITIES_KOLOMMEN if kolom in aanwezig
-                    ]
-                    kolomlijst = ", ".join(over_te_zetten)
-                    conn.execute(
-                        f"INSERT INTO definities ({kolomlijst}) "
-                        f"SELECT {kolomlijst} FROM definities_old"
-                    )
-                    conn.execute("DROP TABLE definities_old")
-                    # Pas ná de DROP: de oude indexen en triggers verhuisden bij
-                    # de RENAME mee naar `definities_old` en hielden hun naam,
-                    # dus een CREATE … IF NOT EXISTS ervóór is een no-op en de
-                    # nieuwe tabel bleef kaal achter (DEF-672).
-                    _herstel_afhankelijke_objecten(conn, bewaard_definities)
-                    try:
-                        _ensure_definities_indexes(conn)
-                    except sqlite3.Error as e:
-                        logger.warning(f"Definities-indexen hercreatie mislukt: {e}")
-                    conn.execute("PRAGMA foreign_keys=ON")
                     logger.info("✅ Kolom 'voorkeursterm_is_begrip' verwijderd")
-            except Exception as e:
-                logger.warning(f"Kolom-opruiming overgeslagen/mislukt: {e}")
 
-            # Correcteer eventueel FK die nog naar 'definities_old' wijst
-            try:
-                cur = conn.execute(
-                    "SELECT sql FROM sqlite_master WHERE type='table' AND name='definitie_voorbeelden'"
-                )
-                row = cur.fetchone()
-                table_sql = row[0] if row else ""
-                if "definities_old" in (table_sql or ""):
+                # 3) Corrigeer een FK die nog naar 'definities_old' wijst. Dat
+                #    kan alleen in een database die vóór DEF-672 is gemigreerd;
+                #    sinds `legacy_alter_table` worden verwijzingen niet meer
+                #    herschreven.
+                rij = conn.execute(
+                    "SELECT sql FROM sqlite_master "
+                    "WHERE type='table' AND name='definitie_voorbeelden'"
+                ).fetchone()
+                if "definities_old" in ((rij[0] if rij else "") or ""):
                     logger.info(
                         "🔧 Corrigeer FK: rebuild 'definitie_voorbeelden' met FK naar 'definities'"
                     )
-                    conn.execute("PRAGMA foreign_keys=OFF")
-                    conn.execute(
-                        "ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old2"
+                    _rebuild_tabel_atomair(
+                        conn,
+                        tabel="definitie_voorbeelden",
+                        tijdelijke_naam="definitie_voorbeelden_old2",
+                        maak_tabel=_create_definitie_voorbeelden_table,
+                        kolommen=DEFINITIE_VOORBEELDEN_KOLOMMEN,
+                        zorg_voor_indexen=_ensure_definitie_voorbeelden_indexes,
                     )
-                    _create_definitie_voorbeelden_table(conn)
-                    # Copy data
-                    conn.execute("""
-                        INSERT INTO definitie_voorbeelden (
-                            id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                            gegenereerd_door, generation_model, generation_parameters, actief,
-                            beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
-                            aangemaakt_op, bijgewerkt_op
-                        )
-                        SELECT
-                            id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                            gegenereerd_door, generation_model, generation_parameters, actief,
-                            beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
-                            aangemaakt_op, bijgewerkt_op
-                        FROM definitie_voorbeelden_old2
-                        """)
-                    # Recreate indexes + trigger
-                    try:
-                        _ensure_definitie_voorbeelden_indexes(conn)
-                    except sqlite3.Error as e:
-                        logger.warning(
-                            f"Indexes/triggers hercreatie mislukt (FK fix): {e}"
-                        )
-                    conn.execute("DROP TABLE definitie_voorbeelden_old2")
-                    conn.execute("PRAGMA foreign_keys=ON")
                     logger.info(
                         "✅ FK naar 'definities' hersteld op 'definitie_voorbeelden'"
                     )
-            except Exception as e:
-                logger.warning(f"FK correctie check overslagen/mislukt: {e}")
 
             # Normaliseer wettelijke_basis voor betrouwbare duplicate-check op DB-laag
             _normalize_wettelijke_basis(conn)
+
+            # DEF-672: succes is een uitkomst, geen aanname. Zonder deze
+            # controle meldde de migratie True terwijl `definities` niet meer
+            # bestond en alleen `definities_old` restte.
+            problemen = _verifieer_migratie(conn, verwachte_objecten)
+            if problemen:
+                for probleem in problemen:
+                    logger.error(f"❌ Migratieverificatie: {probleem}")
+                return False
 
             logger.info("✅ Database migratie + normalisatie succesvol!")
             return True
