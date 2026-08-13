@@ -288,21 +288,52 @@ class TestAlleKandidatenWordenOnderzocht:
             )
         return laatste
 
-    def test_kandidaat_voorbij_de_oude_grens_wordt_gevonden(self, repo, db_pad):
+    @pytest.fixture
+    def kleine_paginas(self, monkeypatch):
+        """Verklein de paginagrootte zodat 250 kandidaten écht meerdere pagina's zijn.
+
+        Met de productiewaarde van 500 passen 250 kandidaten in één pagina en
+        toetst deze suite de paginalus helemaal niet — alleen de oude
+        `LIMIT 200`. De grens moet daadwerkelijk worden overschreden.
+        """
+        import database.definitie_duplicates as dup
+
+        monkeypatch.setattr(dup, "KANDIDATEN_PAGINA", 100)
+        return 100
+
+    def test_de_paginagrens_wordt_daadwerkelijk_overschreden(
+        self, repo, db_pad, kleine_paginas
+    ):
+        # De ijking op de ijking: zonder dit is niet vast te stellen dat de lus
+        # meer dan één ronde draait.
+        self._vul(db_pad, 250, match_achteraan=True)
+        assert kleine_paginas < 250, "de testopzet raakt de paginagrens niet"
+        assert len(repo.find_duplicate_candidates(BEGRIP)) == 250
+
+    def test_kandidaat_voorbij_de_paginagrens_wordt_gevonden(
+        self, repo, db_pad, kleine_paginas
+    ):
         gezet = self._vul(db_pad, 250, match_achteraan=True)
         kandidaten = repo.find_duplicate_candidates(BEGRIP)
         assert len(kandidaten) == 250, "niet alle kandidaten zijn opgehaald"
         assert gezet in [k.id for k in kandidaten]
 
     @pytest.mark.asyncio
-    async def test_duplicaat_voorbij_de_oude_grens_wordt_gesignaleerd(
-        self, repo, db_pad
+    async def test_duplicaat_voorbij_de_paginagrens_wordt_gesignaleerd(
+        self, repo, db_pad, kleine_paginas
     ):
         gezet = self._vul(db_pad, 250, match_achteraan=True)
         res = await _valideer(repo, _context())
         meldingen = _duplicaatmeldingen(res)
-        assert meldingen, "duplicaat op positie 250 werd stil gemist"
+        assert meldingen, "duplicaat voorbij de paginagrens werd stil gemist"
         assert meldingen[0]["metadata"]["existing_definition_id"] == gezet
+
+    def test_kandidaat_voorbij_de_oude_limiet_wordt_gevonden(self, repo, db_pad):
+        # Met de productie-paginagrootte: bewijst dat de oude `LIMIT 200` weg is.
+        gezet = self._vul(db_pad, 250, match_achteraan=True)
+        kandidaten = repo.find_duplicate_candidates(BEGRIP)
+        assert len(kandidaten) == 250
+        assert gezet in [k.id for k in kandidaten]
 
     @pytest.mark.asyncio
     async def test_zonder_match_blijft_het_geen_duplicaat(self, repo, db_pad):

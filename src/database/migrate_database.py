@@ -7,6 +7,7 @@ voor backward compatibility met de UI.
 
 import json
 import logging
+import re
 import sqlite3
 from pathlib import Path
 
@@ -79,9 +80,21 @@ CREATE TABLE {table_name} (
     export_destinations TEXT,
     datum_voorstel DATE,
     ketenpartners TEXT,
-    voorkeursterm TEXT
+    voorkeursterm TEXT,
+    -- DEF-672: stond wél in schema.sql maar niet hier, en werd door de rebuild
+    -- hieronder dus stil weggegooid — kolom én inhoud. Toegevoegd via DEF-151
+    -- als ALTER TABLE, waardoor deze definitie er nooit op is bijgewerkt.
+    generation_prompt_data TEXT
 );
 """
+
+# De kolommen die de rebuild van `definities` overzet. Afgeleid uit
+# DEFINITIES_TABLE_SQL zodat de INSERT- en SELECT-lijst niet apart kunnen
+# achterlopen op de tabeldefinitie — precies wat bij generation_prompt_data
+# gebeurde (DEF-672).
+DEFINITIES_KOLOMMEN: tuple[str, ...] = tuple(
+    re.findall(r"^\s{4}(\w+)\s", DEFINITIES_TABLE_SQL, flags=re.MULTILINE)
+)
 
 
 def _create_definitie_voorbeelden_table(
@@ -123,6 +136,51 @@ def _create_definities_table(
     """(Re)create the definities table with the canonical schema."""
 
     conn.executescript(DEFINITIES_TABLE_SQL.format(table_name=table_name))
+
+
+def _bewaar_afhankelijke_objecten(conn: sqlite3.Connection, tabel: str) -> list[str]:
+    """Leg de DDL van indexen en triggers op deze tabel vast (DEF-672).
+
+    Moet vóór de `ALTER TABLE … RENAME` gebeuren: daarna dragen ze de
+    tijdelijke tabelnaam. Zij verhuizen namelijk mee én houden hun naam,
+    waardoor een `CREATE … IF NOT EXISTS` erna een no-op is en `DROP TABLE`
+    ze alsnog allemaal meeneemt.
+    """
+    return [
+        rij[0]
+        for rij in conn.execute(
+            "SELECT sql FROM sqlite_master "
+            "WHERE tbl_name = ? AND type IN ('index', 'trigger') AND sql IS NOT NULL",
+            (tabel,),
+        )
+    ]
+
+
+def _herstel_afhankelijke_objecten(conn: sqlite3.Connection, ddls: list[str]) -> None:
+    """Zet bewaarde indexen en triggers terug op de herbouwde tabel."""
+    for ddl in ddls:
+        try:
+            conn.execute(ddl)
+        except sqlite3.Error as e:
+            logger.warning(f"Schemaobject kon niet worden hersteld: {e} — DDL: {ddl}")
+
+
+def _hernoem_zonder_referenties_te_herschrijven(
+    conn: sqlite3.Connection, van: str, naar: str
+) -> None:
+    """Hernoem een tabel zonder views en foreign keys mee te herschrijven.
+
+    Zonder `legacy_alter_table` herschrijft SQLite elke verwijzing naar de
+    tijdelijke naam. Na `DROP TABLE` wijzen views en FK-clausules dan naar een
+    tabel die niet meer bestaat — waarna zelfs het uitlezen van het schema
+    faalt. Dit is de door SQLite gedocumenteerde route voor het
+    rename-recreate-drop-patroon (DEF-672).
+    """
+    conn.execute("PRAGMA legacy_alter_table=ON")
+    try:
+        conn.execute(f"ALTER TABLE {van} RENAME TO {naar}")
+    finally:
+        conn.execute("PRAGMA legacy_alter_table=OFF")
 
 
 def _ensure_definities_indexes(conn: sqlite3.Connection) -> None:
@@ -423,8 +481,11 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
                         "🔧 Rebuild 'definitie_voorbeelden' zonder kolom 'is_voorkeursterm'"
                     )
                     conn.execute("PRAGMA foreign_keys=OFF")
-                    conn.execute(
-                        "ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old"
+                    bewaard_voorbeelden = _bewaar_afhankelijke_objecten(
+                        conn, "definitie_voorbeelden"
+                    )
+                    _hernoem_zonder_referenties_te_herschrijven(
+                        conn, "definitie_voorbeelden", "definitie_voorbeelden_old"
                     )
                     _create_definitie_voorbeelden_table(conn)
                     conn.execute("""
@@ -441,14 +502,16 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
                             aangemaakt_op, bijgewerkt_op
                         FROM definitie_voorbeelden_old
                         """)
-                    # Indexes en trigger
+                    conn.execute("DROP TABLE definitie_voorbeelden_old")
+                    # Pas ná de DROP: vóór die tijd zijn de oude namen nog bezet
+                    # door de objecten die met de hernoemde tabel meeverhuisden.
+                    _herstel_afhankelijke_objecten(conn, bewaard_voorbeelden)
                     try:
                         _ensure_definitie_voorbeelden_indexes(conn)
                     except sqlite3.Error as e:
                         logger.warning(
                             f"Indexes/triggers hercreatie mislukt voor definitie_voorbeelden: {e}"
                         )
-                    conn.execute("DROP TABLE definitie_voorbeelden_old")
                     conn.execute("PRAGMA foreign_keys=ON")
                     logger.info("✅ Kolom 'is_voorkeursterm' verwijderd")
 
@@ -458,30 +521,40 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
                         "🔧 Rebuild 'definities' zonder kolom 'voorkeursterm_is_begrip'"
                     )
                     conn.execute("PRAGMA foreign_keys=OFF")
-                    conn.execute("ALTER TABLE definities RENAME TO definities_old")
+                    bewaard_definities = _bewaar_afhankelijke_objecten(
+                        conn, "definities"
+                    )
+                    _hernoem_zonder_referenties_te_herschrijven(
+                        conn, "definities", "definities_old"
+                    )
                     _create_definities_table(conn)
-                    conn.execute("""
-                        INSERT INTO definities (
-                            id, begrip, definitie, categorie, organisatorische_context, juridische_context,
-                            wettelijke_basis, ufo_categorie, toelichting_proces, status, version_number, previous_version_id,
-                            validation_score, validation_date, validation_issues, source_type, source_reference, imported_from,
-                            created_at, updated_at, created_by, updated_by, approved_by, approved_at, approval_notes,
-                            last_exported_at, export_destinations, datum_voorstel, ketenpartners, voorkeursterm
-                        )
-                        SELECT
-                            id, begrip, definitie, categorie, organisatorische_context, juridische_context,
-                            wettelijke_basis, ufo_categorie, toelichting_proces, status, version_number, previous_version_id,
-                            validation_score, validation_date, validation_issues, source_type, source_reference, imported_from,
-                            created_at, updated_at, created_by, updated_by, approved_by, approved_at, approval_notes,
-                            last_exported_at, export_destinations, datum_voorstel, ketenpartners, voorkeursterm
-                        FROM definities_old
-                        """)
-                    # Recreate indexes
+                    # DEF-672: kolomlijst uit DEFINITIES_TABLE_SQL i.p.v. een
+                    # handgeschreven opsomming, die stil kon achterlopen op de
+                    # tabeldefinitie. Kolommen die de oude tabel nog niet heeft
+                    # (bv. na een ALTER-migratie die nooit draaide) worden
+                    # overgeslagen in plaats van de hele rebuild te laten falen.
+                    aanwezig = {
+                        rij[1]
+                        for rij in conn.execute("PRAGMA table_info(definities_old)")
+                    }
+                    over_te_zetten = [
+                        kolom for kolom in DEFINITIES_KOLOMMEN if kolom in aanwezig
+                    ]
+                    kolomlijst = ", ".join(over_te_zetten)
+                    conn.execute(
+                        f"INSERT INTO definities ({kolomlijst}) "
+                        f"SELECT {kolomlijst} FROM definities_old"
+                    )
+                    conn.execute("DROP TABLE definities_old")
+                    # Pas ná de DROP: de oude indexen en triggers verhuisden bij
+                    # de RENAME mee naar `definities_old` en hielden hun naam,
+                    # dus een CREATE … IF NOT EXISTS ervóór is een no-op en de
+                    # nieuwe tabel bleef kaal achter (DEF-672).
+                    _herstel_afhankelijke_objecten(conn, bewaard_definities)
                     try:
                         _ensure_definities_indexes(conn)
                     except sqlite3.Error as e:
                         logger.warning(f"Definities-indexen hercreatie mislukt: {e}")
-                    conn.execute("DROP TABLE definities_old")
                     conn.execute("PRAGMA foreign_keys=ON")
                     logger.info("✅ Kolom 'voorkeursterm_is_begrip' verwijderd")
             except Exception as e:
