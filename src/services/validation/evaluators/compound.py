@@ -14,10 +14,10 @@ import logging
 from services.validation.evaluators.base import (
     EvaluationDeps,
     EvaluationOutcome,
+    falende_uitkomst,
 )
 from services.validation.types_internal import EvaluationContext
-from services.validation.violation_builder import category_for_rule
-from toetsregels.runtime_contract import EvaluatorType, ResultStatus, RuleRecord
+from toetsregels.runtime_contract import EvaluatorType, RuleRecord
 
 logger = logging.getLogger(__name__)
 
@@ -41,23 +41,16 @@ class CompoundEvaluator:
         if eerste_token in begrip:
             return EvaluationOutcome.passed()
 
-        code = record.rule_id.upper()
-        melding = "Samenstelling start niet met het specialiserende component (genus)"
-        return EvaluationOutcome(
-            status=ResultStatus.FAIL,
-            score=0.0,
-            violation={
-                "code": code,
-                "severity": deps.support.severity_for(dict(record.data)),
-                "message": melding,
-                "description": melding,
-                "rule_id": code,
-                "category": category_for_rule(code),
-                "suggestion": (
-                    "Laat de definitie beginnen met het genus uit de samenstelling "
-                    "(bv. 'model …' bij 'procesmodel')."
-                ),
-            },
+        return falende_uitkomst(
+            record,
+            deps,
+            melding=(
+                "Samenstelling start niet met het specialiserende component (genus)"
+            ),
+            suggestie=(
+                "Laat de definitie beginnen met het genus uit de samenstelling "
+                "(bv. 'model …' bij 'procesmodel')."
+            ),
         )
 
     @staticmethod

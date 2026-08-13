@@ -47,6 +47,25 @@ class DeferredEvaluator:
 
 
 DEFERRED_EVALUATORS: tuple[DeferredEvaluator, ...] = (
+    # DEF-667/DEF-669: `abbreviation` en `definition_grammar` stonden in
+    # `EvaluatorType` en in de root-SSOT zonder registratie. Vandaag declareert
+    # geen enkel record ze, maar "toegestaan zonder registratie" is precies het
+    # gat dat het register moet dichten: een record dat er één noemt passeert
+    # alle contractvalidatie en klapt pas per evaluatie om in ERROR, waarna de
+    # regel via de dekking uit de noemer valt. Ze staan hier expliciet als
+    # uitgesteld, met eigenaar-issue, in plaats van als stille leegte.
+    DeferredEvaluator(
+        EvaluatorType.ABBREVIATION,
+        "DEF-624",
+        "INT-07 vraagt een afkortingstoets die de correcte uitschrijving niet "
+        "meer afkeurt",
+    ),
+    DeferredEvaluator(
+        EvaluatorType.DEFINITION_GRAMMAR,
+        "DEF-624",
+        "De STR-01-body-check op de tekst ná de dubbele punt is nog niet "
+        "geïmplementeerd",
+    ),
     DeferredEvaluator(
         EvaluatorType.DEFINITION_OVERLAP,
         "DEF-623",

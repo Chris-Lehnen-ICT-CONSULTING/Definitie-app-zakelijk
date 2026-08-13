@@ -14,10 +14,10 @@ import re
 from services.validation.evaluators.base import (
     EvaluationDeps,
     EvaluationOutcome,
+    falende_uitkomst,
 )
 from services.validation.types_internal import EvaluationContext
-from services.validation.violation_builder import category_for_rule
-from toetsregels.runtime_contract import EvaluatorType, ResultStatus, RuleRecord
+from toetsregels.runtime_contract import EvaluatorType, RuleRecord
 
 logger = logging.getLogger(__name__)
 
@@ -74,21 +74,17 @@ class OntologicalCategoryEvaluator:
             )
             reden = "missing"
 
-        return EvaluationOutcome(
-            status=ResultStatus.FAIL,
-            score=0.0,
-            violation={
-                "code": code,
-                "severity": "error",
-                "severity_level": "high",
-                "message": melding,
-                "description": melding,
-                "rule_id": code,
-                "category": category_for_rule(code),
-                "suggestion": deps.support.build_suggestion(
-                    code, dict(record.data), text, ctx, reason=reden
-                ),
-            },
+        # DEF-669: severity en severity_level kwamen hier uit een hardcoded
+        # "error"/"high" in plaats van uit het regelrecord. ESS-02 is
+        # verplicht+hoog en hoort dus severity_level "critical" te dragen,
+        # net als elke andere verplichte regel met hoge prioriteit.
+        return falende_uitkomst(
+            record,
+            deps,
+            melding=melding,
+            suggestie=deps.support.build_suggestion(
+                code, dict(record.data), text, ctx, reason=reden
+            ),
         )
 
     @staticmethod
