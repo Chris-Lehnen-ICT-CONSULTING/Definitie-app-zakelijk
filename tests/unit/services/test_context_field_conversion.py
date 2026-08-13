@@ -179,12 +179,30 @@ class TestDefinitionToUpdates:
         return Definition(**defaults)
 
     def test_context_serialized_correctly(self):
-        """Context velden worden correct geserialiseerd in updates."""
+        """Context velden worden canoniek geserialiseerd in updates.
+
+        DEF-672: de updatetak omzeilde `canoniseer_contextlijst`, waardoor een
+        bijgewerkte definitie in invoegvolgorde en met duplicaten in de
+        database belandde terwijl `save()` wél canoniseerde. De verwachting
+        hier is daarom deterministisch gesorteerd — dat is precies wat de
+        duplicaatvergelijking nodig heeft.
+        """
         repo = self._make_repo()
         definition = self._make_definition()
         updates = repo._definition_to_updates(definition)
-        assert json.loads(updates["organisatorische_context"]) == ["OM", "DJI"]
+        assert json.loads(updates["organisatorische_context"]) == ["DJI", "OM"]
         assert json.loads(updates["juridische_context"]) == ["Strafrecht"]
+        assert json.loads(updates["wettelijke_basis"]) == ["Art. 27 Sv"]
+
+    def test_context_wordt_getrimd_en_ontdubbeld_bij_update(self):
+        """Dezelfde opruiming als bij create — niet alleen sortering."""
+        repo = self._make_repo()
+        definition = self._make_definition(
+            organisatorische_context=["  OM ", "DJI", "dji", ""],
+            wettelijke_basis=["Art. 27 Sv", "  Art. 27 Sv  "],
+        )
+        updates = repo._definition_to_updates(definition)
+        assert json.loads(updates["organisatorische_context"]) == ["DJI", "OM"]
         assert json.loads(updates["wettelijke_basis"]) == ["Art. 27 Sv"]
 
     def test_none_wettelijke_basis_becomes_empty_array(self):
