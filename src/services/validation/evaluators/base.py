@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
 from services.validation.types_internal import EvaluationContext
+from services.validation.violation_builder import category_for_rule
 from toetsregels.runtime_contract import (
     EvaluatorType,
     RequiredInput,
@@ -29,6 +30,8 @@ __all__ = [
     "EvaluationSupport",
     "Finding",
     "RuleEvaluator",
+    "bouw_violation",
+    "falende_uitkomst",
 ]
 
 
@@ -132,3 +135,65 @@ class RuleEvaluator(Protocol):
     def evaluate(
         self, record: RuleRecord, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> EvaluationOutcome: ...
+
+
+def bouw_violation(
+    record: RuleRecord,
+    deps: EvaluationDeps,
+    *,
+    melding: str,
+    suggestie: str | None,
+    beschrijving: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """De enige plek waar een evaluator zijn eigen violation-dict vormt.
+
+    Vier evaluators bouwden die dict eerder met de hand, en dus verschillend:
+    `compound` en `qualification` leverden géén `severity_level`,
+    `ontological_category` hardcodeerde `"high"` en `lemma_morphology` leidde
+    hem af uit het record. Een consumer die op `severity_level` filtert kreeg
+    voor SAM-02 en SAM-04 niets terug (DEF-669).
+
+    Severity en severity_level komen hier altijd uit het regelrecord, via
+    dezelfde afleiding die de service voor de bevindingen-route gebruikt. Zo
+    is de vorm van een violation onafhankelijk van welke evaluator hem maakte.
+    """
+    rule = dict(record.data)
+    code = record.rule_id.upper()
+    violation: dict[str, Any] = {
+        "code": code,
+        "severity": deps.support.severity_for(rule),
+        "severity_level": deps.support.severity_level_for(rule),
+        "message": melding,
+        "description": beschrijving or melding,
+        "rule_id": code,
+        "category": category_for_rule(code),
+        "suggestion": suggestie,
+    }
+    if metadata:
+        violation["metadata"] = dict(metadata)
+    return violation
+
+
+def falende_uitkomst(
+    record: RuleRecord,
+    deps: EvaluationDeps,
+    *,
+    melding: str,
+    suggestie: str | None,
+    beschrijving: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> EvaluationOutcome:
+    """Eén FAIL-uitkomst met violation, in één vorm (DEF-669)."""
+    return EvaluationOutcome(
+        status=ResultStatus.FAIL,
+        score=0.0,
+        violation=bouw_violation(
+            record,
+            deps,
+            melding=melding,
+            suggestie=suggestie,
+            beschrijving=beschrijving,
+            metadata=metadata,
+        ),
+    )

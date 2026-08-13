@@ -24,14 +24,14 @@ from services.validation.evaluators.base import (
     EvaluationDeps,
     EvaluationOutcome,
     Finding,
+    falende_uitkomst,
 )
 from services.validation.evaluators.generic import (
     uitkomst_van,
     verzamel_generieke_bevindingen,
 )
 from services.validation.types_internal import EvaluationContext
-from services.validation.violation_builder import category_for_rule
-from toetsregels.runtime_contract import EvaluatorType, ResultStatus, RuleRecord
+from toetsregels.runtime_contract import EvaluatorType, RuleRecord
 
 __all__ = ["LemmaMorphologyEvaluator", "lemma_is_enkelvoud"]
 
@@ -63,28 +63,16 @@ class LemmaMorphologyEvaluator:
     def _infinitief(
         record: RuleRecord, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> EvaluationOutcome:
-        code = record.rule_id.upper()
         lemma = str(ctx.begrip or "").strip()
         if lemma and re.search(r".+[td]$", lemma.lower()):
-            melding = "Werkwoord-term niet in infinitief (eindigt op -t/-d)"
-            return EvaluationOutcome(
-                status=ResultStatus.FAIL,
-                score=0.0,
-                violation={
-                    "code": code,
-                    "severity": deps.support.severity_for(dict(record.data)),
-                    "severity_level": deps.support.severity_level_for(
-                        dict(record.data)
-                    ),
-                    "message": melding,
-                    "description": melding,
-                    "rule_id": code,
-                    "category": category_for_rule(code),
-                    "suggestion": (
-                        "Gebruik de onbepaalde wijs (infinitief), bijv. "
-                        "'beoordelen' i.p.v. 'beoordeelt'."
-                    ),
-                },
+            return falende_uitkomst(
+                record,
+                deps,
+                melding="Werkwoord-term niet in infinitief (eindigt op -t/-d)",
+                suggestie=(
+                    "Gebruik de onbepaalde wijs (infinitief), bijv. "
+                    "'beoordelen' i.p.v. 'beoordeelt'."
+                ),
             )
         return EvaluationOutcome.passed()
 
