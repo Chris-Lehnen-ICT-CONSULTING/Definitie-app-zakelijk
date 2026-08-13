@@ -781,6 +781,20 @@ class ModularValidationService:
         # hebben gedraaid horen niet in `rule_scores` (dan zouden ze de score
         # raken) maar wél in `rule_statuses` en dus in de dekking.
         self._vul_niet_uitgevoerde_regels(rule_statuses)
+        dekking = self._bereken_dekking(rule_statuses)
+
+        # Een mislukte meting mag de uitkomst niet gunstiger maken (herreview
+        # PR #397). `calculate_weighted_score` loopt over `rule_scores`, en de
+        # ERROR-tak boekt daar niets in: een geërrorde regel valt uit teller én
+        # noemer. Zou die regel gefaald hebben (0,0), dan stijgt het gemiddelde
+        # doordat hij wegvalt — gemeten 0,74 → 0,75, precies over de harde
+        # vestigingsdrempel. Dat is de kernclaim van DEF-624 omgekeerd.
+        #
+        # De score blijft puur over pass/fail (specificatiebesluit 6); de
+        # blokkade zit op de acceptatie. Een validatie die niet uitgevoerd kón
+        # worden is geen goedgekeurde validatie.
+        if dekking["error"]:
+            is_ok = False
 
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
@@ -794,7 +808,7 @@ class ModularValidationService:
             # die niet is uitgevoerd of menselijk oordeel vraagt telt niet als
             # pass mee; hij is hier zichtbaar in plaats van onzichtbaar.
             "rule_statuses": rule_statuses,
-            "evaluation_coverage": self._bereken_dekking(rule_statuses),
+            "evaluation_coverage": dekking,
             "review_required": review_items,
             # DEF-215: Include degraded mode metadata for UI transparency
             "system": {
@@ -1082,15 +1096,40 @@ class ModularValidationService:
         for rule_id in self._contract_rule_ids:
             rule_statuses.setdefault(rule_id, ResultStatus.NOT_EVALUATED.value)
 
+        # DEF-673: draait er een code buiten het manifest, dan groeit de noemer
+        # mee met de regel die hem optilt. In productie kan dat niet —
+        # `build_rule_records` is alles-of-niets tegen het manifest — maar een
+        # afwijking mag nooit stil blijven, want dan verschuift de betekenis van
+        # `coverage_ratio` zonder dat iemand het merkt.
+        buiten_manifest = sorted(set(rule_statuses) - set(self._contract_rule_ids))
+        if buiten_manifest:
+            logger.warning(
+                "Regelcodes buiten het contractmanifest tellen mee in de "
+                "evaluatiedekking: %s",
+                buiten_manifest,
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "evaluation_coverage",
+                    "codes_buiten_manifest": buiten_manifest,
+                    "manifest_grootte": len(self._contract_rule_ids),
+                },
+            )
+
     def _bereken_dekking(self, rule_statuses: dict[str, str]) -> dict[str, Any]:
         """Evaluatiedekking naast de kwaliteitsscore (DEF-624).
 
         Een lagere dekking mag nooit als hogere kwaliteit verschijnen; daarom
         rapporteert het resultaat beide getallen los van elkaar.
 
-        De noemer is de volledige statusverzameling ná aanvulling met de
-        contractregels die niet hebben gedraaid, zodat dekking en statussen
-        per constructie op elkaar sluiten.
+        De noemer is de volledige statusverzameling ná aanvulling: de
+        contractregels plus eventuele codes die buiten het manifest hebben
+        gedraaid. Dat is bewust niet strikt het manifest (DEF-673). Zou de
+        noemer alles buiten het manifest wegfilteren, dan telt de som van de
+        statussen niet meer op tot ``total`` en spreekt het dekkingsblok
+        zichzelf tegen; en in een testopstelling met eigen regelcodes zou de
+        dekking dan 0/53 melden terwijl er wél is gemeten. In productie vallen
+        beide samen — `build_rule_records` is alles-of-niets tegen het manifest,
+        en `_vul_niet_uitgevoerde_regels` waarschuwt zichtbaar bij afwijking.
         """
         telling = {status.value: 0 for status in ResultStatus}
         for status in rule_statuses.values():

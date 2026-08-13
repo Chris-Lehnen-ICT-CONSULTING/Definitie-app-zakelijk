@@ -30,10 +30,15 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "CONTEXT_VELDEN",
+    "DUPLICATE_LOOKUP_METHODE",
     "DUPLICATE_STASH_KEY",
     "ContextMetadataEvaluator",
     "normaliseer_contextlijst",
 ]
+
+# De repository-capability die de duplicaatcontrole nodig heeft. Eén constante,
+# zodat de guard en de test niet elk hun eigen naam dragen (DEF-672).
+DUPLICATE_LOOKUP_METHODE = "_get_all_definitions"
 
 CONTEXT_VELDEN: tuple[str, str, str] = (
     "organisatorische_context",
@@ -93,7 +98,34 @@ class ContextMetadataEvaluator:
         contexten = [metadata.get(veld) or [] for veld in CONTEXT_VELDEN]
         if not any(contexten):
             return
-        if not hasattr(deps.repository, "_get_all_definitions"):
+        if not hasattr(deps.repository, DUPLICATE_LOOKUP_METHODE):
+            # DEF-672: dit is géén niet-van-toepassing-geval maar een
+            # bedradingsdefect. De caller heeft om een duplicaat-bewuste
+            # validatie gevraagd en krijgt die niet, terwijl CON-01 daarna een
+            # gemeten `pass` meldt. Gemeten op de productieketen: de
+            # geïnjecteerde `DefinitionRepository` heeft deze methode niet
+            # (verwijderd in DEF-176), dus deze tak wordt élke aanroep genomen.
+            #
+            # Nog niet fail-closed op status: `error` zou met de errorblokkade
+            # elke productievalidatie afkeuren, en `not_evaluated` zou CON-01
+            # uit de automatische set halen. De echte bedrading vraagt een
+            # genormaliseerde duplicaatquery over de persistentiegrens
+            # (specificatiebesluit 2) en is belegd bij DEF-672/DEF-622. Tot dan
+            # is de fout minstens niet meer stil.
+            logger.error(
+                "Duplicaatcontrole overgeslagen: repository %s biedt geen "
+                "%s(); CON-01 rapporteert daardoor een patroontoets zonder "
+                "duplicaatsignaal (DEF-672)",
+                type(deps.repository).__name__,
+                DUPLICATE_LOOKUP_METHODE,
+                extra={
+                    "component": "evaluators.context_metadata",
+                    "rule_id": "CON-01",
+                    "repository_type": type(deps.repository).__name__,
+                    "ontbrekende_methode": DUPLICATE_LOOKUP_METHODE,
+                    "issue": "DEF-672",
+                },
+            )
             return
 
         gevonden = self._zoek_duplicaat(deps.repository, begrip, contexten, metadata)

@@ -27,6 +27,7 @@ from typing import Any
 import pytest
 
 from services.validation.evaluators.base import EvaluationDeps
+from services.validation.evaluators.context_metadata import DUPLICATE_LOOKUP_METHODE
 from services.validation.evaluators.generic import GenericEvaluator
 from services.validation.evaluators.judgment_review import JudgmentReviewEvaluator
 from services.validation.evaluators.ontological_category import (
@@ -270,3 +271,73 @@ class TestRepositoryfoutIsGeenPass:
             ResultStatus.PASS.value,
             ResultStatus.FAIL.value,
         ), res["rule_statuses"]
+
+
+class _RepositoryZonderDuplicaatzoeker:
+    """De productievorm: repository aanwezig, capability afwezig.
+
+    `DefinitionRepository` — het object dat de orchestrator werkelijk
+    injecteert — heeft geen `_get_all_definitions`; die is in DEF-176 als dode
+    code verwijderd. Gemeten: `hasattr(...) is False`, en geen `__getattr__`.
+    """
+
+    def save(self) -> None: ...
+
+
+class TestOnbereikbareDuplicaatcontroleIsNietStil:
+    """DEF-672: een bedradingsdefect mag niet als geslaagde controle passeren.
+
+    De capability-guard nam elke productie-aanroep en returnde stil, waarna
+    CON-01 een gemeten `pass` meldde. De controle is daarmee nooit gelopen.
+    De echte bedrading vraagt een genormaliseerde duplicaatquery over de
+    persistentiegrens (specificatiebesluit 2) en is belegd bij DEF-672; tot dan
+    moet de fout minstens zichtbaar zijn.
+    """
+
+    @pytest.mark.asyncio
+    async def test_ontbrekende_capability_wordt_gemeld(self, caplog):
+        import logging
+
+        svc = ModularValidationService(
+            get_toetsregel_manager(),
+            None,
+            None,
+            repository=_RepositoryZonderDuplicaatzoeker(),
+        )
+        with caplog.at_level(logging.ERROR):
+            res = await svc.validate_definition(
+                begrip="besluit",
+                text="besluit: een schriftelijke beslissing van een bestuursorgaan",
+                ontologische_categorie=None,
+                context={"organisatorische_context": ["DJI"]},
+            )
+
+        meldingen = [
+            bericht.getMessage()
+            for bericht in caplog.records
+            if bericht.levelno >= logging.ERROR
+        ]
+        assert any(
+            "DEF-672" in melding and "Duplicaatcontrole" in melding
+            for melding in meldingen
+        ), f"bedradingsdefect bleef stil; gelogd: {meldingen}"
+        # Bewust géén error-status: dat zou met de errorblokkade elke
+        # productievalidatie afkeuren. De patroontoets van CON-01 loopt door.
+        assert res["rule_statuses"]["CON-01"] in (
+            ResultStatus.PASS.value,
+            ResultStatus.FAIL.value,
+        ), res["rule_statuses"]
+
+    def test_de_echte_repository_mist_de_capability_nog(self):
+        """Pin de aanleiding vast, zodat de fix van DEF-672 hier opvalt.
+
+        Zodra `DefinitionRepository` de capability wél biedt, faalt deze test
+        en is dat het signaal om de guard en deze suite bij te werken — in
+        plaats van dat de melding hierboven jaren blijft vuren.
+        """
+        from services.definition_repository import DefinitionRepository
+
+        assert not hasattr(DefinitionRepository, DUPLICATE_LOOKUP_METHODE), (
+            f"DefinitionRepository biedt nu {DUPLICATE_LOOKUP_METHODE!r} — werk "
+            f"DEF-672 af en verwijder de bedradingsmelding"
+        )
