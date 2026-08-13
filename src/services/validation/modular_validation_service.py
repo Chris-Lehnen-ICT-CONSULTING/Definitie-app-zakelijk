@@ -125,9 +125,12 @@ class ModularValidationService:
         self._is_degraded_mode: bool = False
         self._degradation_reason: str | None = None
         self._rules_loaded_count: int = 0
-        # DEF-621: verwachte telling uit het contract (regelbestanden op
-        # disk) i.p.v. hardcoded — de eerdere 45 liep achter op de 53.
-        self._rules_expected_count: int = self._tel_regelbestanden()
+        # DEF-621/DEF-668: de verwachte regelset komt uit het contract, niet
+        # uit een hardcoded getal en niet uit de set die toevallig draait. Zij
+        # is zowel de degraded-modus-teller als de noemer van de
+        # evaluatiedekking.
+        self._contract_rule_ids: tuple[str, ...] = self._contractregel_ids()
+        self._rules_expected_count: int = len(self._contract_rule_ids)
 
         # Baseline interne regels (altijd beschikbaar voor policies zoals scoring-uitsluiting)
         self._baseline_internal: list[str] = [
@@ -190,21 +193,20 @@ class ModularValidationService:
                 )
 
     @staticmethod
-    def _tel_regelbestanden() -> int:
-        """Verwachte regeltelling uit het contract (DEF-621/DEF-606).
+    def _contractregel_ids() -> tuple[str, ...]:
+        """De verwachte regel-ID-set uit het contract (DEF-621/DEF-668).
 
-        Komt uit het ``rule_ids``-manifest in de root-SSOT, niet uit een
-        glob over de regelmap: dat laatste zou de telling laten meebewegen
-        met een verdwenen bestand en het gat juist onzichtbaar maken.
+        Komt uit het ``rule_ids``-manifest in de root-SSOT, niet uit een glob
+        over de regelmap: dat laatste zou de verwachting laten meebewegen met
+        een verdwenen bestand en het gat juist onzichtbaar maken.
+
+        Bewust zonder fallback. De eerdere ``except RuleContractError: return
+        45`` verzon bij een onleesbare root-SSOT een noemer, terwijl elk ander
+        pad bij diezelfde fout hard faalt. Een gefantaseerde noemer is precies
+        zo misleidend als een noemer die met de gedraaide set meebeweegt: de
+        dekking rapporteert dan een percentage waarvan niemand de basis kent.
         """
-        try:
-            return len(root_contract_policy().rule_ids)
-        except RuleContractError as e:
-            logger.warning(
-                f"Contract-telling niet bepaalbaar uit de root-SSOT, "
-                f"fallback 45: {type(e).__name__}: {e}"
-            )
-            return 45
+        return root_contract_policy().rule_ids
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
     def _load_rules_from_manager(self) -> None:
@@ -775,6 +777,11 @@ class ModularValidationService:
         gate_ok = bool(acceptance_gate.get("acceptable", False)) and (not has_blockers)
         is_ok = gate_ok or soft_ok
 
+        # DEF-668: pas hier aanvullen, ná de evaluatielus. De regels die niet
+        # hebben gedraaid horen niet in `rule_scores` (dan zouden ze de score
+        # raken) maar wél in `rule_statuses` en dus in de dekking.
+        self._vul_niet_uitgevoerde_regels(rule_statuses)
+
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
             "version": CONTRACT_VERSION,
@@ -1059,11 +1066,31 @@ class ModularValidationService:
                 },
             )
 
+    def _vul_niet_uitgevoerde_regels(self, rule_statuses: dict[str, str]) -> None:
+        """Maak elke contractregel die niet heeft gedraaid zichtbaar (DEF-668).
+
+        Zonder deze aanvulling kende ``rule_statuses`` alleen de regels die
+        werkelijk zijn uitgevoerd, en mat de dekking zichzelf: in
+        fallback-modus meldde zij ``total=7`` met ``coverage_ratio=1.0`` — volle
+        dekking, terwijl 46 van de 53 contractregels nooit hadden gedraaid.
+
+        Alleen de noemer optrekken zou niet volstaan: dan telt de som van de
+        statussen niet meer op tot ``total`` en spreekt het dekkingsblok
+        zichzelf tegen. De ontbrekende regels krijgen daarom een échte status,
+        en die status is ``not_evaluated`` — nooit ``pass``.
+        """
+        for rule_id in self._contract_rule_ids:
+            rule_statuses.setdefault(rule_id, ResultStatus.NOT_EVALUATED.value)
+
     def _bereken_dekking(self, rule_statuses: dict[str, str]) -> dict[str, Any]:
         """Evaluatiedekking naast de kwaliteitsscore (DEF-624).
 
         Een lagere dekking mag nooit als hogere kwaliteit verschijnen; daarom
         rapporteert het resultaat beide getallen los van elkaar.
+
+        De noemer is de volledige statusverzameling ná aanvulling met de
+        contractregels die niet hebben gedraaid, zodat dekking en statussen
+        per constructie op elkaar sluiten.
         """
         telling = {status.value: 0 for status in ResultStatus}
         for status in rule_statuses.values():
