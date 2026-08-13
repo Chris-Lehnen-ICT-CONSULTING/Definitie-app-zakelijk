@@ -49,19 +49,13 @@ def normaliseer_contextlijst(waarden: Any) -> list[str]:
     Volgorde-onafhankelijk en Unicode-correct; dit is de enige
     normalisatiefunctie die de contextinvariant, CON-01 en de
     duplicaatcontrole delen (besluit DEF-622).
+
+    Geen foutafhandeling (DEF-667): een niet-itereerbare contextwaarde leverde
+    eerder een lege lijst op, en dan vergelijkt een kandidaat met échte
+    context ongelijk — het duplicaat verdwijnt en de regel slaagt. De
+    `TypeError` loopt nu door naar de ERROR-grens.
     """
-    try:
-        return sorted(
-            {str(item or "").strip().casefold() for item in list(waarden or [])}
-        )
-    except (TypeError, AttributeError) as exc:
-        logger.debug(
-            "Contextlijst-normalisatie gefaald: %s: %s",
-            type(exc).__name__,
-            exc,
-            extra={"component": "evaluators.context_metadata"},
-        )
-        return []
+    return sorted({str(item or "").strip().casefold() for item in list(waarden or [])})
 
 
 class ContextMetadataEvaluator:
@@ -78,37 +72,34 @@ class ContextMetadataEvaluator:
     def _signaleer_duplicaat(
         self, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> None:
-        """Stash een duplicaatwaarschuwing die de service later oppikt."""
-        begrip = ctx.begrip or None
-        try:
-            if deps.repository is None or not begrip:
-                return
-            metadata = ctx.metadata or {}
-            contexten = [metadata.get(veld) or [] for veld in CONTEXT_VELDEN]
-            if not any(contexten):
-                return
-            if not hasattr(deps.repository, "_get_all_definitions"):
-                return
+        """Stash een duplicaatwaarschuwing die de service later oppikt.
 
-            gevonden = self._zoek_duplicaat(
-                deps.repository, begrip, contexten, metadata
-            )
-            if gevonden is None:
-                return
-            self._voeg_waarschuwing_toe(metadata, gevonden["id"], gevonden["status"])
-        except AttributeError:
+        Bewust zonder foutafhandeling (DEF-667). Een aanwezige repository die
+        faalt levert een míslukte controle op, geen geslaagde; de oude
+        `except Exception` + warning liet CON-01 daarna gewoon op `pass`
+        eindigen, waardoor een duplicaat ongemerkt kon worden vastgesteld.
+        De uitzondering loopt nu door naar de ERROR-grens in
+        `ModularValidationService._evaluate_via_registry`.
+
+        De drie vroege returns hieronder zijn géén foutafhandeling maar
+        expliciete niet-van-toepassing-gevallen: zonder repository, zonder
+        begrip of zonder enige context is er niets te vergelijken. Dat gedrag
+        blijft ongewijzigd — de UI valideert standaard zonder repository.
+        """
+        begrip = ctx.begrip or None
+        if deps.repository is None or not begrip:
             return
-        except Exception as exc:
-            logger.warning(
-                "Duplicate context detectie gefaald: %s: %s",
-                type(exc).__name__,
-                exc,
-                extra={
-                    "component": "evaluators.context_metadata",
-                    "begrip": str(begrip)[:50] if begrip else None,
-                    "has_repository": deps.repository is not None,
-                },
-            )
+        metadata = ctx.metadata or {}
+        contexten = [metadata.get(veld) or [] for veld in CONTEXT_VELDEN]
+        if not any(contexten):
+            return
+        if not hasattr(deps.repository, "_get_all_definitions"):
+            return
+
+        gevonden = self._zoek_duplicaat(deps.repository, begrip, contexten, metadata)
+        if gevonden is None:
+            return
+        self._voeg_waarschuwing_toe(metadata, gevonden["id"], gevonden["status"])
 
     @staticmethod
     def _zoek_duplicaat(

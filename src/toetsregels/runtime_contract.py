@@ -32,6 +32,7 @@ from typing import Any
 import yaml
 
 __all__ = [
+    "REGEX_PATROONVELDEN",
     "AutomationStatus",
     "EvaluatorType",
     "ExamplePairPolicy",
@@ -67,6 +68,23 @@ ROOT_CONFIG_PATH: Path = (
 )
 
 _NIET_ALFANUMERIEK = re.compile(r"[^A-Z0-9]")
+
+# De recordvelden die een evaluator als regex compileert. Compileerbaarheid
+# hoort bij het contract en niet bij de evaluatie: de evaluators vingen
+# `re.error` eerder zelf af met een lege patroonlijst, waardoor één
+# onbruikbaar patroon álle patronen van de regel uitzette en de regel van
+# falend naar geslaagd ging (DEF-667). Wie hier een veld bijzet, moet de
+# verwachting in `test_rule_loader_failclosed.TestPatrooncontract`
+# meebewegen; die lijst is bewust onafhankelijk opgeschreven.
+REGEX_PATROONVELDEN: tuple[str, ...] = (
+    "herkenbaar_patronen",
+    "herkenbaar_patronen_particulier",
+    "herkenbaar_patronen_proces",
+    "herkenbaar_patronen_resultaat",
+    "herkenbaar_patronen_type",
+    "redundancy_patterns",
+    "required_patterns",
+)
 
 
 class RuleContractError(ValueError):
@@ -382,6 +400,8 @@ def build_rule_record(
         )
         raise RuleContractError(msg)
 
+    _eis_compileerbare_patronen(rule_id, data)
+
     gedeclareerd_id = data.get("id")
     if gedeclareerd_id is not None and canonical_rule_id(
         gedeclareerd_id
@@ -451,6 +471,37 @@ def build_rule_record(
     _eis_consistente_klasse(record)
     _eis_voorbeeldpaarbeleid(record)
     return record
+
+
+def _eis_compileerbare_patronen(rule_id: str, data: Mapping[str, Any]) -> None:
+    """Elk patroonveld moet een lijst compileerbare regexen zijn.
+
+    Verzamelt álle kapotte patronen van het record in één melding, mét
+    veldnaam en index, zodat een migratie niet patroon-voor-patroon hoeft te
+    worden uitgevist.
+    """
+    fouten: list[str] = []
+    for veld in REGEX_PATROONVELDEN:
+        waarde = data.get(veld)
+        if waarde is None:
+            continue
+        if not isinstance(waarde, list):
+            fouten.append(
+                f"'{veld}' moet een lijst patronen zijn, gevonden "
+                f"{type(waarde).__name__}"
+            )
+            continue
+        for index, patroon in enumerate(waarde):
+            try:
+                re.compile(patroon, re.IGNORECASE)
+            except (re.error, TypeError) as exc:
+                fouten.append(
+                    f"'{veld}'[{index}] is geen bruikbare regex "
+                    f"({patroon!r}): {exc}"
+                )
+    if fouten:
+        msg = f"{rule_id}: " + "; ".join(fouten)
+        raise RuleContractError(msg)
 
 
 def _eis_consistente_klasse(record: RuleRecord) -> None:
