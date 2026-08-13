@@ -1027,8 +1027,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             ensure_ascii=False,
         )
         try:
-            # `None` blijft `None`: dat betekent "niet gezet" en is iets anders
-            # dan een lege lijst.
+            # De `None`-tak is in de praktijk onbereikbaar: `Definition.__post_init__`
+            # zet `wettelijke_basis=None` om naar `[]`, wat `test_none_wettelijke_basis
+            # _becomes_empty_array` ook vastlegt. Hij blijft staan voor een object dat
+            # het veld ná constructie op None zet; dan is `NULL` de juiste kolomwaarde.
             updates["wettelijke_basis"] = (
                 None
                 if definition.wettelijke_basis is None
