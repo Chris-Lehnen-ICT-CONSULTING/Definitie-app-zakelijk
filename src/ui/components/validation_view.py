@@ -247,7 +247,7 @@ def render_validation_detailed_list(
         # Groen tonen terwijl het resultaat is afgekeurd is de ene fout die hier
         # niet gemaakt mag worden, dus dat wordt hier hoe dan ook geblokkeerd.
         eindoordeel = validation_result.get("is_acceptable")
-        if eindoordeel is False:
+        if eindoordeel is not True and eindoordeel is not None:
             if status == "pass":
                 status = "blocked"
             acceptable = False

@@ -181,6 +181,7 @@ class TestGateSpreektDeAcceptatieNietTegen:
     @pytest.mark.asyncio
     async def test_de_twee_velden_zijn_altijd_gelijk(self):
         """Geldt voor elke uitkomst, niet alleen voor de errorbron."""
+        gemeten = 0
         for repository in (
             _KapotteRepository(),
             _RepositoryMetDuplicaat(),
@@ -188,11 +189,87 @@ class TestGateSpreektDeAcceptatieNietTegen:
         ):
             res = await _valideer(repository)
             gate = res.get("acceptance_gate") or {}
-            if not gate or gate.get("acceptable") is None:
-                continue
+            assert gate, f"{type(repository).__name__}: resultaat draagt geen gate"
+            assert (
+                gate.get("acceptable") is not None
+            ), f"{type(repository).__name__}: gate draagt geen acceptable-veld"
+            gemeten += 1
             assert bool(gate["acceptable"]) == bool(res["is_acceptable"]), (
                 f"{type(repository).__name__}: gate={gate.get('acceptable')} "
                 f"maar is_acceptable={res['is_acceptable']}"
+            )
+        assert gemeten == 3, (
+            f"slechts {gemeten} van de 3 gevallen zijn werkelijk vergeleken — "
+            "een lus die stil leegloopt bewijst niets"
+        )
+
+
+class TestGateIsOokInternConsistent:
+    """Het gate-object mag zichzelf evenmin tegenspreken.
+
+    Alleen `acceptable` gelijktrekken met `is_acceptable` is niet genoeg.
+    Keurt de gate zelf af terwijl de soft floor het resultaat alsnog doorlaat,
+    dan bleef `gates_failed` gevuld naast `acceptable=True` — gemeten:
+    `gates_failed=['critical_violations=2', 'overall<0.75', 'taal<0.7',
+    'juridisch<0.7']` bij een gate die zich acceptabel noemt.
+    """
+
+    @staticmethod
+    async def _zwakke_maar_acceptabele_definitie() -> dict[str, Any]:
+        svc = ModularValidationService(get_toetsregel_manager(), None, None)
+        return await svc.validate_definition(
+            begrip="besluit",
+            text="type document met uniek zaaknummer volgens de wet",
+            ontologische_categorie=None,
+            context={},
+        )
+
+    @pytest.mark.asyncio
+    async def test_een_acceptabele_gate_noemt_geen_gefaalde_poorten(self):
+        res = await self._zwakke_maar_acceptabele_definitie()
+        gate = res.get("acceptance_gate") or {}
+        if not gate or res["is_acceptable"] is not True:
+            pytest.skip("deze invoer levert geen acceptabel resultaat op")
+        assert not gate.get("gates_failed"), (
+            "gate noemt zich acceptabel én somt gefaalde poorten op: "
+            f"{gate.get('gates_failed')}"
+        )
+        # Wat er wél in `reasons` staat moet als overruled herkenbaar zijn,
+        # niet als openstaande blokkade.
+        for reden in gate.get("reasons") or []:
+            assert (
+                "overruled" in str(reden).lower()
+            ), f"gate noemt zich acceptabel maar draagt een blokkadereden: {reden}"
+
+    @pytest.mark.asyncio
+    async def test_overruled_gronden_blijven_zichtbaar(self):
+        """Wat overruled is mag niet verdwijnen, alleen verhuizen.
+
+        Bewust in het bestaande `reasons`-veld en niet in een nieuw veld: het
+        contractschema hanteert `additionalProperties: false` op dit object, dus
+        een extra veld zou een versiebump van het publieke contract vragen.
+        """
+        res = await self._zwakke_maar_acceptabele_definitie()
+        gate = res.get("acceptance_gate") or {}
+        if not gate or res["is_acceptable"] is not True:
+            pytest.skip("deze invoer levert geen acceptabel resultaat op")
+        redenen = [str(r) for r in (gate.get("reasons") or [])]
+        assert any("overruled" in r.lower() for r in redenen), (
+            "de gate keurde af en werd door de soft floor doorgelaten; die "
+            f"gronden horen zichtbaar te blijven: {gate}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_status_past_bij_de_uitkomst(self):
+        acceptabel = await self._zwakke_maar_acceptabele_definitie()
+        geblokkeerd = await _valideer(_KapotteRepository())
+        for res, verwacht in ((acceptabel, "pass"), (geblokkeerd, "blocked")):
+            gate = res.get("acceptance_gate") or {}
+            if not gate:
+                continue
+            assert gate.get("status") == verwacht, (
+                f"is_acceptable={res['is_acceptable']} hoort status "
+                f"{verwacht!r} te geven, niet {gate.get('status')!r}"
             )
 
 
@@ -211,13 +288,19 @@ class TestDuplicaatLooptViaDeStatusboekhouding:
     async def test_con01_doet_geen_duplicaatuitspraak_meer(self):
         res = await _valideer(_RepositoryMetDuplicaat())
         codes = {str(v.get("code")) for v in _duplicaatviolations(res)}
-        assert "CON-01" not in codes, (
-            "de duplicaatuitspraak hoort bij DUP_01, niet bij CON-01; "
-            f"gevonden violation-codes: {codes}"
+        assert codes == {"DUP_01"}, (
+            "de duplicaatuitspraak hoort bij DUP_01 en nergens anders; een "
+            "lege verzameling zou betekenen dat de detectie helemaal niet liep. "
+            f"Gevonden violation-codes: {codes}"
         )
 
-    @pytest.mark.asyncio
-    async def test_geen_enkel_signaal_reist_via_metadata(self):
+    def test_de_stashconstante_is_verdwenen(self):
+        """Structuurcheck, geen gedragsbewijs.
+
+        Het gedrag zit in `test_gevonden_duplicaat_zet_dup01_op_fail`: zolang
+        de status meebeweegt, reist de bevinding via `EvaluationOutcome`. Deze
+        test bewaakt alleen dat de oude route niet stilletjes terugkeert.
+        """
         import services.validation.evaluators.context_metadata as cm
 
         assert not hasattr(cm, "DUPLICATE_STASH_KEY"), (
@@ -242,6 +325,13 @@ class TestDuplicaatLooptViaDeStatusboekhouding:
         assert res["rule_statuses"].get("DUP_01") == ResultStatus.PASS.value, res[
             "rule_statuses"
         ].get("DUP_01")
+        # Baseline-guard: zonder deze assertie zou `test_duplicaat_blokkeert_
+        # de_acceptatie` niets meer bewijzen zodra dezelfde tekst op eigen
+        # kracht onder de drempel zakt.
+        assert res["is_acceptable"] is True, (
+            "dezelfde tekst hoort zonder duplicaat gewoon acceptabel te zijn "
+            f"(score {res['overall_score']})"
+        )
 
     @pytest.mark.asyncio
     async def test_geforceerd_duplicaat_behoudt_de_bedoelde_severity(self):
@@ -262,6 +352,111 @@ class TestDuplicaatLooptViaDeStatusboekhouding:
         assert zachte[0]["severity_level"] == "medium", zachte[0]
         assert harde[0]["severity"] == "error", harde[0]
         assert harde[0]["severity_level"] == "high", harde[0]
+
+
+class TestSeverityOverrideIsEenPaar:
+    """Een halve override levert een intern tegenstrijdige violation.
+
+    `bouw_violation` valt per veld terug op het regelrecord. Geef je alleen
+    `severity="warning"` mee, dan komt `severity_level` uit het record — voor
+    DUP_01 is dat `critical`. Dat paar (`warning` + `critical`) is precies de
+    foutklasse die DEF-669 dichtzette, dus het hoort een programmeerfout te
+    zijn en geen stille uitkomst.
+    """
+
+    @staticmethod
+    def _record_en_deps():
+        from services.validation.evaluators.base import EvaluationDeps
+        from toetsregels.runtime_contract import RequiredInput, build_rule_records
+
+        class _Support:
+            def severity_for(self, rule: dict[str, Any]) -> str:
+                return "error"
+
+            def severity_level_for(self, rule: dict[str, Any]) -> str:
+                return "critical"
+
+            def build_suggestion(
+                self, code, rule, text, ctx, *, reason, details=None
+            ) -> str:
+                return "suggestie"
+
+        record = build_rule_records(get_toetsregel_manager().get_all_regels())["DUP_01"]
+        deps = EvaluationDeps(
+            support=_Support(), available_inputs=frozenset(RequiredInput)
+        )
+        return record, deps
+
+    @pytest.mark.parametrize(
+        ("severity", "severity_level"),
+        [("warning", None), (None, "medium")],
+        ids=["alleen severity", "alleen severity_level"],
+    )
+    def test_halve_override_wordt_geweigerd(self, severity, severity_level):
+        from services.validation.evaluators.base import bouw_violation
+
+        record, deps = self._record_en_deps()
+        with pytest.raises(ValueError, match="één override"):
+            bouw_violation(
+                record,
+                deps,
+                melding="x",
+                suggestie=None,
+                severity=severity,
+                severity_level=severity_level,
+            )
+
+    def test_volledige_override_en_geen_override_werken_allebei(self):
+        """Tegenhanger: de guard mag de geldige aanroepen niet blokkeren."""
+        from services.validation.evaluators.base import bouw_violation
+
+        record, deps = self._record_en_deps()
+
+        uit_record = bouw_violation(record, deps, melding="x", suggestie=None)
+        assert uit_record["severity"] == "error"
+        assert uit_record["severity_level"] == "critical"
+
+        overschreven = bouw_violation(
+            record,
+            deps,
+            melding="x",
+            suggestie=None,
+            severity="warning",
+            severity_level="medium",
+        )
+        assert overschreven["severity"] == "warning"
+        assert overschreven["severity_level"] == "medium"
+
+
+class TestDup01BlijftBuitenDeScore:
+    """`excluded_from_score` moet blijven gelden nu DUP_01 echt meet.
+
+    Vóór deze PR was DUP_01 een uitgestelde evaluator die alleen
+    `not_evaluated` opleverde; de scorepolicy werd dus nooit op een echte
+    `pass`/`fail` beproefd. Sinds de klassewissel 36/12/5 → 37/12/4 produceert
+    de regel wél beide, en dan moet blijken dat het cijfer niet meebeweegt.
+    Een gevonden duplicaat zegt namelijk niets over de tekstkwaliteit; de
+    blokkade zit op de acceptatie, niet op de score.
+    """
+
+    @pytest.mark.asyncio
+    async def test_de_score_beweegt_niet_met_de_duplicaatuitkomst(self):
+        met_duplicaat = await _valideer(_RepositoryMetDuplicaat())
+        zonder_duplicaat = await _valideer(_RepositoryZonderDuplicaat())
+
+        # Voorwaarde: de twee runs verschillen daadwerkelijk in DUP_01-status,
+        # anders vergelijkt deze test twee identieke situaties.
+        assert met_duplicaat["rule_statuses"]["DUP_01"] == ResultStatus.FAIL.value
+        assert zonder_duplicaat["rule_statuses"]["DUP_01"] == ResultStatus.PASS.value
+
+        assert met_duplicaat["overall_score"] == zonder_duplicaat["overall_score"], (
+            "DUP_01 is excluded_from_score, dus een gevonden duplicaat mag het "
+            f"cijfer niet bewegen: {met_duplicaat['overall_score']} tegen "
+            f"{zonder_duplicaat['overall_score']}"
+        )
+        # En de uitkomst verschilt wél — op de as waar hij hoort.
+        assert met_duplicaat["is_acceptable"] is False
+        assert zonder_duplicaat["is_acceptable"] is True
 
 
 class TestRepositoryInvoerIsContractueel:
@@ -366,6 +561,57 @@ class TestRepositoryInvoerIsContractueel:
             "CON-01 bevraagt de repository nog steeds; de duplicaatcontrole "
             "hoort bij DUP_01"
         )
+
+    @pytest.mark.asyncio
+    async def test_zonder_context_meldt_dup01_geen_geslaagde_toets(self):
+        """DUP_01 mag niet "bestaat nog niet" zeggen zonder te kijken.
+
+        Gemeten vóór deze correctie: bij contextloze invoer werd de repository
+        nul keer bevraagd en meldde DUP_01 tóch `pass`, terwijl twee
+        contextloze definities van hetzelfde begrip volgens
+        `_zoek_duplicaat` wél op elkaar matchen (beide zijden leveren dezelfde
+        lege contextsleutel). Dat is een default-pass op de regel die letterlijk
+        vraagt of de definitie nog niet bestaat.
+        """
+
+        class _Spion:
+            def __init__(self) -> None:
+                self.aanroepen = 0
+
+            def find_duplicate_candidates(self, begrip: str) -> list[Any]:
+                self.aanroepen += 1
+                return []
+
+        spion = _Spion()
+        svc = ModularValidationService(
+            get_toetsregel_manager(), None, None, repository=spion
+        )
+        res = await svc.validate_definition(
+            begrip=BEGRIP, text=TEKST, ontologische_categorie=None, context={}
+        )
+        assert res["rule_statuses"].get("DUP_01") == (
+            ResultStatus.NOT_EVALUATED.value
+        ), (
+            "zonder context is er geen duplicaatidentiteit; dat is geen "
+            f"geslaagde toets: {res['rule_statuses'].get('DUP_01')} "
+            f"(repository {spion.aanroepen}x bevraagd)"
+        )
+
+    @pytest.mark.asyncio
+    async def test_zonder_begrip_meldt_dup01_geen_geslaagde_toets(self):
+        svc = ModularValidationService(
+            get_toetsregel_manager(),
+            None,
+            None,
+            repository=_RepositoryZonderDuplicaat(),
+        )
+        res = await svc.validate_definition(
+            begrip="", text=TEKST, ontologische_categorie=None, context=CONTEXT
+        )
+        status = res["rule_statuses"].get("DUP_01")
+        assert (
+            status != ResultStatus.PASS.value
+        ), f"zonder begrip kan de duplicaatcontrole niet draaien: {status}"
 
     @pytest.mark.asyncio
     async def test_zonder_repository_volgt_not_evaluated_geen_pass(self):

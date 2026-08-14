@@ -785,10 +785,16 @@ class ModularValidationService:
         # De score blijft puur over pass/fail (specificatiebesluit 6); de
         # blokkade zit op de acceptatie. Een validatie die niet uitgevoerd kón
         # worden is geen goedgekeurde validatie.
-        blokkades: list[str] = []
+        # Elke blokkade is een paar (gate-naam, reden). `gates_failed` draagt
+        # elders korte namen waarop een consumer kan matchen; vrije proza hoort
+        # in `reasons`. Zonder die scheiding zou een consumer die gate-namen
+        # tegen een bekende verzameling legt hele zinnen binnenkrijgen.
+        blokkades: list[tuple[str, str]] = []
         if dekking["error"]:
             is_ok = False
-            blokkades.append(f"evaluatiefout in {dekking['error']} regel(s)")
+            blokkades.append(
+                ("evaluation_error", f"evaluatiefout in {dekking['error']} regel(s)")
+            )
 
         # DEF-674: een gevonden duplicaat blokkeert de acceptatie. DUP_01 valt
         # buiten de score (`excluded_from_score`), dus zonder deze regel zou de
@@ -802,8 +808,11 @@ class ModularValidationService:
         if gefaalde_blokkeerders:
             is_ok = False
             blokkades.append(
-                "blokkerende regel(s) gefaald: "
-                + ", ".join(sorted(gefaalde_blokkeerders))
+                (
+                    "blocking_rule",
+                    "blokkerende regel(s) gefaald: "
+                    + ", ".join(sorted(gefaalde_blokkeerders)),
+                )
             )
 
         # DEF-674: `is_acceptable` en `acceptance_gate.acceptable` zijn twee
@@ -1102,7 +1111,9 @@ class ModularValidationService:
 
     @staticmethod
     def _synchroniseer_gate(
-        acceptance_gate: dict[str, Any], is_ok: bool, blokkades: list[str]
+        acceptance_gate: dict[str, Any],
+        is_ok: bool,
+        blokkades: list[tuple[str, str]],
     ) -> None:
         """Laat het gate-object dezelfde uitkomst dragen als `is_acceptable`.
 
@@ -1119,19 +1130,38 @@ class ModularValidationService:
         gebruiker zichtbaar als een groene "Gates: OK" bij een afgekeurd
         resultaat. `is_acceptable` blijft leidend; deze functie trekt de gate
         daarnaartoe en legt vast wáárom.
+
+        Beide takken worden genormaliseerd. Alleen `acceptable` gelijktrekken
+        is niet genoeg: keurde de gate zelf af terwijl de soft floor het
+        resultaat alsnog doorlaat, dan blijft `gates_failed` gevuld naast
+        `acceptable=True` — een gate die zegt dat hij akkoord is en er in
+        dezelfde adem vier gefaalde poorten bij noemt.
+
+        Die gronden verdwijnen niet: ze verhuizen naar `reasons`, expliciet
+        gemarkeerd als overruled. Bewust géén nieuw veld — het contractschema
+        hanteert `additionalProperties: false` op dit object, en een extra veld
+        zou een versiebump van het publieke contract vragen. `reasons` bestaat
+        al en draagt hier wat het zegt: de redenen bij deze uitkomst.
         """
         acceptance_gate["acceptable"] = bool(is_ok)
         if is_ok:
+            overruled = list(acceptance_gate.get("gates_failed") or [])
+            if overruled:
+                acceptance_gate["reasons"] = [
+                    f"overruled door de soft floor: {grond}" for grond in overruled
+                ]
+                acceptance_gate["gates_failed"] = []
+            acceptance_gate["status"] = "pass"
             return
 
         acceptance_gate["status"] = "blocked"
         redenen = list(acceptance_gate.get("reasons") or [])
         gefaald = list(acceptance_gate.get("gates_failed") or [])
-        for blokkade in blokkades:
-            if blokkade not in redenen:
-                redenen.append(blokkade)
-            if blokkade not in gefaald:
-                gefaald.append(blokkade)
+        for naam, reden in blokkades:
+            if reden not in redenen:
+                redenen.append(reden)
+            if naam not in gefaald:
+                gefaald.append(naam)
         if not redenen:
             # De gate keurde zelf al af; die grond staat in `gates_failed`.
             redenen = gefaald or ["voldoet niet aan de acceptatiecriteria"]
