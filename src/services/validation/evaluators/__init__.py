@@ -17,6 +17,9 @@ from services.validation.evaluators.base import (
 from services.validation.evaluators.compound import CompoundEvaluator
 from services.validation.evaluators.context_metadata import ContextMetadataEvaluator
 from services.validation.evaluators.deferred import DEFERRED_EVALUATORS
+from services.validation.evaluators.duplicate_detection import (
+    DuplicateDetectionEvaluator,
+)
 from services.validation.evaluators.generic import GenericEvaluator
 from services.validation.evaluators.judgment_review import JudgmentReviewEvaluator
 from services.validation.evaluators.lemma_morphology import LemmaMorphologyEvaluator
@@ -61,6 +64,7 @@ def build_default_registry() -> EvaluatorRegistry:
         QualificationEvaluator(),
         CompoundEvaluator(),
         ContextMetadataEvaluator(),
+        DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),
         *DEFERRED_EVALUATORS,
     )

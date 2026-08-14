@@ -105,12 +105,13 @@ async def test_con01_duplicate_signals_warning():
         },
     )
     # Expect a CON-01 warning with existing_definition_id
+    # DEF-674: de duplicaatmelding komt van DUP_01, niet meer van CON-01.
     warns = [
         v
         for v in res["violations"]
-        if v.get("code") == "CON-01" and v.get("severity") == "warning"
+        if v.get("code") == "DUP_01" and v.get("severity") == "warning"
     ]
-    assert warns, f"No CON-01 duplicate warning found: {res['violations']}"
+    assert warns, f"No DUP_01 duplicate warning found: {res['violations']}"
     assert warns[0].get("metadata", {}).get("existing_definition_id") == 1
 
 

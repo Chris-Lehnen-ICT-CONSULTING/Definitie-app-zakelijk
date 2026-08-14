@@ -86,9 +86,8 @@ DEFERRED_EVALUATORS: tuple[DeferredEvaluator, ...] = (
         "DEF-624",
         "Één definitie per synoniemenpaar vereist de begrippenverzameling",
     ),
-    DeferredEvaluator(
-        EvaluatorType.DUPLICATE_DETECTION,
-        "DEF-624",
-        "Duplicaatdetectie vereist de begrippenverzameling",
-    ),
+    # DEF-674: `DUPLICATE_DETECTION` stond hier als uitgesteld terwijl de
+    # controle in werkelijkheid al draaide — in `context_metadata` (CON-01).
+    # Zij is nu verhuisd naar `DuplicateDetectionEvaluator`, de plek die de
+    # records zelf aanwijzen, en dus geen uitgestelde evaluator meer.
 )

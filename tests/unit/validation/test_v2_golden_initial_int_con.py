@@ -111,15 +111,16 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
         v.get("code") == "CON-01" for v in res_bad.get("violations", [])
     ), res_bad
 
-    # Also expect a duplicate-context warning via repo signal
+    # Also expect a duplicate-context warning via repo signal.
+    # DEF-674: die melding komt van DUP_01, de regel die de database bevraagt.
     dup_warns = [
         v
         for v in res_bad.get("violations", [])
-        if v.get("code") == "CON-01" and v.get("severity") == "warning"
+        if v.get("code") == "DUP_01" and v.get("severity") == "warning"
     ]
     assert (
         dup_warns
-    ), f"Expected CON-01 duplicate warning, got: {res_bad.get('violations', [])}"
+    ), f"Expected DUP_01 duplicate warning, got: {res_bad.get('violations', [])}"
     assert dup_warns[0].get("metadata", {}).get("existing_definition_id") == 1
 
     # PASS: no explicit context wording → CON-01 should not appear (duplicate still may warn if same context)

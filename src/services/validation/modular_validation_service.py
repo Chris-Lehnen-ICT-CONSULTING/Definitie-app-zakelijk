@@ -15,7 +15,6 @@ from collections.abc import ItemsView, KeysView, ValuesView
 from typing import Any
 
 from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
-from services.validation.evaluators.context_metadata import DUPLICATE_STASH_KEY
 from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
 from services.validation.evaluators.registry import get_default_registry
 from services.validation.interfaces import CONTRACT_VERSION
@@ -49,6 +48,14 @@ from .violation_builder import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Regels waarvan een `fail` de acceptatie blokkeert, ook als zij buiten de
+# kwaliteitsscore vallen (DEF-674). DUP_01 is `excluded_from_score` — een
+# duplicaat zegt niets over de tekstkwaliteit — maar een definitie die al
+# bestaat mag niet worden vastgesteld. Zonder deze lijst zou de verhuizing van
+# de duplicaatcontrole van CON-01 naar DUP_01 de handhaving verzwakken, want de
+# oude route blokkeerde via de violation-severity op een gescoorde regel.
+_ACCEPTATIE_BLOKKEERDERS: frozenset[str] = frozenset({"DUP_01"})
 
 
 class ValidationResultWrapper:
@@ -699,28 +706,13 @@ class ModularValidationService:
                 "samenhang": overall,
             }
 
-        # 7) Voeg eventuele CON-01 duplicate warnings toe (best-effort)
-        try:
-            dup_warns = (
-                eval_ctx.metadata.get(DUPLICATE_STASH_KEY)
-                if hasattr(eval_ctx, "metadata")
-                else None
-            )
-            if dup_warns:
-                # Ensure proper minimal structure
-                for w in dup_warns:
-                    if isinstance(w, dict) and "code" in w:
-                        violations.append(w)
-        except (AttributeError, TypeError) as e:
-            # DEF-231: Log duplicate warning failures for debugging
-            logger.warning(
-                f"CON-01 duplicate warnings verwerking overgeslagen: {type(e).__name__}: {e}",
-                extra={
-                    "component": "modular_validation_service",
-                    "rule_id": "CON-01",
-                    "correlation_id": correlation_id,
-                },
-            )
+        # 7) DEF-674: hier stond een best-effort-tak die een duplicaatsignaal
+        #    uit `eval_ctx.metadata` viste en aan `violations` toevoegde. Dat
+        #    signaal reisde buiten `EvaluationOutcome` om, zodat een gevonden
+        #    duplicaat tegelijk een violation opleverde én `rule_statuses`
+        #    op `pass` liet staan. De duplicaatcontrole is nu een gewone
+        #    evaluator (DUP_01) en loopt dus door dezelfde statusboekhouding
+        #    als elke andere regel.
 
         # 8) Violations deterministisch sorteren op code
         violations.sort(key=lambda v: v.get("code", ""))
@@ -793,8 +785,36 @@ class ModularValidationService:
         # De score blijft puur over pass/fail (specificatiebesluit 6); de
         # blokkade zit op de acceptatie. Een validatie die niet uitgevoerd kón
         # worden is geen goedgekeurde validatie.
+        blokkades: list[str] = []
         if dekking["error"]:
             is_ok = False
+            blokkades.append(f"evaluatiefout in {dekking['error']} regel(s)")
+
+        # DEF-674: een gevonden duplicaat blokkeert de acceptatie. DUP_01 valt
+        # buiten de score (`excluded_from_score`), dus zonder deze regel zou de
+        # verhuizing van de duplicaatcontrole naar DUP_01 haar zwakker
+        # handhaven dan de oude route, die via een violation-severity blokkeerde.
+        gefaalde_blokkeerders = [
+            code
+            for code, status in rule_statuses.items()
+            if status == ResultStatus.FAIL.value and code in _ACCEPTATIE_BLOKKEERDERS
+        ]
+        if gefaalde_blokkeerders:
+            is_ok = False
+            blokkades.append(
+                "blokkerende regel(s) gefaald: "
+                + ", ".join(sorted(gefaalde_blokkeerders))
+            )
+
+        # DEF-674: `is_acceptable` en `acceptance_gate.acceptable` zijn twee
+        # velden over dezelfde vraag en mogen elkaar nooit tegenspreken. Vóór
+        # deze synchronisatie kon dat allebei op: de soft floor overrulede een
+        # afkeurende gate (`is_ok = gate_ok or soft_ok`), en de errorblokkade
+        # hierboven raakte het gate-object niet. De UI leest uitsluitend het
+        # gate-veld, dus die tegenspraak was zichtbaar als een groene "Gates: OK"
+        # bij een afgekeurd resultaat.
+        if acceptance_gate:
+            self._synchroniseer_gate(acceptance_gate, is_ok, blokkades)
 
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
@@ -1079,6 +1099,44 @@ class ModularValidationService:
                     "correlation_id": ctx.correlation_id,
                 },
             )
+
+    @staticmethod
+    def _synchroniseer_gate(
+        acceptance_gate: dict[str, Any], is_ok: bool, blokkades: list[str]
+    ) -> None:
+        """Laat het gate-object dezelfde uitkomst dragen als `is_acceptable`.
+
+        Het resultaat draagt twee velden over dezelfde vraag: `is_acceptable`
+        en `acceptance_gate.acceptable`. Die stonden los van elkaar, en konden
+        dus tegengesteld zijn:
+
+        * een gevonden duplicaat gaf `gate.acceptable=False` naast
+          `is_acceptable=True`, doordat de soft floor de gate overrulede
+          (`is_ok = gate_ok or soft_ok`);
+        * een evaluatiefout zette `is_ok=False` zonder het gate-object te raken.
+
+        De UI leest uitsluitend het gate-veld, dus die tegenspraak was voor een
+        gebruiker zichtbaar als een groene "Gates: OK" bij een afgekeurd
+        resultaat. `is_acceptable` blijft leidend; deze functie trekt de gate
+        daarnaartoe en legt vast wáárom.
+        """
+        acceptance_gate["acceptable"] = bool(is_ok)
+        if is_ok:
+            return
+
+        acceptance_gate["status"] = "blocked"
+        redenen = list(acceptance_gate.get("reasons") or [])
+        gefaald = list(acceptance_gate.get("gates_failed") or [])
+        for blokkade in blokkades:
+            if blokkade not in redenen:
+                redenen.append(blokkade)
+            if blokkade not in gefaald:
+                gefaald.append(blokkade)
+        if not redenen:
+            # De gate keurde zelf al af; die grond staat in `gates_failed`.
+            redenen = gefaald or ["voldoet niet aan de acceptatiecriteria"]
+        acceptance_gate["reasons"] = redenen
+        acceptance_gate["gates_failed"] = gefaald
 
     def _vul_niet_uitgevoerde_regels(self, rule_statuses: dict[str, str]) -> None:
         """Maak elke contractregel die niet heeft gedraaid zichtbaar (DEF-668).
