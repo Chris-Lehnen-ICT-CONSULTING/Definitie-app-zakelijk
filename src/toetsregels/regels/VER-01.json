@@ -34,6 +34,8 @@
     "executability": "deterministic",
     "automation_status": "automated",
     "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "example_pair_policy": "source_defect",
+    "example_pair_reason": "Elke uitgang op -en wordt als meervoud gelezen, dus ook 'gegeven'; VER-01 keurt daardoor zijn eigen goede voorbeeld af.",
+    "example_pair_issue": "DEF-623"
   }
 }

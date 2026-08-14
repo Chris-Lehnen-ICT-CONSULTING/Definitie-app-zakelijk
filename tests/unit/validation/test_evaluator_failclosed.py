@@ -27,7 +27,9 @@ from typing import Any
 import pytest
 
 from services.validation.evaluators.base import EvaluationDeps
-from services.validation.evaluators.context_metadata import DUPLICATE_LOOKUP_METHODE
+from services.validation.evaluators.duplicate_detection import (
+    DUPLICATE_LOOKUP_METHODE,
+)
 from services.validation.evaluators.generic import GenericEvaluator
 from services.validation.evaluators.judgment_review import JudgmentReviewEvaluator
 from services.validation.evaluators.ontological_category import (
@@ -246,10 +248,12 @@ class TestRepositoryfoutIsGeenPass:
             ontologische_categorie=None,
             context=self.CONTEXT,
         )
-        assert res["rule_statuses"]["CON-01"] == ResultStatus.ERROR.value, res[
+        # DEF-674: de duplicaatcontrole — en dus de repositorystoring — hoort
+        # bij DUP_01, de regel die de database bevraagt.
+        assert res["rule_statuses"]["DUP_01"] == ResultStatus.ERROR.value, res[
             "rule_statuses"
         ]
-        assert "CON-01" not in res["passed_rules"], res
+        assert "DUP_01" not in res["passed_rules"], res
 
     @pytest.mark.asyncio
     async def test_afwezige_repository_blijft_bestaand_gedrag(self):

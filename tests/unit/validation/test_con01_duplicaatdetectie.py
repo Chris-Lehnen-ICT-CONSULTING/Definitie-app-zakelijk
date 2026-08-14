@@ -46,9 +46,8 @@ from domain.context.normalisatie import contextsleutel
 from services.definition_repository import DefinitionRepository
 from services.interfaces import Definition, DuplicateCandidate
 from services.null_repository import NullDefinitionRepository
-from services.validation.evaluators.context_metadata import (
+from services.validation.evaluators.duplicate_detection import (
     DUPLICATE_LOOKUP_METHODE,
-    DUPLICATE_STASH_KEY,
 )
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
@@ -383,7 +382,8 @@ class TestVeiligheidsgrensIsFailClosed:
         monkeypatch.setattr(dup, "KANDIDATEN_PAGINA", 2)
 
         res = await _valideer(repo, _context())
-        assert res["rule_statuses"]["CON-01"] == ResultStatus.ERROR.value, res[
+        # DEF-674: het kandidatenplafond wordt geraakt in DUP_01.
+        assert res["rule_statuses"]["DUP_01"] == ResultStatus.ERROR.value, res[
             "rule_statuses"
         ]
         assert res["is_acceptable"] is False, res
@@ -676,7 +676,11 @@ async def _valideer(repo: Any, context: dict[str, Any], begrip: str = BEGRIP) ->
 
 
 def _duplicaatmeldingen(res: dict) -> list[dict]:
-    return [v for v in res.get("violations", []) if v.get("code") == "CON-01"]
+    # DEF-674: de duplicaatcontrole is verhuisd van CON-01 naar DUP_01, de
+    # regel die "Bestaat deze definitie nog niet in de database?" toetst en
+    # `definition_repository` als vereiste invoer declareert. CON-01 draagt
+    # sindsdien alleen nog zijn patroontoets.
+    return [v for v in res.get("violations", []) if v.get("code") == "DUP_01"]
 
 
 class TestDuplicaatsignaalEndToEnd:
@@ -817,12 +821,14 @@ class TestRepositoryfoutBlijftFailClosed:
     @pytest.mark.asyncio
     async def test_storing_levert_error_en_geen_goedkeuring(self):
         res = await _valideer(self._Kapot(), _context())
-        assert res["rule_statuses"]["CON-01"] == ResultStatus.ERROR.value, res[
+        # DEF-674: de repositorystoring treft nu DUP_01, de regel die de
+        # database bevraagt. CON-01 raakt de repository niet meer.
+        assert res["rule_statuses"]["DUP_01"] == ResultStatus.ERROR.value, res[
             "rule_statuses"
         ]
         assert res["evaluation_coverage"]["error"] >= 1, res["evaluation_coverage"]
         assert res["is_acceptable"] is False, (
-            f"score {res['overall_score']} haalt de drempel, maar CON-01 kon niet "
+            f"score {res['overall_score']} haalt de drempel, maar DUP_01 kon niet "
             f"worden beoordeeld"
         )
 
@@ -869,10 +875,12 @@ class TestContextBlijftBuitenDeDefinitietekst:
     async def test_context_staat_in_metadata_en_niet_in_de_tekst(self, repo, db_pad):
         _zet_canoniek(db_pad)
         res = await _valideer(repo, _context())
-        # Het duplicaatsignaal reist via de metadata-stash, niet via de tekst.
+        # Het duplicaatsignaal draagt de identiteit van het bestaande record in
+        # zijn metadata; de context zelf staat niet in de definitietekst.
+        # (DEF-674: het signaal reist nu via de EvaluationOutcome van DUP_01,
+        # niet meer via een metadata-stash.)
         melding = _duplicaatmeldingen(res)[0]
         assert melding["metadata"]["existing_definition_id"]
-        assert DUPLICATE_STASH_KEY not in DEFINITIETEKST
 
 
 class TestRecordVormBlijftOngemoeid:

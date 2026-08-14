@@ -75,26 +75,46 @@ class TestErrorBlokkeertAcceptatie:
     @pytest.mark.asyncio
     async def test_repositorystoring_maakt_het_resultaat_onacceptabel(self):
         res = await _met_kapotte_repository()
-        assert res["rule_statuses"]["CON-01"] == ResultStatus.ERROR.value, res[
+        # DEF-674: de duplicaatcontrole is verhuisd naar DUP_01, de regel die
+        # de database bevraagt. Een storing daar is dus een DUP_01-error.
+        assert res["rule_statuses"]["DUP_01"] == ResultStatus.ERROR.value, res[
             "rule_statuses"
         ]
         assert res["evaluation_coverage"]["error"] >= 1, res["evaluation_coverage"]
         assert res["is_acceptable"] is False, (
-            f"score {res['overall_score']} haalt de drempel, maar CON-01 kon niet "
+            f"score {res['overall_score']} haalt de drempel, maar DUP_01 kon niet "
             f"worden beoordeeld — dat mag geen goedkeuring opleveren"
         )
 
     @pytest.mark.asyncio
     async def test_de_score_zelf_blijft_over_pass_en_fail(self):
-        # Besluit 6 blijft intact: de ERROR gaat niet als 0,0 de score in, want
-        # dan zou een niet-gemeten regel de kwaliteitsscore bepalen. De
-        # blokkade zit op de acceptatie, niet op het cijfer.
-        res = await _met_kapotte_repository()
-        assert res["overall_score"] >= HARDE_DREMPEL, (
-            f"deze test bewijst niets meer als de score onder {HARDE_DREMPEL} "
-            f"zakt: dan zou de acceptatie ook zonder errorblokkade al falen "
-            f"(gemeten: {res['overall_score']})"
+        """Besluit 6 blijft intact: de ERROR gaat niet als 0,0 de score in.
+
+        Deze test eiste eerder `overall_score >= 0,75`, omdat de geërrorde
+        regel (toen CON-01) uit teller én noemer viel en het gemiddelde
+        daardoor stéég — precies de omgekeerde-kernclaim die de blokkade
+        rechtvaardigde.
+
+        Sinds DEF-674 draagt DUP_01 de duplicaatcontrole, en die regel is
+        `excluded_from_score`. Een storing daar kan het cijfer dus per
+        constructie niet meer bewegen. Dat is sterker te bewijzen dan met een
+        drempel: dezelfde tekst moet met en zonder kapotte repository exact
+        hetzelfde cijfer opleveren. Zou de ERROR alsnog als 0,0 meetellen, dan
+        zakt de score en valt deze test om.
+        """
+        met_storing = await _met_kapotte_repository()
+        svc = ModularValidationService(get_toetsregel_manager(), None, None)
+        zonder = await svc.validate_definition(
+            begrip=BEGRIP, text=TEKST, ontologische_categorie=None, context=CONTEXT
         )
+        assert met_storing["overall_score"] == zonder["overall_score"], (
+            "een mislukte duplicaatcontrole beweegt de kwaliteitsscore: "
+            f"{met_storing['overall_score']} met storing tegen "
+            f"{zonder['overall_score']} zonder"
+        )
+        # En de blokkade zit dus écht op de acceptatie, niet op het cijfer.
+        assert met_storing["is_acceptable"] is False, met_storing["overall_score"]
+        assert zonder["is_acceptable"] is True, zonder["overall_score"]
 
     @pytest.mark.asyncio
     async def test_zonder_repository_blijft_het_resultaat_acceptabel(self):

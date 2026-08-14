@@ -145,6 +145,8 @@ def bouw_violation(
     suggestie: str | None,
     beschrijving: str | None = None,
     metadata: dict[str, Any] | None = None,
+    severity: str | None = None,
+    severity_level: str | None = None,
 ) -> dict[str, Any]:
     """De enige plek waar een evaluator zijn eigen violation-dict vormt.
 
@@ -154,16 +156,42 @@ def bouw_violation(
     hem af uit het record. Een consumer die op `severity_level` filtert kreeg
     voor SAM-02 en SAM-04 niets terug (DEF-669).
 
-    Severity en severity_level komen hier altijd uit het regelrecord, via
+    Severity en severity_level komen standaard uit het regelrecord, via
     dezelfde afleiding die de service voor de bevindingen-route gebruikt. Zo
     is de vorm van een violation onafhankelijk van welke evaluator hem maakte.
+
+    `severity`/`severity_level` zijn een expliciete override voor het enige
+    geval waarin de ernst niet uit het record volgt maar uit de invoer: een
+    duplicaat weegt zwaarder wanneer de gebruiker het bewust forceert
+    (DEF-674). De override is opzettelijk zichtbaar in de aanroep, zodat een
+    afwijking niet stil in een evaluator kan ontstaan.
+
+    De twee overridevelden horen bij elkaar. Zou je er één meegeven, dan komt
+    de andere uit het record en ontstaat een intern tegenstrijdig paar — een
+    `warning` met `severity_level: critical` bijvoorbeeld. Dat is precies de
+    foutklasse die DEF-669 dichtzette, dus een halve override is een
+    programmeerfout en geen bruikbare invoer.
     """
+    if (severity is None) != (severity_level is None):
+        msg = (
+            "severity en severity_level zijn één override: geef ze samen of "
+            f"geen van beide (severity={severity!r}, "
+            f"severity_level={severity_level!r})"
+        )
+        raise ValueError(msg)
+
     rule = dict(record.data)
     code = record.rule_id.upper()
     violation: dict[str, Any] = {
         "code": code,
-        "severity": deps.support.severity_for(rule),
-        "severity_level": deps.support.severity_level_for(rule),
+        "severity": (
+            severity if severity is not None else deps.support.severity_for(rule)
+        ),
+        "severity_level": (
+            severity_level
+            if severity_level is not None
+            else deps.support.severity_level_for(rule)
+        ),
         "message": melding,
         "description": beschrijving or melding,
         "rule_id": code,
@@ -183,6 +211,8 @@ def falende_uitkomst(
     suggestie: str | None,
     beschrijving: str | None = None,
     metadata: dict[str, Any] | None = None,
+    severity: str | None = None,
+    severity_level: str | None = None,
 ) -> EvaluationOutcome:
     """Eén FAIL-uitkomst met violation, in één vorm (DEF-669)."""
     return EvaluationOutcome(
@@ -195,5 +225,7 @@ def falende_uitkomst(
             suggestie=suggestie,
             beschrijving=beschrijving,
             metadata=metadata,
+            severity=severity,
+            severity_level=severity_level,
         ),
     )
