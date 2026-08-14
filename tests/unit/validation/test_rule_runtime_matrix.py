@@ -431,9 +431,11 @@ class TestRepositoryregelsZonderRepository:
     def test_er_is_ten_minste_een_repositoryregel(self):
         # Zonder deze assertie zou de klasse hierboven leeg kunnen draaien en
         # daarmee stilzwijgend niets bewijzen.
-        assert AUTOMATISCH_REPOSITORY_IDS, (
-            "geen enkele automatische regel vereist de repository — is DUP_01 "
-            "van klasse veranderd?"
+        assert AUTOMATISCH_REPOSITORY_IDS == ["DUP_01"], (
+            "de uitsluiting van het tekstpad is vastgepind op DUP_01. Schuift "
+            "een andere regel naar `executability: repository`, dan verdwijnt "
+            "zij stil uit vier gedragstests en houdt alleen de zwakkere "
+            f"not_evaluated-toets over: {AUTOMATISCH_REPOSITORY_IDS}"
         )
 
 

@@ -79,18 +79,31 @@ class DuplicateDetectionEvaluator:
         loopt door naar de ERROR-grens in
         `ModularValidationService._evaluate_via_registry`.
 
-        De vroege returns hieronder zijn géén foutafhandeling maar expliciete
-        niet-van-toepassing-gevallen: zonder begrip of zonder enige context is
-        er geen duplicaatidentiteit om op te matchen.
+        Zonder begrip of zonder enige context is er geen duplicaatidentiteit om
+        op te matchen. Die gevallen leveren `not_evaluated`, niet `pass`: deze
+        regel beantwoordt letterlijk "Bestaat deze definitie nog niet in de
+        database?", en dat met `pass` beantwoorden zonder de database te
+        bevragen is een default-pass — precies wat DEF-624 sluit.
+
+        Op CON-01 was dezelfde vroege return onschadelijk, want daar ging de
+        `pass` over de patroontoets. Bij de verhuizing verandert de betekenis
+        van die uitkomst, dus verandert hier ook het antwoord.
         """
         begrip = ctx.begrip or None
         if not begrip:
-            return EvaluationOutcome.passed()
+            return EvaluationOutcome.not_evaluated(
+                "geen begrip om duplicaatidentiteit op te bepalen"
+            )
 
         metadata = ctx.metadata or {}
         contexten = [metadata.get(veld) or [] for veld in CONTEXT_VELDEN]
         if not any(contexten):
-            return EvaluationOutcome.passed()
+            # Term plus genormaliseerde context bepaalt duplicaatidentiteit
+            # (ADR-001). Zonder enige context is die identiteit onvolledig; het
+            # afdwingen van verplichte context is DEF-622.
+            return EvaluationOutcome.not_evaluated(
+                "geen contextwaarden; duplicaatidentiteit is term plus context"
+            )
 
         if not hasattr(deps.repository, DUPLICATE_LOOKUP_METHODE):
             # Een repository zonder de publieke capability is een

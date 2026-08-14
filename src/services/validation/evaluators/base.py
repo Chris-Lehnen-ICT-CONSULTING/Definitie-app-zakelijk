@@ -165,13 +165,33 @@ def bouw_violation(
     duplicaat weegt zwaarder wanneer de gebruiker het bewust forceert
     (DEF-674). De override is opzettelijk zichtbaar in de aanroep, zodat een
     afwijking niet stil in een evaluator kan ontstaan.
+
+    De twee overridevelden horen bij elkaar. Zou je er één meegeven, dan komt
+    de andere uit het record en ontstaat een intern tegenstrijdig paar — een
+    `warning` met `severity_level: critical` bijvoorbeeld. Dat is precies de
+    foutklasse die DEF-669 dichtzette, dus een halve override is een
+    programmeerfout en geen bruikbare invoer.
     """
+    if (severity is None) != (severity_level is None):
+        msg = (
+            "severity en severity_level zijn één override: geef ze samen of "
+            f"geen van beide (severity={severity!r}, "
+            f"severity_level={severity_level!r})"
+        )
+        raise ValueError(msg)
+
     rule = dict(record.data)
     code = record.rule_id.upper()
     violation: dict[str, Any] = {
         "code": code,
-        "severity": severity or deps.support.severity_for(rule),
-        "severity_level": severity_level or deps.support.severity_level_for(rule),
+        "severity": (
+            severity if severity is not None else deps.support.severity_for(rule)
+        ),
+        "severity_level": (
+            severity_level
+            if severity_level is not None
+            else deps.support.severity_level_for(rule)
+        ),
         "message": melding,
         "description": beschrijving or melding,
         "rule_id": code,
