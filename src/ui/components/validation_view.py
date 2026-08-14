@@ -241,6 +241,16 @@ def render_validation_detailed_list(
     if isinstance(g, dict) and g:
         status = str(g.get("status") or "").lower()
         acceptable = g.get("acceptable")
+        # DEF-674: het totaalresultaat is leidend. De service houdt beide velden
+        # gelijk, maar deze weergave krijgt ook een los `gate`-argument mee uit
+        # review- en preview-schermen, en die kan van een oudere meting komen.
+        # Groen tonen terwijl het resultaat is afgekeurd is de ene fout die hier
+        # niet gemaakt mag worden, dus dat wordt hier hoe dan ook geblokkeerd.
+        eindoordeel = validation_result.get("is_acceptable")
+        if eindoordeel is not True and eindoordeel is not None:
+            if status == "pass":
+                status = "blocked"
+            acceptable = False
         if status:
             reasons = list(g.get("reasons") or [])
             if status == "pass":
