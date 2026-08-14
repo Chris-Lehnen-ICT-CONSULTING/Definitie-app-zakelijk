@@ -31,7 +31,11 @@ import yaml
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 from toetsregels.rule_cache import RUNTIME_VELDEN
-from toetsregels.runtime_contract import AutomationStatus, build_rule_records
+from toetsregels.runtime_contract import (
+    AutomationStatus,
+    Executability,
+    build_rule_records,
+)
 
 pytestmark = [pytest.mark.unit]
 
@@ -89,7 +93,29 @@ def _is_automatisch(rule_id: str) -> bool:
     return RECORDS[rule_id].automation_status is AutomationStatus.AUTOMATED
 
 
+def _vereist_repository(rule_id: str) -> bool:
+    """Kan deze regel alleen met de begrippenverzameling worden beoordeeld?
+
+    Deze matrix draait bewust zonder repository (`_beschikbare_invoer`), zodat
+    hij het tekstpad meet. Een regel met `executability: repository` kan daar
+    per contract geen `pass`/`fail` opleveren maar uitsluitend
+    `not_evaluated` — dat is de uitkomst die DEF-624 voorschrijft voor
+    ontbrekende vereiste invoer, en nadrukkelijk géén `pass`.
+    """
+    return RECORDS[rule_id].executability is Executability.REPOSITORY
+
+
 AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if _is_automatisch(r))
+# Automatische regels die de matrix werkelijk kan meten: alles wat geen
+# repository nodig heeft. De repository-regels worden hieronder apart getoetst
+# (`TestRepositoryregelsZonderRepository`); hun gedrág mét repository staat in
+# `test_con01_duplicaatdetectie.py` en `test_contractconsistentie_def674.py`.
+AUTOMATISCH_TEKSTPAD_IDS = sorted(
+    r for r in AUTOMATISCHE_IDS if not _vereist_repository(r)
+)
+AUTOMATISCH_REPOSITORY_IDS = sorted(
+    r for r in AUTOMATISCHE_IDS if _vereist_repository(r)
+)
 NIET_AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if not _is_automatisch(r))
 
 
@@ -185,10 +211,13 @@ class TestMatrixVolledigheid:
     def test_entry_contract(self, rule_id):
         entry = MATRIX[rule_id]
         status = RECORDS[rule_id].automation_status
-        if _is_automatisch(rule_id):
+        if _is_automatisch(rule_id) and not _vereist_repository(rule_id):
             for verplicht in ("positief", "negatief", "grens"):
                 assert verplicht in entry, f"{rule_id}: case '{verplicht}' ontbreekt"
         else:
+            # Ook een automatische regel die de repository vereist draagt een
+            # probe: deze matrix meet het tekstpad, en daar hoort zij
+            # `not_evaluated` op te leveren (DEF-674).
             assert "probe" in entry, f"{rule_id}: adversariële probe ontbreekt"
             assert entry.get("reden"), f"{rule_id}: reden verplicht bij {status.value}"
         # Dispositie-koppeling (ALG-375): elke niet-automatische status en
@@ -247,7 +276,7 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        AUTOMATISCHE_IDS,
+        AUTOMATISCH_TEKSTPAD_IDS,
         ids=str,
     )
     async def test_negatieve_case_faalt(self, svc, rule_id):
@@ -267,7 +296,7 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        AUTOMATISCHE_IDS,
+        AUTOMATISCH_TEKSTPAD_IDS,
         ids=str,
     )
     async def test_positieve_case_passeert(self, svc, rule_id):
@@ -281,7 +310,7 @@ class TestReachability:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "rule_id",
-        AUTOMATISCHE_IDS,
+        AUTOMATISCH_TEKSTPAD_IDS,
         ids=str,
     )
     async def test_grenscase(self, svc, rule_id):
@@ -348,7 +377,7 @@ class TestReachability:
         )
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("rule_id", AUTOMATISCHE_IDS, ids=str)
+    @pytest.mark.parametrize("rule_id", AUTOMATISCH_TEKSTPAD_IDS, ids=str)
     async def test_automatische_regel_levert_een_gemeten_status(self, svc, rule_id):
         """De keerzijde: een automatische regel moet écht meten.
 
@@ -365,6 +394,49 @@ class TestReachability:
         )
 
 
+class TestRepositoryregelsZonderRepository:
+    """Automatische regels die de begrippenverzameling nodig hebben (DEF-674).
+
+    Deze matrix meet het tekstpad en geeft geen repository mee. Een regel met
+    `executability: repository` levert daar per contract `not_evaluated` op —
+    nooit `pass`, want dan zou een niet-uitgevoerde controle als geslaagd
+    tellen, precies de default-pass die DEF-624 sluit.
+
+    Het gedrag mét repository staat in `test_con01_duplicaatdetectie.py` en
+    `test_contractconsistentie_def674.py`, waar een echte SQLite-repository
+    wordt gebruikt.
+    """
+
+    @pytest.mark.parametrize("rule_id", AUTOMATISCH_REPOSITORY_IDS, ids=str)
+    @pytest.mark.asyncio
+    async def test_zonder_repository_niet_evaluated(self, svc, rule_id):
+        entry = MATRIX[rule_id]
+        res = await _resultaat_voor(svc, entry["probe"])
+        status = res["rule_statuses"].get(rule_id)
+        assert status == "not_evaluated", (
+            f"{rule_id} vereist de repository; zonder die invoer is "
+            f"{status!r} niet het contractuele antwoord"
+        )
+
+    @pytest.mark.parametrize("rule_id", AUTOMATISCH_REPOSITORY_IDS, ids=str)
+    @pytest.mark.asyncio
+    async def test_zonder_repository_geen_violation(self, svc, rule_id):
+        entry = MATRIX[rule_id]
+        vios = await _violations_voor(svc, rule_id, entry["probe"])
+        assert not vios, (
+            f"{rule_id} kon niet worden beoordeeld maar levert tóch een "
+            f"violation: {vios}"
+        )
+
+    def test_er_is_ten_minste_een_repositoryregel(self):
+        # Zonder deze assertie zou de klasse hierboven leeg kunnen draaien en
+        # daarmee stilzwijgend niets bewijzen.
+        assert AUTOMATISCH_REPOSITORY_IDS, (
+            "geen enkele automatische regel vereist de repository — is DUP_01 "
+            "van klasse veranderd?"
+        )
+
+
 class TestAfgeleideTelling:
     # Het bewezen contract van dit moment. Dit is GEEN vrije aanname
     # (vgl. de afgewezen 37/10/3-telling): elke case hierachter is door de
@@ -372,9 +444,13 @@ class TestAfgeleideTelling:
     # verschuift een regel van klasse, dan hoort deze verwachting bewust mee
     # te veranderen.
     VERWACHTE_VERDELING = {
-        "automated": 36,
+        # DEF-674: DUP_01 ging van `not_evaluated` (uitgestelde evaluator) naar
+        # `automated`. De duplicaatcontrole draaide al — maar in CON-01, waar
+        # zij contractueel niet hoort. Zij heeft nu haar eigen evaluator op de
+        # regel die "Bestaat deze definitie nog niet in de database?" toetst.
+        "automated": 37,
         "review_required": 12,
-        "not_evaluated": 5,
+        "not_evaluated": 4,
     }
 
     def test_telling_sluit_op_53(self):

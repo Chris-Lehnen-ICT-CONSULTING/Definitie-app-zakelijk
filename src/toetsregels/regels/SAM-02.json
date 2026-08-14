@@ -33,6 +33,8 @@
     "executability": "deterministic",
     "automation_status": "automated",
     "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "example_pair_policy": "source_defect",
+    "example_pair_reason": "De hardgecodeerde delictfrase komt letterlijk uit het goede voorbeeld van SAM-02 en raakt het eigen foute voorbeeld niet.",
+    "example_pair_issue": "DEF-623"
   }
 }

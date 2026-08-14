@@ -27,7 +27,7 @@
       "definition_repository"
     ],
     "executability": "repository",
-    "automation_status": "not_evaluated",
+    "automation_status": "automated",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "requires_repository",
     "example_pair_reason": "Het foute voorbeeld beschrijft in proza een duplicaatsituatie; duplicaatdetectie vereist de begrippenverzameling.",

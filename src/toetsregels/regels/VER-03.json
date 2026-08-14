@@ -32,6 +32,8 @@
     "executability": "deterministic",
     "automation_status": "automated",
     "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "example_pair_policy": "source_defect",
+    "example_pair_reason": "Elk lemma op -t of -d wordt afgekeurd, dus ook 'besluit'; VER-03 keurt daardoor zijn eigen goede voorbeeld af.",
+    "example_pair_issue": "DEF-623"
   }
 }

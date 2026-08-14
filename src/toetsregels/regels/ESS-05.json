@@ -41,6 +41,8 @@
     "executability": "deterministic",
     "automation_status": "automated",
     "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "example_pair_policy": "source_defect",
+    "example_pair_reason": "De evaluator gebruikt eigen indicatorpatronen in plaats van de patronen uit het record, waardoor ESS-05 zijn eigen goede voorbeeld afkeurt.",
+    "example_pair_issue": "DEF-624"
   }
 }
