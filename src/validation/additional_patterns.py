@@ -53,6 +53,17 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
 }
 
 
+def all_additional_patterns() -> dict[str, list[str]]:
+    """Geef de volledige mapping, per regelcode.
+
+    Deze patronen staan in Python en niet in de JSON-records, dus
+    `build_rule_record` ziet ze nooit. Ze hebben daarom hun eigen
+    compileerbaarheidsguard nodig (DEF-667); zonder een publieke leesweg zou
+    die test op de private mapping moeten grijpen.
+    """
+    return {code: list(patronen) for code, patronen in _ADDITIONAL_PATTERNS.items()}
+
+
 def get_additional_patterns(code: str) -> list[str]:
     """Geef aanvullende patronen voor een toetsregelcode.
 

@@ -18,5 +18,15 @@
   ],
   "vereist_param": [
     "voorkeursterm"
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "preferred_term",
+    "required_inputs": [
+      "term",
+      "synonyms"
+    ],
+    "executability": "deterministic",
+    "automation_status": "not_evaluated",
+    "score_policy": "excluded_from_score"
+  }
 }

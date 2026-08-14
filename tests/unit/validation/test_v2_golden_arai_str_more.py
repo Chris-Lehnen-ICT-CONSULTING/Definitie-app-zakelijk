@@ -56,7 +56,13 @@ async def test_arai03_subjective_adjectives_flagged():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "ARAI-03" for v in res.get("violations", [])), res
+    # ARAI-03 is sinds DEF-624 een oordeelregel; de subjectieve adjectieven
+    # zijn een reviewersignaal, geen bewijs.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "ARAI-03" in review, res
+    assert review["ARAI-03"]["signals"], review
+    assert "ARAI-03" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "ARAI-03" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio

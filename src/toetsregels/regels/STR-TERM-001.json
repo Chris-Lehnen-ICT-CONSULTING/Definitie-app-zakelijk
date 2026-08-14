@@ -7,6 +7,15 @@
   "aanbeveling": "aanbevolen",
   "type": "structuur",
   "thema": "terminologie",
-  "forbidden_phrases": ["HTTP protocol"]
+  "forbidden_phrases": ["HTTP protocol"],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score"
+  }
 }
 

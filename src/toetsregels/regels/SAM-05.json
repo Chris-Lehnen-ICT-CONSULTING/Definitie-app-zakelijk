@@ -22,5 +22,18 @@
       "fulltext": "Geen cirkeldefinities",
       "fullurl": "https://www.astraonline.nl/index.php/Géén_cirkeldefinities"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "definition_graph",
+    "required_inputs": [
+      "term",
+      "definition_repository"
+    ],
+    "executability": "repository",
+    "automation_status": "not_evaluated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "requires_repository",
+    "example_pair_reason": "Een cirkeldefinitie loopt per definitie over meerdere begrippen; één losse tekst kan de cyclus niet tonen.",
+    "example_pair_issue": "DEF-623"
+  }
 }

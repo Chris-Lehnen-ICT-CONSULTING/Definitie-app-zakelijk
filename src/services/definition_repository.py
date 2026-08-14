@@ -20,13 +20,18 @@ from database.definitie_repository import (
     DefinitieStatus,
     SourceType,
 )
+from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
     DuplicateDefinitionError,
     RepositoryError,
 )
-from services.interfaces import Definition, DefinitionRepositoryInterface
+from services.interfaces import (
+    Definition,
+    DefinitionRepositoryInterface,
+    DuplicateCandidate,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -356,6 +361,58 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.error(f"Fout bij zoeken begrip '{begrip}': {e}")
             return None
 
+    def find_duplicate_candidates(self, begrip: str) -> list[DuplicateCandidate]:
+        """Actieve definities die met dit begrip kunnen botsen (DEF-672).
+
+        Twee stappen, bewust gescheiden: de database begrenst op begrip en
+        status, en de contextvergelijking gebeurt daarna op genormaliseerde
+        sleutels. In SQL vergelijken zou op de ruwe, ordegevoelige JSON-string
+        gebeuren — precies waarom de oude controle nooit matchte.
+
+        De normalisatie gebeurt hier, bij het lezen, zodat bestaande records
+        met een niet-canonieke schrijfwijze gewoon worden herkend en er geen
+        datamigratie nodig is.
+        """
+        return [
+            DuplicateCandidate(
+                id=rij.id,
+                status=rij.status,
+                categorie=rij.categorie,
+                organisatorische_context=contextsleutel(
+                    self._contextwaarden(rij.organisatorische_context)
+                ),
+                juridische_context=contextsleutel(
+                    self._contextwaarden(rij.juridische_context)
+                ),
+                wettelijke_basis=contextsleutel(
+                    self._contextwaarden(rij.wettelijke_basis)
+                ),
+            )
+            for rij in self.legacy_repo.find_active_by_begrip(begrip)
+        ]
+
+    @staticmethod
+    def _contextwaarden(opgeslagen: Any) -> list[str]:
+        """Lees een opgeslagen contextveld terug als losse waarden.
+
+        De kolom bevat een JSON-array. Zonder deze stap zou de string per teken
+        worden gesplitst (`'["DJI"]'` → `['"', '[', ']', 'd', 'i', 'j']`) — het
+        tweede defect uit DEF-672.
+        """
+        if not opgeslagen:
+            return []
+        if isinstance(opgeslagen, list):
+            return [str(waarde) for waarde in opgeslagen]
+        try:
+            geparsed = json.loads(opgeslagen)
+        except (json.JSONDecodeError, TypeError):
+            # Een vrije tekstwaarde uit oudere data is één contextwaarde,
+            # geen reeks tekens.
+            return [str(opgeslagen)]
+        if isinstance(geparsed, list):
+            return [str(waarde) for waarde in geparsed]
+        return [str(geparsed)]
+
     def find_duplicates(self, definition: Definition) -> list[Definition]:
         """
         Vind mogelijke duplicaten van een definitie.
@@ -604,11 +661,19 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             categorie=category_value,
             ufo_categorie=getattr(definition, "ufo_categorie", None),
             toelichting_proces=getattr(definition, "toelichting_proces", None),
+            # DEF-672: canoniek opslaan via dezelfde normalisatie die de
+            # vergelijking gebruikt — getrimd, zonder lege waarden, ontdubbeld
+            # en deterministisch gesorteerd. Bewust zónder casefold: dat zou
+            # "DJI" als "dji" in de database en dus in de UI zetten. Herkenning
+            # van bestaande, niet-canonieke waarden komt van de normalisatie bij
+            # het lezen (`find_duplicate_candidates`), niet van de vorm op disk.
             organisatorische_context=_json.dumps(
-                definition.organisatorische_context or [], ensure_ascii=False
+                canoniseer_contextlijst(definition.organisatorische_context),
+                ensure_ascii=False,
             ),
             juridische_context=_json.dumps(
-                definition.juridische_context or [], ensure_ascii=False
+                canoniseer_contextlijst(definition.juridische_context),
+                ensure_ascii=False,
             ),
             status=(
                 definition.metadata.get("status", DefinitieStatus.DRAFT.value)
@@ -622,8 +687,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
         # Wettelijke basis (JSON array)
         try:
-            wb_list = list(definition.wettelijke_basis or [])
-            # Normaliseer lijst naar gesorteerde, unieke waarden voor consistente opslag
+            # DEF-672: dezelfde canonieke vorm als de andere twee contextvelden.
+            # `set_wettelijke_basis` sorteert en ontdubbelt daarna nog eens; op
+            # een reeds canonieke lijst is dat idempotent, dus het bestaande
+            # opslagformaat verschuift niet.
+            wb_list = canoniseer_contextlijst(definition.wettelijke_basis)
             record.set_wettelijke_basis(wb_list)
         except Exception as exc:  # pragma: no cover - unexpected edge cases
             logger.warning(
@@ -946,18 +1014,30 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         updates["ufo_categorie"] = getattr(definition, "ufo_categorie", None)
         # Procesmatige velden
         updates["toelichting_proces"] = getattr(definition, "toelichting_proces", None)
-        # Contextvelden (JSON strings)
+        # Contextvelden (JSON strings). DEF-672: dezelfde canonieke vorm als bij
+        # `save()`. Deze tak omzeilde de normalisatie volledig, waardoor een
+        # bijgewerkte definitie ongesorteerd, ongetrimd en met duplicaten in de
+        # database belandde — en dus niet meer als duplicaat werd herkend.
         updates["organisatorische_context"] = _json.dumps(
-            definition.organisatorische_context or [], ensure_ascii=False
+            canoniseer_contextlijst(definition.organisatorische_context),
+            ensure_ascii=False,
         )
         updates["juridische_context"] = _json.dumps(
-            definition.juridische_context or [], ensure_ascii=False
+            canoniseer_contextlijst(definition.juridische_context),
+            ensure_ascii=False,
         )
         try:
+            # De `None`-tak is in de praktijk onbereikbaar: `Definition.__post_init__`
+            # zet `wettelijke_basis=None` om naar `[]`, wat `test_none_wettelijke_basis
+            # _becomes_empty_array` ook vastlegt. Hij blijft staan voor een object dat
+            # het veld ná constructie op None zet; dan is `NULL` de juiste kolomwaarde.
             updates["wettelijke_basis"] = (
                 None
                 if definition.wettelijke_basis is None
-                else _json.dumps(list(definition.wettelijke_basis), ensure_ascii=False)
+                else _json.dumps(
+                    canoniseer_contextlijst(definition.wettelijke_basis),
+                    ensure_ascii=False,
+                )
             )
         except Exception as exc:
             logger.warning(

@@ -8,6 +8,15 @@
   "type": "structuur",
   "thema": "lengte",
   "max_words": 80,
-  "max_chars": 600
+  "max_chars": 600,
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score"
+  }
 }
 

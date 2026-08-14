@@ -56,5 +56,15 @@
       "fulltext": "Baseren op authentieke bron",
       "fullurl": "https://www.astraonline.nl/index.php/Baseren_op_authentieke_bron"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "positive_indicator",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

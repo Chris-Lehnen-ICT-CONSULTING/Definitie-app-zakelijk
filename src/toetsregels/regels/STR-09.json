@@ -27,5 +27,17 @@
       "fulltext": "Dubbelzinnige 'of' is verboden",
       "fullurl": "https://www.astraonline.nl/index.php/Dubbelzinnige_'of'_is_verboden"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "het of-patroon vuurt ook op het eigen goede voorbeeld; scope-ambiguiteit is een semantisch oordeel.",
+    "example_pair_issue": "DEF-624"
+  }
 }

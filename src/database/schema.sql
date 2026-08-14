@@ -92,6 +92,14 @@ CREATE INDEX idx_definities_categorie ON definities(categorie);
 CREATE INDEX idx_definities_created_at ON definities(created_at);
 CREATE INDEX idx_definities_datum_voorstel ON definities(datum_voorstel);
 
+-- DEF-672: partiele NOCASE-index voor de CON-01-duplicaatcontrole.
+-- Die query zoekt op `begrip = ? COLLATE NOCASE AND status != 'archived'`.
+-- De BINARY-index hierboven kan een NOCASE-vergelijking niet bedienen;
+-- EXPLAIN QUERY PLAN gaf daarop `SCAN definities`. Index-only en niet-brekend:
+-- geen kolom, type of constraint verandert.
+CREATE INDEX idx_definities_begrip_nocase_actief
+    ON definities(begrip COLLATE NOCASE) WHERE status != 'archived';
+
 -- ========================================
 -- SUPPORTING TABLES
 -- ========================================

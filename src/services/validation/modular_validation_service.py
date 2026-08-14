@@ -14,8 +14,21 @@ import uuid
 from collections.abc import ItemsView, KeysView, ValuesView
 from typing import Any
 
-from domain.linguistisch.pluralia_tantum import PluraliatantumChecker
+from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
+from services.validation.evaluators.context_metadata import DUPLICATE_STASH_KEY
+from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
+from services.validation.evaluators.registry import get_default_registry
 from services.validation.interfaces import CONTRACT_VERSION
+from toetsregels.runtime_contract import (
+    RequiredInput,
+    ResultStatus,
+    RuleContractError,
+    RuleRecord,
+    ScorePolicy,
+    build_rule_records,
+    missing_inputs,
+    root_contract_policy,
+)
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_list, ensure_string
 
@@ -101,13 +114,23 @@ class ModularValidationService:
         self.config = config
         self._repository = repository
 
+        # DEF-606: gevalideerde regelcontracten + het expliciete
+        # evaluatorregister. Zonder record is er geen uitvoerbaar pad; de
+        # service verzint er geen.
+        self._rule_records: dict[str, RuleRecord] = {}
+        self._registry = get_default_registry()
+        self._pattern_cache: dict[str, Any] = {}
+
         # DEF-215: Degraded mode tracking voor transparantie naar UI
         self._is_degraded_mode: bool = False
         self._degradation_reason: str | None = None
         self._rules_loaded_count: int = 0
-        # DEF-621: verwachte telling uit het contract (regelbestanden op
-        # disk) i.p.v. hardcoded — de eerdere 45 liep achter op de 53.
-        self._rules_expected_count: int = self._tel_regelbestanden()
+        # DEF-621/DEF-668: de verwachte regelset komt uit het contract, niet
+        # uit een hardcoded getal en niet uit de set die toevallig draait. Zij
+        # is zowel de degraded-modus-teller als de noemer van de
+        # evaluatiedekking.
+        self._contract_rule_ids: tuple[str, ...] = self._contractregel_ids()
+        self._rules_expected_count: int = len(self._contract_rule_ids)
 
         # Baseline interne regels (altijd beschikbaar voor policies zoals scoring-uitsluiting)
         self._baseline_internal: list[str] = [
@@ -170,21 +193,20 @@ class ModularValidationService:
                 )
 
     @staticmethod
-    def _tel_regelbestanden() -> int:
-        """Aantal regelbestanden op disk — de contract-telling (DEF-621)."""
-        try:
-            from pathlib import Path
+    def _contractregel_ids() -> tuple[str, ...]:
+        """De verwachte regel-ID-set uit het contract (DEF-621/DEF-668).
 
-            import toetsregels
+        Komt uit het ``rule_ids``-manifest in de root-SSOT, niet uit een glob
+        over de regelmap: dat laatste zou de verwachting laten meebewegen met
+        een verdwenen bestand en het gat juist onzichtbaar maken.
 
-            regels_dir = Path(toetsregels.__file__).parent / "regels"
-            return len(list(regels_dir.glob("*.json"))) or 45
-        except (ImportError, OSError) as e:
-            logger.warning(
-                f"Contract-telling regelbestanden niet bepaalbaar, "
-                f"fallback 45: {type(e).__name__}: {e}"
-            )
-            return 45
+        Bewust zonder fallback. De eerdere ``except RuleContractError: return
+        45`` verzon bij een onleesbare root-SSOT een noemer, terwijl elk ander
+        pad bij diezelfde fout hard faalt. Een gefantaseerde noemer is precies
+        zo misleidend als een noemer die met de gedraaide set meebeweegt: de
+        dekking rapporteert dan een percentage waarvan niemand de basis kent.
+        """
+        return root_contract_policy().rule_ids
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
     def _load_rules_from_manager(self) -> None:
@@ -208,8 +230,11 @@ class ModularValidationService:
             # Evalueren van ALLE beschikbare regels (gebruik weights/thresholds uit config waar beschikbaar)
             self._internal_rules = all_codes
             self._json_rules = all_rules
-            self._compiled_json_cache: dict[str, list[re.Pattern[str]]] = {}
-            self._compiled_ess02_cache: dict[str, dict[str, list[re.Pattern[str]]]] = {}
+            # DEF-606: valideer het volledige regelcontract fail-closed. Een
+            # record zonder bekende evaluator of met onbekende invoer mag
+            # niet stil doorglippen naar een default-pass.
+            self._rule_records = build_rule_records(all_rules)
+            self._pattern_cache = {}
             self._default_weights = {}
 
             # Extract weights from rule metadata
@@ -229,6 +254,12 @@ class ModularValidationService:
                 f"Loaded {len(self._internal_rules)} rules from ToetsregelManager"
             )
 
+        except RuleContractError:
+            # DEF-606: een geschonden regelcontract is geen degraded-state maar
+            # een startupfout. Stil terugvallen op zeven baselineregels zou de
+            # validatie uithollen zonder dat iemand het merkt.
+            logger.critical("Regelcontract geschonden; validatie kan niet starten")
+            raise
         except Exception as e:
             # DEF-215: Set degraded mode flags voor UI transparantie
             self._is_degraded_mode = True
@@ -480,17 +511,43 @@ class ModularValidationService:
                 },
             )
 
+        # DEF-606/DEF-624: regels met scorepolicy 'excluded_from_score'
+        # declareren zelf dat ze niet meewegen; dat is dezelfde uitkomst als de
+        # bestaande ARAI-/baseline-nullering, maar nu uit het contract i.p.v.
+        # uit een prefixvergelijking.
+        for code, record in self._rule_records.items():
+            if record.score_policy is ScorePolicy.EXCLUDED_FROM_SCORE:
+                weights[code] = 0.0
+
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []
         passed_rules: list[str] = []
+        rule_statuses: dict[str, str] = {}
+        review_items: list[dict[str, Any]] = []
 
         # DEF-244: begrip is now in eval_ctx.begrip (thread-safe)
         for code in sorted(self._internal_rules):
             out = self._evaluate_rule(code, eval_ctx)
+            if isinstance(out, EvaluationOutcome):
+                self._verwerk_uitkomst(
+                    code,
+                    eval_ctx,
+                    out,
+                    rule_scores=rule_scores,
+                    violations=violations,
+                    passed_rules=passed_rules,
+                    rule_statuses=rule_statuses,
+                    review_items=review_items,
+                )
             # Support both (score, violation) tuple and dict-like outputs (for tests that patch the method)
-            if isinstance(out, tuple):
+            elif isinstance(out, tuple):
                 score, violation = out
                 rule_scores[code] = score
+                rule_statuses[code] = (
+                    ResultStatus.FAIL.value
+                    if violation is not None
+                    else ResultStatus.PASS.value
+                )
                 if violation is not None:
                     violations.append(violation)
                 else:
@@ -499,6 +556,9 @@ class ModularValidationService:
                 score = float(safe_dict_get(out, "score", 0.0) or 0.0)
                 rule_scores[code] = score
                 vlist = ensure_list(safe_dict_get(out, "violations", []))
+                rule_statuses[code] = (
+                    ResultStatus.FAIL.value if vlist else ResultStatus.PASS.value
+                )
                 if vlist:
                     # If a list of violations is returned, extend with minimal mapping
                     for _ in vlist:
@@ -517,7 +577,11 @@ class ModularValidationService:
             else:
                 # Fallback: treat as scalar score
                 rule_scores[code] = float(out or 0.0)
-                if float(out or 0.0) >= 1.0:
+                geslaagd = float(out or 0.0) >= 1.0
+                rule_statuses[code] = (
+                    ResultStatus.PASS.value if geslaagd else ResultStatus.FAIL.value
+                )
+                if geslaagd:
                     passed_rules.append(code)
         # DEF-244: begrip cleanup removed - now in eval_ctx (immutable, thread-safe)
 
@@ -638,7 +702,7 @@ class ModularValidationService:
         # 7) Voeg eventuele CON-01 duplicate warnings toe (best-effort)
         try:
             dup_warns = (
-                eval_ctx.metadata.get("__con01_dup_warnings__")
+                eval_ctx.metadata.get(DUPLICATE_STASH_KEY)
                 if hasattr(eval_ctx, "metadata")
                 else None
             )
@@ -713,6 +777,25 @@ class ModularValidationService:
         gate_ok = bool(acceptance_gate.get("acceptable", False)) and (not has_blockers)
         is_ok = gate_ok or soft_ok
 
+        # DEF-668: pas hier aanvullen, ná de evaluatielus. De regels die niet
+        # hebben gedraaid horen niet in `rule_scores` (dan zouden ze de score
+        # raken) maar wél in `rule_statuses` en dus in de dekking.
+        self._vul_niet_uitgevoerde_regels(rule_statuses)
+        dekking = self._bereken_dekking(rule_statuses)
+
+        # Een mislukte meting mag de uitkomst niet gunstiger maken (herreview
+        # PR #397). `calculate_weighted_score` loopt over `rule_scores`, en de
+        # ERROR-tak boekt daar niets in: een geërrorde regel valt uit teller én
+        # noemer. Zou die regel gefaald hebben (0,0), dan stijgt het gemiddelde
+        # doordat hij wegvalt — gemeten 0,74 → 0,75, precies over de harde
+        # vestigingsdrempel. Dat is de kernclaim van DEF-624 omgekeerd.
+        #
+        # De score blijft puur over pass/fail (specificatiebesluit 6); de
+        # blokkade zit op de acceptatie. Een validatie die niet uitgevoerd kón
+        # worden is geen goedgekeurde validatie.
+        if dekking["error"]:
+            is_ok = False
+
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
             "version": CONTRACT_VERSION,
@@ -721,6 +804,12 @@ class ModularValidationService:
             "violations": violations,
             "passed_rules": passed_rules,
             "detailed_scores": detailed,
+            # DEF-624: score en dekking zijn twee getallen, geen één. Een regel
+            # die niet is uitgevoerd of menselijk oordeel vraagt telt niet als
+            # pass mee; hij is hier zichtbaar in plaats van onzichtbaar.
+            "rule_statuses": rule_statuses,
+            "evaluation_coverage": dekking,
+            "review_required": review_items,
             # DEF-215: Include degraded mode metadata for UI transparency
             "system": {
                 "correlation_id": correlation_id,
@@ -783,13 +872,297 @@ class ModularValidationService:
             return False
 
     # Interne regel-evaluatie (houd simpel en deterministisch)
-    def _evaluate_rule(
+    def _evaluate_rule(self, code: str, ctx: EvaluationContext) -> EvaluationOutcome:
+        """Voer één regel uit via het evaluatorregister (DEF-606).
+
+        Een regel met gevalideerd contract loopt altijd via precies één
+        geregistreerde evaluator. Regels zonder record (fallback-modus zonder
+        ToetsregelManager) draaien de ingebouwde baselinechecks.
+        """
+        record = self._rule_records.get(code)
+        if record is not None:
+            return self._evaluate_via_registry(record, ctx)
+        return self._evaluate_baseline_rule(code, ctx)
+
+    def _evaluate_via_registry(
+        self, record: RuleRecord, ctx: EvaluationContext
+    ) -> EvaluationOutcome:
+        """Resolveer de evaluator en bewaak de vereiste invoer.
+
+        Fail-closed op drie manieren: ontbrekende vereiste invoer levert
+        `not_evaluated`, een onbekende evaluator of een fout tijdens uitvoeren
+        levert `error`. Geen van die uitkomsten telt als pass.
+        """
+        beschikbaar = self._available_inputs(ctx)
+        ontbrekend = missing_inputs(record, beschikbaar)
+        if ontbrekend:
+            namen = ", ".join(sorted(item.value for item in ontbrekend))
+            return EvaluationOutcome.not_evaluated(
+                f"vereiste invoer ontbreekt: {namen}"
+            )
+
+        deps = EvaluationDeps(
+            support=self,
+            available_inputs=beschikbaar,
+            repository=self._repository,
+            pattern_cache=self._pattern_cache,
+        )
+        try:
+            evaluator = self._registry.resolve(record.evaluator)
+            return evaluator.evaluate(record, ctx, deps)
+        except RuleContractError as exc:
+            logger.error(
+                "Regel %s heeft geen uitvoerbare evaluator: %s",
+                record.rule_id,
+                exc,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": record.rule_id,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+            return EvaluationOutcome(
+                status=ResultStatus.ERROR, reason=f"contractfout: {exc}"
+            )
+        except Exception as exc:
+            logger.error(
+                "Evaluator voor regel %s faalde: %s: %s",
+                record.rule_id,
+                type(exc).__name__,
+                exc,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": record.rule_id,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+            return EvaluationOutcome(
+                status=ResultStatus.ERROR,
+                reason=f"{type(exc).__name__}: {exc}",
+            )
+
+    def _available_inputs(self, ctx: EvaluationContext) -> frozenset[RequiredInput]:
+        """Welke gedeclareerde invoer is voor deze validatie beschikbaar?
+
+        Beschikbaarheid gaat over het bestaan van het invoerkanaal, niet over
+        de inhoud: een lege definitietekst is nog steeds een aangeleverde
+        tekst, anders zou VAL-EMP-001 zichzelf uitschakelen.
+        """
+        metadata = ctx.metadata or {}
+        beschikbaar: set[RequiredInput] = {RequiredInput.DEFINITION_TEXT}
+        if (ctx.begrip or "").strip():
+            beschikbaar.add(RequiredInput.TERM)
+        if any(
+            metadata.get(veld)
+            for veld in (
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
+            )
+        ):
+            beschikbaar.add(RequiredInput.CONTEXT_LISTS)
+        if self._repository is not None:
+            beschikbaar.add(RequiredInput.DEFINITION_REPOSITORY)
+        if metadata.get("synoniemen"):
+            beschikbaar.add(RequiredInput.SYNONYMS)
+        if metadata.get("voorkeursterm"):
+            beschikbaar.add(RequiredInput.PREFERRED_TERM)
+        if metadata.get("categorie") or metadata.get("ontologische_categorie"):
+            beschikbaar.add(RequiredInput.ONTOLOGICAL_CATEGORY)
+        if metadata.get("gerelateerde_begrippen"):
+            beschikbaar.add(RequiredInput.RELATED_CONCEPTS)
+        return frozenset(beschikbaar)
+
+    def _outcome_naar_violation(
+        self, code: str, ctx: EvaluationContext, outcome: EvaluationOutcome
+    ) -> tuple[float, dict[str, Any] | None]:
+        """Zet een FAIL-uitkomst om in het bestaande violation-formaat."""
+        if outcome.violation is not None:
+            return (
+                outcome.score if outcome.score is not None else 0.0,
+                outcome.violation,
+            )
+        if not outcome.findings:
+            return 1.0, None
+
+        rule = self._json_rules.get(code, {}) if hasattr(self, "_json_rules") else {}
+        text = ctx.cleaned_text or ""
+        treffers = set(outcome.pattern_hits)
+        score = 0.0 if not treffers else max(0.0, 1.0 - 0.3 * len(treffers))
+        beschrijving = "; ".join(
+            dict.fromkeys(bevinding.message for bevinding in outcome.findings)
+        )
+        suggesties = [
+            self.build_suggestion(
+                code,
+                rule,
+                text,
+                ctx,
+                reason=bevinding.reason,
+                details=bevinding.details,
+            )
+            for bevinding in outcome.findings
+        ]
+        violation: dict[str, Any] = {
+            "code": code,
+            "severity": self.severity_for(rule),
+            "severity_level": self.severity_level_for(rule),
+            "message": beschrijving,
+            "description": beschrijving,
+            "rule_id": code,
+            "category": category_for_rule(code),
+            "suggestion": "; ".join([s for s in suggesties if s]).strip() or None,
+        }
+        md: dict[str, Any] = {}
+        if outcome.first_hit_pattern is not None:
+            md["detected_pattern"] = outcome.first_hit_pattern
+        if outcome.first_hit_pos is not None:
+            md["position"] = int(outcome.first_hit_pos)
+        if md:
+            violation["metadata"] = md
+        return score, violation
+
+    def _verwerk_uitkomst(
+        self,
+        code: str,
+        ctx: EvaluationContext,
+        outcome: EvaluationOutcome,
+        *,
+        rule_scores: dict[str, float],
+        violations: list[dict[str, Any]],
+        passed_rules: list[str],
+        rule_statuses: dict[str, str],
+        review_items: list[dict[str, Any]],
+    ) -> None:
+        """Boek één regeluitkomst in score, violations en dekking.
+
+        Kern van DEF-624: alleen `pass` en `fail` belanden in `rule_scores` en
+        wegen dus mee in de kwaliteitsscore. `review_required`,
+        `not_evaluated` en `error` vallen uit de noemer — ze worden nooit
+        stil als 1,0 meegeteld en verschijnen apart in de evaluatiedekking.
+        """
+        rule_statuses[code] = outcome.status.value
+
+        if outcome.status is ResultStatus.PASS:
+            rule_scores[code] = 1.0 if outcome.score is None else outcome.score
+            passed_rules.append(code)
+            return
+
+        if outcome.status is ResultStatus.FAIL:
+            score, violation = self._outcome_naar_violation(code, ctx, outcome)
+            rule_scores[code] = score
+            if violation is not None:
+                violations.append(violation)
+            else:
+                passed_rules.append(code)
+            return
+
+        if outcome.status is ResultStatus.REVIEW_REQUIRED:
+            review_items.append(
+                {
+                    "rule_id": code,
+                    "category": category_for_rule(code),
+                    "reason": outcome.reason or "",
+                    "signals": list(outcome.metadata.get("signals", [])),
+                }
+            )
+            return
+
+        if outcome.status is ResultStatus.ERROR:
+            logger.warning(
+                "Regel %s leverde een evaluatorfout: %s",
+                code,
+                outcome.reason,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": code,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+
+    def _vul_niet_uitgevoerde_regels(self, rule_statuses: dict[str, str]) -> None:
+        """Maak elke contractregel die niet heeft gedraaid zichtbaar (DEF-668).
+
+        Zonder deze aanvulling kende ``rule_statuses`` alleen de regels die
+        werkelijk zijn uitgevoerd, en mat de dekking zichzelf: in
+        fallback-modus meldde zij ``total=7`` met ``coverage_ratio=1.0`` — volle
+        dekking, terwijl 46 van de 53 contractregels nooit hadden gedraaid.
+
+        Alleen de noemer optrekken zou niet volstaan: dan telt de som van de
+        statussen niet meer op tot ``total`` en spreekt het dekkingsblok
+        zichzelf tegen. De ontbrekende regels krijgen daarom een échte status,
+        en die status is ``not_evaluated`` — nooit ``pass``.
+        """
+        for rule_id in self._contract_rule_ids:
+            rule_statuses.setdefault(rule_id, ResultStatus.NOT_EVALUATED.value)
+
+        # DEF-673: draait er een code buiten het manifest, dan groeit de noemer
+        # mee met de regel die hem optilt. In productie kan dat niet —
+        # `build_rule_records` is alles-of-niets tegen het manifest — maar een
+        # afwijking mag nooit stil blijven, want dan verschuift de betekenis van
+        # `coverage_ratio` zonder dat iemand het merkt.
+        buiten_manifest = sorted(set(rule_statuses) - set(self._contract_rule_ids))
+        if buiten_manifest:
+            logger.warning(
+                "Regelcodes buiten het contractmanifest tellen mee in de "
+                "evaluatiedekking: %s",
+                buiten_manifest,
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "evaluation_coverage",
+                    "codes_buiten_manifest": buiten_manifest,
+                    "manifest_grootte": len(self._contract_rule_ids),
+                },
+            )
+
+    def _bereken_dekking(self, rule_statuses: dict[str, str]) -> dict[str, Any]:
+        """Evaluatiedekking naast de kwaliteitsscore (DEF-624).
+
+        Een lagere dekking mag nooit als hogere kwaliteit verschijnen; daarom
+        rapporteert het resultaat beide getallen los van elkaar.
+
+        De noemer is de volledige statusverzameling ná aanvulling: de
+        contractregels plus eventuele codes die buiten het manifest hebben
+        gedraaid. Dat is bewust niet strikt het manifest (DEF-673). Zou de
+        noemer alles buiten het manifest wegfilteren, dan telt de som van de
+        statussen niet meer op tot ``total`` en spreekt het dekkingsblok
+        zichzelf tegen; en in een testopstelling met eigen regelcodes zou de
+        dekking dan 0/53 melden terwijl er wél is gemeten. In productie vallen
+        beide samen — `build_rule_records` is alles-of-niets tegen het manifest,
+        en `_vul_niet_uitgevoerde_regels` waarschuwt zichtbaar bij afwijking.
+        """
+        telling = {status.value: 0 for status in ResultStatus}
+        for status in rule_statuses.values():
+            telling[status] = telling.get(status, 0) + 1
+        totaal = len(rule_statuses)
+        geevalueerd = (
+            telling[ResultStatus.PASS.value] + telling[ResultStatus.FAIL.value]
+        )
+        return {
+            "evaluated": geevalueerd,
+            "passed": telling[ResultStatus.PASS.value],
+            "failed": telling[ResultStatus.FAIL.value],
+            "review_required": telling[ResultStatus.REVIEW_REQUIRED.value],
+            "not_evaluated": telling[ResultStatus.NOT_EVALUATED.value],
+            "error": telling[ResultStatus.ERROR.value],
+            "total": totaal,
+            "coverage_ratio": round(geevalueerd / totaal, 4) if totaal else 0.0,
+        }
+
+    def _evaluate_baseline_rule(
+        self, code: str, ctx: EvaluationContext
+    ) -> EvaluationOutcome:
+        """Ingebouwde baselinechecks voor de fallback zonder regelrecords."""
+        score, violation = self._baseline_uitkomst(code, ctx)
+        if violation is not None:
+            return EvaluationOutcome(
+                status=ResultStatus.FAIL, score=score, violation=violation
+            )
+        return EvaluationOutcome(status=ResultStatus.PASS, score=score)
+
+    def _baseline_uitkomst(
         self, code: str, ctx: EvaluationContext
     ) -> tuple[float, dict[str, Any] | None]:
-        # JSON rule evaluation path (when ToetsregelManager provided)
-        if hasattr(self, "_json_rules") and code in getattr(self, "_json_rules", {}):
-            return self._evaluate_json_rule(code, self._json_rules[code], ctx)
-
         text = ctx.cleaned_text or ""
         # Normalisaties
         text_norm = text.strip()
@@ -865,407 +1238,6 @@ class ModularValidationService:
             return 0.9, None
 
         # Onbekende regelcode → pass
-        return 1.0, None
-
-    def _evaluate_json_rule(
-        self, code: str, rule: dict[str, Any], ctx: EvaluationContext
-    ) -> tuple[float, dict[str, Any] | None]:
-        """Evaluate a JSON-defined rule for a given text.
-
-        Uitbreide generieke evaluator met ondersteuning voor:
-        - herkenbaar_patronen (forbidden patterns)
-        - required_patterns (vereist tenminste één match)
-        - forbidden_phrases (simpele substrings)
-        - min/max_words, min/max_chars (lengtechecks)
-        - circular_definition (begrip mag niet letterlijk in definitie voorkomen)
-        - STR-ORG heuristiek (min_commas + max_chars) en redundancy_patterns
-        - En een aantal bekende special-cases (ESS-02, CON-02, ESS-03/04/05, VER-01)
-        """
-        text = ctx.cleaned_text or ""
-        text_norm = text.strip()
-        words = len(text_norm.split()) if text_norm else 0
-        chars = len(text_norm)
-        code_up = code.upper()
-        severity = self._severity_for_json_rule(rule)
-        messages: list[str] = []
-        suggestions: list[str] = []
-
-        # Special: ESS-02 (ontologische categorie eenduidigheid)
-        if code_up == "ESS-02":
-            return self._eval_ess02(rule, text, ctx)
-
-        # Special: VER-03 — werkwoord-term in infinitief (controleer begrip/lemma)
-        # DEF-244: Use ctx.begrip instead of instance variable
-        if code_up == "VER-03":
-            lemma = str(ctx.begrip or "").strip()
-            if lemma and re.search(r".+[td]$", lemma.lower()):
-                msg = "Werkwoord-term niet in infinitief (eindigt op -t/-d)"
-                return 0.0, {
-                    "code": code_up,
-                    "severity": self._severity_for_json_rule(rule),
-                    "severity_level": self._severity_level_for_json_rule(rule),
-                    "message": msg,
-                    "description": msg,
-                    "rule_id": code_up,
-                    "category": category_for_rule(code_up),
-                    "suggestion": "Gebruik de onbepaalde wijs (infinitief), bijv. 'beoordelen' i.p.v. 'beoordeelt'.",
-                }
-            # Geen issue
-            return 1.0, None
-
-        # Special: SAM-02 — kwalificatie omvat geen herhaling/conflict
-        # DEF-244: Use ctx.begrip instead of instance variable
-        if code_up == "SAM-02":
-            head = None
-            try:
-                begrip_full = (ctx.begrip or "").strip().lower()
-                parts = begrip_full.split()
-                if len(parts) >= 2:
-                    head = parts[-1]
-            except (IndexError, AttributeError) as e:
-                # DEF-231: Log SAM-02 head extraction failures
-                logger.debug(
-                    f"SAM-02 head extractie overgeslagen: {type(e).__name__}: {e}",
-                    extra={
-                        "component": "modular_validation_service",
-                        "rule_id": "SAM-02",
-                    },
-                )
-                head = None
-
-            # Detect: definitietekst lijkt de basisdefinitie te herhalen of definieert het hoofdbegrip i.p.v. het gekwalificeerde begrip
-            text_l = (text or "").strip().lower()
-            if head:
-                # 1) Definieer niet het hoofdbegrip (bv. "delict: ...") maar het gekwalificeerde begrip
-                if text_l.startswith(f"{head}:"):
-                    msg = "Kwalificatie definieert het hoofdbegrip in plaats van het gekwalificeerde begrip"
-                    return 0.0, {
-                        "code": code_up,
-                        "severity": self._severity_for_json_rule(rule),
-                        "message": msg,
-                        "description": msg,
-                        "rule_id": code_up,
-                        "category": category_for_rule(code_up),
-                        "suggestion": "Begin met het gekwalificeerde begrip en gebruik genus+differentia zonder de basisdefinitie te herhalen.",
-                    }
-
-                # 2) Heuristische detectie van herhaling van bekende basisfrase (bv. strafbepaling-zin)
-                if head in text_l and (
-                    "binnen de grenzen van" in text_l
-                    or "wettelijke strafbepaling" in text_l
-                ):
-                    msg = "Kwalificatie bevat (gedeelten van) de basisdefinitie van het hoofdbegrip"
-                    return 0.0, {
-                        "code": code_up,
-                        "severity": self._severity_for_json_rule(rule),
-                        "message": msg,
-                        "description": msg,
-                        "rule_id": code_up,
-                        "category": category_for_rule(code_up),
-                        "suggestion": "Gebruik genus+differentia: noem het hoofdbegrip kort (bv. 'delict') en voeg alleen het onderscheidende criterium toe.",
-                    }
-
-            # Geen issues gevonden → pass
-            return 1.0, None
-
-        # Special: SAM-04 — samenstelling: definitie start met specialiserend component (genus)
-        if code_up == "SAM-04":
-            text_l = (text or "").strip().lower()
-            # Extract eerste woord na ':'
-            first_token = None
-            if ":" in text_l:
-                try:
-                    body = text_l.split(":", 1)[1].strip()
-                    first_token = (body.split() or [""])[0]
-                except (IndexError, AttributeError) as e:
-                    # DEF-248: Log SAM-04 parsing failures - may indicate malformed definition text
-                    logger.debug(f"SAM-04 first token extraction failed: {e}")
-                    first_token = None
-
-            # DEF-244: Use ctx.begrip instead of instance variable
-            begrip_full = (ctx.begrip or "").strip().lower()
-            # Heuristiek: bij samenstellingen zonder spatie moet het eerste woord een substring van het begrip zijn
-            if first_token and begrip_full and " " not in begrip_full:
-                if first_token not in begrip_full:
-                    msg = "Samenstelling start niet met het specialiserende component (genus)"
-                    return 0.0, {
-                        "code": code_up,
-                        "severity": self._severity_for_json_rule(rule),
-                        "message": msg,
-                        "description": msg,
-                        "rule_id": code_up,
-                        "category": category_for_rule(code_up),
-                        "suggestion": "Laat de definitie beginnen met het genus uit de samenstelling (bv. 'model …' bij 'procesmodel').",
-                    }
-
-            return 1.0, None
-
-        # Duplicate context signal voor CON-01
-        if code_up == "CON-01":
-            self._maybe_add_duplicate_context_signal(ctx)
-
-        # 1) Forbidden regex patterns
-        patterns = rule.get("herkenbaar_patronen", []) or []
-        # Legacy-compatible additional patterns (centralized)
-        from validation.additional_patterns import get_additional_patterns
-
-        extra = get_additional_patterns(code_up)
-        if extra:
-            # Preserve order and de-duplicate
-            patterns = list(dict.fromkeys([*patterns, *extra]))
-        compiled = self._compiled_json_cache.get(code_up)
-        if compiled is None:
-            try:
-                compiled = [re.compile(pat, re.IGNORECASE) for pat in patterns]
-            except re.error:
-                compiled = []
-            self._compiled_json_cache[code_up] = compiled
-
-        pattern_hits: list[str] = []
-        first_hit_pattern: str | None = None
-        first_hit_pos: int | None = None
-        for pat in compiled:
-            for m in pat.finditer(text):
-                pattern_hits.append(pat.pattern)
-                if first_hit_pos is None or (m and m.start() < first_hit_pos):
-                    first_hit_pos = m.start()
-                    first_hit_pattern = pat.pattern
-
-        # Sommige regels gebruiken patterns als POSITIEF signaal (presence is goed)
-        positive_pattern_rules = {"CON-02", "ESS-03", "ESS-04", "ESS-05"}
-        if pattern_hits and code_up not in positive_pattern_rules:
-            pat_list = ", ".join(sorted(set(pattern_hits)))
-            messages.append(f"Verboden patroon gedetecteerd: {pat_list}")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up,
-                    rule,
-                    text,
-                    ctx,
-                    reason="forbidden_patterns",
-                    details=pat_list,
-                )
-            )
-
-        # 2) STR-01 special-case: check start ná ':'
-        if code_up == "STR-01":
-            try:
-                body = text.strip()
-                if ":" in body:
-                    body = body.split(":", 1)[1].lstrip()
-                if re.match(r"^(is|de|het|een|wordt|betreft)\\b", body, re.IGNORECASE):
-                    messages.append(
-                        "Start niet met zelfstandig naamwoord (hulpwoord/artikel gedetecteerd)"
-                    )
-                    suggestions.append(
-                        "Start met het kernzelfstandig naamwoord i.p.v. een hulpwoord of lidwoord."
-                    )
-            except (ValueError, IndexError, re.error) as e:
-                # DEF-231: Log STR-01 check failures for debugging
-                logger.debug(
-                    f"STR-01 special case check overgeslagen: {type(e).__name__}: {e}",
-                    extra={
-                        "component": "modular_validation_service",
-                        "rule_id": "STR-01",
-                        "text_length": len(text) if text else 0,
-                    },
-                )
-
-        # 3) Required patterns
-        req_patterns = rule.get("required_patterns", []) or []
-        if req_patterns:
-            try:
-                req_compiled = [re.compile(p, re.IGNORECASE) for p in req_patterns]
-            except re.error:
-                req_compiled = []
-            if not any(rc.search(text) for rc in req_compiled):
-                messages.append("Vereist patroon niet gevonden")
-                suggestions.append(
-                    self._build_suggestion_for_violation(
-                        code_up,
-                        rule,
-                        text,
-                        ctx,
-                        reason="required_patterns",
-                        details=", ".join(req_patterns),
-                    )
-                )
-
-        # 4) Forbidden phrases (substring)
-        for phrase in rule.get("forbidden_phrases", []) or []:
-            if phrase and phrase in text_norm:
-                messages.append(f"Verboden term: '{phrase}'")
-                suggestions.append(
-                    self._build_suggestion_for_violation(
-                        code_up,
-                        rule,
-                        text,
-                        ctx,
-                        reason="forbidden_phrase",
-                        details=phrase,
-                    )
-                )
-
-        # 5) Numeric constraints
-        min_words = rule.get("min_words")
-        if isinstance(min_words, int) and words < min_words:
-            messages.append(f"Te weinig woorden (min {min_words})")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="min_words", details=str(min_words)
-                )
-            )
-
-        max_words = rule.get("max_words")
-        if isinstance(max_words, int) and words > max_words:
-            messages.append(f"Te veel woorden (max {max_words})")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="max_words", details=str(max_words)
-                )
-            )
-
-        min_chars = rule.get("min_chars")
-        if isinstance(min_chars, int) and chars < min_chars:
-            messages.append(f"Te weinig tekens (min {min_chars})")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="min_chars", details=str(min_chars)
-                )
-            )
-
-        max_chars = rule.get("max_chars")
-        if isinstance(max_chars, int) and chars > max_chars:
-            messages.append(f"Te veel tekens (max {max_chars})")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="max_chars", details=str(max_chars)
-                )
-            )
-
-        # 6) Circular definition (begrip in definitie)
-        # DEF-244: Use ctx.begrip instead of instance variable
-        if rule.get("circular_definition"):
-            begrip = ctx.begrip or None
-            if begrip and re.search(
-                rf"\b{re.escape(str(begrip))}\b", text_norm, re.IGNORECASE
-            ):
-                messages.append("Circulaire definitie: begrip komt letterlijk voor")
-                suggestions.append(
-                    self._build_suggestion_for_violation(
-                        code_up, rule, text, ctx, reason="circular", details=str(begrip)
-                    )
-                )
-
-        # 7) STR-ORG heuristics: min_commas + max_chars als samen-conditie
-        min_commas = rule.get("min_commas")
-        if isinstance(min_commas, int) and isinstance(max_chars, int):
-            if text_norm.count(",") >= min_commas and chars > max_chars:
-                messages.append(
-                    f"Zinsstructuur: veel komma's (≥{min_commas}) en te lang (> {max_chars} tekens)"
-                )
-                suggestions.append(
-                    self._build_suggestion_for_violation(
-                        code_up,
-                        rule,
-                        text,
-                        ctx,
-                        reason="structure_runon",
-                        details=f"{min_commas}|{max_chars}",
-                    )
-                )
-
-        # 8) Redundancy patterns
-        for rpat in rule.get("redundancy_patterns", []) or []:
-            try:
-                rre = re.compile(rpat, re.IGNORECASE)
-            except re.error:
-                continue
-            if rre.search(text_norm):
-                messages.append("Redundantie/tegenstrijdigheid gedetecteerd")
-                suggestions.append(
-                    self._build_suggestion_for_violation(
-                        code_up, rule, text, ctx, reason="redundancy", details=rpat
-                    )
-                )
-                break
-
-        # 9) Bekende specifieke checks (positieve indicatoren of vereisten)
-        if code_up == "CON-02" and not self._has_authentic_source_basis(text):
-            messages.append("Geen authentieke bron/basis in definitietekst")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="auth_source"
-                )
-            )
-
-        if code_up == "ESS-03" and not self._has_unique_identification(text):
-            messages.append("Ontbreekt uniek identificatiecriterium")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="unique_id"
-                )
-            )
-
-        if code_up == "ESS-04" and not self._has_testable_element(text):
-            messages.append("Ontbreekt objectief toetsbaar element")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="testable"
-                )
-            )
-
-        if code_up == "ESS-05" and not self._has_distinguishing_feature(text):
-            messages.append("Ontbreekt onderscheidend kenmerk")
-            suggestions.append(
-                self._build_suggestion_for_violation(
-                    code_up, rule, text, ctx, reason="distinguishing"
-                )
-            )
-
-        # DEF-244: Use ctx.begrip instead of instance variable
-        if code_up == "VER-01":
-            begrip = ctx.begrip or ""
-            if not self._lemma_is_singular(begrip):
-                messages.append("Term (lemma) lijkt meervoud (geen plurale tantum)")
-                suggestions.append(
-                    self._build_suggestion_for_violation(
-                        code_up, rule, text, ctx, reason="singular", details=begrip
-                    )
-                )
-
-        # Resultaat opbouwen
-        if messages:
-            # Als er ook forbidden pattern hits waren, verlaag de score licht op basis van aantal hits
-            score = (
-                0.0
-                if not pattern_hits
-                else max(0.0, 1.0 - 0.3 * len(set(pattern_hits)))
-            )
-            description = "; ".join(dict.fromkeys(messages))  # unique-preserving
-            suggestion_text = "; ".join([s for s in suggestions if s]).strip() or None
-            # Belangrijk: description blijft gelijk aan message (tests verwachten dit)
-            vio: dict[str, Any] = {
-                "code": code,
-                "severity": severity,
-                "severity_level": self._severity_level_for_json_rule(rule),
-                "message": description,
-                "description": description,
-                "rule_id": code,
-                "category": category_for_rule(code),
-                "suggestion": suggestion_text,
-            }
-            # Optionele metadata (eerste match en positie)
-            md: dict[str, Any] = {}
-            if first_hit_pattern is not None:
-                md["detected_pattern"] = first_hit_pattern
-            if first_hit_pos is not None:
-                md["position"] = int(first_hit_pos)
-            if md:
-                vio["metadata"] = md
-            return score, vio
-
-        # Geen issues → pass
         return 1.0, None
 
     def _severity_level_for_json_rule(self, rule: dict[str, Any]) -> str:
@@ -1347,295 +1319,37 @@ class ModularValidationService:
         return "Herschrijf de definitie conform de regelcriteria; maak specifieker."
 
     # ===== Helper checks (JSON required/structure) =====
-    def _has_authentic_source_basis(self, text: str) -> bool:
-        return bool(
-            re.search(
-                r"\b(volgens|conform|gebaseerd|bepaald|bedoeld|wet|regeling)\b",
-                text,
-                re.IGNORECASE,
-            )
-        )
-
-    def _has_unique_identification(self, text: str) -> bool:
-        return bool(
-            re.search(
-                r"\b(uniek|specifiek|identificeer|registratie|nummer|code|id|vin|isbn|kenteken)\b",
-                text,
-                re.IGNORECASE,
-            )
-        )
-
-    def _has_testable_element(self, text: str) -> bool:
-        return bool(
-            re.search(
-                r"\b(\d+|binnen|na|voor|volgens|conform|gebaseerd op)\b",
-                text,
-                re.IGNORECASE,
-            )
-        )
-
-    def _has_distinguishing_feature(self, text: str) -> bool:
-        return bool(
-            re.search(
-                r"\b(onderscheidt|specifiek|bijzonder|kenmerk|eigenschap)\b",
-                text,
-                re.IGNORECASE,
-            )
-        )
-
     def _lemma_is_singular(self, begrip: str) -> bool:
-        # Heuristic: NL plural often ends with 'en'; plurale tantum komen
-        # uit de gecureerde domeinlijst (DEF-605)
-        lemma = (begrip or "").strip().lower()
-        if PluraliatantumChecker.is_plurale_tantum_of_samenstelling(lemma):
-            return True
-        # Plurals often end with 'en' or 'ens' (bv. gegeven → gegevens)
-        if re.search(r"\w+ens$", lemma):
-            return False
-        return not bool(re.search(r"\w+en$", lemma))
+        """Compat-alias op de VER-01-morfologie in de evaluatorlaag (DEF-605)."""
+        return lemma_is_enkelvoud(begrip)
 
-    def _eval_ess02(
-        self, rule: dict[str, Any], text: str, ctx: EvaluationContext
-    ) -> tuple[float, dict[str, Any] | None]:
-        """Implement ESS-02: ontological category must be explicit and unambiguous."""
-        # Marker override from context
-        marker = None
-        try:
-            marker = (ctx.metadata or {}).get("marker")
-        except (TypeError, AttributeError) as e:
-            # DEF-231: Log ESS-02 marker extraction failures
-            logger.debug(
-                f"ESS-02 marker extractie overgeslagen: {type(e).__name__}: {e}",
-                extra={
-                    "component": "modular_validation_service",
-                    "rule_id": "ESS-02",
-                },
-            )
-            marker = None
-        if marker:
-            m = str(marker).strip().lower()
-            if m in {
-                "soort",
-                "type",
-                "exemplaar",
-                "particulier",
-                "proces",
-                "activiteit",
-                "resultaat",
-                "uitkomst",
-            }:
-                return 1.0, None
+    # ── EvaluationSupport: het smalle venster dat evaluators lenen ──────────
+    #
+    # Severity-afleiding en suggestieopbouw blijven hier, zodat het
+    # violation-formaat op één plek wordt bepaald en het evaluatorcontract
+    # geen brede god-objectrefactor (DEF-424) hoeft af te wachten.
 
-        # Compile per-category patterns once
-        cache_key = "ESS-02"
-        compiled_map = self._compiled_ess02_cache.get(cache_key)
-        if compiled_map is None:
-            compiled_map = {}
-            for cat_key, json_key in (
-                ("type", "herkenbaar_patronen_type"),
-                ("particulier", "herkenbaar_patronen_particulier"),
-                ("proces", "herkenbaar_patronen_proces"),
-                ("resultaat", "herkenbaar_patronen_resultaat"),
-            ):
-                pats = rule.get(json_key, []) or []
-                try:
-                    compiled_map[cat_key] = [re.compile(p, re.IGNORECASE) for p in pats]
-                except re.error:
-                    compiled_map[cat_key] = []
-            self._compiled_ess02_cache[cache_key] = compiled_map
+    def severity_for(self, rule: Any) -> str:
+        """Compatibele severity (error/warning) voor een regelrecord."""
+        return self._severity_for_json_rule(rule)
 
-        hits: dict[str, int] = {}
-        for cat, pats in compiled_map.items():
-            for pat in pats:
-                if pat.search(text):
-                    hits[cat] = hits.get(cat, 0) + 1
+    def severity_level_for(self, rule: Any) -> str:
+        """Severity-level (critical/high/medium/low) voor een regelrecord."""
+        return self._severity_level_for_json_rule(rule)
 
-        if len(hits) == 1:
-            return 1.0, None
-        if len(hits) > 1:
-            return 0.0, {
-                "code": "ESS-02",
-                "severity": "error",
-                "severity_level": "high",
-                "message": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
-                "description": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
-                "rule_id": "ESS-02",
-                "category": category_for_rule("ESS-02"),
-                "suggestion": self._build_suggestion_for_violation(
-                    "ESS-02", rule, text, ctx, reason="ambigu"
-                ),
-            }
-        # No hits → missing element
-        return 0.0, {
-            "code": "ESS-02",
-            "severity": "error",
-            "severity_level": "high",
-            "message": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
-            "description": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
-            "rule_id": "ESS-02",
-            "category": category_for_rule("ESS-02"),
-            "suggestion": self._build_suggestion_for_violation(
-                "ESS-02", rule, text, ctx, reason="missing"
-            ),
-        }
-
-    def _maybe_add_duplicate_context_signal(self, ctx: EvaluationContext) -> None:
-        """Emit a duplicate-context WARNING via internal stash for CON-01.
-
-        Since the aggregation path does not support pushing custom violations
-        directly, this method appends a lightweight marker into ctx.metadata
-        to be consumed at the end of validation (kept simple: side-effect free
-        if repository or contexts are unavailable).
-        """
-        try:
-            # Early returns for missing requirements
-            if not self._repository:
-                return
-
-            md = ctx.metadata or {}
-            org = md.get("organisatorische_context") or []
-            jur = md.get("juridische_context") or []
-            wet = md.get("wettelijke_basis") or []
-            # DEF-244: Use ctx.begrip instead of instance variable
-            begrip = ctx.begrip or None
-
-            # Skip if no context to check
-            # Minimaal één van de drie contextlijsten moet aanwezig zijn
-            if not begrip or (not org and not jur and not wet):
-                return
-
-            # Check for repository method
-            if not hasattr(self._repository, "_get_all_definitions"):
-                return
-
-            # Find matching definition
-            found_def = self._find_duplicate_definition(begrip, org, jur, wet, md)
-            if not found_def:
-                return
-
-            # Add warning to metadata
-            self._add_duplicate_warning(md, found_def["id"], found_def["status"])
-
-        except AttributeError:
-            # Expected: repository method missing in some configurations
-            return
-        except Exception as e:
-            # DEF-231: Log unexpected duplicate signal failures
-            logger.warning(
-                f"Duplicate context detectie gefaald: {type(e).__name__}: {e}",
-                extra={
-                    "component": "modular_validation_service",
-                    "operation": "duplicate_context_signal",
-                    "begrip": str(begrip)[:50] if begrip else None,
-                    "has_repository": self._repository is not None,
-                },
-            )
-            return
-
-    def _find_duplicate_definition(
-        self, begrip: str, org: list, jur: list, wet: list, md: dict
-    ) -> dict | None:
-        """Find existing definition with same context (drie lijsten).
-
-        Vereist exacte match op:
-        - begrip
-        - organisatorische_context (genormaliseerd)
-        - juridische_context (genormaliseerd)
-        - wettelijke_basis (genormaliseerd)
-        - categorie (indien opgegeven in md en aanwezig bij candidate)
-        """
-        # _repository is guaranteed not None by caller (_maybe_add_duplicate_context_signal)
-        if self._repository is None:
-            return None
-        defs = self._repository._get_all_definitions()
-        cat = md.get("categorie") or md.get("ontologische_categorie")
-
-        org_n = self._normalize_context_list(org)
-        jur_n = self._normalize_context_list(jur)
-        wet_n = self._normalize_context_list(wet)
-        begrip_norm = str(begrip).strip().lower()
-
-        for d in defs:
-            # Check begrip match
-            if (d.begrip or "").strip().lower() != begrip_norm:
-                continue
-
-            # Check context matches
-            if (
-                self._normalize_context_list(getattr(d, "organisatorische_context", []))
-                != org_n
-            ):
-                continue
-            if (
-                self._normalize_context_list(getattr(d, "juridische_context", []))
-                != jur_n
-            ):
-                continue
-            if (
-                self._normalize_context_list(getattr(d, "wettelijke_basis", []))
-                != wet_n
-            ):
-                continue
-
-            # Check category if provided
-            if cat and getattr(d, "categorie", None):
-                if str(d.categorie).lower() != str(cat).lower():
-                    continue
-
-            return {"id": getattr(d, "id", None), "status": getattr(d, "status", None)}
-
-        return None
-
-    def _normalize_context_list(self, lst: list[str]) -> list[str]:
-        """Normalize a list of context strings for comparison."""
-        try:
-            return sorted({(x or "").strip().lower() for x in list(lst or [])})
-        except (TypeError, AttributeError) as e:
-            # DEF-231: Log context normalization failures
-            logger.debug(
-                f"Context list normalisatie gefaald: {type(e).__name__}: {e}",
-                extra={
-                    "component": "modular_validation_service",
-                    "operation": "normalize_context_list",
-                    "list_type": type(lst).__name__ if lst else "None",
-                },
-            )
-            return []
-
-    def _add_duplicate_warning(
-        self, md: dict, found_id: Any, found_status: Any
-    ) -> None:
-        """Add duplicate warning to metadata."""
-        warn_list = md.setdefault("__con01_dup_warnings__", [])
-        # Escaleer naar error wanneer generation geforceerd is (force_duplicate)
-        force_dup = False
-        try:
-            force_dup = bool(
-                md.get("force_duplicate")
-                or (
-                    isinstance(md.get("options"), dict)
-                    and md.get("options", {}).get("force_duplicate")
-                )
-            )
-        except (TypeError, AttributeError) as e:
-            # DEF-248: Log unexpected metadata structure
-            logger.debug(f"force_duplicate check failed, defaulting to False: {e}")
-            force_dup = False
-        warn_list.append(
-            {
-                "code": "CON-01",
-                "severity": "error" if force_dup else "warning",
-                "severity_level": "high" if force_dup else "medium",
-                "message": "Bestaande definitie met dezelfde context gevonden",
-                "description": "Bestaande definitie met dezelfde context gevonden",
-                "rule_id": "CON-01",
-                "category": category_for_rule("CON-01"),
-                "metadata": {
-                    "existing_definition_id": found_id,
-                    "status": found_status,
-                },
-                "suggestion": "Overweeg de bestaande definitie te hergebruiken of pas de context/lemma aan om duplicatie te voorkomen.",
-            }
+    def build_suggestion(
+        self,
+        code: str,
+        rule: Any,
+        text: str,
+        ctx: EvaluationContext,
+        *,
+        reason: str,
+        details: str | None = None,
+    ) -> str:
+        """Concrete NL-suggestie om een violation te herstellen."""
+        return self._build_suggestion_for_violation(
+            code, rule, text, ctx, reason=reason, details=details
         )
 
     def _calculate_category_scores(

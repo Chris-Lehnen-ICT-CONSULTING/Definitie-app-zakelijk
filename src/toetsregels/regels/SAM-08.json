@@ -27,5 +27,19 @@
       "fulltext": "Synoniemen hebben één definitie",
       "fullurl": "https://www.astraonline.nl/index.php/Synoniemen_hebben_%C3%A9%C3%A9n_definitie"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "synonym_consistency",
+    "required_inputs": [
+      "term",
+      "synonyms",
+      "definition_repository"
+    ],
+    "executability": "repository",
+    "automation_status": "not_evaluated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "requires_repository",
+    "example_pair_reason": "Goed en fout voorbeeld zijn identieke teksten; de norm gaat over twee synoniemen met dezelfde definitie.",
+    "example_pair_issue": "DEF-624"
+  }
 }

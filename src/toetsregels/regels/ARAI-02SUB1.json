@@ -23,5 +23,15 @@
   "status": "conceptueel",
   "type": "inhoud",
   "thema": "begripszuiverheid",
-  "brondocument": "Subsidieregel van ARAI02"
+  "brondocument": "Subsidieregel van ARAI02",
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "normative"
+  }
 }

@@ -61,5 +61,14 @@
       "fulltext": "Ontologische categorie expliciteren",
       "fullurl": "https://www.astraonline.nl/index.php/Polysemie_proces_vs_resultaat"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "ontological_category",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored"
+  }
 }

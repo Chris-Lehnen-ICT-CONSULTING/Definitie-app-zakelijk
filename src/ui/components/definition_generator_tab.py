@@ -575,16 +575,28 @@ class DefinitionGeneratorTab:
     def _render_degraded_mode_warning(self, system_info: dict) -> None:
         """DEF-215: Render warning banner for degraded validation mode."""
         rules_loaded = system_info.get("rules_loaded", 0)
-        rules_expected = system_info.get("rules_expected", 45)
-        coverage = (rules_loaded / rules_expected * 100) if rules_expected > 0 else 0
+        # DEF-668: geen verzonnen noemer. De oude default 45 rekende een
+        # dekkingspercentage uit op een getal dat niemand had vastgesteld;
+        # ontbreekt de verwachting, dan zegt de banner dat ook.
+        rules_expected = system_info.get("rules_expected")
+        verwacht_tekst = (
+            f"{rules_expected} (volledige set)"
+            if isinstance(rules_expected, int) and rules_expected > 0
+            else "onbekend (verwachting niet doorgegeven)"
+        )
+        dekking_tekst = (
+            f"{rules_loaded / rules_expected * 100:.0f}%"
+            if isinstance(rules_expected, int) and rules_expected > 0
+            else "niet te bepalen"
+        )
         reason = system_info.get("degradation_reason", "Onbekende fout")
 
         st.warning(
             f"### ⚠️ BEPERKTE VALIDATIE MODUS\n\n"
             f"Validatie draait met **verminderde dekking** door een systeemprobleem.\n\n"
             f"- **Regels actief**: {rules_loaded} (alleen basis)\n"
-            f"- **Regels verwacht**: {rules_expected} (volledige set)\n"
-            f"- **Dekking**: {coverage:.0f}%\n\n"
+            f"- **Regels verwacht**: {verwacht_tekst}\n"
+            f"- **Dekking**: {dekking_tekst}\n\n"
             f"**Impact**: Je definitie is alleen gevalideerd tegen basisregels. "
             f"Geavanceerde controles (juridisch, ontologisch, taalkundig) zijn overgeslagen.\n\n"
             f"**Aanbeveling**: Controleer gegenereerde definities handmatig voor productiegebruik."

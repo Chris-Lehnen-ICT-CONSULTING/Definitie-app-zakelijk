@@ -29,5 +29,17 @@
       "fulltext": "Definitie bevat geen toelichting",
       "fullurl": "https://www.astraonline.nl/index.php/Definitie_bevat_geen_toelichting"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "het foute voorbeeld voegt een bijzin toe zonder toelichtingsmarker; definitie en toelichting scheiden is een inhoudelijk oordeel.",
+    "example_pair_issue": "DEF-624"
+  }
 }

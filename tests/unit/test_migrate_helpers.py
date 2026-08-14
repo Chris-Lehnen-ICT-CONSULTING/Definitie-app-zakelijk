@@ -59,6 +59,12 @@ def test_create_definities_table_schema(tmp_path: Path):
         "datum_voorstel",
         "ketenpartners",
         "voorkeursterm",
+        # DEF-672: ontbrak hier én in DEFINITIES_TABLE_SQL, terwijl schema.sql
+        # de kolom wél kent. De rebuild in migrate_database() gooide hem
+        # daardoor stil weg — kolom én inhoud. Deze lijst is een onafhankelijke
+        # verwachting; hij hoort mee te bewegen met een bewuste schemawijziging,
+        # niet met een vergeten kolom.
+        "generation_prompt_data",
     ]
 
     assert columns == expected_columns

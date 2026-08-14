@@ -29,5 +29,19 @@
       "fulltext": "Kwalificatie leidt niet tot afwijking",
       "fullurl": "https://www.astraonline.nl/index.php/Kwalificatie_leidt_niet_tot_afwijking"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text",
+      "term",
+      "definition_repository"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "requires_repository",
+    "example_pair_reason": "betekenisafwijking ten opzichte van het algemeen aanvaarde begrip vergt de begrippenverzameling; zonder repository is de uitkomst not_evaluated. Met repository volgt review_required: de kwalificatiepatronen zijn een reviewersignaal, nooit bewijs.",
+    "example_pair_issue": "DEF-624"
+  }
 }

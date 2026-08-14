@@ -27,7 +27,13 @@ async def test_int06_no_explanations_in_definition():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "INT-06" for v in res.get("violations", []))
+    # INT-06 is sinds DEF-624 een oordeelregel; de toelichtingsmarker is een
+    # reviewersignaal, geen bewijs dat definitie en toelichting vermengd zijn.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "INT-06" in review, res
+    assert review["INT-06"]["signals"], review
+    assert "INT-06" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "INT-06" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio
@@ -51,7 +57,12 @@ async def test_sam01_misleading_qualifier():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "SAM-01" for v in res.get("violations", []))
+    # SAM-01 vergt de begrippenverzameling: zonder repository valt er niets
+    # te beoordelen, dus not_evaluated in plaats van een stille pass. Het
+    # reviewgedrag mét repository staat in
+    # test_rule_contract.py::TestOordeelregels.
+    assert res.get("rule_statuses", {}).get("SAM-01") == "not_evaluated", res
+    assert "SAM-01" not in res.get("passed_rules", []), res
 
 
 @pytest.mark.asyncio
@@ -63,7 +74,17 @@ async def test_str03_not_just_synonym():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "STR-03" for v in res.get("violations", []))
+    # STR-03 is sinds DEF-624 een oordeelregel: of een definitie meer is dan
+    # een synoniem vergt een semantisch oordeel.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "STR-03" in review, res
+    assert "STR-03" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "STR-03" for v in res.get("violations", [])), res
+    # DEF-670 (bevinding 7): deze test miste als enige van zijn zusters de
+    # signals-assertie. Zonder haar toetst hij alleen dat STR-03 op review
+    # staat, niet dat de reviewer een aanwijzing krijgt — hier: dat de
+    # definitie uit één enkel woord bestaat.
+    assert review["STR-03"]["signals"], review
 
 
 @pytest.mark.asyncio

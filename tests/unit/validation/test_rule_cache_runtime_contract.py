@@ -23,6 +23,7 @@ from toetsregels.rule_cache import (
     RuleCache,
     _load_all_rules_cached,
 )
+from toetsregels.runtime_contract import RuleContractError
 
 pytestmark = [pytest.mark.unit]
 
@@ -194,23 +195,19 @@ class TestPubliekPad:
 
 
 class TestDegradedState:
-    def test_loader_meldt_incompleet_bij_corrupt_bestand(self, tmp_path, caplog):
-        # Fail-open zichtbaar maken (DEF-621): een corrupt regelbestand
-        # verdwijnt niet meer stil - de loader logt de incomplete set met
-        # de ontbrekende rule-IDs.
+    def test_loader_faalt_op_corrupt_bestand(self, tmp_path):
+        # DEF-621 maakte de fail-open zichtbaar: een corrupt regelbestand
+        # werd overgeslagen en de loader logde "INCOMPLEET". DEF-606 gaat
+        # een stap verder en sluit het gat: er komt geen gedeeltelijke set
+        # meer uit, want die draait gewoon door met minder regels en tilt de
+        # kwaliteitsscore op zonder dat er iets zichtbaar misgaat.
         (tmp_path / "GOED-01.json").write_text(
             '{"id": "GOED-01", "naam": "ok"}', encoding="utf-8"
         )
         (tmp_path / "KAPOT-01.json").write_text("{niet-json", encoding="utf-8")
-        import logging
 
-        with caplog.at_level(logging.ERROR):
-            records = _load_all_rules_cached.__wrapped__(str(tmp_path))
-        assert set(records) == {"GOED-01"}
-        assert any(
-            "INCOMPLEET" in r.message and "KAPOT-01" in r.message
-            for r in caplog.records
-        ), "loader meldt de incomplete regelset niet"
+        with pytest.raises(RuleContractError, match="KAPOT-01"):
+            _load_all_rules_cached.__wrapped__(str(tmp_path))
 
     def test_stats_tonen_volledige_lading(self):
         cache = RuleCache()

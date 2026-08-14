@@ -34,5 +34,17 @@
       "fulltext": "Voornaamwoord-verwijzing duidelijk",
       "fullurl": "https://www.astraonline.nl/index.php/Voornaamwoord-verwijzing_duidelijk"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "voornaamwoord-antecedentresolutie vergt woordsoortanalyse; het patroon vuurt ook op het eigen goede voorbeeld.",
+    "example_pair_issue": "DEF-624"
+  }
 }

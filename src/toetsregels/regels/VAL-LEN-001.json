@@ -8,6 +8,15 @@
   "type": "structuur",
   "thema": "lengte",
   "min_words": 5,
-  "min_chars": 15
+  "min_chars": 15,
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score"
+  }
 }
 

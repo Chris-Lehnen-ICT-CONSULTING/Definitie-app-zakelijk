@@ -34,5 +34,15 @@
       "fulltext": "Opsomming in extensionele definitie is limitatief",
       "fullurl": "https://www.astraonline.nl/index.php/Opsomming_in_extensionele_definitie_is_limitatief"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }
