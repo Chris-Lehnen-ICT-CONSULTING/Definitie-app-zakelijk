@@ -31,5 +31,15 @@
       "fulltext": "Geen betekenisverruiming binnen definitie",
       "fullurl": "https://www.astraonline.nl/index.php/Geen_betekenisverruiming_binnen_definitie"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }

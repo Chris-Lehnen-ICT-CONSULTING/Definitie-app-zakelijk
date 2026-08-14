@@ -7,6 +7,15 @@
   "aanbeveling": "verplicht",
   "type": "inhoud",
   "thema": "essentie",
-  "min_words": 6
+  "min_words": 6,
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score"
+  }
 }
 

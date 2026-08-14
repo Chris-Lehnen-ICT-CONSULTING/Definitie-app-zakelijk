@@ -19,25 +19,17 @@
 # dus de herkenbaar_patronen van VER-03 zijn onbereikbaar (dood pad).
 
 ARAI-03:
-  evaluator: json_generiek
-  scoringstatus: automatisch
-  gewicht_nul: true
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    subjectieve bijvoeglijke naamwoorden zijn contextgebonden; het
+    patroon mist de verbogen vorm in het eigen foute voorbeeld en zou
+    bij verbreding op vrijwel elk bijvoeglijk naamwoord vuren.
+  probe:
     begrip: maatregel
     tekst: "maatregel: ingreep die effectief bijdraagt"
-    verwacht_in_melding: "Verboden patroon"
-  positief:
-    begrip: maatregel
-    tekst: "maatregel: ingreep met een vastgesteld doel"
-  grens:
-    begrip: maatregel
-    tekst: "maatregel: ingreep gericht op effectiviteit"
-    verwacht: geen_violation
 
 VAL-LEN-001:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [min_words, min_chars]
   negatief:
     begrip: definitie
@@ -52,8 +44,6 @@ VAL-LEN-001:
     verwacht: geen_violation
 
 VER-03:
-  evaluator: special_case
-  scoringstatus: automatisch
   required_fields: []
   # DEF-621-fix: de twee dode én kwadratische patronen (".+t\b",
   # ".+d\b") zijn uit VER-03.json verwijderd — ze waren onbereikbaar
@@ -74,8 +64,6 @@ VER-03:
     verwacht: geen_violation
 
 ESS-02:
-  evaluator: special_case
-  scoringstatus: automatisch
   required_fields: []
   negatief:
     begrip: waarde
@@ -92,14 +80,12 @@ ESS-02:
     verwacht: violation
 
 SAM-06:
-  evaluator: json_generiek
-  scoringstatus: defect_inert
-  issue: DEF-621
+  issue: DEF-623
   required_fields: [vereist_param]
   reden: >
-    vereist_param wordt door geen enkele evaluator-tak gelezen (stil
-    genegeerd); de regel kan in runtime nooit falen. Herstel vergt een
-    voorkeursterm-evaluator (DEF-606-vervolg).
+    voorkeurstermcontrole vereist het synoniemen-/voorkeurstermcontract;
+    zonder die invoer is de uitkomst not_evaluated in plaats van een
+    stille pass. Evaluator belegd bij DEF-623.
   probe:
     begrip: synoniemenpaar
     tekst: "aanduiding naast de voorkeursterm zonder consistent gebruik"
@@ -107,8 +93,6 @@ SAM-06:
 # ── Volledige uitbreiding naar alle 53 rule-IDs (stap 5) ──────────────
 
 ARAI-01:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -124,8 +108,6 @@ ARAI-01:
     verwacht: geen_violation
 
 ARAI-02:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -140,8 +122,6 @@ ARAI-02:
     verwacht: geen_violation
 
 ARAI-02SUB1:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -156,8 +136,6 @@ ARAI-02SUB1:
     verwacht: geen_violation
 
 ARAI-02SUB2:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -172,8 +150,6 @@ ARAI-02SUB2:
     verwacht: geen_violation
 
 ARAI-04:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -188,8 +164,6 @@ ARAI-04:
     verwacht: geen_violation
 
 ARAI-04SUB1:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -204,8 +178,6 @@ ARAI-04SUB1:
     verwacht: geen_violation
 
 ARAI-05:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -220,8 +192,6 @@ ARAI-05:
     verwacht: geen_violation
 
 ARAI-06:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   gewicht_nul: true
   required_fields: [herkenbaar_patronen]
   negatief:
@@ -236,8 +206,6 @@ ARAI-06:
     verwacht: geen_violation
 
 CON-01:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: afspraak
@@ -251,8 +219,6 @@ CON-01:
     verwacht: geen_violation
 
 CON-02:
-  evaluator: positieve_indicator
-  scoringstatus: automatisch
   required_fields: []
   negatief:
     begrip: protocol
@@ -267,8 +233,6 @@ CON-02:
     verwacht: violation
 
 CON-CIRC-001:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [circular_definition]
   negatief:
     begrip: sanctie
@@ -283,9 +247,7 @@ CON-CIRC-001:
     verwacht: geen_violation
 
 DUP_01:
-  evaluator: json_generiek
-  scoringstatus: niet_automatisch_toetsbaar
-  issue: DEF-621
+  issue: DEF-624
   required_fields: []
   reden: >
     duplicaatdetectie vereist een repository/database; de evaluator
@@ -296,23 +258,17 @@ DUP_01:
     tekst: "vastgelegde keuze van een orgaan"
 
 ESS-01:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    essentie versus doel is een inhoudelijk oordeel; het om-te-patroon
+    herkent de gesplitste constructie in het eigen foute voorbeeld
+    niet.
+  probe:
     begrip: subsidie
     tekst: "subsidie: bijdrage om te stimuleren"
-  positief:
-    begrip: subsidie
-    tekst: "subsidie: geldelijke bijdrage van de overheid"
-  grens:
-    begrip: subsidie
-    tekst: "subsidie: bijdrage om innovatie"
-    verwacht: geen_violation
 
 ESS-03:
-  evaluator: positieve_indicator
-  scoringstatus: automatisch
   required_fields: []
   negatief:
     begrip: registratie
@@ -327,24 +283,17 @@ ESS-03:
     verwacht: violation
 
 ESS-04:
-  evaluator: positieve_indicator
-  scoringstatus: automatisch
-  required_fields: []
-  negatief:
+  required_fields: [herkenbaar_patronen]
+  issue: DEF-624
+  reden: >
+    toetsbaarheid is een inhoudelijk oordeel; de indicatorpatronen vuren
+    op elk getal of elke tijdsaanduiding en missen het eigen foute
+    voorbeeld.
+  probe:
     begrip: controle
     tekst: "controle: toets van naleving door de dienst"
-    verwacht_in_melding: "toetsbaar element"
-  positief:
-    begrip: controle
-    tekst: "controle: toets die binnen 30 dagen plaatsvindt"
-  grens:
-    begrip: controle
-    tekst: "controle: toets voor naleving"
-    verwacht: geen_violation
 
 ESS-05:
-  evaluator: positieve_indicator
-  scoringstatus: automatisch
   required_fields: []
   negatief:
     begrip: profiel
@@ -359,8 +308,6 @@ ESS-05:
     verwacht: violation
 
 ESS-CONT-001:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [min_words]
   negatief:
     begrip: definitie
@@ -375,8 +322,6 @@ ESS-CONT-001:
     verwacht: geen_violation
 
 INT-01:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: dossier
@@ -390,38 +335,28 @@ INT-01:
     verwacht: geen_violation
 
 INT-02:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    het gedocumenteerde paar verschilt uitsluitend in het modale
+    werkwoord moet, wat de norm van ARAI-04 is; beslisregel-herkenning
+    blijft daarnaast een inhoudelijk oordeel.
+  probe:
     begrip: korting
     tekst: "korting: verlaging indien tijdig betaald"
-  positief:
-    begrip: korting
-    tekst: "korting: verlaging van het tarief"
-  grens:
-    begrip: korting
-    tekst: "korting: verlaging bij tijdige betaling"
-    verwacht: geen_violation
 
 INT-03:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    voornaamwoord-antecedentresolutie vergt woordsoortanalyse; het
+    patroon vuurt ook op het eigen goede voorbeeld. Contract:
+    judgment_review, dus review_required in plaats van pass.
+  probe:
     begrip: regeling
     tekst: "regeling waarbij deze afspraak geldt"
-  positief:
-    begrip: regeling
-    tekst: "regeling: afspraak over vergoeding"
-  grens:
-    begrip: regeling
-    tekst: "regeling: afspraak over dienstverlening"
-    verwacht: geen_violation
 
 INT-04:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: toezicht
@@ -435,23 +370,16 @@ INT-04:
     verwacht: geen_violation
 
 INT-06:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    het foute voorbeeld voegt een bijzin toe zonder toelichtingsmarker;
+    definitie en toelichting scheiden is een inhoudelijk oordeel.
+  probe:
     begrip: voertuig
     tekst: "voertuig: vervoermiddel bijvoorbeeld een auto"
-  positief:
-    begrip: voertuig
-    tekst: "voertuig: middel voor vervoer over land"
-  grens:
-    begrip: voertuig
-    tekst: "voertuig: middel voor voorbeeldig vervoer"
-    verwacht: geen_violation
 
 INT-07:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   # DEF-621-fix: de patronen zijn case-sensitief gemaakt via (?-i:...)
   # zodat het afkortingenpatroon onder de globale IGNORECASE-compilatie
   # alleen échte hoofdletterreeksen matcht — niet elk woord van 2-6
@@ -470,8 +398,6 @@ INT-07:
     verwacht: geen_violation
 
 INT-08:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: verbod
@@ -485,8 +411,6 @@ INT-08:
     verwacht: geen_violation
 
 INT-09:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: lijst
@@ -500,8 +424,6 @@ INT-09:
     verwacht: geen_violation
 
 INT-10:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: term
@@ -515,23 +437,19 @@ INT-10:
     verwacht: geen_violation
 
 SAM-01:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    betekenisafwijking ten opzichte van het algemeen aanvaarde begrip
+    vergt de begrippenverzameling en een inhoudelijk oordeel. Zonder
+    repository is de uitkomst not_evaluated; met repository
+    review_required. De kwalificatiepatronen zijn een reviewersignaal,
+    nooit bewijs.
+  probe:
     begrip: koppeling
     tekst: "koppeling: technisch verband tussen delen"
-  positief:
-    begrip: koppeling
-    tekst: "koppeling: verband tussen twee registraties"
-  grens:
-    begrip: koppeling
-    tekst: "koppeling: verband via techniek"
-    verwacht: geen_violation
 
 SAM-02:
-  evaluator: special_case
-  scoringstatus: automatisch
   required_fields: []
   # Lege herkenbaar_patronen in de JSON; de werkelijke check is de
   # special-case op meerwoordige begrippen (kop-herhaling na dubbele punt).
@@ -548,23 +466,17 @@ SAM-02:
     verwacht: geen_violation
 
 SAM-03:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-623
+  reden: >
+    nesting van definitietekst is alleen vast te stellen tegen andere
+    opgeslagen definities; zonder repository is de uitkomst
+    not_evaluated, nooit pass.
+  probe:
     begrip: artikel
     tekst: "artikel: bepaling zie definitie van wet"
-  positief:
-    begrip: artikel
-    tekst: "artikel: genummerde bepaling in een wet"
-  grens:
-    begrip: artikel
-    tekst: "artikel: bepaling zoals omschreven hieronder"
-    verwacht: geen_violation
 
 SAM-04:
-  evaluator: special_case
-  scoringstatus: automatisch
   required_fields: []
   negatief:
     begrip: procesmodel
@@ -579,20 +491,17 @@ SAM-04:
     verwacht: geen_violation
 
 SAM-05:
-  evaluator: json_generiek
-  scoringstatus: bewust_niet_scorend
-  issue: DEF-621
+  issue: DEF-623
   required_fields: []
   reden: >
-    geen runtime-velden en geen special-case; circulariteit wordt
-    functioneel gedekt door CON-CIRC-001 (circular_definition).
+    cyclusdetectie loopt over meerdere begrippen en vereist de
+    begrippenverzameling; zonder repository is de uitkomst
+    not_evaluated. Directe zelfreferentie blijft bij CON-CIRC-001.
   probe:
     begrip: lus
     tekst: "lus: verwijzing die naar een lus verwijst"
 
 SAM-07:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: pakket
@@ -606,23 +515,16 @@ SAM-07:
     verwacht: geen_violation
 
 SAM-08:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    een definitie per synoniemenpaar vereist de begrippenverzameling;
+    zonder repository is de uitkomst not_evaluated, nooit pass.
+  probe:
     begrip: benaming
     tekst: "benaming: aanduiding ook wel roepnaam"
-  positief:
-    begrip: benaming
-    tekst: "benaming: officiële aanduiding van een zaak"
-  grens:
-    begrip: benaming
-    tekst: "benaming: aanduiding in het spraakgebruik"
-    verwacht: geen_violation
 
 STR-01:
-  evaluator: special_case
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: gedragsregel
@@ -636,8 +538,6 @@ STR-01:
     verwacht: geen_violation
 
 STR-02:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   # additional_patterns voegt een genus-zonder-differentia-patroon toe
   # dat ook afgaat op een kaal genuswoord direct vóór de dubbele punt.
   required_fields: [herkenbaar_patronen]
@@ -653,23 +553,16 @@ STR-02:
     verwacht: geen_violation
 
 STR-03:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    of een definitie meer is dan een synoniem vergt een semantisch
+    oordeel; het eenwoords-patroon raakt de vorm term: woord niet.
+  probe:
     begrip: aanduiding
     tekst: "aanduiding"
-  positief:
-    begrip: aanduiding
-    tekst: "aanduiding: naam voor een zaak"
-  grens:
-    begrip: aanduiding
-    tekst: "aanduiding (kort)"
-    verwacht: violation
 
 STR-04:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: maatregel
@@ -683,38 +576,28 @@ STR-04:
     verwacht: geen_violation
 
 STR-05:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    het eigen foute voorbeeld bevat geen enkele constructiemarker;
+    de patroonrecall is aantoonbaar onvoldoende voor een automatisch
+    oordeel. Contract: judgment_review.
+  probe:
     begrip: samenstel
     tekst: "samenstel: geheel dat bestaat uit delen"
-  positief:
-    begrip: samenstel
-    tekst: "samenstel: geheel van verbonden delen"
-  grens:
-    begrip: samenstel
-    tekst: "samenstel: geheel met omvattende werking"
-    verwacht: geen_violation
 
 STR-06:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    essentie versus informatiebehoefte is een inhoudelijk oordeel; het
+    patroon deelt zijn markers met ESS-01 en mist de gesplitste
+    om-te-constructie.
+  probe:
     begrip: fonds
     tekst: "fonds: reserve om te sparen"
-  positief:
-    begrip: fonds
-    tekst: "fonds: afgezonderd vermogen met een bestemming"
-  grens:
-    begrip: fonds
-    tekst: "fonds: vermogen gericht aan derden"
-    verwacht: geen_violation
 
 STR-07:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: toegang
@@ -728,38 +611,28 @@ STR-07:
     verwacht: geen_violation
 
 STR-08:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    het en-patroon vuurt ook op het eigen goede voorbeeld;
+    scope-ambiguiteit is een semantisch oordeel. Contract:
+    judgment_review.
+  probe:
     begrip: eis
     tekst: "eis: voorwaarde en aanvullende norm"
-  positief:
-    begrip: eis
-    tekst: "eis: voorwaarde voor toelating"
-  grens:
-    begrip: eis
-    tekst: "eis: voorwaarden binnen grenzen"
-    verwacht: geen_violation
 
 STR-09:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
-  negatief:
+  issue: DEF-624
+  reden: >
+    het of-patroon vuurt ook op het eigen goede voorbeeld;
+    scope-ambiguiteit is een semantisch oordeel. Contract:
+    judgment_review.
+  probe:
     begrip: legitimatie
     tekst: "legitimatie: paspoort of identiteitskaart"
-  positief:
-    begrip: legitimatie
-    tekst: "legitimatie: bewijs van identiteit"
-  grens:
-    begrip: legitimatie
-    tekst: "legitimatie: bewijsvoering rond identiteit"
-    verwacht: geen_violation
 
 STR-ORG-001:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [min_commas, max_chars, redundancy_patterns]
   negatief:
     begrip: aanpak
@@ -775,8 +648,6 @@ STR-ORG-001:
     verwacht: geen_violation
 
 STR-TERM-001:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [forbidden_phrases]
   negatief:
     begrip: koppelvlak
@@ -791,8 +662,6 @@ STR-TERM-001:
     verwacht: geen_violation
 
 VAL-EMP-001:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [min_chars]
   negatief:
     begrip: definitie
@@ -807,8 +676,6 @@ VAL-EMP-001:
     verwacht: geen_violation
 
 VAL-LEN-002:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [max_words, max_chars]
   negatief:
     begrip: definitie
@@ -823,8 +690,6 @@ VAL-LEN-002:
     verwacht: geen_violation
 
 VER-01:
-  evaluator: special_case
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: besluiten
@@ -840,8 +705,6 @@ VER-01:
     verwacht: geen_violation
 
 VER-02:
-  evaluator: json_generiek
-  scoringstatus: automatisch
   required_fields: [herkenbaar_patronen]
   negatief:
     begrip: gegeven

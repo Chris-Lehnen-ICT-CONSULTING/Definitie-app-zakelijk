@@ -42,7 +42,13 @@ async def test_str05_definition_not_construction_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "STR-05" for v in res.get("violations", [])), res
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "STR-05" in review, res
+    # Het patroon blijft een signaal voor de reviewer; valt dat weg, dan is de
+    # detectie stilletjes kapot en moet deze test dat merken.
+    assert review["STR-05"]["signals"], review
+    assert "STR-05" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "STR-05" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio
@@ -54,7 +60,13 @@ async def test_str06_essence_not_goal_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "STR-06" for v in res.get("violations", [])), res
+    # STR-06 is sinds DEF-624 een oordeelregel; de doelmarkers zijn een
+    # reviewersignaal en delen hun patronen met ESS-01.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "STR-06" in review, res
+    assert review["STR-06"]["signals"], review
+    assert "STR-06" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "STR-06" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio
@@ -78,7 +90,13 @@ async def test_str08_ambiguous_and_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "STR-08" for v in res.get("violations", [])), res
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "STR-08" in review, res
+    # Het patroon blijft een signaal voor de reviewer; valt dat weg, dan is de
+    # detectie stilletjes kapot en moet deze test dat merken.
+    assert review["STR-08"]["signals"], review
+    assert "STR-08" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "STR-08" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio
@@ -90,4 +108,10 @@ async def test_str09_ambiguous_or_fail():
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "STR-09" for v in res.get("violations", [])), res
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "STR-09" in review, res
+    # Het patroon blijft een signaal voor de reviewer; valt dat weg, dan is de
+    # detectie stilletjes kapot en moet deze test dat merken.
+    assert review["STR-09"]["signals"], review
+    assert "STR-09" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "STR-09" for v in res.get("violations", [])), res

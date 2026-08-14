@@ -30,5 +30,17 @@
       "fulltext": "Definitie ≠ constructie",
       "fullurl": "https://www.astraonline.nl/index.php/Definitie_≠_constructie"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "het eigen foute voorbeeld bevat geen enkele constructiemarker; de patroonrecall is aantoonbaar onvoldoende voor een automatisch oordeel.",
+    "example_pair_issue": "DEF-624"
+  }
 }

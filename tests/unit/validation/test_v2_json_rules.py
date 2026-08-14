@@ -2,6 +2,8 @@ import asyncio
 
 import pytest
 
+from domain.context.normalisatie import contextsleutel
+from services.interfaces import DuplicateCandidate
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 
@@ -19,11 +21,32 @@ class _FakeDef:
 
 
 class _FakeRepo:
+    """Bootst de publieke duplicaat-capability na (DEF-672).
+
+    Was gebouwd op `_get_all_definitions`, een privémethode die in DEF-176 is
+    verwijderd en die de productie-repository dus niet had — waardoor deze test
+    een pad toetste dat in werkelijkheid nooit liep. Filtert nu net als de echte
+    repository op begrip en status, en levert genormaliseerde sleutels.
+    """
+
     def __init__(self, defs):
         self._defs = defs
 
-    def _get_all_definitions(self):
-        return list(self._defs)
+    def find_duplicate_candidates(self, begrip):
+        gezocht = str(begrip or "").strip().casefold()
+        return [
+            DuplicateCandidate(
+                id=d.id,
+                status=d.status,
+                categorie=d.categorie,
+                organisatorische_context=contextsleutel(d.organisatorische_context),
+                juridische_context=contextsleutel(d.juridische_context),
+                wettelijke_basis=contextsleutel(getattr(d, "wettelijke_basis", [])),
+            )
+            for d in self._defs
+            if str(d.begrip or "").strip().casefold() == gezocht
+            and str(d.status or "") != "archived"
+        ]
 
 
 @pytest.mark.asyncio
@@ -101,6 +124,10 @@ async def test_ess01_goal_phrases_forbidden():
         ontologische_categorie=None,
         context={},
     )
-    assert any(
-        v.get("code") == "ESS-01" for v in res["violations"]
-    )  # forbidden pattern
+    # ESS-01 is sinds DEF-624 een oordeelregel; de doelfrase blijft een
+    # reviewersignaal maar is geen bewijs meer.
+    review = {r["rule_id"]: r for r in res.get("review_required", [])}
+    assert "ESS-01" in review, res
+    assert review["ESS-01"]["signals"], review
+    assert "ESS-01" not in res.get("passed_rules", []), res
+    assert not any(v.get("code") == "ESS-01" for v in res["violations"]), res

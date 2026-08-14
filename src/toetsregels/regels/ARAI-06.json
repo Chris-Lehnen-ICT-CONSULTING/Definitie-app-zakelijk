@@ -34,5 +34,16 @@
       "fulltext": "Geen cirkeldefinities (SAM-05)",
       "fullurl": "https://www.astraonline.nl/index.php/Géén_cirkeldefinities"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "generic",
+    "required_inputs": [
+      "definition_text",
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "normative"
+  }
 }

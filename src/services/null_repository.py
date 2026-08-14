@@ -7,7 +7,11 @@ geen database beschikbaar is.
 
 from typing import Any
 
-from services.interfaces import Definition, DefinitionRepositoryInterface
+from services.interfaces import (
+    Definition,
+    DefinitionRepositoryInterface,
+    DuplicateCandidate,
+)
 
 
 class NullDefinitionRepository(DefinitionRepositoryInterface):
@@ -54,6 +58,15 @@ class NullDefinitionRepository(DefinitionRepositoryInterface):
     def find_by_begrip(self, begrip: str) -> Definition | None:
         """Always return None."""
         return None
+
+    def find_duplicate_candidates(self, begrip: str) -> list[DuplicateCandidate]:
+        """Zonder database zijn er geen kandidaten (DEF-672).
+
+        Bewust een lege lijst en geen fout: de Null-repository bestaat juist om
+        de app zonder database te laten draaien. CON-01 doet dan zijn
+        patroontoets zonder duplicaatsignaal, wat het bestaande gedrag is.
+        """
+        return []
 
     def find_duplicates(self, definition: Definition) -> list[Definition]:
         """No duplicates in null repository."""

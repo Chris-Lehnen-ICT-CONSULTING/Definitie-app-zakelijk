@@ -39,5 +39,17 @@
       "fulltext": "Toetsbaarheid",
       "fullurl": "https://www.astraonline.nl/index.php/Toetsbaarheid"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "judgment_review",
+    "required_inputs": [
+      "definition_text"
+    ],
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "excluded_from_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "toetsbaarheid is een inhoudelijk oordeel; de indicatorpatronen vuren op elk getal of elke tijdsaanduiding en missen het eigen foute voorbeeld.",
+    "example_pair_issue": "DEF-624"
+  }
 }

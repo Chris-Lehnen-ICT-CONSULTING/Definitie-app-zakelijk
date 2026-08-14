@@ -23,5 +23,16 @@
       "fulltext": "Begrip-samenstelling strijdt niet met samenstellende begrippen",
       "fullurl": "https://www.astraonline.nl/index.php/Begrip-samenstelling_strijdt_niet_met_samenstellende_begrippen"
     }
-  ]
+  ],
+  "runtime_contract": {
+    "evaluator": "compound",
+    "required_inputs": [
+      "definition_text",
+      "term"
+    ],
+    "executability": "deterministic",
+    "automation_status": "automated",
+    "score_policy": "scored",
+    "example_pair_policy": "normative"
+  }
 }
