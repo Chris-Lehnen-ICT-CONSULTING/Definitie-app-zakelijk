@@ -62,11 +62,11 @@ This document describes the GitHub repository secrets that can be configured for
 Coverage is reported entirely inside GitHub Actions — no external service and no
 secret are involved:
 
-| Concern | Where |
-|---------|-------|
-| Blocking coverage floor (45%) | `make test-cov-ci` in the `Coverage ratchet` step of `.github/workflows/test.yml` |
-| Coverage report on `main` | `coverage report --format=markdown >> $GITHUB_STEP_SUMMARY` in the same workflow |
-| Raw artifacts (`htmlcov/`, `coverage.xml`, `.coverage`) | `Archive test results` step in the same workflow |
+| Concern | Where | Scope of the number |
+|---------|-------|---------------------|
+| Blocking coverage floor | `make test-cov-ci`, called by the `Coverage ratchet` step of `.github/workflows/test.yml`. The floor value lives in the Makefile — deliberately not duplicated here, because the ratchet is raised over time | `--cov=src`, `-m unit` (whole unit suite) |
+| Coverage report on `main` | `coverage report --format=markdown >> $GITHUB_STEP_SUMMARY` in the same workflow | The **advisory services subset**, not the project-wide figure: the advisory step writes `.coverage` last and without `--cov-append`. Pre-existing; tracked in DEF-679 |
+| Raw artifacts (`htmlcov/`, `coverage.xml`, `.coverage`) | `Archive test results` step in the same workflow | `coverage.xml` is produced by the PR-suite step, so `--cov=src/services` |
 
 **Codecov is not in use.** A `CODECOV_TOKEN` secret was documented here but never
 configured on this repository, so every upload failed with `Token required - not
