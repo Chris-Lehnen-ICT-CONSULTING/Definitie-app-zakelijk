@@ -8,10 +8,16 @@ Tests are organized in two phases:
 1. PRE-MIGRATION: Verify constraint EXISTS and BLOCKS duplicates
 2. POST-MIGRATION: Verify constraint REMOVED and allows duplicates
 
-Run these tests in sequence:
-    pytest tests/database/test_unique_constraint_removal.py::test_pre_migration -v
-    # Apply migration 009
-    pytest tests/database/test_unique_constraint_removal.py::test_post_migration -v
+NOTE (found during DEF-676): this suite is currently deselected in CI, and it
+is not a self-contained migration check. The fixture and the tests resolve the
+migration SQL under `tests/src/database/migrations/`, a directory that does
+not exist — the files live in `src/database/migrations/`. Because every lookup
+is guarded by `if migration.exists()`, the migrations are silently skipped and
+the index assertions fail. No run instructions are given here for that reason:
+they would point at a suite that is known to be red.
+
+The defect is recorded administratively under DEF-676; repairing the path
+resolution is out of scope there.
 """
 
 import json

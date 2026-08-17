@@ -498,7 +498,7 @@ def test_visual_inspection_helper():
     Helper test om output visueel te inspecteren.
 
     Draai deze test om de output van alle modules te zien:
-    pytest tests/services/prompts/test_json_based_rules_consolidation.py::test_visual_inspection_helper -v -s
+    pytest tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_visual_inspection_helper -v -s
     """
     modules = [
         ("ARAI", _make_arai_module()),
