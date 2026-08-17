@@ -1,6 +1,6 @@
 # GitHub Secrets Configuration
 
-**Last Updated:** 2025-01-20
+**Last Updated:** 2026-08-17
 **Status:** Active
 
 ## Available Secrets
@@ -57,26 +57,22 @@ This document describes the GitHub repository secrets that can be configured for
 
 **Mode:** Open source (no license required)
 
-### CODECOV_TOKEN
+## Coverage Reporting (No Secret Required)
 
-**Purpose:** Upload test coverage reports to Codecov
-**Used in:** `.github/workflows/test.yml`
-**Required:** Optional (coverage reporting)
-**Type:** Repository secret
+Coverage is reported entirely inside GitHub Actions — no external service and no
+secret are involved:
 
-#### Configuration Steps
+| Concern | Where |
+|---------|-------|
+| Blocking coverage floor (45%) | `make test-cov-ci` in the `Coverage ratchet` step of `.github/workflows/test.yml` |
+| Coverage report on `main` | `coverage report --format=markdown >> $GITHUB_STEP_SUMMARY` in the same workflow |
+| Raw artifacts (`htmlcov/`, `coverage.xml`, `.coverage`) | `Archive test results` step in the same workflow |
 
-1. **Obtain Token:**
-   - Sign up at [codecov.io](https://codecov.io)
-   - Add repository
-   - Copy upload token
-
-2. **Add to GitHub:**
-   - Navigate to: Repository Settings → Secrets and variables → Actions
-   - Click "New repository secret"
-   - Name: `CODECOV_TOKEN`
-   - Value: `<your-codecov-token>`
-   - Click "Add secret"
+**Codecov is not in use.** A `CODECOV_TOKEN` secret was documented here but never
+configured on this repository, so every upload failed with `Token required - not
+valid tokenless upload` while the step still reported `success`. The upload steps
+were removed in DEF-678. Do not re-add a Codecov step without also adding the
+secret and using the correct `files:` input.
 
 ## Workflow Branch Triggers
 
@@ -113,16 +109,6 @@ All CI/CD workflows are configured to trigger on these branch patterns:
 3. Confirm license is valid and not expired
 4. Re-add secret if necessary
 
-### Codecov Upload Fails
-
-**Error:** `Codecov token invalid`
-
-**Solution:**
-1. Verify secret name is exactly `CODECOV_TOKEN`
-2. Check token in Codecov dashboard is active
-3. Regenerate token if necessary
-4. Update secret in GitHub
-
 ## Related Documentation
 
 - [GitHub Actions Workflows](../../.github/workflows/)
@@ -133,4 +119,5 @@ All CI/CD workflows are configured to trigger on these branch patterns:
 
 | Date | Change | Author |
 |------|--------|--------|
+| 2026-08-17 | DEF-678: removed the `CODECOV_TOKEN` section and its troubleshooting entry — the secret was never configured and the Codecov steps have been removed from CI. Replaced by a description of the in-Actions coverage reporting. | Claude |
 | 2025-01-20 | Initial documentation | Claude/BMad Master |

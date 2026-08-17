@@ -23,7 +23,7 @@ jobs:
       # Default-provider = anthropic → ANTHROPIC_API_KEY is nu de vereiste key; de
       # OPENAI-keys blijven staan voor tests die naar openai wisselen.
       # `dummy` is niet-leeg (container bouwt) én niet-`sk-` (integration-skip-guards
-      # blijven skippen → geen echte API-calls). Conventie van contract-tests/ci/coverage-badge.
+      # blijven skippen → geen echte API-calls). Conventie van contract-tests/ci.
       ANTHROPIC_API_KEY: dummy
       OPENAI_API_KEY: dummy
       OPENAI_API_KEY_PROD: dummy
@@ -121,16 +121,13 @@ jobs:
             --cov=src/services \
             --cov-report=term-missing
 
-      - name: Upload coverage reports
-        timeout-minutes: 5
-        continue-on-error: true
-        uses: codecov/codecov-action@v7
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # DEF-678: Codecov-upload verwijderd. Er is nooit een `CODECOV_TOKEN`-secret
+      # op deze repo geconfigureerd, dus elke upload faalde met "Token required -
+      # not valid tokenless upload" terwijl de stap `success` rapporteerde — een
+      # stille faalmodus. De input heette bovendien `file` waar codecov-action@v7
+      # `files` verwacht. Codecov is niet in gebruik: het coveragerapport op main
+      # komt uit de step summary hieronder, de blokkerende vloer uit
+      # `make test-cov-ci`, en de artefacten uit de upload-artifact-stap.
 
       - name: Generate coverage badge
         if: github.ref == 'refs/heads/main'
