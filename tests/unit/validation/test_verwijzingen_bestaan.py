@@ -26,9 +26,13 @@ Bewust géén negatieve conclusie — statisch onbeslisbaar:
 
 - **imports**: ``from basis import TestBasis`` levert een geldige node zonder
   ``ClassDef`` in dit bestand;
-- **overerving**: een methode kan van een basisklasse komen;
-- **control-flow**: een klasse onder ``if``/``try``/``with``/``for``/``while``
-  bestaat pas na uitvoering;
+- **overerving en decorators**: een lid kan van een basisklasse komen, of door
+  een klassedecorator worden geïnjecteerd;
+- **toewijzingen**: ``TestFoo = maak_suite()`` op moduleniveau en
+  ``test_m = staticmethod(_impl)`` in een klassebody binden een node buiten het
+  definitie-AST om;
+- **control-flow**: een klasse onder ``if``/``try``/``except*``/``match``/
+  ``with``/``for``/``while`` bestaat pas na uitvoering;
 - **nesting**: een keten dieper dan ``bestand::node::methode`` wordt niet
   gedeeltelijk gelezen, maar als onbeslisbaar behandeld;
 - **ambiguïteit**: bij meerdere definities of een klasse/functie-naamcollisie
@@ -120,7 +124,7 @@ ONZEKER = "onzeker"
 
 DEFINITIES = (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
 FUNCTIES = (ast.FunctionDef, ast.AsyncFunctionDef)
-CONTROLFLOW = (ast.If, ast.Try, ast.With, ast.For, ast.While)
+CONTROLFLOW = (ast.If, ast.Try, ast.TryStar, ast.With, ast.For, ast.While, ast.Match)
 
 
 def _bestanden_per_bronmap(wortel: Path = REPOWORTEL) -> dict[str, list[Path]]:
@@ -202,15 +206,32 @@ def _resolveer(
     return GEVONDEN, binnen
 
 
-def _namen_uit_import_of_controlflow(boom: ast.Module) -> set[str]:
-    """Namen die er via import of uitvoerbare control-flow kunnen zijn.
+def _toegewezen_namen(lichaam: list[ast.stmt]) -> set[str]:
+    """Namen die een directe toewijzing in `lichaam` bindt.
+
+    Alleen eenvoudige `Name`-targets; tuple-unpacking, subscripts en attributen
+    blijven buiten beschouwing. Idiomen als `TestFoo = maak_suite()` en
+    `test_m = staticmethod(_impl)` binden zo een node die pytest wél verzamelt.
+    """
+    namen: set[str] = set()
+    for knoop in lichaam:
+        if isinstance(knoop, ast.Assign):
+            namen.update(d.id for d in knoop.targets if isinstance(d, ast.Name))
+        elif isinstance(knoop, ast.AnnAssign) and isinstance(knoop.target, ast.Name):
+            namen.add(knoop.target.id)
+    return namen
+
+
+def _onzekere_modulenamen(boom: ast.Module) -> set[str]:
+    """Namen die er via import, control-flow of toewijzing kunnen zijn.
 
     Zulke namen zijn statisch niet te weerleggen: `from basis import TestBasis`
     levert een geldige node op zonder dat er een `ClassDef` in dit bestand
-    staat, en een klasse onder `if`/`try` bestaat pas na uitvoering. Beide
-    vormen zijn met `pytest --collect-only` als collecteerbaar vastgesteld.
+    staat, een klasse onder `if`/`try`/`match` bestaat pas na uitvoering, en een
+    toewijzing bindt de naam buiten het definitie-AST om. Deze vormen zijn met
+    `pytest --collect-only` als collecteerbaar vastgesteld.
     """
-    onzeker: set[str] = set()
+    onzeker: set[str] = _toegewezen_namen(boom.body)
     for knoop in ast.walk(boom):
         if isinstance(knoop, ast.Import):
             for alias in knoop.names:
@@ -249,7 +270,7 @@ def _nodestatus(pad: Path, keten: list[str]) -> str | None:
     for knoop in boom.body:
         if isinstance(knoop, DEFINITIES):
             direct.setdefault(knoop.name, []).append(knoop)
-    onzeker = _namen_uit_import_of_controlflow(boom)
+    onzeker = _onzekere_modulenamen(boom)
 
     naam = keten[0]
     kandidaten = direct.get(naam, [])
@@ -271,8 +292,10 @@ def _nodestatus(pad: Path, keten: list[str]) -> str | None:
         return ZEKER_AANWEZIG
     if lid is not None:
         return ONZEKER  # geneste klasse: de keten hoort dieper te gaan
-    if knoop.bases or knoop.keywords:
-        return ONZEKER  # kan van een basisklasse komen
+    if knoop.bases or knoop.keywords or knoop.decorator_list:
+        return ONZEKER  # kan van een basisklasse of een decorator komen
+    if keten[1] in _toegewezen_namen(knoop.body):
+        return ONZEKER  # als attribuut toegewezen, bv. staticmethod(_impl)
     if any(isinstance(k, CONTROLFLOW) for k in knoop.body):
         return ONZEKER
     return ZEKER_AFWEZIG
@@ -673,6 +696,76 @@ def test_guard_meldt_een_naamcollisie_niet(tmp_path):
     )
     tekst = "# zie tests/diep/doel/test_col.py::TestX::test_m"
     assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+@pytest.mark.parametrize(
+    ("label", "inhoud", "keten"),
+    [
+        (
+            "toewijzing op moduleniveau",
+            "def maak_suite():\n"
+            "    class Suite:\n"
+            "        def test_ok(self): ...\n"
+            "    return Suite\n"
+            "\n"
+            "\n"
+            "TestFoo = maak_suite()\n",
+            "TestFoo::test_ok",
+        ),
+        (
+            "toewijzing in de klassebody",
+            "def _impl(self): ...\n"
+            "\n"
+            "\n"
+            "class TestX:\n"
+            "    test_m = staticmethod(_impl)\n",
+            "TestX::test_m",
+        ),
+        (
+            "klasse onder try/except*",
+            "try:\n"
+            "    class TestX:\n"
+            "        def test_m(self): ...\n"
+            "except* Exception:\n"
+            "    pass\n",
+            "TestX",
+        ),
+        (
+            "klasse onder match",
+            "match 1:\n"
+            "    case 1:\n"
+            "        class TestX:\n"
+            "            def test_m(self): ...\n",
+            "TestX",
+        ),
+        (
+            "gedecoreerde klasse, lid niet direct gevonden",
+            "def voegt_tests_toe(klasse):\n"
+            "    klasse.test_m = lambda self: None\n"
+            "    return klasse\n"
+            "\n"
+            "\n"
+            "@voegt_tests_toe\n"
+            "class TestX:\n"
+            "    def test_ander(self): ...\n",
+            "TestX::test_m",
+        ),
+    ],
+)
+def test_guard_meldt_dynamisch_gebonden_nodes_niet(tmp_path, label, inhoud, keten):
+    """Dynamisch gebonden nodes zijn statisch onbeslisbaar, dus geen bevinding.
+
+    In alle vijf gevallen kan de node op runtime wél bestaan: een toewijzing
+    bindt de naam, `except*` en `match` voeren pas bij uitvoering uit, en een
+    klassedecorator kan leden injecteren. De structuur draagt de conclusie
+    "bestaat niet" dus niet zonder voorbehoud, en de guard hoort te zwijgen.
+    """
+    wortel = _mini_repo(tmp_path)
+    _schrijf(wortel, "test_dyn.py", inhoud)
+
+    tekst = f"# zie tests/diep/doel/test_dyn.py::{keten}"
+
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == [], label
 
 
 def test_guard_leest_een_diepe_nodeketen_volledig(tmp_path):
