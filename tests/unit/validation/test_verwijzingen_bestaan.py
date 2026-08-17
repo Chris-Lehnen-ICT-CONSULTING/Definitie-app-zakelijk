@@ -81,14 +81,27 @@ AMBIGU = "ambigu"
 GEVONDEN = "gevonden"
 
 
-def _te_scannen_bestanden(wortel: Path = REPOWORTEL) -> list[Path]:
-    bestanden: list[Path] = []
+def _bestanden_per_bronmap(wortel: Path = REPOWORTEL) -> dict[str, list[Path]]:
+    """Per bestaande bronmap de te scannen bestanden, recursief.
+
+    `rglob` is hier wezenlijk: het gros van de repository ligt genest, dus een
+    niet-recursieve variant zou vrijwel alles overslaan en de hoofdguard stil
+    laten slagen. Zie `test_scanwortel_omvat_geneste_ankerbestanden`.
+    """
+    per_map: dict[str, list[Path]] = {}
     for mapnaam in BRONMAPPEN:
-        for pad in sorted((wortel / mapnaam).rglob("*.py")):
-            if pad.resolve() == DIT_BESTAND:
-                continue
-            bestanden.append(pad)
-    return bestanden
+        map_ = wortel / mapnaam
+        if not map_.is_dir():
+            continue
+        per_map[mapnaam] = [
+            pad for pad in sorted(map_.rglob("*.py")) if pad.resolve() != DIT_BESTAND
+        ]
+    return per_map
+
+
+def _te_scannen_bestanden(wortel: Path = REPOWORTEL) -> list[Path]:
+    per_map = _bestanden_per_bronmap(wortel)
+    return [pad for mapnaam in BRONMAPPEN for pad in per_map.get(mapnaam, [])]
 
 
 def _samengevoegd(tekst: str) -> tuple[str, list[tuple[int, int]] | None]:
@@ -232,14 +245,27 @@ def _controleer_tekst(
 
 
 def _alle_bevindingen(wortel: Path = REPOWORTEL) -> list[str]:
-    """Scan de hele repository. Fail-closed: een lege scan is zelf een bevinding."""
-    ontbrekend = [m for m in BRONMAPPEN if not (wortel / m).is_dir()]
-    if ontbrekend:
-        return [
-            f"scanwortel {wortel} mist {m}/ — de guard kan zo niets bewijzen "
-            f"en faalt daarom expliciet in plaats van leeg te slagen"
-            for m in ontbrekend
-        ]
+    """Scan de hele repository. Fail-closed: een lege scan is zelf een bevinding.
+
+    Per bronmap wordt zowel het bestaan als een niet-lege opbrengst geëist. Dat
+    tweede is de rem op een versmalde scan: levert een bronmap plotseling nul
+    bestanden op, dan is dat een bevinding in plaats van een stille pass.
+    """
+    per_map = _bestanden_per_bronmap(wortel)
+    struikelblokken: list[str] = []
+    for mapnaam in BRONMAPPEN:
+        if mapnaam not in per_map:
+            struikelblokken.append(
+                f"scanwortel {wortel} mist {mapnaam}/ — de guard kan zo niets "
+                f"bewijzen en faalt daarom expliciet in plaats van leeg te slagen"
+            )
+        elif not per_map[mapnaam]:
+            struikelblokken.append(
+                f"scanwortel {wortel}: {mapnaam}/ levert nul te scannen "
+                f"Python-bestanden op — de scan is leeg en bewijst dus niets"
+            )
+    if struikelblokken:
+        return struikelblokken
 
     bevindingen: list[str] = []
     for pad in _te_scannen_bestanden(wortel):
@@ -266,56 +292,112 @@ def test_geen_verwijzing_naar_een_niet_bestaande_pytestnode():
 # --- de scanwortel moet de echte repository zijn ------------------------
 
 
+# Twee geneste ankerbestanden, één per bronmap. Allebei doelwit van de
+# verwijzingen die DEF-676 repareerde, dus ze verdwijnen niet stilletjes.
+ANKERS = (
+    "src/services/validation/evaluators/judgment_review.py",
+    "tests/unit/validation/test_rule_runtime_matrix.py",
+)
+
+
 def test_scanwortel_is_de_echte_repository():
     # Bewust literals, niet set(BRONMAPPEN): anders beweegt de verwachting mee
     # met de constante en kan deze test een versmalde scan niet betrappen.
     assert (REPOWORTEL / "src").is_dir(), REPOWORTEL
     assert (REPOWORTEL / "tests").is_dir(), REPOWORTEL
-    assert (
-        REPOWORTEL / "src/services/validation/evaluators/judgment_review.py"
-    ).is_file()
-    assert (REPOWORTEL / "tests/unit/validation/test_rule_runtime_matrix.py").is_file()
-    assert {
-        pad.relative_to(REPOWORTEL).parts[0] for pad in _te_scannen_bestanden()
-    } == {"src", "tests"}
-    assert DIT_BESTAND not in {pad.resolve() for pad in _te_scannen_bestanden()}
+    bestanden = _te_scannen_bestanden()
+    assert {pad.relative_to(REPOWORTEL).parts[0] for pad in bestanden} == {
+        "src",
+        "tests",
+    }
+    assert DIT_BESTAND not in {pad.resolve() for pad in bestanden}
+
+
+def test_scanwortel_omvat_geneste_ankerbestanden():
+    """Beide ankers liggen diep genest, dus dit dwingt recursieve scanning af.
+
+    Bestaan alléén is niet genoeg: de vorige vorm toetste `is_file()` en zou een
+    versmalling van `rglob` naar `glob` hebben overleefd. Nu moet het anker
+    daadwerkelijk in de scanset zitten.
+    """
+    gescand = {pad.resolve() for pad in _te_scannen_bestanden()}
+    for anker in ANKERS:
+        pad = REPOWORTEL / anker
+        assert pad.is_file(), f"anker {anker} bestaat niet meer — werk ANKERS bij"
+        assert pad.parent != REPOWORTEL, f"anker {anker} moet genest liggen"
+        assert pad.resolve() in gescand, (
+            f"anker {anker} wordt niet gescand — daalt de scan nog wel af in "
+            f"submappen? Zonder recursie mist de guard vrijwel de hele repository"
+        )
 
 
 def test_ontbrekende_bronmap_faalt_expliciet(tmp_path):
-    (tmp_path / "src").mkdir()  # tests/ ontbreekt bewust
+    (tmp_path / "src" / "diep").mkdir(parents=True)  # tests/ ontbreekt bewust
+    (tmp_path / "src" / "diep" / "iets.py").write_text("x = 1\n", encoding="utf-8")
     bevindingen = _alle_bevindingen(tmp_path)
     assert len(bevindingen) == 1, bevindingen
     assert "mist tests/" in bevindingen[0]
 
 
+def test_lege_bronmap_faalt_expliciet(tmp_path):
+    """Een bestaande maar leeg gescande bronmap mag niet stil doorgaan.
+
+    Dit is de rem op een versmalde scan: levert `tests/` plotseling nul
+    bestanden op, dan is dat zelf de bevinding.
+    """
+    (tmp_path / "src" / "diep").mkdir(parents=True)
+    (tmp_path / "src" / "diep" / "iets.py").write_text("x = 1\n", encoding="utf-8")
+    (tmp_path / "tests").mkdir()  # bestaat, maar zonder Python-bestanden
+    bevindingen = _alle_bevindingen(tmp_path)
+    assert len(bevindingen) == 1, bevindingen
+    assert "tests/ levert nul te scannen" in bevindingen[0]
+
+
 def test_lege_wortel_slaagt_niet_vacuum(tmp_path):
-    assert _alle_bevindingen(tmp_path), "een lege wortel moet fail-closed zijn"
+    bevindingen = _alle_bevindingen(tmp_path)
+    assert len(bevindingen) == 2, bevindingen
+    assert any("mist src/" in b for b in bevindingen), bevindingen
+    assert any("mist tests/" in b for b in bevindingen), bevindingen
 
 
 # --- de aggregatielaag moet zelf kunnen falen ---------------------------
 
 
 def _mini_repo(tmp_path: Path) -> Path:
-    (tmp_path / "src").mkdir()
-    (tmp_path / "tests" / "doel").mkdir(parents=True)
-    (tmp_path / "tests" / "doel" / "test_doel.py").write_text(
+    """Minirepo waarin élk bestand genest ligt.
+
+    De nesting is opzettelijk: lag er ook maar één overtreding op het eerste
+    niveau, dan zou een versmalling van `rglob` naar `glob` onopgemerkt blijven.
+    Nu levert die versmalling nul bestanden per bronmap op en slaan de
+    fail-closed-controle en de aggregatietest allebei aan.
+    """
+    (tmp_path / "src" / "diep" / "genest").mkdir(parents=True)
+    (tmp_path / "tests" / "diep" / "doel").mkdir(parents=True)
+    (tmp_path / "tests" / "diep" / "doel" / "test_doel.py").write_text(
         "class TestBestaat:\n    def test_methode(self): ...\n", encoding="utf-8"
     )
-    (tmp_path / "src" / "module.py").write_text(
-        "# zie tests/doel/test_doel.py::TestBestaatNiet\n", encoding="utf-8"
+    (tmp_path / "src" / "diep" / "genest" / "module.py").write_text(
+        "# zie tests/diep/doel/test_doel.py::TestBestaatNiet\n", encoding="utf-8"
     )
-    (tmp_path / "tests" / "test_iets.py").write_text(
-        "# zie tests/doel/test_doel.py::test_bestaat_niet\n", encoding="utf-8"
+    (tmp_path / "tests" / "diep" / "test_iets.py").write_text(
+        "# zie tests/diep/doel/test_doel.py::test_bestaat_niet\n", encoding="utf-8"
     )
     return tmp_path
 
 
 def test_alle_bevindingen_aggregeert_over_src_en_tests(tmp_path):
+    # Beide overtredingen liggen genest, dus deze test bewijst tegelijk dat de
+    # scan recursief is: zonder afdaling levert elke bronmap nul bestanden en
+    # slaat de fail-closed-controle aan.
     wortel = _mini_repo(tmp_path)
     bevindingen = _alle_bevindingen(wortel)
     assert len(bevindingen) == 2, bevindingen
-    assert any(b.startswith("src/module.py:") for b in bevindingen), bevindingen
-    assert any(b.startswith("tests/test_iets.py:") for b in bevindingen), bevindingen
+    assert any(
+        b.startswith("src/diep/genest/module.py:") for b in bevindingen
+    ), bevindingen
+    assert any(
+        b.startswith("tests/diep/test_iets.py:") for b in bevindingen
+    ), bevindingen
 
 
 def test_onleesbaar_bestand_levert_een_bevinding(tmp_path):
@@ -340,7 +422,7 @@ def test_guard_signaleert_een_ontbrekend_bestand(tmp_path):
 def test_guard_signaleert_een_ontbrekende_klasse(tmp_path):
     wortel = _mini_repo(tmp_path)
     bevindingen = _controleer_tekst(
-        "# zie tests/doel/test_doel.py::TestBestaatNiet", "synthetisch", wortel
+        "# zie tests/diep/doel/test_doel.py::TestBestaatNiet", "synthetisch", wortel
     )
     assert len(bevindingen) == 1, bevindingen
     assert "bestaat niet op moduleniveau" in bevindingen[0]
@@ -350,7 +432,7 @@ def test_guard_accepteert_een_bestaande_klasse(tmp_path):
     wortel = _mini_repo(tmp_path)
     assert (
         _controleer_tekst(
-            "# zie tests/doel/test_doel.py::TestBestaat", "synthetisch", wortel
+            "# zie tests/diep/doel/test_doel.py::TestBestaat", "synthetisch", wortel
         )
         == []
     )
@@ -360,7 +442,7 @@ def test_guard_accepteert_een_bestaande_methode(tmp_path):
     wortel = _mini_repo(tmp_path)
     assert (
         _controleer_tekst(
-            "# zie tests/doel/test_doel.py::TestBestaat::test_methode",
+            "# zie tests/diep/doel/test_doel.py::TestBestaat::test_methode",
             "synthetisch",
             wortel,
         )
@@ -371,7 +453,7 @@ def test_guard_accepteert_een_bestaande_methode(tmp_path):
 def test_guard_signaleert_een_ontbrekende_methode(tmp_path):
     wortel = _mini_repo(tmp_path)
     bevindingen = _controleer_tekst(
-        "# zie tests/doel/test_doel.py::TestBestaat::test_bestaat_niet",
+        "# zie tests/diep/doel/test_doel.py::TestBestaat::test_bestaat_niet",
         "synthetisch",
         wortel,
     )
@@ -383,7 +465,7 @@ def test_guard_keurt_een_methode_niet_goed_als_modulenode(tmp_path):
     # test_methode bestaat wél, maar als methode — niet op moduleniveau.
     wortel = _mini_repo(tmp_path)
     bevindingen = _controleer_tekst(
-        "# zie tests/doel/test_doel.py::test_methode", "synthetisch", wortel
+        "# zie tests/diep/doel/test_doel.py::test_methode", "synthetisch", wortel
     )
     assert len(bevindingen) == 1, bevindingen
     assert "bestaat niet op moduleniveau" in bevindingen[0]
@@ -391,7 +473,7 @@ def test_guard_keurt_een_methode_niet_goed_als_modulenode(tmp_path):
 
 def test_guard_ziet_een_over_stringliteralen_afgebroken_verwijzing(tmp_path):
     wortel = _mini_repo(tmp_path)
-    afgebroken = '(\n    "tests/doel/test_doel.py"\n    "::TestBestaatNiet"\n)\n'
+    afgebroken = '(\n    "tests/diep/doel/test_doel.py"\n    "::TestBestaatNiet"\n)\n'
     bevindingen = _controleer_tekst(afgebroken, "synthetisch", wortel)
     assert len(bevindingen) == 1, bevindingen
     assert "bestaat niet op moduleniveau" in bevindingen[0]
@@ -400,8 +482,8 @@ def test_guard_ziet_een_over_stringliteralen_afgebroken_verwijzing(tmp_path):
 def test_guard_meldt_twee_kapotte_verwijzingen_in_een_tekst(tmp_path):
     wortel = _mini_repo(tmp_path)
     tekst = (
-        "# zie tests/doel/test_doel.py::TestWegA\n"
-        "# en tests/doel/test_doel.py::TestWegB\n"
+        "# zie tests/diep/doel/test_doel.py::TestWegA\n"
+        "# en tests/diep/doel/test_doel.py::TestWegB\n"
     )
     bevindingen = _controleer_tekst(tekst, "synthetisch", wortel)
     assert len(bevindingen) == 2, bevindingen
