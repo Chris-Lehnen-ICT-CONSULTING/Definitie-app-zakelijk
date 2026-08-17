@@ -33,6 +33,19 @@ Verdere scope-grenzen, bewust:
 - **Alleen bestandsnamen met prefix ``test_``.** Een verwijzing naar
   ``src/services/foo.py::Klasse`` wordt niet gecontroleerd.
 - **Alleen verwijzingen mét ``::``.** Een kaal pad zonder node valt erbuiten.
+- **Alleen fysiek aaneengesloten tekst.** De guard zoekt ``test_*.py::node``
+  letterlijk in de bronbestanden. Staat een verwijzing verdeeld over meerdere
+  tokens of regels — bijvoorbeeld door impliciete Python-literalconcatenatie,
+  ``("…test_x.py" "::TestY")`` — dan ziet hij hem niet.
+
+  Een eerdere versie probeerde die vorm alsnog te vangen door quote-paren weg
+  te knippen. Dat modelleert de Python-grammatica niet: het plakte ook losse
+  literalen aaneen en verzon zo nodenamen die nergens bestaan, waardoor
+  correcte code werd afgekeurd. Zo'n vals-positief is schadelijker dan een
+  gemist geval, want deze guard draait bij elke unit-testrun. De reconstructie
+  is daarom teruggetrokken; **deze guard pretendeert niet de Python-grammatica
+  te reconstrueren.** Het opvangen van gesplitste verwijzingen — bijvoorbeeld
+  via ``tokenize`` — blijft onderdeel van DEF-676.
 - **Dit bestand zelf wordt overgeslagen**, zodat de synthetische voorbeelden
   in de guardtests hieronder geen overtreding heten.
 
@@ -72,10 +85,6 @@ VERWIJZING = re.compile(
     r"(?:::(?P<methode>[A-Za-z_]\w*))?"
 )
 
-# Naad tussen twee aangrenzende Python-stringliteralen. Black breekt een lange
-# verwijzing zo af; zonder samenvoegen zou de guard juist die gevallen missen.
-LITERAALNAAD = re.compile(r"['\"]\s*['\"]")
-
 ONTBREEKT = "ontbreekt"
 AMBIGU = "ambigu"
 GEVONDEN = "gevonden"
@@ -103,42 +112,6 @@ def _bestanden_per_bronmap(wortel: Path = REPOWORTEL) -> dict[str, list[Path]]:
 def _te_scannen_bestanden(wortel: Path = REPOWORTEL) -> list[Path]:
     per_map = _bestanden_per_bronmap(wortel)
     return [pad for mapnaam in BRONMAPPEN for pad in per_map.get(mapnaam, [])]
-
-
-def _samengevoegd(tekst: str) -> tuple[str, list[tuple[int, int]] | None]:
-    """Voeg aangrenzende stringliteralen samen.
-
-    Geeft de samengevoegde tekst plus grenzen waarmee een index in die tekst
-    terugvertaald kan worden naar de oorspronkelijke tekst.
-    """
-    naden = list(LITERAALNAAD.finditer(tekst))
-    if not naden:
-        return tekst, None
-
-    stukken: list[str] = []
-    grenzen: list[tuple[int, int]] = []
-    vorig = lengte = delta = 0
-    for naad in naden:
-        stuk = tekst[vorig : naad.start()]
-        stukken.append(stuk)
-        lengte += len(stuk)
-        delta += naad.end() - naad.start()
-        grenzen.append((lengte, delta))
-        vorig = naad.end()
-    stukken.append(tekst[vorig:])
-    return "".join(stukken), grenzen
-
-
-def _oorspronkelijke_index(index: int, grenzen: list[tuple[int, int]] | None) -> int:
-    if grenzen is None:
-        return index
-    delta = 0
-    for grens, cumulatief in grenzen:
-        if index >= grens:
-            delta = cumulatief
-        else:
-            break
-    return index + delta
 
 
 def _binnen_testwortel(kandidaat: Path, testwortel: Path) -> bool:
@@ -234,14 +207,13 @@ def _controleer_tekst(
     if "::" not in tekst:
         return []
 
-    doorzoekbaar, grenzen = _samengevoegd(tekst)
     bevindingen: list[str] = []
 
-    for treffer in VERWIJZING.finditer(doorzoekbaar):
+    for treffer in VERWIJZING.finditer(tekst):
         padtekst = treffer.group("pad")
         node = treffer.group("node")
         methode = treffer.group("methode")
-        regelnr = tekst.count("\n", 0, _oorspronkelijke_index(treffer.start(), grenzen))
+        regelnr = tekst.count("\n", 0, treffer.start())
         plek = f"{herkomst}:{regelnr + 1}"
         verwijzing = f"{padtekst}::{node}" + (f"::{methode}" if methode else "")
 
@@ -520,12 +492,17 @@ def test_guard_keurt_een_methode_niet_goed_als_modulenode(tmp_path):
     assert "bestaat niet op moduleniveau" in bevindingen[0]
 
 
-def test_guard_ziet_een_over_stringliteralen_afgebroken_verwijzing(tmp_path):
+def test_guard_voegt_losse_stringstatements_niet_samen(tmp_path):
+    """Twee losse stringstatements zijn geen impliciete concatenatie.
+
+    De geldige verwijzing staat in het eerste statement; `"nu"` staat daar los
+    van. Wie de tekst tussen de quotes wegknipt plakt er `TestBestaatnu` van —
+    een node die nergens bestaat — en keurt daarmee correcte code af.
+    """
     wortel = _mini_repo(tmp_path)
-    afgebroken = '(\n    "tests/diep/doel/test_doel.py"\n    "::TestBestaatNiet"\n)\n'
-    bevindingen = _controleer_tekst(afgebroken, "synthetisch", wortel)
-    assert len(bevindingen) == 1, bevindingen
-    assert "bestaat niet op moduleniveau" in bevindingen[0]
+    tekst = 'x = "tests/diep/doel/test_doel.py::TestBestaat"\n"nu"\n'
+
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
 
 
 def test_guard_meldt_twee_kapotte_verwijzingen_in_een_tekst(tmp_path):
