@@ -49,7 +49,7 @@ De guard is cwd-onafhankelijk: de repositorywortel komt uit ``__file__``.
 
 import ast
 import re
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -79,6 +79,7 @@ LITERAALNAAD = re.compile(r"['\"]\s*['\"]")
 ONTBREEKT = "ontbreekt"
 AMBIGU = "ambigu"
 GEVONDEN = "gevonden"
+BUITEN = "buiten"
 
 
 def _bestanden_per_bronmap(wortel: Path = REPOWORTEL) -> dict[str, list[Path]]:
@@ -140,20 +141,53 @@ def _oorspronkelijke_index(index: int, grenzen: list[tuple[int, int]] | None) ->
     return index + delta
 
 
+def _binnen_testwortel(kandidaat: Path, testwortel: Path) -> bool:
+    """Ligt `kandidaat` na volledige resolutie binnen de testwortel?
+
+    Bewust ná `resolve()`: `is_file()` alleen zegt niets over wáár het bestand
+    staat, en een symlink onder `tests/` kan naar buiten wijzen.
+    """
+    try:
+        return kandidaat.resolve().is_relative_to(testwortel)
+    except OSError:
+        return False
+
+
 def _resolveer(
     padtekst: str, bestandsnaam: str, wortel: Path
 ) -> tuple[str, list[Path]]:
-    """Los een verwijzing op tot (status, treffers)."""
+    """Los een verwijzing op tot (status, treffers).
+
+    Padvalidatie gaat vóór bestaan: een absoluut pad of een `..`-segment wordt
+    afgewezen zonder ook maar naar de schijf te kijken, en iedere kandidaat die
+    na resolutie buiten `<wortel>/tests/` ligt eveneens. Anders zou een
+    verwijzing naar een bestand buiten de repository stilzwijgend geldig heten
+    — en zou het oordeel bovendien afhangen van wat er toevallig op die machine
+    staat.
+    """
+    testwortel = (wortel / "tests").resolve()
+    stukken = PurePosixPath(padtekst)
+
+    if stukken.is_absolute() or ".." in stukken.parts:
+        return BUITEN, []
+
     if "/" in padtekst:
         kandidaat = wortel / padtekst
-        return (GEVONDEN, [kandidaat]) if kandidaat.is_file() else (ONTBREEKT, [])
+        if not kandidaat.is_file():
+            return ONTBREEKT, []
+        if not _binnen_testwortel(kandidaat, testwortel):
+            return BUITEN, [kandidaat]
+        return GEVONDEN, [kandidaat]
 
     treffers = sorted((wortel / "tests").rglob(bestandsnaam))
-    if not treffers:
+    binnen = [pad for pad in treffers if _binnen_testwortel(pad, testwortel)]
+    if treffers and not binnen:
+        return BUITEN, treffers
+    if not binnen:
         return ONTBREEKT, []
-    if len(treffers) > 1:
-        return AMBIGU, treffers
-    return GEVONDEN, treffers
+    if len(binnen) > 1:
+        return AMBIGU, binnen
+    return GEVONDEN, binnen
 
 
 def _moduleknopen(pad: Path) -> dict[str, set[str]] | None:
@@ -209,6 +243,14 @@ def _controleer_tekst(
         if status == ONTBREEKT:
             bevindingen.append(
                 f"{plek} verwijst naar {verwijzing}, maar dat testbestand bestaat niet"
+            )
+            continue
+
+        if status == BUITEN:
+            bevindingen.append(
+                f"{plek} verwijst naar {verwijzing}, maar dat pad wijst buiten "
+                f"de testwortel. Absolute paden, '..'-segmenten en symlinks die "
+                f"buiten tests/ eindigen worden niet geaccepteerd"
             )
             continue
 
@@ -489,6 +531,75 @@ def test_guard_meldt_twee_kapotte_verwijzingen_in_een_tekst(tmp_path):
     assert len(bevindingen) == 2, bevindingen
     assert bevindingen[0].startswith("synthetisch:1")
     assert bevindingen[1].startswith("synthetisch:2")
+
+
+# --- paden mogen de testwortel niet verlaten ---------------------------
+#
+# Elk extern bestand hieronder bevat een geldige, bestaande node. Wordt zo'n
+# verwijzing afgewezen, dan komt dat dus door de padvalidatie en niet doordat
+# het bestand of de node toevallig ontbreekt.
+
+
+def _extern_testbestand(tmp_path: Path, naam: str = "test_extern.py") -> Path:
+    buiten = tmp_path / "buiten"
+    buiten.mkdir(exist_ok=True)
+    doel = buiten / naam
+    doel.write_text("class TestExtern:\n    def test_m(self): ...\n", encoding="utf-8")
+    return doel
+
+
+def test_guard_wijst_een_absoluut_pad_buiten_de_wortel_af(tmp_path):
+    wortel = _mini_repo(tmp_path / "repo")
+    extern = _extern_testbestand(tmp_path)
+
+    bevindingen = _controleer_tekst(
+        f"# zie {extern}::TestExtern", "synthetisch", wortel
+    )
+
+    assert len(bevindingen) == 1, bevindingen
+    assert "buiten" in bevindingen[0], bevindingen[0]
+    # Bewijst dat de regex het héle absolute pad pakt en niet pas vanaf het
+    # teken na de eerste slash: anders zou hier een relatief pad staan.
+    assert str(extern) in bevindingen[0], bevindingen[0]
+
+
+def test_guard_wijst_een_pad_met_dubbele_punt_buiten_de_wortel_af(tmp_path):
+    wortel = _mini_repo(tmp_path / "repo")
+    _extern_testbestand(tmp_path)
+
+    bevindingen = _controleer_tekst(
+        "# zie ../buiten/test_extern.py::TestExtern", "synthetisch", wortel
+    )
+
+    assert len(bevindingen) == 1, bevindingen
+    assert "buiten" in bevindingen[0], bevindingen[0]
+
+
+def test_guard_wijst_een_symlink_naar_buiten_de_wortel_af(tmp_path):
+    wortel = _mini_repo(tmp_path / "repo")
+    doel = _extern_testbestand(tmp_path, "test_symdoel.py")
+    link = wortel / "tests" / "diep" / "test_link.py"
+    link.symlink_to(doel)
+    assert link.is_file(), "de symlink moet naar een bestaand bestand wijzen"
+
+    bevindingen = _controleer_tekst(
+        "# zie test_link.py::TestExtern", "synthetisch", wortel
+    )
+
+    assert len(bevindingen) == 1, bevindingen
+    assert "buiten" in bevindingen[0], bevindingen[0]
+
+
+def test_guard_accepteert_een_verwijzing_binnen_de_testwortel(tmp_path):
+    wortel = _mini_repo(tmp_path / "repo")
+    _extern_testbestand(tmp_path)
+
+    assert (
+        _controleer_tekst(
+            "# zie tests/diep/doel/test_doel.py::TestBestaat", "synthetisch", wortel
+        )
+        == []
+    )
 
 
 def test_guard_meldt_een_ambigue_verkorte_bestandsnaam(tmp_path):
