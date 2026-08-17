@@ -23,7 +23,7 @@ jobs:
       # Default-provider = anthropic → ANTHROPIC_API_KEY is nu de vereiste key; de
       # OPENAI-keys blijven staan voor tests die naar openai wisselen.
       # `dummy` is niet-leeg (container bouwt) én niet-`sk-` (integration-skip-guards
-      # blijven skippen → geen echte API-calls). Conventie van contract-tests/ci/coverage-badge.
+      # blijven skippen → geen echte API-calls). Conventie van contract-tests/ci.
       ANTHROPIC_API_KEY: dummy
       OPENAI_API_KEY: dummy
       OPENAI_API_KEY_PROD: dummy
@@ -121,18 +121,23 @@ jobs:
             --cov=src/services \
             --cov-report=term-missing
 
-      - name: Upload coverage reports
-        timeout-minutes: 5
-        continue-on-error: true
-        uses: codecov/codecov-action@v7
-        with:
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # DEF-678: Codecov-upload verwijderd, samen met de hele workflow
+      # `coverage-badge.yml`. Die workflow faalde 100 van 100 runs sinds
+      # 2026-06-23: de cobertura-action wilde een check-run aanmaken met een
+      # read-only GITHUB_TOKEN (`default_workflow_permissions: read`) en gaf
+      # `Resource not accessible by integration`. Hij stond niet bij de required
+      # checks en had geen consument — er is geen coverage-badge in README.md.
+      # De Codecov-stap hier faalde stil: er is nooit een `CODECOV_TOKEN` op deze
+      # repo geweest, dus elke upload gaf "Token required - not valid tokenless
+      # upload" terwijl de stap `success` rapporteerde. De input heette bovendien
+      # `file` waar codecov-action@v7 `files` verwacht.
+      # De blokkerende vloer blijft de ratchet-stap hierboven.
 
-      - name: Generate coverage badge
+      # Let op de scope: de advisory-stap hierboven schrijft `.coverage` als
+      # laatste en zonder `--cov-append`, dus dit rapport toont díe services-
+      # subset (13 tests) en niet de projectbrede ratchet-meting. Pre-existing
+      # gedrag, niet door DEF-678 geintroduceerd; opgelost in DEF-679.
+      - name: Coverage report in step summary (main)
         if: github.ref == 'refs/heads/main'
         run: |
           coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
