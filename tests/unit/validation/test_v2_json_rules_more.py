@@ -58,11 +58,16 @@ async def test_sam01_misleading_qualifier():
         context={},
     )
     # SAM-01 vergt de begrippenverzameling: zonder repository valt er niets
-    # te beoordelen, dus not_evaluated in plaats van een stille pass. Dat
-    # gedrag is voor alle repositoryregels gedekt in
-    # tests/unit/validation/test_rule_runtime_matrix.py::TestRepositoryregelsZonderRepository.
-    # Het reviewgedrag mét repository is in `main` nog niet gedekt; die
-    # dekking komt met Batch 2 via DEF-623.
+    # te beoordelen, dus not_evaluated in plaats van een stille pass. De twee
+    # asserties hieronder zijn zelf het bewijs daarvan — er is geen andere
+    # test die dit voor SAM-01 aantoont.
+    #
+    # Let op: de repositorymatrix in test_rule_runtime_matrix.py dekt SAM-01
+    # niet. Die parametriseert over automatische repositoryregels, en dat is
+    # uitsluitend DUP_01; SAM-01 is een oordeelregel (review_required).
+    #
+    # Het reviewgedrag mét repository is in `main` ongedekt; die dekking komt
+    # met Batch 2 via DEF-623.
     assert res.get("rule_statuses", {}).get("SAM-01") == "not_evaluated", res
     assert "SAM-01" not in res.get("passed_rules", []), res
 
