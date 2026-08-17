@@ -528,6 +528,24 @@ def test_guard_signaleert_een_ontbrekend_bestand(tmp_path):
     assert "dat testbestand bestaat niet" in bevindingen[0]
 
 
+def test_onparsebaar_doelbestand_faalt_fail_closed(tmp_path):
+    """Een kapot doelbestand is een bevinding, geen stille pass.
+
+    De conservatieve nodeanalyse onthoudt zich bij onbeslisbare structuren,
+    maar een parsefout hoort niet in die categorie: dan is er niets beoordeeld
+    en moet de guard dat luid zeggen.
+    """
+    wortel = _mini_repo(tmp_path)
+    _schrijf(wortel, "test_kapot.py", "class TestKapot(\n    def :\n")
+
+    bevindingen = _controleer_tekst(
+        "# zie tests/diep/doel/test_kapot.py::TestKapot", "synthetisch", wortel
+    )
+
+    assert len(bevindingen) == 1, bevindingen
+    assert "niet te lezen of te parsen" in bevindingen[0], bevindingen[0]
+
+
 def test_guard_signaleert_een_ontbrekende_klasse(tmp_path):
     wortel = _mini_repo(tmp_path)
     bevindingen = _controleer_tekst(
