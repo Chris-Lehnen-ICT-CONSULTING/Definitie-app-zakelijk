@@ -179,10 +179,17 @@ def _resolveer(
             return BUITEN, [kandidaat]
         return GEVONDEN, [kandidaat]
 
-    treffers = sorted((wortel / "tests").rglob(bestandsnaam))
-    binnen = [pad for pad in treffers if _binnen_testwortel(pad, testwortel)]
-    if treffers and not binnen:
-        return BUITEN, treffers
+    binnen: list[Path] = []
+    buiten: list[Path] = []
+    for pad in sorted((wortel / "tests").rglob(bestandsnaam)):
+        (binnen if _binnen_testwortel(pad, testwortel) else buiten).append(pad)
+
+    # Eén ontsnappende kandidaat besmet de hele verkorte naam. Zou hij hier
+    # stil worden weggefilterd, dan kon een intern bestand ten onrechte als
+    # uniek gelden en hing de uitkomst af van wat er buiten de repository
+    # staat. Beter luid weigeren en om een volledig pad vragen.
+    if buiten:
+        return BUITEN, buiten
     if not binnen:
         return ONTBREEKT, []
     if len(binnen) > 1:
@@ -585,6 +592,35 @@ def test_guard_wijst_een_symlink_naar_buiten_de_wortel_af(tmp_path):
     bevindingen = _controleer_tekst(
         "# zie test_link.py::TestExtern", "synthetisch", wortel
     )
+
+    assert len(bevindingen) == 1, bevindingen
+    assert "buiten" in bevindingen[0], bevindingen[0]
+
+
+def test_guard_weigert_een_verkorte_naam_met_een_externe_kandidaat(tmp_path):
+    """Gemengd geval: dezelfde verkorte naam bestaat intern én extern.
+
+    Beide kandidaten dragen `TestX`, dus de verwijzing zou tegen elk van beide
+    kloppen. Juist daarom mag de externe kandidaat niet stil worden
+    weggefilterd: dan zou het interne bestand ten onrechte als uniek gelden en
+    zou de uitkomst afhangen van wat er buiten de repository staat.
+    """
+    wortel = _mini_repo(tmp_path / "repo")
+
+    extern = tmp_path / "buiten" / "test_mix.py"
+    extern.parent.mkdir(exist_ok=True)
+    extern.write_text("class TestX: ...\n", encoding="utf-8")
+
+    intern = wortel / "tests" / "a" / "test_mix.py"
+    intern.parent.mkdir(parents=True)
+    intern.write_text("class TestX: ...\n", encoding="utf-8")
+
+    link = wortel / "tests" / "b" / "test_mix.py"
+    link.parent.mkdir(parents=True)
+    link.symlink_to(extern)
+    assert link.is_file(), "de symlink moet naar een bestaand bestand wijzen"
+
+    bevindingen = _controleer_tekst("# zie test_mix.py::TestX", "synthetisch", wortel)
 
     assert len(bevindingen) == 1, bevindingen
     assert "buiten" in bevindingen[0], bevindingen[0]
