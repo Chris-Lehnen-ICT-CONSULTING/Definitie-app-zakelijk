@@ -1,26 +1,48 @@
-"""DEF-676: elke `bestand.py::node`-verwijzing moet een bestaande node aanwijzen.
+"""DEF-676: conservatieve statische bestaanscontrole op `bestand.py::node`.
 
 Code en tests wijzen elkaar geregeld aan met pytest-notatie —
 ``pad/naar/test_iets.py::TestKlasse``, ``…::test_functie`` of
-``…::TestKlasse::test_methode`` — om te zeggen: *dit hoort daar*. Dat gebeurt
-in twee gedaanten:
-
-- als **dekkingsclaim** ("het bewijs voor dit gedrag staat daar");
-- als **draai-instructie** ("draai dit commando om X te zien").
-
-Beide zijn verifieerbare beweringen over deze repository. Wijst zo'n
-verwijzing naar een bestand of node die hier niet bestaat, dan is zij onwaar:
-de dekkingsclaim suggereert dekking die er niet is, en het commando levert
-niets op wanneer iemand het kopieert.
+``…::TestKlasse::test_methode`` — om te zeggen: *dit hoort daar*. Wijst zo'n
+verwijzing naar iets dat hier niet bestaat, dan is zij onwaar en suggereert
+zij dekking of een werkwijze die er niet is.
 
 Werking: scan elk Python-bestand onder ``src/`` en ``tests/``, zoek
-verwijzingen met een expliciete node, los het bestand op en controleer via de
-AST dat de node bestaat — op moduleniveau, en bij een derde segment binnen de
-body van de genoemde klasse.
+verwijzingen met een expliciete nodeketen, los het testbestand op en beoordeel
+via de AST of die keten er statisch in terug te vinden is.
 
-**Wat deze guard niet bewijst.** Hij toetst dát de node bestaat, niet dát de
-claim eromheen klopt. Een docstring die zegt "gedekt door X::Y" terwijl X::Y
-bestaat maar iets heel anders toetst, blijft ongezien. Dat is een reële
+**Dit is een conservatieve statische controle, geen collectability-bewijs.**
+De guard voert pytest niet uit en bewijst dus niet dat een nodeid werkelijk
+verzameld of gedraaid kan worden. Hij meldt alleen "bestaat niet" wanneer de
+statische structuur dat zonder voorbehoud draagt.
+
+Wél statisch beoordeeld — de eenvoudige, ondubbelzinnige vormen:
+
+- een direct op moduleniveau gedefinieerde klasse of functie;
+- een direct in zo'n klasse gedefinieerde methode.
+
+Ontbreekt de naam in precies die vorm, dan is dat een bevinding.
+
+Bewust géén negatieve conclusie — statisch onbeslisbaar:
+
+- **imports**: ``from basis import TestBasis`` levert een geldige node zonder
+  ``ClassDef`` in dit bestand;
+- **overerving**: een methode kan van een basisklasse komen;
+- **control-flow**: een klasse onder ``if``/``try``/``with``/``for``/``while``
+  bestaat pas na uitvoering;
+- **nesting**: een keten dieper dan ``bestand::node::methode`` wordt niet
+  gedeeltelijk gelezen, maar als onbeslisbaar behandeld;
+- **ambiguïteit**: bij meerdere definities of een klasse/functie-naamcollisie
+  wint geen soort stilzwijgend.
+
+Alle vijf vormen zijn met ``pytest --collect-only`` als collecteerbaar
+vastgesteld. Een guard die geldige code afkeurt is schadelijker dan een die
+zich onthoudt, want deze draait bij elke unit-testrun. "Onzeker" betekent
+uitsluitend: geen node-bevinding — scan-, lees-, parse- en padfouten blijven
+onverminderd fail-closed.
+
+**Bestaan is nog geen waarheid.** Dat een node statisch bestaat zegt niets
+over de claim eromheen. Een docstring die zegt "gedekt door X::Y" terwijl
+X::Y bestaat maar iets heel anders toetst, blijft ongezien. Dat is een reële
 restcategorie: hij is in deze PR ook daadwerkelijk voorgekomen. De semantische
 kant hoort bij het resterende DEF-676-werk en bij DEF-623.
 
@@ -74,21 +96,31 @@ DIT_BESTAND = Path(__file__).resolve()
 
 BRONMAPPEN = ("src", "tests")
 
-# Herkent volledig pad en verkorte naam, met klasse- of functienode en een
-# optioneel methodesegment:
+# Herkent volledig pad en verkorte naam, gevolgd door de héle nodeketen. Dat
+# laatste is wezenlijk: zou het patroon na twee segmenten stoppen, dan las het
+# `…::TestBuiten::TestBinnen::test_m` als een ontbrekende methode `TestBinnen`.
 #   tests/unit/validation/test_rule_contract.py::TestOordeelregels
 #   test_rule_contract.py::test_iets
 #   tests/…/test_x.py::TestKlasse::test_methode
+#   tests/…/test_x.py::TestBuiten::TestBinnen::test_m   (→ onbeslisbaar)
 VERWIJZING = re.compile(
     r"(?P<pad>(?:[\w./-]+/)?(?P<bestand>test_\w+\.py))"
-    r"::(?P<node>[A-Za-z_]\w*)"
-    r"(?:::(?P<methode>[A-Za-z_]\w*))?"
+    r"(?P<keten>(?:::[A-Za-z_]\w*)+)"
 )
 
 ONTBREEKT = "ontbreekt"
 AMBIGU = "ambigu"
 GEVONDEN = "gevonden"
 BUITEN = "buiten"
+
+# Uitkomsten van de nodeanalyse. ONZEKER levert bewust géén bevinding op.
+ZEKER_AANWEZIG = "aanwezig"
+ZEKER_AFWEZIG = "afwezig"
+ONZEKER = "onzeker"
+
+DEFINITIES = (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
+FUNCTIES = (ast.FunctionDef, ast.AsyncFunctionDef)
+CONTROLFLOW = (ast.If, ast.Try, ast.With, ast.For, ast.While)
 
 
 def _bestanden_per_bronmap(wortel: Path = REPOWORTEL) -> dict[str, list[Path]]:
@@ -170,27 +202,80 @@ def _resolveer(
     return GEVONDEN, binnen
 
 
-def _moduleknopen(pad: Path) -> dict[str, set[str]] | None:
-    """Module-level nodes → hun directe methodenamen; None bij een leesfout.
+def _namen_uit_import_of_controlflow(boom: ast.Module) -> set[str]:
+    """Namen die er via import of uitvoerbare control-flow kunnen zijn.
 
-    Alleen ``boom.body``: een methode of geneste functie is geen zelfstandige
-    node op moduleniveau, dus ``ast.walk`` zou te veel goedkeuren.
+    Zulke namen zijn statisch niet te weerleggen: `from basis import TestBasis`
+    levert een geldige node op zonder dat er een `ClassDef` in dit bestand
+    staat, en een klasse onder `if`/`try` bestaat pas na uitvoering. Beide
+    vormen zijn met `pytest --collect-only` als collecteerbaar vastgesteld.
+    """
+    onzeker: set[str] = set()
+    for knoop in ast.walk(boom):
+        if isinstance(knoop, ast.Import):
+            for alias in knoop.names:
+                onzeker.add((alias.asname or alias.name).split(".")[0])
+        elif isinstance(knoop, ast.ImportFrom):
+            for alias in knoop.names:
+                onzeker.add("*" if alias.name == "*" else (alias.asname or alias.name))
+    for knoop in boom.body:
+        if isinstance(knoop, CONTROLFLOW):
+            for sub in ast.walk(knoop):
+                if isinstance(sub, DEFINITIES):
+                    onzeker.add(sub.name)
+    return onzeker
+
+
+def _nodestatus(pad: Path, keten: list[str]) -> str | None:
+    """Conservatief oordeel over een nodeketen; None bij een leesfout.
+
+    Geeft `ZEKER_AFWEZIG` uitsluitend wanneer de statische structuur dat
+    zonder voorbehoud draagt. Alles wat van uitvoering, imports, overerving,
+    nesting of dubbele definities afhangt levert `ONZEKER` op — en dus géén
+    bevinding. Een guard die geldige code afkeurt is schadelijker dan een die
+    zich onthoudt.
     """
     try:
         boom = ast.parse(pad.read_text(encoding="utf-8"))
     except (SyntaxError, UnicodeDecodeError, OSError):
         return None
 
-    functies = (ast.FunctionDef, ast.AsyncFunctionDef)
-    knopen: dict[str, set[str]] = {}
+    # bestand::a::b::c… wordt niet ondersteund; hem half lezen zou een
+    # geneste keten als ontbrekende methode aanmerken.
+    if len(keten) > 2:
+        return ONZEKER
+
+    direct: dict[str, list[ast.stmt]] = {}
     for knoop in boom.body:
-        if isinstance(knoop, ast.ClassDef):
-            knopen[knoop.name] = {
-                kind.name for kind in knoop.body if isinstance(kind, functies)
-            }
-        elif isinstance(knoop, functies):
-            knopen[knoop.name] = set()
-    return knopen
+        if isinstance(knoop, DEFINITIES):
+            direct.setdefault(knoop.name, []).append(knoop)
+    onzeker = _namen_uit_import_of_controlflow(boom)
+
+    naam = keten[0]
+    kandidaten = direct.get(naam, [])
+    if len(kandidaten) > 1:
+        return ONZEKER  # naamcollisie: geen soort laten winnen
+    if not kandidaten:
+        return ONZEKER if ("*" in onzeker or naam in onzeker) else ZEKER_AFWEZIG
+
+    knoop = kandidaten[0]
+    if len(keten) == 1:
+        return ZEKER_AANWEZIG
+
+    if not isinstance(knoop, ast.ClassDef):
+        return ZEKER_AFWEZIG  # een functie draagt geen subnode
+
+    leden = {k.name: k for k in knoop.body if isinstance(k, DEFINITIES)}
+    lid = leden.get(keten[1])
+    if isinstance(lid, FUNCTIES):
+        return ZEKER_AANWEZIG
+    if lid is not None:
+        return ONZEKER  # geneste klasse: de keten hoort dieper te gaan
+    if knoop.bases or knoop.keywords:
+        return ONZEKER  # kan van een basisklasse komen
+    if any(isinstance(k, CONTROLFLOW) for k in knoop.body):
+        return ONZEKER
+    return ZEKER_AFWEZIG
 
 
 def _relatief(pad: Path, wortel: Path) -> str:
@@ -211,11 +296,10 @@ def _controleer_tekst(
 
     for treffer in VERWIJZING.finditer(tekst):
         padtekst = treffer.group("pad")
-        node = treffer.group("node")
-        methode = treffer.group("methode")
+        keten = treffer.group("keten").split("::")[1:]
         regelnr = tekst.count("\n", 0, treffer.start())
         plek = f"{herkomst}:{regelnr + 1}"
-        verwijzing = f"{padtekst}::{node}" + (f"::{methode}" if methode else "")
+        verwijzing = treffer.group(0)
 
         status, treffers = _resolveer(padtekst, treffer.group("bestand"), wortel)
 
@@ -242,25 +326,29 @@ def _controleer_tekst(
             continue
 
         doel = treffers[0]
-        knopen = _moduleknopen(doel)
-        if knopen is None:
+        nodestatus = _nodestatus(doel, keten)
+        if nodestatus is None:
             bevindingen.append(
                 f"{plek} verwijst naar {verwijzing}, maar "
                 f"{_relatief(doel, wortel)} is niet te lezen of te parsen"
             )
             continue
 
-        if node not in knopen:
-            bevindingen.append(
-                f"{plek} verwijst naar {verwijzing}, maar {node} bestaat niet "
-                f"op moduleniveau in {_relatief(doel, wortel)}"
-            )
+        # ONZEKER en ZEKER_AANWEZIG leveren geen bevinding op: de guard trekt
+        # alleen een negatieve conclusie als de structuur die zonder voorbehoud
+        # draagt.
+        if nodestatus != ZEKER_AFWEZIG:
             continue
 
-        if methode is not None and methode not in knopen[node]:
+        if len(keten) == 1:
             bevindingen.append(
-                f"{plek} verwijst naar {verwijzing}, maar {methode} bestaat niet "
-                f"in {node} in {_relatief(doel, wortel)}"
+                f"{plek} verwijst naar {verwijzing}, maar {keten[0]} bestaat niet "
+                f"op moduleniveau in {_relatief(doel, wortel)}"
+            )
+        else:
+            bevindingen.append(
+                f"{plek} verwijst naar {verwijzing}, maar {keten[1]} bestaat niet "
+                f"in {keten[0]} in {_relatief(doel, wortel)}"
             )
     return bevindingen
 
@@ -490,6 +578,99 @@ def test_guard_keurt_een_methode_niet_goed_als_modulenode(tmp_path):
     )
     assert len(bevindingen) == 1, bevindingen
     assert "bestaat niet op moduleniveau" in bevindingen[0]
+
+
+# --- statisch onzekere vormen krijgen geen negatieve conclusie -----------
+#
+# Alle vijf vormen hieronder zijn met `pytest --collect-only` empirisch
+# vastgesteld als geldige, collecteerbare nodes. Ze zijn statisch niet met
+# zekerheid te bevestigen, maar evenmin te weerleggen — en een guard die
+# geldige code afkeurt is schadelijker dan een die zich onthoudt.
+
+
+def _schrijf(wortel: Path, relatief: str, inhoud: str) -> None:
+    pad = wortel / "tests" / "diep" / "doel" / relatief
+    pad.write_text(inhoud, encoding="utf-8")
+
+
+def test_guard_meldt_een_geerfde_methode_niet(tmp_path):
+    wortel = _mini_repo(tmp_path)
+    _schrijf(
+        wortel,
+        "test_erf.py",
+        "class TestBasis:\n    def test_van_base(self): ...\n\n"
+        "class TestKind(TestBasis):\n    def test_eigen(self): ...\n",
+    )
+    tekst = "# zie tests/diep/doel/test_erf.py::TestKind::test_van_base"
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+def test_guard_meldt_een_klasse_onder_if_niet(tmp_path):
+    wortel = _mini_repo(tmp_path)
+    _schrijf(
+        wortel,
+        "test_if.py",
+        "if True:\n    class TestInIf:\n        def t(self): ...\n",
+    )
+    tekst = "# zie tests/diep/doel/test_if.py::TestInIf"
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+def test_guard_meldt_een_klasse_onder_try_niet(tmp_path):
+    wortel = _mini_repo(tmp_path)
+    _schrijf(
+        wortel,
+        "test_try.py",
+        "try:\n    class TestInTry:\n        def t(self): ...\n"
+        "except Exception:\n    pass\n",
+    )
+    tekst = "# zie tests/diep/doel/test_try.py::TestInTry"
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+def test_guard_meldt_een_geneste_nodeketen_niet(tmp_path):
+    wortel = _mini_repo(tmp_path)
+    _schrijf(
+        wortel,
+        "test_nest.py",
+        "class TestBuiten:\n    class TestBinnen:\n        def test_m(self): ...\n",
+    )
+    tekst = "# zie tests/diep/doel/test_nest.py::TestBuiten::TestBinnen::test_m"
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+def test_guard_meldt_een_geimporteerde_naam_niet(tmp_path):
+    wortel = _mini_repo(tmp_path)
+    _schrijf(wortel, "test_imp.py", "from basis import TestBasis\n")
+    tekst = "# zie tests/diep/doel/test_imp.py::TestBasis::test_van_base"
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+def test_guard_meldt_een_naamcollisie_niet(tmp_path):
+    wortel = _mini_repo(tmp_path)
+    _schrijf(
+        wortel,
+        "test_col.py",
+        "class TestX:\n    def test_m(self): ...\n\n\ndef TestX(): ...\n",
+    )
+    tekst = "# zie tests/diep/doel/test_col.py::TestX::test_m"
+    assert _controleer_tekst(tekst, "synthetisch", wortel) == []
+
+
+def test_guard_leest_een_diepe_nodeketen_volledig(tmp_path):
+    """Een keten van drie segmenten mag niet als twee worden gelezen.
+
+    Deed hij dat wel, dan zou hier "TestBinnen bestaat niet in TestBestaat"
+    verschijnen — een vals alarm op een node die pytest gewoon verzamelt.
+    """
+    wortel = _mini_repo(tmp_path)
+    verwijzing = "tests/diep/doel/test_doel.py::TestBestaat::TestBinnen::test_m"
+
+    treffer = VERWIJZING.search(verwijzing)
+    assert treffer is not None
+    assert treffer.group(0) == verwijzing, "de hele keten moet zijn geconsumeerd"
+
+    assert _controleer_tekst(f"# zie {verwijzing}", "synthetisch", wortel) == []
 
 
 def test_guard_voegt_losse_stringstatements_niet_samen(tmp_path):
