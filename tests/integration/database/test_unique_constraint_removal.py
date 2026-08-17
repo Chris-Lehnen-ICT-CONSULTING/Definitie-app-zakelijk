@@ -8,10 +8,13 @@ Tests are organized in two phases:
 1. PRE-MIGRATION: Verify constraint EXISTS and BLOCKS duplicates
 2. POST-MIGRATION: Verify constraint REMOVED and allows duplicates
 
-Run these tests in sequence:
-    pytest tests/database/test_unique_constraint_removal.py::test_pre_migration -v
-    # Apply migration 009
-    pytest tests/database/test_unique_constraint_removal.py::test_post_migration -v
+Both phases are self-contained and independent: the fixture applies migration
+008 to build the pre-migration state, and the post-migration tests apply
+migration 009 themselves. No manual migration step is needed, and the phases
+can be run in any order.
+
+    pytest tests/integration/database/test_unique_constraint_removal.py::TestPreMigration -v
+    pytest tests/integration/database/test_unique_constraint_removal.py::TestPostMigration -v
 """
 
 import json
