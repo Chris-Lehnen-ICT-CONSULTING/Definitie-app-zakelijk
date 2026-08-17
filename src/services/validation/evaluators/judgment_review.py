@@ -13,9 +13,13 @@ te kijken — maar ze zijn geen *bewijs*: bij alle twaalf vuren de eigen
 patronen ook op het gedocumenteerde goede voorbeeld, of missen ze het
 gedocumenteerde foute voorbeeld volledig.
 
-De canonieke lijst staat in
-`tests/unit/validation/test_rule_contract.py::TestOordeelregels` en wordt
-daar bewust hardgecodeerd, niet uit de records afgeleid.
+Dát het er twaalf zijn wordt bewaakt door
+`tests/unit/validation/test_rule_runtime_matrix.py::TestAfgeleideTelling`:
+die klasse leidt de klasseverdeling uit de records af en faalt zodra het
+aantal `review_required`-regels verschuift. Zij legt alleen die telling
+vast — niet de identiteit van de twaalf regels hierboven. Een canonieke,
+hardgecodeerde lijst en de bijbehorende semantische dekking komen met
+Batch 2 via DEF-623; die tests staan tot dan geparkeerd buiten `main`.
 
 Daarom levert deze evaluator altijd `review_required`. Die uitkomst telt
 niet mee in de kwaliteitsscore en wordt nooit als pass genormaliseerd; hij
