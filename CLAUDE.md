@@ -7,7 +7,7 @@
 | Item | Waarde |
 |------|--------|
 | **Project key** | `DEF` |
-| **Repository** | `github.com/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakisch` |
+| **Repository** | `github.com/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakelijk` |
 | **Type** | Web app (Streamlit + FastAPI) |
 | **Taal** | Nederlands (UI + juridisch domein), Engels (code) |
 
@@ -84,4 +84,4 @@ Project-specifieke rules staan in `.claude/rules/` en laden automatisch.
 
 Feature branch: `feature/DEF-XX-beschrijving`
 
-*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v8.0*
+*Versie: 1.0 · 10 maart 2026 · Extendeert: ~/.claude/CLAUDE.md v8.1*
