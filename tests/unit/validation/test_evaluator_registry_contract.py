@@ -88,6 +88,29 @@ class TestRegisterDektHetContract:
         with pytest.raises(UnknownEvaluatorError, match="heeft geen registratie"):
             leeg.resolve(EvaluatorType.COMPOUND)
 
+    def test_uitgestelde_strategieen_dragen_een_eigenaar_issue(self):
+        # Een uitgestelde evaluator is een dispositie, geen leegte (ALG-375):
+        # zonder tracker-ID kan een gat stil blijven staan.
+        import re
+
+        zonder = [
+            evaluator.evaluator_type.value
+            for evaluator in DEFERRED_EVALUATORS
+            if not re.fullmatch(r"DEF-\d+", str(evaluator.issue))
+        ]
+        assert not zonder, f"uitgestelde strategieën zonder DEF-issue: {zonder}"
+
+    def test_uitgestelde_strategie_levert_not_evaluated(self):
+        registry = build_default_registry()
+        for soort in (EvaluatorType.ABBREVIATION, EvaluatorType.DEFINITION_GRAMMAR):
+            uitkomst = registry.resolve(soort).evaluate(
+                RECORDS["INT-07"],
+                EvaluationContext(raw_text="x", cleaned_text="x", begrip="x"),
+                _deps(),
+            )
+            assert uitkomst.status is ResultStatus.NOT_EVALUATED, soort.value
+            assert "DEF-" in (uitkomst.reason or ""), uitkomst
+
 
 class TestRegistratiepoort:
     """DEF-676: de twee guards in `register` hadden geen enkele test.
@@ -139,31 +162,6 @@ class TestRegistratiepoort:
             registry.register(Tweede())
 
         assert registry.resolve(EvaluatorType.COMPOUND) is eerste
-
-
-class TestUitgesteldeStrategieen:
-    def test_uitgestelde_strategieen_dragen_een_eigenaar_issue(self):
-        # Een uitgestelde evaluator is een dispositie, geen leegte (ALG-375):
-        # zonder tracker-ID kan een gat stil blijven staan.
-        import re
-
-        zonder = [
-            evaluator.evaluator_type.value
-            for evaluator in DEFERRED_EVALUATORS
-            if not re.fullmatch(r"DEF-\d+", str(evaluator.issue))
-        ]
-        assert not zonder, f"uitgestelde strategieën zonder DEF-issue: {zonder}"
-
-    def test_uitgestelde_strategie_levert_not_evaluated(self):
-        registry = build_default_registry()
-        for soort in (EvaluatorType.ABBREVIATION, EvaluatorType.DEFINITION_GRAMMAR):
-            uitkomst = registry.resolve(soort).evaluate(
-                RECORDS["INT-07"],
-                EvaluationContext(raw_text="x", cleaned_text="x", begrip="x"),
-                _deps(),
-            )
-            assert uitkomst.status is ResultStatus.NOT_EVALUATED, soort.value
-            assert "DEF-" in (uitkomst.reason or ""), uitkomst
 
 
 class _StubSupport:
