@@ -29,7 +29,15 @@ GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
 NC="\033[0m"
 
-TARGET_ROOT="${1:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+# Alleen een echte directory telt als doel. pre-commit kan bij een gewijzigde
+# configuratie bestandsnamen meegeven; die mogen hier niet als root gelden.
+TARGET_ROOT="${1:-}"
+if [[ -n "$TARGET_ROOT" && ! -d "$TARGET_ROOT" ]]; then
+  TARGET_ROOT=""
+fi
+if [[ -z "$TARGET_ROOT" ]]; then
+  TARGET_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+fi
 cd "$TARGET_ROOT"
 
 echo -e "${YELLOW}🔎 Rootbestanden toetsen aan de allowlist...${NC}"
