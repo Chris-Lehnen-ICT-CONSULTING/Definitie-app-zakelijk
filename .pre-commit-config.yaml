@@ -57,6 +57,13 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+      - id: block-unknown-root-files
+        name: Block root files outside the allowlist (DEF-685)
+        entry: bash scripts/ci/check_root_allowlist.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
       - id: pytest-smoke
         name: Run smoke tests (quick validation)
         entry: bash -c 'pytest -m smoke --tb=short --maxfail=1 -q || true'

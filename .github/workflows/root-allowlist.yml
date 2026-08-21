@@ -1,0 +1,17 @@
+name: Root allowlist
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  check-root-allowlist:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Run root allowlist check
+        env:
+          GITHUB_ACTIONS: "true"
+        run: bash scripts/ci/check_root_allowlist.sh
