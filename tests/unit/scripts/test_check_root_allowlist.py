@@ -25,9 +25,24 @@ _SCRIPT = _REPO_ROOT / "scripts" / "ci" / "check_root_allowlist.sh"
 _TOEGESTAAN = ("README.md", "CLAUDE.md", "Makefile", "pyproject.toml")
 
 
+# Systeem- en gebruikersconfig volledig buitensluiten: gpgsign, hooksPath,
+# excludesfile of een init-template van de ontwikkelaar mag de wegwerp-repos
+# niet laten kantelen, en mag het guardgedrag niet beinvloeden.
+_GIT_ENV = {
+    **os.environ,
+    "GIT_CONFIG_GLOBAL": os.devnull,
+    "GIT_CONFIG_NOSYSTEM": "1",
+}
+
+
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     result = subprocess.run(
-        ["git", *args], cwd=str(repo), capture_output=True, text=True, check=False
+        ["git", *args],
+        cwd=str(repo),
+        capture_output=True,
+        text=True,
+        env=_GIT_ENV,
+        check=False,
     )
     if result.returncode != 0:
         raise AssertionError(
@@ -38,7 +53,7 @@ def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
 
 
 def _init_repo(tmp_path: Path) -> Path:
-    _git(tmp_path, "init", "-q")
+    _git(tmp_path, "init", "-q", "--template=")
     _git(tmp_path, "config", "user.email", "test@example.invalid")
     _git(tmp_path, "config", "user.name", "Test")
     # Globale config buitensluiten: commit.gpgsign of een core.hooksPath van de
@@ -68,7 +83,7 @@ def _commit(repo: Path, *namen: str) -> None:
 def _run(repo: Path, *, ci: bool) -> subprocess.CompletedProcess:
     # GITHUB_ACTIONS expliciet zetten: draait de suite zelf in CI, dan zou de
     # pre-commitmodus anders nooit getoetst worden.
-    env = dict(os.environ)
+    env = dict(_GIT_ENV)
     env["GITHUB_ACTIONS"] = "true" if ci else "false"
     return subprocess.run(
         ["bash", str(_SCRIPT), str(repo)],
@@ -98,6 +113,22 @@ def test_schone_root_slaagt_in_ci_modus(tmp_path):
 
 
 def test_schone_root_slaagt_in_precommit_modus(tmp_path):
+    # Eerst committen: zonder HEAD valt de guard terug op git ls-files --cached
+    # en zou deze test de git diff --cached-tak helemaal niet raken.
+    repo = _init_repo(tmp_path)
+    _schrijf(repo, "README.md")
+    _commit(repo, "README.md")
+    for naam in _TOEGESTAAN:
+        _schrijf(repo, naam)
+    _stage(repo, *_TOEGESTAAN)
+
+    result = _run(repo, ci=False)
+
+    assert result.returncode == 0, _uitvoer(result)
+
+
+def test_schone_root_zonder_commits_slaagt(tmp_path):
+    # Derde tak, positief: een verse repo zonder HEAD.
     repo = _init_repo(tmp_path)
     for naam in _TOEGESTAAN:
         _schrijf(repo, naam)
@@ -249,7 +280,6 @@ def test_bestand_in_subdirectory_wordt_genegeerd(tmp_path):
 
 
 def test_bestandsnaam_met_spatie_wordt_correct_gemeld(tmp_path):
-    # git quote-path zou "mijn rapport.md" anders als twee namen opleveren.
     repo = _init_repo(tmp_path)
     _schrijf(repo, "README.md")
     _schrijf(repo, "mijn rapport.md")
@@ -259,6 +289,22 @@ def test_bestandsnaam_met_spatie_wordt_correct_gemeld(tmp_path):
 
     assert result.returncode == 1
     assert "mijn rapport.md" in _uitvoer(result)
+
+
+def test_bestandsnaam_met_newline_wordt_als_een_naam_gemeld(tmp_path):
+    # Dit is wat de NUL-scheiding echt bewijst: een spatie overleeft ook zonder
+    # -z, maar zonder -z quote git deze naam ("raar\nrapport.md") en dan komt
+    # de echte naam niet meer in de uitvoer voor.
+    naam = "raar\nrapport.md"
+    repo = _init_repo(tmp_path)
+    _schrijf(repo, "README.md")
+    _schrijf(repo, naam)
+    _commit(repo, "README.md", naam)
+
+    result = _run(repo, ci=True)
+
+    assert result.returncode == 1
+    assert naam in _uitvoer(result)
 
 
 # --- fail-closed -----------------------------------------------------------
@@ -433,6 +479,53 @@ def test_normtekst_houdt_agents_md_ongetrackt():
 
     assert "AGENTS.md" in regel
     assert "ALG-399" in regel
+
+
+# --- de guard is ook echt aangesloten --------------------------------------
+
+
+def test_guard_is_geregistreerd_als_precommit_hook():
+    # Zonder deze test blijft de suite groen als de hook-entry verdwijnt of
+    # verkeerd gespeld raakt: het script draait dan nergens meer.
+    config = (_REPO_ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8")
+
+    assert "scripts/ci/check_root_allowlist.sh" in config
+    assert "block-unknown-root-files" in config
+
+
+def test_guard_is_geregistreerd_als_ci_workflow():
+    workflow = (_REPO_ROOT / ".github" / "workflows" / "root-allowlist.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "scripts/ci/check_root_allowlist.sh" in workflow
+    # De CI-tak hangt aan deze env: zonder de vlag draait de guard daar in
+    # pre-commitmodus en toetst hij getrackte bestanden niet.
+    assert 'GITHUB_ACTIONS: "true"' in workflow
+
+
+def test_bestandsnaam_als_argument_wordt_niet_als_root_gelezen(tmp_path):
+    # pass_filenames staat op false, maar mocht dat ooit wijzigen, dan mag een
+    # meegegeven bestandsnaam de guard niet blind laten afbreken op cd.
+    repo = _init_repo(tmp_path)
+    _schrijf(repo, "README.md")
+    _schrijf(repo, "syn-result.md")
+    _commit(repo, "README.md", "syn-result.md")
+
+    env = dict(_GIT_ENV)
+    env["GITHUB_ACTIONS"] = "true"
+    result = subprocess.run(
+        ["bash", str(_SCRIPT), "README.md"],
+        cwd=str(repo),
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    # Valt terug op de werkboom van de cwd en vindt daar de echte overtreding.
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "syn-result.md" in (result.stdout + result.stderr)
 
 
 # --- de echte repo ---------------------------------------------------------
