@@ -23,6 +23,8 @@ from typing import Any
 import pytest
 
 from services.validation.evaluators import (
+    DuplicateEvaluatorError,
+    EvaluatorRegistry,
     UnknownEvaluatorError,
     build_default_registry,
 )
@@ -41,6 +43,7 @@ from toetsregels.runtime_contract import (
     EvaluatorType,
     RequiredInput,
     ResultStatus,
+    RuleContractError,
     build_rule_records,
 )
 
@@ -76,6 +79,15 @@ class TestRegisterDektHetContract:
         with pytest.raises(UnknownEvaluatorError):
             build_default_registry().resolve("verzonnen_evaluator")
 
+    def test_geldig_type_zonder_registratie_faalt(self):
+        # DEF-676: resolve heeft twee faalpaden. `test_onbekend_type_blijft_falen`
+        # raakt alleen de ValueError-tak (een string die geen EvaluatorType is);
+        # deze raakt de tak waar het type wél geldig is maar niets registreerde.
+        leeg = EvaluatorRegistry()
+
+        with pytest.raises(UnknownEvaluatorError, match="heeft geen registratie"):
+            leeg.resolve(EvaluatorType.COMPOUND)
+
     def test_uitgestelde_strategieen_dragen_een_eigenaar_issue(self):
         # Een uitgestelde evaluator is een dispositie, geen leegte (ALG-375):
         # zonder tracker-ID kan een gat stil blijven staan.
@@ -98,6 +110,58 @@ class TestRegisterDektHetContract:
             )
             assert uitkomst.status is ResultStatus.NOT_EVALUATED, soort.value
             assert "DEF-" in (uitkomst.reason or ""), uitkomst
+
+
+class TestRegistratiepoort:
+    """DEF-676: de twee guards in `register` hadden geen enkele test.
+
+    Zonder deze cases kan een evaluator zonder geldig `evaluator_type` of een
+    tweede registratie op hetzelfde type stil doorglippen — en dan bepaalt de
+    importvolgorde welke implementatie een regel krijgt.
+    """
+
+    def test_evaluator_zonder_geldig_type_wordt_geweigerd(self):
+        class ZonderType:
+            evaluator_type = "compound"  # een string, geen EvaluatorType
+
+        with pytest.raises(RuleContractError, match="geen geldig"):
+            EvaluatorRegistry().register(ZonderType())
+
+    def test_evaluator_zonder_type_attribuut_wordt_geweigerd(self):
+        class Kaal:
+            pass
+
+        with pytest.raises(RuleContractError, match="geen geldig"):
+            EvaluatorRegistry().register(Kaal())
+
+    def test_dubbele_registratie_wordt_geweigerd(self):
+        class Eerste:
+            evaluator_type = EvaluatorType.COMPOUND
+
+        class Tweede:
+            evaluator_type = EvaluatorType.COMPOUND
+
+        registry = EvaluatorRegistry()
+        registry.register(Eerste())
+
+        with pytest.raises(DuplicateEvaluatorError, match="al geregistreerd"):
+            registry.register(Tweede())
+
+    def test_eerste_registratie_blijft_staan_na_een_geweigerde_tweede(self):
+        # De guard mag de bestaande registratie niet stilzwijgend vervangen.
+        class Eerste:
+            evaluator_type = EvaluatorType.COMPOUND
+
+        class Tweede:
+            evaluator_type = EvaluatorType.COMPOUND
+
+        registry = EvaluatorRegistry()
+        eerste = Eerste()
+        registry.register(eerste)
+        with pytest.raises(DuplicateEvaluatorError):
+            registry.register(Tweede())
+
+        assert registry.resolve(EvaluatorType.COMPOUND) is eerste
 
 
 class _StubSupport:
