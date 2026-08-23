@@ -24,6 +24,7 @@ Deze suite draait uitsluitend op een tijdelijke database. Nooit op
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 from pathlib import Path
 
@@ -600,3 +601,101 @@ class TestSchemaDefinitiesLopenNietUiteen:
             f"alleen in schema.sql: {sorted(uit_schema - uit_migratie)} · "
             f"alleen in DEFINITIES_TABLE_SQL: {sorted(uit_migratie - uit_schema)}"
         )
+
+
+def _tabel_ddl(pad: str, tabel: str) -> str:
+    with sqlite3.connect(pad) as conn:
+        return conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (tabel,)
+        ).fetchone()[0]
+
+
+@pytest.fixture
+def database_met_fk_naar_definities_old(tmp_path: Path) -> str:
+    """Synthetische fixture met uitsluitend de DEF-688-preconditie.
+
+    Dit is géén volledige pre-DEF-672-database. Alleen de FK-clausule van
+    `definitie_voorbeelden` wijst hier naar `definities_old`, aangebracht met
+    `writable_schema` zonder data, indexen of triggers te raken. Een echte
+    rename van vóór DEF-672 besmette meer verwijzende tabellen tegelijk; die
+    staan hier bewust canoniek.
+    """
+    pad = tmp_path / "pre_def672.db"
+    DefinitieRepository(str(pad))
+    with sqlite3.connect(str(pad)) as conn:
+        conn.executescript(
+            "ALTER TABLE definitie_voorbeelden ADD COLUMN is_voorkeursterm INTEGER;"
+            "INSERT INTO definities (begrip, definitie, categorie,"
+            " organisatorische_context, juridische_context, wettelijke_basis, status)"
+            " VALUES ('besluit', 'besluit: een schriftelijke beslissing', 'type',"
+            " '[\"DJI\"]', '[\"strafrecht\"]', '[\"Awb\"]', 'draft');"
+            "INSERT INTO definitie_voorbeelden (definitie_id, voorbeeld_type,"
+            " voorbeeld_tekst) SELECT id, 'sentence', 'Het besluit is genomen.'"
+            " FROM definities;"
+            "PRAGMA writable_schema=ON;"
+            "UPDATE sqlite_master SET sql = replace(sql, 'REFERENCES definities(id)',"
+            " 'REFERENCES definities_old(id)') WHERE type='table'"
+            " AND name='definitie_voorbeelden';"
+            "PRAGMA writable_schema=OFF;"
+        )
+    return str(pad)
+
+
+class TestStap1HersteltDeFkNaarDefinitiesOld:
+    """Stap 1 herstelt een FK van `definitie_voorbeelden` naar `definities_old` (DEF-688).
+
+    Deze test simuleert géén volledige pre-DEF-672-back-up. Een echte oude
+    rename besmette ook `definitie_geschiedenis`, `definitie_tags` en
+    `synonym_group_members`; die historische beschadiging wordt door deze
+    synthetische fixture niet nagebootst en hier dus ook niet getest — zij valt
+    onder DEF-664. Bewezen wordt uitsluitend dat de rebuild in stap 1 de FK van
+    `definitie_voorbeelden` terugzet — precies waarom het aparte
+    `_old2`-correctiepad kon vervallen.
+    """
+
+    def test_stap_1_herstelt_de_fk(self, database_met_fk_naar_definities_old, caplog):
+        pad = database_met_fk_naar_definities_old
+        # Zonder een werkelijk kapotte FK vooraf bewijst de rest niets.
+        assert "REFERENCES definities_old(id)" in _tabel_ddl(
+            pad, "definitie_voorbeelden"
+        )
+        objecten_voor = _schemaobjecten(pad)
+        rijen_voor = (_rijen(pad), _rijen(pad, "definitie_voorbeelden"))
+        assert min(rijen_voor) >= 1, rijen_voor
+
+        with caplog.at_level(logging.INFO, logger="database.migrate_database"):
+            assert migrate_database(pad) is True
+
+        ddl = _tabel_ddl(pad, "definitie_voorbeelden")
+        assert "REFERENCES definities(id) ON DELETE CASCADE" in ddl
+        assert "definities_old" not in ddl
+        # Attributie: het herstel komt van de rebuild in stap 1 zelf.
+        assert (
+            "Rebuild 'definitie_voorbeelden' zonder kolom 'is_voorkeursterm'"
+            in caplog.text
+        ), f"stap 1 heeft 'definitie_voorbeelden' niet herbouwd; log: {caplog.text}"
+        assert not objecten_voor - _schemaobjecten(pad)
+        assert (_rijen(pad), _rijen(pad, "definitie_voorbeelden")) == rijen_voor
+        assert not {
+            naam
+            for soort, naam in _schemaobjecten(pad)
+            if soort == "table" and naam.endswith(("_old", "_old2"))
+        }
+        # Idempotent: tweede run laat DDL, objecten en rijaantallen ongemoeid.
+        objecten_na_eerste = _schemaobjecten(pad)
+        assert migrate_database(pad) is True
+        assert _tabel_ddl(pad, "definitie_voorbeelden") == ddl
+        assert _schemaobjecten(pad) == objecten_na_eerste
+        assert (_rijen(pad), _rijen(pad, "definitie_voorbeelden")) == rijen_voor
+
+    def test_achtergebleven_old_tabel_wordt_nog_steeds_gemeld(self, bestaande_database):
+        # De `_old2`-tak verviel met het correctiepad; de `_old`-tak moet blijven.
+        import database.migrate_database as md
+
+        assert migrate_database(bestaande_database) is True
+        with sqlite3.connect(bestaande_database) as conn:
+            verwacht = md._schemaobjecten(conn)
+            assert md._verifieer_migratie(conn, verwacht) == []
+            conn.execute("CREATE TABLE definitie_voorbeelden_old (id INTEGER)")
+            problemen = md._verifieer_migratie(conn, verwacht)
+        assert any("definitie_voorbeelden_old" in p for p in problemen), problemen
