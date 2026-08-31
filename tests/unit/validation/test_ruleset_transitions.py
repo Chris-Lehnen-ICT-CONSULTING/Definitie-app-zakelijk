@@ -21,7 +21,7 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -68,24 +68,37 @@ def regelmap(tmp_path: Path, alle_regels: dict[str, str]) -> Path:
 
 @pytest.fixture(params=["ToetsregelManager", "CachedToetsregelManager"])
 def managerfabriek(
-    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
-) -> Callable[[Path], Any]:
-    """Beide échte injectiepaden, op dezelfde tijdelijke regelmap.
+    request: pytest.FixtureRequest,
+) -> Iterator[Callable[[Path], Any]]:
+    """Beide echte injectiepaden, op dezelfde tijdelijke regelmap.
 
-    `RuleCache` is een singleton met een vast `regels_dir`; die wordt hier op
-    de tijdelijke map gezet zodat het productiepad werkelijk wordt getest en
-    niet stilzwijgend op de echte regelmap terugvalt.
+    `RuleCache` is een proces-singleton met een vast `regels_dir`. Die wordt
+    hier op de tijdelijke map gezet zodat het productiepad werkelijk wordt
+    getest en niet stilzwijgend op de echte regelmap terugvalt.
+
+    De teardown is niet optioneel. Zonder herstel houdt de singleton na afloop
+    een tijdelijke - en in deze suite doelbewust incomplete - regelset vast,
+    die dan in latere tests opduikt als een onverklaarbare failure. Volgorde
+    telt: eerst `regels_dir` terugzetten, daarna pas legen, zodat de memo en
+    de decoratorcache niet opnieuw met de tijdelijke set worden gevuld.
     """
+    opgeruimd: list[tuple[Any, Path]] = []
 
     def maak(regels_dir: Path) -> Any:
         if request.param == "ToetsregelManager":
             return ToetsregelManager(base_dir=str(regels_dir.parent))
         manager = CachedToetsregelManager()
-        monkeypatch.setattr(manager.cache, "regels_dir", regels_dir)
+        origineel = manager.cache.regels_dir
+        manager.cache.regels_dir = regels_dir
         manager.clear_cache()
+        opgeruimd.append((manager, origineel))
         return manager
 
-    return maak
+    yield maak
+
+    for manager, origineel in opgeruimd:
+        manager.cache.regels_dir = origineel
+        manager.clear_cache()
 
 
 async def _status(service: ModularValidationService) -> str:
@@ -143,8 +156,13 @@ async def test_beschadigde_contract_ssot_wordt_gezien_en_hersteld(
     """
     ssot = tmp_path / "toetsregels_config.yaml"
     ssot.write_text(ECHTE_SSOT.read_text(encoding="utf-8"), encoding="utf-8")
+    # raising=False: `ROOT_SSOT_PAD` komt pas in commit 3. Zonder deze vlag
+    # zou de monkeypatch nu een AttributeError geven en zou de test rood staan
+    # om een testopzetfout in plaats van om ontbrekende functionaliteit.
     monkeypatch.setattr(
-        "services.validation.modular_validation_service.ROOT_SSOT_PAD", ssot
+        "services.validation.modular_validation_service.ROOT_SSOT_PAD",
+        ssot,
+        raising=False,
     )
 
     service = ModularValidationService(toetsregel_manager=managerfabriek(regelmap))

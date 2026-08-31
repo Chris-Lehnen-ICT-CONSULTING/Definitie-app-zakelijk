@@ -226,57 +226,197 @@ def test_health_status_draagt_readiness(
 # ------------------------------------------------------------------- UI-stop
 
 
-def test_ui_stopt_voor_elke_score_of_gateweergave(
+def _resultaat(status: str, **extra: Any) -> dict[str, Any]:
+    basis: dict[str, Any] = {
+        "version": "1.2.0",
+        "validation_status": status,
+        "overall_score": 0.0,
+        "is_acceptable": False,
+        "violations": [],
+        "passed_rules": [],
+        "detailed_scores": {},
+        "system": {"correlation_id": "3f8c1a2e-0000-4000-8000-000000000000"},
+    }
+    basis.update(extra)
+    return basis
+
+
+def _vang_uitvoer(monkeypatch: pytest.MonkeyPatch, view: Any) -> list[str]:
+    """Vang elke tekstuitvoer van de gedeelde renderer.
+
+    Alleen de API-s die `validation_view` werkelijk gebruikt: st.progress en
+    st.metric bestaan daar niet, en een monkeypatch daarop zou alleen een
+    testopzetfout opleveren.
+    """
+    getoond: list[str] = []
+    for api in ("markdown", "info", "warning", "success", "error", "write"):
+        monkeypatch.setattr(
+            view.st, api, lambda t, *a, **kw: getoond.append(str(t)), raising=True
+        )
+    return getoond
+
+
+def test_ui_stopt_voor_score_gate_en_detailrenderer(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """De gedeelde renderer mag bij unknown geen score of gate tonen.
+    """Bij validation_unknown mag de gedeelde renderer niets van een oordeel tonen.
 
     `render_validation_detailed_list` is het enige renderpad van alle drie de
-    tabs; stopt hij hier niet, dan toont de UI 0% als kwaliteitsoordeel.
+    tabs. Stopt hij hier niet, dan verschijnt "Overall Score: 0.00" als
+    kwaliteitsoordeel terwijl er juist niets is geevalueerd.
+
+    De twee detailhelpers worden vervangen door een `pytest.fail`: dat bewijst
+    dat de early return ervoor ligt, en niet dat de uitvoer achteraf toevallig
+    leeg blijft.
     """
     from ui.components import validation_view
 
-    getoond: list[str] = []
-    monkeypatch.setattr(
-        validation_view.st,
-        "markdown",
-        lambda tekst, *a, **kw: getoond.append(str(tekst)),
-    )
-    monkeypatch.setattr(
-        validation_view.st,
-        "progress",
-        lambda *a, **kw: pytest.fail(
-            "score-weergave aangeroepen bij validation_unknown"
-        ),
-    )
-    monkeypatch.setattr(
-        validation_view.st,
-        "metric",
-        lambda *a, **kw: pytest.fail(
-            "metric-weergave aangeroepen bij validation_unknown"
-        ),
-    )
+    getoond = _vang_uitvoer(monkeypatch, validation_view)
+    for naam in ("_calculate_validation_stats", "_build_detailed_assessment"):
+        monkeypatch.setattr(
+            validation_view,
+            naam,
+            lambda *a, _n=naam, **kw: pytest.fail(
+                f"{_n} aangeroepen bij validation_unknown"
+            ),
+        )
 
     validation_view.render_validation_detailed_list(
-        {
-            "version": "1.2.0",
-            "validation_status": VALIDATION_STATUS_UNKNOWN,
-            "unknown_reason": UNKNOWN_REASON_RULESET_INCOMPLETE,
-            "validation_readiness": {
+        _resultaat(
+            VALIDATION_STATUS_UNKNOWN,
+            unknown_reason=UNKNOWN_REASON_RULESET_INCOMPLETE,
+            validation_readiness={
                 "ready": False,
                 "expected_total": 53,
                 "loaded_total": 7,
-                "missing_rule_ids": ["REG-08"],
+                "missing_rule_ids": ["CON-01"],
                 "unexpected_rule_ids": [],
             },
-            "overall_score": 0.0,
-            "is_acceptable": False,
-            "violations": [],
-            "passed_rules": [],
-            "detailed_scores": {},
-            "system": {"correlation_id": "3f8c1a2e-0000-4000-8000-000000000000"},
-        },
-        key_prefix="test",
+        ),
+        key_prefix="unknown",
+        show_toggle=False,
     )
 
     assert any("niet te bepalen" in t.lower() for t in getoond), getoond
+    assert not any("Overall Score" in t for t in getoond), getoond
+    assert not any("Gates" in t for t in getoond), getoond
+
+
+def test_ui_toont_score_bij_validated(monkeypatch: pytest.MonkeyPatch) -> None:
+    """De early return mag niet alle resultaten onderdrukken.
+
+    Zonder deze positieve regressie zou een renderer die altijd stopt de
+    negatieve test ook groen maken - en dan toont de UI nooit meer een score.
+    """
+    from ui.components import validation_view
+
+    getoond = _vang_uitvoer(monkeypatch, validation_view)
+    bereikt: list[str] = []
+    monkeypatch.setattr(
+        validation_view,
+        "_calculate_validation_stats",
+        lambda *a, **kw: bereikt.append("stats")
+        or {"passed_count": 1, "total": 1, "percentage": 100.0, "failed_count": 0},
+    )
+    monkeypatch.setattr(
+        validation_view,
+        "_build_detailed_assessment",
+        lambda *a, **kw: bereikt.append("detail") or ["OK regel"],
+    )
+
+    validation_view.render_validation_detailed_list(
+        _resultaat(VALIDATION_STATUS_VALIDATED, overall_score=0.82, is_acceptable=True),
+        key_prefix="validated",
+        show_toggle=False,
+    )
+
+    assert any("Overall Score" in t for t in getoond), getoond
+    assert bereikt == ["stats", "detail"], bereikt
+
+
+# ------------------------------------------------------ snapshotarchitectuur
+
+
+def test_runtime_snapshot_draagt_alle_rulesetvelden(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """Een halve snapshot is net zo onbetrouwbaar als een halve regelset.
+
+    Het evaluatiepad leest naast `rule_records` ook internal_rules,
+    default_weights, json_rules, pattern_cache, contract_rule_ids en de
+    tellingen. Blijven die als losse `self._...`-velden bestaan, dan kan een
+    herlaadpoging een mengsel van twee generaties opleveren: nieuwe records
+    met oude gewichten. Deze test eist dat alle ruleset-afhankelijke gegevens
+    in een en dezelfde gepubliceerde snapshot zitten.
+    """
+    service = _service(alle_regels, ECHTE_REGELS)
+    snap = service._snapshot
+
+    verwachte_velden = {
+        "fingerprint",
+        "readiness",
+        "contract_rule_ids",
+        "internal_rules",
+        "rule_records",
+        "json_rules",
+        "default_weights",
+        "pattern_cache",
+        "rules_loaded_count",
+        "rules_expected_count",
+        "is_degraded_mode",
+        "degradation_reason",
+    }
+    ontbreekt = {veld for veld in verwachte_velden if not hasattr(snap, veld)}
+    assert not ontbreekt, ontbreekt
+
+    # Conform projectregel 4 worden de oude velden vervangen, niet gedupliceerd:
+    # een alias kan uit een andere generatie komen dan de actieve snapshot.
+    verboden_aliassen = {
+        "_rule_records",
+        "_json_rules",
+        "_internal_rules",
+        "_default_weights",
+        "_pattern_cache",
+        "_contract_rule_ids",
+        "_rules_loaded_count",
+        "_rules_expected_count",
+    }
+    achtergebleven = {a for a in verboden_aliassen if hasattr(service, a)}
+    assert not achtergebleven, achtergebleven
+
+
+def test_snapshotcollecties_zijn_onveranderlijk(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """Een frozen dataclass maakt geneste dicts niet immutable.
+
+    Zonder alleen-lezen views kan een evaluator de gepubliceerde generatie
+    onder een gelijktijdige lezer uit muteren.
+    """
+    snap = _service(alle_regels, ECHTE_REGELS)._snapshot
+
+    assert isinstance(snap.internal_rules, tuple)
+    assert isinstance(snap.contract_rule_ids, tuple)
+
+    for naam in ("rule_records", "json_rules", "default_weights"):
+        collectie = getattr(snap, naam)
+        with pytest.raises(TypeError):
+            collectie["NIEUW-01"] = {}  # type: ignore[index]
+
+
+def test_elke_generatie_krijgt_een_eigen_pattern_cache(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """Een herbouwde regelset mag geen patronen van de vorige generatie erven.
+
+    Anders blijft een gecompileerd patroon van een inmiddels verdwenen regel
+    in gebruik.
+    """
+    service = _service(alle_regels, ECHTE_REGELS)
+    eerste = service._snapshot
+    eerste.pattern_cache["MARKER"] = object()
+
+    tweede = service._bouw_snapshot("andere-fingerprint")
+
+    assert tweede.pattern_cache is not eerste.pattern_cache
+    assert "MARKER" not in tweede.pattern_cache

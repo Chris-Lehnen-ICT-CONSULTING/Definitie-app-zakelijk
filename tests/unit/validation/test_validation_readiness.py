@@ -25,7 +25,6 @@ from typing import Any
 import pytest
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
-from services.validation.readiness import bepaal_readiness, bereken_fingerprint
 
 from services.validation.interfaces import (
     CONTRACT_VERSION,
@@ -33,6 +32,7 @@ from services.validation.interfaces import (
     VALIDATION_STATUS_UNKNOWN,
     VALIDATION_STATUS_VALIDATED,
 )
+from services.validation.readiness import bepaal_readiness, bereken_fingerprint
 
 pytestmark = [pytest.mark.unit]
 
@@ -237,3 +237,33 @@ def test_validated_resultaat_met_score_blijft_geldig() -> None:
         validation_status=VALIDATION_STATUS_VALIDATED,
     )
     Draft202012Validator(_schema()).validate(resultaat)
+
+
+def test_incompleet_readinessobject_is_schema_ongeldig() -> None:
+    """Zodra `validation_readiness` aanwezig is, moet het volledig zijn.
+
+    Een half ingevuld readinessobject — bijvoorbeeld zonder
+    `missing_rule_ids` — geeft dezelfde onduidelijkheid als de telling die
+    deze uitbreiding juist vervangt: de consumer weet dan wél dat er iets
+    mist, maar niet wat. Alle vijf velden zijn daarom verplicht.
+    """
+    resultaat = _basisresultaat(
+        validation_status=VALIDATION_STATUS_UNKNOWN,
+        unknown_reason=UNKNOWN_REASON_RULESET_INCOMPLETE,
+        validation_readiness={
+            "ready": False,
+            "expected_total": 53,
+            "loaded_total": 52,
+        },
+    )
+    with pytest.raises(ValidationError, match="missing_rule_ids"):
+        Draft202012Validator(_schema()).validate(resultaat)
+
+
+def test_schemaomschrijving_noemt_contractversie_1_2_0() -> None:
+    """De omschrijving mag niet op 1.1.0 blijven staan terwijl de versie 1.2.0 is.
+
+    Een schema dat zichzelf verkeerd nummert is precies zo misleidend als een
+    resultaat dat zichzelf verkeerd nummert.
+    """
+    assert "1.2.0" in _schema()["description"]
