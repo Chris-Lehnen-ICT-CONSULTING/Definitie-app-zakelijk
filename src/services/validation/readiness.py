@@ -1,0 +1,118 @@
+"""Readiness van de toetsregelset (DEF-621).
+
+De volledigheidsbepaling in `toetsregels.rule_cache` vergelijkt het aantal
+geladen regels met het aantal bestanden op schijf. Die vergelijking is
+tautologisch zodra bestanden ontbreken: verdwijnen er 46 van de 53, dan geldt
+`7 == 7` en meldt de cache volledigheid. Bij nul bestanden geldt `0 == 0` en
+presenteert een lege regelset zich als compleet.
+
+Deze module vervangt die telling door een **verzamelingsvergelijking** tegen de
+contractuele regel-ID-set uit de root-SSOT. Alleen als de geladen ID's exact
+gelijk zijn aan de verwachte ID's — en die verwachting niet leeg is — mag een
+validatie een oordeel produceren.
+
+Daarnaast levert deze module de fingerprint waarmee `ModularValidationService`
+per aanroep beide overgangen ziet: compleet→incompleet én incompleet→hersteld.
+De fingerprint dekt zowel de regelbestanden als de contract-SSOT, omdat juist
+die laatste de verwachte ID-set bepaalt.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from collections.abc import Iterable
+from dataclasses import dataclass
+from pathlib import Path
+
+from services.validation.interfaces import UNKNOWN_REASON_RULESET_INCOMPLETE
+from toetsregels.runtime_contract import canonical_rule_id
+
+__all__ = [
+    "ValidationReadiness",
+    "bepaal_readiness",
+    "bereken_fingerprint",
+]
+
+
+@dataclass(frozen=True)
+class ValidationReadiness:
+    """Of de geladen regelset het contract dekt.
+
+    `expected_rule_ids` en `loaded_rule_ids` staan in genormaliseerde vorm
+    (zie `canonical_rule_id`); `missing_rule_ids` en `unexpected_rule_ids`
+    dragen de oorspronkelijke schrijfwijze, zodat een melding leesbaar blijft.
+    """
+
+    ready: bool
+    expected_rule_ids: frozenset[str]
+    loaded_rule_ids: frozenset[str]
+    missing_rule_ids: tuple[str, ...]
+    unexpected_rule_ids: tuple[str, ...]
+    reason: str | None
+
+    def als_dict(self) -> dict[str, object]:
+        """De vorm die in `ValidationResult.validation_readiness` landt."""
+        return {
+            "ready": self.ready,
+            "expected_total": len(self.expected_rule_ids),
+            "loaded_total": len(self.loaded_rule_ids),
+            "missing_rule_ids": list(self.missing_rule_ids),
+            "unexpected_rule_ids": list(self.unexpected_rule_ids),
+        }
+
+
+def _index(ids: Iterable[str]) -> dict[str, str]:
+    """Canonieke ID -> oorspronkelijke schrijfwijze."""
+    return {canonical_rule_id(rid): str(rid) for rid in ids if str(rid).strip()}
+
+
+def bepaal_readiness(
+    expected: Iterable[str], loaded: Iterable[str]
+) -> ValidationReadiness:
+    """Vergelijk verzamelingen, niet aantallen.
+
+    Een lege verwachte set betekent dat het contract niet gelezen kon worden.
+    Dat is nooit "compleet": zonder verwachting valt volledigheid niet vast te
+    stellen, en stil doorgaan zou precies de tautologie herhalen die deze
+    module vervangt.
+    """
+    verwacht = _index(expected)
+    geladen = _index(loaded)
+
+    ontbreekt = tuple(verwacht[k] for k in sorted(set(verwacht) - set(geladen)))
+    onverwacht = tuple(geladen[k] for k in sorted(set(geladen) - set(verwacht)))
+
+    ready = bool(verwacht) and set(verwacht) == set(geladen)
+
+    return ValidationReadiness(
+        ready=ready,
+        expected_rule_ids=frozenset(verwacht),
+        loaded_rule_ids=frozenset(geladen),
+        missing_rule_ids=ontbreekt,
+        unexpected_rule_ids=onverwacht,
+        reason=None if ready else UNKNOWN_REASON_RULESET_INCOMPLETE,
+    )
+
+
+def bereken_fingerprint(bronnen: Iterable[Path]) -> str:
+    """Goedkope wijzigingsdetector over regelbestanden én contract-SSOT.
+
+    Per bron `(pad, grootte, mtime_ns)`, gesorteerd, naar één hash. Een
+    ontbrekende bron krijgt een eigen markering, zodat verdwijnen én
+    terugkomen allebei een andere fingerprint opleveren.
+
+    Bekende grens, bewust: een bestand dat corrupt raakt met identieke grootte
+    én mtime ontsnapt hieraan. Dit is een wijzigingsdetector; de contract-
+    validatie bij het herlezen blijft de inhoudelijke autoriteit. Een
+    inhoudshash per validatie zou niet in verhouding staan tot dat randgeval.
+    """
+    delen: list[str] = []
+    for pad in sorted({Path(p) for p in bronnen}, key=str):
+        try:
+            st = pad.stat()
+        except OSError:
+            delen.append(f"{pad}|-|-")
+        else:
+            delen.append(f"{pad}|{st.st_size}|{st.st_mtime_ns}")
+
+    return hashlib.sha256("\n".join(delen).encode("utf-8")).hexdigest()

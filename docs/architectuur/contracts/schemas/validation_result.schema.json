@@ -366,7 +366,46 @@
         },
         "additionalProperties": false
       }
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": ["validated", "validation_unknown"],
+      "default": "validated",
+      "description": "Uitkomst van de validatie als geheel (DEF-621). Bij validation_unknown dekt de regelset het contract niet en is er niet geevalueerd; dat is technisch niet betrouwbaar te bepalen, niet inhoudelijk invalid."
+    },
+    "unknown_reason": {
+      "type": "string",
+      "enum": ["ruleset_incomplete"],
+      "description": "Machineleesbare reden bij validation_unknown (DEF-621). Bewust een enkele waarde zodat een consumer erop kan matchen; de onderliggende oorzaak hoort in het log."
+    },
+    "validation_readiness": {
+      "type": "object",
+      "description": "Waarom de regelset het contract wel of niet dekt (DEF-621). expected_total telt de contractuele rule-ID-set, niet de bestanden op schijf.",
+      "required": ["ready", "expected_total", "loaded_total"],
+      "properties": {
+        "ready": { "type": "boolean" },
+        "expected_total": { "type": "integer", "minimum": 0 },
+        "loaded_total": { "type": "integer", "minimum": 0 },
+        "missing_rule_ids": { "type": "array", "items": { "type": "string" } },
+        "unexpected_rule_ids": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "validation_status": { "const": "validation_unknown" } },
+        "required": ["validation_status"]
+      },
+      "then": {
+        "properties": {
+          "overall_score": { "const": 0 },
+          "is_acceptable": { "const": false }
+        },
+        "required": ["unknown_reason", "validation_readiness"]
+      }
+    }
+  ],
   "additionalProperties": false
 }
