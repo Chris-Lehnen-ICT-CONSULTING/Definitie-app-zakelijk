@@ -624,7 +624,6 @@ def database_met_fk_naar_definities_old(tmp_path: Path) -> str:
     DefinitieRepository(str(pad))
     with sqlite3.connect(str(pad)) as conn:
         conn.executescript(
-            "ALTER TABLE definitie_voorbeelden ADD COLUMN is_voorkeursterm INTEGER;"
             "INSERT INTO definities (begrip, definitie, categorie,"
             " organisatorische_context, juridische_context, wettelijke_basis, status)"
             " VALUES ('besluit', 'besluit: een schriftelijke beslissing', 'type',"
