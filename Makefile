@@ -1,8 +1,18 @@
 # DEF-513: kale `python` bestaat niet op macOS/CI-runners (alleen `python3`) —
 # prefereer de project-venv, val terug op python3. Overridebaar: `make PY=... <target>`.
 PY?=$(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
+PYTEST := $(PY) -m pytest
+REQUIRED_PYTHON_VERSION ?= 3.13
 
-.PHONY: dev lint complexity-check mypy-check overrides-check pins-check orphan-check silent-except-check audit lock lock-check test status validation-status
+.PHONY: check-python dev lint complexity-check mypy-check overrides-check pins-check orphan-check silent-except-check audit lock lock-check test status validation-status
+
+check-python:
+	@actual_version="$$($(PY) -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')"; \
+	if [ "$$actual_version" != "$(REQUIRED_PYTHON_VERSION)" ]; then \
+		echo "FOUT: Python $(REQUIRED_PYTHON_VERSION) vereist; $(PY) gebruikt $$actual_version."; \
+		echo "Maak de project-venv opnieuw: uv venv --python $(REQUIRED_PYTHON_VERSION) .venv"; \
+		exit 1; \
+	fi
 
 dev:
 	@echo "[dev] Starting Streamlit app via run script..."
@@ -56,63 +66,63 @@ lock-check:
 	@sed '1,2d' requirements-dev.txt | diff - /tmp/req-dev.lock.check >/dev/null 2>&1 || { echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; exit 1; }
 	@echo "OK: requirements-locks in sync met .in-bronnen."
 
-test: test-markers-check
+test: check-python test-markers-check
 	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
-	@pytest -q -m "unit and not slow" --maxfail=1
+	@$(PYTEST) -q -m "unit and not slow" --maxfail=1
 
 .PHONY: test-all test-unit test-integration test-acceptance test-performance test-smoke
 
-test-all:
+test-all: check-python
 	@echo "[test-all] Running full test suite"
-	@pytest -q
+	@$(PYTEST) -q
 
-test-unit:
+test-unit: check-python
 	@echo "[test-unit] Running unit tests"
-	@pytest -q -m unit
+	@$(PYTEST) -q -m unit
 
-test-integration:
+test-integration: check-python
 	@echo "[test-integration] Running integration tests"
-	@pytest -q -m integration
+	@$(PYTEST) -q -m integration
 
-test-acceptance:
+test-acceptance: check-python
 	@echo "[test-acceptance] Running acceptance tests"
-	@pytest -q -m acceptance
+	@$(PYTEST) -q -m acceptance
 
-test-performance:
+test-performance: check-python
 	@echo "[test-performance] Running performance/benchmark tests"
-	@pytest -q -m "performance or benchmark"
+	@$(PYTEST) -q -m "performance or benchmark"
 
-test-smoke:
+test-smoke: check-python
 	@echo "[test-smoke] Running smoke tests"
-	@pytest -q -m smoke
+	@$(PYTEST) -q -m smoke
 
 .PHONY: test-parallel test-cov test-cov-ci
 
-test-parallel:
+test-parallel: check-python
 	@echo "[test-parallel] Running unit tests in parallel"
-	@pytest -q -n auto -m unit
+	@$(PYTEST) -q -n auto -m unit
 
-test-cov:
+test-cov: check-python
 	@echo "[test-cov] Coverage op unit-tests (deterministisch; integration hangt — DEF-428/429)"
-	@pytest -q --cov=src --cov-report=term-missing -m unit
+	@$(PYTEST) -q --cov=src --cov-report=term-missing -m unit
 
-test-cov-ci:
+test-cov-ci: check-python
 	@echo "[test-cov-ci] Coverage met ratchet-vloer 45% (baseline DEF-416; verhogen in Fase 1)"
 	@# DEF-564: -n 4 — unit-suite is xdist-veilig (precedent: test-parallel);
 	@# pytest-cov aggregeert workers correct. Zelfde gate-semantiek, sneller.
-	@pytest -q -n 4 --dist loadfile --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
+	@$(PYTEST) -q -n 4 --dist loadfile --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
 
 .PHONY: test-durations
-test-durations:
+test-durations: check-python
 	@echo "[test-durations] Showing 20 slowest unit tests"
-	@pytest -q --durations=20 -m unit
+	@$(PYTEST) -q --durations=20 -m unit
 
 .PHONY: smoke-web-lookup
-smoke-web-lookup:
+smoke-web-lookup: check-python
 	@echo "[smoke] Running Web Lookup smoke tests"
-	@PYTHONPATH=src pytest -q -m smoke_web_lookup
+	@PYTHONPATH=src $(PYTEST) -q -m smoke_web_lookup
 
-test-markers-check:
+test-markers-check: check-python
 	@echo "[markers] Checking test marker coverage"
 	@$(PY) scripts/testing/check_test_markers.py
 
