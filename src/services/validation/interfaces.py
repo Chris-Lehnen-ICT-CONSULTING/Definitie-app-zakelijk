@@ -24,7 +24,31 @@ from services.interfaces import Definition
 # consumers blijven werken: er is geen veld verdwenen of van betekenis
 # veranderd. De pinned validation_result_v1.0.0.schema.json blijft als
 # historisch schema staan.
-CONTRACT_VERSION = "1.1.0"
+#
+# 1.2.0 (DEF-621): additief uitgebreid met validation_status, unknown_reason
+# en validation_readiness. Ook dit is een SemVer-minor: geen veld is
+# verdwenen of van betekenis veranderd. Zie de conditionele constraint in
+# het JSON-schema - bij validation_unknown zijn overall_score en
+# is_acceptable uitsluitend fail-closed placeholders.
+CONTRACT_VERSION = "1.2.0"
+
+# DEF-621: de uitkomst van een validatie als geheel.
+#
+# "validated"          - er is werkelijk geevalueerd; overall_score en
+#                        is_acceptable dragen een inhoudelijk oordeel.
+# "validation_unknown" - de regelset dekt het contract niet, dus er is niet
+#                        geevalueerd. Dit is technisch niet betrouwbaar te
+#                        bepalen, niet inhoudelijk invalid.
+VALIDATION_STATUS_VALIDATED = "validated"
+VALIDATION_STATUS_UNKNOWN = "validation_unknown"
+ValidationStatus = Literal["validated", "validation_unknown"]
+
+# Machineleesbare reden bij validation_unknown. Bewust een enkele waarde:
+# een consumer moet erop kunnen matchen. De onderliggende oorzaak
+# (ontbrekende regelbestanden, onleesbare root-SSOT, mislukte lader) hoort
+# in het log.
+UNKNOWN_REASON_RULESET_INCOMPLETE = "ruleset_incomplete"
+UnknownReason = Literal["ruleset_incomplete"]
 
 # Uitkomst van één regelevaluatie. Alleen "pass" en "fail" zijn werkelijk
 # uitgevoerde, betrouwbare beoordelingen; uitsluitend die twee beïnvloeden
@@ -59,6 +83,28 @@ class ValidationResult(TypedDict, total=False):
     rule_statuses: NotRequired[dict[str, RuleResultStatus]]
     evaluation_coverage: NotRequired["EvaluationCoverage"]
     review_required: NotRequired[list["ReviewRequirement"]]
+
+    # DEF-621: bij validation_unknown is er niet geevalueerd.
+    # overall_score en is_acceptable blijven aanwezig voor
+    # compatibiliteit, maar zijn dan uitsluitend fail-closed
+    # placeholders (0.0 respectievelijk False) en geen kwaliteitsoordeel.
+    validation_status: NotRequired[ValidationStatus]
+    unknown_reason: NotRequired[UnknownReason]
+    validation_readiness: NotRequired["ValidationReadinessDict"]
+
+
+class ValidationReadinessDict(TypedDict, total=False):
+    """Waarom de regelset het contract wel of niet dekt (DEF-621).
+
+    `expected_total` is het aantal ID-s uit de contractuele set, niet het
+    aantal bestanden op schijf: die twee liepen juist uiteen.
+    """
+
+    ready: bool
+    expected_total: int
+    loaded_total: int
+    missing_rule_ids: list[str]
+    unexpected_rule_ids: list[str]
 
 
 class AcceptanceGate(TypedDict, total=False):
