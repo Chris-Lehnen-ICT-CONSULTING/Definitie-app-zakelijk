@@ -89,6 +89,8 @@ class RuntimeSnapshot:
 * `rule_records`, `json_rules` en `default_weights` zijn `MappingProxyType`-views over state-owned dicts. Zij worden na publicatie aantoonbaar niet gemuteerd; een schrijfpoging faalt met `TypeError`.
 * `pattern_cache` is **per generatie een eigen dict**. Een herbouwde regelset erft nooit gecompileerde patronen van de vorige generatie. Dit is de enige bewust muteerbare collectie: hij is generatie-eigen en wordt met de snapshot weggegooid.
 
+**Waar wat woont.** `RuntimeSnapshot` is een puur datatype en staat in `readiness.py`, naast `ValidationReadiness`. De fabrieksmethoden `_lege_snapshot()` en `_bouw_snapshot()` staan op `ModularValidationService`, omdat zij servicestaat lezen (manager, regelpad, contractpolicy).
+
 **Buiten de snapshot** blijven registry, repository, thresholds, cleaning-service en overige onveranderlijke serviceconfiguratie. Die hangen niet aan de regelset.
 
 **Na `state = self._ververs_state_indien_nodig()` leest de evaluatielus geen ruleset-afhankelijk `self._…`-veld meer.** De snapshot wordt expliciet doorgegeven aan of gebruikt door:
@@ -423,7 +425,7 @@ git commit -m "feat(DEF-621): readiness, validation_unknown-contract en schema 1
 
 ### Commit 3 — GREEN: constructorstaat, foutgrens en guard
 
-`RuntimeSnapshot` hoort volgens §4.1 in `readiness.py`. Dat bestand wordt hier dus opnieuw gestaged: commit 2 leverde `ValidationReadiness` en de fingerprint, commit 3 voegt de snapshot en `_lege_snapshot()` toe.
+**Eigenaarschap, ondubbelzinnig.** `readiness.py` krijgt in deze commit **uitsluitend** het datatype `RuntimeSnapshot` erbij — commit 2 leverde daar al `ValidationReadiness`, `bepaal_readiness()` en `bereken_fingerprint()`. De twee fabrieksmethoden `_lege_snapshot()` en `_bouw_snapshot()` horen bij `ModularValidationService`: zij hebben de manager, het regelpad en de contractpolicy nodig, en dat is servicestaat, geen readinesslogica. Daarom worden beide bestanden hier gestaged.
 
 ```
 $VENV/python -m pytest tests/unit/validation/test_validation_guard_failclosed.py -q

@@ -265,6 +265,12 @@ def test_ui_stopt_voor_score_gate_en_detailrenderer(
     tabs. Stopt hij hier niet, dan verschijnt "Overall Score: 0.00" als
     kwaliteitsoordeel terwijl er juist niets is geevalueerd.
 
+    De gate wordt hier **expliciet** meegegeven. Zonder dat argument valt
+    `gate or validation_result.get("acceptance_gate") or {}` terug op een
+    lege dict en wordt de hele gate-tak sowieso overgeslagen - dan bewijst een
+    assertie op afwezige gatetekst niets. Met een gevulde pass-gate zou de
+    renderer zonder early return aantoonbaar "Gate:" of "Gates:" tonen.
+
     De twee detailhelpers worden vervangen door een `pytest.fail`: dat bewijst
     dat de early return ervoor ligt, en niet dat de uitvoer achteraf toevallig
     leeg blijft.
@@ -295,11 +301,22 @@ def test_ui_stopt_voor_score_gate_en_detailrenderer(
         ),
         key_prefix="unknown",
         show_toggle=False,
+        gate={
+            "status": "pass",
+            "acceptable": True,
+            "gates_passed": ["drempel_overall", "drempel_categorie"],
+            "gates_failed": [],
+            "reasons": [],
+        },
     )
 
     assert any("niet te bepalen" in t.lower() for t in getoond), getoond
-    assert not any("Overall Score" in t for t in getoond), getoond
-    assert not any("Gates" in t for t in getoond), getoond
+    assert not any("overall score" in t.lower() for t in getoond), getoond
+    # Zowel de enkelvoudige ("Gate: toegestaan") als de meervoudige
+    # ("Gates: OK") weergave moet onbereikt blijven.
+    assert not any(
+        merker in t.lower() for t in getoond for merker in ("gate:", "gates:")
+    ), getoond
 
 
 def test_ui_toont_score_bij_validated(monkeypatch: pytest.MonkeyPatch) -> None:
