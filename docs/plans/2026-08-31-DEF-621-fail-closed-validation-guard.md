@@ -144,8 +144,19 @@ De dubbelcheck ná het nemen van de lock voorkomt dat twee gelijktijdige aanroep
 
 **Bronnen — beide, expliciet:**
 
-1. alle `*.json` in de regelmap (`state.regels_dir`, zie §6);
-2. `config/toetsregels/toetsregels_config.yaml` — de contract-SSOT.
+1. alle `*.json` in de regelmap (`_regelpad()`, zie §6);
+2. `ROOT_SSOT_PAD` — `config/toetsregels/toetsregels_config.yaml`, de contract-SSOT.
+
+**De bronlijst wordt bij iedere controle opnieuw opgebouwd**, met een verse glob over de regelmap plus `ROOT_SSOT_PAD`:
+
+```
+def _fingerprintbronnen(self) -> tuple[Path, ...]:
+    regelmap = self._regelpad()
+    regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
+    return (*regels, ROOT_SSOT_PAD)
+```
+
+Een bij constructie opgeslagen padlijstje is **fout**: een nieuw, onverwacht regelbestand staat er dan niet in en blijft daardoor onzichtbaar, terwijl juist zo-n bestand de geladen ID-verzameling ongelijk maakt aan het contract. De glob moet dus per controle draaien, niet eenmalig.
 
 Per bron `(pad, st_size, st_mtime_ns)`, gesorteerd, naar één stabiele hash. Daardoor wordt **zowel beschadiging als herstel van de regelbestanden én van de contract-SSOT** gedetecteerd. Verdwijnt of wijzigt de YAML, dan verandert de fingerprint en volgt een herlaadpoging met dezelfde foutgrens.
 
@@ -207,29 +218,46 @@ De runtimegrens maakt de **applicatie** beschikbaar; zij maakt de **repository**
 Alle velden die het unknown-pad, `get_health_status()` en `validate_definition` nodig hebben, worden **vóór** de `try` geïnitialiseerd. Een `RuleContractError` in `_contractregel_ids()` (`:139`, vóór het laden) of in `_load_rules_from_manager()` mag nooit tot een ontbrekend attribuut leiden.
 
 ```
-# __init__ — eerst de veilige basis, zonder enige faalkans
+# __init__ — eerst een volledige, faalvrije beginsnapshot.
+# Geen losse rulesetvelden meer: elk ruleset-afhankelijk gegeven zit in de
+# snapshot, zodat er nooit een mengsel van twee generaties kan ontstaan.
 self._state_lock = threading.Lock()
-self._contract_rule_ids: tuple[str, ...] = ()
-self._rules_expected_count = 0
-self._rules_loaded_count = 0
-self._is_degraded_mode = False
-self._degradation_reason = None
-self._rule_records = {}
-self._state = RuntimeSnapshot({}, ONBEPAALBAAR(reden=UNKNOWN_REASON), None)
+self._snapshot = self._lege_snapshot(fingerprint=None, oorzaak=None)
 
-# dan pas de faalbare opbouw
+# dan pas de faalbare opbouw — één toewijzing, of hij lukt of hij lukt niet
 try:
-    self._contract_rule_ids = self._contractregel_ids()
-    self._rules_expected_count = len(self._contract_rule_ids)
-    self._load_rules_from_manager()
-    self._state = RuntimeSnapshot(records, readiness, fingerprint)
+    self._snapshot = self._bouw_snapshot(
+        fingerprint=bereken_fingerprint(self._fingerprintbronnen()),
+    )
 except RuleContractError as exc:
     logger.critical(...)                 # ongewijzigd niveau
-    self._state = RuntimeSnapshot({}, ONBEPAALBAAR(reden=UNKNOWN_REASON, detail=str(exc)), None)
+    self._snapshot = self._lege_snapshot(fingerprint=None, oorzaak=exc)
     # bewust géén re-raise
 ```
 
-Na een fout: `rule_records` leeg, readiness onwaar, evaluatie onbereikbaar, `get_health_status()` volledig invulbaar. Faalt de root-SSOT zelf, dan is `expected_rule_ids` leeg — `ready` blijft onwaar en de machineleesbare reden blijft exact `ruleset_incomplete`; de oorzaak gaat alleen naar het log.
+`_lege_snapshot()` levert een **volledig ingevuld** `RuntimeSnapshot` met benoemde argumenten — lege collecties, een verse eigen `pattern_cache`, `readiness.ready is False` en reden `ruleset_incomplete`:
+
+```
+def _lege_snapshot(self, *, fingerprint, oorzaak) -> RuntimeSnapshot:
+    return RuntimeSnapshot(
+        fingerprint=fingerprint,
+        readiness=bepaal_readiness(expected=(), loaded=()),
+        contract_rule_ids=(),
+        internal_rules=(),
+        rule_records=MappingProxyType({}),
+        json_rules=MappingProxyType({}),
+        default_weights=MappingProxyType({}),
+        pattern_cache={},
+        rules_loaded_count=0,
+        rules_expected_count=0,
+        is_degraded_mode=True,
+        degradation_reason=None if oorzaak is None else str(oorzaak),
+    )
+```
+
+`_bouw_snapshot()` doet hetzelfde met de werkelijke generatie, eveneens met benoemde argumenten. **Alle drie de toestanden — beginstaat, succesvolle staat en foutstaat — worden met precies één toewijzing aan `self._snapshot` gepubliceerd.** Er is geen tussenvorm waarin een deel van de velden al vernieuwd is.
+
+Na een fout draagt de snapshot lege collecties, is readiness onwaar, is evaluatie onbereikbaar en kan `get_health_status()` volledig worden ingevuld uit diezelfde snapshot. Faalt de root-SSOT zelf, dan is `expected_rule_ids` leeg — `ready` blijft onwaar en de machineleesbare reden blijft exact `ruleset_incomplete`; de oorzaak gaat alleen naar het log.
 
 ### Alle constructorpaden
 
@@ -309,7 +337,7 @@ VENV=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin
 cd /Users/chrislehnen/Projecten/Definitie-app.worktrees/DEF-621-validation-guard
 ```
 
-De worktree heeft **geen eigen `.venv`**; de Makefile roept **kale `pytest`** aan (`Makefile:61,67,71,75,79,83,87,93,97,103,108`). Daarom overal de expliciete venv, en bij make-targets ook `PATH` én `PY`. De parallel gewijzigde `Makefile` in de primaire werkmap wordt **niet aangeraakt en niet overgenomen**.
+De worktree heeft **geen eigen `.venv`**. Sinds DEF-700 (`40c2a930`, gemerged in `origin/main`) roept de Makefile geen kale `pytest` meer aan: `PYTEST := $(PY) -m pytest` en elk testtarget hangt aan `check-python`, dat Python 3.13 afdwingt. Voor make-targets volstaat daarom `make PY="$VENV/python" <target>`; de `PATH`-manipulatie is niet langer nodig. **Directe `pytest`-runs gebruiken onverkort de absolute Python 3.13-venv.**
 
 ### Commit 0 — het plan zelf
 
@@ -395,11 +423,14 @@ git commit -m "feat(DEF-621): readiness, validation_unknown-contract en schema 1
 
 ### Commit 3 — GREEN: constructorstaat, foutgrens en guard
 
+`RuntimeSnapshot` hoort volgens §4.1 in `readiness.py`. Dat bestand wordt hier dus opnieuw gestaged: commit 2 leverde `ValidationReadiness` en de fingerprint, commit 3 voegt de snapshot en `_lege_snapshot()` toe.
+
 ```
 $VENV/python -m pytest tests/unit/validation/test_validation_guard_failclosed.py -q
 # VERWACHT: PASS, behalve de twee UI-cases (die worden groen in commit 5)
 
-git add src/services/validation/modular_validation_service.py
+git add src/services/validation/readiness.py \
+        src/services/validation/modular_validation_service.py
 git commit -m "feat(DEF-621): fail-closed guard en runtimegrens voor RuleContractError"
 ```
 
@@ -438,9 +469,9 @@ VENV=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin
 cd /Users/chrislehnen/Projecten/Definitie-app.worktrees/DEF-621-validation-guard
 
 $VENV/python -m pytest tests/unit/validation/ -q
-PATH="$VENV:$PATH" make PY="$VENV/python" test
-PATH="$VENV:$PATH" make PY="$VENV/python" test-markers-check
-PATH="$VENV:$PATH" make PY="$VENV/python" lint
+make PY="$VENV/python" test
+make PY="$VENV/python" test-markers-check
+make PY="$VENV/python" lint
 $VENV/python scripts/mypy_ratchet.py
 git diff --check
 shasum -a 256 data/definities.db     # vóór en ná identiek

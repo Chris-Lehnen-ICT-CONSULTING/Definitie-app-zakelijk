@@ -93,11 +93,16 @@ class ValidationResult(TypedDict, total=False):
     validation_readiness: NotRequired["ValidationReadinessDict"]
 
 
-class ValidationReadinessDict(TypedDict, total=False):
+class ValidationReadinessDict(TypedDict):
     """Waarom de regelset het contract wel of niet dekt (DEF-621).
 
     `expected_total` is het aantal ID-s uit de contractuele set, niet het
     aantal bestanden op schijf: die twee liepen juist uiteen.
+
+    Alle vijf velden zijn verplicht (`total=True`): het object is optioneel
+    op het resultaat, maar zodra het aanwezig is, is het volledig. Een half
+    ingevulde readiness zou dezelfde onduidelijkheid geven als de telling
+    die deze uitbreiding juist vervangt.
     """
 
     ready: bool
