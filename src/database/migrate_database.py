@@ -210,9 +210,7 @@ def _verifieer_migratie(
         problemen.append(f"schemaobjecten verdwenen: {verdwenen}")
 
     resten = sorted(
-        naam
-        for soort, naam in aanwezig
-        if soort == "table" and naam.endswith(("_old", "_old2"))
+        naam for soort, naam in aanwezig if soort == "table" and naam.endswith("_old")
     )
     if resten:
         problemen.append(f"tijdelijke rebuild-tabellen blijven staan: {resten}")
@@ -648,30 +646,6 @@ def migrate_database(db_path: str = "data/definities.db") -> bool:
                         zorg_voor_indexen=_ensure_definities_indexes,
                     )
                     logger.info("✅ Kolom 'voorkeursterm_is_begrip' verwijderd")
-
-                # 3) Corrigeer een FK die nog naar 'definities_old' wijst. Dat
-                #    kan alleen in een database die vóór DEF-672 is gemigreerd;
-                #    sinds `legacy_alter_table` worden verwijzingen niet meer
-                #    herschreven.
-                rij = conn.execute(
-                    "SELECT sql FROM sqlite_master "
-                    "WHERE type='table' AND name='definitie_voorbeelden'"
-                ).fetchone()
-                if "definities_old" in ((rij[0] if rij else "") or ""):
-                    logger.info(
-                        "🔧 Corrigeer FK: rebuild 'definitie_voorbeelden' met FK naar 'definities'"
-                    )
-                    _rebuild_tabel_atomair(
-                        conn,
-                        tabel="definitie_voorbeelden",
-                        tijdelijke_naam="definitie_voorbeelden_old2",
-                        maak_tabel=_create_definitie_voorbeelden_table,
-                        kolommen=DEFINITIE_VOORBEELDEN_KOLOMMEN,
-                        zorg_voor_indexen=_ensure_definitie_voorbeelden_indexes,
-                    )
-                    logger.info(
-                        "✅ FK naar 'definities' hersteld op 'definitie_voorbeelden'"
-                    )
 
             # Normaliseer wettelijke_basis voor betrouwbare duplicate-check op DB-laag
             _normalize_wettelijke_basis(conn)
