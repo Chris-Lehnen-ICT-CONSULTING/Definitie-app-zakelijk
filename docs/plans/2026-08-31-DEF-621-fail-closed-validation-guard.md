@@ -646,3 +646,107 @@ shasum -a 256 data/definities.db     # vóór en ná identiek
 - [ ] `data/definities.db` vóór en ná identiek
 - [ ] Notitie op DEF-624 over de `types.py`-drift
 - [ ] Oplevercomment op DEF-621 met testbewijs
+
+---
+
+## 16. Addendum — 1 september 2026: reviewuitbreiding en eindbewijs
+
+Dit addendum legt vast wat er tijdens de uitvoering ís gebeurd. De secties 1
+tot en met 15 blijven staan zoals zij op 31 augustus zijn geschreven; dit is
+geen herschrijving achteraf maar een aanvulling met de werkelijke scope en het
+actuele bewijs.
+
+### 16.1 Reviewgedreven scope-uitbreiding
+
+Commit 5 leverde de gedeelde UI-stop. Twee onafhankelijke reviews toonden
+daarna aan dat die stop op het actieve Generatorpad nooit vuurde, en dat de
+fail-closed placeholder alsnog als kwaliteitsoordeel in de database landde. De
+volgende uitbreidingen zijn met expliciete toestemming per stap uitgevoerd:
+
+| Uitbreiding | Bestand(en) |
+| -- | -- |
+| Transport van `validation_status`, `unknown_reason` en `validation_readiness` door `ServiceAdapter.normalize_validation` — over de dict-, converter-, schema- en attribuutfallbacktak | `src/services/interfaces.py` (additief, `NotRequired`), `src/services/service_factory.py` |
+| Generatorweergave: geen score en geen metric *Finale Score* bij `validation_unknown` | `src/ui/components/definition_generator_tab.py` |
+| De 0.0-placeholder wordt niet meer als `validation_score` opgeslagen | `src/integration/definitie_checker.py` |
+| Optimistic-lockcorrectie: `version_number` is de verwachte **huidige** versie, niet de nieuwe; de repository hoogt zelf op | `src/integration/definitie_checker.py` |
+| `validation_score` toegevoegd aan de bestaande update-allowlist | `src/database/definitie_crud.py` |
+
+**Geen schema- en geen migratiewijziging.** De kolom `validation_score` bestond
+al en accepteerde al `NULL`; alleen de allowlist in `update_definitie` liet de
+waarde niet door. `previous_version_id` is bewust **niet** aan die allowlist
+toegevoegd en is uit het updatepayload verwijderd: het veld werd al genegeerd
+en zou als toegestaan veld een zelfverwijzing hebben gemaakt.
+
+### 16.2 Waarom de database een toegestane uitzondering werd
+
+§1 hield de databaselaag hard buiten scope. Dat is tijdens de uitvoering
+bewust losgelaten voor precies één kolom, om deze reden:
+
+`to_ui_response` zet bij `validation_unknown` `final_score = 0.0` als
+fail-closed compatibiliteitsplaceholder. `DefinitieChecker` schreef die nul weg
+als `validation_score`. Edit- en Expert Review-tab lezen die kolom terug uit
+het `DefinitieRecord` — niet uit het validatieresultaat — en tonen hem als een
+rode `Score: 0.00`. Zonder de persistencecorrectie zou `validation_unknown` dus
+langs de hele fail-closed keten heen alsnog als echt kwaliteitsoordeel
+opduiken, en precies dát is wat DEF-621 moest voorkomen. De guard in de
+validatielaag en de stop in de UI zijn zinloos zolang de placeholder in de
+database bewaard blijft.
+
+De uitzondering is minimaal gehouden: één helper, twee levende opslagroutes,
+één allowlist-veld. De ingesprongen, onbereikbare `generate_with_integrated_service`
+is niet aangeraakt; opruimen daarvan blijft buiten deze levering.
+
+### 16.3 De zes auditpunten uit het Linear-auditdocument
+
+Bron: *Opleveraudit DEF-621 — restscope fail-closed validatieguard (31 augustus
+2026)*, sectie 3. De nummering en formulering hieronder zijn één-op-één
+overgenomen; er zijn geen punten toegevoegd of samengevoegd.
+
+| # | Auditpunt | Testbestand | Testnaam / parametrisatie | RED-bewijs | GREEN-bewijs |
+| -- | -- | -- | -- | -- | -- |
+| 1 | Centrale guard vóór evaluatie, scoring en acceptability | `tests/unit/validation/test_validation_guard_failclosed.py` | `test_geen_evaluatie_scoring_of_gate_bij_incomplete_set` — `_evaluate_rule`, `_calculate_category_scores` en `_evaluate_acceptance_gates` gemonkeypatcht naar `AssertionError` | commit `500eb5b9` (RED-suite), aangescherpt in `20dab3e5` | commit `2ac573a1`; groen in `pytest tests/unit/validation/` |
+| 2 | Uitkomst `validation_unknown` | idem | `test_incomplete_set_levert_validation_unknown`, ids `52_van_53`, `7_van_53`, `leeg`, `geen_manager` | commit `500eb5b9` | commits `0645c80e` (contract) en `2ac573a1` (guard) |
+| 3 | Machineleesbare reden `ruleset_incomplete` | idem | `test_onleesbare_root_ssot_geeft_dezelfde_machineleesbare_reden`, plus de `unknown_reason`-assertie in punt 2 | commit `500eb5b9` | commit `2ac573a1`; naad meeverhuisd in `317cafec` |
+| 4 | Negatief validation-readiness-oppervlak | `tests/unit/validation/test_validation_readiness.py` + `test_validation_guard_failclosed.py` | `test_readiness_normaliseert_schrijfwijzen`, `test_lege_contractset_is_nooit_compleet`, `test_health_status_draagt_readiness[ready|unready]` | commit `500eb5b9` | commit `0645c80e` |
+| 5 | Volledigheid tegen de contractuele ID-set, niet tegen aantallen of files-on-disk | `test_validation_readiness.py` + `tests/unit/validation/test_rule_cache_runtime_contract.py` | `test_readiness_vergelijkt_verzamelingen_niet_aantallen`; klassen `TestVolledigheidIsGeenTelling` en `TestWarmeCacheMaskeertBronverliesNiet` | `rules_load_complete` gaf `True` bij nul bestanden (`0 == 0`) en bij 53 gecacht tegen 52 op schijf — gemeten vóór commit `317cafec` | commit `317cafec` |
+| 6 | Tests die bewijzen dat 52/53, 7/53 en 0/0 nooit als complete validatie gelden | `test_validation_readiness.py` | `test_readiness_vergelijkt_verzamelingen_niet_aantallen` met de cases `volledig 53/53`, `52 van 53`, **`52 gevonden met een verkeerd ID`**, `fallback 7 van 53`, `superset 54`; plus `test_lege_contractset_is_nooit_compleet` voor `0/0` | commit `500eb5b9`; de discriminerende `52-met-verkeerd-ID`-case toegevoegd in `0ec54b41` | commit `0645c80e`, bevestigd door `317cafec` |
+
+De auditbevinding over `_enrich_context_with_definition_fields()` (sectie 5 van
+het document) blijft belegd bij DEF-622 en is hier niet geraakt.
+
+### 16.4 Actuele eindverificatie — 1 september 2026, HEAD `478e7e7e`
+
+| Gate | Uitkomst |
+| -- | -- |
+| `pytest tests/unit/validation/ -q` | **1254 passed**, 0 failed, exitcode 0 |
+| `make PY=… test` mét dummy-API-keys | **4148 passed, 82 skipped, 691 deselected, 2 xfailed**, exitcode 0 |
+| `make PY=… test-markers-check` | `OK: All 342 test files have classification markers.` |
+| `make PY=… lint` | ruff `All checks passed!`; black `380 files would be left unchanged` |
+| `scripts/mypy_ratchet.py` | `OK: mypy at baseline (0).` |
+| `git diff --check origin/main...HEAD` | exitcode 0 |
+
+**De kale `make test` faalt** met exitcode 2 op
+`test_service_container.py::TestServiceContainer::test_generator_singleton`,
+met `ValueError: API key is required for provider 'anthropic'`. Deze worktree
+heeft geen `.env` en `make` geeft geen dummy-keys door; met `--maxfail=1` stopt
+de run daar direct. Environmenteel, niet inhoudelijk — met dummy-keys is
+dezelfde selectie groen. Er is bewust geen `.env` geschreven.
+
+**Databases.** De beschermde `data/definities.db` in de primaire werkmap is
+byte-identiek aan de sessiebaseline (`sha256` begint met `e6251ee1bc14c29c`).
+Deze worktree heeft daarnaast een eigen, door testruns geschreven
+`data/definities.db`; die is gitignored (`.gitignore:159` → `data/*.db`), komt
+in geen enkele commit voor en houdt `git status` leeg. Hij wordt bewust niet
+verwijderd.
+
+### 16.5 Stand van de Definition of Done
+
+De technische criteria uit §15 zijn bewezen; per criterium is in §16.3 en
+§16.4 een testbestand of commando genoemd. Twee criteria blijven
+**administratief open** en vragen een Linear-mutatie die nog niet is gedaan:
+
+- notitie op DEF-624 over de `types.py`-drift;
+- definitief oplevercomment op DEF-621 met testbewijs.
+
+Zolang die twee openstaan, is de levering technisch klaar maar
+administratief niet afgerond.
