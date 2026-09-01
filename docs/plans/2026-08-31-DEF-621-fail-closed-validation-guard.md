@@ -321,6 +321,74 @@ Testboilerplate wordt gecomprimeerd met gedeelde fixtures (`regelmap_factory`, `
 * `readiness.py` — pure, dependency-vrije logica (verzamelingsvergelijking, fingerprint, immutable state). In de 1589-regelige `modular_validation_service.py` plaatsen zou de bestaande god-objectschuld (DEF-424/DEF-312) vergroten en de logica onafhankelijk ontestbaar maken.
 * Drie testbestanden — elk hoort bij precies één GREEN-commit (§12). Samenvoegen zou die één-op-één-koppeling breken en een falende commit ambigu maken.
 
+### Werkelijke bestandsscope van commit 3 — bijgesteld tijdens uitvoering
+
+De oorspronkelijke raming van negen bestanden was te krap. De guard raakt elke
+test die `ModularValidationService` bouwt zónder complete regelset: die levert
+nu `validation_unknown`, dus een lege violationslijst en geen `detailed_scores`.
+Commit 3 telt daardoor **15 gewijzigde bestanden, ~922 toegevoegde en ~319
+verwijderde regels**.
+
+| Groep | Bestanden |
+| -- | -- |
+| Productie | `readiness.py` (`RuntimeSnapshot`), `modular_validation_service.py` |
+| Testmigratie — synthetische snapshot | `test_evaluator_failclosed.py`, `test_error_blokkeert_acceptatie.py`, `test_score_invarianten.py`, `test_rule_runtime_matrix.py` |
+| Testmigratie — echte contractmanager | `test_modular_validation_aggregation.py`, `test_modular_validation_heuristics.py`, `test_modular_validation_race_condition.py`, `test_modular_validation_determinism.py`, `test_evaluation_context_sharing.py`, `test_batch_validation.py`, `test_critical_paths.py` |
+| Contractmigratie | `test_evaluation_coverage.py` |
+| Nieuw bewijs | `test_validation_guard_failclosed.py` |
+
+**De leidende regel bij migratie:** een test die *normale evaluatie* bedoelt,
+krijgt de echte contractmanager via `get_toetsregel_manager()`. `manager=None`
+blijft alleen staan waar `validation_unknown` juist het onderwerp is. Waar een
+test op inhoud toetst, is bovendien `validation_status == "validated"`
+toegevoegd — anders zou een lege unknown-uitkomst de assertie stil kunnen
+waarmaken.
+
+Twee inhoudelijke correcties waren onvermijdelijk, geen afzwakking:
+
+* De soft-floor-case in `test_modular_validation_heuristics.py` en de
+  positieve case in `test_batch_validation.py` gebruikten teksten die met de
+  echte 53-regelset respectievelijk 0,55 en 0,52 scoren en dus **niet**
+  acceptabel zijn. Beide zijn vervangen door een invoer die gemeten 0,64
+  scoort: onder de drempel van 0,75, zonder blocking error, en daardoor via de
+  soft floor acceptabel. Zonder die correctie zou de soft floor niet meer
+  getoetst worden.
+* `test_evaluation_coverage.py` is op drie plaatsen **herfundeerd** op het
+  goedgekeurde contract. Het veiligheidsdoel blijft identiek — geen verzonnen
+  noemer, geen valse volledige dekking — maar de guard vangt die toestanden nu
+  een stap eerder af dan de dekkingsrapportage deed.
+
+### Nog niet meegenomen — vervolg-inventaris
+
+Vier bestanden bouwen ook met `manager=None`, maar blijven groen omdat zij op
+vorm toetsen en niet op inhoud. Zij zijn bewust buiten commit 3 gehouden:
+
+* `tests/integration/contracts/test_golden_definitions_contract.py` (fixture ontbreekt; suite skipt)
+* `tests/integration/contracts/test_modular_validation_service_contract.py`
+* `tests/integration/contracts/test_validation_result_schema.py`
+* `tests/integration/performance/test_validation_performance_baseline.py`
+
+### Commit 4 — scope uitgebreid met een productiedefect
+
+De twee parameters van `test_beschadigde_contract_ssot_wordt_gezien_en_hersteld`
+blijven na commit 3 **bewust rood**. Zij leggen een echt defect bloot, geen
+testopzetfout:
+
+* `ROOT_SSOT_PAD` zit in de fingerprint, dus een gewijzigde contract-SSOT
+  triggert wél een herlaadpoging;
+* maar `_contractregel_ids()` leest via het `lru_cache`-gedekte
+  `root_contract_policy()`, dus bij die herlaadpoging worden opnieuw de **oude**
+  contract-ID's gebruikt.
+
+Gevolg: de fingerprint ziet de wijziging, de verwachte ID-set niet. Commit 4
+mag daarom **naast `rule_cache.py` ook `modular_validation_service.py`
+wijzigen**, om de contractpolicy vers uit `ROOT_SSOT_PAD` te laden in plaats
+van uit de procescache.
+
+`test_ruleset_transitions.py` wordt tot die tijd **niet** gewijzigd of
+verzwakt. Voor commit 3 geldt exact 7 van 9 groen, met uitsluitend die twee
+SSOT-parameters rood.
+
 ### Toestemming-gates — vóór implementatie
 
 | # | Gate | Waarom geraakt |
@@ -442,7 +510,8 @@ git commit -m "feat(DEF-621): fail-closed guard en runtimegrens voor RuleContrac
 $VENV/python -m pytest tests/unit/validation/test_ruleset_transitions.py -q
 # VERWACHT: PASS (alle cases, beide managerpaden)
 
-git add src/toetsregels/rule_cache.py
+git add src/toetsregels/rule_cache.py \
+        src/services/validation/modular_validation_service.py
 git commit -m "fix(DEF-621): volledigheid tegen de contract-ID-set en herstel binnen TTL"
 ```
 

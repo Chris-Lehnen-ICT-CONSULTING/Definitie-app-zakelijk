@@ -22,6 +22,7 @@ naast elkaar in `test_directe_loader_blijft_gooien_maar_service_construeert`.
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -62,6 +63,26 @@ class NepManager:
 
     def get_all_regels(self) -> dict[str, dict[str, Any]]:
         return dict(self._regels)
+
+    def clear_cache(self) -> None:
+        self.clear_calls += 1
+
+
+class StukkeManager:
+    """Manager waarvan het laden met een generieke fout klapt.
+
+    Geen `RuleContractError` maar een gewone `RuntimeError`: dat is
+    constructorpad 3 uit het plan. Dat pad zette tot nu toe stil de
+    degraded-vlag en viel terug op zeven baselineregels, waarna de validatie
+    gewoon doorliep en een score over die zeven presenteerde.
+    """
+
+    def __init__(self, regels_dir: Path) -> None:
+        self.regels_dir = regels_dir
+        self.clear_calls = 0
+
+    def get_all_regels(self) -> dict[str, dict[str, Any]]:
+        raise RuntimeError("manager onbereikbaar")
 
     def clear_cache(self) -> None:
         self.clear_calls += 1
@@ -155,6 +176,52 @@ async def test_geen_evaluatie_scoring_of_gate_bij_incomplete_set(
     assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
 
 
+@pytest.mark.asyncio
+async def test_generieke_managerfout_geeft_validation_unknown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Constructorpad 3: een generieke fout mag niet stil in baseline eindigen.
+
+    Vandaag vangt `_load_rules_from_manager` elke niet-contractuele fout af,
+    zet de degraded-vlag en laadt zeven baselineregels. De validatie loopt
+    daarna gewoon door en levert een score over die zeven - niet te
+    onderscheiden van een score over drieenvijftig. Dat is precies de
+    misleiding die deze story sluit.
+
+    De drie vervolgstappen worden vervangen door een `pytest.fail`, zodat
+    bewezen is dat de guard ervoor returnt.
+    """
+    service = ModularValidationService(toetsregel_manager=StukkeManager(ECHTE_REGELS))
+
+    health = service.get_health_status()
+    assert health["validation_ready"] is False
+    assert health["degraded_mode"] is True
+    assert health["validation_unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
+
+    for methode in (
+        "_evaluate_rule",
+        "_calculate_category_scores",
+        "_evaluate_acceptance_gates",
+    ):
+        monkeypatch.setattr(
+            ModularValidationService,
+            methode,
+            lambda *a, _m=methode, **kw: pytest.fail(
+                f"{_m} aangeroepen na een generieke managerfout"
+            ),
+        )
+
+    resultaat = await _valideer(service)
+
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+    assert resultaat["unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
+    assert resultaat["overall_score"] == 0.0
+    assert resultaat["is_acceptable"] is False
+    assert resultaat["passed_rules"] == []
+    assert "acceptance_gate" not in resultaat
+    assert resultaat["validation_readiness"]["ready"] is False
+
+
 # --------------------------------------------------- runtimegrens vs loader
 
 
@@ -221,6 +288,56 @@ def test_health_status_draagt_readiness(
     assert health["validation_ready"] is compleet
     assert (health["validation_unknown_reason"] is None) is compleet
     assert health["rules_expected"] == len(root_contract_policy().rule_ids)
+
+
+def test_snapshot_is_geisoleerd_van_manager_owned_regeldata(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """Een mutatie via de manager mag de gepubliceerde generatie niet raken.
+
+    De snapshot kopieerde alleen de buitenste dictionaries. De geneste
+    regeldictionaries bleven dezelfde objecten als die van de manager:
+
+        managerregel is snapshot.json_rules[rid] is snapshot.rule_records[rid].data
+
+    Daardoor sijpelde een wijziging aan de managerdata onmiddellijk door in de
+    actieve generatie - buiten de fingerprint om, buiten de lock om en zonder
+    statewissel. Dat holt de hele atomische publicatie uit: twee gelijktijdige
+    lezers konden dan alsnog verschillende regelinhoud zien terwijl zij
+    dezelfde snapshot vasthielden.
+
+    Er wordt hier bewust met een eigen diepe kopie gewerkt; de modulefixture
+    is `scope="module"` en zou anders door deze mutatie vervuild raken.
+    """
+    eigen_data = copy.deepcopy(alle_regels)
+    regel_id = next(
+        rid
+        for rid, regel in eigen_data.items()
+        if isinstance(regel.get("herkenbaar_patronen"), list)
+        and regel["herkenbaar_patronen"]
+    )
+
+    service = _service(eigen_data, ECHTE_REGELS)
+    snapshot = service._snapshot
+
+    # Geen gedeelde identiteit meer met de bron.
+    assert snapshot.json_rules[regel_id] is not eigen_data[regel_id]
+    assert snapshot.rule_records[regel_id].data is not eigen_data[regel_id]
+
+    voor_toetsvraag = snapshot.json_rules[regel_id].get("toetsvraag")
+    voor_patronen = list(snapshot.json_rules[regel_id]["herkenbaar_patronen"])
+
+    # Muteer ná de constructie via de manager-owned data: een gewijzigd veld
+    # en een gewijzigde geneste lijst.
+    eigen_data[regel_id]["toetsvraag"] = "GEMUTEERD-NA-CONSTRUCTIE"
+    eigen_data[regel_id]["herkenbaar_patronen"].append("GEMUTEERD-PATROON")
+
+    assert snapshot.json_rules[regel_id].get("toetsvraag") == voor_toetsvraag
+    assert snapshot.json_rules[regel_id]["herkenbaar_patronen"] == voor_patronen
+    assert snapshot.rule_records[regel_id].data.get("toetsvraag") == voor_toetsvraag
+    assert (
+        "GEMUTEERD-PATROON" not in snapshot.json_rules[regel_id]["herkenbaar_patronen"]
+    )
 
 
 # ------------------------------------------------------------------- UI-stop
