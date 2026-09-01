@@ -217,6 +217,12 @@ class DefinitieCrudRepository:
             "ontologie",
             "validated",
             "validation_notes",
+            # DEF-621: zonder dit veld werd een bijgewerkte score stil
+            # genegeerd - de kolom bleef op de waarde van een eerdere,
+            # inmiddels vervangen definitietekst staan. `None` hoort hier
+            # net zo goed te landen als een float: het is de expliciete
+            # vastlegging dat er geen oordeel is.
+            "validation_score",
             "reviewed_by",
             "review_date",
             "improved_version",
