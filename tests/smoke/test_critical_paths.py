@@ -50,17 +50,27 @@ def test_database_connection():
 
 
 # ==============================================================================
-# SMOKE TEST 3: Validation service loads 45 rules
+# SMOKE TEST 3: Validation service laadt de volledige contractregelset
 # ==============================================================================
 def test_validation_rules_load():
-    """ModularValidationService loads all 45 toetsregels."""
+    """De service laadt de volledige regelset uit het contract.
+
+    DEF-621: deze smoke bouwde de service zonder manager en controleerde
+    daarna niets. Zij slaagde dus ook wanneer er zeven van drieenvijftig
+    regels geladen waren - precies de toestand die de fail-closed guard nu
+    als `validation_unknown` afvangt. Het aantal komt uit het contract; een
+    hardcoded getal zou opnieuw met de werkelijkheid uit de pas gaan lopen.
+    """
     from services.validation.modular_validation_service import ModularValidationService
+    from toetsregels.manager import get_toetsregel_manager
 
-    ModularValidationService()
+    service = ModularValidationService(get_toetsregel_manager(), None, None)
+    health = service.get_health_status()
 
-    # Should have loaded rules
-    # (exact count depends on config, but should be >40)
-    print("✓ Validation service initialized")
+    assert health["validation_ready"] is True, health
+    assert health["rules_expected"] > 0, health
+    assert health["rules_loaded"] == health["rules_expected"], health
+    print(f"✓ Validation service ready: {health['rules_loaded']} regels geladen")
 
 
 # ==============================================================================
@@ -113,8 +123,9 @@ def test_category_service():
 async def test_validation_runs():
     """Validation service can validate sample definition."""
     from services.validation.modular_validation_service import ModularValidationService
+    from toetsregels.manager import get_toetsregel_manager
 
-    service = ModularValidationService()
+    service = ModularValidationService(get_toetsregel_manager(), None, None)
 
     begrip = "toezicht"
     text = "Het proces waarbij een bevoegde instantie controleert of regels worden nageleefd."
@@ -127,6 +138,11 @@ async def test_validation_runs():
 
     assert result is not None
     assert "overall_score" in result
+    # DEF-621: zonder deze regel slaagt de smoke ook op een
+    # `validation_unknown`-resultaat - dat draagt immers ook een
+    # `overall_score`, namelijk de placeholder 0.0. Dan bewijst de smoke niet
+    # dat er werkelijk gevalideerd is.
+    assert result["validation_status"] == "validated", result
     print("✓ Validation completed successfully")
 
 

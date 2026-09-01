@@ -22,6 +22,7 @@ lader die wordt omzeild — dan is de uitkomst `error`, nooit `pass`.
 from __future__ import annotations
 
 import re
+from types import MappingProxyType
 from typing import Any
 
 import pytest
@@ -36,6 +37,11 @@ from services.validation.evaluators.ontological_category import (
     OntologicalCategoryEvaluator,
 )
 from services.validation.modular_validation_service import ModularValidationService
+from services.validation.readiness import (
+    RuntimeSnapshot,
+    bepaal_readiness,
+    bereken_fingerprint,
+)
 from services.validation.types_internal import EvaluationContext
 from toetsregels.manager import get_toetsregel_manager
 from toetsregels.runtime_contract import (
@@ -48,6 +54,49 @@ from toetsregels.runtime_contract import (
     ScorePolicy,
 )
 from validation.additional_patterns import all_additional_patterns
+
+
+def _publiceer_snapshot(
+    svc,
+    records=None,
+    *,
+    internal=None,
+    weights=None,
+    json_rules=None,
+):
+    """DEF-621: publiceer een volledige generatie i.p.v. losse privevelden.
+
+    De guard vergelijkt de geladen ID-verzameling met de contractuele set.
+    Een synthetische regelset is per definitie niet de echte 53, dus
+    `contract_rule_ids` is hier gelijk aan de synthetische set - anders zou
+    elke synthetische test op `validation_unknown` stranden en niets meer
+    over de evaluator bewijzen.
+
+    De fingerprint komt uit de service zelf, zodat de eerstvolgende
+    verversing niets ziet wijzigen en deze snapshot laat staan.
+    """
+    records = dict(records or {})
+    ids = tuple(sorted(internal if internal is not None else records))
+    svc._snapshot = RuntimeSnapshot(
+        fingerprint=bereken_fingerprint(svc._fingerprintbronnen()),
+        readiness=bepaal_readiness(ids, ids),
+        contract_rule_ids=ids,
+        internal_rules=ids,
+        rule_records=MappingProxyType(records),
+        json_rules=MappingProxyType(
+            dict(json_rules)
+            if json_rules is not None
+            else {rid: dict(r.data) for rid, r in records.items()}
+        ),
+        default_weights=MappingProxyType(dict(weights or dict.fromkeys(ids, 1.0))),
+        pattern_cache={},
+        rules_loaded_count=len(ids),
+        rules_expected_count=len(ids),
+        is_degraded_mode=False,
+        degradation_reason=None,
+    )
+    return svc
+
 
 pytestmark = [pytest.mark.unit]
 
@@ -172,17 +221,16 @@ class TestErrorGrensBoektGeenPass:
         svc = ModularValidationService(get_toetsregel_manager(), None, None)
         # Injecteer ná het laden, zodat de contractvalidatie niet in de weg
         # zit maar de evaluatielus wél het echte pad draait.
-        svc._internal_rules = ["SYN-01"]
-        svc._default_weights = {"SYN-01": 1.0}
-        svc._rule_records = {
-            "SYN-01": _record(
-                "SYN-01",
-                {"herkenbaar_patronen": [RAKEND_PATROON, KAPOT_PATROON]},
-                EvaluatorType.GENERIC,
-            )
-        }
-        svc._json_rules = {"SYN-01": dict(svc._rule_records["SYN-01"].data)}
-        svc._pattern_cache = {}
+        _publiceer_snapshot(
+            svc,
+            {
+                "SYN-01": _record(
+                    "SYN-01",
+                    {"herkenbaar_patronen": [RAKEND_PATROON, KAPOT_PATROON]},
+                    EvaluatorType.GENERIC,
+                )
+            },
+        )
 
         res = await svc.validate_definition(
             begrip="besluit", text=TEKST, ontologische_categorie=None, context={}

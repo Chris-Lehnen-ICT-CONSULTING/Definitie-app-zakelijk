@@ -20,14 +20,16 @@ die laatste de verwachte ID-set bepaalt.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from services.validation.interfaces import UNKNOWN_REASON_RULESET_INCOMPLETE
-from toetsregels.runtime_contract import canonical_rule_id
+from toetsregels.runtime_contract import RuleRecord, canonical_rule_id
 
 __all__ = [
+    "RuntimeSnapshot",
     "ValidationReadiness",
     "bepaal_readiness",
     "bereken_fingerprint",
@@ -59,6 +61,46 @@ class ValidationReadiness:
             "missing_rule_ids": list(self.missing_rule_ids),
             "unexpected_rule_ids": list(self.unexpected_rule_ids),
         }
+
+
+@dataclass(frozen=True)
+class RuntimeSnapshot:
+    """Alle ruleset-afhankelijke gegevens van een generatie, in een object.
+
+    Het evaluatiepad leest naast `rule_records` ook de interne regelvolgorde,
+    de gewichten, de ruwe JSON-regels, de patrooncache en de contractuele
+    ID-set. Stonden die als losse velden op de service, dan kon een
+    herlaadpoging een mengsel van twee generaties opleveren: nieuwe records
+    met oude gewichten. Een snapshot maakt dat onmogelijk - hij wordt in zijn
+    geheel gepubliceerd met een enkele attribuuttoewijzing.
+
+    `frozen=True` bevriest de verwijzingen, niet de inhoud. Daarom zijn
+    `contract_rule_ids` en `internal_rules` tuples, en zijn de drie mappings
+    alleen-lezen views over dictionaries die alleen deze snapshot bezit. Een
+    schrijfpoging faalt met `TypeError` in plaats van stil een gepubliceerde
+    generatie te wijzigen.
+
+    `pattern_cache` is de enige bewust muteerbare collectie: elke generatie
+    krijgt een eigen dict, zodat een herbouwde regelset nooit gecompileerde
+    patronen van een inmiddels verdwenen regel erft. Hij wordt met de
+    snapshot weggegooid.
+
+    Buiten deze snapshot blijven registry, repository, thresholds en
+    cleaning-service: die hangen niet aan de regelset.
+    """
+
+    fingerprint: str | None
+    readiness: ValidationReadiness
+    contract_rule_ids: tuple[str, ...]
+    internal_rules: tuple[str, ...]
+    rule_records: Mapping[str, RuleRecord]
+    json_rules: Mapping[str, dict[str, Any]]
+    default_weights: Mapping[str, float]
+    pattern_cache: dict[str, Any]
+    rules_loaded_count: int
+    rules_expected_count: int
+    is_degraded_mode: bool
+    degradation_reason: str | None
 
 
 def _index(ids: Iterable[str]) -> dict[str, str]:

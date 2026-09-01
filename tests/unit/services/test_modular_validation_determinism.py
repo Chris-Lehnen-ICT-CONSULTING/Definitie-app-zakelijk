@@ -2,6 +2,9 @@
 
 import pytest
 
+from services.validation.interfaces import VALIDATION_STATUS_VALIDATED
+from toetsregels.manager import get_toetsregel_manager
+
 pytestmark = [pytest.mark.unit]
 
 
@@ -15,10 +18,10 @@ async def test_deterministic_results_identical_inputs():
     )
 
     svc = m.ModularValidationService
-    try:
-        service = svc(toetsregel_manager=None, cleaning_service=None, config=None)
-    except TypeError:
-        service = svc()
+    # DEF-621: de echte contractmanager. Zonder manager levert de guard twee
+    # identieke `validation_unknown`-resultaten - dan is determinisme
+    # triviaal waar en bewijst deze suite niets over de evaluator.
+    service = svc(get_toetsregel_manager(), None, None)
 
     # Run validation twice with identical inputs
     begrip = "test_begrip"
@@ -40,6 +43,11 @@ async def test_deterministic_results_identical_inputs():
     )
 
     # Results must be identical
+    # Zonder deze regel zouden twee lege validation_unknown-resultaten de
+    # determinisme-assertie ook waarmaken.
+    assert result1["validation_status"] == VALIDATION_STATUS_VALIDATED, result1
+    assert result2["validation_status"] == VALIDATION_STATUS_VALIDATED, result2
+
     assert (
         result1["overall_score"] == result2["overall_score"]
     ), "Scores must be identical"
@@ -78,10 +86,10 @@ async def test_deterministic_results_different_correlation_ids():
     )
 
     svc = m.ModularValidationService
-    try:
-        service = svc(toetsregel_manager=None, cleaning_service=None, config=None)
-    except TypeError:
-        service = svc()
+    # DEF-621: de echte contractmanager. Zonder manager levert de guard twee
+    # identieke `validation_unknown`-resultaten - dan is determinisme
+    # triviaal waar en bewijst deze suite niets over de evaluator.
+    service = svc(get_toetsregel_manager(), None, None)
 
     begrip = "test_begrip"
     text = "Dit is een test definitie met voldoende inhoud om gevalideerd te worden."
@@ -101,6 +109,8 @@ async def test_deterministic_results_different_correlation_ids():
     )
 
     # Scores and violations must still be identical
+    assert result1["validation_status"] == VALIDATION_STATUS_VALIDATED, result1
+    assert result2["validation_status"] == VALIDATION_STATUS_VALIDATED, result2
     assert result1["overall_score"] == result2["overall_score"]
     assert result1["is_acceptable"] == result2["is_acceptable"]
 
@@ -119,10 +129,10 @@ async def test_deterministic_violation_order():
     )
 
     svc = m.ModularValidationService
-    try:
-        service = svc(toetsregel_manager=None, cleaning_service=None, config=None)
-    except TypeError:
-        service = svc()
+    # DEF-621: de echte contractmanager. Zonder manager levert de guard twee
+    # identieke `validation_unknown`-resultaten - dan is determinisme
+    # triviaal waar en bewijst deze suite niets over de evaluator.
+    service = svc(get_toetsregel_manager(), None, None)
 
     # Use a definition that will trigger multiple violations
     result = await service.validate_definition(
@@ -131,6 +141,10 @@ async def test_deterministic_violation_order():
         ontologische_categorie=None,
         context=None,
     )
+
+    # Zonder deze regel is de test triviaal groen bij validation_unknown: een
+    # lege violationslijst is per definitie gesorteerd.
+    assert result["validation_status"] == VALIDATION_STATUS_VALIDATED, result
 
     violation_codes = [v["code"] for v in result.get("violations", [])]
 
@@ -151,10 +165,10 @@ async def test_deterministic_floating_point_rounding():
     )
 
     svc = m.ModularValidationService
-    try:
-        service = svc(toetsregel_manager=None, cleaning_service=None, config=None)
-    except TypeError:
-        service = svc()
+    # DEF-621: de echte contractmanager. Zonder manager levert de guard twee
+    # identieke `validation_unknown`-resultaten - dan is determinisme
+    # triviaal waar en bewijst deze suite niets over de evaluator.
+    service = svc(get_toetsregel_manager(), None, None)
 
     result = await service.validate_definition(
         begrip="test",
@@ -162,6 +176,11 @@ async def test_deterministic_floating_point_rounding():
         ontologische_categorie=None,
         context=None,
     )
+
+    # Zonder deze regel is de test triviaal groen bij validation_unknown:
+    # score 0.0 is al afgerond en `detailed_scores` is leeg, dus de lus
+    # hieronder draait geen enkele keer.
+    assert result["validation_status"] == VALIDATION_STATUS_VALIDATED, result
 
     # Check overall score has at most 2 decimal places
     score = result["overall_score"]
