@@ -226,14 +226,17 @@ class TestGeenMagischGetalAlsNoemer:
         applicatie die niet start.
         """
 
-        def _kapot():
+        # DEF-621 commit 4: de service leest de policy vers uit `ROOT_SSOT_PAD`.
+        # De naad staat daarom op `load_root_contract_policy`, dat een
+        # optioneel pad aanneemt - vandaar de argumenten op de stub.
+        def _kapot(*a, **kw):
             raise RuleContractError("root-SSOT niet leesbaar")
 
-        monkeypatch.setattr(mvs, "root_contract_policy", _kapot)
+        monkeypatch.setattr(mvs, "load_root_contract_policy", _kapot)
 
         # a) de directe loader blijft hard falen
         with pytest.raises(RuleContractError):
-            mvs.root_contract_policy()
+            mvs.load_root_contract_policy()
 
         # b) de service construeert wel, en levert validation_unknown
         import asyncio

@@ -389,6 +389,70 @@ van uit de procescache.
 verzwakt. Voor commit 3 geldt exact 7 van 9 groen, met uitsluitend die twee
 SSOT-parameters rood.
 
+#### Twee bevindingen uit de herreview van commit 4
+
+**A — één snapshot gebruikte twee policygeneraties.** `_bouw_snapshot()` las de
+verwachte ID-set vers uit `ROOT_SSOT_PAD`, maar riep daarna
+`build_rule_records()` aan zónder die policy. Die functie viel terug op het met
+`lru_cache` afgedekte `root_contract_policy()`, dus droeg één snapshot verse
+ID's met de **recordvereisten van een oudere generatie**. Zichtbaar met een
+geldige SSOT die dezelfde 53 ID's houdt maar één extra verplicht recordveld
+eist: geen enkel record draagt dat veld en toch bleef de uitkomst `validated`.
+
+Oplossing: `build_rule_records(regels, policy=None)` accepteert een expliciete
+policy — zonder argument onveranderd gedrag, dus bestaande callers blijven
+werken. `_bouw_snapshot()` laadt per generatie exact één policy via
+`_verse_contractpolicy()` en gebruikt dat ene object voor zowel
+`contract_rule_ids` als `build_rule_records(..., policy=policy)`. Geen globale
+`cache_clear`, geen module-globale tijdelijke policy.
+
+**B — een warme cache maskeerde bronverlies.** `get_stats()` vergeleek
+verwacht met geladen. Binnen de TTL levert `get_all_rules()` een warme cache,
+dus bleef die vergelijking kloppen nadat een regelbestand van schijf verdween:
+53 gecacht, 52 op schijf, `rules_load_complete=True`. De healthstat bleef een
+uur groen op een regelset die niet meer bestond.
+
+Oplossing: drie canonieke ID-indexen — verwacht (root-SSOT), geladen (cache) en
+actueel op schijf (stems). `rules_load_complete` is alleen waar als de
+verwachting niet leeg is én geladen én bronset exact gelijk zijn aan de
+verwachting. De diagnostiek houdt de assen gescheiden:
+`rules_missing`/`rules_unexpected` gaan over de geladen set,
+`rules_source_missing`/`rules_source_unexpected` over de bron. Zo blijft
+zichtbaar of de cache incompleet is of juist compleet terwijl de bron dat niet
+meer is. Er wordt geen JSON gelezen en niets ge-invalideerd.
+
+#### Werkelijke bestandsscope van commit 4 — acht bestanden
+
+De verse policy-load vervangt het modulesymbool `root_contract_policy` in
+`modular_validation_service.py` door `load_root_contract_policy`. Twee
+commit-3-tests richtten hun `monkeypatch` op die verdwenen naam en faalden
+daardoor in de opzet, niet op hun assertie: hun inhoudelijke bewering (een
+onleesbare root-SSOT geeft `validation_unknown` met reden
+`ruleset_incomplete` en verwachte telling nul) blijft gemeten overeind. De
+naad verhuist mee; er komt **geen** compatibility-shim met de oude naam in de
+productieservice, want die zou dezelfde naam dragen als de gecachete variant
+uit `runtime_contract` en het tegenovergestelde doen.
+
+| Bestand | Waarom |
+| -- | -- |
+| `src/services/validation/modular_validation_service.py` | verse policy uit `ROOT_SSOT_PAD`, één generatie per snapshot |
+| `src/toetsregels/rule_cache.py` | volledigheid tegen contract-, geladen- én bronset |
+| `src/toetsregels/runtime_contract.py` | `build_rule_records()` accepteert een expliciete policy |
+| `tests/unit/validation/test_validation_guard_failclosed.py` | naad verhuisd naar `load_root_contract_policy` |
+| `tests/unit/validation/test_evaluation_coverage.py` | idem, plus de directe aanroep |
+| `tests/unit/validation/test_rule_cache_runtime_contract.py` | telformule-, bronset- en policytests |
+| `tests/unit/validation/test_ruleset_transitions.py` | transitietest op een geldige contractpolicywijziging |
+| dit planbestand | deze administratieve bijstelling |
+
+De tests in `test_rule_cache_runtime_contract.py` mocken uitsluitend
+`get_all_rules()` en toetsen de échte `get_stats()`. Zij dekken de lege set
+(`0 == 0`), gelijke cardinaliteit met één vreemd ID (`53 == 53`), een verdwenen
+bronbestand bij warme cache en een onverwacht bronbestand bij warme cache. Met
+de oude telformule respectievelijk zonder bronsetvergelijking melden zij
+aantoonbaar `True`. Daarnaast staat daar het directe contractbewijs voor
+`build_rule_records()`: een strengere expliciete policy wijst de bestaande
+records af, en zonder policy-argument blijft het gedrag gelijk.
+
 ### Toestemming-gates — vóór implementatie
 
 | # | Gate | Waarom geraakt |
@@ -511,7 +575,13 @@ $VENV/python -m pytest tests/unit/validation/test_ruleset_transitions.py -q
 # VERWACHT: PASS (alle cases, beide managerpaden)
 
 git add src/toetsregels/rule_cache.py \
-        src/services/validation/modular_validation_service.py
+        src/toetsregels/runtime_contract.py \
+        src/services/validation/modular_validation_service.py \
+        tests/unit/validation/test_validation_guard_failclosed.py \
+        tests/unit/validation/test_evaluation_coverage.py \
+        tests/unit/validation/test_rule_cache_runtime_contract.py \
+        tests/unit/validation/test_ruleset_transitions.py \
+        docs/plans/2026-08-31-DEF-621-fail-closed-validation-guard.md
 git commit -m "fix(DEF-621): volledigheid tegen de contract-ID-set en herstel binnen TTL"
 ```
 

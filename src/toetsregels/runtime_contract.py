@@ -291,6 +291,26 @@ def load_root_contract_policy(pad: Path | None = None) -> RootContractPolicy:
     if duplicaten:
         fouten.append(f"'{CONTRACT_BLOCK}.rule_ids' bevat duplicaten: {duplicaten}")
 
+    # DEF-621: twee schrijfwijzen van hetzelfde ID zijn geen twee regels.
+    # `ARAI-01` en `ARAI_01` normaliseren allebei naar `ARAI01`, maar de
+    # controle hierboven vergelijkt ruwe strings en liet dat paar door. Het
+    # ruwe manifest telde dan een regel te veel terwijl elke canonieke
+    # vergelijking (readiness, dekking, de cachestatistiek) er een minder
+    # zag - en niemand kon zeggen welke van de twee de geldende regel was.
+    # Hier is de fail-closed-grens: het manifest wordt op deze plek
+    # vastgesteld, dus hier hoort de botsing te sneuvelen.
+    per_canoniek: dict[str, list[str]] = {}
+    for rid in rule_ids:
+        per_canoniek.setdefault(canonical_rule_id(rid), []).append(rid)
+    botsingen = sorted(
+        sorted(set(groep)) for groep in per_canoniek.values() if len(set(groep)) > 1
+    )
+    if botsingen:
+        fouten.append(
+            f"'{CONTRACT_BLOCK}.rule_ids' bevat canoniek gelijke schrijfwijzen "
+            f"van dezelfde regel: {botsingen}"
+        )
+
     if fouten:
         msg = f"{pad}: root-SSOT en runtime lopen uiteen:\n- " + "\n- ".join(fouten)
         raise RuleContractError(msg)
@@ -578,15 +598,22 @@ def _eis_voorbeeldpaarbeleid(record: RuleRecord) -> None:
 
 def build_rule_records(
     regels: Mapping[str, Mapping[str, Any]],
+    policy: RootContractPolicy | None = None,
 ) -> dict[str, RuleRecord]:
     """Valideer een volledige regelset; verzamelt álle contractfouten.
 
     Fail-closed en volledig: één foutmelding per kapot record, zodat een
     contractmigratie niet regel-voor-regel hoeft te worden uitgevist.
+
+    DEF-621: `policy` maakt de gebruikte contractgeneratie expliciet. Zonder
+    argument blijft het gedrag ongewijzigd - de met `lru_cache` afgedekte
+    procespolicy. Een aanroeper die de policy zélf vers uit de root-SSOT
+    laadt, geeft haar hier mee; anders zou één snapshot verse regel-ID's
+    combineren met de recordvereisten van een oudere generatie.
     """
     # Eerst de rootconfig zelf: wijkt die af van de runtime-enums, dan heeft
     # het geen zin de records ertegen te leggen.
-    policy = root_contract_policy()
+    policy = policy or root_contract_policy()
 
     records: dict[str, RuleRecord] = {}
     fouten: list[str] = []
