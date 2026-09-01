@@ -34,6 +34,32 @@ from utils.type_helpers import ensure_string
 logger = logging.getLogger(__name__)
 
 
+def _validatie_is_onbepaald(agent_result: Any) -> bool:
+    """Of de validatie geen oordeel kon vormen (DEF-621).
+
+    Bij een incomplete regelset levert de service `validation_unknown` met
+    `overall_score` 0.0 en `is_acceptable` False. Dat zijn fail-closed
+    placeholders, geen kwaliteitsoordeel: er is niets getoetst. Elke
+    weergave die die nullen als cijfer toont, liegt tegen de gebruiker.
+
+    De status komt uit het genormaliseerde `validation_details`; dat is het
+    enige validatiedict dat deze tab van de adapter krijgt. Bewust een
+    modulefunctie en geen methode: de renderers worden in bestaande tests
+    ongebonden aangeroepen met een kale `self`-stand-in.
+
+    De import staat lokaal omdat `services` bij het laden het hele
+    servicepakket meetrekt; deze module hoort licht importeerbaar te blijven.
+    """
+    from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+
+    if not isinstance(agent_result, dict):
+        return False
+    details = agent_result.get("validation_details")
+    if not isinstance(details, dict):
+        return False
+    return details.get("validation_status") == VALIDATION_STATUS_UNKNOWN
+
+
 class DefinitionGeneratorTab:
     """Tab voor AI definitie generatie met duplicate checking.
 
@@ -358,10 +384,16 @@ class DefinitionGeneratorTab:
             if isinstance(agent_result, dict):
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    score = agent_result.get(
-                        "validation_score", agent_result.get("final_score", 0.0)
-                    )
-                    st.metric("Finale Score", f"{score:.2f}")
+                    # DEF-621: zonder oordeel geen cijfer. De tegel toonde de
+                    # placeholder 0.00 als "Finale Score" - niet te
+                    # onderscheiden van een definitie die werkelijk nul haalt.
+                    if _validatie_is_onbepaald(agent_result):
+                        st.metric("Validatie", "Niet te bepalen")
+                    else:
+                        score = agent_result.get(
+                            "validation_score", agent_result.get("final_score", 0.0)
+                        )
+                        st.metric("Finale Score", f"{score:.2f}")
                     marker = agent_result.get("marker")
                     if marker:
                         st.caption(marker)
@@ -551,8 +583,15 @@ class DefinitionGeneratorTab:
 
         if is_dict:
             if safe_dict_get(agent_result, "success"):
-                score = self._extract_score_from_result(agent_result)
-                st.success(f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})")
+                # DEF-621: de generatie is geslaagd, de toetsing niet gedraaid.
+                # Een cijfer noemen zou de placeholder 0.00 tot oordeel maken.
+                if _validatie_is_onbepaald(agent_result):
+                    st.success("✅ Definitie gegenereerd — validatie niet te bepalen")
+                else:
+                    score = self._extract_score_from_result(agent_result)
+                    st.success(
+                        f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})"
+                    )
             else:
                 # DEF-524: het faalpad zet de echte oorzaak in error_message;
                 # de oude read op "reason" bestond daar nooit → "Onbekende fout".
