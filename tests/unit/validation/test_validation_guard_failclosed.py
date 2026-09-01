@@ -473,6 +473,76 @@ def test_ui_toont_score_bij_validated(monkeypatch: pytest.MonkeyPatch) -> None:
     assert bereikt == ["stats", "detail"], bereikt
 
 
+@pytest.mark.parametrize(
+    ("naam", "readiness"),
+    [
+        ("ontbreekt", None),
+        ("expliciet None", {"validation_readiness": None}),
+        ("lege dict", {"validation_readiness": {}}),
+        ("zonder tellingen", {"validation_readiness": {"ready": False}}),
+        ("string", {"validation_readiness": "kapot"}),
+        ("lijst", {"validation_readiness": [1, 2]}),
+        ("None-tellingen", {"validation_readiness": {"loaded_total": None}}),
+    ],
+)
+def test_ui_stopt_ook_bij_misvormde_readiness(
+    monkeypatch: pytest.MonkeyPatch, naam: str, readiness: dict[str, Any] | None
+) -> None:
+    """De stop mag nooit afhangen van de vorm van het readiness-object.
+
+    De guard is het vangnet; klapt hij zelf, dan valt de UI terug op het
+    afvangpad van de aanroeper. De Edit-tab slikt zo-n exceptie stil en laat
+    dan de hele Kwaliteitstoetsing verdwijnen - geen score, maar ook geen
+    melding dat er niets is getoetst. De telling is optioneel; de stop is dat
+    niet.
+    """
+    from ui.components import validation_view
+
+    getoond = _vang_uitvoer(monkeypatch, validation_view)
+    for helper in ("_calculate_validation_stats", "_build_detailed_assessment"):
+        monkeypatch.setattr(
+            validation_view,
+            helper,
+            lambda *a, _n=helper, **kw: pytest.fail(f"{_n} aangeroepen bij unknown"),
+        )
+
+    validation_view.render_validation_detailed_list(
+        _resultaat(
+            VALIDATION_STATUS_UNKNOWN,
+            unknown_reason=UNKNOWN_REASON_RULESET_INCOMPLETE,
+            **(readiness or {}),
+        ),
+        key_prefix=f"misvormd_{naam}",
+        show_toggle=True,
+        gate={"status": "pass", "acceptable": True, "reasons": []},
+    )
+
+    assert any("niet te bepalen" in t.lower() for t in getoond), (naam, getoond)
+    assert not any("overall score" in t.lower() for t in getoond), (naam, getoond)
+    assert not any(
+        merker in t.lower() for t in getoond for merker in ("gate:", "gates:", "%")
+    ), (naam, getoond)
+
+
+def test_ui_toont_de_telling_alleen_wanneer_die_klopt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Een bruikbare telling hoort erbij; een onbruikbare mag niet verzonnen worden."""
+    from ui.components import validation_view
+
+    getoond = _vang_uitvoer(monkeypatch, validation_view)
+    validation_view.render_validation_detailed_list(
+        _resultaat(
+            VALIDATION_STATUS_UNKNOWN,
+            validation_readiness={"loaded_total": 7, "expected_total": 53},
+        ),
+        key_prefix="telling",
+        show_toggle=False,
+    )
+
+    assert any("7" in t and "53" in t for t in getoond), getoond
+
+
 # ------------------------------------------------------ snapshotarchitectuur
 
 
