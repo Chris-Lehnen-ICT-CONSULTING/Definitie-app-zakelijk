@@ -263,9 +263,14 @@ async def test_onleesbare_root_ssot_geeft_dezelfde_machineleesbare_reden(
     De onderliggende oorzaak hoort in het log, niet in het contract: een
     consumer moet op één reden kunnen matchen.
     """
+    # DEF-621 commit 4: de service leest de policy vers uit `ROOT_SSOT_PAD` en
+    # niet langer via het met `lru_cache` afgedekte `root_contract_policy()`.
+    # De naad verhuist mee; de stub accepteert het padargument.
     monkeypatch.setattr(
-        "services.validation.modular_validation_service.root_contract_policy",
-        lambda: (_ for _ in ()).throw(RuleContractError("root-SSOT onleesbaar")),
+        "services.validation.modular_validation_service.load_root_contract_policy",
+        lambda *a, **kw: (_ for _ in ()).throw(
+            RuleContractError("root-SSOT onleesbaar")
+        ),
     )
     service = _service(alle_regels, ECHTE_REGELS)
     resultaat = await _valideer(service)

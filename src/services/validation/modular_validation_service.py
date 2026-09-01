@@ -36,12 +36,13 @@ from toetsregels.runtime_contract import (
     ROOT_CONFIG_PATH,
     RequiredInput,
     ResultStatus,
+    RootContractPolicy,
     RuleContractError,
     RuleRecord,
     ScorePolicy,
     build_rule_records,
+    load_root_contract_policy,
     missing_inputs,
-    root_contract_policy,
 )
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_list, ensure_string
@@ -228,20 +229,35 @@ class ModularValidationService:
                 )
 
     @staticmethod
-    def _contractregel_ids() -> tuple[str, ...]:
-        """De verwachte regel-ID-set uit het contract (DEF-621/DEF-668).
+    def _verse_contractpolicy() -> RootContractPolicy:
+        """De contractpolicy van deze generatie, vers uit de root-SSOT.
 
-        Komt uit het ``rule_ids``-manifest in de root-SSOT, niet uit een glob
-        over de regelmap: dat laatste zou de verwachting laten meebewegen met
-        een verdwenen bestand en het gat juist onzichtbaar maken.
+        Draagt zowel het ``rule_ids``-manifest als de recordvereisten. Beide
+        horen uit hetzelfde object te komen: één snapshot mag geen verse
+        ID-set met de recordvereisten van een oudere generatie combineren.
+
+        De ID-set komt uit het manifest, niet uit een glob over de regelmap:
+        dat laatste zou de verwachting laten meebewegen met een verdwenen
+        bestand en het gat juist onzichtbaar maken.
 
         Bewust zonder fallback. De eerdere ``except RuleContractError: return
         45`` verzon bij een onleesbare root-SSOT een noemer, terwijl elk ander
         pad bij diezelfde fout hard faalt. Een gefantaseerde noemer is precies
         zo misleidend als een noemer die met de gedraaide set meebeweegt: de
         dekking rapporteert dan een percentage waarvan niemand de basis kent.
+
+        DEF-621 commit 4: bewust een verse load uit ``ROOT_SSOT_PAD`` in
+        plaats van het met ``lru_cache`` afgedekte ``root_contract_policy()``.
+        Die procescache gaf bij een herlaadpoging opnieuw de oude verwachting
+        terug: de fingerprint zag een beschadigde of herstelde contract-SSOT
+        wel, de verwachte ID-set niet. De globale cache wordt daarvoor niet
+        geleegd - dat zou een verborgen neveneffect zijn voor elke andere
+        lezer van de policy, terwijl een expliciete load hier volstaat.
+
+        De kosten blijven bij constructie en bij een werkelijke
+        fingerprintwijziging, want alleen ``_bouw_snapshot`` roept dit aan.
         """
-        return root_contract_policy().rule_ids
+        return load_root_contract_policy(ROOT_SSOT_PAD)
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
     def _regelpad(self) -> Path | None:
@@ -307,8 +323,15 @@ class ModularValidationService:
 
         `RuleContractError` loopt bewust door naar de aanroeper - de lader
         blijft fail-closed.
+
+        De policy wordt hier precies één keer geladen en daarna overal in
+        deze generatie hergebruikt: voor de verwachte ID-set én voor de
+        recordvereisten. Zonder die doorgifte zou `build_rule_records()`
+        terugvallen op de gecachete procespolicy en zou de snapshot verse
+        ID-s dragen met de recordvereisten van een oudere generatie.
         """
-        contract_ids = tuple(self._contractregel_ids())
+        policy = self._verse_contractpolicy()
+        contract_ids = tuple(policy.rule_ids)
 
         manager = self.toetsregel_manager
         alle_regels: dict[str, dict[str, Any]] = {}
@@ -326,8 +349,9 @@ class ModularValidationService:
             codes = list(alle_regels.keys())
             # DEF-606: valideer het volledige regelcontract fail-closed. Een
             # record zonder bekende evaluator of met onbekende invoer mag niet
-            # stil doorglippen naar een default-pass.
-            records = build_rule_records(alle_regels)
+            # stil doorglippen naar een default-pass. DEF-621: expliciet tegen
+            # dezelfde policy als de ID-set hierboven.
+            records = build_rule_records(alle_regels, policy=policy)
             gewichten = {
                 rule_id: self._calculate_rule_weight(alle_regels.get(rule_id) or {})
                 for rule_id in codes

@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 from services.validation.interfaces import (
     VALIDATION_STATUS_UNKNOWN,
@@ -35,8 +36,16 @@ from services.validation.interfaces import (
 from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.cached_manager import CachedToetsregelManager
 from toetsregels.manager import ToetsregelManager
+from toetsregels.runtime_contract import (
+    load_root_contract_policy,
+    root_contract_policy,
+)
 
 pytestmark = [pytest.mark.unit]
+
+# Een recordveld dat geen enkele regel-JSON draagt. Wordt in de
+# policytransitietest tijdelijk verplicht gesteld in de root-SSOT.
+VELD_NIEUW = "nieuw_verplicht_veld"
 
 
 ECHTE_REGELS = Path(__file__).resolve().parents[3] / "src" / "toetsregels" / "regels"
@@ -170,6 +179,69 @@ async def test_beschadigde_contract_ssot_wordt_gezien_en_hersteld(
 
     origineel = ssot.read_text(encoding="utf-8")
     ssot.write_text("contract: {}\n", encoding="utf-8")
+    assert await _status(service) == VALIDATION_STATUS_UNKNOWN
+
+    ssot.write_text(origineel, encoding="utf-8")
+    assert await _status(service) == VALIDATION_STATUS_VALIDATED
+
+
+@pytest.mark.asyncio
+async def test_geldige_contractpolicywijziging_wordt_gezien_en_hersteld(
+    regelmap: Path,
+    managerfabriek: Callable[[Path], Any],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Eén snapshot mag geen twee policygeneraties mengen.
+
+    De verwachte ID-set wordt vers uit `ROOT_SSOT_PAD` gelezen, maar
+    `build_rule_records()` haalde de recordvereisten opnieuw uit het met
+    `lru_cache` afgedekte `root_contract_policy()`. Een SSOT die geldig
+    blijft en exact dezelfde 53 ID's houdt, maar één extra verplicht
+    recordveld eist, werd daardoor half gezien: nieuwe ID's, oude
+    recordpolicy. De regelset dekt dat contract niet meer en de uitkomst
+    hoort `validation_unknown` te zijn.
+
+    De wijziging is bewust *geldig*, niet corrupt. Alleen zo bewijst de test
+    dat de policy zelf meeverhuist; bij een kapotte YAML zou het laden toch
+    al klappen en zou de menging onzichtbaar blijven.
+    """
+    # Warm de procescache deterministisch op. Zonder deze aanroep zou de
+    # lru_cache pas later gevuld kunnen worden - mogelijk mét de gewijzigde
+    # policy - en zou de test de menging niet meer meten.
+    gecacht = root_contract_policy()
+
+    ssot = tmp_path / "toetsregels_config.yaml"
+    origineel = ECHTE_SSOT.read_text(encoding="utf-8")
+    ssot.write_text(origineel, encoding="utf-8")
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.ROOT_SSOT_PAD", ssot
+    )
+
+    service = ModularValidationService(toetsregel_manager=managerfabriek(regelmap))
+    assert await _status(service) == VALIDATION_STATUS_VALIDATED
+
+    ruw = yaml.safe_load(origineel)
+    velden = ruw["loading"]["formats"]["json"]["required_fields"]
+    assert VELD_NIEUW not in velden, "opzetfout: het veld was al verplicht"
+    velden.append(VELD_NIEUW)
+    ssot.write_text(
+        yaml.safe_dump(ruw, allow_unicode=True, sort_keys=False), encoding="utf-8"
+    )
+
+    # De gewijzigde SSOT is geldig en noemt exact dezelfde ID's ...
+    gewijzigd = load_root_contract_policy(ssot)
+    assert set(gewijzigd.rule_ids) == set(gecacht.rule_ids)
+    assert VELD_NIEUW in gewijzigd.record_required_fields
+    assert VELD_NIEUW not in gecacht.record_required_fields
+    # ... maar geen enkel regelrecord draagt het nieuwe verplichte veld.
+    dragers = [
+        pad.name
+        for pad in sorted(regelmap.glob("*.json"))
+        if VELD_NIEUW in json.loads(pad.read_text(encoding="utf-8"))
+    ]
+    assert dragers == [], f"opzetfout: records dragen {VELD_NIEUW}: {dragers}"
+
     assert await _status(service) == VALIDATION_STATUS_UNKNOWN
 
     ssot.write_text(origineel, encoding="utf-8")
