@@ -752,7 +752,7 @@ def test_elke_generatie_krijgt_een_eigen_pattern_cache(
     eerste = service._snapshot
     eerste.pattern_cache["MARKER"] = object()
 
-    tweede = service._bouw_snapshot("andere-fingerprint")
+    tweede = service._bouw_snapshot("andere-fingerprint", root_contract_policy())
 
     assert tweede.pattern_cache is not eerste.pattern_cache
     assert "MARKER" not in tweede.pattern_cache
@@ -938,8 +938,8 @@ async def test_bronwijziging_tijdens_opbouw_publiceert_geen_ready_snapshot(
     echte_bouw = service._bouw_snapshot
     nog_muteren = {"actief": True}
 
-    def bouw_en_muteer(fingerprint: str | None) -> Any:
-        gebouwd = echte_bouw(fingerprint)
+    def bouw_en_muteer(fingerprint: str | None, policy: Any) -> Any:
+        gebouwd = echte_bouw(fingerprint, policy)
         if nog_muteren["actief"]:
             nog_muteren["actief"] = False
             _wijzig_bronomvang(slachtoffer, alle_regels[eerste], 2)
@@ -961,3 +961,54 @@ async def test_bronwijziging_tijdens_opbouw_publiceert_geen_ready_snapshot(
 
     assert service._snapshot.readiness.ready is True, "service zit vast"
     assert tweede["validation_status"] == VALIDATION_STATUS_VALIDATED, tweede
+
+
+@pytest.mark.asyncio
+async def test_tweede_policyleesfout_verliest_de_eerste_verwachting_niet(
+    monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, dict[str, Any]]
+) -> None:
+    """Een eenmaal gelezen verwachting mag niet van een herlezing afhangen.
+
+    De opbouw leest de contractpolicy en struikelt daarna over de records. Op
+    dat moment is de verwachte ID-set al bekend. Reconstrueert het foutpad
+    haar door de root-SSOT opnieuw te lezen, dan hangt de diagnostiek af van
+    een tweede lezing die net zo goed kan mislukken - en juist een onleesbaar
+    contract is een realistische reden waarom de eerste opbouw faalde.
+
+    Hier faalt elke lezing ná de eerste. De generatie hoort de verwachting uit
+    die eerste, geslaagde lezing te blijven dragen.
+    """
+    echte_policy = root_contract_policy()
+    verwacht_aantal = len(echte_policy.rule_ids)
+    assert verwacht_aantal > 0, "opzetfout: contract levert geen ID-s"
+
+    leesbeurten = {"aantal": 0}
+
+    def alleen_de_eerste_lezing_lukt(*_args: Any, **_kwargs: Any) -> Any:
+        leesbeurten["aantal"] += 1
+        if leesbeurten["aantal"] == 1:
+            return echte_policy
+        raise RuleContractError("root-SSOT onleesbaar bij herlezen")
+
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.load_root_contract_policy",
+        alleen_de_eerste_lezing_lukt,
+    )
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.build_rule_records",
+        lambda *a, **kw: (_ for _ in ()).throw(
+            RuleContractError("regelrecord mist een bekende evaluator")
+        ),
+    )
+
+    service = _service(alle_regels, ECHTE_REGELS)
+    resultaat = await _valideer(service)
+    readiness = resultaat["validation_readiness"]
+
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+    assert resultaat["unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
+    assert readiness["ready"] is False
+    assert readiness["loaded_total"] == 0, readiness
+    assert readiness["expected_total"] == verwacht_aantal, readiness
+    assert len(readiness["missing_rule_ids"]) == verwacht_aantal, readiness
+    assert service._snapshot.contract_rule_ids == tuple(echte_policy.rule_ids)
