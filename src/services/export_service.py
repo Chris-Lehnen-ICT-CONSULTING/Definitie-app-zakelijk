@@ -853,8 +853,10 @@ class ExportService:
             f"Aantal definities: {len(data)}",
             *(
                 [
-                    "LET OP — overgeslagen door fouten: "
-                    f"{_zonder_control_chars(', '.join(skipped))}"
+                    (
+                        "LET OP — overgeslagen door fouten: "
+                        f"{_zonder_control_chars(', '.join(skipped))}"
+                    )
                 ]
                 if skipped
                 else []
