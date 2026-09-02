@@ -321,7 +321,10 @@ class ModularValidationService:
     def _bron_dekt_generatie(
         self, gebouwd: RuntimeSnapshot, aanwezig: frozenset[Path]
     ) -> bool:
-        """Draagt de generatie uitsluitend regels die nu op schijf staan?
+        """Staan de bronnen van deze generatie nu nog op schijf?
+
+        Twee eisen: de contract-SSOT moet de stat hebben overleefd, en de
+        generatie mag geen regel dragen waarvoor geen bestand meer bestaat.
 
         De fingerprint is een wijzigingsdetector, geen identiteitsbewijs. Een
         bestand dat verdwijnt, tijdens de opbouw terugkeert en daarna opnieuw
@@ -341,6 +344,16 @@ class ModularValidationService:
         glipte een generatie er alsnog doorheen: de fingerprint zag 52
         bestanden, de dekkingsglob 53.
         """
+        # De SSOT is de bron van `contract_rule_ids` en hoort dus onder dezelfde
+        # eis te vallen als de regelbestanden. Verdwijnt hij, keert hij terug
+        # tijdens de opbouw en verdwijnt hij weer, dan beschrijven beide
+        # fingerprints "SSOT afwezig" en ziet de vergelijking niets - terwijl de
+        # generatie wel degelijk een contractset draagt die nergens meer op
+        # schijf staat. Deze toets staat vóór de regelpadcheck hieronder, zodat
+        # hij niet afhangt van de vraag of er een manager met bronpad is.
+        if ROOT_SSOT_PAD not in aanwezig:
+            return False
+
         if self._regelpad() is None:
             return True
 

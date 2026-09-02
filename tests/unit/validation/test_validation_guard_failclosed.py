@@ -1197,7 +1197,10 @@ def test_relatief_pad_wordt_niet_verminkt() -> None:
     reden = veilige_degradatiereden(RuntimeError("kon mapé/a/b.json niet lezen")) or ""
 
     assert "mapéb.json" not in reden, reden
-    assert "b.json" in reden, reden
+    # Het hele relatieve pad moet blijven staan. Alleen op `b.json` toetsen
+    # laat een redactie door die `mapé/a/` weggooit: beide oude asserties
+    # slaagden dan, terwijl de diagnostiek wel degelijk verminkt was.
+    assert "mapé/a/b.json" in reden, reden
 
 
 # --------- DEF-709 vervolg: één waarneming, fail-closed grens, wrappers
@@ -1447,10 +1450,13 @@ def test_hoofdletterextensie_telt_mee_in_de_dekking(
     assert regelmap is not None, "opzetfout: geen regelpad"
 
     afwijkend = sorted(gebouwd.json_rules)[0]
+    # De SSOT hoort erbij: een echte waarneming komt van `_fingerprintbronnen()`
+    # en draagt hem altijd mee. Zonder hem toetst deze opzet een schijftoestand
+    # die niet kan bestaan, en meet hij de casing dus niet geisoleerd.
     aanwezig = frozenset(
         regelmap / (f"{rid}.JSON" if rid == afwijkend else f"{rid}.json")
         for rid in gebouwd.json_rules
-    )
+    ) | {ROOT_SSOT_PAD}
 
     assert (
         service._bron_dekt_generatie(gebouwd, aanwezig) is True
@@ -1489,3 +1495,214 @@ def test_yaml_fout_zonder_filename_lekt_het_ssot_pad_niet(
     assert str(nep_ssot.parent) not in reden, reden
     assert "Team Share" not in reden, reden
     assert nep_ssot.name in reden, reden
+
+
+# ---------- DEF-709 vierde ronde: contractbron, lockpositie, foutgrens
+
+
+def test_verdwenen_contractbron_maakt_de_generatie_onpubliceerbaar(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """De SSOT is een bron als elke andere; verdwijnt hij, dan dekt niets meer.
+
+    De dekkingstoets filterde de SSOT weg uit de bestanden op schijf en eiste
+    daarna nergens dat hij de stat had overleefd. Voor de regelbestanden werd
+    het venster dus gedicht, voor de bron van de contract-ID-set niet.
+
+    Het gat: de SSOT ontbreekt bij de meting, verschijnt lang genoeg om de
+    policy te laden en is bij de publicatiemeting weer weg. Beide fingerprints
+    beschrijven dan dezelfde toestand - SSOT afwezig - dus de fingerprintvergelijking
+    ziet niets, en de dekkingstoets keek alleen naar de JSON-regels. Resultaat
+    is een ready generatie onder een fingerprint die de fast path activeert:
+    zolang de SSOT weg blijft, wordt er nooit meer herbouwd.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    gebouwd = service._snapshot
+    assert gebouwd.readiness.ready is True, "opzetfout: start niet ready"
+    assert gebouwd.contract_rule_ids, "opzetfout: generatie draagt geen contract-ID-set"
+
+    # De generatie is opgebouwd toen de SSOT leesbaar was; bij de meting
+    # hieronder bestaat hij niet meer.
+    verdwenen = tmp_path / "toetsregels_config.yaml"
+    assert not verdwenen.exists(), "opzetfout: het vervangende SSOT-pad bestaat al"
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.ROOT_SSOT_PAD", verdwenen
+    )
+    waarneming = (*sorted(regels_dir.glob("*.json")), verdwenen)
+    monkeypatch.setattr(service, "_fingerprintbronnen", lambda: waarneming)
+
+    gepubliceerd = service._publiceerbaar(gebouwd, bereken_fingerprint(waarneming))
+
+    assert gepubliceerd.readiness.ready is False, (
+        "generatie met een contract-ID-set gepubliceerd terwijl de SSOT niet "
+        "op schijf staat; de dekking toetst kennelijk alleen de regelbestanden"
+    )
+    assert gepubliceerd.fingerprint is None, (
+        "de fail-closed snapshot draagt een fingerprint die de fast path kan "
+        "matchen, waardoor de verdwenen SSOT nooit meer wordt opgemerkt"
+    )
+
+
+@pytest.mark.asyncio
+async def test_hermeting_gebeurt_binnen_de_lock(
+    monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """Niet dát er hermeten wordt telt, maar wáár.
+
+    De bestaande locktest telt alleen metingen. Verplaats de hermeting naar
+    vlak vóór `with self._state_lock`, dan blijft hij groen terwijl het
+    probleem terug is: tussen die meting en het verwerven van de lock kan een
+    andere thread publiceren, en dan bouwt deze thread opnieuw met een
+    verouderd label.
+
+    Daarom wordt hier per meting vastgelegd of de lock op dat moment gehouden
+    werd. De eerste meting hoort erbuiten te vallen - anders serialiseert het
+    normale pad op de lock - en de tweede erbinnen.
+    """
+    service = _service(alle_regels, ECHTE_REGELS)
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    service._snapshot = service._lege_snapshot(
+        fingerprint=None,
+        oorzaak=None,
+        contract_ids=tuple(root_contract_policy().rule_ids),
+    )
+
+    onder_lock: list[bool] = []
+
+    def meting_legt_de_lockstand_vast(*_a: Any, **_kw: Any) -> str:
+        onder_lock.append(service._state_lock.locked())
+        return "oud" if len(onder_lock) == 1 else "nieuw"
+
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.bereken_fingerprint",
+        meting_legt_de_lockstand_vast,
+    )
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.meet_bronnen",
+        lambda bronnen: ("nieuw", frozenset(Path(pad) for pad in bronnen)),
+    )
+
+    await _valideer(service)
+
+    assert len(onder_lock) >= 2, f"geen hermeting gedaan; metingen={onder_lock}"
+    assert onder_lock[0] is False, (
+        "de eerste meting draaide met de lock in handen; het normale pad "
+        "serialiseert dan op een meting die juist buiten de lock hoort"
+    )
+    assert onder_lock[1] is True, (
+        "de hermeting draaide zonder de lock; tussen die meting en het "
+        "verwerven van de lock kan een andere thread publiceren"
+    )
+
+
+@pytest.mark.asyncio
+async def test_meetfout_voor_de_lock_ontsnapt_niet(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """De meting buiten de lock staat ook buiten de foutgrens eromheen.
+
+    De bestaande foutinjectie gooit pas vanaf de tweede meting, dus de
+    `except OSError` rond de eerste blijft ongedekt: haal hem weg en alle
+    tests blijven groen, terwijl een `PermissionError` dan uit
+    `validate_definition` ontsnapt in plaats van fail-closed te worden.
+
+    Faalt alleen die eerste meting, dan is er niets mis met de bronnen. De
+    aanroep hoort dan door te vallen naar het herlaadpad, daar opnieuw te
+    meten en gewoon een oordeel op te leveren - geen exceptie, en ook geen
+    onnodig validation_unknown.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    echte_bronnen = service._fingerprintbronnen
+    beurten = {"aantal": 0}
+
+    def onleesbaar_bij_de_eerste_meting() -> Any:
+        beurten["aantal"] += 1
+        if beurten["aantal"] == 1:
+            raise PermissionError(13, "Permission denied", str(regels_dir))
+        return echte_bronnen()
+
+    monkeypatch.setattr(service, "_fingerprintbronnen", onleesbaar_bij_de_eerste_meting)
+
+    resultaat = await _valideer(service)
+
+    assert beurten["aantal"] >= 2, (
+        "na de mislukte eerste meting is er niet opnieuw gemeten; de aanroep "
+        "viel kennelijk niet door naar het herlaadpad"
+    )
+    assert resultaat["validation_status"] == VALIDATION_STATUS_VALIDATED, (
+        "een enkele mislukte meting buiten de lock zette de service onbepaald, "
+        "terwijl de bronnen compleet zijn en de hermeting slaagde"
+    )
+
+
+@pytest.mark.asyncio
+async def test_meetfout_bij_het_publiceren_ontsnapt_niet(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """Ook de publicatiemeting is een schijfobservatie die kan falen.
+
+    De bestaande foutinjectie klapt al bij de hermeting binnen de lock en
+    bereikt `_publiceerbaar` daarom nooit. Verplaats de publicatiecontrole
+    buiten de `try` en geen enkele test merkt het, terwijl een leesfout op dat
+    punt ongevangen uit `validate_definition` komt.
+
+    Hier slagen de eerste twee metingen en faalt pas de derde: die van
+    `_publiceerbaar`. De uitkomst hoort een onbepaald oordeel te zijn.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    # Een echte bronwijziging, anders returnt de fast path vóór het herladen.
+    eerste = sorted(alle_regels)[0]
+    (regels_dir / f"{eerste}.json").write_text(
+        json.dumps(alle_regels[eerste]) + " ", encoding="utf-8"
+    )
+
+    echte_bronnen = service._fingerprintbronnen
+    beurten = {"aantal": 0}
+
+    def onleesbaar_bij_de_publicatiemeting() -> Any:
+        # Beurt 1 is de meting vóór de lock, beurt 2 de hermeting erbinnen;
+        # beide moeten slagen, anders komt de publicatiecontrole niet in zicht.
+        beurten["aantal"] += 1
+        if beurten["aantal"] >= 3:
+            raise PermissionError(13, "Permission denied", str(regels_dir))
+        return echte_bronnen()
+
+    monkeypatch.setattr(
+        service, "_fingerprintbronnen", onleesbaar_bij_de_publicatiemeting
+    )
+
+    resultaat = await _valideer(service)
+
+    assert beurten["aantal"] >= 3, (
+        "de publicatiemeting is nooit gedaan; deze test bewijst dan niets "
+        f"over haar foutgrens (metingen={beurten['aantal']})"
+    )
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+    assert resultaat["unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
+    assert service._snapshot.readiness.ready is False
