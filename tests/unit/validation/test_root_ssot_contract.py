@@ -139,6 +139,38 @@ class TestDriftFaaltZichtbaar:
         with pytest.raises(RuleContractError, match="niet leesbaar"):
             load_root_contract_policy(tmp_path / "bestaat-niet.yaml")
 
+    def test_canoniek_botsende_rule_ids_falen(self, tmp_path):
+        """`ARAI-01` en `ARAI_01` zijn canoniek dezelfde regel.
+
+        De duplicaatcontrole vergeleek ruwe strings en liet twee
+        schrijfwijzen van hetzelfde ID dus naast elkaar bestaan. Gevolg: het
+        ruwe manifest telt 54 terwijl er canoniek 53 regels zijn, readiness
+        vergelijkt canonieke verzamelingen en meldt `ready`, en beide
+        schrijfwijzen kunnen in `internal_rules` belanden zonder dat iemand
+        weet welke van de twee de geldende regel is.
+
+        De rootloader is de juiste fail-closed-grens: hier wordt het
+        manifest vastgesteld, dus hier hoort de botsing te sneuvelen.
+        """
+
+        def muteer(data):
+            ids = data["runtime_contract"]["rule_ids"]
+            origineel = next(rid for rid in ids if "-" in rid)
+            ids.append(origineel.replace("-", "_"))
+
+        with pytest.raises(RuleContractError, match="canoniek"):
+            load_root_contract_policy(_schrijf_variant(tmp_path, muteer))
+
+    def test_exact_dubbele_rule_ids_blijven_falen(self, tmp_path):
+        """De bestaande controle op letterlijke duplicaten blijft gelden."""
+
+        def muteer(data):
+            ids = data["runtime_contract"]["rule_ids"]
+            ids.append(ids[0])
+
+        with pytest.raises(RuleContractError, match="duplicaten"):
+            load_root_contract_policy(_schrijf_variant(tmp_path, muteer))
+
 
 class TestRecordveldenUitDeRootconfig:
     def test_root_config_bepaalt_de_verplichte_recordvelden(self):

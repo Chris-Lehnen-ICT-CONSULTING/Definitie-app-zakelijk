@@ -136,3 +136,122 @@ def test_legacy_toetsresultaten_key_is_ignored() -> None:
     calls = _metric_calls(mock_st)
     assert ("Violations", 2) in calls
     assert ("Violations", 99) not in calls
+
+
+# ------------------------------------------------- DEF-621: geen vals oordeel
+
+
+def _onbepaald_result() -> dict[str, Any]:
+    """UIResponseDict zoals de Generator hem krijgt bij een incomplete regelset.
+
+    De nullen in `final_score` en `overall_score` zijn fail-closed
+    placeholders, geen kwaliteitsoordeel. Het onderscheid zit uitsluitend in
+    `validation_details["validation_status"]`.
+    """
+    resultaat = _agent_result(duration=1.0, violations=0)
+    resultaat["final_score"] = 0.0
+    resultaat["validation_details"] = {
+        "overall_score": 0.0,
+        "is_acceptable": False,
+        "violations": [],
+        "passed_rules": [],
+        "validation_status": "validation_unknown",
+        "unknown_reason": "ruleset_incomplete",
+        "validation_readiness": {
+            "ready": False,
+            "expected_total": 53,
+            "loaded_total": 7,
+            "missing_rule_ids": ["CON-01"],
+            "unexpected_rule_ids": [],
+        },
+    }
+    return resultaat
+
+
+def _status_teksten(mock_st: MagicMock) -> list[str]:
+    teksten: list[str] = []
+    for api in ("success", "warning", "info", "error", "markdown", "write"):
+        teksten += [str(call.args[0]) for call in getattr(mock_st, api).call_args_list]
+    return teksten
+
+
+def test_generatiestatus_toont_geen_score_bij_validation_unknown() -> None:
+    """Zonder oordeel mag er geen cijfer staan - ook niet 0.00.
+
+    De statusregel meldde "(Score: 0.00)" op de placeholder. Dat leest als
+    "deze definitie scoort nul", terwijl er geen enkele toetsregel is
+    gedraaid.
+    """
+    tab = _make_tab()
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        tab._render_generation_status(_onbepaald_result())
+
+    teksten = _status_teksten(mock_st)
+    assert teksten, "statusregel rendert niets"
+    assert not any("0.00" in t for t in teksten), teksten
+    assert not any("score" in t.lower() for t in teksten), teksten
+    # De generatie zelf is wel geslaagd; dat mag gemeld blijven worden.
+    assert any("gegenereerd" in t.lower() for t in teksten), teksten
+
+
+def test_generatiestatus_toont_score_bij_validated() -> None:
+    """De positieve regressie: het normale pad blijft ongewijzigd."""
+    tab = _make_tab()
+    resultaat = _agent_result(duration=1.0, violations=0)
+    resultaat["final_score"] = 0.82
+    resultaat["validation_details"]["validation_status"] = "validated"
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        tab._render_generation_status(resultaat)
+
+    teksten = _status_teksten(mock_st)
+    assert any("Score: 0.82" in t for t in teksten), teksten
+
+
+def test_generatiedetails_tonen_geen_finale_score_bij_validation_unknown() -> None:
+    """De metric "Finale Score" toonde dezelfde placeholder als een cijfer."""
+    tab = _make_tab()
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
+        tab._render_generation_details(_onbepaald_result())
+
+    calls = _metric_calls(mock_st)
+    labels = [c[0] for c in calls if c]
+    assert "Finale Score" not in labels, calls
+    assert not any("0.00" in str(c[1]) for c in calls if len(c) > 1), calls
+    # De overige tegels blijven staan; alleen het oordeel verdwijnt.
+    assert ("Verwerkingstijd", "1.0s") in calls, calls
+
+
+def test_generatiedetails_tonen_finale_score_bij_validated() -> None:
+    """Positieve regressie op de detailtegels."""
+    tab = _make_tab()
+    resultaat = _agent_result(duration=1.0, violations=0)
+    resultaat["final_score"] = 0.82
+    resultaat["validation_details"]["validation_status"] = "validated"
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
+        tab._render_generation_details(resultaat)
+
+    assert ("Finale Score", "0.82") in _metric_calls(mock_st)
+
+
+def test_validatiesectie_geeft_de_discriminator_door() -> None:
+    """De gedeelde renderer moet het volledige genormaliseerde dict krijgen.
+
+    Zonder `validation_status` kan de gedeelde early return niet vuren en
+    toont de Generator alsnog een score.
+    """
+    tab = _make_tab()
+    tab.validation_renderer = MagicMock()
+    resultaat = _onbepaald_result()
+
+    with patch("ui.components.definition_generator_tab.st"):
+        tab._render_validation_section(resultaat)
+
+    doorgegeven = tab.validation_renderer.render_validation_results.call_args.args[0]
+    assert doorgegeven["validation_status"] == "validation_unknown"
+    assert doorgegeven["validation_readiness"]["loaded_total"] == 7

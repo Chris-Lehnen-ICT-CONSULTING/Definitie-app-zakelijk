@@ -53,6 +53,14 @@ class ValidationDetailsDict(TypedDict):
     is_acceptable: bool
     violations: list[ViolationDict]
     passed_rules: list[str]
+    # DEF-621: het onderscheid tussen een oordeel en een fail-closed
+    # placeholder. Bij `validation_unknown` zijn `overall_score` 0.0 en
+    # `is_acceptable` False geen kwaliteitsoordeel maar de afwezigheid ervan;
+    # alleen deze velden dragen dat verschil. Additief en NotRequired, zodat
+    # elk legacy-resultaat zonder deze sleutels contractueel geldig blijft.
+    validation_status: NotRequired[str]
+    unknown_reason: NotRequired[str]
+    validation_readiness: NotRequired[dict[str, Any]]
 
 
 # NOTE (DEF-82): VoorbeeldenDict TypedDict REMOVED - gebruik Pydantic versie

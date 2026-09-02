@@ -92,11 +92,14 @@ async def test_category_aggregation():
         reason="ModularValidationService not implemented yet",
     )
 
+    # DEF-621: met de echte contractmanager. Zonder manager dekt de regelset
+    # het contract niet en levert de fail-closed guard `validation_unknown`,
+    # zonder detailed_scores - deze test gaat over categorie-aggregatie, niet
+    # over de guard.
+    from toetsregels.manager import get_toetsregel_manager
+
     svc = m.ModularValidationService
-    try:
-        service = svc(toetsregel_manager=None, cleaning_service=None, config=None)
-    except TypeError:
-        service = svc()
+    service = svc(get_toetsregel_manager(), None, None)
 
     result = await service.validate_definition(
         begrip="test",

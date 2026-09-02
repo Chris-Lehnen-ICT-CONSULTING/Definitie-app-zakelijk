@@ -17,6 +17,8 @@ import asyncio
 
 import pytest
 
+from toetsregels.manager import get_toetsregel_manager
+
 pytestmark = [pytest.mark.unit]
 
 
@@ -36,8 +38,12 @@ async def test_concurrent_validation_begrip_isolation():
     from services.validation.modular_validation_service import ModularValidationService
 
     # Single shared instance (this is how production uses it)
+    # DEF-621: de echte contractmanager. Zonder manager dekt de regelset het
+    # contract niet en levert de fail-closed guard `validation_unknown` met
+    # een lege violationslijst - dan zou een isolatiefout onzichtbaar blijven
+    # doordat er simpelweg niets meer wordt geevalueerd.
     service = ModularValidationService(
-        toetsregel_manager=None,
+        toetsregel_manager=get_toetsregel_manager(),
         cleaning_service=None,
         config=None,
     )
@@ -86,6 +92,10 @@ async def test_concurrent_validation_begrip_isolation():
 
     # Verify each result matches expected outcome
     for tc, result in zip(test_cases, results, strict=True):
+        # Zonder deze regel zou een lege violationslijst uit
+        # `validation_unknown` de isolatie-assertie stil laten slagen voor
+        # elke case met expected_circular=False.
+        assert result["validation_status"] == "validated", result
         violation_codes = [v.get("code", "") for v in result.get("violations", [])]
         has_circular = "CON-CIRC-001" in violation_codes
 
@@ -108,8 +118,12 @@ async def test_batch_validate_begrip_isolation():
     """
     from services.validation.modular_validation_service import ModularValidationService
 
+    # DEF-621: de echte contractmanager. Zonder manager dekt de regelset het
+    # contract niet en levert de fail-closed guard `validation_unknown` met
+    # een lege violationslijst - dan zou een isolatiefout onzichtbaar blijven
+    # doordat er simpelweg niets meer wordt geevalueerd.
     service = ModularValidationService(
-        toetsregel_manager=None,
+        toetsregel_manager=get_toetsregel_manager(),
         cleaning_service=None,
         config=None,
     )
@@ -128,6 +142,7 @@ async def test_batch_validate_begrip_isolation():
 
     # Each result should have CON-CIRC-001 violation
     for i, result in enumerate(results):
+        assert result["validation_status"] == "validated", result
         violation_codes = [v.get("code", "") for v in result.get("violations", [])]
         assert "CON-CIRC-001" in violation_codes, (
             f"Item {i} (begrip_{i}) should have circular violation. "
@@ -145,8 +160,12 @@ async def test_sequential_validation_baseline():
     """
     from services.validation.modular_validation_service import ModularValidationService
 
+    # DEF-621: de echte contractmanager. Zonder manager dekt de regelset het
+    # contract niet en levert de fail-closed guard `validation_unknown` met
+    # een lege violationslijst - dan zou een isolatiefout onzichtbaar blijven
+    # doordat er simpelweg niets meer wordt geevalueerd.
     service = ModularValidationService(
-        toetsregel_manager=None,
+        toetsregel_manager=get_toetsregel_manager(),
         cleaning_service=None,
         config=None,
     )
@@ -165,6 +184,7 @@ async def test_sequential_validation_baseline():
             context={"correlation_id": f"seq-{begrip}"},
         )
 
+        assert result["validation_status"] == "validated", result
         violation_codes = [v.get("code", "") for v in result.get("violations", [])]
         has_circular = "CON-CIRC-001" in violation_codes
 
@@ -183,8 +203,12 @@ async def test_batch_validate_sequential_vs_parallel_parity():
     """
     from services.validation.modular_validation_service import ModularValidationService
 
+    # DEF-621: de echte contractmanager. Zonder manager dekt de regelset het
+    # contract niet en levert de fail-closed guard `validation_unknown` met
+    # een lege violationslijst - dan zou een isolatiefout onzichtbaar blijven
+    # doordat er simpelweg niets meer wordt geevalueerd.
     service = ModularValidationService(
-        toetsregel_manager=None,
+        toetsregel_manager=get_toetsregel_manager(),
         cleaning_service=None,
         config=None,
     )
@@ -206,6 +230,8 @@ async def test_batch_validate_sequential_vs_parallel_parity():
 
     # Compare violation codes for each item
     for i, (seq, par) in enumerate(zip(results_seq, results_par, strict=True)):
+        assert seq["validation_status"] == "validated", seq
+        assert par["validation_status"] == "validated", par
         seq_codes = sorted([v.get("code", "") for v in seq.get("violations", [])])
         par_codes = sorted([v.get("code", "") for v in par.get("violations", [])])
 
