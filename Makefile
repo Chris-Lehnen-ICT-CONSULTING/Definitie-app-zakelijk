@@ -60,7 +60,9 @@ lock:
 lock-check:
 	@echo "[lock-check] Verifieer dat requirements*.txt in sync is met de .in-bronnen (DEF-426)"
 	@# DEF-559: deze gate toetst of de lock een geldige resolutie van de .in is —
-	@# NIET of hij de nieuwste versies bevat; dat laatste is het werk van Dependabot.
+	@# NIET of hij de nieuwste versies bevat. Die tweede as ligt elders: Dependabot
+	@# levert de versie-updates en `make audit` (pip-audit) bewaakt de CVE-kant. Een
+	@# groene lock-check betekent dus "lock hoort bij de .in", niet "deps zijn actueel".
 	@#
 	@# Daarom krijgt de check dezelfde versievoorkeur als `lock`: uv gebruikt een
 	@# bestaand output-bestand als voorkeur, en `lock` compileert naar het bestaande
