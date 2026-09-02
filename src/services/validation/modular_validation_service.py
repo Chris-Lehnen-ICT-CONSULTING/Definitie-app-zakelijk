@@ -167,9 +167,18 @@ class ModularValidationService:
         self._snapshot: RuntimeSnapshot = self._lege_snapshot(
             fingerprint=None, oorzaak=None
         )
+        # Wat de eerste geslaagde policyread opleverde. Struikelt de opbouw
+        # daarna, dan houdt het foutpad de verwachting hiermee vast zonder de
+        # root-SSOT opnieuw te lezen; faalt die read zelf, dan blijft dit leeg
+        # en is nul van nul de eerlijke melding.
+        bekende_ids: tuple[str, ...] = ()
         try:
             fp_voor = bereken_fingerprint(self._fingerprintbronnen())
-            self._snapshot = self._publiceerbaar(self._bouw_snapshot(fp_voor), fp_voor)
+            policy = self._verse_contractpolicy()
+            bekende_ids = tuple(policy.rule_ids)
+            self._snapshot = self._publiceerbaar(
+                self._bouw_snapshot(fp_voor, policy), fp_voor
+            )
         except RuleContractError as exc:
             # De lader blijft fail-closed gooien; alleen deze runtimegrens
             # vertaalt dat naar een beschikbare, maar onbepaalde validatie.
@@ -180,7 +189,7 @@ class ModularValidationService:
             self._snapshot = self._lege_snapshot(
                 fingerprint=None,
                 oorzaak=exc,
-                contract_ids=self._bekende_contract_ids(),
+                contract_ids=bekende_ids,
             )
         except Exception as exc:
             # Constructorpad 3: een generieke laadfout viel voorheen stil terug
@@ -200,7 +209,7 @@ class ModularValidationService:
             self._snapshot = self._lege_snapshot(
                 fingerprint=None,
                 oorzaak=exc,
-                contract_ids=self._bekende_contract_ids(),
+                contract_ids=bekende_ids,
             )
 
         # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
@@ -326,28 +335,13 @@ class ModularValidationService:
             "Bronnen wijzigden tijdens het opbouwen van de regelset; "
             "fail-closed gepubliceerd zodat de volgende aanroep opnieuw leest"
         )
+        # De verwachting staat al in de zojuist gebouwde generatie; die is
+        # niet minder geldig geworden doordat de bronnen bewogen.
         return self._lege_snapshot(
             fingerprint=None,
             oorzaak=RuntimeError("bronnen wijzigden tijdens het opbouwen"),
-            contract_ids=self._bekende_contract_ids(),
+            contract_ids=gebouwd.contract_rule_ids,
         )
-
-    def _bekende_contract_ids(self) -> tuple[str, ...]:
-        """De contractuele ID-set, of leeg wanneer de root-SSOT zelf faalt.
-
-        Kan de verwachting gelezen worden, dan hoort een mislukte generatie
-        haar te blijven dragen - zonder verwachting is `missing_rule_ids` leeg
-        en meldt de UI nietszeggend 0 van 0. Lukt ook dat niet, dan is de
-        verwachting werkelijk onbekend en is nul het eerlijke antwoord.
-        """
-        try:
-            return tuple(self._verse_contractpolicy().rule_ids)
-        except RuleContractError:
-            # `load_root_contract_policy` vertaalt OSError en YAMLError beide
-            # naar RuleContractError, dus dit dekt elke leesfout. Niet loggen:
-            # dit draait op een foutpad waar de aanroeper de oorzaak al heeft
-            # gelogd, en zonder verwachting valt de generatie terug op nul.
-            return ()
 
     def _lege_snapshot(
         self,
@@ -384,7 +378,9 @@ class ModularValidationService:
             degradation_reason=veilige_degradatiereden(oorzaak),
         )
 
-    def _bouw_snapshot(self, fingerprint: str | None) -> RuntimeSnapshot:
+    def _bouw_snapshot(
+        self, fingerprint: str | None, policy: RootContractPolicy
+    ) -> RuntimeSnapshot:
         """Bouw een volledige generatie lokaal op en geef haar terug.
 
         Niets wordt gepubliceerd: de aanroeper doet dat met een enkele
@@ -394,13 +390,19 @@ class ModularValidationService:
         `RuleContractError` loopt bewust door naar de aanroeper - de lader
         blijft fail-closed.
 
-        De policy wordt hier precies één keer geladen en daarna overal in
-        deze generatie hergebruikt: voor de verwachte ID-set én voor de
-        recordvereisten. Zonder die doorgifte zou `build_rule_records()`
-        terugvallen op de gecachete procespolicy en zou de snapshot verse
-        ID-s dragen met de recordvereisten van een oudere generatie.
+        De policy komt van de aanroeper en wordt hier overal in deze generatie
+        hergebruikt: voor de verwachte ID-set én voor de recordvereisten.
+        Zonder die doorgifte zou `build_rule_records()` terugvallen op de
+        gecachete procespolicy en zou de snapshot verse ID-s dragen met de
+        recordvereisten van een oudere generatie.
+
+        Dat de aanroeper laadt en niet deze methode, is geen stijlkeuze. Faalt
+        de opbouw ná een geslaagde policyread, dan houdt de aanroeper de
+        verwachting nog vast en kan het foutpad haar meegeven. Laadde deze
+        methode zelf, dan was die kennis met de exceptie verdwenen en moest
+        het foutpad de root-SSOT opnieuw lezen - precies de lezing die net zo
+        goed kan mislukken.
         """
-        policy = self._verse_contractpolicy()
         contract_ids = tuple(policy.rule_ids)
 
         manager = self.toetsregel_manager
@@ -486,10 +488,19 @@ class ModularValidationService:
             if fp == snap.fingerprint:
                 return snap
             manager = self.toetsregel_manager
+            # Zie de constructor: draagt de verwachting door het foutpad heen.
+            # Anders dan bij constructie beginnen we hier niet leeg maar bij
+            # wat de actieve generatie al wist. Struikelt de herlaadpoging op
+            # een onleesbaar contract, dan is de laatst bekende verwachting
+            # nog altijd bruikbaarder dan nul van nul; lukt de read wel, dan
+            # overschrijft de verse set haar hieronder.
+            bekende_ids: tuple[str, ...] = snap.contract_rule_ids
             try:
                 if manager is not None and hasattr(manager, "clear_cache"):
                     manager.clear_cache()
-                nieuw = self._bouw_snapshot(fp)
+                policy = self._verse_contractpolicy()
+                bekende_ids = tuple(policy.rule_ids)
+                nieuw = self._bouw_snapshot(fp, policy)
             except Exception as exc:
                 # Eerst fail-closed publiceren: de oude ready-generatie mag
                 # niet actief blijven na een mislukte herlaadpoging.
@@ -497,7 +508,7 @@ class ModularValidationService:
                 self._snapshot = self._lege_snapshot(
                     fingerprint=fp,
                     oorzaak=exc,
-                    contract_ids=self._bekende_contract_ids(),
+                    contract_ids=bekende_ids,
                 )
                 return self._snapshot
             self._snapshot = self._publiceerbaar(nieuw, fp)
