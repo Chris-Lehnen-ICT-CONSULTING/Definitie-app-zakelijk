@@ -703,51 +703,61 @@ def test_guard_meldt_een_naamcollisie_niet(tmp_path):
     [
         (
             "toewijzing op moduleniveau",
-            "def maak_suite():\n"
-            "    class Suite:\n"
-            "        def test_ok(self): ...\n"
-            "    return Suite\n"
-            "\n"
-            "\n"
-            "TestFoo = maak_suite()\n",
+            (
+                "def maak_suite():\n"
+                "    class Suite:\n"
+                "        def test_ok(self): ...\n"
+                "    return Suite\n"
+                "\n"
+                "\n"
+                "TestFoo = maak_suite()\n"
+            ),
             "TestFoo::test_ok",
         ),
         (
             "toewijzing in de klassebody",
-            "def _impl(self): ...\n"
-            "\n"
-            "\n"
-            "class TestX:\n"
-            "    test_m = staticmethod(_impl)\n",
+            (
+                "def _impl(self): ...\n"
+                "\n"
+                "\n"
+                "class TestX:\n"
+                "    test_m = staticmethod(_impl)\n"
+            ),
             "TestX::test_m",
         ),
         (
             "klasse onder try/except*",
-            "try:\n"
-            "    class TestX:\n"
-            "        def test_m(self): ...\n"
-            "except* Exception:\n"
-            "    pass\n",
+            (
+                "try:\n"
+                "    class TestX:\n"
+                "        def test_m(self): ...\n"
+                "except* Exception:\n"
+                "    pass\n"
+            ),
             "TestX",
         ),
         (
             "klasse onder match",
-            "match 1:\n"
-            "    case 1:\n"
-            "        class TestX:\n"
-            "            def test_m(self): ...\n",
+            (
+                "match 1:\n"
+                "    case 1:\n"
+                "        class TestX:\n"
+                "            def test_m(self): ...\n"
+            ),
             "TestX",
         ),
         (
             "gedecoreerde klasse, lid niet direct gevonden",
-            "def voegt_tests_toe(klasse):\n"
-            "    klasse.test_m = lambda self: None\n"
-            "    return klasse\n"
-            "\n"
-            "\n"
-            "@voegt_tests_toe\n"
-            "class TestX:\n"
-            "    def test_ander(self): ...\n",
+            (
+                "def voegt_tests_toe(klasse):\n"
+                "    klasse.test_m = lambda self: None\n"
+                "    return klasse\n"
+                "\n"
+                "\n"
+                "@voegt_tests_toe\n"
+                "class TestX:\n"
+                "    def test_ander(self): ...\n"
+            ),
             "TestX::test_m",
         ),
     ],

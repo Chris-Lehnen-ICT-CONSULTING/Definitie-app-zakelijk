@@ -4,7 +4,7 @@ repos:
   # source the CI jobs install from). Bump both together — check_tool_pins (CI gate)
   # enforces it; re-verify scripts/complexity_baseline.txt on a bump.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.20
+    rev: v0.16.5
     hooks:
       - id: ruff
         name: Ruff linting

@@ -125,8 +125,10 @@ def build_synonym_research_prompt(
     nonce = _nieuwe_nonce()
     term_tag = _tag("term", nonce)
     regels: list[str] = [
-        "Zoek synoniemen voor de juridische term die in het term-datablok "
-        "hieronder staat.",
+        (
+            "Zoek synoniemen voor de juridische term die in het term-datablok "
+            "hieronder staat."
+        ),
         f"Streef naar ongeveer {min_count} synoniemen, maar kwaliteit boven kwantiteit.",
         "",
         f"<{term_tag}>{veilige_term}</{term_tag}>",
