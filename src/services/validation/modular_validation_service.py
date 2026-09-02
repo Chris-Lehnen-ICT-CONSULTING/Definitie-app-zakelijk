@@ -42,6 +42,7 @@ from toetsregels.runtime_contract import (
     RuleRecord,
     ScorePolicy,
     build_rule_records,
+    canonical_rule_id,
     load_root_contract_policy,
     missing_inputs,
 )
@@ -306,6 +307,29 @@ class ModularValidationService:
         regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
         return (*regels, ROOT_SSOT_PAD)
 
+    def _bron_dekt_generatie(self, gebouwd: RuntimeSnapshot) -> bool:
+        """Draagt de generatie uitsluitend regels die nu op schijf staan?
+
+        De fingerprint is een wijzigingsdetector, geen identiteitsbewijs. Een
+        bestand dat verdwijnt, tijdens de opbouw terugkeert en daarna opnieuw
+        verdwijnt, levert vóór en ná exact dezelfde hash op - terwijl de
+        opbouw daartussen de volledige set las. Een vergelijking van
+        fingerprints ziet dat niet; een vergelijking met de bestanden op
+        schijf wel.
+
+        De toets is bewust eenzijdig. Dat de manager mínder levert dan er op
+        schijf ligt, is een gewone incomplete set die readiness al afvangt.
+        Hier gaat het om het omgekeerde: een generatie die regels draagt
+        waarvoor geen bron meer bestaat.
+        """
+        regelmap = self._regelpad()
+        if regelmap is None:
+            return True
+
+        op_schijf = {canonical_rule_id(pad.stem) for pad in regelmap.glob("*.json")}
+        geladen = {canonical_rule_id(rid) for rid in gebouwd.json_rules}
+        return geladen <= op_schijf
+
     def _publiceerbaar(
         self, gebouwd: RuntimeSnapshot, fingerprint: str | None
     ) -> RuntimeSnapshot:
@@ -329,7 +353,19 @@ class ModularValidationService:
         daarmee één meting per validatie.
         """
         if bereken_fingerprint(self._fingerprintbronnen()) == fingerprint:
-            return gebouwd
+            if not gebouwd.readiness.ready or self._bron_dekt_generatie(gebouwd):
+                return gebouwd
+            # Gelijke fingerprint, ongelijke werkelijkheid: zie
+            # `_bron_dekt_generatie`.
+            logger.warning(
+                "Generatie draagt regels die niet op schijf staan; fail-closed "
+                "gepubliceerd ondanks een ongewijzigde fingerprint"
+            )
+            return self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=RuntimeError("bronnen keerden terug tijdens het opbouwen"),
+                contract_ids=gebouwd.contract_rule_ids,
+            )
 
         logger.warning(
             "Bronnen wijzigden tijdens het opbouwen van de regelset; "
@@ -485,6 +521,17 @@ class ModularValidationService:
 
         with self._state_lock:
             snap = self._snapshot
+            if fp == snap.fingerprint:
+                return snap
+            # De meting hierboven gebeurde buiten de lock. Wie hier heeft
+            # staan wachten terwijl een andere thread een geldige generatie
+            # publiceerde, draagt een verouderd label: hij zou actuele inhoud
+            # bouwen, er de oude fingerprint aan hangen, en die generatie
+            # vervolgens door de publicatiecontrole fail-closed laten
+            # verdringen. Opnieuw meten kost hier niets - we gaan toch al
+            # herbouwen - en houdt het normale pad op één meting, want dat
+            # returnt vóór de lock.
+            fp = bereken_fingerprint(self._fingerprintbronnen())
             if fp == snap.fingerprint:
                 return snap
             manager = self.toetsregel_manager
