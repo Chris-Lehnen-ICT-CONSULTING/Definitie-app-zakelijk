@@ -51,9 +51,23 @@ for bestand in requirements.in requirements.txt requirements-dev.in requirements
         echo "FOUT: $bestand ontbreekt in $repo_root." >&2
         exit "$EXIT_PRECONDITIE"
     fi
+    # -f zegt niets over leesbaarheid. Zonder deze controle klapt de latere `cp`
+    # onder `set -e` op exit 1, wat volgens het contract "desync" betekent — en
+    # dan verwijst de melding naar `make lock`, wat een rechtenprobleem niet
+    # oplost.
+    if [ ! -r "$bestand" ]; then
+        echo "FOUT: $bestand is niet leesbaar in $repo_root." >&2
+        exit "$EXIT_PRECONDITIE"
+    fi
 done
 
-tmp=$(mktemp -d)
+# Expliciete template: `mktemp -d` zonder template respecteert TMPDIR op GNU
+# wel en op BSD/macOS niet — die kiest altijd /var/folders. Met een template is
+# de locatie op beide platforms voorspelbaar, en daardoor ook toetsbaar.
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/lock-sync.XXXXXX") || {
+    echo "FOUT: kan geen tijdelijke map aanmaken." >&2
+    exit "$EXIT_PRECONDITIE"
+}
 # Alleen EXIT, en met -f. Een handler op INT/TERM ruimt wel op maar beeindigt
 # het script niet, waardoor het doorloopt met een verwijderde tmpdir en de
 # gebruiker een misleidende resolve-fout ziet; daarna zou de EXIT-trap er een
@@ -63,9 +77,15 @@ trap 'rm -rf "$tmp"' EXIT
 
 # De lock dient als versievoorkeur én als vergelijkingsbasis: uv overschrijft
 # het bestand, waarna de diff toont of de resolutie afwijkt van wat er gecommit
-# staat.
-cp requirements.txt "$tmp/req.check"
-cp requirements-dev.txt "$tmp/req-dev.check"
+# staat. Een falende kopie is een randvoorwaarde-fout, geen desync.
+cp requirements.txt "$tmp/req.check" || {
+    echo "FOUT: kan requirements.txt niet kopiëren naar de werkmap." >&2
+    exit "$EXIT_PRECONDITIE"
+}
+cp requirements-dev.txt "$tmp/req-dev.check" || {
+    echo "FOUT: kan requirements-dev.txt niet kopiëren naar de werkmap." >&2
+    exit "$EXIT_PRECONDITIE"
+}
 
 compileer() {
     local bron=$1 doel=$2 err=$3
@@ -83,8 +103,13 @@ compileer() {
     fi
 }
 
+# Volgorde is load-bearing: eerst de runtime-lock compileren én vergelijken,
+# pas daarna de dev-lock. De dev-compile gebruikt de gecommitte
+# requirements.txt als constraint, net als `make lock` — maar `make lock` heeft
+# die op dat moment al herschreven. Staat de runtime-lock uit de pas, dan botst
+# de dev-resolve op de verouderde constraint en zou de gate een resolve-fout
+# melden voor een probleem dat in werkelijkheid een runtime-desync is.
 compileer requirements.in "$tmp/req.check" "$tmp/req.err"
-compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c requirements.txt
 
 # De check compileert met --no-header, dus het leidende commentaarblok van de
 # gecommitte lock hoort niet in de vergelijking.
@@ -126,6 +151,8 @@ vergelijk() {
 }
 
 vergelijk requirements.txt "$tmp/req.check" requirements.in
+
+compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c requirements.txt
 vergelijk requirements-dev.txt "$tmp/req-dev.check" requirements-dev.in
 
 echo "OK: requirements-locks in sync met .in-bronnen."
