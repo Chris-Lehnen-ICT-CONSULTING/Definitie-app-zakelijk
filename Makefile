@@ -58,44 +58,11 @@ lock:
 	uv pip compile requirements-dev.in --universal --generate-hashes -c requirements.txt -o requirements-dev.txt
 
 lock-check:
-	@echo "[lock-check] Verifieer dat requirements*.txt in sync is met de .in-bronnen (DEF-426)"
-	@# DEF-559: deze gate toetst of de lock een geldige resolutie van de .in is —
-	@# NIET of hij de nieuwste versies bevat. Die tweede as ligt elders: Dependabot
-	@# levert de versie-updates en `make audit` (pip-audit) bewaakt de CVE-kant. Een
-	@# groene lock-check betekent dus "lock hoort bij de .in", niet "deps zijn actueel".
-	@#
-	@# Daarom krijgt de check dezelfde versievoorkeur als `lock`: uv gebruikt een
-	@# bestaand output-bestand als voorkeur, en `lock` compileert naar het bestaande
-	@# requirements.txt. Zonder die kopie compileert de check vrij en kiest hij de
-	@# nieuwste versies, waardoor beide per definitie uiteenlopen zodra upstream een
-	@# transitieve dep uitbrengt — de check faalde dan zelfs direct na `make lock`.
-	@#
-	@# mktemp: de vorige vaste /tmp-paden maakten de check niet-hermetisch, doordat
-	@# stale outputs van een eerdere run de resolve stuurden.
-	@#
-	@# --no-header: vergelijk alleen de body (de header bevat het -o-pad dat verschilt).
-	@set -e; \
-	tmp=$$(mktemp -d); \
-	trap 'rm -r "$$tmp"' EXIT; \
-	cp requirements.txt "$$tmp/req.check"; \
-	cp requirements-dev.txt "$$tmp/req-dev.check"; \
-	uv pip compile requirements.in --universal --generate-hashes --no-header \
-		-o "$$tmp/req.check" >/dev/null 2>"$$tmp/req.err" \
-		|| { echo "FOUT: uv kan requirements.in niet resolven — is een lock handmatig bewerkt?"; cat "$$tmp/req.err"; exit 1; }; \
-	uv pip compile requirements-dev.in --universal --generate-hashes --no-header \
-		-c requirements.txt -o "$$tmp/req-dev.check" >/dev/null 2>"$$tmp/req-dev.err" \
-		|| { echo "FOUT: uv kan requirements-dev.in niet resolven — is een lock handmatig bewerkt?"; cat "$$tmp/req-dev.err"; exit 1; }; \
-	if ! sed '1,2d' requirements.txt | diff - "$$tmp/req.check" > "$$tmp/req.diff" 2>&1; then \
-		echo "FOUT: requirements.txt niet in sync met requirements.in — draai 'make lock'"; \
-		head -20 "$$tmp/req.diff"; \
-		exit 1; \
-	fi; \
-	if ! sed '1,2d' requirements-dev.txt | diff - "$$tmp/req-dev.check" > "$$tmp/req-dev.diff" 2>&1; then \
-		echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; \
-		head -20 "$$tmp/req-dev.diff"; \
-		exit 1; \
-	fi
-	@echo "OK: requirements-locks in sync met .in-bronnen."
+	@# DEF-711: de logica staat in scripts/ci/check_lock_sync.sh, zodat het
+	@# gedrag testbaar is. Make vertaalt elke gefaalde recipe naar exit 2, dus de
+	@# exit-codes van het script (1 = desync, 2 = resolve-fout, 3 = preconditie)
+	@# zijn alleen zichtbaar bij een directe aanroep — wat de unit-test doet.
+	@bash scripts/ci/check_lock_sync.sh
 
 test: check-python test-markers-check
 	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
