@@ -225,6 +225,24 @@ def _draai(root: Path, bin_dir: Path | None) -> subprocess.CompletedProcess[str]
     )
 
 
+def _draai_write(
+    root: Path, bin_dir: Path, *extra: str, tmpdir: Path | None = None
+) -> subprocess.CompletedProcess[str]:
+    """Zoals `_draai`, maar met --write en optionele extra argumenten."""
+    env = dict(os.environ)
+    env["LOCK_SYNC_ROOT"] = str(root)
+    env["PATH"] = f"{bin_dir}:/usr/bin:/bin:/usr/sbin:/sbin"
+    if tmpdir is not None:
+        env["TMPDIR"] = str(tmpdir)
+    return subprocess.run(
+        ["bash", str(SCRIPT), "--write", *extra],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+
 def test_lock_in_sync_geeft_exit_0(tmp_path):
     """De gate slaagt wanneer de resolve gelijk is aan de gecommitte lock."""
     root = _repo(tmp_path)
@@ -828,3 +846,148 @@ def test_ontbrekende_uv_geeft_preconditiefout(tmp_path):
 
     assert resultaat.returncode == 3, resultaat.stderr
     assert "uv niet gevonden" in resultaat.stderr
+
+
+def test_custom_compile_command_heeft_een_vaste_waarde(tmp_path):
+    """De headerwaarde moet een vast commando zijn, niet het compile-doel.
+
+    Toetsen dát de vlag meegaat is te zwak: geef je er het tijdelijke pad aan
+    mee, dan staat de vlag er nog steeds en blijft die assertie groen — terwijl
+    de header weer een willekeurige /var/folders-locatie bevat en elke run een
+    andere lock geeft. De waarde zelf is wat reproduceerbaarheid oplevert.
+    """
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai_write(root, bin_dir)
+
+    assert resultaat.returncode == 0, resultaat.stderr
+    aanroepen = (bin_dir / "argv.log").read_text(encoding="utf-8").splitlines()
+    assert aanroepen, "de stub is niet aangeroepen"
+    for aanroep in aanroepen:
+        tokens = aanroep.split()
+        index = tokens.index("--custom-compile-command")
+        assert tokens[index + 1 : index + 3] == ["make", "lock"], (
+            "de headerwaarde moet het reproduceerbare commando zijn, niet een "
+            f"pad: {tokens}"
+        )
+
+
+def test_schrijffout_laat_de_bestaande_lock_ongemoeid(tmp_path):
+    """Schrijven gaat via een sibling en een mv, niet met een directe cp.
+
+    Een rechtstreekse `cp` naar het doel kan bij een fout halverwege een
+    afgekapt bestand achterlaten. Een niet-schrijfbare repo-map discrimineert
+    tussen beide implementaties: de sibling kan er niet worden aangemaakt, dus
+    faalt de run vóór er iets wijzigt, terwijl een directe cp naar het bestaande
+    bestand wél zou slagen en de lock zou overschrijven.
+    """
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+    oorspronkelijk = (root / "requirements.txt").read_text(encoding="utf-8")
+
+    root.chmod(0o555)
+    try:
+        resultaat = _draai_write(root, bin_dir)
+    finally:
+        root.chmod(0o755)
+
+    assert resultaat.returncode == 3, f"{resultaat.stdout}{resultaat.stderr}"
+    achteraf = (root / "requirements.txt").read_text(encoding="utf-8")
+    assert (
+        achteraf == oorspronkelijk
+    ), "de lock is overschreven terwijl de schrijfactie niet kon slagen"
+
+
+def test_tempdir_wordt_opgeruimd_in_write_modus(tmp_path):
+    """Ook de write-tak moet zijn werkmap opruimen, op beide paden.
+
+    De opruiming en de rollback delen één EXIT-trap. Sloopt een wijziging de
+    opruimkant daarvan, dan blijft de gate correct oordelen en lopen alleen de
+    tempdirs op — precies het soort regressie dat niemand opmerkt.
+    """
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    tmpdir = tmp_path / "tmpdir"
+    tmpdir.mkdir()
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    geslaagd = _draai_write(root, bin_dir, tmpdir=tmpdir)
+    assert geslaagd.returncode == 0, geslaagd.stderr
+    assert list(tmpdir.iterdir()) == [], "werkmap blijft staan na een geslaagde write"
+
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY, dev_exit_code=1)
+    gefaald = _draai_write(root, bin_dir, tmpdir=tmpdir)
+    assert gefaald.returncode == 2, gefaald.stderr
+    assert list(tmpdir.iterdir()) == [], "werkmap blijft staan na een gefaalde write"
+
+
+def test_onbekende_querysleutel_wordt_ook_geredigeerd(tmp_path):
+    """De redactie mag niet afhangen van hoe een sleutelnaam eruitziet.
+
+    Een tekenklasse voor de sleutel ([A-Za-z0-9_.-]) laat een percent-encoded
+    of anderszins exotische parameter buiten de match vallen, en dan passeert de
+    hele parameter — inclusief de waarde — ongemaskeerd naar het joblog.
+    """
+    root = _repo(tmp_path)
+    _fake_uv(
+        tmp_path / "bin",
+        runtime_body=LOCK_BODY,
+        dev_body=DEV_LOCK_BODY,
+        exit_code=1,
+        foutmelding=(
+            "error: https://index.example/simple?api%2Dtoken=GEHEIM789 "
+            "en https://index.example/simple?x~auth=GEHEIM012 falen"
+        ),
+    )
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 2, resultaat.stderr
+    assert "GEHEIM789" not in resultaat.stderr, resultaat.stderr
+    assert "GEHEIM012" not in resultaat.stderr, resultaat.stderr
+    assert "index.example" in resultaat.stderr
+
+
+def test_extra_argument_naast_write_wordt_geweigerd(tmp_path):
+    """Een tweede argument mag niet stilzwijgend wegvallen.
+
+    De case-controle kijkt alleen naar $1. Zonder de telling erbij accepteert
+    het script `--write --oops` als een gewone write, en verdwijnt een typefout
+    of een bedoelde vlag ongemerkt.
+    """
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai_write(root, bin_dir, "--oops")
+
+    assert resultaat.returncode == 3, f"{resultaat.stdout}{resultaat.stderr}"
+    assert "te veel argumenten" in resultaat.stderr
+
+
+def test_rollback_verwijdert_een_lock_die_er_niet_was(tmp_path):
+    """Een gefaalde eerste opbouw mag geen halve lock achterlaten.
+
+    Bij een ontbrekende requirements.txt is er niets om naar terug te kopiëren.
+    Een rollback die alleen een backup kent, laat de zojuist geschreven
+    runtime-lock dan gewoon staan — naast een dev-lock die er nog niet is. De
+    gebruiker committeert dan een lock die nooit uit een geslaagde resolutie is
+    gekomen.
+    """
+    root = _repo(tmp_path)
+    (root / "requirements.txt").unlink()
+    (root / "requirements-dev.txt").unlink()
+    bin_dir = tmp_path / "bin"
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY, dev_exit_code=1)
+
+    resultaat = _draai_write(root, bin_dir)
+
+    assert resultaat.returncode == 2, f"{resultaat.stdout}{resultaat.stderr}"
+    assert not (root / "requirements.txt").exists(), (
+        "requirements.txt is blijven staan terwijl hij er vóór de gefaalde run "
+        "niet was"
+    )
+    assert not (root / "requirements-dev.txt").exists()
