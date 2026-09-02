@@ -28,8 +28,18 @@ EXIT_DESYNC=1
 EXIT_RESOLVE=2
 EXIT_PRECONDITIE=3
 
-repo_root=${LOCK_SYNC_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}
-cd "$repo_root"
+# Standaard script-relatief: het script ligt in scripts/ci/, dus twee niveaus
+# omhoog is de repo-root. Dat voorkomt dat een aanroep vanuit een ándere
+# git-repo stilzwijgend díé requirements-bestanden controleert. De env-override
+# bestaat voor de tests.
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+repo_root=${LOCK_SYNC_ROOT:-$(cd "$script_dir/../.." && pwd)}
+
+if [ ! -d "$repo_root" ]; then
+    echo "FOUT: $repo_root bestaat niet." >&2
+    exit "$EXIT_PRECONDITIE"
+fi
+cd "$repo_root" || exit "$EXIT_PRECONDITIE"
 
 if ! command -v uv >/dev/null 2>&1; then
     echo "FOUT: uv niet gevonden op PATH — installeer uv om de lock te verifiëren." >&2
@@ -55,10 +65,15 @@ cp requirements-dev.txt "$tmp/req-dev.check"
 compileer() {
     local bron=$1 doel=$2 err=$3
     shift 3
+    # ${1+"$@"} in plaats van "$@": onder `set -u` klapt een lege "$@" in
+    # bash < 4.4 (macOS levert 3.2) op "unbound variable".
     if ! uv pip compile "$bron" --universal --generate-hashes --no-header \
-        "$@" -o "$doel" >/dev/null 2>"$err"; then
+        ${1+"$@"} -o "$doel" >/dev/null 2>"$err"; then
         echo "FOUT: uv kan $bron niet resolven — is een lock handmatig bewerkt?" >&2
-        sed -n '1,20p' "$err" >&2
+        echo "      (uv $(uv --version 2>/dev/null | head -1))" >&2
+        # Redactie: uv noemt index-URL's in resolve-fouten, en die kunnen
+        # credentials dragen. Deze uitvoer landt in CI-joblogs.
+        sed -n '1,20p' "$err" | sed -E 's#(://)[^/@[:space:]]+@#\1***@#g' >&2
         exit "$EXIT_RESOLVE"
     fi
 }
@@ -66,14 +81,42 @@ compileer() {
 compileer requirements.in "$tmp/req.check" "$tmp/req.err"
 compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c requirements.txt
 
-# --no-header op de compile, dus de eerste twee regels van de gecommitte lock
-# (de uv-header) horen niet in de vergelijking.
+# De check compileert met --no-header, dus het leidende commentaarblok van de
+# gecommitte lock hoort niet in de vergelijking.
+#
+# Dat blok wordt op INHOUD gestript, niet op een vast regelaantal. Een vaste
+# `sed '1,2d'` koppelt de gate aan de huidige headervorm van uv: één regel erbij
+# en de gate staat permanent rood op iets wat `make lock` niet oplost — precies
+# de faalklasse die DEF-559 was. Bovendien maakt een blinde offset de eerste
+# regels tot een ongecontroleerde zone, terwijl daar geldige pip-directives
+# kunnen staan (`--index-url`, `--extra-index-url`, `--find-links`) die de
+# installatiebron verleggen. Die beginnen niet met `#` en blijven nu dus in de
+# vergelijking staan.
+#
+# De --no-header-uitvoer begint met een pakketnaam, en `# via`-regels zijn
+# ingesprongen, dus die matchen `^#` niet.
 vergelijk() {
     local lock=$1 vers=$2 bron=$3
-    if ! sed '1,2d' "$lock" | diff - "$vers" > "$tmp/diff.out" 2>&1; then
+    local status=0
+
+    awk 'kop==0 && /^#/ {next} {kop=1; print}' "$lock" > "$tmp/lock-body" || status=$?
+    if [ "$status" -ne 0 ]; then
+        echo "FOUT: kan $lock niet lezen." >&2
+        exit "$EXIT_PRECONDITIE"
+    fi
+
+    diff "$tmp/lock-body" "$vers" > "$tmp/diff.out" 2>&1 || status=$?
+    if [ "$status" -eq 1 ]; then
         echo "FOUT: $lock niet in sync met $bron — draai 'make lock'" >&2
         sed -n '1,20p' "$tmp/diff.out" >&2
         exit "$EXIT_DESYNC"
+    elif [ "$status" -ne 0 ]; then
+        # diff-status >= 2 betekent "trouble" (ontbrekend of onleesbaar
+        # bestand), geen inhoudelijk verschil. Dat als desync melden zou naar
+        # `make lock` verwijzen terwijl dat niets oplost.
+        echo "FOUT: kan $lock niet vergelijken met de verse resolutie." >&2
+        sed -n '1,20p' "$tmp/diff.out" >&2
+        exit "$EXIT_PRECONDITIE"
     fi
 }
 
