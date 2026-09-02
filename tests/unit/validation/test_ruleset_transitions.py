@@ -165,13 +165,11 @@ async def test_beschadigde_contract_ssot_wordt_gezien_en_hersteld(
     """
     ssot = tmp_path / "toetsregels_config.yaml"
     ssot.write_text(ECHTE_SSOT.read_text(encoding="utf-8"), encoding="utf-8")
-    # raising=False: `ROOT_SSOT_PAD` komt pas in commit 3. Zonder deze vlag
-    # zou de monkeypatch nu een AttributeError geven en zou de test rood staan
-    # om een testopzetfout in plaats van om ontbrekende functionaliteit.
+    # Bewust zónder `raising=False`: bestaat het attribuut niet meer of is het
+    # hernoemd, dan hoort deze patch luid te falen in plaats van stil een
+    # no-op te worden waarna de test op de échte SSOT zou draaien.
     monkeypatch.setattr(
-        "services.validation.modular_validation_service.ROOT_SSOT_PAD",
-        ssot,
-        raising=False,
+        "services.validation.modular_validation_service.ROOT_SSOT_PAD", ssot
     )
 
     service = ModularValidationService(toetsregel_manager=managerfabriek(regelmap))

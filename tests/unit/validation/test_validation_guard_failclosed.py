@@ -35,6 +35,7 @@ from services.validation.interfaces import (
     VALIDATION_STATUS_VALIDATED,
 )
 from services.validation.modular_validation_service import ModularValidationService
+from services.validation.readiness import bepaal_readiness
 from toetsregels.manager import ToetsregelManager
 from toetsregels.runtime_contract import RuleContractError, root_contract_policy
 
@@ -174,6 +175,132 @@ async def test_geen_evaluatie_scoring_of_gate_bij_incomplete_set(
 
     resultaat = await _valideer(service)
     assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+
+
+# De zeven interne vangnetregels. Zij zijn óók contractregels, en dat maakt ze
+# gevaarlijk: `_bouw_snapshot` voegde ze onvoorwaardelijk toe aan de lijst
+# waarover readiness werd bepaald, dus vulde de service precies die gaten zelf
+# op die zij moest signaleren.
+BASELINE_IDS = (
+    "CON-CIRC-001",
+    "ESS-CONT-001",
+    "STR-ORG-001",
+    "STR-TERM-001",
+    "VAL-EMP-001",
+    "VAL-LEN-001",
+    "VAL-LEN-002",
+)
+
+
+@pytest.mark.parametrize("ontbrekend", BASELINE_IDS)
+@pytest.mark.asyncio
+async def test_ontbrekende_baselineregel_wordt_niet_gemaskeerd(
+    alle_regels: dict[str, dict[str, Any]],
+    monkeypatch: pytest.MonkeyPatch,
+    ontbrekend: str,
+) -> None:
+    """Readiness mag niet worden bepaald over een door de service opgevulde lijst.
+
+    De baseline-append draaide vóór `bepaal_readiness`. Ontbrak uitsluitend
+    een van deze zeven regels, dan vulde de append het gat en gold
+    `set(codes) == set(contract_ids)`: readiness `ready`, status `validated`,
+    en een score over 52 regels alsof het er 53 waren. De guard delegeerde
+    zijn eigen invariant daarmee aan de laag die hij juist moest controleren.
+
+    De manager hier valideert bewust niet zelf — dat is precies het
+    injectiepunt waar de guard alleen op zichzelf kan terugvallen.
+    """
+    assert ontbrekend in alle_regels, "opzetfout: baseline-ID is geen contractregel"
+    onvolledig = {k: v for k, v in alle_regels.items() if k != ontbrekend}
+    assert len(onvolledig) == len(alle_regels) - 1
+
+    service = _service(onvolledig, ECHTE_REGELS)
+
+    for methode in (
+        "_evaluate_rule",
+        "_calculate_category_scores",
+        "_evaluate_acceptance_gates",
+    ):
+        monkeypatch.setattr(
+            ModularValidationService,
+            methode,
+            lambda *a, _m=methode, **kw: pytest.fail(
+                f"{_m} aangeroepen terwijl {ontbrekend} ontbreekt"
+            ),
+        )
+
+    resultaat = await _valideer(service)
+
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN, resultaat
+    assert resultaat["unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
+    assert resultaat["is_acceptable"] is False
+    assert ontbrekend in resultaat["validation_readiness"]["missing_rule_ids"]
+
+    snapshot = service._snapshot
+    assert snapshot.rules_loaded_count == 52, snapshot.rules_loaded_count
+    assert ontbrekend in snapshot.readiness.missing_rule_ids
+    # De vangnetten blijven wél in de uitvoervolgorde staan; alleen readiness
+    # mag er niet op steunen.
+    assert ontbrekend in snapshot.internal_rules
+
+
+def test_lege_manager_telt_nul_geladen_regels(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """Interne defaults zijn geen geladen regels.
+
+    Zonder regels valt `_bouw_snapshot` terug op een interne default-set. Die
+    telt niet als lading: `rules_loaded_count` hoort nul te zijn, anders
+    rapporteert `system.rules_loaded` en `get_health_status` een aantal dat
+    nooit van schijf kwam.
+    """
+    service = _service({}, ECHTE_REGELS)
+    snapshot = service._snapshot
+
+    assert snapshot.rules_loaded_count == 0, snapshot.rules_loaded_count
+    assert snapshot.readiness.ready is False
+    assert f"0/{len(snapshot.contract_rule_ids)}" in (
+        snapshot.degradation_reason or ""
+    ), snapshot.degradation_reason
+
+
+def test_readiness_eist_ook_cardinaliteit(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """Twee schrijfwijzen van hetzelfde ID zijn samen één regel te veel.
+
+    `_index` klapt `ARAI-01` en `ARAI_01` samen tot één canonieke sleutel,
+    dus een zuivere verzamelingsvergelijking ziet 53 == 53 terwijl er 54
+    ID's zijn en niemand weet welke van de twee geldt. `rule_cache.get_stats`
+    kreeg die cardinaliteitseis al; readiness hoort dezelfde definitie van
+    volledigheid te hanteren.
+    """
+    verwacht = sorted(alle_regels)
+    alias = next(rid for rid in verwacht if "-" in rid).replace("-", "_")
+    geladen = [*verwacht, alias]
+
+    readiness = bepaal_readiness(verwacht, geladen)
+
+    assert readiness.ready is False, readiness
+    assert readiness.reason == UNKNOWN_REASON_RULESET_INCOMPLETE
+
+
+def test_readiness_verwerkt_generators(
+    alle_regels: dict[str, dict[str, Any]],
+) -> None:
+    """De cardinaliteitseis mag een eenmalig itereerbare bron niet slopen.
+
+    `bepaal_readiness` accepteert `Iterable`; wie een generator meegeeft, mag
+    niet stil een lege verzameling terugkrijgen doordat de invoer twee keer
+    wordt doorlopen.
+    """
+    verwacht = sorted(alle_regels)
+
+    readiness = bepaal_readiness((r for r in verwacht), (r for r in verwacht))
+
+    assert readiness.ready is True, readiness
+    assert readiness.missing_rule_ids == ()
+    assert readiness.unexpected_rule_ids == ()
 
 
 @pytest.mark.asyncio
