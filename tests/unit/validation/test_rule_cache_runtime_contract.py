@@ -13,6 +13,7 @@ verboden_frase=forbidden_phrases, vereist_param=vereist_param.
 """
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -23,13 +24,21 @@ from toetsregels.rule_cache import (
     RuleCache,
     _load_all_rules_cached,
 )
-from toetsregels.runtime_contract import RuleContractError
+from toetsregels.runtime_contract import (
+    RuleContractError,
+    build_rule_records,
+    canonical_rule_id,
+    root_contract_policy,
+)
 
 pytestmark = [pytest.mark.unit]
 
 REGELS_DIR = Path(rule_cache_module.__file__).parent / "regels"
 
 ALLE_REGEL_JSONS = sorted(REGELS_DIR.glob("*.json"))
+
+# De contractuele ID-set uit de root-SSOT: de enige geldige verwachting.
+CONTRACT_IDS = tuple(root_contract_policy().rule_ids)
 
 # Velden die _evaluate_json_rule (modular_validation_service) leest —
 # het uitvoerbare deel van het regelcontract. BEWUST een golden copy
@@ -216,6 +225,242 @@ class TestDegradedState:
         assert stats["rules_files_on_disk"] == 53
         assert stats["total_rules_cached"] == 53
         assert stats["rules_load_complete"] is True
+        assert stats["rules_expected_count"] == len(CONTRACT_IDS)
+        assert stats["rules_missing"] == []
+        assert stats["rules_unexpected"] == []
+
+
+class TestVolledigheidIsGeenTelling:
+    """DEF-621 commit 4: `rules_load_complete` vergelijkt verzamelingen.
+
+    De oude formule was `len(all_rules) == files_on_disk`. Die telt twee
+    grootheden tegen elkaar die samen bewegen, en meldt daardoor volledigheid
+    op precies de momenten waarop er iets mis is. Beide tests hieronder falen
+    met die oude formule en slagen met de vergelijking tegen de contractuele
+    ID-set uit de root-SSOT.
+
+    `RuleCache` is een proces-singleton (`__new__`). Alles wat hier wordt
+    gezet, gaat daarom via `monkeypatch`, dat instantie- en klasseattributen
+    exact terugzet. Zonder die discipline houdt de singleton na afloop een
+    lege of vervalste regelset vast, die later opduikt als een onverklaarbare
+    failure in een andere suite.
+    """
+
+    @staticmethod
+    def _stats_met_geladen_set(
+        monkeypatch,
+        tmp_path,
+        geladen: dict[str, dict],
+        op_schijf: list[str] | None = None,
+    ) -> dict:
+        """Draai de échte `get_stats()` over een opgegeven geladen set.
+
+        Alleen `get_all_rules()` wordt vervangen - de volledigheidslogica
+        zelf blijft het onderwerp van de test.
+
+        `op_schijf` bepaalt welke stems er werkelijk in de tijdelijke regelmap
+        komen te staan; standaard exact de geladen ID's. Dat is geen decor:
+        het legt `rules_files_on_disk` gelijk aan het aantal geladen regels,
+        precies de situatie waarin de oude formule
+        `len(all_rules) == files_on_disk` volledigheid meldt. Zonder die
+        gelijkstelling zou die formule toevallig ook `False` geven en zou de
+        test niets onderscheiden. Een afwijkende `op_schijf` modelleert een
+        warme cache waarvan de bron inmiddels is veranderd.
+        """
+        for regel_id in geladen if op_schijf is None else op_schijf:
+            (tmp_path / f"{regel_id}.json").write_text("{}", encoding="utf-8")
+
+        cache = RuleCache()
+        monkeypatch.setattr(cache, "regels_dir", tmp_path)
+        monkeypatch.setattr(RuleCache, "get_all_rules", lambda self: geladen)
+        return cache.get_stats()
+
+    def test_lege_set_met_nul_bestanden_is_nooit_compleet(self, tmp_path, monkeypatch):
+        """De tautologie in haar zuiverste vorm: 0 == 0 meldde volledigheid.
+
+        Een lege regelmap laadt nul regels; de oude formule vergeleek dat met
+        nul bestanden en concludeerde compleet. Er is dan geen enkele
+        toetsregel actief, en juist dat mag nooit als gezonde toestand worden
+        gerapporteerd.
+        """
+        stats = self._stats_met_geladen_set(monkeypatch, tmp_path, {})
+
+        assert stats["total_rules_cached"] == 0
+        assert stats["rules_files_on_disk"] == 0
+        assert stats["rules_load_complete"] is False
+        assert stats["rules_expected_count"] == len(CONTRACT_IDS)
+        assert sorted(stats["rules_missing"]) == sorted(CONTRACT_IDS)
+        assert stats["rules_unexpected"] == []
+
+    def test_zelfde_aantal_met_een_vreemd_id_is_niet_compleet(
+        self, tmp_path, monkeypatch
+    ):
+        """Gelijke cardinaliteit is geen gelijke verzameling.
+
+        Er zijn evenveel regels geladen als het contract noemt, maar het is
+        niet dezelfde set: één verwacht ID is vervangen door een onbekend ID.
+        Elke vergelijking op aantallen laat dit passeren.
+        """
+        ontbrekend = CONTRACT_IDS[0]
+        vreemd = "ZZZ-99"
+        geladen = {rid: {} for rid in CONTRACT_IDS[1:]}
+        geladen[vreemd] = {}
+        assert len(geladen) == len(CONTRACT_IDS), "opzetfout: cardinaliteit wijkt af"
+
+        stats = self._stats_met_geladen_set(monkeypatch, tmp_path, geladen)
+
+        assert stats["total_rules_cached"] == stats["rules_expected_count"]
+        assert stats["rules_files_on_disk"] == stats["total_rules_cached"]
+        assert stats["rules_load_complete"] is False
+        assert stats["rules_missing"] == [ontbrekend]
+        assert stats["rules_unexpected"] == [vreemd]
+
+
+class TestWarmeCacheMaskeertBronverliesNiet:
+    """DEF-621 commit 4: de bronset op schijf telt óók mee.
+
+    `get_all_rules()` levert binnen de TTL een warme cache. Verdwijnt er
+    daarna een regelbestand, dan blijft de gecachete set compleet en
+    rapporteerde `get_stats()` gewoon `rules_load_complete=True` - terwijl de
+    bron het contract niet meer dekt. Een healthcheck bleef daardoor een uur
+    lang groen op een regelset die niet meer bestaat.
+
+    De vergelijking loopt daarom over drie verzamelingen: verwacht (root-
+    SSOT), geladen (cache) en actueel op schijf (stems). Er wordt geen
+    JSON-inhoud gelezen en er wordt niets ge-invalideerd; `get_stats` is een
+    diagnosepad en mag geen cache-effecten hebben.
+    """
+
+    _stats_met_geladen_set = staticmethod(
+        TestVolledigheidIsGeenTelling._stats_met_geladen_set
+    )
+
+    def test_verdwenen_bronbestand_bij_warme_cache(self, tmp_path, monkeypatch):
+        """De cache is compleet, de bron niet - dat mag niet groen zijn."""
+        verdwenen = CONTRACT_IDS[0]
+        geladen = {rid: {} for rid in CONTRACT_IDS}
+        op_schijf = [rid for rid in CONTRACT_IDS if rid != verdwenen]
+
+        stats = self._stats_met_geladen_set(
+            monkeypatch, tmp_path, geladen, op_schijf=op_schijf
+        )
+
+        assert stats["total_rules_cached"] == len(CONTRACT_IDS)
+        assert stats["rules_files_on_disk"] == len(CONTRACT_IDS) - 1
+        assert stats["rules_load_complete"] is False
+        # De geladen set dekt het contract nog wél; alleen de bron niet.
+        assert stats["rules_missing"] == []
+        assert stats["rules_unexpected"] == []
+        assert stats["rules_source_missing"] == [verdwenen]
+        assert stats["rules_source_unexpected"] == []
+
+    def test_onverwacht_bronbestand_bij_warme_cache(self, tmp_path, monkeypatch):
+        """Een extra JSON op schijf hoort net zo zichtbaar te zijn."""
+        vreemd = "ZZZ-99"
+        geladen = {rid: {} for rid in CONTRACT_IDS}
+        op_schijf = [*CONTRACT_IDS, vreemd]
+
+        stats = self._stats_met_geladen_set(
+            monkeypatch, tmp_path, geladen, op_schijf=op_schijf
+        )
+
+        assert stats["total_rules_cached"] == len(CONTRACT_IDS)
+        assert stats["rules_files_on_disk"] == len(CONTRACT_IDS) + 1
+        assert stats["rules_load_complete"] is False
+        assert stats["rules_missing"] == []
+        assert stats["rules_unexpected"] == []
+        assert stats["rules_source_missing"] == []
+        assert stats["rules_source_unexpected"] == [vreemd]
+
+    def test_canonieke_alias_op_schijf_is_niet_compleet(self, tmp_path, monkeypatch):
+        """Twee stems met dezelfde canonieke vorm zijn samen één bestand te veel.
+
+        `ARAI-01.json` en `ARAI_01.json` normaliseren allebei naar `ARAI01`.
+        De canonieke bronindex klapt ze samen, dus een zuivere
+        verzamelingsvergelijking ziet 53 == 53 en meldt volledigheid - terwijl
+        er 54 bestanden staan en niemand weet welke van de twee de geldende
+        regel is. Precies de drift die dit project historisch heeft (`VER_01`
+        naast `VER-01`, `ARAI01` naast `ARAI-01`). Alleen de cardinaliteit
+        ontmaskert dit; de setvergelijking kan het per definitie niet zien.
+        """
+        alias = CONTRACT_IDS[0].replace("-", "_")
+        assert alias != CONTRACT_IDS[0], "opzetfout: contract-ID zonder koppelteken"
+        assert canonical_rule_id(alias) == canonical_rule_id(CONTRACT_IDS[0])
+
+        geladen = {rid: {} for rid in CONTRACT_IDS}
+        op_schijf = [*CONTRACT_IDS, alias]
+
+        stats = self._stats_met_geladen_set(
+            monkeypatch, tmp_path, geladen, op_schijf=op_schijf
+        )
+
+        # De drie canonieke verzamelingen zijn hier gelijk; de tellingen niet.
+        assert stats["rules_source_missing"] == []
+        assert stats["rules_source_unexpected"] == []
+        assert stats["rules_expected_count"] == len(CONTRACT_IDS)
+        assert stats["rules_files_on_disk"] == len(CONTRACT_IDS) + 1
+        assert stats["rules_load_complete"] is False
+
+    def test_canonieke_alias_in_de_cache_is_niet_compleet(self, tmp_path, monkeypatch):
+        """Dezelfde botsing, maar dan in de warme cache in plaats van op schijf.
+
+        De bron is hier volledig in orde: 53 bestanden, 53 contract-ID's. De
+        cache draagt er één te veel omdat `ARAI_01` naast `ARAI-01` is blijven
+        staan. Canoniek klappen die samen, dus alle vier de diff-lijsten zijn
+        leeg en beide setvergelijkingen zeggen "gelijk"; alleen de telling van
+        de geladen regels ontmaskert het. Zonder deze test zou het schrappen
+        van juist die clausule door geen enkele test worden betrapt.
+        """
+        alias = CONTRACT_IDS[0].replace("-", "_")
+        assert alias != CONTRACT_IDS[0], "opzetfout: contract-ID zonder koppelteken"
+
+        geladen = {rid: {} for rid in CONTRACT_IDS}
+        geladen[alias] = {}
+        op_schijf = list(CONTRACT_IDS)
+
+        stats = self._stats_met_geladen_set(
+            monkeypatch, tmp_path, geladen, op_schijf=op_schijf
+        )
+
+        assert stats["rules_missing"] == []
+        assert stats["rules_unexpected"] == []
+        assert stats["rules_source_missing"] == []
+        assert stats["rules_source_unexpected"] == []
+        assert stats["total_rules_cached"] == len(CONTRACT_IDS) + 1
+        assert stats["rules_expected_count"] == len(CONTRACT_IDS)
+        assert stats["rules_files_on_disk"] == len(CONTRACT_IDS)
+        assert stats["rules_load_complete"] is False
+
+
+class TestBuildRuleRecordsPolicy:
+    """DEF-621: `build_rule_records()` accepteert een expliciete policy.
+
+    Zonder die doorgifte las de functie altijd de met `lru_cache` afgedekte
+    `root_contract_policy()`. Een aanroeper die de policy zélf vers uit de
+    root-SSOT laadde, kreeg daardoor records die tegen een oudere generatie
+    waren gevalideerd: verse ID's, oude recordvereisten.
+    """
+
+    def test_expliciete_policy_met_extra_eis_faalt(self, cache_records):
+        """Een strengere policy moet de bestaande records afwijzen."""
+        strenger = replace(
+            root_contract_policy(),
+            record_required_fields=(
+                *root_contract_policy().record_required_fields,
+                "nieuw_verplicht_veld",
+            ),
+        )
+        assert not any("nieuw_verplicht_veld" in r for r in cache_records.values())
+
+        with pytest.raises(RuleContractError, match="nieuw_verplicht_veld"):
+            build_rule_records(cache_records, policy=strenger)
+
+    def test_zonder_policy_blijft_het_bestaande_gedrag(self, cache_records):
+        """De default blijft de procespolicy; bestaande callers wijzigen niet."""
+        records = build_rule_records(cache_records)
+
+        assert set(records) == set(cache_records)
+        assert set(records) == set(CONTRACT_IDS)
 
 
 class TestPatroonBudget:

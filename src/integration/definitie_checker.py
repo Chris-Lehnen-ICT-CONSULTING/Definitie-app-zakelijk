@@ -51,6 +51,41 @@ class DefinitieCheckResult:
     confidence: float = 0.0
 
 
+def _opslaanbare_validatiescore(
+    integrated_result: Any, *, standaard: float | None = None
+) -> float | None:
+    """De validatiescore die in de database mag, of None bij geen oordeel.
+
+    DEF-621: bij `validation_unknown` zet `to_ui_response` `final_score` op
+    0.0 als fail-closed compatibiliteitsplaceholder - er is geen enkele
+    toetsregel gedraaid, dus er is geen score. Die nul persisteren maakt hem
+    alsnog tot kwaliteitsoordeel: Edit en Expert Review lezen de kolom terug
+    en tonen een rode 0.00, niet te onderscheiden van een definitie die
+    werkelijk nul haalt. `None` maakt de onbepaaldheid expliciet en overschrijft
+    bij een update ook een eerdere score die niet meer bij deze tekst hoort.
+
+    De discriminator komt uitsluitend uit het geneste `validation_details`;
+    de top-level score draagt hem niet, want dat is de placeholder zelf.
+
+    `standaard` houdt het bestaande gedrag per route intact: de generatieroute
+    slaat een ontbrekende score op als `None`, de updateroute als 0.0.
+    """
+    from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+
+    if not isinstance(integrated_result, dict):
+        return standaard
+
+    details = integrated_result.get("validation_details")
+    if (
+        isinstance(details, dict)
+        and details.get("validation_status") == VALIDATION_STATUS_UNKNOWN
+    ):
+        return None
+
+    score = integrated_result.get("final_score")
+    return standaard if score is None else float(score)
+
+
 class DefinitieChecker:
     """
     Integreert duplicate detection met definitie generatie workflow.
@@ -264,8 +299,6 @@ class DefinitieChecker:
                     or integrated_result.get("definitie_origineel")
                     or ""
                 )
-                final_score = integrated_result.get("final_score")
-
                 saved_record = self._save_generated_definition_v2(
                     begrip=begrip,
                     definitie_text=definitie_text,
@@ -276,9 +309,8 @@ class DefinitieChecker:
                     ),
                     organisatorische_context=organisatorische_context,
                     juridische_context=juridische_context,
-                    final_score=(
-                        float(final_score) if final_score is not None else None
-                    ),
+                    # DEF-621: geen placeholder als oordeel opslaan.
+                    final_score=_opslaanbare_validatiescore(integrated_result),
                     created_by=created_by,
                     source_reference="IntegratedService_V2",
                 )
@@ -375,16 +407,19 @@ class DefinitieChecker:
                 or integrated_result.get("definitie_origineel")
                 or ""
             )
-            final_score = integrated_result.get("final_score") or 0.0
             updates = {
                 "definitie": definitie_text,
-                "validation_score": float(final_score),
-                "version_number": (
-                    existing.version_number + 1
-                    if getattr(existing, "version_number", None)
-                    else 1
+                # DEF-621: bij een onbepaalde validatie wordt de kolom
+                # leeggemaakt; een eerdere score hoort bij een andere tekst.
+                "validation_score": _opslaanbare_validatiescore(
+                    integrated_result, standaard=0.0
                 ),
-                "previous_version_id": definitie_id,
+                # DEF-621: `version_number` is de optimistic-lockverwachting,
+                # niet de nieuwe waarde. De repository vergelijkt hem met de
+                # kolom en hoogt daarna zelf op. Vooraf +1 meegeven liet de
+                # WHERE nooit matchen: de update raakte nul rijen, gaf False
+                # terug en liet tekst en score ongewijzigd achter.
+                "version_number": getattr(existing, "version_number", None),
             }
             success = self.repository.update_definitie(
                 definitie_id, updates, updated_by
