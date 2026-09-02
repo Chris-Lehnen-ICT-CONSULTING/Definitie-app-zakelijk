@@ -118,13 +118,27 @@ def bepaal_readiness(
     stellen, en stil doorgaan zou precies de tautologie herhalen die deze
     module vervangt.
     """
-    verwacht = _index(expected)
-    geladen = _index(loaded)
+    # Eén keer materialiseren: de invoer mag een generator zijn, en zowel de
+    # index als de cardinaliteitsvergelijking hebben hem nodig.
+    verwachte_ids = [str(rid) for rid in expected if str(rid).strip()]
+    geladen_ids = [str(rid) for rid in loaded if str(rid).strip()]
+
+    verwacht = _index(verwachte_ids)
+    geladen = _index(geladen_ids)
 
     ontbreekt = tuple(verwacht[k] for k in sorted(set(verwacht) - set(geladen)))
     onverwacht = tuple(geladen[k] for k in sorted(set(geladen) - set(verwacht)))
 
-    ready = bool(verwacht) and set(verwacht) == set(geladen)
+    # Verzamelingen én aantallen. `_index` klapt twee schrijfwijzen van
+    # hetzelfde ID samen (`ARAI-01` en `ARAI_01` worden allebei `ARAI01`), dus
+    # een zuivere setvergelijking ziet 53 == 53 terwijl er 54 ID's zijn en
+    # niemand weet welke van de twee geldt. Alleen de cardinaliteit ontmaskert
+    # die botsing; `rule_cache.get_stats()` hanteert dezelfde eis.
+    ready = (
+        bool(verwacht)
+        and set(verwacht) == set(geladen)
+        and len(geladen_ids) == len(verwachte_ids)
+    )
 
     return ValidationReadiness(
         ready=ready,

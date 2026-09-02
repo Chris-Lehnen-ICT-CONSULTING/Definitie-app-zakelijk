@@ -1269,6 +1269,34 @@ class _LegacyValidatieObject:
     passed_rules: list = dc_field(default_factory=list)
 
 
+class _ConverterValidatieObject:
+    """Resultaat dat zichzelf via `to_dict()` aanbiedt.
+
+    Dit raakt de convertertak van `normalize_validation`, die vóór het
+    schema-pad ligt. Die tak bouwt zijn eigen dict en las de discriminator
+    daardoor uit `data` in plaats van uit het bronobject; een Pydantic- of
+    to_dict-resultaat kon zo ongemerkt de status verliezen.
+
+    De teller bewijst dat de convertertak werkelijk is gebruikt en de test
+    niet stilletjes op een andere tak is uitgekomen.
+    """
+
+    def __init__(self) -> None:
+        self.to_dict_calls = 0
+
+    def to_dict(self) -> dict:
+        self.to_dict_calls += 1
+        return {
+            "overall_score": 0.0,
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": [],
+            "validation_status": "validation_unknown",
+            "unknown_reason": "ruleset_incomplete",
+            "validation_readiness": dict(READINESS_7_VAN_53),
+        }
+
+
 class TestNormalizeValidationDraagtDeDiscriminator:
     """DEF-621: `validation_unknown` moet de adaptergrens overleven.
 
@@ -1368,6 +1396,23 @@ class TestNormalizeValidationDraagtDeDiscriminator:
         assert genormaliseerd["validation_status"] == "validation_unknown"
         assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
         assert genormaliseerd["validation_readiness"] == READINESS_7_VAN_53
+
+    def test_convertertak_leest_de_discriminator(self, service_adapter):
+        """De `to_dict`-tak ligt vóór het schema-pad en was ongedekt.
+
+        Zonder deze test bewees de suite niets over een Pydantic- of
+        to_dict-resultaat: de andere objecttests vermijden `to_dict` juist
+        om het schema-pad te bereiken.
+        """
+        bron = _ConverterValidatieObject()
+
+        genormaliseerd = service_adapter.normalize_validation(bron)
+
+        assert bron.to_dict_calls == 1, "de convertertak is niet geraakt"
+        assert genormaliseerd["validation_status"] == "validation_unknown"
+        assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
+        assert genormaliseerd["validation_readiness"] == READINESS_7_VAN_53
+        assert genormaliseerd["overall_score"] == 0.0
 
     def test_attribuutfallback_leest_de_discriminator(
         self, service_adapter, monkeypatch

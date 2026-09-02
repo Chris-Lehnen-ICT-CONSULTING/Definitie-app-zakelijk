@@ -29,15 +29,6 @@ from toetsregels.runtime_contract import (
 pytestmark = [pytest.mark.unit]
 
 CONTRACT_IDS = tuple(root_contract_policy().rule_ids)
-BASELINE = (
-    "VAL-EMP-001",
-    "VAL-LEN-001",
-    "VAL-LEN-002",
-    "ESS-CONT-001",
-    "CON-CIRC-001",
-    "STR-TERM-001",
-    "STR-ORG-001",
-)
 TEKST = "besluit: een schriftelijke beslissing van een bestuursorgaan"
 
 
@@ -75,8 +66,10 @@ class TestOnvolledigeSetLevertGeenOordeel:
     def onvolledig(self) -> dict:
         import asyncio
 
-        # Geen ToetsregelManager: zeven van drieenvijftig regels. Precies de
-        # degraded-modus waarin de oude dekking 7/7 = 1,0 meldde.
+        # Geen ToetsregelManager: nul van drieenvijftig regels geladen.
+        # De zeven interne defaults zijn vangnetten in de uitvoervolgorde,
+        # geen geladen contractregels - ze meetellen als lading zou precies
+        # de gaten opvullen die de guard moet signaleren.
         return asyncio.run(_resultaat(ModularValidationService(None, None, None)))
 
     def test_er_wordt_geen_oordeel_geproduceerd(self, onvolledig):
@@ -105,13 +98,18 @@ class TestOnvolledigeSetLevertGeenOordeel:
         assert onvolledig["rule_statuses"] == {}
 
     def test_de_kloof_is_zichtbaar_in_readiness(self, onvolledig):
+        # Zonder manager is er niets geladen. De zeven interne vangnetten
+        # telden hier eerder mee als lading, waardoor readiness 46 in plaats
+        # van 53 ontbrekende regels meldde en een set van 52 als compleet kon
+        # gelden. De hele kloof hoort zichtbaar te zijn, niet zes zevende.
         readiness = onvolledig["validation_readiness"]
         assert readiness["ready"] is False
-        assert readiness["loaded_total"] == len(BASELINE) == 7
+        assert readiness["loaded_total"] == 0
         assert readiness["expected_total"] == len(CONTRACT_IDS) == 53
         ontbrekend = set(readiness["missing_rule_ids"])
-        assert len(ontbrekend) == 46, sorted(ontbrekend)
-        assert ontbrekend == set(CONTRACT_IDS) - set(BASELINE)
+        assert len(readiness["missing_rule_ids"]) == 53
+        assert len(ontbrekend) == 53, sorted(ontbrekend)
+        assert ontbrekend == set(CONTRACT_IDS)
 
 
 class TestVolledigeSetDektDeNoemer:

@@ -345,8 +345,11 @@ class ModularValidationService:
             # eruit worden opgebouwd.
             alle_regels = copy.deepcopy(dict(manager.get_all_regels() or {}))
 
+        # DEF-621: twee gescheiden begrippen. `geladen_ids` is wat de manager
+        # werkelijk leverde en is de enige geldige maatstaf voor readiness;
+        # `codes` is de interne uitvoervolgorde, inclusief vangnetten.
         if alle_regels:
-            codes = list(alle_regels.keys())
+            geladen_ids = list(alle_regels.keys())
             # DEF-606: valideer het volledige regelcontract fail-closed. Een
             # record zonder bekende evaluator of met onbekende invoer mag niet
             # stil doorglippen naar een default-pass. DEF-621: expliciet tegen
@@ -354,9 +357,14 @@ class ModularValidationService:
             records = build_rule_records(alle_regels, policy=policy)
             gewichten = {
                 rule_id: self._calculate_rule_weight(alle_regels.get(rule_id) or {})
-                for rule_id in codes
+                for rule_id in geladen_ids
             }
-            # Baselineregels erbij zodat de vangnetten blijven draaien.
+            # Baselineregels erbij zodat de vangnetten blijven draaien. Dit
+            # raakt uitsluitend de uitvoervolgorde. Zeven van deze vangnetten
+            # zijn zélf contractregels; telden zij mee als geladen, dan vulde
+            # de service precies de gaten op die hij moest signaleren en gold
+            # een regelset van 52 als compleet.
+            codes = list(geladen_ids)
             for rid in self._baseline_internal:
                 if rid not in codes:
                     codes.append(rid)
@@ -364,9 +372,12 @@ class ModularValidationService:
         else:
             codes_t, gewichten, json_regels = self._default_regelset()
             codes = list(codes_t)
+            # Interne defaults zijn geen lading: zonder manager is er nul
+            # geladen, ook al draaien de vangnetten wel.
+            geladen_ids = []
             records = {}
 
-        readiness = bepaal_readiness(contract_ids, codes)
+        readiness = bepaal_readiness(contract_ids, geladen_ids)
 
         return RuntimeSnapshot(
             fingerprint=fingerprint,
@@ -377,13 +388,13 @@ class ModularValidationService:
             json_rules=MappingProxyType(dict(json_regels)),
             default_weights=MappingProxyType(dict(gewichten)),
             pattern_cache={},
-            rules_loaded_count=len(codes),
+            rules_loaded_count=len(geladen_ids),
             rules_expected_count=len(contract_ids),
             is_degraded_mode=not readiness.ready,
             degradation_reason=(
                 None
                 if readiness.ready
-                else f"regelset incompleet: {len(codes)}/{len(contract_ids)}"
+                else f"regelset incompleet: {len(geladen_ids)}/{len(contract_ids)}"
             ),
         )
 
