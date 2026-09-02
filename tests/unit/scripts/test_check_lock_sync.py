@@ -198,6 +198,54 @@ def test_dev_lock_wordt_als_versievoorkeur_meegegeven(tmp_path):
     )
 
 
+def test_stub_zonder_voorkeur_tak_is_bereikbaar(tmp_path):
+    """Zelftest: bewijst dat de `body_zonder_voorkeur`-tak van de stub werkt.
+
+    De voorkeurtest hierboven toont exit 0 wanneer de kopieerstap er is. Zonder
+    deze zelftest zou die test ook groen blijven als de stub-tak onbereikbaar
+    was — dan zou hij niets bewijzen. Met een lege gecommitte lock is het
+    compile-doel leeg, dus de stub schrijft de afwijkende body en de gate hoort
+    rood te worden.
+    """
+    root = _repo(tmp_path)
+    (root / "requirements.txt").write_text("", encoding="utf-8")
+    _fake_uv(
+        tmp_path / "bin",
+        runtime_body=LOCK_BODY,
+        dev_body=DEV_LOCK_BODY,
+        body_zonder_voorkeur="voorbeeld==1.1.0\n    # via -r requirements.in\n",
+    )
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 1, (
+        "Met een leeg compile-doel hoort de stub de afwijkende body te "
+        f"schrijven, wat een desync geeft.\n{resultaat.stdout}{resultaat.stderr}"
+    )
+    assert "1.1.0" in resultaat.stderr
+
+
+def test_make_target_roept_het_script_aan(tmp_path):
+    """De make-bedrading heeft geen dekking van de andere tests.
+
+    Die roepen het script rechtstreeks aan. Wordt het scriptpad in het
+    Makefile hernoemd of verkeerd bedraad, dan blijft de hele suite groen
+    terwijl `make lock-check` niets meer controleert — de opvolger van de
+    faalmodus waar deze gate zelf aan onderdoorging.
+    """
+    repo_root = SCRIPT.parent.parent.parent
+    resultaat = subprocess.run(
+        ["make", "-n", "lock-check"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert resultaat.returncode == 0, resultaat.stderr
+    assert "scripts/ci/check_lock_sync.sh" in resultaat.stdout, resultaat.stdout
+
+
 def test_langere_header_wordt_correct_gestript(tmp_path):
     """Het commentaarblok wordt op inhoud gestript, niet op een vast regelaantal.
 
