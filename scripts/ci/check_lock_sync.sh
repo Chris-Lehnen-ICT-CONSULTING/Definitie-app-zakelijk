@@ -94,12 +94,69 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/lock-sync.XXXXXX") || {
     echo "FOUT: kan geen tijdelijke map aanmaken." >&2
     exit "$EXIT_PRECONDITIE"
 }
-# Alleen EXIT, en met -f. Een handler op INT/TERM ruimt wel op maar beeindigt
-# het script niet, waardoor het doorloopt met een verwijderde tmpdir en de
-# gebruiker een misleidende resolve-fout ziet; daarna zou de EXIT-trap er een
+# Transactie-state voor write-modus. Zolang TRANSACTIE_ACTIEF op 1 staat, zet
+# een gefaalde run beide locks terug naar de staat van vóór deze aanroep.
+TRANSACTIE_ACTIEF=0
+RUNTIME_BESTOND=0
+DEV_BESTOND=0
+ROLLBACK_MISLUKT=0
+
+# Zet één lock terug naar de staat van vóór de transactie.
+#
+# Bestond het doel niet, dan hoort het na een rollback ook niet te bestaan: een
+# gefaalde eerste opbouw mag geen halve lock achterlaten waar er eerst geen was.
+# Anders committeert de gebruiker een runtime-lock die nooit bij een geslaagde
+# resolutie hoorde.
+#
+# Terugzetten gaat via een sibling en een mv, net als het schrijven zelf. Een
+# rechtstreekse cp kan bij een fout halverwege een afgekapt bestand achterlaten,
+# en dan richt de rollback precies de schade aan die hij moest voorkomen. Het
+# resultaat wordt gecontroleerd: mislukt het herstel, dan meldt hij dat en
+# blijven de backups staan, in plaats van stilzwijgend succes te suggereren.
+herstel() {
+    local doel=$1 backup=$2 bestond=$3
+    local tijdelijk="$doel.herstel.$$"
+
+    if [ "$bestond" = 0 ]; then
+        if [ -e "$doel" ] && ! rm "$doel" 2>/dev/null; then
+            echo "  LET OP: $doel bestond niet vóór deze run en kon niet worden verwijderd." >&2
+            ROLLBACK_MISLUKT=1
+        fi
+        return
+    fi
+
+    if ! cp "$backup" "$tijdelijk" 2>/dev/null || ! mv "$tijdelijk" "$doel" 2>/dev/null; then
+        rm -f "$tijdelijk" 2>/dev/null || true
+        echo "  LET OP: $doel kon NIET worden teruggedraaid." >&2
+        ROLLBACK_MISLUKT=1
+        return
+    fi
+    echo "  teruggedraaid: $doel" >&2
+}
+
+# Eén EXIT-trap voor rollback én opruiming, geïnstalleerd vóór de eerste
+# mutatie. Alleen EXIT, en met -f. Een handler op INT/TERM ruimt wel op maar
+# beeindigt het script niet, waardoor het doorloopt met een verwijderde tmpdir en
+# de gebruiker een misleidende resolve-fout ziet; daarna zou de EXIT-trap er een
 # tweede keer overheen gaan. Zonder -f kan die falende rm bovendien de exitcode
 # van een geslaagde run overschrijven. EXIT vuurt ook bij een signaal.
-trap 'rm -rf "$tmp"' EXIT
+opruimen() {
+    local status=$?
+
+    if [ "$status" -ne 0 ] && [ "$TRANSACTIE_ACTIEF" = 1 ]; then
+        herstel requirements.txt "$tmp/req.backup" "$RUNTIME_BESTOND"
+        herstel requirements-dev.txt "$tmp/dev.backup" "$DEV_BESTOND"
+    fi
+
+    if [ "$ROLLBACK_MISLUKT" = 1 ]; then
+        # De backups zijn dan het enige overgebleven exemplaar; die mogen niet
+        # samen met de tmpdir verdwijnen.
+        echo "  De backups staan in $tmp — herstel handmatig." >&2
+        return
+    fi
+    rm -rf "$tmp"
+}
+trap opruimen EXIT
 
 # De lock gaat als versievoorkeur naar het compile-doel, maar ZONDER hashes.
 #
@@ -174,9 +231,14 @@ compileer() {
         # zo een allowlist mist er altijd een (access_token, refresh_token, ...)
         # en groeit alleen maar. Sleutelnamen zelf blijven zichtbaar, zodat de
         # melding diagnosticeerbaar blijft.
+        #
+        # De sleutel matcht op "alles tot de =", niet op een tekenklasse van wat
+        # een sleutelnaam mag heten. Een percent-encoded of anderszins exotische
+        # sleutel (api%2Dtoken=...) valt buiten [A-Za-z0-9_.-] en zou de hele
+        # parameter ongemaskeerd doorlaten — inclusief de waarde.
         sed -n '1,20p' "$err" \
             | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
-                     -e 's#([?&][A-Za-z0-9_.-]+=)[^&[:space:]]+#\1***#g' >&2
+                     -e 's#([?&][^=&[:space:]]+=)[^&[:space:]]+#\1***#g' >&2
         exit "$EXIT_RESOLVE"
     fi
 }
@@ -199,7 +261,10 @@ schrijf() {
         echo "FOUT: kan $doel niet vervangen." >&2
         exit "$EXIT_PRECONDITIE"
     fi
-    echo "  geschreven: $doel"
+    # Bewust geen melding hier: schrijven gebeurt binnen de transactie, en een
+    # echo kan falen (een afgesloten pipe geeft EPIPE). Dat zou de EXIT-trap een
+    # rollback laten uitvoeren van een schrijfactie die wél geslaagd is. De
+    # meldingen volgen na de commit.
 }
 
 # Volgorde is load-bearing: eerst de runtime-lock compileren én vergelijken,
@@ -252,39 +317,46 @@ vergelijk() {
 if [ "$MODUS" = check ]; then
     vergelijk requirements.txt "$tmp/req.check" requirements.in
 else
-    # De runtime-lock moet er staan vóór de dev-resolve, want die gebruikt hem
-    # als constraint — en dat pad belandt in de `# via`-annotaties van de
-    # dev-lock. Een tijdelijk pad meegeven zou daar een willekeurige
-    # /var/folders-locatie inschrijven, waardoor elke run een andere lock geeft.
-    # Daarom schrijven we hier al, met een backup voor rollback als de
-    # dev-resolve alsnog faalt.
+    # Vanaf hier muteert de run de repo. Eerst beide locks veiligstellen en
+    # vastleggen welke er stonden, zodat de EXIT-trap ze compleet kan
+    # terugdraaien — inclusief het weer weghalen van een lock die er vóór deze
+    # run nog niet was. Backups en trap staan bewust vóór de eerste schrijfactie:
+    # een transactie die pas halverwege wordt opgezet, beschermt de eerste helft
+    # niet.
     if [ -f requirements.txt ]; then
         cp requirements.txt "$tmp/req.backup" || {
             echo "FOUT: kan geen backup van requirements.txt maken." >&2
             exit "$EXIT_PRECONDITIE"
         }
-        HERSTEL_RUNTIME=1
+        RUNTIME_BESTOND=1
     fi
+    if [ -f requirements-dev.txt ]; then
+        cp requirements-dev.txt "$tmp/dev.backup" || {
+            echo "FOUT: kan geen backup van requirements-dev.txt maken." >&2
+            exit "$EXIT_PRECONDITIE"
+        }
+        DEV_BESTOND=1
+    fi
+    TRANSACTIE_ACTIEF=1
+
+    # De runtime-lock moet er staan vóór de dev-resolve, want die gebruikt hem
+    # als constraint — en dat pad belandt in de `# via`-annotaties van de
+    # dev-lock. Een tijdelijk pad meegeven zou daar een willekeurige
+    # /var/folders-locatie inschrijven, waardoor elke run een andere lock geeft.
     schrijf "$tmp/req.check" requirements.txt
 fi
 
 # De dev-resolve gebruikt de runtime-lock als constraint, met een relatief pad
 # zodat de annotatie in de dev-lock reproduceerbaar blijft.
-if [ "$MODUS" = write ]; then
-    # Rollback bij een falende dev-resolve: anders blijft een bijgewerkte
-    # runtime-lock naast een ongewijzigde dev-lock achter.
-    trap 'status=$?; if [ "$status" -ne 0 ] && [ "${HERSTEL_RUNTIME:-0}" = 1 ]; then
-            cp "$tmp/req.backup" requirements.txt 2>/dev/null || true
-            echo "  requirements.txt teruggedraaid" >&2
-          fi
-          rm -rf "$tmp"' EXIT
-fi
-
 compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c requirements.txt
 
 if [ "$MODUS" = write ]; then
     schrijf "$tmp/req-dev.check" requirements-dev.txt
-    HERSTEL_RUNTIME=0
+    # Commit vóór élke verdere uitvoer: beide locks staan er, dus een falende
+    # echo mag hier geen rollback meer uitlokken.
+    TRANSACTIE_ACTIEF=0
+    echo "  geschreven: requirements.txt"
+    echo "  geschreven: requirements-dev.txt"
     echo "OK: requirements-locks gegenereerd uit de .in-bronnen."
 else
     vergelijk requirements-dev.txt "$tmp/req-dev.check" requirements-dev.in
