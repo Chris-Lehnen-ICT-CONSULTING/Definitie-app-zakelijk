@@ -10,14 +10,42 @@ ModularValidationService — zonder UI/Streamlit-afhankelijkheid.
 import logging
 import threading
 import time
+from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import Any, cast
 
 from utils.cache import cached, clear_cache as _global_cache_clear
 
-from .runtime_contract import build_rule_record, lees_regelbestand, valideer_regelset
+from .runtime_contract import (
+    RuleContractError,
+    build_rule_record,
+    canonical_rule_id,
+    lees_regelbestand,
+    load_root_contract_policy,
+    valideer_regelset,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _index_op_canonieke_id(ids: Iterable[str]) -> dict[str, str]:
+    """Canonieke ID -> oorspronkelijke schrijfwijze.
+
+    De schrijfwijzen lopen historisch door elkaar (``CON-01``, ``CON_01``,
+    ``ARAI01``). Vergelijken gebeurt op de canonieke vorm; melden gebeurt in
+    de vorm die een lezer terugvindt in de regelmap of in de root-SSOT.
+    """
+    return {canonical_rule_id(rid): str(rid) for rid in ids if str(rid).strip()}
+
+
+def _afwijking(links: Mapping[str, str], rechts: Mapping[str, str]) -> list[str]:
+    """ID's die wél in ``links`` zitten en niet in ``rechts``.
+
+    Gemeld in de oorspronkelijke schrijfwijze van de kant waar zij vandaan
+    komen, zodat een lezer ze rechtstreeks terugvindt.
+    """
+    return sorted(links[k] for k in set(links) - set(rechts))
+
 
 # TTL (seconden) voor de proces-lokale in-memory memo in RuleCache.
 # Gelijk aan de @cached-TTL zodat memo en FileCache dezelfde levensduur delen.
@@ -385,10 +413,47 @@ class RuleCache:
             except (RuntimeError, OSError) as e:
                 logger.warning(f"Rule cache clear failed: {e}")
 
+    @staticmethod
+    def _contractregel_ids() -> tuple[str, ...]:
+        """De verwachte regel-ID-set, vers uit de root-SSOT.
+
+        Bewust niet via het met ``lru_cache`` afgedekte
+        ``root_contract_policy()``: die geeft na een wijziging van de SSOT
+        opnieuw de oude verwachting terug, en dan meet ``get_stats`` de
+        volledigheid tegen een verouderd contract. De globale cache wordt
+        hier niet geleegd - dat zou een verborgen neveneffect zijn voor elke
+        andere lezer - en ``get_stats`` is een diagnosepad, geen validatiepad.
+        """
+        return load_root_contract_policy().rule_ids
+
     def get_stats(self) -> dict[str, Any]:
         """Haal cache statistieken op."""
         all_rules = self.get_all_rules()
-        files_on_disk = len(list(self.regels_dir.glob("*.json")))
+        bestanden = sorted(self.regels_dir.glob("*.json"))
+
+        # DEF-621: volledigheid is verzamelingsgelijkheid tegen de
+        # contractuele ID-set, geen telling. ``len(all_rules) ==
+        # files_on_disk`` was tautologisch: verdwijnen er 46 van de 53, dan
+        # geldt 7 == 7, en bij nul bestanden meldt 0 == 0 een lege regelset
+        # als compleet. Een onleesbare SSOT levert een lege verwachting op en
+        # is daarmee nooit compleet - fail-closed, net als het validatiepad.
+        #
+        # Drie verzamelingen, niet twee. `get_all_rules()` levert binnen de
+        # TTL een warme cache; verdwijnt daarna een regelbestand, dan blijft
+        # die cache compleet terwijl de bron het contract niet meer dekt. Een
+        # vergelijking van alleen verwacht en geladen zou dat bronverlies een
+        # uur lang groen rapporteren. Alleen de stems tellen mee - er wordt
+        # hier geen JSON gelezen en niets ge-invalideerd; dit is een
+        # diagnosepad en mag geen cache-effect hebben.
+        try:
+            contract_ids = self._contractregel_ids()
+        except RuleContractError as exc:
+            logger.error(f"Contractuele regel-ID-set niet leesbaar: {exc}")
+            contract_ids = ()
+        verwacht = _index_op_canonieke_id(contract_ids)
+        geladen = _index_op_canonieke_id(all_rules)
+        op_schijf = _index_op_canonieke_id(pad.stem for pad in bestanden)
+
         stats = {
             **self.stats,
             "total_rules_cached": len(all_rules),
@@ -396,8 +461,32 @@ class RuleCache:
             # DEF-621: zichtbare degraded-state — health/monitoring kan
             # hierop alarmeren i.p.v. dat een kapot regelbestand een uur
             # lang stil uit de set verdwijnt.
-            "rules_files_on_disk": files_on_disk,
-            "rules_load_complete": len(all_rules) == files_on_disk,
+            "rules_files_on_disk": len(bestanden),
+            # Het rúwe aantal contract-ID's, vóór canonieke samenvoeging:
+            # anders zou de noemer meebewegen met een botsing.
+            "rules_expected_count": len(contract_ids),
+            # Gescheiden assen: de eerste twee gaan over de geladen set, de
+            # laatste twee over de bron op schijf. Zo blijft zichtbaar of de
+            # cache zelf incompleet is of dat hij juist compleet is terwijl
+            # de bron dat niet meer is.
+            "rules_missing": _afwijking(verwacht, geladen),
+            "rules_unexpected": _afwijking(geladen, verwacht),
+            "rules_source_missing": _afwijking(verwacht, op_schijf),
+            "rules_source_unexpected": _afwijking(op_schijf, verwacht),
+            # Verzamelingen én tellingen. De canonieke index klapt twee
+            # schrijfwijzen van hetzelfde ID samen (`ARAI-01.json` naast
+            # `ARAI_01.json` wordt één `ARAI01`), dus een zuivere
+            # setvergelijking ziet 53 == 53 terwijl er 54 bestanden staan en
+            # niemand weet welke van de twee geldt. De cardinaliteitseis
+            # ontmaskert die botsing; de setvergelijking kan dat per
+            # definitie niet.
+            "rules_load_complete": (
+                bool(verwacht)
+                and set(geladen) == set(verwacht)
+                and set(op_schijf) == set(verwacht)
+                and len(all_rules) == len(contract_ids)
+                and len(bestanden) == len(contract_ids)
+            ),
         }
 
         # Add monitoring snapshot if available

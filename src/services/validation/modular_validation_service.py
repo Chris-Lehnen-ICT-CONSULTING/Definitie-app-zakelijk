@@ -8,25 +8,42 @@ dit uitgebreid worden om ToetsregelManager en Python-regelmodules te gebruiken.
 
 from __future__ import annotations
 
+import copy
 import logging
 import re
+import threading
 import uuid
 from collections.abc import ItemsView, KeysView, ValuesView
+from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
 from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
 from services.validation.evaluators.registry import get_default_registry
-from services.validation.interfaces import CONTRACT_VERSION
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    UNKNOWN_REASON_RULESET_INCOMPLETE,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
+)
+from services.validation.readiness import (
+    RuntimeSnapshot,
+    bepaal_readiness,
+    bereken_fingerprint,
+    veilige_degradatiereden,
+)
 from toetsregels.runtime_contract import (
+    ROOT_CONFIG_PATH,
     RequiredInput,
     ResultStatus,
+    RootContractPolicy,
     RuleContractError,
     RuleRecord,
     ScorePolicy,
     build_rule_records,
+    load_root_contract_policy,
     missing_inputs,
-    root_contract_policy,
 )
 from utils.dict_helpers import safe_dict_get
 from utils.type_helpers import ensure_list, ensure_string
@@ -48,6 +65,12 @@ from .violation_builder import (
 )
 
 logger = logging.getLogger(__name__)
+
+# DEF-621: de contract-SSOT telt mee in de fingerprint. Zij bepaalt de
+# verwachte regel-ID-set, dus een beschadigde of herstelde YAML moet net zo
+# goed een herlaadpoging uitlokken als een verdwenen regelbestand. Alias op
+# de bestaande constante zodat er een bron blijft.
+ROOT_SSOT_PAD: Path = ROOT_CONFIG_PATH
 
 # Regels waarvan een `fail` de acceptatie blokkeert, ook als zij buiten de
 # kwaliteitsscore vallen (DEF-674). DUP_01 is `excluded_from_score` — een
@@ -121,26 +144,12 @@ class ModularValidationService:
         self.config = config
         self._repository = repository
 
-        # DEF-606: gevalideerde regelcontracten + het expliciete
-        # evaluatorregister. Zonder record is er geen uitvoerbaar pad; de
-        # service verzint er geen.
-        self._rule_records: dict[str, RuleRecord] = {}
+        # Onveranderlijke serviceconfiguratie: hangt niet aan de regelset en
+        # hoort daarom niet in de snapshot.
         self._registry = get_default_registry()
-        self._pattern_cache: dict[str, Any] = {}
 
-        # DEF-215: Degraded mode tracking voor transparantie naar UI
-        self._is_degraded_mode: bool = False
-        self._degradation_reason: str | None = None
-        self._rules_loaded_count: int = 0
-        # DEF-621/DEF-668: de verwachte regelset komt uit het contract, niet
-        # uit een hardcoded getal en niet uit de set die toevallig draait. Zij
-        # is zowel de degraded-modus-teller als de noemer van de
-        # evaluatiedekking.
-        self._contract_rule_ids: tuple[str, ...] = self._contractregel_ids()
-        self._rules_expected_count: int = len(self._contract_rule_ids)
-
-        # Baseline interne regels (altijd beschikbaar voor policies zoals scoring-uitsluiting)
-        self._baseline_internal: list[str] = [
+        # Vaste baselineregels. Een constante, geen generatiestate.
+        self._baseline_internal: tuple[str, ...] = (
             "VAL-EMP-001",
             "VAL-LEN-001",
             "VAL-LEN-002",
@@ -148,24 +157,61 @@ class ModularValidationService:
             "CON-CIRC-001",
             "STR-TERM-001",
             "STR-ORG-001",
-        ]
+        )
 
-        # Load rules from ToetsregelManager if available, otherwise use defaults
-        if self.toetsregel_manager is not None:
-            self._load_rules_from_manager()
-        else:
-            # Interne default regelset (fallback als geen ToetsregelManager)
-            self._internal_rules: list[str] = list(self._baseline_internal)
-            # Default gewichten (overschrijfbaar via config.weights)
-            self._default_weights: dict[str, float] = {
-                "VAL-EMP-001": 1.0,
-                "VAL-LEN-001": 0.9,
-                "VAL-LEN-002": 0.6,
-                "ESS-CONT-001": 1.0,
-                "CON-CIRC-001": 0.8,
-                "STR-TERM-001": 0.5,
-                "STR-ORG-001": 0.7,
-            }
+        # DEF-621: alle ruleset-afhankelijke gegevens leven in een atomair
+        # gepubliceerde snapshot. Eerst een volledige lege generatie, zodat
+        # geen enkel pad op een half geinitialiseerd object kan stuiten - ook
+        # niet wanneer de opbouw hieronder klapt.
+        self._state_lock = threading.Lock()
+        self._snapshot: RuntimeSnapshot = self._lege_snapshot(
+            fingerprint=None, oorzaak=None
+        )
+        # Wat de eerste geslaagde policyread opleverde. Struikelt de opbouw
+        # daarna, dan houdt het foutpad de verwachting hiermee vast zonder de
+        # root-SSOT opnieuw te lezen; faalt die read zelf, dan blijft dit leeg
+        # en is nul van nul de eerlijke melding.
+        bekende_ids: tuple[str, ...] = ()
+        try:
+            fp_voor = bereken_fingerprint(self._fingerprintbronnen())
+            policy = self._verse_contractpolicy()
+            bekende_ids = tuple(policy.rule_ids)
+            self._snapshot = self._publiceerbaar(
+                self._bouw_snapshot(fp_voor, policy), fp_voor
+            )
+        except RuleContractError as exc:
+            # De lader blijft fail-closed gooien; alleen deze runtimegrens
+            # vertaalt dat naar een beschikbare, maar onbepaalde validatie.
+            logger.critical(
+                "Regelcontract geschonden; validatie levert validation_unknown: %s",
+                exc,
+            )
+            self._snapshot = self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=exc,
+                contract_ids=bekende_ids,
+            )
+        except Exception as exc:
+            # Constructorpad 3: een generieke laadfout viel voorheen stil terug
+            # op zeven baselineregels en liet de validatie daarna gewoon
+            # doorlopen - een score over zeven regels, niet te onderscheiden
+            # van een score over drieenvijftig.
+            logger.error(
+                "Regelset laden gefaald (%s); validatie levert validation_unknown: %s",
+                type(exc).__name__,
+                exc,
+                extra={
+                    "component": "modular_validation_service",
+                    "degraded_mode": True,
+                    "degradation_reason": str(exc),
+                },
+            )
+            self._snapshot = self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=exc,
+                contract_ids=bekende_ids,
+            )
+
         # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
         self._overall_threshold: float = 0.75
         # Categorie-acceptatiedrempel (nieuw; overschrijfbaar via config.thresholds.category_accept)
@@ -200,94 +246,314 @@ class ModularValidationService:
                 )
 
     @staticmethod
-    def _contractregel_ids() -> tuple[str, ...]:
-        """De verwachte regel-ID-set uit het contract (DEF-621/DEF-668).
+    def _verse_contractpolicy() -> RootContractPolicy:
+        """De contractpolicy van deze generatie, vers uit de root-SSOT.
 
-        Komt uit het ``rule_ids``-manifest in de root-SSOT, niet uit een glob
-        over de regelmap: dat laatste zou de verwachting laten meebewegen met
-        een verdwenen bestand en het gat juist onzichtbaar maken.
+        Draagt zowel het ``rule_ids``-manifest als de recordvereisten. Beide
+        horen uit hetzelfde object te komen: één snapshot mag geen verse
+        ID-set met de recordvereisten van een oudere generatie combineren.
+
+        De ID-set komt uit het manifest, niet uit een glob over de regelmap:
+        dat laatste zou de verwachting laten meebewegen met een verdwenen
+        bestand en het gat juist onzichtbaar maken.
 
         Bewust zonder fallback. De eerdere ``except RuleContractError: return
         45`` verzon bij een onleesbare root-SSOT een noemer, terwijl elk ander
         pad bij diezelfde fout hard faalt. Een gefantaseerde noemer is precies
         zo misleidend als een noemer die met de gedraaide set meebeweegt: de
         dekking rapporteert dan een percentage waarvan niemand de basis kent.
+
+        DEF-621 commit 4: bewust een verse load uit ``ROOT_SSOT_PAD`` in
+        plaats van het met ``lru_cache`` afgedekte ``root_contract_policy()``.
+        Die procescache gaf bij een herlaadpoging opnieuw de oude verwachting
+        terug: de fingerprint zag een beschadigde of herstelde contract-SSOT
+        wel, de verwachte ID-set niet. De globale cache wordt daarvoor niet
+        geleegd - dat zou een verborgen neveneffect zijn voor elke andere
+        lezer van de policy, terwijl een expliciete load hier volstaat.
+
+        De kosten blijven bij constructie en bij een werkelijke
+        fingerprintwijziging, want alleen ``_bouw_snapshot`` roept dit aan.
         """
-        return root_contract_policy().rule_ids
+        return load_root_contract_policy(ROOT_SSOT_PAD)
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
-    def _load_rules_from_manager(self) -> None:
-        """Load rules from ToetsregelManager if available."""
-        try:
-            # Get all available rules from manager
-            # toetsregel_manager is guaranteed to be not None here (checked by caller)
-            manager = self.toetsregel_manager
-            if manager is None:
-                self._set_default_rules()
-                return
-            all_rules = manager.get_all_regels()
+    def _regelpad(self) -> Path | None:
+        """Waar de regelbestanden van de huidige manager staan.
 
-            # Early return if no rules
-            if not all_rules:
-                self._set_default_rules()
-                return
+        Twee echte injectiepaden: `ToetsregelManager` draagt `regels_dir`
+        zelf, `CachedToetsregelManager` draagt hem op zijn `RuleCache`. Zonder
+        manager is er geen herstelbaar bronpad - die service blijft permanent
+        onbepaald.
+        """
+        manager = self.toetsregel_manager
+        if manager is None:
+            return None
+        d = getattr(manager, "regels_dir", None)
+        if d is None:
+            cache = getattr(manager, "cache", None)
+            d = getattr(cache, "regels_dir", None)
+        return Path(d) if d else None
 
-            # Initialize rule structures (optioneel filter op enabled_codes)
-            all_codes = list(all_rules.keys())
-            # Evalueren van ALLE beschikbare regels (gebruik weights/thresholds uit config waar beschikbaar)
-            self._internal_rules = all_codes
-            self._json_rules = all_rules
+    def _fingerprintbronnen(self) -> tuple[Path, ...]:
+        """De bronnen waarover de fingerprint wordt berekend.
+
+        Bewust bij iedere controle opnieuw opgebouwd met een verse glob. Een
+        bij constructie opgeslagen padlijst zou een nieuw, onverwacht
+        regelbestand missen - juist het bestand dat de geladen ID-verzameling
+        ongelijk maakt aan het contract.
+        """
+        regelmap = self._regelpad()
+        regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
+        return (*regels, ROOT_SSOT_PAD)
+
+    def _publiceerbaar(
+        self, gebouwd: RuntimeSnapshot, fingerprint: str | None
+    ) -> RuntimeSnapshot:
+        """Publiceer alleen wat bij de gemeten brontoestand hoort.
+
+        De fingerprint wordt gemeten vóór de opbouw, maar `_bouw_snapshot`
+        leest de schijf pas daarna. Wijzigen de bronnen daartussen, dan zou
+        een ready generatie het label van een ándere toestand dragen. Komt
+        die toestand later terug - een regelbestand dat verdwijnt, terugkeert
+        en opnieuw verdwijnt - dan levert dat exact dezelfde fingerprint op
+        en ziet de service de overgang nooit meer.
+
+        Bij een botsing gaat er dus niets naar buiten en publiceren we
+        fail-closed met `fingerprint=None`. Die waarde matcht nooit met een
+        gemeten fingerprint, dus de eerstvolgende aanroep bouwt gewoon
+        opnieuw. Geen herhaalpoging binnen deze aanroep: één extra meting,
+        daarna is de beurt aan de volgende validatie.
+
+        Deze tweede meting hangt aan de herbouw, niet aan de validatie. Het
+        normale pad returnt eerder op de fingerprintvergelijking en houdt
+        daarmee één meting per validatie.
+        """
+        if bereken_fingerprint(self._fingerprintbronnen()) == fingerprint:
+            return gebouwd
+
+        logger.warning(
+            "Bronnen wijzigden tijdens het opbouwen van de regelset; "
+            "fail-closed gepubliceerd zodat de volgende aanroep opnieuw leest"
+        )
+        # De verwachting staat al in de zojuist gebouwde generatie; die is
+        # niet minder geldig geworden doordat de bronnen bewogen.
+        return self._lege_snapshot(
+            fingerprint=None,
+            oorzaak=RuntimeError("bronnen wijzigden tijdens het opbouwen"),
+            contract_ids=gebouwd.contract_rule_ids,
+        )
+
+    def _lege_snapshot(
+        self,
+        *,
+        fingerprint: str | None,
+        oorzaak: BaseException | None,
+        contract_ids: tuple[str, ...] = (),
+    ) -> RuntimeSnapshot:
+        """Een volledig ingevulde, niet-bruikbare generatie.
+
+        Alle velden zijn gezet - lege collecties, een eigen lege
+        `pattern_cache`, readiness onwaar. Daardoor kan hij met een enkele
+        toewijzing worden gepubliceerd zonder dat er ergens een half
+        vernieuwde toestand ontstaat.
+
+        `contract_ids` blijft leeg zolang de verwachting werkelijk onbekend
+        is - faalt de root-SSOT zelf, dan is nul van nul de eerlijke melding.
+        Is zij wél gelezen en struikelde pas het laden van de records, dan
+        draagt deze snapshot de volledige verwachting en noemt hij elke regel
+        die ontbreekt.
+        """
+        return RuntimeSnapshot(
+            fingerprint=fingerprint,
+            readiness=bepaal_readiness(contract_ids, ()),
+            contract_rule_ids=contract_ids,
+            internal_rules=(),
+            rule_records=MappingProxyType({}),
+            json_rules=MappingProxyType({}),
+            default_weights=MappingProxyType({}),
+            pattern_cache={},
+            rules_loaded_count=0,
+            rules_expected_count=len(contract_ids),
+            is_degraded_mode=True,
+            degradation_reason=veilige_degradatiereden(oorzaak),
+        )
+
+    def _bouw_snapshot(
+        self, fingerprint: str | None, policy: RootContractPolicy
+    ) -> RuntimeSnapshot:
+        """Bouw een volledige generatie lokaal op en geef haar terug.
+
+        Niets wordt gepubliceerd: de aanroeper doet dat met een enkele
+        toewijzing. Zo kan een mislukte opbouw nooit een half vernieuwde
+        generatie zichtbaar maken.
+
+        `RuleContractError` loopt bewust door naar de aanroeper - de lader
+        blijft fail-closed.
+
+        De policy komt van de aanroeper en wordt hier overal in deze generatie
+        hergebruikt: voor de verwachte ID-set én voor de recordvereisten.
+        Zonder die doorgifte zou `build_rule_records()` terugvallen op de
+        gecachete procespolicy en zou de snapshot verse ID-s dragen met de
+        recordvereisten van een oudere generatie.
+
+        Dat de aanroeper laadt en niet deze methode, is geen stijlkeuze. Faalt
+        de opbouw ná een geslaagde policyread, dan houdt de aanroeper de
+        verwachting nog vast en kan het foutpad haar meegeven. Laadde deze
+        methode zelf, dan was die kennis met de exceptie verdwenen en moest
+        het foutpad de root-SSOT opnieuw lezen - precies de lezing die net zo
+        goed kan mislukken.
+        """
+        contract_ids = tuple(policy.rule_ids)
+
+        manager = self.toetsregel_manager
+        alle_regels: dict[str, dict[str, Any]] = {}
+        if manager is not None:
+            # DEF-621: diep kopieren, niet alleen de buitenste dict. Anders
+            # blijven de geneste regeldictionaries dezelfde objecten als die
+            # van de manager, en sijpelt een latere mutatie daar onmiddellijk
+            # door in de gepubliceerde generatie - buiten de fingerprint om,
+            # buiten de lock om en zonder statewissel. De snapshot moet zijn
+            # eigen data bezitten voordat records, json_rules en gewichten
+            # eruit worden opgebouwd.
+            alle_regels = copy.deepcopy(dict(manager.get_all_regels() or {}))
+
+        # DEF-621: twee gescheiden begrippen. `geladen_ids` is wat de manager
+        # werkelijk leverde en is de enige geldige maatstaf voor readiness;
+        # `codes` is de interne uitvoervolgorde, inclusief vangnetten.
+        if alle_regels:
+            geladen_ids = list(alle_regels.keys())
             # DEF-606: valideer het volledige regelcontract fail-closed. Een
-            # record zonder bekende evaluator of met onbekende invoer mag
-            # niet stil doorglippen naar een default-pass.
-            self._rule_records = build_rule_records(all_rules)
-            self._pattern_cache = {}
-            self._default_weights = {}
+            # record zonder bekende evaluator of met onbekende invoer mag niet
+            # stil doorglippen naar een default-pass. DEF-621: expliciet tegen
+            # dezelfde policy als de ID-set hierboven.
+            records = build_rule_records(alle_regels, policy=policy)
+            gewichten = {
+                rule_id: self._calculate_rule_weight(alle_regels.get(rule_id) or {})
+                for rule_id in geladen_ids
+            }
+            # Baselineregels erbij zodat de vangnetten blijven draaien. Dit
+            # raakt uitsluitend de uitvoervolgorde. Zeven van deze vangnetten
+            # zijn zélf contractregels; telden zij mee als geladen, dan vulde
+            # de service precies de gaten op die hij moest signaleren en gold
+            # een regelset van 52 als compleet.
+            codes = list(geladen_ids)
+            for rid in self._baseline_internal:
+                if rid not in codes:
+                    codes.append(rid)
+            json_regels = dict(alle_regels)
+        else:
+            codes_t, gewichten, json_regels = self._default_regelset()
+            codes = list(codes_t)
+            # Interne defaults zijn geen lading: zonder manager is er nul
+            # geladen, ook al draaien de vangnetten wel.
+            geladen_ids = []
+            records = {}
 
-            # Extract weights from rule metadata
-            for rule_id in self._internal_rules:
-                rule_data = all_rules.get(rule_id, {})
-                weight = self._calculate_rule_weight(rule_data or {})
-                self._default_weights[rule_id] = weight
+        readiness = bepaal_readiness(contract_ids, geladen_ids)
 
-            # Add baseline internal rules to retain safeguards (no-op if already present via JSON)
-            self._add_baseline_rules()
+        return RuntimeSnapshot(
+            fingerprint=fingerprint,
+            readiness=readiness,
+            contract_rule_ids=contract_ids,
+            internal_rules=tuple(codes),
+            rule_records=MappingProxyType(dict(records)),
+            json_rules=MappingProxyType(dict(json_regels)),
+            default_weights=MappingProxyType(dict(gewichten)),
+            pattern_cache={},
+            rules_loaded_count=len(geladen_ids),
+            rules_expected_count=len(contract_ids),
+            is_degraded_mode=not readiness.ready,
+            degradation_reason=(
+                None
+                if readiness.ready
+                else f"regelset incompleet: {len(geladen_ids)}/{len(contract_ids)}"
+            ),
+        )
 
-            # DEF-215: Track loaded rule count for health monitoring
-            self._rules_loaded_count = len(self._internal_rules)
-            self._is_degraded_mode = False  # Explicit: not degraded
+    def _ververs_state_indien_nodig(self) -> RuntimeSnapshot:
+        """Geef de actieve generatie, en vernieuw haar als de bronnen wijzigden.
 
-            logger.info(
-                f"Loaded {len(self._internal_rules)} rules from ToetsregelManager"
-            )
+        Volledig synchroon: fingerprint, `clear_cache()`, `get_all_regels()` en
+        contractvalidatie zijn alle blocking. De aanroeper roept dit aan voor
+        het eerste `await`, zodat de lock nooit over een suspensiepunt wordt
+        gehouden.
+        """
+        fp = bereken_fingerprint(self._fingerprintbronnen())
+        snap = self._snapshot
+        if fp == snap.fingerprint:
+            return snap
 
-        except RuleContractError:
-            # DEF-606: een geschonden regelcontract is geen degraded-state maar
-            # een startupfout. Stil terugvallen op zeven baselineregels zou de
-            # validatie uithollen zonder dat iemand het merkt.
-            logger.critical("Regelcontract geschonden; validatie kan niet starten")
-            raise
-        except Exception as e:
-            # DEF-215: Set degraded mode flags voor UI transparantie
-            self._is_degraded_mode = True
-            self._degradation_reason = (
-                f"ToetsregelManager failure: {type(e).__name__}: {e}"
-            )
-            self._rules_loaded_count = len(self._baseline_internal)  # 7 baseline rules
+        with self._state_lock:
+            snap = self._snapshot
+            if fp == snap.fingerprint:
+                return snap
+            manager = self.toetsregel_manager
+            # Zie de constructor: draagt de verwachting door het foutpad heen.
+            # Anders dan bij constructie beginnen we hier niet leeg maar bij
+            # wat de actieve generatie al wist. Struikelt de herlaadpoging op
+            # een onleesbaar contract, dan is de laatst bekende verwachting
+            # nog altijd bruikbaarder dan nul van nul; lukt de read wel, dan
+            # overschrijft de verse set haar hieronder.
+            bekende_ids: tuple[str, ...] = snap.contract_rule_ids
+            try:
+                if manager is not None and hasattr(manager, "clear_cache"):
+                    manager.clear_cache()
+                policy = self._verse_contractpolicy()
+                bekende_ids = tuple(policy.rule_ids)
+                nieuw = self._bouw_snapshot(fp, policy)
+            except Exception as exc:
+                # Eerst fail-closed publiceren: de oude ready-generatie mag
+                # niet actief blijven na een mislukte herlaadpoging.
+                logger.error("Herladen van de regelset gefaald: %s", exc)
+                self._snapshot = self._lege_snapshot(
+                    fingerprint=fp,
+                    oorzaak=exc,
+                    contract_ids=bekende_ids,
+                )
+                return self._snapshot
+            self._snapshot = self._publiceerbaar(nieuw, fp)
+            return self._snapshot
 
-            logger.error(
-                f"ToetsregelManager laden GEFAALD: {e}. "
-                f"Fallback naar baseline regels (validatie coverage sterk verminderd). "
-                f"Rules: {self._rules_loaded_count}/{self._rules_expected_count} ({self._rules_loaded_count/self._rules_expected_count*100:.0f}% coverage)",
-                extra={
-                    "component": "modular_validation_service",
-                    "degraded_mode": True,
-                    "rules_loaded": self._rules_loaded_count,
-                    "rules_expected": self._rules_expected_count,
-                    "degradation_reason": str(e),
-                },
-            )
-            self._set_default_rules()
+    def _maak_unknown_resultaat(
+        self, correlation_id: str, snapshot: RuntimeSnapshot
+    ) -> dict[str, Any]:
+        """Het resultaat wanneer de regelset het contract niet dekt.
+
+        `overall_score` en `is_acceptable` blijven aanwezig voor bestaande
+        consumers, maar zijn hier uitsluitend fail-closed placeholders: geen
+        kwaliteitsscore en geen inhoudelijk oordeel. Er is geen
+        `acceptance_gate`, want er is niets beoordeeld.
+        """
+        return {
+            "version": CONTRACT_VERSION,
+            "validation_status": VALIDATION_STATUS_UNKNOWN,
+            "unknown_reason": UNKNOWN_REASON_RULESET_INCOMPLETE,
+            "validation_readiness": snapshot.readiness.als_dict(),
+            "overall_score": 0.0,
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": [],
+            "detailed_scores": {},
+            "rule_statuses": {},
+            "evaluation_coverage": {
+                "evaluated": 0,
+                "passed": 0,
+                "failed": 0,
+                "review_required": 0,
+                "not_evaluated": snapshot.rules_expected_count,
+                "error": 0,
+                "total": snapshot.rules_expected_count,
+                "coverage_ratio": 0.0,
+            },
+            "review_required": [],
+            "system": {
+                "correlation_id": correlation_id,
+                "degraded_mode": True,
+                "rules_loaded": snapshot.rules_loaded_count,
+                "rules_expected": snapshot.rules_expected_count,
+                "degradation_reason": snapshot.degradation_reason,
+            },
+        }
 
     def _calculate_rule_weight(self, rule_data: dict) -> float:
         """Calculate weight for a rule based on priority or explicit weight."""
@@ -307,16 +573,18 @@ class ModularValidationService:
             priority, 0.4
         )  # default to 0.4 for "laag" or unknown
 
-    def _add_baseline_rules(self) -> None:
-        """Add baseline internal rules (VAL-*/STR-*) to retain safeguards."""
-        for rid in self._baseline_internal:
-            if rid not in self._internal_rules:
-                self._internal_rules.append(rid)
+    def _default_regelset(
+        self,
+    ) -> tuple[tuple[str, ...], dict[str, float], dict[str, dict[str, Any]]]:
+        """De ingebouwde zevenregelige set, zonder ToetsregelManager.
 
-    def _set_default_rules(self) -> None:
-        """Set default rules when ToetsregelManager is not available."""
-        self._internal_rules = list(self._baseline_internal)
-        self._default_weights = {
+        Geeft de gegevens terug in plaats van ze op `self` te zetten: de
+        aanroeper bouwt er een volledige snapshot mee. Deze set dekt het
+        contract niet - readiness is dus onwaar en de validatie levert
+        `validation_unknown`.
+        """
+        internal_rules: tuple[str, ...] = tuple(self._baseline_internal)
+        default_weights: dict[str, float] = {
             "VAL-EMP-001": 1.0,
             "VAL-LEN-001": 0.9,
             "VAL-LEN-002": 0.6,
@@ -326,7 +594,7 @@ class ModularValidationService:
             "STR-ORG-001": 0.7,
         }
         # Gebruik ook het JSON-pad voor deze 7 regels zodat evaluatie generiek verloopt
-        self._json_rules = {
+        json_rules: dict[str, dict[str, Any]] = {
             "VAL-EMP-001": {
                 "id": "VAL-EMP-001",
                 "prioriteit": "hoog",
@@ -378,29 +646,38 @@ class ModularValidationService:
             },
         }
 
+        return internal_rules, default_weights, json_rules
+
     def _get_rule_evaluation_order(
         self,
     ) -> list[str]:  # pragma: no cover - used by optional test
-        return sorted(self._internal_rules)
+        return sorted(self._snapshot.internal_rules)
 
     def get_health_status(self) -> dict[str, Any]:
-        """DEF-215: Get validation service health status for monitoring/UI.
+        """Gezondheid van de validatieservice, uit de actieve snapshot (DEF-215/DEF-621).
 
-        Returns:
-            dict with health information including degraded mode status.
+        `validation_ready` is het readiness-oordeel: de geladen regel-ID-set
+        dekt de contractuele set. Zolang dat onwaar is levert elke validatie
+        `validation_unknown`.
         """
+        snap = self._snapshot
+        readiness = snap.readiness
         coverage_pct = (
-            (self._rules_loaded_count / self._rules_expected_count * 100)
-            if self._rules_expected_count > 0
+            (snap.rules_loaded_count / snap.rules_expected_count * 100)
+            if snap.rules_expected_count > 0
             else 0
         )
         return {
-            "status": "degraded" if self._is_degraded_mode else "healthy",
-            "degraded_mode": self._is_degraded_mode,
-            "rules_loaded": self._rules_loaded_count,
-            "rules_expected": self._rules_expected_count,
+            "status": "degraded" if snap.is_degraded_mode else "healthy",
+            "degraded_mode": snap.is_degraded_mode,
+            "rules_loaded": snap.rules_loaded_count,
+            "rules_expected": snap.rules_expected_count,
             "coverage_pct": round(coverage_pct, 1),
-            "degradation_reason": self._degradation_reason,
+            "degradation_reason": snap.degradation_reason,
+            "validation_ready": readiness.ready,
+            "validation_unknown_reason": readiness.reason,
+            "missing_rule_ids": list(readiness.missing_rule_ids),
+            "unexpected_rule_ids": list(readiness.unexpected_rule_ids),
         }
 
     async def validate_definition(
@@ -416,6 +693,26 @@ class ModularValidationService:
             correlation_id = context.get("correlation_id")
         if not correlation_id:
             correlation_id = str(uuid.uuid4())
+
+        # DEF-621: de fail-closed guard. Volledig synchroon en vóór het
+        # eerste `await`, dus de reload-lock wordt nooit over een
+        # suspensiepunt gehouden. Stopt vóór evaluatie, scoring en
+        # acceptability wanneer de regelset het contract niet dekt.
+        state = self._ververs_state_indien_nodig()
+        if not state.readiness.ready:
+            logger.warning(
+                "Validatie overgeslagen: regelset dekt het contract niet "
+                "(%s/%s geladen)",
+                state.rules_loaded_count,
+                state.rules_expected_count,
+                extra={
+                    "component": "modular_validation_service",
+                    "correlation_id": correlation_id,
+                    "validation_status": VALIDATION_STATUS_UNKNOWN,
+                    "unknown_reason": UNKNOWN_REASON_RULESET_INCOMPLETE,
+                },
+            )
+            return self._maak_unknown_resultaat(correlation_id, state)
 
         # 2) Cleaning (optioneel, éénmaal)
         cleaned = text
@@ -480,12 +777,12 @@ class ModularValidationService:
         )
 
         # 4) Regels evalueren in deterministische volgorde
-        weights = dict(self._default_weights)
+        weights = dict(state.default_weights)
         config_weights = getattr(self.config, "weights", None)
         if config_weights is not None:
             weights.update(
                 {
-                    k: float(v) if v is not None else self._default_weights.get(k, 0.5)
+                    k: float(v) if v is not None else state.default_weights.get(k, 0.5)
                     for k, v in config_weights.items()
                 }
             )
@@ -495,7 +792,7 @@ class ModularValidationService:
         # - ARAI* taalregels (AR**/ARAI**)
         # NOTE: In fallback mode (alleen baseline regels), moeten deze WEL meegewogen worden
         has_non_baseline_rules = any(
-            code not in self._baseline_internal for code in self._internal_rules
+            code not in self._baseline_internal for code in state.internal_rules
         )
         try:
             for code in list(weights.keys()):
@@ -522,7 +819,7 @@ class ModularValidationService:
         # declareren zelf dat ze niet meewegen; dat is dezelfde uitkomst als de
         # bestaande ARAI-/baseline-nullering, maar nu uit het contract i.p.v.
         # uit een prefixvergelijking.
-        for code, record in self._rule_records.items():
+        for code, record in state.rule_records.items():
             if record.score_policy is ScorePolicy.EXCLUDED_FROM_SCORE:
                 weights[code] = 0.0
 
@@ -533,13 +830,14 @@ class ModularValidationService:
         review_items: list[dict[str, Any]] = []
 
         # DEF-244: begrip is now in eval_ctx.begrip (thread-safe)
-        for code in sorted(self._internal_rules):
-            out = self._evaluate_rule(code, eval_ctx)
+        for code in sorted(state.internal_rules):
+            out = self._evaluate_rule(code, eval_ctx, state)
             if isinstance(out, EvaluationOutcome):
                 self._verwerk_uitkomst(
                     code,
                     eval_ctx,
                     out,
+                    state,
                     rule_scores=rule_scores,
                     violations=violations,
                     passed_rules=passed_rules,
@@ -772,7 +1070,7 @@ class ModularValidationService:
         # DEF-668: pas hier aanvullen, ná de evaluatielus. De regels die niet
         # hebben gedraaid horen niet in `rule_scores` (dan zouden ze de score
         # raken) maar wél in `rule_statuses` en dus in de dekking.
-        self._vul_niet_uitgevoerde_regels(rule_statuses)
+        self._vul_niet_uitgevoerde_regels(rule_statuses, state)
         dekking = self._bereken_dekking(rule_statuses)
 
         # Een mislukte meting mag de uitkomst niet gunstiger maken (herreview
@@ -828,6 +1126,9 @@ class ModularValidationService:
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
             "version": CONTRACT_VERSION,
+            # DEF-621: er is werkelijk geevalueerd; score en oordeel dragen
+            # inhoudelijke betekenis.
+            "validation_status": VALIDATION_STATUS_VALIDATED,
             "overall_score": overall,
             "is_acceptable": is_ok,
             "violations": violations,
@@ -842,10 +1143,10 @@ class ModularValidationService:
             # DEF-215: Include degraded mode metadata for UI transparency
             "system": {
                 "correlation_id": correlation_id,
-                "degraded_mode": self._is_degraded_mode,
-                "rules_loaded": self._rules_loaded_count,
-                "rules_expected": self._rules_expected_count,
-                "degradation_reason": self._degradation_reason,
+                "degraded_mode": state.is_degraded_mode,
+                "rules_loaded": state.rules_loaded_count,
+                "rules_expected": state.rules_expected_count,
+                "degradation_reason": state.degradation_reason,
             },
         }
         # Voeg acceptance_gate toe aan resultaat voor UI/clients
@@ -901,20 +1202,22 @@ class ModularValidationService:
             return False
 
     # Interne regel-evaluatie (houd simpel en deterministisch)
-    def _evaluate_rule(self, code: str, ctx: EvaluationContext) -> EvaluationOutcome:
+    def _evaluate_rule(
+        self, code: str, ctx: EvaluationContext, state: RuntimeSnapshot
+    ) -> EvaluationOutcome:
         """Voer één regel uit via het evaluatorregister (DEF-606).
 
         Een regel met gevalideerd contract loopt altijd via precies één
         geregistreerde evaluator. Regels zonder record (fallback-modus zonder
         ToetsregelManager) draaien de ingebouwde baselinechecks.
         """
-        record = self._rule_records.get(code)
+        record = state.rule_records.get(code)
         if record is not None:
-            return self._evaluate_via_registry(record, ctx)
+            return self._evaluate_via_registry(record, ctx, state)
         return self._evaluate_baseline_rule(code, ctx)
 
     def _evaluate_via_registry(
-        self, record: RuleRecord, ctx: EvaluationContext
+        self, record: RuleRecord, ctx: EvaluationContext, state: RuntimeSnapshot
     ) -> EvaluationOutcome:
         """Resolveer de evaluator en bewaak de vereiste invoer.
 
@@ -934,7 +1237,7 @@ class ModularValidationService:
             support=self,
             available_inputs=beschikbaar,
             repository=self._repository,
-            pattern_cache=self._pattern_cache,
+            pattern_cache=state.pattern_cache,
         )
         try:
             evaluator = self._registry.resolve(record.evaluator)
@@ -1003,7 +1306,11 @@ class ModularValidationService:
         return frozenset(beschikbaar)
 
     def _outcome_naar_violation(
-        self, code: str, ctx: EvaluationContext, outcome: EvaluationOutcome
+        self,
+        code: str,
+        ctx: EvaluationContext,
+        outcome: EvaluationOutcome,
+        state: RuntimeSnapshot,
     ) -> tuple[float, dict[str, Any] | None]:
         """Zet een FAIL-uitkomst om in het bestaande violation-formaat."""
         if outcome.violation is not None:
@@ -1014,7 +1321,7 @@ class ModularValidationService:
         if not outcome.findings:
             return 1.0, None
 
-        rule = self._json_rules.get(code, {}) if hasattr(self, "_json_rules") else {}
+        rule = state.json_rules.get(code, {})
         text = ctx.cleaned_text or ""
         treffers = set(outcome.pattern_hits)
         score = 0.0 if not treffers else max(0.0, 1.0 - 0.3 * len(treffers))
@@ -1056,6 +1363,7 @@ class ModularValidationService:
         code: str,
         ctx: EvaluationContext,
         outcome: EvaluationOutcome,
+        state: RuntimeSnapshot,
         *,
         rule_scores: dict[str, float],
         violations: list[dict[str, Any]],
@@ -1078,7 +1386,7 @@ class ModularValidationService:
             return
 
         if outcome.status is ResultStatus.FAIL:
-            score, violation = self._outcome_naar_violation(code, ctx, outcome)
+            score, violation = self._outcome_naar_violation(code, ctx, outcome, state)
             rule_scores[code] = score
             if violation is not None:
                 violations.append(violation)
@@ -1168,7 +1476,9 @@ class ModularValidationService:
         acceptance_gate["reasons"] = redenen
         acceptance_gate["gates_failed"] = gefaald
 
-    def _vul_niet_uitgevoerde_regels(self, rule_statuses: dict[str, str]) -> None:
+    def _vul_niet_uitgevoerde_regels(
+        self, rule_statuses: dict[str, str], state: RuntimeSnapshot
+    ) -> None:
         """Maak elke contractregel die niet heeft gedraaid zichtbaar (DEF-668).
 
         Zonder deze aanvulling kende ``rule_statuses`` alleen de regels die
@@ -1181,7 +1491,7 @@ class ModularValidationService:
         zichzelf tegen. De ontbrekende regels krijgen daarom een échte status,
         en die status is ``not_evaluated`` — nooit ``pass``.
         """
-        for rule_id in self._contract_rule_ids:
+        for rule_id in state.contract_rule_ids:
             rule_statuses.setdefault(rule_id, ResultStatus.NOT_EVALUATED.value)
 
         # DEF-673: draait er een code buiten het manifest, dan groeit de noemer
@@ -1189,7 +1499,7 @@ class ModularValidationService:
         # `build_rule_records` is alles-of-niets tegen het manifest — maar een
         # afwijking mag nooit stil blijven, want dan verschuift de betekenis van
         # `coverage_ratio` zonder dat iemand het merkt.
-        buiten_manifest = sorted(set(rule_statuses) - set(self._contract_rule_ids))
+        buiten_manifest = sorted(set(rule_statuses) - set(state.contract_rule_ids))
         if buiten_manifest:
             logger.warning(
                 "Regelcodes buiten het contractmanifest tellen mee in de "
@@ -1199,7 +1509,7 @@ class ModularValidationService:
                     "component": "modular_validation_service",
                     "operation": "evaluation_coverage",
                     "codes_buiten_manifest": buiten_manifest,
-                    "manifest_grootte": len(self._contract_rule_ids),
+                    "manifest_grootte": len(state.contract_rule_ids),
                 },
             )
 

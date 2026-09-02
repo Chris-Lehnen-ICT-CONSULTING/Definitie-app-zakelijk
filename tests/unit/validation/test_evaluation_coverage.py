@@ -29,15 +29,6 @@ from toetsregels.runtime_contract import (
 pytestmark = [pytest.mark.unit]
 
 CONTRACT_IDS = tuple(root_contract_policy().rule_ids)
-BASELINE = (
-    "VAL-EMP-001",
-    "VAL-LEN-001",
-    "VAL-LEN-002",
-    "ESS-CONT-001",
-    "CON-CIRC-001",
-    "STR-TERM-001",
-    "STR-ORG-001",
-)
 TEKST = "besluit: een schriftelijke beslissing van een bestuursorgaan"
 
 
@@ -57,56 +48,68 @@ def _som_van_de_statussen(dekking: dict) -> int:
     )
 
 
-class TestFallbackMeldtGeenVolledigeDekking:
-    """De gemeten kern van bevinding 2, op het pad waar zij zichtbaar was."""
+class TestOnvolledigeSetLevertGeenOordeel:
+    """Herfundering van bevinding 2 op de fail-closed guard (DEF-621).
+
+    Deze klasse mat oorspronkelijk of de dekkingsnoemer klopte terwijl de
+    validatie in fallback-modus gewoon doorliep: zeven baselineregels, dekking
+    7/7 = 1,0. Het veiligheidsdoel was dat een lagere dekking nooit als hogere
+    kwaliteit mag verschijnen.
+
+    Sinds de guard wordt die toestand een stap eerder afgevangen: er wordt bij
+    een onvolledige regelset helemaal niet meer geevalueerd. Het doel blijft
+    identiek en wordt hier scherper bewezen - niet "de noemer klopt", maar
+    "er is geen oordeel, en dat is zichtbaar".
+    """
 
     @pytest.fixture(scope="class")
-    def fallback(self) -> dict:
+    def onvolledig(self) -> dict:
         import asyncio
 
-        # Geen ToetsregelManager: de service valt terug op de zeven
-        # ingebouwde baselineregels. Dat is exact de degraded-modus waarin de
-        # oude dekking 7/7 = 1,0 meldde.
+        # Geen ToetsregelManager: nul van drieenvijftig regels geladen.
+        # De zeven interne defaults zijn vangnetten in de uitvoervolgorde,
+        # geen geladen contractregels - ze meetellen als lading zou precies
+        # de gaten opvullen die de guard moet signaleren.
         return asyncio.run(_resultaat(ModularValidationService(None, None, None)))
 
-    def test_noemer_is_de_contractset(self, fallback):
-        assert fallback["evaluation_coverage"]["total"] == len(CONTRACT_IDS) == 53
+    def test_er_wordt_geen_oordeel_geproduceerd(self, onvolledig):
+        assert onvolledig["validation_status"] == "validation_unknown"
+        assert onvolledig["unknown_reason"] == "ruleset_incomplete"
 
-    def test_dekking_is_zeven_van_drieenvijftig(self, fallback):
-        dekking = fallback["evaluation_coverage"]
-        assert dekking["evaluated"] == len(BASELINE) == 7
-        assert dekking["coverage_ratio"] == pytest.approx(7 / 53, abs=1e-4)
-        assert dekking["coverage_ratio"] < 1.0, (
-            "fallback-modus meldt nog steeds volledige dekking terwijl 46 "
-            "regels niet hebben gedraaid"
-        )
+    def test_score_en_oordeel_zijn_slechts_placeholders(self, onvolledig):
+        # 0.0 is hier geen kwaliteitsoordeel maar een fail-closed
+        # compatibiliteitswaarde; False betekent "niet doorgaan", niet
+        # "inhoudelijk afgekeurd".
+        assert onvolledig["overall_score"] == 0.0
+        assert onvolledig["is_acceptable"] is False
 
-    def test_de_niet_gedraaide_regels_zijn_zichtbaar(self, fallback):
-        statussen = fallback["rule_statuses"]
-        niet_gedraaid = sorted(set(CONTRACT_IDS) - set(BASELINE))
-        assert len(niet_gedraaid) == 46
-        ontbreekt = [rid for rid in niet_gedraaid if rid not in statussen]
-        assert not ontbreekt, f"onzichtbare regels in rule_statuses: {ontbreekt}"
-        verkeerd = {
-            rid: statussen[rid]
-            for rid in niet_gedraaid
-            if statussen[rid] != ResultStatus.NOT_EVALUATED.value
-        }
-        assert not verkeerd, f"niet-gedraaide regels met andere status: {verkeerd}"
-
-    def test_tellingen_sluiten_op_de_noemer(self, fallback):
-        # De valkuil die de opdracht expliciet benoemt: alleen de noemer op 53
-        # zetten terwijl de statusaantallen tot 7 optellen.
-        dekking = fallback["evaluation_coverage"]
+    def test_dekking_meldt_nul_gemeten_van_drieenvijftig(self, onvolledig):
+        dekking = onvolledig["evaluation_coverage"]
+        assert dekking["evaluated"] == 0
+        assert dekking["total"] == len(CONTRACT_IDS) == 53
+        assert dekking["not_evaluated"] == 53
+        assert dekking["coverage_ratio"] == 0.0
         assert _som_van_de_statussen(dekking) == dekking["total"]
-        assert len(fallback["rule_statuses"]) == dekking["total"]
 
-    def test_lagere_dekking_verschijnt_niet_als_hogere_kwaliteit(self, fallback):
-        # Score en dekking zijn twee getallen. De score mag hoog zijn; de
-        # dekking moet dan nog steeds laag rapporteren.
-        dekking = fallback["evaluation_coverage"]
-        assert dekking["coverage_ratio"] < 0.2, dekking
-        assert 0.0 <= fallback["overall_score"] <= 1.0
+    def test_geen_enkele_regel_draagt_een_status(self, onvolledig):
+        # De oude valkuil was een status per gedraaide regel plus een
+        # opgetrokken noemer. Nu draait er niets, dus is er ook niets te
+        # rapporteren - en dat mag niet als dekking verschijnen.
+        assert onvolledig["rule_statuses"] == {}
+
+    def test_de_kloof_is_zichtbaar_in_readiness(self, onvolledig):
+        # Zonder manager is er niets geladen. De zeven interne vangnetten
+        # telden hier eerder mee als lading, waardoor readiness 46 in plaats
+        # van 53 ontbrekende regels meldde en een set van 52 als compleet kon
+        # gelden. De hele kloof hoort zichtbaar te zijn, niet zes zevende.
+        readiness = onvolledig["validation_readiness"]
+        assert readiness["ready"] is False
+        assert readiness["loaded_total"] == 0
+        assert readiness["expected_total"] == len(CONTRACT_IDS) == 53
+        ontbrekend = set(readiness["missing_rule_ids"])
+        assert len(readiness["missing_rule_ids"]) == 53
+        assert len(ontbrekend) == 53, sorted(ontbrekend)
+        assert ontbrekend == set(CONTRACT_IDS)
 
 
 class TestVolledigeSetDektDeNoemer:
@@ -160,22 +163,46 @@ class TestNoemerEnManifestVallenSamenInProductie:
         assert res["evaluation_coverage"]["total"] == len(manifest)
 
     @pytest.mark.asyncio
-    async def test_code_buiten_het_manifest_wordt_gemeld(self, caplog):
-        import logging
+    async def test_code_buiten_het_manifest_blokkeert_de_validatie(self):
+        """Een onverwachte regel schuift de noemer niet meer op; hij blokkeert.
 
-        svc = ModularValidationService(None, None, None)
-        svc._internal_rules = ["SYN-99"]
-        svc._default_weights = {"SYN-99": 1.0}
-        with caplog.at_level(logging.WARNING):
-            res = await _resultaat(svc)
-        assert "SYN-99" in res["rule_statuses"], res["rule_statuses"]
-        assert any(
-            "SYN-99" in bericht.getMessage() for bericht in caplog.records
-        ), "een code buiten het manifest verschoof de noemer zonder melding"
-        # De unie blijft intern sluiten; dat is de bewuste keuze uit DEF-673.
-        dekking = res["evaluation_coverage"]
-        assert _som_van_de_statussen(dekking) == dekking["total"]
-        assert dekking["total"] == len(CONTRACT_IDS) + 1
+        Oorspronkelijk mat deze test of een code buiten het manifest de
+        dekkingsnoemer naar 54 verschoof en of dat gemeld werd. Sinds de guard
+        is een set met een onverwachte code per definitie geen dekkende set:
+        de validatie stopt ervoor. Het veiligheidsdoel - de betekenis van
+        `coverage_ratio` mag niet stil verschuiven - wordt daarmee harder
+        gehaald dan met een waarschuwing.
+
+        De regelset wordt hier via een manager aangeboden, niet via het
+        muteren van verwijderde privevelden: het contract loopt door de
+        echte laadweg.
+        """
+        echte = get_toetsregel_manager().get_all_regels()
+        gekloond = dict(next(iter(echte.values())))
+        gekloond["id"] = "SYN-99"
+
+        class _ManagerMetExtraRegel:
+            regels_dir = None
+
+            def get_all_regels(self):
+                return {**echte, "SYN-99": gekloond}
+
+            def clear_cache(self):
+                return None
+
+        res = await _resultaat(
+            ModularValidationService(_ManagerMetExtraRegel(), None, None)
+        )
+
+        assert res["validation_status"] == "validation_unknown", res
+        assert res["unknown_reason"] == "ruleset_incomplete"
+        readiness = res["validation_readiness"]
+        assert "SYN-99" in readiness["unexpected_rule_ids"], readiness
+        assert readiness["ready"] is False
+        # Geen evaluatie, en de noemer is niet naar 54 opgerekt.
+        assert res["rule_statuses"] == {}
+        assert res["evaluation_coverage"]["evaluated"] == 0
+        assert res["evaluation_coverage"]["total"] == len(CONTRACT_IDS)
 
 
 class TestGeenMagischGetalAlsNoemer:
@@ -187,14 +214,40 @@ class TestGeenMagischGetalAlsNoemer:
     als een noemer die met de gedraaide set meebeweegt.
     """
 
-    def test_kapotte_root_ssot_laat_de_service_niet_starten(self, monkeypatch):
-        def _kapot():
+    def test_kapotte_root_ssot_laat_de_directe_loader_hard_falen(self, monkeypatch):
+        """De contractloader blijft fail-closed; alleen de service vangt hem op.
+
+        Het oorspronkelijke doel blijft overeind: bij een onleesbare root-SSOT
+        mag nergens een verzonnen verwacht aantal opduiken. De grens is alleen
+        verlegd - de lader gooit nog steeds, en de runtime vertaalt dat naar
+        een beschikbare maar onbepaalde validatie in plaats van een
+        applicatie die niet start.
+        """
+
+        # DEF-621 commit 4: de service leest de policy vers uit `ROOT_SSOT_PAD`.
+        # De naad staat daarom op `load_root_contract_policy`, dat een
+        # optioneel pad aanneemt - vandaar de argumenten op de stub.
+        def _kapot(*a, **kw):
             raise RuleContractError("root-SSOT niet leesbaar")
 
-        monkeypatch.setattr(mvs, "root_contract_policy", _kapot)
+        monkeypatch.setattr(mvs, "load_root_contract_policy", _kapot)
+
+        # a) de directe loader blijft hard falen
         with pytest.raises(RuleContractError):
-            ModularValidationService(None, None, None)
+            mvs.load_root_contract_policy()
+
+        # b) de service construeert wel, en levert validation_unknown
+        import asyncio
+
+        svc = ModularValidationService(None, None, None)
+        res = asyncio.run(_resultaat(svc))
+        assert res["validation_status"] == "validation_unknown", res
+        assert res["unknown_reason"] == "ruleset_incomplete"
+
+        # c) geen magisch verwacht aantal zoals 45
+        assert svc._snapshot.rules_expected_count == 0
+        assert res["validation_readiness"]["expected_total"] == 0
 
     def test_verwachte_telling_komt_uit_het_manifest(self):
         svc = ModularValidationService(None, None, None)
-        assert svc._rules_expected_count == len(CONTRACT_IDS) == 53
+        assert svc._snapshot.rules_expected_count == len(CONTRACT_IDS) == 53
