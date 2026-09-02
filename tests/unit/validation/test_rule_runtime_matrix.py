@@ -23,12 +23,19 @@ uit de records afgeleid en door de asserties bewezen — nergens hardcoded.
 """
 
 import json
+from dataclasses import replace
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 import yaml
 
 from services.validation.modular_validation_service import ModularValidationService
+from services.validation.readiness import (
+    RuntimeSnapshot,
+    bepaal_readiness,
+    bereken_fingerprint,
+)
 from toetsregels.manager import get_toetsregel_manager
 from toetsregels.rule_cache import RUNTIME_VELDEN
 from toetsregels.runtime_contract import (
@@ -535,7 +542,26 @@ class _StubManager:
 
 
 def _svc_met(regels: dict) -> ModularValidationService:
-    return ModularValidationService(_StubManager(_met_contract(regels)), None, None)
+    """Service op een synthetische regelset, met bijpassend contract.
+
+    DEF-621: de guard eist dat de geladen ID-set het contract dekt. Een
+    synthetische set is nooit de echte 53, dus wordt hier de contractset op
+    diezelfde synthetische set gezet. Zonder dat zou elke veld-doorwerkings-
+    test op `validation_unknown` stranden en niets meer over de evaluator
+    bewijzen.
+    """
+    svc = ModularValidationService(_StubManager(_met_contract(regels)), None, None)
+    snap = svc._snapshot
+    ids = snap.internal_rules
+    svc._snapshot = replace(
+        snap,
+        contract_rule_ids=ids,
+        readiness=bepaal_readiness(ids, ids),
+        rules_expected_count=len(ids),
+        is_degraded_mode=False,
+        degradation_reason=None,
+    )
+    return svc
 
 
 async def _syn_violations(regels: dict, begrip: str, tekst: str) -> list[dict]:
@@ -659,4 +685,4 @@ class TestVerwachteTelling:
         # DEF-621: de service leidde zijn verwachte regeltelling niet
         # meer uit een hardcoded 45 af maar uit de bestanden op disk.
         svc = ModularValidationService(get_toetsregel_manager(), None, None)
-        assert svc._rules_expected_count == len(RULE_IDS_OP_DISK) == 53
+        assert svc._snapshot.rules_expected_count == len(RULE_IDS_OP_DISK) == 53

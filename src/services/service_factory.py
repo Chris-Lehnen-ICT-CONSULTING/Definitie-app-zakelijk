@@ -248,6 +248,42 @@ class ServiceAdapter:
         # Fallback to score threshold
         return score >= 0.5
 
+    @staticmethod
+    def _met_discriminator(genormaliseerd: dict, bron: Any) -> dict:
+        """Neem de DEF-621-discriminator mee wanneer de bron hem draagt.
+
+        `normalize_validation` bouwt bewust een nieuw dict met vaste sleutels
+        - dat maakt de vorm voorspelbaar, maar wierp ook het verschil weg
+        tussen een oordeel en een fail-closed placeholder. De Generator-tab
+        rendert precies dit genormaliseerde dict, dus zonder deze drie velden
+        kan de gedeelde stop daar niet vuren en verschijnt "Overall Score:
+        0.00" alsof de definitie slecht scoort.
+
+        Uitsluitend doorgeven wat er werkelijk staat: een verzonnen
+        `validation_status` op een legacy-resultaat zou de discriminator
+        onbruikbaar maken.
+
+        Leest zowel expliciete dictsleutels als werkelijk aanwezige
+        objectattributen, want niet elk pad door `normalize_validation`
+        levert een dict aan. Op de objectkant geldt een typecontrole: een
+        `Mock` verzint elk attribuut dat je opvraagt, en een kale `hasattr`
+        zou daar drie velden uit het niets toekennen. Alleen een `str`-status,
+        een `str`-reden en een `dict`-readiness tellen als werkelijk aanwezig.
+        """
+        for veld, verwacht_type in (
+            ("validation_status", str),
+            ("unknown_reason", str),
+            ("validation_readiness", dict),
+        ):
+            if isinstance(bron, dict):
+                if veld in bron:
+                    genormaliseerd[veld] = bron[veld]
+                continue
+            waarde = getattr(bron, veld, None)
+            if isinstance(waarde, verwacht_type):
+                genormaliseerd[veld] = waarde
+        return genormaliseerd
+
     def normalize_validation(self, result: Any) -> dict:
         """Normalize any validation format to canonical V2 dict.
 
@@ -267,22 +303,27 @@ class ServiceAdapter:
 
         # If it's already a dict-like result, normalize directly
         if isinstance(result, dict):
-            return {
-                "overall_score": self._safe_float(
-                    safe_dict_get(
-                        result, "overall_score", safe_dict_get(result, "score", 0.0)
-                    )
-                ),
-                "is_acceptable": bool(
-                    safe_dict_get(
-                        result,
-                        "is_acceptable",
-                        safe_dict_get(result, "is_valid", False),
-                    )
-                ),
-                "violations": ensure_list(safe_dict_get(result, "violations", [])),
-                "passed_rules": ensure_list(safe_dict_get(result, "passed_rules", [])),
-            }
+            return self._met_discriminator(
+                {
+                    "overall_score": self._safe_float(
+                        safe_dict_get(
+                            result, "overall_score", safe_dict_get(result, "score", 0.0)
+                        )
+                    ),
+                    "is_acceptable": bool(
+                        safe_dict_get(
+                            result,
+                            "is_acceptable",
+                            safe_dict_get(result, "is_valid", False),
+                        )
+                    ),
+                    "violations": ensure_list(safe_dict_get(result, "violations", [])),
+                    "passed_rules": ensure_list(
+                        safe_dict_get(result, "passed_rules", [])
+                    ),
+                },
+                result,
+            )
 
         # Try common object->dict converters first (supports Mock().to_dict())
         for method_name in ("to_dict", "dict", "model_dump"):
@@ -291,28 +332,31 @@ class ServiceAdapter:
                 try:
                     data = conv()
                     if isinstance(data, dict):
-                        return {
-                            "overall_score": self._safe_float(
-                                safe_dict_get(
-                                    data,
-                                    "overall_score",
-                                    safe_dict_get(data, "score", 0.0),
-                                )
-                            ),
-                            "is_acceptable": bool(
-                                safe_dict_get(
-                                    data,
-                                    "is_acceptable",
-                                    safe_dict_get(data, "is_valid", False),
-                                )
-                            ),
-                            "violations": ensure_list(
-                                safe_dict_get(data, "violations", [])
-                            ),
-                            "passed_rules": ensure_list(
-                                safe_dict_get(data, "passed_rules", [])
-                            ),
-                        }
+                        return self._met_discriminator(
+                            {
+                                "overall_score": self._safe_float(
+                                    safe_dict_get(
+                                        data,
+                                        "overall_score",
+                                        safe_dict_get(data, "score", 0.0),
+                                    )
+                                ),
+                                "is_acceptable": bool(
+                                    safe_dict_get(
+                                        data,
+                                        "is_acceptable",
+                                        safe_dict_get(data, "is_valid", False),
+                                    )
+                                ),
+                                "violations": ensure_list(
+                                    safe_dict_get(data, "violations", [])
+                                ),
+                                "passed_rules": ensure_list(
+                                    safe_dict_get(data, "passed_rules", [])
+                                ),
+                            },
+                            data,
+                        )
                 except (TypeError, ValueError, AttributeError) as e:
                     # DEF-229: Log failed dict conversion attempts for debugging
                     logger.debug(f"Dict conversion method {method_name} failed: {e}")
@@ -333,12 +377,19 @@ class ServiceAdapter:
             if is_acceptable is None:
                 is_acceptable = self._extract_is_acceptable(result, overall)
 
-            return {
-                "overall_score": overall,
-                "is_acceptable": bool(is_acceptable),
-                "violations": ensure_list(schema.get("violations", [])),
-                "passed_rules": ensure_list(schema.get("passed_rules", [])),
-            }
+            # DEF-621: bewust uit `result` en niet uit `schema`.
+            # `ensure_schema_compliance` bouwt een vers TypedDict met een
+            # vaste sleutelset waarin de discriminator niet voorkomt; lezen
+            # uit `schema` zou dus altijd niets opleveren.
+            return self._met_discriminator(
+                {
+                    "overall_score": overall,
+                    "is_acceptable": bool(is_acceptable),
+                    "violations": ensure_list(schema.get("violations", [])),
+                    "passed_rules": ensure_list(schema.get("passed_rules", [])),
+                },
+                result,
+            )
         except (ImportError, TypeError, ValueError, AttributeError) as e:
             # DEF-229: Log schema compliance failures for debugging
             logger.debug(
@@ -353,12 +404,15 @@ class ServiceAdapter:
         if hasattr(result, "passed_rules"):
             passed_rules = getattr(result, "passed_rules", [])
 
-        return {
-            "overall_score": overall_score,
-            "is_acceptable": is_acceptable,
-            "violations": violations,
-            "passed_rules": passed_rules,
-        }
+        return self._met_discriminator(
+            {
+                "overall_score": overall_score,
+                "is_acceptable": is_acceptable,
+                "violations": violations,
+                "passed_rules": passed_rules,
+            },
+            result,
+        )
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present (deprecated - always returns base instructions)."""

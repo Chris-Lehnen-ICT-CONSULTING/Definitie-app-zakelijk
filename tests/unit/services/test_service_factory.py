@@ -11,6 +11,7 @@ Test alle functionaliteit van de service factory inclusief:
 
 import asyncio
 import os
+from dataclasses import dataclass, field as dc_field
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -1228,3 +1229,229 @@ class TestIntegrationScenarios:
         assert result["final_score"] == 0.85
         # Check validation details instead of direct score
         assert "overall_score" in result["validation_details"]
+
+
+READINESS_7_VAN_53 = {
+    "ready": False,
+    "expected_total": 53,
+    "loaded_total": 7,
+    "missing_rule_ids": ["CON-01"],
+    "unexpected_rule_ids": [],
+}
+
+
+@dataclass
+class _ValidatieObject:
+    """Niet-dict validatieresultaat dat de discriminator wél draagt.
+
+    Zonder `to_dict`/`model_dump`, zodat `normalize_validation` doorloopt naar
+    het schema-pad in plaats van de converter-tak.
+    """
+
+    overall_score: float = 0.0
+    is_acceptable: bool = False
+    violations: list = dc_field(default_factory=list)
+    passed_rules: list = dc_field(default_factory=list)
+    validation_status: str = "validation_unknown"
+    unknown_reason: str = "ruleset_incomplete"
+    validation_readiness: dict = dc_field(
+        default_factory=lambda: dict(READINESS_7_VAN_53)
+    )
+
+
+@dataclass
+class _LegacyValidatieObject:
+    """Hetzelfde pad, maar zonder enige discriminator."""
+
+    overall_score: float = 0.82
+    is_acceptable: bool = True
+    violations: list = dc_field(default_factory=list)
+    passed_rules: list = dc_field(default_factory=list)
+
+
+class _ConverterValidatieObject:
+    """Resultaat dat zichzelf via `to_dict()` aanbiedt.
+
+    Dit raakt de convertertak van `normalize_validation`, die vóór het
+    schema-pad ligt. Die tak bouwt zijn eigen dict en las de discriminator
+    daardoor uit `data` in plaats van uit het bronobject; een Pydantic- of
+    to_dict-resultaat kon zo ongemerkt de status verliezen.
+
+    De teller bewijst dat de convertertak werkelijk is gebruikt en de test
+    niet stilletjes op een andere tak is uitgekomen.
+    """
+
+    def __init__(self) -> None:
+        self.to_dict_calls = 0
+
+    def to_dict(self) -> dict:
+        self.to_dict_calls += 1
+        return {
+            "overall_score": 0.0,
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": [],
+            "validation_status": "validation_unknown",
+            "unknown_reason": "ruleset_incomplete",
+            "validation_readiness": dict(READINESS_7_VAN_53),
+        }
+
+
+class TestNormalizeValidationDraagtDeDiscriminator:
+    """DEF-621: `validation_unknown` moet de adaptergrens overleven.
+
+    `normalize_validation` bouwde een nieuw dict met vier vaste sleutels en
+    gooide `validation_status`, `unknown_reason` en `validation_readiness`
+    daarmee weg. De Generator-tab rendert precies dat genormaliseerde dict,
+    dus de fail-closed stop in de gedeelde renderer kon daar principieel niet
+    vuren: de gebruiker zag "Overall Score: 0.00" als kwaliteitsoordeel
+    terwijl er niets was geevalueerd. De nullen zijn placeholders, geen
+    oordeel - en dat onderscheid zit uitsluitend in deze drie velden.
+    """
+
+    ONBEPAALD = {
+        "version": "1.2.0",
+        "validation_status": "validation_unknown",
+        "unknown_reason": "ruleset_incomplete",
+        "validation_readiness": {
+            "ready": False,
+            "expected_total": 53,
+            "loaded_total": 7,
+            "missing_rule_ids": ["CON-01"],
+            "unexpected_rule_ids": [],
+        },
+        "overall_score": 0.0,
+        "is_acceptable": False,
+        "violations": [],
+        "passed_rules": [],
+    }
+
+    def test_status_reden_en_readiness_overleven_ongewijzigd(self, service_adapter):
+        genormaliseerd = service_adapter.normalize_validation(dict(self.ONBEPAALD))
+
+        assert genormaliseerd["validation_status"] == "validation_unknown"
+        assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
+        assert (
+            genormaliseerd["validation_readiness"]
+            == self.ONBEPAALD["validation_readiness"]
+        )
+
+    def test_legacy_resultaat_krijgt_de_velden_niet_opgedrongen(self, service_adapter):
+        """Zonder bronvelden blijft de vorm exact als voorheen.
+
+        Een lege of verzonnen `validation_status` zou de discriminator juist
+        onbruikbaar maken: elk legacy-resultaat zou dan een status dragen die
+        niemand heeft vastgesteld.
+        """
+        genormaliseerd = service_adapter.normalize_validation(
+            {"overall_score": 0.82, "is_acceptable": True}
+        )
+
+        assert set(genormaliseerd) == {
+            "overall_score",
+            "is_acceptable",
+            "violations",
+            "passed_rules",
+        }
+        assert genormaliseerd["overall_score"] == 0.82
+        assert genormaliseerd["is_acceptable"] is True
+
+    def test_validated_resultaat_behoudt_zijn_status(self, service_adapter):
+        genormaliseerd = service_adapter.normalize_validation(
+            {
+                "validation_status": "validated",
+                "overall_score": 0.82,
+                "is_acceptable": True,
+                "violations": [],
+                "passed_rules": ["CON-01"],
+            }
+        )
+
+        assert genormaliseerd["validation_status"] == "validated"
+        assert "unknown_reason" not in genormaliseerd
+        assert "validation_readiness" not in genormaliseerd
+        assert genormaliseerd["overall_score"] == 0.82
+
+    def test_none_resultaat_blijft_ongewijzigd(self, service_adapter):
+        assert service_adapter.normalize_validation(None) == {
+            "overall_score": 0.0,
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": [],
+        }
+
+    def test_schemapad_leest_de_discriminator_uit_het_bronobject(self, service_adapter):
+        """Een niet-dict resultaat raakt het `ensure_schema_compliance`-pad.
+
+        Dat pad bouwt een vers TypedDict met een vaste sleutelset, waarin de
+        drie velden niet voorkomen. De discriminator moet daarom uit het
+        oorspronkelijke object komen, niet uit het opgebouwde schema - anders
+        leest de doorgifte uit een bron die de velden per definitie niet
+        draagt en is zij een lege huls.
+        """
+        resultaat = _ValidatieObject()
+
+        genormaliseerd = service_adapter.normalize_validation(resultaat)
+
+        assert genormaliseerd["validation_status"] == "validation_unknown"
+        assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
+        assert genormaliseerd["validation_readiness"] == READINESS_7_VAN_53
+
+    def test_convertertak_leest_de_discriminator(self, service_adapter):
+        """De `to_dict`-tak ligt vóór het schema-pad en was ongedekt.
+
+        Zonder deze test bewees de suite niets over een Pydantic- of
+        to_dict-resultaat: de andere objecttests vermijden `to_dict` juist
+        om het schema-pad te bereiken.
+        """
+        bron = _ConverterValidatieObject()
+
+        genormaliseerd = service_adapter.normalize_validation(bron)
+
+        assert bron.to_dict_calls == 1, "de convertertak is niet geraakt"
+        assert genormaliseerd["validation_status"] == "validation_unknown"
+        assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
+        assert genormaliseerd["validation_readiness"] == READINESS_7_VAN_53
+        assert genormaliseerd["overall_score"] == 0.0
+
+    def test_attribuutfallback_leest_de_discriminator(
+        self, service_adapter, monkeypatch
+    ):
+        """De laatste fallback riep de doorgifte helemaal niet aan.
+
+        Die route wordt bereikt zodra `ensure_schema_compliance` faalt. Hier
+        gecontroleerd geforceerd, zodat de test aantoonbaar dat pad dekt en
+        niet stilletjes op het schema-pad blijft hangen.
+        """
+        from services.validation import mappers
+
+        aangeroepen: list[str] = []
+
+        def _valt_om(*a, **kw):
+            aangeroepen.append("schema")
+            raise ValueError("schemapad geforceerd uitgeschakeld")
+
+        monkeypatch.setattr(mappers, "ensure_schema_compliance", _valt_om)
+
+        genormaliseerd = service_adapter.normalize_validation(_ValidatieObject())
+
+        assert aangeroepen == ["schema"], "de fallbackroute is niet geraakt"
+        assert genormaliseerd["validation_status"] == "validation_unknown"
+        assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
+        assert genormaliseerd["validation_readiness"] == READINESS_7_VAN_53
+
+    def test_legacy_object_krijgt_geen_verzonnen_discriminator(self, service_adapter):
+        """Een object zonder de velden mag ze niet toebedeeld krijgen.
+
+        `Mock` is hier het scherpst denkbare geval: elk attribuut bestaat
+        daar, dus een kale `hasattr`-check zou drie verzonnen velden
+        opleveren. Dat zou de discriminator waardeloos maken - elk
+        legacy-resultaat zou dan een status dragen die niemand heeft
+        vastgesteld.
+        """
+        for bron in (_LegacyValidatieObject(), Mock(spec=[]), MagicMock()):
+            genormaliseerd = service_adapter.normalize_validation(bron)
+
+            assert "validation_status" not in genormaliseerd, bron
+            assert "unknown_reason" not in genormaliseerd, bron
+            assert "validation_readiness" not in genormaliseerd, bron

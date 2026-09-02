@@ -4,6 +4,8 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
+from toetsregels.manager import get_toetsregel_manager
+
 pytestmark = [pytest.mark.unit]
 
 
@@ -56,15 +58,14 @@ async def test_context_computed_once_shared_across_validators():
     mock_tokenizer = Mock(return_value=["token1", "token2"])
 
     svc = m.ModularValidationService
-    try:
-        service = svc(
-            toetsregel_manager=None,
-            cleaning_service=mock_cleaning,
-            config=None,
-        )
-    except TypeError:
-        service = svc()
-        service.cleaning_service = mock_cleaning
+    # DEF-621: de echte contractmanager. Zonder manager stopt de fail-closed
+    # guard vóór de cleaning-stap, en dan zou `clean_text` nul keer worden
+    # aangeroepen - de test zou dan niets meer over eenmalige cleaning zeggen.
+    service = svc(
+        toetsregel_manager=get_toetsregel_manager(),
+        cleaning_service=mock_cleaning,
+        config=None,
+    )
 
     # Patch tokenizer if it exists
     with patch.object(service, "_tokenize", mock_tokenizer, create=True):
@@ -139,10 +140,7 @@ async def test_context_includes_correlation_id_for_tracing():
     )
 
     svc = m.ModularValidationService
-    try:
-        service = svc(toetsregel_manager=None, cleaning_service=None, config=None)
-    except TypeError:
-        service = svc()
+    service = svc(get_toetsregel_manager(), None, None)
 
     correlation_id = "trace-abc-123"
 
@@ -150,8 +148,15 @@ async def test_context_includes_correlation_id_for_tracing():
     original_evaluate = getattr(service, "_evaluate_rule", None)
     contexts_seen = []
 
-    def capture_context(rule, context):
+    snapshots_seen = []
+
+    def capture_context(rule, context, state):
+        # DEF-621: `_evaluate_rule` krijgt sinds de atomische snapshot de
+        # actieve generatie expliciet mee. Die vangen we hier ook op, zodat
+        # bewezen is dat de evaluatie op een ready generatie draait en niet
+        # op een lege unknown-toestand.
         contexts_seen.append(context)
+        snapshots_seen.append(state)
         return {"score": 0.8, "violations": []}
 
     if original_evaluate:
@@ -163,9 +168,18 @@ async def test_context_includes_correlation_id_for_tracing():
                 context={"correlation_id": correlation_id},
             )
 
+        # Zonder deze regel zou een lege contexts_seen - het gevolg van een
+        # guard die vóór de evaluatielus returnt - de lus hieronder overslaan
+        # en de test stil laten slagen.
+        assert contexts_seen, "geen enkele regel werd geevalueerd"
+
         # All contexts should have the same correlation_id
         for ctx in contexts_seen:
             assert ctx.correlation_id == correlation_id
+
+        # De meegegeven snapshot moet een bruikbare generatie zijn.
+        for snap in snapshots_seen:
+            assert snap.readiness.ready is True, snap.readiness
     else:
         # If method not found, just verify result contains correlation_id
         result = await service.validate_definition(

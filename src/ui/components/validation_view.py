@@ -224,6 +224,42 @@ def render_validation_detailed_list(
         show_toggle: Whether to show a toggle to expand/collapse details
         gate: Optional explicit gate dict. If None, tries validation_result['acceptance_gate']
     """
+    # DEF-621: fail-closed stop vóór elk oordeel. Dit is het enige renderpad
+    # van alle drie de tabs; loopt hij door bij `validation_unknown`, dan
+    # verschijnt "Overall Score: 0.00" als kwaliteitsoordeel terwijl er juist
+    # niets is geëvalueerd - en een meegegeven gate uit een review- of
+    # previewscherm zou daar groen bovenop komen. De score, de gate, de
+    # toggle en beide detailhelpers blijven daarom onbereikt.
+    #
+    # De import staat bewust hier en niet op modulniveau: `services` trekt bij
+    # het laden het hele servicepakket mee (container, numpy, httpx), en dan
+    # zou het enkel importeren van deze viewmodule een halve applicatie
+    # starten. Dit bestand hanteert die lazy UI-laaggrens al voor
+    # `SessionStateManager`.
+    from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+
+    if validation_result.get("validation_status") == VALIDATION_STATUS_UNKNOWN:
+        # De telling is een extraatje, geen voorwaarde: de guard mag nooit
+        # klappen op de vorm van het readiness-object. Een exceptie hier zou
+        # in de Edit-tab stil worden weggeslikt en de hele Kwaliteitstoetsing
+        # laten verdwijnen - geen score, maar ook geen melding.
+        readiness = validation_result.get("validation_readiness")
+        if not isinstance(readiness, dict):
+            readiness = {}
+        geladen = readiness.get("loaded_total")
+        verwacht = readiness.get("expected_total")
+        telling = (
+            f" ({geladen} van {verwacht})"
+            if isinstance(geladen, int) and isinstance(verwacht, int)
+            else ""
+        )
+        st.warning(
+            f"⚠️ Validatie niet te bepalen: niet alle toetsregels konden "
+            f"worden geladen{telling}. Er is niets getoetst; de definitie is "
+            f"niet afgekeurd."
+        )
+        return
+
     from ui.session_state import SessionStateManager
 
     # Score
