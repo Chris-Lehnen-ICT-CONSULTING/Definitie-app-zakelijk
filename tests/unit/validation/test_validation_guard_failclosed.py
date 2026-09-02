@@ -35,7 +35,7 @@ from services.validation.interfaces import (
     VALIDATION_STATUS_VALIDATED,
 )
 from services.validation.modular_validation_service import ModularValidationService
-from services.validation.readiness import bepaal_readiness
+from services.validation.readiness import bepaal_readiness, veilige_degradatiereden
 from toetsregels.manager import ToetsregelManager
 from toetsregels.runtime_contract import RuleContractError, root_contract_policy
 
@@ -1012,3 +1012,174 @@ async def test_tweede_policyleesfout_verliest_de_eerste_verwachting_niet(
     assert readiness["expected_total"] == verwacht_aantal, readiness
     assert len(readiness["missing_rule_ids"]) == verwacht_aantal, readiness
     assert service._snapshot.contract_rule_ids == tuple(echte_policy.rule_ids)
+
+
+# ---------------- DEF-709: generatieconsistentie van de runtimesnapshot
+
+
+@pytest.mark.asyncio
+async def test_teruggekeerde_bron_tijdens_opbouw_levert_geen_ready_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """A naar B naar A: gelijke fingerprints, ongelijke werkelijkheid.
+
+    De vorige reparatie vergeleek de fingerprint vóór en ná de opbouw. Dat
+    vangt een gewone wijziging, maar niet een bron die terugkeert naar exact
+    dezelfde toestand: dan zijn beide metingen identiek en glipt een ready
+    generatie er alsnog doorheen.
+
+    Concreet: een regelbestand ontbreekt, komt terug terwijl de opbouw leest,
+    en verdwijnt weer. De opbouw las 53 regels, de schijf heeft er 52, en de
+    fingerprint van vóór en ná is dezelfde. Erger nog dan een eenmalige
+    misser: de fast path matcht daarna op die fingerprint, dus de service
+    blijft een oordeel geven over een set die niet meer bestaat.
+
+    De invariant is dus niet dat de fingerprint gelijk bleef, maar dat de
+    gebouwde inhoud past bij wat er op schijf staat.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    eerste = sorted(alle_regels)[0]
+    slachtoffer = regels_dir / f"{eerste}.json"
+    bewaard = slachtoffer.read_text(encoding="utf-8")
+
+    # Toestand B: het bestand ontbreekt. Dit is wat de fingerprint meet.
+    slachtoffer.unlink()
+
+    echte_bouw = service._bouw_snapshot
+    eenmalig = {"actief": True}
+
+    def bouw_met_terugkeer(fingerprint: str | None, policy: Any) -> Any:
+        if not eenmalig["actief"]:
+            return echte_bouw(fingerprint, policy)
+        eenmalig["actief"] = False
+        slachtoffer.write_text(bewaard, encoding="utf-8")
+        gebouwd = echte_bouw(fingerprint, policy)
+        slachtoffer.unlink()
+        return gebouwd
+
+    monkeypatch.setattr(service, "_bouw_snapshot", bouw_met_terugkeer)
+
+    resultaat = await _valideer(service)
+    snap = service._snapshot
+
+    assert len(list(regels_dir.glob("*.json"))) == 52, "opzetfout: bron is compleet"
+    assert snap.readiness.ready is False, (
+        f"ready gepubliceerd terwijl de bron 52 bestanden telt; de snapshot "
+        f"draagt {snap.rules_loaded_count} regels onder fingerprint "
+        f"{snap.fingerprint}"
+    )
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+
+
+@pytest.mark.asyncio
+async def test_wachten_op_de_lock_verdringt_geen_geldige_generatie(
+    monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """Een fingerprint van vóór de lock beschrijft de generatie niet meer.
+
+    De meting gebeurt buiten de lock. Wie daar wacht terwijl een andere
+    thread intussen een geldige generatie publiceert, hervat met een
+    verouderd label: hij bouwt actuele inhoud, hangt er de oude fingerprint
+    aan, en de publicatiecontrole ziet dan een verschil dat er in
+    werkelijkheid niet is. Gevolg is een fail-closed snapshot bovenop een
+    complete regelset - fail-closed in de veilige richting, maar wel een
+    onterechht validation_unknown.
+
+    Hier gemodelleerd met een fingerprintreeks in plaats van echte threads:
+    de eerste meting geeft de oude waarde, elke volgende de nieuwe. Wordt er
+    binnen de lock opnieuw gemeten, dan bouwt en publiceert de service op de
+    actuele waarde en blijft de uitkomst een gewoon oordeel.
+    """
+    service = _service(alle_regels, ECHTE_REGELS)
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    # De actieve generatie draagt geen fingerprint, zodat de fast path niet
+    # meteen returnt en het herlaadpad daadwerkelijk wordt gelopen.
+    service._snapshot = service._lege_snapshot(
+        fingerprint=None,
+        oorzaak=None,
+        contract_ids=tuple(root_contract_policy().rule_ids),
+    )
+
+    metingen = {"aantal": 0}
+
+    def fingerprint_wijzigt_na_de_eerste_meting(*_a: Any, **_kw: Any) -> str:
+        metingen["aantal"] += 1
+        return "oud" if metingen["aantal"] == 1 else "nieuw"
+
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.bereken_fingerprint",
+        fingerprint_wijzigt_na_de_eerste_meting,
+    )
+
+    resultaat = await _valideer(service)
+    snap = service._snapshot
+
+    assert snap.readiness.ready is True, (
+        "een complete regelset is fail-closed weggezet omdat de fingerprint "
+        f"van vóór de lock verouderd was; fingerprint={snap.fingerprint}"
+    )
+    assert resultaat["validation_status"] == VALIDATION_STATUS_VALIDATED
+
+
+@pytest.mark.parametrize(
+    ("oorzaak", "verboden", "verwacht"),
+    [
+        pytest.param(
+            FileNotFoundError(
+                2,
+                "No such file or directory",
+                "/Volumes/Team Share/Users/iemand/regels/ARAI-01.json",
+            ),
+            "iemand",
+            "ARAI-01.json",
+            id="pad_met_spatie",
+        ),
+        pytest.param(
+            FileNotFoundError(
+                2,
+                "No such file or directory",
+                "C:\\Users\\iemand\\regels\\ARAI-01.json",
+            ),
+            "iemand",
+            "ARAI-01.json",
+            id="windows_pad",
+        ),
+    ],
+)
+def test_degradatiereden_lekt_ook_bij_lastige_paden_geen_accountnaam(
+    oorzaak: BaseException, verboden: str, verwacht: str
+) -> None:
+    """Eén spatie of één backslash mag de redactie niet uitschakelen.
+
+    De eerste versie zocht naar POSIX-paden zonder witruimte. Een gedeelde
+    schijf met een spatie in de naam brak de match halverwege, waardoor juist
+    het staartstuk met de accountnaam bleef staan; een Windows-pad ontsnapte
+    volledig. Beide leveren precies het lek op dat de redactie moest dichten.
+    """
+    reden = veilige_degradatiereden(oorzaak) or ""
+
+    assert verboden not in reden, reden
+    assert verwacht in reden, reden
+
+
+def test_relatief_pad_wordt_niet_verminkt() -> None:
+    """De redactie mag geen tekst weggooien die geen absoluut pad is.
+
+    De lookbehind keek alleen naar ASCII, dus een map met een accent liet het
+    volgende fragment als los pad matchen en de tekst werd stilletjes aan
+    elkaar geplakt.
+    """
+    reden = veilige_degradatiereden(RuntimeError("kon mapé/a/b.json niet lezen")) or ""
+
+    assert "mapéb.json" not in reden, reden
+    assert "b.json" in reden, reden

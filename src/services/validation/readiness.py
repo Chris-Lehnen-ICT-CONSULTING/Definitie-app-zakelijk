@@ -38,11 +38,17 @@ __all__ = [
 ]
 
 
-# Een absoluut pad van minstens twee segmenten. De lookbehind voorkomt dat een
-# relatief pad half wordt opgegeten: in `a/b/c` mag `/b/c` niet los matchen.
-# Aanhalingstekens en dubbele punten zijn wél toegestane voorlopers, want zo
-# levert `OSError` het pad aan: `[Errno 2] ...: '/pad/naar/regel.json'`.
-_ABSOLUUT_PAD = re.compile(r"(?<![A-Za-z0-9_.\-])(?:/[^/\s'\"]+){2,}")
+# Een absoluut pad van minstens twee segmenten, als vangnet voor paden die
+# alleen in vrije tekst voorkomen. De lookbehind eist een scheidingsteken
+# ervóór, zodat een relatief pad niet half wordt opgegeten: in `mapé/a/b.json`
+# mag `/a/b.json` niet los matchen. Een lijst van verboden voorlopers volstond
+# daar niet, want die was ASCII-only.
+_ABSOLUUT_PAD = re.compile(r"(?<![^\s'\"(\[:,=])(?:/[^/\s'\"]+){2,}")
+
+
+def _basisnaam(pad: str) -> str:
+    """De bestandsnaam, ongeacht of het pad POSIX- of Windows-scheiders heeft."""
+    return re.split(r"[\\/]", pad)[-1] or pad
 
 
 @dataclass(frozen=True)
@@ -178,7 +184,25 @@ def veilige_degradatiereden(oorzaak: BaseException | None) -> str | None:
     if oorzaak is None:
         return None
 
-    return _ABSOLUUT_PAD.sub(lambda treffer: Path(treffer.group(0)).name, str(oorzaak))
+    tekst = str(oorzaak)
+
+    # Een OS-fout draagt zijn pad gestructureerd mee. Een letterlijke
+    # vervanging daarvan is exacter dan welk patroon over vrije tekst ook: een
+    # spatie in een mapnaam (`/Volumes/Team Share/...`) breekt een regex
+    # halverwege en laat juist het staartstuk met de accountnaam staan, en een
+    # Windows-pad ontsnapt volledig omdat het geen schuine strepen heeft.
+    # `OSError.__str__` zet het pad er met `repr()` in, dus backslashes staan
+    # er verdubbeld in terwijl `filename` ze enkel draagt. Beide vormen
+    # vervangen, anders glipt juist het Windows-pad er ongeschonden door.
+    for attribuut in ("filename", "filename2"):
+        pad = getattr(oorzaak, attribuut, None)
+        if not isinstance(pad, str) or not pad:
+            continue
+        basisnaam = _basisnaam(pad)
+        for variant in {pad, repr(pad)[1:-1]}:
+            tekst = tekst.replace(variant, basisnaam)
+
+    return _ABSOLUUT_PAD.sub(lambda treffer: Path(treffer.group(0)).name, tekst)
 
 
 def bereken_fingerprint(bronnen: Iterable[Path]) -> str:
