@@ -756,3 +756,67 @@ def test_elke_generatie_krijgt_een_eigen_pattern_cache(
 
     assert tweede.pattern_cache is not eerste.pattern_cache
     assert "MARKER" not in tweede.pattern_cache
+
+
+# ------------------------------------------- degradatiereden: geen padlek
+
+
+@pytest.mark.parametrize(
+    ("oorzaak", "verwachte_bestandsnaam"),
+    [
+        pytest.param(
+            FileNotFoundError(
+                2,
+                "No such file or directory",
+                "/Users/iemand/Projecten/Definitie-app/src/toetsregels/regels/ARAI-01.json",
+            ),
+            "ARAI-01.json",
+            id="ontbrekend_regelbestand",
+        ),
+        pytest.param(
+            RuleContractError(
+                "contract onleesbaar: "
+                "/Users/iemand/Projecten/Definitie-app/config/toetsregels/"
+                "toetsregels_config.yaml"
+            ),
+            "toetsregels_config.yaml",
+            id="onleesbaar_contract",
+        ),
+        pytest.param(
+            PermissionError(
+                13,
+                "Permission denied",
+                "/Users/iemand/.config/definitie-app/regels/STR-ORG-001.json",
+            ),
+            "STR-ORG-001.json",
+            id="geen_leesrechten",
+        ),
+    ],
+)
+def test_degradatiereden_toont_geen_filesystem_pad(
+    alle_regels: dict[str, dict[str, Any]],
+    oorzaak: BaseException,
+    verwachte_bestandsnaam: str,
+) -> None:
+    """De reden landt in de UI, dus een ruw pad hoort er niet in.
+
+    `definition_generator_tab._render_degraded_banner` zet
+    `degradation_reason` letterlijk in de expander Technische details. Een
+    OS-fout draagt het volledige pad mee, inclusief de accountnaam van wie de
+    app draait. In de log mag dat pad blijven staan: DEF-580 heeft paden daar
+    bewust buiten de redactie gehouden om tracebacks leesbaar te houden. Naar
+    het scherm mag het niet.
+
+    De bestandsnaam blijft wel staan. Dat is de diagnostiek waar iemand iets
+    aan heeft; de mapstructuur eronder is alleen ruis met een accountnaam
+    erin. Geparametriseerd over drie foutsoorten, want alle drie de
+    aanroepplekken van `_lege_snapshot` geven een willekeurige exceptie door.
+    """
+    service = _service(alle_regels, ECHTE_REGELS)
+
+    snapshot = service._lege_snapshot(fingerprint=None, oorzaak=oorzaak)
+    reden = snapshot.degradation_reason or ""
+
+    assert "/Users/" not in reden, reden
+    assert "iemand" not in reden, reden
+    assert verwachte_bestandsnaam in reden, reden

@@ -31,6 +31,7 @@ from services.validation.readiness import (
     RuntimeSnapshot,
     bepaal_readiness,
     bereken_fingerprint,
+    veilige_degradatiereden,
 )
 from toetsregels.runtime_contract import (
     ROOT_CONFIG_PATH,
@@ -311,7 +312,7 @@ class ModularValidationService:
             rules_loaded_count=0,
             rules_expected_count=0,
             is_degraded_mode=True,
-            degradation_reason=None if oorzaak is None else str(oorzaak),
+            degradation_reason=veilige_degradatiereden(oorzaak),
         )
 
     def _bouw_snapshot(self, fingerprint: str | None) -> RuntimeSnapshot:
