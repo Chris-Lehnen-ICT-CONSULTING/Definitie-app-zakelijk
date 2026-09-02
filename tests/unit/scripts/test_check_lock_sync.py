@@ -62,8 +62,10 @@ def _fake_uv(
     runtime_body: str,
     dev_body: str,
     exit_code: int = 0,
+    dev_exit_code: int = 0,
     body_zonder_voorkeur: str | None = None,
     dev_body_zonder_voorkeur: str | None = None,
+    foutmelding: str = "error: kan niet resolven",
 ) -> None:
     """Zet een uv-stub op PATH die zich als een strenge uv gedraagt.
 
@@ -96,10 +98,6 @@ def _fake_uv(
     uv.write_text(
         "#!/usr/bin/env bash\n"
         f'printf "%s\\n" "$*" >> {str(argv_log)!r}\n'
-        f"if [ {exit_code} -ne 0 ]; then\n"
-        '  echo "error: kan niet resolven" >&2\n'
-        f"  exit {exit_code}\n"
-        "fi\n"
         'if [ "$1" != "pip" ] || [ "$2" != "compile" ]; then\n'
         '  echo "error: onverwacht subcommando $1 $2" >&2\n'
         "  exit 2\n"
@@ -121,9 +119,32 @@ def _fake_uv(
         "  esac\n"
         "  shift\n"
         "done\n"
+        # De bronnaam moet exact kloppen. Alleen op bestaan controleren is te
+        # zwak: dan valt elk pad dat niet op requirements-dev.in eindigt in de
+        # runtime-tak, en blijft een script dat per ongeluk requirements.txt
+        # compileert onopgemerkt.
+        'basisnaam=$(basename "$bron")\n'
+        'if [ "$basisnaam" != "requirements.in" ] && '
+        '[ "$basisnaam" != "requirements-dev.in" ]; then\n'
+        '  echo "error: onverwacht bronbestand $bron" >&2\n'
+        "  exit 2\n"
+        "fi\n"
         'if [ ! -f "$bron" ]; then\n'
         '  echo "error: bronbestand $bron bestaat niet" >&2\n'
         "  exit 2\n"
+        "fi\n"
+        # Aparte exitcode per tak, zodat een fout die alleen tijdens de
+        # dev-resolve optreedt afzonderlijk te testen is.
+        'if [ "$basisnaam" = "requirements-dev.in" ]; then\n'
+        f"  if [ {dev_exit_code} -ne 0 ]; then\n"
+        f"    echo {foutmelding!r} >&2\n"
+        f"    exit {dev_exit_code}\n"
+        "  fi\n"
+        "else\n"
+        f"  if [ {exit_code} -ne 0 ]; then\n"
+        f"    echo {foutmelding!r} >&2\n"
+        f"    exit {exit_code}\n"
+        "  fi\n"
         "fi\n"
         'if [ -n "$constraint" ] && [ ! -f "$constraint" ]; then\n'
         '  echo "error: constraint $constraint bestaat niet" >&2\n'
@@ -270,6 +291,160 @@ def test_stub_zonder_voorkeur_tak_is_bereikbaar(tmp_path):
         f"schrijven, wat een desync geeft.\n{resultaat.stdout}{resultaat.stderr}"
     )
     assert "1.1.0" in resultaat.stderr
+
+
+def test_gewijzigde_hash_geeft_desync(tmp_path):
+    """Een lock met een andere hash dan de resolve moet rood worden.
+
+    Dit is de faalmodus met de grootste impact: versie en pakketnaam kloppen,
+    alleen de hash niet. De gate gaf hier eerder groen omdat de lock inclusief
+    hashes als versievoorkeur werd meegegeven en uv die overnam in plaats van te
+    herberekenen — de diff vergeleek de corruptie dus met zichzelf. Geverifieerd
+    met echte uv: zo een lock brak af op `uv pip install --require-hashes`.
+    """
+    root = _repo(tmp_path)
+    gemanipuleerd = LOCK_BODY.replace("1111111", "9999999")
+    (root / "requirements.txt").write_text(HEADER + gemanipuleerd, encoding="utf-8")
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 1, (
+        "Een afwijkende hash hoort de gate rood te maken.\n"
+        f"{resultaat.stdout}{resultaat.stderr}"
+    )
+    assert "hash" in resultaat.stderr
+
+
+def test_ontbrekende_hashregel_geeft_desync(tmp_path):
+    """Een lock waaruit een hashregel is weggevallen moet rood worden."""
+    root = _repo(tmp_path)
+    zonder_hash = "voorbeeld==1.0.0\n    # via -r requirements.in\n"
+    (root / "requirements.txt").write_text(HEADER + zonder_hash, encoding="utf-8")
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 1, (
+        "Een ontbrekende hashregel hoort de gate rood te maken.\n"
+        f"{resultaat.stdout}{resultaat.stderr}"
+    )
+
+
+def test_gewijzigde_dev_hash_geeft_desync(tmp_path):
+    """Ook op de dev-tak moet een afwijkende hash gevangen worden."""
+    root = _repo(tmp_path)
+    gemanipuleerd = DEV_LOCK_BODY.replace("2222222", "8888888")
+    (root / "requirements-dev.txt").write_text(HEADER + gemanipuleerd, encoding="utf-8")
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 1, (
+        "Een afwijkende dev-hash hoort de gate rood te maken.\n"
+        f"{resultaat.stdout}{resultaat.stderr}"
+    )
+    assert "requirements-dev.txt niet in sync" in resultaat.stderr
+
+
+def test_dev_resolvefout_geeft_resolve_exitcode(tmp_path):
+    """Een fout die alleen tijdens de dev-resolve optreedt heeft eigen dekking.
+
+    De runtime-tak slaagt hier, dus dit scenario onderscheidt zich van
+    `test_falende_resolve_geeft_eigen_exitcode`, waar de eerste aanroep al
+    faalt.
+    """
+    root = _repo(tmp_path)
+    _fake_uv(
+        tmp_path / "bin",
+        runtime_body=LOCK_BODY,
+        dev_body=DEV_LOCK_BODY,
+        dev_exit_code=1,
+    )
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 2, (
+        "Een dev-resolvefout hoort de resolve-exitcode te geven, niet die van "
+        f"een desync.\n{resultaat.stdout}{resultaat.stderr}"
+    )
+    assert "requirements-dev.in niet resolven" in resultaat.stderr
+    assert "OK:" not in resultaat.stdout
+
+
+def test_credentials_in_uv_fout_worden_geredigeerd(tmp_path):
+    """uv-stderr belandt in publieke CI-joblogs, dus geheimen eruit.
+
+    uv noemt index-URL's in resolve-fouten. Die kunnen credentials dragen in de
+    userinfo vóór de @, maar ook als query-parameter — dat tweede pad ontbrak.
+    """
+    root = _repo(tmp_path)
+    _fake_uv(
+        tmp_path / "bin",
+        runtime_body=LOCK_BODY,
+        dev_body=DEV_LOCK_BODY,
+        exit_code=1,
+        foutmelding=(
+            "error: kan https://gebruiker:GEHEIM123@index.example/simple niet "
+            "bereiken, ook niet via https://index.example/simple?token=GEHEIM456"
+        ),
+    )
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 2, resultaat.stderr
+    assert "GEHEIM123" not in resultaat.stderr, resultaat.stderr
+    assert "GEHEIM456" not in resultaat.stderr, resultaat.stderr
+    # De rest van de melding moet wel leesbaar blijven, anders is de fout niet
+    # meer te diagnosticeren.
+    assert "index.example" in resultaat.stderr
+
+
+def test_write_modus_genereert_de_locks(tmp_path):
+    """`make lock` draait dit script met --write; die tak heeft eigen dekking.
+
+    Zonder deze test kan de schrijfkant stilzwijgend stukgaan terwijl de
+    checkkant groen blijft — en dan genereert `make lock` niets meer.
+    """
+    root = _repo(tmp_path)
+    (root / "requirements.txt").write_text("", encoding="utf-8")
+    (root / "requirements-dev.txt").write_text("", encoding="utf-8")
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    env = dict(os.environ)
+    env["LOCK_SYNC_ROOT"] = str(root)
+    env["PATH"] = f"{tmp_path / 'bin'}:/usr/bin:/bin:/usr/sbin:/sbin"
+    resultaat = subprocess.run(
+        ["bash", str(SCRIPT), "--write"],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    assert resultaat.returncode == 0, resultaat.stderr
+    assert (root / "requirements.txt").read_text(encoding="utf-8") == LOCK_BODY
+    assert (root / "requirements-dev.txt").read_text(encoding="utf-8") == DEV_LOCK_BODY
+
+
+def test_onbekend_argument_wordt_geweigerd(tmp_path):
+    """Een typefout in het argument mag niet stilzwijgend als check gelden."""
+    root = _repo(tmp_path)
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    env = dict(os.environ)
+    env["LOCK_SYNC_ROOT"] = str(root)
+    env["PATH"] = f"{tmp_path / 'bin'}:/usr/bin:/bin:/usr/sbin:/sbin"
+    resultaat = subprocess.run(
+        ["bash", str(SCRIPT), "--wrte"],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    assert resultaat.returncode == 3, resultaat.stderr
+    assert "onbekend argument" in resultaat.stderr
 
 
 def test_tempdir_wordt_opgeruimd(tmp_path):

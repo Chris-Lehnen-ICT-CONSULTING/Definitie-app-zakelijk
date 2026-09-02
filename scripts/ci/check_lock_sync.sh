@@ -28,6 +28,20 @@ EXIT_DESYNC=1
 EXIT_RESOLVE=2
 EXIT_PRECONDITIE=3
 
+# --write genereert de locks (wat `make lock` doet); zonder vlag verifieert het
+# script alleen. Eén implementatie voor beide, zodat de vlaggenset en de
+# versievoorkeur niet uiteen kunnen lopen — die drift maakte de gate eerder
+# structureel rood op iets wat `make lock` niet oploste.
+MODUS="check"
+case "${1:-}" in
+    --write) MODUS="write" ;;
+    "") ;;
+    *)
+        echo "FOUT: onbekend argument $1 (verwacht: --write of niets)." >&2
+        exit "$EXIT_PRECONDITIE"
+        ;;
+esac
+
 # Standaard script-relatief: het script ligt in scripts/ci/, dus twee niveaus
 # omhoog is de repo-root. Dat voorkomt dat een aanroep vanuit een ándere
 # git-repo stilzwijgend díé requirements-bestanden controleert. De env-override
@@ -75,32 +89,76 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/lock-sync.XXXXXX") || {
 # van een geslaagde run overschrijven. EXIT vuurt ook bij een signaal.
 trap 'rm -rf "$tmp"' EXIT
 
-# De lock dient als versievoorkeur én als vergelijkingsbasis: uv overschrijft
-# het bestand, waarna de diff toont of de resolutie afwijkt van wat er gecommit
-# staat. Een falende kopie is een randvoorwaarde-fout, geen desync.
-cp requirements.txt "$tmp/req.check" || {
-    echo "FOUT: kan requirements.txt niet kopiëren naar de werkmap." >&2
-    exit "$EXIT_PRECONDITIE"
+# De lock gaat als versievoorkeur naar het compile-doel, maar ZONDER hashes.
+#
+# uv neemt uit een bestaand -o-bestand niet alleen de versies over maar ook de
+# hashes: het herberekent ze niet. Een lock met gemanipuleerde of verouderde
+# hashes zou daardoor zijn eigen corruptie erven, waarna de diff die corruptie
+# met zichzelf vergelijkt en de gate groen meldt. Geverifieerd met uv 0.12.9:
+# een lock met alle hashes op nul gaf exit 0, terwijl
+# `uv pip install --require-hashes` op diezelfde lock afbrak op een mismatch.
+#
+# Met alleen de versieregels als voorkeur houdt uv de pins vast — dus geen valse
+# desync bij een upstream-release — en berekent hij de hashes opnieuw, zodat de
+# vergelijking ze echt toetst.
+versie_voorkeur() {
+    local lock=$1 doel=$2
+    local status=0
+
+    # Hash-regels eruit, en de line-continuation die bij de pinregel hoorde.
+    # grep-status: 0 = regels over, 1 = niets over (een lege lock is geldig,
+    # dan is er simpelweg geen voorkeur), >1 = echte fout.
+    grep -vE '^[[:space:]]+--hash=' "$lock" > "$tmp/zonder-hash" || status=$?
+    if [ "$status" -gt 1 ]; then
+        echo "FOUT: kan $lock niet uitlezen voor de versievoorkeur." >&2
+        exit "$EXIT_PRECONDITIE"
+    fi
+
+    if ! sed 's/ \\$//' "$tmp/zonder-hash" > "$doel"; then
+        echo "FOUT: kan de versievoorkeur voor $lock niet schrijven." >&2
+        exit "$EXIT_PRECONDITIE"
+    fi
 }
-cp requirements-dev.txt "$tmp/req-dev.check" || {
-    echo "FOUT: kan requirements-dev.txt niet kopiëren naar de werkmap." >&2
-    exit "$EXIT_PRECONDITIE"
-}
+
+versie_voorkeur requirements.txt "$tmp/req.check"
+versie_voorkeur requirements-dev.txt "$tmp/req-dev.check"
 
 compileer() {
     local bron=$1 doel=$2 err=$3
     shift 3
+    local kop=()
+    # In check-modus vergelijken we alleen de body, dus zonder header. In
+    # write-modus hoort de header er wel in: die documenteert het commando
+    # waarmee de lock gegenereerd is.
+    if [ "$MODUS" = check ]; then
+        kop=(--no-header)
+    fi
     # ${1+"$@"} in plaats van "$@": onder `set -u` klapt een lege "$@" in
     # bash < 4.4 (macOS levert 3.2) op "unbound variable".
-    if ! uv pip compile "$bron" --universal --generate-hashes --no-header \
-        ${1+"$@"} -o "$doel" >/dev/null 2>"$err"; then
+    # ${kop[@]+...} en ${1+...}: een lege array of lege argumentenlijst klapt
+    # onder `set -u` op bash 3.2, dat macOS nog levert.
+    if ! uv pip compile "$bron" --universal --generate-hashes \
+        ${kop[@]+"${kop[@]}"} ${1+"$@"} -o "$doel" >/dev/null 2>"$err"; then
         echo "FOUT: uv kan $bron niet resolven — is een lock handmatig bewerkt?" >&2
         echo "      (uv $(uv --version 2>/dev/null | head -1))" >&2
-        # Redactie: uv noemt index-URL's in resolve-fouten, en die kunnen
-        # credentials dragen. Deze uitvoer landt in CI-joblogs.
-        sed -n '1,20p' "$err" | sed -E 's#(://)[^/@[:space:]]+@#\1***@#g' >&2
+        # Redactie: uv noemt index-URL's en tokens in resolve-fouten. Zowel
+        # userinfo vóór @ als query-parameters kunnen credentials dragen, en
+        # deze uitvoer landt in CI-joblogs.
+        sed -n '1,20p' "$err" \
+            | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
+                     -e 's#([?&](token|api_key|apikey|password|secret)=)[^&[:space:]]+#\1***#gI' >&2
         exit "$EXIT_RESOLVE"
     fi
+}
+
+# Schrijf de gegenereerde lock over het gecommitte bestand heen.
+schrijf() {
+    local vers=$1 doel=$2
+    if ! cp "$vers" "$doel"; then
+        echo "FOUT: kan $doel niet schrijven." >&2
+        exit "$EXIT_PRECONDITIE"
+    fi
+    echo "  geschreven: $doel"
 }
 
 # Volgorde is load-bearing: eerst de runtime-lock compileren én vergelijken,
@@ -150,10 +208,22 @@ vergelijk() {
     fi
 }
 
-vergelijk requirements.txt "$tmp/req.check" requirements.in
+if [ "$MODUS" = write ]; then
+    schrijf "$tmp/req.check" requirements.txt
+else
+    vergelijk requirements.txt "$tmp/req.check" requirements.in
+fi
 
+# De dev-resolve gebruikt de runtime-lock als constraint. Op dit punt is die in
+# beide modi de juiste: in write-modus zojuist geschreven, in check-modus
+# aantoonbaar in sync met zijn bron.
 compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c requirements.txt
-vergelijk requirements-dev.txt "$tmp/req-dev.check" requirements-dev.in
 
-echo "OK: requirements-locks in sync met .in-bronnen."
+if [ "$MODUS" = write ]; then
+    schrijf "$tmp/req-dev.check" requirements-dev.txt
+    echo "OK: requirements-locks gegenereerd uit de .in-bronnen."
+else
+    vergelijk requirements-dev.txt "$tmp/req-dev.check" requirements-dev.in
+    echo "OK: requirements-locks in sync met .in-bronnen."
+fi
 exit "$EXIT_OK"
