@@ -592,27 +592,26 @@ class TestCachePerformance:
         """Cleanup after each test method."""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_cache_performance_benchmark(self):
-        """Benchmark cache performance."""
-        import time
+    def test_cache_hit_rate_over_duizend_items(self):
+        """Duizend items erin en er weer uit: vrijwel alles hoort een hit te zijn.
 
-        # Measure cache set performance
-        start_time = time.time()
+        Hier stond een stopwatch omheen (`set_time < 5.0`, `get_time < 1.0`).
+        Die maat zei niets over de cache en alles over hoe druk de machine het
+        had: lokaal kost deze test 0,26s, terwijl een gedeelde CI-runner alleen
+        al voor de set-helft 5,9s nodig had en de gate rood zette zonder dat er
+        iets aan de code was veranderd. Omgekeerd lag de drempel zo ver boven
+        de normale waarde dat een echte regressie er ongemerkt doorheen glipte:
+        hij viel om op ruis en ving geen enkele verslechtering.
+
+        De hit rate meet wel wat deze test hoort te bewaken. Herkalibratie van
+        de tijdsdrempels in de rest van de suite loopt via DEF-563.
+        """
         for i in range(1000):
             self.cache_manager.set(f"key_{i}", f"value_{i}", ttl=60)
-        set_time = time.time() - start_time
 
-        # Measure cache get performance
-        start_time = time.time()
         for i in range(1000):
             self.cache_manager.get(f"key_{i}")
-        get_time = time.time() - start_time
 
-        # Performance should be reasonable
-        assert set_time < 5.0  # Should set 1000 items in < 5 seconds
-        assert get_time < 1.0  # Should get 1000 items in < 1 second
-
-        # Hit rate should be high
         stats = self.cache_manager.get_stats()
         assert stats["hit_rate"] > 0.9  # 90% hit rate
 
