@@ -54,7 +54,12 @@ for bestand in requirements.in requirements.txt requirements-dev.in requirements
 done
 
 tmp=$(mktemp -d)
-trap 'rm -r "$tmp"' EXIT INT TERM
+# Alleen EXIT, en met -f. Een handler op INT/TERM ruimt wel op maar beeindigt
+# het script niet, waardoor het doorloopt met een verwijderde tmpdir en de
+# gebruiker een misleidende resolve-fout ziet; daarna zou de EXIT-trap er een
+# tweede keer overheen gaan. Zonder -f kan die falende rm bovendien de exitcode
+# van een geslaagde run overschrijven. EXIT vuurt ook bij een signaal.
+trap 'rm -rf "$tmp"' EXIT
 
 # De lock dient als versievoorkeur én als vergelijkingsbasis: uv overschrijft
 # het bestand, waarna de diff toont of de resolutie afwijkt van wat er gecommit
