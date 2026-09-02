@@ -820,3 +820,144 @@ def test_degradatiereden_toont_geen_filesystem_pad(
     assert "/Users/" not in reden, reden
     assert "iemand" not in reden, reden
     assert verwachte_bestandsnaam in reden, reden
+
+
+# ------------------------------- A-1: bekende verwachting niet weggooien
+
+
+@pytest.mark.asyncio
+async def test_kapot_regelrecord_behoudt_de_bekende_contractverwachting(
+    monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, dict[str, Any]]
+) -> None:
+    """Een leesbare root-SSOT hoort de verwachting te blijven dragen.
+
+    Dit is het kernscenario van DEF-621: de contract-SSOT is prima leesbaar,
+    maar een regelrecord deugt niet en `build_rule_records` faalt. De
+    verwachte ID-set is op dat moment al bekend, want `_bouw_snapshot` laadt
+    de policy vóór de records.
+
+    Ging die verwachting verloren, dan meldt de UI letterlijk 0 van 0 en is
+    `missing_rule_ids` leeg, precies daar waar deze story juist wilde
+    vertellen wat er ontbreekt. Fail-closed blijft overeind, maar de
+    diagnostiek verdampt.
+    """
+    verwacht_aantal = len(root_contract_policy().rule_ids)
+    assert verwacht_aantal > 0, "opzetfout: contract levert geen ID-s"
+
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.build_rule_records",
+        lambda *a, **kw: (_ for _ in ()).throw(
+            RuleContractError("regelrecord mist een bekende evaluator")
+        ),
+    )
+
+    resultaat = await _valideer(_service(alle_regels, ECHTE_REGELS))
+    readiness = resultaat["validation_readiness"]
+
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+    assert resultaat["unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
+    assert readiness["ready"] is False
+    assert readiness["loaded_total"] == 0, readiness
+    assert readiness["expected_total"] == verwacht_aantal, readiness
+    assert len(readiness["missing_rule_ids"]) == verwacht_aantal, readiness
+
+
+@pytest.mark.asyncio
+async def test_onleesbare_root_ssot_houdt_de_verwachting_wel_leeg(
+    monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, dict[str, Any]]
+) -> None:
+    """De keerzijde: zonder leesbaar contract is de verwachting echt onbekend.
+
+    Hier hoort `expected_total` nul te zijn en `missing_rule_ids` leeg. Een
+    verwachting verzinnen zou dezelfde tautologie herhalen die deze story
+    bestrijdt. Deze test borgt dat de reparatie voor het kapotte record die
+    grens niet meesleept.
+    """
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.load_root_contract_policy",
+        lambda *a, **kw: (_ for _ in ()).throw(
+            RuleContractError("root-SSOT onleesbaar")
+        ),
+    )
+
+    resultaat = await _valideer(_service(alle_regels, ECHTE_REGELS))
+    readiness = resultaat["validation_readiness"]
+
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+    assert readiness["ready"] is False
+    assert readiness["expected_total"] == 0, readiness
+    assert readiness["missing_rule_ids"] == [], readiness
+
+
+# ------------------- S-1: fingerprint en snapshot, dezelfde brontoestand
+
+
+def _wijzig_bronomvang(pad: Path, regel: dict[str, Any], spaties: int) -> None:
+    """Wijzig de bestandsgrootte zonder de JSON ongeldig te maken.
+
+    De fingerprint kijkt naar `(pad, grootte, mtime_ns)`. Sturen op grootte
+    is deterministisch; sturen op mtime zou van klokresolutie afhangen en
+    daarmee precies de flakiness introduceren die deze suite vermijdt.
+    """
+    pad.write_text(json.dumps(regel) + " " * spaties, encoding="utf-8")
+
+
+@pytest.mark.asyncio
+async def test_bronwijziging_tijdens_opbouw_publiceert_geen_ready_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """De fingerprint hoort dezelfde generatie te beschrijven als de inhoud.
+
+    De fingerprint wordt vóór de lock gemeten, maar `_bouw_snapshot` leest de
+    schijf pas daarna. Wijzigen de bronnen daartussen, dan draagt een ready
+    snapshot het label van een andere brontoestand. Verdwijnt een regel later
+    opnieuw en levert dat exact dezelfde fingerprint op, dan ziet de service
+    die overgang nooit meer - precies wat de fingerprint moest voorkomen.
+
+    Tweede helft van het bewijs: na zo-n botsing mag de service niet
+    vastzitten. De eerstvolgende validatie hoort gewoon opnieuw te bouwen.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    eerste = sorted(alle_regels)[0]
+    slachtoffer = regels_dir / f"{eerste}.json"
+
+    # Stap 1: een echte bronwijziging, zodat er een herbouw volgt.
+    _wijzig_bronomvang(slachtoffer, alle_regels[eerste], 1)
+
+    # Stap 2: tijdens die herbouw wijzigt de bron nog een keer. Eenmalig,
+    # zodat de tweede validatie een schone meting doet.
+    echte_bouw = service._bouw_snapshot
+    nog_muteren = {"actief": True}
+
+    def bouw_en_muteer(fingerprint: str | None) -> Any:
+        gebouwd = echte_bouw(fingerprint)
+        if nog_muteren["actief"]:
+            nog_muteren["actief"] = False
+            _wijzig_bronomvang(slachtoffer, alle_regels[eerste], 2)
+        return gebouwd
+
+    monkeypatch.setattr(service, "_bouw_snapshot", bouw_en_muteer)
+
+    await _valideer(service)
+
+    gepubliceerd = service._snapshot
+    assert gepubliceerd.readiness.ready is False, (
+        "een ready snapshot is gepubliceerd terwijl de bronnen tijdens de "
+        f"opbouw wijzigden; fingerprint={gepubliceerd.fingerprint}"
+    )
+
+    # De service mag hier niet blijven hangen: de bronnen zijn nu stabiel,
+    # dus de volgende validatie hoort een gewoon oordeel op te leveren.
+    tweede = await _valideer(service)
+
+    assert service._snapshot.readiness.ready is True, "service zit vast"
+    assert tweede["validation_status"] == VALIDATION_STATUS_VALIDATED, tweede

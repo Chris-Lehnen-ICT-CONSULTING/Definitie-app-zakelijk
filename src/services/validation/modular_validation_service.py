@@ -168,9 +168,8 @@ class ModularValidationService:
             fingerprint=None, oorzaak=None
         )
         try:
-            self._snapshot = self._bouw_snapshot(
-                bereken_fingerprint(self._fingerprintbronnen())
-            )
+            fp_voor = bereken_fingerprint(self._fingerprintbronnen())
+            self._snapshot = self._publiceerbaar(self._bouw_snapshot(fp_voor), fp_voor)
         except RuleContractError as exc:
             # De lader blijft fail-closed gooien; alleen deze runtimegrens
             # vertaalt dat naar een beschikbare, maar onbepaalde validatie.
@@ -178,7 +177,11 @@ class ModularValidationService:
                 "Regelcontract geschonden; validatie levert validation_unknown: %s",
                 exc,
             )
-            self._snapshot = self._lege_snapshot(fingerprint=None, oorzaak=exc)
+            self._snapshot = self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=exc,
+                contract_ids=self._bekende_contract_ids(),
+            )
         except Exception as exc:
             # Constructorpad 3: een generieke laadfout viel voorheen stil terug
             # op zeven baselineregels en liet de validatie daarna gewoon
@@ -194,7 +197,11 @@ class ModularValidationService:
                     "degradation_reason": str(exc),
                 },
             )
-            self._snapshot = self._lege_snapshot(fingerprint=None, oorzaak=exc)
+            self._snapshot = self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=exc,
+                contract_ids=self._bekende_contract_ids(),
+            )
 
         # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
         self._overall_threshold: float = 0.75
@@ -290,8 +297,63 @@ class ModularValidationService:
         regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
         return (*regels, ROOT_SSOT_PAD)
 
+    def _publiceerbaar(
+        self, gebouwd: RuntimeSnapshot, fingerprint: str | None
+    ) -> RuntimeSnapshot:
+        """Publiceer alleen wat bij de gemeten brontoestand hoort.
+
+        De fingerprint wordt gemeten vóór de opbouw, maar `_bouw_snapshot`
+        leest de schijf pas daarna. Wijzigen de bronnen daartussen, dan zou
+        een ready generatie het label van een ándere toestand dragen. Komt
+        die toestand later terug - een regelbestand dat verdwijnt, terugkeert
+        en opnieuw verdwijnt - dan levert dat exact dezelfde fingerprint op
+        en ziet de service de overgang nooit meer.
+
+        Bij een botsing gaat er dus niets naar buiten en publiceren we
+        fail-closed met `fingerprint=None`. Die waarde matcht nooit met een
+        gemeten fingerprint, dus de eerstvolgende aanroep bouwt gewoon
+        opnieuw. Geen herhaalpoging binnen deze aanroep: één extra meting,
+        daarna is de beurt aan de volgende validatie.
+
+        Deze tweede meting hangt aan de herbouw, niet aan de validatie. Het
+        normale pad returnt eerder op de fingerprintvergelijking en houdt
+        daarmee één meting per validatie.
+        """
+        if bereken_fingerprint(self._fingerprintbronnen()) == fingerprint:
+            return gebouwd
+
+        logger.warning(
+            "Bronnen wijzigden tijdens het opbouwen van de regelset; "
+            "fail-closed gepubliceerd zodat de volgende aanroep opnieuw leest"
+        )
+        return self._lege_snapshot(
+            fingerprint=None,
+            oorzaak=RuntimeError("bronnen wijzigden tijdens het opbouwen"),
+            contract_ids=self._bekende_contract_ids(),
+        )
+
+    def _bekende_contract_ids(self) -> tuple[str, ...]:
+        """De contractuele ID-set, of leeg wanneer de root-SSOT zelf faalt.
+
+        Bewust breed vangend: dit draait uitsluitend op een foutpad, waar een
+        tweede fout de eerste niet mag verdringen. Kan de verwachting wel
+        gelezen worden, dan hoort een mislukte generatie haar te blijven
+        dragen - zonder verwachting is `missing_rule_ids` leeg en meldt de UI
+        nietszeggend 0 van 0.
+        """
+        try:
+            return tuple(self._verse_contractpolicy().rule_ids)
+        except Exception:
+            # Breed vangend, zie docstring: op een foutpad mag een tweede
+            # fout de eerste niet verdringen.
+            return ()
+
     def _lege_snapshot(
-        self, *, fingerprint: str | None, oorzaak: BaseException | None
+        self,
+        *,
+        fingerprint: str | None,
+        oorzaak: BaseException | None,
+        contract_ids: tuple[str, ...] = (),
     ) -> RuntimeSnapshot:
         """Een volledig ingevulde, niet-bruikbare generatie.
 
@@ -299,18 +361,24 @@ class ModularValidationService:
         `pattern_cache`, readiness onwaar. Daardoor kan hij met een enkele
         toewijzing worden gepubliceerd zonder dat er ergens een half
         vernieuwde toestand ontstaat.
+
+        `contract_ids` blijft leeg zolang de verwachting werkelijk onbekend
+        is - faalt de root-SSOT zelf, dan is nul van nul de eerlijke melding.
+        Is zij wél gelezen en struikelde pas het laden van de records, dan
+        draagt deze snapshot de volledige verwachting en noemt hij elke regel
+        die ontbreekt.
         """
         return RuntimeSnapshot(
             fingerprint=fingerprint,
-            readiness=bepaal_readiness((), ()),
-            contract_rule_ids=(),
+            readiness=bepaal_readiness(contract_ids, ()),
+            contract_rule_ids=contract_ids,
             internal_rules=(),
             rule_records=MappingProxyType({}),
             json_rules=MappingProxyType({}),
             default_weights=MappingProxyType({}),
             pattern_cache={},
             rules_loaded_count=0,
-            rules_expected_count=0,
+            rules_expected_count=len(contract_ids),
             is_degraded_mode=True,
             degradation_reason=veilige_degradatiereden(oorzaak),
         )
@@ -425,9 +493,13 @@ class ModularValidationService:
                 # Eerst fail-closed publiceren: de oude ready-generatie mag
                 # niet actief blijven na een mislukte herlaadpoging.
                 logger.error("Herladen van de regelset gefaald: %s", exc)
-                self._snapshot = self._lege_snapshot(fingerprint=fp, oorzaak=exc)
+                self._snapshot = self._lege_snapshot(
+                    fingerprint=fp,
+                    oorzaak=exc,
+                    contract_ids=self._bekende_contract_ids(),
+                )
                 return self._snapshot
-            self._snapshot = nieuw
+            self._snapshot = self._publiceerbaar(nieuw, fp)
             return self._snapshot
 
     def _maak_unknown_resultaat(
