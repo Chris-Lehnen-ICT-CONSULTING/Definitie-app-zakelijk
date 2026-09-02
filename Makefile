@@ -83,8 +83,16 @@ lock-check:
 	uv pip compile requirements-dev.in --universal --generate-hashes --no-header \
 		-c requirements.txt -o "$$tmp/req-dev.check" >/dev/null 2>"$$tmp/req-dev.err" \
 		|| { echo "FOUT: uv kan requirements-dev.in niet resolven — is een lock handmatig bewerkt?"; cat "$$tmp/req-dev.err"; exit 1; }; \
-	sed '1,2d' requirements.txt | diff - "$$tmp/req.check" >/dev/null 2>&1 || { echo "FOUT: requirements.txt niet in sync met requirements.in — draai 'make lock'"; exit 1; }; \
-	sed '1,2d' requirements-dev.txt | diff - "$$tmp/req-dev.check" >/dev/null 2>&1 || { echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; exit 1; }
+	if ! sed '1,2d' requirements.txt | diff - "$$tmp/req.check" > "$$tmp/req.diff" 2>&1; then \
+		echo "FOUT: requirements.txt niet in sync met requirements.in — draai 'make lock'"; \
+		head -20 "$$tmp/req.diff"; \
+		exit 1; \
+	fi; \
+	if ! sed '1,2d' requirements-dev.txt | diff - "$$tmp/req-dev.check" > "$$tmp/req-dev.diff" 2>&1; then \
+		echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; \
+		head -20 "$$tmp/req-dev.diff"; \
+		exit 1; \
+	fi
 	@echo "OK: requirements-locks in sync met .in-bronnen."
 
 test: check-python test-markers-check
