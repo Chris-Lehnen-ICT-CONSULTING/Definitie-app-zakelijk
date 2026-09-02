@@ -335,17 +335,18 @@ class ModularValidationService:
     def _bekende_contract_ids(self) -> tuple[str, ...]:
         """De contractuele ID-set, of leeg wanneer de root-SSOT zelf faalt.
 
-        Bewust breed vangend: dit draait uitsluitend op een foutpad, waar een
-        tweede fout de eerste niet mag verdringen. Kan de verwachting wel
-        gelezen worden, dan hoort een mislukte generatie haar te blijven
-        dragen - zonder verwachting is `missing_rule_ids` leeg en meldt de UI
-        nietszeggend 0 van 0.
+        Kan de verwachting gelezen worden, dan hoort een mislukte generatie
+        haar te blijven dragen - zonder verwachting is `missing_rule_ids` leeg
+        en meldt de UI nietszeggend 0 van 0. Lukt ook dat niet, dan is de
+        verwachting werkelijk onbekend en is nul het eerlijke antwoord.
         """
         try:
             return tuple(self._verse_contractpolicy().rule_ids)
-        except Exception:
-            # Breed vangend, zie docstring: op een foutpad mag een tweede
-            # fout de eerste niet verdringen.
+        except RuleContractError:
+            # `load_root_contract_policy` vertaalt OSError en YAMLError beide
+            # naar RuleContractError, dus dit dekt elke leesfout. Niet loggen:
+            # dit draait op een foutpad waar de aanroeper de oorzaak al heeft
+            # gelogd, en zonder verwachting valt de generatie terug op nul.
             return ()
 
     def _lege_snapshot(
