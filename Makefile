@@ -54,8 +54,13 @@ audit:
 
 lock:
 	@echo "[lock] Compileer hashed requirements uit .in-bronnen (DEF-426)"
-	uv pip compile requirements.in --universal --generate-hashes -o requirements.txt
-	uv pip compile requirements-dev.in --universal --generate-hashes -c requirements.txt -o requirements-dev.txt
+	@# DEF-711: genereren en verifiëren delen één implementatie, zodat de
+	@# vlaggenset en de versievoorkeur niet uiteen kunnen lopen. Het script
+	@# compileert bovendien naar een verse werkmap met een versie-only
+	@# voorkeur; rechtstreeks naar het bestaande requirements.txt schrijven
+	@# liet uv hashes accumuleren (41 dubbele regels na één run) en bestaande
+	@# hash-corruptie ongemoeid.
+	@bash scripts/ci/check_lock_sync.sh --write
 
 lock-check:
 	@# DEF-711: de logica staat in scripts/ci/check_lock_sync.sh, zodat het
