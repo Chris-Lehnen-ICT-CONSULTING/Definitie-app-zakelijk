@@ -34,7 +34,10 @@ from services.validation.interfaces import (
     VALIDATION_STATUS_UNKNOWN,
     VALIDATION_STATUS_VALIDATED,
 )
-from services.validation.modular_validation_service import ModularValidationService
+from services.validation.modular_validation_service import (
+    ROOT_SSOT_PAD,
+    ModularValidationService,
+)
 from services.validation.readiness import (
     bepaal_readiness,
     bereken_fingerprint,
@@ -1124,6 +1127,14 @@ async def test_wachten_op_de_lock_verdringt_geen_geldige_generatie(
         "services.validation.modular_validation_service.bereken_fingerprint",
         fingerprint_wijzigt_na_de_eerste_meting,
     )
+    # De publicatiecontrole meet via `meet_bronnen`, niet via
+    # `bereken_fingerprint`. Die geeft hier de nieuwe waarde plus alle bronnen
+    # als aanwezig, zodat uitsluitend het stale-labelprobleem wordt getoetst
+    # en niet de brondekking.
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.meet_bronnen",
+        lambda bronnen: ("nieuw", frozenset(Path(pad) for pad in bronnen)),
+    )
 
     resultaat = await _valideer(service)
     snap = service._snapshot
@@ -1313,3 +1324,168 @@ def test_gewrapte_leesfout_lekt_geen_accountnaam(pad: str) -> None:
 
     assert "iemand" not in reden, reden
     assert "ARAI-01.json" in reden, reden
+
+
+# ------- DEF-709 derde ronde: stat-consistentie, latch, casing, YAML-pad
+
+
+def test_dekking_telt_alleen_bronnen_die_de_stat_overleefden(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """De glob en de stat zijn twee lagen; de dekking hoort de tweede te volgen.
+
+    `_fingerprintbronnen` levert een padlijst uit één glob, maar de fingerprint
+    doet daarna per pad een `stat()` en markeert een onleesbaar pad als
+    ontbrekend. Wie de dekking op de kale padlijst baseert, telt zo-n pad tóch
+    als aanwezig - dan interpreteren beide helften dezelfde waarneming
+    tegengesteld.
+
+    Hier staat het slachtofferpad wel in de lijst maar niet meer op schijf.
+    De fingerprint ziet dat; de dekking hoort dat ook te zien.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    gebouwd = service._snapshot
+    assert gebouwd.readiness.ready is True, "opzetfout: start niet ready"
+
+    waarneming = service._fingerprintbronnen()
+    slachtoffer = regels_dir / f"{sorted(alle_regels)[0]}.json"
+    assert slachtoffer in waarneming, "opzetfout: slachtoffer niet in de lijst"
+
+    # Het pad blijft in de waarneming staan, maar de stat gaat falen.
+    slachtoffer.unlink()
+    monkeypatch.setattr(service, "_fingerprintbronnen", lambda: waarneming)
+
+    gepubliceerd = service._publiceerbaar(gebouwd, bereken_fingerprint(waarneming))
+
+    assert gepubliceerd.readiness.ready is False, (
+        "generatie met 53 regels gepubliceerd terwijl de stat van een bron "
+        "faalde; de dekking telt kennelijk kale padnamen"
+    )
+
+
+@pytest.mark.asyncio
+async def test_transiente_meetfout_wordt_niet_gelatcht(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """Na een tijdelijke leesfout moet de service het gewoon opnieuw proberen.
+
+    De foutsnapshot kreeg de fingerprint van de mislukte poging mee. Herstelt
+    de storing zonder dat een bronbestand wijzigt, dan matcht die fingerprint
+    bij de volgende validatie, neemt de fast path het over en volgt er nooit
+    meer een herbouw: de service blijft tot herstart onbepaald.
+
+    Een foutsnapshot hoort daarom een fingerprint te dragen die nergens op
+    matcht, zoals `_publiceerbaar` bij een botsing al doet.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    assert service._snapshot.readiness.ready is True, "opzetfout: start niet ready"
+
+    eerste = sorted(alle_regels)[0]
+    (regels_dir / f"{eerste}.json").write_text(
+        json.dumps(alle_regels[eerste]) + " ", encoding="utf-8"
+    )
+
+    echte_bronnen = service._fingerprintbronnen
+    beurten = {"aantal": 0}
+
+    def onleesbaar_bij_de_hermeting() -> Any:
+        # Beurt 1 is de meting vóór de lock; die moet slagen, anders draagt de
+        # foutsnapshot sowieso geen bruikbare fingerprint en bewijst de test
+        # niets over de latch. Beurt 2 is de hermeting binnen de lock.
+        beurten["aantal"] += 1
+        if beurten["aantal"] == 2:
+            raise PermissionError(13, "Permission denied", str(regels_dir))
+        return echte_bronnen()
+
+    monkeypatch.setattr(service, "_fingerprintbronnen", onleesbaar_bij_de_hermeting)
+
+    eerste_uitkomst = await _valideer(service)
+    assert eerste_uitkomst["validation_status"] == VALIDATION_STATUS_UNKNOWN
+
+    # De storing is voorbij; de service hoort dat te merken.
+    tweede_uitkomst = await _valideer(service)
+
+    assert tweede_uitkomst["validation_status"] == VALIDATION_STATUS_VALIDATED, (
+        "service bleef onbepaald na een tijdelijke meetfout; de foutsnapshot "
+        f"draagt fingerprint {service._snapshot.fingerprint}"
+    )
+
+
+def test_hoofdletterextensie_telt_mee_in_de_dekking(
+    alle_regels: dict[str, Any],
+) -> None:
+    """Een bestand dat de glob accepteert, hoort ook de dekking te passeren.
+
+    De dekkingstoets filterde op een exacte `.json`-suffix. Op een
+    case-ongevoelig bestandssysteem levert een glob ook `ARAI-01.JSON`, dus
+    dan laadt de manager de regel wél terwijl de dekking hem wegfiltert - een
+    geldige regelset die onterecht fail-closed gaat.
+
+    Rechtstreeks op de dekkingsfunctie getoetst: op dit bestandssysteem matcht
+    `glob("*.json")` geen `.JSON`, dus end-to-end zou dit geval hier niet
+    ontstaan terwijl het op Windows wél bestaat.
+    """
+    service = _service(alle_regels, ECHTE_REGELS)
+    gebouwd = service._snapshot
+    assert gebouwd.readiness.ready is True, "opzetfout: start niet ready"
+
+    regelmap = service._regelpad()
+    assert regelmap is not None, "opzetfout: geen regelpad"
+
+    afwijkend = sorted(gebouwd.json_rules)[0]
+    aanwezig = frozenset(
+        regelmap / (f"{rid}.JSON" if rid == afwijkend else f"{rid}.json")
+        for rid in gebouwd.json_rules
+    )
+
+    assert (
+        service._bron_dekt_generatie(gebouwd, aanwezig) is True
+    ), f"{afwijkend}.JSON is als ontbrekend geteld terwijl het bestand er is"
+
+
+def test_yaml_fout_zonder_filename_lekt_het_ssot_pad_niet(
+    monkeypatch: pytest.MonkeyPatch, alle_regels: dict[str, Any]
+) -> None:
+    """Niet elke fout draagt zijn pad gestructureerd mee.
+
+    Het laadpad vangt ook `yaml.YAMLError` en bouwt daar zelf een boodschap
+    omheen met het pad erin. Die keten bevat nergens een `filename`, dus de
+    gestructureerde vervanging vindt niets en het vrije-tekstvangnet moet het
+    doen - wat het bij een map met een spatie of een Windows-scheider niet kan.
+
+    De aanroeper weet wél welk pad in het spel is; die kennis hoort gebruikt te
+    worden in plaats van geraden.
+    """
+    # Een SSOT-pad met een spatie erin: precies de vorm die het
+    # vrije-tekstvangnet niet aankan, en die op deze machine toevallig niet
+    # voorkomt. Zonder deze stap bewijst de test niets.
+    nep_ssot = Path("/Volumes/Team Share/Definitie App/config/toetsregels.yaml")
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.ROOT_SSOT_PAD", nep_ssot
+    )
+    boodschap = f"{nep_ssot}: root-SSOT bevat ongeldige YAML: regel 3"
+    monkeypatch.setattr(
+        "services.validation.modular_validation_service.load_root_contract_policy",
+        lambda *a, **kw: (_ for _ in ()).throw(RuleContractError(boodschap)),
+    )
+
+    service = _service(alle_regels, ECHTE_REGELS)
+    reden = service._snapshot.degradation_reason or ""
+
+    assert str(nep_ssot.parent) not in reden, reden
+    assert "Team Share" not in reden, reden
+    assert nep_ssot.name in reden, reden

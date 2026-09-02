@@ -31,6 +31,7 @@ from services.validation.readiness import (
     RuntimeSnapshot,
     bepaal_readiness,
     bereken_fingerprint,
+    meet_bronnen,
     veilige_degradatiereden,
 )
 from toetsregels.runtime_contract import (
@@ -307,8 +308,18 @@ class ModularValidationService:
         regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
         return (*regels, ROOT_SSOT_PAD)
 
+    def _redactiepaden(self) -> tuple[Path, ...]:
+        """Paden die de service kent, zodat de redactie ze niet hoeft te raden.
+
+        Niet elke fout draagt haar pad gestructureerd mee: een YAML-fout heeft
+        geen `filename`, terwijl het laadpad het pad wél in de boodschap zet.
+        Voor die gevallen is dit de betrouwbare bron.
+        """
+        regelmap = self._regelpad()
+        return (ROOT_SSOT_PAD, *((regelmap,) if regelmap is not None else ()))
+
     def _bron_dekt_generatie(
-        self, gebouwd: RuntimeSnapshot, bronnen: tuple[Path, ...]
+        self, gebouwd: RuntimeSnapshot, aanwezig: frozenset[Path]
     ) -> bool:
         """Draagt de generatie uitsluitend regels die nu op schijf staan?
 
@@ -333,10 +344,11 @@ class ModularValidationService:
         if self._regelpad() is None:
             return True
 
+        # Geen suffixfilter: de glob bepaalt al wat een regelbestand is, en
+        # op een case-ongevoelig bestandssysteem levert die ook `.JSON`. Een
+        # exacte suffixvergelijking wees zo-n geldig bestand ten onrechte af.
         op_schijf = {
-            canonical_rule_id(pad.stem)
-            for pad in bronnen
-            if pad != ROOT_SSOT_PAD and pad.suffix == ".json"
+            canonical_rule_id(pad.stem) for pad in aanwezig if pad != ROOT_SSOT_PAD
         }
         geladen = {canonical_rule_id(rid) for rid in gebouwd.json_rules}
         return geladen <= op_schijf
@@ -366,11 +378,11 @@ class ModularValidationService:
         # Eén waarneming voor beide controles. Twee losse observaties kunnen
         # verschillende schijftoestanden zien, en dan meet de fingerprint 52
         # bestanden terwijl de dekkingstoets er 53 telt.
-        bronnen = self._fingerprintbronnen()
+        fp_na, aanwezig = meet_bronnen(self._fingerprintbronnen())
 
-        if bereken_fingerprint(bronnen) == fingerprint:
+        if fp_na == fingerprint:
             if not gebouwd.readiness.ready or self._bron_dekt_generatie(
-                gebouwd, bronnen
+                gebouwd, aanwezig
             ):
                 return gebouwd
             # Gelijke fingerprint, ongelijke werkelijkheid: zie
@@ -429,7 +441,9 @@ class ModularValidationService:
             rules_loaded_count=0,
             rules_expected_count=len(contract_ids),
             is_degraded_mode=True,
-            degradation_reason=veilige_degradatiereden(oorzaak),
+            degradation_reason=veilige_degradatiereden(
+                oorzaak, bekende_paden=self._redactiepaden()
+            ),
         )
 
     def _bouw_snapshot(
@@ -532,7 +546,16 @@ class ModularValidationService:
         het eerste `await`, zodat de lock nooit over een suspensiepunt wordt
         gehouden.
         """
-        fp = bereken_fingerprint(self._fingerprintbronnen())
+        try:
+            fp: str | None = bereken_fingerprint(self._fingerprintbronnen())
+        except OSError as exc:
+            # Deze meting staat bewust buiten de lock en dus buiten de
+            # foutgrens hieronder. Kan zij niet worden uitgevoerd, dan valt
+            # niet vast te stellen of er iets wijzigde; met `None` valt de
+            # aanroep door naar het herlaadpad, dat de fout wél fail-closed
+            # afhandelt in plaats van haar te laten ontsnappen.
+            logger.warning("Fingerprint van de regelbronnen mislukt: %s", exc)
+            fp = None
         snap = self._snapshot
         if fp == snap.fingerprint:
             return snap
@@ -581,8 +604,13 @@ class ModularValidationService:
                 # Eerst fail-closed publiceren: de oude ready-generatie mag
                 # niet actief blijven na een mislukte herlaadpoging.
                 logger.error("Herladen van de regelset gefaald: %s", exc)
+                # `fingerprint=None` en niet `fp`: die laatste matcht bij de
+                # volgende validatie de fast path, waardoor een storing die
+                # inmiddels voorbij is nooit meer wordt opgemerkt en de service
+                # tot herstart onbepaald blijft. Bovendien kan `fp` hier nog de
+                # meting van vóór de lock zijn wanneer juist de hermeting faalde.
                 self._snapshot = self._lege_snapshot(
-                    fingerprint=fp,
+                    fingerprint=None,
                     oorzaak=exc,
                     contract_ids=bekende_ids,
                 )
