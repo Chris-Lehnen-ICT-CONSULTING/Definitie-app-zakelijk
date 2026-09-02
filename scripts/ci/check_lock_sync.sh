@@ -33,6 +33,10 @@ EXIT_PRECONDITIE=3
 # versievoorkeur niet uiteen kunnen lopen — die drift maakte de gate eerder
 # structureel rood op iets wat `make lock` niet oploste.
 MODUS="check"
+if [ "$#" -gt 1 ]; then
+    echo "FOUT: te veel argumenten (verwacht: --write of niets)." >&2
+    exit "$EXIT_PRECONDITIE"
+fi
 case "${1:-}" in
     --write) MODUS="write" ;;
     "") ;;
@@ -60,7 +64,15 @@ if ! command -v uv >/dev/null 2>&1; then
     exit "$EXIT_PRECONDITIE"
 fi
 
-for bestand in requirements.in requirements.txt requirements-dev.in requirements-dev.txt; do
+# De .in-bronnen zijn altijd vereist. De locks alleen in check-modus: in
+# write-modus zijn ze de uitvoer, en moet een ontbrekende lock juist opgebouwd
+# kunnen worden. De oude `uv pip compile -o requirements.txt` kon dat ook.
+vereist="requirements.in requirements-dev.in"
+if [ "$MODUS" = check ]; then
+    vereist="$vereist requirements.txt requirements-dev.txt"
+fi
+
+for bestand in $vereist; do
     if [ ! -f "$bestand" ]; then
         echo "FOUT: $bestand ontbreekt in $repo_root." >&2
         exit "$EXIT_PRECONDITIE"
@@ -105,6 +117,13 @@ versie_voorkeur() {
     local lock=$1 doel=$2
     local status=0
 
+    # In write-modus mag de lock ontbreken: dan is er geen voorkeur en resolvet
+    # uv vrij, wat precies is wat je wilt bij een eerste opbouw.
+    if [ ! -f "$lock" ]; then
+        : > "$doel"
+        return
+    fi
+
     # Hash-regels eruit, en de line-continuation die bij de pinregel hoorde.
     # grep-status: 0 = regels over, 1 = niets over (een lege lock is geldig,
     # dan is er simpelweg geen voorkeur), >1 = echte fout.
@@ -129,9 +148,16 @@ compileer() {
     local kop=()
     # In check-modus vergelijken we alleen de body, dus zonder header. In
     # write-modus hoort de header er wel in: die documenteert het commando
-    # waarmee de lock gegenereerd is.
+    # waarmee de lock gereproduceerd wordt.
+    #
+    # --custom-compile-command is daarbij essentieel. Zonder die vlag schrijft
+    # uv het letterlijke commando in de header, inclusief het willekeurige
+    # mktemp-pad waar we naartoe compileren. Dat lekt een lokaal pad naar de
+    # repo en levert bij elke `make lock` een andere header, dus altijd een diff.
     if [ "$MODUS" = check ]; then
         kop=(--no-header)
+    else
+        kop=(--custom-compile-command "make lock")
     fi
     # ${1+"$@"} in plaats van "$@": onder `set -u` klapt een lege "$@" in
     # bash < 4.4 (macOS levert 3.2) op "unbound variable".
@@ -144,18 +170,33 @@ compileer() {
         # Redactie: uv noemt index-URL's en tokens in resolve-fouten. Zowel
         # userinfo vóór @ als query-parameters kunnen credentials dragen, en
         # deze uitvoer landt in CI-joblogs.
+        # Alle query-waarden maskeren, niet een lijst van bekende sleutelnamen:
+        # zo een allowlist mist er altijd een (access_token, refresh_token, ...)
+        # en groeit alleen maar. Sleutelnamen zelf blijven zichtbaar, zodat de
+        # melding diagnosticeerbaar blijft.
         sed -n '1,20p' "$err" \
             | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
-                     -e 's#([?&](token|api_key|apikey|password|secret)=)[^&[:space:]]+#\1***#gI' >&2
+                     -e 's#([?&][A-Za-z0-9_.-]+=)[^&[:space:]]+#\1***#g' >&2
         exit "$EXIT_RESOLVE"
     fi
 }
 
-# Schrijf de gegenereerde lock over het gecommitte bestand heen.
+# Vervang een lock atomair: eerst naast het doel neerzetten, dan hernoemen.
+# Een rechtstreekse `cp` kan bij een fout halverwege een afgekapt bestand
+# achterlaten — waargenomen: 341 bytes werd 17 bytes bij een geïnjecteerde
+# kopieerfout. Een `mv` binnen hetzelfde filesystem is wel atomair.
 schrijf() {
     local vers=$1 doel=$2
-    if ! cp "$vers" "$doel"; then
-        echo "FOUT: kan $doel niet schrijven." >&2
+    local tijdelijk="$doel.nieuw.$$"
+
+    if ! cp "$vers" "$tijdelijk"; then
+        rm -f "$tijdelijk"
+        echo "FOUT: kan $doel niet voorbereiden." >&2
+        exit "$EXIT_PRECONDITIE"
+    fi
+    if ! mv "$tijdelijk" "$doel"; then
+        rm -f "$tijdelijk"
+        echo "FOUT: kan $doel niet vervangen." >&2
         exit "$EXIT_PRECONDITIE"
     fi
     echo "  geschreven: $doel"
@@ -208,19 +249,42 @@ vergelijk() {
     fi
 }
 
-if [ "$MODUS" = write ]; then
-    schrijf "$tmp/req.check" requirements.txt
-else
+if [ "$MODUS" = check ]; then
     vergelijk requirements.txt "$tmp/req.check" requirements.in
+else
+    # De runtime-lock moet er staan vóór de dev-resolve, want die gebruikt hem
+    # als constraint — en dat pad belandt in de `# via`-annotaties van de
+    # dev-lock. Een tijdelijk pad meegeven zou daar een willekeurige
+    # /var/folders-locatie inschrijven, waardoor elke run een andere lock geeft.
+    # Daarom schrijven we hier al, met een backup voor rollback als de
+    # dev-resolve alsnog faalt.
+    if [ -f requirements.txt ]; then
+        cp requirements.txt "$tmp/req.backup" || {
+            echo "FOUT: kan geen backup van requirements.txt maken." >&2
+            exit "$EXIT_PRECONDITIE"
+        }
+        HERSTEL_RUNTIME=1
+    fi
+    schrijf "$tmp/req.check" requirements.txt
 fi
 
-# De dev-resolve gebruikt de runtime-lock als constraint. Op dit punt is die in
-# beide modi de juiste: in write-modus zojuist geschreven, in check-modus
-# aantoonbaar in sync met zijn bron.
+# De dev-resolve gebruikt de runtime-lock als constraint, met een relatief pad
+# zodat de annotatie in de dev-lock reproduceerbaar blijft.
+if [ "$MODUS" = write ]; then
+    # Rollback bij een falende dev-resolve: anders blijft een bijgewerkte
+    # runtime-lock naast een ongewijzigde dev-lock achter.
+    trap 'status=$?; if [ "$status" -ne 0 ] && [ "${HERSTEL_RUNTIME:-0}" = 1 ]; then
+            cp "$tmp/req.backup" requirements.txt 2>/dev/null || true
+            echo "  requirements.txt teruggedraaid" >&2
+          fi
+          rm -rf "$tmp"' EXIT
+fi
+
 compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c requirements.txt
 
 if [ "$MODUS" = write ]; then
     schrijf "$tmp/req-dev.check" requirements-dev.txt
+    HERSTEL_RUNTIME=0
     echo "OK: requirements-locks gegenereerd uit de .in-bronnen."
 else
     vergelijk requirements-dev.txt "$tmp/req-dev.check" requirements-dev.in

@@ -109,13 +109,23 @@ def _fake_uv(
         "while [ $# -gt 0 ]; do\n"
         '  case "$1" in\n'
         "    --universal|--generate-hashes|--no-header) ;;\n"
+        "    --custom-compile-command) shift ;;\n"
         "    -o) shift; doel=$1 ;;\n"
         "    -c) shift; constraint=$1 ;;\n"
         "    -*)\n"
         '      echo "error: onbekende vlag $1" >&2\n'
         "      exit 2\n"
         "      ;;\n"
-        '    *) if [ -z "$bron" ]; then bron=$1; fi ;;\n'
+        # Exact één positionele bron. Alleen de eerste onthouden liet een
+        # tweede bron ongemerkt passeren, terwijl echte uv daarop een andere
+        # resolutie geeft.
+        "    *)\n"
+        '      if [ -n "$bron" ]; then\n'
+        '        echo "error: meer dan één bronbestand ($bron en $1)" >&2\n'
+        "        exit 2\n"
+        "      fi\n"
+        "      bron=$1\n"
+        "      ;;\n"
         "  esac\n"
         "  shift\n"
         "done\n"
@@ -152,6 +162,15 @@ def _fake_uv(
         "fi\n"
         'if [ -z "$doel" ]; then\n'
         '  echo "error: geen -o meegegeven" >&2\n'
+        "  exit 2\n"
+        "fi\n"
+        # Het voorkeurbestand mag geen hashes bevatten. Echte uv neemt die
+        # namelijk over in plaats van ze te herberekenen, waardoor een lock met
+        # gemanipuleerde hashes zijn eigen corruptie erft en de gate groen
+        # meldt. Zonder deze controle houdt precies die oude implementatie —
+        # de volledige lock naar het doel kopiëren — de suite groen.
+        'if [ -f "$doel" ] && grep -q -- "--hash=" "$doel"; then\n'
+        '  echo "error: voorkeurbestand bevat hashes; uv zou ze overnemen" >&2\n'
         "  exit 2\n"
         "fi\n"
         'case "$bron" in\n'
@@ -407,8 +426,48 @@ def test_write_modus_genereert_de_locks(tmp_path):
     checkkant groen blijft — en dan genereert `make lock` niets meer.
     """
     root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
     (root / "requirements.txt").write_text("", encoding="utf-8")
     (root / "requirements-dev.txt").write_text("", encoding="utf-8")
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    env = dict(os.environ)
+    env["LOCK_SYNC_ROOT"] = str(root)
+    env["PATH"] = f"{bin_dir}:/usr/bin:/bin:/usr/sbin:/sbin"
+    resultaat = subprocess.run(
+        ["bash", str(SCRIPT), "--write"],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    assert resultaat.returncode == 0, resultaat.stderr
+    assert (root / "requirements.txt").read_text(encoding="utf-8") == LOCK_BODY
+    assert (root / "requirements-dev.txt").read_text(encoding="utf-8") == DEV_LOCK_BODY
+
+    # In write-modus hoort --custom-compile-command mee, anders schrijft uv het
+    # willekeurige mktemp-pad in de header: dat lekt een lokaal pad naar de repo
+    # en geeft bij elke run een andere header, dus altijd een diff.
+    aanroepen = (bin_dir / "argv.log").read_text(encoding="utf-8").splitlines()
+    for aanroep in aanroepen:
+        tokens = aanroep.split()
+        assert "--custom-compile-command" in tokens, tokens
+        assert "--no-header" not in tokens, tokens
+        assert "--generate-hashes" in tokens, tokens
+
+
+def test_write_modus_bouwt_ontbrekende_locks_op(tmp_path):
+    """Een eerste opbouw moet werken zonder bestaande lockfiles.
+
+    De oude `uv pip compile -o requirements.txt` kon een ontbrekend doel gewoon
+    aanmaken. Toen check- en write-modus dezelfde preconditie deelden, gaf een
+    repo met alleen `.in`-bronnen exit 3 — een regressie ten opzichte van de
+    route die vervangen werd.
+    """
+    root = _repo(tmp_path)
+    (root / "requirements.txt").unlink()
+    (root / "requirements-dev.txt").unlink()
     _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
 
     env = dict(os.environ)
@@ -422,9 +481,42 @@ def test_write_modus_genereert_de_locks(tmp_path):
         check=False,
     )
 
-    assert resultaat.returncode == 0, resultaat.stderr
-    assert (root / "requirements.txt").read_text(encoding="utf-8") == LOCK_BODY
-    assert (root / "requirements-dev.txt").read_text(encoding="utf-8") == DEV_LOCK_BODY
+    assert resultaat.returncode == 0, f"{resultaat.stdout}{resultaat.stderr}"
+    assert (root / "requirements.txt").exists()
+    assert (root / "requirements-dev.txt").exists()
+
+
+def test_write_laat_geen_half_bijgewerkt_lockpaar_achter(tmp_path):
+    """Faalt de dev-resolve, dan mag de runtime-lock niet al gewijzigd zijn.
+
+    De vorige volgorde schreef requirements.txt vóór de dev-compile. Een
+    onoplosbare dev-dependency liet dan een bijgewerkte runtime-lock naast een
+    ongewijzigde dev-lock achter — de repo in een tussentoestand.
+    """
+    root = _repo(tmp_path)
+    oorspronkelijk = (root / "requirements.txt").read_text(encoding="utf-8")
+    _fake_uv(
+        tmp_path / "bin",
+        runtime_body=LOCK_BODY,
+        dev_body=DEV_LOCK_BODY,
+        dev_exit_code=1,
+    )
+
+    env = dict(os.environ)
+    env["LOCK_SYNC_ROOT"] = str(root)
+    env["PATH"] = f"{tmp_path / 'bin'}:/usr/bin:/bin:/usr/sbin:/sbin"
+    resultaat = subprocess.run(
+        ["bash", str(SCRIPT), "--write"],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    assert resultaat.returncode == 2, f"{resultaat.stdout}{resultaat.stderr}"
+    assert (root / "requirements.txt").read_text(
+        encoding="utf-8"
+    ) == oorspronkelijk, "requirements.txt is gewijzigd terwijl de dev-resolve faalde"
 
 
 def test_onbekend_argument_wordt_geweigerd(tmp_path):
@@ -445,6 +537,39 @@ def test_onbekend_argument_wordt_geweigerd(tmp_path):
 
     assert resultaat.returncode == 3, resultaat.stderr
     assert "onbekend argument" in resultaat.stderr
+
+
+def test_make_lock_roept_de_write_modus_aan(tmp_path):
+    """Ook het `lock`-target heeft functionele dekking nodig.
+
+    `make lock-check` is gedekt, maar een `lock`-target dat succesvol niets doet
+    bleef groen — en dan genereert niemand nog een lock terwijl alles er goed
+    uitziet.
+    """
+    repo_root = SCRIPT.parent.parent.parent
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    (root / "requirements.txt").write_text("", encoding="utf-8")
+    (root / "requirements-dev.txt").write_text("", encoding="utf-8")
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    env = dict(os.environ)
+    env["LOCK_SYNC_ROOT"] = str(root)
+    env["PATH"] = f"{bin_dir}:/usr/bin:/bin:/usr/sbin:/sbin"
+    resultaat = subprocess.run(
+        ["make", "lock"],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+
+    assert resultaat.returncode == 0, f"{resultaat.stdout}{resultaat.stderr}"
+    assert (root / "requirements.txt").read_text(encoding="utf-8") == LOCK_BODY, (
+        "make lock heeft de lock niet geschreven; een target dat niets doet "
+        "zou hier ook exit 0 geven"
+    )
 
 
 def test_tempdir_wordt_opgeruimd(tmp_path):
@@ -596,8 +721,19 @@ def test_compileer_geeft_de_juiste_vlaggen_mee(tmp_path):
         assert "-o" in tokens, tokens
 
     assert "-c" in dev_tokens, dev_tokens
-    assert dev_tokens[dev_tokens.index("-c") + 1] == "requirements.txt", dev_tokens
     assert "-c" not in runtime_tokens, runtime_tokens
+
+    # De dev-constraint moet een relatief pad zijn. Een absoluut tijdelijk pad
+    # belandt in de `# via`-annotaties van de dev-lock, waardoor elke run een
+    # andere lock oplevert en de gate niet-deterministisch wordt.
+    constraint = dev_tokens[dev_tokens.index("-c") + 1]
+    assert constraint == "requirements.txt", dev_tokens
+    assert not constraint.startswith("/"), dev_tokens
+
+    # In check-modus hoort --no-header erbij; in write-modus juist niet, want
+    # dan documenteert de header het reproductiecommando.
+    for tokens in (runtime_tokens, dev_tokens):
+        assert "--custom-compile-command" not in tokens, tokens
 
 
 def test_ontbrekend_pakket_in_de_lock_geeft_desync(tmp_path):
