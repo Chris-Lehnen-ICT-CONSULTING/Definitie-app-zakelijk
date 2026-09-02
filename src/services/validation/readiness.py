@@ -20,6 +20,7 @@ die laatste de verwachte ID-set bepaalt.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
@@ -49,6 +50,26 @@ _ABSOLUUT_PAD = re.compile(r"(?<![^\s'\"(\[:,=])(?:/[^/\s'\"]+){2,}")
 def _basisnaam(pad: str) -> str:
     """De bestandsnaam, ongeacht of het pad POSIX- of Windows-scheiders heeft."""
     return re.split(r"[\\/]", pad)[-1] or pad
+
+
+def _foutketen(oorzaak: BaseException) -> Iterable[BaseException]:
+    """De fout zelf plus de fouten waarin zij verpakt zit.
+
+    Het laadpad vangt een `OSError` en gooit een `RuleContractError` met het
+    pad in de boodschap. Die buitenste fout draagt geen `filename`, dus wie
+    alleen daarnaar kijkt vindt niets en laat het pad staan. De oorspronkelijke
+    fout draagt het pad wél gestructureerd; die is via `__cause__` bereikbaar.
+
+    De `gezien`-set is geen overdaad: `__context__` kan naar een fout wijzen
+    die zelf al eerder in de keten voorkwam, en dan loopt een naïeve wandeling
+    rond.
+    """
+    gezien: set[int] = set()
+    huidig: BaseException | None = oorzaak
+    while huidig is not None and id(huidig) not in gezien:
+        gezien.add(id(huidig))
+        yield huidig
+        huidig = huidig.__cause__ or huidig.__context__
 
 
 @dataclass(frozen=True)
@@ -194,13 +215,16 @@ def veilige_degradatiereden(oorzaak: BaseException | None) -> str | None:
     # `OSError.__str__` zet het pad er met `repr()` in, dus backslashes staan
     # er verdubbeld in terwijl `filename` ze enkel draagt. Beide vormen
     # vervangen, anders glipt juist het Windows-pad er ongeschonden door.
-    for attribuut in ("filename", "filename2"):
-        pad = getattr(oorzaak, attribuut, None)
-        if not isinstance(pad, str) or not pad:
-            continue
-        basisnaam = _basisnaam(pad)
-        for variant in {pad, repr(pad)[1:-1]}:
-            tekst = tekst.replace(variant, basisnaam)
+    for fout in _foutketen(oorzaak):
+        for attribuut in ("filename", "filename2"):
+            pad = getattr(fout, attribuut, None)
+            if isinstance(pad, bytes):
+                pad = os.fsdecode(pad)
+            if not isinstance(pad, str) or not pad:
+                continue
+            basisnaam = _basisnaam(pad)
+            for variant in {pad, repr(pad)[1:-1]}:
+                tekst = tekst.replace(variant, basisnaam)
 
     return _ABSOLUUT_PAD.sub(lambda treffer: Path(treffer.group(0)).name, tekst)
 

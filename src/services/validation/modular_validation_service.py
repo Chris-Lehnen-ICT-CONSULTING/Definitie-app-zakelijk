@@ -307,7 +307,9 @@ class ModularValidationService:
         regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
         return (*regels, ROOT_SSOT_PAD)
 
-    def _bron_dekt_generatie(self, gebouwd: RuntimeSnapshot) -> bool:
+    def _bron_dekt_generatie(
+        self, gebouwd: RuntimeSnapshot, bronnen: tuple[Path, ...]
+    ) -> bool:
         """Draagt de generatie uitsluitend regels die nu op schijf staan?
 
         De fingerprint is een wijzigingsdetector, geen identiteitsbewijs. Een
@@ -321,12 +323,21 @@ class ModularValidationService:
         schijf ligt, is een gewone incomplete set die readiness al afvangt.
         Hier gaat het om het omgekeerde: een generatie die regels draagt
         waarvoor geen bron meer bestaat.
+
+        `bronnen` komt van de aanroeper en wordt niet zelf opgehaald. Een
+        eigen glob zou een ándere schijftoestand kunnen zien dan de
+        fingerprint waartegen zojuist is vergeleken, en precies in dat gaatje
+        glipte een generatie er alsnog doorheen: de fingerprint zag 52
+        bestanden, de dekkingsglob 53.
         """
-        regelmap = self._regelpad()
-        if regelmap is None:
+        if self._regelpad() is None:
             return True
 
-        op_schijf = {canonical_rule_id(pad.stem) for pad in regelmap.glob("*.json")}
+        op_schijf = {
+            canonical_rule_id(pad.stem)
+            for pad in bronnen
+            if pad != ROOT_SSOT_PAD and pad.suffix == ".json"
+        }
         geladen = {canonical_rule_id(rid) for rid in gebouwd.json_rules}
         return geladen <= op_schijf
 
@@ -352,8 +363,15 @@ class ModularValidationService:
         normale pad returnt eerder op de fingerprintvergelijking en houdt
         daarmee één meting per validatie.
         """
-        if bereken_fingerprint(self._fingerprintbronnen()) == fingerprint:
-            if not gebouwd.readiness.ready or self._bron_dekt_generatie(gebouwd):
+        # Eén waarneming voor beide controles. Twee losse observaties kunnen
+        # verschillende schijftoestanden zien, en dan meet de fingerprint 52
+        # bestanden terwijl de dekkingstoets er 53 telt.
+        bronnen = self._fingerprintbronnen()
+
+        if bereken_fingerprint(bronnen) == fingerprint:
+            if not gebouwd.readiness.ready or self._bron_dekt_generatie(
+                gebouwd, bronnen
+            ):
                 return gebouwd
             # Gelijke fingerprint, ongelijke werkelijkheid: zie
             # `_bron_dekt_generatie`.
@@ -531,9 +549,6 @@ class ModularValidationService:
             # verdringen. Opnieuw meten kost hier niets - we gaan toch al
             # herbouwen - en houdt het normale pad op één meting, want dat
             # returnt vóór de lock.
-            fp = bereken_fingerprint(self._fingerprintbronnen())
-            if fp == snap.fingerprint:
-                return snap
             manager = self.toetsregel_manager
             # Zie de constructor: draagt de verwachting door het foutpad heen.
             # Anders dan bij constructie beginnen we hier niet leeg maar bij
@@ -543,11 +558,25 @@ class ModularValidationService:
             # overschrijft de verse set haar hieronder.
             bekende_ids: tuple[str, ...] = snap.contract_rule_ids
             try:
+                # Hermeten binnen de lock: wie hier heeft staan wachten
+                # terwijl een andere thread een geldige generatie publiceerde,
+                # zou anders met een verouderd label bouwen en die generatie
+                # door de publicatiecontrole laten verdringen. Deze meting én
+                # de publicatiecontrole staan bewust binnen de `try`: het zijn
+                # schijfleesacties, en een onleesbare map hoort hier een
+                # onbepaalde uitkomst op te leveren, geen ontsnappende
+                # exceptie. Het normale pad returnt vóór de lock en houdt dus
+                # één meting per validatie.
+                fp = bereken_fingerprint(self._fingerprintbronnen())
+                if fp == snap.fingerprint:
+                    return snap
                 if manager is not None and hasattr(manager, "clear_cache"):
                     manager.clear_cache()
                 policy = self._verse_contractpolicy()
                 bekende_ids = tuple(policy.rule_ids)
                 nieuw = self._bouw_snapshot(fp, policy)
+                self._snapshot = self._publiceerbaar(nieuw, fp)
+                return self._snapshot
             except Exception as exc:
                 # Eerst fail-closed publiceren: de oude ready-generatie mag
                 # niet actief blijven na een mislukte herlaadpoging.
@@ -558,8 +587,6 @@ class ModularValidationService:
                     contract_ids=bekende_ids,
                 )
                 return self._snapshot
-            self._snapshot = self._publiceerbaar(nieuw, fp)
-            return self._snapshot
 
     def _maak_unknown_resultaat(
         self, correlation_id: str, snapshot: RuntimeSnapshot
