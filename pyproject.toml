@@ -81,6 +81,11 @@ ignore = [
     "E402",   # Module level import not at top of file - we'll fix these manually
     "E501",   # Line too long - handled by Black
     "PLR0913", # Too many arguments
+    "PLR0917", # Too many positional arguments - DEF-707: stabiel sinds ruff 0.16
+    #            (was preview), 9 hits. Zelfde klasse als het hierboven al
+    #            genegeerde PLR0913; fixen vraagt keyword-only signaturen in o.a.
+    #            definition_orchestrator_v2.py (DEF-421) en validation/types.py
+    #            plus al hun aanroepers. Bewuste projectkeuze, niet nieuw gedrag.
     "PLR2004", # Magic value used in comparison
     "PGH003",  # Use specific rule codes when ignoring type issues
     "PLC0415", # Import outside top-level - intentional lazy loading
