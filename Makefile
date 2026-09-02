@@ -59,11 +59,32 @@ lock:
 
 lock-check:
 	@echo "[lock-check] Verifieer dat requirements*.txt in sync is met de .in-bronnen (DEF-426)"
+	@# DEF-559: deze gate toetst of de lock een geldige resolutie van de .in is —
+	@# NIET of hij de nieuwste versies bevat; dat laatste is het werk van Dependabot.
+	@#
+	@# Daarom krijgt de check dezelfde versievoorkeur als `lock`: uv gebruikt een
+	@# bestaand output-bestand als voorkeur, en `lock` compileert naar het bestaande
+	@# requirements.txt. Zonder die kopie compileert de check vrij en kiest hij de
+	@# nieuwste versies, waardoor beide per definitie uiteenlopen zodra upstream een
+	@# transitieve dep uitbrengt — de check faalde dan zelfs direct na `make lock`.
+	@#
+	@# mktemp: de vorige vaste /tmp-paden maakten de check niet-hermetisch, doordat
+	@# stale outputs van een eerdere run de resolve stuurden.
+	@#
 	@# --no-header: vergelijk alleen de body (de header bevat het -o-pad dat verschilt).
-	@uv pip compile requirements.in --universal --generate-hashes --no-header -o /tmp/req.lock.check 2>/dev/null
-	@uv pip compile requirements-dev.in --universal --generate-hashes --no-header -c requirements.txt -o /tmp/req-dev.lock.check 2>/dev/null
-	@sed '1,2d' requirements.txt | diff - /tmp/req.lock.check >/dev/null 2>&1 || { echo "FOUT: requirements.txt niet in sync met requirements.in — draai 'make lock'"; exit 1; }
-	@sed '1,2d' requirements-dev.txt | diff - /tmp/req-dev.lock.check >/dev/null 2>&1 || { echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; exit 1; }
+	@set -e; \
+	tmp=$$(mktemp -d); \
+	trap 'rm -r "$$tmp"' EXIT; \
+	cp requirements.txt "$$tmp/req.check"; \
+	cp requirements-dev.txt "$$tmp/req-dev.check"; \
+	uv pip compile requirements.in --universal --generate-hashes --no-header \
+		-o "$$tmp/req.check" >/dev/null 2>"$$tmp/req.err" \
+		|| { echo "FOUT: uv kan requirements.in niet resolven — is een lock handmatig bewerkt?"; cat "$$tmp/req.err"; exit 1; }; \
+	uv pip compile requirements-dev.in --universal --generate-hashes --no-header \
+		-c requirements.txt -o "$$tmp/req-dev.check" >/dev/null 2>"$$tmp/req-dev.err" \
+		|| { echo "FOUT: uv kan requirements-dev.in niet resolven — is een lock handmatig bewerkt?"; cat "$$tmp/req-dev.err"; exit 1; }; \
+	sed '1,2d' requirements.txt | diff - "$$tmp/req.check" >/dev/null 2>&1 || { echo "FOUT: requirements.txt niet in sync met requirements.in — draai 'make lock'"; exit 1; }; \
+	sed '1,2d' requirements-dev.txt | diff - "$$tmp/req-dev.check" >/dev/null 2>&1 || { echo "FOUT: requirements-dev.txt niet in sync met requirements-dev.in — draai 'make lock'"; exit 1; }
 	@echo "OK: requirements-locks in sync met .in-bronnen."
 
 test: check-python test-markers-check
