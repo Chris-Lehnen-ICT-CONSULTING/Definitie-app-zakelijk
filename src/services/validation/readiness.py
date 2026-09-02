@@ -20,6 +20,7 @@ die laatste de verwachte ID-set bepaalt.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,7 +34,15 @@ __all__ = [
     "ValidationReadiness",
     "bepaal_readiness",
     "bereken_fingerprint",
+    "veilige_degradatiereden",
 ]
+
+
+# Een absoluut pad van minstens twee segmenten. De lookbehind voorkomt dat een
+# relatief pad half wordt opgegeten: in `a/b/c` mag `/b/c` niet los matchen.
+# Aanhalingstekens en dubbele punten zijn wél toegestane voorlopers, want zo
+# levert `OSError` het pad aan: `[Errno 2] ...: '/pad/naar/regel.json'`.
+_ABSOLUUT_PAD = re.compile(r"(?<![A-Za-z0-9_.\-])(?:/[^/\s'\"]+){2,}")
 
 
 @dataclass(frozen=True)
@@ -148,6 +157,28 @@ def bepaal_readiness(
         unexpected_rule_ids=onverwacht,
         reason=None if ready else UNKNOWN_REASON_RULESET_INCOMPLETE,
     )
+
+
+def veilige_degradatiereden(oorzaak: BaseException | None) -> str | None:
+    """De reden van degradatie, met absolute paden teruggebracht tot hun naam.
+
+    `degradation_reason` is geen logveld: `get_health_status`, het
+    `validation_unknown`-resultaat en uiteindelijk de banner in
+    `definition_generator_tab` dragen hem naar het scherm. Een OS-fout geeft
+    daar het volledige pad mee, en dat begint op een gebruikersmachine met de
+    accountnaam.
+
+    In de log blijft het pad juist wél staan — DEF-580 haalde paden bewust uit
+    de redactieregels omdat tracebacks anders onleesbaar worden. Deze functie
+    dicht daarom alleen het schermpad, niet de logketen.
+
+    De bestandsnaam blijft behouden: weten dát `ARAI-01.json` ontbreekt is de
+    bruikbare helft van de melding, de mappen erboven zijn dat niet.
+    """
+    if oorzaak is None:
+        return None
+
+    return _ABSOLUUT_PAD.sub(lambda treffer: Path(treffer.group(0)).name, str(oorzaak))
 
 
 def bereken_fingerprint(bronnen: Iterable[Path]) -> str:
