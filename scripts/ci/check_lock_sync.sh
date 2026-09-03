@@ -19,7 +19,10 @@
 #   0  lock is in sync
 #   1  lock is niet in sync met de .in — draai `make lock`
 #   2  uv kan de .in niet resolven — mogelijk een handmatig bewerkte lock
-#   3  randvoorwaarde ontbreekt (uv niet gevonden, bestand mist)
+#   3  operationele fout: de gate kan geen oordeel vellen. Dat omvat
+#      ontbrekende randvoorwaarden (uv niet gevonden, bestand mist of is
+#      onleesbaar), lees- en schrijffouten tijdens de write-transactie,
+#      diff-trouble, en problemen bij het terugdraaien daarvan.
 
 set -euo pipefail
 
@@ -100,6 +103,14 @@ TRANSACTIE_ACTIEF=0
 RUNTIME_BESTOND=0
 DEV_BESTOND=0
 ROLLBACK_MISLUKT=0
+# Per lock bijgehouden of DEZE run hem werkelijk heeft vervangen. De transactie
+# staat al aan vóór de eerste schrijfpoging - dat moet, anders beschermt hij de
+# eerste helft niet - maar terugdraaien mag alleen wat ook echt gemuteerd is.
+# Zonder dit onderscheid meldde een gefaalde eerste `cp` dat beide locks niet
+# konden worden teruggedraaid, terwijl geen van beide was aangeraakt, en bleef
+# de werkmap staan voor een handmatig herstel dat nergens over ging.
+RUNTIME_GESCHREVEN=0
+DEV_GESCHREVEN=0
 
 # Zet één lock terug naar de staat van vóór de transactie.
 #
@@ -144,8 +155,12 @@ opruimen() {
     local status=$?
 
     if [ "$status" -ne 0 ] && [ "$TRANSACTIE_ACTIEF" = 1 ]; then
-        herstel requirements.txt "$tmp/req.backup" "$RUNTIME_BESTOND"
-        herstel requirements-dev.txt "$tmp/dev.backup" "$DEV_BESTOND"
+        if [ "$RUNTIME_GESCHREVEN" = 1 ]; then
+            herstel requirements.txt "$tmp/req.backup" "$RUNTIME_BESTOND"
+        fi
+        if [ "$DEV_GESCHREVEN" = 1 ]; then
+            herstel requirements-dev.txt "$tmp/dev.backup" "$DEV_BESTOND"
+        fi
     fi
 
     if [ "$ROLLBACK_MISLUKT" = 1 ]; then
@@ -157,6 +172,30 @@ opruimen() {
     rm -rf "$tmp"
 }
 trap opruimen EXIT
+
+# Toon maximaal twintig regels van een uitvoerbestand op stderr, met
+# credentials eruit. Eén helper voor élk pad dat naar stderr schrijft: de
+# resolve-fout ging hier al doorheen, maar de desync-diff en de diff-trouble
+# niet - terwijl juist de lock een index-directive met credentials kan dragen
+# (`--index-url https://ci:TOKEN@nexus.intern/simple`) en zo een regel
+# gegarandeerd in de diff belandt zodra hij niet uit de resolve komt. Deze
+# uitvoer landt sinds de CI-stap in publieke joblogs.
+#
+# Zowel userinfo vóór de @ als query-parameters kunnen credentials dragen.
+# Alle query-waarden worden gemaskeerd, niet een lijst van bekende
+# sleutelnamen: zo een allowlist mist er altijd een (access_token,
+# refresh_token, ...) en groeit alleen maar. Sleutelnamen zelf blijven
+# zichtbaar, zodat de melding diagnosticeerbaar blijft.
+#
+# De sleutel matcht op "alles tot de =", niet op een tekenklasse van wat een
+# sleutelnaam mag heten. Een percent-encoded of anderszins exotische sleutel
+# (api%2Dtoken=...) valt buiten [A-Za-z0-9_.-] en zou de hele parameter
+# ongemaskeerd doorlaten - inclusief de waarde.
+redigeer() {
+    sed -n '1,20p' "$1" \
+        | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
+                 -e 's#([?&][^=&[:space:]]+=)[^&[:space:]]+#\1***#g' >&2
+}
 
 # De lock gaat als versievoorkeur naar het compile-doel, maar ZONDER hashes.
 #
@@ -224,21 +263,8 @@ compileer() {
         ${kop[@]+"${kop[@]}"} ${1+"$@"} -o "$doel" >/dev/null 2>"$err"; then
         echo "FOUT: uv kan $bron niet resolven — is een lock handmatig bewerkt?" >&2
         echo "      (uv $(uv --version 2>/dev/null | head -1))" >&2
-        # Redactie: uv noemt index-URL's en tokens in resolve-fouten. Zowel
-        # userinfo vóór @ als query-parameters kunnen credentials dragen, en
-        # deze uitvoer landt in CI-joblogs.
-        # Alle query-waarden maskeren, niet een lijst van bekende sleutelnamen:
-        # zo een allowlist mist er altijd een (access_token, refresh_token, ...)
-        # en groeit alleen maar. Sleutelnamen zelf blijven zichtbaar, zodat de
-        # melding diagnosticeerbaar blijft.
-        #
-        # De sleutel matcht op "alles tot de =", niet op een tekenklasse van wat
-        # een sleutelnaam mag heten. Een percent-encoded of anderszins exotische
-        # sleutel (api%2Dtoken=...) valt buiten [A-Za-z0-9_.-] en zou de hele
-        # parameter ongemaskeerd doorlaten — inclusief de waarde.
-        sed -n '1,20p' "$err" \
-            | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
-                     -e 's#([?&][^=&[:space:]]+=)[^&[:space:]]+#\1***#g' >&2
+        # uv noemt index-URL's en tokens in resolve-fouten; zie `redigeer`.
+        redigeer "$err"
         exit "$EXIT_RESOLVE"
     fi
 }
@@ -302,14 +328,14 @@ vergelijk() {
     diff "$tmp/lock-body" "$vers" > "$tmp/diff.out" 2>&1 || status=$?
     if [ "$status" -eq 1 ]; then
         echo "FOUT: $lock niet in sync met $bron — draai 'make lock'" >&2
-        sed -n '1,20p' "$tmp/diff.out" >&2
+        redigeer "$tmp/diff.out"
         exit "$EXIT_DESYNC"
     elif [ "$status" -ne 0 ]; then
         # diff-status >= 2 betekent "trouble" (ontbrekend of onleesbaar
         # bestand), geen inhoudelijk verschil. Dat als desync melden zou naar
         # `make lock` verwijzen terwijl dat niets oplost.
         echo "FOUT: kan $lock niet vergelijken met de verse resolutie." >&2
-        sed -n '1,20p' "$tmp/diff.out" >&2
+        redigeer "$tmp/diff.out"
         exit "$EXIT_PRECONDITIE"
     fi
 }
@@ -344,6 +370,7 @@ else
     # dev-lock. Een tijdelijk pad meegeven zou daar een willekeurige
     # /var/folders-locatie inschrijven, waardoor elke run een andere lock geeft.
     schrijf "$tmp/req.check" requirements.txt
+    RUNTIME_GESCHREVEN=1
 fi
 
 # De dev-resolve gebruikt de runtime-lock als constraint, met een relatief pad
@@ -352,6 +379,7 @@ compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c require
 
 if [ "$MODUS" = write ]; then
     schrijf "$tmp/req-dev.check" requirements-dev.txt
+    DEV_GESCHREVEN=1
     # Commit vóór élke verdere uitvoer: beide locks staan er, dus een falende
     # echo mag hier geen rollback meer uitlokken.
     TRANSACTIE_ACTIEF=0

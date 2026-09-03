@@ -610,7 +610,11 @@ class TestCachePerformance:
             self.cache_manager.set(f"key_{i}", f"value_{i}", ttl=60)
 
         for i in range(1000):
-            self.cache_manager.get(f"key_{i}")
+            # Ook de waarde toetsen, niet alleen dat er iets terugkomt: een
+            # cache die de sleutel registreert maar None of een afgekapte
+            # waarde teruggeeft, telt elke get als hit en zou een assertie op
+            # alleen de hit rate ongemoeid laten.
+            assert self.cache_manager.get(f"key_{i}") == f"value_{i}"
 
         stats = self.cache_manager.get_stats()
         assert stats["hit_rate"] > 0.9  # 90% hit rate
