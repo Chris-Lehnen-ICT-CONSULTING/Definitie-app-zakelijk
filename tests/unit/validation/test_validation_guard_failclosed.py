@@ -1293,6 +1293,13 @@ async def test_leesfout_bij_het_herladen_blijft_binnen_de_fail_closed_grens(
 
 
 @pytest.mark.parametrize(
+    "expliciet_gechained",
+    [
+        pytest.param(True, id="from_exc"),
+        pytest.param(False, id="impliciet"),
+    ],
+)
+@pytest.mark.parametrize(
     "pad",
     [
         pytest.param(
@@ -1305,7 +1312,9 @@ async def test_leesfout_bij_het_herladen_blijft_binnen_de_fail_closed_grens(
         ),
     ],
 )
-def test_gewrapte_leesfout_lekt_geen_accountnaam(pad: str) -> None:
+def test_gewrapte_leesfout_lekt_geen_accountnaam(
+    pad: str, expliciet_gechained: bool
+) -> None:
     """Het echte laadpad wrapt de OS-fout; de redactie moet dat volgen.
 
     `load_root_contract_policy` vangt `OSError` en gooit een
@@ -1316,12 +1325,23 @@ def test_gewrapte_leesfout_lekt_geen_accountnaam(pad: str) -> None:
 
     Dit is de vorm waarin de melding werkelijk op het scherm belandt; de
     kale OS-fout is dat niet.
+
+    Beide wrapvormen worden getoetst. Met `from exc` zet Python `__cause__`,
+    zonder `from` alleen `__context__` - en impliciet chainen is de gewone
+    vorm, want je hoeft er niets voor te schrijven. `_foutketen` volgt beide.
+    Zonder deze tweede parameter blijft die `__context__`-tak onbewaakt: haal
+    hem weg en de suite blijft groen terwijl de accountnaam weer lekt.
     """
     try:
         try:
             raise FileNotFoundError(2, "No such file or directory", pad)
         except OSError as exc:
-            raise RuleContractError(f"{pad}: root-SSOT onleesbaar") from exc
+            if expliciet_gechained:
+                raise RuleContractError(f"{pad}: root-SSOT onleesbaar") from exc
+            # De onderdrukking hieronder is bewust: juist het ontbreken van
+            # `from` is hier het onderwerp. Python zet dan `__context__` in
+            # plaats van `__cause__`, en die tak moet de redactie ook volgen.
+            raise RuleContractError(f"{pad}: root-SSOT onleesbaar")  # noqa: B904
     except RuleContractError as gewrapt:
         reden = veilige_degradatiereden(gewrapt) or ""
 
