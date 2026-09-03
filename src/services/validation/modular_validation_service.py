@@ -769,13 +769,26 @@ class ModularValidationService:
         return sorted(self._snapshot.internal_rules)
 
     def get_health_status(self) -> dict[str, Any]:
-        """Gezondheid van de validatieservice, uit de actieve snapshot (DEF-215/DEF-621).
+        """Gezondheid van de validatieservice, uit een verse snapshot (DEF-215/DEF-621/DEF-709).
 
         `validation_ready` is het readiness-oordeel: de geladen regel-ID-set
         dekt de contractuele set. Zolang dat onwaar is levert elke validatie
         `validation_unknown`.
+
+        Ververst eerst, net als `validate_definition`. Las health de actieve
+        snapshot rechtstreeks, dan meldde hij na een compleet-naar-incompleet-
+        overgang nog `validation_ready: true` totdat iemand toevallig
+        valideerde - terwijl elke validatie op dat moment al onbepaald was.
+        Health is juist het oppervlak dat monitoring uitleest, dus daar hoort
+        de verste waarheid te staan.
+
+        De kosten zijn een glob plus een stat per bron, en alleen bij een échte
+        bronwijziging volgt een herbouw: de fingerprintvergelijking returnt
+        anders meteen. Wordt dit ooit een hoogfrequent gepolld endpoint, dan is
+        een tijdsvenster op de meting de route - niet terug naar een stale
+        snapshot.
         """
-        snap = self._snapshot
+        snap = self._ververs_state_indien_nodig()
         readiness = snap.readiness
         coverage_pct = (
             (snap.rules_loaded_count / snap.rules_expected_count * 100)

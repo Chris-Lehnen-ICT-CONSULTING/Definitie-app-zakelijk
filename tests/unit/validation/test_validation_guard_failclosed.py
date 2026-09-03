@@ -1706,3 +1706,49 @@ async def test_meetfout_bij_het_publiceren_ontsnapt_niet(
     assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
     assert resultaat["unknown_reason"] == UNKNOWN_REASON_RULESET_INCOMPLETE
     assert service._snapshot.readiness.ready is False
+
+
+# --------------- DEF-709 punt 1: health ververst de actuele snapshot
+
+
+@pytest.mark.asyncio
+async def test_health_ververst_na_een_bronwijziging(
+    tmp_path: Path, alle_regels: dict[str, Any]
+) -> None:
+    """Health en validatie horen dezelfde waarheid te melden.
+
+    `get_health_status()` las de actieve snapshot rechtstreeks, terwijl de
+    fingerprintmachinerie alleen vanuit `validate_definition()` werd
+    aangeroepen. Na een compleet-naar-incompleet-overgang meldde health dus
+    `validation_ready: true` totdat iemand toevallig valideerde, terwijl elke
+    validatie op dat moment al `validation_unknown` teruggaf.
+
+    Dat is precies het verkeerde oppervlak om achter te lopen: health is wat
+    monitoring uitleest. Een dashboard dat groen staat terwijl de service geen
+    enkel oordeel meer velt, is erger dan geen dashboard.
+    """
+    regels_dir = tmp_path / "regels"
+    regels_dir.mkdir()
+    for naam, regel in alle_regels.items():
+        (regels_dir / f"{naam}.json").write_text(json.dumps(regel), encoding="utf-8")
+
+    service = ModularValidationService(
+        toetsregel_manager=ToetsregelManager(base_dir=regels_dir.parent)
+    )
+    assert (
+        service.get_health_status()["validation_ready"] is True
+    ), "opzetfout: start niet ready"
+
+    # Een regelbestand verdwijnt: de geladen set dekt het contract niet meer.
+    (regels_dir / f"{sorted(alle_regels)[0]}.json").unlink()
+
+    health = service.get_health_status()
+
+    assert health["validation_ready"] is False, (
+        "health meldt ready terwijl een regelbestand is verdwenen; de snapshot "
+        "wordt kennelijk niet ververst"
+    )
+    # En het antwoord moet gelijk zijn aan wat de validatie op dat moment geeft.
+    resultaat = await _valideer(service)
+    assert resultaat["validation_status"] == VALIDATION_STATUS_UNKNOWN
+    assert service.get_health_status()["validation_ready"] is False
