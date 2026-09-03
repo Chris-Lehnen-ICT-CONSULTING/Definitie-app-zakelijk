@@ -21,8 +21,14 @@
 #   2  uv kan de .in niet resolven — mogelijk een handmatig bewerkte lock
 #   3  operationele fout: de gate kan geen oordeel vellen. Dat omvat
 #      ontbrekende randvoorwaarden (uv niet gevonden, bestand mist of is
-#      onleesbaar), lees- en schrijffouten tijdens de write-transactie,
-#      diff-trouble, en problemen bij het terugdraaien daarvan.
+#      onleesbaar), lees- en schrijffouten tijdens de write-transactie, en
+#      diff-trouble.
+#
+#      Een mislukt terugdraaien verandert de exitcode NIET: de EXIT-trap laat
+#      de status staan van de fout die de rollback uitlokte, want die is de
+#      interessantste. Faalt de dev-resolve (2) en lukt het herstel daarna
+#      niet, dan eindigt het script dus met 2 en niet met 3. Het mislukte
+#      herstel wordt wel op stderr gemeld, inclusief de plek van de backups.
 
 set -euo pipefail
 
@@ -192,7 +198,25 @@ trap opruimen EXIT
 # (api%2Dtoken=...) valt buiten [A-Za-z0-9_.-] en zou de hele parameter
 # ongemaskeerd doorlaten - inclusief de waarde.
 redigeer() {
-    sed -n '1,20p' "$1" \
+    # Eerst afgebroken URL-regels samenvoegen. Requirements-bestanden voegen
+    # een regel die op een backslash eindigt samen met de volgende, en de
+    # maskering hieronder werkt per fysieke regel. Een directive die zijn
+    # credential over twee regels verdeelde ontsnapte daardoor: bij de
+    # userinfo-vorm staan `://` en `@` niet meer op dezelfde regel, en bij de
+    # queryvorm werd alleen de backslash gemaskeerd terwijl de waarde eronder
+    # bleef staan.
+    #
+    # De vervolgregel draagt in diff-uitvoer een `< `- of `> `-prefix; die gaat
+    # bij het samenvoegen mee weg, anders belandt hij middenin de URL en matcht
+    # de maskering alsnog niet.
+    #
+    # Bewust alleen samenvoegen wanneer de afgebroken regel zelf een URL of een
+    # queryparameter draagt. Elke lockregel eindigt op een backslash (`pakket \`
+    # gevolgd door hashes); die blind samenvoegen zou de diff-uitvoer tot één
+    # regel per pakket samenplakken en de melding onleesbaar maken.
+    sed -e :a -e '/:\/\/[^[:space:]]*\\$/{N;s/\\\n\([<>] \)\{0,1\}//;ba' -e '}' \
+        -e :b -e '/[?&][^=[:space:]]*=\\$/{N;s/\\\n\([<>] \)\{0,1\}//;bb' -e '}' "$1" \
+        | sed -n '1,20p' \
         | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
                  -e 's#([?&][^=&[:space:]]+=)[^&[:space:]]+#\1***#g' >&2
 }
@@ -282,6 +306,19 @@ schrijf() {
         echo "FOUT: kan $doel niet voorbereiden." >&2
         exit "$EXIT_PRECONDITIE"
     fi
+    # De vlag gaat VOOR de mv, niet erna. Vanaf hier kan het doel gemuteerd
+    # raken op een manier die het script niet betrouwbaar waarneemt: een mv die
+    # de rename voltooit en daarna een foutstatus geeft, of een signaal tussen
+    # de rename en het vastleggen ervan. Stond de vlag erna, dan bleef zo een
+    # mutatie ongemerkt terwijl de trap niets herstelde en de backups weggooide.
+    # Bij twijfel hoort een transactie terug te draaien.
+    #
+    # De cp hierboven raakt het doel niet, dus een gefaalde voorbereiding houdt
+    # de vlag op 0 en levert terecht geen rollback op.
+    case "$doel" in
+        requirements.txt) RUNTIME_GESCHREVEN=1 ;;
+        requirements-dev.txt) DEV_GESCHREVEN=1 ;;
+    esac
     if ! mv "$tijdelijk" "$doel"; then
         rm -f "$tijdelijk"
         echo "FOUT: kan $doel niet vervangen." >&2
@@ -370,7 +407,6 @@ else
     # dev-lock. Een tijdelijk pad meegeven zou daar een willekeurige
     # /var/folders-locatie inschrijven, waardoor elke run een andere lock geeft.
     schrijf "$tmp/req.check" requirements.txt
-    RUNTIME_GESCHREVEN=1
 fi
 
 # De dev-resolve gebruikt de runtime-lock als constraint, met een relatief pad
@@ -379,7 +415,6 @@ compileer requirements-dev.in "$tmp/req-dev.check" "$tmp/req-dev.err" -c require
 
 if [ "$MODUS" = write ]; then
     schrijf "$tmp/req-dev.check" requirements-dev.txt
-    DEV_GESCHREVEN=1
     # Commit vóór élke verdere uitvoer: beide locks staan er, dus een falende
     # echo mag hier geen rollback meer uitlokken.
     TRANSACTIE_ACTIEF=0
