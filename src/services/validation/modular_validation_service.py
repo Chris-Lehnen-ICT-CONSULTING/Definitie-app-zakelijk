@@ -31,6 +31,7 @@ from services.validation.readiness import (
     RuntimeSnapshot,
     bepaal_readiness,
     bereken_fingerprint,
+    meet_bronnen,
     veilige_degradatiereden,
 )
 from toetsregels.runtime_contract import (
@@ -42,6 +43,7 @@ from toetsregels.runtime_contract import (
     RuleRecord,
     ScorePolicy,
     build_rule_records,
+    canonical_rule_id,
     load_root_contract_policy,
     missing_inputs,
 )
@@ -306,6 +308,83 @@ class ModularValidationService:
         regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
         return (*regels, ROOT_SSOT_PAD)
 
+    def _redactiepaden(self) -> tuple[Path, ...]:
+        """Paden die de service kent, zodat de redactie ze niet hoeft te raden.
+
+        Niet elke fout draagt haar pad gestructureerd mee: een YAML-fout heeft
+        geen `filename`, terwijl het laadpad het pad wél in de boodschap zet.
+        Voor die gevallen is dit de betrouwbare bron.
+        """
+        regelmap = self._regelpad()
+        return (ROOT_SSOT_PAD, *((regelmap,) if regelmap is not None else ()))
+
+    def _bron_dekt_generatie(
+        self, gebouwd: RuntimeSnapshot, aanwezig: frozenset[Path]
+    ) -> bool:
+        """Staan de bronnen van deze generatie nu nog op schijf?
+
+        De contract-SSOT moet altijd de stat hebben overleefd; dat geldt voor
+        elke manager. Voor een manager die zijn regels van schijf betrekt geldt
+        daarnaast dat de generatie geen regel mag dragen waarvoor geen bestand
+        meer bestaat.
+
+        Voor een manager zónder regelbronpad is die tweede toets niet van
+        toepassing: er zijn geen bronbestanden om tegen te vergelijken. Een
+        in-memory manager - synthetische regels, een database, een
+        testfixture - is een legitiem geval, geen defect. Contractvolledigheid
+        blijft daar fail-closed geborgd door `gebouwd.readiness`, dat immers de
+        geladen ID-set tegen de contractuele set houdt; deze methode voegt daar
+        alleen de schijfwerkelijkheid aan toe.
+
+        `aanwezig` kan dat onderscheid principieel niet maken. Buiten de SSOT is
+        die verzameling leeg in twee wezenlijk verschillende situaties: een
+        manager zonder schijfbron, en een schijfgebonden manager waarvan alle
+        bestanden verdwenen zijn. Daarom blijft `_regelpad()` hier de scheiding
+        bepalen - niet als tweede schijfwaarneming, maar als vraag naar de aard
+        van de manager.
+
+        De fingerprint is een wijzigingsdetector, geen identiteitsbewijs. Een
+        bestand dat verdwijnt, tijdens de opbouw terugkeert en daarna opnieuw
+        verdwijnt, levert vóór en ná exact dezelfde hash op - terwijl de
+        opbouw daartussen de volledige set las. Een vergelijking van
+        fingerprints ziet dat niet; een vergelijking met de bestanden op
+        schijf wel.
+
+        De toets is bewust eenzijdig. Dat de manager mínder levert dan er op
+        schijf ligt, is een gewone incomplete set die readiness al afvangt.
+        Hier gaat het om het omgekeerde: een generatie die regels draagt
+        waarvoor geen bron meer bestaat.
+
+        `aanwezig` komt van de aanroeper en wordt niet zelf opgehaald. Een
+        eigen glob zou een ándere schijftoestand kunnen zien dan de
+        fingerprint waartegen zojuist is vergeleken, en precies in dat gaatje
+        glipte een generatie er alsnog doorheen: de fingerprint zag 52
+        bestanden, de dekkingsglob 53.
+        """
+        # De SSOT is de bron van `contract_rule_ids` en hoort dus onder dezelfde
+        # eis te vallen als de regelbestanden. Verdwijnt hij, keert hij terug
+        # tijdens de opbouw en verdwijnt hij weer, dan beschrijven beide
+        # fingerprints "SSOT afwezig" en ziet de vergelijking niets - terwijl de
+        # generatie wel degelijk een contractset draagt die nergens meer op
+        # schijf staat. Deze toets staat vóór de regelpadcheck hieronder, zodat
+        # hij niet afhangt van de vraag of er een manager met bronpad is.
+        if ROOT_SSOT_PAD not in aanwezig:
+            return False
+
+        # Geen regelbronpad: geen bestandstoets. Zie de docstring - dit is de
+        # aard van de manager, niet een lege schijfwaarneming.
+        if self._regelpad() is None:
+            return True
+
+        # Geen suffixfilter: de glob bepaalt al wat een regelbestand is, en
+        # op een case-ongevoelig bestandssysteem levert die ook `.JSON`. Een
+        # exacte suffixvergelijking wees zo-n geldig bestand ten onrechte af.
+        op_schijf = {
+            canonical_rule_id(pad.stem) for pad in aanwezig if pad != ROOT_SSOT_PAD
+        }
+        geladen = {canonical_rule_id(rid) for rid in gebouwd.json_rules}
+        return geladen <= op_schijf
+
     def _publiceerbaar(
         self, gebouwd: RuntimeSnapshot, fingerprint: str | None
     ) -> RuntimeSnapshot:
@@ -328,8 +407,27 @@ class ModularValidationService:
         normale pad returnt eerder op de fingerprintvergelijking en houdt
         daarmee één meting per validatie.
         """
-        if bereken_fingerprint(self._fingerprintbronnen()) == fingerprint:
-            return gebouwd
+        # Eén waarneming voor beide controles. Twee losse observaties kunnen
+        # verschillende schijftoestanden zien, en dan meet de fingerprint 52
+        # bestanden terwijl de dekkingstoets er 53 telt.
+        fp_na, aanwezig = meet_bronnen(self._fingerprintbronnen())
+
+        if fp_na == fingerprint:
+            if not gebouwd.readiness.ready or self._bron_dekt_generatie(
+                gebouwd, aanwezig
+            ):
+                return gebouwd
+            # Gelijke fingerprint, ongelijke werkelijkheid: zie
+            # `_bron_dekt_generatie`.
+            logger.warning(
+                "Generatie draagt regels die niet op schijf staan; fail-closed "
+                "gepubliceerd ondanks een ongewijzigde fingerprint"
+            )
+            return self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=RuntimeError("bronnen keerden terug tijdens het opbouwen"),
+                contract_ids=gebouwd.contract_rule_ids,
+            )
 
         logger.warning(
             "Bronnen wijzigden tijdens het opbouwen van de regelset; "
@@ -375,7 +473,9 @@ class ModularValidationService:
             rules_loaded_count=0,
             rules_expected_count=len(contract_ids),
             is_degraded_mode=True,
-            degradation_reason=veilige_degradatiereden(oorzaak),
+            degradation_reason=veilige_degradatiereden(
+                oorzaak, bekende_paden=self._redactiepaden()
+            ),
         )
 
     def _bouw_snapshot(
@@ -478,7 +578,35 @@ class ModularValidationService:
         het eerste `await`, zodat de lock nooit over een suspensiepunt wordt
         gehouden.
         """
-        fp = bereken_fingerprint(self._fingerprintbronnen())
+        try:
+            fp: str | None = bereken_fingerprint(self._fingerprintbronnen())
+        except OSError as exc:
+            # Deze meting staat bewust buiten de lock en dus buiten de
+            # foutgrens hieronder. Kan zij niet worden uitgevoerd, dan valt
+            # niet vast te stellen of er iets wijzigde, en `None` is dan de
+            # eerlijke uitkomst: geen meting.
+            #
+            # Wat daarna gebeurt hangt af van de actieve generatie, en dat is
+            # bewust asymmetrisch:
+            #
+            # - draagt zij een echte fingerprint, dan is `None` daaraan ongelijk
+            #   en volgt een herlaadpoging, die de fout fail-closed afhandelt in
+            #   plaats van haar te laten ontsnappen;
+            # - is zij zelf al een foutsnapshot (`fingerprint=None`), dan matcht
+            #   de fast path hieronder en volgt er géén nieuwe poging. Dat is
+            #   geen omissie: zonder meting valt niet te zeggen of er iets
+            #   wijzigde, en de laatst bekende toestand is al fail-closed.
+            #
+            # Zodra er weer een echte fingerprint gemeten kan worden, is die
+            # ongelijk aan `None` en herstelt de service zichzelf.
+            #
+            # De keerzijde - een aanhoudende láádfout kost wél elke aanroep een
+            # volledige herbouw, want daar levert de meting een echte hash die
+            # nooit gelijk is aan de `None` van de foutsnapshot - is gemeten en
+            # staat als DEF-716 open. Hier niets aan veranderen zonder dat
+            # issue.
+            logger.warning("Fingerprint van de regelbronnen mislukt: %s", exc)
+            fp = None
         snap = self._snapshot
         if fp == snap.fingerprint:
             return snap
@@ -496,23 +624,40 @@ class ModularValidationService:
             # overschrijft de verse set haar hieronder.
             bekende_ids: tuple[str, ...] = snap.contract_rule_ids
             try:
+                # Hermeten binnen de lock: wie hier heeft staan wachten
+                # terwijl een andere thread een geldige generatie publiceerde,
+                # zou anders met een verouderd label bouwen en die generatie
+                # door de publicatiecontrole laten verdringen. Deze meting én
+                # de publicatiecontrole staan bewust binnen de `try`: het zijn
+                # schijfleesacties, en een onleesbare map hoort hier een
+                # onbepaalde uitkomst op te leveren, geen ontsnappende
+                # exceptie. Het normale pad returnt vóór de lock en houdt dus
+                # één meting per validatie.
+                fp = bereken_fingerprint(self._fingerprintbronnen())
+                if fp == snap.fingerprint:
+                    return snap
                 if manager is not None and hasattr(manager, "clear_cache"):
                     manager.clear_cache()
                 policy = self._verse_contractpolicy()
                 bekende_ids = tuple(policy.rule_ids)
                 nieuw = self._bouw_snapshot(fp, policy)
+                self._snapshot = self._publiceerbaar(nieuw, fp)
+                return self._snapshot
             except Exception as exc:
                 # Eerst fail-closed publiceren: de oude ready-generatie mag
                 # niet actief blijven na een mislukte herlaadpoging.
                 logger.error("Herladen van de regelset gefaald: %s", exc)
+                # `fingerprint=None` en niet `fp`: die laatste matcht bij de
+                # volgende validatie de fast path, waardoor een storing die
+                # inmiddels voorbij is nooit meer wordt opgemerkt en de service
+                # tot herstart onbepaald blijft. Bovendien kan `fp` hier nog de
+                # meting van vóór de lock zijn wanneer juist de hermeting faalde.
                 self._snapshot = self._lege_snapshot(
-                    fingerprint=fp,
+                    fingerprint=None,
                     oorzaak=exc,
                     contract_ids=bekende_ids,
                 )
                 return self._snapshot
-            self._snapshot = self._publiceerbaar(nieuw, fp)
-            return self._snapshot
 
     def _maak_unknown_resultaat(
         self, correlation_id: str, snapshot: RuntimeSnapshot
@@ -654,13 +799,26 @@ class ModularValidationService:
         return sorted(self._snapshot.internal_rules)
 
     def get_health_status(self) -> dict[str, Any]:
-        """Gezondheid van de validatieservice, uit de actieve snapshot (DEF-215/DEF-621).
+        """Gezondheid van de validatieservice, uit een verse snapshot (DEF-215/DEF-621/DEF-709).
 
         `validation_ready` is het readiness-oordeel: de geladen regel-ID-set
         dekt de contractuele set. Zolang dat onwaar is levert elke validatie
         `validation_unknown`.
+
+        Ververst eerst, net als `validate_definition`. Las health de actieve
+        snapshot rechtstreeks, dan meldde hij na een compleet-naar-incompleet-
+        overgang nog `validation_ready: true` totdat iemand toevallig
+        valideerde - terwijl elke validatie op dat moment al onbepaald was.
+        Health is juist het oppervlak dat monitoring uitleest, dus daar hoort
+        de verste waarheid te staan.
+
+        De kosten zijn een glob plus een stat per bron, en alleen bij een échte
+        bronwijziging volgt een herbouw: de fingerprintvergelijking returnt
+        anders meteen. Wordt dit ooit een hoogfrequent gepolld endpoint, dan is
+        een tijdsvenster op de meting de route - niet terug naar een stale
+        snapshot.
         """
-        snap = self._snapshot
+        snap = self._ververs_state_indien_nodig()
         readiness = snap.readiness
         coverage_pct = (
             (snap.rules_loaded_count / snap.rules_expected_count * 100)

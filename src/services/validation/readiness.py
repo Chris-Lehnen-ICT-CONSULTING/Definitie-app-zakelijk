@@ -20,6 +20,7 @@ die laatste de verwachte ID-set bepaalt.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
@@ -34,15 +35,42 @@ __all__ = [
     "ValidationReadiness",
     "bepaal_readiness",
     "bereken_fingerprint",
+    "meet_bronnen",
     "veilige_degradatiereden",
 ]
 
 
-# Een absoluut pad van minstens twee segmenten. De lookbehind voorkomt dat een
-# relatief pad half wordt opgegeten: in `a/b/c` mag `/b/c` niet los matchen.
-# Aanhalingstekens en dubbele punten zijn wél toegestane voorlopers, want zo
-# levert `OSError` het pad aan: `[Errno 2] ...: '/pad/naar/regel.json'`.
-_ABSOLUUT_PAD = re.compile(r"(?<![A-Za-z0-9_.\-])(?:/[^/\s'\"]+){2,}")
+# Een absoluut pad van minstens twee segmenten, als vangnet voor paden die
+# alleen in vrije tekst voorkomen. De lookbehind eist een scheidingsteken
+# ervóór, zodat een relatief pad niet half wordt opgegeten: in `mapé/a/b.json`
+# mag `/a/b.json` niet los matchen. Een lijst van verboden voorlopers volstond
+# daar niet, want die was ASCII-only.
+_ABSOLUUT_PAD = re.compile(r"(?<![^\s'\"(\[:,=])(?:/[^/\s'\"]+){2,}")
+
+
+def _basisnaam(pad: str) -> str:
+    """De bestandsnaam, ongeacht of het pad POSIX- of Windows-scheiders heeft."""
+    return re.split(r"[\\/]", pad)[-1] or pad
+
+
+def _foutketen(oorzaak: BaseException) -> Iterable[BaseException]:
+    """De fout zelf plus de fouten waarin zij verpakt zit.
+
+    Het laadpad vangt een `OSError` en gooit een `RuleContractError` met het
+    pad in de boodschap. Die buitenste fout draagt geen `filename`, dus wie
+    alleen daarnaar kijkt vindt niets en laat het pad staan. De oorspronkelijke
+    fout draagt het pad wél gestructureerd; die is via `__cause__` bereikbaar.
+
+    De `gezien`-set is geen overdaad: `__context__` kan naar een fout wijzen
+    die zelf al eerder in de keten voorkwam, en dan loopt een naïeve wandeling
+    rond.
+    """
+    gezien: set[int] = set()
+    huidig: BaseException | None = oorzaak
+    while huidig is not None and id(huidig) not in gezien:
+        gezien.add(id(huidig))
+        yield huidig
+        huidig = huidig.__cause__ or huidig.__context__
 
 
 @dataclass(frozen=True)
@@ -159,7 +187,24 @@ def bepaal_readiness(
     )
 
 
-def veilige_degradatiereden(oorzaak: BaseException | None) -> str | None:
+def _vervang_pad(tekst: str, pad: str) -> str:
+    """Zet een pad om naar zijn bestandsnaam, in beide schrijfvormen.
+
+    `OSError.__str__` voegt het pad met `repr()` in, dus daar staan
+    backslashes verdubbeld terwijl het attribuut ze enkel draagt.
+    """
+    if not pad:
+        return tekst
+    basisnaam = _basisnaam(pad)
+    for variant in {pad, repr(pad)[1:-1]}:
+        tekst = tekst.replace(variant, basisnaam)
+    return tekst
+
+
+def veilige_degradatiereden(
+    oorzaak: BaseException | None,
+    bekende_paden: Iterable[Path | str] = (),
+) -> str | None:
     """De reden van degradatie, met absolute paden teruggebracht tot hun naam.
 
     `degradation_reason` is geen logveld: `get_health_status`, het
@@ -178,7 +223,32 @@ def veilige_degradatiereden(oorzaak: BaseException | None) -> str | None:
     if oorzaak is None:
         return None
 
-    return _ABSOLUUT_PAD.sub(lambda treffer: Path(treffer.group(0)).name, str(oorzaak))
+    tekst = str(oorzaak)
+
+    # Een OS-fout draagt zijn pad gestructureerd mee. Een letterlijke
+    # vervanging daarvan is exacter dan welk patroon over vrije tekst ook: een
+    # spatie in een mapnaam (`/Volumes/Team Share/...`) breekt een regex
+    # halverwege en laat juist het staartstuk met de accountnaam staan, en een
+    # Windows-pad ontsnapt volledig omdat het geen schuine strepen heeft.
+    # `OSError.__str__` zet het pad er met `repr()` in, dus backslashes staan
+    # er verdubbeld in terwijl `filename` ze enkel draagt. Beide vormen
+    # vervangen, anders glipt juist het Windows-pad er ongeschonden door.
+    # Paden die de aanroeper zelf kent hoeven niet geraden te worden. Niet elke
+    # fout draagt haar pad gestructureerd mee - een YAML-fout bijvoorbeeld
+    # niet, terwijl het laadpad het pad wel in de boodschap zet.
+    for bekend in bekende_paden:
+        tekst = _vervang_pad(tekst, str(bekend))
+
+    for fout in _foutketen(oorzaak):
+        for attribuut in ("filename", "filename2"):
+            pad = getattr(fout, attribuut, None)
+            if isinstance(pad, bytes):
+                pad = os.fsdecode(pad)
+            if not isinstance(pad, str):
+                continue
+            tekst = _vervang_pad(tekst, pad)
+
+    return _ABSOLUUT_PAD.sub(lambda treffer: Path(treffer.group(0)).name, tekst)
 
 
 def bereken_fingerprint(bronnen: Iterable[Path]) -> str:
@@ -193,7 +263,24 @@ def bereken_fingerprint(bronnen: Iterable[Path]) -> str:
     validatie bij het herlezen blijft de inhoudelijke autoriteit. Een
     inhoudshash per validatie zou niet in verhouding staan tot dat randgeval.
     """
+    return meet_bronnen(bronnen)[0]
+
+
+def meet_bronnen(bronnen: Iterable[Path]) -> tuple[str, frozenset[Path]]:
+    """De fingerprint én welke bronnen bij diezelfde meting bestonden.
+
+    Een padlijst uit een glob is nog geen waarneming van de werkelijkheid: pas
+    de `stat()` hieronder stelt vast of een bestand er nog is. Wie de lijst
+    gebruikt om aanwezigheid te bepalen en de hash om wijziging te bepalen,
+    laat twee lagen tegenstrijdig oordelen - een bestand dat tussen de glob en
+    de stat verdwijnt telt dan als ontbrekend in de hash en als aanwezig in de
+    lijst.
+
+    Daarom levert deze functie beide uit dezelfde ronde: dezelfde `stat`-
+    records voeden de hash én de verzameling aanwezige paden.
+    """
     delen: list[str] = []
+    aanwezig: set[Path] = set()
     for pad in sorted({Path(p) for p in bronnen}, key=str):
         try:
             st = pad.stat()
@@ -201,5 +288,7 @@ def bereken_fingerprint(bronnen: Iterable[Path]) -> str:
             delen.append(f"{pad}|-|-")
         else:
             delen.append(f"{pad}|{st.st_size}|{st.st_mtime_ns}")
+            aanwezig.add(pad)
 
-    return hashlib.sha256("\n".join(delen).encode("utf-8")).hexdigest()
+    hash_ = hashlib.sha256("\n".join(delen).encode("utf-8")).hexdigest()
+    return hash_, frozenset(aanwezig)
