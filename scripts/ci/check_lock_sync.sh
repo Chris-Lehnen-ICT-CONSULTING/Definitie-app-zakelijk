@@ -206,16 +206,19 @@ redigeer() {
     # queryvorm werd alleen de backslash gemaskeerd terwijl de waarde eronder
     # bleef staan.
     #
-    # De vervolgregel draagt in diff-uitvoer een `< `- of `> `-prefix; die gaat
-    # bij het samenvoegen mee weg, anders belandt hij middenin de URL en matcht
-    # de maskering alsnog niet.
+    # De vervolgregel draagt in diff-uitvoer een `< `- of `> `-prefix, en mag
+    # daarnaast ingesprongen zijn - pip en uv accepteren dat, en een editor
+    # voegt het vanzelf toe. Prefix en inspringing gaan bij het samenvoegen
+    # allebei mee weg, anders belanden ze middenin de URL: de userinfo-regex
+    # eist niet-witruimte tussen `://` en de `@`, en de queryregex eist direct
+    # na de `=` een waarde. Eén spatie te veel en het geheim passeert.
     #
     # Bewust alleen samenvoegen wanneer de afgebroken regel zelf een URL of een
     # queryparameter draagt. Elke lockregel eindigt op een backslash (`pakket \`
     # gevolgd door hashes); die blind samenvoegen zou de diff-uitvoer tot één
     # regel per pakket samenplakken en de melding onleesbaar maken.
-    sed -e :a -e '/:\/\/[^[:space:]]*\\$/{N;s/\\\n\([<>] \)\{0,1\}//;ba' -e '}' \
-        -e :b -e '/[?&][^=[:space:]]*=\\$/{N;s/\\\n\([<>] \)\{0,1\}//;bb' -e '}' "$1" \
+    sed -e :a -e '/:\/\/[^[:space:]]*\\$/{N;s/\\\n\([<>] \)\{0,1\}[[:blank:]]*//;ba' -e '}' \
+        -e :b -e '/[?&][^=[:space:]]*=\\$/{N;s/\\\n\([<>] \)\{0,1\}[[:blank:]]*//;bb' -e '}' "$1" \
         | sed -n '1,20p' \
         | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
                  -e 's#([?&][^=&[:space:]]+=)[^&[:space:]]+#\1***#g' >&2
