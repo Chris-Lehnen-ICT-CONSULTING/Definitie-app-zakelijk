@@ -1195,3 +1195,57 @@ def test_credentials_over_een_line_continuation_worden_geredigeerd(tmp_path):
     assert "GEHEIM012" not in resultaat.stderr, resultaat.stderr
     # De hostnamen blijven staan, anders is de melding niet te diagnosticeren.
     assert "index.example" in resultaat.stderr, resultaat.stderr
+
+
+def test_ingesprongen_userinfo_continuation_wordt_geredigeerd(tmp_path):
+    """Een vervolgregel mag zijn geheim niet achter inspringing verbergen.
+
+    Het samenvoegen haalde de diff-prefix van de vervolgregel weg, maar liet de
+    inspringing staan. De userinfo-regex eist niet-witruimte tussen `://` en de
+    `@`, dus `gebruiker:    GEHEIM@host` matchte niet en het wachtwoord ging
+    ongemaskeerd naar stderr — en daarmee naar het publieke joblog.
+
+    Inspringing is hier geen kunstgreep: pip en uv accepteren een ingesprongen
+    vervolgregel, en menig editor voegt haar vanzelf toe.
+    """
+    root = _repo(tmp_path)
+    (root / "requirements.txt").write_text(
+        HEADER
+        + "--index-url https://gebruiker:\\\n    GEHEIM_INDENT@index.example/simple\n"
+        + LOCK_BODY,
+        encoding="utf-8",
+    )
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 1, resultaat.stderr
+    assert "GEHEIM_INDENT" not in resultaat.stderr, resultaat.stderr
+    # Diagnose blijft nodig: host en directive horen zichtbaar te blijven.
+    assert "index-url" in resultaat.stderr, resultaat.stderr
+    assert "index.example" in resultaat.stderr, resultaat.stderr
+
+
+def test_ingesprongen_querywaarde_continuation_wordt_geredigeerd(tmp_path):
+    """Dezelfde inspringing verbergt ook een afgebroken querywaarde.
+
+    Na de `=` volgde eerst witruimte, en de queryregex eist daar direct een
+    waarde. De maskering stopte dus op de spaties en liet het token erachter
+    staan. De sleutelnaam zelf blijft wel zichtbaar; die is diagnostisch en
+    geen geheim.
+    """
+    root = _repo(tmp_path)
+    (root / "requirements.txt").write_text(
+        HEADER
+        + "--extra-index-url https://index.example/extra?token=\\\n    GEHEIM_QUERY\n"
+        + LOCK_BODY,
+        encoding="utf-8",
+    )
+    _fake_uv(tmp_path / "bin", runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+
+    resultaat = _draai(root, tmp_path / "bin")
+
+    assert resultaat.returncode == 1, resultaat.stderr
+    assert "GEHEIM_QUERY" not in resultaat.stderr, resultaat.stderr
+    assert "token=" in resultaat.stderr, resultaat.stderr
+    assert "index.example" in resultaat.stderr, resultaat.stderr
