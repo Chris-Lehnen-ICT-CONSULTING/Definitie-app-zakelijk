@@ -211,6 +211,8 @@ class DefinitionWorkflowService:
         ketenpartners: list[str] | None = None,
         user_role: str | None = None,
         ufo_categorie: str | Unset | None = UNSET,
+        *,
+        expected_version: int,
     ) -> WorkflowResult:
         """
         Stel een definitie vast (DEF-482: één atomaire unit-of-work).
@@ -229,6 +231,9 @@ class DefinitionWorkflowService:
             ketenpartners: Optioneel; ``None`` laat de kolom ongemoeid
             user_role: Rol voor de transitiecontrole
             ufo_categorie: ``UNSET`` laat staan, ``""`` maakt leeg, anders zet
+            expected_version: de ``version_number`` die de reviewer beoordeeld
+                heeft (het getoonde snapshot). Wijkt de opgeslagen versie daarvan
+                af, dan wordt niets beoordeeld of geschreven (``gate_status="stale"``).
 
         Returns:
             WorkflowResult met status en metadata
@@ -242,6 +247,15 @@ class DefinitionWorkflowService:
             definition = self.repository.get_definitie(definition_id)
             if not definition:
                 return self._mislukt(f"Definitie {definition_id} niet gevonden")
+            if definition.version_number != expected_version:
+                # Het beoordeelde snapshot (UI) is ouder dan de database: niet
+                # beoordelen, niet schrijven. Dezelfde waarde dient hieronder als
+                # SQL-guard voor wijzigingen tussen gate en UPDATE.
+                return self._mislukt(
+                    "Definitie is intussen gewijzigd; beoordeel opnieuw",
+                    gate_status="stale",
+                    gate_reasons=[],
+                )
 
             current_status = definition.status
             if not self.workflow_service.can_change_status(
@@ -267,7 +281,6 @@ class DefinitionWorkflowService:
                     gate_reasons=gate["reasons"],
                 )
 
-            expected_version = definition.version_number
             try:
                 with self.repository.transaction():
                     success = self.repository.change_status(

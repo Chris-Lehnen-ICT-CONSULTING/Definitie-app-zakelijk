@@ -71,7 +71,14 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
     tijden: dict[str, float] = {}
 
     def maak(naam: str) -> None:
-        tijden[f"{naam}_binnen"] = time.monotonic()
+        # Trace per thread-connectie: wanneer probeert B BEGIN IMMEDIATE en
+        # wanneer commit A? Alleen dan is bewezen dat B op de lock wachtte.
+        def traceer(statement: str) -> None:
+            kop = statement.upper().split()[0] if statement.strip() else ""
+            if kop in ("BEGIN", "COMMIT"):
+                tijden.setdefault(f"{naam}_{kop}", time.monotonic())
+
+        repo._db.get_connection().set_trace_callback(traceer)
         try:
             uitkomsten[naam] = ("ok", repo.create_definitie(_record()))
         except ValueError as e:
@@ -89,10 +96,11 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
     thread_b.join(WACHT)
     assert not thread_a.is_alive() and not thread_b.is_alive(), "threads hangen"
 
-    # Zonder dit is een trage B een gewone sequentiële weigering, geen race.
+    # Zonder dit is een trage B een gewone sequentiële weigering, geen race:
+    # B moet BEGIN IMMEDIATE hebben geprobeerd vóórdat A committe.
     assert (
-        tijden["B_binnen"] < tijden["A_klaar"]
-    ), "thread B kwam pas na de commit van A binnen; de race is niet getest"
+        tijden["B_BEGIN"] < tijden["A_COMMIT"]
+    ), f"thread B wachtte niet op de lock van A; de race is niet getest: {tijden}"
     soorten = sorted(soort for soort, _ in uitkomsten.values())
     assert soorten == ["duplicaat", "ok"], uitkomsten
     actief = (

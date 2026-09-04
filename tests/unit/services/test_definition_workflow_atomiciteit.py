@@ -84,6 +84,13 @@ def _app_audit(repo: DefinitionRepository, definitie_id: int, soort: str) -> int
     return _audit_rijen(repo, definitie_id, soort, alleen_app=True)
 
 
+def _approve(svc, repo, definitie_id, *args, expected_version=None, **kwargs):
+    """Roep approve() aan zoals de UI: met de versie uit het getoonde snapshot."""
+    if expected_version is None:
+        expected_version = _rij(repo, definitie_id)["version_number"]
+    return svc.approve(definitie_id, *args, expected_version=expected_version, **kwargs)
+
+
 def _assert_onveranderd(repo, definitie_id, voor):
     assert _rij(repo, definitie_id) == voor
     # Negatief: géén enkele status_changed-rij, ook niet een met lege reden.
@@ -113,7 +120,7 @@ def test_approve_weigert_definitie_die_na_de_gate_is_gewijzigd(tmp_path):
     conn = repo.legacy_repo._db.get_connection()
     conn.set_trace_callback(statements.append)
     try:
-        result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+        result = _approve(svc, repo, definitie_id, "reviewer", user_role="reviewer")
     finally:
         conn.set_trace_callback(None)
 
@@ -128,6 +135,46 @@ def test_approve_weigert_definitie_die_na_de_gate_is_gewijzigd(tmp_path):
     assert na["status"] == "review"
     assert na["approved_by"] is None
     assert na["version_number"] == voor["version_number"] + 1  # alleen de ander
+    assert _audit_rijen(repo, definitie_id, "status_changed", alleen_app=False) == 0
+
+
+# --- T1c: de UI-snapshot is ouder dan de database (reproductie Chris) --------
+
+
+def test_approve_weigert_verouderd_ui_snapshot_zonder_gate_of_write(tmp_path):
+    """Reviewer zag v1, een ander schreef v2: v2 mag niet als v3 worden vastgesteld."""
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    snapshot = _rij(repo, definitie_id)  # wat de reviewer op het scherm had
+    assert repo.legacy_repo.update_definitie(
+        definitie_id, {"definitie": "door een ander gewijzigd"}, updated_by="ander"
+    )
+    na_ander = _rij(repo, definitie_id)
+
+    def gate_mag_niet_draaien(_definition):
+        pytest.fail("de gate mag een verouderd snapshot niet beoordelen")
+
+    svc._evaluate_gate = gate_mag_niet_draaien
+    statements: list[str] = []
+    conn = repo.legacy_repo._db.get_connection()
+    conn.set_trace_callback(statements.append)
+    try:
+        result = _approve(
+            svc,
+            repo,
+            definitie_id,
+            "reviewer",
+            user_role="reviewer",
+            expected_version=snapshot["version_number"],
+        )
+    finally:
+        conn.set_trace_callback(None)
+
+    assert result.success is False
+    assert result.gate_status == "stale"
+    assert "intussen gewijzigd" in (result.error_message or "")
+    assert [s for s in statements if s.upper().startswith(TRANSACTIEGRENZEN)] == []
+    assert _rij(repo, definitie_id) == na_ander
     assert _audit_rijen(repo, definitie_id, "status_changed", alleen_app=False) == 0
 
 
@@ -150,8 +197,13 @@ def test_approve_rolt_status_terug_als_ketenpartners_niet_opgeslagen_kan_worden(
 
     monkeypatch.setattr(crud, "update_definitie", faalt_op_ketenpartners)
 
-    result = svc.approve(
-        definitie_id, "reviewer", ketenpartners=["Partner A"], user_role="reviewer"
+    result = _approve(
+        svc,
+        repo,
+        definitie_id,
+        "reviewer",
+        ketenpartners=["Partner A"],
+        user_role="reviewer",
     )
 
     assert result.success is False
@@ -172,8 +224,13 @@ def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch):
 
     monkeypatch.setattr(repo.legacy_repo._audit, "log_geschiedenis", audit_faalt)
 
-    result = svc.approve(
-        definitie_id, "reviewer", ketenpartners=["Partner A"], user_role="reviewer"
+    result = _approve(
+        svc,
+        repo,
+        definitie_id,
+        "reviewer",
+        ketenpartners=["Partner A"],
+        user_role="reviewer",
     )
 
     assert result.success is False
@@ -210,7 +267,9 @@ def test_approve_schrijft_alles_in_een_versiebump(tmp_path):
     definitie_id = _review_definitie(repo, ufo="Kind")
     voor = _rij(repo, definitie_id)
 
-    result = svc.approve(
+    result = _approve(
+        svc,
+        repo,
         definitie_id,
         "reviewer",
         notes="akkoord",
@@ -245,7 +304,9 @@ def test_approve_ufo_sentinel(tmp_path, ufo_argument, verwacht):
     svc, repo = _service(tmp_path)
     definitie_id = _review_definitie(repo, ufo="Kind")
 
-    result = svc.approve(definitie_id, "reviewer", user_role="reviewer", **ufo_argument)
+    result = _approve(
+        svc, repo, definitie_id, "reviewer", user_role="reviewer", **ufo_argument
+    )
 
     assert result.success is True, result.error_message
     assert _rij(repo, definitie_id)["ufo_categorie"] == verwacht
@@ -261,8 +322,13 @@ def test_approve_doet_precies_een_begin_en_een_commit(tmp_path):
     conn = repo.legacy_repo._db.get_connection()
     conn.set_trace_callback(statements.append)
     try:
-        result = svc.approve(
-            definitie_id, "reviewer", ketenpartners=["Partner A"], user_role="reviewer"
+        result = _approve(
+            svc,
+            repo,
+            definitie_id,
+            "reviewer",
+            ketenpartners=["Partner A"],
+            user_role="reviewer",
         )
     finally:
         conn.set_trace_callback(None)
@@ -281,7 +347,7 @@ def test_approve_weigert_binnen_een_open_transactie(tmp_path):
     voor = _rij(repo, definitie_id)
 
     with repo.transaction() as conn:
-        result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+        result = _approve(svc, repo, definitie_id, "reviewer", user_role="reviewer")
         assert result.success is False
         assert "al een transactie actief" in (result.error_message or "")
         assert (
@@ -305,7 +371,7 @@ def test_fout_in_bijeffect_na_commit_maakt_vaststelling_niet_ongedaan(
     kapot.log_transition.side_effect = RuntimeError("audit sink down")
     setattr(svc, bijeffect, kapot)
 
-    result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+    result = _approve(svc, repo, definitie_id, "reviewer", user_role="reviewer")
 
     assert result.success is True, result.error_message
     assert _rij(repo, definitie_id)["status"] == "established"
@@ -328,12 +394,41 @@ def test_approve_meldt_generieke_fout_als_update_niets_raakt(tmp_path, monkeypat
         repo.legacy_repo._crud, "update_definitie", lambda *a, **k: False
     )
 
-    result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+    result = _approve(svc, repo, definitie_id, "reviewer", user_role="reviewer")
 
     assert result.success is False
     assert result.gate_status is None
     assert result.gate_reasons is None
     assert result.error_message == "Status update mislukt in repository"
+    _assert_onveranderd(repo, definitie_id, voor)
+
+
+# --- herlezing na rowcount 0 mag een databasefout niet als stale melden ------
+
+
+def test_databasefout_bij_stale_herlezing_is_geen_versieconflict(tmp_path, monkeypatch):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    voor = _rij(repo, definitie_id)
+    monkeypatch.setattr(
+        repo.legacy_repo._crud, "update_definitie", lambda *a, **k: False
+    )
+    origineel = repo.legacy_repo.get_definitie
+    aanroepen = {"n": 0}
+
+    def faalt_bij_herlezing(definitie_id_):
+        aanroepen["n"] += 1
+        if aanroepen["n"] > 1:
+            raise sqlite3.OperationalError("database is locked")
+        return origineel(definitie_id_)
+
+    monkeypatch.setattr(repo.legacy_repo, "get_definitie", faalt_bij_herlezing)
+
+    result = _approve(svc, repo, definitie_id, "reviewer", user_role="reviewer")
+
+    assert result.success is False
+    assert result.gate_status is None
+    assert "database is locked" in (result.error_message or "")
     _assert_onveranderd(repo, definitie_id, voor)
 
 
