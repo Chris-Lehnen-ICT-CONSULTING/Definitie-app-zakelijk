@@ -6,37 +6,65 @@ Wordt als connection provider doorgegeven aan sub-repositories (compositie).
 
 import logging
 import sqlite3
+import threading
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 
+class _ThreadConnectionState:
+    """Bezit en sluit de SQLite-connectie van één thread."""
+
+    def __init__(self) -> None:
+        self.connection: sqlite3.Connection | None = None
+
+    def close(self) -> None:
+        connection = self.connection
+        self.connection = None
+        if connection is not None:
+            connection.close()
+
+    def __del__(self) -> None:
+        with suppress(sqlite3.Error):
+            self.close()
+
+
 class DatabaseConnection:
     """Connection provider — beheert SQLite lifecycle, schema-init, pragmas.
 
-    Cached connection: PRAGMAs worden eenmaal gezet bij eerste aanroep.
-    Veilig voor single-threaded Streamlit (check_same_thread=False).
+    Thread-local connection: PRAGMAs worden eenmaal gezet per thread.
+    De provider geeft iedere thread uitsluitend zijn eigen connectie terug.
     """
 
     def __init__(self, db_path: str = "data/definities.db"):
         self.db_path = db_path
-        self._conn: sqlite3.Connection | None = None
+        self._thread_local = threading.local()
 
     def get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
-        """Retourneer cached connectie. PRAGMAs worden eenmaal gezet."""
-        if self._conn is not None:
+        """Retourneer de connectie van de huidige thread."""
+        state: _ThreadConnectionState | None = getattr(
+            self._thread_local, "state", None
+        )
+        if state is None:
+            state = _ThreadConnectionState()
+            self._thread_local.state = state
+
+        conn = state.connection
+        if conn is not None:
             try:
-                self._conn.execute("SELECT 1")
-                return self._conn
+                conn.execute("SELECT 1")
+                return conn
             except sqlite3.Error:
-                self._conn = None
+                state.connection = None
 
         conn = sqlite3.connect(
             self.db_path,
             timeout=timeout,
             isolation_level=None,
+            # Connecties worden nooit gedeeld; teardown kan wel plaatsvinden
+            # op de thread die een vrijgegeven TLS-state opruimt.
             check_same_thread=False,
         )
         conn.execute("PRAGMA journal_mode=WAL")
@@ -45,7 +73,7 @@ class DatabaseConnection:
         conn.execute("PRAGMA foreign_keys=ON")
         conn.execute("PRAGMA busy_timeout=5000")
         conn.row_factory = sqlite3.Row
-        self._conn = conn
+        state.connection = conn
         return conn
 
     @contextmanager
@@ -96,10 +124,10 @@ class DatabaseConnection:
     def has_legacy_columns(self) -> bool:
         """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
         try:
-            with self.get_connection() as conn:
-                cursor = conn.execute("PRAGMA table_info(definities)")
-                columns = {row[1] for row in cursor.fetchall()}
-                return "datum_voorstel" in columns and "ketenpartners" in columns
+            conn = self.get_connection()
+            cursor = conn.execute("PRAGMA table_info(definities)")
+            columns = {row[1] for row in cursor.fetchall()}
+            return "datum_voorstel" in columns and "ketenpartners" in columns
         except Exception as e:
             logger.warning(f"Legacy columns check gefaald: {e}")
             return False
@@ -111,49 +139,49 @@ class DatabaseConnection:
 
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
-            with self.get_connection() as conn:
-                cursor = conn.execute("""
-                    SELECT COUNT(*) FROM sqlite_master
-                    WHERE type='table' AND name IN ('definities', 'synonym_groups')
-                    """)
-                table_count = cursor.fetchone()[0]
+            conn = self.get_connection()
+            cursor = conn.execute("""
+                SELECT COUNT(*) FROM sqlite_master
+                WHERE type='table' AND name IN ('definities', 'synonym_groups')
+                """)
+            table_count = cursor.fetchone()[0]
 
-                if table_count == 0:
-                    with open(schema_path, encoding="utf-8") as f:
-                        schema_sql = f.read()
-                        try:
-                            conn.executescript(schema_sql)
-                            logger.info("Database schema created successfully")
-                        except sqlite3.Error as e:
-                            logger.warning(f"Schema execution warning: {e}")
-                else:
-                    logger.debug(
-                        f"Database tables already exist ({table_count} found), skipping schema creation"
-                    )
+            if table_count == 0:
+                with open(schema_path, encoding="utf-8") as f:
+                    schema_sql = f.read()
+                    try:
+                        conn.executescript(schema_sql)
+                        logger.info("Database schema created successfully")
+                    except sqlite3.Error as e:
+                        logger.warning(f"Schema execution warning: {e}")
+            else:
+                logger.debug(
+                    f"Database tables already exist ({table_count} found), skipping schema creation"
+                )
         else:
             logger.warning("schema.sql not found, creating basic schema")
-            with self.get_connection() as conn:
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS definities (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        begrip VARCHAR(255) NOT NULL,
-                        definitie TEXT NOT NULL,
-                        categorie VARCHAR(50) NOT NULL DEFAULT 'proces',
-                        organisatorische_context VARCHAR(255) NOT NULL,
-                        juridische_context VARCHAR(255),
-                        wettelijke_basis TEXT,
-                        status VARCHAR(50) NOT NULL DEFAULT 'draft',
-                        version_number INTEGER NOT NULL DEFAULT 1,
-                        validation_score DECIMAL(3,2),
-                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        created_by VARCHAR(255),
-                        source_type VARCHAR(50) DEFAULT 'generated',
-                        datum_voorstel TIMESTAMP,
-                        ketenpartners TEXT
-                    )
-                """)
-                conn.commit()
+            conn = self.get_connection()
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS definities (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    begrip VARCHAR(255) NOT NULL,
+                    definitie TEXT NOT NULL,
+                    categorie VARCHAR(50) NOT NULL DEFAULT 'proces',
+                    organisatorische_context VARCHAR(255) NOT NULL,
+                    juridische_context VARCHAR(255),
+                    wettelijke_basis TEXT,
+                    status VARCHAR(50) NOT NULL DEFAULT 'draft',
+                    version_number INTEGER NOT NULL DEFAULT 1,
+                    validation_score DECIMAL(3,2),
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    created_by VARCHAR(255),
+                    source_type VARCHAR(50) DEFAULT 'generated',
+                    datum_voorstel TIMESTAMP,
+                    ketenpartners TEXT
+                )
+            """)
+            conn.commit()
 
     def split_sql_statements(self, sql: str) -> list[str]:
         """Split SQL bestand in individuele statements."""
