@@ -14,6 +14,18 @@ from database.models import DefinitieRecord, DefinitieStatus, normalize_wettelij
 logger = logging.getLogger(__name__)
 
 
+class _Unset:
+    """Sentinel: parameter niet meegegeven (anders dan expliciet ``None``)."""
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return "UNSET"
+
+
+UNSET: Any = _Unset()
+
+
 class DefinitieCrudRepository:
     """Core CRUD repository voor definities."""
 
@@ -37,27 +49,6 @@ class DefinitieCrudRepository:
         from utils.progress_callback import operation_progress
 
         with operation_progress("saving_to_database"):
-            # Duplicaat-check buiten de transactie (read-only validatie).
-            if not allow_duplicate:
-                duplicates = self._duplicates.find_duplicates(
-                    record.begrip,
-                    record.organisatorische_context,
-                    record.juridische_context or "",
-                    categorie=record.categorie,
-                    wettelijke_basis=(
-                        json.loads(record.wettelijke_basis)
-                        if record.wettelijke_basis
-                        else []
-                    ),
-                )
-
-                if duplicates and any(
-                    d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-                    for d in duplicates
-                ):
-                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
-                    raise ValueError(msg)
-
             now = datetime.now(UTC)
             record.created_at = now
             record.updated_at = now
@@ -67,7 +58,12 @@ class DefinitieCrudRepository:
             )
 
             # DEF-391: INSERT + audit-log atomair (all-or-nothing).
+            # DEF-482/DEF-483: de duplicaatcontrole draait binnen dezelfde
+            # BEGIN IMMEDIATE, zodat gelijktijdige creates geserialiseerd worden
+            # en de tweede de gecommitte rij van de eerste ziet.
             with self._db.transaction() as conn:
+                if not allow_duplicate:
+                    self._weiger_duplicaat(record)
                 include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
                 columns, values = AuditHelpers.build_insert_columns(
                     record, wb_value, include_legacy
@@ -94,6 +90,24 @@ class DefinitieCrudRepository:
 
             logger.info(f"Created definitie {record_id}")
             return record_id
+
+    def _weiger_duplicaat(self, record: DefinitieRecord) -> None:
+        """Gooi ``ValueError`` als er al een actieve definitie in deze context is."""
+        duplicates = self._duplicates.find_duplicates(
+            record.begrip,
+            record.organisatorische_context,
+            record.juridische_context or "",
+            categorie=record.categorie,
+            wettelijke_basis=(
+                json.loads(record.wettelijke_basis) if record.wettelijke_basis else []
+            ),
+        )
+        if duplicates and any(
+            d.definitie_record.status != DefinitieStatus.ARCHIVED.value
+            for d in duplicates
+        ):
+            msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+            raise ValueError(msg)
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """Haal definitie op op basis van ID.
@@ -295,8 +309,19 @@ class DefinitieCrudRepository:
         new_status: DefinitieStatus,
         changed_by: str | None = None,
         notes: str | None = None,
+        *,
+        ketenpartners: list[str] | None = None,
+        ufo_categorie: str | None = UNSET,
+        expected_version: int | None = None,
     ) -> bool:
-        """Wijzig status van definitie."""
+        """Wijzig status van definitie in één UPDATE (één versiebump).
+
+        DEF-482: ``ketenpartners`` en ``ufo_categorie`` liften mee in dezelfde
+        UPDATE als de status; ``ufo_categorie=""`` maakt de kolom leeg, weglaten
+        (``UNSET``) laat haar staan. ``expected_version`` is de optimistic lock:
+        wijkt de opgeslagen versie af, dan wordt niets geschreven en is het
+        resultaat ``False``.
+        """
         updates: dict[str, Any] = {"status": new_status.value}
 
         if new_status == DefinitieStatus.ESTABLISHED and changed_by:
@@ -307,6 +332,14 @@ class DefinitieCrudRepository:
                     "approval_notes": notes,
                 }
             )
+        if ketenpartners is not None:
+            updates["ketenpartners"] = json.dumps(
+                list(ketenpartners), ensure_ascii=False
+            )
+        if ufo_categorie is not UNSET:
+            updates["ufo_categorie"] = ufo_categorie or None
+        if expected_version is not None:
+            updates["version_number"] = expected_version
 
         # DEF-391: status-UPDATE + audit-log atomair. update_definitie opent zelf
         # een transaction() die hier aansluit (nesting-guard) i.p.v. apart te

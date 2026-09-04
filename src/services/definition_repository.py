@@ -9,12 +9,13 @@ import json
 import logging
 import sqlite3
 from collections.abc import Iterator, Sequence
-from contextlib import contextmanager, suppress
+from contextlib import AbstractContextManager, contextmanager, suppress
 from datetime import datetime
 from typing import Any, cast
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
+    UNSET,
     DefinitieRecord,
     DefinitieRepository as LegacyRepository,
     DefinitieStatus,
@@ -983,13 +984,23 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         new_status: "DefinitieStatus",
         changed_by: str | None = None,
         notes: str | None = None,
+        *,
+        ketenpartners: list[str] | None = None,
+        ufo_categorie: str | None = UNSET,
+        expected_version: int | None = None,
     ) -> bool:
         """Pass-through statuswijziging voor compatibiliteit met workflowservice."""
         try:
             return cast(
                 bool,
                 self.legacy_repo.change_status(
-                    definitie_id, new_status, changed_by, notes
+                    definitie_id,
+                    new_status,
+                    changed_by,
+                    notes,
+                    ketenpartners=ketenpartners,
+                    ufo_categorie=ufo_categorie,
+                    expected_version=expected_version,
                 ),
             )
         except Exception as e:
@@ -997,6 +1008,17 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 f"change_status failed for ID {definitie_id} to {new_status}: {e}"
             )
             return False
+
+    # ===== Transactiegrens (DEF-482) =====
+    def transaction(
+        self, timeout: float = 30.0
+    ) -> AbstractContextManager[sqlite3.Connection]:
+        """Expliciete transactie op de thread-local connectie van de DB-laag."""
+        return self.legacy_repo.transaction(timeout)
+
+    def in_transaction(self) -> bool:
+        """True als de huidige thread al een transactie open heeft."""
+        return self.legacy_repo.in_transaction()
 
     # ===== Helpers =====
     def _definition_to_updates(self, definition: Definition) -> dict[str, Any]:

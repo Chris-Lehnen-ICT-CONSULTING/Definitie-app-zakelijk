@@ -145,78 +145,82 @@ class DefinitieDuplicateRepository:
         """Zoek mogelijke duplicaten voor een begrip."""
         matches = []
 
-        with self._db.get_connection() as conn:
-            exact_query = """
-                SELECT * FROM definities
-                WHERE begrip = ?
-                AND organisatorische_context = ?
-                AND COALESCE(juridische_context, '') = COALESCE(?, '')
-                AND status != 'archived'
-            """
-            exact_params: list[Any] = [
-                begrip,
-                organisatorische_context,
-                juridische_context or "",
-            ]
+        # DEF-482: kale connectie — een committend ``with conn:`` zou de
+        # transactie van create_definitie halverwege sluiten.
+        conn = self._db.get_connection()
+        exact_query = """
+            SELECT * FROM definities
+            WHERE begrip = ?
+            AND organisatorische_context = ?
+            AND COALESCE(juridische_context, '') = COALESCE(?, '')
+            AND status != 'archived'
+        """
+        exact_params: list[Any] = [
+            begrip,
+            organisatorische_context,
+            juridische_context or "",
+        ]
 
-            if categorie is not None:
-                exact_query += " AND categorie = ?"
-                exact_params.append(categorie)
+        if categorie is not None:
+            exact_query += " AND categorie = ?"
+            exact_params.append(categorie)
 
-            if wettelijke_basis is not None:
-                wb_json = normalize_wettelijke_basis(wettelijke_basis)
-                exact_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                exact_params.extend([wb_json, wb_json])
+        if wettelijke_basis is not None:
+            wb_json = normalize_wettelijke_basis(wettelijke_basis)
+            exact_query += (
+                " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
+            )
+            exact_params.extend([wb_json, wb_json])
 
-            cursor = conn.execute(exact_query, exact_params)
+        cursor = conn.execute(exact_query, exact_params)
 
-            for row in cursor.fetchall():
-                record = self._audit.row_to_record(row)
-                matches.append(
-                    DuplicateMatch(
-                        definitie_record=record,
-                        match_score=1.0,
-                        match_reasons=["Exact match: begrip + context"],
-                    )
+        for row in cursor.fetchall():
+            record = self._audit.row_to_record(row)
+            matches.append(
+                DuplicateMatch(
+                    definitie_record=record,
+                    match_score=1.0,
+                    match_reasons=["Exact match: begrip + context"],
                 )
+            )
 
-            # Exact synoniem-match
-            syn_query = """
-                SELECT d.*
-                FROM definities d
-                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
-                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
-                  AND v.voorbeeld_type = 'synonyms'
-                  AND v.actief = TRUE
-                  AND d.organisatorische_context = ?
-                  AND COALESCE(d.juridische_context, '') = COALESCE(?, '')
-                  AND d.status != 'archived'
-            """
-            syn_params: list[Any] = [
-                begrip,
-                organisatorische_context,
-                juridische_context or "",
-            ]
+        # Exact synoniem-match
+        syn_query = """
+            SELECT d.*
+            FROM definities d
+            JOIN definitie_voorbeelden v ON v.definitie_id = d.id
+            WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
+              AND v.voorbeeld_type = 'synonyms'
+              AND v.actief = TRUE
+              AND d.organisatorische_context = ?
+              AND COALESCE(d.juridische_context, '') = COALESCE(?, '')
+              AND d.status != 'archived'
+        """
+        syn_params: list[Any] = [
+            begrip,
+            organisatorische_context,
+            juridische_context or "",
+        ]
 
-            if categorie is not None:
-                syn_query += " AND d.categorie = ?"
-                syn_params.append(categorie)
+        if categorie is not None:
+            syn_query += " AND d.categorie = ?"
+            syn_params.append(categorie)
 
-            if wettelijke_basis is not None:
-                wb_json = normalize_wettelijke_basis(wettelijke_basis)
-                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
-                syn_params.extend([wb_json, wb_json])
+        if wettelijke_basis is not None:
+            wb_json = normalize_wettelijke_basis(wettelijke_basis)
+            syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
+            syn_params.extend([wb_json, wb_json])
 
-            cursor = conn.execute(syn_query, syn_params)
-            for row in cursor.fetchall():
-                record = self._audit.row_to_record(row)
-                matches.append(
-                    DuplicateMatch(
-                        definitie_record=record,
-                        match_score=1.0,
-                        match_reasons=["Exact match: synoniem + context"],
-                    )
+        cursor = conn.execute(syn_query, syn_params)
+        for row in cursor.fetchall():
+            record = self._audit.row_to_record(row)
+            matches.append(
+                DuplicateMatch(
+                    definitie_record=record,
+                    match_score=1.0,
+                    match_reasons=["Exact match: synoniem + context"],
                 )
+            )
 
         return sorted(matches, key=lambda x: x.match_score, reverse=True)
 

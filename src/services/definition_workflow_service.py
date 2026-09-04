@@ -6,13 +6,13 @@ met de bijbehorende repository-updates en audit/event-publicatie zodat UI-code
 geen losse services hoeft te coördineren en we consistente businessregels afdwingen.
 """
 
-import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, cast
 
 from database.definitie_repository import (
+    UNSET,
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
@@ -26,6 +26,14 @@ except Exception:  # pragma: no cover - optional during tests
     GatePolicyService = None  # type: ignore[assignment,misc]
 
 logger = logging.getLogger(__name__)
+
+
+class _VaststellingMisluktError(Exception):
+    """Interne signalering binnen ``approve()``: rol de transactie terug."""
+
+    def __init__(self, message: str, gate_status: str | None = None) -> None:
+        super().__init__(message)
+        self.gate_status = gate_status
 
 
 @dataclass
@@ -42,9 +50,6 @@ class WorkflowResult:
     # US-160: Gate-uitkomst voor UI en logging
     gate_status: str | None = None  # pass | override_required | blocked
     gate_reasons: list[str] | None = None
-    # DEF-469: niet-fatale waarschuwing (bv. transitie geslaagd, maar een
-    # secundaire schrijfactie zoals ketenpartners faalde). UI kan dit tonen.
-    warning: str | None = None
 
     def __post_init__(self) -> None:
         if self.timestamp is None:
@@ -195,139 +200,105 @@ class DefinitionWorkflowService:
         notes: str = "",
         ketenpartners: list[str] | None = None,
         user_role: str | None = None,
+        ufo_categorie: str | None = UNSET,
     ) -> WorkflowResult:
         """
-        Approve een definitie.
+        Stel een definitie vast (DEF-482: één atomaire unit-of-work).
+
+        Status, approval-metadata, ketenpartners, UFO-categorie en de app-auditrij
+        committen samen of helemaal niet. Alleen exact de beoordeelde versie kan
+        worden vastgesteld (optimistic lock op ``version_number``). ``approve()``
+        is eigenaar van de transactie: een al open transactie op deze thread
+        wordt geweigerd. Audit-logger en event bus draaien pas ná de commit en
+        kunnen een gecommitte vaststelling niet meer ongedaan maken.
 
         Args:
             definition_id: ID van de definitie
             user: Gebruiker die de actie uitvoert
             notes: Optionele notities
+            ketenpartners: Optioneel; ``None`` laat de kolom ongemoeid
+            user_role: Rol voor de transitiecontrole
+            ufo_categorie: ``UNSET`` laat staan, ``""`` maakt leeg, anders zet
 
         Returns:
             WorkflowResult met status en metadata
         """
         try:
-            # Haal huidige definitie op
-            definition = self.repository.get_definitie(definition_id)
-            if not definition:
-                return WorkflowResult(
-                    success=False,
-                    new_status=None,
-                    updated_by=None,
-                    notes=None,
-                    events=[],
-                    error_message=f"Definitie {definition_id} niet gevonden",
+            if self.repository.in_transaction():
+                return self._mislukt(
+                    "Vaststellen geweigerd: er is al een transactie actief op deze thread"
                 )
 
-            # Valideer transitie via workflow service (naar ESTABLISHED)
+            definition = self.repository.get_definitie(definition_id)
+            if not definition:
+                return self._mislukt(f"Definitie {definition_id} niet gevonden")
+
             current_status = definition.status
             if not self.workflow_service.can_change_status(
                 current_status, "established", user_role
             ):
-                return WorkflowResult(
-                    success=False,
-                    new_status=None,
-                    updated_by=None,
-                    notes=None,
-                    events=[],
-                    error_message=f"Transitie van {current_status} naar ESTABLISHED niet toegestaan",
+                return self._mislukt(
+                    f"Transitie van {current_status} naar ESTABLISHED niet toegestaan"
                 )
 
-            # US-160: Gate-evaluatie vóór statuswijziging
+            # US-160: Gate-evaluatie vóór de transactie (kort lockvenster); de
+            # version guard hieronder borgt dat precies deze versie wordt vastgesteld.
             gate = self._evaluate_gate(definition)
             if gate["status"] == "blocked":
-                return WorkflowResult(
-                    success=False,
-                    new_status=None,
-                    updated_by=None,
-                    notes=None,
-                    events=[],
-                    error_message=f"Vaststellen geblokkeerd: {'; '.join(gate['reasons'])}",
+                return self._mislukt(
+                    f"Vaststellen geblokkeerd: {'; '.join(gate['reasons'])}",
                     gate_status="blocked",
                     gate_reasons=gate["reasons"],
                 )
-            if gate["status"] == "override_required":
-                if not (notes and notes.strip()):
-                    return WorkflowResult(
-                        success=False,
-                        new_status=None,
-                        updated_by=None,
-                        notes=None,
-                        events=[],
-                        error_message=(
-                            "Override vereist: geef een reden op in het notitieveld"
-                        ),
-                        gate_status="override_required",
-                        gate_reasons=gate["reasons"],
-                    )
-
-            # Update status in repository (atomair)
-            success = self.repository.change_status(
-                definitie_id=definition_id,
-                new_status=DefinitieStatus.ESTABLISHED,
-                changed_by=user,
-                notes=notes,
-            )
-
-            if not success:
-                return WorkflowResult(
-                    success=False,
-                    new_status=None,
-                    updated_by=None,
-                    notes=None,
-                    events=[],
-                    error_message="Status update mislukt in repository",
+            if gate["status"] == "override_required" and not (notes and notes.strip()):
+                return self._mislukt(
+                    "Override vereist: geef een reden op in het notitieveld",
+                    gate_status="override_required",
+                    gate_reasons=gate["reasons"],
                 )
 
-            # Update ketenpartners indien opgegeven
-            ketenpartners_warning: str | None = None
-            if ketenpartners is not None:
-                try:
-                    self.repository.update_definitie(
-                        definition_id,
-                        {
-                            "ketenpartners": json.dumps(
-                                list(ketenpartners), ensure_ascii=False
+            expected_version = definition.version_number
+            try:
+                with self.repository.transaction():
+                    success = self.repository.change_status(
+                        definitie_id=definition_id,
+                        new_status=DefinitieStatus.ESTABLISHED,
+                        changed_by=user,
+                        notes=notes,
+                        ketenpartners=ketenpartners,
+                        ufo_categorie=ufo_categorie,
+                        expected_version=expected_version,
+                    )
+                    if not success:
+                        actueel = self.repository.get_definitie(definition_id)
+                        if (
+                            actueel is None
+                            or actueel.version_number != expected_version
+                        ):
+                            raise _VaststellingMisluktError(
+                                "Definitie is intussen gewijzigd; beoordeel opnieuw",
+                                gate_status="stale",
                             )
-                        },
-                        updated_by=user,
-                    )
-                except Exception as e:  # pragma: no cover
-                    # DEF-469: de status-transitie is al gecommit; re-raise zou
-                    # ten onrechte "vaststellen mislukt" melden. Maar maskeer de
-                    # fout niet stil: log als error én geef een waarschuwing terug
-                    # zodat de UI kan tonen dat de ketenpartners niet zijn opgeslagen.
-                    logger.error(
-                        f"Kon ketenpartners niet opslaan voor {definition_id}: {e}",
-                        exc_info=True,
-                    )
-                    ketenpartners_warning = (
-                        "Definitie is vastgesteld, maar de ketenpartners konden "
-                        "niet worden opgeslagen. Controleer en sla ze opnieuw op."
-                    )
-
-            # Log audit trail
-            if self.audit_logger:
-                self.audit_logger.log_transition(
-                    definition_id=definition_id,
-                    from_status=current_status,
-                    to_status=DefinitieStatus.ESTABLISHED.value,
-                    user=user,
-                    notes=notes,
+                        raise _VaststellingMisluktError(
+                            "Status update mislukt in repository"
+                        )
+            except _VaststellingMisluktError as e:
+                return self._mislukt(
+                    str(e),
+                    gate_status=e.gate_status,
+                    gate_reasons=gate["reasons"] if e.gate_status else None,
                 )
 
-            # Publish event
-            events = []
-            if self.event_bus:
-                event = {
-                    "type": "definition.approved",
-                    "definition_id": definition_id,
-                    "user": user,
-                    "timestamp": datetime.now().isoformat(),
-                }
-                self.event_bus.publish(event)
-                events.append("definition.approved")
+            # Bijeffecten pas na bewezen commit; een fout hier mag de
+            # gecommitte vaststelling niet als mislukt rapporteren.
+            events = self._publiceer_na_commit(
+                definition_id=definition_id,
+                from_status=current_status,
+                to_status=DefinitieStatus.ESTABLISHED.value,
+                user=user,
+                notes=notes,
+                event_type="definition.approved",
+            )
 
             logger.info(
                 f"Definitie {definition_id} vastgesteld door {user} (gate={gate['status']})"
@@ -341,19 +312,70 @@ class DefinitionWorkflowService:
                 events=events,
                 gate_status=gate["status"],
                 gate_reasons=gate["reasons"],
-                warning=ketenpartners_warning,
             )
 
         except Exception as e:
             logger.error(f"Error approving definition {definition_id}: {e}")
-            return WorkflowResult(
-                success=False,
-                new_status=None,
-                updated_by=None,
-                notes=None,
-                events=[],
-                error_message=str(e),
-            )
+            return self._mislukt(str(e))
+
+    @staticmethod
+    def _mislukt(
+        error_message: str,
+        gate_status: str | None = None,
+        gate_reasons: list[str] | None = None,
+    ) -> WorkflowResult:
+        return WorkflowResult(
+            success=False,
+            new_status=None,
+            updated_by=None,
+            notes=None,
+            events=[],
+            error_message=error_message,
+            gate_status=gate_status,
+            gate_reasons=gate_reasons,
+        )
+
+    def _publiceer_na_commit(
+        self,
+        *,
+        definition_id: int,
+        from_status: str,
+        to_status: str,
+        user: str,
+        notes: str,
+        event_type: str,
+    ) -> list[str]:
+        """Audit-logger en event bus ná de commit; fouten worden gelogd, niet doorgegooid."""
+        events: list[str] = []
+        if self.audit_logger:
+            try:
+                self.audit_logger.log_transition(
+                    definition_id=definition_id,
+                    from_status=from_status,
+                    to_status=to_status,
+                    user=user,
+                    notes=notes,
+                )
+            except Exception:
+                logger.exception(
+                    "Audit-logging na commit mislukt voor definitie %s", definition_id
+                )
+        if self.event_bus:
+            try:
+                self.event_bus.publish(
+                    {
+                        "type": event_type,
+                        "definition_id": definition_id,
+                        "user": user,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
+                events.append(event_type)
+            except Exception:
+                logger.exception(
+                    "Eventpublicatie na commit mislukt voor definitie %s", definition_id
+                )
+        return events
 
     def reject(
         self,
