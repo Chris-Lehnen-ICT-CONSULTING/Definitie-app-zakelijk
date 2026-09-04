@@ -31,7 +31,11 @@ from database.definitie_repository import (
 pytestmark = [pytest.mark.unit]
 
 WACHT = 10  # join-timeout, boven de busy_timeout van 5 s (DEF-722)
-LOCK_WACHT = 2.0  # A wacht op B's BEGIN; ruim onder de busy_timeout van 5 s
+# A wacht op B's BEGIN. De busy_timeout is hier niet de bindende grens: A wordt
+# gewekt zodra B's BEGIN IMMEDIATE begint, dus B's busy-venster (5 s) start pas
+# dan en A heeft daarna alleen nog INSERT + COMMIT. Dit begrenst uitsluitend hoe
+# lang B mag doen over het bereiken van zijn BEGIN; blijft onder WACHT.
+LOCK_WACHT = 4.0
 
 
 def _record(wettelijke_basis: str | None = None) -> DefinitieRecord:
@@ -60,79 +64,108 @@ def test_find_duplicates_laat_lopende_transactie_open(tmp_path):
 # --- T7 -------------------------------------------------------------------
 
 
-def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
+def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path, monkeypatch):
     """Twee threads maken tegelijk dezelfde definitie; precies één slaagt.
 
     Volgorde, afgedwongen met events in plaats van sleeps:
     1. A doet zijn duplicaatcontrole binnen BEGIN IMMEDIATE (houdt de writelock).
-    2. B start, doet zijn BEGIN IMMEDIATE en blokkeert op A's lock; B's
-       trace-callback zet `b_begint` op het moment dat het statement begint.
+    2. B start en begint zijn BEGIN IMMEDIATE; B's trace-callback zet `b_begint`
+       op het moment dat dat statement begint (SQLITE_TRACE_STMT vuurt vóór de
+       lock-poging; een signaal ná de lock zou deadlocken, want die lock is van A).
     3. Pas daarna insert en commit A.
     4. B krijgt de lock, ziet A's rij en weigert met ValueError.
+
+    Bewijskracht: de handshake zelf dwingt de volgorde af; de discriminerende
+    asserties zijn `uitkomsten` en `actief == 1` (met de duplicaatcontrole buiten
+    de transactie slagen beide creates: ['ok', 'ok']). Of B daadwerkelijk op de
+    lock heeft gewacht is vanuit Python niet observeerbaar (geen busy-handler-
+    hook); de ordeningsassertie is een redundante regressiecheck, geen bewijs.
+
+    Testnaad: de handshake hangt aan `_weiger_duplicaat` → `_duplicates.find_duplicates`
+    binnen de transactie van `create_definitie`. Loopt die controle ooit anders,
+    dan meldt "A bereikte find_duplicates niet" dat, niet een threadprobleem.
     """
     repo = DefinitieRepository(str(tmp_path / "race.db"))
+    record = _record()
     duplicates = repo._crud._duplicates
     origineel = duplicates.find_duplicates
     a_heeft_gecontroleerd = threading.Event()
     b_begint = threading.Event()
     tijden: dict[str, float] = {}
     fouten: list[str] = []
+    uitkomsten: dict[str, tuple[str, object]] = {}
 
     def controle_met_wachttijd(*args, **kwargs):
         resultaat = origineel(*args, **kwargs)
-        if threading.current_thread().name == "A":
+        if threading.current_thread() is thread_a:
             a_heeft_gecontroleerd.set()
-            # A houdt de writelock vast tot B aantoonbaar op die lock wacht.
+            # A houdt de writelock vast tot B aantoonbaar aan BEGIN IMMEDIATE begint.
             if not b_begint.wait(LOCK_WACHT):
                 fouten.append(
                     f"thread B begon niet binnen {LOCK_WACHT}s aan BEGIN IMMEDIATE"
                 )
         return resultaat
 
-    duplicates.find_duplicates = controle_met_wachttijd
-    uitkomsten: dict[str, tuple[str, object]] = {}
+    monkeypatch.setattr(duplicates, "find_duplicates", controle_met_wachttijd)
 
     def maak(naam: str) -> None:
-        def traceer(statement: str) -> None:
-            kop = statement.upper().split()[0] if statement.strip() else ""
-            if kop in ("BEGIN", "COMMIT"):
-                tijden.setdefault(f"{naam}_{kop}", time.monotonic())
-                if naam == "B" and kop == "BEGIN":
-                    b_begint.set()
+        conn = repo._db.get_connection()
 
-        repo._db.get_connection().set_trace_callback(traceer)
+        def traceer(statement: str) -> None:
+            kop = statement.strip().upper()
+            if kop.startswith("BEGIN IMMEDIATE"):
+                tijden.setdefault(f"{naam}_BEGIN", time.monotonic())
+                if naam == "B":
+                    b_begint.set()
+            elif kop.startswith("COMMIT"):
+                tijden.setdefault(f"{naam}_COMMIT", time.monotonic())
+
+        conn.set_trace_callback(traceer)
         try:
-            uitkomsten[naam] = ("ok", repo.create_definitie(_record()))
+            uitkomsten[naam] = ("ok", repo.create_definitie(record))
         except ValueError as e:
             uitkomsten[naam] = ("duplicaat", str(e))
+        except Exception as e:  # diagnose hoort in de assertie, niet op stderr
+            uitkomsten[naam] = ("fout", repr(e))
         finally:
-            repo._db.get_connection().close()
+            conn.close()
 
-    thread_a = threading.Thread(target=maak, args=("A",), name="A")
-    thread_b = threading.Thread(target=maak, args=("B",), name="B")
-    thread_a.start()
-    assert a_heeft_gecontroleerd.wait(WACHT), "thread A kwam niet tot de controle"
-    thread_b.start()
-    thread_a.join(WACHT)
-    thread_b.join(WACHT)
-    assert not thread_a.is_alive() and not thread_b.is_alive(), "threads hangen"
-    assert not fouten, fouten
-
-    # Echte lock-overlap: B's BEGIN IMMEDIATE begon vóór A's COMMIT.
-    assert (
-        tijden["B_BEGIN"] < tijden["A_COMMIT"]
-    ), f"thread B wachtte niet op de lock van A; de race is niet getest: {tijden}"
-    soorten = sorted(soort for soort, _ in uitkomsten.values())
-    assert soorten == ["duplicaat", "ok"], uitkomsten
-    actief = (
-        repo._db.get_connection()
-        .execute(
-            "SELECT COUNT(*) FROM definities WHERE begrip = 'race_begrip'"
-            " AND status != 'archived'"
+    thread_a = threading.Thread(target=maak, args=("A",), name="A", daemon=True)
+    thread_b = threading.Thread(target=maak, args=("B",), name="B", daemon=True)
+    try:
+        thread_a.start()
+        assert a_heeft_gecontroleerd.wait(WACHT), (
+            "A bereikte find_duplicates niet — loopt _weiger_duplicaat nog via "
+            "_duplicates.find_duplicates binnen de transactie?"
         )
-        .fetchone()[0]
-    )
-    assert actief == 1
+        thread_b.start()
+        thread_a.join(WACHT)
+        thread_b.join(WACHT)
+        assert not thread_a.is_alive(), "thread A hangt"
+        assert not thread_b.is_alive(), "thread B hangt"
+        assert not fouten, fouten
+
+        # Discriminerend: precies één create slaagt, de ander weigert als duplicaat.
+        soorten = sorted(soort for soort, _ in uitkomsten.values())
+        assert soorten == ["duplicaat", "ok"], uitkomsten
+        # Zelfde predicaat als DefinitieDuplicateRepository: actief = status != 'archived'.
+        actief = (
+            repo._db.get_connection()
+            .execute(
+                "SELECT COUNT(*) FROM definities WHERE begrip = ?"
+                " AND status != 'archived'",
+                (record.begrip,),
+            )
+            .fetchone()[0]
+        )
+        assert actief == 1
+
+        # Redundante regressiecheck op de handshake (per constructie waar zolang
+        # `fouten` leeg is): B's BEGIN IMMEDIATE begon terwijl A de writelock hield.
+        assert {"B_BEGIN", "A_COMMIT"} <= tijden.keys(), (tijden, uitkomsten)
+        assert tijden["B_BEGIN"] < tijden["A_COMMIT"], tijden
+    finally:
+        repo._db.get_connection().close()
 
 
 # --- _weiger_duplicaat: takken die de racetest niet raakt -------------------
