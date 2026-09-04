@@ -9,16 +9,18 @@ import json
 import logging
 import sqlite3
 from collections.abc import Iterator, Sequence
-from contextlib import contextmanager, suppress
+from contextlib import AbstractContextManager, contextmanager, suppress
 from datetime import datetime
 from typing import Any, cast
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
+    UNSET,
     DefinitieRecord,
     DefinitieRepository as LegacyRepository,
     DefinitieStatus,
     SourceType,
+    Unset,
 )
 from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
 from services.exceptions import (
@@ -961,6 +963,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         try:
             return self.legacy_repo.get_definitie(definitie_id)
         except Exception as e:
+            if self.in_transaction():
+                # DEF-482: binnen een transactie zou `None` een databasefout
+                # als "niet gevonden"/versieconflict maskeren.
+                raise
             logger.warning(f"get_definitie failed for ID {definitie_id}: {e}")
             return None
 
@@ -974,6 +980,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 self.legacy_repo.update_definitie(definitie_id, updates, updated_by),
             )
         except Exception as e:
+            if self.in_transaction():
+                raise  # DEF-482: zie change_status
             logger.error(f"update_definitie failed for ID {definitie_id}: {e}")
             return False
 
@@ -983,20 +991,46 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         new_status: "DefinitieStatus",
         changed_by: str | None = None,
         notes: str | None = None,
+        *,
+        ketenpartners: list[str] | None = None,
+        ufo_categorie: str | Unset | None = UNSET,
+        expected_version: int | None = None,
     ) -> bool:
         """Pass-through statuswijziging voor compatibiliteit met workflowservice."""
         try:
             return cast(
                 bool,
                 self.legacy_repo.change_status(
-                    definitie_id, new_status, changed_by, notes
+                    definitie_id,
+                    new_status,
+                    changed_by,
+                    notes,
+                    ketenpartners=ketenpartners,
+                    ufo_categorie=ufo_categorie,
+                    expected_version=expected_version,
                 ),
             )
         except Exception as e:
+            if self.in_transaction():
+                # DEF-482: binnen een lopende transactie maskeert `False` een
+                # deelresultaat (de aanroeper zou zijn eigen onbevestigde write
+                # kunnen herlezen en er een versieconflict uit afleiden).
+                raise
             logger.error(
                 f"change_status failed for ID {definitie_id} to {new_status}: {e}"
             )
             return False
+
+    # ===== Transactiegrens (DEF-482) =====
+    def transaction(
+        self, timeout: float = 30.0
+    ) -> AbstractContextManager[sqlite3.Connection]:
+        """Expliciete transactie op de thread-local connectie van de DB-laag."""
+        return self.legacy_repo.transaction(timeout)
+
+    def in_transaction(self) -> bool:
+        """True als de huidige thread al een transactie open heeft."""
+        return self.legacy_repo.in_transaction()
 
     # ===== Helpers =====
     def _definition_to_updates(self, definition: Definition) -> dict[str, Any]:
