@@ -177,7 +177,29 @@ def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch):
     )
 
     assert result.success is False
+    # Een repositoryfout is géén versieconflict: de herlezing binnen de open
+    # transactie ziet de eigen, nog niet gecommitte versiebump en mag daaruit
+    # geen "stale" afleiden (gereproduceerd door Chris, 4 september 2026).
+    assert result.gate_status is None
+    assert "intussen gewijzigd" not in (result.error_message or "")
+    assert "audit faalt" in (result.error_message or "")
     _assert_onveranderd(repo, definitie_id, voor)
+
+
+def test_facade_slikt_geen_fout_binnen_een_open_transactie(tmp_path):
+    """Binnen een transactie maskeert `False` een deelresultaat; dan moet de
+    passthrough de fout doorgeven. Buiten een transactie blijft `False` (DEF-469)."""
+    _svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+
+    def gooit(*_args, **_kwargs):
+        raise sqlite3.OperationalError("repository kapot")
+
+    repo.legacy_repo.change_status = gooit  # type: ignore[method-assign]
+
+    assert repo.change_status(definitie_id, DefinitieStatus.ESTABLISHED) is False
+    with repo.transaction(), pytest.raises(sqlite3.OperationalError):
+        repo.change_status(definitie_id, DefinitieStatus.ESTABLISHED)
 
 
 # --- T3/T3b: succespad = één UPDATE, één versiebump, één auditrij -----------

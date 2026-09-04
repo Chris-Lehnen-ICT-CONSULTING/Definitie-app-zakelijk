@@ -280,6 +280,10 @@ class DefinitionWorkflowService:
                         expected_version=expected_version,
                     )
                     if not success:
+                        # `False` betekent hier: de UPDATE raakte nul rijen. Een
+                        # repositoryfout propageert binnen een open transactie als
+                        # exceptie (facade), dus deze herlezing ziet nooit een eigen
+                        # onbevestigde versiebump.
                         actueel = self.repository.get_definitie(definition_id)
                         if (
                             actueel is None
