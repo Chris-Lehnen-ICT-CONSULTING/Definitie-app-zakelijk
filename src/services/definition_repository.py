@@ -963,6 +963,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         try:
             return self.legacy_repo.get_definitie(definitie_id)
         except Exception as e:
+            if self.in_transaction():
+                # DEF-482: binnen een transactie zou `None` een databasefout
+                # als "niet gevonden"/versieconflict maskeren.
+                raise
             logger.warning(f"get_definitie failed for ID {definitie_id}: {e}")
             return None
 

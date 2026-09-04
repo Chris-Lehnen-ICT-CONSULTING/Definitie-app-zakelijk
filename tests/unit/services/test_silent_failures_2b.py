@@ -1,8 +1,8 @@
 """Tests voor DEF-469 deelstap 2b — resterende stille failures zichtbaar maken.
 
 - search_with_filters: re-raiset i.p.v. stil [] (false-negative maskeert DB-fout).
-- approve(): ketenpartners-fout wordt niet meer stil geslikt maar als waarschuwing
-  teruggegeven (status-transitie blijft geslaagd).
+- approve(): ketenpartners gaan mee in de atomaire vaststelling (DEF-482);
+  een fout daarin betekent niet vastgesteld, geen waarschuwing.
 - _get_policy(): logt nu expliciet bij een loader-fout i.p.v. stille `pass`.
 """
 
@@ -59,7 +59,7 @@ def test_approve_fails_closed_when_ketenpartners_save_fails():
     svc = _approve_service_met_mock_repo()
     svc.repository.change_status.side_effect = sqlite3.OperationalError("boom")
 
-    result = svc.approve(1, "tester", ketenpartners=["Partner A"])
+    result = svc.approve(1, "tester", ketenpartners=["Partner A"], expected_version=3)
 
     assert result.success is False
     assert not hasattr(result, "warning")
@@ -69,7 +69,7 @@ def test_approve_fails_closed_when_ketenpartners_save_fails():
 def test_approve_passes_ketenpartners_and_version_in_one_change_status():
     svc = _approve_service_met_mock_repo()
 
-    result = svc.approve(1, "tester", ketenpartners=["Partner A"])
+    result = svc.approve(1, "tester", ketenpartners=["Partner A"], expected_version=3)
 
     assert result.success is True
     svc.repository.change_status.assert_called_once()
@@ -83,7 +83,7 @@ def test_approve_leaves_ketenpartners_untouched_when_none():
     """Zonder ketenpartners blijft de kolom ongemoeid (None, geen lege lijst)."""
     svc = _approve_service_met_mock_repo()
 
-    result = svc.approve(1, "tester", ketenpartners=None)
+    result = svc.approve(1, "tester", ketenpartners=None, expected_version=3)
 
     assert result.success is True
     assert svc.repository.change_status.call_args.kwargs["ketenpartners"] is None

@@ -668,6 +668,8 @@ class ExpertReviewTab:
                         ketenpartners=geselecteerd,
                         user_role="reviewer",
                         ufo_categorie=ufo_categorie,
+                        # DEF-482: de versie die de reviewer op het scherm had.
+                        expected_version=definitie.version_number,
                     )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
