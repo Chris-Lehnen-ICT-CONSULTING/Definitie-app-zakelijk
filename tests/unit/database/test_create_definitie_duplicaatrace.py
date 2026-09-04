@@ -7,6 +7,12 @@ de tweede de gecommitte rij van de eerste.
 
 Voorwaarde: `find_duplicates` mag geen committend ``with conn:``-blok
 gebruiken, anders sluit de controle zelf de transactie waarin hij draait.
+
+DEF-727: de racetest is scheduling-onafhankelijk. Thread A houdt de writelock
+vast totdat thread B aantoonbaar aan zijn ``BEGIN IMMEDIATE`` is begonnen
+(trace-callback op B's eigen connectie zet een event); geen vaste sleep, geen
+functie-start-timestamps. Loopt de wachttijd af, dan faalt de test met een
+duidelijke melding in plaats van te hangen.
 """
 
 from __future__ import annotations
@@ -24,7 +30,8 @@ from database.definitie_repository import (
 
 pytestmark = [pytest.mark.unit]
 
-WACHT = 10  # boven de busy_timeout van 5 s (DEF-722)
+WACHT = 10  # join-timeout, boven de busy_timeout van 5 s (DEF-722)
+LOCK_WACHT = 2.0  # A wacht op B's BEGIN; ruim onder de busy_timeout van 5 s
 
 
 def _record(wettelijke_basis: str | None = None) -> DefinitieRecord:
@@ -54,29 +61,44 @@ def test_find_duplicates_laat_lopende_transactie_open(tmp_path):
 
 
 def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
+    """Twee threads maken tegelijk dezelfde definitie; precies één slaagt.
+
+    Volgorde, afgedwongen met events in plaats van sleeps:
+    1. A doet zijn duplicaatcontrole binnen BEGIN IMMEDIATE (houdt de writelock).
+    2. B start, doet zijn BEGIN IMMEDIATE en blokkeert op A's lock; B's
+       trace-callback zet `b_begint` op het moment dat het statement begint.
+    3. Pas daarna insert en commit A.
+    4. B krijgt de lock, ziet A's rij en weigert met ValueError.
+    """
     repo = DefinitieRepository(str(tmp_path / "race.db"))
     duplicates = repo._crud._duplicates
     origineel = duplicates.find_duplicates
     a_heeft_gecontroleerd = threading.Event()
+    b_begint = threading.Event()
+    tijden: dict[str, float] = {}
+    fouten: list[str] = []
 
-    def controle_met_pauze(*args, **kwargs):
+    def controle_met_wachttijd(*args, **kwargs):
         resultaat = origineel(*args, **kwargs)
         if threading.current_thread().name == "A":
             a_heeft_gecontroleerd.set()
-            time.sleep(0.5)  # houd het venster tussen controle en INSERT open
+            # A houdt de writelock vast tot B aantoonbaar op die lock wacht.
+            if not b_begint.wait(LOCK_WACHT):
+                fouten.append(
+                    f"thread B begon niet binnen {LOCK_WACHT}s aan BEGIN IMMEDIATE"
+                )
         return resultaat
 
-    duplicates.find_duplicates = controle_met_pauze
+    duplicates.find_duplicates = controle_met_wachttijd
     uitkomsten: dict[str, tuple[str, object]] = {}
-    tijden: dict[str, float] = {}
 
     def maak(naam: str) -> None:
-        # Trace per thread-connectie: wanneer probeert B BEGIN IMMEDIATE en
-        # wanneer commit A? Alleen dan is bewezen dat B op de lock wachtte.
         def traceer(statement: str) -> None:
             kop = statement.upper().split()[0] if statement.strip() else ""
             if kop in ("BEGIN", "COMMIT"):
                 tijden.setdefault(f"{naam}_{kop}", time.monotonic())
+                if naam == "B" and kop == "BEGIN":
+                    b_begint.set()
 
         repo._db.get_connection().set_trace_callback(traceer)
         try:
@@ -84,7 +106,6 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
         except ValueError as e:
             uitkomsten[naam] = ("duplicaat", str(e))
         finally:
-            tijden[f"{naam}_klaar"] = time.monotonic()
             repo._db.get_connection().close()
 
     thread_a = threading.Thread(target=maak, args=("A",), name="A")
@@ -95,9 +116,9 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
     thread_a.join(WACHT)
     thread_b.join(WACHT)
     assert not thread_a.is_alive() and not thread_b.is_alive(), "threads hangen"
+    assert not fouten, fouten
 
-    # Zonder dit is een trage B een gewone sequentiële weigering, geen race:
-    # B moet BEGIN IMMEDIATE hebben geprobeerd vóórdat A committe.
+    # Echte lock-overlap: B's BEGIN IMMEDIATE begon vóór A's COMMIT.
     assert (
         tijden["B_BEGIN"] < tijden["A_COMMIT"]
     ), f"thread B wachtte niet op de lock van A; de race is niet getest: {tijden}"
