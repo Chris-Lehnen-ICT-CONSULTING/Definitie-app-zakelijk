@@ -16,19 +16,24 @@ import time
 
 import pytest
 
-from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieRepository,
+    DefinitieStatus,
+)
 
 pytestmark = [pytest.mark.unit]
 
 WACHT = 10  # boven de busy_timeout van 5 s (DEF-722)
 
 
-def _record() -> DefinitieRecord:
+def _record(wettelijke_basis: str | None = None) -> DefinitieRecord:
     return DefinitieRecord(
         begrip="race_begrip",
         definitie="tekst",
         categorie="proces",
         organisatorische_context='["ORG"]',
+        wettelijke_basis=wettelijke_basis,
     )
 
 
@@ -63,13 +68,16 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
 
     duplicates.find_duplicates = controle_met_pauze
     uitkomsten: dict[str, tuple[str, object]] = {}
+    tijden: dict[str, float] = {}
 
     def maak(naam: str) -> None:
+        tijden[f"{naam}_binnen"] = time.monotonic()
         try:
             uitkomsten[naam] = ("ok", repo.create_definitie(_record()))
         except ValueError as e:
             uitkomsten[naam] = ("duplicaat", str(e))
         finally:
+            tijden[f"{naam}_klaar"] = time.monotonic()
             repo._db.get_connection().close()
 
     thread_a = threading.Thread(target=maak, args=("A",), name="A")
@@ -81,6 +89,10 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
     thread_b.join(WACHT)
     assert not thread_a.is_alive() and not thread_b.is_alive(), "threads hangen"
 
+    # Zonder dit is een trage B een gewone sequentiële weigering, geen race.
+    assert (
+        tijden["B_binnen"] < tijden["A_klaar"]
+    ), "thread B kwam pas na de commit van A binnen; de race is niet getest"
     soorten = sorted(soort for soort, _ in uitkomsten.values())
     assert soorten == ["duplicaat", "ok"], uitkomsten
     actief = (
@@ -92,3 +104,24 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path):
         .fetchone()[0]
     )
     assert actief == 1
+
+
+# --- _weiger_duplicaat: takken die de racetest niet raakt -------------------
+
+
+def test_gearchiveerd_duplicaat_blokkeert_nieuwe_definitie_niet(tmp_path):
+    repo = DefinitieRepository(str(tmp_path / "archief.db"))
+    eerste = repo.create_definitie(_record())
+    assert repo.change_status(eerste, DefinitieStatus.ARCHIVED, changed_by="x")
+
+    tweede = repo.create_definitie(_record())
+
+    assert tweede != eerste
+
+
+def test_duplicaat_met_wettelijke_basis_wordt_geweigerd(tmp_path):
+    repo = DefinitieRepository(str(tmp_path / "wettelijk.db"))
+    repo.create_definitie(_record(wettelijke_basis='["Sr"]'))
+
+    with pytest.raises(ValueError, match="bestaat al"):
+        repo.create_definitie(_record(wettelijke_basis='["Sr"]'))

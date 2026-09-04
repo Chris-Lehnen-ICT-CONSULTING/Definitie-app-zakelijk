@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, cast
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
-from services.definition_workflow_service import UNSET
+from services.definition_workflow_service import ufo_categorie_uit_selectie
 from ui.components.formatters import format_record_context
 from ui.session_state import SessionStateManager
 
@@ -654,17 +654,13 @@ class ExpertReviewTab:
                     help=approve_help,
                 ):
                     user = SessionStateManager.get_value("user", default="expert")
-                    # DEF-482: een gewijzigde UFO-categorie gaat mee in dezelfde
-                    # atomaire vaststelling; leeg ("") betekent verwijderen (NULL).
-                    selected_ufo = SessionStateManager.get_value(
-                        f"review_ufo_{definitie.id}"
+                    # DEF-482: de gekozen UFO-categorie gaat mee in dezelfde atomaire
+                    # vaststelling. Geen keuze (None) laat de kolom staan; leeg ("")
+                    # betekent verwijderen (NULL). Of het een wijziging is, bepaalt de
+                    # repository; de version guard dekt een verouderd record.
+                    ufo_categorie = ufo_categorie_uit_selectie(
+                        SessionStateManager.get_value(f"review_ufo_{definitie.id}")
                     )
-                    current_ufo = getattr(definitie, "ufo_categorie", None)
-                    ufo_categorie: str | None = UNSET
-                    if selected_ufo == "" and current_ufo is not None:
-                        ufo_categorie = ""
-                    elif selected_ufo not in (None, "") and selected_ufo != current_ufo:
-                        ufo_categorie = selected_ufo
                     res = workflow.approve(
                         definition_id=definitie.id,
                         user=user,
