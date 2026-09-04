@@ -7,12 +7,13 @@ ge-re-exporteerd voor backward compatibility.
 
 import logging
 import sqlite3
+from contextlib import AbstractContextManager
 from pathlib import Path
 from typing import Any
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
-from database.definitie_crud import DefinitieCrudRepository
+from database.definitie_crud import UNSET, DefinitieCrudRepository
 from database.definitie_duplicates import (
     DefinitieDuplicateRepository,
     DuplicaatKandidaatRij,
@@ -31,6 +32,7 @@ from database.voorbeelden_repository import VoorbeeldenRepository
 from domain.ontological_categories import OntologischeCategorie
 
 __all__ = [
+    "UNSET",
     "DefinitieRecord",
     "DefinitieRepository",
     "DefinitieStatus",
@@ -132,8 +134,31 @@ class DefinitieRepository:
         new_status: DefinitieStatus,
         changed_by: str | None = None,
         notes: str | None = None,
+        *,
+        ketenpartners: list[str] | None = None,
+        ufo_categorie: str | None = UNSET,
+        expected_version: int | None = None,
     ) -> bool:
-        return self._crud.change_status(definitie_id, new_status, changed_by, notes)
+        return self._crud.change_status(
+            definitie_id,
+            new_status,
+            changed_by,
+            notes,
+            ketenpartners=ketenpartners,
+            ufo_categorie=ufo_categorie,
+            expected_version=expected_version,
+        )
+
+    # === Transactiegrens (DEF-482) ===
+    def transaction(
+        self, timeout: float = 30.0
+    ) -> AbstractContextManager[sqlite3.Connection]:
+        """Expliciete transactie op de thread-local connectie; nesting sluit aan."""
+        return self._db.transaction(timeout)
+
+    def in_transaction(self) -> bool:
+        """True als de huidige thread al een transactie open heeft."""
+        return bool(self._db.get_connection().in_transaction)
 
     def get_all(self) -> list[DefinitieRecord]:
         return self._crud.get_all()

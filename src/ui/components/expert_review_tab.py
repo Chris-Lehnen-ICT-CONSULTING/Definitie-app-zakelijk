@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, cast
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
+from services.definition_workflow_service import UNSET
 from ui.components.formatters import format_record_context
 from ui.session_state import SessionStateManager
 
@@ -653,51 +654,28 @@ class ExpertReviewTab:
                     help=approve_help,
                 ):
                     user = SessionStateManager.get_value("user", default="expert")
-                    # Neem gewijzigde UFO-categorie automatisch mee bij vaststellen
-                    try:
-                        selected_ufo = SessionStateManager.get_value(
-                            f"review_ufo_{definitie.id}"
-                        )
-                        current_ufo = getattr(definitie, "ufo_categorie", None)
-                        # Leeg ("") betekent verwijderen (NULL)
-                        if selected_ufo == "" and current_ufo is not None:
-                            _ = self.repository.update_definitie(
-                                # DEF-439: definitie.id is int at runtime (loaded record)
-                                cast(int, definitie.id),
-                                {"ufo_categorie": None},
-                                updated_by=user,
-                            )
-                        elif (
-                            selected_ufo not in (None, "")
-                            and selected_ufo != current_ufo
-                        ):
-                            _ = self.repository.update_definitie(
-                                # DEF-439: definitie.id is int at runtime (loaded record)
-                                cast(int, definitie.id),
-                                {"ufo_categorie": selected_ufo},
-                                updated_by=user,
-                            )
-                    except Exception:
-                        logger.exception(
-                            "Failed to update ufo_categorie for definitie %s",
-                            definitie.id,
-                        )
+                    # DEF-482: een gewijzigde UFO-categorie gaat mee in dezelfde
+                    # atomaire vaststelling; leeg ("") betekent verwijderen (NULL).
+                    selected_ufo = SessionStateManager.get_value(
+                        f"review_ufo_{definitie.id}"
+                    )
+                    current_ufo = getattr(definitie, "ufo_categorie", None)
+                    ufo_categorie: str | None = UNSET
+                    if selected_ufo == "" and current_ufo is not None:
+                        ufo_categorie = ""
+                    elif selected_ufo not in (None, "") and selected_ufo != current_ufo:
+                        ufo_categorie = selected_ufo
                     res = workflow.approve(
                         definition_id=definitie.id,
                         user=user,
                         notes=notes or "",
                         ketenpartners=geselecteerd,
                         user_role="reviewer",
+                        ufo_categorie=ufo_categorie,
                     )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
-                        if res.warning:
-                            # DEF-469: niet-fatale waarschuwing (bv. ketenpartners
-                            # niet opgeslagen). Toon en herlaad niet, zodat de
-                            # gebruiker de melding ziet.
-                            st.warning(res.warning)
-                        else:
-                            st.rerun()
+                        st.rerun()
                     else:
                         st.error(
                             f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}"

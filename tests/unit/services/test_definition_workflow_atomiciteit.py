@@ -1,0 +1,262 @@
+"""Atomiciteit van de vaststelling (DEF-482).
+
+`DefinitionWorkflowService.approve()` is de kleinste unit-of-work van de
+kwaliteitsketen: status, approval-metadata, ketenpartners, UFO-categorie en
+de app-auditrij committen samen of helemaal niet. Deze tests draaien op een
+tijdelijke file-backed database met de echte repository-facades; alleen de
+gate wordt gestubd (die is DEF-611-terrein).
+
+Audit-assertions tellen uitsluitend app-rijen (`wijziging_reden IS NOT NULL`):
+een verse database uit schema.sql heeft een trigger die productie mist en die
+per UPDATE een extra rij zonder reden schrijft (zie DEF-664).
+"""
+
+from __future__ import annotations
+
+import json
+import sqlite3
+from typing import Any
+from unittest.mock import Mock
+
+import pytest
+
+from database.definitie_repository import (
+    UNSET,
+    DefinitieRecord,
+    DefinitieStatus,
+)
+from services.definition_repository import DefinitionRepository
+from services.definition_workflow_service import DefinitionWorkflowService
+from services.workflow_service import WorkflowService
+
+pytestmark = [pytest.mark.unit]
+
+GATE_PASS = {"status": "pass", "reasons": []}
+
+
+def _service(tmp_path) -> tuple[DefinitionWorkflowService, DefinitionRepository]:
+    repo = DefinitionRepository(str(tmp_path / "atomiciteit.db"))
+    svc = DefinitionWorkflowService(workflow_service=WorkflowService(), repository=repo)
+    svc._evaluate_gate = lambda _definition: dict(GATE_PASS)
+    return svc, repo
+
+
+def _review_definitie(repo: DefinitionRepository, ufo: str | None = None) -> int:
+    return repo.legacy_repo.create_definitie(
+        DefinitieRecord(
+            begrip="atomiciteit_begrip",
+            definitie="Definitie in review",
+            categorie="proces",
+            organisatorische_context='["ORG"]',
+            status=DefinitieStatus.REVIEW.value,
+            ufo_categorie=ufo,
+        )
+    )
+
+
+def _rij(repo: DefinitionRepository, definitie_id: int) -> dict[str, Any]:
+    conn = repo.legacy_repo._db.get_connection()
+    row = conn.execute(
+        "SELECT status, approved_by, approval_notes, ketenpartners, ufo_categorie,"
+        " version_number FROM definities WHERE id = ?",
+        (definitie_id,),
+    ).fetchone()
+    return dict(row)
+
+
+def _app_audit(repo: DefinitionRepository, definitie_id: int, soort: str) -> int:
+    conn = repo.legacy_repo._db.get_connection()
+    return conn.execute(
+        "SELECT COUNT(*) FROM definitie_geschiedenis WHERE definitie_id = ?"
+        " AND wijziging_type = ? AND wijziging_reden IS NOT NULL",
+        (definitie_id, soort),
+    ).fetchone()[0]
+
+
+def _assert_onveranderd(repo, definitie_id, voor):
+    assert _rij(repo, definitie_id) == voor
+    assert _app_audit(repo, definitie_id, "status_changed") == 0
+
+
+# --- T1a: alleen exact de beoordeelde versie mag worden vastgesteld ----------
+
+
+def test_approve_weigert_definitie_die_na_de_gate_is_gewijzigd(tmp_path):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+
+    def gate_met_concurrente_wijziging(_definition):
+        # Een andere sessie wijzigt de tekst tussen gate en UPDATE.
+        assert repo.legacy_repo.update_definitie(
+            definitie_id, {"definitie": "intussen gewijzigd"}, updated_by="ander"
+        )
+        return dict(GATE_PASS)
+
+    svc._evaluate_gate = gate_met_concurrente_wijziging
+    voor = _rij(repo, definitie_id)  # nog vóór de concurrente wijziging
+    result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+
+    assert result.success is False
+    assert result.gate_status == "stale"
+    na = _rij(repo, definitie_id)
+    assert na["status"] == "review"
+    assert na["approved_by"] is None
+    assert na["version_number"] == voor["version_number"] + 1  # alleen de ander
+    assert _app_audit(repo, definitie_id, "status_changed") == 0
+
+
+# --- T1b: falende gecombineerde UPDATE rolt alles terug ---------------------
+
+
+def test_approve_rolt_status_terug_als_ketenpartners_niet_opgeslagen_kan_worden(
+    tmp_path, monkeypatch
+):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    voor = _rij(repo, definitie_id)
+    crud = repo.legacy_repo._crud
+    origineel = crud.update_definitie
+
+    def faalt_op_ketenpartners(definitie_id_, updates, *args, **kwargs):
+        if "ketenpartners" in updates:
+            raise sqlite3.OperationalError("ketenpartners-kolom niet beschikbaar")
+        return origineel(definitie_id_, updates, *args, **kwargs)
+
+    monkeypatch.setattr(crud, "update_definitie", faalt_op_ketenpartners)
+
+    result = svc.approve(
+        definitie_id, "reviewer", ketenpartners=["Partner A"], user_role="reviewer"
+    )
+
+    assert result.success is False
+    assert getattr(result, "warning", None) is None
+    _assert_onveranderd(repo, definitie_id, voor)
+
+
+# --- T2: falende app-audit rolt de gecombineerde UPDATE terug ---------------
+
+
+def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    voor = _rij(repo, definitie_id)
+
+    def audit_faalt(*_args, **_kwargs):
+        raise sqlite3.OperationalError("audit faalt")
+
+    monkeypatch.setattr(repo.legacy_repo._audit, "log_geschiedenis", audit_faalt)
+
+    result = svc.approve(
+        definitie_id, "reviewer", ketenpartners=["Partner A"], user_role="reviewer"
+    )
+
+    assert result.success is False
+    _assert_onveranderd(repo, definitie_id, voor)
+
+
+# --- T3/T3b: succespad = één UPDATE, één versiebump, één auditrij -----------
+
+
+def test_approve_schrijft_alles_in_een_versiebump(tmp_path):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo, ufo="Kind")
+    voor = _rij(repo, definitie_id)
+
+    result = svc.approve(
+        definitie_id,
+        "reviewer",
+        notes="akkoord",
+        ketenpartners=["Partner A", "Partner B"],
+        ufo_categorie="Event",
+        user_role="reviewer",
+    )
+
+    assert result.success is True, result.error_message
+    assert result.new_status == DefinitieStatus.ESTABLISHED.value
+    na = _rij(repo, definitie_id)
+    assert na["status"] == "established"
+    assert na["approved_by"] == "reviewer"
+    assert na["approval_notes"] == "akkoord"
+    assert json.loads(na["ketenpartners"]) == ["Partner A", "Partner B"]
+    assert na["ufo_categorie"] == "Event"
+    assert na["version_number"] == voor["version_number"] + 1
+    assert _app_audit(repo, definitie_id, "status_changed") == 1
+
+
+@pytest.mark.parametrize(
+    ("ufo_argument", "verwacht"),
+    [
+        pytest.param({"ufo_categorie": ""}, None, id="leeg-maakt-null"),
+        pytest.param({}, "Kind", id="weggelaten-laat-staan"),
+        pytest.param({"ufo_categorie": UNSET}, "Kind", id="unset-laat-staan"),
+    ],
+)
+def test_approve_ufo_sentinel(tmp_path, ufo_argument, verwacht):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo, ufo="Kind")
+
+    result = svc.approve(definitie_id, "reviewer", user_role="reviewer", **ufo_argument)
+
+    assert result.success is True, result.error_message
+    assert _rij(repo, definitie_id)["ufo_categorie"] == verwacht
+
+
+# --- T4a/T5: approve() is eigenaar van precies één transactie ---------------
+
+
+def test_approve_doet_precies_een_begin_en_een_commit(tmp_path):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    statements: list[str] = []
+    conn = repo.legacy_repo._db.get_connection()
+    conn.set_trace_callback(statements.append)
+    try:
+        result = svc.approve(
+            definitie_id, "reviewer", ketenpartners=["Partner A"], user_role="reviewer"
+        )
+    finally:
+        conn.set_trace_callback(None)
+
+    assert result.success is True, result.error_message
+    grenzen = [
+        s for s in statements if s.upper().startswith(("BEGIN", "COMMIT", "ROLLBACK"))
+    ]
+    assert grenzen == ["BEGIN IMMEDIATE", "COMMIT"], grenzen
+
+
+# --- T4b: een al open transactie wordt geweigerd, niet gejoind --------------
+
+
+def test_approve_weigert_binnen_een_open_transactie(tmp_path):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    voor = _rij(repo, definitie_id)
+
+    with repo.transaction() as conn:
+        result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+        assert result.success is False
+        assert (
+            conn.in_transaction
+        ), "approve() mag de transactie van de aanroeper niet sluiten"
+
+    _assert_onveranderd(repo, definitie_id, voor)
+
+
+# --- T9: bijeffecten ná de commit veranderen het resultaat niet -------------
+
+
+@pytest.mark.parametrize("bijeffect", ["event_bus", "audit_logger"])
+def test_fout_in_bijeffect_na_commit_maakt_vaststelling_niet_ongedaan(
+    tmp_path, bijeffect
+):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    kapot = Mock()
+    kapot.publish.side_effect = RuntimeError("event bus down")
+    kapot.log_transition.side_effect = RuntimeError("audit sink down")
+    setattr(svc, bijeffect, kapot)
+
+    result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+
+    assert result.success is True, result.error_message
+    assert _rij(repo, definitie_id)["status"] == "established"
