@@ -73,21 +73,25 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path, monkeypat
        op het moment dat dat statement begint (SQLITE_TRACE_STMT vuurt vóór de
        lock-poging; een signaal ná de lock zou deadlocken, want die lock is van A).
     3. Pas daarna insert en commit A.
-    4. B krijgt de lock, ziet A's rij en weigert met ValueError.
+    4. B krijgt de lock, ziet A's rij en weigert met de duplicaat-ValueError.
 
     Bewijskracht: de handshake zelf dwingt de volgorde af; de discriminerende
-    asserties zijn `uitkomsten` en `actief == 1` (met de duplicaatcontrole buiten
-    de transactie slagen beide creates: ['ok', 'ok']). Of B daadwerkelijk op de
+    asserties zijn `uitkomsten` (incl. de duplicaattekst) en de telling via de
+    productiequery `find_duplicates` (met de duplicaatcontrole buiten de
+    transactie slagen beide creates: ['ok', 'ok']). Of B daadwerkelijk op de
     lock heeft gewacht is vanuit Python niet observeerbaar (geen busy-handler-
     hook); de ordeningsassertie is een redundante regressiecheck, geen bewijs.
 
     Testnaad: de handshake hangt aan `_weiger_duplicaat` → `_duplicates.find_duplicates`
-    binnen de transactie van `create_definitie`. Loopt die controle ooit anders,
-    dan meldt "A bereikte find_duplicates niet" dat, niet een threadprobleem.
+    binnen de transactie van `create_definitie`, en aan de letterlijke
+    `BEGIN IMMEDIATE` die `DatabaseConnection.transaction()` uitzendt. Loopt een
+    van beide ooit anders, dan zeggen de faalmeldingen dat, niet "threadprobleem".
     """
     repo = DefinitieRepository(str(tmp_path / "race.db"))
-    record = _record()
+    # Alleen voor begrip/context in de asserties; elke thread bouwt zijn eigen record.
+    sjabloon = _record()
     duplicates = repo._crud._duplicates
+    # Doorroep in de wrapper én de productiequery voor de telling aan het eind.
     origineel = duplicates.find_duplicates
     a_heeft_gecontroleerd = threading.Event()
     b_begint = threading.Event()
@@ -102,22 +106,27 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path, monkeypat
             # A houdt de writelock vast tot B aantoonbaar aan BEGIN IMMEDIATE begint.
             if not b_begint.wait(LOCK_WACHT):
                 fouten.append(
-                    f"thread B begon niet binnen {LOCK_WACHT}s aan BEGIN IMMEDIATE"
+                    f"thread B begon niet binnen {LOCK_WACHT}s aan BEGIN IMMEDIATE: "
+                    "B kreeg de lock niet, óf transaction() zendt geen letterlijke "
+                    "BEGIN IMMEDIATE meer uit — controleer de testnaad"
                 )
         return resultaat
 
     monkeypatch.setattr(duplicates, "find_duplicates", controle_met_wachttijd)
 
     def maak(naam: str) -> None:
+        # Eigen record per thread: create_definitie muteert created_at/updated_at.
+        record = _record()
         conn = repo._db.get_connection()
 
         def traceer(statement: str) -> None:
+            # Sleutels zijn per thread disjunct (A_*/B_*), dus geen lock nodig.
             kop = statement.strip().upper()
             if kop.startswith("BEGIN IMMEDIATE"):
                 tijden.setdefault(f"{naam}_BEGIN", time.monotonic())
                 if naam == "B":
                     b_begint.set()
-            elif kop.startswith("COMMIT"):
+            elif kop.startswith("COMMIT") and f"{naam}_BEGIN" in tijden:
                 tijden.setdefault(f"{naam}_COMMIT", time.monotonic())
 
         conn.set_trace_callback(traceer)
@@ -128,6 +137,7 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path, monkeypat
         except Exception as e:  # diagnose hoort in de assertie, niet op stderr
             uitkomsten[naam] = ("fout", repr(e))
         finally:
+            conn.set_trace_callback(None)
             conn.close()
 
     thread_a = threading.Thread(target=maak, args=("A",), name="A", daemon=True)
@@ -139,26 +149,26 @@ def test_gelijktijdige_creates_leveren_precies_een_definitie(tmp_path, monkeypat
             "_duplicates.find_duplicates binnen de transactie?"
         )
         thread_b.start()
-        thread_a.join(WACHT)
-        thread_b.join(WACHT)
+        deadline = time.monotonic() + WACHT  # één gedeelde deadline voor beide joins
+        thread_a.join(max(0.0, deadline - time.monotonic()))
+        thread_b.join(max(0.0, deadline - time.monotonic()))
+        # Eerst de handshake-fout: die verklaart een hangende of trage B en moet
+        # vóór de uitkomst-asserties staan, want een verlopen handshake levert
+        # anders een vals-groene ["duplicaat", "ok"].
+        assert not fouten, fouten
         assert not thread_a.is_alive(), "thread A hangt"
         assert not thread_b.is_alive(), "thread B hangt"
-        assert not fouten, fouten
 
-        # Discriminerend: precies één create slaagt, de ander weigert als duplicaat.
+        # Discriminerend: precies één create slaagt, de ander weigert als duplicaat
+        # (de duplicaattekst, niet zomaar een ValueError).
         soorten = sorted(soort for soort, _ in uitkomsten.values())
         assert soorten == ["duplicaat", "ok"], uitkomsten
-        # Zelfde predicaat als DefinitieDuplicateRepository: actief = status != 'archived'.
-        actief = (
-            repo._db.get_connection()
-            .execute(
-                "SELECT COUNT(*) FROM definities WHERE begrip = ?"
-                " AND status != 'archived'",
-                (record.begrip,),
-            )
-            .fetchone()[0]
-        )
-        assert actief == 1
+        duplicaat_melding = next(m for s, m in uitkomsten.values() if s == "duplicaat")
+        assert "bestaat al" in str(duplicaat_melding), uitkomsten
+        # Telling via de productiequery zelf, zodat het "actief"-predicaat
+        # single-sourced blijft in DefinitieDuplicateRepository.
+        actief = origineel(sjabloon.begrip, sjabloon.organisatorische_context)
+        assert len(actief) == 1, (len(actief), uitkomsten, tijden)
 
         # Redundante regressiecheck op de handshake (per constructie waar zolang
         # `fouten` leeg is): B's BEGIN IMMEDIATE begon terwijl A de writelock hield.
