@@ -3,7 +3,7 @@
 import json
 import logging
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Final
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
@@ -14,8 +14,8 @@ from database.models import DefinitieRecord, DefinitieStatus, normalize_wettelij
 logger = logging.getLogger(__name__)
 
 
-class _Unset:
-    """Sentinel: parameter niet meegegeven (anders dan expliciet ``None``)."""
+class Unset:
+    """Type van de ``UNSET``-sentinel: parameter niet meegegeven (anders dan ``None``)."""
 
     __slots__ = ()
 
@@ -23,7 +23,7 @@ class _Unset:
         return "UNSET"
 
 
-UNSET: Any = _Unset()
+UNSET: Final[Unset] = Unset()
 
 
 class DefinitieCrudRepository:
@@ -311,7 +311,7 @@ class DefinitieCrudRepository:
         notes: str | None = None,
         *,
         ketenpartners: list[str] | None = None,
-        ufo_categorie: str | None = UNSET,
+        ufo_categorie: str | Unset | None = UNSET,
         expected_version: int | None = None,
     ) -> bool:
         """Wijzig status van definitie in één UPDATE (één versiebump).
@@ -336,7 +336,7 @@ class DefinitieCrudRepository:
             updates["ketenpartners"] = json.dumps(
                 list(ketenpartners), ensure_ascii=False
             )
-        if ufo_categorie is not UNSET:
+        if not isinstance(ufo_categorie, Unset):
             updates["ufo_categorie"] = ufo_categorie or None
         if expected_version is not None:
             updates["version_number"] = expected_version

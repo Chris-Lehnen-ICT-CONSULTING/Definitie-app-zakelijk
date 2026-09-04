@@ -26,7 +26,10 @@ from database.definitie_repository import (
     DefinitieStatus,
 )
 from services.definition_repository import DefinitionRepository
-from services.definition_workflow_service import DefinitionWorkflowService
+from services.definition_workflow_service import (
+    DefinitionWorkflowService,
+    ufo_categorie_uit_selectie,
+)
 from services.workflow_service import WorkflowService
 
 pytestmark = [pytest.mark.unit]
@@ -64,18 +67,30 @@ def _rij(repo: DefinitionRepository, definitie_id: int) -> dict[str, Any]:
     return dict(row)
 
 
-def _app_audit(repo: DefinitionRepository, definitie_id: int, soort: str) -> int:
+def _audit_rijen(
+    repo: DefinitionRepository, definitie_id: int, soort: str, *, alleen_app: bool
+) -> int:
+    """Tel geschiedenisrijen; ``alleen_app`` filtert de DEF-664-triggerrij weg."""
     conn = repo.legacy_repo._db.get_connection()
+    filter_app = " AND wijziging_reden IS NOT NULL" if alleen_app else ""
     return conn.execute(
         "SELECT COUNT(*) FROM definitie_geschiedenis WHERE definitie_id = ?"
-        " AND wijziging_type = ? AND wijziging_reden IS NOT NULL",
+        f" AND wijziging_type = ?{filter_app}",
         (definitie_id, soort),
     ).fetchone()[0]
 
 
+def _app_audit(repo: DefinitionRepository, definitie_id: int, soort: str) -> int:
+    return _audit_rijen(repo, definitie_id, soort, alleen_app=True)
+
+
 def _assert_onveranderd(repo, definitie_id, voor):
     assert _rij(repo, definitie_id) == voor
-    assert _app_audit(repo, definitie_id, "status_changed") == 0
+    # Negatief: géén enkele status_changed-rij, ook niet een met lege reden.
+    assert _audit_rijen(repo, definitie_id, "status_changed", alleen_app=False) == 0
+
+
+TRANSACTIEGRENZEN = ("BEGIN", "COMMIT", "ROLLBACK", "SAVEPOINT", "RELEASE")
 
 
 # --- T1a: alleen exact de beoordeelde versie mag worden vastgesteld ----------
@@ -94,15 +109,26 @@ def test_approve_weigert_definitie_die_na_de_gate_is_gewijzigd(tmp_path):
 
     svc._evaluate_gate = gate_met_concurrente_wijziging
     voor = _rij(repo, definitie_id)  # nog vóór de concurrente wijziging
-    result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+    statements: list[str] = []
+    conn = repo.legacy_repo._db.get_connection()
+    conn.set_trace_callback(statements.append)
+    try:
+        result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+    finally:
+        conn.set_trace_callback(None)
 
     assert result.success is False
     assert result.gate_status == "stale"
+    assert result.gate_reasons == []
+    # Het stale-pad leest binnen de transactie; die read mag de transactie niet
+    # committen (kale connectie), dus precies één BEGIN gevolgd door één ROLLBACK.
+    grenzen = [s for s in statements if s.upper().startswith(TRANSACTIEGRENZEN)]
+    assert grenzen[-2:] == ["BEGIN IMMEDIATE", "ROLLBACK"], grenzen
     na = _rij(repo, definitie_id)
     assert na["status"] == "review"
     assert na["approved_by"] is None
     assert na["version_number"] == voor["version_number"] + 1  # alleen de ander
-    assert _app_audit(repo, definitie_id, "status_changed") == 0
+    assert _audit_rijen(repo, definitie_id, "status_changed", alleen_app=False) == 0
 
 
 # --- T1b: falende gecombineerde UPDATE rolt alles terug ---------------------
@@ -129,7 +155,7 @@ def test_approve_rolt_status_terug_als_ketenpartners_niet_opgeslagen_kan_worden(
     )
 
     assert result.success is False
-    assert getattr(result, "warning", None) is None
+    assert not hasattr(result, "warning")
     _assert_onveranderd(repo, definitie_id, voor)
 
 
@@ -181,12 +207,14 @@ def test_approve_schrijft_alles_in_een_versiebump(tmp_path):
     assert na["ufo_categorie"] == "Event"
     assert na["version_number"] == voor["version_number"] + 1
     assert _app_audit(repo, definitie_id, "status_changed") == 1
+    assert result.events == []  # geen event bus geconfigureerd
 
 
 @pytest.mark.parametrize(
     ("ufo_argument", "verwacht"),
     [
         pytest.param({"ufo_categorie": ""}, None, id="leeg-maakt-null"),
+        pytest.param({"ufo_categorie": None}, None, id="none-maakt-null"),
         pytest.param({}, "Kind", id="weggelaten-laat-staan"),
         pytest.param({"ufo_categorie": UNSET}, "Kind", id="unset-laat-staan"),
     ],
@@ -218,9 +246,7 @@ def test_approve_doet_precies_een_begin_en_een_commit(tmp_path):
         conn.set_trace_callback(None)
 
     assert result.success is True, result.error_message
-    grenzen = [
-        s for s in statements if s.upper().startswith(("BEGIN", "COMMIT", "ROLLBACK"))
-    ]
+    grenzen = [s for s in statements if s.upper().startswith(TRANSACTIEGRENZEN)]
     assert grenzen == ["BEGIN IMMEDIATE", "COMMIT"], grenzen
 
 
@@ -235,6 +261,7 @@ def test_approve_weigert_binnen_een_open_transactie(tmp_path):
     with repo.transaction() as conn:
         result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
         assert result.success is False
+        assert "al een transactie actief" in (result.error_message or "")
         assert (
             conn.in_transaction
         ), "approve() mag de transactie van de aanroeper niet sluiten"
@@ -260,3 +287,46 @@ def test_fout_in_bijeffect_na_commit_maakt_vaststelling_niet_ongedaan(
 
     assert result.success is True, result.error_message
     assert _rij(repo, definitie_id)["status"] == "established"
+    # Het bijeffect is wél geprobeerd; alleen het resultaat blijft succes.
+    if bijeffect == "event_bus":
+        kapot.publish.assert_called_once()
+        assert result.events == []  # niet gepubliceerd, dus niet gerapporteerd
+    else:
+        kapot.log_transition.assert_called_once()
+
+
+# --- niet-stale faalroute: UPDATE raakt nul rijen zonder versieconflict ------
+
+
+def test_approve_meldt_generieke_fout_als_update_niets_raakt(tmp_path, monkeypatch):
+    svc, repo = _service(tmp_path)
+    definitie_id = _review_definitie(repo)
+    voor = _rij(repo, definitie_id)
+    monkeypatch.setattr(
+        repo.legacy_repo._crud, "update_definitie", lambda *a, **k: False
+    )
+
+    result = svc.approve(definitie_id, "reviewer", user_role="reviewer")
+
+    assert result.success is False
+    assert result.gate_status is None
+    assert result.gate_reasons is None
+    assert result.error_message == "Status update mislukt in repository"
+    _assert_onveranderd(repo, definitie_id, voor)
+
+
+# --- UI-selectie naar contract ------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("selectie", "verwacht"),
+    [
+        pytest.param(None, UNSET, id="geen-keuze-laat-staan"),
+        pytest.param("", "", id="leeg-maakt-leeg"),
+        pytest.param("Kind", "Kind", id="waarde-wordt-gezet"),
+    ],
+)
+def test_ufo_categorie_uit_selectie(selectie, verwacht):
+    assert ufo_categorie_uit_selectie(selectie) is verwacht or (
+        ufo_categorie_uit_selectie(selectie) == verwacht
+    )

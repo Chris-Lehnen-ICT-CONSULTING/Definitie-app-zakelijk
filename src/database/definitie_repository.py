@@ -13,7 +13,7 @@ from typing import Any
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
-from database.definitie_crud import UNSET, DefinitieCrudRepository
+from database.definitie_crud import UNSET, DefinitieCrudRepository, Unset
 from database.definitie_duplicates import (
     DefinitieDuplicateRepository,
     DuplicaatKandidaatRij,
@@ -38,6 +38,7 @@ __all__ = [
     "DefinitieStatus",
     "DuplicateMatch",
     "SourceType",
+    "Unset",
     "VoorbeeldenRecord",
     "clear_repository_singleton",
     "get_definitie_repository",
@@ -136,7 +137,7 @@ class DefinitieRepository:
         notes: str | None = None,
         *,
         ketenpartners: list[str] | None = None,
-        ufo_categorie: str | None = UNSET,
+        ufo_categorie: str | Unset | None = UNSET,
         expected_version: int | None = None,
     ) -> bool:
         return self._crud.change_status(

@@ -20,6 +20,7 @@ from database.definitie_repository import (
     DefinitieRepository as LegacyRepository,
     DefinitieStatus,
     SourceType,
+    Unset,
 )
 from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
 from services.exceptions import (
@@ -986,7 +987,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         notes: str | None = None,
         *,
         ketenpartners: list[str] | None = None,
-        ufo_categorie: str | None = UNSET,
+        ufo_categorie: str | Unset | None = UNSET,
         expected_version: int | None = None,
     ) -> bool:
         """Pass-through statuswijziging voor compatibiliteit met workflowservice."""

@@ -16,6 +16,7 @@ from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
+    Unset,
 )
 from services.workflow_service import WorkflowService
 
@@ -34,6 +35,15 @@ class _VaststellingMisluktError(Exception):
     def __init__(self, message: str, gate_status: str | None = None) -> None:
         super().__init__(message)
         self.gate_status = gate_status
+
+
+def ufo_categorie_uit_selectie(selectie: object) -> str | Unset:
+    """Vertaal een UI-selectie naar het ``change_status``-contract.
+
+    ``None`` (geen keuze gemaakt) laat de kolom staan; ``""`` maakt haar leeg;
+    elke andere waarde wordt gezet. Houdt persistentiesemantiek uit de UI.
+    """
+    return UNSET if selectie is None else str(selectie)
 
 
 @dataclass
@@ -200,7 +210,7 @@ class DefinitionWorkflowService:
         notes: str = "",
         ketenpartners: list[str] | None = None,
         user_role: str | None = None,
-        ufo_categorie: str | None = UNSET,
+        ufo_categorie: str | Unset | None = UNSET,
     ) -> WorkflowResult:
         """
         Stel een definitie vast (DEF-482: één atomaire unit-of-work).
