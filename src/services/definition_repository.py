@@ -976,6 +976,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 self.legacy_repo.update_definitie(definitie_id, updates, updated_by),
             )
         except Exception as e:
+            if self.in_transaction():
+                raise  # DEF-482: zie change_status
             logger.error(f"update_definitie failed for ID {definitie_id}: {e}")
             return False
 
@@ -1005,6 +1007,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 ),
             )
         except Exception as e:
+            if self.in_transaction():
+                # DEF-482: binnen een lopende transactie maskeert `False` een
+                # deelresultaat (de aanroeper zou zijn eigen onbevestigde write
+                # kunnen herlezen en er een versieconflict uit afleiden).
+                raise
             logger.error(
                 f"change_status failed for ID {definitie_id} to {new_status}: {e}"
             )
