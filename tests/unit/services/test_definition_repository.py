@@ -10,6 +10,7 @@ Test alle functionaliteit van de DefinitionRepository inclusief:
 """
 
 import json
+import logging
 import sqlite3
 from datetime import UTC, datetime, timezone
 from unittest.mock import MagicMock, Mock, call, patch
@@ -18,6 +19,7 @@ import pytest
 
 from database.definitie_repository import DefinitieRecord, DefinitieStatus, SourceType
 from services.definition_repository import DefinitionRepository
+from services.exceptions import RepositoryError
 from services.interfaces import Definition
 
 pytestmark = [pytest.mark.unit]
@@ -25,8 +27,10 @@ pytestmark = [pytest.mark.unit]
 
 @pytest.fixture
 def mock_legacy_repo():
-    """Mock voor de legacy DefinitieRepository."""
-    return Mock()
+    """Mock voor de legacy DefinitieRepository (zelfstandig, geen open transactie)."""
+    legacy = Mock()
+    legacy.in_transaction.return_value = False
+    return legacy
 
 
 @pytest.fixture
@@ -118,8 +122,9 @@ class TestDefinitionRepository:
         self, repository, mock_legacy_repo, sample_definition
     ):
         """Test update van bestaande definitie met ID."""
-        # Setup
+        # Setup — DEF-469: alleen een bevestigde update levert een ID op.
         sample_definition.id = 456
+        mock_legacy_repo.update_definitie.return_value = True
 
         # Execute
         result_id = repository.save(sample_definition)
@@ -133,6 +138,21 @@ class TestDefinitionRepository:
         assert call_args[0] == 456
         assert isinstance(call_args[1], DefinitieRecord | dict)
         mock_legacy_repo.create_definitie.assert_not_called()
+
+    @pytest.mark.parametrize("resultaat", [False, None], ids=["false", "none"])
+    def test_save_existing_definition_unconfirmed_update_is_error(
+        self, repository, mock_legacy_repo, sample_definition, resultaat, caplog
+    ):
+        """DEF-469: een niet-bevestigde update is een fout, geen succes-ID."""
+        sample_definition.id = 456
+        mock_legacy_repo.update_definitie.return_value = resultaat
+
+        with caplog.at_level(logging.INFO), pytest.raises(RepositoryError) as exc:
+            repository.save(sample_definition)
+
+        assert exc.value.operation == "save_update"
+        assert repository._stats["total_saves"] == 0
+        assert "Updated definition" not in caplog.text
 
     def test_save_error_handling(self, repository, mock_legacy_repo, sample_definition):
         """Test error handling bij save."""
