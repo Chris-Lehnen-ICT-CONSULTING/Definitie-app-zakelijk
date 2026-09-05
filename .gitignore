@@ -166,6 +166,10 @@ STREAMLIT_APP_TEST_SUMMARY.md
 
 # 💚 Tijdelijke Python debug bestanden
 *_backup.py
+# DEF-663: de gedeelde WAL-veilige backuphelper en zijn unittests zijn
+# productcode, geen debugbestanden.
+!src/database/sqlite_backup.py
+!tests/unit/database/test_sqlite_backup.py
 *_broken.py
 *_issue.py
 *_encoding_issue.py
