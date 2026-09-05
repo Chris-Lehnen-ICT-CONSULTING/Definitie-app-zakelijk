@@ -14,8 +14,20 @@ import pytest
 
 pytestmark = [pytest.mark.smoke]
 
+_REPO_ROOT = Path(__file__).parents[2]
+
 # Ensure src on path
-sys.path.insert(0, str(Path(__file__).parents[2] / "src"))
+sys.path.insert(0, str(_REPO_ROOT / "src"))
+
+
+@pytest.fixture(autouse=True)
+def _hermetisch(hermetische_werkmap):
+    """DEF-664: deze smoke gebruikt het standaardpad `data/definities.db`.
+
+    Zonder de hermetische werkmap zou zij de database in de repo-root openen,
+    die sinds de fail-closed init geweigerd wordt als die niet canoniek is.
+    """
+    return hermetische_werkmap
 
 
 # ==============================================================================

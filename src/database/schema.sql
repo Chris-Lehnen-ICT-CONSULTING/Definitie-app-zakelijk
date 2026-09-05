@@ -1,5 +1,12 @@
 -- Database schema voor Definitie Management Systeem
 -- Supports SQLite and PostgreSQL
+--
+-- DEF-664: dit bestand is de canonieke schemaversie 3 (v5 + v6 + v7 al
+-- verwerkt) en zaait de drie schema_version-rijen zelf. Een verse database
+-- start hiermee direct op versie 3; bestaande databases op een lagere versie
+-- worden bij startup geweigerd en moeten expliciet via de migraties
+-- database.migrations.v5/v6/v7 worden bijgewerkt. `database/schema_contract.py`
+-- toetst elke database structureel tegen dit bestand.
 
 -- ========================================
 -- CORE TABLES
@@ -425,15 +432,23 @@ CREATE TABLE IF NOT EXISTS schema_version (
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- DEF-664: een verse database staat direct op de canonieke versie 3. De
+-- beschrijvingen zijn die van de migraties v5 (1), v6 (2) en v7 (3), zodat
+-- een verse en een gemigreerde database dezelfde versiegeschiedenis dragen.
+INSERT INTO schema_version (version, description) VALUES
+    (1, 'Initial v5 migration'),
+    (2, 'Hybrid schema: bron_type + JSONB metadata on rag_chunks'),
+    (3, 'Drop stale document_count/chunk_count from rag_collections');
+
 -- ========================================
 -- RAG SYSTEM (Phase 1)
 -- ========================================
 
+-- v7 (DEF-381): de tellers document_count/chunk_count zijn verwijderd; de
+-- services tellen live met COUNT(*).
 CREATE TABLE IF NOT EXISTS rag_collections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     collection_name VARCHAR(255) NOT NULL UNIQUE,
-    document_count INTEGER DEFAULT 0,
-    chunk_count INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metadata_json TEXT
 );
@@ -445,9 +460,11 @@ CREATE TABLE IF NOT EXISTS rag_documents (
     file_type VARCHAR(50),
     chunk_count INTEGER,
     rechtsgebied VARCHAR(100),
-    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    file_path VARCHAR(500) -- DEF-356: upload-opslag (v5)
 );
 
+-- v6 (DEF-370): hybride schema met bron_type + JSON-metadata per chunk.
 CREATE TABLE IF NOT EXISTS rag_chunks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     collection_id INTEGER REFERENCES rag_collections(id) ON DELETE CASCADE,
@@ -458,11 +475,16 @@ CREATE TABLE IF NOT EXISTS rag_chunks (
     rechtsgebied VARCHAR(100),
     wet_regeling VARCHAR(255),
     artikel_lid VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    bron_type VARCHAR(50),
+    metadata TEXT DEFAULT '{}'
 );
 
 CREATE INDEX IF NOT EXISTS idx_chunks_collection ON rag_chunks(collection_id);
 CREATE INDEX IF NOT EXISTS idx_chunks_document ON rag_chunks(document_id);
+CREATE INDEX IF NOT EXISTS idx_chunks_rechtsgebied ON rag_chunks(rechtsgebied);
+CREATE INDEX IF NOT EXISTS idx_chunks_wet_regeling ON rag_chunks(wet_regeling);
+CREATE INDEX IF NOT EXISTS idx_chunks_bron_type ON rag_chunks(bron_type);
 
 -- ========================================
 -- ONTOLOGY SYSTEM (Phase 2)

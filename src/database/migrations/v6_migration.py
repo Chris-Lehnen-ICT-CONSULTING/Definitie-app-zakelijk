@@ -11,7 +11,19 @@ Deze migratie is volledig idempotent: herhaald uitvoeren is veilig.
 
 import logging
 import sqlite3
+from datetime import datetime
 from pathlib import Path
+
+from database.schema_contract import (  # DEF-664
+    SchemaContractError,
+    create_migration_backup,
+    lost_objects,
+    migration_transaction,
+    require_migration_preconditions,
+    schema_objects,
+    schema_version,
+    verify_target_contract,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -239,65 +251,77 @@ def run_migration(db_path: Path = DB_PATH) -> bool:
         return False
 
     try:
-        conn = sqlite3.connect(str(db_path))
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA foreign_keys=ON")
+        # Autocommit: de transactiegrens is expliciet (DEF-664).
+        conn = sqlite3.connect(str(db_path), isolation_level=None)
     except sqlite3.Error as exc:
         logger.error("Kan niet verbinden met database: %s", exc)
         return False
 
     try:
-        # Stap 1: Schema versioning
-        logger.info("")
-        logger.info("STAP 1: Schema versioning")
-        logger.info("-" * 40)
-        apply_schema_version(conn)
+        # PRAGMA's binnen de try: een fout hier sluit de verbinding ook.
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
 
-        # Stap 2: Nieuwe kolommen
-        logger.info("")
-        logger.info("STAP 2: Nieuwe kolommen toevoegen")
-        logger.info("-" * 40)
-        add_columns(conn)
+        # Stap 0: precondities en geverifieerde backup, vóór enige schrijfactie
+        require_migration_preconditions(
+            conn, previous_version=MIGRATION_VERSION - 1, tables=("rag_chunks",)
+        )
+        backup_path = create_migration_backup(
+            db_path, "pre_v6_migration", datetime.now()
+        )
+        logger.info("Backup geverifieerd: %s", backup_path)
+        # Idempotent op een al hogere database: doelcontract = hoogste versie.
+        doelversie = max(MIGRATION_VERSION, schema_version(conn) or 0)
+        bronobjecten = schema_objects(conn)
 
-        # Stap 3: Data migratie
-        logger.info("")
-        logger.info("STAP 3: Data migratie")
-        logger.info("-" * 40)
-        stats = migrate_data(conn)
+        # Stap 1 t/m 5 in één transactie: verificatie vóór commit
+        with migration_transaction(conn):
+            logger.info("")
+            logger.info("STAP 1: Schema versioning")
+            logger.info("-" * 40)
+            apply_schema_version(conn)
 
-        # Stap 4: Indexes
-        logger.info("")
-        logger.info("STAP 4: Indexes")
-        logger.info("-" * 40)
-        create_indexes(conn)
+            logger.info("")
+            logger.info("STAP 2: Nieuwe kolommen toevoegen")
+            logger.info("-" * 40)
+            add_columns(conn)
 
-        conn.commit()
+            logger.info("")
+            logger.info("STAP 3: Data migratie")
+            logger.info("-" * 40)
+            stats = migrate_data(conn)
+
+            logger.info("")
+            logger.info("STAP 4: Indexes")
+            logger.info("-" * 40)
+            create_indexes(conn)
+
+            logger.info("")
+            logger.info("STAP 5: Verificatie")
+            logger.info("-" * 40)
+            if not verify_migration(conn):
+                raise SchemaContractError("migration_verification_failed")
+            # DEF-664: bronbehoud (afzonderlijk) + volledig doelcontract +
+            # integrity/FK, nog binnen de transactie.
+            problemen = lost_objects(bronobjecten, schema_objects(conn))
+            problemen += verify_target_contract(conn, doelversie)
+            if problemen:
+                for probleem in problemen:
+                    logger.error("Doelcontract: %s", probleem)
+                raise SchemaContractError("migration_target_contract_failed", problemen)
         logger.info("Alle wijzigingen gecommit")
 
-        # Stap 5: Verificatie
         logger.info("")
-        logger.info("STAP 5: Verificatie")
-        logger.info("-" * 40)
-        success = verify_migration(conn)
+        logger.info("=" * 60)
+        logger.info("V6 Migration COMPLETED SUCCESSFULLY")
+        logger.info("  metadata_migrated: %d", stats["metadata_migrated"])
+        logger.info("  bron_type_set: %d", stats["bron_type_set"])
+        logger.info("=" * 60)
+        return True
 
-        if success:
-            logger.info("")
-            logger.info("=" * 60)
-            logger.info("V6 Migration COMPLETED SUCCESSFULLY")
-            logger.info("  metadata_migrated: %d", stats["metadata_migrated"])
-            logger.info("  bron_type_set: %d", stats["bron_type_set"])
-            logger.info("=" * 60)
-        else:
-            logger.error("")
-            logger.error("=" * 60)
-            logger.error("V6 Migration completed WITH ERRORS")
-            logger.error("=" * 60)
-
-        return success
-
-    except sqlite3.Error as exc:
-        logger.error("Database error tijdens migratie: %s", exc)
-        conn.rollback()
+    except (SchemaContractError, sqlite3.Error, OSError) as exc:
+        # De transactiehelper heeft al teruggerold; niets is gecommit.
+        logger.error("V6 Migration FAILED: %s", exc)
         return False
     finally:
         conn.close()

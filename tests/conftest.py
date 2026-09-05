@@ -319,6 +319,24 @@ def mock_env_vars(monkeypatch):
     return monkeypatch
 
 
+@pytest.fixture
+def hermetische_werkmap(tmp_path, monkeypatch):
+    """Werkmap in tmp met de repo-`config/` en `src/` als symlink en een lege `data/`.
+
+    DEF-664: de repository-init is fail-closed op het canonieke schema. Code
+    die het standaardpad `data/definities.db` gebruikt (ServiceContainer(),
+    DefinitieRepository() zonder pad, service_factory) landt hiermee in een
+    verse tijdelijke database in plaats van in de werkmap van de repo. Opt-in
+    per testmodule; de brede gate-hermeticiteit blijft DEF-519.
+    """
+    repo_root = Path(__file__).resolve().parents[1]
+    for map_ in ("config", "src"):
+        (tmp_path / map_).symlink_to(repo_root / map_, target_is_directory=True)
+    (tmp_path / "data").mkdir()
+    monkeypatch.chdir(tmp_path)
+    return tmp_path
+
+
 # Opt-in fixture to sandbox relative writes under a temporary directory.
 # Usage: add 'chdir_tmp_path' to your test function signature.
 @pytest.fixture
