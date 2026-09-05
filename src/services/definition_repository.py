@@ -1055,11 +1055,32 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 yield conn
         except (DefinitionServiceError, sqlite3.ProgrammingError):
             raise
-        except sqlite3.OperationalError as e:
-            raise DatabaseConnectionError(self.db_path, MELDING_DATABASEFOUT) from e
-        except sqlite3.IntegrityError as e:
-            raise DatabaseConstraintError("unknown", "", MELDING_DATABASEFOUT) from e
         except sqlite3.DatabaseError as e:
+            # Geen exceptiontekst/traceback: die kan vrije persoonsdata bevatten.
+            code = getattr(e, "sqlite_errorcode", None)
+            code = code if isinstance(code, int) else None
+            origin = e.__traceback__
+            while origin is not None and origin.tb_next is not None:
+                origin = origin.tb_next
+            diagnose = {
+                "operation": "transaction",
+                "error_type": type(e).__name__,
+                "sqlite_errorcode": code,
+                "origin": origin.tb_frame.f_code.co_name if origin else None,
+            }
+            logger.error(
+                "Database transaction failed: %s (SQLite code: %s; origin: %s)",
+                diagnose["error_type"],
+                code,
+                diagnose["origin"],
+                extra=diagnose,
+            )
+            if isinstance(e, sqlite3.OperationalError):
+                raise DatabaseConnectionError(self.db_path, MELDING_DATABASEFOUT) from e
+            if isinstance(e, sqlite3.IntegrityError):
+                raise DatabaseConstraintError(
+                    "unknown", "", MELDING_DATABASEFOUT
+                ) from e
             raise RepositoryError("transaction", message=MELDING_DATABASEFOUT) from e
 
     def in_transaction(self) -> bool:
