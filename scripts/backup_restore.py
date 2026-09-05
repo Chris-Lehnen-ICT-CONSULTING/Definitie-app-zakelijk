@@ -14,11 +14,37 @@ Features:
 import argparse
 import gzip
 import logging
+import os
 import shutil
-import sqlite3
 import sys
+import tempfile
+import zlib
 from datetime import datetime, timedelta
 from pathlib import Path
+
+# DEF-663: backupcreatie en -verificatie lopen via de gedeelde WAL-veilige
+# helper in src/database. Het script draait standalone, dus src/ op het pad.
+_SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
+
+from database.sqlite_backup import (
+    DEFAULT_DEADLINE_SECONDS,
+    STAGING_MARKER,
+    BackupError,
+    create_verified_backup,
+    discard_staging,
+    ensure_within_deadline,
+    make_staging,
+    monotonic_now,
+    publish_staged_file,
+    remaining_budget,
+    validate_new_destination,
+    verify_backup_file,
+)
+
+GZIP_CHUNK_BYTES = 1024 * 1024
+"""Chunkgrootte voor (de)compressie; vóór elke chunk wordt het budget gecontroleerd."""
 
 # Configure logging
 logging.basicConfig(
@@ -30,6 +56,54 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
+
+
+def _copy_within_deadline(f_in, f_out, deadline: float | None) -> None:
+    """Streamkopie in begrensde chunks met budgetcontrole vóór en ná elke chunk.
+
+    Eén blokkerende OS-/zlib-bewerking per chunk is de granulariteit; het
+    budget wordt daarna opnieuw getoetst zodat een verlopen deadline nooit tot
+    publicatie leidt.
+    """
+    while True:
+        ensure_within_deadline(deadline)
+        chunk = f_in.read(GZIP_CHUNK_BYTES)
+        if not chunk:
+            break
+        f_out.write(chunk)
+    ensure_within_deadline(deadline)
+
+
+def _verify_compressed_file(
+    compressed_path: Path, expected=None, *, deadline: float | None = None
+) -> None:
+    """Decomprimeer een ``.db.gz`` naar een eigen uniek tempbestand en verifieer dat.
+
+    Nooit naar een voorspelbare buurnaam (zoals ``<naam>.db``) schrijven: die
+    kan een bestaand bestand van iemand anders zijn. Alleen het eigen
+    tempbestand wordt in ``finally`` gesloten en opgeruimd. Raist
+    ``BackupError`` (``decompress_failed``, ``backup_timeout`` of een
+    verifier-classificatie). ``deadline`` is een absolute tijdstempel van de
+    gedeelde klok (``monotonic_now``).
+    """
+    ensure_within_deadline(deadline)
+    fd, name = tempfile.mkstemp(
+        prefix=f"{compressed_path.name}{STAGING_MARKER}", suffix=".db"
+    )
+    temp = Path(name)
+    try:
+        try:
+            with (
+                os.fdopen(fd, "wb") as f_out,
+                gzip.open(compressed_path, "rb") as f_in,
+            ):
+                _copy_within_deadline(f_in, f_out, deadline)
+        except (OSError, EOFError, zlib.error):
+            ensure_within_deadline(deadline)
+            raise BackupError("decompress_failed") from None
+        verify_backup_file(temp, expected, deadline=deadline)
+    finally:
+        discard_staging(temp)
 
 
 class DatabaseBackupManager:
@@ -58,16 +132,25 @@ class DatabaseBackupManager:
             msg = f"Database not found: {self.db_path}"
             raise FileNotFoundError(msg)
 
-    def create_backup(self, description: str = "") -> Path:
+    def create_backup(
+        self, description: str = "", *, deadline_seconds: float | None = None
+    ) -> Path:
         """
         Create a backup of the database.
 
         Args:
             description: Optional description for the backup
+            deadline_seconds: Total time budget (DEF-663) for snapshot,
+                compression, re-decompression, verification and publication.
+                One absolute deadline from this point on; defaults to the
+                helper's ``DEFAULT_DEADLINE_SECONDS``.
 
         Returns:
             Path to the created backup file
         """
+        if deadline_seconds is None:
+            deadline_seconds = DEFAULT_DEADLINE_SECONDS
+        deadline = monotonic_now() + deadline_seconds
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_name = f"definities_backup_{timestamp}"
 
@@ -82,49 +165,84 @@ class DatabaseBackupManager:
 
         logger.info(f"Creating backup: {backup_path}")
 
+        if not self.compress:
+            self._create_verified(backup_path, deadline)
+            self._log_created(backup_path)
+            return backup_path
+        return self._create_compressed(
+            backup_path, backup_path.with_suffix(".db.gz"), deadline
+        )
+
+    def _create_verified(self, backup_path: Path, deadline: float):
+        """DEF-663: WAL-veilige, geverifieerde backup via de gedeelde helper.
+
+        Eén read-only snapshot, integrity_check + kernschema + manifest vóór
+        atomische no-clobber publicatie. Bij een fout laat de helper geen
+        bestand achter en sluit hij zelf alle verbindingen. De helper krijgt
+        uitsluitend het resterende budget van de gedeelde deadline.
+        """
         try:
-            # Use SQLite's backup API for consistency
-            source_conn = sqlite3.connect(str(self.db_path))
-            backup_conn = sqlite3.connect(str(backup_path))
+            return create_verified_backup(
+                self.db_path, backup_path, deadline_seconds=remaining_budget(deadline)
+            )
+        except BackupError as exc:
+            msg = f"Backup failed ({exc.reason})"
+            raise RuntimeError(msg) from None
 
-            with backup_conn:
-                source_conn.backup(backup_conn)
+    def _create_compressed(
+        self, backup_path: Path, compressed_path: Path, deadline: float
+    ) -> Path:
+        """Comprimeer in een eigen stagingbestand en publiceer no-clobber.
 
-            source_conn.close()
-            backup_conn.close()
+        Volgorde: het ``.db.gz``-doel vooraf valideren, de geverifieerde ``.db``
+        maken (helper, resterend budget), gzip in chunks naar staging schrijven
+        en sluiten, de staging decomprimeren naar een eigen tempbestand en tegen
+        het manifest van de bron verifiëren (zelfde deadline), het budget
+        direct vóór publicatie toetsen en dan atomisch publiceren (commitpunt).
+        De tussenliggende ``.db`` en de staging zijn eigen artefacten van deze
+        aanroep en worden altijd opgeruimd; een opruimfout ná publicatie is
+        alleen een waarschuwing.
+        """
+        try:
+            validate_new_destination(compressed_path)
+        except BackupError as exc:
+            msg = f"Backup failed ({exc.reason})"
+            raise RuntimeError(msg) from None
 
-            # Compress if requested
-            if self.compress:
-                compressed_path = backup_path.with_suffix(".db.gz")
-                logger.info(f"Compressing backup: {compressed_path}")
+        manifest = self._create_verified(backup_path, deadline)
+        staging: Path | None = None
+        published: Path | None = None
+        try:
+            ensure_within_deadline(deadline)
+            staging = make_staging(compressed_path)
+            logger.info(f"Compressing backup: {compressed_path}")
+            with open(backup_path, "rb") as f_in, gzip.open(staging, "wb") as f_out:
+                _copy_within_deadline(f_in, f_out, deadline)
+            _verify_compressed_file(staging, manifest, deadline=deadline)
+            # Geen late publicatie: ook na een geslaagde verificatie mag een
+            # verlopen budget de .gz niet meer laten verschijnen.
+            ensure_within_deadline(deadline)
+            publish_staged_file(staging, compressed_path)
+            published, staging = staging, None
+        except BackupError as exc:
+            msg = f"Backup failed ({exc.reason})"
+            raise RuntimeError(msg) from None
+        except OSError:
+            msg = "Backup failed (compress_failed)"
+            raise RuntimeError(msg) from None
+        finally:
+            if staging is not None:
+                discard_staging(staging)
+            # De tussenliggende .db is een eigen artefact van deze aanroep.
+            discard_staging(backup_path)
+        discard_staging(published)
+        self._log_created(compressed_path)
+        return compressed_path
 
-                with (
-                    open(backup_path, "rb") as f_in,
-                    gzip.open(compressed_path, "wb") as f_out,
-                ):
-                    shutil.copyfileobj(f_in, f_out)
-
-                # Remove uncompressed file
-                backup_path.unlink()
-                backup_path = compressed_path
-
-            # Verify backup
-            if self.verify_backup(backup_path):
-                logger.info(f"Backup created successfully: {backup_path}")
-                logger.info(
-                    f"Backup size: {backup_path.stat().st_size / 1024 / 1024:.2f} MB"
-                )
-                return backup_path
-            logger.error("Backup verification failed")
-            backup_path.unlink()
-            msg = "Backup verification failed"
-            raise RuntimeError(msg)
-
-        except Exception as e:
-            logger.error(f"Failed to create backup: {e}")
-            if backup_path.exists():
-                backup_path.unlink()
-            raise
+    @staticmethod
+    def _log_created(path: Path) -> None:
+        logger.info(f"Backup created successfully: {path}")
+        logger.info(f"Backup size: {path.stat().st_size / 1024 / 1024:.2f} MB")
 
     def restore_backup(
         self, backup_path: Path, create_backup_before_restore: bool = True
@@ -190,39 +308,35 @@ class DatabaseBackupManager:
             logger.error(f"Failed to restore backup: {e}")
             raise
 
-    def verify_backup(self, backup_path: Path) -> bool:
+    def verify_backup(
+        self, backup_path: Path, *, deadline_seconds: float | None = None
+    ) -> bool:
         """
         Verify backup integrity.
 
         Args:
             backup_path: Path to backup file
+            deadline_seconds: Total time budget for decompression and
+                verification (DEF-663); defaults to ``DEFAULT_DEADLINE_SECONDS``.
 
         Returns:
             True if backup is valid
         """
+        backup_path = Path(backup_path)
+        if deadline_seconds is None:
+            deadline_seconds = DEFAULT_DEADLINE_SECONDS
+        deadline = monotonic_now() + deadline_seconds
         try:
-            # Decompress if needed
-            temp_path = backup_path
             if backup_path.suffix == ".gz":
-                temp_path = backup_path.with_suffix("")
-                with (
-                    gzip.open(backup_path, "rb") as f_in,
-                    open(temp_path, "wb") as f_out,
-                ):
-                    shutil.copyfileobj(f_in, f_out)
-
-            # Verify database
-            result = self._verify_database(temp_path)
-
-            # Cleanup temp file
-            if temp_path != backup_path:
-                temp_path.unlink()
-
-            return result
-
-        except Exception as e:
-            logger.error(f"Backup verification failed: {e}")
+                # DEF-663: decompressie naar een eigen uniek tempbestand, nooit
+                # naar de voorspelbare buurnaam <naam>.db.
+                _verify_compressed_file(backup_path, deadline=deadline)
+            else:
+                verify_backup_file(backup_path, deadline=deadline)
+        except BackupError as exc:
+            logger.error(f"Backup verification failed: {exc.reason}")
             return False
+        return True
 
     def list_backups(self) -> list[tuple[Path, datetime, int]]:
         """
@@ -292,26 +406,14 @@ class DatabaseBackupManager:
 
     @staticmethod
     def _verify_database(db_path: Path) -> bool:
-        """Verify database integrity."""
+        """Verify database integrity and core schema (DEF-663 shared verifier)."""
         try:
-            conn = sqlite3.connect(str(db_path))
-            cursor = conn.cursor()
-
-            # Run integrity check
-            cursor.execute("PRAGMA integrity_check")
-            result = cursor.fetchone()
-
-            conn.close()
-
-            if result and result[0] == "ok":
-                logger.debug(f"Database integrity check passed: {db_path}")
-                return True
-            logger.error(f"Database integrity check failed: {result}")
+            verify_backup_file(db_path)
+        except BackupError as exc:
+            logger.error(f"Database verification failed: {exc.reason}")
             return False
-
-        except sqlite3.Error as e:
-            logger.error(f"Database verification failed: {e}")
-            return False
+        logger.debug(f"Database verification passed: {db_path}")
+        return True
 
 
 def main():

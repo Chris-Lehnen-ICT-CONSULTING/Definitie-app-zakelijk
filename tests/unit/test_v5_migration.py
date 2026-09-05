@@ -266,6 +266,41 @@ class TestCreateBackup:
         assert backup_path.parent.name == "backups"
 
 
+class TestCreateBackupWal:
+    """DEF-663: de backup moet een gecommitte maar niet-gecheckpointte WAL-rij bevatten.
+
+    Scenario: een schrijver houdt de bron open in WAL-modus met automatische
+    checkpoints uit (``wal_autocheckpoint=0``) en commit een rij. Die rij staat
+    dan uitsluitend in ``*.db-wal``; een bestandskopie van alleen ``*.db``
+    verliest hem stil.
+    """
+
+    def test_backup_bevat_ongecheckpointte_wal_commit(self, test_db: Path):
+        writer = sqlite3.connect(str(test_db))
+        try:
+            writer.execute("PRAGMA journal_mode=WAL")
+            writer.execute("PRAGMA wal_autocheckpoint=0")
+            writer.execute(
+                "INSERT INTO definities (begrip, definitie, categorie) "
+                "VALUES ('wal-alleen', 'staat alleen in de WAL', 'proces')"
+            )
+            writer.commit()
+            assert (test_db.parent / f"{test_db.name}-wal").stat().st_size > 0
+
+            backup_path = create_backup(test_db)
+
+            reader = sqlite3.connect(str(backup_path))
+            try:
+                rows = reader.execute(
+                    "SELECT definitie FROM definities WHERE begrip = 'wal-alleen'"
+                ).fetchall()
+            finally:
+                reader.close()
+            assert rows == [("staat alleen in de WAL",)]
+        finally:
+            writer.close()
+
+
 class TestVerifyBackup:
     """Tests for backup verification."""
 
@@ -279,6 +314,34 @@ class TestVerifyBackup:
         corrupt = tmp_path / "corrupt.db"
         corrupt.write_text("not a database")
         assert verify_backup(corrupt, test_db) is False
+
+    def test_kernschema_ontbreekt_in_beide(self, tmp_path: Path):
+        """DEF-663: twee gelijk onvolledige databases vormen geen geldige backup.
+
+        Integriteit en manifest komen overeen, maar geen enkele kerntabel
+        (definities, geschiedenis, voorbeelden, synoniemen) is aanwezig.
+        """
+        for name in ("origineel.db", "backup.db"):
+            conn = sqlite3.connect(str(tmp_path / name))
+            try:
+                conn.execute("CREATE TABLE unrelated (id INTEGER)")
+                conn.commit()
+            finally:
+                conn.close()
+
+        assert verify_backup(tmp_path / "backup.db", tmp_path / "origineel.db") is False
+
+    def test_backup_zonder_kerntabel_is_ongeldig(self, tmp_path: Path, test_db: Path):
+        """Een backup waaruit een kerntabel ontbreekt wordt afgekeurd."""
+        backup_path = create_backup(test_db)
+        conn = sqlite3.connect(str(backup_path))
+        try:
+            conn.execute("DROP TABLE definitie_voorbeelden")
+            conn.commit()
+        finally:
+            conn.close()
+
+        assert verify_backup(backup_path, test_db) is False
 
 
 # =========================================================================
