@@ -12,7 +12,19 @@ Vereist SQLite >= 3.35.0 (DROP COLUMN ondersteuning).
 
 import logging
 import sqlite3
+from datetime import datetime
 from pathlib import Path
+
+from database.schema_contract import (  # DEF-664
+    SchemaContractError,
+    create_migration_backup,
+    lost_objects,
+    migration_transaction,
+    require_migration_preconditions,
+    schema_objects,
+    schema_version,
+    verify_target_contract,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +40,15 @@ MIGRATION_DESCRIPTION = "Drop stale document_count/chunk_count from rag_collecti
 # Helpers
 # ---------------------------------------------------------------------------
 def _column_exists(conn: sqlite3.Connection, table: str, column: str) -> bool:
-    """Controleer of een kolom bestaat in een tabel."""
+    """Controleer of een kolom bestaat in een tabel.
+
+    DEF-664: een ontbrekende tabel geeft een lege ``table_info`` en las dus
+    als "kolom al verwijderd" — v7 meldde daardoor succes zonder
+    ``rag_collections``. Een ontbrekende tabel is nu een harde fout.
+    """
     rows = conn.execute(f"PRAGMA table_info([{table}])").fetchall()
+    if not rows:
+        raise sqlite3.OperationalError(f"no such table: {table}")
     return any(row[1] == column for row in rows)
 
 
@@ -59,23 +78,61 @@ def apply_schema_version(conn: sqlite3.Connection) -> None:
 # ---------------------------------------------------------------------------
 # Stap 2: Drop stale views
 # ---------------------------------------------------------------------------
-def drop_stale_views(conn: sqlite3.Connection) -> None:
-    """Verwijder views die verwijzen naar niet-bestaande tabellen (idempotent).
+STALE_VIEWS: tuple[str, ...] = ("failed_generations", "definities_with_generation")
+STALE_VIEW_REFERENCE = "generation_logs_old"
+_ONTBREKENDE_STALE_TABEL = {
+    f"no such table: {STALE_VIEW_REFERENCE}",
+    f"no such table: main.{STALE_VIEW_REFERENCE}",
+}
 
-    definities_with_generation en failed_generations refereren aan
-    generation_logs_old die niet meer bestaat. SQLite valideert alle views
-    bij ALTER TABLE DDL, waardoor DROP COLUMN anders faalt.
-    Geen van deze views wordt gebruikt in de codebase.
+
+def stale_views_present(conn: sqlite3.Connection) -> list[str]:
+    """De historische views die daadwerkelijk stuk zijn op ``generation_logs_old``.
+
+    DEF-664 (Codex-interimreview P1): noch de naam, noch een substring in de
+    SQL is bewijs — een literal, alias of commentaar met dezelfde tekst hoort
+    bij een geldige gebruikersview. Bewijs is de uitvoering: alleen een view
+    die bij ``SELECT`` faalt met precies "no such table: generation_logs_old"
+    is de bekende historische onbruikbare vorm. Een bruikbare view blijft
+    staan; een view die om een ándere reden onbruikbaar is, is een
+    twijfelgeval en laat de migratie fail-closed stoppen.
     """
-    for view in ("failed_generations", "definities_with_generation"):
-        exists = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='view' AND name=?", (view,)
+    verouderd: list[str] = []
+    for view in STALE_VIEWS:
+        bestaat = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='view' AND name=?", (view,)
         ).fetchone()
-        if exists:
+        if not bestaat:
+            continue
+        try:
+            conn.execute(f"SELECT * FROM [{view}] LIMIT 0")
+        except sqlite3.OperationalError as exc:
+            if str(exc).strip().lower() in _ONTBREKENDE_STALE_TABEL:
+                verouderd.append(view)
+                continue
+            raise SchemaContractError(
+                "stale_view_unresolvable", (f"view {view}: {type(exc).__name__}",)
+            ) from exc
+    return verouderd
+
+
+def drop_stale_views(conn: sqlite3.Connection) -> None:
+    """Verwijder uitsluitend de historische views die aantoonbaar stuk zijn op
+    ``generation_logs_old`` (idempotent).
+
+    SQLite valideert alle views bij ALTER TABLE DDL, waardoor DROP COLUMN
+    anders faalt. Views met een bekende naam maar een bruikbare body worden
+    niet aangeraakt.
+    """
+    verouderd = stale_views_present(conn)
+    for view in STALE_VIEWS:
+        if view in verouderd:
             conn.execute(f"DROP VIEW IF EXISTS [{view}]")
-            logger.info("Stale view '%s' verwijderd", view)
+            logger.info(
+                "Stale view '%s' (-> %s) verwijderd", view, STALE_VIEW_REFERENCE
+            )
         else:
-            logger.info("View '%s' bestaat al niet — skip", view)
+            logger.info("View '%s' is niet de verouderde definitie — behouden", view)
 
 
 # ---------------------------------------------------------------------------
@@ -140,53 +197,75 @@ def run_migration(db_path: Path = DB_PATH) -> bool:
         return False
 
     try:
-        conn = sqlite3.connect(str(db_path))
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA foreign_keys=ON")
+        # Autocommit: de transactiegrens is expliciet (DEF-664).
+        conn = sqlite3.connect(str(db_path), isolation_level=None)
     except sqlite3.Error as exc:
         logger.error("Kan niet verbinden met database: %s", exc)
         return False
 
     try:
-        logger.info("")
-        logger.info("STAP 1: Schema versioning")
-        logger.info("-" * 40)
-        apply_schema_version(conn)
+        # PRAGMA's binnen de try: een fout hier sluit de verbinding ook.
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
 
-        logger.info("")
-        logger.info("STAP 2: Drop stale views")
-        logger.info("-" * 40)
-        drop_stale_views(conn)
+        # Stap 0: precondities en geverifieerde backup, vóór enige schrijfactie
+        require_migration_preconditions(
+            conn,
+            previous_version=MIGRATION_VERSION - 1,
+            tables=("rag_collections",),
+        )
+        backup_path = create_migration_backup(
+            db_path, "pre_v7_migration", datetime.now()
+        )
+        logger.info("Backup geverifieerd: %s", backup_path)
+        # Idempotent op een al hogere database: doelcontract = hoogste versie.
+        doelversie = max(MIGRATION_VERSION, schema_version(conn) or 0)
+        # Bronbehoud: alles wat er nu is moet er straks nog zijn, behalve de
+        # aantoonbaar verouderde views.
+        bronobjecten = schema_objects(conn)
+        bewust_weg = {("view", naam) for naam in stale_views_present(conn)}
 
-        logger.info("")
-        logger.info("STAP 3: Drop stale kolommen")
-        logger.info("-" * 40)
-        drop_stale_columns(conn)
+        # Stap 1 t/m 4 in één transactie: verificatie vóór commit
+        with migration_transaction(conn):
+            logger.info("")
+            logger.info("STAP 1: Schema versioning")
+            logger.info("-" * 40)
+            apply_schema_version(conn)
 
-        conn.commit()
+            logger.info("")
+            logger.info("STAP 2: Drop stale views")
+            logger.info("-" * 40)
+            drop_stale_views(conn)
+
+            logger.info("")
+            logger.info("STAP 3: Drop stale kolommen")
+            logger.info("-" * 40)
+            drop_stale_columns(conn)
+
+            logger.info("")
+            logger.info("STAP 4: Verificatie")
+            logger.info("-" * 40)
+            if not verify_migration(conn):
+                raise SchemaContractError("migration_verification_failed")
+            # DEF-664: bronbehoud (afzonderlijk) + volledig doelcontract
+            # (= startupcontract) + integrity/FK, nog binnen de transactie.
+            problemen = lost_objects(bronobjecten, schema_objects(conn), bewust_weg)
+            problemen += verify_target_contract(conn, doelversie)
+            if problemen:
+                for probleem in problemen:
+                    logger.error("Doelcontract: %s", probleem)
+                raise SchemaContractError("migration_target_contract_failed", problemen)
         logger.info("Alle wijzigingen gecommit")
 
         logger.info("")
-        logger.info("STAP 4: Verificatie")
-        logger.info("-" * 40)
-        success = verify_migration(conn)
+        logger.info("=" * 60)
+        logger.info("V7 Migration COMPLETED SUCCESSFULLY")
+        logger.info("=" * 60)
+        return True
 
-        if success:
-            logger.info("")
-            logger.info("=" * 60)
-            logger.info("V7 Migration COMPLETED SUCCESSFULLY")
-            logger.info("=" * 60)
-        else:
-            logger.error("")
-            logger.error("=" * 60)
-            logger.error("V7 Migration completed WITH ERRORS")
-            logger.error("=" * 60)
-
-        return success
-
-    except sqlite3.Error as exc:
-        logger.error("Database error tijdens migratie: %s", exc)
-        conn.rollback()
+    except (SchemaContractError, sqlite3.Error, OSError) as exc:
+        # De transactiehelper heeft al teruggerold; niets is gecommit.
+        logger.error("V7 Migration FAILED: %s", exc)
         return False
     finally:
         conn.close()

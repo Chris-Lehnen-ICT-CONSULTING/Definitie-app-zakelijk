@@ -26,6 +26,12 @@ from services.interfaces import (
 pytestmark = [pytest.mark.unit]
 
 
+@pytest.fixture(autouse=True)
+def _hermetisch(hermetische_werkmap):
+    """DEF-664: `ServiceContainer()` zonder `db_path` raakte de werkmap-database."""
+    return hermetische_werkmap
+
+
 class TestServiceContainer:
     """Test suite voor ServiceContainer."""
 

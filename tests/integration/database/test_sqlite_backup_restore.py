@@ -77,10 +77,10 @@ def bron_met_open_writer(tmp_path: Path):
     writer = sqlite3.connect(str(path))
     # schema.sql bevat seed-data (definities 1-2 en vier tags); de synthetische
     # rijen hieronder krijgen daarom id 3 en 4.
+    # DEF-664: schema.sql is de canonieke versie-3-vorm en zaait zelf de drie
+    # schema_version-rijen; de fixture voegt er geen meer toe.
     writer.executescript(SCHEMA_SQL)
     writer.executescript("""
-        INSERT INTO schema_version (version, description) VALUES (1, 'Initial v5 migration');
-        INSERT INTO schema_version (version, description) VALUES (2, 'v6 hybride schema');
         INSERT INTO definities (begrip, definitie, categorie)
             VALUES ('toetsing', 'Het controleren van gegevens', 'ENT');
         INSERT INTO definities (begrip, definitie, categorie)
@@ -143,11 +143,8 @@ class TestBackupEnRestore:
 
         assert hersteld_manifest == manifest
         assert _read_all(hersteld) == verwacht
-        assert verwacht["schema_version"] == [
-            (1, "Initial v5 migration"),
-            (2, "v6 hybride schema"),
-        ]
-        assert manifest.schema_version == 2
+        assert [v for v, _ in verwacht["schema_version"]] == [1, 2, 3]
+        assert manifest.schema_version == 3
 
         conn = sqlite3.connect(str(hersteld))
         try:

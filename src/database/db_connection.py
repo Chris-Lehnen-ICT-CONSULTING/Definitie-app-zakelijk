@@ -11,7 +11,19 @@ from collections.abc import Iterator
 from contextlib import contextmanager, suppress
 from pathlib import Path
 
+from database import schema_contract
+from database.schema_contract import (
+    CANONICAL_VERSION,
+    SchemaContractError,
+    assert_startup_contract,
+    has_user_objects,
+    rollback_quietly,
+    verify_target_contract,
+)
+
 logger = logging.getLogger(__name__)
+
+SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
 
 class _ThreadConnectionState:
@@ -67,11 +79,17 @@ class DatabaseConnection:
             # op de thread die een vrijgegeven TLS-state opruimt.
             check_same_thread=False,
         )
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
-        conn.execute("PRAGMA temp_store=MEMORY")
-        conn.execute("PRAGMA foreign_keys=ON")
-        conn.execute("PRAGMA busy_timeout=5000")
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA temp_store=MEMORY")
+            conn.execute("PRAGMA foreign_keys=ON")
+            conn.execute("PRAGMA busy_timeout=5000")
+        except sqlite3.Error:
+            # DEF-664: een net verkregen verbinding die haar setup niet haalt
+            # (bv. "file is not a database") mag niet open blijven hangen.
+            conn.close()
+            raise
         conn.row_factory = sqlite3.Row
         state.connection = conn
         return conn
@@ -133,55 +151,94 @@ class DatabaseConnection:
             return False
 
     def init_database(self) -> None:
-        """Initialiseer database met schema."""
-        db_dir = Path(self.db_path).parent
-        db_dir.mkdir(parents=True, exist_ok=True)
+        """Initialiseer een verse database of weiger een afwijkende (DEF-664).
 
-        schema_path = Path(__file__).parent / "schema.sql"
-        if schema_path.exists():
-            conn = self.get_connection()
-            cursor = conn.execute("""
-                SELECT COUNT(*) FROM sqlite_master
-                WHERE type='table' AND name IN ('definities', 'synonym_groups')
-                """)
-            table_count = cursor.fetchone()[0]
+        Fail-closed: een database zonder schemaobjecten krijgt het volledige
+        canonieke schema uit ``schema.sql`` in één transactie, geverifieerd
+        tegen het contract vóór de commit. Elke bestaande database moet op
+        ``CANONICAL_VERSION`` staan en het contract halen; anders volgt een
+        ``SchemaContractError`` en wordt er niets aangevuld of gemigreerd.
 
-            if table_count == 0:
-                with open(schema_path, encoding="utf-8") as f:
-                    schema_sql = f.read()
-                    try:
-                        conn.executescript(schema_sql)
-                        logger.info("Database schema created successfully")
-                    except sqlite3.Error as e:
-                        logger.warning(f"Schema execution warning: {e}")
-            else:
-                logger.debug(
-                    f"Database tables already exist ({table_count} found), skipping schema creation"
-                )
-        else:
-            logger.warning("schema.sql not found, creating basic schema")
+        Vóór deze reparatie telde init alleen twee tabelnamen, slikte een
+        halverwege falend script met een warning in, en maakte zonder
+        ``schema.sql`` een noodschema van één tabel.
+        """
+        # DEF-664: de hele I/O- en SQL-grens van init is getypeerd; reasons
+        # zijn veilige classificaties, nooit paden of exceptietekst.
+        try:
+            Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            raise SchemaContractError(
+                "schema_init_failed", ("database_dir_unavailable",)
+            ) from None
+        try:
             conn = self.get_connection()
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS definities (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    begrip VARCHAR(255) NOT NULL,
-                    definitie TEXT NOT NULL,
-                    categorie VARCHAR(50) NOT NULL DEFAULT 'proces',
-                    organisatorische_context VARCHAR(255) NOT NULL,
-                    juridische_context VARCHAR(255),
-                    wettelijke_basis TEXT,
-                    status VARCHAR(50) NOT NULL DEFAULT 'draft',
-                    version_number INTEGER NOT NULL DEFAULT 1,
-                    validation_score DECIMAL(3,2),
-                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    created_by VARCHAR(255),
-                    source_type VARCHAR(50) DEFAULT 'generated',
-                    datum_voorstel TIMESTAMP,
-                    ketenpartners TEXT
+        except sqlite3.Error as exc:
+            raise SchemaContractError(
+                "database_unreadable", (type(exc).__name__,)
+            ) from exc
+        if conn.in_transaction:
+            # Een buitenste transactie van de aanroeper wordt nooit door init
+            # gecommit of teruggerold.
+            raise SchemaContractError(
+                "schema_init_failed", ("init binnen een open transactie",)
+            )
+        try:
+            bestaand = has_user_objects(conn)
+            if bestaand:
+                assert_startup_contract(conn)
+        except sqlite3.Error as exc:
+            raise SchemaContractError(
+                "database_unreadable", (type(exc).__name__,)
+            ) from exc
+        if bestaand:
+            logger.debug(
+                "Database schema conform contract (versie %d)", CANONICAL_VERSION
+            )
+            return
+        self._create_fresh_schema(conn)
+
+    @staticmethod
+    def _create_fresh_schema(conn: sqlite3.Connection) -> None:
+        """Voer schema.sql uit in één transactie en commit alleen bij conformiteit."""
+        try:
+            schema_sql = SCHEMA_PATH.read_text(encoding="utf-8")
+        except OSError:
+            raise SchemaContractError(
+                "schema_init_failed", ("schema.sql niet leesbaar",)
+            ) from None
+
+        try:
+            # `BEGIN` staat in het script zelf: executescript zou een vóóraf
+            # geopende transactie eerst impliciet committen.
+            conn.executescript("BEGIN;\n" + schema_sql)
+            # Codex-herreview P2: niet alleen de hoogste versie maar het
+            # volledige doelcontract inclusief de complete markerverzameling
+            # {1, 2, 3}, integrity_check en foreign_key_check, vóór de commit.
+            problemen = verify_target_contract(conn, CANONICAL_VERSION)
+            if problemen:
+                reason = (
+                    "schema_incomplete"
+                    if any(p.startswith("ontbreekt") for p in problemen)
+                    else "schema_drift"
                 )
-            """)
-            conn.commit()
+                raise SchemaContractError(reason, problemen)
+            schema_contract._commit(conn)
+        except SchemaContractError:
+            rollback_quietly(conn)
+            raise
+        except Exception as exc:
+            # Elke fout ná BEGIN — SQLite, I/O óf een onverwachte Python-fout
+            # in de verificatie — rolt terug en wordt getypeerd (Codex-review
+            # 3: een ValueError liet 62 objecten met open transactie achter).
+            rollback_quietly(conn)
+            logger.error("Schema-initialisatie mislukt: %s", type(exc).__name__)
+            raise SchemaContractError(
+                "schema_init_failed", (type(exc).__name__,)
+            ) from exc
+        logger.info(
+            "Database schema created successfully (versie %d)", CANONICAL_VERSION
+        )
 
     def split_sql_statements(self, sql: str) -> list[str]:
         """Split SQL bestand in individuele statements."""

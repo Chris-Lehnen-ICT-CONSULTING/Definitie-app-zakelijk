@@ -4,6 +4,26 @@ import pytest
 
 pytestmark = [pytest.mark.unit]
 
+
+@pytest.fixture(autouse=True)
+def _hermetisch(hermetische_werkmap):
+    """DEF-664: TabbedInterface opent via de repository-singleton `data/definities.db`.
+
+    `get_definitie_repository()` zonder pad gebruikt een absoluut pad onder de
+    repo-root, dus alleen een tijdelijke werkmap volstaat niet: de singleton
+    wordt hier vooraf op een tijdelijke database gezet en daarna gewist.
+    """
+    from database.definitie_repository import (
+        clear_repository_singleton,
+        get_definitie_repository,
+    )
+
+    clear_repository_singleton()
+    get_definitie_repository(str(hermetische_werkmap / "data" / "definities.db"))
+    yield hermetische_werkmap
+    clear_repository_singleton()
+
+
 docx = pytest.importorskip("docx")
 
 
