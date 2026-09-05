@@ -479,6 +479,26 @@ class TestGecomprimeerdeNoClobber:
 
         assert _inhoud(backup_dir) == []
 
+    def test_publicatiefout_wordt_als_publish_failed_geclassificeerd(
+        self,
+        tmp_path: Path,
+        backup_restore: ModuleType,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        """PR425 M1: een OSError bij de hardlink-publicatie (bv. exFAT/SMB) is geen
+        compressiefout; er verschijnt geen eindbestand en alles wordt opgeruimd."""
+        _db, backup_dir, manager = _gz_manager(tmp_path, backup_restore)
+
+        def link_die_faalt(staging: Path, destination: Path) -> None:
+            raise OSError(1, "hardlinks niet ondersteund", str(destination))
+
+        monkeypatch.setattr(backup_restore, "publish_staged_file", link_die_faalt)
+
+        with pytest.raises(RuntimeError, match="publish_failed"):
+            manager.create_backup()
+
+        assert _inhoud(backup_dir) == []
+
     def test_cleanupfout_na_gz_publicatie_is_eerlijk_succes(
         self,
         tmp_path: Path,
@@ -561,6 +581,92 @@ class TestGecomprimeerdeVerificatie:
             assert Path(naam) != gz.with_suffix("")
             with pytest.raises(OSError, match="Bad file descriptor"):
                 os.fstat(fd)
+
+    def test_creatie_decomprimeert_in_de_backupdoelmap(
+        self,
+        tmp_path: Path,
+        backup_restore: ModuleType,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        """PR425 I1: tijdens creatie hoort de terug-decompressie in de doelmap,
+        zodat een kleine systeem-temp-partitie de route niet breekt."""
+        _db, backup_dir, manager = _gz_manager(tmp_path, backup_restore)
+        real_mkstemp = tempfile.mkstemp
+        aangemaakt: list[Path] = []
+
+        def registrerende_mkstemp(*args, **kwargs):
+            fd, naam = real_mkstemp(*args, **kwargs)
+            aangemaakt.append(Path(naam))
+            return fd, naam
+
+        with monkeypatch.context() as patch:
+            patch.setattr(tempfile, "mkstemp", registrerende_mkstemp)
+            gz = manager.create_backup()
+
+        assert len(aangemaakt) >= 3  # .db-staging, .gz-staging, verificatietemp
+        assert all(p.parent == backup_dir for p in aangemaakt), aangemaakt
+        assert all(not p.exists() for p in aangemaakt)
+        assert _inhoud(backup_dir) == [gz.name]
+
+    def test_standalone_verify_werkt_op_alleen_leesbare_archiefmap(
+        self,
+        tmp_path: Path,
+        backup_restore: ModuleType,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        """PR425 I1-correctie: standalone verify van een bestaand archief mag geen
+        schrijfpermissie op de archiefmap vereisen en laat buurbestanden staan."""
+        _db, backup_dir, manager = _gz_manager(tmp_path, backup_restore)
+        gz = manager.create_backup()
+        buur = gz.with_suffix("")
+        buur.write_bytes(b"buur blijft")
+        real_mkstemp = tempfile.mkstemp
+        aangemaakt: list[Path] = []
+
+        def registrerende_mkstemp(*args, **kwargs):
+            fd, naam = real_mkstemp(*args, **kwargs)
+            aangemaakt.append(Path(naam))
+            return fd, naam
+
+        oorspronkelijke_mode = backup_dir.stat().st_mode
+        os.chmod(backup_dir, 0o555)
+        try:
+            with monkeypatch.context() as patch:
+                patch.setattr(tempfile, "mkstemp", registrerende_mkstemp)
+                assert manager.verify_backup(gz) is True
+        finally:
+            os.chmod(backup_dir, oorspronkelijke_mode)
+
+        assert aangemaakt
+        assert all(p.parent != backup_dir for p in aangemaakt), aangemaakt
+        assert all(not p.exists() for p in aangemaakt)
+        assert buur.read_bytes() == b"buur blijft"
+        assert _inhoud(backup_dir) == sorted([gz.name, buur.name])
+
+    def test_mkstemp_fout_in_gz_verificatie_geeft_false(
+        self,
+        tmp_path: Path,
+        backup_restore: ModuleType,
+        monkeypatch: pytest.MonkeyPatch,
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """PR425 T1: een volle/onbeschrijfbare tempmap wordt een veilige reason en
+        False, geen rauwe OSError uit een bool-functie."""
+        _db, backup_dir, manager = _gz_manager(tmp_path, backup_restore)
+        gz = manager.create_backup()
+
+        def volle_temp(*_args, **_kwargs):
+            raise OSError(28, "geen ruimte", str(tmp_path / "temp"))
+
+        caplog.set_level(logging.ERROR)
+        with monkeypatch.context() as patch:
+            patch.setattr(tempfile, "mkstemp", volle_temp)
+            assert manager.verify_backup(gz) is False
+
+        berichten = [r.getMessage() for r in caplog.records]
+        assert any("temp_unavailable" in m for m in berichten)
+        assert all(str(tmp_path) not in m for m in berichten)
+        assert _inhoud(backup_dir) == [gz.name]
 
     def test_standalone_verify_timeout_geeft_false_en_ruimt_eigen_temp_op(
         self,

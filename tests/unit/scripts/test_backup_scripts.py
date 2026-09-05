@@ -80,8 +80,22 @@ def fixture_project(tmp_path: Path) -> Path:
     return _maak_fixture_project(tmp_path)
 
 
-def _run(root: Path, script: str) -> subprocess.CompletedProcess[str]:
+def _date_stub(root: Path, timestamp: str) -> Path:
+    """Vaste ``date``-uitvoer op PATH zodat twee runs deterministisch botsen."""
+    bin_dir = root / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    stub = bin_dir / "date"
+    stub.write_text(f'#!/usr/bin/env bash\necho "{timestamp}"\n')
+    stub.chmod(0o755)
+    return bin_dir
+
+
+def _run(
+    root: Path, script: str, path_prefix: Path | None = None
+) -> subprocess.CompletedProcess[str]:
     env = {**os.environ, "PYTHON": sys.executable}
+    if path_prefix is not None:
+        env["PATH"] = f"{path_prefix}{os.pathsep}{env.get('PATH', '')}"
     return subprocess.run(
         ["bash", str(root / "scripts" / script)],
         cwd=str(root),
@@ -201,20 +215,19 @@ def test_script_faalt_zonder_database(fixture_project: Path, script: str):
 
 @pytest.mark.parametrize("script", SCRIPTS)
 def test_script_overschrijft_bestaande_backup_niet(fixture_project: Path, script: str):
-    """Twee runs binnen dezelfde seconde botsen op de tijdstempelnaam: geen clobber."""
-    first = _run(fixture_project, script)
+    """Vaste tijdstempel via een date-stub (PR425 M4): de tweede run botst
+    deterministisch op dezelfde bestandsnaam en mag niets aanraken."""
+    bin_dir = _date_stub(fixture_project, "20260905_120000")
+    first = _run(fixture_project, script, path_prefix=bin_dir)
     assert first.returncode == 0, first.stdout + first.stderr
-    eerste = _backups(fixture_project, script)[0]
-    inhoud = eerste.read_bytes()
-
-    second = _run(fixture_project, script)
-
     backups = _backups(fixture_project, script)
-    if len(backups) == 1:
-        # Zelfde tijdstempel: de tweede run moet weigeren en niets aanraken.
-        assert second.returncode != 0
-        assert "destination_exists" in second.stdout + second.stderr
-    else:
-        assert second.returncode == 0
-    assert eerste.read_bytes() == inhoud
+    assert [b.name for b in backups] == ["definities_backup_20260905_120000.db"]
+    inhoud = backups[0].read_bytes()
+
+    second = _run(fixture_project, script, path_prefix=bin_dir)
+
+    assert second.returncode != 0
+    assert "destination_exists" in second.stdout + second.stderr
+    assert _backups(fixture_project, script) == backups
+    assert backups[0].read_bytes() == inhoud
     assert _staging_artefacts(fixture_project, script) == []
