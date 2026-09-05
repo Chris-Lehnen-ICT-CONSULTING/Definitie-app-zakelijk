@@ -239,7 +239,12 @@ def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch):
     # geen "stale" afleiden (gereproduceerd door Chris, 4 september 2026).
     assert result.gate_status is None
     assert "intussen gewijzigd" not in (result.error_message or "")
-    assert "audit faalt" in (result.error_message or "")
+    # DEF-469: de servicegrens vertaalt de ruwe SQLite-fout naar een vaste,
+    # veilige melding; de oorzaak blijft alleen via exception chaining/log.
+    from services.definition_repository import MELDING_DATABASEFOUT
+
+    assert result.error_message == MELDING_DATABASEFOUT
+    assert "audit faalt" not in result.error_message
     _assert_onveranderd(repo, definitie_id, voor)
 
 
@@ -428,7 +433,9 @@ def test_databasefout_bij_stale_herlezing_is_geen_versieconflict(tmp_path, monke
 
     assert result.success is False
     assert result.gate_status is None
-    assert "database is locked" in (result.error_message or "")
+    from services.definition_repository import MELDING_DATABASEFOUT
+
+    assert result.error_message == MELDING_DATABASEFOUT  # DEF-469: geen ruwe tekst
     _assert_onveranderd(repo, definitie_id, voor)
 
 
