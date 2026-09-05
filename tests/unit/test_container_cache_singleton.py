@@ -24,6 +24,12 @@ from utils.container_manager import (
 pytestmark = [pytest.mark.unit]
 
 
+@pytest.fixture(autouse=True)
+def _hermetisch(hermetische_werkmap):
+    """DEF-664: de gecachete container opent het standaardpad `data/definities.db`."""
+    return hermetische_werkmap
+
+
 class TestContainerCacheSingleton:
     """Tests voor singleton cache behavior van ServiceContainer."""
 

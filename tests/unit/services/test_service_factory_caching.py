@@ -20,6 +20,12 @@ from services.service_factory import get_definition_service
 pytestmark = [pytest.mark.unit]
 
 
+@pytest.fixture(autouse=True)
+def _hermetisch(hermetische_werkmap):
+    """DEF-664: de factory opent het standaardpad `data/definities.db`."""
+    return hermetische_werkmap
+
+
 def test_service_factory_returns_same_instance():
     """Herhaalde aanroepen met dezelfde config moeten dezelfde instance geven."""
     # Zorg voor geldige API key zodat initialisatie niet faalt in tests

@@ -7,6 +7,7 @@ import sqlite3
 
 import pytest
 
+import database.migrations.v6_migration as v6
 from database.migrations.v6_migration import (
     METADATA_KEYS_PER_BRON_TYPE,
     MIGRATION_VERSION,
@@ -19,57 +20,16 @@ from database.migrations.v6_migration import (
     run_migration,
     verify_migration,
 )
+from database.sqlite_backup import create_verified_backup
+from tests.fixtures.schema_profiles import (
+    bouw_profiel,
+    kolommen,
+    lees_sentinels,
+    schema_versies,
+    zaai_sentinels,
+)
 
 pytestmark = [pytest.mark.unit]
-
-# ---------------------------------------------------------------------------
-# Pre-migration schema (mirrors v5 state)
-# ---------------------------------------------------------------------------
-V5_SCHEMA_SQL = """
-CREATE TABLE schema_version (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    version INTEGER NOT NULL,
-    description TEXT,
-    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-INSERT INTO schema_version (version, description) VALUES (1, 'Initial v5 migration');
-
-CREATE TABLE rag_collections (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    collection_name VARCHAR(255) NOT NULL UNIQUE,
-    document_count INTEGER DEFAULT 0,
-    chunk_count INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    metadata_json TEXT
-);
-
-CREATE TABLE rag_documents (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    collection_id INTEGER REFERENCES rag_collections(id) ON DELETE CASCADE,
-    filename VARCHAR(255),
-    file_type VARCHAR(50),
-    chunk_count INTEGER,
-    rechtsgebied VARCHAR(100),
-    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    file_path VARCHAR(500)
-);
-
-CREATE TABLE rag_chunks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    collection_id INTEGER REFERENCES rag_collections(id) ON DELETE CASCADE,
-    document_id INTEGER REFERENCES rag_documents(id) ON DELETE CASCADE,
-    chunk_text TEXT NOT NULL,
-    embedding BLOB,
-    chunk_index INTEGER,
-    rechtsgebied VARCHAR(100),
-    wet_regeling VARCHAR(255),
-    artikel_lid VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_chunks_collection ON rag_chunks(collection_id);
-CREATE INDEX idx_chunks_document ON rag_chunks(document_id);
-"""
 
 
 # ---------------------------------------------------------------------------
@@ -77,13 +37,23 @@ CREATE INDEX idx_chunks_document ON rag_chunks(document_id);
 # ---------------------------------------------------------------------------
 @pytest.fixture
 def db_path(tmp_path):
-    """Maak een temp database met v5 schema."""
-    path = tmp_path / "test.db"
-    conn = sqlite3.connect(str(path))
-    conn.execute("PRAGMA foreign_keys=ON")
-    conn.executescript(V5_SCHEMA_SQL)
-    conn.close()
-    return path
+    """Maak een temp database in het versie-1-profiel (v5-vorm, DEF-664).
+
+    Het profiel bevat ook de kerntabellen: de migratie maakt sinds DEF-664
+    eerst een geverifieerde backup, en de DEF-663-guard weigert een bron
+    zonder kernschema.
+    """
+    (tmp_path / "data").mkdir()
+    return bouw_profiel(tmp_path / "data" / "definities.db", 1)
+
+
+def _backups(pad) -> list:
+    map_ = pad.parent / "backups"
+    return sorted(map_.glob("pre_v6_migration_*.db")) if map_.exists() else []
+
+
+def _versies(pad) -> list[int]:
+    return schema_versies(pad)
 
 
 @pytest.fixture
@@ -353,6 +323,171 @@ class TestRunMigration:
 
     def test_nonexistent_db_returns_false(self, tmp_path):
         assert run_migration(tmp_path / "nonexistent.db") is False
+
+
+# ---------------------------------------------------------------------------
+# DEF-664: fail-closed precondities, transactiegrens en backup/restore
+# ---------------------------------------------------------------------------
+class TestPrecondities:
+    def test_zonder_versie_1_geen_succes_en_niets_geschreven(self, db_path):
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("DELETE FROM schema_version")
+        conn.commit()
+        conn.close()
+
+        assert run_migration(db_path) is False
+
+        assert schema_versies(db_path) == []
+        assert "bron_type" not in kolommen(db_path, "rag_chunks")
+        assert _backups(db_path) == []
+
+    def test_zonder_schema_version_tabel_geen_succes(self, tmp_path):
+        pad = bouw_profiel(tmp_path / "definities.db", None)
+        assert run_migration(pad) is False
+        assert schema_versies(pad) == []
+
+    def test_zonder_rag_chunks_geen_succes_en_geen_versie(self, db_path):
+        conn = sqlite3.connect(str(db_path))
+        conn.executescript("PRAGMA foreign_keys=OFF; DROP TABLE rag_chunks;")
+        conn.close()
+
+        assert run_migration(db_path) is False
+
+        assert schema_versies(db_path) == [1]
+
+
+class TestFoutpadIsAtomair:
+    def test_falende_verificatie_rolt_alles_terug(self, db_with_data, monkeypatch):
+        monkeypatch.setattr(v6, "verify_migration", lambda conn: False)
+
+        assert run_migration(db_with_data) is False
+
+        assert schema_versies(db_with_data) == [1]
+        assert "bron_type" not in kolommen(db_with_data, "rag_chunks")
+
+    def test_commitfout_rolt_alles_terug(self, db_with_data, monkeypatch):
+        from database import schema_contract
+
+        def _commit_faalt(conn):
+            raise sqlite3.OperationalError("disk I/O error")
+
+        monkeypatch.setattr(schema_contract, "_commit", _commit_faalt)
+        conn = sqlite3.connect(str(db_with_data))
+        voor = conn.execute(
+            "SELECT id, chunk_text, artikel_lid FROM rag_chunks ORDER BY id"
+        ).fetchall()
+        conn.close()
+
+        assert run_migration(db_with_data) is False
+
+        assert schema_versies(db_with_data) == [1]
+        assert "metadata" not in kolommen(db_with_data, "rag_chunks")
+        conn = sqlite3.connect(str(db_with_data))
+        assert (
+            conn.execute(
+                "SELECT id, chunk_text, artikel_lid FROM rag_chunks ORDER BY id"
+            ).fetchall()
+            == voor
+        )
+        conn.close()
+
+    def test_fout_in_datamigratie_rolt_kolommen_en_versie_terug(
+        self, db_with_data, monkeypatch
+    ):
+        def _klapt(conn):
+            raise sqlite3.OperationalError("geinjecteerde fout in migrate_data")
+
+        monkeypatch.setattr(v6, "migrate_data", _klapt)
+
+        assert run_migration(db_with_data) is False
+
+        assert schema_versies(db_with_data) == [1]
+        assert "bron_type" not in kolommen(db_with_data, "rag_chunks")
+
+
+class TestVolledigDoelcontract:
+    """v6 moet het volledige versie-2-doelcontract binnen de transactie toetsen."""
+
+    def test_ontbrekende_trigger_in_bron_geeft_geen_succes_en_rolt_terug(self, db_path):
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("DROP TRIGGER log_definitie_changes")
+        conn.close()
+
+        assert run_migration(db_path) is False
+
+        assert schema_versies(db_path) == [1]
+        assert "bron_type" not in kolommen(db_path, "rag_chunks")
+
+    def test_afwijkende_index_in_bron_geeft_geen_succes(self, db_path):
+        conn = sqlite3.connect(str(db_path))
+        conn.executescript(
+            "DROP INDEX idx_definities_begrip_nocase_actief;"
+            "CREATE INDEX idx_definities_begrip_nocase_actief ON definities(begrip);"
+        )
+        conn.close()
+
+        assert run_migration(db_path) is False
+
+        assert schema_versies(db_path) == [1]
+
+    def test_geslaagde_migratie_haalt_het_versie_2_doelcontract(self, db_path):
+        from database.schema_contract import (
+            contract_problems,
+            read_contract,
+            target_contract,
+        )
+
+        assert run_migration(db_path) is True
+
+        conn = sqlite3.connect(str(db_path))
+        try:
+            assert contract_problems(read_contract(conn), target_contract(2)) == []
+        finally:
+            conn.close()
+
+
+class TestBronbehoud:
+    def test_bronobjecten_die_verdwijnen_geven_geen_succes(self, db_path, monkeypatch):
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("CREATE VIEW gebruikers_extra AS SELECT id FROM definities")
+        conn.close()
+        origineel = v6.create_indexes
+
+        def _sloopt_te_veel(conn):
+            origineel(conn)
+            conn.execute("DROP VIEW gebruikers_extra")
+
+        monkeypatch.setattr(v6, "create_indexes", _sloopt_te_veel)
+
+        assert run_migration(db_path) is False
+
+        assert schema_versies(db_path) == [1]
+        conn = sqlite3.connect(str(db_path))
+        try:
+            assert conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='view' AND name='gebruikers_extra'"
+            ).fetchone()
+        finally:
+            conn.close()
+
+
+class TestBackupEnRestore:
+    def test_backup_gaat_vooraf_en_is_werkelijk_herstelbaar(self, db_path, tmp_path):
+        zaai_sentinels(db_path)
+        voor = lees_sentinels(db_path)
+
+        assert run_migration(db_path) is True
+
+        backups = _backups(db_path)
+        assert len(backups) == 1
+        hersteld = tmp_path / "hersteld" / "definities.db"
+        hersteld.parent.mkdir()
+        manifest = create_verified_backup(backups[0], hersteld)
+
+        assert manifest.schema_version == 1
+        assert "bron_type" not in kolommen(hersteld, "rag_chunks")
+        assert lees_sentinels(hersteld) == voor
+        assert lees_sentinels(db_path) == voor
 
 
 # ---------------------------------------------------------------------------

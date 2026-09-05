@@ -823,32 +823,11 @@ class TestDraftManagement:
         # Create a temporary database
         db_path = tmp_path / "test_drafts.db"
 
-        # Initialize database with schema
         import sqlite3
 
-        conn = sqlite3.connect(str(db_path))
-        cursor = conn.cursor()
-
-        # Create simplified definities table for testing
-        cursor.execute("""
-            CREATE TABLE definities (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                begrip VARCHAR(255) NOT NULL,
-                definitie TEXT NOT NULL,
-                organisatorische_context TEXT NOT NULL DEFAULT '[]',
-                juridische_context TEXT NOT NULL DEFAULT '[]',
-                categorie VARCHAR(50) NOT NULL DEFAULT 'OTH',
-                status VARCHAR(50) NOT NULL DEFAULT 'draft',
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                created_by VARCHAR(255),
-                UNIQUE(begrip, organisatorische_context, juridische_context, categorie, status)
-            )
-        """)
-        conn.commit()
-        conn.close()
-
-        # Create repository with actual database
+        # DEF-664: de repository initialiseert het volledige canonieke schema
+        # op een nieuw pad; een vooraf aangemaakte, vereenvoudigde
+        # `definities`-tabel wordt sindsdien fail-closed geweigerd.
         repo = DefinitionRepository(db_path=str(db_path))
 
         # Mock the legacy repository's get_definitie method to directly query database

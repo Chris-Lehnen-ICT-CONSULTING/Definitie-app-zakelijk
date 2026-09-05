@@ -13,9 +13,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import cast  # DEF-439
 
+from database.schema_contract import (  # DEF-664
+    SchemaContractError,
+    create_migration_backup,
+    lost_objects,
+    migration_transaction,
+    require_migration_preconditions,
+    schema_objects,
+    schema_version,
+    verify_target_contract,
+)
 from database.sqlite_backup import (  # DEF-663
+    CORE_TABLE_COLUMNS,
     BackupError,
-    create_verified_backup,
     open_readonly_snapshot,
     read_manifest,
     verify_backup_file,
@@ -30,7 +40,13 @@ DB_PATH = Path("data/definities.db")
 MIGRATION_VERSION = 1
 MIGRATION_DESCRIPTION = "Initial v5 migration"
 
-# Expected tables BEFORE migration (for verification).
+# Kerntabellen die elke bron moet hebben (DEF-663-contract). Alleen deze zijn
+# een harde eis; de historische tabellen hieronder blijven behouden als ze
+# bestaan maar zijn geen verplichte producttabellen (DEF-664).
+CORE_TABLES: frozenset[str] = frozenset(CORE_TABLE_COLUMNS)
+
+# Known tables of the historical production shape. Preserved when present;
+# NOT required (a canonical schema.sql database has only the core tables).
 # sqlite_sequence is auto-managed by SQLite and excluded.
 EXPECTED_EXISTING_TABLES: set[str] = {
     "definitie_drafts",
@@ -212,21 +228,13 @@ def create_backup(db_path: Path) -> Path:
     Raises FileNotFoundError if the database is missing and RuntimeError if
     the backup is refused or fails verification (no file is left behind).
     """
-    if not db_path.exists():
-        raise FileNotFoundError(f"Database not found: {db_path}")
-
-    backup_dir = db_path.parent / "backups"
-    backup_dir.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    backup_path = backup_dir / f"pre_v5_migration_{timestamp}.db"
-
-    logger.info("Creating backup: %s -> %s", db_path, backup_path)
     try:
-        create_verified_backup(db_path, backup_path)
-    except BackupError as exc:
+        backup_path = create_migration_backup(
+            db_path, "pre_v5_migration", datetime.now()
+        )
+    except SchemaContractError as exc:
         raise RuntimeError(
-            f"Backup failed ({exc.reason}) — migration aborted"
+            f"Backup failed ({', '.join(exc.details)}) — migration aborted"
         ) from None
 
     logger.info("Backup verified successfully: %s", backup_path)
@@ -360,11 +368,15 @@ def _add_column_if_not_exists(
 # ---------------------------------------------------------------------------
 # Stap 3: Verification
 # ---------------------------------------------------------------------------
-def verify_migration(conn: sqlite3.Connection) -> bool:
+def verify_migration(
+    conn: sqlite3.Connection, preserved: set[str] | None = None
+) -> bool:
     """Verify the migration completed successfully.
 
     Checks:
-    1. All 12 original tables still exist
+    1. The core tables exist, and every table that existed before the
+       migration (``preserved``) still exists — behoud en canonieke
+       volledigheid zijn twee losse controles (DEF-664)
     2. All 8 new tables exist
     3. schema_version has version 1
     """
@@ -373,7 +385,7 @@ def verify_migration(conn: sqlite3.Connection) -> bool:
 
     # --- Check original tables ---
     logger.info("--- Verifying original tables ---")
-    for table_name in sorted(EXPECTED_EXISTING_TABLES):
+    for table_name in sorted(CORE_TABLES | (preserved or set())):
         if table_name not in tables_in_db:
             logger.error("MISSING original table: %s", table_name)
             all_ok = False
@@ -437,76 +449,80 @@ def run_migration(db_path: Path = DB_PATH) -> bool:
     logger.info("=" * 60)
     logger.info("Database: %s", db_path.resolve())
 
-    # --- Stap 0: Backup ---
-    logger.info("")
-    logger.info("STAP 0: Creating backup")
-    logger.info("-" * 40)
-    try:
-        backup_path = create_backup(db_path)
-    except (FileNotFoundError, RuntimeError) as exc:
-        logger.error("Backup failed: %s", exc)
-        logger.error("Migration ABORTED — no changes were made")
+    if not db_path.exists():
+        logger.error("Database not found — migration ABORTED")
         return False
 
-    # --- Connect ---
+    # --- Connect (autocommit: de transactiegrens is expliciet, DEF-664) ---
     try:
-        conn = sqlite3.connect(str(db_path))
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA foreign_keys=ON")
+        conn = sqlite3.connect(str(db_path), isolation_level=None)
     except sqlite3.Error as exc:
         logger.error("Failed to connect to database: %s", exc)
         return False
 
+    backup_path: Path | None = None
     try:
-        # --- Stap 1: Schema versioning ---
-        logger.info("")
-        logger.info("STAP 1: Schema versioning")
-        logger.info("-" * 40)
-        apply_schema_version(conn)
+        # PRAGMA's binnen de try: een fout hier sluit de verbinding ook.
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA foreign_keys=ON")
 
-        # --- Stap 2: Create new tables ---
+        # --- Stap 0: precondities en backup, vóór enige schrijfactie ---
+        require_migration_preconditions(
+            conn, previous_version=None, tables=sorted(CORE_TABLES)
+        )
         logger.info("")
-        logger.info("STAP 2: Creating new tables")
+        logger.info("STAP 0: Creating backup")
         logger.info("-" * 40)
-        create_new_tables(conn)
+        backup_path = create_backup(db_path)
+        preserved = set(_get_table_names(conn))
+        bronobjecten = schema_objects(conn)
+        # Idempotent op een al hogere database: het doelcontract is dan de
+        # hoogste aanwezige versie, niet versie 1.
+        doelversie = max(MIGRATION_VERSION, schema_version(conn) or 0)
 
-        # Commit all DDL changes
-        conn.commit()
+        # --- Stap 1 + 2 + 3 in één transactie: verificatie vóór commit ---
+        with migration_transaction(conn):
+            logger.info("")
+            logger.info("STAP 1: Schema versioning")
+            logger.info("-" * 40)
+            apply_schema_version(conn)
+
+            logger.info("")
+            logger.info("STAP 2: Creating new tables")
+            logger.info("-" * 40)
+            create_new_tables(conn)
+
+            logger.info("")
+            logger.info("STAP 3: Verification")
+            logger.info("-" * 40)
+            if not verify_migration(conn, preserved):
+                raise SchemaContractError("migration_verification_failed")
+            # DEF-664: bronbehoud van álle objecten (afzonderlijk) + volledig
+            # doelcontract + integrity/FK, nog binnen de transactie.
+            problemen = lost_objects(bronobjecten, schema_objects(conn))
+            problemen += verify_target_contract(conn, doelversie)
+            if problemen:
+                for probleem in problemen:
+                    logger.error("Doelcontract: %s", probleem)
+                raise SchemaContractError("migration_target_contract_failed", problemen)
         logger.info("All changes committed")
 
-        # --- Stap 3: Verification ---
         logger.info("")
-        logger.info("STAP 3: Verification")
-        logger.info("-" * 40)
-        success = verify_migration(conn)
+        logger.info("=" * 60)
+        logger.info("V5 Migration COMPLETED SUCCESSFULLY")
+        logger.info("  Backup: %s", backup_path)
+        logger.info("  New tables: %d", len(NEW_TABLES))
+        logger.info("=" * 60)
+        return True
 
-        if success:
-            logger.info("")
-            logger.info("=" * 60)
-            logger.info("V5 Migration COMPLETED SUCCESSFULLY")
-            logger.info("  Backup: %s", backup_path)
-            logger.info("  New tables: %d", len(NEW_TABLES))
-            logger.info("=" * 60)
-        else:
-            logger.error("")
-            logger.error("=" * 60)
-            logger.error("V5 Migration completed WITH WARNINGS/ERRORS")
-            logger.error("  Review the log output above for details")
-            logger.error("  Backup available at: %s", backup_path)
-            logger.error("=" * 60)
-
-        return success
-
-    except sqlite3.Error as exc:
-        logger.error("Database error during migration: %s", exc)
-        logger.error("Rolling back transaction")
-        conn.rollback()
-        logger.error("Backup available at: %s", backup_path)
-        return False
-    except Exception as exc:
-        logger.error("Unexpected error during migration: %s", exc)
-        conn.rollback()
-        logger.error("Backup available at: %s", backup_path)
+    except (RuntimeError, sqlite3.Error, OSError) as exc:
+        # SchemaContractError is een RuntimeError: preconditie, geweigerde
+        # backup of mislukte verificatie; OSError dekt I/O rond de backup.
+        # De transactiehelper heeft al teruggerold; er is niets gecommit.
+        logger.error("V5 Migration FAILED: %s", exc)
+        logger.error("Migration ABORTED — no changes were committed")
+        if backup_path is not None:
+            logger.error("Backup available at: %s", backup_path)
         return False
     finally:
         conn.close()
