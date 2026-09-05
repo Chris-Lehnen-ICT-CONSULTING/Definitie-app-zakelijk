@@ -9,7 +9,7 @@ import json
 import logging
 import sqlite3
 from collections.abc import Iterator, Sequence
-from contextlib import AbstractContextManager, contextmanager, suppress
+from contextlib import contextmanager, suppress
 from datetime import datetime
 from typing import Any, cast
 
@@ -26,6 +26,7 @@ from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
+    DefinitionServiceError,
     DuplicateDefinitionError,
     RepositoryError,
 )
@@ -36,6 +37,12 @@ from services.interfaces import (
 )
 
 logger = logging.getLogger(__name__)
+
+# DEF-469: vaste veilige meldingen; de oorzaak reist mee via `raise ... from e`.
+MELDING_NIET_BEVESTIGD = (
+    "Opslaan niet bevestigd; ververs de definitie en probeer opnieuw."
+)
+MELDING_DATABASEFOUT = "Databasefout tijdens opslaan; de wijziging is niet bevestigd."
 
 
 class DefinitionRepository(DefinitionRepositoryInterface):
@@ -74,7 +81,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             definition: Op te slaan definitie
 
         Returns:
-            ID van de opgeslagen definitie
+            ID van de opgeslagen definitie. Binnen een open transactie bevestigt
+            dit alleen uitvoering; pas de buitenste eigenaar commit (DEF-469).
 
         Raises:
             DuplicateDefinitionError: Als definitie al bestaat
@@ -82,6 +90,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             DatabaseConnectionError: Bij database verbindingsproblemen
             RepositoryError: Bij andere repository fouten
         """
+
+        def melding(technisch: str) -> str:
+            # DEF-469: het update-pad geeft een vaste veilige tekst (de oorzaak
+            # reist mee via `from e`); het create-pad behoudt zijn detailtekst.
+            return MELDING_DATABASEFOUT if definition.id else technisch
+
         try:
             # Gebruik legacy repository voor opslag
             if definition.id:
@@ -90,11 +104,18 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 updated_by = None
                 if definition.metadata and "updated_by" in definition.metadata:
                     updated_by = definition.metadata["updated_by"]
-                self.legacy_repo.update_definitie(definition.id, updates, updated_by)
-                self._stats["total_saves"] += 1
-                logger.info(
-                    f"Updated definition '{definition.begrip}' (ID: {definition.id})"
+                ok = self.legacy_repo.update_definitie(
+                    definition.id, updates, updated_by
                 )
+                if not ok:  # False/None = niet bevestigd, nooit een succes-ID
+                    raise RepositoryError(
+                        "save_update", definition.begrip, MELDING_NIET_BEVESTIGD
+                    )
+                if not self.in_transaction():  # genest: nog geen duurzaam succes
+                    self._stats["total_saves"] += 1
+                    logger.info(
+                        f"Updated definition '{definition.begrip}' (ID: {definition.id})"
+                    )
                 return cast(int, definition.id)
 
             # Maak nieuwe
@@ -124,11 +145,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     message=f"Invalid ID returned: {result_id}",
                 )
 
-            self._stats["total_saves"] += 1
-            logger.info(
-                f"Created definition '{definition.begrip}' (ID: {result_id}, "
-                f"categorie: {definition.categorie})"
-            )
+            if not self.in_transaction():  # genest: nog geen duurzaam succes
+                self._stats["total_saves"] += 1
+                logger.info(
+                    f"Created definition '{definition.begrip}' (ID: {result_id}, "
+                    f"categorie: {definition.categorie})"
+                )
             return cast(int, result_id)
 
         except ValueError as e:
@@ -152,30 +174,33 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 raise DatabaseConstraintError(
                     field=field,
                     begrip=definition.begrip,
-                    message=f"NOT NULL constraint failed for field '{field}': {e}",
+                    message=melding(
+                        f"NOT NULL constraint failed for field '{field}': {e}"
+                    ),
                 ) from e
             if "unique" in error_msg or "duplicate" in error_msg:
                 raise DuplicateDefinitionError(
                     begrip=definition.begrip,
-                    message=f"Definition already exists: {e}",
+                    message=melding(f"Definition already exists: {e}"),
                 ) from e
             # Other integrity errors
             raise DatabaseConstraintError(
                 field="unknown",
                 begrip=definition.begrip,
-                message=f"Database constraint violated: {e}",
+                message=melding(f"Database constraint violated: {e}"),
             ) from e
 
         except sqlite3.OperationalError as e:
             logger.error(f"Database connection failed for '{definition.begrip}': {e}")
             raise DatabaseConnectionError(
-                db_path=self.db_path, message=f"Database unavailable: {e}"
+                db_path=self.db_path, message=melding(f"Database unavailable: {e}")
             ) from e
 
         except (
             DuplicateDefinitionError,
             DatabaseConstraintError,
             DatabaseConnectionError,
+            RepositoryError,
         ):
             # Re-raise our custom exceptions
             raise
@@ -187,7 +212,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             raise RepositoryError(
                 operation="save",
                 begrip=definition.begrip,
-                message=f"Unexpected error: {e}",
+                message=melding(f"Unexpected error: {e}"),
             ) from e
 
     def get(self, definition_id: int) -> Definition | None:
@@ -317,16 +342,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             definition_id: ID van de te verwijderen definitie
 
         Returns:
-            True indien succesvol, anders False
+            True bij bevestigde delete; False alleen bij ontbrekend ID. Opslag-/
+            commitfouten worden typed (DEF-469); genest bevestigt True uitvoering.
         """
-        try:
-            with self._get_connection() as conn:
-                cur = conn.cursor()
-                cur.execute("DELETE FROM definities WHERE id = ?", (definition_id,))
-                return cast(bool, cur.rowcount > 0)
-        except Exception as e:
-            logger.error(f"Fout bij hard delete definitie {definition_id}: {e}")
-            return False
+        sql = "DELETE FROM definities WHERE id = ?"
+        with self.transaction() as conn:
+            cursor = conn.execute(sql, (definition_id,))
+        return cursor.rowcount > 0
 
     # Additional repository methods
 
@@ -1022,11 +1044,44 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return False
 
     # ===== Transactiegrens (DEF-482) =====
-    def transaction(
-        self, timeout: float = 30.0
-    ) -> AbstractContextManager[sqlite3.Connection]:
-        """Expliciete transactie op de thread-local connectie van de DB-laag."""
-        return self.legacy_repo.transaction(timeout)
+    @contextmanager
+    def transaction(self, timeout: float = 30.0) -> Iterator[sqlite3.Connection]:
+        """Servicegrens rond de thread-local DB-transactie (nesting, één COMMIT
+        en rollback volgen het DB-contract). Ruwe SQLite-fouten, ook uit een
+        latere COMMIT, worden typed met vaste melding; getypeerde fouten en
+        programmeerfouten lopen ongewijzigd door (DEF-469)."""
+        try:
+            with self.legacy_repo.transaction(timeout) as conn:
+                yield conn
+        except (DefinitionServiceError, sqlite3.ProgrammingError):
+            raise
+        except sqlite3.DatabaseError as e:
+            # Geen exceptiontekst/traceback: die kan vrije persoonsdata bevatten.
+            code = getattr(e, "sqlite_errorcode", None)
+            code = code if isinstance(code, int) else None
+            origin = e.__traceback__
+            while origin is not None and origin.tb_next is not None:
+                origin = origin.tb_next
+            diagnose = {
+                "operation": "transaction",
+                "error_type": type(e).__name__,
+                "sqlite_errorcode": code,
+                "origin": origin.tb_frame.f_code.co_name if origin else None,
+            }
+            logger.error(
+                "Database transaction failed: %s (SQLite code: %s; origin: %s)",
+                diagnose["error_type"],
+                code,
+                diagnose["origin"],
+                extra=diagnose,
+            )
+            if isinstance(e, sqlite3.OperationalError):
+                raise DatabaseConnectionError(self.db_path, MELDING_DATABASEFOUT) from e
+            if isinstance(e, sqlite3.IntegrityError):
+                raise DatabaseConstraintError(
+                    "unknown", "", MELDING_DATABASEFOUT
+                ) from e
+            raise RepositoryError("transaction", message=MELDING_DATABASEFOUT) from e
 
     def in_transaction(self) -> bool:
         """True als de huidige thread al een transactie open heeft."""
