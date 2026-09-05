@@ -15,11 +15,22 @@
 set -euo pipefail
 
 # Configuration
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# pwd -P: fysiek pad, de backuphelper weigert symlinks in het pad (DEF-663).
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 DB_PATH="$PROJECT_ROOT/data/definities.db"
 BACKUP_DIR="$PROJECT_ROOT/data/backups/auto"
 MAX_BACKUPS=24  # Keep 24 hourly backups (1 day)
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+
+# Project-Python voor de gedeelde WAL-veilige backuphelper (DEF-663):
+# expliciete PYTHON, anders de project-venv, anders python3.
+if [ -z "${PYTHON:-}" ]; then
+    if [ -x "$PROJECT_ROOT/.venv/bin/python" ]; then
+        PYTHON="$PROJECT_ROOT/.venv/bin/python"
+    else
+        PYTHON="python3"
+    fi
+fi
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -55,18 +66,16 @@ echo -e "   Definities: $RECORD_COUNT"
 BACKUP_NAME="definities_backup_${TIMESTAMP}.db"
 BACKUP_PATH="$BACKUP_DIR/$BACKUP_NAME"
 
-# Perform backup
+# Perform backup (DEF-663): SQLite Online Backup API vanuit één read-only
+# snapshot (WAL-veilig), verificatie (integrity_check + kernschema + manifest)
+# vóór publicatie, en nooit een bestaand backupbestand overschrijven. Bij een
+# fout laat de helper geen eindbestand achter.
 echo -e "${GREEN}💾 Creating backup: $BACKUP_NAME${NC}"
-cp "$DB_PATH" "$BACKUP_PATH"
-
-# Verify backup
-if sqlite3 "$BACKUP_PATH" "PRAGMA integrity_check;" | grep -q "ok"; then
-    echo -e "${GREEN}✅ Backup successful: $BACKUP_PATH${NC}"
-else
-    echo -e "${RED}❌ Backup verification FAILED!${NC}"
-    rm -f "$BACKUP_PATH"
+if ! PYTHONPATH="$PROJECT_ROOT/src" "$PYTHON" -m database.sqlite_backup "$DB_PATH" "$BACKUP_PATH"; then
+    echo -e "${RED}❌ Backup FAILED (geen backupbestand gepubliceerd)${NC}"
     exit 1
 fi
+echo -e "${GREEN}✅ Backup verified and published: $BACKUP_PATH${NC}"
 
 # Cleanup old backups (keep last MAX_BACKUPS)
 echo -e "${GREEN}🧹 Cleaning old backups (keeping last $MAX_BACKUPS)...${NC}"

@@ -5,11 +5,22 @@
 set -e  # Exit on error
 
 # Configuratie
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# pwd -P: fysiek pad, de backuphelper weigert symlinks in het pad (DEF-663).
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 DB_PATH="${PROJECT_ROOT}/data/definities.db"
 BACKUP_DIR="${PROJECT_ROOT}/data/backups"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="${BACKUP_DIR}/definities_backup_${TIMESTAMP}.db"
+
+# Project-Python voor de gedeelde WAL-veilige backuphelper (DEF-663):
+# expliciete PYTHON, anders de project-venv, anders python3.
+if [ -z "${PYTHON:-}" ]; then
+    if [ -x "${PROJECT_ROOT}/.venv/bin/python" ]; then
+        PYTHON="${PROJECT_ROOT}/.venv/bin/python"
+    else
+        PYTHON="python3"
+    fi
+fi
 
 # Kleuren voor output
 GREEN='\033[0;32m'
@@ -38,25 +49,21 @@ echo -e "${YELLOW}Grootte:${NC}  $DB_SIZE"
 echo -e "${YELLOW}Backup:${NC}   $BACKUP_FILE"
 echo ""
 
-# Maak backup met SQLite's .backup commando (meest betrouwbaar)
+# Maak backup via de gedeelde helper (DEF-663): SQLite Online Backup API vanuit
+# één read-only snapshot (WAL-veilig), verificatie (integrity_check +
+# kernschema + manifest) vóór publicatie, nooit een bestaand bestand
+# overschrijven. Bij een fout blijft er geen eindbestand achter.
 echo "Backup maken..."
-sqlite3 "$DB_PATH" ".backup '${BACKUP_FILE}'"
+if ! PYTHONPATH="${PROJECT_ROOT}/src" "$PYTHON" -m database.sqlite_backup "$DB_PATH" "$BACKUP_FILE"; then
+    echo -e "${RED}ERROR: Backup maken gefaald (geen backupbestand gepubliceerd)${NC}"
+    exit 1
+fi
 
-# Verify backup
+# Toon resultaat
 if [ -f "$BACKUP_FILE" ]; then
     BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
-    echo -e "${GREEN}✓ Backup succesvol gemaakt${NC}"
+    echo -e "${GREEN}✓ Backup succesvol gemaakt en geverifieerd${NC}"
     echo -e "${YELLOW}Backup grootte:${NC} $BACKUP_SIZE"
-
-    # Verify integrity van backup
-    echo ""
-    echo "Backup integriteit controleren..."
-    if sqlite3 "$BACKUP_FILE" "PRAGMA integrity_check;" | grep -q "ok"; then
-        echo -e "${GREEN}✓ Backup integriteit OK${NC}"
-    else
-        echo -e "${RED}⚠ WARNING: Backup integriteit check gefaald${NC}"
-        exit 1
-    fi
 
     # Toon aantal tabellen in backup
     TABLE_COUNT=$(sqlite3 "$BACKUP_FILE" "SELECT COUNT(*) FROM sqlite_master WHERE type='table';")
@@ -69,8 +76,9 @@ if [ -f "$BACKUP_FILE" ]; then
     echo ""
     echo "Backup locatie: $BACKUP_FILE"
     echo ""
-    echo "Om te restoren:"
-    echo "  cp \"$BACKUP_FILE\" \"$DB_PATH\""
+    echo "Om te herstellen naar een NIEUWE database (nooit met cp over de live bron heen):"
+    echo "  PYTHONPATH=\"${PROJECT_ROOT}/src\" \"$PYTHON\" -m database.sqlite_backup \"$BACKUP_FILE\" /pad/naar/nieuwe.db"
+    echo "In-place herstel valt buiten dit script: zie scripts/backup_restore.py (DEF-666)."
     echo ""
 
     # Lijst recent backups
