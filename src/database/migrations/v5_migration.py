@@ -8,11 +8,18 @@ This migration is fully idempotent: running it multiple times is safe.
 """
 
 import logging
-import shutil
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import cast  # DEF-439
+
+from database.sqlite_backup import (  # DEF-663
+    BackupError,
+    create_verified_backup,
+    open_readonly_snapshot,
+    read_manifest,
+    verify_backup_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +58,6 @@ NEW_TABLES: list[str] = [
     "ontology_relationships",
     "projects",
 ]
-
-# File-size tolerance for backup verification (1%)
-BACKUP_SIZE_TOLERANCE = 0.01
 
 # ---------------------------------------------------------------------------
 # SQL Statements
@@ -196,10 +200,17 @@ def _get_row_count(conn: sqlite3.Connection, table: str) -> int:
 # Stap 0: Backup
 # ---------------------------------------------------------------------------
 def create_backup(db_path: Path) -> Path:
-    """Create a timestamped backup of the database.
+    """Create a timestamped, WAL-safe and verified backup of the database.
+
+    Delegates to ``database.sqlite_backup`` (DEF-663): the backup is taken via
+    the SQLite Online Backup API from a read-only snapshot, verified
+    (integrity_check + schema manifest) and only then published. The
+    timestamp carries microseconds so consecutive runs never collide with an
+    existing backup, which the helper refuses to overwrite.
 
     Returns the path to the backup file.
-    Raises RuntimeError if backup fails verification.
+    Raises FileNotFoundError if the database is missing and RuntimeError if
+    the backup is refused or fails verification (no file is left behind).
     """
     if not db_path.exists():
         raise FileNotFoundError(f"Database not found: {db_path}")
@@ -207,17 +218,16 @@ def create_backup(db_path: Path) -> Path:
     backup_dir = db_path.parent / "backups"
     backup_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     backup_path = backup_dir / f"pre_v5_migration_{timestamp}.db"
 
     logger.info("Creating backup: %s -> %s", db_path, backup_path)
-    shutil.copy2(str(db_path), str(backup_path))
-
-    if not verify_backup(backup_path, db_path):
-        # Clean up failed backup
-        if backup_path.exists():
-            backup_path.unlink()
-        raise RuntimeError("Backup verification failed — migration aborted")
+    try:
+        create_verified_backup(db_path, backup_path)
+    except BackupError as exc:
+        raise RuntimeError(
+            f"Backup failed ({exc.reason}) — migration aborted"
+        ) from None
 
     logger.info("Backup verified successfully: %s", backup_path)
     return backup_path
@@ -226,54 +236,31 @@ def create_backup(db_path: Path) -> Path:
 def verify_backup(backup_path: Path, original_path: Path) -> bool:
     """Verify that the backup is a faithful copy of the original.
 
-    Checks:
-    1. File size is within 1% of original
-    2. All 13 expected tables exist in the backup
+    Checks (DEF-663, shared verifier ``database.sqlite_backup.verify_backup_file``):
+    1. ``PRAGMA integrity_check`` on the backup is exactly ``ok``
+    2. The application core schema (definities, geschiedenis, voorbeelden,
+       synoniemen, ...) is present in the backup
+    3. The full schema manifest (objects, columns, row counts, schema_version)
+       of the backup equals that of the original
+
+    Note: this reads a fresh snapshot of the original; a commit on the original
+    after the backup legitimately makes this return False.
     """
-    # --- Size check ---
-    original_size = original_path.stat().st_size
-    backup_size = backup_path.stat().st_size
-
-    if original_size == 0:
-        logger.error("Original database has zero size")
-        return False
-
-    size_diff_ratio = abs(original_size - backup_size) / original_size
-    if size_diff_ratio > BACKUP_SIZE_TOLERANCE:
-        logger.error(
-            "Backup size mismatch: original=%d bytes, backup=%d bytes "
-            "(%.2f%% difference)",
-            original_size,
-            backup_size,
-            size_diff_ratio * 100,
-        )
-        return False
-
-    logger.info(
-        "Backup size OK: %d bytes (original: %d bytes, diff: %.4f%%)",
-        backup_size,
-        original_size,
-        size_diff_ratio * 100,
-    )
-
-    # --- Table check ---
     try:
-        conn = sqlite3.connect(str(backup_path))
-        tables = _get_table_names(conn)
-        conn.close()
-    except sqlite3.Error as exc:
-        logger.error("Failed to read backup database: %s", exc)
+        original_conn = open_readonly_snapshot(original_path)
+        try:
+            expected = read_manifest(original_conn)
+        finally:
+            original_conn.close()
+        verify_backup_file(backup_path, expected)
+    except BackupError as exc:
+        logger.error("Backup verification failed: %s", exc.reason)
+        return False
+    except sqlite3.Error:
+        logger.error("Backup verification failed: original_unreadable")
         return False
 
-    expected = EXPECTED_EXISTING_TABLES
-    actual = set(tables)
-
-    missing = expected - actual
-    if missing:
-        logger.error("Backup is missing tables: %s", sorted(missing))
-        return False
-
-    logger.info("Backup contains all %d expected tables", len(expected))
+    logger.info("Backup verified: integrity ok, core schema present, manifest matches")
     return True
 
 
