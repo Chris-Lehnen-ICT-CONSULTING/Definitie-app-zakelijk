@@ -229,6 +229,15 @@ def ensure_within_deadline(deadline: float | None) -> None:
         raise BackupError("backup_timeout")
 
 
+def _classify_failure(deadline: float | None, reason: str) -> BackupError:
+    """Fout in een except-blok: een verlopen budget wint van ``reason``.
+
+    Altijd raisen met ``from None`` zodat de veilige reason geen
+    exception-context (met paden in OSError-tekst) meeneemt.
+    """
+    return BackupError("backup_timeout" if _expired(deadline) else reason)
+
+
 def _busy_timeout_within(deadline: float | None) -> float:
     """Busy-timeout voor een lockwacht, begrensd op het resterende budget.
 
@@ -282,22 +291,21 @@ def verify_backup_file(
             backup, busy_timeout=_busy_timeout_within(deadline)
         )
     except sqlite3.Error:
-        ensure_within_deadline(deadline)
-        raise BackupError("backup_unreadable") from None
+        raise _classify_failure(deadline, "backup_unreadable") from None
     try:
         _arm_deadline(conn, deadline)
         try:
             ok = integrity_ok(conn)
         except sqlite3.DatabaseError:
-            ensure_within_deadline(deadline)
+            if _expired(deadline):
+                raise BackupError("backup_timeout") from None
             ok = False  # o.a. "file is not a database"
         if not ok:
             raise BackupError("integrity_check_failed")
         try:
             manifest = read_manifest(conn)
         except sqlite3.Error:
-            ensure_within_deadline(deadline)
-            raise BackupError("backup_unreadable") from None
+            raise _classify_failure(deadline, "backup_unreadable") from None
         ensure_within_deadline(deadline)
         check_core_schema(manifest)
         if expected is not None and manifest != expected:
@@ -339,24 +347,32 @@ def validate_new_destination(destination: Path) -> None:
     """
     destination = Path(destination)
     _reject_unsafe_text(destination)
-    _reject_symlink_components(destination, "destination_symlink")
-    if destination.exists():
-        raise BackupError("destination_exists")
-    if not destination.parent.is_dir():
-        raise BackupError("destination_dir_missing")
+    try:
+        _reject_symlink_components(destination, "destination_symlink")
+        if destination.exists():
+            raise BackupError("destination_exists")
+        if not destination.parent.is_dir():
+            raise BackupError("destination_dir_missing")
+    except OSError:
+        # Bijv. PermissionError uit is_symlink()/exists(): veilige reason,
+        # geen rauwe traceback met pad.
+        raise BackupError("path_unreadable") from None
 
 
 def _validate_paths(source: Path, destination: Path) -> None:
     _reject_unsafe_text(source)
     _reject_unsafe_text(destination)
-    _reject_symlink_components(source, "source_symlink")
-    if not source.exists():
-        raise BackupError("source_missing")
-    if not source.is_file():
-        raise BackupError("source_not_a_file")
-    _reject_symlink_components(destination, "destination_symlink")
-    if os.path.realpath(source) == os.path.realpath(destination):
-        raise BackupError("source_is_destination")
+    try:
+        _reject_symlink_components(source, "source_symlink")
+        if not source.exists():
+            raise BackupError("source_missing")
+        if not source.is_file():
+            raise BackupError("source_not_a_file")
+        _reject_symlink_components(destination, "destination_symlink")
+        if os.path.realpath(source) == os.path.realpath(destination):
+            raise BackupError("source_is_destination")
+    except OSError:
+        raise BackupError("path_unreadable") from None
     validate_new_destination(destination)
 
 
@@ -503,9 +519,9 @@ def _create_verified_backup(
         published, staging = staging, None
     except (sqlite3.Error, OSError):
         # Een door de progress-handler onderbroken query meldt zich als
-        # OperationalError; classificeer dat als het verlopen budget.
-        ensure_within_deadline(deadline)
-        raise BackupError(phase) from None
+        # OperationalError; classificeer dat als het verlopen budget. Altijd
+        # ``from None``: de oorspronkelijke fouttekst kan paden bevatten.
+        raise _classify_failure(deadline, phase) from None
     finally:
         if source_conn is not None:
             source_conn.close()

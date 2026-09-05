@@ -75,21 +75,35 @@ def _copy_within_deadline(f_in, f_out, deadline: float | None) -> None:
 
 
 def _verify_compressed_file(
-    compressed_path: Path, expected=None, *, deadline: float | None = None
+    compressed_path: Path,
+    expected=None,
+    *,
+    deadline: float | None = None,
+    temp_dir: Path | None = None,
 ) -> None:
     """Decomprimeer een ``.db.gz`` naar een eigen uniek tempbestand en verifieer dat.
 
     Nooit naar een voorspelbare buurnaam (zoals ``<naam>.db``) schrijven: die
     kan een bestaand bestand van iemand anders zijn. Alleen het eigen
     tempbestand wordt in ``finally`` gesloten en opgeruimd. Raist
-    ``BackupError`` (``decompress_failed``, ``backup_timeout`` of een
-    verifier-classificatie). ``deadline`` is een absolute tijdstempel van de
-    gedeelde klok (``monotonic_now``).
+    ``BackupError`` (``temp_unavailable``, ``decompress_failed``,
+    ``backup_timeout`` of een verifier-classificatie). ``deadline`` is een
+    absolute tijdstempel van de gedeelde klok (``monotonic_now``).
+
+    ``temp_dir``: tijdens backupcreatie de backupdoelmap (PR425 I1: een kleine
+    systeem-temp-partitie mag de creatieroute niet breken). Standalone
+    verificatie van een bestaand archief laat dit ``None`` (systeem-temp),
+    zodat een alleen-leesbare archiefmap geen schrijfpermissie vereist.
     """
     ensure_within_deadline(deadline)
-    fd, name = tempfile.mkstemp(
-        prefix=f"{compressed_path.name}{STAGING_MARKER}", suffix=".db"
-    )
+    try:
+        fd, name = tempfile.mkstemp(
+            prefix=f"{compressed_path.name}{STAGING_MARKER}",
+            suffix=".db",
+            dir=None if temp_dir is None else str(temp_dir),
+        )
+    except OSError:
+        raise BackupError("temp_unavailable") from None
     temp = Path(name)
     try:
         try:
@@ -99,8 +113,10 @@ def _verify_compressed_file(
             ):
                 _copy_within_deadline(f_in, f_out, deadline)
         except (OSError, EOFError, zlib.error):
-            ensure_within_deadline(deadline)
-            raise BackupError("decompress_failed") from None
+            budget_op = deadline is not None and remaining_budget(deadline) <= 0
+            raise BackupError(
+                "backup_timeout" if budget_op else "decompress_failed"
+            ) from None
         verify_backup_file(temp, expected, deadline=deadline)
     finally:
         discard_staging(temp)
@@ -218,11 +234,17 @@ class DatabaseBackupManager:
             logger.info(f"Compressing backup: {compressed_path}")
             with open(backup_path, "rb") as f_in, gzip.open(staging, "wb") as f_out:
                 _copy_within_deadline(f_in, f_out, deadline)
-            _verify_compressed_file(staging, manifest, deadline=deadline)
+            _verify_compressed_file(
+                staging, manifest, deadline=deadline, temp_dir=compressed_path.parent
+            )
             # Geen late publicatie: ook na een geslaagde verificatie mag een
             # verlopen budget de .gz niet meer laten verschijnen.
             ensure_within_deadline(deadline)
-            publish_staged_file(staging, compressed_path)
+            try:
+                publish_staged_file(staging, compressed_path)
+            except OSError:
+                # Bijv. geen hardlinks op exFAT/SMB: dit is geen compressiefout.
+                raise BackupError("publish_failed") from None
             published, staging = staging, None
         except BackupError as exc:
             msg = f"Backup failed ({exc.reason})"

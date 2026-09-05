@@ -15,6 +15,7 @@ import os
 import sqlite3
 import threading
 import time
+import traceback
 from pathlib import Path
 
 import pytest
@@ -311,6 +312,43 @@ class TestPadweigering:
         assert excinfo.value.reason == "destination_exists"
         assert backups_dir.is_dir()
         assert list(backups_dir.iterdir()) == []
+
+    def test_oserror_tijdens_padvalidatie_wordt_veilig_geclassificeerd(
+        self,
+        source: Path,
+        destination: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ):
+        """PR425 T1: een PermissionError uit is_symlink()/exists() mag geen rauwe
+        traceback met pad opleveren, ook niet via de CLI."""
+
+        def weigerende_componentcheck(path: Path, reason: str) -> None:
+            raise PermissionError(13, "toegang geweigerd", str(path))
+
+        monkeypatch.setattr(
+            sqlite_backup, "_reject_symlink_components", weigerende_componentcheck
+        )
+
+        with pytest.raises(BackupError) as excinfo:
+            create_verified_backup(source, destination)
+        assert excinfo.value.reason == "path_unreadable"
+        assert excinfo.value.__suppress_context__ is True
+        tekst = "".join(traceback.format_exception(excinfo.value))
+        assert str(source) not in tekst
+        assert not destination.exists()
+
+        with pytest.raises(BackupError) as excinfo:
+            sqlite_backup.validate_new_destination(destination)
+        assert excinfo.value.reason == "path_unreadable"
+
+        with pytest.raises(SystemExit) as exit_info:
+            sqlite_backup.main([str(source), str(destination)])
+        assert exit_info.value.code == 1
+        err = capsys.readouterr().err
+        assert "sqlite_backup: path_unreadable" in err
+        assert str(source) not in err
+        assert "Traceback" not in err
 
     def test_doelmap_ontbreekt(self, source: Path, tmp_path: Path):
         self._assert_geweigerd(
@@ -946,6 +984,35 @@ class TestTotaleDeadline:
 
         assert excinfo.value.reason == "backup_timeout"
         assert elapsed < 2.0, f"bronlockwacht duurde {elapsed:.2f}s"
+        assert not destination.exists()
+        assert _staging_artefacts(destination.parent) == []
+
+    def test_deadline_fout_onderdrukt_oorspronkelijke_oserror_context(
+        self, source: Path, destination: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        """PR425 T1: de veilige reason mag geen pad via __context__ lekken."""
+        klok = _Klok()
+        monkeypatch.setattr(sqlite_backup, "_monotonic", klok)
+
+        def kopie_die_faalt_na_verlopen_budget(_source_conn, staging, *_a, **_k):
+            klok.now += 10_000
+            raise OSError(28, "schijf vol", str(staging))
+
+        monkeypatch.setattr(
+            sqlite_backup, "_copy_snapshot", kopie_die_faalt_na_verlopen_budget
+        )
+
+        with pytest.raises(BackupError) as excinfo:
+            create_verified_backup(source, destination, deadline_seconds=5.0)
+
+        exc = excinfo.value
+        assert exc.reason == "backup_timeout"
+        # ``raise ... from None``: de OSError-context wordt onderdrukt en komt
+        # dus niet in een geformatteerde traceback terecht.
+        assert exc.__suppress_context__ is True
+        assert exc.__cause__ is None
+        tekst = "".join(traceback.format_exception(exc))
+        assert str(destination.parent) not in tekst
         assert not destination.exists()
         assert _staging_artefacts(destination.parent) == []
 

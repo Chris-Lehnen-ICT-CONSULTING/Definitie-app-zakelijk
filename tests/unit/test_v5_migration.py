@@ -5,10 +5,12 @@ and full migration run — all using tmp_path (never production data).
 """
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 
 import pytest
 
+import database.migrations.v5_migration as v5_module
 from database.migrations.v5_migration import (
     EXPECTED_EXISTING_TABLES,
     MIGRATION_VERSION,
@@ -264,6 +266,38 @@ class TestCreateBackup:
         """Backup file is placed in a 'backups' subdirectory."""
         backup_path = create_backup(test_db)
         assert backup_path.parent.name == "backups"
+
+
+class TestCreateBackupTijdstempel:
+    """PR425 M5: de microseconden in de backupnaam zijn een bewaakt contract."""
+
+    def test_zelfde_seconde_verschillende_microseconden_geeft_twee_backups(
+        self, test_db: Path, monkeypatch: pytest.MonkeyPatch
+    ):
+        momenten = iter(
+            [
+                datetime(2026, 9, 5, 12, 0, 0, 111111),
+                datetime(2026, 9, 5, 12, 0, 0, 222222),
+            ]
+        )
+
+        class VasteKlok:
+            @classmethod
+            def now(cls) -> datetime:
+                return next(momenten)
+
+        monkeypatch.setattr(v5_module, "datetime", VasteKlok)
+
+        eerste = create_backup(test_db)
+        tweede = create_backup(test_db)
+
+        # Zonder %f zouden beide runs dezelfde naam krijgen en zou de helper de
+        # tweede met destination_exists weigeren.
+        assert eerste.name == "pre_v5_migration_20260905_120000_111111.db"
+        assert tweede.name == "pre_v5_migration_20260905_120000_222222.db"
+        assert eerste != tweede
+        assert verify_backup(eerste, test_db) is True
+        assert verify_backup(tweede, test_db) is True
 
 
 class TestCreateBackupWal:
