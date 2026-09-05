@@ -186,6 +186,12 @@ def test_geneste_save_en_delete_geven_geen_succes_als_buitenste_commit_faalt(
     _assert_veilig(exc.value, tmp_path)
     assert repo._stats["total_saves"] == 0
     assert _lees(repo, id_a) == "A" and _lees(repo, id_b) == "B"
+    diagnose = [
+        r for r in caplog.records if getattr(r, "operation", None) == "transaction"
+    ]
+    assert len(diagnose) == 1
+    assert diagnose[0].sqlite_errorcode == sqlite3.SQLITE_AUTH
+    assert diagnose[0].exc_info is None
     if via == "create":  # de geneste create bestaat na rollback niet
         assert _lees(repo, gezien[0]) is None
     rollback_logs = [r for r in caplog.records if "ROLLBACK" in r.getMessage()]
@@ -210,7 +216,7 @@ def test_geneste_save_en_delete_geven_geen_succes_als_buitenste_commit_faalt(
     ids=["operational", "integrity", "overig", "programmeer", "typed", "workflow"],
 )
 def test_buitenste_transactie_vertaalt_alleen_ruwe_databasefouten(
-    repo, tmp_path, fout, verwacht
+    repo, tmp_path, fout, verwacht, caplog
 ):
     """``verwacht=None``: de fout loopt ongewijzigd (identiek object) door."""
     definitie_id = _bestaand(repo)
@@ -226,4 +232,49 @@ def test_buitenste_transactie_vertaalt_alleen_ruwe_databasefouten(
     assert exc.value is fout if verwacht is None else exc.value.__cause__ is fout
     if verwacht is not None:
         _assert_veilig(exc.value, tmp_path)
+    diagnose = [
+        r for r in caplog.records if getattr(r, "operation", None) == "transaction"
+    ]
+    assert len(diagnose) == (0 if verwacht is None else 1)
+    if diagnose:
+        assert diagnose[0].error_type == type(fout).__name__
+        assert diagnose[0].sqlite_errorcode is None
+        assert diagnose[0].exc_info is None
     assert _lees(repo, definitie_id) == ORIGINEEL
+
+
+def test_transactiediagnose_bevat_geen_ruwe_triggerinhoud(repo, tmp_path, caplog):
+    """Diagnose zonder vrije persoonsdata, SQL of paden in de logs."""
+    definitie_id = _bestaand(repo)
+    conn = repo.legacy_repo._db.get_connection()
+    gevoelig = f"synthetische-persoon Voorbeeldstraat 17; DELETE FROM; {tmp_path}"
+    conn.execute(
+        "CREATE TRIGGER weiger BEFORE DELETE ON definities BEGIN "
+        f"SELECT RAISE(ABORT, '{gevoelig}'); END"
+    )
+    caplog.clear()
+
+    with pytest.raises(DatabaseConstraintError) as exc, repo.transaction():
+        repo.hard_delete(definitie_id)
+
+    assert str(exc.value.__cause__) == gevoelig
+    assert not conn.in_transaction
+    assert _lees(repo, definitie_id) == ORIGINEEL
+    _assert_veilig(exc.value, tmp_path)
+    diagnose = [
+        r for r in caplog.records if getattr(r, "operation", None) == "transaction"
+    ]
+    assert len(diagnose) == 1
+    assert diagnose[0].error_type == "IntegrityError"
+    assert diagnose[0].sqlite_errorcode == sqlite3.SQLITE_CONSTRAINT_TRIGGER
+    assert diagnose[0].origin == "hard_delete"
+    assert diagnose[0].exc_info is None
+    assert diagnose[0].stack_info is None
+    for tekst in [
+        "synthetische-persoon",
+        "Voorbeeldstraat",
+        "DELETE FROM",
+        str(tmp_path),
+    ]:
+        assert tekst not in caplog.text
+        assert tekst not in repr(vars(diagnose[0]))

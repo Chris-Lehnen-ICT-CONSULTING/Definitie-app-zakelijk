@@ -214,7 +214,7 @@ def test_approve_rolt_status_terug_als_ketenpartners_niet_opgeslagen_kan_worden(
 # --- T2: falende app-audit rolt de gecombineerde UPDATE terug ---------------
 
 
-def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch):
+def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch, caplog):
     svc, repo = _service(tmp_path)
     definitie_id = _review_definitie(repo)
     voor = _rij(repo, definitie_id)
@@ -245,6 +245,15 @@ def test_approve_rolt_terug_als_audit_faalt(tmp_path, monkeypatch):
 
     assert result.error_message == MELDING_DATABASEFOUT
     assert "audit faalt" not in result.error_message
+    diagnose = [
+        r for r in caplog.records if getattr(r, "operation", None) == "transaction"
+    ]
+    assert len(diagnose) == 1
+    assert diagnose[0].error_type == "OperationalError"
+    assert diagnose[0].sqlite_errorcode is None  # handmatig gemaakte fout
+    assert diagnose[0].origin == "audit_faalt"
+    assert diagnose[0].exc_info is None
+    assert "audit faalt" not in caplog.text
     _assert_onveranderd(repo, definitie_id, voor)
 
 
