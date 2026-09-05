@@ -22,6 +22,15 @@ from database.migrations.v5_migration import (
     verify_backup,
     verify_migration,
 )
+from tests.fixtures.schema_profiles import (
+    SCHEMA_SQL_PATH,
+    V5_TABELLEN,
+    bouw_profiel,
+    kolommen,
+    lees_sentinels,
+    schema_versies,
+    zaai_sentinels,
+)
 
 pytestmark = [pytest.mark.unit]
 
@@ -30,45 +39,17 @@ pytestmark = [pytest.mark.unit]
 # Helpers: create a realistic test database with the 13 existing tables
 # ---------------------------------------------------------------------------
 def _create_existing_tables(conn: sqlite3.Connection) -> None:
-    """Create minimal versions of all 13 existing production tables."""
+    """Pre-v5-profiel (volledige kern uit schema.sql) plus de historische
+    extra tabellen van de productievorm van destijds.
+
+    DEF-664: de kern was hier een minimale nabootsing; v5 toetst nu het
+    volledige versie-1-doelcontract, dus de kern moet echt canoniek zijn. De
+    extra tabellen blijven om te bewijzen dat zij behouden worden.
+    """
+    conn.executescript(SCHEMA_SQL_PATH.read_text(encoding="utf-8"))
+    for tabel in V5_TABELLEN:
+        conn.execute(f"DROP TABLE {tabel}")
     conn.executescript("""\
-        CREATE TABLE IF NOT EXISTS definities (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            begrip VARCHAR(255) NOT NULL,
-            definitie TEXT NOT NULL,
-            categorie VARCHAR(50) NOT NULL,
-            organisatorische_context TEXT NOT NULL DEFAULT '[]',
-            juridische_context TEXT NOT NULL DEFAULT '[]',
-            status VARCHAR(50) NOT NULL DEFAULT 'draft',
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS definitie_geschiedenis (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            definitie_id INTEGER NOT NULL REFERENCES definities(id),
-            begrip VARCHAR(255) NOT NULL,
-            wijziging_type VARCHAR(50) NOT NULL,
-            gewijzigd_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS definitie_tags (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            definitie_id INTEGER NOT NULL REFERENCES definities(id),
-            tag_naam VARCHAR(100) NOT NULL,
-            toegevoegd_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(definitie_id, tag_naam)
-        );
-
-        CREATE TABLE IF NOT EXISTS definitie_voorbeelden (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            definitie_id INTEGER NOT NULL REFERENCES definities(id),
-            voorbeeld_type VARCHAR(50) NOT NULL,
-            voorbeeld_tekst TEXT NOT NULL,
-            voorbeeld_volgorde INTEGER DEFAULT 1,
-            aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(definitie_id, voorbeeld_type, voorbeeld_volgorde)
-        );
-
         CREATE TABLE IF NOT EXISTS definitie_drafts (
             definitie_id INTEGER PRIMARY KEY REFERENCES definities(id),
             draft_content TEXT NOT NULL,
@@ -148,8 +129,10 @@ def _insert_sample_data(conn: sqlite3.Connection) -> None:
         "INSERT INTO definities (begrip, definitie, categorie) "
         "VALUES ('registratie', 'Het vastleggen van gegevens', 'ENT')"
     )
+    # schema.sql zaait al definities 1-2 met tag (1, 'prioriteit'); de eigen
+    # sentinelrijen krijgen id 3-4.
     conn.execute(
-        "INSERT INTO definitie_tags (definitie_id, tag_naam) VALUES (1, 'prioriteit')"
+        "INSERT INTO definitie_tags (definitie_id, tag_naam) VALUES (3, 'prioriteit')"
     )
     conn.execute("INSERT INTO synonym_groups (canonical_term) VALUES ('verificatie')")
     conn.execute(
@@ -682,3 +665,171 @@ class TestVerifyMigration:
         finally:
             conn.close()
         assert result is False
+
+
+# =========================================================================
+# 7. DEF-664: canonieke bronnen, transactiegrens, restore
+# =========================================================================
+class TestCanoniekeBronnen:
+    """Niet-canonieke historische tabellen zijn geen verplichte producttabellen.
+
+    Gemeten vóór deze reparatie: op een verse schema.sql-database faalde de
+    verificatie op vijf tabellen die geen enkele code in src aanmaakt, terwijl
+    schema_version 1 en file_path al gecommit waren.
+    """
+
+    def test_slaagt_op_een_verse_canonieke_database(self, tmp_path: Path):
+        (tmp_path / "data").mkdir()
+        pad = bouw_profiel(tmp_path / "data" / "definities.db", 3)
+
+        assert run_migration(pad) is True
+
+        assert schema_versies(pad) == [1, 2, 3]
+
+    def test_slaagt_op_een_pre_v5_database_met_alleen_kerntabellen(
+        self, tmp_path: Path
+    ):
+        (tmp_path / "data").mkdir()
+        pad = bouw_profiel(tmp_path / "data" / "definities.db", None)
+        zaai_sentinels(pad)
+        voor = lees_sentinels(pad)
+
+        assert run_migration(pad) is True
+
+        assert schema_versies(pad) == [1]
+        assert "file_path" in kolommen(pad, "rag_documents")
+        assert lees_sentinels(pad, voor) == voor
+
+    def test_historische_tabellen_blijven_behouden_als_ze_bestaan(self, test_db: Path):
+        run_migration(test_db)
+        assert _get_table_names(test_db) >= EXPECTED_EXISTING_TABLES
+
+
+class TestVolledigDoelcontract:
+    """v5 moet het volledige versie-1-doelcontract binnen de transactie toetsen."""
+
+    def test_ontbrekende_trigger_in_bron_geeft_geen_succes_en_rolt_terug(
+        self, tmp_path: Path
+    ):
+        (tmp_path / "data").mkdir()
+        pad = bouw_profiel(tmp_path / "data" / "definities.db", None)
+        conn = sqlite3.connect(str(pad))
+        conn.execute("DROP TRIGGER log_definitie_changes")
+        conn.close()
+
+        assert run_migration(pad) is False
+
+        assert schema_versies(pad) == []
+        assert not set(NEW_TABLES) & _get_table_names(pad)
+
+    def test_geslaagde_migratie_haalt_het_versie_1_doelcontract(self, tmp_path: Path):
+        from database.schema_contract import (
+            contract_problems,
+            read_contract,
+            target_contract,
+        )
+
+        (tmp_path / "data").mkdir()
+        pad = bouw_profiel(tmp_path / "data" / "definities.db", None)
+
+        assert run_migration(pad) is True
+
+        conn = sqlite3.connect(str(pad))
+        try:
+            assert contract_problems(read_contract(conn), target_contract(1)) == []
+        finally:
+            conn.close()
+
+    def test_historische_bron_met_extra_tabellen_slaagt_en_behoudt_ze(
+        self, test_db: Path
+    ):
+        # Historische extra tabellen zijn geen contractbreuk (extra objecten
+        # blijven toegestaan) en worden behouden.
+        assert run_migration(test_db) is True
+        assert _get_table_names(test_db) >= EXPECTED_EXISTING_TABLES
+        assert schema_versies(test_db) == [1]
+
+    def test_bron_zonder_canonieke_kernkolommen_geeft_geen_succes(self, tmp_path: Path):
+        # Een minimale `definities` (alleen id/begrip/definitie) plus de
+        # overige kerntabellen passeert de backupguard maar niet het
+        # versie-1-doelcontract: niets wordt gecommit.
+        (tmp_path / "data").mkdir()
+        pad = bouw_profiel(tmp_path / "data" / "definities.db", None)
+        conn = sqlite3.connect(str(pad))
+        conn.executescript(
+            "PRAGMA foreign_keys=OFF;"
+            "DROP TABLE definities;"
+            "CREATE TABLE definities (id INTEGER PRIMARY KEY, begrip TEXT, definitie TEXT);"
+        )
+        conn.close()
+
+        assert run_migration(pad) is False
+
+        assert schema_versies(pad) == []
+        assert not set(NEW_TABLES) & _get_table_names(pad)
+
+
+class TestBronbehoud:
+    def test_bronobjecten_die_verdwijnen_geven_geen_succes(
+        self, test_db: Path, monkeypatch
+    ):
+        conn = sqlite3.connect(str(test_db))
+        conn.execute("CREATE VIEW gebruikers_extra AS SELECT id FROM definities")
+        conn.close()
+        origineel = v5_module.create_new_tables
+
+        def _sloopt_te_veel(conn):
+            origineel(conn)
+            conn.execute("DROP VIEW gebruikers_extra")
+
+        monkeypatch.setattr(v5_module, "create_new_tables", _sloopt_te_veel)
+
+        assert run_migration(test_db) is False
+
+        assert schema_versies(test_db) == []
+        conn = sqlite3.connect(str(test_db))
+        try:
+            assert conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='view' AND name='gebruikers_extra'"
+            ).fetchone()
+        finally:
+            conn.close()
+
+
+class TestFoutpadIsAtomair:
+    def test_falende_verificatie_rolt_versie_en_tabellen_terug(
+        self, test_db: Path, monkeypatch
+    ):
+        monkeypatch.setattr(
+            v5_module, "verify_migration", lambda conn, preserved=None: False
+        )
+
+        assert run_migration(test_db) is False
+
+        assert schema_versies(test_db) == []
+        assert not set(NEW_TABLES) & _get_table_names(test_db)
+
+    def test_commitfout_rolt_alles_terug(self, test_db: Path, monkeypatch):
+        from database import schema_contract
+
+        def _commit_faalt(conn):
+            raise sqlite3.OperationalError("disk I/O error")
+
+        monkeypatch.setattr(schema_contract, "_commit", _commit_faalt)
+        rijen_voor = _count_rows(test_db, "definities")
+
+        assert run_migration(test_db) is False
+
+        assert schema_versies(test_db) == []
+        assert not set(NEW_TABLES) & _get_table_names(test_db)
+        assert _count_rows(test_db, "definities") == rijen_voor
+
+    def test_ddl_fout_rolt_versie_terug(self, test_db: Path, monkeypatch):
+        def _klapt(conn):
+            raise sqlite3.OperationalError("geinjecteerde DDL-fout")
+
+        monkeypatch.setattr(v5_module, "create_new_tables", _klapt)
+
+        assert run_migration(test_db) is False
+
+        assert schema_versies(test_db) == []

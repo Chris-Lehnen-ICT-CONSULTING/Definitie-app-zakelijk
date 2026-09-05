@@ -10,6 +10,13 @@ import pytest
 
 pytestmark = [pytest.mark.unit]
 
+
+@pytest.fixture(autouse=True)
+def _hermetisch(hermetische_werkmap):
+    """DEF-664: de service-factory opent het standaardpad `data/definities.db`."""
+    return hermetische_werkmap
+
+
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
