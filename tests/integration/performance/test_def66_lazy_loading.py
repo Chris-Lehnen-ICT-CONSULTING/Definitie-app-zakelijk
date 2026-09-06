@@ -4,6 +4,16 @@ DEF-66: Tests for lazy loading optimization.
 Tests verify that PromptServiceV2 and other heavy services
 are NOT initialized until first use, reducing TabbedInterface
 initialization from 509ms to <180ms.
+
+DEF-519 — alleen de database- en containerfixture is gecorrigeerd. De
+numerieke grenzen (`MAX_*_MS`) en de gemeten paden zijn ongewijzigd: elke
+duurmeting hieronder omvat nog steeds de échte `ServiceContainer`- en
+`TabbedInterface`-initialisatie, inclusief de echte `DefinitieRepository` met
+schema-init. Alleen het *doelpad* van SQLite is verlegd naar `tmp_path`; de
+containerfabriek en de repository-fabriek zelf draaien onveranderd door. Er
+wordt dus geen tijd van een dubbel gemeten en geen prestatieverbetering
+geclaimd — de meting is dezelfde, alleen niet meer op de
+repository-database (`data/definities.db`), die de offline-gate terecht weigert.
 """
 
 import time
@@ -18,6 +28,93 @@ MAX_CONTAINER_INIT_MS = 200  # Maximum acceptable container initialization time
 MAX_TABBED_INTERFACE_INIT_MS = (
     200  # Maximum acceptable TabbedInterface initialization time
 )
+
+
+def _sluit_container_verbindingen(container) -> None:
+    """Sluit de SQLite-verbindingen die deze container zelf opende.
+
+    `DatabaseConnection` houdt één verbinding per thread in een
+    `_ThreadConnectionState`; die klasse sluit haar eigen verbinding. Zonder
+    deze stap blijft zij open tot de garbage collector toeslaat — zichtbaar als
+    ResourceWarning.
+    """
+    from database.db_connection import DatabaseConnection
+
+    gezien: set[int] = set()
+    for instantie in list(getattr(container, "_instances", {}).values()):
+        for houder in (instantie, getattr(instantie, "legacy_repo", None)):
+            db = getattr(houder, "_db", None)
+            if not isinstance(db, DatabaseConnection) or id(db) in gezien:
+                continue
+            gezien.add(id(db))
+            toestand = getattr(db._thread_local, "state", None)
+            if toestand is not None:
+                toestand.close()
+
+
+@pytest.fixture
+def container_op_eigen_db(tmp_path, monkeypatch):
+    """Laat de échte containerfabriek een eigen, tijdelijke database gebruiken.
+
+    `get_cached_container()` blijft de gemeten functie: hij leest zijn config
+    nog steeds uit `ContainerConfigs` en bouwt een echte `ServiceContainer`.
+    Alleen `db_path` wordt overschreven, op de bestaande fabrieksgrens
+    (`utils.container_manager.ServiceContainer`). Dat is geen dubbel: de echte
+    klasse wordt aangeroepen met een ander pad.
+    """
+    from services.container import ServiceContainer
+    from utils import container_manager
+
+    db_path = tmp_path / "container-definities.db"
+    gemaakt: list[ServiceContainer] = []
+
+    def _container_met_eigen_db(config):
+        container = ServiceContainer({**config, "db_path": str(db_path)})
+        gemaakt.append(container)
+        return container
+
+    monkeypatch.setattr(container_manager, "ServiceContainer", _container_met_eigen_db)
+    container_manager.get_cached_container.cache_clear()
+    try:
+        yield db_path
+    finally:
+        # Vanaf de eerste aanmaak bezit deze fixture de verbindingen van elke
+        # container die zij liet bouwen; die worden hier gesloten.
+        for container in gemaakt:
+            _sluit_container_verbindingen(container)
+        # Eigen cacheherstel: een container die naar deze tijdelijke database
+        # wijst mag niet in de LRU-cache achterblijven voor een volgende test.
+        container_manager.get_cached_container.cache_clear()
+
+
+@pytest.fixture
+def repository_op_eigen_db(tmp_path, monkeypatch):
+    """Laat de échte repositoryfabriek een eigen, tijdelijke database gebruiken.
+
+    `TabbedInterface.__init__` resolvet `get_definitie_repository` bij aanroep
+    uit `database.definitie_repository`; die fabrieksgrens krijgt hier een
+    expliciet `tmp_path`-pad mee. De fabriek zelf (inclusief schema-init) draait
+    onveranderd binnen de meting.
+    """
+    from database import definitie_repository as repo_module
+
+    db_path = tmp_path / "ui-definities.db"
+    originele_fabriek = repo_module.get_definitie_repository
+
+    def _fabriek_met_eigen_db(_db_path=None):
+        return originele_fabriek(str(db_path))
+
+    repo_module.clear_repository_singleton()
+    monkeypatch.setattr(repo_module, "get_definitie_repository", _fabriek_met_eigen_db)
+    try:
+        yield db_path
+    finally:
+        singleton = repo_module._repository_singleton
+        if singleton is not None:
+            toestand = getattr(singleton._db._thread_local, "state", None)
+            if toestand is not None:
+                toestand.close()
+        repo_module.clear_repository_singleton()
 
 
 class TestPromptServiceLazyLoading:
@@ -137,7 +234,7 @@ class TestPromptServiceLazyLoading:
 class TestServiceContainerPerformance:
     """Test that ServiceContainer initialization is fast."""
 
-    def test_service_container_init_under_200ms(self):
+    def test_service_container_init_under_200ms(self, container_op_eigen_db):
         """
         ServiceContainer initialization should be <200ms after lazy loading fix.
 
@@ -164,7 +261,7 @@ class TestServiceContainerPerformance:
         assert container is not None
         assert hasattr(container, "orchestrator")
 
-    def test_orchestrator_creation_deferred_until_access(self):
+    def test_orchestrator_creation_deferred_until_access(self, container_op_eigen_db):
         """
         Orchestrator (and its dependencies) should NOT be created during container init.
         """
@@ -225,7 +322,9 @@ class TestBackwardsCompatibility:
 class TestPerformanceRegression:
     """Performance regression tests."""
 
-    def test_tabbed_interface_init_under_200ms(self):
+    def test_tabbed_interface_init_under_200ms(
+        self, container_op_eigen_db, repository_op_eigen_db
+    ):
         """
         TabbedInterface initialization should be <200ms after DEF-66 fix.
 

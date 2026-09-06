@@ -80,46 +80,52 @@ jobs:
       # (gemeten 2026-07-07: beide invocaties 0 errors). Zie DEF-567 (verkeerde
       # diagnose) → DEF-568 (echte fix): unit-job 2m26s → ~1m44s.
 
-      - name: Run PR test suite (profiles)
-        env:
-          # Coverage scoped to services (what PR suite tests) - threshold advisory only
-          # Full coverage enforcement in integration tests, not blocking PRs during development
-          # DEF-564: -n 4 — de pr-profile bevat 4 sleep-bound orchestrator-
-          # tests (~40s/stuk); parallel = max i.p.v. som.
-          PYTEST_ADDOPTS: --cov=src/services --cov-report=xml --cov-report=term-missing -n 4 --dist loadfile
-        run: |
-          bash scripts/testing/run_tests.sh pr
+      # DEF-519: één bewaakte poort. De oude `run_tests.sh pr`-stap met
+      # `PYTEST_ADDOPTS` is vervallen: die selecteerde via de omgeving een eigen
+      # profiel naast de Makefile, waardoor CI en `make` niet dezelfde scope
+      # draaiden. De ratchet-stap hieronder draait nu exact dezelfde
+      # unitselectie (ALLE unittests, inclusief `slow`) als `make test-unit`,
+      # plus de meting tegen de 45%-vloer. Lege selectie, collectiefout,
+      # toolfout, testfalen en budgetoverschrijding geven elk een eigen nonzero
+      # status; er is geen fallback en geen stille groene route.
+      - name: Unit gate + coverage ratchet (make test-cov-ci, blokkerend)
+        run: make test-cov-ci
 
-      - name: Coverage ratchet (DEF-466/DEF-427, blokkerend)
-        run: |
-          # DEF-466/DEF-416: dwingt de 45%-vloer af op de volledige unit-suite (-m unit).
-          # Blokkerend sinds DEF-427 de unit-suite groen kreeg in CI (46,44%).
-          # Roept de canonieke Makefile-target aan (single source of truth, CLAUDE.md).
-          make test-cov-ci
+      # DEF-519: acceptance-smoke is een verplichte gate, niet langer een
+      # ongedraaid profiel. Dezelfde runner, eigen artefactpaden.
+      - name: Acceptance/smoke gate (make test-acceptance, blokkerend)
+        run: make test-acceptance
 
-      - name: Services subpackage coverage (advisory)
-        continue-on-error: true
+      # DEF-519: de oude "Services subpackage coverage (advisory)"-stap is
+      # vervallen. Die draaide een handmatig bijgehouden bestandslijst, schreef
+      # als laatste een `.coverage` in de checkout en overschreef daarmee de
+      # meting van de ratchet (DEF-679). De subset zit inmiddels volledig in de
+      # unit- en integrationgates; wat bewust buiten die gates valt, draagt een
+      # expliciete `advisory`-, `future`- of `live`-marker met eigenaar, reden,
+      # trigger en herbeoordelingsdatum (docs/testing/def519-testdispositions.json).
+      # Er wordt hier dus geen niet-vrijgegeven diagnostiek automatisch gedraaid.
+
+      - name: Verzamel de coveragedata van de ratchet
+        if: always()
         run: |
-          # Advisory coverage on focused subset - reports but doesn't block PRs
-          targets=(
-            tests/integration/contracts/test_modular_validation_service_contract.py
-            tests/unit/services/test_validation_aggregation_utils.py
-            tests/integration/contracts/test_validation_degraded_contract.py
-            tests/integration/services/orchestrators/test_definition_orchestrator_v2_happy.py
-            tests/integration/services/orchestrators/test_definition_orchestrator_v2_failure.py
-            tests/integration/services/orchestrators/test_definition_orchestrator_v2_monitoring.py
-            tests/integration/services/orchestrators/test_definition_orchestrator_v2_feedback.py
-          )
-          # Guard against silent no-op when a target is renamed/moved
-          for t in "${targets[@]}"; do
-            if [ ! -f "$t" ]; then
-              echo "::warning file=$t::advisory pytest target ontbreekt — update workflow"
-            fi
-          done
-          # advisory: step is non-blocking via continue-on-error (geen `|| true` nodig)
-          pytest -q "${targets[@]}" \
-            --cov=src/services \
-            --cov-report=term-missing
+          # De runner meet in een verse sessieroot; het pad staat in de
+          # inventaris. Kopieer (nooit verplaatsen/verwijderen) zodat de upload
+          # de werkelijk geproduceerde datafile bevat.
+          python - <<'PY'
+          import json, shutil
+          from pathlib import Path
+
+          inventaris = Path("reports/gates/unit-cov-inventaris.json")
+          if not inventaris.is_file():
+              raise SystemExit(0)
+          artefact = json.loads(inventaris.read_text()).get("coverage_artefacten")
+          if not artefact:
+              raise SystemExit(0)
+          bron = Path(artefact["data_file"])
+          if bron.is_file():
+              shutil.copy(bron, Path("reports/gates") / "unit-coverage-data")
+              print(f"coveragedata gekopieerd uit {bron}")
+          PY
 
       # DEF-678: Codecov-upload verwijderd, samen met de hele workflow
       # `coverage-badge.yml`. Die workflow faalde 100 van 100 runs sinds
@@ -133,24 +139,34 @@ jobs:
       # `file` waar codecov-action@v7 `files` verwacht.
       # De blokkerende vloer blijft de ratchet-stap hierboven.
 
-      # Let op de scope: de advisory-stap hierboven schrijft `.coverage` als
-      # laatste en zonder `--cov-append`, dus dit rapport toont díe services-
-      # subset (13 tests) en niet de projectbrede ratchet-meting. Pre-existing
-      # gedrag, niet door DEF-678 geintroduceerd; opgelost in DEF-679.
-      - name: Coverage report in step summary (main)
-        if: github.ref == 'refs/heads/main'
+      # DEF-519/DEF-679: de oude step-summary las het `.coverage` uit de
+      # checkout, dat door de advisory-stap was overschreven — het toonde dus de
+      # verkeerde scope. De gate print haar eigen totaal
+      # (`[run_profile:coverage] totaal=..`) in de stap hierboven en levert de
+      # meting als XML op; die twee zijn de bron.
+      - name: Coverage-totaal in step summary
+        if: always()
         run: |
-          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
 
-      - name: Archive test results
+          xml = Path("reports/gates/unit-coverage.xml")
+          if not xml.is_file():
+              print("Geen coveragerapport van de unitgate gevonden.")
+          else:
+              wortel = ET.parse(xml).getroot()
+              tarief = float(wortel.get("line-rate", "0")) * 100
+              print(f"### Unitgate coverage: {tarief:.2f}% (vloer 45%)")
+          PY
+
+      - name: Archive gate results
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.python-version }}
           path: |
-            htmlcov/
-            coverage.xml
-            .coverage
+            reports/gates/
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -185,7 +201,7 @@ jobs:
           python -m pip install uv
           uv pip install --system --require-hashes -r requirements.txt -r requirements-dev.txt
 
-      - name: Run integration tests (parallel, zonder performance)
+      - name: Integration gate (make test-integration, blokkerend)
         env:
           # DEF-506: dummy is bewust GEEN sk-prefix zodat de module-level
           # skip-guards (echte-AI-tests) blijven skippen, terwijl de
@@ -203,77 +219,38 @@ jobs:
           AI_RATE_LIMIT_MAX_RETRIES: "1"
           AI_RATE_LIMIT_BACKOFF_FACTOR: "1.0"
         run: |
-          # DEF-506: integration-gate is BLOKKEREND — `|| true` (DEF-466) is weg.
-          # Onderstaande --deselect's zijn bestanden met pre-existing failures
-          # (61 tests over 16 bestanden, gedocumenteerd in DEF-506/PR) — dat is
-          # tech-debt, geen maskering.
-          # DEF-561: xdist — de 13 trage generatie-tests zijn sleep-bound
-          # (geneste retry-lagen op de dummy-key, ~40s/stuk) en
-          # parallelliseren perfect: lokaal ~10,5 min → 2m32s.
-          # DEF-564: --dist load (per test) i.p.v. loadfile — het kritieke pad
-          # was anders het traagste BESTAND (~200s). Volgorde-onafhankelijkheid
-          # is geborgd: pytest-randomly schudt de volgorde al in elke run.
-          # tests/integration/performance draait APART en serieel (volgende
-          # stap): timing-asserts zijn onbetrouwbaar onder CPU-concurrentie.
-          # DEF-561/review: test_duplicate_detection_fix + test_history_removal
-          # gebruiken de default-repository (cwd-relatieve data/definities.db)
-          # en zijn dus niet hermetisch onder parallelle workers → serieel in
-          # de volgende stap. Hermetisch maken = DEF-562.
-          # LET OP: --ignore werkt hier NIET (pytest 9 + deze config negeert
-          # het stil — empirisch geverifieerd, run 28798987445 draaide de
-          # performance-map gewoon mee). --deselect op de map werkt wél.
-          if [ -d "tests/integration" ]; then
-            pytest tests/integration/ -v -n 8 --dist load \
-              --deselect tests/integration/performance \
-              --deselect "tests/integration/services/test_batch_validation.py::test_batch_validate_performance_benefit" \
-              --deselect tests/integration/test_duplicate_detection_fix.py \
-              --deselect tests/integration/test_history_removal.py \
-              --deselect tests/integration/compliance/test_architecture_consolidation.py \
-              --deselect tests/integration/compliance/test_per007_documentation_compliance.py \
-              --deselect tests/integration/database/test_unique_constraint_removal.py \
-              --deselect tests/integration/regression/test_category_regeneration.py \
-              --deselect tests/integration/regression/test_regression_suite.py \
-              --deselect tests/integration/regression/test_story_2_4_regression.py \
-              --deselect tests/integration/security/test_security_comprehensive.py \
-              --deselect tests/integration/test_per007_acceptance.py \
-              --deselect tests/integration/test_per007_single_source_red.py \
-              --deselect tests/integration/test_synonym_orchestrator_e2e.py \
-              --deselect tests/integration/test_synonym_suggester_e2e.py \
-              --deselect tests/integration/test_validate_synonyms.py \
-              --deselect tests/integration/test_voorbeelden_validation_chain.py
-          fi
+          # DEF-519: één canonieke integrationgate in plaats van drie stappen
+          # met eigen selecties. Wat er is veranderd en waarom:
+          #
+          # * De `--deselect`-lijst van hele bestanden is weg. Wat werkelijk
+          #   buiten de gate hoort, draagt nu een expliciete `advisory`-,
+          #   `future`- of `live`-marker mét eigenaar, reden, trigger en
+          #   herbeoordelingsdatum (docs/testing/def519-testdispositions.json).
+          #   Alle overige nodes uit die bestanden — inclusief de actieve
+          #   contracten die er tussen zaten — draaien nu wél verplicht mee.
+          # * De `if [ -d "tests/integration" ]`-route is weg: een ontbrekende
+          #   map leverde stil succes op. Een lege selectie is nu nonzero.
+          # * De aparte serieele DB-stap is niet meer nodig: de runner draait in
+          #   een verse werkmap, dus het CWD-relatieve `data/definities.db` van
+          #   test_duplicate_detection_fix/test_history_removal landt in
+          #   tijdelijke opslag in plaats van in de checkout (DEF-562-patroon).
+          # * De advisory performance-stap is vervallen. De integrationunie
+          #   dekt `tests/integration/performance` via het pad; de nodes die
+          #   bewust buiten scope zijn, zijn per node advisory gemarkeerd. De
+          #   overige performance-nodes zijn hiermee weer blokkerend — zie
+          #   DEF-563 voor de runner-bewuste drempels.
+          # * Geen xdist: de runner-allowlist laat `-n/--dist` niet door omdat
+          #   de gedeelde inventaris controller- en workerinformatie niet
+          #   gescheiden vastlegt. Er wordt hier geen versnelling geclaimd.
+          make test-integration
 
-      - name: Run niet-hermetische DB-tests (serieel, blokkerend)
-        env:
-          ANTHROPIC_API_KEY: dummy
-          OPENAI_API_KEY: dummy
-        run: |
-          # DEF-561/DEF-562: functionele tests op de gedeelde default-DB —
-          # serieel (niet xdist-veilig) maar wél hard blokkerend.
-          pytest -v \
-            tests/integration/test_duplicate_detection_fix.py \
-            tests/integration/test_history_removal.py
-
-      - name: Run performance tests (serieel, advisory)
-        continue-on-error: true  # DEF-563: hardware-timing-asserts faalden
-        # 2026-07-06 tweemaal puur op trage runner-VM's (throughput 608 vs
-        # >1000 ops/sec; orchestrator-init 484 vs <400ms) en blokkeerden
-        # merges onterecht. Advisory tot de drempels runner-bewust zijn
-        # geherkalibreerd (DEF-563); resultaten blijven zichtbaar in de run.
-        env:
-          ANTHROPIC_API_KEY: dummy
-          OPENAI_API_KEY: dummy
-        run: |
-          # Serieel: timing-asserts zijn onbetrouwbaar onder xdist-CPU-
-          # concurrentie. Deselects = pre-existing failures (DEF-506).
-          if [ -d "tests/integration/performance" ]; then
-            pytest tests/integration/performance/ -v \
-              "tests/integration/services/test_batch_validation.py::test_batch_validate_performance_benefit" \
-              --deselect tests/integration/performance/test_def110_regression.py \
-              --deselect tests/integration/performance/test_per007_performance.py \
-              --deselect tests/integration/performance/test_performance_comprehensive.py \
-              --deselect tests/integration/performance/test_rule_cache_performance.py
-          fi
+      - name: Archive gate results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: integration-gate-results
+          path: |
+            reports/gates/
 
   security-check:
     runs-on: ubuntu-latest

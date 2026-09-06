@@ -16,6 +16,7 @@ import pytest
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
+from services.interfaces import Definition, DefinitionResponseV2, GenerationRequest
 from services.service_factory import LegacyGenerationResult, ServiceAdapter
 from services.web_lookup.provenance import (
     _extract_legal_metadata,
@@ -24,6 +25,55 @@ from services.web_lookup.provenance import (
 )
 
 pytestmark = [pytest.mark.unit]
+
+
+class OrchestratorGrens:
+    """Gecontroleerde orchestratorgrens: legt de invoer vast, levert een DTO.
+
+    Geen AsyncMock-nesting en geen verzonnen attributen — het antwoord is een
+    echte `DefinitionResponseV2` met een echte `Definition`.
+    """
+
+    def __init__(self, *, sources: list[dict] | None) -> None:
+        self.sources = sources
+        self.aanroepen = 0
+        self.laatste_request: GenerationRequest | None = None
+        self.laatste_context: dict | None = None
+
+    async def create_definition(
+        self, request: GenerationRequest, context: dict | None = None
+    ) -> DefinitionResponseV2:
+        self.aanroepen += 1
+        self.laatste_request = request
+        self.laatste_context = context
+
+        metadata: dict = {"generation_id": "def519-sources"}
+        if self.sources is not None:
+            metadata["sources"] = self.sources
+
+        return DefinitionResponseV2(
+            success=True,
+            definition=Definition(
+                begrip=request.begrip,
+                definitie=f"Stub definitie voor {request.begrip}",
+                metadata=metadata,
+            ),
+            validation_result=None,
+            metadata={"orchestrator_version": "v2.0"},
+        )
+
+
+class ContainerGrens:
+    """Minimale injectiepunt-grens voor de échte ServiceAdapter."""
+
+    def __init__(self, orchestrator: OrchestratorGrens) -> None:
+        self._orchestrator = orchestrator
+
+    def orchestrator(self) -> OrchestratorGrens:
+        return self._orchestrator
+
+    def web_lookup(self) -> None:
+        return None
 
 
 class TestLegacyGenerationResultSources:
@@ -53,29 +103,74 @@ class TestLegacyGenerationResultSources:
         assert len(result.sources) == 2
         assert result.sources[0]["provider"] == "wikipedia"
 
-    @pytest.mark.skip(
-        reason="ServiceAdapter.generate_definition returns dict, not object with sources attr. "
-        "Sources are passed via metadata dict, not as a top-level attribute."
-    )
     @pytest.mark.asyncio
     async def test_service_adapter_adds_sources_to_result(self):
         """Test that ServiceAdapter.generate_definition adds sources to result_dict.
 
-        Note: This test is skipped because the actual implementation returns a dict
-        with definitie_gecorrigeerd, validation_details, etc. Sources are expected
-        to be in metadata, not as a top-level attribute.
+        DEF-519 — actuele mapping: `generate_definition` levert het getypeerde
+        orchestrator-response (DEF-451); de canonieke UI-dict komt uit de eigen
+        serialisatie-seam `to_ui_response`, die `sources` op top-level zet
+        (service_factory.py ~511/527). De oude skipreden ("returns dict, not
+        object") klopt daarmee niet meer. Geen adapter-mock: alleen de
+        orchestratorgrens is gecontroleerd.
         """
+        bronnen = [
+            {"provider": "wikipedia", "title": "Test", "score": 0.9},
+            {"provider": "overheid", "title": "Wet test", "score": 0.8},
+        ]
+        orchestrator = OrchestratorGrens(sources=bronnen)
+        adapter = ServiceAdapter(ContainerGrens(orchestrator))
 
-    @pytest.mark.skip(
-        reason="ServiceAdapter.generate_definition returns dict, not object with sources attr. "
-        "Sources are passed via metadata dict, not as a top-level attribute."
-    )
+        response = await adapter.generate_definition(
+            "authenticatie",
+            {"organisatorisch": ["OM", "DJI"], "juridisch": ["Strafrecht"]},
+        )
+
+        # De grens is werkelijk aangeroepen, met de aangeleverde invoer.
+        assert orchestrator.aanroepen == 1
+        assert orchestrator.laatste_request.begrip == "authenticatie"
+        assert orchestrator.laatste_request.organisatorische_context == ["OM", "DJI"]
+        assert orchestrator.laatste_request.juridische_context == ["Strafrecht"]
+
+        # Servicelaag levert het getypeerde response; de UI-dict komt uit de
+        # serialisatie-seam van dezelfde adapter.
+        assert isinstance(response, DefinitionResponseV2)
+        result = adapter.to_ui_response(response)
+
+        assert isinstance(result, dict)
+        assert "sources" in result, "sources ontbreekt op top-level van de UI-dict"
+        assert result["sources"] == bronnen, "bronnen niet ongewijzigd doorgegeven"
+        # Exacte volgorde en velden blijven behouden.
+        assert [b["provider"] for b in result["sources"]] == ["wikipedia", "overheid"]
+        assert result["sources"][0] == {
+            "provider": "wikipedia",
+            "title": "Test",
+            "score": 0.9,
+        }
+        assert result["sources"][1] == {
+            "provider": "overheid",
+            "title": "Wet test",
+            "score": 0.8,
+        }
+        assert result["definitie_gecorrigeerd"] == "Stub definitie voor authenticatie"
+
     @pytest.mark.asyncio
     async def test_sources_empty_list_when_no_sources(self):
-        """Test that sources defaults to empty list when no sources in metadata.
+        """Test that sources defaults to empty list when no sources in metadata."""
+        orchestrator = OrchestratorGrens(sources=None)
+        adapter = ServiceAdapter(ContainerGrens(orchestrator))
 
-        Note: This test is skipped because the actual implementation returns a dict.
-        """
+        response = await adapter.generate_definition("authenticatie", {})
+
+        assert orchestrator.aanroepen == 1
+        assert orchestrator.laatste_request.begrip == "authenticatie"
+        assert "sources" not in (response.definition.metadata or {})
+
+        result = adapter.to_ui_response(response)
+
+        assert "sources" in result, "sources moet ook zonder bronnen aanwezig zijn"
+        assert result["sources"] == []
+        assert isinstance(result["sources"], list)
 
 
 class TestProviderNeutralReferences:

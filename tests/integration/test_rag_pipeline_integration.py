@@ -4,9 +4,8 @@ Test de volledige keten: document ingest → embedding → store → retrieve �
 Gebruikt mock embeddings (geen OpenAI API calls nodig).
 """
 
-import os
 import sqlite3
-import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -55,14 +54,9 @@ def _distant_embedding(base: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
-@pytest.fixture
-def rag_db():
-    """Temp SQLite database met RAG tabellen."""
-    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
-        db_path = f.name
-
-    conn = sqlite3.connect(db_path)
-    conn.executescript("""
+#: De echte DDL van de RAG-tabellen. Ongewijzigd overgenomen uit de fixture;
+#: als constante zodat de foutpadtest hem kan vervangen zonder hem te kopiëren.
+RAG_DDL = """
         CREATE TABLE IF NOT EXISTS rag_collections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             collection_name VARCHAR(255) NOT NULL UNIQUE,
@@ -98,11 +92,80 @@ def rag_db():
         CREATE INDEX IF NOT EXISTS idx_chunks_collection ON rag_chunks(collection_id);
         CREATE INDEX IF NOT EXISTS idx_chunks_document ON rag_chunks(document_id);
         PRAGMA foreign_keys=ON;
-    """)
-    conn.close()
+"""
 
-    yield db_path
-    os.unlink(db_path)
+
+def _initialiseer_rag_database(db_path, ddl: str = RAG_DDL) -> None:
+    """Maak de RAG-tabellen aan in een echte SQLite-database op `db_path`.
+
+    Vanaf `connect` gaat de verbinding gegarandeerd dicht, ook als de DDL
+    faalt. Een half-open verbinding houdt het databasebestand vast en laat een
+    volgende test op een raadselachtige lock stuklopen in plaats van op de
+    schemafout die er werkelijk was.
+    """
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.executescript(ddl)
+    finally:
+        conn.close()
+
+
+@pytest.fixture
+def rag_db(tmp_path):
+    """Temp SQLite database met RAG tabellen, binnen de pytest-sessieroot.
+
+    Bewust `tmp_path` en geen `NamedTemporaryFile`: die laatste legt het
+    bestand buiten de sessieroot, waar de offline-gate elke SQLite-opening
+    weigert. pytest ruimt `tmp_path` zelf op, dus de fixture verwijdert niets.
+    """
+    db_path = tmp_path / "rag_pipeline.db"
+    _initialiseer_rag_database(db_path)
+    return str(db_path)
+
+
+@pytest.mark.integration
+def test_rag_db_ligt_in_de_eigen_tijdelijke_map(rag_db, tmp_path):
+    """DEF-519: de fixture levert een echte, eigen database binnen tmp_path."""
+    pad = Path(rag_db)
+    assert pad.parent == tmp_path, "de testdatabase hoort in de pytest-basetemp"
+
+    conn = sqlite3.connect(rag_db)
+    try:
+        tabellen = {
+            naam
+            for (naam,) in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
+    finally:
+        conn.close()
+    assert {"rag_collections", "rag_documents", "rag_chunks"} <= tabellen
+
+
+@pytest.mark.integration
+def test_rag_database_sluit_verbinding_ook_bij_ddl_fout(tmp_path, monkeypatch):
+    """DEF-519 foutpad: een mislukte DDL laat geen open verbinding achter.
+
+    Getoetst op de verbinding zelf, niet op de aanwezigheid van een
+    `finally`-blok: zonder de gegarandeerde `close()` slaagt `SELECT 1` hier
+    gewoon en blijft het bestand open.
+    """
+    geopend = []
+    echte_connect = sqlite3.connect
+
+    def _spion(*args, **kwargs):
+        conn = echte_connect(*args, **kwargs)
+        geopend.append(conn)
+        return conn
+
+    monkeypatch.setattr(sqlite3, "connect", _spion)
+
+    with pytest.raises(sqlite3.Error):
+        _initialiseer_rag_database(tmp_path / "kapot.db", ddl="CREATE TABLE ;")
+
+    assert len(geopend) == 1, "verwacht precies één geopende verbinding"
+    with pytest.raises(sqlite3.ProgrammingError):
+        geopend[0].execute("SELECT 1")
 
 
 @pytest.fixture
