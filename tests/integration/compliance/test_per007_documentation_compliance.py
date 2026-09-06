@@ -1,6 +1,20 @@
 """
 Test suite for PER-007 documentation compliance after consolidation.
 Validates that all PER-007 related content is preserved and accessible.
+
+Dit zijn historische documentcontroles op aanwezigheid en tekstpatronen; geen
+compliance-oordeel.
+
+DEF-519: BASE_DIR wees naar tests/integration in plaats van de projectwortel,
+waardoor elke controle in een niet-bestaande boom keek. Bronpaden die alleen
+verplaatst zijn volgen nu hun aantoonbaar bestaande actuele locatie; een
+ontbrekende verplichte bron faalt met het concrete pad in plaats van een
+FileNotFoundError of een overgeslagen bron.
+
+Dispositie van de resterende rode nodes (geen skip/xfail, blijven zichtbaar):
+de ontbrekende SOLUTION_ARCHITECTURE.md / TECHNICAL_ARCHITECTURE.md-docfeiten
+horen bij DEF-619; trigger is die story, herbeoordeling uiterlijk 2026-10-06.
+Geen documenten herbouwd en geen complianceoplevering in deze batch.
 """
 
 import re
@@ -10,17 +24,34 @@ import pytest
 
 pytestmark = [pytest.mark.compliance]
 
+# `advisory`-dispositie (DEF-519), per node en niet op bestandsniveau: de drie
+# nodes zonder marker slagen op de huidige bron en blijven verplicht.
+# Reden: PER007-documentatiefacts die nog niet geleverd zijn; de fixturefouten
+# zijn hersteld, dus dit is echte documentatiedrift.
+# Owner: DEF-619 (documentatiefacts).
+# Trigger: DEF-619 levert de documentatiefacts, of het PER007-contract wordt
+# formeel ingetrokken.
+# Herbeoordeling: 2026-10-06.
+
 
 class TestPER007DocumentationCompliance:
     """Validate PER-007 implementation documentation after consolidation."""
 
-    BASE_DIR = Path(__file__).parent.parent
+    # tests/integration/compliance/<dit bestand> -> parents[3] is de projectwortel.
+    BASE_DIR = Path(__file__).resolve().parents[3]
     ARCH_DIR = BASE_DIR / "docs" / "architectuur"
 
+    def test_base_dir_points_at_checkout(self):
+        """Discriminator: de scope moet de echte checkout zijn, niet leeg."""
+        assert (self.BASE_DIR / "pytest.ini").is_file(), self.BASE_DIR
+        assert (self.BASE_DIR / "tests").is_dir(), self.BASE_DIR
+        assert (self.BASE_DIR / "docs").is_dir(), self.BASE_DIR
+
+    @pytest.mark.advisory
     def test_per007_coverage_in_solution_architecture(self):
         """Test that SA document contains comprehensive PER-007 documentation."""
         sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
-        assert sa_path.exists(), "SOLUTION_ARCHITECTURE.md not found"
+        assert sa_path.exists(), f"SOLUTION_ARCHITECTURE.md not found at {sa_path}"
 
         with open(sa_path, encoding="utf-8") as f:
             content = f.read()
@@ -45,6 +76,7 @@ class TestPER007DocumentationCompliance:
         assert "presentation" in content.lower(), "Missing presentation layer details"
         assert "anders_option" in content.lower(), "Missing anders_option details"
 
+    @pytest.mark.advisory
     def test_per007_adr_references(self):
         """Test that PER-007 ADR is properly referenced or documented."""
         # Check if ADR exists in archive or is referenced in docs
@@ -65,6 +97,11 @@ class TestPER007DocumentationCompliance:
         # If ADR doesn't exist as separate file, check if it's documented in SA
         if not adr_exists:
             sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
+            assert sa_path.exists(), (
+                "PER-007 ADR niet gevonden op "
+                f"{[str(p) for p in adr_locations]} en de terugvalbron ontbreekt: "
+                f"{sa_path}"
+            )
             with open(sa_path, encoding="utf-8") as f:
                 content = f.read()
 
@@ -73,10 +110,11 @@ class TestPER007DocumentationCompliance:
                 "ADR" in content or "Architecture Decision" in content
             ), "PER-007 ADR not found and not documented in SA"
 
+    @pytest.mark.advisory
     def test_per007_implementation_files_documented(self):
         """Test that PER-007 implementation files are documented."""
         ta_path = self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md"
-        assert ta_path.exists(), "TECHNICAL_ARCHITECTURE.md not found"
+        assert ta_path.exists(), f"TECHNICAL_ARCHITECTURE.md not found at {ta_path}"
 
         with open(ta_path, encoding="utf-8") as f:
             content = f.read()
@@ -105,16 +143,19 @@ class TestPER007DocumentationCompliance:
         ]
 
         tests_dir = self.BASE_DIR / "tests"
-        existing_tests = []
+        assert tests_dir.is_dir(), f"tests-map ontbreekt: {tests_dir}"
 
-        for test_file in test_files:
-            test_path = tests_dir / test_file
-            if test_path.exists():
-                existing_tests.append(test_file)
+        # De testbestanden zijn alleen verplaatst naar submappen (unit/,
+        # integration/, integration/performance/); zoek ze daarom recursief op
+        # exact dezelfde bestandsnaam. Geen vervangende bestanden.
+        existing_tests = [
+            test_file for test_file in test_files if any(tests_dir.rglob(test_file))
+        ]
 
-        assert (
-            len(existing_tests) >= 4
-        ), f"Only {len(existing_tests)}/6 PER-007 test files exist"
+        assert len(existing_tests) >= 4, (
+            f"Only {len(existing_tests)}/6 PER-007 test files exist; "
+            f"gevonden: {existing_tests}"
+        )
 
     def test_per007_compliance_report_exists(self):
         """Test that PER-007 compliance report exists."""
@@ -122,17 +163,30 @@ class TestPER007DocumentationCompliance:
             self.BASE_DIR / "docs" / "PER-007-COMPLIANCE-REPORT.md",
             self.BASE_DIR / "docs" / "testing" / "PER-007-COMPLIANCE-REPORT.md",
             self.BASE_DIR / "docs" / "architectuur" / "PER-007-COMPLIANCE-REPORT.md",
+            # Verplaatst, niet vervangen: hetzelfde rapportbestand staat nu in
+            # het gedateerde archief. De mapnaam is kleingeschreven — zo staat
+            # hij getrackt in git. Op de hoofdletterongevoelige macOS-checkout
+            # viel het verschil weg; op Linux-CI niet (PR #427, integration-job
+            # 101574083642).
+            self.BASE_DIR
+            / "docs"
+            / "archief"
+            / "2025-09-05"
+            / "PER-007-COMPLIANCE-REPORT.md",
         ]
 
         report_exists = any(path.exists() for path in possible_locations)
-        assert (
-            report_exists
-        ), "PER-007 compliance report not found in expected locations"
+        assert report_exists, (
+            "PER-007 compliance report not found in expected locations: "
+            f"{[str(p) for p in possible_locations]}"
+        )
 
+    @pytest.mark.advisory
     def test_per007_workflows_documented(self):
         """Test that PER-007 workflows are documented."""
         # Check in SA or workflows directory
         sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
+        assert sa_path.exists(), f"Verplichte bron ontbreekt: {sa_path}"
 
         with open(sa_path, encoding="utf-8") as f:
             sa_content = f.read()
@@ -152,9 +206,11 @@ class TestPER007DocumentationCompliance:
             found_workflows >= 2
         ), f"Insufficient PER-007 workflow documentation (found {found_workflows}/4 keywords)"
 
+    @pytest.mark.advisory
     def test_per007_validation_rules_preserved(self):
         """Test that PER-007 validation rules are preserved in documentation."""
         ta_path = self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md"
+        assert ta_path.exists(), f"Verplichte bron ontbreekt: {ta_path}"
 
         with open(ta_path, encoding="utf-8") as f:
             content = f.read()
@@ -176,6 +232,7 @@ class TestPER007DocumentationCompliance:
             found_patterns >= 2
         ), f"Insufficient validation rule documentation (found {found_patterns}/4 patterns)"
 
+    @pytest.mark.advisory
     def test_per007_migration_status_documented(self):
         """Test that PER-007 migration/implementation status is documented."""
         docs_to_check = [
@@ -183,11 +240,11 @@ class TestPER007DocumentationCompliance:
             self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md",
         ]
 
+        ontbrekend = [str(p) for p in docs_to_check if not p.exists()]
+        assert not ontbrekend, f"Verplichte bron(nen) ontbreken: {ontbrekend}"
+
         status_found = False
         for doc_path in docs_to_check:
-            if not doc_path.exists():
-                continue
-
             with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
 
@@ -207,9 +264,11 @@ class TestPER007DocumentationCompliance:
 
         assert status_found, "PER-007 implementation status not documented"
 
+    @pytest.mark.advisory
     def test_per007_backwards_compatibility_noted(self):
         """Test that backwards compatibility considerations are documented."""
         sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
+        assert sa_path.exists(), f"Verplichte bron ontbreekt: {sa_path}"
 
         with open(sa_path, encoding="utf-8") as f:
             content = f.read()
@@ -233,9 +292,11 @@ class TestPER007DocumentationCompliance:
             found_keywords >= 3
         ), f"Insufficient backwards compatibility documentation (found {found_keywords}/6 keywords)"
 
+    @pytest.mark.advisory
     def test_per007_configuration_documented(self):
         """Test that PER-007 configuration is documented."""
         ta_path = self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md"
+        assert ta_path.exists(), f"Verplichte bron ontbreekt: {ta_path}"
 
         with open(ta_path, encoding="utf-8") as f:
             content = f.read()

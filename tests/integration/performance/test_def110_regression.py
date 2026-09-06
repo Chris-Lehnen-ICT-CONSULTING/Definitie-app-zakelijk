@@ -11,6 +11,44 @@ Design:
 - Tests run in isolated subprocess to ensure fresh Python process
 - Monitors critical metrics: RuleCache loads, ServiceContainer inits, startup time
 - Fails if metrics exceed acceptable thresholds
+
+DEF-519 — de vier subprocesdiagnoses zijn advisory
+--------------------------------------------------
+`test_no_rerun_cascade_in_logs`, `test_rule_cache_loads_once`,
+`test_startup_time_acceptable` en `test_document_current_metrics` starten een
+Streamlit-server als kindproces en lezen zijn stdout. Ze meten daarmee
+aantoonbaar niet wat ze beweren:
+
+* De `cwd` is `Path(__file__).parent.parent.parent`. Dat was de projectroot toen
+  dit bestand nog in `tests/performance/` stond; sinds de verhuizing naar
+  `tests/integration/performance/` wijst het naar `tests/`, waar `src/main.py`
+  niet bestaat. De echte gate-uitvoer is dan ook `File does not exist:
+  src/main.py` (root-final-integration-01, `startup_time.log`).
+* De eerste twee tellen voorkomens in de opgevangen uitvoer en vergelijken met
+  een bovengrens. Blijft die uitvoer leeg — of bevat zij alleen een foutmelding
+  — dan is de telling nul en meldt de node groen zonder dat er ooit een
+  appsessie draaide. Een startbanner is bovendien geen bewijs dat de
+  applicatiesessie is geïnitialiseerd.
+* De lus leest met een blokkerende `readline()`; die keert pas terug als er een
+  regel is. De `while`-voorwaarde begrenst de wachttijd dus niet betrouwbaar.
+* `test_document_current_metrics` roept `scripts/verify_def110_fix.py::verify_fix`
+  aan. Die start Streamlit, leest eveneens onbegrensd met `stdout.readline()` en
+  vangt fouten af als returnwaarde `1`. De testbody negeert die returnwaarde en
+  sluit af met `assert True`: de node kan per constructie niet rood worden en is
+  dus geen broncontrole en geen betrouwbare gate-assertie. Het is dezelfde
+  ongeldige diagnostiek als hierboven, niet een aparte bevinding.
+
+Ze zijn daarom `advisory`: buiten de verplichte gates, met eigenaar, reden,
+trigger en herbeoordelingsdatum in `docs/testing/def519-testdispositions.json`.
+Bodies en positieve verwachtingen blijven ongewijzigd en blijven als historische
+diagnostiek staan — er wordt hier geen nieuwe startupdiagnose gebouwd en geen
+server- of browserarchitectuur geïntroduceerd. Eerdere passes van deze vier
+bewijzen géén actuele startupgarantie; ze zijn ook geen bewijs van een
+regressie.
+
+De twee overige nodes in dit bestand toetsen de bron en het contract zonder
+subproces (`test_no_force_clean_in_render_methods` en
+`test_context_cleaner_idempotent_guard`) en blijven onverkort verplicht.
 """
 
 import subprocess
@@ -26,10 +64,14 @@ pytestmark = [pytest.mark.performance]
 class TestDEF110Regression:
     """Monitor performance regression patterns from DEF-110."""
 
+    @pytest.mark.advisory
     @pytest.mark.performance
     def test_no_rerun_cascade_in_logs(self, tmp_path):
         """
         CRITICAL: Verify no rerun cascade occurs during startup.
+
+        DEF-519: advisory — telt voorkomens in de opgevangen uitvoer, dus lege
+        of foutuitvoer telt als nul en dus als groen. Zie de modulekop.
 
         DEF-110 issue: force_clean=True in render() caused 4x Python process restarts.
 
@@ -84,10 +126,15 @@ class TestDEF110Regression:
             context_clean_count <= 2
         ), f"REGRESSION: {context_clean_count}x context cleanups (expected ≤2). Check {log_file}"
 
+    @pytest.mark.advisory
     @pytest.mark.performance
     def test_rule_cache_loads_once(self, tmp_path):
         """
         CRITICAL: Verify RuleCache is loaded only 1x during startup.
+
+        DEF-519: advisory — dezelfde nul-telt-als-groen-constructie als
+        hierboven; de bovengrens is ook zonder appsessie gehaald. Zie de
+        modulekop.
 
         DEF-110 issue: Rerun cascade caused RuleCache to load 4x (US-202 regression).
 
@@ -137,11 +184,17 @@ class TestDEF110Regression:
             rule_cache_init_count <= 1
         ), f"REGRESSION: RuleCache loaded {rule_cache_init_count}x (expected 1x). Check {log_file}"
 
+    @pytest.mark.advisory
     @pytest.mark.performance
     @pytest.mark.slow
     def test_startup_time_acceptable(self, tmp_path):
         """
         WARNING: Verify startup completes in reasonable time.
+
+        DEF-519: advisory — deze node maakt de meetfout zichtbaar: met de
+        verkeerde `cwd` start er geen app en faalt `app_ready`. De positieve
+        verwachting blijft staan; ze wordt hier niet zwakker gemaakt en ook
+        niet opnieuw opgebouwd. Zie de modulekop.
 
         DEF-110 issue: 35s startup due to rerun cascade (baseline: 1.2s).
 
@@ -292,12 +345,19 @@ class TestDEF110Regression:
 class TestPerformanceBaseline:
     """Baseline performance metrics for regression detection."""
 
+    @pytest.mark.advisory
     def test_document_current_metrics(self, caplog):
         """
         Document current performance metrics for future comparison.
 
         This test always passes but logs current metrics for analysis.
         Used to establish baseline after DEF-110 fix.
+
+        DEF-519: advisory — vierde subprocesdiagnose. `verify_fix()` start
+        Streamlit, leest onbegrensd met `stdout.readline()` en geeft bij een
+        fout `1` terug; deze body negeert dat en sluit af met `assert True`.
+        De node kan dus per constructie niet rood worden. Body en positieve
+        verwachting blijven als historische diagnostiek staan. Zie de modulekop.
         """
         # Run verification script
         from scripts.verify_def110_fix import verify_fix

@@ -47,19 +47,26 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-    - name: Run contract tests (with JUnit + coverage)
+    - name: Run contract gate (make test-contract)
+      id: contract-gate
       env:
-        PYTHONPATH: src
         # Provide dummy API keys to satisfy clients; tests only verify structure.
         # Default-provider = anthropic → ANTHROPIC_API_KEY vereist voor client-bouw.
+        # De gate zet deze waarden zelf ook nog eens vóór elke import.
         ANTHROPIC_API_KEY: dummy
         OPENAI_API_KEY: dummy
         OPENAI_API_KEY_PROD: dummy
       run: |
-        python -m pytest tests/integration/contracts -m contract -v --tb=short \
-          --junitxml=pytest.xml --cov=src/services/validation --cov-report=term-missing:skip-covered --cov-report=xml \
-          || python -m pytest tests/integration/contracts -v --tb=short \
-          --junitxml=pytest.xml --cov=src/services/validation --cov-report=term-missing:skip-covered --cov-report=xml
+        # DEF-519: precies één testaanroep. De oude `|| python -m pytest ...`
+        # fallback draaide bij elke rode contractrun een tweede, bredere
+        # selectie zonder markerfilter; een echte contractfout kon zo door de
+        # tweede aanroep worden overschreven. De gate loopt nu via dezelfde
+        # bewaakte runner als de hoofdgates: offline-bootstrap vóór elke import,
+        # lege selectie/collectiefout/toolfout/timeout elk nonzero.
+        # De scope is de `contract`-marker (dus ook contractnodes buiten
+        # tests/integration/contracts); diezelfde nodes blijven daarnaast deel
+        # van de integrationunie in test.yml.
+        make test-contract
 
     - name: Validate validation_result.schema.json
       run: |
@@ -99,9 +106,7 @@ jobs:
       with:
         name: contract-test-results
         path: |
-          pytest.xml
-          coverage.xml
-          .coverage
+          reports/gates/
         retention-days: 30
 
     - name: Comment test results on PR
@@ -109,17 +114,38 @@ jobs:
       uses: actions/github-script@v9
       with:
         script: |
+          // DEF-519: het bestaan van een rapportbestand was geen uitkomst. De
+          // comment leest nu de werkelijke stapuitkomst plus de getelde
+          // resultaten uit het JUnit-rapport van de gate.
           const fs = require('fs');
-          if (fs.existsSync('pytest.xml')) {
-            // Parse results and post comment
-            const issue_number = context.issue.number;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number,
-              body: '✅ Contract tests completed. Check artifacts for details.'
-            });
+          const uitkomst = '${{ steps.contract-gate.outcome }}';
+          const junit = 'reports/gates/contract-junit.xml';
+          let details = 'Geen JUnit-rapport gevonden — de gate is niet tot uitvoeren gekomen.';
+          if (fs.existsSync(junit)) {
+            const xml = fs.readFileSync(junit, 'utf8');
+            // Dit is een YAML-blokscalar: backslashes komen letterlijk in de JS
+            // terecht. `\\d` in de template-literal wordt dus de string `\d`
+            // en pas daarmee ziet RegExp een cijferklasse. Met vier
+            // backslashes zocht de comment naar de letterlijke tekst `\d+` en
+            // telde altijd nul.
+            const attr = (naam) => {
+              const treffer = xml.match(new RegExp(`${naam}="(\\d+)"`));
+              return treffer ? Number(treffer[1]) : null;
+            };
+            const toon = (naam) => {
+              const waarde = attr(naam);
+              return `${naam}=${waarde === null ? 'onbekend' : waarde}`;
+            };
+            details = attr('tests') === null
+              ? 'JUnit-rapport aanwezig maar zonder telbare testsuite-attributen.'
+              : ['tests', 'failures', 'errors', 'skipped'].map(toon).join(' ');
           }
+          const kop = uitkomst === 'success'
+            ? '✅ Validation Contract Tests geslaagd'
+            : `❌ Validation Contract Tests ${uitkomst}`;
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: `${kop}\n\n${details}\n\nArtefacten: contract-test-results.`
+          });

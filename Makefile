@@ -4,6 +4,18 @@ PY?=$(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 PYTEST := $(PY) -m pytest
 REQUIRED_PYTHON_VERSION ?= 3.13
 
+# DEF-519: de verplichte gates lopen alle via één bewaakte runner, zodat er geen
+# tweede, verborgen selectie kan ontstaan. De runner zet de offline-bootstrap
+# vóór elke import, draait in een verse werkmap en meldt lege selectie,
+# collectiefout, toolfout, testfalen en budgetoverschrijding elk als eigen
+# nonzero status. Alleen de rapportlocatie en het (eindige) budget zijn
+# configureerbaar; er is bewust GEEN doorgeefluik voor vrije pytest-argumenten,
+# want daarmee zouden scope of vloer via de omgeving kunnen krimpen.
+RUNNER := $(PY) scripts/testing/run_profile.py
+GATE_REPORTS ?= reports/gates
+GATE_BUDGET ?= 900
+GATE_DIR = $(abspath $(GATE_REPORTS))
+
 .PHONY: check-python dev lint complexity-check mypy-check overrides-check pins-check orphan-check silent-except-check audit lock lock-check test status validation-status
 
 check-python:
@@ -70,34 +82,50 @@ lock-check:
 	@bash scripts/ci/check_lock_sync.sh
 
 test: check-python test-markers-check
-	@echo "[test] Running fast unit tests (fail-fast, excludes slow)"
-	@$(PYTEST) -q -m "unit and not slow" --maxfail=1
+	@echo "[test] Alias van de unitgate — zelfde scope als 'make test-unit'"
+	@$(MAKE) --no-print-directory test-unit
 
-.PHONY: test-all test-unit test-integration test-acceptance test-performance test-smoke
+.PHONY: test-all test-unit test-integration test-acceptance test-performance test-smoke test-contract
 
 test-all: check-python
 	@echo "[test-all] Running full test suite"
 	@$(PYTEST) -q
 
 test-unit: check-python
-	@echo "[test-unit] Running unit tests"
-	@$(PYTEST) -q -m unit
+	@echo "[test-unit] Canonieke unitgate: ALLE unittests, inclusief slow"
+	@mkdir -p $(GATE_REPORTS)
+	@$(RUNNER) unit --budget=$(GATE_BUDGET) \
+		--inventory=$(GATE_DIR)/unit-inventaris.json \
+		--junitxml=$(GATE_DIR)/unit-junit.xml
 
 test-integration: check-python
-	@echo "[test-integration] Running integration tests"
-	@$(PYTEST) -q -m integration
+	@echo "[test-integration] Canonieke integrationgate: tests/integration/ + integrationmarker"
+	@mkdir -p $(GATE_REPORTS)
+	@$(RUNNER) integration --budget=$(GATE_BUDGET) \
+		--inventory=$(GATE_DIR)/integration-inventaris.json \
+		--junitxml=$(GATE_DIR)/integration-junit.xml
 
 test-acceptance: check-python
-	@echo "[test-acceptance] Running acceptance tests"
-	@$(PYTEST) -q -m acceptance
+	@echo "[test-acceptance] Canonieke acceptance-smoke-gate"
+	@mkdir -p $(GATE_REPORTS)
+	@$(RUNNER) acceptance-smoke --budget=$(GATE_BUDGET) \
+		--inventory=$(GATE_DIR)/acceptance-smoke-inventaris.json \
+		--junitxml=$(GATE_DIR)/acceptance-smoke-junit.xml
+
+test-contract: check-python
+	@echo "[test-contract] Contractgate (required check 'Validation Contract Tests')"
+	@mkdir -p $(GATE_REPORTS)
+	@$(RUNNER) contract --budget=$(GATE_BUDGET) \
+		--inventory=$(GATE_DIR)/contract-inventaris.json \
+		--junitxml=$(GATE_DIR)/contract-junit.xml
 
 test-performance: check-python
 	@echo "[test-performance] Running performance/benchmark tests"
 	@$(PYTEST) -q -m "performance or benchmark"
 
 test-smoke: check-python
-	@echo "[test-smoke] Running smoke tests"
-	@$(PYTEST) -q -m smoke
+	@echo "[test-smoke] Alias van de acceptance-smoke-gate"
+	@$(MAKE) --no-print-directory test-acceptance
 
 .PHONY: test-parallel test-cov test-cov-ci
 
@@ -106,14 +134,29 @@ test-parallel: check-python
 	@$(PYTEST) -q -n auto -m unit
 
 test-cov: check-python
-	@echo "[test-cov] Coverage op unit-tests (deterministisch; integration hangt — DEF-428/429)"
-	@$(PYTEST) -q --cov=src --cov-report=term-missing -m unit
+	@echo "[test-cov] Lokale coverage op de unitgate — GEEN CI-ratchet (zie test-cov-ci)"
+	@mkdir -p $(GATE_REPORTS)
+	@$(RUNNER) unit --budget=$(GATE_BUDGET) \
+		--inventory=$(GATE_DIR)/unit-cov-lokaal-inventaris.json \
+		--cov=$(CURDIR)/src --cov-report=term-missing
 
 test-cov-ci: check-python
-	@echo "[test-cov-ci] Coverage met ratchet-vloer 45% (baseline DEF-416; verhogen in Fase 1)"
-	@# DEF-564: -n 4 — unit-suite is xdist-veilig (precedent: test-parallel);
-	@# pytest-cov aggregeert workers correct. Zelfde gate-semantiek, sneller.
-	@$(PYTEST) -q -n 4 --dist loadfile --cov=src --cov-report=term-missing --cov-fail-under=45 -m unit
+	@echo "[test-cov-ci] Unitgate met ratchet-vloer 45% (baseline DEF-416; verhogen in Fase 1)"
+	@# DEF-519: dezelfde unitselectie als test-unit (ALLE unit, inclusief slow),
+	@# gemeten via de seriële Coverage-API-route van de runner. De oude `-n 4`
+	@# is vervallen: de runner-allowlist laat geen xdist-vlaggen door, omdat de
+	@# gedeelde inventaris controller- en workerinformatie niet gescheiden
+	@# vastlegt. Er wordt hier dus geen versnelling geclaimd, alleen dezelfde
+	@# scope en dezelfde vloer. De datafile blijft in de verse sessieroot van de
+	@# runner; het `.coverage` van de checkout wordt nooit gelezen of
+	@# overschreven. Het pad staat in de inventaris onder `coverage_artefacten`.
+	@mkdir -p $(GATE_REPORTS)
+	@$(RUNNER) unit --budget=$(GATE_BUDGET) \
+		--inventory=$(GATE_DIR)/unit-cov-inventaris.json \
+		--junitxml=$(GATE_DIR)/unit-cov-junit.xml \
+		--cov=$(CURDIR)/src --cov-report=term-missing \
+		--cov-report=xml:$(GATE_DIR)/unit-coverage.xml \
+		--cov-fail-under=45
 
 .PHONY: test-durations
 test-durations: check-python

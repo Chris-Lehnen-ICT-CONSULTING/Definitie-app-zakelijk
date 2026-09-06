@@ -1,33 +1,27 @@
 #!/usr/bin/env python3
-"""
-Final test voor alle functionaliteit met juiste sync/async handling.
+"""Voorbeeldgeneratie en complete definitiegeneratie, hermetisch (DEF-519).
+
+De oorspronkelijke opzet laadde `.env`, sloeg zichzelf over zonder API-key en
+rapporteerde met prints en return-waarden. Hetzelfde gedrag wordt hier getoetst
+met echte assertions, achter de bevroren providergrens uit `conftest.py`.
+Duurmetingen zijn bewust verdwenen: bevroren antwoorden bewijzen gedrag, geen
+API-latency.
 """
 
-import json
-import os
-import sys
-import time
+import uuid
 
 import pytest
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Skip early if no API key configured; these tests call external generators
-if not os.getenv("OPENAI_API_KEY"):
-    pytest.skip(
-        "OPENAI_API_KEY not set; skipping final functionality tests requiring external API",
-        allow_module_level=True,
-    )
-
-from services.container import ServiceContainer, get_container
-from services.interfaces import GenerationRequest, OrchestratorConfig
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from domain.ontological_categories import OntologischeCategorie
+from services.interfaces import GenerationRequest
+from tests.integration.functionality.conftest import (
+    DEFINITIE_TEKST,
+    lees_opgeslagen_definitie,
+    verwacht_resultaat,
+)
 from voorbeelden.unified_voorbeelden import (
+    DEFAULT_EXAMPLE_COUNTS,
+    ExampleType,
     GenerationMode,
     genereer_alle_voorbeelden,
     genereer_antoniemen,
@@ -40,216 +34,181 @@ from voorbeelden.unified_voorbeelden import (
 
 pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
+BEGRIP = "dwangmiddel"
+DEFINITIE = (
+    "Een bevoegdheid die de overheid kan inzetten om het strafprocesrecht te "
+    "handhaven, ook tegen de wil van de betrokkene."
+)
+CONTEXT = {
+    "organisatorisch": ["Politie", "Openbaar Ministerie"],
+    "juridisch": ["Strafprocesrecht"],
+    "wettelijk": ["Wetboek van Strafvordering"],
+}
 
-def test_individual_generation():
-    """Test individuele generatie functies."""
-    print("\n🧪 TEST 1: Individuele Generatie Functies")
-    print("=" * 60)
 
-    # Test data
-    begrip = "dwangmiddel"
-    definitie = "Een bevoegdheid die de overheid kan inzetten om het strafprocesrecht te handhaven, ook tegen de wil van de betrokkene."
-    context_dict = {
-        "organisatorisch": ["Politie", "Openbaar Ministerie"],
-        "juridisch": ["Strafprocesrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"],
-    }
+def test_individual_generation(bevroren_omgeving):
+    """Elke losse generatiefunctie levert het aantal en type dat zij belooft."""
+    client = bevroren_omgeving.client
 
-    tests = [
-        ("Voorbeeldzinnen", genereer_voorbeeld_zinnen, 3),
-        ("Praktijkvoorbeelden", genereer_praktijkvoorbeelden, 3),
-        ("Tegenvoorbeelden", genereer_tegenvoorbeelden, 3),
-        ("Synoniemen", genereer_synoniemen, 5),
-        ("Antoniemen", genereer_antoniemen, 5),
+    gevallen = [
+        ("voorbeeldzinnen", genereer_voorbeeld_zinnen, 3),
+        ("praktijkvoorbeelden", genereer_praktijkvoorbeelden, 3),
+        ("tegenvoorbeelden", genereer_tegenvoorbeelden, 3),
+        ("synoniemen", genereer_synoniemen, 5),
+        ("antoniemen", genereer_antoniemen, 5),
     ]
 
-    all_passed = True
+    for soort, functie, verwacht_aantal in gevallen:
+        assert DEFAULT_EXAMPLE_COUNTS[soort] == verwacht_aantal
+        resultaat = functie(BEGRIP, DEFINITIE, CONTEXT)
 
-    for test_name, func, expected_count in tests:
-        print(f"\n📝 Test {test_name}...")
-        start = time.time()
+        assert isinstance(resultaat, list), f"{soort} moet een lijst opleveren"
+        assert resultaat == verwacht_resultaat(soort, verwacht_aantal)
 
-        results = func(begrip, definitie, context_dict)
-        duration = time.time() - start
+        oproepen = client.oproepen_van(soort)
+        assert len(oproepen) == 1, f"{soort} moet precies één providercall doen"
+        assert oproepen[0].gevraagd_aantal == verwacht_aantal
+        assert BEGRIP in oproepen[0].prompt
+        assert "Politie" in oproepen[0].prompt
 
-        actual_count = len(results)
-        passed = actual_count == expected_count
-        status = "✅" if passed else "❌"
+    # Toelichting is contractueel één string, geen lijst.
+    toelichting = genereer_toelichting(BEGRIP, DEFINITIE, CONTEXT)
+    assert isinstance(toelichting, str)
+    assert toelichting == verwacht_resultaat("toelichting", 1)[0]
+    assert len(client.oproepen_van("toelichting")) == 1
 
-        print(
-            f"{status} {test_name}: {actual_count}/{expected_count} in {duration:.2f}s"
-        )
-
-        if results:
-            print(f"   Voorbeeld: {results[0][:60]}...")
-
-        if not passed:
-            all_passed = False
-
-    # Test toelichting apart (returnt string, niet list)
-    print("\n📝 Test Toelichting...")
-    start = time.time()
-    toelichting = genereer_toelichting(begrip, definitie, context_dict)
-    duration = time.time() - start
-
-    passed = len(toelichting) > 0
-    status = "✅" if passed else "❌"
-    print(
-        f"{status} Toelichting: {'Gegenereerd' if passed else 'Leeg'} in {duration:.2f}s"
-    )
-    if toelichting:
-        print(f"   Start: {toelichting[:80]}...")
-
-    return all_passed
+    # Discriminatie: zonder bruikbare respons levert elke functie het lege
+    # equivalent van haar type — de gelijkheden hierboven zijn dus scherp.
+    bevroren_omgeving.zet_modus("leeg")
+    for soort, functie, _ in gevallen:
+        assert functie(BEGRIP, DEFINITIE, CONTEXT) == [], f"{soort} moet leeglopen"
+    assert genereer_toelichting(BEGRIP, DEFINITIE, CONTEXT) == ""
 
 
-def test_bulk_generation_sequential():
-    """Test bulk generatie met sequentiële aanroepen."""
-    print("\n\n🧪 TEST 2: Bulk Generatie (Sequentieel)")
-    print("=" * 60)
-
-    # Test data - andere begrip om caching te vermijden
+def test_bulk_generation_sequential(bevroren_omgeving):
+    """Sequentiële bulkgeneratie dekt alle zes soorten met de juiste vorm."""
+    client = bevroren_omgeving.client
     begrip = "voorlopige hechtenis"
-    definitie = "De vrijheidsbeneming van een verdachte tijdens het vooronderzoek, voordat er een onherroepelijk vonnis is."
-    context_dict = {
+    definitie = (
+        "De vrijheidsbeneming van een verdachte tijdens het vooronderzoek, "
+        "voordat er een onherroepelijk vonnis is."
+    )
+    context = {
         "organisatorisch": ["Rechter-commissaris", "Raadkamer"],
         "juridisch": ["Strafprocesrecht"],
         "wettelijk": ["Wetboek van Strafvordering art. 63-88"],
     }
 
-    print("\n📦 Start bulk generatie...")
-    print("⚠️ Dit kan 60-90 seconden duren door rate limiting...")
-
-    start = time.time()
     voorbeelden = genereer_alle_voorbeelden(
-        begrip, definitie, context_dict, GenerationMode.RESILIENT
+        begrip, definitie, context, GenerationMode.RESILIENT
     )
-    duration = time.time() - start
 
-    print(f"\n✅ Bulk generatie voltooid in {duration:.2f}s")
+    assert set(voorbeelden) == {soort.value for soort in ExampleType}
+    for soort in ExampleType:
+        sleutel = soort.value
+        verwacht_aantal = DEFAULT_EXAMPLE_COUNTS[sleutel]
+        if sleutel == "toelichting":
+            assert isinstance(voorbeelden[sleutel], str)
+            assert voorbeelden[sleutel] == verwacht_resultaat(sleutel, 1)[0]
+            continue
+        assert isinstance(voorbeelden[sleutel], list)
+        assert len(voorbeelden[sleutel]) == verwacht_aantal
+        assert voorbeelden[sleutel] == verwacht_resultaat(sleutel, verwacht_aantal)
 
-    expected_counts = {
-        "sentence": 3,
-        "practical": 3,
-        "counter": 3,
-        "synonyms": 5,
-        "antonyms": 5,
-        "explanation": 1,
-    }
+    # Sequentieel betekent: elke soort precies één keer, geen dubbele calls.
+    assert len(client.oproepen) == len(ExampleType)
+    assert sorted(oproep.soort or "" for oproep in client.oproepen) == sorted(
+        soort.value for soort in ExampleType
+    )
 
-    print("\n📊 Resultaten:")
-    all_correct = True
-
-    for example_type, expected in expected_counts.items():
-        actual = len(voorbeelden.get(example_type, []))
-        correct = actual == expected
-        status = "✅" if correct else "❌"
-        print(f"  {status} {example_type}: {actual}/{expected}")
-
-        if not correct:
-            all_correct = False
-
-        # Toon voorbeeld
-        if voorbeelden.get(example_type):
-            examples = voorbeelden[example_type]
-            first = examples[0] if isinstance(examples, list) else examples
-            print(f"     → {first[:60]}...")
-
-    return all_correct
+    # Discriminatie: een lege provider laat alles leeglopen.
+    bevroren_omgeving.zet_modus("leeg")
+    leeg = genereer_alle_voorbeelden(
+        begrip, definitie, context, GenerationMode.RESILIENT
+    )
+    assert leeg["toelichting"] == ""
+    assert all(
+        leeg[soort.value] == [] for soort in ExampleType if soort.value != "toelichting"
+    )
 
 
-async def test_definition_generation():
-    """Test complete definitie generatie met voorbeelden."""
-    print("\n\n🧪 TEST 3: Complete Definitie Generatie")
-    print("=" * 60)
+async def test_definition_generation(bevroren_omgeving):
+    """De echte V2-orchestrator levert een complete definitie op."""
+    client = bevroren_omgeving.client
+    orchestrator = bevroren_omgeving.container.orchestrator()
 
-    # Get V2 container and orchestrator
-    container = get_container()
-    orchestrator = container.orchestrator()
-
-    import uuid
+    # De oude opzet gaf hier de letterlijke string "PROCES" mee. Dat is geen
+    # waarde die de applicatie ooit produceert: `service_factory` zet de enum om
+    # via `.value` en de CHECK-constraint op `definities.categorie` kent alleen
+    # de kleine variant. Met "PROCES" liep de opslagfase vast op
+    # DatabaseConstraintError. Hier staat daarom de canonieke waarde.
+    assert OntologischeCategorie.PROCES.value == "proces"
 
     request = GenerationRequest(
         id=str(uuid.uuid4()),
         begrip="recidive",
         context="Reclassering Nederland",
-        ontologische_categorie="PROCES",
+        ontologische_categorie=OntologischeCategorie.PROCES.value,
     )
 
-    print("\n🚀 Genereer definitie met voorbeelden...")
-    start = time.time()
+    resultaat = await orchestrator.create_definition(request)
 
-    # V2 async call
-    result = await orchestrator.create_definition(request)
+    assert resultaat.success, f"generatie mislukt: {resultaat.error}"
+    assert resultaat.error is None
+    assert resultaat.definition is not None
+    assert resultaat.definition.begrip == "recidive"
+    assert isinstance(resultaat.definition.definitie, str)
+    assert resultaat.definition.definitie.strip()
 
-    duration = time.time() - start
+    # De definitietekst komt aantoonbaar van de bevroren grens (de opschoning
+    # mag hem normaliseren, maar niet vervangen).
+    kern = "bevoegde instantie binnen het strafprocesrecht"
+    assert kern in resultaat.definition.definitie, resultaat.definition.definitie
 
-    print(f"\n✅ Generatie voltooid in {duration:.2f}s")
+    # Opslagbewijs: een geslaagd responseobject zegt niets over de database.
+    # Lees de rij terug via een nieuwe, echte SQLite-verbinding naar db_path.
+    definitie_id = resultaat.definition.id
+    assert isinstance(definitie_id, int) and definitie_id > 0
+    rij = lees_opgeslagen_definitie(bevroren_omgeving.db_path, definitie_id)
+    assert rij is not None, "generatie meldde succes maar sloeg geen rij op"
+    assert rij["begrip"] == "recidive"
+    assert rij["definitie"] == resultaat.definition.definitie
+    assert kern in rij["definitie"]
+    assert rij["categorie"] == OntologischeCategorie.PROCES.value
+    assert rij["status"] == "draft"
+    assert rij["version_number"] == 1
 
-    if result.success:
-        print(f"\n📝 Definitie: {result.definition.definitie[:100]}...")
-        if result.validation_result:
-            print(f"📊 Score: {result.validation_result.score:.2f}")
+    # Discriminator: dezelfde leesroute vindt niets voor een id dat niet is
+    # opgeslagen. De controle hierboven kan dus niet altijd slagen.
+    assert (
+        lees_opgeslagen_definitie(bevroren_omgeving.db_path, definitie_id + 10_000)
+        is None
+    )
 
-        if result.definition and result.definition.voorbeelden:
-            print("\n📚 Voorbeelden gegenereerd:")
-            count = len(result.definition.voorbeelden)
-            print(f"  - voorbeelden: {count} items")
+    # De provider is echt aangeroepen voor de definitie zelf.
+    definitie_oproepen = client.oproepen_van(None)
+    assert definitie_oproepen, "orchestrator moet de providergrens aanroepen"
+    assert "recidive" in definitie_oproepen[0].prompt
+    assert DEFINITIE_TEKST.startswith("Een bevroren proefdefinitie")
 
-        return True
-    print(f"\n❌ Generatie mislukt: {result.error}")
-    return False
-
-
-async def main():
-    """Run all tests."""
-    print("🚀 DefinitieAgent Final Test Suite")
-    print("=" * 80)
-
-    try:
-        # Run tests
-        test1_passed = test_individual_generation()
-        test2_passed = test_bulk_generation_sequential()
-        test3_passed = await test_definition_generation()
-
-        print("\n\n" + "=" * 80)
-        print("📋 EINDRESULTAAT:")
-        print("=" * 80)
-
-        print(
-            f"\nTest 1 - Individuele Generatie: {'✅ GESLAAGD' if test1_passed else '❌ GEFAALD'}"
-        )
-        print(
-            f"Test 2 - Bulk Generatie: {'✅ GESLAAGD' if test2_passed else '❌ GEFAALD'}"
-        )
-        print(
-            f"Test 3 - Complete Definitie: {'✅ GESLAAGD' if test3_passed else '❌ GEFAALD'}"
-        )
-
-        if test1_passed and test2_passed and test3_passed:
-            print("\n🎉 ALLE TESTS GESLAAGD!")
-            print("\n✅ Verificatie compleet:")
-            print("  - Synoniemen/Antoniemen genereren 5 items")
-            print("  - Voorbeelden genereren juiste aantallen")
-            print("  - Explanation geeft 1 alinea terug")
-            print("  - Rate limiting werkt correct per endpoint")
-            print("  - Complete definitie generatie werkt")
-        else:
-            print("\n⚠️ SOMMIGE TESTS GEFAALD!")
-
-            if not test2_passed:
-                print("\n💡 Tip: Als bulk generatie faalt door rate limiting:")
-                print("  - Verhoog timeouts in config/rate_limit_config.py")
-                print("  - Of voeg delays toe tussen requests")
-
-    except Exception as e:
-        print(f"\n❌ Test suite failed: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(main())
+    # Validatie heeft daadwerkelijk gedraaid. Het contract is de TypedDict uit
+    # services.validation.types (sleutel `overall_score`, 0.0-1.0); de oude
+    # opzet las `validation_result.score` als attribuut, wat nooit bestond.
+    validatie = resultaat.validation_result
+    assert validatie is not None
+    for sleutel in (
+        "version",
+        "overall_score",
+        "is_acceptable",
+        "violations",
+        "passed_rules",
+        "detailed_scores",
+        "system",
+    ):
+        assert sleutel in validatie, f"validatiecontract mist {sleutel!r}"
+    score = validatie["overall_score"]
+    assert isinstance(score, (int, float)) and not isinstance(score, bool)
+    assert 0.0 <= float(score) <= 1.0
+    assert isinstance(validatie["is_acceptable"], bool)
+    # Er zijn echt regels geëvalueerd: geslaagd of overtreden, niet allebei leeg.
+    assert validatie["passed_rules"] or validatie["violations"]

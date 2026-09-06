@@ -2,6 +2,24 @@
 Global pytest configuration and fixtures for the test suite.
 """
 
+# DEF-519: de offline-gate moet dicht zijn vóór er ook maar één applicatiepakket
+# geimporteerd wordt. Alles hieronder (de Streamlit-mock, `config`, indirect de
+# servicelaag) draaide voorheen met de geerfde omgeving van de ontwikkelaar:
+# echte providerkeys, een leesbare `.env` en open sockets. `install()` is
+# idempotent; onder scripts/testing/run_profile.py is de gate al bij
+# interpreterstart gezet en is deze aanroep een no-op die dezelfde sessieroot
+# teruggeeft. Zie tests/offline_bootstrap.py voor het contract.
+import sys as _sys
+from pathlib import Path as _Path
+
+_def519_project_root = str(_Path(__file__).resolve().parents[1])
+if _def519_project_root not in _sys.path:
+    _sys.path.append(_def519_project_root)
+
+from tests import offline_bootstrap as _def519_bootstrap
+
+_def519_bootstrap.install()
+
 import asyncio
 import builtins
 import os
@@ -220,6 +238,32 @@ def initialized_synonym_db(tmp_path):
 
 # Marker-registratie is gecentreerd in pytest.ini (strict-markers).
 # Dubbele registraties hier zijn verwijderd om drift te voorkomen.
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_configure(config):
+    """DEF-519: adopteer de basetemp van pytest als eigen, tijdelijke root.
+
+    `trylast`: conftest-hooks draaien standaard vóór de ingebouwde plugins, en
+    `config._tmp_path_factory` wordt pas door `_pytest.tmpdir.pytest_configure`
+    gezet.
+
+    `tmp_path`/`tmp_path_factory` liggen buiten de sessieroot van de bootstrap.
+    Zonder deze expliciete adoptie zou elke bestaande test die een SQLite-DB in
+    `tmp_path` opent door de gate geweigerd worden. Bewust géén prefixvertrouwen
+    op `/tmp`: alleen deze ene, door pytest vers aangemaakte map wordt eigendom.
+    """
+    fabriek = getattr(config, "_tmp_path_factory", None)
+    if fabriek is None:  # pragma: no cover - pytest levert de factory altijd
+        raise RuntimeError(
+            "pytest levert geen _tmp_path_factory; de DEF-519-gate zou dan elke "
+            "tmp_path-database weigeren. Los dit op, val niet stil terug."
+        )
+    # `.lock` is het eigen opruimbestand dat pytest direct in een verse basetemp
+    # zet; expliciet benoemd, zodat 'niet leeg' verder gewoon geweigerd wordt.
+    _def519_bootstrap.own_root(
+        fabriek.getbasetemp(), toegestane_resten=frozenset({".lock"})
+    )
 
 
 # Configure test collection to ignore certain files

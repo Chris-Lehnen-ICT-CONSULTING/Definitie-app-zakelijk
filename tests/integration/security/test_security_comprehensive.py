@@ -20,6 +20,8 @@ from security.security_middleware import (
     get_security_middleware,
     security_middleware_decorator,
 )
+from services.interfaces import GenerationRequest
+from services.security_service import SecurityService
 from validation.input_validator import ValidationSeverity, get_validator
 from validation.sanitizer import (
     ContentSanitizer,
@@ -33,6 +35,10 @@ from validation.sanitizer import (
 )
 
 pytestmark = [pytest.mark.integration]
+
+# Vast moment voor de rate-limit-test: _check_rate_limit vergelijkt datetimes,
+# dus de tijdbron wordt daar bevroren i.p.v. op wandkloksnelheid te vertrouwen.
+FROZEN_NOW = datetime(2026, 9, 6, 12, 0, 0, tzinfo=UTC)
 
 
 class TestSecurityMiddleware:
@@ -130,8 +136,19 @@ class TestSecurityMiddleware:
 
     @pytest.mark.asyncio
     async def test_rate_limiting(self):
-        """Test rate limiting functionality."""
-        # Make multiple requests from same IP
+        """Test rate limiting op de werkelijk geconfigureerde burst-grens.
+
+        DEF-519: de oude test verwachtte vijf geslaagde calls, terwijl
+        _load_rate_limits voor 'definition_generation' een burst_limit van 3
+        configureert. De grens wordt hier uit de configuratie gelezen (geen
+        productlimiet verhoogd) en call grens+1 moet geweigerd worden.
+        """
+        endpoint_config = self.middleware.rate_limits["definition_generation"]
+        burst_limit = endpoint_config["burst_limit"]
+
+        # Zichtbaar contract: een stille wijziging van de productlimiet valt op.
+        assert burst_limit == 3
+
         request_template = ValidationRequest(
             endpoint="definition_generation",
             method="POST",
@@ -142,18 +159,31 @@ class TestSecurityMiddleware:
             timestamp=datetime.now(UTC),
         )
 
-        # First few requests should pass
-        for _i in range(5):
-            response = await self.middleware.validate_request(request_template)
-            assert response.allowed is True
+        # Geïsoleerde limiterstate: verse middleware per test (setup_method) en
+        # een IP dat nog niet is gezien.
+        assert request_template.source_ip not in self.middleware.request_tracking
 
-        # Rapid requests should trigger rate limiting
-        for _i in range(20):  # Exceed burst limit
-            response = await self.middleware.validate_request(request_template)
+        # Deterministische tijdbron op de datetime-grens die _check_rate_limit
+        # zelf gebruikt: alle calls vallen aantoonbaar binnen hetzelfde
+        # burst-venster, zonder afhankelijkheid van machinesnelheid en zonder
+        # nieuwe producttime-out.
+        with patch("security.security_middleware.datetime") as klok:
+            klok.now.return_value = FROZEN_NOW
 
-        # Should eventually hit rate limit
-        assert response.allowed is False
-        assert ThreatType.RATE_LIMIT_EXCEEDED in response.threats_detected
+            # Alles binnen de grens slaagt.
+            for poging in range(1, burst_limit + 1):
+                response = await self.middleware.validate_request(request_template)
+                assert response.allowed is True, f"call {poging} valt binnen grens"
+
+            # Grens + 1 wordt geweigerd met de expliciete rate-limit-dreiging.
+            response = await self.middleware.validate_request(request_template)
+            assert response.allowed is False
+            assert ThreatType.RATE_LIMIT_EXCEEDED in response.threats_detected
+
+        # Geweigerde calls worden niet geteld: de teller blijft op de grens staan.
+        geregistreerd = self.middleware.request_tracking[request_template.source_ip]
+        assert len(geregistreerd) == burst_limit
+        assert all(moment == FROZEN_NOW for moment in geregistreerd)
 
     @pytest.mark.asyncio
     async def test_ip_blocking(self):
@@ -285,7 +315,19 @@ class TestContentSanitizer:
         assert len(result.changes_made) > 0
 
     def test_user_input_sanitization(self):
-        """Test user input sanitization with correct field types."""
+        """Test user input sanitization met de contracten die werkelijk actief zijn.
+
+        DEF-519: de oude assertie `sanitized_data != user_data` veronderstelde dat
+        de default van sanitize_user_input script/iframe verwijdert. Gemeten: die
+        functie hardcodeert MODERATE (sanitizer.py:505) terwijl de script- en
+        iframe-regels op STRICT staan, dus MODERATE laat deze invoer ongemoeid.
+        De adversariële invoer blijft hier staan en wordt getoetst op wat wel
+        gegarandeerd is: dreigingsdetectie op de invoer en de STRICT-route die de
+        generatie (SecurityService._sanitize_text) daadwerkelijk gebruikt.
+
+        De gewenste strengere garantie is niet weggehaald maar staat als
+        expliciete rode assertie in TestDefaultSanitizationPolicyAdvisory.
+        """
         user_data = {
             "begrip": "test<script>alert(1)</script>",
             "voorsteller": "Jan & Piet",
@@ -296,11 +338,19 @@ class TestContentSanitizer:
         sanitized_data = self.sanitizer.sanitize_user_input(user_data)
 
         assert "begrip" in sanitized_data
-        # Check that data was processed (may not remove everything but should be different)
-        assert sanitized_data != user_data  # Should be different after sanitization
+        assert set(sanitized_data) == set(user_data)
         assert isinstance(sanitized_data["begrip"], str)
         assert isinstance(sanitized_data["definitie_origineel"], str)
         assert isinstance(sanitized_data["toelichting"], str)
+
+        # Actief contract 1: de dreiging is herkenbaar op de ruwe invoer,
+        # ongeacht welk niveau de sanitisatie zelf draait.
+        assert self.sanitizer.detect_malicious_content(user_data["begrip"])
+        assert self.sanitizer.detect_malicious_content(user_data["definitie_origineel"])
+
+        # Actief contract 2: de generatieroute zelf. Zie
+        # TestSecurityIntegration.test_generation_route_sanitizes_adversarial_request,
+        # dat dezelfde invoer door de echte SecurityService haalt.
 
     def test_malicious_content_detection(self):
         """Test malicious content detection."""
@@ -484,23 +534,142 @@ class TestSecurityIntegration:
         assert middleware1 is middleware2
 
     def test_convenience_functions(self):
-        """Test security convenience functions."""
-        # Test sanitize_content function
-        result = sanitize_content("<script>alert(1)</script>", ContentType.HTML)
-        assert "<script>" not in result
+        """Test security convenience functions op hun werkelijk actieve niveau.
 
-        # Test sanitize_for_definition function
+        DEF-519: sanitize_content en sanitize_user_input defaulten naar MODERATE,
+        terwijl de script-regel op STRICT staat. De beschermende assertions staan
+        hier daarom op het niveau dat de generatieroute gebruikt (STRICT). De
+        gewenste MODERATE-garantie is niet weggehaald maar staat als expliciete
+        rode assertie in TestDefaultSanitizationPolicyAdvisory.
+        """
+        # Test sanitize_content function op het niveau van de generatieroute
+        result = sanitize_content(
+            "<script>alert(1)</script>", ContentType.HTML, SanitizationLevel.STRICT
+        )
+        assert "<script>" not in result
+        assert "alert(1)" not in result
+
+        # Test sanitize_for_definition function (draait op STRICT)
         result = sanitize_for_definition("Definitie met 123456789 BSN")
         assert "123456789" not in result
 
-        # Test sanitize_user_input function
+        result = sanitize_for_definition("Definitie met <script>alert(1)</script>")
+        assert "<script>" not in result
+
+        # Test sanitize_user_input function: structuurcontract blijft staan; de
+        # dreiging is aantoonbaar op de invoer (geen eis dat onveilige output
+        # behouden blijft, zodat een strenger beleid deze test niet breekt).
         user_data = {"begrip": "<script>test</script>"}
         sanitized = sanitize_user_input(user_data)
-        assert "<script>" not in sanitized["begrip"]
+        assert set(sanitized) == set(user_data)
+        assert isinstance(sanitized["begrip"], str)
+        assert detect_threats(user_data["begrip"])
 
         # Test detect_threats function
         threats = detect_threats("<script>alert('xss')</script>")
         assert len(threats) > 0
+
+    @pytest.mark.asyncio
+    async def test_generation_route_sanitizes_adversarial_request(self):
+        """De echte generatieroute: SecurityService.sanitize_request.
+
+        DEF-519: een directe sanitize_content(..., level='strict') in de test
+        bewijst niet dat de productieroute die instelling gebruikt. Hier draait
+        de echte SecurityService met de echte ContentSanitizer (geen mock) over
+        dezelfde adversariële invoer, in de velden die de generatie gebruikt.
+        """
+        service = SecurityService()
+        assert service._sanitizer is get_sanitizer()  # echte, gedeelde sanitizer
+
+        request = GenerationRequest(
+            id="def519-security-contract",
+            begrip="test<script>alert(1)</script>",
+            context="Een proces waarbij <iframe>bad</iframe> wordt gebruikt",
+            extra_instructies="Jan & Piet",
+            document_context="Toelichting met <script>steal()</script> erin",
+            juridische_context=["strafrecht"],
+            wettelijke_basis=["Wetboek van Strafvordering"],
+            organisatorische_context=["DJI"],
+        )
+
+        sanitized = await service.sanitize_request(request)
+
+        # Beschermde velden: geen uitvoerbare markup en geen payload meer.
+        for veld in ("begrip", "context", "document_context"):
+            waarde = getattr(sanitized, veld)
+            assert "<script" not in waarde.lower(), veld
+            assert "<iframe" not in waarde.lower(), veld
+            assert "alert(1)" not in waarde, veld
+            assert "steal()" not in waarde, veld
+
+        # Behoud van legitieme waarden: alleen de aanvalspayload verdwijnt.
+        assert "test" in sanitized.begrip
+        assert "Een proces waarbij" in sanitized.context
+        assert "wordt gebruikt" in sanitized.context
+        assert "Toelichting met" in sanitized.document_context
+        assert "Jan" in sanitized.extra_instructies
+        assert "Piet" in sanitized.extra_instructies
+        assert sanitized.juridische_context == ["strafrecht"]
+        assert sanitized.wettelijke_basis == ["Wetboek van Strafvordering"]
+        assert sanitized.organisatorische_context == ["DJI"]
+
+
+@pytest.mark.advisory
+class TestDefaultSanitizationPolicyAdvisory:
+    """Gewenste strengere garantie op de default (MODERATE) sanitisatie.
+
+    De klassemarker `advisory` dekt exact de twee nodes hieronder en niets
+    anders in dit bestand: alle overige securitycontracten, waaronder
+    `TestSecurityIntegration.test_generation_route_sanitizes_adversarial_request`,
+    blijven onverkort in de verplichte gate. De dispositie hieronder is de bron;
+    de marker maakt haar alleen selecteerbaar.
+
+    Deze twee tests zijn de behouden inhoudelijke verwachting van de
+    oorspronkelijke nodes en falen op dit moment bewust — zij beschrijven de
+    gewenste policy, niet het gemeten gedrag. Geen skip/xfail, geen filter.
+
+    Mapping naar de oorspronkelijke nodes:
+      * test_default_user_input_strips_script_and_iframe
+        ← TestContentSanitizer.test_user_input_sanitization
+      * test_default_sanitize_content_strips_script
+        ← TestSecurityIntegration.test_convenience_functions
+
+    Dispositie:
+      owner (testdispositie):  DEF-519
+      owner (securitypolicy):  nog niet aangewezen
+      reden:   sanitize_user_input hardcodeert MODERATE (sanitizer.py:505) en de
+               script-/iframe-regels staan op STRICT, dus de default laat deze
+               invoer ongemoeid; de lexicografische SanitizationLevel-vergelijking
+               maakt de niveauordening bovendien niet-monotoon
+      trigger: expliciet beleids- of herstelbesluit over het defaultniveau
+      herbeoordeling: 2026-10-06
+
+    Geen policybesluit en geen volledige XSS-claim in deze batch.
+    """
+
+    def setup_method(self):
+        """Setup for each test method."""
+        self.sanitizer = ContentSanitizer()
+
+    def test_default_user_input_strips_script_and_iframe(self):
+        """Gewenst: de default van sanitize_user_input verwijdert markup."""
+        user_data = {
+            "begrip": "test<script>alert(1)</script>",
+            "voorsteller": "Jan & Piet",
+            "definitie_origineel": "Een proces waarbij <iframe>bad</iframe> wordt gebruikt",
+            "toelichting": "Dit bevat kut woorden",
+        }
+
+        sanitized_data = self.sanitizer.sanitize_user_input(user_data)
+
+        assert "<script" not in sanitized_data["begrip"].lower()
+        assert "<iframe" not in sanitized_data["definitie_origineel"].lower()
+
+    def test_default_sanitize_content_strips_script(self):
+        """Gewenst: sanitize_content verwijdert scripts ook op het defaultniveau."""
+        result = sanitize_content("<script>alert(1)</script>", ContentType.HTML)
+
+        assert "<script>" not in result
 
 
 class TestSecurityPerformance:

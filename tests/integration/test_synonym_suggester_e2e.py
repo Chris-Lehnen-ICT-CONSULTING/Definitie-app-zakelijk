@@ -16,8 +16,18 @@ _HAS_KEY = os.environ.get("OPENAI_API_KEY", "").startswith("sk-") or os.environ.
     "ANTHROPIC_API_KEY", ""
 ).startswith("sk-ant-")
 
+# `live`-dispositie (DEF-519): deze e2e vereist blijkens de guard hieronder een
+# echte providerkey en doet een echte modelaanroep; met de dummy-keys van de
+# gates draait hij per definitie niet. Dat is een live-route, geen bevroren
+# integratie, dus hij hoort niet in een verplichte gate. De bestaande `skipif`
+# blijft ongewijzigd staan.
+# Owner: testdispositie-519, inhoudelijke owner niet vastgesteld.
+# Trigger: de exacte vervangende node in test_synonym_orchestrator_e2e.py
+# formeel koppelen, of een geautoriseerd live-mandaat met budget.
+# Herbeoordeling: 2026-10-06.
 pytestmark = [
     pytest.mark.integration,
+    pytest.mark.live,
     pytest.mark.skipif(
         not _HAS_KEY,
         reason="Geen geldige AI-key (OPENAI_API_KEY=sk-... of ANTHROPIC_API_KEY) - e2e vereist echte API",

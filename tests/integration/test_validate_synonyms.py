@@ -17,6 +17,7 @@ from validate_synonyms import (
     Colors,
     load_yaml_file,
     normalize_term,
+    parse_synonym_entry,
     validate_circular_references,
     validate_cross_contamination,
     validate_duplicates_within_hoofdterm,
@@ -125,6 +126,34 @@ class TestValidateEmptyLists:
         assert "expected list" in errors[0]
 
 
+class TestParseSynonymEntry:
+    """Test the parse_synonym_entry function."""
+
+    def test_legacy_string_unchanged(self):
+        """Legacy strings keep their value and default weight."""
+        assert parse_synonym_entry("vonnis") == ("vonnis", 1.0)
+
+    def test_weighted_dict_unchanged(self):
+        """Weighted dicts still yield term and weight."""
+        assert parse_synonym_entry({"synoniem": "arrest", "weight": 0.8}) == (
+            "arrest",
+            0.8,
+        )
+        assert parse_synonym_entry({"synoniem": "arrest"}) == ("arrest", 1.0)
+
+    @pytest.mark.parametrize("raw", [123, 12.5, True, None, ["nested"]])
+    def test_unknown_type_is_not_stringified(self, raw):
+        """DEF-519: raw types must survive parsing so callers can reject them.
+
+        str(entry) hier maakte van elk type een string, waardoor de bestaande
+        isinstance-controles verderop niets meer te weigeren hadden.
+        """
+        syn, weight = parse_synonym_entry(raw)
+        assert not isinstance(syn, str)
+        assert syn is raw
+        assert weight == 1.0
+
+
 class TestValidateDuplicatesWithinHoofdterm:
     """Test the validate_duplicates_within_hoofdterm function."""
 
@@ -153,6 +182,72 @@ class TestValidateDuplicatesWithinHoofdterm:
         """Test detection of non-string synonyms."""
         data = {"term1": ["valid", 123, "also valid"]}
         errors = validate_duplicates_within_hoofdterm(data)
+        assert len(errors) == 1
+        assert "Non-string synonym" in errors[0]
+        assert "123" in errors[0]
+
+    @pytest.mark.parametrize(
+        ("raw", "typenaam"),
+        [(123, "int"), (12.5, "float"), (True, "bool"), (None, "NoneType")],
+    )
+    def test_non_string_synonym_reports_hoofdterm_and_value(self, raw, typenaam):
+        """Elke ruwe niet-string valt onder dezelfde bestaande foutintentie."""
+        errors = validate_duplicates_within_hoofdterm({"term1": ["valid", raw]})
+        assert len(errors) == 1
+        assert "Non-string synonym" in errors[0]
+        assert "term1" in errors[0]
+        assert str(raw) in errors[0]
+        assert typenaam in errors[0]
+
+    def test_non_string_synonym_detected_from_yaml(self, tmp_path):
+        """Zelfde fout langs de echte YAML-route (ongequote 123 wordt een int)."""
+        yaml_file = tmp_path / "synoniemen.yaml"
+        yaml_file.write_text(
+            "term1:\n  - valid\n  - 123\n  - also valid\n", encoding="utf-8"
+        )
+        data, load_errors = load_yaml_file(yaml_file)
+        assert not load_errors
+
+        errors = validate_duplicates_within_hoofdterm(data)
+        assert len(errors) == 1
+        assert "Non-string synonym" in errors[0]
+        assert "123" in errors[0]
+
+    def test_legacy_string_entries_keep_behaviour(self):
+        """Geldige legacystrings blijven zonder fout; normalisatie blijft gelden."""
+        assert not validate_duplicates_within_hoofdterm(
+            {"term1": ["vonnis", "uitspraak"], "term2": ["arrest"]}
+        )
+
+        errors = validate_duplicates_within_hoofdterm(
+            {"term1": ["kracht_van_gewijsde", "kracht van gewijsde"]}
+        )
+        assert len(errors) == 1
+        assert "Duplicate synonym" in errors[0]
+
+    def test_weighted_dict_entries_keep_behaviour(self):
+        """Het gewogen dictformaat normaliseert en dedupliceert als voorheen."""
+        errors = validate_duplicates_within_hoofdterm(
+            {
+                "term1": [
+                    {"synoniem": "kracht_van_gewijsde", "weight": 0.8},
+                    {"synoniem": "kracht van gewijsde", "weight": 0.9},
+                ]
+            }
+        )
+        assert len(errors) == 1
+        assert "Duplicate synonym" in errors[0]
+        assert "Non-string" not in errors[0]
+
+        assert not validate_duplicates_within_hoofdterm(
+            {"term1": [{"synoniem": "arrest", "weight": 0.8}, "vonnis"]}
+        )
+
+    def test_non_string_synoniem_inside_weighted_dict_detected(self):
+        """De dictroute bewaarde het type al; die foutintentie blijft staan."""
+        errors = validate_duplicates_within_hoofdterm(
+            {"term1": [{"synoniem": 123, "weight": 0.8}]}
+        )
         assert len(errors) == 1
         assert "Non-string synonym" in errors[0]
         assert "123" in errors[0]
@@ -249,8 +344,48 @@ class TestValidateNormalizationConsistency:
         assert any("whitespace" in w.lower() for w in warnings)
 
 
+#: De kleurcodes zoals `validate_synonyms.Colors` ze bij import definieert.
+#: Bewust op moduleniveau vastgelegd, vóór er één test heeft gedraaid, en
+#: afgeleid uit de klasse zelf in plaats van uit een tweede kopie van de
+#: ANSI-waarden. `Colors.disable()` staat uitsluitend in `main()` van het
+#: script, dus dit is de onbesmette klassestand — geen momentopname van een al
+#: vervuilde toestand die daarna als "default" zou gelden.
+KLEURSTANDAARDEN = {
+    naam: waarde
+    for naam, waarde in vars(Colors).items()
+    if naam.isupper() and isinstance(waarde, str)
+}
+
+
 class TestColorsClass:
     """Test the Colors class."""
+
+    @pytest.fixture(autouse=True)
+    def onbesmette_kleuren(self):
+        """Zet de kleuren vóór én na elke test in deze klasse terug.
+
+        `Colors` is procesbrede klassetoestand en `Colors.disable()` leegt álle
+        acht attributen. De oude test herstelde alleen RED en GREEN, dus RESET,
+        YELLOW, BLUE, MAGENTA, CYAN en BOLD bleven leeg voor elke node die
+        erna liep: draaide `test_disable_colors` eerst, dan viel
+        `test_colors_enabled_by_default` om op `Colors.RESET != ''`
+        (root-final-integration-01/make.log).
+
+        Vooraf zetten maakt elke node onafhankelijk van de volgorde; het
+        `finally`-pad herstelt ook wanneer een test met een exception eindigt,
+        zodat de mutatie deze klasse nooit verlaat. De productieklasse zelf
+        blijft ongewijzigd.
+        """
+        self._zet_kleuren()
+        try:
+            yield
+        finally:
+            self._zet_kleuren()
+
+    @staticmethod
+    def _zet_kleuren() -> None:
+        for naam, waarde in KLEURSTANDAARDEN.items():
+            setattr(Colors, naam, waarde)
 
     def test_colors_enabled_by_default(self):
         """Test that colors are enabled by default."""
@@ -260,10 +395,6 @@ class TestColorsClass:
 
     def test_disable_colors(self):
         """Test disabling colors."""
-        # Save original values
-        original_red = Colors.RED
-        original_green = Colors.GREEN
-
         # Disable colors
         Colors.disable()
 
@@ -271,9 +402,10 @@ class TestColorsClass:
         assert Colors.GREEN == ""
         assert Colors.RESET == ""
 
-        # Restore (for other tests)
-        Colors.RED = original_red
-        Colors.GREEN = original_green
+        # Herstel loopt via `onbesmette_kleuren`: die zet alle acht attributen
+        # terug, ook op het foutpad. Een handmatig herstel van twee ervan was
+        # precies de onvolledige opruiming die deze suite volgorde-afhankelijk
+        # maakte.
 
 
 class TestIntegrationScenarios:

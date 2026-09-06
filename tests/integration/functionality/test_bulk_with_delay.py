@@ -1,31 +1,23 @@
 #!/usr/bin/env python3
-"""
-Test bulk generatie met delay tussen synoniemen/antoniemen.
+"""Bulkgeneratie met pacing tussen de voorbeeldsoorten (DEF-519).
+
+Het oorspronkelijke script liep de zes `ExampleType`-waarden één voor één af met
+een wachttijd ervoor, om de live API niet in een rate limit te duwen. Die
+wachttijden zeggen offline niets over het product; ze staan hier nog wel, maar
+verkort tot een symbolische waarde. Wat écht getoetst wordt is het gedrag van
+`generate_examples`: per verzoek het gevraagde aantal, de juiste responsevorm en
+één providercall per soort — achter de bevroren grens uit `conftest.py`.
 """
 
 import asyncio
-import os
-import sys
 import time
 
 import pytest
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Skip this functionality test when no API key is configured
-if not os.getenv("OPENAI_API_KEY"):
-    pytest.skip(
-        "OPENAI_API_KEY not set; skipping bulk-with-delay functionality test",
-        allow_module_level=True,
-    )
-
+from tests.integration.functionality.conftest import verwacht_resultaat
 from voorbeelden.unified_voorbeelden import (
     ExampleRequest,
+    ExampleResponse,
     ExampleType,
     GenerationMode,
     get_examples_generator,
@@ -33,112 +25,100 @@ from voorbeelden.unified_voorbeelden import (
 
 pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
+BEGRIP = "hoger beroep"
+DEFINITIE = (
+    "Het rechtsmiddel waarbij een partij die het niet eens is met een uitspraak "
+    "van de rechter in eerste aanleg, de zaak aan een hogere rechter kan "
+    "voorleggen."
+)
+CONTEXT = {
+    "organisatorisch": ["Gerechtshof"],
+    "juridisch": ["Strafprocesrecht"],
+    "wettelijk": ["Wetboek van Strafvordering"],
+}
 
-async def test_bulk_generation_with_delay():
-    """Test bulk generatie met delay voor rate limiting."""
-    print("🧪 Bulk Generatie Test met Delay")
-    print("=" * 60)
+#: (soort, gevraagd aantal, pacing vóór het verzoek in seconden). De pacing was
+#: oorspronkelijk 2-3 seconden tegen live rate limits; offline is elke waarde
+#: boven nul pure wachttijd, dus staat hier het symbolische minimum.
+PACING = 0.01
+GENERATIEPLAN: tuple[tuple[ExampleType, int, float], ...] = (
+    (ExampleType.VOORBEELDZINNEN, 3, 0.0),
+    (ExampleType.PRAKTIJKVOORBEELDEN, 3, 0.0),
+    (ExampleType.TEGENVOORBEELDEN, 3, 0.0),
+    (ExampleType.TOELICHTING, 1, PACING),
+    (ExampleType.SYNONIEMEN, 5, PACING),
+    (ExampleType.ANTONIEMEN, 5, PACING),
+)
 
-    # Test data
-    begrip = "hoger beroep"
-    definitie = "Het rechtsmiddel waarbij een partij die het niet eens is met een uitspraak van de rechter in eerste aanleg, de zaak aan een hogere rechter kan voorleggen."
-    context_dict = {
-        "organisatorisch": ["Gerechtshof"],
-        "juridisch": ["Strafprocesrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"],
-    }
 
+def _verzoek(soort: ExampleType, aantal: int) -> ExampleRequest:
+    return ExampleRequest(
+        begrip=BEGRIP,
+        definitie=DEFINITIE,
+        context_dict=CONTEXT,
+        example_type=soort,
+        generation_mode=GenerationMode.RESILIENT,
+        max_examples=aantal,
+    )
+
+
+async def test_bulk_generation_with_delay(bevroren_omgeving):
+    """Elke soort levert het gevraagde aantal, ook met pacing ertussen."""
     generator = get_examples_generator()
-    results = {}
+    client = bevroren_omgeving.client
 
-    # Define order and delays
-    example_configs = [
-        (ExampleType.VOORBEELDZINNEN, 3, 0),  # No delay
-        (ExampleType.PRAKTIJKVOORBEELDEN, 3, 0),  # No delay
-        (ExampleType.TEGENVOORBEELDEN, 3, 0),  # No delay
-        (ExampleType.TOELICHTING, 1, 2),  # 2s delay before
-        (ExampleType.SYNONIEMEN, 5, 3),  # 3s delay before
-        (ExampleType.ANTONIEMEN, 5, 3),  # 3s delay before
-    ]
+    resultaten: dict[str, list[str]] = {}
+    begin = time.monotonic()
 
-    print("\n📦 Start generatie met delays...")
-    total_start = time.time()
+    for soort, aantal, pauze in GENERATIEPLAN:
+        if pauze:
+            await asyncio.sleep(pauze)
 
-    for example_type, max_examples, delay in example_configs:
-        if delay > 0:
-            print(f"\n⏳ Wacht {delay}s voor {example_type.value}...")
-            await asyncio.sleep(delay)
+        respons = generator.generate_examples(_verzoek(soort, aantal))
 
-        print(f"\n📝 Genereer {example_type.value} ({max_examples} items)...")
-        start = time.time()
+        assert isinstance(respons, ExampleResponse)
+        assert respons.success, f"{soort.value} faalde: {respons.error_message}"
+        assert respons.error_message is None
+        assert isinstance(respons.generation_time, float)
+        assert respons.generation_time >= 0.0
+        resultaten[soort.value] = respons.examples
 
-        request = ExampleRequest(
-            begrip=begrip,
-            definitie=definitie,
-            context_dict=context_dict,
-            example_type=example_type,
-            generation_mode=GenerationMode.RESILIENT,
-            max_examples=max_examples,
-        )
+    verstreken = time.monotonic() - begin
+    # `asyncio.sleep` garandeert een ondergrens; de pacing is dus echt gelopen.
+    assert verstreken >= sum(pauze for _, _, pauze in GENERATIEPLAN)
 
-        response = generator.generate_examples(request)
-        duration = time.time() - start
+    # Elke soort precies het gevraagde aantal, met de verwachte inhoud.
+    assert set(resultaten) == {soort.value for soort in ExampleType}
+    for soort, aantal, _ in GENERATIEPLAN:
+        gevonden = resultaten[soort.value]
+        assert isinstance(gevonden, list)
+        assert len(gevonden) == aantal, f"{soort.value}: {len(gevonden)} van {aantal}"
+        assert gevonden == verwacht_resultaat(soort.value, aantal)
 
-        if response.success:
-            results[example_type.value] = response.examples
-            count = len(response.examples)
-            print(f"✅ {example_type.value}: {count} items in {duration:.2f}s")
-            if response.examples:
-                print(f"   Voorbeeld: {response.examples[0][:60]}...")
-        else:
-            results[example_type.value] = []
-            print(f"❌ {example_type.value}: FAILED - {response.error_message}")
+    # Eén providercall per soort, met het aantal dat het verzoek vroeg.
+    assert len(client.oproepen) == len(GENERATIEPLAN)
+    for soort, aantal, _ in GENERATIEPLAN:
+        oproepen = client.oproepen_van(soort.value)
+        assert len(oproepen) == 1
+        if soort is not ExampleType.TOELICHTING:
+            assert oproepen[0].gevraagd_aantal == aantal
 
-    total_duration = time.time() - total_start
-    print(f"\n✅ Totale tijd: {total_duration:.2f}s")
+    # Herhaling van hetzelfde verzoek belast de provider niet opnieuw: de
+    # AIServiceV2-cache vangt de identieke prompt op.
+    herhaling = generator.generate_examples(_verzoek(ExampleType.SYNONIEMEN, 5))
+    assert herhaling.success
+    assert herhaling.examples == resultaten[ExampleType.SYNONIEMEN.value]
+    assert len(client.oproepen_van(ExampleType.SYNONIEMEN.value)) == 1
 
-    # Check results
-    expected_counts = {
-        "sentence": 3,
-        "practical": 3,
-        "counter": 3,
-        "synonyms": 5,
-        "antonyms": 5,
-        "explanation": 1,
-    }
+    # Discriminatie: met een lege respons loopt élke soort leeg, dus de
+    # gelijkheden hierboven kunnen niet toevallig slagen.
+    bevroren_omgeving.zet_modus("leeg")
+    for soort, aantal, _ in GENERATIEPLAN:
+        leeg = generator.generate_examples(_verzoek(soort, aantal))
+        assert leeg.examples == [], f"{soort.value} zou leeg moeten zijn"
 
-    print("\n📊 RESULTATEN:")
-    all_correct = True
-    for example_type, expected in expected_counts.items():
-        actual = len(results.get(example_type, []))
-        correct = actual == expected
-        status = "✅" if correct else "❌"
-        print(f"  {status} {example_type}: {actual}/{expected}")
-        if not correct:
-            all_correct = False
-
-    return all_correct
-
-
-async def main():
-    """Run test."""
-    print("🚀 Bulk Generation Test with Rate Limit Management")
-    print("=" * 80)
-
-    try:
-        success = await test_bulk_generation_with_delay()
-
-        if success:
-            print("\n🎉 ALLE TESTS GESLAAGD!")
-        else:
-            print("\n⚠️ SOMMIGE TESTS GEFAALD!")
-
-    except Exception as e:
-        print(f"\n❌ Test failed with error: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    # Discriminatie op het aantal: één item minder komt ook echt als minder
+    # terug in plaats van te worden aangevuld.
+    bevroren_omgeving.zet_modus("tekort")
+    tekort = generator.generate_examples(_verzoek(ExampleType.ANTONIEMEN, 5))
+    assert len(tekort.examples) == 4

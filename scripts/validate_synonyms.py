@@ -110,7 +110,7 @@ def load_yaml_file(file_path: Path) -> tuple[dict[str, list[str]], list[str]]:
         return {}, errors
 
 
-def parse_synonym_entry(entry: any) -> tuple[str, float]:
+def parse_synonym_entry(entry: any) -> tuple[object, float]:
     """
     Parse a synonym entry (legacy or weighted format).
 
@@ -118,7 +118,9 @@ def parse_synonym_entry(entry: any) -> tuple[str, float]:
         entry: Either a string (legacy) or dict with 'synoniem' and 'weight'
 
     Returns:
-        Tuple of (synonym_term, weight)
+        Tuple of (synonym_term, weight). Het eerste element is alleen een str
+        als de invoer dat werkelijk was; onbekende invoertypes komen ongewijzigd
+        terug zodat de isinstance-controles bij de aanroepers ze zien.
     """
     # Legacy format: plain string
     if isinstance(entry, str):
@@ -133,8 +135,10 @@ def parse_synonym_entry(entry: any) -> tuple[str, float]:
         # Invalid dict format - return as-is for error reporting
         return (str(entry), 1.0)
 
-    # Unknown format
-    return (str(entry), 1.0)
+    # Unknown format: ruwe waarde ongewijzigd teruggeven. DEF-519: str(entry)
+    # maakte hier van elke waarde een string, waardoor de isinstance-controle in
+    # validate_duplicates_within_hoofdterm het typefout nooit meer zag.
+    return (entry, 1.0)
 
 
 def validate_empty_lists(data: dict[str, list[str]]) -> list[str]:

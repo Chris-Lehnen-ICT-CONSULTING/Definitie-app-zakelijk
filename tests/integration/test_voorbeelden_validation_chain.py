@@ -6,22 +6,35 @@ Ensures ValidationError messages propagate correctly and logging integration wor
 
 Created: 2025-10-31
 Related: DEF-74 (Pydantic validation), DEF-68/69 (logging), DEF-83 (integration tests)
+
+DEF-519: de tests draaiden op seedrij id 1 uit schema.sql in plaats van op de
+eigen definitie, en caplog stond op de facade-logger terwijl de meldingen uit
+database.voorbeelden_repository komen. Beide zijn hier gecorrigeerd; de
+readback loopt nu via een eigen verbinding op het databasebestand.
 """
 
+import json
 import logging
+import sqlite3
 from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from database.definitie_repository import DefinitieRepository
+from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
 pytestmark = [pytest.mark.integration]
 
 # Test Data Constants
 
 
-VALID_DEFINITIE_ID = 1  # ID created by repository fixture
+# DEF-519: de facade delegeert save_voorbeelden naar VoorbeeldenRepository; dáár
+# staat de logger die "Saving voorbeelden" schrijft. caplog moet op deze naam.
+VOORBEELDEN_LOGGER = "database.voorbeelden_repository"
+
+# schema.sql seedt twee definities (id 1 en 2). Die zijn nooit van deze test;
+# id 1 dient uitsluitend als discriminator voor verkeerde associatie.
+SEED_DEFINITIE_ID = 1
 INVALID_NEGATIVE_ID = -1  # Invalid: negative ID
 INVALID_ZERO_ID = 0  # Invalid: zero is not allowed
 INVALID_EXTREME_NEGATIVE_ID = -999  # Invalid: extreme negative value
@@ -52,29 +65,46 @@ def assert_error_contains(exc_info, *keywords: str) -> None:
     ), f"Error '{exc_info.value!s}' should contain one of: {keywords}"
 
 
-def _count_active_voorbeelden(
-    repository: DefinitieRepository, definitie_id: int
-) -> int:
-    """Count active voorbeelden for a given definitie.
+def _readback_actief(db_path: Path, definitie_id: int) -> list[dict]:
+    """Lees de actieve voorbeelden terug via een eigen, verse verbinding.
 
-    Args:
-        repository: Repository instance
-        definitie_id: ID of the definitie to count voorbeelden for
-
-    Returns:
-        Count of active voorbeelden in database
-
-    Note:
-        Uses parameterized SQL query to prevent SQL injection and
-        improve maintainability. Direct database access via _get_connection()
-        is acceptable in integration tests for verification purposes.
+    Bewust niet via ``repository._get_connection()``: die geeft de thread-local
+    verbinding van de repository terug, dus dan bewijst de readback niets over
+    wat er werkelijk op schijf staat. De eigen verbinding wordt in ``finally``
+    gesloten — de SQLite-contextmanager doet dat niet, die commit alleen.
     """
-    with repository._get_connection() as conn:
-        cursor = conn.execute(
-            "SELECT COUNT(*) FROM definitie_voorbeelden WHERE definitie_id = ? AND actief = TRUE",
+    conn = sqlite3.connect(str(db_path))
+    try:
+        conn.row_factory = sqlite3.Row
+        rijen = conn.execute(
+            """
+            SELECT definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                   gegenereerd_door, generation_model, generation_parameters, actief
+            FROM definitie_voorbeelden
+            WHERE definitie_id = ? AND actief = TRUE
+            ORDER BY voorbeeld_type, voorbeeld_volgorde
+            """,
             (definitie_id,),
-        )
-        return cursor.fetchone()[0]
+        ).fetchall()
+        return [dict(rij) for rij in rijen]
+    finally:
+        conn.close()
+
+
+def _totaal_voorbeeld_rijen(db_path: Path) -> int:
+    """Alle rijen in definitie_voorbeelden — ook inactieve, ook van seeddata."""
+    conn = sqlite3.connect(str(db_path))
+    try:
+        return conn.execute("SELECT COUNT(*) FROM definitie_voorbeelden").fetchone()[0]
+    finally:
+        conn.close()
+
+
+def _sluit_repository(repository: DefinitieRepository) -> None:
+    """Sluit de thread-local verbinding van de repository."""
+    state = getattr(repository._db._thread_local, "state", None)
+    if state is not None:
+        state.close()
 
 
 # Fixtures
@@ -87,40 +117,39 @@ def test_db_path(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def repository(test_db_path: Path) -> DefinitieRepository:
-    """Create repository instance with test database."""
+def repository(test_db_path: Path):
+    """Repository op een verse tmp-database; verbinding sluit in finally."""
     repo = DefinitieRepository(str(test_db_path))
+    try:
+        yield repo
+    finally:
+        _sluit_repository(repo)
 
-    # Create a test definitie to save voorbeelden to
-    from database.definitie_repository import DefinitieRecord
 
-    test_def = DefinitieRecord(
-        begrip="testbegrip",
-        definitie="Een testdefinitie voor integration testing",
-        categorie="type",  # Valid category from schema constraint
-        organisatorische_context="Test Organisatie",
-    )
+@pytest.fixture
+def eigen_definitie_id(repository: DefinitieRepository) -> int:
+    """Id van de definitie die deze test zélf aanmaakt via de echte API.
 
-    # Insert via raw SQL to avoid dependencies
-    with repo._get_connection() as conn:
-        conn.execute(
-            """
-            INSERT INTO definities (begrip, definitie, categorie, organisatorische_context)
-            VALUES (?, ?, ?, ?)
-            """,
-            (
-                test_def.begrip,
-                test_def.definitie,
-                test_def.categorie,
-                test_def.organisatorische_context,
-            ),
+    DEF-519: eerder gingen alle tests uit van id 1. Dat is een seedrij uit
+    schema.sql, niet de eigen rij — de tests bewezen dus niets over eigen data.
+    """
+    definitie_id = repository.create_definitie(
+        DefinitieRecord(
+            begrip="testbegrip",
+            definitie="Een testdefinitie voor integration testing",
+            categorie="type",  # Valid category from schema constraint
+            organisatorische_context="Test Organisatie",
         )
-        conn.commit()
+    )
+    assert (
+        definitie_id != SEED_DEFINITIE_ID
+    ), "eigen record moet te onderscheiden zijn van de seedrijen"
+    return definitie_id
 
-    return repo
 
-
-def test_invalid_definitie_id_rejection(repository: DefinitieRepository):
+def test_invalid_definitie_id_rejection(
+    repository: DefinitieRepository, eigen_definitie_id: int, test_db_path: Path
+):
     """Test 1: Invalid definitie_id rejected at repository level.
 
     DEF-83 requirement: Test invalid definitie_id rejection
@@ -145,8 +174,14 @@ def test_invalid_definitie_id_rejection(repository: DefinitieRepository):
 
     assert_error_contains(exc_info, "definitie_id")
 
+    # Afgewezen invoer mag niets hebben weggeschreven — ook niet inactief.
+    assert _totaal_voorbeeld_rijen(test_db_path) == 0
+    assert _readback_actief(test_db_path, eigen_definitie_id) == []
 
-def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository):
+
+def test_invalid_voorbeelden_dict_type_rejection(
+    repository: DefinitieRepository, eigen_definitie_id: int, test_db_path: Path
+):
     """Test 2: Invalid voorbeelden_dict type rejected.
 
     DEF-83 requirement: Test invalid voorbeelden_dict type rejection
@@ -154,7 +189,7 @@ def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository
     # Invalid: string instead of dict
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict="not a dict",  # type: ignore
         )
 
@@ -163,7 +198,7 @@ def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository
     # Invalid: list instead of dict
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict=["not", "a", "dict"],  # type: ignore
         )
 
@@ -172,7 +207,7 @@ def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository
     # Invalid: dict with non-string keys
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict={123: ["test"]},  # type: ignore
         )
 
@@ -181,14 +216,19 @@ def test_invalid_voorbeelden_dict_type_rejection(repository: DefinitieRepository
     # Invalid: dict with non-list values
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict={"voorbeeldzinnen": "should be list"},  # type: ignore
         )
 
     assert_error_contains(exc_info, "list")
 
+    assert _totaal_voorbeeld_rijen(test_db_path) == 0
+    assert _readback_actief(test_db_path, eigen_definitie_id) == []
 
-def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
+
+def test_empty_voorbeelden_dict_rejection(
+    repository: DefinitieRepository, eigen_definitie_id: int, test_db_path: Path
+):
     """Test 3: Empty voorbeelden_dict rejected.
 
     DEF-83 requirement: Test empty voorbeelden_dict rejection
@@ -196,7 +236,7 @@ def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
     # Empty dict
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict={},
         )
 
@@ -205,7 +245,7 @@ def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
     # Dict with only empty lists
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict={
                 "voorbeeldzinnen": [],
                 "praktijkvoorbeelden": [],
@@ -217,7 +257,7 @@ def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
     # Dict with only whitespace strings
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict={
                 "voorbeeldzinnen": ["   ", "\t", "\n"],
             },
@@ -226,14 +266,22 @@ def test_empty_voorbeelden_dict_rejection(repository: DefinitieRepository):
     # After filtering whitespace, should be empty -> rejected
     assert "example" in str(exc_info.value).lower()
 
+    assert _totaal_voorbeeld_rijen(test_db_path) == 0
+    assert _readback_actief(test_db_path, eigen_definitie_id) == []
 
-def test_valid_data_acceptance_and_logging(repository: DefinitieRepository, caplog):
+
+def test_valid_data_acceptance_and_logging(
+    repository: DefinitieRepository,
+    eigen_definitie_id: int,
+    test_db_path: Path,
+    caplog,
+):
     """Test 4: Valid data accepted and logged correctly.
 
     DEF-83 requirement: Test valid data acceptance + logging
     DEF-68/69 requirement: Verify logging integration
     """
-    caplog.set_level(logging.INFO, logger="database.definitie_repository")
+    caplog.set_level(logging.INFO, logger=VOORBEELDEN_LOGGER)
 
     # Valid voorbeelden dict
     valid_voorbeelden = {
@@ -244,7 +292,7 @@ def test_valid_data_acceptance_and_logging(repository: DefinitieRepository, capl
 
     # Should succeed
     result = repository.save_voorbeelden(
-        definitie_id=VALID_DEFINITIE_ID,
+        definitie_id=eigen_definitie_id,
         voorbeelden_dict=valid_voorbeelden,
         generation_model="gpt-4",
         gegenereerd_door="test_system",
@@ -252,14 +300,44 @@ def test_valid_data_acceptance_and_logging(repository: DefinitieRepository, capl
 
     # Verify result
     assert isinstance(result, list)
-    assert len(result) > 0  # Should return IDs of saved voorbeelden
+    assert len(result) == 4  # 2 zinnen + 1 praktijk + 1 tegenvoorbeeld
 
-    # Verify logging (DEF-68/69 integration)
-    assert any("Saving voorbeelden" in record.message for record in caplog.records)
-    assert any("definitie 1" in record.message for record in caplog.records)
+    # Verse, onafhankelijke readback: exacte inhoud op de eigen definitie
+    rijen = _readback_actief(test_db_path, eigen_definitie_id)
+    assert [
+        (rij["voorbeeld_type"], rij["voorbeeld_tekst"], rij["voorbeeld_volgorde"])
+        for rij in rijen
+    ] == [
+        ("counter", "Tegen 1", 1),
+        ("practical", "Praktijk 1", 1),
+        ("sentence", "Voorbeeld 1", 1),
+        ("sentence", "Voorbeeld 2", 2),
+    ]
+    for rij in rijen:
+        assert rij["definitie_id"] == eigen_definitie_id
+        assert rij["actief"] == 1
+        assert rij["generation_model"] == "gpt-4"
+        assert rij["gegenereerd_door"] == "test_system"
+
+    # Discriminator: niets mag onder de seedrij zijn beland.
+    assert _readback_actief(test_db_path, SEED_DEFINITIE_ID) == []
+    assert _totaal_voorbeeld_rijen(test_db_path) == 4
+
+    # Verify logging (DEF-68/69 integration) op de logger die het écht schrijft
+    save_records = [
+        record
+        for record in caplog.records
+        if record.name == VOORBEELDEN_LOGGER and "Saving voorbeelden" in record.message
+    ]
+    assert save_records, "save_voorbeelden hoort op INFO te loggen"
+    assert any(
+        f"definitie {eigen_definitie_id}" in record.message for record in save_records
+    )
 
 
-def test_error_message_clarity(repository: DefinitieRepository):
+def test_error_message_clarity(
+    repository: DefinitieRepository, eigen_definitie_id: int
+):
     """Test 5: Error messages are clear and actionable.
 
     DEF-83 requirement: Test error message clarity for end users
@@ -282,7 +360,7 @@ def test_error_message_clarity(repository: DefinitieRepository):
     # Test error for wrong type
     with pytest.raises(ValidationError) as exc_info:
         repository.save_voorbeelden(
-            definitie_id=VALID_DEFINITIE_ID,
+            definitie_id=eigen_definitie_id,
             voorbeelden_dict={"voorbeeldzinnen": "not a list"},  # type: ignore
         )
 
@@ -294,13 +372,15 @@ def test_error_message_clarity(repository: DefinitieRepository):
     )
 
 
-def test_logging_integration_with_context(repository: DefinitieRepository, caplog):
+def test_logging_integration_with_context(
+    repository: DefinitieRepository, eigen_definitie_id: int, caplog
+):
     """Test 6: Logging contains expected context (DEF-68/69).
 
     DEF-83 requirement: Test logging integration (DEF-68/69)
     Verifies that error logging includes contextual information.
     """
-    caplog.set_level(logging.ERROR, logger="database.definitie_repository")
+    caplog.set_level(logging.ERROR, logger=VOORBEELDEN_LOGGER)
 
     # Trigger validation error
     with pytest.raises(ValidationError):
@@ -310,7 +390,11 @@ def test_logging_integration_with_context(repository: DefinitieRepository, caplo
         )
 
     # Find error log record
-    error_records = [r for r in caplog.records if r.levelname == "ERROR"]
+    error_records = [
+        r
+        for r in caplog.records
+        if r.levelname == "ERROR" and r.name == VOORBEELDEN_LOGGER
+    ]
     assert len(error_records) > 0, "Should have logged error"
 
     error_record = error_records[0]
@@ -324,22 +408,26 @@ def test_logging_integration_with_context(repository: DefinitieRepository, caplo
 
     # Verify extra context is logged (DEF-68/69 structured logging)
     # Repository logs: definitie_id, error_details, error_count
-    if hasattr(error_record, "definitie_id"):
-        assert error_record.definitie_id == -1
-    if hasattr(error_record, "error_count"):
-        assert error_record.error_count > 0
+    assert error_record.definitie_id == INVALID_NEGATIVE_ID
+    assert error_record.definitie_id != eigen_definitie_id
+    assert error_record.error_count > 0
 
 
-def test_validation_chain_end_to_end(repository: DefinitieRepository, caplog):
+def test_validation_chain_end_to_end(
+    repository: DefinitieRepository,
+    eigen_definitie_id: int,
+    test_db_path: Path,
+    caplog,
+):
     """Test 7: Complete end-to-end validation chain.
 
     Tests full flow: input → Pydantic validation → repository → database → logging
     """
-    caplog.set_level(logging.INFO, logger="database.definitie_repository")
+    caplog.set_level(logging.INFO, logger=VOORBEELDEN_LOGGER)
 
     # Valid flow
     valid_result = repository.save_voorbeelden(
-        definitie_id=VALID_DEFINITIE_ID,
+        definitie_id=eigen_definitie_id,
         voorbeelden_dict={
             "voorbeeldzinnen": ["Zin 1", "Zin 2"],
             "praktijkvoorbeelden": ["Praktijk"],
@@ -349,20 +437,40 @@ def test_validation_chain_end_to_end(repository: DefinitieRepository, caplog):
         gegenereerd_door="integration_test",
     )
 
-    assert len(valid_result) > 0
+    assert len(valid_result) == 3
     assert all(isinstance(id, int) for id in valid_result)
 
-    # Verify database state
-    count = _count_active_voorbeelden(repository, VALID_DEFINITIE_ID)
-    assert count > 0, "Should have saved voorbeelden to database"
+    # Verify database state — verse readback, exacte inhoud en actorvelden
+    rijen = _readback_actief(test_db_path, eigen_definitie_id)
+    assert [
+        (rij["voorbeeld_type"], rij["voorbeeld_tekst"], rij["voorbeeld_volgorde"])
+        for rij in rijen
+    ] == [
+        ("practical", "Praktijk", 1),
+        ("sentence", "Zin 1", 1),
+        ("sentence", "Zin 2", 2),
+    ]
+    for rij in rijen:
+        assert rij["definitie_id"] == eigen_definitie_id
+        assert rij["actief"] == 1
+        assert rij["gegenereerd_door"] == "integration_test"
+        assert json.loads(rij["generation_parameters"]) == {"temperature": 0.7}
+
+    # Verkeerde associatie moet leeg blijven.
+    assert _readback_actief(test_db_path, SEED_DEFINITIE_ID) == []
 
     # Verify logging
-    info_records = [r for r in caplog.records if r.levelname == "INFO"]
+    info_records = [
+        r
+        for r in caplog.records
+        if r.levelname == "INFO" and r.name == VOORBEELDEN_LOGGER
+    ]
     assert any("Saving voorbeelden" in r.message for r in info_records)
+    assert any(f"definitie {eigen_definitie_id}" in r.message for r in info_records)
 
     # Invalid flow - verify error propagation
     caplog.clear()
-    caplog.set_level(logging.ERROR, logger="database.definitie_repository")
+    caplog.set_level(logging.ERROR, logger=VOORBEELDEN_LOGGER)
 
     with pytest.raises(ValidationError):
         repository.save_voorbeelden(
@@ -371,9 +479,17 @@ def test_validation_chain_end_to_end(repository: DefinitieRepository, caplog):
         )
 
     # Verify error was logged
-    error_records = [r for r in caplog.records if r.levelname == "ERROR"]
+    error_records = [
+        r
+        for r in caplog.records
+        if r.levelname == "ERROR" and r.name == VOORBEELDEN_LOGGER
+    ]
     assert len(error_records) > 0
     assert any("Validation failed" in r.message for r in error_records)
+
+    # De afgewezen save mag de geldige rijen niet hebben aangeraakt.
+    assert _readback_actief(test_db_path, eigen_definitie_id) == rijen
+    assert _totaal_voorbeeld_rijen(test_db_path) == 3
 
 
 if __name__ == "__main__":

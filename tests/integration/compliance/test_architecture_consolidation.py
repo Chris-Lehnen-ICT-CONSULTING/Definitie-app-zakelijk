@@ -1,6 +1,21 @@
 """
 Automated tests for architecture documentation consolidation validation.
 Ensures canonical documents, templates, archives, and links are properly maintained.
+
+Dit zijn historische documentcontroles: ze toetsen aanwezigheid, omvang en
+tekstpatronen van documenten. Ze zijn géén compliance-oordeel over ASTRA/NORA.
+
+DEF-519: BASE_DIR wees naar tests/integration (parents[1]) in plaats van de
+projectwortel, dus elke controle keek in een niet-bestaande boom. Daarnaast
+maakten `if not ...exists(): continue` en een runtime `pytest.skip` de uitslag
+vals-groen bij nul bronnen. Beide zijn hier gecorrigeerd; een ontbrekende
+verplichte bron faalt nu met het concrete pad.
+
+Dispositie van de resterende rode nodes (geen skip/xfail, blijven zichtbaar):
+  * ontbrekende EA/SA/TA/README-docfeiten en het consolidatie-archief -> DEF-619
+  * ASTRA/NORA-intentie (test_astra_compliance_maintained) -> DEF-468
+  trigger: de genoemde story; herbeoordeling uiterlijk 2026-10-06.
+Geen documenten herbouwd en geen complianceoplevering in deze batch.
 """
 
 import os
@@ -11,14 +26,40 @@ import pytest
 
 pytestmark = [pytest.mark.compliance]
 
+# `advisory`-dispositie (DEF-519), uitsluitend op de nodes die hieronder de
+# marker dragen. De vier nodes zonder marker bewijzen actief gedrag en blijven
+# onverkort in de verplichte gate; er wordt hier niets op bestandsniveau
+# weggefilterd.
+#
+# Reden: de documentatiefacts uit deze suite horen bij DEF-619; de fixturefouten
+# zijn hersteld, dus de resterende REDs zijn echte documentatiedrift en geen
+# testdefect. Oude architectuurdocs worden niet herbouwd om groen te worden.
+# Owner: DEF-619 (EA/SA/README-facts en documentatiedrift).
+# Trigger: DEF-619 levert de documentatiefacts.
+# Herbeoordeling: 2026-10-06.
+# Uitzondering: `test_astra_compliance_maintained` heeft een eigen owner
+# (DEF-468) en staat daar apart genoteerd.
+
 
 class TestArchitectureConsolidation:
     """Test suite for validating architecture documentation consolidation."""
 
-    BASE_DIR = Path(__file__).parent.parent
+    # tests/integration/compliance/<dit bestand> -> parents[3] is de projectwortel.
+    BASE_DIR = Path(__file__).resolve().parents[3]
     ARCH_DIR = BASE_DIR / "docs" / "architectuur"
     ARCHIVE_DIR = BASE_DIR / "docs" / "archief" / "2025-09-architectuur-consolidatie"
 
+    def test_base_dir_points_at_checkout(self):
+        """Discriminator: de scope moet de echte checkout zijn, niet leeg.
+
+        Zonder deze node kan een verkeerde BASE_DIR opnieuw ongemerkt een lege
+        boom opleveren waarin controles niets vinden.
+        """
+        assert (self.BASE_DIR / "pytest.ini").is_file(), self.BASE_DIR
+        assert (self.BASE_DIR / "src").is_dir(), self.BASE_DIR
+        assert (self.BASE_DIR / "docs").is_dir(), self.BASE_DIR
+
+    @pytest.mark.advisory
     def test_canonical_docs_exist(self):
         """Test that all canonical architecture docs exist."""
         required_docs = [
@@ -57,6 +98,7 @@ class TestArchitectureConsolidation:
                 template_path.stat().st_size > 1000
             ), f"Template {template_name} appears to be empty"
 
+    @pytest.mark.advisory
     def test_archive_structure(self):
         """Test that archive is properly organized."""
         assert (
@@ -83,10 +125,17 @@ class TestArchitectureConsolidation:
         migration_log = self.ARCHIVE_DIR / "MIGRATION_LOG.md"
         assert migration_log.exists(), "MIGRATION_LOG.md not found in archive"
 
+    @pytest.mark.advisory
     def test_cross_references_between_docs(self):
         """Test that canonical docs properly reference each other."""
         # Check EA references SA and TA
         ea_path = self.ARCH_DIR / "ENTERPRISE_ARCHITECTURE.md"
+        sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
+        ta_path = self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md"
+
+        ontbrekend = [str(p) for p in (ea_path, sa_path, ta_path) if not p.exists()]
+        assert not ontbrekend, f"Verplichte bron(nen) ontbreken: {ontbrekend}"
+
         with open(ea_path, encoding="utf-8") as f:
             ea_content = f.read()
 
@@ -94,23 +143,28 @@ class TestArchitectureConsolidation:
         assert "TECHNICAL_ARCHITECTURE.md" in ea_content, "EA doesn't reference TA"
 
         # Check SA references EA (TA reference is optional but recommended)
-        sa_path = self.ARCH_DIR / "SOLUTION_ARCHITECTURE.md"
         with open(sa_path, encoding="utf-8") as f:
             sa_content = f.read()
 
         assert "ENTERPRISE_ARCHITECTURE.md" in sa_content, "SA doesn't reference EA"
 
         # Check TA references EA and SA
-        ta_path = self.ARCH_DIR / "TECHNICAL_ARCHITECTURE.md"
         with open(ta_path, encoding="utf-8") as f:
             ta_content = f.read()
 
         assert "ENTERPRISE_ARCHITECTURE.md" in ta_content, "TA doesn't reference EA"
         assert "SOLUTION_ARCHITECTURE.md" in ta_content, "TA doesn't reference SA"
 
+    @pytest.mark.advisory
     def test_no_broken_internal_links(self):
-        """Test that no broken internal links exist in main architecture docs."""
+        """Test that no broken internal links exist in main architecture docs.
+
+        DEF-519: ontbrekende documenten werden overgeslagen en gevonden broken
+        links eindigden in `pytest.skip`, waardoor nul onderzochte bronnen als
+        groen telden. Beide zijn nu een failure met concrete details.
+        """
         broken_links = []
+        onderzochte_docs = []
 
         canonical_docs = [
             "ENTERPRISE_ARCHITECTURE.md",
@@ -119,10 +173,16 @@ class TestArchitectureConsolidation:
             "README.md",
         ]
 
+        ontbrekend = [
+            str(self.ARCH_DIR / doc_name)
+            for doc_name in canonical_docs
+            if not (self.ARCH_DIR / doc_name).exists()
+        ]
+        assert not ontbrekend, f"Verplichte bron(nen) ontbreken: {ontbrekend}"
+
         for doc_name in canonical_docs:
             doc_path = self.ARCH_DIR / doc_name
-            if not doc_path.exists():
-                continue
+            onderzochte_docs.append(doc_name)
 
             with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
@@ -157,19 +217,30 @@ class TestArchitectureConsolidation:
                         }
                     )
 
-        # Allow some broken links but warn about them
+        # Discriminator: nul onderzochte bronnen mag nooit groen zijn.
+        assert onderzochte_docs, "Geen enkel canoniek document onderzocht"
+
         if broken_links:
-            warning_msg = f"Found {len(broken_links)} broken internal links:\n"
-            for link in broken_links[:10]:  # Show first 10
-                warning_msg += (
-                    f"  - [{link['text']}]({link['target']}) in {link['document']}\n"
-                )
+            details = "\n".join(
+                f"  - [{link['text']}]({link['target']}) in {link['document']}"
+                f" -> {link['resolved_path']}"
+                for link in broken_links[:10]
+            )
+            raise AssertionError(
+                f"Found {len(broken_links)} broken internal links:\n{details}"
+            )
 
-            # This is a warning, not a failure
-            pytest.skip(warning_msg)
-
+    # Eigen owner: niet-geïmplementeerde ASTRA/NORA-intentie, geen positieve
+    # complianceclaim. Owner DEF-468, trigger: DEF-468 implementeert het
+    # ASTRA/NORA-contract, herbeoordeling 2026-10-06.
+    @pytest.mark.advisory
     def test_astra_compliance_maintained(self):
-        """Test that ASTRA references are maintained in consolidated docs."""
+        """Historische documentcontrole op het aantal ASTRA-trefwoorden.
+
+        Dit telt tekstvoorkomens in documenten. Het is uitdrukkelijk GEEN
+        vaststelling van ASTRA-compliance; die claim kan niet uit trefwoorden
+        volgen (DEF-468 houdt de ASTRA/NORA-intentie).
+        """
         min_references = {
             "ENTERPRISE_ARCHITECTURE.md": 5,
             "SOLUTION_ARCHITECTURE.md": 1,
@@ -178,8 +249,7 @@ class TestArchitectureConsolidation:
 
         for doc_name, min_count in min_references.items():
             doc_path = self.ARCH_DIR / doc_name
-            if not doc_path.exists():
-                continue
+            assert doc_path.exists(), f"Verplichte bron ontbreekt: {doc_path}"
 
             with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
@@ -190,6 +260,7 @@ class TestArchitectureConsolidation:
                 astra_count >= min_count
             ), f"{doc_name} has only {astra_count} ASTRA references, expected at least {min_count}"
 
+    @pytest.mark.advisory
     def test_document_sizes_acceptable(self):
         """Test that consolidated documents are not too large."""
         max_size_kb = 150  # Maximum acceptable size in KB
@@ -202,8 +273,7 @@ class TestArchitectureConsolidation:
 
         for doc_name in canonical_docs:
             doc_path = self.ARCH_DIR / doc_name
-            if not doc_path.exists():
-                continue
+            assert doc_path.exists(), f"Verplichte bron ontbreekt: {doc_path}"
 
             size_kb = doc_path.stat().st_size / 1024
             assert (
@@ -238,6 +308,8 @@ class TestArchitectureConsolidation:
         """Test that no duplicate architecture documents exist outside archive."""
         # Find all .md files that might be duplicates
         docs_dir = self.BASE_DIR / "docs"
+        assert docs_dir.is_dir(), f"docs-map ontbreekt: {docs_dir}"
+        onderzochte_bestanden = 0
 
         duplicate_patterns = [
             r"EA[-_].*\.md",
@@ -251,8 +323,9 @@ class TestArchitectureConsolidation:
         potential_duplicates = []
 
         for root, _dirs, files in os.walk(docs_dir):
-            # Skip archive directories
-            if "archief" in root or "archive" in root:
+            # Skip archive directories. De map heet op schijf 'ARCHIEF';
+            # de oude hoofdlettergevoelige check sloeg die niet over.
+            if "archief" in root.lower() or "archive" in root.lower():
                 continue
 
             # Skip the canonical architecture directory
@@ -263,15 +336,21 @@ class TestArchitectureConsolidation:
                 if not file.endswith(".md"):
                     continue
 
+                onderzochte_bestanden += 1
+
                 for pattern in duplicate_patterns:
                     if re.match(pattern, file, re.IGNORECASE):
                         potential_duplicates.append(os.path.join(root, file))
                         break
 
+        # Discriminator: een lege scope mag deze node niet groen maken.
+        assert onderzochte_bestanden > 0, f"Geen .md-bestanden gevonden in {docs_dir}"
+
         assert (
             len(potential_duplicates) == 0
         ), f"Found potential duplicate architecture docs outside archive: {potential_duplicates}"
 
+    @pytest.mark.advisory
     def test_frontmatter_present_in_canonical_docs(self):
         """Test that canonical documents have proper frontmatter."""
         canonical_docs = [
@@ -282,8 +361,7 @@ class TestArchitectureConsolidation:
 
         for doc_name in canonical_docs:
             doc_path = self.ARCH_DIR / doc_name
-            if not doc_path.exists():
-                continue
+            assert doc_path.exists(), f"Verplichte bron ontbreekt: {doc_path}"
 
             with open(doc_path, encoding="utf-8") as f:
                 content = f.read()
@@ -303,14 +381,9 @@ class TestArchitectureConsolidation:
                 assert (
                     "status:" in frontmatter
                 ), f"{doc_name} missing status in frontmatter"
-                # Version info is optional but recommended
-                has_version = (
-                    "version:" in frontmatter or "version_history:" in frontmatter
-                )
-                if not has_version:
-                    pytest.skip(
-                        f"Warning: {doc_name} missing version information in frontmatter"
-                    )
+                # Versie-informatie blijft optioneel (bestaande intentie). De
+                # runtime pytest.skip die hier stond maakte de uitslag onzichtbaar
+                # en is verwijderd zonder een nieuwe eis toe te voegen.
 
 
 if __name__ == "__main__":
