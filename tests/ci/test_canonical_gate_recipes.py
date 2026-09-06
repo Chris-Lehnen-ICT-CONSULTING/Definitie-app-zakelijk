@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -39,6 +40,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
+import yaml
 
 from tests import offline_bootstrap
 
@@ -671,3 +673,208 @@ def test_gates_schrijven_gescheiden_artefacten(tmp_path):
     # `.coverage` in de checkout zelf.
     assert (dekking.rapportmap / "unit-coverage.xml").is_file()
     assert not (root / ".coverage").exists()
+
+
+# --- De required CI-job moet de canonieke gate draaien ----------------------
+#
+# De `tests`-job van `.github/workflows/ci.yml` draaide een eigen pytest-subset
+# met `--cov=src`. pytest-cov schrijft dan `.coverage.*` in de checkout; de
+# vroege offline-bootstrap weigert dat terecht, en op PR #427 eindigde de stap
+# in een INTERNALERROR (`pr427-tests-job-view-01.log`). Het was bovendien een
+# tweede selectie naast de Makefile.
+#
+# De nodes hieronder lezen `jobs.tests.steps` gestructureerd en toetsen het
+# werkelijke `run`-veld, niet losse jobtekst: een stapnaam die de gate noemt
+# terwijl het commando niets doet, moet worden afgewezen. Het gevonden doel
+# wordt daarna echt gedraaid op de miniatuur-checkout. Er wordt uitsluitend
+# gelezen — geen workflowsetup, geen netwerk, geen tweede runtime.
+
+CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+
+#: Naam waaronder deze job zijn eigen gate-rapporten bewaart. Eigen naam, zodat
+#: de artefacten van `test.yml` niet worden overschreven.
+CI_ARTEFACTNAAM = "acceptance-gate-results"
+
+#: `make <doel>` in een runveld. Alleen de canonieke gatedoelen tellen.
+_MAKE_DOEL = re.compile(r"\bmake\s+(test-[a-z-]+)\b")
+
+
+def _ci_stappen() -> list[dict]:
+    """De stappen van `jobs.tests` uit `ci.yml`.
+
+    `yaml.safe_load` bouwt alleen datastructuren op; er wordt niets uit de
+    workflow geëvalueerd of uitgevoerd.
+    """
+    document = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    return document["jobs"]["tests"]["steps"]
+
+
+def _ci_runvelden() -> list[str]:
+    """Uitsluitend de werkelijke `run`-commando's van die stappen."""
+    return [stap["run"] for stap in _ci_stappen() if isinstance(stap.get("run"), str)]
+
+
+def _ci_gatestap() -> dict:
+    """De ene stap waarvan het `run`-veld een canoniek gatedoel aanroept."""
+    stappen = [
+        stap
+        for stap in _ci_stappen()
+        if isinstance(stap.get("run"), str) and _MAKE_DOEL.search(stap["run"])
+    ]
+    assert stappen, (
+        "geen enkele stap in de tests-job draait een canoniek make-gatedoel; "
+        f"gevonden runvelden: {_ci_runvelden()}"
+    )
+    assert len(stappen) == 1, f"meer dan één gatestap in de tests-job: {stappen}"
+    return stappen[0]
+
+
+def _ci_gate_doel() -> str:
+    """Het make-doel dat de required `tests`-job onvoorwaardelijk aanroept."""
+    stap = _ci_gatestap()
+    commando = stap["run"].strip()
+    assert commando == "make test-acceptance", commando
+    # Onvoorwaardelijk en blokkerend: geen `if:` en geen continue-on-error.
+    assert "if" not in stap, stap
+    assert stap.get("continue-on-error") in (None, False), stap
+    return _MAKE_DOEL.search(commando).group(1)
+
+
+def _ci_artefactstap() -> dict:
+    """De ene stap die de gate-rapporten als artefact bewaart."""
+    stappen = [
+        stap
+        for stap in _ci_stappen()
+        if str(stap.get("uses", "")).startswith("actions/upload-artifact@")
+    ]
+    assert len(stappen) == 1, f"verwacht precies één uploadstap: {stappen}"
+    return stappen[0]
+
+
+#: Workflowvariant waarin alleen de *naam* en het commentaar de gate nog
+#: noemen, terwijl de runregel niets doet. Een lezer die op losse tekst zoekt
+#: keurt dit goed; het echte commando is dan `true` en de gate draait niet.
+CI_VARIANT_ZONDER_ECHT_COMMANDO = """name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Hier stond ooit: make test-acceptance
+      - name: Acceptance/smoke gate (make test-acceptance, blokkerend)
+        run: true
+
+      - name: Archive acceptance gate results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: acceptance-gate-results
+          path: |
+            reports/gates/
+"""
+
+
+def test_contractlezer_wijst_stapnaam_zonder_echt_commando_af(tmp_path, monkeypatch):
+    """De koppeling moet op het runveld zitten, niet op losse jobtekst.
+
+    Discriminator: in deze variant blijven de stapnaam en het commentaar
+    `make test-acceptance` noemen, maar het werkelijke commando is `true`. Een
+    lezer die de jobtekst doorzoekt keurt dat goed en houdt beide gedragsproeven
+    hieronder groen zonder dat CI de gate nog draait. De contractlezer hoort de
+    variant daarom af te wijzen.
+
+    Het bestand leeft alleen in `tmp_path`; er wordt niets uitgevoerd.
+    """
+    variant = tmp_path / "ci-variant.yml"
+    variant.write_text(CI_VARIANT_ZONDER_ECHT_COMMANDO, encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "CI_WORKFLOW", variant)
+
+    with pytest.raises(AssertionError, match="make-gatedoel"):
+        _ci_gate_doel()
+
+
+def test_ci_tests_job_draait_de_canonieke_acceptancegate(tmp_path):
+    """`ci.yml` moet de acceptance/smoke-gate draaien en haar rapporten bewaren.
+
+    Eerst het contract van het workflowbestand zelf: één canoniek make-doel,
+    geen eigen pytest-subset en geen `--cov` in deze job (dat is precies wat
+    `.coverage.*` in de checkout schreef en de bootstrap deed weigeren). De
+    unitcoverage-ratchet blijft waar hij hoort, in `test.yml`; hier wordt geen
+    tweede coveragemeting opgetuigd.
+
+    Daarna hetzelfde doel écht draaien op de miniatuur-checkout: de gate moet
+    zowel de acceptance- als de smokenode selecteren én uitvoeren. Zou `ci.yml`
+    een ander doel noemen, dan ontbreekt de acceptance-inventaris en faalt deze
+    node — de koppeling is dus geen tekstvergelijking alleen.
+    """
+    doel = _ci_gate_doel()
+    assert doel == "test-acceptance"
+
+    # Geen tweede, eigen selectie of coveragemeting in deze job.
+    commandos = "\n".join(_ci_runvelden())
+    assert "python -m pytest" not in commandos, commandos
+    assert "--cov" not in commandos, commandos
+
+    # Rapporten blijven bewaard, volgens de bestaande artefactconventie en met
+    # een eigen naam voor deze job.
+    artefact = _ci_artefactstap()
+    assert artefact["uses"] == "actions/upload-artifact@v7", artefact
+    assert artefact["if"] == "always()", artefact
+    assert artefact["with"]["name"] == CI_ARTEFACTNAAM, artefact
+    assert "reports/gates/" in artefact["with"]["path"].split(), artefact
+
+    root = _gate_project(tmp_path)
+    resultaat = _draai_make(root, doel)
+
+    assert resultaat.returncode == 0, resultaat.uitvoer
+    assert resultaat.status() == "ok", resultaat.uitvoer
+
+    data = resultaat.inventaris("acceptance-smoke-inventaris.json")
+    verzameld = {item["nodeid"] for item in data["items"]}
+    assert verzameld == ACCEPTATIE_VERWACHT, data
+    assert ACCEPTATIE_NODE in verzameld, data
+    assert SMOKE_NODE in verzameld, data
+    assert data["uitgevoerd"] == 2, data
+    assert data["overgeslagen"] == 0, data
+    assert data["collectiefouten"] == 0, data
+
+
+#: Falende smokenode: draagt de smokemarker en faalt op een echte assertie.
+CI_ROOD_SMOKE_BESTAND = "tests/test_gate_smoke_rood.py"
+CI_ROOD_SMOKE_TEST = "test_smokenode_faalt_op_echte_assertie"
+CI_ROOD_SMOKE_NODE = f"{CI_ROOD_SMOKE_BESTAND}::{CI_ROOD_SMOKE_TEST}"
+CI_ROOD_SMOKE = {
+    CI_ROOD_SMOKE_BESTAND: (
+        "import pytest\n\n"
+        "pytestmark = [pytest.mark.smoke]\n\n\n"
+        f"def {CI_ROOD_SMOKE_TEST}():\n"
+        "    waarden = [2, 2]\n"
+        "    assert sum(waarden) * 2 == 9\n"
+    )
+}
+
+
+def test_ci_gatedoel_is_nonzero_bij_falende_smokenode(tmp_path):
+    """Een falende geselecteerde node maakt exact dit CI-commando rood.
+
+    Zonder deze proef zou de node hierboven ook groen blijven bij een gate die
+    niets kan laten falen. Het doel komt weer uit `ci.yml`; er wordt niets
+    verwijderd en de rode node leeft alleen in `tmp_path`.
+    """
+    doel = _ci_gate_doel()
+    root = _gate_project(tmp_path, extra=CI_ROOD_SMOKE)
+    resultaat = _draai_make(root, doel)
+
+    assert resultaat.status() == "testfalen", resultaat.uitvoer
+    assert resultaat.returncode != 0, resultaat.uitvoer
+
+    data = resultaat.inventaris("acceptance-smoke-inventaris.json")
+    verzameld = {item["nodeid"] for item in data["items"]}
+    assert CI_ROOD_SMOKE_NODE in verzameld, data
+    assert verzameld == ACCEPTATIE_VERWACHT | {CI_ROOD_SMOKE_NODE}, data
+    assert data["uitgevoerd"] == 3, data
