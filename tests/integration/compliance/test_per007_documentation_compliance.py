@@ -164,10 +164,13 @@ class TestPER007DocumentationCompliance:
             self.BASE_DIR / "docs" / "testing" / "PER-007-COMPLIANCE-REPORT.md",
             self.BASE_DIR / "docs" / "architectuur" / "PER-007-COMPLIANCE-REPORT.md",
             # Verplaatst, niet vervangen: hetzelfde rapportbestand staat nu in
-            # het gedateerde archief.
+            # het gedateerde archief. De mapnaam is kleingeschreven — zo staat
+            # hij getrackt in git. Op de hoofdletterongevoelige macOS-checkout
+            # viel het verschil weg; op Linux-CI niet (PR #427, integration-job
+            # 101574083642).
             self.BASE_DIR
             / "docs"
-            / "ARCHIEF"
+            / "archief"
             / "2025-09-05"
             / "PER-007-COMPLIANCE-REPORT.md",
         ]
