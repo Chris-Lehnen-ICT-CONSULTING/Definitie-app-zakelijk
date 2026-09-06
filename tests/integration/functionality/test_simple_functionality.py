@@ -1,31 +1,19 @@
 #!/usr/bin/env python3
-"""
-Simplified deep test voor kritieke functionaliteit.
-"""
+"""Kritieke voorbeeldgeneratie, hermetisch getoetst (DEF-519).
 
-import asyncio
-import os
-import sys
-import time
+Oorspronkelijke opzet: een script dat `.env` laadde, zichzelf oversloeg zonder
+`OPENAI_API_KEY` en zijn oordeel als return-waarde en print-regels achterliet —
+een test die nooit kon falen. Het gedrag dat het wilde bewijzen blijft hier
+volledig staan, maar nu achter de bevroren providergrens uit `conftest.py` en
+met assertions die omvallen zodra de productiecode iets anders doet.
+"""
 
 import pytest
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# Skip early if no API key configured; these tests call external generators
-if not os.getenv("OPENAI_API_KEY"):
-    pytest.skip(
-        "OPENAI_API_KEY not set; skipping simple functionality tests requiring external API",
-        allow_module_level=True,
-    )
-
-# Import test modules
+from tests.integration.functionality.conftest import verwacht_resultaat
 from voorbeelden.unified_voorbeelden import (
+    DEFAULT_EXAMPLE_COUNTS,
+    ExampleType,
     GenerationMode,
     genereer_alle_voorbeelden,
     genereer_antoniemen,
@@ -34,136 +22,100 @@ from voorbeelden.unified_voorbeelden import (
 
 pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
-
-def test_synoniemen_antoniemen():
-    """Test synoniemen en antoniemen generatie (moet 5 items returnen)."""
-    print("\n🧪 TEST 1: Synoniemen/Antoniemen Generatie")
-    print("=" * 60)
-
-    # Test data
-    begrip = "verdachte"
-    definitie = "Een persoon die wordt verdacht van het plegen van een strafbaar feit."
-    context_dict = {
-        "organisatorisch": ["Openbaar Ministerie"],
-        "juridisch": ["Strafrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"],
-    }
-
-    # Test synoniemen
-    print("\n📝 Genereer synoniemen...")
-    start = time.time()
-    synoniemen = genereer_synoniemen(begrip, definitie, context_dict)
-    duration = time.time() - start
-
-    print(f"✅ Gegenereerde {len(synoniemen)} synoniemen in {duration:.2f}s:")
-    for i, syn in enumerate(synoniemen, 1):
-        print(f"   {i}. {syn}")
-
-    if len(synoniemen) != 5:
-        print(f"❌ FOUT: Verwachtte 5 synoniemen, kreeg {len(synoniemen)}")
-    else:
-        print("✅ Correct aantal synoniemen (5)")
-
-    # Test antoniemen
-    print("\n📝 Genereer antoniemen...")
-    start = time.time()
-    antoniemen = genereer_antoniemen(begrip, definitie, context_dict)
-    duration = time.time() - start
-
-    print(f"✅ Gegenereerde {len(antoniemen)} antoniemen in {duration:.2f}s:")
-    for i, ant in enumerate(antoniemen, 1):
-        print(f"   {i}. {ant}")
-
-    if len(antoniemen) != 5:
-        print(f"❌ FOUT: Verwachtte 5 antoniemen, kreeg {len(antoniemen)}")
-    else:
-        print("✅ Correct aantal antoniemen (5)")
-
-    return len(synoniemen) == 5 and len(antoniemen) == 5
+BEGRIP = "verdachte"
+DEFINITIE = "Een persoon die wordt verdacht van het plegen van een strafbaar feit."
+CONTEXT = {
+    "organisatorisch": ["Openbaar Ministerie"],
+    "juridisch": ["Strafrecht"],
+    "wettelijk": ["Wetboek van Strafvordering"],
+}
 
 
-def test_bulk_generation():
-    """Test bulk generatie met alle voorbeeld types."""
-    print("\n\n🧪 TEST 2: Bulk Generatie (alle types)")
-    print("=" * 60)
+def test_synoniemen_antoniemen(bevroren_omgeving):
+    """Synoniemen en antoniemen leveren beide exact vijf bruikbare termen."""
+    client = bevroren_omgeving.client
 
-    # Test data
+    synoniemen = genereer_synoniemen(BEGRIP, DEFINITIE, CONTEXT)
+    antoniemen = genereer_antoniemen(BEGRIP, DEFINITIE, CONTEXT)
+
+    assert synoniemen == verwacht_resultaat("synoniemen", 5)
+    assert antoniemen == verwacht_resultaat("antoniemen", 5)
+    assert all(isinstance(item, str) and item.strip() for item in synoniemen)
+    assert all(isinstance(item, str) and item.strip() for item in antoniemen)
+
+    # Het aantal is geen toevalstreffer van het antwoordboek: de productiecode
+    # heeft de provider aantoonbaar om precies vijf items gevraagd.
+    assert DEFAULT_EXAMPLE_COUNTS["synoniemen"] == 5
+    assert DEFAULT_EXAMPLE_COUNTS["antoniemen"] == 5
+    syn_oproepen = client.oproepen_van("synoniemen")
+    ant_oproepen = client.oproepen_van("antoniemen")
+    assert len(syn_oproepen) == 1, "synoniemen moeten precies één providercall doen"
+    assert len(ant_oproepen) == 1, "antoniemen moeten precies één providercall doen"
+    assert syn_oproepen[0].gevraagd_aantal == 5
+    assert ant_oproepen[0].gevraagd_aantal == 5
+    assert BEGRIP in syn_oproepen[0].prompt
+    assert "Openbaar Ministerie" in syn_oproepen[0].prompt
+
+    # Discriminatie: met een lege respons mag hierboven niets meer slagen.
+    bevroren_omgeving.zet_modus("leeg")
+    assert genereer_synoniemen(BEGRIP, DEFINITIE, CONTEXT) == []
+    assert genereer_antoniemen(BEGRIP, DEFINITIE, CONTEXT) == []
+
+    # Discriminatie: één item te weinig komt ook echt als vier terug.
+    bevroren_omgeving.zet_modus("tekort")
+    assert len(genereer_synoniemen(BEGRIP, DEFINITIE, CONTEXT)) == 4
+
+
+def test_bulk_generation(bevroren_omgeving):
+    """Bulkgeneratie levert alle zes soorten met de juiste vorm en aantallen."""
+    client = bevroren_omgeving.client
     begrip = "strafblad"
-    definitie = "Een officieel document waarin de strafrechtelijke veroordelingen van een persoon worden geregistreerd."
-    context_dict = {
+    definitie = (
+        "Een officieel document waarin de strafrechtelijke veroordelingen van "
+        "een persoon worden geregistreerd."
+    )
+    context = {
         "organisatorisch": ["Justitiële Informatiedienst"],
         "juridisch": ["Strafrecht"],
         "wettelijk": ["Wet justitiële en strafvorderlijke gegevens"],
     }
 
-    print("\n📦 Start bulk generatie...")
-    start = time.time()
     voorbeelden = genereer_alle_voorbeelden(
-        begrip, definitie, context_dict, GenerationMode.RESILIENT
+        begrip, definitie, context, GenerationMode.RESILIENT
     )
-    duration = time.time() - start
 
-    print(f"\n✅ Bulk generatie voltooid in {duration:.2f}s")
-    print("\nResultaten:")
+    # De sleutels zijn de Nederlandse `ExampleType`-waarden — de oude Engelse
+    # verwachtingen ("sentence", "synonyms", ...) bestonden nergens in de code.
+    assert set(voorbeelden) == {soort.value for soort in ExampleType}
 
-    expected_counts = {
-        "sentence": 3,
-        "practical": 3,
-        "counter": 3,
-        "synonyms": 5,
-        "antonyms": 5,
-        "explanation": 1,
+    for soort in ("voorbeeldzinnen", "praktijkvoorbeelden", "tegenvoorbeelden"):
+        verwacht = DEFAULT_EXAMPLE_COUNTS[soort]
+        assert verwacht == 3
+        assert voorbeelden[soort] == verwacht_resultaat(soort, verwacht)
+
+    for soort in ("synoniemen", "antoniemen"):
+        verwacht = DEFAULT_EXAMPLE_COUNTS[soort]
+        assert verwacht == 5
+        assert voorbeelden[soort] == verwacht_resultaat(soort, verwacht)
+
+    # Toelichting is contractueel één string, geen lijst.
+    assert isinstance(voorbeelden["toelichting"], str)
+    assert voorbeelden["toelichting"] == verwacht_resultaat("toelichting", 1)[0]
+
+    # Zes soorten, zes providercalls: er is niets stilletjes overgeslagen of
+    # uit een cache van een eerdere test gehaald.
+    assert len(client.oproepen) == 6
+    assert {oproep.soort for oproep in client.oproepen} == {
+        soort.value for soort in ExampleType
     }
 
-    all_correct = True
-    for example_type, examples in voorbeelden.items():
-        count = len(examples)
-        expected = expected_counts.get(example_type, 3)
-        correct = count == expected
-        status = "✅" if correct else "❌"
-        print(f"  {status} {example_type}: {count} items (verwacht: {expected})")
-
-        if not correct:
-            all_correct = False
-
-        # Toon eerste voorbeeld
-        if examples:
-            first = examples[0] if isinstance(examples, list) else examples
-            print(f"     Voorbeeld: {first[:80]}...")
-
-    return all_correct
-
-
-def main():
-    """Run all tests."""
-    print("🚀 DefinitieAgent Simplified Test Suite")
-    print("=" * 80)
-
-    try:
-        # Run tests
-        test1_passed = test_synoniemen_antoniemen()
-        test2_passed = test_bulk_generation()
-
-        print("\n\n✅ Alle tests voltooid!")
-
-        # Final summary
-        print("\n📋 SAMENVATTING:")
-        print(f"  - Synoniemen/Antoniemen (5 items): {'✅' if test1_passed else '❌'}")
-        print(
-            f"  - Bulk generatie met juiste aantallen: {'✅' if test2_passed else '❌'}"
-        )
-
-        if test1_passed and test2_passed:
-            print("\n🎉 ALLE TESTS GESLAAGD!")
-        else:
-            print("\n⚠️ SOMMIGE TESTS GEFAALD!")
-
-    except Exception as e:
-        print(f"\n❌ Test failed with error: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    main()
+    # Discriminatie: een lege provider laat alle lijsten leeglopen en de
+    # toelichting leeg achter — de assertions hierboven zijn dus scherp.
+    bevroren_omgeving.zet_modus("leeg")
+    leeg = genereer_alle_voorbeelden(
+        begrip, definitie, context, GenerationMode.RESILIENT
+    )
+    assert all(
+        leeg[soort.value] == [] for soort in ExampleType if soort.value != "toelichting"
+    )
+    assert leeg["toelichting"] == ""

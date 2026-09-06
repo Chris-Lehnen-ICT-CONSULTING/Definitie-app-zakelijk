@@ -1,129 +1,190 @@
-"""
-Integration tests voor V2 orchestrator met alle service interfaces.
+"""Integratietests voor de V2-orchestrator tegen de actieve service-interfaces.
 
-Deze tests verifiëren dat de V2 orchestrator correct werkt met
-alle aangepaste service interfaces na de codex fixes.
+Deze suite toetst dat `DefinitionOrchestratorV2` samenwerkt met de interfaces
+zoals ze nú zijn. Drie constructies uit de oude opzet zijn daarbij vervangen,
+omdat ze de suite lieten hangen of niets bewezen:
+
+* **Klassebrede propertytrucs.** De oude fixture zette
+  ``validation_service.__class__.validate_definition = property(lambda self:
+  self.validate_definition)``. Die getter roept zichzelf aan: elke aanroep gaf
+  een ``RecursionError`` — de reden onder de oude DEF-447-xfail — én de mutatie
+  landde op `AsyncMock` zelf, dus op elke andere mock in het proces. Weg.
+* **Onbegrensde mocks.** De dubbels zijn nu aan hun interface gebonden
+  (``MagicMock(spec=...)``) en geven concrete antwoorden voor elk pad dat de
+  flow raakt.
+* **De echte voorbeeldenfase.** ``create_definition`` roept
+  ``voorbeelden.unified_voorbeelden.genereer_alle_voorbeelden_async`` aan; die
+  functie bouwt haar eigen AI-client en negeert de geïnjecteerde ai_service —
+  de andere oude DEF-447-xfail. Onder de offline-gate liep dat op zes
+  voorbeeldsoorten × zes resiliencepogingen vast en overschreed de suite elk
+  procesbudget. De fixture `voorbeeldengrens` geeft die ene aanroep een
+  expliciet antwoord, zodat de fase wordt uitgevoerd in plaats van bevroren.
+
+`DefinitionResponseV2.validation_result` draagt de TypedDict uit
+``services.validation.interfaces``; de dubbels leveren die vorm en de
+assertions lezen sleutels, geen dataclass-attributen.
 """
 
-import asyncio
-from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, Mock
+import uuid
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
 from services.interfaces import (
     AIGenerationResult,
+    AIServiceInterface,
     CleaningResult,
-    Definition,
+    CleaningServiceInterface,
+    DefinitionRepositoryInterface,
     DefinitionResponseV2,
+    EnhancementServiceInterface,
+    FeedbackEngineInterface,
     GenerationRequest,
+    MonitoringServiceInterface,
     OrchestratorConfig,
     PromptResult,
-    ValidationResult,
-    ValidationViolation,
+    PromptServiceInterface,
+    SecurityServiceInterface,
 )
 from services.orchestrators.definition_orchestrator_v2 import (
     DefinitionOrchestratorV2,
 )
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    ValidationContext,
+    ValidationOrchestratorInterface,
+    ValidationResult,
+)
 
 pytestmark = [pytest.mark.integration]
+
+#: Expliciet antwoord van de voorbeeldenfase; geen mockwaarde.
+VOORBEELDEN: dict[str, list[str] | str] = {
+    "voorbeeldzinnen": ["Voorbeeldzin een."],
+    "praktijkvoorbeelden": ["Praktijkvoorbeeld een."],
+    "tegenvoorbeelden": ["Tegenvoorbeeld een."],
+    "synoniemen": ["verwante term"],
+    "antoniemen": ["tegengestelde term"],
+    "toelichting": "Bevroren toelichting.",
+}
+
+LENGTEVIOLATIE = {
+    "code": "VAL-STR-002",
+    "severity": "error",
+    "message": "Definitie moet minimaal 20 woorden bevatten",
+    "rule_id": "MIN_LENGTH",
+    "category": "structuur",
+}
+
+
+def validatieresultaat(
+    *,
+    is_acceptable: bool,
+    overall_score: float,
+    violations: tuple[dict[str, str], ...] = (),
+) -> ValidationResult:
+    """Schema-conform resultaat volgens het actieve TypedDict-contract."""
+    resultaat: ValidationResult = {
+        "version": CONTRACT_VERSION,
+        "overall_score": overall_score,
+        "is_acceptable": is_acceptable,
+        "violations": [dict(v) for v in violations],
+        "passed_rules": ["STR-01"] if is_acceptable else [],
+        "detailed_scores": {
+            "taal": overall_score,
+            "juridisch": overall_score,
+            "structuur": overall_score,
+            "samenhang": overall_score,
+        },
+        "system": {"correlation_id": str(uuid.uuid4())},
+    }
+    return resultaat
+
+
+@pytest.fixture
+def voorbeeldengrens(monkeypatch):
+    """Geef fase 5 één expliciet antwoord en leg de doorgegeven invoer vast."""
+    from voorbeelden import unified_voorbeelden
+
+    oproepen: list[dict[str, object]] = []
+
+    async def bevroren_voorbeelden(
+        *, begrip: str, definitie: str, context_dict: dict[str, list[str]]
+    ) -> dict[str, list[str] | str]:
+        oproepen.append(
+            {"begrip": begrip, "definitie": definitie, "context_dict": context_dict}
+        )
+        return dict(VOORBEELDEN)
+
+    monkeypatch.setattr(
+        unified_voorbeelden, "genereer_alle_voorbeelden_async", bevroren_voorbeelden
+    )
+    return oproepen
 
 
 @pytest.fixture
 def mock_services():
-    """Create mock services voor V2 orchestrator testing."""
-    # AI Service
-    ai_service = AsyncMock()
-    ai_service.generate_definition = AsyncMock(
-        return_value=AIGenerationResult(
-            text="Test definitie voor het begrip",
-            model="gpt-4",
-            tokens_used=100,
-            generation_time=1.5,
-            cached=False,
-            retry_count=0,
-            metadata={},
-        )
+    """Servicedubbels voor de V2-orchestrator, aan hun interface gebonden."""
+    ai_service = MagicMock(spec=AIServiceInterface)
+    ai_service.generate_definition.return_value = AIGenerationResult(
+        text="Test definitie voor het begrip",
+        model="gpt-4",
+        tokens_used=100,
+        generation_time=1.5,
+        cached=False,
+        retry_count=0,
+        metadata={},
     )
 
-    # Prompt Service
-    prompt_service = AsyncMock()
-    prompt_service.build_generation_prompt = AsyncMock(
-        return_value=PromptResult(
-            text="Geoptimaliseerde prompt voor definitie",
-            token_count=150,
-            components_used=["base", "context", "feedback"],
-            feedback_integrated=True,
-            optimization_applied=True,
-            metadata={},
-        )
+    prompt_service = MagicMock(spec=PromptServiceInterface)
+    prompt_service.build_generation_prompt.return_value = PromptResult(
+        text="Geoptimaliseerde prompt voor definitie",
+        token_count=150,
+        components_used=("base", "context", "feedback"),
+        feedback_integrated=True,
+        optimization_applied=True,
+        metadata={},
     )
 
-    # Security Service
-    security_service = AsyncMock()
-    security_service.sanitize_request = AsyncMock(side_effect=lambda req: req)
+    security_service = MagicMock(spec=SecurityServiceInterface)
+    security_service.sanitize_request.side_effect = lambda req: req
 
-    # Feedback Engine
-    feedback_engine = AsyncMock()
-    feedback_engine.get_feedback_for_request = AsyncMock(
-        return_value=[
-            {"type": "quality", "content": "Previous definition was too technical"}
-        ]
-    )
-    feedback_engine.process_validation_feedback = AsyncMock(
-        return_value={"status": "processed", "feedback_id": "fb-123"}
-    )
+    feedback_engine = MagicMock(spec=FeedbackEngineInterface)
+    feedback_engine.get_feedback_for_request.return_value = [
+        {"type": "quality", "content": "Previous definition was too technical"}
+    ]
+    feedback_engine.process_validation_feedback.return_value = {
+        "status": "processed",
+        "feedback_id": "fb-123",
+    }
 
-    # Cleaning Service
-    cleaning_service = AsyncMock()
-    cleaning_service.clean_text = AsyncMock(
-        return_value=CleaningResult(
-            original_text="Test definitie voor het begrip",
-            cleaned_text="Test definitie voor het begrip.",
-            was_cleaned=True,
-            applied_rules=["add_period"],
-            improvements=["Added period at end"],
-        )
-    )
-    # Add hasattr support for cleaning service
-    cleaning_service.__class__.clean_text = property(lambda self: self.clean_text)
-
-    # Validation Service
-    validation_service = AsyncMock()
-    validation_service.validate_definition = AsyncMock(
-        return_value=ValidationResult(
-            is_valid=True,
-            definition_text="Test definitie voor het begrip.",
-            errors=[],
-            warnings=[],
-            suggestions=[],
-            score=0.95,
-            violations=[],
-        )
-    )
-    # Add hasattr support
-    validation_service.__class__.validate_definition = property(
-        lambda self: self.validate_definition
+    cleaning_service = MagicMock(spec=CleaningServiceInterface)
+    cleaning_service.clean_text.return_value = CleaningResult(
+        original_text="Test definitie voor het begrip",
+        cleaned_text="Test definitie voor het begrip.",
+        was_cleaned=True,
+        applied_rules=("add_period",),
+        improvements=("Added period at end",),
     )
 
-    # Enhancement Service
-    enhancement_service = AsyncMock()
-    enhancement_service.enhance_definition = AsyncMock(
-        return_value="Verbeterde definitie tekst"
+    validation_service = MagicMock(spec=ValidationOrchestratorInterface)
+    validation_service.validate_definition.return_value = validatieresultaat(
+        is_acceptable=True, overall_score=0.95
     )
 
-    # Monitoring Service
-    monitoring_service = AsyncMock()
-    monitoring_service.start_generation = AsyncMock()
-    monitoring_service.complete_generation = AsyncMock()
-    monitoring_service.track_error = AsyncMock()
+    enhancement_service = MagicMock(spec=EnhancementServiceInterface)
+    enhancement_service.enhance_definition.return_value = "Verbeterde definitie tekst"
+
+    monitoring_service = MagicMock(spec=MonitoringServiceInterface)
+    monitoring_service.start_generation.return_value = None
+    monitoring_service.complete_generation.return_value = None
+    monitoring_service.track_error.return_value = None
     monitoring_service.get_metrics_summary = Mock(
         return_value={"total_generations": 100, "success_rate": 0.95}
     )
 
-    # Repository
-    repository = Mock()
-    repository.save = Mock(return_value=123)
+    repository = MagicMock(spec=DefinitionRepositoryInterface)
+    repository.save.return_value = 123
 
     return {
         "ai_service": ai_service,
@@ -139,8 +200,8 @@ def mock_services():
 
 
 @pytest.fixture
-def v2_orchestrator(mock_services):
-    """Create V2 orchestrator met mock services."""
+def v2_orchestrator(mock_services, voorbeeldengrens):
+    """De echte V2-orchestrator met de begrensde dubbels erachter."""
     config = OrchestratorConfig(
         enable_feedback_loop=True, enable_enhancement=True, enable_caching=True
     )
@@ -162,16 +223,13 @@ def v2_orchestrator(mock_services):
 
 
 class TestV2OrchestratorIntegration:
-    """Test suite voor V2 orchestrator met alle service interfaces."""
+    """De V2-flow tegen alle service-interfaces."""
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(
-        reason="DEF-447: voorbeelden-generatie gebruikt injected ai_service-mock "
-        "niet (eigen AI-client) — faalt ook met key",
-        strict=False,
-    )
-    async def test_complete_flow_with_all_services(self, v2_orchestrator):
-        """Test complete V2 flow met alle services."""
+    async def test_complete_flow_with_all_services(
+        self, v2_orchestrator, voorbeeldengrens
+    ):
+        """De complete V2-flow raakt elke dienst met de juiste gegevens."""
         orchestrator, services = v2_orchestrator
 
         request = GenerationRequest(
@@ -182,126 +240,152 @@ class TestV2OrchestratorIntegration:
             options={"temperature": 0.7, "max_tokens": 500},
         )
 
-        # Execute orchestration
         response = await orchestrator.create_definition(
             request, context={"session": "test"}
         )
 
-        # Verify response
         assert isinstance(response, DefinitionResponseV2)
         assert response.success is True
         assert response.definition is not None
         assert response.definition.begrip == "testbegrip"
         assert response.definition.definitie == "Test definitie voor het begrip."
 
-        # Verify service calls in correct order
-        # 1. Security sanitization
-        services["security_service"].sanitize_request.assert_called_once_with(request)
+        # 1. Security-sanitisatie
+        services["security_service"].sanitize_request.assert_awaited_once_with(request)
 
-        # 2. Feedback retrieval
-        services["feedback_engine"].get_feedback_for_request.assert_called_once_with(
+        # 2. Feedback ophalen
+        services["feedback_engine"].get_feedback_for_request.assert_awaited_once_with(
             "testbegrip", "proces"
         )
 
-        # 3. Prompt building
-        services["prompt_service"].build_generation_prompt.assert_called_once()
-        call_args = services["prompt_service"].build_generation_prompt.call_args
-        assert call_args[0][0] == request  # First positional arg
-        assert "feedback_history" in call_args[1]  # Keyword args
-        assert "context" in call_args[1]
+        # 3. Promptopbouw met de request, de feedback en de meegegeven context
+        services["prompt_service"].build_generation_prompt.assert_awaited_once()
+        promptaanroep = services["prompt_service"].build_generation_prompt.await_args
+        assert promptaanroep.args[0] is request
+        assert promptaanroep.kwargs["feedback_history"] == [
+            {"type": "quality", "content": "Previous definition was too technical"}
+        ]
+        assert promptaanroep.kwargs["context"] == {"session": "test"}
 
-        # 4. AI generation
-        services["ai_service"].generate_definition.assert_called_once()
+        # 4. AI-generatie krijgt de gebouwde prompt en de opgegeven opties
+        services["ai_service"].generate_definition.assert_awaited_once()
+        aianroep = services["ai_service"].generate_definition.await_args
+        assert aianroep.kwargs["prompt"] == "Geoptimaliseerde prompt voor definitie"
+        assert aianroep.kwargs["temperature"] == 0.7
+        assert aianroep.kwargs["max_tokens"] == 500
 
-        # 5. Text cleaning (WITH await!)
-        services["cleaning_service"].clean_text.assert_called_once_with(
+        # 5. Voorbeeldenfase: uitgevoerd met de ruwe AI-tekst, resultaat in de
+        # metadata van de definitie.
+        assert len(voorbeeldengrens) == 1
+        assert voorbeeldengrens[0]["begrip"] == "testbegrip"
+        assert voorbeeldengrens[0]["definitie"] == "Test definitie voor het begrip"
+        assert response.definition.metadata["voorbeelden"] == VOORBEELDEN
+
+        # 6. Opschoning — met await; de opgeschoonde tekst is de definitie.
+        services["cleaning_service"].clean_text.assert_awaited_once_with(
             "Test definitie voor het begrip", "testbegrip"
         )
 
-        # 6. Validation
-        services["validation_service"].validate_definition.assert_called_once_with(
-            "testbegrip",
-            "Test definitie voor het begrip.",
-            ontologische_categorie="proces",
+        # 7. Validatie via de actuele signatuur: een Definition plus context.
+        services["validation_service"].validate_definition.assert_awaited_once()
+        validatieaanroep = services["validation_service"].validate_definition.await_args
+        gevalideerd = validatieaanroep.kwargs["definition"]
+        assert gevalideerd.begrip == "testbegrip"
+        assert gevalideerd.definitie == "Test definitie voor het begrip."
+        assert gevalideerd.ontologische_categorie == "proces"
+        assert isinstance(validatieaanroep.kwargs["context"], ValidationContext)
+        assert (
+            validatieaanroep.kwargs["context"].metadata["generation_id"] == "test-123"
         )
+        # Het resultaat in de response is de TypedDict van de dienst zelf.
+        assert (
+            response.validation_result
+            == services["validation_service"].validate_definition.return_value
+        )
+        assert response.validation_result["is_acceptable"] is True
 
-        # 7. Repository save
-        services["repository"].save.assert_called_once()
+        # 8. Opslag van precies deze definitie, met het toegekende ID.
+        services["repository"].save.assert_called_once_with(response.definition)
+        assert response.definition.id == 123
 
-        # 8. Monitoring calls
-        services["monitoring_service"].start_generation.assert_called()
-        services["monitoring_service"].complete_generation.assert_called()
+        # 9. Monitoring rond de hele generatie.
+        services["monitoring_service"].start_generation.assert_awaited_once_with(
+            "test-123"
+        )
+        services["monitoring_service"].complete_generation.assert_awaited_once()
+        afronding = services["monitoring_service"].complete_generation.await_args
+        assert afronding.kwargs["success"] is True
+        assert afronding.kwargs["token_count"] == 100
+        services["monitoring_service"].track_error.assert_not_called()
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(
-        reason="DEF-447: maximum recursion depth in generatieflow onder mock-condities",
-        strict=False,
-    )
     async def test_enhancement_flow_on_validation_failure(self, v2_orchestrator):
-        """Test enhancement flow wanneer validatie faalt."""
+        """Mislukte validatie leidt tot verbetering met de juiste signatuur."""
         orchestrator, services = v2_orchestrator
 
-        # Setup validation failure
-        services["validation_service"].validate_definition.return_value = (
-            ValidationResult(
-                is_valid=False,
-                definition_text="Test definitie.",
-                errors=["Definitie te kort"],
-                violations=[
-                    ValidationViolation(
-                        rule_id="MIN_LENGTH",
-                        severity="high",
-                        description="Definitie moet minimaal 20 woorden bevatten",
-                    )
-                ],
-            )
+        mislukt = validatieresultaat(
+            is_acceptable=False, overall_score=0.2, violations=(LENGTEVIOLATIE,)
         )
+        services["validation_service"].validate_definition.return_value = mislukt
 
         request = GenerationRequest(
             id="test-456", begrip="complexbegrip", ontologische_categorie="object"
         )
 
-        # Execute orchestration
-        await orchestrator.create_definition(request)
+        response = await orchestrator.create_definition(request)
 
-        # Verify enhancement was called with correct signature
-        services["enhancement_service"].enhance_definition.assert_called_once()
-        call_args = services["enhancement_service"].enhance_definition.call_args
-        assert isinstance(call_args[0][0], str)  # text
-        assert isinstance(call_args[0][1], list)  # violations
-        assert call_args[1]["context"] == request  # context kwarg
+        services["enhancement_service"].enhance_definition.assert_awaited_once()
+        aanroep = services["enhancement_service"].enhance_definition.await_args
+        assert aanroep.args[0] == "Test definitie voor het begrip."
+        assert aanroep.args[1] == [LENGTEVIOLATIE]
+        assert aanroep.kwargs["context"] is request
+
+        # Hervalidatie van de verbeterde tekst, en die tekst is de uitkomst.
+        assert services["validation_service"].validate_definition.await_count == 2
+        hervalidatie = services[
+            "validation_service"
+        ].validate_definition.await_args_list[1]
+        assert (
+            hervalidatie.kwargs["definition"].definitie == "Verbeterde definitie tekst"
+        )
+        assert response.definition.definitie == "Verbeterde definitie tekst"
+        assert response.metadata["enhanced"] is True
+        assert response.definition.valid is False
+        assert response.definition.validation_violations == [LENGTEVIOLATIE]
 
     @pytest.mark.asyncio
     async def test_error_handling_and_monitoring(self, v2_orchestrator):
-        """Test error handling en monitoring integratie."""
+        """Een falende AI-dienst geeft een foutresponse en wordt gemonitord."""
         orchestrator, services = v2_orchestrator
 
-        # Setup AI service failure
         services["ai_service"].generate_definition.side_effect = Exception(
             "AI Service Error"
         )
 
         request = GenerationRequest(id="test-789", begrip="errorbegrip")
 
-        # Execute and expect failure
         response = await orchestrator.create_definition(request)
 
         assert response.success is False
+        assert response.definition is None
         assert response.error is not None
         assert "AI Service Error" in response.error
+        assert response.metadata["error_type"] == "Exception"
 
-        # Verify monitoring tracked the error
-        services["monitoring_service"].track_error.assert_called()
-        error_call = services["monitoring_service"].track_error.call_args
-        assert "test-789" in str(error_call[0][0])  # generation_id
-        assert isinstance(error_call[0][1], Exception)  # error
+        services["monitoring_service"].track_error.assert_awaited_once()
+        foutaanroep = services["monitoring_service"].track_error.await_args
+        assert foutaanroep.args[0] == "test-789"
+        assert isinstance(foutaanroep.args[1], Exception)
+        assert str(foutaanroep.args[1]) == "AI Service Error"
+        # De flow stopt: geen opslag en geen afronding meer.
+        services["repository"].save.assert_not_called()
+        services["monitoring_service"].complete_generation.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_feedback_integration(self, v2_orchestrator):
-        """Test feedback engine integration in V2 flow."""
+        """De feedback-engine voedt de promptopbouw van deze generatie."""
         orchestrator, services = v2_orchestrator
 
-        # Setup mock feedback
         services["feedback_engine"].get_feedback_for_request.return_value = [
             {"type": "quality", "content": "Avoid technical jargon"},
             {"type": "accuracy", "content": "Include practical examples"},
@@ -313,46 +397,43 @@ class TestV2OrchestratorIntegration:
             ontologische_categorie="handeling",
         )
 
-        await orchestrator.create_definition(request)
+        response = await orchestrator.create_definition(request)
 
-        # Verify feedback was retrieved
-        services["feedback_engine"].get_feedback_for_request.assert_called_with(
+        services["feedback_engine"].get_feedback_for_request.assert_awaited_with(
             "feedbackbegrip", "handeling"
         )
 
-        # Verify feedback was passed to prompt service
-        prompt_call = services["prompt_service"].build_generation_prompt.call_args
-        feedback_history = prompt_call[1]["feedback_history"]
+        promptaanroep = services["prompt_service"].build_generation_prompt.await_args
+        feedback_history = promptaanroep.kwargs["feedback_history"]
         assert len(feedback_history) == 2
         assert feedback_history[0]["type"] == "quality"
+        assert feedback_history[1]["content"] == "Include practical examples"
+        assert response.metadata["feedback_integrated"] is True
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(
-        reason="DEF-447: voorbeelden-generatie gebruikt injected ai_service-mock "
-        "niet (eigen AI-client) — faalt ook met key",
-        strict=False,
-    )
     async def test_cleaning_service_async_await(self, v2_orchestrator):
-        """Specifieke test voor async/await van cleaning service."""
+        """De opschoondienst wordt geawait, niet als coroutine doorgegeven."""
         orchestrator, services = v2_orchestrator
 
-        # Track dat clean_text een coroutine retourneert
-        async def mock_clean_text(text, term):
-            await asyncio.sleep(0.01)  # Simuleer async werk
+        geziene_aanroepen: list[tuple[str, str]] = []
+
+        async def echte_async_clean_text(text: str, term: str) -> CleaningResult:
+            # Een gewone coroutinefunctie zonder sleep: als de orchestrator haar
+            # niet zou awaiten, is `cleaning_result` een coroutine en valt de
+            # generatie om op `.cleaned_text`.
+            geziene_aanroepen.append((text, term))
             return CleaningResult(
                 original_text=text, cleaned_text=f"{text} (cleaned)", was_cleaned=True
             )
 
-        services["cleaning_service"].clean_text = mock_clean_text
+        services["cleaning_service"].clean_text = echte_async_clean_text
 
         request = GenerationRequest(id="test-clean", begrip="cleantest")
 
-        # Dit zou NIET moeten falen met "coroutine was never awaited"
         response = await orchestrator.create_definition(request)
 
-        assert response.success is True
-        assert "(cleaned)" in response.definition.definitie
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert response.success is True, f"generatie mislukt: {response.error}"
+        assert geziene_aanroepen == [("Test definitie voor het begrip", "cleantest")]
+        assert (
+            response.definition.definitie == "Test definitie voor het begrip (cleaned)"
+        )

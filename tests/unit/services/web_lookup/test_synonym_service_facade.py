@@ -637,23 +637,60 @@ class TestSingletonFactory(TestJuridischeSynoniemServiceFacade):
 
         assert isinstance(service, JuridischeSynoniemService)
 
-    @pytest.mark.skip(
-        reason="DEF-195: Test requires ServiceContainer to be unavailable, "
-        "but in test environment it's always available. "
-        "Error handling is verified via code review - ValueError is raised when container fails."
-    )
-    def test_raises_error_without_orchestrator(self):
+    @pytest.fixture
+    def bewaarde_singleton(self):
+        """Zet de modulesingleton opzij en herstel hem na afloop."""
+        import services.web_lookup.synonym_service as module
+
+        origineel = module._singleton
+        module._singleton = None
+        try:
+            yield module
+        finally:
+            module._singleton = origineel
+
+    @pytest.mark.parametrize("faalpunt", ["get_container", "synonym_orchestrator"])
+    def test_raises_error_without_orchestrator(
+        self, bewaarde_singleton, monkeypatch, faalpunt
+    ):
         """
-        Test: get_synonym_service() raises error without orchestrator.
+        Test: get_synonym_service() zonder orchestrator laat de containerfout niet vallen.
 
         Scenario:
-        - No orchestrator parameter
-        - ServiceContainer fails to provide orchestrator
-        - Expected: ValueError
+        - Geen orchestrator-parameter, dus de factory valt terug op ServiceContainer
+        - De containergrens faalt (import/lookup of de orchestrator-aanroep zelf)
+        - Verwacht: ValueError met de oorspronkelijke fout als `__cause__`
+          en géén half aangemaakte singleton
 
-        Note: Skipped because mocking the import failure is complex
-        and the behavior is correct (container provides orchestrator).
+        De containergrens is het enige wat hier vervangen wordt; de façade zelf
+        en zijn foutpad draaien echt.
         """
+        import services.container as container_module
+
+        oorzaak = RuntimeError("DEF-519: containergrens opzettelijk onbruikbaar")
+
+        class _Container:
+            def synonym_orchestrator(self):
+                raise oorzaak
+
+        def _get_container():
+            if faalpunt == "get_container":
+                raise oorzaak
+            return _Container()
+
+        monkeypatch.setattr(container_module, "get_container", _get_container)
+
+        with pytest.raises(
+            ValueError, match=r"orchestrator parameter is required"
+        ) as fout:
+            get_synonym_service()
+
+        assert (
+            str(fout.value)
+            == "orchestrator parameter is required (ServiceContainer not available)"
+        )
+        assert fout.value.__cause__ is oorzaak
+        assert bewaarde_singleton._singleton is None
 
 
 class TestDelegationPatterns(TestJuridischeSynoniemServiceFacade):
