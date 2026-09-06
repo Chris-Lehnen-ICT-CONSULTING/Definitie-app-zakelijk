@@ -15,6 +15,12 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
+# DEF-519: expliciete, kleine afwikkelmarge bovenop het gevraagde budget. De
+# coeperatieve cancel vuurt op `timeout`; deze marge geeft die cancel net de tijd
+# om af te ronden voordat de caller hoe dan ook wordt vrijgegeven. Bewust klein
+# en begrensd -- geen schaduwtimeout van seconden.
+_CLEANUP_MARGIN_S = 0.25
+
 
 def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
     """Run an async coroutine from sync context (UI).
@@ -32,28 +38,55 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
     Example:
         result = run_async(service.async_method(args))
     """
-    from concurrent.futures import ThreadPoolExecutor
-
-    # Check if we're in the main thread with a running event loop (Streamlit)
+    # DEF-519: ALLEEN de loop-detectie staat in de try/except. Zou de uitvoering
+    # er ook in staan, dan wordt een RuntimeError uit de coroutine zelf gelezen
+    # als "geen draaiende loop" en draait de al geconsumeerde coroutine opnieuw --
+    # de caller krijgt dan een andere exception dan de coroutine gooide.
     try:
         asyncio.get_running_loop()
-        # We're in an async context with a running loop
-        # Use a thread pool to run the coroutine in isolation
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(asyncio.run, coro)
-            return future.result(timeout=timeout) if timeout else future.result()
     except RuntimeError:
-        # No running loop, we can safely use asyncio.run
-        pass
+        loop_is_running = False
+    else:
+        loop_is_running = True
 
-    # No running loop - create new one
-    if timeout:
+    # `timeout is not None` (niet truthiness): timeout=0 is een expliciet budget
+    # van nul, geen ontbrekende timeout. wait_for annuleert de coroutine
+    # coeperatief binnen de loop die hem draait.
+    wrapped = coro if timeout is None else asyncio.wait_for(coro, timeout)
 
-        async def with_timeout() -> T:
-            return await asyncio.wait_for(coro, timeout)
+    if timeout is None and not loop_is_running:
+        # Geen budget te bewaken: gewoon in de caller-thread draaien.
+        return asyncio.run(wrapped)
 
-        return asyncio.run(with_timeout())
-    return asyncio.run(coro)
+    # Met een budget draait het werk altijd op een worker-thread -- ook zonder
+    # draaiende loop. Een coroutine die blokkeert zonder await-punt negeert de
+    # coeperatieve cancel; alleen een aparte thread laat de caller dan alsnog
+    # binnen zijn budget terugkeren.
+    return _run_in_worker_loop(wrapped, timeout)
+
+
+def _run_in_worker_loop(coro: Coroutine[Any, Any, T], timeout: float | None) -> T:
+    """Draai `coro` in een eigen loop op een worker-thread en keer begrensd terug.
+
+    De executor wordt bewust NIET als context-manager gebruikt: het verlaten
+    daarvan doet `shutdown(wait=True)` en laat de caller alsnog op de worker
+    wachten -- precies de gemeten budgetoverschrijding (0.30s bij een gevraagde
+    0.01s). `shutdown(wait=False)` geeft de caller direct vrij.
+
+    Beperking: een worker die blokkeert zonder await-punt (of die zijn
+    CancelledError negeert) kan door Python niet geforceerd worden gestopt. De
+    caller komt vrij binnen het budget, maar de thread loopt door tot zijn eigen
+    werk klaar is.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="ui-async-bridge")
+    try:
+        future = executor.submit(asyncio.run, coro)
+        budget = None if timeout is None else timeout + _CLEANUP_MARGIN_S
+        return future.result(timeout=budget)
+    finally:
+        executor.shutdown(wait=False)
 
 
 def run_async_safe(

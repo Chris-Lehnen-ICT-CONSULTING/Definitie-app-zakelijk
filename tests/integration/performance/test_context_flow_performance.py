@@ -32,7 +32,14 @@ from services.context.context_manager import ContextManager
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
 
-pytestmark = [pytest.mark.performance]
+# `future`-dispositie (DEF-519): de contextmodule uit US-041/042/043 is nooit
+# gebouwd en wordt hier niet gebouwd; elke klasse hieronder draagt daarom al een
+# bestaande `skip` met die reden. De marker maakt die stand zichtbaar in het
+# optionele `future`-profiel in plaats van als stille skip in een hoofdgate.
+# Owner: testdispositie-519, inhoudelijke owner niet vastgesteld.
+# Trigger: het contextflow-contract wordt geïmplementeerd.
+# Herbeoordeling: 2026-10-06.
+pytestmark = [pytest.mark.performance, pytest.mark.future]
 
 
 @dataclass

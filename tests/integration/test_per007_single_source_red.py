@@ -1,50 +1,92 @@
 """
 PER-007 RED Phase Tests: Single Source of Truth
 These tests MUST fail initially - proving multiple paths exist for context processing.
+
+DEF-519 — de zes node-intenties en hun inhoudelijke assertions zijn behouden;
+alleen de fixtures zijn actueel gemaakt:
+
+* de bronscans waren CWD-relatief en verborgen lees-/parsefouten achter
+  `except Exception: pass`; ze lopen nu vanaf de projectroot (`__file__`) met
+  verplichte, niet-lege bestand- én functiescope en zichtbare fouten;
+* `HybridContextManager` vereist een `ContextConfig`;
+* de entry-pointtest slikte constructorfouten in en telde daardoor routes die
+  helemaal niet werkten; constructie gebeurt nu echt en fouten propageren;
+* de legacy-import ving elke `ImportError`; alleen een exact passende
+  `ModuleNotFoundError.name` telt als "bestaat niet" — een kapotte dependency
+  wordt niet stil groen.
+
+Dit zijn historische bron- en interfaceheuristieken op namen en attributen. Zij
+bewijzen niet dat de architectuur als geheel correct is. Waar de huidige code de
+gewenste single-source-/UI-laag-/deprecatiekeuze niet levert, blijft de node
+positief rood: owner testdispositie DEF-519; inhoudelijke hersteleigenaar niet
+vastgesteld; trigger = vrijgegeven architectuurherstel; herbeoordeling
+2026-10-06. Geen skip/xfail, geen filters, niets nagebouwd.
 """
 
-import warnings
-from unittest.mock import Mock, patch
+import ast
+import sys
+from pathlib import Path
 
 import pytest
 
 pytestmark = [pytest.mark.integration, pytest.mark.red_phase]
+
+# `advisory`-dispositie (DEF-519) op vier van de zeven nodes; de drie zonder
+# marker toetsen actief geblokkeerde legacypaden en blijven verplicht. Elke node
+# is afzonderlijk aan het actieve contract getoetst — geen generiek
+# red_phase-filter, geen nieuwe skip of xfail.
+# Owner: testdispositie-519, inhoudelijke owner niet vastgesteld.
+# Trigger: vrijgegeven PER007-herstel.
+# Herbeoordeling: 2026-10-06.
+
+PROJECTWORTEL = Path(__file__).resolve().parents[2]
+BRON = PROJECTWORTEL / "src"
+UI_BRON = BRON / "ui"
+
+
+def python_bestanden(map_: Path) -> list[Path]:
+    """Alle .py-bestanden onder `map_`; ontbrekende of lege scope is een fout.
+
+    Zonder deze controle kan een verkeerde root een lege scan opleveren en
+    wordt `0 == 0` als bewijs gelezen.
+    """
+    assert map_.is_dir(), f"bronmap ontbreekt: {map_}"
+    bestanden = sorted(map_.rglob("*.py"))
+    assert bestanden, f"geen Python-bronbestanden gevonden in {map_}"
+    return bestanden
 
 
 class TestSingleSourceOfTruth:
     """Tests that MUST fail initially - proving multiple paths exist"""
 
     @pytest.mark.red_phase
+    @pytest.mark.advisory
     def test_only_one_context_processing_path_exists(self):
         """MUST FAIL: Currently multiple paths exist for context processing"""
-        # GIVEN: The application's context processing components
-        import ast
-        import os
-
         context_paths = []
-        src_path = "src"
+        onderzochte_functies = 0
 
-        # Scan for context processing functions
-        for root, _dirs, files in os.walk(src_path):
-            for file in files:
-                if file.endswith(".py"):
-                    filepath = os.path.join(root, file)
-                    try:
-                        with open(filepath, encoding="utf-8") as f:
-                            content = f.read()
-                            if "build" in content and "context" in content:
-                                tree = ast.parse(content)
-                                for node in ast.walk(tree):
-                                    if isinstance(node, ast.FunctionDef):
-                                        if "context" in node.name.lower() and (
-                                            "build" in node.name.lower()
-                                            or "convert" in node.name.lower()
-                                        ):
-                                            context_paths.append(
-                                                f"{filepath}:{node.name}"
-                                            )
-                    except Exception:
-                        pass
+        # Scan for context processing functions — lees- en parsefouten zijn
+        # zichtbaar, niet weggevangen.
+        for filepath in python_bestanden(BRON):
+            content = filepath.read_text(encoding="utf-8")
+            if "build" not in content or "context" not in content:
+                continue
+
+            tree = ast.parse(content, filename=str(filepath))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.FunctionDef):
+                    continue
+                onderzochte_functies += 1
+                if "context" in node.name.lower() and (
+                    "build" in node.name.lower() or "convert" in node.name.lower()
+                ):
+                    context_paths.append(
+                        f"{filepath.relative_to(PROJECTWORTEL)}:{node.name}"
+                    )
+
+        assert onderzochte_functies > 0, "AST-scan vond geen enkele functie"
+        assert context_paths, "geen enkele contextroute gevonden — scope verdacht"
 
         # THEN: Only ONE path should exist (through DefinitionGeneratorContext)
         valid_paths = [p for p in context_paths if "definition_generator_context" in p]
@@ -58,7 +100,6 @@ class TestSingleSourceOfTruth:
     @pytest.mark.red_phase
     def test_legacy_context_manager_is_blocked(self):
         """MUST FAIL: Legacy context_manager should be blocked"""
-        # GIVEN: Attempt to use legacy context manager
         try:
             # This should not exist or be marked deprecated
             from orchestration.context_manager import LegacyContextManager
@@ -66,9 +107,17 @@ class TestSingleSourceOfTruth:
             # If it imports, it should raise DeprecationWarning
             with pytest.warns(DeprecationWarning):
                 LegacyContextManager()
-        except ImportError:
-            # Good - legacy manager doesn't exist
-            pass
+        except ModuleNotFoundError as exc:
+            # Alleen de legacy-module zelf (of haar pakket) telt als "bestaat
+            # niet". Een kapotte dependency binnen die module heeft een andere
+            # naam en mag deze node niet groen maken.
+            assert exc.name in {
+                "orchestration",
+                "orchestration.context_manager",
+            }, (
+                f"onverwachte ontbrekende module '{exc.name}' bij het importeren "
+                "van orchestration.context_manager"
+            )
         else:
             pytest.fail("Legacy context manager still accessible without deprecation")
 
@@ -95,9 +144,10 @@ class TestSingleSourceOfTruth:
         assert len(legacy_methods) == 0, f"Legacy methods still exist: {legacy_methods}"
 
     @pytest.mark.red_phase
+    @pytest.mark.advisory
     def test_no_direct_context_string_processing(self):
         """MUST FAIL: No service should directly process context strings"""
-        # GIVEN: Services that might process context
+        from services.definition_generator_config import ContextConfig
         from services.definition_generator_context import HybridContextManager
         from services.prompts.prompt_service_v2 import PromptServiceV2
 
@@ -109,8 +159,8 @@ class TestSingleSourceOfTruth:
         if hasattr(service, "_parse_context_string"):
             string_processors.append("PromptServiceV2._parse_context_string")
 
-        # Check HybridContextManager
-        manager = HybridContextManager()
+        # Check HybridContextManager — actuele constructor, geen except/pass.
+        manager = HybridContextManager(ContextConfig())
         if hasattr(manager, "_parse_context_string"):
             # This one might be OK if it's internal only
             # But should be clearly marked as legacy/deprecated
@@ -126,36 +176,32 @@ class TestSingleSourceOfTruth:
         ), f"Direct string processors still active: {string_processors}"
 
     @pytest.mark.red_phase
+    @pytest.mark.advisory
     def test_context_flow_has_single_entry_point(self):
         """MUST FAIL: Context should have single entry point"""
         # GIVEN: All possible entry points for context
         entry_points = []
 
-        # Check for multiple ways to create context
+        from services.definition_generator_config import ContextConfig
         from services.definition_generator_context import (
             EnrichedContext,
             HybridContextManager,
         )
 
-        # Method 1: Direct EnrichedContext creation
-        try:
-            EnrichedContext(
-                base_context={},
-                sources=[],
-                expanded_terms={},
-                confidence_scores={},
-                metadata={},
-            )
-            entry_points.append("EnrichedContext.__init__")
-        except Exception:
-            pass
+        # Method 1: Direct EnrichedContext creation — een mislukte constructie
+        # wordt niet meer ingeslikt; dan is er ook geen entry point om te tellen.
+        EnrichedContext(
+            base_context={},
+            sources=[],
+            expanded_terms={},
+            confidence_scores={},
+            metadata={},
+        )
+        entry_points.append("EnrichedContext.__init__")
 
         # Method 2: HybridContextManager
-        try:
-            HybridContextManager()
-            entry_points.append("HybridContextManager")
-        except Exception:
-            pass
+        HybridContextManager(ContextConfig())
+        entry_points.append("HybridContextManager")
 
         # Method 3: Through PromptService (should not create context)
         from services.prompts.prompt_service_v2 import PromptServiceV2
@@ -170,35 +216,54 @@ class TestSingleSourceOfTruth:
         ), f"Multiple context entry points: {entry_points}. Should only be HybridContextManager"
 
     @pytest.mark.red_phase
+    @pytest.mark.advisory
     def test_no_context_manipulation_in_ui_layer(self):
         """MUST FAIL: UI should not manipulate context data"""
         # GIVEN: UI components
         ui_violations = []
 
-        # Check if UI components have context manipulation logic
-        import os
-
-        ui_path = "src/ui"
-
-        if os.path.exists(ui_path):
-            for root, _dirs, files in os.walk(ui_path):
-                for file in files:
-                    if file.endswith(".py"):
-                        filepath = os.path.join(root, file)
-                        try:
-                            with open(filepath, encoding="utf-8") as f:
-                                content = f.read()
-                                # UI should only display, not process
-                                if (
-                                    "_build_context" in content
-                                    or "_parse_context" in content
-                                    or "EnrichedContext(" in content
-                                ):
-                                    ui_violations.append(filepath)
-                        except Exception:
-                            pass
+        for filepath in python_bestanden(UI_BRON):
+            content = filepath.read_text(encoding="utf-8")
+            # UI should only display, not process
+            if (
+                "_build_context" in content
+                or "_parse_context" in content
+                or "EnrichedContext(" in content
+            ):
+                ui_violations.append(str(filepath.relative_to(PROJECTWORTEL)))
 
         # This will FAIL if UI is doing context processing
         assert (
             len(ui_violations) == 0
         ), f"UI layer manipulating context in: {ui_violations}"
+
+    @pytest.mark.red_phase
+    def test_bronscan_faalt_op_lege_en_kapotte_bron(self, tmp_path, monkeypatch):
+        """Discriminator op de échte scan, niet op de parser.
+
+        Roept `test_only_one_context_processing_path_exists` zelf aan met een
+        tijdelijk verlegde `BRON`. Zou die scan een lees- of parsefout weer
+        inslikken, dan komt hier geen `SyntaxError` meer naar buiten en faalt
+        deze node. `monkeypatch` zet `BRON` na afloop globaal terug.
+        """
+        deze_module = sys.modules[__name__]
+
+        ontbrekend = tmp_path / "bestaat-niet"
+        monkeypatch.setattr(deze_module, "BRON", ontbrekend)
+        with pytest.raises(AssertionError, match="bronmap ontbreekt"):
+            self.test_only_one_context_processing_path_exists()
+
+        lege_map = tmp_path / "leeg"
+        lege_map.mkdir()
+        monkeypatch.setattr(deze_module, "BRON", lege_map)
+        with pytest.raises(AssertionError, match="geen Python-bronbestanden"):
+            self.test_only_one_context_processing_path_exists()
+
+        kapotte_map = tmp_path / "kapot"
+        kapotte_map.mkdir()
+        # Bevat 'build' én 'context', zodat de scan dit bestand werkelijk
+        # parseert in plaats van het via het voorfilter over te slaan.
+        (kapotte_map / "kapot.py").write_text("def build_context(:\n", encoding="utf-8")
+        monkeypatch.setattr(deze_module, "BRON", kapotte_map)
+        with pytest.raises(SyntaxError):
+            self.test_only_one_context_processing_path_exists()

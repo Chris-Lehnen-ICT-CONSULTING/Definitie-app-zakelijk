@@ -10,7 +10,7 @@ import logging
 import re
 import unicodedata
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
@@ -89,6 +89,26 @@ def _veilige_cel(waarde: Any) -> Any:
 def _veilige_rij(rij: dict[str, Any]) -> dict[str, Any]:
     """Pas `_veilige_cel` toe op elke waarde in een exportrij."""
     return {sleutel: _veilige_cel(waarde) for sleutel, waarde in rij.items()}
+
+
+def _json_datumwaarde(waarde: Any) -> str:
+    """Serialiseer `date`/`datetime` naar ISO 8601; laat de rest hard falen.
+
+    DEF-519: `metadata["datum_voorstel"]` krijgt het `created_at` van het
+    record, en bij een echte repositorylezing is dat een `datetime`. Zonder deze
+    hook brak `json.dump` af met ``TypeError: Object of type datetime is not
+    JSON serializable`` en bleef er een half geschreven `.json` achter — elke
+    JSON-export van een opgeslagen definitie sneuvelde daarop.
+
+    Bewust géén `default=str`: dat zou ook onbekende objecten stil accepteren en
+    er een betekenisloze `<... object at 0x...>` van maken. Alleen datums worden
+    hier vertaald; al het andere blijft dezelfde zichtbare `TypeError` als
+    voorheen. `isoformat()` behoudt offset en microseconden waar die er zijn.
+    """
+    if isinstance(waarde, date | datetime):
+        return waarde.isoformat()
+    msg = f"Object of type {type(waarde).__name__} is not JSON serializable"
+    raise TypeError(msg)
 
 
 #: Maximale lengte van de begrip-slug in een bestandsnaam. Ruim genoeg om de
@@ -482,7 +502,13 @@ class ExportService:
 
         # Schrijf naar bestand
         with open(pad, "w", encoding="utf-8") as f:
-            json.dump(json_data, f, ensure_ascii=False, indent=2)
+            json.dump(
+                json_data,
+                f,
+                ensure_ascii=False,
+                indent=2,
+                default=_json_datumwaarde,
+            )
 
         logger.info(f"Definitie geëxporteerd naar JSON: {pad}")
         return str(pad)

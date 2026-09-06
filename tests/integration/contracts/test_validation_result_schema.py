@@ -5,21 +5,35 @@ import pytest
 
 pytestmark = [pytest.mark.contract]
 
+#: Het contractschema is verplichte invoer uit de checkout. Het pad wordt vanaf
+#: dít bestand afgeleid en niet vanaf de werkmap: draait de suite met een
+#: tijdelijke CWD (runner, xdist-worker, IDE), dan moet hij exact hetzelfde
+#: schema lezen in plaats van het stil niet te vinden.
+SCHEMA_MAP = (
+    Path(__file__).resolve().parents[3]
+    / "docs"
+    / "architectuur"
+    / "contracts"
+    / "schemas"
+)
+SCHEMA_BESTAND = "validation_result.schema.json"
+
+
+def _lees_schema(naam: str = SCHEMA_BESTAND) -> dict:
+    """Lees een contractschema uit de checkout.
+
+    Ontbreekt het bestand, dan is dat een harde fout (`FileNotFoundError`) en
+    géén skip: een gemist schema mag niet als "niets te toetsen" wegvallen.
+    """
+    return json.loads((SCHEMA_MAP / naam).read_text(encoding="utf-8"))
+
 
 @pytest.mark.contract
 @pytest.mark.asyncio
 async def test_validation_result_happy_path_schema():
-    m = pytest.importorskip(
-        "services.validation.modular_validation_service",
-        reason="ModularValidationService not implemented yet",
-    )
+    import services.validation.modular_validation_service as m
 
-    # Load JSON schema
-    schema_path = Path(
-        "docs/architectuur/contracts/schemas/validation_result.schema.json"
-    )
-    assert schema_path.exists(), "Schema file missing"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    schema = _lees_schema()
 
     from jsonschema import validate
 
@@ -42,12 +56,7 @@ async def test_validation_result_happy_path_schema():
 
 @pytest.mark.contract
 def test_validation_result_degraded_schema():
-    # Load JSON schema
-    schema_path = Path(
-        "docs/architectuur/contracts/schemas/validation_result.schema.json"
-    )
-    assert schema_path.exists(), "Schema file missing"
-    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    schema = _lees_schema()
 
     from jsonschema import validate
 
@@ -62,9 +71,25 @@ def test_validation_result_degraded_schema():
 
 
 def _schema() -> dict:
-    pad = Path("docs/architectuur/contracts/schemas/validation_result.schema.json")
-    assert pad.exists(), "Schema file missing"
-    return json.loads(pad.read_text(encoding="utf-8"))
+    return _lees_schema()
+
+
+@pytest.mark.contract
+def test_schema_wordt_repository_relatief_gelezen(tmp_path, monkeypatch):
+    """De schemainvoer hangt aan de checkout, niet aan de werkmap.
+
+    RED-discriminator voor DEF-519: met een CWD-relatief pad viel deze suite in
+    een tijdelijke werkmap om (`Schema file missing`). Beide takken staan hier
+    expliciet: hetzelfde schema vanuit een vreemde CWD, én een ontbrekend
+    bestand dat hard faalt in plaats van te skippen.
+    """
+    vanuit_repo = _lees_schema()
+    monkeypatch.chdir(tmp_path)
+    assert _lees_schema() == vanuit_repo
+    assert SCHEMA_MAP.is_absolute()
+
+    with pytest.raises(FileNotFoundError):
+        _lees_schema("er-is-geen-validation_result.schema.json")
 
 
 async def _echt_resultaat() -> dict:

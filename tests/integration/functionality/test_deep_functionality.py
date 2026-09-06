@@ -1,310 +1,309 @@
 #!/usr/bin/env python3
-"""
-Deep test script voor DefinitieAgent functionaliteit.
+"""Diepe functionaliteitstoets voor DefinitieAgent (DEF-519).
 
-Test alle kritieke componenten:
-1. Synoniemen/Antoniemen generatie (5 items)
-2. Voorkeursterm selectie
-3. Prompt debug sectie
-4. Rate limiting per endpoint
-5. Performance monitoring
+Toetst de vijf onderdelen waarvoor dit bestand oorspronkelijk geschreven is:
+
+1. synoniemen/antoniemen-generatie (vijf items);
+2. bulkgeneratie van alle voorbeeldsoorten;
+3. endpoint-specifieke rate limiting;
+4. de V2-orchestrator;
+5. performance-monitoring.
+
+De oude opzet laadde `.env`, sloeg zichzelf over zonder API-key en drukte zijn
+oordeel af in plaats van het te asserteren. Alles draait nu achter de bevroren
+providergrens uit `conftest.py`; onderdeel 3 en 5 hebben helemaal geen provider
+nodig en gebruiken verse, geïsoleerde toestand zodat de uitkomst niet van de
+testvolgorde afhangt.
 """
 
 import asyncio
-import os
-import sys
-import time
+import uuid
 
 import pytest
-from dotenv import load_dotenv
 
-# Load dotenv and skip if no API key configured BEFORE importing modules that touch OpenAI
-load_dotenv()
-if not os.getenv("OPENAI_API_KEY"):
-    pytest.skip(
-        "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
-        allow_module_level=True,
-    )
-
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
-
-# Import test modules (after skip guard)
-from services.container import get_container
-from services.interfaces import GenerationRequest, OrchestratorConfig
-from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
-from utils.performance_monitor import get_performance_monitor, start_timing, stop_timing
-from utils.smart_rate_limiter import get_smart_limiter
+from domain.ontological_categories import OntologischeCategorie
+from services.interfaces import GenerationRequest
+from tests.integration.functionality.conftest import (
+    lees_opgeslagen_definitie,
+    verwacht_resultaat,
+)
+from utils.performance_monitor import (
+    get_performance_monitor,
+    start_timing,
+    stop_timing,
+)
+from utils.smart_rate_limiter import RateLimitConfig, get_smart_limiter
 from voorbeelden.unified_voorbeelden import (
+    DEFAULT_EXAMPLE_COUNTS,
+    ExampleType,
     GenerationMode,
     genereer_alle_voorbeelden,
     genereer_antoniemen,
-    genereer_praktijkvoorbeelden,
     genereer_synoniemen,
-    genereer_voorbeeld_zinnen,
-    get_examples_generator,
 )
 
 pytestmark = [pytest.mark.integration, pytest.mark.slow]
 
-# Load dotenv and skip if no API key configured
-load_dotenv()
-if not os.getenv("OPENAI_API_KEY"):
-    pytest.skip(
-        "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
-        allow_module_level=True,
-    )
+BEGRIP = "verdachte"
+DEFINITIE = "Een persoon die wordt verdacht van het plegen van een strafbaar feit."
+CONTEXT = {
+    "organisatorisch": ["Openbaar Ministerie"],
+    "juridisch": ["Strafrecht"],
+    "wettelijk": ["Wetboek van Strafvordering"],
+}
+
+#: Endpoints uit `config/rate_limit_config.py` die dit bestand oorspronkelijk
+#: naast elkaar zette.
+PRODUCTIE_ENDPOINTS = (
+    "examples_generation_sentence",
+    "examples_generation_synonyms",
+    "examples_generation_antonyms",
+)
 
 
-async def test_synoniemen_antoniemen():
-    """Test synoniemen en antoniemen generatie (moet 5 items returnen)."""
-    print("\n🧪 TEST 1: Synoniemen/Antoniemen Generatie")
-    print("=" * 60)
+async def test_synoniemen_antoniemen(bevroren_omgeving):
+    """Synoniemen en antoniemen leveren vijf termen én een gemeten duur op."""
+    client = bevroren_omgeving.client
 
-    # Test data
-    begrip = "verdachte"
-    definitie = "Een persoon die wordt verdacht van het plegen van een strafbaar feit."
-    context_dict = {
-        "organisatorisch": ["Openbaar Ministerie"],
-        "juridisch": ["Strafrecht"],
-        "wettelijk": ["Wetboek van Strafvordering"],
-    }
-
-    # Test synoniemen
-    print("\n📝 Genereer synoniemen...")
     start_timing("synoniemen_generatie")
-    synoniemen = genereer_synoniemen(begrip, definitie, context_dict)
-    duration = stop_timing("synoniemen_generatie")
+    synoniemen = genereer_synoniemen(BEGRIP, DEFINITIE, CONTEXT)
+    duur_synoniemen = stop_timing("synoniemen_generatie")
 
-    print(f"✅ Gegenereerde {len(synoniemen)} synoniemen in {duration:.2f}s:")
-    for i, syn in enumerate(synoniemen, 1):
-        print(f"   {i}. {syn}")
-
-    if len(synoniemen) != 5:
-        print(f"❌ FOUT: Verwachtte 5 synoniemen, kreeg {len(synoniemen)}")
-    else:
-        print("✅ Correct aantal synoniemen (5)")
-
-    # Test antoniemen
-    print("\n📝 Genereer antoniemen...")
     start_timing("antoniemen_generatie")
-    antoniemen = genereer_antoniemen(begrip, definitie, context_dict)
-    duration = stop_timing("antoniemen_generatie")
+    antoniemen = genereer_antoniemen(BEGRIP, DEFINITIE, CONTEXT)
+    duur_antoniemen = stop_timing("antoniemen_generatie")
 
-    print(f"✅ Gegenereerde {len(antoniemen)} antoniemen in {duration:.2f}s:")
-    for i, ant in enumerate(antoniemen, 1):
-        print(f"   {i}. {ant}")
+    assert synoniemen == verwacht_resultaat("synoniemen", 5)
+    assert antoniemen == verwacht_resultaat("antoniemen", 5)
+    assert len(client.oproepen_van("synoniemen")) == 1
+    assert len(client.oproepen_van("antoniemen")) == 1
 
-    if len(antoniemen) != 5:
-        print(f"❌ FOUT: Verwachtte 5 antoniemen, kreeg {len(antoniemen)}")
-    else:
-        print("✅ Correct aantal antoniemen (5)")
+    # De monitor heeft beide operaties echt geregistreerd. De duur meet lokale
+    # code achter een bevroren antwoord — géén API-latency.
+    assert isinstance(duur_synoniemen, float) and duur_synoniemen >= 0.0
+    assert isinstance(duur_antoniemen, float) and duur_antoniemen >= 0.0
+    metrics = get_performance_monitor().metrics
+    assert metrics["synoniemen_generatie"] == [duur_synoniemen]
+    assert metrics["antoniemen_generatie"] == [duur_antoniemen]
 
-    return synoniemen, antoniemen
+    # Discriminatie: zonder bruikbare respons blijft er niets over.
+    bevroren_omgeving.zet_modus("leeg")
+    assert genereer_synoniemen(BEGRIP, DEFINITIE, CONTEXT) == []
+    assert genereer_antoniemen(BEGRIP, DEFINITIE, CONTEXT) == []
 
 
-async def test_bulk_generation():
-    """Test bulk generatie met alle voorbeeld types."""
-    print("\n\n🧪 TEST 2: Bulk Generatie (alle types)")
-    print("=" * 60)
-
-    # Test data
+async def test_bulk_generation(bevroren_omgeving):
+    """Bulkgeneratie levert elke soort met het aantal uit de centrale config."""
+    client = bevroren_omgeving.client
     begrip = "strafblad"
-    definitie = "Een officieel document waarin de strafrechtelijke veroordelingen van een persoon worden geregistreerd."
-    context_dict = {
+    definitie = (
+        "Een officieel document waarin de strafrechtelijke veroordelingen van "
+        "een persoon worden geregistreerd."
+    )
+    context = {
         "organisatorisch": ["Justitiële Informatiedienst"],
         "juridisch": ["Strafrecht"],
         "wettelijk": ["Wet justitiële en strafvorderlijke gegevens"],
     }
 
-    print("\n📦 Start bulk generatie...")
-    start_timing("bulk_generatie")
     voorbeelden = genereer_alle_voorbeelden(
-        begrip, definitie, context_dict, GenerationMode.RESILIENT
+        begrip, definitie, context, GenerationMode.RESILIENT
     )
-    duration = stop_timing("bulk_generatie")
 
-    print(f"\n✅ Bulk generatie voltooid in {duration:.2f}s")
-    print("\nResultaten:")
-
-    expected_counts = {
-        "sentence": 3,
-        "practical": 3,
-        "counter": 3,
-        "synonyms": 5,
-        "antonyms": 5,
-        "explanation": 1,
+    assert set(voorbeelden) == {soort.value for soort in ExampleType}
+    assert DEFAULT_EXAMPLE_COUNTS == {
+        "voorbeeldzinnen": 3,
+        "praktijkvoorbeelden": 3,
+        "tegenvoorbeelden": 3,
+        "synoniemen": 5,
+        "antoniemen": 5,
+        "toelichting": 1,
     }
+    for soort in ExampleType:
+        sleutel = soort.value
+        if sleutel == "toelichting":
+            assert isinstance(voorbeelden[sleutel], str)
+            assert voorbeelden[sleutel] == verwacht_resultaat(sleutel, 1)[0]
+            continue
+        aantal = DEFAULT_EXAMPLE_COUNTS[sleutel]
+        assert voorbeelden[sleutel] == verwacht_resultaat(sleutel, aantal)
 
-    for example_type, examples in voorbeelden.items():
-        count = len(examples)
-        expected = expected_counts.get(example_type, 3)
-        status = "✅" if count == expected else "❌"
-        print(f"  {status} {example_type}: {count} items (verwacht: {expected})")
+    assert len(client.oproepen) == len(ExampleType)
 
-        # Toon eerste voorbeeld
-        if examples:
-            first = examples[0] if isinstance(examples, list) else examples
-            print(f"     Voorbeeld: {first[:80]}...")
-
-
-async def test_rate_limiting():
-    """Test endpoint-specifieke rate limiting."""
-    print("\n\n🧪 TEST 3: Endpoint-Specifieke Rate Limiting")
-    print("=" * 60)
-
-    # Test verschillende endpoints parallel
-    endpoints = [
-        "examples_generation_sentence",
-        "examples_generation_synonyms",
-        "examples_generation_antonyms",
-    ]
-
-    print("\n📊 Check rate limiters voor verschillende endpoints...")
-
-    for endpoint in endpoints:
-        limiter = await get_smart_limiter(endpoint)
-        print(f"\n  Endpoint: {endpoint}")
-        print(f"    - Tokens beschikbaar: {limiter.token_bucket.tokens:.1f}")
-        print(f"    - Bucket capacity: {limiter.token_bucket.capacity}")
-        print(f"    - Config rate: {limiter.config.tokens_per_second}")
-
-    # Test parallel requests
-    print("\n\n🔄 Test parallel requests naar verschillende endpoints...")
-
-    async def make_request(endpoint: str, index: int):
-        """Simuleer een request naar een endpoint."""
-        limiter = await get_smart_limiter(endpoint)
-        start = time.time()
-
-        # Acquire tokens before executing
-        await limiter.token_bucket.acquire(1)
-
-        # Simuleer API call
-        await asyncio.sleep(0.1)
-        result = f"Result from {endpoint} #{index}"
-
-        duration = time.time() - start
-        return endpoint, index, duration, result
-
-    # Maak 5 requests per endpoint
-    tasks = []
-    for endpoint in endpoints:
-        for i in range(5):
-            task = make_request(endpoint, i)
-            tasks.append(task)
-
-    # Voer alle requests parallel uit
-    results = await asyncio.gather(*tasks)
-
-    # Analyseer resultaten
-    endpoint_times = {}
-    for endpoint, _index, duration, _result in results:
-        if endpoint not in endpoint_times:
-            endpoint_times[endpoint] = []
-        endpoint_times[endpoint].append(duration)
-
-    print("\n📈 Rate limiting resultaten:")
-    for endpoint, times in endpoint_times.items():
-        avg_time = sum(times) / len(times)
-        max_time = max(times)
-        print(f"  {endpoint}:")
-        print(f"    - Gemiddelde tijd: {avg_time:.3f}s")
-        print(f"    - Max tijd: {max_time:.3f}s")
-        print(f"    - Requests: {len(times)}")
+    bevroren_omgeving.zet_modus("leeg")
+    leeg = genereer_alle_voorbeelden(
+        begrip, definitie, context, GenerationMode.RESILIENT
+    )
+    assert leeg["toelichting"] == ""
+    assert all(
+        leeg[soort.value] == [] for soort in ExampleType if soort.value != "toelichting"
+    )
 
 
-async def test_orchestrator_v2():
-    """Test V2 orchestrator functionaliteit."""
-    print("\n\n🧪 TEST 4: V2 Orchestrator")
-    print("=" * 60)
+async def test_rate_limiting(bevroren_omgeving):
+    """Rate limiting is echt per endpoint gescheiden en put echt tokens uit."""
+    from config.rate_limit_config import get_rate_limit_config
 
-    # Prompt logging functionality has been removed
+    # 1) Productiebedrading: elke endpoint krijgt zijn eigen limiter met de
+    #    configuratie uit config/rate_limit_config.py.
+    productie_limiters = {}
+    for naam in PRODUCTIE_ENDPOINTS:
+        limiter = await get_smart_limiter(naam)
+        verwacht = get_rate_limit_config(naam)
+        assert limiter.config.tokens_per_second == verwacht.tokens_per_second
+        assert limiter.config.bucket_capacity == verwacht.bucket_capacity
+        assert limiter.token_bucket.capacity == verwacht.bucket_capacity
+        productie_limiters[naam] = limiter
 
-    # Genereer definitie met voorbeelden
-    print("\n📝 Genereer definitie met alle voorbeelden...")
+    assert len({id(limiter) for limiter in productie_limiters.values()}) == len(
+        PRODUCTIE_ENDPOINTS
+    ), "endpoints moeten aparte limiters krijgen"
+    assert len(
+        {id(limiter.token_bucket) for limiter in productie_limiters.values()}
+    ) == len(PRODUCTIE_ENDPOINTS), "endpoints moeten aparte token buckets krijgen"
 
-    # Get V2 container and orchestrator
-    container = get_container()
-    orchestrator = container.orchestrator()
+    # 2) Echt gedrag op verse, geïsoleerde endpoints. De refill staat bewust op
+    #    0.1 token/s en de capaciteit op 5: het uitputten is dan een
+    #    deterministisch feit en geen wedloop met de klok.
+    capaciteit = 5
+    probe_endpoints = [f"def519_probe_{letter}" for letter in ("a", "b", "c")]
+    probe_config = RateLimitConfig(
+        tokens_per_second=0.1, bucket_capacity=capaciteit, burst_capacity=1
+    )
+    probe_limiters = {}
+    try:
+        for naam in probe_endpoints:
+            probe_limiters[naam] = await get_smart_limiter(naam, probe_config)
+            assert probe_limiters[naam].token_bucket.tokens == float(capaciteit)
 
-    import uuid
+        async def doe_verzoek(endpoint: str, index: int):
+            limiter = probe_limiters[endpoint]
+            verkregen = await limiter.token_bucket.acquire(1)
+            return endpoint, index, verkregen
+
+        taken = [
+            doe_verzoek(endpoint, index)
+            for endpoint in probe_endpoints
+            for index in range(capaciteit)
+        ]
+        resultaten = await asyncio.gather(*taken)
+
+        assert len(resultaten) == len(probe_endpoints) * capaciteit
+        assert all(verkregen for _, _, verkregen in resultaten)
+        for endpoint in probe_endpoints:
+            per_endpoint = [r for r in resultaten if r[0] == endpoint]
+            assert len(per_endpoint) == capaciteit
+            assert sorted(index for _, index, _ in per_endpoint) == list(
+                range(capaciteit)
+            )
+
+        # Uitgeput: een extra token komt er binnen de korte timeout niet meer
+        # uit (refill 0.1/s). Zou de bucket niets aftrekken, dan slaagt dit.
+        assert (
+            await probe_limiters[probe_endpoints[0]].token_bucket.acquire(
+                1, timeout=0.05
+            )
+            is False
+        )
+
+        # ... terwijl een nog niet gebruikt endpoint gewoon doorloopt: het
+        # verbruik lekt niet tussen endpoints.
+        vers = await get_smart_limiter("def519_probe_vers", probe_config)
+        probe_limiters["def519_probe_vers"] = vers
+        assert await vers.token_bucket.acquire(1, timeout=0.05) is True
+    finally:
+        for limiter in probe_limiters.values():
+            await limiter.stop()
+
+
+async def test_orchestrator_v2(bevroren_omgeving):
+    """De V2-orchestrator levert definitie én voorbeelden in de metadata."""
+    client = bevroren_omgeving.client
+    orchestrator = bevroren_omgeving.container.orchestrator()
 
     request = GenerationRequest(
         id=str(uuid.uuid4()),
         begrip="hoger beroep",
         context="Gerechtshof",
-        ontologische_categorie="PROCES",
+        # Canonieke, kleine waarde: `service_factory` geeft `.value` door en de
+        # CHECK-constraint op definities.categorie kent alleen deze vorm.
+        ontologische_categorie=OntologischeCategorie.PROCES.value,
     )
 
-    result = await orchestrator.create_definition(request)
+    resultaat = await orchestrator.create_definition(request)
 
-    # Prompt logging functionality has been removed
-    if result.success and result.definition:
-        print("\n✅ Definition generated successfully")
-        print(f"    - Definition: {result.definition.definitie[:100]}...")
-        print(
-            f"    - Examples generated: {len(result.definition.voorbeelden) if result.definition.voorbeelden else 0}"
-        )
-    else:
-        print(f"\n❌ Generation failed: {result.error}")
+    assert resultaat.success, f"generatie mislukt: {resultaat.error}"
+    assert resultaat.definition is not None
+    assert resultaat.definition.begrip == "hoger beroep"
+    assert "bevoegde instantie binnen het strafprocesrecht" in (
+        resultaat.definition.definitie
+    )
+
+    # Opslagbewijs: lees de rij terug via een nieuwe, echte SQLite-verbinding.
+    definitie_id = resultaat.definition.id
+    assert isinstance(definitie_id, int) and definitie_id > 0
+    rij = lees_opgeslagen_definitie(bevroren_omgeving.db_path, definitie_id)
+    assert rij is not None, "generatie meldde succes maar sloeg geen rij op"
+    assert rij["begrip"] == "hoger beroep"
+    assert rij["definitie"] == resultaat.definition.definitie
+    assert rij["categorie"] == OntologischeCategorie.PROCES.value
+    assert rij["status"] == "draft"
+    assert rij["version_number"] == 1
+    # Discriminator: een niet-opgeslagen id levert niets op.
+    assert (
+        lees_opgeslagen_definitie(bevroren_omgeving.db_path, definitie_id + 10_000)
+        is None
+    )
+
+    # Voorbeelden komen mee in de metadata (niet in Definition.voorbeelden,
+    # dat veld blijft leeg — de oude test las daar en zag daarom altijd 0).
+    metadata = resultaat.definition.metadata or {}
+    voorbeelden = metadata.get("voorbeelden") or {}
+    assert set(voorbeelden) == {soort.value for soort in ExampleType}
+    for soort in ExampleType:
+        sleutel = soort.value
+        if sleutel == "toelichting":
+            assert voorbeelden[sleutel] == verwacht_resultaat(sleutel, 1)[0]
+            continue
+        aantal = DEFAULT_EXAMPLE_COUNTS[sleutel]
+        assert voorbeelden[sleutel] == verwacht_resultaat(sleutel, aantal)
+
+    # De providergrens is voor zowel de definitie als de voorbeelden gebruikt.
+    assert client.oproepen_van(None), "definitieprompt moet de provider bereiken"
+    assert {oproep.soort for oproep in client.oproepen} >= {
+        soort.value for soort in ExampleType
+    }
 
 
-async def test_performance_summary():
-    """Toon performance summary."""
-    print("\n\n🧪 TEST 5: Performance Summary")
-    print("=" * 60)
-
+async def test_performance_summary(bevroren_omgeving):
+    """De performance-summary vat echte metingen samen en blijft leeg zonder."""
     monitor = get_performance_monitor()
-    summary = monitor.get_summary()
 
-    if summary:
-        print("\n📊 Performance metrics:")
-        for operation, stats in summary.items():
-            print(f"\n  {operation}:")
-            print(f"    - Calls: {stats['count']}")
-            print(f"    - Average: {stats['average']:.2f}s")
-            print(f"    - Min: {stats['min']:.2f}s")
-            print(f"    - Max: {stats['max']:.2f}s")
-            print(f"    - Total: {stats['total']:.2f}s")
-    else:
-        print("\n❌ Geen performance data beschikbaar")
+    # Verse monitor (de fixture isoleert hem): een lege samenvatting mag niet
+    # als "geslaagd" tellen, dus dit is het startpunt en geen einddoel.
+    assert monitor.get_summary() == {}
 
+    operatie = f"def519_meting_{uuid.uuid4().hex[:8]}"
+    for _ in range(2):
+        start_timing(operatie)
+        await asyncio.sleep(0)
+        stop_timing(operatie)
 
-async def main():
-    """Run all tests."""
-    print("🚀 DefinitieAgent Deep Test Suite")
-    print("=" * 80)
+    samenvatting = monitor.get_summary()
+    assert set(samenvatting) == {operatie}
 
-    try:
-        # Load environment
-        load_dotenv()
+    stats = samenvatting[operatie]
+    assert set(stats) == {"count", "total", "average", "min", "max"}
+    assert stats["count"] == 2
+    metingen = monitor.metrics[operatie]
+    assert len(metingen) == 2
+    assert stats["total"] == pytest.approx(sum(metingen))
+    assert stats["average"] == pytest.approx(sum(metingen) / 2)
+    assert stats["min"] == pytest.approx(min(metingen))
+    assert stats["max"] == pytest.approx(max(metingen))
+    assert stats["min"] <= stats["average"] <= stats["max"]
 
-        # Run tests
-        synoniemen, antoniemen = await test_synoniemen_antoniemen()
-        await test_bulk_generation()
-        await test_rate_limiting()
-        await test_orchestrator_v2()
-        await test_performance_summary()
-
-        # Cleanup not needed - limiters cleanup automatically
-
-        print("\n\n✅ Alle tests voltooid!")
-
-        # Final summary
-        print("\n📋 SAMENVATTING:")
-        print(f"  - Synoniemen generatie: {'✅' if len(synoniemen) == 5 else '❌'}")
-        print(f"  - Antoniemen generatie: {'✅' if len(antoniemen) == 5 else '❌'}")
-        print("  - Rate limiting per endpoint: ✅")
-        print("  - Prompt logging: ❌ (removed)")
-        print("  - Performance monitoring: ✅")
-
-    except Exception as e:
-        print(f"\n❌ Test failed with error: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    # Een timer die nooit gestart is levert 0.0 op en vervuilt de samenvatting
+    # niet — de samenvatting telt dus alleen echte metingen.
+    assert stop_timing("def519_nooit_gestart") == 0.0
+    assert set(monitor.get_summary()) == {operatie}
