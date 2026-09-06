@@ -36,21 +36,21 @@ jobs:
         run: |
           bash scripts/maintenance/grep_gate.sh
 
-      - name: Run smoke test with coverage
-        env:
-          # Smoke tests draaien offline: SDK-call gemockt + conftest network-guard.
-          # De anthropic-smoke schakelt tiktoken uit (zie fixture) zodat geen
-          # o200k_base-download nodig is op een koude CI-cache.
-          ANTHROPIC_API_KEY: dummy
-          OPENAI_API_KEY: dummy
-          OPENAI_API_KEY_PROD: dummy
-        run: |
-          python -m pytest -q --maxfail=1 --disable-warnings \
-            --cov=src --cov-report=term-missing \
-            tests/smoke/test_validation_v2_smoke.py \
-            tests/smoke/test_anthropic_generation_smoke.py
+      # DEF-519: hier stond een eigen pytest-subset met `--cov=src`. pytest-cov
+      # schrijft dan `.coverage.*` in de checkout, wat de vroege
+      # offline-bootstrap terecht weigert (PR #427: INTERNALERROR), en het was
+      # een tweede selectie naast de Makefile. Deze required job draait nu
+      # dezelfde bewaakte gate als `make`: één poort, volledige
+      # acceptance/smoke-scope, eigen sessieroot en eigen artefactpaden, elke
+      # fout met een eigen nonzero status. De unitcoverage-ratchet (45%) blijft
+      # in `test.yml`; hier wordt geen tweede coveragemeting opgetuigd.
+      - name: Acceptance/smoke gate (make test-acceptance, blokkerend)
+        run: make test-acceptance
 
-      - name: Upload coverage as artifact (optional)
+      - name: Archive acceptance gate results
         if: always()
-        run: |
-          echo "Coverage report printed above. Configure XML/HTML if needed."
+        uses: actions/upload-artifact@v7
+        with:
+          name: acceptance-gate-results
+          path: |
+            reports/gates/
