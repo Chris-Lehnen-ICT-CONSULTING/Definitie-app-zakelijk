@@ -25,12 +25,10 @@ jobs:
       SECRET_SCAN_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
       # DEF-463: pin gelijk aan .pre-commit-config.yaml en .gitleaks.toml.
       GITLEAKS_VERSION: 8.29.1
-      # Tool en fixtures staan buiten de werkmap, zodat het archief, de binary en
-      # het testmateriaal niet in de scanscope van de werkboomscan belanden.
-      GITLEAKS_DIR: ${{ runner.temp }}/gitleaks
-      SECRET_SCAN_BINARY: ${{ runner.temp }}/gitleaks/gitleaks
-      DEF522_GITLEAKS_BINARY: ${{ runner.temp }}/gitleaks/gitleaks
-      DEF522_FIXTURE_ROOT: ${{ runner.temp }}/def522-fixtures
+      # De runner-context is hier niet beschikbaar: op job-env laat een
+      # ${{ runner.* }}-expressie de hele workflow afwijzen, waarna de run nul
+      # jobs krijgt en deze verplichte gate stil niet draait. De paden buiten de
+      # werkmap staan daarom op de env van de stap die ze gebruikt.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -53,6 +51,10 @@ jobs:
           uv pip install --system --require-hashes -r requirements.txt -r requirements-dev.txt
 
       - name: Install gitleaks
+        env:
+          # Buiten de werkmap, zodat archief en binary niet in de scanscope van
+          # de werkboomscan belanden.
+          GITLEAKS_DIR: ${{ runner.temp }}/gitleaks
         run: |
           set -euo pipefail
           mkdir -p "$GITLEAKS_DIR"
@@ -63,12 +65,20 @@ jobs:
           chmod +x gitleaks
 
       - name: Canary- en gatetests (verplicht, geen skip)
+        env:
+          # De verplicht aangewezen binary en fixture-root; beide buiten de
+          # werkmap, zodat het testmateriaal niet meegescand wordt.
+          DEF522_GITLEAKS_BINARY: ${{ runner.temp }}/gitleaks/gitleaks
+          DEF522_FIXTURE_ROOT: ${{ runner.temp }}/def522-fixtures
         run: |
           set -euo pipefail
           mkdir -p "$DEF522_FIXTURE_ROOT"
           make test-secret-scan
 
       - name: Fail-closed secret-gate (range, canonieke historie, werkboom)
+        env:
+          # Dezelfde binary buiten de werkmap als hierboven geinstalleerd.
+          SECRET_SCAN_BINARY: ${{ runner.temp }}/gitleaks/gitleaks
         run: make secret-scan
 
   deps-audit:

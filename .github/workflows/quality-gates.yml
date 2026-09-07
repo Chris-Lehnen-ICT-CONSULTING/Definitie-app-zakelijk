@@ -28,31 +28,32 @@ jobs:
           sudo apt-get update && sudo apt-get install -y ripgrep
 
       - name: Check pre-commit ran on latest commit
+        env:
+          # DEF-522: de ondergrens komt uit de event-payload en gaat uitsluitend
+          # via de omgeving naar de stap; nooit als expressie in een shellregel.
+          VERIFY_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          # Check if pre-commit hooks were executed
-          # Look for pre-commit metadata in commit or validate hooks pass
+          set -euo pipefail
+          # DEF-522: `--files` geeft hooks die een commitrange nodig hebben geen
+          # bereik. Op een schone checkout is er geen index, dus de secret-gate
+          # kreeg daar nul bytes te zien. `--from-ref`/`--to-ref` geeft dat bereik
+          # wél door (pre-commit zet dan PRE_COMMIT_FROM_REF en PRE_COMMIT_TO_REF)
+          # en draait nog steeds álle hooks, over dezelfde gewijzigde bestanden.
           echo "Verifying pre-commit execution..."
+          VAN="$VERIFY_BASE_SHA"
+          # De werkelijk uitgecheckte HEAD, zodat het bereik samenvalt met de tree
+          # die de hooks zien — ook bij de merge-checkout van een pull request.
+          NAAR="$(git rev-parse HEAD)"
 
-          # Run pre-commit on changed files to verify
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # For PRs, check changed files
-            git fetch origin ${{ github.base_ref }}
-            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
-            if [ -n "$CHANGED_FILES" ]; then
-              echo "Changed files: $CHANGED_FILES"
-              # Run pre-commit on changed files
-              echo "$CHANGED_FILES" | xargs pre-commit run --files || {
-                echo "❌ Pre-commit hooks failed. Did you run pre-commit before pushing?"
-                exit 1
-              }
-            fi
-          else
-            # For direct pushes, check last commit
-            git show --name-only HEAD | tail -n +2 | xargs -r pre-commit run --files || {
-              echo "❌ Pre-commit hooks failed. Run 'pre-commit run --all-files' locally."
-              exit 1
-            }
+          # Fail-closed: zonder een bruikbaar bereik wordt er niet gescand, en dan
+          # is er ook niets bewezen. Geen terugval op een smaller bereik, geen
+          # overslaan bij een leeg bereik.
+          if ! [[ "$VAN" =~ ^[0-9a-f]{40}$ ]] || ! [[ "$NAAR" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "❌ Geen bruikbare commitrange voor de pre-commit-verificatie."
+            exit 1
           fi
+
+          pre-commit run --from-ref "$VAN" --to-ref "$NAAR"
 
           echo "✅ Pre-commit verification passed"
 

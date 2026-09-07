@@ -16,11 +16,20 @@ en exitcode 0, een synthetische canary in de werkboom geeft `blocked` en nonzero
 De config is de zelfgemaakte minimale fixtureconfig; de projectuitzonderingen zijn
 elders bewezen. Alle procesuitvoer wordt opgevangen: faalmeldingen tonen alleen
 status, code en tellingen, nooit een canarywaarde of ruwe tooltekst.
+
+Naast de aanroep controleert de leesstap twee dingen die de uitvoering zelf niet
+kan aantonen, omdat de test de omgeving van de gate expliciet zelf meegeeft:
+dat de job-`env` geen context gebruikt die GitHub daar niet beschikbaar stelt
+(zo'n expressie laat de hele run met nul jobs falen, ruim voordat een stap
+draait), en dat de vier padwaarden die de job echt nodig heeft staan op de stap
+die ze gebruikt. Dit is een gerichte regressiecontrole op die twee punten, geen
+eigen validator voor workflowsyntaxis.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -55,6 +64,38 @@ _JOB = "secrets-scan"
 #: gebruiken; iets anders wordt niet uitgevoerd maar afgekeurd.
 _TOEGESTANE_ARGV = ["make", "secret-scan"]
 
+#: Contexten die GitHub op `jobs.<id>.env` niet beschikbaar stelt. `runner`
+#: hoort volgens de contextbeschikbaarheidstabel bij `steps.env`, niet bij
+#: `jobs.<id>.env`. Een expressie met zo'n context laat het inlezen van de
+#: workflow falen: de run start met nul jobs, dus de verplichte gate draait
+#: nooit en de fail-closed opzet is stil weg.
+_VERBODEN_JOB_CONTEXTEN = ("runner",)
+
+#: De vier padwaarden die de job werkelijk nodig heeft, per stap die ze
+#: gebruikt. De stap wordt herkend aan wat de `run` doet, niet aan de naam.
+#: Zonder deze controle zou de ketentest alleen de omgeving bewijzen die zij
+#: zelf aan het kindproces meegeeft, en niets over de workflow.
+_STAP_ENV_EISEN: tuple[tuple[str, dict[str, str]], ...] = (
+    (
+        "$GITLEAKS_DIR",
+        {"GITLEAKS_DIR": "${{ runner.temp }}/gitleaks"},
+    ),
+    (
+        "make test-secret-scan",
+        {
+            "DEF522_GITLEAKS_BINARY": "${{ runner.temp }}/gitleaks/gitleaks",
+            "DEF522_FIXTURE_ROOT": "${{ runner.temp }}/def522-fixtures",
+        },
+    ),
+    (
+        "make secret-scan",
+        {"SECRET_SCAN_BINARY": "${{ runner.temp }}/gitleaks/gitleaks"},
+    ),
+)
+
+#: Eén `${{ ... }}`-expressie; de inhoud wordt apart op contexten bekeken.
+_EXPRESSIE = re.compile(r"\$\{\{(.*?)\}\}", re.DOTALL)
+
 #: De schakels van de keten, op hun normale relatieve paden.
 _KETENBESTANDEN = (
     "Makefile",
@@ -69,6 +110,55 @@ _CLEAN = secret_scan.ScanStatus.CLEAN.value
 _BLOCKED = secret_scan.ScanStatus.BLOCKED.value
 
 
+def _verboden_contexten(waarde: str) -> list[str]:
+    """De op job-niveau onbeschikbare contexten die in `waarde` voorkomen."""
+    gevonden: list[str] = []
+    for expressie in _EXPRESSIE.findall(waarde):
+        for context in _VERBODEN_JOB_CONTEXTEN:
+            patroon = rf"(?<![\w.]){re.escape(context)}\b"
+            if re.search(patroon, expressie) and context not in gevonden:
+                gevonden.append(context)
+    return gevonden
+
+
+def _keur_job_env(job: dict) -> None:
+    """Weiger een job-`env` die een daar onbeschikbare context gebruikt."""
+    for naam, waarde in (job.get("env") or {}).items():
+        contexten = _verboden_contexten(str(waarde))
+        if contexten:
+            pytest.fail(
+                f"job {_JOB} gebruikt op env.{naam} de context "
+                f"{', '.join(contexten)}, die GitHub daar niet beschikbaar "
+                "stelt. De workflow wordt afgewezen en de run krijgt nul jobs, "
+                "dus de verplichte gate draait niet. Zet deze waarde op de "
+                "env van de stap die hem gebruikt."
+            )
+
+
+def _keur_stap_env(stappen: list[dict]) -> None:
+    """Eis de vaste padwaarden op de stap die ze werkelijk gebruikt."""
+    for marker, verwacht in _STAP_ENV_EISEN:
+        passend = [
+            stap
+            for stap in stappen
+            if isinstance(stap.get("run"), str) and marker in stap["run"]
+        ]
+        if len(passend) != 1:
+            pytest.fail(
+                f"verwacht precies één stap waarvan de run {marker!r} gebruikt; "
+                f"gevonden: {len(passend)}."
+            )
+        omgeving = passend[0].get("env") or {}
+        for naam, waarde in verwacht.items():
+            if omgeving.get(naam) != waarde:
+                pytest.fail(
+                    f"de stap met {marker!r} moet env.{naam} op {waarde!r} "
+                    f"zetten; gevonden: {omgeving.get(naam)!r}. Zonder deze "
+                    "waarde op de juiste stap bewijst de ketentest alleen de "
+                    "omgeving die zij zelf meegeeft."
+                )
+
+
 def _gate_argv() -> list[str]:
     """Lees en valideer de gate-aanroep van de verplichte job."""
     document = yaml.safe_load(_WORKFLOW.read_text(encoding="utf-8"))
@@ -77,6 +167,9 @@ def _gate_argv() -> list[str]:
         pytest.fail(f"job {_JOB} ontbreekt in {_WORKFLOW.name}.")
     if job.get("continue-on-error") or "if" in job:
         pytest.fail(f"job {_JOB} is voorwaardelijk of continue-on-error.")
+
+    _keur_job_env(job)
+    _keur_stap_env(job.get("steps", []))
 
     stappen = [
         stap

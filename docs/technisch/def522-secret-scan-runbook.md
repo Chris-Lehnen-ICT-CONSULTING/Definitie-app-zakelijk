@@ -46,8 +46,32 @@ nonzero.
 
 ## Staged (pre-commit)
 
-De hook scant uitsluitend de index en doet geen enkele uitspraak over de
-historie. Het is aanvullende lokale feedback en **vervangt de CI-gate niet**.
+Bij een gewone commit scant de hook uitsluitend de index en doet hij geen enkele
+uitspraak over de historie. Het is aanvullende lokale feedback en **vervangt de
+CI-gate niet**.
+
+## De hook in CI: het refpaar
+
+Een CI-checkout heeft geen index, dus daar zou een indexscan altijd nul bytes
+opleveren. Draait pre-commit met `--from-ref <base>` en `--to-ref <head>`, dan
+zet het zelf `PRE_COMMIT_FROM_REF` en `PRE_COMMIT_TO_REF`, en draait dezelfde
+entry de volledige modus: range, canonieke historie én werkboom. Beide waarden
+zijn volledige commit-ID's; `--to-ref` is de werkelijk uitgecheckte HEAD
+(`git rev-parse HEAD`), zodat het bereik samenvalt met de boom die de hooks zien.
+
+De keuze hangt alleen aan de omgeving:
+
+| In de omgeving | Modus | Wachttijd |
+|---|---|---|
+| geen van beide namen | staged (index) | 60 s |
+| beide namen, volledige commit-ID's | full (range + historie + boom) | 300 s |
+| één naam, of een waarde die geen commit-ID is | geen scan: `error`, nonzero | — |
+
+Die laatste regel is opzet. Aanwezigheid van één van beide namen — ook met een
+lege waarde — eist de volledige modus; de gate keurt de grenzen daarna af. Er is
+dus geen route waarlangs een half of ongeldig bereik stil terugvalt op een lege
+indexscan en groen geeft. Een ongeldig bereik in CI is een fout in de aanroep,
+geen reden om de scan over te slaan.
 
 ## Een uitkomst lezen
 
