@@ -1,0 +1,12 @@
+# DEF-522 synthetische AWS-fixture.
+#
+# Provenance: deze waarde is op 7 september 2026 offline zelf samengesteld, in
+# de wijziging die ook de bijbehorende allowlist toevoegde. Zij is niet bij een
+# provider opgevraagd en niet voor authenticatie gebruikt; er is geen
+# historische waarde hergebruikt.
+#
+# Doel: aantoonbaar maken dat de secret-gate exact dit pad en exact deze waarde
+# doorlaat, en elke afwijking in pad of inhoud blokkeert.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-07.
+AWS_ACCESS_KEY_ID = "AKIA3QK7XZ2MJ5R6W4TB"

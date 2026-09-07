@@ -1,6 +1,10 @@
 # Gitleaks Configuration for DefinitieAgent
-# Version: 8.25.0 (2025)
+# Version: 8.29.1 (gepinde broncommit fb5d707e08fe0d2578b155458fdd53b6782dcab2)
 # See: https://github.com/gitleaks/gitleaks
+#
+# DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
+# zijn vervallen. Er is nog precies één uitzondering, hieronder, en die geldt
+# alleen voor één exact pad in combinatie met één exacte waarde.
 
 title = "DefinitieAgent Secret Detection Configuration"
 
@@ -9,63 +13,40 @@ title = "DefinitieAgent Secret Detection Configuration"
 [extend]
 useDefault = true
 
-# Global allowlist (higher precedence than rule-specific)
+# De enige uitzondering. `condition = "AND"` betekent dat pad én waarde beide
+# moeten matchen: een uitzondering die naar een ander pad verhuist of waarvan de
+# inhoud verandert, geldt niet meer. Geen prefix, geen sleuteltype, geen map.
+#
+# `targetRules` is hier geen detail maar de voorwaarde waaronder die AND werkt.
+# Een globale allowlist met `paths` wordt in de gepinde bron toegepast als
+# pad-skip (`sources/common.go:37-52`, `shouldSkipPath` → `PathAllowed`): het
+# pad wordt overgeslagen vóórdat de inhoud wordt bekeken, en `condition` weegt
+# daar niet mee. Pas met `targetRules` hangt de uitzondering aan de regel zelf
+# (`config/config.go:233-240`), en daar eerbiedigt `detect.go` de AND-conditie
+# wel. Zonder die koppeling zou het pad alleen al een vrijbrief zijn en zou een
+# afwijkende waarde op dit pad stil passeren.
+#
+# Rationale: de waarde is in deze sessie offline zelf samengesteld, niet bij een
+# provider opgevraagd en niet voor authenticatie gebruikt; er is geen historische
+# waarde hergebruikt. De fixture bestaat om aantoonbaar te maken dat de gate
+# exact dit pad en exact deze waarde doorlaat.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-07.
+#
+# De regex staat hier als `AK[I]A...`: dat matcht exact dezelfde waarde, maar
+# houdt dit configbestand zelf vrij van een aaneengesloten sleutelvorm. Zonder
+# die schrijfwijze zou de gate haar eigen configuratie blokkeren — de
+# uitzondering geldt immers alleen voor het fixture-pad.
 [[allowlists]]
-description = "Ignore example keys and test fixtures"
-paths = [
-  '''tests/fixtures/.*''',
-  '''tests/data/.*''',
-  '''tests/security/.*''',
-  '''.*_test\.py''',
-  '''.*test_.*\.py''',
-  '''docs/examples/.*''',
-]
-regexes = [
-  '''sk-proj-EXAMPLE''',
-  '''AKIAIOSFODNN7EXAMPLE''',
-  '''ghp_EXAMPLE''',
-  '''sk-ant-api03-EXAMPLE''',
-]
-
-[[allowlists]]
-description = "Ignore README and documentation examples (including generated content)"
-paths = [
-  '''README\.md''',
-  '''CLAUDE\.md''',
-  '''docs/.*\.md''',
-  '''docs/analyses/.*''',
-  '''docs/archief/.*''',
-  '''docs/architectuur/.*''',
-  '''docs/portal/.*''',
-  '''scripts/test_.*''',
-]
-# Only allow example keys in docs that are clearly marked as examples
-regexes = [
-  '''sk-\.\.\.$''',
-  '''api_key.*example''',
-  '''<your-api-key>''',
-  '''YOUR_API_KEY''',
-  '''sk-[a-zA-Z0-9_-]{6,10}''', # Short example keys
-  '''redis://.*:6379''',        # Local Redis URLs in examples
-  '''OPENAI_API_KEY=\*\*\*''',  # Redacted keys in logs
-]
-
-[[allowlists]]
-description = "Ignore encrypted or hashed values"
-regexes = [
-  # Hashed values (SHA256, bcrypt, etc.)
-  '''\$2[ayb]\$.{56}''',
-  '''[a-fA-F0-9]{64}''', # SHA256 hex
-]
-
-[[allowlists]]
-description = "Ignore localhost connection strings in source code"
-paths = ['''src/.*/.*config.*\.py''', '''src/.*/.*settings.*\.py''']
-regexes = [
-  '''redis://localhost:6379''',
-  '''redis://REDACTED:6379''',
-  '''postgres://localhost''',
-]
+description = """DEF-522 synthetische AWS-fixture: uitsluitend het exacte pad \
+tests/fixtures/def522_synthetic_aws.txt in combinatie met de exacte waarde, in \
+deze sessie offline zelf samengesteld. Eigenaar Chris Lehnen (DEF-522); \
+herbeoordelen op 2026-12-07."""
+condition = "AND"
+targetRules = ["aws-access-token"]
+paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
+regexTarget = "secret"
+regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
 
 # Custom rules for project-specific patterns
 [[rules]]
@@ -91,14 +72,6 @@ regex = '''(?i)(api[_-]?key|secret|token|password)[\"'\s]*[:=][\"'\s]*([A-Za-z0-
 entropy = 4.5
 keywords = ["api", "key", "secret", "token", "password"]
 tags = ["generic-secret", "medium-risk"]
-
-# Rule-specific allowlist for generic pattern (reduce false positives)
-[[rules.allowlists]]
-description = "Ignore common non-secret patterns"
-regexes = [
-  '''(?i)api[_-]?key[\"'\s]*[:=][\"'\s]*(true|false|null|none|test|example)''',
-  '''(?i)password[\"'\s]*[:=][\"'\s]*(test|example|demo)''',
-]
 
 # Environment variable exposure
 [[rules]]
