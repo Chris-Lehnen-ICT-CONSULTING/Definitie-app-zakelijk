@@ -205,7 +205,7 @@ secret-scan: check-python
 		--timeout "$$SECRET_SCAN_TIMEOUT"
 
 test-secret-scan: check-python
-	@echo "[test-secret-scan] Verplichte echte canary-, gate-, entry- en ketentests (36 cases)"
+	@echo "[test-secret-scan] Verplichte echte canary-, gate-, entry- en ketentests"
 	@if [ -z "$$DEF522_GITLEAKS_BINARY" ] || [ -z "$$DEF522_FIXTURE_ROOT" ]; then \
 		echo "FOUT: DEF522_GITLEAKS_BINARY en DEF522_FIXTURE_ROOT zijn verplicht."; \
 		echo "Deze tests installeren niets en slaan zichzelf nooit over."; \

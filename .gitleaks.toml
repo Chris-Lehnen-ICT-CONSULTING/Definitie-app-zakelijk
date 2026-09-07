@@ -84,7 +84,7 @@ tags = ["env-file", "high-risk"]
 [[rules]]
 id = "database-connection-string"
 description = "Database connection string with credentials"
-regex = '''(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@[^/\s'"]+'''
+regex = '''(postgres|mysql|mongodb|redis)://[^:\r\n]+:[^@\r\n]+@[^/\s'"]+'''
 keywords = ["postgres", "mysql", "mongodb", "redis"]
 tags = ["database", "high-risk"]
 

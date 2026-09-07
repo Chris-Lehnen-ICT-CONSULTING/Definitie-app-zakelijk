@@ -184,3 +184,154 @@ def test_afwijkende_inhoud_op_exact_pad_blokkeert(
     assert resultaat.finding_count > 0, _diagnose(resultaat)
     assert resultaat.scanned_bytes > 0, _diagnose(resultaat)
     assert resultaat.exit_code != 0
+
+
+# --- Regressie: `database-connection-string` leest niet over een regeleinde ---
+#
+# De regel gebruikt genegeerde tekenklassen voor gebruikersnaam en wachtwoord. In
+# de regexp-engine van Go matcht zo'n klasse ook een regeleinde, en Gitleaks past
+# een regel toe op de hele bestandsinhoud. Een credentialvrije URI werd daardoor
+# samen met een dubbele punt en een apenstaartje op latere regels gelezen als
+# "gebruiker:wachtwoord@host".
+#
+# De grens ligt bij het regeleinde — LF én CR — en niet bij de URI-authority.
+# Binnen één regel blijft de regel bewust permissief: spatie, schuine streep,
+# vraagteken, hekje, dubbele punt en apostrof komen alle voor in wachtwoorden die
+# echte bibliotheken renderen of teruglezen.
+
+#: Bouwstenen. De verbindingsreeksen worden pas tijdens de run samengesteld,
+#: zodat dit bronbestand zelf geen aaneengesloten credential bevat.
+_DUBBELE_PUNT = ":"
+_APENSTAARTJE = "@"
+_SCHUINE_STREEP = "/"
+
+_DB_SCHEMAS = ("postgres", "mysql", "mongodb", "redis")
+_DB_HOST = "db.intern.invalid"
+_DB_BESTAND = "src/config/database_settings.py"
+_DB_GEBRUIKER = "def522_gebruiker"
+_DB_WACHTWOORD = "Zelfverzonnen1234"
+
+#: Vormen die binnen één regel toegestaan moeten blijven.
+_GEBRUIKER_PERCENT = "def522%40organisatie"
+_GEBRUIKER_SPATIE = "def522 gebruiker"
+_GEHEIM_PERCENT = "%2FZelfverzonnen9"
+_GEHEIM_DUBBELE_PUNT = f"Zelf{_DUBBELE_PUNT}verzonnen7"
+_GEHEIM_APOSTROF = "Zelf'verzonnen8"
+_GEHEIM_SPATIE = "Zelf verzonnen1"
+_GEHEIM_STREEP = f"Zelf{_SCHUINE_STREEP}verzonnen2"
+_GEHEIM_VRAAGTEKEN = "Zelf?verzonnen3"
+_GEHEIM_HEKJE = "Zelf#verzonnen4"
+
+#: Dezelfde host met en zonder poort; de poort brengt een extra dubbele punt mee.
+_DB_HOST_MET_POORT = f"{_DB_HOST}{_DUBBELE_PUNT}5432{_SCHUINE_STREEP}definities"
+_DB_HOST_ZONDER_POORT = f"{_DB_HOST}{_SCHUINE_STREEP}definities"
+
+#: (naam, host, regelscheiding) — LF en CR apart, want beide sluiten de match af.
+_VERSTROOIDE_GEVALLEN = [
+    ("met-poort-lf", _DB_HOST_MET_POORT, "\n"),
+    ("met-poort-cr", _DB_HOST_MET_POORT, "\r"),
+    ("zonder-poort-lf", _DB_HOST_ZONDER_POORT, "\n"),
+    ("zonder-poort-cr", _DB_HOST_ZONDER_POORT, "\r"),
+]
+
+#: (naam, schema, gebruiker, geheim) — twaalf vormen die moeten blijven blokkeren.
+_CREDENTIALVORMEN = [
+    *[(schema, schema, _DB_GEBRUIKER, _DB_WACHTWOORD) for schema in _DB_SCHEMAS],
+    ("percent-userinfo", "postgres", _GEBRUIKER_PERCENT, _GEHEIM_PERCENT),
+    ("dubbelepunt-wachtwoord", "postgres", _DB_GEBRUIKER, _GEHEIM_DUBBELE_PUNT),
+    ("apostrof-wachtwoord", "postgres", _DB_GEBRUIKER, _GEHEIM_APOSTROF),
+    ("spatie-gebruikersnaam", "postgres", _GEBRUIKER_SPATIE, _DB_WACHTWOORD),
+    ("spatie-wachtwoord", "postgres", _DB_GEBRUIKER, _GEHEIM_SPATIE),
+    ("streep-wachtwoord", "postgres", _DB_GEBRUIKER, _GEHEIM_STREEP),
+    ("vraagteken-wachtwoord", "postgres", _DB_GEBRUIKER, _GEHEIM_VRAAGTEKEN),
+    ("hekje-wachtwoord", "postgres", _DB_GEBRUIKER, _GEHEIM_HEKJE),
+]
+
+
+def _db_uri(schema: str, gebruiker: str, geheim: str, host: str) -> str:
+    """Stel een verbindingsreeks samen; lege `gebruiker` geeft een schone URI."""
+    userinfo = ""
+    if gebruiker:
+        userinfo = f"{gebruiker}{_DUBBELE_PUNT}{geheim}{_APENSTAARTJE}"
+    scheider = f"{_DUBBELE_PUNT}{_SCHUINE_STREEP}{_SCHUINE_STREEP}"
+    return f"{schema}{scheider}{userinfo}{host}"
+
+
+def _verstrooide_inhoud(host: str, scheiding: str) -> str:
+    """Credentialvrije URI, met losse tekst op volgende regels."""
+    uri = _db_uri("postgres", "", "", host)
+    return scheiding.join(
+        [
+            f'DATABASE_URL = "{uri}"',
+            "OPENINGSTIJDEN = {",
+            '    "start": "08:00",',
+            "}",
+            f'CONTACT = "beheer{_APENSTAARTJE}voorbeeld.invalid"',
+            "",
+        ]
+    )
+
+
+def _credential_inhoud(schema: str, gebruiker: str, geheim: str) -> str:
+    """Eén regel met een volledige, synthetische verbindingsreeks."""
+    return f'DATABASE_URL = "{_db_uri(schema, gebruiker, geheim, _DB_HOST)}"\n'
+
+
+@pytest.mark.parametrize(
+    ("naam", "host", "scheiding"),
+    _VERSTROOIDE_GEVALLEN,
+    ids=[geval[0] for geval in _VERSTROOIDE_GEVALLEN],
+)
+def test_credentialvrije_uri_met_latere_tekst_passeert(
+    omgeving: _Omgeving, projectconfig: Path, naam: str, host: str, scheiding: str
+) -> None:
+    """Binnen deze regel staat geen credential; latere regels horen er niet bij."""
+    directory = _scanmap(
+        omgeving, f"dburi-{naam}", _DB_BESTAND, _verstrooide_inhoud(host, scheiding)
+    )
+
+    resultaat = _scan(omgeving, directory, projectconfig)
+
+    assert resultaat.status is secret_scan.ScanStatus.CLEAN, (
+        f"{_diagnose(resultaat)} — deze verbindingsreeks bevat geen inloggegevens "
+        "en het apenstaartje staat op een latere regel. Een blokkade betekent dat "
+        "er over het regeleinde heen wordt doorgelezen."
+    )
+    assert resultaat.code is secret_scan.ScanErrorCode.OK, _diagnose(resultaat)
+    assert resultaat.finding_count == 0
+    assert resultaat.scanned_bytes > 0, _diagnose(resultaat)
+    assert resultaat.exit_code == 0
+
+
+@pytest.mark.parametrize(
+    ("naam", "schema", "gebruiker", "geheim"),
+    _CREDENTIALVORMEN,
+    ids=[vorm[0] for vorm in _CREDENTIALVORMEN],
+)
+def test_credentialvorm_blijft_blokkeren(
+    omgeving: _Omgeving,
+    projectconfig: Path,
+    naam: str,
+    schema: str,
+    gebruiker: str,
+    geheim: str,
+) -> None:
+    """Elke vorm binnen één regel moet geblokkeerd blijven."""
+    directory = _scanmap(
+        omgeving,
+        f"dbcred-{naam}",
+        _DB_BESTAND,
+        _credential_inhoud(schema, gebruiker, geheim),
+    )
+
+    resultaat = _scan(omgeving, directory, projectconfig)
+
+    assert resultaat.status is secret_scan.ScanStatus.BLOCKED, (
+        f"{_diagnose(resultaat)} — deze credential-vorm wordt niet geblokkeerd. "
+        "Binnen één regel hoort de regel permissief te blijven; dit is een "
+        "dekkingsgat."
+    )
+    assert resultaat.code is secret_scan.ScanErrorCode.FINDINGS_PRESENT
+    assert resultaat.finding_count > 0, _diagnose(resultaat)
+    assert resultaat.scanned_bytes > 0, _diagnose(resultaat)
+    assert resultaat.exit_code != 0
