@@ -111,26 +111,81 @@ def render_ai_provider_sidebar() -> None:
             st.warning(f"Geen API key voor {active_config['label']}")
 
 
+def _refresh_ai_services() -> None:
+    """Herlaad de config en verwijder elke cache die de oude AI-client vasthoudt.
+
+    DEF-730 — kritiek pad. Deze drie stappen bepalen samen welke AI-client de sessie
+    krijgt, dus fouten worden hier niet opgevangen maar doorgegeven aan de aanroeper:
+
+    1. `reload_config()` — de ConfigManager is een proces-singleton die provider en
+       AI-sleutel eenmalig uit config.yaml + env leest.
+    2. `reset_container()` — reset de container en zijn singleton-cache.
+    3. `clear_service_cache()` — de container in de Streamlit-sessie overleeft
+       `reset_container()` en zou anders de oude client blijven serveren.
+    4. `reset_service_adapter_cache()` — de ServiceAdapter die het generatiepad
+       gebruikt bevriest container én orchestrator, en daarmee de oude AI-client.
+    """
+    from config.config_manager import reload_config
+    from services.container import reset_container
+    from services.service_factory import reset_service_adapter_cache
+    from ui.cached_services import clear_service_cache
+
+    reload_config()
+    reset_container()
+    clear_service_cache()
+    reset_service_adapter_cache()
+
+
+def _restore_env(vorige_env: dict[str, str | None]) -> None:
+    """Zet de omgevingsvariabelen terug naar hun waarde van vóór de wissel."""
+    for naam, waarde in vorige_env.items():
+        if waarde is None:
+            os.environ.pop(naam, None)
+        else:
+            os.environ[naam] = waarde
+
+
 def _apply_provider_change(provider: str, api_key: str) -> None:
-    """Apply provider/key change: set env vars, reset container, rerun."""
+    """Apply provider/key change: set env vars, refresh AI services, rerun."""
     provider_config = _PROVIDERS[provider]
+    env_key_name = provider_config["env_key"]
+
+    # DEF-730: bewaar de nog geldende omgeving. Faalt de refresh, dan wordt de
+    # wijziging volledig teruggedraaid. Zou de nieuwe sleutel in de env blijven
+    # staan terwijl de config-singleton de oude houdt, dan ziet de detectie in
+    # render_ai_provider_sidebar geen openstaande wissel meer en draait de app bij
+    # de volgende rerun stilzwijgend door op de oude sleutel.
+    vorige_env: dict[str, str | None] = {
+        "AI_PROVIDER": os.environ.get("AI_PROVIDER"),
+        env_key_name: os.environ.get(env_key_name),
+    }
 
     # Set provider env var
     os.environ["AI_PROVIDER"] = provider
 
     # Set API key env var for the selected provider
     if api_key:
-        os.environ[provider_config["env_key"]] = api_key
+        os.environ[env_key_name] = api_key
 
     logger.info("AI provider changed to: %s", provider)
 
-    # Reset the service container so it picks up new config
     try:
-        from services.container import reset_container
-
-        reset_container()
+        _refresh_ai_services()
     except Exception:
-        logger.warning("Container reset failed during provider change", exc_info=True)
+        # DEF-730: bewust een vaste melding, zonder exception-tekst en zonder
+        # exc_info. De opgevangen fout komt uit config- of SDK-lagen die de
+        # API-sleutel in hun boodschap kunnen meedragen.
+        logger.error("AI provider change failed: kon AI-services niet verversen")
+        _restore_env(vorige_env)
+        st.error(
+            "De AI-configuratie kon niet ververst worden. De wijziging is "
+            "teruggedraaid en niet actief — probeer het opnieuw."
+        )
+        # Breekt de scriptrun af: de rest van de pagina mag niet met de oude
+        # client verder. De teruggedraaide env houdt de wissel openstaand, dus de
+        # volgende rerun probeert het opnieuw in plaats van stil door te gaan.
+        st.stop()
+        return
 
     # DEF-314: Reset examples generator so it picks up new provider
     try:
@@ -140,13 +195,11 @@ def _apply_provider_change(provider: str, api_key: str) -> None:
     except Exception:
         logger.debug("Could not reset examples generator", exc_info=True)
 
-    # Clear the cached TabbedInterface so it gets a fresh container
-    try:
-        from main import get_tabbed_interface
-
-        get_tabbed_interface.clear()
-    except Exception:
-        logger.debug("Could not clear interface cache", exc_info=True)
+    # DEF-730: de TabbedInterface-cache wordt hier niet meer geleegd. Die hing aan
+    # `import main`, terwijl Streamlit het entrypoint als `__main__` draait: dat
+    # levert een tweede module-object, dus geleegd werd hooguit de verkeerde cache.
+    # De interface hangt nu aan de identiteit van de container (zie
+    # main.get_tabbed_interface) en ververst dus vanzelf zodra de container dat doet.
 
     # Rerun to apply changes
     st.rerun()
