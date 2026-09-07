@@ -53,8 +53,8 @@ st.set_page_config(
 )
 
 
-@st.cache_resource
-def get_tabbed_interface() -> TabbedInterface:
+@st.cache_resource(max_entries=1)
+def _build_tabbed_interface(container_id: str) -> TabbedInterface:
     """
     Cached TabbedInterface instance (reused across reruns).
 
@@ -63,6 +63,10 @@ def get_tabbed_interface() -> TabbedInterface:
 
     IMPORTANT: TabbedInterface must be stateless (no session-specific state stored).
     All session state is passed as parameters to render() methods.
+
+    Args:
+        container_id: Identiteit van de ServiceContainer waarvoor de interface
+            gebouwd wordt. Dit is de cache-sleutel — zie `get_tabbed_interface`.
 
     Returns:
         TabbedInterface: Cached singleton instance
@@ -76,6 +80,25 @@ def get_tabbed_interface() -> TabbedInterface:
         "🔄 Cold start: TabbedInterface initialization (expected once per session)"
     )
     return TabbedInterface()
+
+
+def get_tabbed_interface() -> TabbedInterface:
+    """Geef de interface voor de actuele ServiceContainer.
+
+    DEF-730: `TabbedInterface` bewaart bij initialisatie de container en de
+    definition-service, en daarmee de AI-client met de sleutel van dat moment. De
+    cache hangt daarom aan de identiteit van de container: is die na een
+    provider-/sleutelwissel ververst, dan mist de cache en komt er een verse
+    interface.
+
+    Dat maakt de verversing onafhankelijk van module-identiteit. Streamlit draait
+    het entrypoint als `__main__`, dus een `import main` elders in de app levert een
+    tweede module-object met een eigen cache-object; die leegmaken raakt de
+    draaiende interface niet.
+    """
+    from utils.container_manager import get_cached_container
+
+    return _build_tabbed_interface(get_cached_container().get_container_id())
 
 
 def main() -> None:

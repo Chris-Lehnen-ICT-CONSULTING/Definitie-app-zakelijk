@@ -826,19 +826,32 @@ def get_definition_service() -> "ServiceAdapter":
     Feature toggles should be handled in UI layer only.
     """
     # V2 only - no legacy fallback - singleton container only
-    is_pytest = os.getenv("PYTEST_CURRENT_TEST") is not None
-
-    # Single cache key since we only use singleton container now
-    key = "singleton"
-    if not is_pytest:
-        cached = safe_dict_get(_SERVICE_ADAPTER_CACHE, key)
-        if cached is not None:
-            return cast("ServiceAdapter", cached)
-
     # Get singleton container directly (no config parameter)
     container = get_cached_container()
 
+    # DEF-730: de adaptercache is gesleuteld op de identiteit van de container.
+    # De adapter bevriest container en orchestrator, en daarmee de AI-client met de
+    # sleutel van dat moment. Een vaste sleutel ("singleton") gaf na een
+    # provider-/sleutelwissel de oude adapter terug, ook al was de container ververst.
+    # De containeridentiteit is een intern id, nooit sleutelmateriaal.
+    key = container.get_container_id()
+    cached = safe_dict_get(_SERVICE_ADAPTER_CACHE, key)
+    if cached is not None:
+        return cast("ServiceAdapter", cached)
+
     adapter = ServiceAdapter(container)
-    if not is_pytest:
-        _SERVICE_ADAPTER_CACHE[key] = adapter
+    # Alleen de actuele container houdt een adapter: adapters van vervangen
+    # containers blijven niet bereikbaar en de cache groeit niet mee met het aantal
+    # wissels.
+    _SERVICE_ADAPTER_CACHE.clear()
+    _SERVICE_ADAPTER_CACHE[key] = adapter
     return adapter
+
+
+def reset_service_adapter_cache() -> None:
+    """Maak elke gecachede ServiceAdapter ongeldig (DEF-730).
+
+    Onderdeel van het kritieke refreshpad bij een provider-/sleutelwissel: de
+    adapter houdt de orchestrator en daarmee de AI-client van de oude sleutel vast.
+    """
+    _SERVICE_ADAPTER_CACHE.clear()
