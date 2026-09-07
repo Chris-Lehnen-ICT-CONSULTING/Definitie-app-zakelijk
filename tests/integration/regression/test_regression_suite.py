@@ -29,6 +29,7 @@ import sys
 import tempfile
 import time
 import unittest
+import uuid
 from pathlib import Path
 from typing import Any, Optional
 from unittest.mock import MagicMock, Mock, patch
@@ -940,10 +941,19 @@ class TestCoreFunctionality(unittest.TestCase):
                 )
 
         class ContainerDubbel:
-            """Levert precies wat `ServiceAdapter.__init__` opvraagt."""
+            """Levert precies wat `ServiceAdapter.__init__` en de factory opvragen."""
 
             def __init__(self, orchestrator: OrchestratorDubbel) -> None:
                 self._orchestrator = orchestrator
+                # DEF-730: de adaptercache van `get_definition_service()` sleutelt op
+                # de containeridentiteit. Deze dubbel volgt daarin het contract van de
+                # echte ServiceContainer: één keer bepaald bij constructie (stabiel
+                # binnen de instantie) en uniek per instantie, zodat een verse
+                # container nooit de adapter van een oude uit de cache trekt.
+                self._container_id = uuid.uuid4().hex[:8]
+
+            def get_container_id(self) -> str:
+                return self._container_id
 
             def orchestrator(self) -> OrchestratorDubbel:
                 return self._orchestrator
