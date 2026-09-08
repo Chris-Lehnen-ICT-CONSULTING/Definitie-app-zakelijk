@@ -22,16 +22,28 @@ from utils.cache import cached, clear_cache, configure_cache
 pytestmark = [pytest.mark.unit]
 
 
+#: Duidelijk synthetisch; geen echte sleutel (DEF-732).
+DUMMY_HMAC_KEY = "def732-dummy-hmac-key-geen-echt-geheim"
+
+
 @pytest.fixture(autouse=True)
-def _clean_cache():
+def _clean_cache(tmp_path, monkeypatch):
     """
     Auto-cleanup cache before/after each test to prevent test pollution.
 
-    Resets global cache to default configuration and clears all cached data.
+    Resets global cache to an isolated configuration and clears all cached data.
     This prevents comprehensive cache tests from polluting concurrency tests.
+
+    DEF-732: de cachemap staat in ``tmp_path`` en de HMAC-sleutel is een
+    expliciete dummy, zodat deze suite geen ``cache/``-map naast de werkmap
+    aanmaakt en geen sleutelbestand achterlaat. Scope en assertions blijven
+    ongewijzigd.
     """
-    # Reset to default cache configuration
-    configure_cache(enable_cache=True, cache_dir="cache", default_ttl=3600)
+    monkeypatch.setenv("CACHE_HMAC_KEY", DUMMY_HMAC_KEY)
+    # Reset to isolated cache configuration
+    configure_cache(
+        enable_cache=True, cache_dir=str(tmp_path / "cache"), default_ttl=3600
+    )
     clear_cache()  # Clean before test
     yield
     clear_cache()  # Clean after test
