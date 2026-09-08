@@ -488,6 +488,7 @@ class ConfigManager:
 
     def _load_from_yaml(self) -> None:
         """Load configuration from single config.yaml file."""
+        self._model_routing_config: dict[str, Any] = {}
         try:
             # Load single production config
             if self.config_file.exists():
@@ -569,7 +570,9 @@ class ConfigManager:
         for section_name, section_config in config_dict.items():
             if section_name == "model_routing":
                 # DEF-314: Store model_routing config for ModelRouter
-                self._model_routing_config = section_config
+                self._model_routing_config = (
+                    section_config if isinstance(section_config, dict) else {}
+                )
             elif section_name == "ai_components":
                 # Deprecated: Speciale behandeling voor ai_components
                 self.ai_components = section_config
@@ -676,6 +679,8 @@ class ConfigManager:
             "resilience": self._dataclass_to_dict(self.resilience),
             "security": self._dataclass_to_dict(self.security),
         }
+        if self._model_routing_config:
+            config_dict["model_routing"] = self._model_routing_config
 
         try:
             self.config_file.parent.mkdir(parents=True, exist_ok=True)

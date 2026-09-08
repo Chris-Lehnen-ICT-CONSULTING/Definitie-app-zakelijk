@@ -7,7 +7,7 @@ Wraps the Anthropic SDK and maps its errors to provider-agnostic types.
 from __future__ import annotations
 
 import logging
-from typing import Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import anthropic
 from anthropic import AsyncAnthropic
@@ -23,52 +23,38 @@ from services.ai.base_client import (
     sanitize_error,
 )
 
+if TYPE_CHECKING:
+    from services.ai.model_router import ModelRouter
+
 logger = logging.getLogger(__name__)
 
-# DEF-441: sampling-params zijn verwijderd op Opus 4.7+, Sonnet 5 en
-# Fable/Mythos 5 — meesturen geeft een 400 ("`temperature` is deprecated
-# for this model"). Deze client kent alleen `temperature` (top_p/top_k
-# zitten niet in de signature). Allowlist van families die de parameter
-# nog accepteren; elk ander (nieuw) model krijgt hem niet mee — weglaten
-# is altijd geldig, dus fail-safe voor model-bumps. "claude-3" dekt
-# bewust de hele 3.x-familie. Let op: modelselectie zelf woont in
-# ModelRouter; een modelbump raakt dus mogelijk óók deze lijst.
-_TEMPERATURE_MODEL_FAMILIES = (
-    "claude-3",
-    "opus-4-0",
-    "opus-4-1",
-    "opus-4-5",
-    "opus-4-6",
-    "sonnet-4",
-    "haiku-3",
-    "haiku-4",
-)
-
-
-def _accepts_temperature(model: str) -> bool:
-    """Accepteert dit model de temperature-parameter nog?"""
-    model_lc = model.lower()
-    for family in _TEMPERATURE_MODEL_FAMILIES:
-        start = model_lc.find(family)
-        if start == -1:
-            continue
-        # Grens-check: "opus-4-1" mag niet matchen binnen "opus-4-10" —
-        # na de familie mag geen cijfer volgen (wel "-", "@" of einde).
-        end = start + len(family)
-        if end == len(model_lc) or not model_lc[end].isdigit():
-            return True
-    return False
+# DEF-441/DEF-731: `temperature` gaat alleen mee naar modelfamilies die in de
+# configuratie staan onder
+# `model_routing.capabilities.<provider>.temperature.model_families`.
+# Dat is een geconfigureerde legacy-verzendpolicy, geen uitspraak over
+# modelbeschikbaarheid: de bron meldt dat niet-standaard sampling-waarden voor
+# specifieke, daar genoemde modellen worden afgewezen — niet dat elke vermelding
+# altijd een 400 geeft. Deze client kent alleen `temperature` (top_p/top_k zitten
+# niet in de signature). Onbekend, ontbrekend of malformed beleid -> parameter
+# weglaten (fail-safe voor model-bumps).
 
 
 class AnthropicClient:
     """AsyncAIClient implementation backed by the Anthropic SDK."""
 
     def __init__(
-        self, api_key: str, timeout: float = 30.0, max_retries: int = 2
+        self,
+        api_key: str,
+        timeout: float = 30.0,
+        max_retries: int = 2,
+        model_router: ModelRouter | None = None,
     ) -> None:
         # DEF-566: max_retries gaat 1-op-1 naar de SDK (default 2 = SDK-default);
         # CI-testruns zetten 0 via create_ai_client om retry-stapeling te stoppen.
         self._timeout = timeout
+        # DEF-731: optionele injectie; is hij None, dan leest de client de
+        # policy per aanroep uit de actieve config (zie `_router`).
+        self._model_router = model_router
         self._client = AsyncAnthropic(
             api_key=api_key, timeout=timeout, max_retries=max_retries
         )
@@ -76,6 +62,21 @@ class AnthropicClient:
     @property
     def provider_name(self) -> str:
         return "anthropic"
+
+    @property
+    def _router(self) -> ModelRouter:
+        """Router voor de capability-policy.
+
+        Bewust geen cache in het productiepad: de policy wordt per aanroep uit
+        de actieve config gelezen, zodat een reload_configuration() ook
+        doorwerkt op een client die al in gebruik is (DEF-731/F1). Een
+        expliciet geinjecteerde router blijft wel vast: die is de autoriteit.
+        """
+        if self._model_router is not None:
+            return self._model_router
+        from services.ai.model_router import ModelRouter
+
+        return ModelRouter.from_config()
 
     async def chat_completion(
         self,
@@ -116,12 +117,12 @@ class AnthropicClient:
                 )
 
         temperature_param: float | anthropic.Omit = anthropic.omit
-        if _accepts_temperature(model):
+        if self._router.accepts_temperature(model, provider=self.provider_name):
             temperature_param = temperature
         else:
             logger.debug(
                 "temperature weggelaten voor model %s "
-                "(sampling-params verwijderd op Opus 4.7+/Sonnet 5/Fable 5, DEF-441)",
+                "(niet in model_routing.capabilities.<provider>.temperature, DEF-441/DEF-731)",
                 model,
             )
 
