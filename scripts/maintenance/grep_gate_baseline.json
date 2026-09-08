@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "rule": "context-str",
+      "path": "src/services/classification/ontological_classifier.py",
+      "line": 124,
+      "text": "        organisatorische_context: str | None = None,",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/classification/ontological_classifier.py",
+      "line": 125,
+      "text": "        juridische_context: str | None = None,",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/definition_generator_enhancement.py",
+      "line": 216,
+      "text": "    def _integrate_context(self, text: str, context: str) -> str:",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/interfaces.py",
+      "line": 195,
+      "text": "    context: str | None = None  # Contextuele informatie (legacy)",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/interfaces.py",
+      "line": 219,
+      "text": "    document_context: str | None = None",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/interfaces.py",
+      "line": 688,
+      "text": "    context: str | None = None",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/interfaces.py",
+      "line": 702,
+      "text": "    context: str | None = None",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/interfaces.py",
+      "line": 714,
+      "text": "    context: str",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/modern_web_lookup_service.py",
+      "line": 197,
+      "text": "        self, context: str | None",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/rag/rag_service.py",
+      "line": 37,
+      "text": "    formatted_context: str",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/service_factory.py",
+      "line": 801,
+      "text": "        self, begrip: str, context: str | dict | None = None, **kwargs: Any",
+      "count": 1
+    }
+  ]
+}

@@ -695,8 +695,37 @@ CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 #: de artefacten van `test.yml` niet worden overschreven.
 CI_ARTEFACTNAAM = "acceptance-gate-results"
 
-#: `make <doel>` in een runveld. Alleen de canonieke gatedoelen tellen.
-_MAKE_DOEL = re.compile(r"\bmake\s+(test-[a-z-]+)\b")
+#: De Make-doelen die werkelijk een bewaakt profiel via `run_profile.py`
+#: draaien, inclusief de twee gedocumenteerde aliassen. Een doel dat hier niet
+#: in staat is geen profielgate: `test-tool-gates` bijvoorbeeld draait de vaste
+#: unittest-suites van de toolgates, en `test-markers-check` en `grep-check`
+#: zijn eveneens nevendoelen. De lijst is expliciet in plaats van een patroon,
+#: zodat een stille overstap naar `test-unit` of `test-integration` nog steeds
+#: als canonieke gate wordt herkend en daarna op het exacte doel afketst.
+CANONIEKE_GATEDOELEN = frozenset(
+    {
+        "test",
+        "test-unit",
+        "test-integration",
+        "test-acceptance",
+        "test-smoke",
+        "test-contract",
+        "test-cov",
+        "test-cov-ci",
+    }
+)
+
+#: `make <doel>` in een runveld. Het doel wordt als volledig token gelezen, dus
+#: `make test-tool-gates` levert `test-tool-gates` op en nooit een kortere
+#: voorvoegselvorm.
+_MAKE_DOEL = re.compile(r"\bmake\s+([A-Za-z0-9][A-Za-z0-9-]*)")
+
+
+def _canonieke_doelen(runveld: str) -> list[str]:
+    """De canonieke gatedoelen in één runveld; nevendoelen vallen af."""
+    return [
+        doel for doel in _MAKE_DOEL.findall(runveld) if doel in CANONIEKE_GATEDOELEN
+    ]
 
 
 def _ci_stappen() -> list[dict]:
@@ -719,7 +748,7 @@ def _ci_gatestap() -> dict:
     stappen = [
         stap
         for stap in _ci_stappen()
-        if isinstance(stap.get("run"), str) and _MAKE_DOEL.search(stap["run"])
+        if isinstance(stap.get("run"), str) and _canonieke_doelen(stap["run"])
     ]
     assert stappen, (
         "geen enkele stap in de tests-job draait een canoniek make-gatedoel; "
@@ -737,7 +766,9 @@ def _ci_gate_doel() -> str:
     # Onvoorwaardelijk en blokkerend: geen `if:` en geen continue-on-error.
     assert "if" not in stap, stap
     assert stap.get("continue-on-error") in (None, False), stap
-    return _MAKE_DOEL.search(commando).group(1)
+    doelen = _canonieke_doelen(commando)
+    assert len(doelen) == 1, doelen
+    return doelen[0]
 
 
 def _ci_artefactstap() -> dict:
@@ -795,6 +826,96 @@ def test_contractlezer_wijst_stapnaam_zonder_echt_commando_af(tmp_path, monkeypa
     monkeypatch.setattr(sys.modules[__name__], "CI_WORKFLOW", variant)
 
     with pytest.raises(AssertionError, match="make-gatedoel"):
+        _ci_gate_doel()
+
+
+#: Sjabloon voor synthetische workflowvarianten. Alleen de stappen verschillen;
+#: de uploadstap blijft staan zodat de rest van het contract ongewijzigd is.
+CI_VARIANT_SJABLOON = """name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+{stappen}
+      - name: Archive acceptance gate results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: acceptance-gate-results
+          path: |
+            reports/gates/
+"""
+
+NEVENDOELEN = (
+    ("Grep Gate", "make grep-check"),
+    ("Toolgate-tests", "make test-tool-gates"),
+)
+ACCEPTANCESTAP = ("Acceptance/smoke gate", "make test-acceptance")
+
+
+def _ci_variant(
+    tmp_path: Path, naam: str, stappen: tuple[tuple[str, str], ...]
+) -> Path:
+    blok = "".join(
+        f"      - name: {stapnaam}\n        run: {commando}\n"
+        for stapnaam, commando in stappen
+    )
+    pad = tmp_path / f"ci-{naam}.yml"
+    pad.write_text(CI_VARIANT_SJABLOON.format(stappen=blok), encoding="utf-8")
+    return pad
+
+
+@pytest.mark.parametrize(
+    ("naam", "stappen", "verwacht", "foutpatroon"),
+    [
+        (
+            "nevendoelen-naast-de-gate",
+            (*NEVENDOELEN, ACCEPTANCESTAP),
+            "test-acceptance",
+            None,
+        ),
+        (
+            "verkeerd-canoniek-doel",
+            (*NEVENDOELEN, ("Unitgate", "make test-unit")),
+            None,
+            "make test-unit",
+        ),
+        (
+            "twee-canonieke-stappen",
+            (ACCEPTANCESTAP, ("Unitgate", "make test-unit")),
+            None,
+            "meer dan één gatestap",
+        ),
+        ("alleen-nevendoelen", NEVENDOELEN, None, "make-gatedoel"),
+    ],
+)
+def test_selector_onderscheidt_canonieke_gate_van_nevendoelen(
+    tmp_path, monkeypatch, naam, stappen, verwacht, foutpatroon
+):
+    """De selector mag alleen echte profielgates als canonieke stap tellen.
+
+    `make test-tool-gates` en `make grep-check` draaien geen bewaakt profiel en
+    horen de gatestap dus niet te verdringen — dat is precies wat het te brede
+    patroon `test-[a-z-]+` wél deed. Tegelijk moet een stille overstap naar een
+    ánder canoniek doel nog steeds worden herkend en afgewezen, en blijven twee
+    canonieke stappen verboden.
+
+    De varianten leven alleen in `tmp_path`; er wordt niets uitgevoerd.
+    """
+    monkeypatch.setattr(
+        sys.modules[__name__], "CI_WORKFLOW", _ci_variant(tmp_path, naam, stappen)
+    )
+
+    if verwacht is not None:
+        assert _ci_gate_doel() == verwacht
+        return
+    with pytest.raises(AssertionError, match=foutpatroon):
         _ci_gate_doel()
 
 

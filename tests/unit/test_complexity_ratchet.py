@@ -48,25 +48,73 @@ class TestBaselineIO:
         with pytest.raises(SystemExit):
             cr.read_baseline(path)
 
+    @pytest.mark.parametrize("inhoud", ["-3", "", "1.5"])
+    def test_read_rejects_non_natural_numbers(self, tmp_path, inhoud):
+        path = tmp_path / "baseline.txt"
+        path.write_text(inhoud, encoding="utf-8")
+        with pytest.raises(SystemExit):
+            cr.read_baseline(path)
+
+
+#: Bestaat in deze repo en ligt binnen de gemeten scope; de gate valideert de
+#: gerapporteerde bestandsnamen tegen de werkelijke selectie.
+_GESELECTEERD = "src/main.py"
+
+
+def _bevinding(code: str, bestand: str = _GESELECTEERD) -> dict:
+    return {"code": code, "filename": bestand}
+
 
 class TestCountViolations:
     """count_violations parses ruff JSON and fails cleanly on ruff errors.
 
-    The ruff subprocess is mocked so these stay deterministic and independent of
-    the installed ruff version (the real count is enforced by the pinned CI gate).
+    De ruff-subprocessen zijn nagemaakt zodat deze tests deterministisch blijven
+    en niet afhangen van de geïnstalleerde ruff-versie (de echte telling wordt
+    afgedwongen door de gepinde CI-gate). De mock onderscheidt bewust de drie
+    fasen — versie, selectie en de eigenlijke controle — omdat de gate die alle
+    drie met dezelfde root en optieset uitvoert.
     """
 
-    def _mock_run(self, monkeypatch, *, returncode, stdout, stderr=""):
-        monkeypatch.setattr(
-            cr.subprocess,
-            "run",
-            lambda *a, **k: SimpleNamespace(
-                returncode=returncode, stdout=stdout, stderr=stderr
-            ),
-        )
+    def _mock_run(
+        self,
+        monkeypatch,
+        *,
+        returncode,
+        stdout,
+        selectie=(_GESELECTEERD,),
+        versie=b"ruff 0.15.17\n",
+    ):
+        aanroepen: list[list[str]] = []
+
+        def run(cmd, *args, **kwargs):
+            argv = list(cmd)
+            aanroepen.append(argv)
+            if "--version" in argv:
+                return SimpleNamespace(returncode=0, stdout=versie, stderr=b"")
+            if "--show-files" in argv:
+                opsomming = "".join(f"{pad}\n" for pad in selectie).encode()
+                return SimpleNamespace(returncode=0, stdout=opsomming, stderr=b"")
+            return SimpleNamespace(returncode=returncode, stdout=stdout, stderr=b"")
+
+        monkeypatch.setattr(cr.subprocess, "run", run)
+        return aanroepen
+
+    def test_every_phase_runs_isolated(self, monkeypatch):
+        # `-I` houdt PYTHONPATH en de werkmap uit sys.path van de child, zodat
+        # een `ruff`-pakket naast de code de echte tool niet kan overschaduwen.
+        aanroepen = self._mock_run(monkeypatch, returncode=0, stdout=b"[]")
+        cr.count_violations()
+
+        assert aanroepen, "er moet werkelijk een tool zijn aangeroepen"
+        for argv in aanroepen:
+            assert argv[:5] == [sys.executable, "-I", "-B", "-m", "ruff"], argv
+        assert any("--version" in argv for argv in aanroepen), aanroepen
+        assert any("--show-files" in argv for argv in aanroepen), aanroepen
 
     def test_parses_counts_per_code(self, monkeypatch):
-        payload = json.dumps([{"code": "C901"}, {"code": "C901"}, {"code": "PLR0912"}])
+        payload = json.dumps(
+            [_bevinding("C901"), _bevinding("C901"), _bevinding("PLR0912")]
+        ).encode()
         self._mock_run(monkeypatch, returncode=1, stdout=payload)
         total, per_code = cr.count_violations()
         assert total == 3
@@ -74,16 +122,65 @@ class TestCountViolations:
         assert per_code["PLR0912"] == 1
 
     def test_no_violations_returns_zero(self, monkeypatch):
-        self._mock_run(monkeypatch, returncode=0, stdout="[]")
+        self._mock_run(monkeypatch, returncode=0, stdout=b"[]")
         assert cr.count_violations() == (0, Counter())
 
     def test_ruff_failure_exits(self, monkeypatch):
-        self._mock_run(monkeypatch, returncode=2, stdout="", stderr="bad config")
+        self._mock_run(monkeypatch, returncode=2, stdout=b"")
+        with pytest.raises(SystemExit):
+            cr.count_violations()
+
+    def test_signal_death_exits(self, monkeypatch):
+        # Een door een signaal afgebroken ruff meldt een negatieve status; die
+        # mag nooit als "nul bevindingen" doorgaan.
+        self._mock_run(monkeypatch, returncode=-9, stdout=b"[]")
         with pytest.raises(SystemExit):
             cr.count_violations()
 
     def test_invalid_json_exits(self, monkeypatch):
-        self._mock_run(monkeypatch, returncode=1, stdout="not json at all")
+        self._mock_run(monkeypatch, returncode=1, stdout=b"not json at all")
+        with pytest.raises(SystemExit):
+            cr.count_violations()
+
+    def test_empty_selection_exits(self, monkeypatch):
+        self._mock_run(monkeypatch, returncode=0, stdout=b"[]", selectie=())
+        with pytest.raises(SystemExit):
+            cr.count_violations()
+
+    def test_invalid_version_line_exits(self, monkeypatch):
+        self._mock_run(monkeypatch, returncode=0, stdout=b"[]", versie=b"niet-ruff\n")
+        with pytest.raises(SystemExit):
+            cr.count_violations()
+
+    @pytest.mark.parametrize(
+        ("returncode", "stdout"),
+        [
+            (0, json.dumps([_bevinding("C901")]).encode()),
+            (1, b"[]"),
+        ],
+    )
+    def test_status_and_results_must_agree(self, monkeypatch, returncode, stdout):
+        self._mock_run(monkeypatch, returncode=returncode, stdout=stdout)
+        with pytest.raises(SystemExit):
+            cr.count_violations()
+
+    @pytest.mark.parametrize(
+        "record",
+        [
+            {"filename": _GESELECTEERD},
+            {"code": "E501", "filename": _GESELECTEERD},
+            {"code": "C901"},
+            {"code": "C901", "filename": "src/bestaat_niet.py"},
+            "geen dict",
+        ],
+    )
+    def test_invalid_result_records_exit(self, monkeypatch, record):
+        self._mock_run(monkeypatch, returncode=1, stdout=json.dumps([record]).encode())
+        with pytest.raises(SystemExit):
+            cr.count_violations()
+
+    def test_non_list_report_exits(self, monkeypatch):
+        self._mock_run(monkeypatch, returncode=1, stdout=b'{"results": []}')
         with pytest.raises(SystemExit):
             cr.count_violations()
 
