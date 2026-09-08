@@ -172,3 +172,40 @@ class ModelRouter:
             model: dict(prices)
             for model, prices in self._config.get("pricing", {}).items()
         }
+
+    # --- DEF-731: capability-policy (temperature) --------------------------
+    # De familielijst staat in config.yaml onder
+    # ``model_routing.capabilities.<provider>.temperature.model_families``
+    # en wordt hier alleen gelezen, niet gedupliceerd. Onbekend, ontbrekend of
+    # malformed beleid schakelt de parameter nooit in.
+
+    def _temperature_families(self, provider: str) -> tuple[str, ...]:
+        """Geconfigureerde families voor deze provider; fail-safe leeg."""
+        node: Any = self._config.get("capabilities")
+        for key in (provider, "temperature", "model_families"):
+            if not isinstance(node, dict):
+                return ()
+            node = node.get(key)
+        # Een kale string zou per karakter matchen -> expliciet weigeren.
+        if not isinstance(node, list):
+            return ()
+        return tuple(f.lower() for f in node if isinstance(f, str) and f)
+
+    def accepts_temperature(self, model: str, provider: str | None = None) -> bool:
+        """Mag ``temperature`` mee voor dit model bij deze provider?
+
+        Substring-match op familie met numerieke grens: ``opus-4-1`` mag niet
+        matchen binnen ``opus-4-10`` (DEF-441, review #351).
+        """
+        if not isinstance(model, str) or not model:
+            return False
+        families = self._temperature_families(provider or self.active_provider)
+        model_lc = model.lower()
+        for family in families:
+            start = model_lc.find(family)
+            if start == -1:
+                continue
+            end = start + len(family)
+            if end == len(model_lc) or not model_lc[end].isdigit():
+                return True
+        return False

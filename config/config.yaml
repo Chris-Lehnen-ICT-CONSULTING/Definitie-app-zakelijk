@@ -212,3 +212,33 @@ validation:
   max_validation_errors: 5
   min_definition_length: 10
   strict_mode: true
+
+# DEF-731: machineleesbare capability-policy voor de AI-clients.
+#
+# Dit is de GECONFIGUREERDE temperature-verzendpolicy (legacycontract DEF-441):
+# per provider de modelfamilies waarvoor `temperature` nog wordt meegestuurd.
+# Het is GEEN uitspraak over modelbeschikbaarheid en geen volledige lijst van
+# het aanbod. Alleen `temperature` is in scope; top_p/top_k zitten niet in de
+# client-signature.
+#
+# Alles wat hier niet staat -> parameter weglaten. Weglaten is altijd geldig,
+# meesturen kan een 400 geven, dus onbekend/ontbrekend/malformed = weglaten.
+model_routing:
+  capabilities:
+    anthropic:
+      temperature:
+        source: "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+        # ISO-datum waarop de bron is geraadpleegd (door de coordinator, 8 sep 2026).
+        # De bron meldt dat niet-standaard sampling-waarden op de daar genoemde
+        # nieuwe modellen een 400 geven; dat geldt niet automatisch voor elk
+        # model dat de pagina noemt.
+        checked_at: "2026-09-08"
+        model_families:
+          - "claude-3"
+          - "opus-4-0"
+          - "opus-4-1"
+          - "opus-4-5"
+          - "opus-4-6"
+          - "sonnet-4"
+          - "haiku-3"
+          - "haiku-4"
