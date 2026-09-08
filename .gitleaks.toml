@@ -3,8 +3,8 @@
 # See: https://github.com/gitleaks/gitleaks
 #
 # DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
-# zijn vervallen. Er is nog precies één uitzondering, hieronder, en die geldt
-# alleen voor één exact pad in combinatie met één exacte waarde.
+# zijn vervallen. Er zijn nog precies twee uitzonderingen, hieronder, en beide
+# gelden alleen voor één exact pad in combinatie met exacte inhoud.
 
 title = "DefinitieAgent Secret Detection Configuration"
 
@@ -13,9 +13,10 @@ title = "DefinitieAgent Secret Detection Configuration"
 [extend]
 useDefault = true
 
-# De enige uitzondering. `condition = "AND"` betekent dat pad én waarde beide
-# moeten matchen: een uitzondering die naar een ander pad verhuist of waarvan de
-# inhoud verandert, geldt niet meer. Geen prefix, geen sleuteltype, geen map.
+# Uitzondering 1 van 2: de synthetische AWS-fixture. `condition = "AND"` betekent
+# dat pad én waarde beide moeten matchen: een uitzondering die naar een ander pad
+# verhuist of waarvan de inhoud verandert, geldt niet meer. Geen prefix, geen
+# sleuteltype, geen map.
 #
 # `targetRules` is hier geen detail maar de voorwaarde waaronder die AND werkt.
 # Een globale allowlist met `paths` wordt in de gepinde bron toegepast als
@@ -47,6 +48,44 @@ targetRules = ["aws-access-token"]
 paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
 regexTarget = "secret"
 regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
+
+# Uitzondering 2 van 2: vier historische metadataregels in `.gitleaksignore`.
+# Dezelfde constructie als hierboven — `condition = "AND"` plus `targetRules` —
+# zodat pad én inhoud beide moeten matchen en het pad alleen geen vrijbrief is.
+#
+# Rationale: dit zijn regels in de legacy-notatie `pad:regel-ID:commit-ID`. De
+# drie 40-hex staarten zijn geverifieerde Git-commitobjecten, geen sleutels; er
+# is voor deze uitzondering geen sleutelwaarde gelezen en er wordt niet beweerd
+# dat er iets is ingetrokken. Het is bovendien niet het fingerprintformaat dat de
+# gepinde Gitleaks nu schrijft; over die formaatgeldigheid doet deze uitzondering
+# geen uitspraak.
+#
+# `^\n?` staat er omdat de gepinde bron bij elke regel ná de eerste het
+# voorafgaande regeleinde meelevert in `currentLine`: `detect/location.go:45` en
+# `:54` zetten `startLineIndex` op de vorige newline zonder er 1 bij op te
+# tellen, en `detect/detect.go:496` en `:520-521` geven die snede door. Het
+# verdraagt exact dat ene scheidingsteken — geen voortekst, geen tweede regel.
+#
+# Het eerste hexteken staat als tekenklasse geschreven, om dezelfde reden als
+# `AK[I]A` hierboven: anders blokkeert de gate haar eigen configuratie.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-08.
+[[allowlists]]
+description = """DEF-522 historische metadataregels: uitsluitend het exacte pad \
+.gitleaksignore in combinatie met vier exacte, volledige regels in de \
+legacy-notatie pad:regel-ID:commit-ID. De staarten zijn geverifieerde \
+commit-objecten, geen sleutels. Eigenaar Chris Lehnen (DEF-522); herbeoordelen \
+op 2026-12-08."""
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^\.gitleaksignore$''']
+regexTarget = "line"
+regexes = [
+  '''^\n?config/config_development\.yaml:openai_api_key:[0]b706cc1e0a4be76782d0f0c505f99bb74072368$''',
+  '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN\.html:openai-api-key-new-format:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
+  '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT\.html:generic-api-key:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
+  '''^\n?docs/portal/rendered/architectuur/structured-logging-architecture\.html:generic-api-key:[5]f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a$''',
+]
 
 # Custom rules for project-specific patterns
 [[rules]]

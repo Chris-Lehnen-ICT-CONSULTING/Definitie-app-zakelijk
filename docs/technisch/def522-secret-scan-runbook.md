@@ -92,14 +92,30 @@ Gebruik voor triage het bestaande incidentproces, met alleen geautoriseerd
 materiaal en zonder ruwe secretinhoud te publiceren. Persoonlijke of operationele
 gegevens (UI-sessies, `.env`, de database) horen daar niet bij.
 
-## De enige uitzondering in `.gitleaks.toml`
+## De twee uitzonderingen in `.gitleaks.toml`
 
-Eén allowlist, met `targetRules = ["aws-access-token"]`, `condition = "AND"`,
-exact pad **én** exacte waarde, plus rationale, eigenaar (Chris Lehnen) en
-reviewdatum. Valkuil bij wijzigen: een globale allowlist met `paths` wordt
-toegepast als pad-skip vóórdat de inhoud wordt bekeken, en `condition` weegt daar
-niet mee — het pad alleen zou dan een vrijbrief zijn. Alleen via `targetRules`
-hangt de uitzondering aan de regel zelf en geldt de AND-voorwaarde echt.
+Beide gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
+exact pad **én** exacte inhoud, plus rationale, eigenaar (Chris Lehnen) en
+reviewdatum.
+
+1. **Synthetische AWS-fixture** — `aws-access-token`, één exact pad en één exacte
+   waarde.
+2. **Vier historische metadataregels** — `generic-api-key`, uitsluitend het pad
+   `.gitleaksignore` en vier exacte, volledige regels in de legacy-notatie
+   `pad:regel-ID:commit-ID`. De drie 40-hex staarten zijn geverifieerde
+   commit-objecten, geen sleutels. Er wordt niet beweerd dat er iets is
+   ingetrokken, en het is niet het fingerprintformaat dat de gepinde Gitleaks nu
+   schrijft. De regexes verdragen precies één optioneel voorafgaand regeleinde,
+   omdat de tool dat scheidingsteken meelevert bij elke regel na de eerste.
+
+Valkuil bij wijzigen: een globale allowlist met `paths` wordt toegepast als
+pad-skip vóórdat de inhoud wordt bekeken, en `condition` weegt daar niet mee —
+het pad alleen zou dan een vrijbrief zijn. Alleen via `targetRules` hangt de
+uitzondering aan de regel zelf en geldt de AND-voorwaarde echt.
+
+Beide worden bewaakt door `scripts/ci/test_secret_scan_exceptions.py` en
+`scripts/ci/test_secret_scan_metadata.py`, die meelopen in
+`make test-secret-scan`.
 
 ## Tagconflict
 
