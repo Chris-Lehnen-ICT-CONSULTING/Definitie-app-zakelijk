@@ -46,7 +46,22 @@ class CacheConfig:
 
 
 class FileCache:
-    """Bestand-gebaseerde cache voor GPT responses en andere data."""
+    """Bestand-gebaseerde cache voor GPT responses en andere data.
+
+    Thread-safety (DEF-732):
+        Elke instantie heeft een eigen reentrant lock. Alle operaties die de
+        metadata of de cachebestanden lezen of muteren draaien daarbinnen, zodat
+        samengestelde stappen ondeelbaar zijn. Zonder dat lock kon ``get()``
+        tussen de vervalcontrole en ``_delete_entry()`` een publicatie van een
+        andere thread wegwissen: de schrijver meldde succes terwijl de waarde
+        stil verdween. Het lock is reentrant omdat ``set()`` en ``clear()`` via
+        ``_cleanup_old_entries()`` genest ``_delete_entry()`` aanroepen.
+
+        De grens is één instantie in één proces. Meerdere ``FileCache``-objecten
+        op dezelfde map, of meerdere processen, delen dit lock niet en zijn
+        hiermee dus niet gesynchroniseerd; dat vraagt een bestandsslot en valt
+        buiten deze klasse.
+    """
 
     def __init__(self, config: CacheConfig):
         """Initialiseer file cache met gegeven configuratie."""
@@ -55,27 +70,31 @@ class FileCache:
         self.metadata_file = (
             self.cache_dir / "metadata.json"
         )  # Metadata bestand locatie
+        # DEF-732: vóór het laden, zodat _load_metadata het lock al kan gebruiken.
+        self._lock = threading.RLock()
         self._load_metadata()  # Laad bestaande metadata
 
     def _load_metadata(self) -> None:
         """Load cache metadata."""
-        try:
-            if self.metadata_file.exists():
-                with open(self.metadata_file) as f:
-                    self.metadata = json.load(f)
-            else:
+        with self._lock:
+            try:
+                if self.metadata_file.exists():
+                    with open(self.metadata_file) as f:
+                        self.metadata = json.load(f)
+                else:
+                    self.metadata = {}
+            except Exception as e:
+                logger.warning(f"Failed to load cache metadata: {e}")
                 self.metadata = {}
-        except Exception as e:
-            logger.warning(f"Failed to load cache metadata: {e}")
-            self.metadata = {}
 
     def _save_metadata(self) -> None:
         """Save cache metadata."""
-        try:
-            with open(self.metadata_file, "w") as f:
-                json.dump(self.metadata, f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to save cache metadata: {e}")
+        with self._lock:
+            try:
+                with open(self.metadata_file, "w") as f:
+                    json.dump(self.metadata, f, indent=2)
+            except Exception as e:
+                logger.error(f"Failed to save cache metadata: {e}")
 
     def _generate_cache_key(self, *args: Any, **kwargs: Any) -> str:
         """Generate cache key from function arguments."""
@@ -90,33 +109,38 @@ class FileCache:
 
     def _is_expired(self, cache_key: str) -> bool:
         """Check if cache entry is expired."""
-        if cache_key not in self.metadata:
-            return True
+        with self._lock:
+            if cache_key not in self.metadata:
+                return True
 
-        stored_time = datetime.fromisoformat(self.metadata[cache_key]["timestamp"])
-        ttl = self.metadata[cache_key]["ttl"]
+            stored_time = datetime.fromisoformat(self.metadata[cache_key]["timestamp"])
+            ttl = self.metadata[cache_key]["ttl"]
 
-        return datetime.now(UTC) > stored_time + timedelta(seconds=ttl)
+            return datetime.now(UTC) > stored_time + timedelta(seconds=ttl)
 
     def get(self, cache_key: str) -> Any | None:
         """Get value from cache."""
         if not self.config.enable_cache:
             return None
 
-        if self._is_expired(cache_key):
-            self._delete_entry(cache_key)
+        # DEF-732: vervalcontrole, opruiming en het lezen zelf horen bij elkaar.
+        # Anders wist een lezer die net een miss zag de publicatie weg die een
+        # andere thread er intussen neerzette.
+        with self._lock:
+            if self._is_expired(cache_key):
+                self._delete_entry(cache_key)
+                return None
+
+            cache_file = self.cache_dir / f"{cache_key}.json"
+
+            try:
+                if cache_file.exists():
+                    return safe_load(cache_file)
+            except (ValueError, OSError) as e:
+                logger.warning(f"Failed to load cache entry {cache_key}: {e}")
+                self._delete_entry(cache_key)
+
             return None
-
-        cache_file = self.cache_dir / f"{cache_key}.json"
-
-        try:
-            if cache_file.exists():
-                return safe_load(cache_file)
-        except (ValueError, OSError) as e:
-            logger.warning(f"Failed to load cache entry {cache_key}: {e}")
-            self._delete_entry(cache_key)
-
-        return None
 
     def set(self, cache_key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache."""
@@ -128,88 +152,102 @@ class FileCache:
 
         cache_file = self.cache_dir / f"{cache_key}.json"
 
-        try:
-            # Save the cached value
-            safe_save(value, cache_file)
+        # DEF-732: serialiseren, metadata bijwerken, opslaan en opruimen vormen
+        # één publicatie; een lezer mag daar niet tussendoor komen.
+        with self._lock:
+            try:
+                # Save the cached value
+                safe_save(value, cache_file)
 
-            # Update metadata
-            self.metadata[cache_key] = {
-                "timestamp": datetime.now(UTC).isoformat(),
-                "ttl": ttl,
-                "size": os.path.getsize(cache_file),
-            }
+                # Update metadata
+                self.metadata[cache_key] = {
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "ttl": ttl,
+                    "size": os.path.getsize(cache_file),
+                }
 
-            self._save_metadata()
-            self._cleanup_old_entries()
+                self._save_metadata()
+                self._cleanup_old_entries()
 
-            return True
+                return True
 
-        except Exception as e:
-            logger.error(f"Failed to save cache entry {cache_key}: {e}")
-            # Consider operation successful even if metadata/persist fails,
-            # to keep callers resilient in degraded mode.
-            return True
+            except Exception as e:
+                logger.error(f"Failed to save cache entry {cache_key}: {e}")
+                # Consider operation successful even if metadata/persist fails,
+                # to keep callers resilient in degraded mode.
+                return True
 
     def _delete_entry(self, cache_key: str) -> None:
         """Delete cache entry."""
         cache_file = self.cache_dir / f"{cache_key}.json"
 
-        try:
-            if cache_file.exists():
-                cache_file.unlink()
+        with self._lock:
+            try:
+                if cache_file.exists():
+                    cache_file.unlink()
 
-            if cache_key in self.metadata:
-                del self.metadata[cache_key]
-                self._save_metadata()
+                if cache_key in self.metadata:
+                    del self.metadata[cache_key]
+                    self._save_metadata()
 
-        except FileNotFoundError:
-            # DEF-229: Race condition - file already deleted by another process
-            logger.debug(f"Cache entry {cache_key} already deleted (race condition)")
-        except OSError as e:
-            # DEF-229: Log actual filesystem errors (OSError includes PermissionError)
-            logger.warning(
-                f"Failed to delete cache entry {cache_key}: {e}", exc_info=True
-            )
+            except FileNotFoundError:
+                # DEF-229: Race condition - file already deleted by another process
+                logger.debug(
+                    f"Cache entry {cache_key} already deleted (race condition)"
+                )
+            except OSError as e:
+                # DEF-229: Log actual filesystem errors (OSError includes PermissionError)
+                logger.warning(
+                    f"Failed to delete cache entry {cache_key}: {e}", exc_info=True
+                )
 
     def _cleanup_old_entries(self) -> None:
         """Remove old cache entries to stay within size limit."""
-        if len(self.metadata) <= self.config.max_cache_size:
-            return
+        # Reentrant: draait binnen set()/clear() en roept zelf _delete_entry aan.
+        with self._lock:
+            if len(self.metadata) <= self.config.max_cache_size:
+                return
 
-        # Sort by timestamp (oldest first)
-        sorted_entries = sorted(self.metadata.items(), key=lambda x: x[1]["timestamp"])
+            # Sort by timestamp (oldest first)
+            sorted_entries = sorted(
+                self.metadata.items(), key=lambda x: x[1]["timestamp"]
+            )
 
-        # Remove oldest entries
-        entries_to_remove = len(self.metadata) - self.config.max_cache_size
-        for cache_key, _ in sorted_entries[:entries_to_remove]:
-            self._delete_entry(cache_key)
+            # Remove oldest entries
+            entries_to_remove = len(self.metadata) - self.config.max_cache_size
+            for cache_key, _ in sorted_entries[:entries_to_remove]:
+                self._delete_entry(cache_key)
 
     def clear(self) -> None:
         """Clear all cache entries."""
-        try:
-            for cache_key in list(self.metadata.keys()):
-                self._delete_entry(cache_key)
+        with self._lock:
+            try:
+                for cache_key in list(self.metadata.keys()):
+                    self._delete_entry(cache_key)
 
-            logger.info("Cache cleared successfully")
+                logger.info("Cache cleared successfully")
 
-        except Exception as e:
-            logger.error(f"Failed to clear cache: {e}")
+            except Exception as e:
+                logger.error(f"Failed to clear cache: {e}")
 
     def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
-        total_size = sum(entry["size"] for entry in self.metadata.values())
+        with self._lock:
+            total_size = sum(entry["size"] for entry in self.metadata.values())
 
-        return {
-            "entries": len(self.metadata),
-            "total_size_bytes": total_size,
-            "total_size_mb": total_size / (1024 * 1024),
-            "oldest_entry": min(
-                (entry["timestamp"] for entry in self.metadata.values()), default=None
-            ),
-            "newest_entry": max(
-                (entry["timestamp"] for entry in self.metadata.values()), default=None
-            ),
-        }
+            return {
+                "entries": len(self.metadata),
+                "total_size_bytes": total_size,
+                "total_size_mb": total_size / (1024 * 1024),
+                "oldest_entry": min(
+                    (entry["timestamp"] for entry in self.metadata.values()),
+                    default=None,
+                ),
+                "newest_entry": max(
+                    (entry["timestamp"] for entry in self.metadata.values()),
+                    default=None,
+                ),
+            }
 
 
 # Global cache instance
