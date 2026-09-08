@@ -49,10 +49,10 @@ def test_base64_achtige_secrets_worden_nog_geredigeerd(geheim):
 def test_andere_secret_regels_blijven_werken():
     """De sk-, hex- en api_key=-regels draaien onafhankelijk van de base64-regel."""
     sk = "sk-ABCDEFGHIJKLmnopQRSTuvwx1234567890"
-    hex_token = ("fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK")
+    hex_token = "fsFS5ivI" + "V8lyLYbo" + "BO1erER4" + "huHU7kxK"
     assert sk not in _redact_text(sk)
     assert hex_token not in _redact_text(hex_token)
-    assert REDACTED in _redact_text(('api_key=' + ("mzMZcpCP2fsFS5iv" + "IV8ly")))
+    assert REDACTED in _redact_text("api_key=" + ("mzMZcpCP2fsFS5iv" + "IV8ly"))
     assert "user@example.com" not in _redact_text("mail: user@example.com")
 
 

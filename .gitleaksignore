@@ -1,56 +1,84 @@
-# Gitleaks Ignore File
-# Already-rotated keys in git history - safe to ignore
+# Gitleaks Ignore File — DEF-522: alle effectieve fingerprints geneutraliseerd.
 #
-# Format: commit:file:rule:line (fingerprint from gitleaks report)
-# Get fingerprints from: gitleaks detect --report-format json
+# Er gelden hier geen uitzonderingen meer. Alle 31 regels hieronder zijn
+# uitgecommentarieerd en daarmee zonder werking: 27 volledige
+# commit:file:rule:line-fingerprints en 4 oudere driedelige regels zonder
+# commit-SHA, die daardoor al geen effect meer hadden. Het bestand blijft
+# bestaan als spoor van wat er stond, niet als allowlist; er is geen
+# uitzondering voor het bestand als geheel.
+#
+# De oude regels en hun commentaar zijn HISTORISCHE BRONCLAIMS. Teksten als
+# "already rotated", "key is now inactive", "false positives" of "not real
+# secrets" zijn in dit traject niet geverifieerd: er is hier geen rotatiebewijs,
+# geen incidentafhandeling en geen vastgelegde acceptatiebeslissing bij
+# aangetroffen. Lees ze als beweringen van toen, niet als rechtvaardiging van nu.
+#
+# Onbekende waarden en SHA-achtige fingerprints krijgen nu géén uitzondering.
+# Blijkt een historische finding werkelijk te blokkeren, dan hoort die via het
+# bestaande incidentproces te worden afgehandeld — niet hier stil geaccepteerd.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-07.
+#
+# Format van de geneutraliseerde regels: commit:file:rule:line
 
-# OpenAI API keys (already rotated, keys are inactive)
-config/config_development.yaml:openai_api_key:0b706cc1e0a4be76782d0f0c505f99bb74072368
-docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html:openai-api-key-new-format:5a61be55d691c1e35a6a95c89f56f82f10feb83a
-docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html:generic-api-key:5a61be55d691c1e35a6a95c89f56f82f10feb83a
+# OpenAI API keys (claim van toen: "already rotated, keys are inactive")
+# - commit: 0b706cc1e0a4be76782d0f0c505f99bb74072368
+#   pad: config/config_development.yaml
+#   regelnaam: openai_api_key
+# - commit: 5a61be55d691c1e35a6a95c89f56f82f10feb83a
+#   pad: docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN.html
+#   regelnaam: openai-api-key-new-format
+# - commit: 5a61be55d691c1e35a6a95c89f56f82f10feb83a
+#   pad: docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT.html
+#   regelnaam: generic-api-key
 
-# False positives (example code in documentation)
-docs/portal/rendered/architectuur/structured-logging-architecture.html:generic-api-key:5f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a
+# Claim van toen: "false positives (example code in documentation)"
+# - commit: 5f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a
+#   pad: docs/portal/rendered/architectuur/structured-logging-architecture.html
+#   regelnaam: generic-api-key
 
-# Linear API key (ROTATED 2025-01-25, key is now inactive)
-# WARNING: This key was exposed in git history - it has been rotated and is no longer valid
-7ecc95cde3539bb6d11033c15c5751aa0296cb4a:scripts/fetch_linear_issues.py:linear-api-key:5
-c4e00ff087c4735615149818bf44b47fd0da8f23:scripts/fetch_linear_issues.py:linear-api-key:5
-9f664c4a16f7b6560d204e3f063a315962b8027c:scripts/fetch_linear_issues.py:linear-api-key:5
+# Linear API key. Claim van toen: "ROTATED 2025-01-25, key is now inactive" en
+# "exposed in git history - it has been rotated and is no longer valid".
+# 7ecc95cde3539bb6d11033c15c5751aa0296cb4a:scripts/fetch_linear_issues.py:linear-api-key:5
+# c4e00ff087c4735615149818bf44b47fd0da8f23:scripts/fetch_linear_issues.py:linear-api-key:5
+# 9f664c4a16f7b6560d204e3f063a315962b8027c:scripts/fetch_linear_issues.py:linear-api-key:5
 
-# Historical .gitleaksignore entries (self-referential - old rotated keys in ignore file)
-140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:5
-140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:6
-140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:7
-140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:10
-72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:5
-72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:6
-72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:7
-72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:10
+# Zelfverwijzende entries: fingerprints van dit ignore-bestand zelf.
+# 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:5
+# 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:6
+# 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:7
+# 140d440a027e1abfcbc7fec19427382f0297a992:.gitleaksignore:generic-api-key:10
+# 72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:5
+# 72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:6
+# 72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:7
+# 72b7b62f469070ec0312f300cc7337c8c682e351:.gitleaksignore:generic-api-key:10
 
-# Historical .env files (removed from repo, secrets already rotated)
-# Note: Line numbers are 1-indexed in gitleaks fingerprints
-12232560cd0aad4f1c78e8e2d683cade6596b35a:.env:env-file-exposure:1
-cf4122e873efed859e022774b00c66c6e4280948:.env:env-file-exposure:1
+# Historische .env-bestanden. Claim van toen: "removed from repo, secrets
+# already rotated". Regelnummers zijn 1-geïndexeerd in gitleaks-fingerprints.
+# 12232560cd0aad4f1c78e8e2d683cade6596b35a:.env:env-file-exposure:1
+# cf4122e873efed859e022774b00c66c6e4280948:.env:env-file-exposure:1
 
-# Legacy package docs (example keys in documentation, not real secrets)
-0b706cc1e0a4be76782d0f0c505f99bb74072368:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
-3332484ac2a31a5173dcd4db6609e345406f5331:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
-ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:104
-ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:115
-ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:120
-6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:104
-6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:115
-6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:120
+# Legacy package docs. Claim van toen: "example keys in documentation, not real
+# secrets". Deze vier documentwaarden zijn in DEF-522 als onbekend
+# geclassificeerd: de herkomst is niet vastgesteld en er is geen uitzondering.
+# 0b706cc1e0a4be76782d0f0c505f99bb74072368:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
+# 3332484ac2a31a5173dcd4db6609e345406f5331:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
+# ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:104
+# ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:115
+# ec1cf514d0198766ee371cbebd63ee8a468daecc:ai_code_reviewer_package/BUILD.md:generic-api-key:120
+# 6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:104
+# 6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:115
+# 6426a9a8e1e19756226139a89520f92ccc30cc63:ai_code_reviewer_package/BUILD.md:generic-api-key:120
 
-# DEF-491 follow-up (2026-07-03, expliciet akkoord Chris): de history-scrub
-# herschreef alle commit-SHA's, waardoor bovenstaande fingerprints niet meer
-# matchen. Hieronder dezelfde (geroteerde/inactieve) findings opnieuw met de
-# post-rewrite SHA's. Geen nieuwe acceptaties.
-# Linear-key: geroteerd 2025-01-25; HEAD-code gebruikt LINEAR_API_KEY env-var.
-95be7c2e829fb0de6d1b7dafb9d9435348425e75:scripts/fetch_linear_issues.py:linear-api-key:5
-cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:5
-cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:6
-cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:7
-cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:10
-e2af435dd79e1d544908e2691cf2c1fa67906ccc:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782
+# DEF-491 follow-up (2026-07-03). Bronclaim van toen: de history-scrub zou alle
+# commit-SHA's hebben herschreven, waardoor bovenstaande fingerprints niet meer
+# matchten. Latere discovery sprak dat tegen; het is dus een claim, geen
+# vastgesteld feit. Hieronder stonden dezelfde findings opnieuw met
+# post-rewrite SHA's. Ook de kwalificatie "geroteerd/inactief" is een bronclaim
+# die in dit traject niet is geverifieerd.
+# 95be7c2e829fb0de6d1b7dafb9d9435348425e75:scripts/fetch_linear_issues.py:linear-api-key:5
+# cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:5
+# cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:6
+# cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:7
+# cf95556e9d104ebfe588edd8373db36e74f646a9:.gitleaksignore:generic-api-key:10
+# e2af435dd79e1d544908e2691cf2c1fa67906ccc:REBUILD_PACKAGE/requirements/TECHNICAL_ARCHITECTURE.md:database-connection-string:1782

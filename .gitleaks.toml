@@ -1,6 +1,10 @@
 # Gitleaks Configuration for DefinitieAgent
-# Version: 8.25.0 (2025)
+# Version: 8.29.1 (gepinde broncommit fb5d707e08fe0d2578b155458fdd53b6782dcab2)
 # See: https://github.com/gitleaks/gitleaks
+#
+# DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
+# zijn vervallen. Er zijn nog precies twee uitzonderingen, hieronder, en beide
+# gelden alleen voor één exact pad in combinatie met exacte inhoud.
 
 title = "DefinitieAgent Secret Detection Configuration"
 
@@ -9,62 +13,78 @@ title = "DefinitieAgent Secret Detection Configuration"
 [extend]
 useDefault = true
 
-# Global allowlist (higher precedence than rule-specific)
+# Uitzondering 1 van 2: de synthetische AWS-fixture. `condition = "AND"` betekent
+# dat pad én waarde beide moeten matchen: een uitzondering die naar een ander pad
+# verhuist of waarvan de inhoud verandert, geldt niet meer. Geen prefix, geen
+# sleuteltype, geen map.
+#
+# `targetRules` is hier geen detail maar de voorwaarde waaronder die AND werkt.
+# Een globale allowlist met `paths` wordt in de gepinde bron toegepast als
+# pad-skip (`sources/common.go:37-52`, `shouldSkipPath` → `PathAllowed`): het
+# pad wordt overgeslagen vóórdat de inhoud wordt bekeken, en `condition` weegt
+# daar niet mee. Pas met `targetRules` hangt de uitzondering aan de regel zelf
+# (`config/config.go:233-240`), en daar eerbiedigt `detect.go` de AND-conditie
+# wel. Zonder die koppeling zou het pad alleen al een vrijbrief zijn en zou een
+# afwijkende waarde op dit pad stil passeren.
+#
+# Rationale: de waarde is in deze sessie offline zelf samengesteld, niet bij een
+# provider opgevraagd en niet voor authenticatie gebruikt; er is geen historische
+# waarde hergebruikt. De fixture bestaat om aantoonbaar te maken dat de gate
+# exact dit pad en exact deze waarde doorlaat.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-07.
+#
+# De regex staat hier als `AK[I]A...`: dat matcht exact dezelfde waarde, maar
+# houdt dit configbestand zelf vrij van een aaneengesloten sleutelvorm. Zonder
+# die schrijfwijze zou de gate haar eigen configuratie blokkeren — de
+# uitzondering geldt immers alleen voor het fixture-pad.
 [[allowlists]]
-description = "Ignore example keys and test fixtures"
-paths = [
-  '''tests/fixtures/.*''',
-  '''tests/data/.*''',
-  '''tests/security/.*''',
-  '''.*_test\.py''',
-  '''.*test_.*\.py''',
-  '''docs/examples/.*''',
-]
-regexes = [
-  '''sk-proj-EXAMPLE''',
-  '''AKIAIOSFODNN7EXAMPLE''',
-  '''ghp_EXAMPLE''',
-  '''sk-ant-api03-EXAMPLE''',
-]
+description = """DEF-522 synthetische AWS-fixture: uitsluitend het exacte pad \
+tests/fixtures/def522_synthetic_aws.txt in combinatie met de exacte waarde, in \
+deze sessie offline zelf samengesteld. Eigenaar Chris Lehnen (DEF-522); \
+herbeoordelen op 2026-12-07."""
+condition = "AND"
+targetRules = ["aws-access-token"]
+paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
+regexTarget = "secret"
+regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
 
+# Uitzondering 2 van 2: vier historische metadataregels in `.gitleaksignore`.
+# Dezelfde constructie als hierboven — `condition = "AND"` plus `targetRules` —
+# zodat pad én inhoud beide moeten matchen en het pad alleen geen vrijbrief is.
+#
+# Rationale: dit zijn regels in de legacy-notatie `pad:regel-ID:commit-ID`. De
+# drie 40-hex staarten zijn geverifieerde Git-commitobjecten, geen sleutels; er
+# is voor deze uitzondering geen sleutelwaarde gelezen en er wordt niet beweerd
+# dat er iets is ingetrokken. Het is bovendien niet het fingerprintformaat dat de
+# gepinde Gitleaks nu schrijft; over die formaatgeldigheid doet deze uitzondering
+# geen uitspraak.
+#
+# `^\n?` staat er omdat de gepinde bron bij elke regel ná de eerste het
+# voorafgaande regeleinde meelevert in `currentLine`: `detect/location.go:45` en
+# `:54` zetten `startLineIndex` op de vorige newline zonder er 1 bij op te
+# tellen, en `detect/detect.go:496` en `:520-521` geven die snede door. Het
+# verdraagt exact dat ene scheidingsteken — geen voortekst, geen tweede regel.
+#
+# Het eerste hexteken staat als tekenklasse geschreven, om dezelfde reden als
+# `AK[I]A` hierboven: anders blokkeert de gate haar eigen configuratie.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-08.
 [[allowlists]]
-description = "Ignore README and documentation examples (including generated content)"
-paths = [
-  '''README\.md''',
-  '''CLAUDE\.md''',
-  '''docs/.*\.md''',
-  '''docs/analyses/.*''',
-  '''docs/archief/.*''',
-  '''docs/architectuur/.*''',
-  '''docs/portal/.*''',
-  '''scripts/test_.*''',
-]
-# Only allow example keys in docs that are clearly marked as examples
+description = """DEF-522 historische metadataregels: uitsluitend het exacte pad \
+.gitleaksignore in combinatie met vier exacte, volledige regels in de \
+legacy-notatie pad:regel-ID:commit-ID. De staarten zijn geverifieerde \
+commit-objecten, geen sleutels. Eigenaar Chris Lehnen (DEF-522); herbeoordelen \
+op 2026-12-08."""
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^\.gitleaksignore$''']
+regexTarget = "line"
 regexes = [
-  '''sk-\.\.\.$''',
-  '''api_key.*example''',
-  '''<your-api-key>''',
-  '''YOUR_API_KEY''',
-  '''sk-[a-zA-Z0-9_-]{6,10}''', # Short example keys
-  '''redis://.*:6379''',        # Local Redis URLs in examples
-  '''OPENAI_API_KEY=\*\*\*''',  # Redacted keys in logs
-]
-
-[[allowlists]]
-description = "Ignore encrypted or hashed values"
-regexes = [
-  # Hashed values (SHA256, bcrypt, etc.)
-  '''\$2[ayb]\$.{56}''',
-  '''[a-fA-F0-9]{64}''', # SHA256 hex
-]
-
-[[allowlists]]
-description = "Ignore localhost connection strings in source code"
-paths = ['''src/.*/.*config.*\.py''', '''src/.*/.*settings.*\.py''']
-regexes = [
-  '''redis://localhost:6379''',
-  '''redis://REDACTED:6379''',
-  '''postgres://localhost''',
+  '''^\n?config/config_development\.yaml:openai_api_key:[0]b706cc1e0a4be76782d0f0c505f99bb74072368$''',
+  '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN\.html:openai-api-key-new-format:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
+  '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT\.html:generic-api-key:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
+  '''^\n?docs/portal/rendered/architectuur/structured-logging-architecture\.html:generic-api-key:[5]f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a$''',
 ]
 
 # Custom rules for project-specific patterns
@@ -92,14 +112,6 @@ entropy = 4.5
 keywords = ["api", "key", "secret", "token", "password"]
 tags = ["generic-secret", "medium-risk"]
 
-# Rule-specific allowlist for generic pattern (reduce false positives)
-[[rules.allowlists]]
-description = "Ignore common non-secret patterns"
-regexes = [
-  '''(?i)api[_-]?key[\"'\s]*[:=][\"'\s]*(true|false|null|none|test|example)''',
-  '''(?i)password[\"'\s]*[:=][\"'\s]*(test|example|demo)''',
-]
-
 # Environment variable exposure
 [[rules]]
 id = "env-file-exposure"
@@ -111,7 +123,7 @@ tags = ["env-file", "high-risk"]
 [[rules]]
 id = "database-connection-string"
 description = "Database connection string with credentials"
-regex = '''(postgres|mysql|mongodb|redis)://[^:]+:[^@]+@[^/\s'"]+'''
+regex = '''(postgres|mysql|mongodb|redis)://[^:\r\n]+:[^@\r\n]+@[^/\s'"]+'''
 keywords = ["postgres", "mysql", "mongodb", "redis"]
 tags = ["database", "high-risk"]
 

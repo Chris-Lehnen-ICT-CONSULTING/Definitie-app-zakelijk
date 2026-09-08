@@ -19,7 +19,7 @@ from utils.logging_filters import PIIRedactingFilter, install_pii_redaction_filt
 
 pytestmark = [pytest.mark.unit]
 
-TOKEN = ("sk-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "Xa")
+TOKEN = "sk-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "Xa"
 EMAIL_MSG = "contact=user@example.com"
 
 

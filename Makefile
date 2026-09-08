@@ -172,6 +172,59 @@ test-markers-check: check-python
 	@echo "[markers] Checking test marker coverage"
 	@$(PY) scripts/testing/check_test_markers.py
 
+# DEF-522: de fail-closed secret-gate loopt via één gedeelde CLI. Alle invoer is
+# expliciet en absoluut; er is geen terugval op HEAD, een baseline of een smaller
+# bereik, en geen doorgeefluik voor vrije tool- of pytest-vlaggen. De waarden gaan
+# via de omgeving naar de recipe, zodat ze nergens in een shellregel worden
+# geïnterpoleerd.
+.PHONY: secret-scan test-secret-scan
+
+SECRET_SCAN_SOURCE ?= $(CURDIR)
+SECRET_SCAN_CONFIG ?= $(CURDIR)/.gitleaks.toml
+SECRET_SCAN_TIMEOUT ?= 300
+export SECRET_SCAN_ABS_SOURCE = $(abspath $(SECRET_SCAN_SOURCE))
+export SECRET_SCAN_ABS_CONFIG = $(abspath $(SECRET_SCAN_CONFIG))
+export SECRET_SCAN_ABS_BINARY = $(abspath $(SECRET_SCAN_BINARY))
+export SECRET_SCAN_BASE
+export SECRET_SCAN_HEAD
+export SECRET_SCAN_TIMEOUT
+
+secret-scan: check-python
+	@echo "[secret-scan] Fail-closed gate: expliciete range, canonieke historie en werkboom"
+	@if [ -z "$$SECRET_SCAN_ABS_BINARY" ] || [ -z "$$SECRET_SCAN_BASE" ] || [ -z "$$SECRET_SCAN_HEAD" ]; then \
+		echo "FOUT: SECRET_SCAN_BINARY, SECRET_SCAN_BASE en SECRET_SCAN_HEAD zijn verplicht."; \
+		echo "Er is geen terugval op HEAD, een baseline of een smaller bereik."; \
+		exit 1; \
+	fi
+	@$(PY) scripts/ci/secret_scan_gate.py --mode full \
+		--source "$$SECRET_SCAN_ABS_SOURCE" \
+		--config "$$SECRET_SCAN_ABS_CONFIG" \
+		--binary "$$SECRET_SCAN_ABS_BINARY" \
+		--base "$$SECRET_SCAN_BASE" \
+		--head "$$SECRET_SCAN_HEAD" \
+		--timeout "$$SECRET_SCAN_TIMEOUT"
+
+test-secret-scan: check-python
+	@echo "[test-secret-scan] Verplichte echte canary-, gate-, entry- en ketentests"
+	@if [ -z "$$DEF522_GITLEAKS_BINARY" ] || [ -z "$$DEF522_FIXTURE_ROOT" ]; then \
+		echo "FOUT: DEF522_GITLEAKS_BINARY en DEF522_FIXTURE_ROOT zijn verplicht."; \
+		echo "Deze tests installeren niets en slaan zichzelf nooit over."; \
+		exit 1; \
+	fi
+	@# De zeven suites staan hier vast: geen variabele, dus geen luik waarmee de
+	@# selectie via de omgeving of de commandoregel kan krimpen. Ze liggen buiten
+	@# `testpaths`, vandaar de expliciete opsomming. Alleen deze aanroep krijgt een
+	@# lege PYTEST_ADDOPTS/PYTEST_PLUGINS; geïnstalleerde plugins, pytest-config en
+	@# timeout blijven ongewijzigd.
+	@PYTEST_ADDOPTS= PYTEST_PLUGINS= $(PY) -m pytest -q \
+		scripts/ci/test_secret_scan_canary.py \
+		scripts/ci/test_secret_scan_exceptions.py \
+		scripts/ci/test_secret_scan_gate.py \
+		scripts/ci/test_secret_scan_gate_errors.py \
+		scripts/ci/test_secret_scan_metadata.py \
+		scripts/ci/test_secret_scan_precommit.py \
+		scripts/ci/test_secret_scan_workflow.py
+
 status: validation-status
 
 validation-status:

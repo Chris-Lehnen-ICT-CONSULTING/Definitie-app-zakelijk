@@ -511,7 +511,9 @@ class TestSensitiveFieldsFiltering:
 
         # Set a fake API key in memory
         original_key = config_manager.api.openai_api_key
-        config_manager.api.openai_api_key = ("sk-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7k")
+        config_manager.api.openai_api_key = (
+            "sk-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7k"
+        )
 
         try:
             # Convert to dict (this is what save_configuration uses)

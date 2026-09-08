@@ -23,12 +23,18 @@ repos:
   # Having both caused import splitting conflicts (see DEF-173 analysis)
 
   # Gitleaks - Secret detection
+  # DEF-522: de hook roept niet meer rechtstreeks gitleaks aan, maar de gedeelde
+  # fail-closed entry, zodat lokale feedback en de CI-gate dezelfde caller,
+  # dezelfde config en dezelfde uitvoergrens gebruiken. `language: golang` blijft:
+  # pre-commit bouwt de gepinde v8.29.1 en zet die op PATH, waar de entry hem met
+  # shutil.which vindt. `python3` moet de actieve project-Python 3.13 zijn — zie
+  # docs/technisch/def522-secret-scan-runbook.md.
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.29.1
     hooks:
       - id: gitleaks
         name: Detect hardcoded secrets (gitleaks)
-        entry: gitleaks protect --verbose --redact --staged
+        entry: python3 scripts/ci/secret_scan_precommit.py
         language: golang
         pass_filenames: false
         stages: [pre-commit]

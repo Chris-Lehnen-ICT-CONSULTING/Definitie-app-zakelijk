@@ -15,23 +15,71 @@ jobs:
   secrets-scan:
     name: Secret Scan (gitleaks)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      # DEF-522: de grenzen komen uit de event-payload en gaan uitsluitend via de
+      # omgeving naar de gate; nooit als expressie in een shellregel.
+      SECRET_SCAN_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+      SECRET_SCAN_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      # DEF-463: pin gelijk aan .pre-commit-config.yaml en .gitleaks.toml.
+      GITLEAKS_VERSION: 8.29.1
+      # De runner-context is hier niet beschikbaar: op job-env laat een
+      # ${{ runner.* }}-expressie de hele workflow afwijzen, waarna de run nul
+      # jobs krijgt en deze verplichte gate stil niet draait. De paden buiten de
+      # werkmap staan daarom op de env van de stap die ze gebruikt.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0  # Fetch full git history for gitleaks diff scanning
+          fetch-depth: 0  # Volledige historie; de gate scant ook de canonieke refs
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install uv
+          uv pip install --system --require-hashes -r requirements.txt -r requirements-dev.txt
 
       - name: Install gitleaks
+        env:
+          # Buiten de werkmap, zodat archief en binary niet in de scanscope van
+          # de werkboomscan belanden.
+          GITLEAKS_DIR: ${{ runner.temp }}/gitleaks
         run: |
-          # Install gitleaks CLI (no license required for CLI)
-          # DEF-463: pin gelijk aan .pre-commit-config.yaml (v8.29.1) — geen drift
-          wget https://github.com/gitleaks/gitleaks/releases/download/v8.29.1/gitleaks_8.29.1_linux_x64.tar.gz
-          tar -xzf gitleaks_8.29.1_linux_x64.tar.gz
+          set -euo pipefail
+          mkdir -p "$GITLEAKS_DIR"
+          cd "$GITLEAKS_DIR"
+          archief="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archief}"
+          tar -xzf "$archief"
           chmod +x gitleaks
 
-      - name: Run gitleaks
+      - name: Canary- en gatetests (verplicht, geen skip)
+        env:
+          # De verplicht aangewezen binary en fixture-root; beide buiten de
+          # werkmap, zodat het testmateriaal niet meegescand wordt.
+          DEF522_GITLEAKS_BINARY: ${{ runner.temp }}/gitleaks/gitleaks
+          DEF522_FIXTURE_ROOT: ${{ runner.temp }}/def522-fixtures
         run: |
-          ./gitleaks detect --redact --verbose --exit-code 1
+          set -euo pipefail
+          mkdir -p "$DEF522_FIXTURE_ROOT"
+          make test-secret-scan
+
+      - name: Fail-closed secret-gate (range, canonieke historie, werkboom)
+        env:
+          # Dezelfde binary buiten de werkmap als hierboven geinstalleerd.
+          SECRET_SCAN_BINARY: ${{ runner.temp }}/gitleaks/gitleaks
+        run: make secret-scan
 
   deps-audit:
     name: Dependency Audit (pip-audit)
