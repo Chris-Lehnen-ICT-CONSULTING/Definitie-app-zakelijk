@@ -21,10 +21,9 @@ testproces niet kan ophangen.
 from __future__ import annotations
 
 import asyncio
-import gc
+import inspect
 import threading
 import time
-import warnings
 from collections.abc import Coroutine
 from typing import Any
 
@@ -420,14 +419,38 @@ async def test_timeout_zero_is_immediate_budget_in_running_loop() -> None:
 
 
 def test_timeout_zero_leaves_no_unawaited_coroutine() -> None:
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        with pytest.raises(TimeoutError):
-            run_async(_slow(), timeout=0)
-        gc.collect()
+    """De bridge moet de eigen coroutine bij timeout=0 afgewikkeld achterlaten.
 
-    never_awaited = [w for w in caught if "never awaited" in str(w.message)]
-    assert never_awaited == [], f"niet-awaited coroutine(s): {never_awaited}"
+    Deze test keek eerder naar RuntimeWarnings uit `warnings.catch_warnings`
+    gecombineerd met een `gc.collect()`. Die opzet vangt élke "never awaited"-
+    melding op die op dat moment toevallig wordt vrijgegeven, ook uit een heel
+    ander testbestand: een aantoonbare false positive, gereproduceerd met een
+    onbereikbare vreemde coroutine in een cyclus bij uitgeschakelde GC
+    (async152). De CI-melding zelf droeg geen herkomst, dus welke coroutine daar
+    binnenkwam is niet vastgesteld — alleen dat deze test er gevoelig voor is.
+
+    Daarom wordt nu de levenscyclus van de eigen coroutine direct waargenomen.
+    Een bridge die alleen TimeoutError opgooit zonder de coroutine te starten of
+    te sluiten, laat hem in CORO_CREATED achter en faalt hier.
+    """
+    coro = _slow()
+    try:
+        with pytest.raises(TimeoutError):
+            run_async(coro, timeout=0)
+
+        toestand = inspect.getcoroutinestate(coro)
+        assert toestand == inspect.CORO_CLOSED, (
+            f"de bridge liet de coroutine achter in {toestand}; bij timeout=0 "
+            "hoort hij afgewikkeld en gesloten te zijn"
+        )
+    finally:
+        # Alleen het niet-gestarte geval opruimen: precies de gemuteerde route
+        # waarin de bridge de coroutine nooit heeft aangeraakt. Een coroutine
+        # die nog in een andere loop hangt, wordt bewust met rust gelaten —
+        # daar sluiten zou de echte assertiemelding kunnen maskeren. Normale
+        # levenscyclus, geen bestandsactie.
+        if inspect.getcoroutinestate(coro) == inspect.CORO_CREATED:
+            coro.close()
 
 
 # --- 9. run_parallel deelt hetzelfde begrensde pad --------------------------
