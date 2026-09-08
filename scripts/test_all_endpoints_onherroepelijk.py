@@ -73,7 +73,9 @@ async def test_sru_endpoints():
             count = await test_endpoint(
                 name,
                 sru.search(
-                    term="onherroepelijk vonnis", endpoint=endpoint_key, max_records=5,
+                    term="onherroepelijk vonnis",
+                    endpoint=endpoint_key,
+                    max_records=5,
                 ),
             )
             results_count[name] = count

@@ -24,8 +24,10 @@ pytestmark = pytest.mark.unit
 from utils.logging_filters import REDACTED, _redact_text
 
 # Geen 32+ alfanumerieke run -> alleen regel 1 kan ze vangen.
-_OUDE_OPENAI_KEY = ("sk-" + "mzMZcpCP2fsFS5iv" + "IV8lyLYboB")
-_PROJECT_OPENAI_KEY = ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "XanAN0dqDQ3gtGT6" + "j")
+_OUDE_OPENAI_KEY = "sk-" + "mzMZcpCP2fsFS5iv" + "IV8lyLYboB"
+_PROJECT_OPENAI_KEY = (
+    "sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "XanAN0dqDQ3gtGT6" + "j"
+)
 _ANTHROPIC_KEY = "sk-ant-api03-Fk3nQ7pR2sT8vW1xY5zA_bC4dE6fG8hJ-kL2mN4pQrS6tU8vW"
 
 _ALLE_KEYS = [
@@ -135,11 +137,11 @@ def test_paden_blijven_intact():
 
 def test_andere_secret_regels_blijven_werken():
     """De hex-, base64- en api_key=-regels draaien onafhankelijk van regel 1."""
-    hex_token = ("tGT6jwJW9mzMZcpC" + "P2fsFS5ivIV8lyLY")
+    hex_token = "tGT6jwJW" + "9mzMZcpC" + "P2fsFS5i" + "vIV8lyLY"
     base64_blob = "dGhpc2lzYXNlY3JldHRva2VuMTIzNDU2Nzg5MA"
     assert hex_token not in _redact_text(hex_token)
     assert base64_blob not in _redact_text(base64_blob)
-    assert REDACTED in _redact_text(('api_key=' + ("AN0dqDQ3gtGT6jwJ" + "W9mzM")))
+    assert REDACTED in _redact_text("api_key=" + ("AN0dqDQ3gtGT6jwJ" + "W9mzM"))
     assert "user@example.com" not in _redact_text("mail: user@example.com")
 
 

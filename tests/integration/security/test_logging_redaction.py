@@ -28,7 +28,10 @@ def test_logging_filter_redacts_openai_key():
     logger.addFilter(filt)
     stream, handler = _capture_logs(logger)
     try:
-        logger.info(('Using OPENAI_API_KEY=' + ("sk-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "Xa")))
+        logger.info(
+            "Using OPENAI_API_KEY="
+            + ("sk-" + "fsFS5ivIV8lyLYbo" + "BO1erER4huHU7kxK" + "Xa")
+        )
         assert stream, "No log captured"
         msg = stream[-1]
         # DEF-583: de sleutel wordt nu VOLLEDIG geredigeerd. Voorheen leverde

@@ -163,7 +163,10 @@ class TestOpenAIClient:
         mock_client_instance = MagicMock()
         mock_client_instance.chat.completions.create = AsyncMock(
             side_effect=openai.AuthenticationError(
-                ('Incorrect API key provided: ' + ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO")),
+                (
+                    "Incorrect API key provided: "
+                    + ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO")
+                ),
                 response=MagicMock(status_code=401, headers={}),
                 body=None,
             )
@@ -512,7 +515,7 @@ class TestSanitizeError:
 
     def test_sanitize_openai_key(self):
         """OpenAI-style API key is redacted."""
-        msg = ('Auth error with key ' + ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO"))
+        msg = "Auth error with key " + ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO")
         assert "sk-proj" not in sanitize_error(msg)
         assert "[REDACTED]" in sanitize_error(msg)
 
@@ -533,7 +536,7 @@ class TestSanitizeError:
         mock_instance = MagicMock()
         mock_instance.chat.completions.create = AsyncMock(
             side_effect=openai.OpenAIError(
-                ('Invalid API Key: ' + ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO"))
+                "Invalid API Key: " + ("sk-proj-" + "fsFS5ivIV8lyLYbo" + "BO")
             )
         )
         mock_openai_cls.return_value = mock_instance
