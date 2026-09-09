@@ -41,8 +41,11 @@ jobs:
 
     # Onvoorwaardelijk en blokkerend. Het rapport is de werkelijke uitvoer van de
     # gate: bij een ongeldige of geblokkeerde scan draagt het die status, en kan
-    # het dus geen succes claimen dat er niet was.
-    - name: Valideer EPIC- en storystructuur (make epic-check, blokkerend)
+    # het dus geen succes claimen dat er niet was. Zonder secret faalt de gate met
+    # exit 2 — dat is de bedoeling, geen groene overslag.
+    - name: Valideer het Linear-masterplan (make epic-check, blokkerend)
+      env:
+        LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
       run: make epic-check > validation-report.json
 
     - name: Upload Validation Report

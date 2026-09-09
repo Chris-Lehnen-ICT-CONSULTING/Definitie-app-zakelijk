@@ -174,15 +174,21 @@ jobs:
       
       - name: Summary
         if: success()
+        # DEF-665: dezelfde tekens, maar via step-env in plaats van rechtstreeks in
+        # de shellstring; dat houdt de stap parseerbaar voor statische analyse.
+        env:
+          SUMMARY_ICON: "🎉"
+          PASS_ICON: "✅"
+          WARN_ICON: "⚠️"
         run: |
-          echo "🎉 All legacy pattern checks passed!"
+          echo "${SUMMARY_ICON} All legacy pattern checks passed!"
           echo "The codebase is clean of deprecated EPIC-010 patterns."
           echo ""
           echo "Patterns checked:"
-          echo "  ✅ No legacy generation_result imports"
-          echo "  ✅ No deprecated attributes (.overall_score, .best_iteration)"
-          echo "  ✅ No string context usage"
-          echo "  ✅ No domein field references"
-          echo "  ✅ No asyncio.run in services"
-          echo "  ✅ No streamlit imports in services"
-          echo "  ⚠️ Sync wrappers being phased out (Sprint 37)"
+          echo "  ${PASS_ICON} No legacy generation_result imports"
+          echo "  ${PASS_ICON} No deprecated attributes (.overall_score, .best_iteration)"
+          echo "  ${PASS_ICON} No string context usage"
+          echo "  ${PASS_ICON} No domein field references"
+          echo "  ${PASS_ICON} No asyncio.run in services"
+          echo "  ${PASS_ICON} No streamlit imports in services"
+          echo "  ${WARN_ICON} Sync wrappers being phased out (Sprint 37)"

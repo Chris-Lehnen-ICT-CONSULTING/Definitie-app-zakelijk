@@ -71,6 +71,16 @@ jobs:
           sudo apt-get install -y ripgrep
 
       - name: Run preflight-checks.sh
+        # DEF-665: dezelfde tekens, maar via step-env in plaats van rechtstreeks in
+        # de shellstrings; dat houdt de stap parseerbaar voor statische analyse.
+        env:
+          SHIELD_ICON: "🛡️"
+          PACKAGE_ICON: "📦"
+          LOCK_ICON: "🔒"
+          LIST_ICON: "📋"
+          FAIL_ICON: "❌"
+          WARN_ICON: "⚠️"
+          PASS_ICON: "✅"
         run: |
           # Copy preflight checks from unified agent dir if available
           # Otherwise, create minimal version
@@ -78,30 +88,30 @@ jobs:
             bash "$HOME/.ai-agents/preflight-checks.sh"
           else
             # Fallback: run key checks inline
-            echo "🛡️  Running inline preflight checks..."
+            echo "${SHIELD_ICON}  Running inline preflight checks..."
 
             # Check forbidden imports
-            echo "📦 Checking forbidden imports..."
+            echo "${PACKAGE_ICON} Checking forbidden imports..."
             if rg -q "import streamlit" src/services/ 2>/dev/null; then
-              echo "❌ Found 'import streamlit' in services/"
+              echo "${FAIL_ICON} Found 'import streamlit' in services/"
               exit 1
             fi
 
             # Check for hardcoded secrets
-            echo "🔒 Checking for hardcoded secrets..."
+            echo "${LOCK_ICON} Checking for hardcoded secrets..."
             if rg -q "api_key.*=.*[\"'][A-Za-z0-9]" --type py 2>/dev/null; then
-              echo "❌ Potential hardcoded API key found"
+              echo "${FAIL_ICON} Potential hardcoded API key found"
               exit 1
             fi
 
             # Check for TODO markers in staged code
-            echo "📋 Checking for TODO markers..."
+            echo "${LIST_ICON} Checking for TODO markers..."
             if rg -q "TODO|FIXME|XXX|HACK" --type py 2>/dev/null; then
-              echo "⚠️  Found TODO markers (should use backlog)"
+              echo "${WARN_ICON}  Found TODO markers (should use backlog)"
               # Warning only, not fatal
             fi
 
-            echo "✅ Preflight checks passed"
+            echo "${PASS_ICON} Preflight checks passed"
           fi
 
   validate-branch-name:
@@ -111,16 +121,21 @@ jobs:
 
     steps:
       - name: Check branch naming convention
+        # DEF-665: de expressie en de tekens staan nu in step-env; `BRANCH_NAME`
+        # krijgt exact dezelfde waarde, dus de losse shelltoewijzing verviel.
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          PASS_ICON: "✅"
+          FAIL_ICON: "❌"
         run: |
-          BRANCH_NAME="${{ github.head_ref }}"
           echo "Validating branch name: $BRANCH_NAME"
 
           # Valid patterns: feature/*, fix/*, bugfix/*, hotfix/*, docs/*, refactor/*, test/*, chore/*, dependabot/*, DEF-123/*
           # Note: dependabot/* is allowed so bot-generated dependency PRs (which cannot follow the {KEY}-XX convention) pass the gate.
           if [[ "$BRANCH_NAME" =~ ^(feature|fix|bugfix|hotfix|docs|refactor|test|chore|dependabot|DEF-[0-9]+)/.+ ]]; then
-            echo "✅ Branch name follows convention"
+            echo "${PASS_ICON} Branch name follows convention"
           else
-            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo "${FAIL_ICON} Invalid branch name: $BRANCH_NAME"
             echo "Branch names must follow pattern: {type}/{description} or DEF-{issue}/{description}"
             echo "Valid types: feature, fix, bugfix, hotfix, docs, refactor, test, chore, dependabot, DEF-{number}"
             exit 1
@@ -270,34 +285,49 @@ jobs:
 
     steps:
       - name: Check all gates passed
+        # DEF-665: dezelfde uitkomsten en tekens, maar via step-env in plaats van
+        # rechtstreeks in de shellstrings; de predicaten blijven ongewijzigd.
+        env:
+          SUMMARY_ICON: "📊"
+          FAIL_ICON: "❌"
+          PASS_ICON: "✅"
+          EVENT_NAME: ${{ github.event_name }}
+          RESULT_PRE_COMMIT: ${{ needs.verify-pre-commit.result }}
+          RESULT_PREFLIGHT: ${{ needs.preflight-checks.result }}
+          RESULT_BRANCH_NAME: ${{ needs.validate-branch-name.result }}
+          RESULT_COMPLEXITY: ${{ needs.complexity-ratchet.result }}
+          RESULT_MYPY: ${{ needs.mypy-ratchet.result }}
+          RESULT_DEAD_CODE: ${{ needs.dead-code-ratchets.result }}
+          RESULT_TOOL_PINS: ${{ needs.tool-pins.result }}
+          RESULT_LOCK_SYNC: ${{ needs.lock-sync.result }}
         run: |
-          echo "📊 Quality Gate Summary"
+          echo "${SUMMARY_ICON} Quality Gate Summary"
           echo "======================="
-          echo "Pre-commit: ${{ needs.verify-pre-commit.result }}"
-          echo "Preflight: ${{ needs.preflight-checks.result }}"
-          echo "Branch name: ${{ needs.validate-branch-name.result }}"
-          echo "Complexity ratchet: ${{ needs.complexity-ratchet.result }}"
-          echo "Mypy ratchet: ${{ needs.mypy-ratchet.result }}"
-          echo "Dead-code ratchets: ${{ needs.dead-code-ratchets.result }}"
-          echo "Tool pins: ${{ needs.tool-pins.result }}"
-          echo "Lock sync: ${{ needs.lock-sync.result }}"
+          echo "Pre-commit: ${RESULT_PRE_COMMIT}"
+          echo "Preflight: ${RESULT_PREFLIGHT}"
+          echo "Branch name: ${RESULT_BRANCH_NAME}"
+          echo "Complexity ratchet: ${RESULT_COMPLEXITY}"
+          echo "Mypy ratchet: ${RESULT_MYPY}"
+          echo "Dead-code ratchets: ${RESULT_DEAD_CODE}"
+          echo "Tool pins: ${RESULT_TOOL_PINS}"
+          echo "Lock sync: ${RESULT_LOCK_SYNC}"
 
-          if [ "${{ needs.verify-pre-commit.result }}" != "success" ] || \
-             [ "${{ needs.preflight-checks.result }}" != "success" ] || \
-             [ "${{ needs.complexity-ratchet.result }}" != "success" ] || \
-             [ "${{ needs.mypy-ratchet.result }}" != "success" ] || \
-             [ "${{ needs.dead-code-ratchets.result }}" != "success" ] || \
-             [ "${{ needs.lock-sync.result }}" != "success" ] || \
-             [ "${{ needs.tool-pins.result }}" != "success" ]; then
-            echo "❌ Quality gates failed"
+          if [ "${RESULT_PRE_COMMIT}" != "success" ] || \
+             [ "${RESULT_PREFLIGHT}" != "success" ] || \
+             [ "${RESULT_COMPLEXITY}" != "success" ] || \
+             [ "${RESULT_MYPY}" != "success" ] || \
+             [ "${RESULT_DEAD_CODE}" != "success" ] || \
+             [ "${RESULT_LOCK_SYNC}" != "success" ] || \
+             [ "${RESULT_TOOL_PINS}" != "success" ]; then
+            echo "${FAIL_ICON} Quality gates failed"
             exit 1
           fi
 
           # Branch validation only required for PRs
-          if [ "${{ github.event_name }}" == "pull_request" ] && \
-             [ "${{ needs.validate-branch-name.result }}" != "success" ]; then
-            echo "❌ Branch name validation failed"
+          if [ "${EVENT_NAME}" == "pull_request" ] && \
+             [ "${RESULT_BRANCH_NAME}" != "success" ]; then
+            echo "${FAIL_ICON} Branch name validation failed"
             exit 1
           fi
 
-          echo "✅ All quality gates passed"
+          echo "${PASS_ICON} All quality gates passed"
