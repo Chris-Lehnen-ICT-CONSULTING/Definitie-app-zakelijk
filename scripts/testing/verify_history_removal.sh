@@ -295,7 +295,11 @@ check_performance() {
     start_time=$(date +%s%N)
     python -c "from src.ui.tabbed_interface import TabbedInterface" 2>/dev/null
     end_time=$(date +%s%N)
-    elapsed=$((($end_time - $start_time) / 1000000))
+    # Twee stappen i.p.v. één geneste expressie: identieke integer-rekenkunde,
+    # maar wel parseerbaar voor statische analyse (zie DEF-665). De `$`-vorm
+    # blijft staan, zodat het gedrag bij lege of ongeldige waarden niet verschuift.
+    elapsed=$(($end_time - $start_time))
+    elapsed=$(($elapsed / 1000000))
     echo "${elapsed}ms"
 
     if [ -f "baseline_history_removal.txt" ]; then

@@ -717,12 +717,12 @@
                             REPO[Repository<br/>Pattern]
                         end
 
-                        UI --> UDS
-                        UDS --> AI
-                        UDS --> VAL
-                        UDS --> ONT
-                        UDS --> REPO
-                        REPO --> DB
+                        UI --&gt; UDS
+                        UDS --&gt; AI
+                        UDS --&gt; VAL
+                        UDS --&gt; ONT
+                        UDS --&gt; REPO
+                        REPO --&gt; DB
 
                         style UI fill:#f9c74f
                         style UDS fill:#90be6d
@@ -867,19 +867,19 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                             S3[Object Storage]
                         end
 
-                        WEB --> ORCH
-                        API --> AUTH
-                        AUTH --> ORCH
-                        ORCH --> DEF
-                        ORCH --> VAL
-                        ORCH --> ENR
-                        ORCH --> DOC
-                        ORCH --> CACHE
+                        WEB --&gt; ORCH
+                        API --&gt; AUTH
+                        AUTH --&gt; ORCH
+                        ORCH --&gt; DEF
+                        ORCH --&gt; VAL
+                        ORCH --&gt; ENR
+                        ORCH --&gt; DOC
+                        ORCH --&gt; CACHE
 
-                        DEF --> QUEUE
-                        CACHE --> REDIS
-                        DOC --> S3
-                        DEF --> DB
+                        DEF --&gt; QUEUE
+                        CACHE --&gt; REDIS
+                        DOC --&gt; S3
+                        DEF --&gt; DB
 
                         style WEB fill:#4ecdc4
                         style API fill:#4ecdc4
@@ -915,7 +915,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
         term: str,
         context: Optional[str],
         style: DefinitionStyle = DefinitionStyle.FORMAL
-    ) -> Definition:
+    ) -&gt; Definition:
         # Async processing met streaming support
         # Intelligent prompt optimization
         # Response caching</code></pre>
@@ -930,7 +930,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
         self,
         definition: Definition,
         rules: Optional[List[Rule]] = None
-    ) -> ValidationReport:
+    ) -&gt; ValidationReport:
         # Parallel rule execution
         # Configurable rule sets
         # Detailed reporting</code></pre>
@@ -944,7 +944,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
     async def enrich(
         self,
         definition: Definition
-    ) -> EnrichedDefinition:
+    ) -&gt; EnrichedDefinition:
         # Synoniemen/antoniemen lookup
         # Contextual examples
         # Related terms discovery</code></pre>
@@ -988,7 +988,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
 
             <!-- Target Patterns -->
             <section id="target-patterns" class="content-section">
-                <h1>Design Patterns & Best Practices</h1>
+                <h1>Design Patterns &amp; Best Practices</h1>
 
                 <h2>🏗️ Architectural Patterns</h2>
 
@@ -1005,10 +1005,10 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
     def __init__(self, session: Session):
         self.session = session
 
-    async def find_by_term(self, term: str) -> Optional[Definition]:
+    async def find_by_term(self, term: str) -&gt; Optional[Definition]:
         # Abstractie over data access
 
-    async def save(self, definition: Definition) -> Definition:
+    async def save(self, definition: Definition) -&gt; Definition:
         # Transactional boundaries</code></pre>
                     </div>
 
@@ -1032,15 +1032,15 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                         <div class="card-header">Strategy Pattern</div>
                         <pre><code>class GenerationStrategy(ABC):
     @abstractmethod
-    async def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str) -&gt; str:
         pass
 
 class GPT4Strategy(GenerationStrategy):
-    async def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str) -&gt; str:
         # GPT-4 specific implementation
 
 class LocalLLMStrategy(GenerationStrategy):
-    async def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str) -&gt; str:
         # Local model implementation</code></pre>
                     </div>
 
@@ -1063,7 +1063,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
                         <div class="card-header">Factory Pattern</div>
                         <pre><code>class ValidatorFactory:
     @staticmethod
-    def create_validator(rule_type: RuleType) -> Validator:
+    def create_validator(rule_type: RuleType) -&gt; Validator:
         validators = {
             RuleType.SYNTAX: SyntaxValidator(),
             RuleType.SEMANTIC: SemanticValidator(),
@@ -1086,7 +1086,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
         self.context = context
         return self
 
-    def build(self) -> Prompt:
+    def build(self) -&gt; Prompt:
         # Construct optimized prompt</code></pre>
                     </div>
                 </div>
@@ -1201,7 +1201,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
                         <p>Bulk verwerking, document analyse, export</p>
                     </div>
                     <div class="timeline-item">
-                        <h3>Week 5-6: Polish & Refactor</h3>
+                        <h3>Week 5-6: Polish &amp; Refactor</h3>
                         <p>UI verbeteren, eerste refactoring ronde</p>
                     </div>
                 </div>
@@ -1212,7 +1212,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
                         <li>✓ Alle 10 tabs functioneel</li>
                         <li>✓ Legacy features werkend</li>
                         <li>✓ Gebruikers kunnen alle taken uitvoeren</li>
-                        <li>✓ Basis test coverage (>60%)</li>
+                        <li>✓ Basis test coverage (&gt;60%)</li>
                     </ul>
                 </div>
             </section>
@@ -1280,10 +1280,10 @@ class ModernDefinitionService:
                 <h2>Migratie Fases</h2>
                 <div class="mermaid">
                     graph LR
-                        A[Legacy System] -->|Fase 1| B[Facade Layer]
-                        B -->|Fase 2| C[New Services]
-                        C -->|Fase 3| D[Legacy Removal]
-                        D -->|Fase 4| E[Optimization]
+                        A[Legacy System] --&gt;|Fase 1| B[Facade Layer]
+                        B --&gt;|Fase 2| C[New Services]
+                        C --&gt;|Fase 3| D[Legacy Removal]
+                        D --&gt;|Fase 4| E[Optimization]
 
                         style A fill:#ff6b6b
                         style E fill:#51cf66
@@ -1371,13 +1371,13 @@ class ModernDefinitionService:
                             N3[PostgreSQL]
                         end
 
-                        L1 -->|Gradual| T1
-                        L2 -->|Incremental| T2
-                        L3 -->|Migration| T3
+                        L1 --&gt;|Gradual| T1
+                        L2 --&gt;|Incremental| T2
+                        L3 --&gt;|Migration| T3
 
-                        T1 --> N1
-                        T2 --> N2
-                        T3 --> N3
+                        T1 --&gt; N1
+                        T2 --&gt; N2
+                        T3 --&gt; N3
 
                         style L1 fill:#ff6b6b
                         style L2 fill:#ff6b6b
@@ -1410,7 +1410,7 @@ class ModernDefinitionService:
                     <tr>
                         <td>Test Coverage</td>
                         <td>13%</td>
-                        <td>>80%</td>
+                        <td>&gt;80%</td>
                         <td>Line coverage</td>
                     </tr>
                     <tr>
@@ -1472,7 +1472,7 @@ class ModernDefinitionService:
 
                     <div class="timeline-item">
                         <h3>Fase 4: Optimalisatie (Week 7-8)</h3>
-                        <p><strong>Focus:</strong> Performance & schaal</p>
+                        <p><strong>Focus:</strong> Performance &amp; schaal</p>
                         <ul>
                             <li>PostgreSQL migratie</li>
                             <li>Redis cache layer</li>
@@ -1532,12 +1532,12 @@ class ModernDefinitionService:
                 <div id="phase-dependencies" class="tab-content">
                     <div class="mermaid">
                         graph TD
-                            A[Import Fix] --> B[Config Unification]
-                            B --> C[Test Repair]
-                            C --> D[Feature Implementation]
-                            D --> E[API Layer]
-                            E --> F[Database Migration]
-                            F --> G[Scaling Tests]
+                            A[Import Fix] --&gt; B[Config Unification]
+                            B --&gt; C[Test Repair]
+                            C --&gt; D[Feature Implementation]
+                            D --&gt; E[API Layer]
+                            E --&gt; F[Database Migration]
+                            F --&gt; G[Scaling Tests]
 
                             style A fill:#51cf66
                             style B fill:#feca57

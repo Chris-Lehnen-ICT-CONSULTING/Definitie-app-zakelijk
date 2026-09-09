@@ -172,6 +172,41 @@ test-markers-check: check-python
 	@echo "[markers] Checking test marker coverage"
 	@$(PY) scripts/testing/check_test_markers.py
 
+# DEF-665: de grep-gate loopt via één gedeelde wrapper, zodat Make en CI
+# hetzelfde contract gebruiken. De handhavingsvlag staat hier expliciet; de gate
+# accepteert alleen "true"/"false", dus een typefout schakelt niets stil uit.
+.PHONY: grep-check semgrep-check epic-check test-tool-gates
+
+grep-check: check-python
+	@echo "[grep-check] Fail-closed grep-gate op src/ (DEF-665)"
+	@ENFORCE_GREP_GATE=true PY=$(PY) bash scripts/maintenance/grep_gate.sh
+
+semgrep-check: check-python
+	@echo "[semgrep-check] Fail-closed SAST-gate over de hele repo (DEF-665)"
+	@# Dezelfde configuraties en hetzelfde bereik als voorheen; de gate leest
+	@# het rapport uit stdout en beslist zelf over blokkeren.
+	@$(PY) -I -B scripts/ci/semgrep_gate.py
+
+epic-check: check-python
+	@# De gate schrijft haar JSON-rapport naar stdout, zodat de aanroeper het kan
+	@# omleiden naar een artefact. De kopregel gaat daarom naar stderr: anders
+	@# zou zij het rapport onbruikbaar maken.
+	@echo "[epic-check] Fail-closed EPIC/US-validatiegate (DEF-665)" >&2
+	@$(PY) -I -B scripts/ci/epic_validation_gate.py
+
+test-tool-gates: check-python
+	@echo "[test-tool-gates] Vaste unittest-suites voor de toolgates (DEF-665)"
+	@# De scriptpaden liggen vast: geen variabele, geen module-import vanuit de
+	@# werkmap en geen doorgeefluik waarmee de selectie kan krimpen. `-I` negeert
+	@# PYTHONPATH en PYTHONOPTIMIZE, zodat de assert-statements altijd actief
+	@# blijven; `-B` laat geen bytecode achter. Dit is unittest, dus er valt geen
+	@# pytest-omgeving op te schonen. Elke suite draait apart, zodat de eerste
+	@# nonzero status het doel meteen laat falen.
+	@$(PY) -I -B scripts/ci/test_tool_gates.py
+	@$(PY) -I -B scripts/ci/test_complexity_gate.py
+	@$(PY) -I -B scripts/ci/test_semgrep_gate.py
+	@$(PY) -I -B scripts/ci/test_epic_validation_gate.py
+
 # DEF-522: de fail-closed secret-gate loopt via één gedeelde CLI. Alle invoer is
 # expliciet en absoluut; er is geen terugval op HEAD, een baseline of een smaller
 # bereik, en geen doorgeefluik voor vrije tool- of pytest-vlaggen. De waarden gaan

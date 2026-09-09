@@ -957,21 +957,67 @@ class TestTotaleDeadline:
     ):
         """Budget 5s, waarvan 4,95s al verbruikt vóór het openen van de bron.
 
-        De busy-timeout van de bron moet dan hoogstens de resterende 0,05s zijn,
-        niet opnieuw min(5s, 5s). Verbruikte tijd wordt met een verschoven klok
-        gesimuleerd; de echte lockwacht blijft daardoor ver onder 2s.
+        De busy-timeout van de bron moet dan de resterende 0,05s zijn, niet
+        opnieuw ``min(5s, 5s)``. Dat is hier de eigenlijke assertie: de spion op
+        ``open_readonly_snapshot`` keurt de doorgegeven waarde af vóórdat er ook
+        maar gewacht wordt, dus een regressie die het volle budget doorgeeft
+        faalt onmiddellijk in plaats van na 5s.
+
+        Het verbruik loopt volledig over de geïnjecteerde klok. De vorige opzet
+        mengde een offset met de wallclock: SQLite kan de busy-wacht enkele
+        milliseconden vóór de deadline afbreken, waardoor ``_classify_failure``
+        het budget nog niet verlopen zag en ``source_unreadable`` een legitieme
+        uitkomst was (CI-run unit142). De klokstap gebeurt daarom pas nadat de
+        échte lockfout is opgetreden, en alleen dan.
+
+        De lock zelf blijft echt: een exclusieve transactie op de bron, met een
+        werkelijke SQLite busy-wacht van 0,05s. Er wordt niets nagemaakt aan de
+        SQL-fout en er wordt nergens geslapen.
         """
-        offset = [0.0]
-        monkeypatch.setattr(
-            sqlite_backup, "_monotonic", lambda: time.monotonic() + offset[0]
-        )
+        klok = _Klok()  # 1000.0; met budget 5s wordt de deadline 1005.0
+        monkeypatch.setattr(sqlite_backup, "_monotonic", klok)
+
         original_validate = sqlite_backup._validate_paths
 
         def trage_validatie(src: Path, dst: Path) -> None:
             original_validate(src, dst)
-            offset[0] += 4.95  # het budget is bijna op vóór het openen van de bron
+            klok.now += 4.95  # budget bijna op vóór het openen van de bron
 
         monkeypatch.setattr(sqlite_backup, "_validate_paths", trage_validatie)
+
+        doorgegeven: list[float] = []
+        geopend: list[sqlite3.Connection] = []
+        original_open = sqlite_backup.open_readonly_snapshot
+
+        def spionerende_open(
+            path: Path, busy_timeout: float = sqlite_backup.BUSY_TIMEOUT_SECONDS
+        ) -> sqlite3.Connection:
+            doorgegeven.append(busy_timeout)
+            assert busy_timeout == pytest.approx(
+                0.05, abs=1e-6
+            ), f"bron kreeg {busy_timeout}s in plaats van het resterende budget"
+            conn = original_open(path, busy_timeout=busy_timeout)
+            geopend.append(conn)
+            return conn
+
+        monkeypatch.setattr(sqlite_backup, "open_readonly_snapshot", spionerende_open)
+
+        lockfouten: list[sqlite3.Error] = []
+        original_read_manifest = sqlite_backup.read_manifest
+
+        def manifest_met_verlopen_klok(conn: sqlite3.Connection) -> SchemaManifest:
+            try:
+                return original_read_manifest(conn)
+            except sqlite3.Error as fout:
+                # De echte lockfout gaat ongewijzigd door; alleen de klok schuift
+                # deterministisch voorbij de deadline, zodat de classificatie in
+                # de bron niet meer van de wallclock afhangt.
+                lockfouten.append(fout)
+                klok.now = 1005.5
+                raise
+
+        monkeypatch.setattr(sqlite_backup, "read_manifest", manifest_met_verlopen_klok)
+
         locker = sqlite3.connect(str(source), isolation_level=None)
         locker.execute("BEGIN EXCLUSIVE")
         try:
@@ -982,10 +1028,18 @@ class TestTotaleDeadline:
         finally:
             locker.close()
 
+        assert doorgegeven == [pytest.approx(0.05, abs=1e-6)], doorgegeven
+        assert (
+            lockfouten
+        ), "de exclusieve bronlock moet een echte SQLite-fout hebben opgeleverd"
         assert excinfo.value.reason == "backup_timeout"
         assert elapsed < 2.0, f"bronlockwacht duurde {elapsed:.2f}s"
         assert not destination.exists()
         assert _staging_artefacts(destination.parent) == []
+        assert geopend, "de bronsnapshot moet geopend zijn"
+        for conn in geopend:
+            with pytest.raises(sqlite3.ProgrammingError):
+                conn.execute("SELECT 1")
 
     def test_deadline_fout_onderdrukt_oorspronkelijke_oserror_context(
         self, source: Path, destination: Path, monkeypatch: pytest.MonkeyPatch

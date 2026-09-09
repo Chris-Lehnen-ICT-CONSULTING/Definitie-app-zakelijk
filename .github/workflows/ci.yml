@@ -30,11 +30,13 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      - name: Run Grep Gate (enforced for services)
-        env:
-          ENFORCE_GREP_GATE: "true"
-        run: |
-          bash scripts/maintenance/grep_gate.sh
+      # DEF-665: dezelfde poort als lokaal. De handhavingsvlag staat in het
+      # Make-target, zodat er geen tweede contract naast de Makefile ontstaat.
+      - name: Grep Gate (make grep-check, blokkerend)
+        run: make grep-check
+
+      - name: Toolgate-tests (make test-tool-gates, blokkerend)
+        run: make test-tool-gates
 
       # DEF-519: hier stond een eigen pytest-subset met `--cov=src`. pytest-cov
       # schrijft dan `.coverage.*` in de checkout, wat de vroege

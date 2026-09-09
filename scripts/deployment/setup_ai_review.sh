@@ -133,7 +133,7 @@ fi
 # Create pyproject.toml if not exists
 if [ ! -f "pyproject.toml" ]; then
     echo -e "\n${BLUE}Creating pyproject.toml...${NC}"
-    cat > pyproject.toml << EOF
+    cat > pyproject.toml << 'EOF'
 [tool.ruff]
 line-length = 88
 target-version = "py311"

@@ -44,9 +44,13 @@ jobs:
         python scripts/docs/update_feature_status.py
 
     - name: Commit and push changes
+      # DEF-665: hetzelfde teken, maar via step-env in plaats van rechtstreeks in
+      # de shellstring; dat houdt de stap parseerbaar voor statische analyse.
+      env:
+        COMMIT_ICON: "🔄"
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add docs/architectuur/ARCHITECTURE_VISUALIZATION_DETAILED.html
-        git diff --staged --quiet || git commit -m "🔄 Update feature status dashboard [skip ci]"
+        git diff --staged --quiet || git commit -m "${COMMIT_ICON} Update feature status dashboard [skip ci]"
         git push

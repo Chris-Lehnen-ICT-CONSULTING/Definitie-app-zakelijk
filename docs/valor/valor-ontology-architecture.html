@@ -198,51 +198,51 @@ flowchart TD
     end
     class valorCore,demos valorCore
 
-    gufo -->|extends with events| ufob
-    gufo -->|extends with social| ufoc
-    gufo -->|extends with legal| ufol
+    gufo --&gt;|extends with events| ufob
+    gufo --&gt;|extends with social| ufoc
+    gufo --&gt;|extends with legal| ufol
 
-    ufob -->|causal grounding| coodm
-    ufoc -->|agent grounding| coodm
-    ufoc -->|social grounding| cover
-    ufol -->|legal authority| acta
+    ufob --&gt;|causal grounding| coodm
+    ufoc --&gt;|agent grounding| coodm
+    ufoc --&gt;|social grounding| cover
+    ufol --&gt;|legal authority| acta
 
-    coodm -->|beliefs as claims| tessera
-    cover -->|value as claims| tessera
-    acta -->|transactions as claims| tessera
+    coodm --&gt;|beliefs as claims| tessera
+    cover --&gt;|value as claims| tessera
+    acta --&gt;|transactions as claims| tessera
 
-    tessera -->|causal| causa
-    tessera -->|stakeholder| socia
-    tessera -->|legal| lexa
-    tessera -->|transaction| actaP
-    tessera -->|value| axia
-    tessera -->|process| delibera
-    tessera -->|engineering| forma
+    tessera --&gt;|causal| causa
+    tessera --&gt;|stakeholder| socia
+    tessera --&gt;|legal| lexa
+    tessera --&gt;|transaction| actaP
+    tessera --&gt;|value| axia
+    tessera --&gt;|process| delibera
+    tessera --&gt;|engineering| forma
 
-    ufob -.->|event theory| causa
-    ufoc -.->|agent theory| socia
-    ufol -.->|Hohfeld| lexa
-    acta -.->|DEMO pattern| actaP
-    cover -.->|value theory| axia
-    coodm -.->|COoDM + IBIS| delibera
-    gufo -.->|gUFO conformance| forma
+    ufob -.-&gt;|event theory| causa
+    ufoc -.-&gt;|agent theory| socia
+    ufol -.-&gt;|Hohfeld| lexa
+    acta -.-&gt;|DEMO pattern| actaP
+    cover -.-&gt;|value theory| axia
+    coodm -.-&gt;|COoDM + IBIS| delibera
+    gufo -.-&gt;|gUFO conformance| forma
 
-    causa --> app
-    socia --> app
-    lexa --> app
-    actaP --> app
-    axia --> app
-    delibera --> app
-    forma --> app
+    causa --&gt; app
+    socia --&gt; app
+    lexa --&gt; app
+    actaP --&gt; app
+    axia --&gt; app
+    delibera --&gt; app
+    forma --&gt; app
 
-    app --> capax
-    app --> nexus
-    app --> sysont
+    app --&gt; capax
+    app --&gt; nexus
+    app --&gt; sysont
 
-    capax --> valorCore
-    nexus --> valorCore
-    sysont --> valorCore
-    demos -.->|example data| valorCore
+    capax --&gt; valorCore
+    nexus --&gt; valorCore
+    sysont --&gt; valorCore
+    demos -.-&gt;|example data| valorCore
     </pre>
 </div>
 
