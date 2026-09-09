@@ -217,8 +217,14 @@ redigeer() {
     # queryparameter draagt. Elke lockregel eindigt op een backslash (`pakket \`
     # gevolgd door hashes); die blind samenvoegen zou de diff-uitvoer tot één
     # regel per pakket samenplakken en de melding onleesbaar maken.
+    #
+    # De `--` sluit de opties af: wat erna komt is het pad, ook als dat met een
+    # streep begint. Dat werkt hier doordat elk programmastuk als `-e` meekomt —
+    # een kaal scriptargument zou de optieparsing al beëindigen en de `--` tot
+    # bestandsnaam maken. De twee sed's in de pipeline erna lezen van stdin en
+    # hebben dus geen grens nodig.
     sed -e :a -e '/:\/\/[^[:space:]]*\\$/{N;s/\\\n\([<>] \)\{0,1\}[[:blank:]]*//;ba' -e '}' \
-        -e :b -e '/[?&][^=[:space:]]*=\\$/{N;s/\\\n\([<>] \)\{0,1\}[[:blank:]]*//;bb' -e '}' "$1" \
+        -e :b -e '/[?&][^=[:space:]]*=\\$/{N;s/\\\n\([<>] \)\{0,1\}[[:blank:]]*//;bb' -e '}' -- "$1" \
         | sed -n '1,20p' \
         | sed -E -e 's#(://)[^/@[:space:]]+@#\1***@#g' \
                  -e 's#([?&][^=&[:space:]]+=)[^&[:space:]]+#\1***#g' >&2
@@ -256,7 +262,11 @@ versie_voorkeur() {
         exit "$EXIT_PRECONDITIE"
     fi
 
-    if ! sed 's/ \\$//' "$tmp/zonder-hash" > "$doel"; then
+    # Het programma gaat via `-e`, zodat de `--` erachter nog als optiegrens
+    # telt; het werkbestand ligt onder TMPDIR, en die komt van buiten het
+    # script. Als kaal argument beëindigt het programma de optieparsing al, en
+    # dan leest sed de `--` als bestandsnaam — "--: No such file or directory".
+    if ! sed -e 's/ \\$//' -- "$tmp/zonder-hash" > "$doel"; then
         echo "FOUT: kan de versievoorkeur voor $lock niet schrijven." >&2
         exit "$EXIT_PRECONDITIE"
     fi
@@ -359,7 +369,11 @@ vergelijk() {
     local lock=$1 vers=$2 bron=$3
     local status=0
 
-    awk 'kop==0 && /^#/ {next} {kop=1; print}' "$lock" > "$tmp/lock-body" || status=$?
+    # Bij awk staat de grens vóór het programma, niet vóór het bestand: awk
+    # stopt met optieparsing zodra het programma-argument komt, dus een `--`
+    # dáárna is geen grens meer maar een bestandsnaam. `awk -- PROGRAMMA
+    # BESTAND` sluit de opties af vóór allebei.
+    awk -- 'kop==0 && /^#/ {next} {kop=1; print}' "$lock" > "$tmp/lock-body" || status=$?
     if [ "$status" -ne 0 ]; then
         echo "FOUT: kan $lock niet lezen." >&2
         exit "$EXIT_PRECONDITIE"

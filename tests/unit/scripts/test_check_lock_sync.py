@@ -230,13 +230,17 @@ def _repo(tmp_path: Path) -> Path:
     return root
 
 
-def _draai(root: Path, bin_dir: Path | None) -> subprocess.CompletedProcess[str]:
+def _draai(
+    root: Path, bin_dir: Path | None, *, tmpdir: Path | None = None
+) -> subprocess.CompletedProcess[str]:
     env = dict(os.environ)
     env["LOCK_SYNC_ROOT"] = str(root)
     # Beperk PATH tot de stub plus de systeempaden die bash/diff/sed leveren,
     # zodat een echte uv uit de dev-omgeving de test niet stilletjes overneemt.
     basis = "/usr/bin:/bin:/usr/sbin:/sbin"
     env["PATH"] = f"{bin_dir}:{basis}" if bin_dir else basis
+    if tmpdir is not None:
+        env["TMPDIR"] = str(tmpdir)
     return subprocess.run(
         ["bash", str(SCRIPT)],
         capture_output=True,
@@ -1249,3 +1253,278 @@ def test_ingesprongen_querywaarde_continuation_wordt_geredigeerd(tmp_path):
     assert "GEHEIM_QUERY" not in resultaat.stderr, resultaat.stderr
     assert "token=" in resultaat.stderr, resultaat.stderr
     assert "index.example" in resultaat.stderr, resultaat.stderr
+
+
+# ------------- DEF-736: optiegrens vóór de bestandsargumenten van sed en awk
+
+
+# De bestandsargumenten die het script aan sed en awk meegeeft. Op basisnaam
+# herkend, want twee ervan zijn tijdelijke paden waarvan de map per run
+# verschilt. De sed- en awk-programma's dragen geen van deze namen, dus een
+# token met zo een basisnaam ís het bestandsargument en geen stuk programma.
+BESTANDSOPERANDEN = frozenset(
+    {
+        "zonder-hash",  # versie_voorkeur -> sed
+        "req.err",  # redigeer, na een gefaalde runtime-resolve
+        "req-dev.err",  # redigeer, na een gefaalde dev-resolve
+        "diff.out",  # redigeer, na een desync
+        "requirements.txt",  # vergelijk -> awk
+        "requirements-dev.txt",  # vergelijk -> awk
+    }
+)
+
+# Het awk-programma van `vergelijk`, letterlijk. Bij awk staat de optiegrens vóór
+# het programma, dus de checker hieronder moet weten wat er tussen `--` en het
+# bestandsargument hoort te staan. Zonder die exacte waarde zou daar élk token
+# mogen staan en werd de controle een vrijbrief.
+AWK_PROGRAMMA = "kop==0 && /^#/ {next} {kop=1; print}"
+
+
+def _systeembinary(naam: str) -> str:
+    """Stel het echte binary vooraf vast, zodat de spion niet via PATH zoekt.
+
+    Zou de spion `sed` aanroepen in plaats van een vast pad, dan vindt hij
+    zichzelf terug op PATH en loopt de test in een fork-bom.
+    """
+    for map_ in ("/usr/bin", "/bin"):
+        kandidaat = Path(map_) / naam
+        if kandidaat.is_file() and os.access(kandidaat, os.X_OK):
+            return str(kandidaat)
+    pytest.skip(f"geen systeem-{naam} gevonden om doorheen te sturen")
+
+
+def _spion(bin_dir: Path, naam: str, logmap: Path) -> None:
+    """Zet een `naam`-wrapper op PATH die argv vastlegt en transparant doorstuurt.
+
+    De grens moet op de échte argv worden getoetst en niet op de brontekst van
+    het script: een assertie die in de shellbron naar `--` grept blijft groen
+    zodra de grens per ongeluk achter het bestandsargument belandt, of in een
+    tak staat die deze aanroep niet doorloopt.
+
+    Doorsturen gebeurt met `exec`, dus stdin, stdout en de exitstatus lopen
+    ongewijzigd door en alle bestaande asserties op de semantische uitkomst
+    blijven gelden.
+    """
+    echt = _systeembinary(naam)
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    logmap.mkdir(parents=True, exist_ok=True)
+    spion = bin_dir / naam
+    spion.write_text(
+        "#!/usr/bin/env bash\n"
+        # Eén logbestand per aanroep. `redigeer` draait drie sed's als pipeline,
+        # dus tegelijk; in een gedeeld logbestand zouden hun records door elkaar
+        # schuiven en zou de parser onzin argv's opleveren.
+        f"log=$(mktemp {str(logmap)!r}/aanroep.XXXXXX)\n"
+        # NUL als scheider: argumenten dragen spaties (paden) en shell-metatekens
+        # (de sed-programma's), dus elke tekstscheider zou een programma in
+        # stukken kunnen knippen.
+        f'printf \'%s\\0\' {naam!r} "$@" > "$log"\nexec {echt!r} "$@"\n',
+        encoding="utf-8",
+    )
+    spion.chmod(0o755)
+
+
+def _aanroepen(logmap: Path) -> list[tuple[str, list[str]]]:
+    """Lees de vastgelegde aanroepen als (naam, argv)-paren."""
+    waargenomen = []
+    for pad in sorted(logmap.iterdir()):
+        velden = pad.read_text(encoding="utf-8").split("\0")[:-1]
+        if velden:
+            waargenomen.append((velden[0], velden[1:]))
+    return waargenomen
+
+
+def _operand_index(argv: list[str]) -> int | None:
+    """Positie van het bestandsargument, of None bij een aanroep die stdin leest."""
+    for index, token in enumerate(argv):
+        if Path(token).name in BESTANDSOPERANDEN:
+            return index
+    return None
+
+
+def _zonder_grens(
+    waargenomen: list[tuple[str, list[str]]],
+) -> list[tuple[str, list[str]]]:
+    """Aanroepen die een bestand meegeven zonder correcte optiegrens ervóór.
+
+    Waar die grens hoort te staan verschilt per binary, omdat ze op een ander
+    moment met optieparsing stoppen:
+
+    * sed krijgt zijn programma's als `-e`, dus de parsing loopt door tot het
+      bestandsargument. `--` hoort daar direct vóór.
+    * awk stopt zodra het programma-argument komt. Een `--` daarachter is dan
+      geen grens meer maar een bestandsnaam, dus de grens gaat vóór het
+      programma: `awk -- PROGRAMMA BESTAND`. Tussen grens en bestand hoort
+      precies het bekende programma te staan en niets anders — een vrije plek
+      daar zou elk willekeurig token laten passeren.
+
+    Aanroepen zonder bestandsargument blijven buiten beschouwing. De tweede en
+    derde sed van `redigeer` lezen van stdin en hebben dus geen grens nodig;
+    die als overtreding tellen zou een grens eisen die daar niets afbakent.
+    """
+    overtredingen = []
+    for naam, argv in waargenomen:
+        index = _operand_index(argv)
+        if index is None:
+            continue
+        if naam == "awk":
+            correct = index >= 2 and argv[index - 2 : index] == ["--", AWK_PROGRAMMA]
+        else:
+            correct = index >= 1 and argv[index - 1] == "--"
+        if not correct:
+            overtredingen.append((naam, argv))
+    return overtredingen
+
+
+def _operandnamen(waargenomen: list[tuple[str, list[str]]]) -> set[str]:
+    """Basisnamen van de waargenomen bestandsargumenten, voor de opzetcontrole."""
+    namen = set()
+    for _, argv in waargenomen:
+        index = _operand_index(argv)
+        if index is not None:
+            namen.add(Path(argv[index]).name)
+    return namen
+
+
+def test_bestandsargumenten_van_sed_en_awk_hebben_een_optiegrens(tmp_path):
+    """De opties horen afgesloten te zijn vóór wat het script van buiten krijgt.
+
+    Het script geeft sed en awk paden mee die het niet zelf verzint — een
+    tijdelijke map uit TMPDIR en de lockbestandsnamen uit de repo-root. Zonder
+    optiegrens bepaalt de eerste letter van zo een pad of het als bestand of als
+    vlaggencluster gelezen wordt. Dat is geen bewezen exploit, wel een grens die
+    er hoort te staan.
+
+    De plek van die grens verschilt per binary. sed krijgt zijn programma's als
+    `-e` en parseert door tot het bestandsargument, dus daar hoort `--` direct
+    vóór. awk stopt met optieparsing zodra het programma-argument komt: een `--`
+    daarachter is geen grens meer maar een bestandsnaam, dus bij awk gaat de
+    grens vóór het programma en sluit `awk -- PROGRAMMA BESTAND` de opties af
+    vóór allebei.
+
+    Deze test toetst de grens op de argv die sed en awk werkelijk ontvangen, via
+    een spion die transparant doorstuurt. De gate blijft daarom gewoon groen
+    oordelen; alleen de vorm van de aanroep komt erbij.
+    """
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    logmap = tmp_path / "argv"
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+    _spion(bin_dir, "sed", logmap)
+    _spion(bin_dir, "awk", logmap)
+
+    resultaat = _draai(root, bin_dir)
+
+    # De uitkomst mag niet verschuiven: de spion stuurt door naar het echte
+    # binary, dus een geldige lock hoort nog steeds exit 0 te geven.
+    assert resultaat.returncode == 0, f"{resultaat.stdout}{resultaat.stderr}"
+    assert "OK:" in resultaat.stdout
+
+    waargenomen = _aanroepen(logmap)
+    # Opzetcontrole: raakt deze run de sed van `versie_voorkeur` en de awk van
+    # `vergelijk` niet allebei, dan bewijst de assertie eronder niets.
+    assert _operandnamen(waargenomen) == {
+        "zonder-hash",
+        "requirements.txt",
+        "requirements-dev.txt",
+    }, waargenomen
+
+    assert _zonder_grens(waargenomen) == [], (
+        "sed of awk kreeg zijn bestandsargument zonder correcte optiegrens "
+        "(sed: `--` direct vóór het bestand; awk: `--` vóór het programma)"
+    )
+
+
+def test_redigeer_geeft_zijn_bestandsargument_achter_een_optiegrens(tmp_path):
+    """Ook het foutpad van de redactie geeft een pad mee dat afgebakend hoort.
+
+    `redigeer` krijgt het uitvoerbestand van uv, dus een pad uit TMPDIR. De
+    andere twee sed's in die pipeline lezen van stdin en horen juist géén grens
+    te krijgen — die eisen zou een grens vragen waar niets af te bakenen valt.
+    Deze test bewijst beide kanten in één run.
+    """
+    root = _repo(tmp_path)
+    bin_dir = tmp_path / "bin"
+    logmap = tmp_path / "argv"
+    _fake_uv(
+        bin_dir,
+        runtime_body=LOCK_BODY,
+        dev_body=DEV_LOCK_BODY,
+        exit_code=1,
+        foutmelding=(
+            "error: kan https://gebruiker:GEHEIM123@index.example/simple niet bereiken"
+        ),
+    )
+    _spion(bin_dir, "sed", logmap)
+    _spion(bin_dir, "awk", logmap)
+
+    resultaat = _draai(root, bin_dir)
+
+    # De bestaande semantiek van dit pad blijft gelden: resolve-exitcode, een
+    # diagnosticeerbare melding, en geen credential in het joblog.
+    assert resultaat.returncode == 2, f"{resultaat.stdout}{resultaat.stderr}"
+    assert "niet resolven" in resultaat.stderr
+    assert "GEHEIM123" not in resultaat.stderr, resultaat.stderr
+    assert "index.example" in resultaat.stderr, resultaat.stderr
+
+    waargenomen = _aanroepen(logmap)
+    assert "req.err" in _operandnamen(waargenomen), waargenomen
+    # De uitzondering voor stdin-only aanroepen moet ook werkelijk iets
+    # uitsluiten; zonder die aanroepen zou ze stilzwijgend leeg zijn.
+    stdin_only = [argv for _, argv in waargenomen if _operand_index(argv) is None]
+    assert stdin_only, "geen stdin-only sed gezien; de uitzondering bewijst niets"
+
+    assert (
+        _zonder_grens(waargenomen) == []
+    ), "redigeer gaf zijn bestandsargument zonder `--` mee aan sed"
+
+
+def test_optiegrens_houdt_stand_bij_paden_met_spaties(tmp_path):
+    """De grens mag de quoting van een pad met spaties niet aantasten.
+
+    Het meest waarschijnlijke ongeluk bij het toevoegen van `--` is dat het
+    bestandsargument onderweg zijn aanhalingstekens verliest en in woorden
+    uiteenvalt. Een werkmap en een repo-root met een spatie erin maken dat
+    zichtbaar: sed en awk krijgen dan één argument of drie.
+
+    Een bestandsnaam met een voorloopstreep — de klassieke variant hierop —
+    is met deze fixtures niet te maken: het script leest alleen de hardgecodeerde
+    namen `requirements*.txt` en zijn eigen tijdelijke bestanden, en `mktemp`
+    weigert zelf een template die met een streep begint.
+    """
+    ruimte = tmp_path / "map met spatie"
+    ruimte.mkdir()
+    root = _repo(ruimte)
+    bin_dir = tmp_path / "bin"
+    logmap = tmp_path / "argv"
+    werkmap = tmp_path / "werk map"
+    werkmap.mkdir()
+    # Een desync forceren, zodat naast de sed van `versie_voorkeur` en de awk van
+    # `vergelijk` ook de redactie van de diff meeloopt.
+    (root / "requirements.txt").write_text(
+        HEADER + "voorbeeld==9.9.9\n    # via -r requirements.in\n", encoding="utf-8"
+    )
+    _fake_uv(bin_dir, runtime_body=LOCK_BODY, dev_body=DEV_LOCK_BODY)
+    _spion(bin_dir, "sed", logmap)
+    _spion(bin_dir, "awk", logmap)
+
+    resultaat = _draai(root, bin_dir, tmpdir=werkmap)
+
+    assert resultaat.returncode == 1, f"{resultaat.stdout}{resultaat.stderr}"
+    assert "requirements.txt niet in sync" in resultaat.stderr
+    assert "9.9.9" in resultaat.stderr, resultaat.stderr
+
+    waargenomen = _aanroepen(logmap)
+    # Opzetcontrole: de paden met spatie moeten als één argument zijn
+    # aangekomen, anders toetst de grensassertie een uiteengevallen operand.
+    met_spatie = []
+    for _, argv in waargenomen:
+        index = _operand_index(argv)
+        if index is not None and " " in argv[index]:
+            met_spatie.append(argv[index])
+    assert met_spatie, waargenomen
+    assert "diff.out" in _operandnamen(waargenomen), waargenomen
+
+    assert (
+        _zonder_grens(waargenomen) == []
+    ), "een pad met spaties kwam zonder correcte optiegrens bij sed of awk aan"
