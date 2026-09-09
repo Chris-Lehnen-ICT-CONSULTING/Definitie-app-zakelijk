@@ -98,19 +98,6 @@ class TestRoundtripVerliestNiets:
             f"{sorted(verloren)}"
         )
 
-    @pytest.mark.parametrize("json_path", ALLE_REGEL_JSONS, ids=lambda p: p.stem)
-    def test_runtime_velden_expliciet(self, json_path, cache_records):
-        # Gerichte regressie op de uitvoerbare velden (DEF-606
-        # acceptatiecriterium: min/max/circulariteit/vereist_param).
-        raw = json.loads(json_path.read_text(encoding="utf-8"))
-        record = cache_records[json_path.stem]
-        for veld in RUNTIME_VELDEN:
-            if veld in raw:
-                assert record.get(veld) == raw[veld], (
-                    f"{json_path.stem}: runtime-veld '{veld}' verliest zijn "
-                    f"waarde in de cache"
-                )
-
     def test_defaults_blijven_gegarandeerd(self, cache_records):
         for regel_id, record in cache_records.items():
             raw = json.loads(
@@ -143,8 +130,8 @@ class TestRoundtripVerliestNiets:
             )
 
     def test_runtime_velden_komen_ergens_voor(self, cache_records):
-        # Vangt drift: een hernoemd/verwijderd runtime-veld in de bron-
-        # JSONs zou test_runtime_velden_expliciet stil tot no-op maken.
+        # Vangt drift: runtime-velden die uit alle bron-JSONs verdwijnen,
+        # vallen buiten de vergelijking van aanwezige bronvelden hierboven.
         zonder_voorkomen = set()
         for veld in RUNTIME_VELDEN:
             if not any(

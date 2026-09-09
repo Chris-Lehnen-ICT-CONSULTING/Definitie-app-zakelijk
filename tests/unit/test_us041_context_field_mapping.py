@@ -369,15 +369,6 @@ class TestContextAuditCompliance:
         # This test documents requirement for metadata inclusion
         # Implementation should store context in result.metadata
 
-    def test_context_validation_against_whitelist(self):
-        """Context values should be validated against allowed values."""
-        # Valid organizations
-
-        # Valid legal contexts
-
-        # This test documents the requirement for validation
-        # Implementation should validate against these lists
-
 
 class TestEdgeCases:
     """Test edge cases and error conditions."""

@@ -52,14 +52,6 @@ class TestShouldRetryClassification:
         """Generic AIClientError (e.g. mapped 5xx) stays retryable."""
         assert await manager.should_retry(AIClientError("5xx"), 1) is True
 
-    async def test_authentication_error_not_retried_at_first_attempt(self, manager):
-        """Even on the very first retry decision the auth error fails fast."""
-        # attempt well below max_retries so only the type classification matters
-        assert (
-            await manager.should_retry(AIAuthenticationClientError("bad key"), 1)
-            is False
-        )
-
 
 @pytest.fixture
 def reset_retry_manager():

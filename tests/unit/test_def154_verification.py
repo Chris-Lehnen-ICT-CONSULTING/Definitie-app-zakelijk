@@ -11,7 +11,6 @@ import pytest
 
 from services.prompts.modules.base_module import ModuleContext
 from services.prompts.modules.expertise_module import ExpertiseModule
-from services.prompts.modules.grammar_module import GrammarModule
 from services.prompts.modules.template_module import TemplateModule
 
 pytestmark = [pytest.mark.unit]
@@ -70,27 +69,6 @@ class TestDEF154Verification:
             assert (
                 shared_type == expected_type
             ), f"Expected {expected_type}, got {shared_type} for {begrip}"
-
-    def test_word_type_shared_state_propagation(self):
-        """Verify word_type is correctly shared between modules."""
-        expertise = ExpertiseModule()
-        expertise.initialize({})
-
-        grammar = GrammarModule()
-        grammar.initialize({})
-
-        # Test with werkwoord
-        ctx = make_context(begrip="behandelen")
-        expertise_result = expertise.execute(ctx)
-
-        assert expertise_result.success
-        assert ctx.get_shared("word_type") == "werkwoord"
-
-        # GrammarModule should be able to access the shared word_type
-        grammar_result = grammar.execute(ctx)
-        assert grammar_result.success
-        # GrammarModule should have word_type in metadata even if not in content
-        assert grammar_result.metadata.get("word_type") == "werkwoord"
 
     def test_template_module_receives_word_type(self):
         """Verify TemplateModule can still access word_type from shared state."""
@@ -180,43 +158,6 @@ class TestDEF154Verification:
         # Should NOT have word type advice
         assert "zelfstandig naamwoord" not in content
         assert "deverbalisatie" not in content
-
-    def test_cross_module_integration(self):
-        """Test full integration flow: Expertise → Grammar → Template."""
-        expertise = ExpertiseModule()
-        expertise.initialize({})
-
-        grammar = GrammarModule()
-        grammar.initialize({})
-
-        template = TemplateModule()
-        template.initialize({})
-
-        # Run full pipeline
-        ctx = make_context(begrip="behandeling")
-
-        # Step 1: Expertise detects word_type
-        expertise_result = expertise.execute(ctx)
-        assert expertise_result.success
-        assert ctx.get_shared("word_type") == "deverbaal"
-
-        # Step 2: Grammar uses word_type
-        grammar_result = grammar.execute(ctx)
-        assert grammar_result.success
-
-        # Step 3: Template uses word_type
-        ctx.set_shared("ontological_category", "proces")
-        template_result = template.execute(ctx)
-        assert template_result.success
-
-        # All modules should succeed without errors
-        assert all(
-            [
-                expertise_result.success,
-                grammar_result.success,
-                template_result.success,
-            ]
-        )
 
     def test_no_orphaned_references(self):
         """Verify no code expects the removed _build_word_type_advice method."""

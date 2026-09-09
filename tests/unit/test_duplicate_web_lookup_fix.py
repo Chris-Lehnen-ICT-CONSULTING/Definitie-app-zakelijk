@@ -132,59 +132,21 @@ class TestDuplicateWebLookupFix:
             }
         }
 
-        # Build prompt with orchestrator context
-        result = await prompt_service.build_generation_prompt(
-            request=request, feedback_history=None, context=orchestrator_context
-        )
+        # Exercise source injection independently of the configured default.
+        with patch.dict(prompt_service._aug_cfg, {"enabled": True}):
+            result = await prompt_service.build_generation_prompt(
+                request=request, feedback_history=None, context=orchestrator_context
+            )
 
         # Verify prompt was built
         assert result is not None
         assert result.text is not None
         assert len(result.text) > 0
+        assert "<bronnen>" in result.text
+        assert "Test snippet" in result.text
+        assert "https://example.com" in result.text
 
         print("✅ PromptServiceV2 uses orchestrator's web lookup data")
-
-    def test_no_web_lookup_in_context_metadata(self):
-        """
-        Verificatie: HybridContextManager's metadata bevat GEEN web_lookup_available flag.
-
-        BEFORE FIX: metadata["web_lookup_available"] was present
-        AFTER FIX: This flag is removed since web lookup is orchestrator's responsibility
-        """
-        config = ContextConfig(
-            enable_rule_interpretation=False, context_abbreviations={}
-        )
-
-        HybridContextManager(config)
-
-        # Build minimal enriched context
-        from services.definition_generator_context import EnrichedContext
-
-        # Simulate what build_enriched_context creates
-        base_context = {
-            "organisatorisch": ["Politie"],
-            "juridisch": ["Strafrecht"],
-            "wettelijk": [],
-        }
-
-        enriched = EnrichedContext(
-            base_context=base_context,
-            sources=[],
-            expanded_terms={},
-            confidence_scores={},
-            metadata={
-                "total_sources": 0,
-                "avg_confidence": 0.0,
-                "hybrid_engine_available": False,
-            },
-        )
-
-        # Verify web_lookup_available is NOT in metadata
-        assert (
-            "web_lookup_available" not in enriched.metadata
-        ), "Metadata should NOT contain web_lookup_available flag"
-
-        print("✅ EnrichedContext metadata does NOT contain web_lookup_available")
 
 
 if __name__ == "__main__":
@@ -196,7 +158,6 @@ if __name__ == "__main__":
     asyncio.run(
         TestDuplicateWebLookupFix().test_prompt_service_uses_orchestrator_web_lookup_data()
     )
-    TestDuplicateWebLookupFix().test_no_web_lookup_in_context_metadata()
 
     print("\n" + "=" * 80)
     print("✅ ALL TESTS PASSED - Duplicate web lookup fix verified!")

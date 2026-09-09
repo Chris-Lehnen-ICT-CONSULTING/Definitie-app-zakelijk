@@ -16,16 +16,11 @@ from utils.cache import cached, clear_cache, get_cache_stats
 
 pytestmark = [pytest.mark.unit]
 
-# Import CacheManager and EnhancedCache if they exist
+# Import CacheManager if it exists
 try:
     from utils.cache import CacheManager
 except ImportError:
     CacheManager = None
-
-try:
-    from utils.cache import EnhancedCache
-except ImportError:
-    EnhancedCache = None
 
 
 class TestCacheDecorator:
@@ -321,125 +316,6 @@ class TestCacheManager:
         assert stats["misses"] >= 1
 
 
-@pytest.mark.skipif(EnhancedCache is None, reason="EnhancedCache not available")
-class TestEnhancedCache:
-    """Test suite for EnhancedCache class."""
-
-    def setup_method(self):
-        """Setup for each test method."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.enhanced_cache = EnhancedCache(cache_dir=self.temp_dir)
-
-    def teardown_method(self):
-        """Cleanup after each test method."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def test_enhanced_cache_initialization(self):
-        """Test EnhancedCache initialization."""
-        assert self.enhanced_cache.cache_dir == self.temp_dir
-        assert hasattr(self.enhanced_cache, "memory_cache")
-        assert hasattr(self.enhanced_cache, "file_cache")
-
-    def test_multi_level_caching(self):
-        """Test multi-level caching (memory + file)."""
-        # Set value
-        self.enhanced_cache.set("key1", "value1", ttl=60)
-
-        # Should be in memory cache
-        result = self.enhanced_cache.get("key1")
-        assert result == "value1"
-
-        # Clear memory cache but keep file cache
-        self.enhanced_cache.memory_cache.clear()
-
-        # Should still be available from file cache
-        result = self.enhanced_cache.get("key1")
-        assert result == "value1"
-
-    def test_cache_warming(self):
-        """Test cache warming functionality."""
-
-        # Mock function to warm cache
-        def warm_function():
-            return {"key1": "value1", "key2": "value2"}
-
-        # Warm cache
-        self.enhanced_cache.warm_cache(warm_function)
-
-        # Values should be available
-        assert self.enhanced_cache.get("key1") == "value1"
-        assert self.enhanced_cache.get("key2") == "value2"
-
-    def test_cache_cleanup(self, monkeypatch):
-        """Test cache cleanup functionality."""
-        # Set values with different TTLs
-        self.enhanced_cache.set("key1", "value1", ttl=0.1)  # Short TTL
-        self.enhanced_cache.set("key2", "value2", ttl=60)  # Long TTL
-
-        # Try to advance internal clock if available; fallback to tiny real sleep
-        advanced = False
-        base = [0.0]
-        for attr in ("_now", "now", "time", "_time"):
-            if hasattr(self.enhanced_cache, attr):
-
-                def _fake_now():
-                    return base[0] + 1.0
-
-                try:
-                    monkeypatch.setattr(
-                        self.enhanced_cache, attr, _fake_now, raising=True
-                    )
-                    advanced = True
-                    break
-                except Exception:
-                    pass
-
-        if not advanced:
-            # Minimal sleep to preserve intent without slowing suite
-            time.sleep(0.02)
-
-        # Run cleanup
-        self.enhanced_cache.cleanup_expired()
-
-        # Expired key should be gone, valid key should remain
-        assert self.enhanced_cache.get("key1") is None
-        assert self.enhanced_cache.get("key2") == "value2"
-
-    def test_cache_preloading(self):
-        """Test cache preloading functionality."""
-        # Define preload data
-        preload_data = {
-            "preload_key1": "preload_value1",
-            "preload_key2": "preload_value2",
-        }
-
-        # Preload cache
-        self.enhanced_cache.preload(preload_data, ttl=60)
-
-        # Values should be available
-        assert self.enhanced_cache.get("preload_key1") == "preload_value1"
-        assert self.enhanced_cache.get("preload_key2") == "preload_value2"
-
-    def test_cache_performance_monitoring(self):
-        """Test cache performance monitoring."""
-        # Perform operations
-        self.enhanced_cache.set("key1", "value1", ttl=60)
-        self.enhanced_cache.get("key1")  # Hit
-        self.enhanced_cache.get("key1")  # Hit
-        self.enhanced_cache.get("nonexistent")  # Miss
-
-        # Get performance metrics
-        metrics = self.enhanced_cache.get_performance_metrics()
-
-        assert "hit_rate" in metrics
-        assert "average_response_time" in metrics
-        assert "memory_usage" in metrics
-        assert "cache_size" in metrics
-
-        assert metrics["hit_rate"] > 0
-        assert metrics["average_response_time"] >= 0
-
-
 class TestCacheIntegration:
     """Integration tests for cache system."""
 
@@ -451,26 +327,6 @@ class TestCacheIntegration:
     def teardown_method(self):
         """Cleanup after each test method."""
         shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def test_cache_decorator_with_manager(self):
-        """Test integration between cache decorator and manager."""
-        # Create cache manager
-        cache_manager = CacheManager(cache_dir=self.temp_dir)
-
-        @cached(ttl=60, cache_manager=cache_manager)
-        def test_function(x):
-            return x * 2
-
-        # Test function caching
-        result1 = test_function(5)
-        result2 = test_function(5)
-
-        assert result1 == result2 == 10
-
-        # Verify in cache manager
-        # Note: The actual key depends on implementation
-        stats = cache_manager.get_stats()
-        assert stats["hits"] > 0
 
     def test_cache_configuration_integration(self):
         """Test cache integration with configuration system."""

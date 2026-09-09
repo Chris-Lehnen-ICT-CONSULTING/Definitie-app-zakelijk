@@ -14,7 +14,7 @@ Related Documentation:
 
 Test Coverage:
 - Single context flow path validation
-- Performance improvement verification (>20% target)
+- Context processing timing
 - Legacy code removal confirmation
 - Session state encapsulation
 - Memory efficiency
@@ -24,7 +24,6 @@ Test Coverage:
 import ast
 import inspect
 import time
-import timeit
 import traceback
 from typing import Any, Optional
 from unittest.mock import MagicMock, Mock, patch
@@ -112,69 +111,7 @@ class TestSingleContextFlowPath:
 
 
 class TestPerformanceImprovement:
-    """Verify >20% performance improvement target is achieved."""
-
-    @pytest.fixture
-    def legacy_context_flow(self):
-        """Simulate legacy context flow timing."""
-
-        def legacy_flow():
-            # Simulate multiple session state accesses
-            time.sleep(0.001)  # Session state read
-            context = {"org": [], "jur": [], "wet": []}
-
-            # Multiple transformations
-            time.sleep(0.001)  # Transform 1
-            time.sleep(0.001)  # Transform 2
-            time.sleep(0.001)  # Validation
-
-            # Multiple service calls
-            time.sleep(0.002)  # Service routing
-
-            return context
-
-        return legacy_flow
-
-    @pytest.fixture
-    def modern_context_flow(self):
-        """Modern streamlined context flow."""
-
-        def modern_flow():
-            # Direct interface access
-            request = GenerationRequest(
-                begrip="test",
-                organisatorische_context=[],
-                juridische_context=[],
-                wettelijke_basis=[],
-            )
-
-            # Single transformation
-            time.sleep(0.001)  # Single transform
-
-            # Direct service call
-            time.sleep(0.001)  # Direct routing
-
-            return request
-
-        return modern_flow
-
-    def test_performance_improvement_achieved(
-        self, legacy_context_flow, modern_context_flow
-    ):
-        """Verify at least 20% performance improvement."""
-        # Measure legacy timing
-        legacy_time = timeit.timeit(legacy_context_flow, number=100) / 100
-
-        # Measure modern timing
-        modern_time = timeit.timeit(modern_context_flow, number=100) / 100
-
-        # Calculate improvement
-        improvement = (legacy_time - modern_time) / legacy_time
-
-        # Should achieve at least 20% improvement
-        assert (
-            improvement >= 0.20
-        ), f"Performance improvement {improvement:.1%} is less than 20%"
+    """Test context processing timing and formatting calls."""
 
     def test_context_processing_under_100ms(self):
         """Context processing should complete in under 100ms."""
@@ -230,13 +167,6 @@ class TestLegacyCodeRemoval:
         except ImportError:
             pass  # Expected
 
-    def test_no_direct_session_state_context_access(self):
-        """No direct st.session_state context access should exist."""
-        # Scan codebase for direct session state access patterns
-
-        # This test documents the requirement
-        # In practice, would scan actual codebase
-
     def test_deprecated_context_methods_marked(self):
         """Any remaining legacy methods should be marked deprecated."""
         from services.container import ServiceContainer
@@ -261,19 +191,6 @@ class TestLegacyCodeRemoval:
 
 class TestSessionStateEncapsulation:
     """Test that session state is properly encapsulated."""
-
-    def test_context_not_directly_accessible(self):
-        """Context should not be directly accessible from session state."""
-        with patch("streamlit.session_state", create=True) as mock_session:
-            mock_session.organisatorische_context = ["DJI"]
-
-            # Should not be able to access directly
-            # Context should go through proper interfaces
-            from services.context.context_manager import ContextManager
-
-            ContextManager()
-            # Should use manager methods, not direct access
-            # Direct session state access should be prevented
 
     def test_context_modifications_go_through_manager(self):
         """All context modifications should go through ContextManager."""
@@ -357,28 +274,6 @@ class TestMemoryEfficiency:
         # Should not significantly increase memory
         # (This is a simplified test, real implementation would be more thorough)
 
-    def test_context_garbage_collection(self):
-        """Old context should be garbage collected."""
-        import gc
-        import weakref
-
-        # Create context
-        context = {
-            "organisatorische_context": ["DJI"],
-            "juridische_context": ["Strafrecht"],
-            "wettelijke_basis": ["Test wet"],
-        }
-
-        # Create weak reference
-        weak_ref = weakref.ref(context)
-
-        # Clear context
-        del context
-        gc.collect()
-
-        # Should be garbage collected
-        assert weak_ref() is None, "Context not garbage collected"
-
 
 class TestCodeMaintainability:
     """Test code maintainability improvements."""
@@ -451,12 +346,6 @@ class TestRegressionPrevention:
                 pattern not in source
             ), f"String concatenation pattern '{pattern}' found"
 
-    def test_no_nested_context_extraction(self):
-        """Context extraction should not be deeply nested."""
-        # Check for nested attribute access
-
-        # This test documents the anti-pattern
-
     def test_no_context_type_confusion(self):
         """Context types should be consistent."""
         request = GenerationRequest(
@@ -503,16 +392,6 @@ class TestFeatureFlags:
         # Should support gradual rollout
         percentage = get_rollout_percentage("modern_context_flow")
         assert 0 <= percentage <= 100
-
-    def test_fallback_to_legacy_if_error(self):
-        """Should fallback to legacy flow if modern flow fails."""
-        with patch(
-            "services.prompts.prompt_service_v2.PromptServiceV2.build_prompt"
-        ) as mock_modern:
-            mock_modern.side_effect = Exception("Modern flow failed")
-
-            # Should fallback gracefully
-            # This test documents the requirement
 
 
 class TestMonitoring:

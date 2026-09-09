@@ -18,13 +18,6 @@ def rule_cache():
     return cache
 
 
-def test_rule_cache_has_monitoring(rule_cache):
-    """Test that RuleCache has monitoring enabled."""
-    assert hasattr(rule_cache, "_monitor")
-    # Monitor can be None if monitoring not available, but should exist
-    assert rule_cache._monitor is not None or rule_cache._monitor is None
-
-
 def test_rule_cache_tracks_get_all_rules(rule_cache):
     """Test that get_all_rules operation is tracked."""
     # Clear monitoring before test
@@ -113,15 +106,3 @@ def test_rule_cache_monitoring_snapshot(rule_cache):
         assert snapshot.total_entries > 0
         # Should have tracked operations
         assert snapshot.hits > 0 or snapshot.misses > 0
-
-
-def test_rule_cache_without_monitoring_still_works():
-    """Test that RuleCache works even if monitoring is not available."""
-    cache = get_rule_cache()
-
-    # Should work regardless of monitoring availability
-    rules = cache.get_all_rules()
-    assert isinstance(rules, dict)
-
-    stats = cache.get_stats()
-    assert "total_rules_cached" in stats

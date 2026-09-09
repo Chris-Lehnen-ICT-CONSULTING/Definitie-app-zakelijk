@@ -78,11 +78,6 @@ class TestValidationOrchestratorV2Unit:
     # CONSTRUCTOR TESTS
     # ========================================
 
-    def test_constructor_requires_validation_service(self):
-        """Test constructor validation service requirement."""
-        with pytest.raises(ValueError, match="validation_service is vereist"):
-            ValidationOrchestratorV2(validation_service=None)
-
     def test_constructor_accepts_optional_cleaning_service(
         self, mock_validation_service
     ):

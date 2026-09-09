@@ -435,42 +435,53 @@ class TestMemoryStress:
     """Test memory handling under stress conditions."""
 
     @pytest.mark.slow
-    def test_memory_leak_prevention(self):
-        """Test that repeated Anders operations don't leak memory."""
+    def test_memory_leak_prevention(self, caplog):
+        """Retained memory stays below 1 MiB over 1,000 warmed-up renders."""
         import tracemalloc
 
-        tracemalloc.start()
-
         with (
+            patch("streamlit.session_state", new={}),
+            patch("streamlit.columns", new=lambda n: [contextlib.nullcontext()] * n),
+            patch("streamlit.expander", new=lambda *a, **kw: contextlib.nullcontext()),
+            patch("streamlit.markdown", new=lambda *a, **kw: None),
+            patch("streamlit.write", new=lambda *a, **kw: None),
+            patch("streamlit.info", new=lambda *a, **kw: None),
             patch("streamlit.multiselect") as mock_multiselect,
             patch("streamlit.text_input") as mock_text_input,
         ):
 
-            # Baseline
-            gc.collect()
-            snapshot1 = tracemalloc.take_snapshot()
-
-            # Perform many operations
-            for i in range(1000):
+            def render_once(i):
                 mock_multiselect.return_value = ["Anders..."]
-                mock_text_input.return_value = f"Memory test {i}" * 100
+                mock_text_input.return_value = f"Memory test {i}" * 10
+                result = ContextSelector().render()
+                assert result["organisatorische_context"]
+                # Do not measure retained mock arguments or pytest log records.
+                mock_multiselect.reset_mock()
+                mock_text_input.reset_mock()
+                caplog.clear()
 
-                selector = ContextSelector()
-                selector.render()
-
-                if i % 100 == 0:
-                    gc.collect()
-
-            # Final measurement
-            gc.collect()
-            snapshot2 = tracemalloc.take_snapshot()
-
-            # Check memory growth
-            snapshot2.compare_to(snapshot1, "lineno")
-
-            # Memory growth should be minimal
-            # This is a simplified check
-            tracemalloc.stop()
+            # Initialize imports and shared services before the measurement.
+            for i in range(10):
+                render_once(i)
+            already_tracing = tracemalloc.is_tracing()
+            if not already_tracing:
+                tracemalloc.start()
+            try:
+                gc.collect()
+                before = tracemalloc.take_snapshot()
+                for i in range(1000):
+                    render_once(i)
+                gc.collect()
+                after = tracemalloc.take_snapshot()
+                retained_bytes = sum(
+                    stat.size_diff for stat in after.compare_to(before, "filename")
+                )
+                assert (
+                    retained_bytes < 1024 * 1024
+                ), f"Retained {retained_bytes:,} bytes after 1,000 renders"
+            finally:
+                if not already_tracing:
+                    tracemalloc.stop()
 
     def test_large_number_of_anders_fields(self):
         """Test handling many Anders fields simultaneously."""
