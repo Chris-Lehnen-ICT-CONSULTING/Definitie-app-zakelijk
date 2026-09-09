@@ -920,11 +920,58 @@ class TestTotaleDeadline:
     ):
         """Een exclusief vergrendelde backup mag de verifier niet 5s laten wachten.
 
-        Budget 0,2s; bovengrens 2s ligt ruim onder de oude busy-timeout van 5s.
+        Resterend budget 0,2s; de bovengrens van 2s ligt ruim onder de oude
+        busy-timeout van 5s. De eigenlijke assertie is de waarde die aan
+        ``open_readonly_snapshot`` wordt doorgegeven: de spion keurt die af
+        vóórdat er ook maar gewacht wordt, dus een regressie die weer de
+        hardcoded 5s doorgeeft faalt onmiddellijk in plaats van na 5s.
+
+        De lock blijft echt (een exclusieve transactie op de gepubliceerde
+        backup) met een werkelijke SQLite busy-wacht van 0,2s; er wordt niets
+        aan de SQL-fout nagemaakt en nergens geslapen. Alleen de klok schuift,
+        en pas nádat die échte fout is opgetreden. De vorige opzet liet de
+        classificatie van de wallclock afhangen: SQLite mag de busy-wacht
+        enkele milliseconden vóór de deadline afbreken, waarna ``_expired``
+        het budget nog niet verlopen zag en ``integrity_check_failed`` een
+        legitieme uitkomst was (CI-run unit-cov-junit 34343047605). Zelfde
+        patroon als de naburige bronlocktest.
         """
         create_verified_backup(source, destination)
-        locker = sqlite3.connect(str(destination), isolation_level=None)
-        locker.execute("BEGIN EXCLUSIVE")
+
+        klok = _Klok()
+        monkeypatch.setattr(sqlite_backup, "_monotonic", klok)
+        deadline = klok.now + 0.2  # resterend budget vóór de lockwacht
+
+        lockfouten: list[sqlite3.Error] = []
+        original_integrity_ok = sqlite_backup.integrity_ok
+
+        def integriteit_met_verlopen_klok(conn: sqlite3.Connection) -> bool:
+            try:
+                return original_integrity_ok(conn)
+            except sqlite3.DatabaseError as fout:
+                # De echte busy-fout gaat ongewijzigd door; alleen de klok
+                # schuift deterministisch voorbij de deadline, zodat de
+                # classificatie niet meer van de wallclock afhangt.
+                lockfouten.append(fout)
+                klok.now = deadline + 0.5
+                raise
+
+        monkeypatch.setattr(
+            sqlite_backup, "integrity_ok", integriteit_met_verlopen_klok
+        )
+
+        doorgegeven: list[float] = []
+        original_open = sqlite_backup.open_readonly_snapshot
+
+        def spionerende_open(
+            path: Path, busy_timeout: float = sqlite_backup.BUSY_TIMEOUT_SECONDS
+        ) -> sqlite3.Connection:
+            doorgegeven.append(busy_timeout)
+            assert busy_timeout == pytest.approx(
+                0.2, abs=1e-6
+            ), f"verifier kreeg {busy_timeout}s in plaats van het resterende budget"
+            return original_open(path, busy_timeout=busy_timeout)
+
         real_connect = sqlite3.connect
         opened: list[sqlite3.Connection] = []
 
@@ -933,18 +980,23 @@ class TestTotaleDeadline:
             opened.append(conn)
             return conn
 
+        locker = sqlite3.connect(str(destination), isolation_level=None)
+        locker.execute("BEGIN EXCLUSIVE")
         try:
             started = time.monotonic()
             with monkeypatch.context() as patch:
                 patch.setattr(sqlite_backup.sqlite3, "connect", recording_connect)
+                patch.setattr(sqlite_backup, "open_readonly_snapshot", spionerende_open)
                 with pytest.raises(BackupError) as excinfo:
-                    sqlite_backup.verify_backup_file(
-                        destination, deadline=sqlite_backup._monotonic() + 0.2
-                    )
+                    sqlite_backup.verify_backup_file(destination, deadline=deadline)
             elapsed = time.monotonic() - started
         finally:
             locker.close()
 
+        assert doorgegeven == [pytest.approx(0.2, abs=1e-6)], doorgegeven
+        assert (
+            lockfouten
+        ), "de exclusieve lock moet een echte SQLite-fout opgeleverd hebben"
         assert excinfo.value.reason == "backup_timeout"
         assert elapsed < 2.0, f"verifier wachtte {elapsed:.2f}s op de lock"
         assert opened, "de verifier moet een verbinding geopend hebben"
