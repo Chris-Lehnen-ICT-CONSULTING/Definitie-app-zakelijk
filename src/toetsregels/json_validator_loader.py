@@ -16,6 +16,42 @@ from typing import Any, cast
 logger = logging.getLogger(__name__)
 
 
+def _is_safe_regel_id(regel_id: Any) -> bool:
+    """
+    Controleer of een regel ID één bestandsnaamcomponent is.
+
+    Weigert lege waarden, '.', '..', NUL-bytes en beide padseparators. Absolute
+    paden en traversal bevatten altijd een separator of zijn '..', en vallen
+    daarmee onder dezelfde weigering, zodat een ID nooit buiten de aangewezen
+    directory kan wijzen.
+    """
+    if not isinstance(regel_id, str) or not regel_id:
+        return False
+    # Expliciet: Path('..').name is '..', dus een naam-check vangt dit niet af
+    if regel_id in (".", ".."):
+        return False
+    return not ("\x00" in regel_id or "/" in regel_id or "\\" in regel_id)
+
+
+def _resolve_within_root(root: Path, path: Path) -> Path | None:
+    """
+    Resolve ``path`` en geef het terug als het binnen ``root`` blijft.
+
+    Symlinks binnen de root blijven toegestaan; symlinks die naar buiten wijzen,
+    ontbrekende bestanden en padfouten (loops, ongeldige namen) leveren None op.
+    Dit borgt uitsluitend confinement binnen het aangewezen pad; er wordt geen
+    bescherming geclaimd tegen gelijktijdige vijandige mutatie van het
+    bestandssysteem.
+    """
+    try:
+        resolved_root = root.resolve(strict=True)
+        resolved_path = path.resolve(strict=True)
+        resolved_path.relative_to(resolved_root)
+    except (OSError, ValueError, RuntimeError):
+        return None
+    return resolved_path
+
+
 class JSONValidatorLoader:
     """
     Loader voor individuele JSON/Python validator paren.
@@ -54,6 +90,11 @@ class JSONValidatorLoader:
         Returns:
             Validator instantie of None
         """
+        # Weiger onveilige IDs vóór cachelookup, bestandstoegang en import
+        if not _is_safe_regel_id(regel_id):
+            logger.warning(f"Ongeldig regel ID geweigerd: {regel_id!r}")
+            return None
+
         # Check cache
         if regel_id in self._validators_cache:
             return self._validators_cache[regel_id]
@@ -70,11 +111,13 @@ class JSONValidatorLoader:
         # Alternatief (ARAI-01 → ARAI01.py, ARAI-02SUB1 → ARAI02SUB1.py)
         candidates.append(regel_id.replace("-", "") + ".py")
 
+        # Lexicale sibling van regels_dir: bewust vóór resolving bepaald, zodat
+        # een regels_dir-symlink de keuze van validators/ niet verlegt.
         validators_dir = self.regels_dir.parent / "validators"
         py_path = None
         for name in candidates:
-            path = validators_dir / name
-            if path.exists():
+            path = _resolve_within_root(validators_dir, validators_dir / name)
+            if path is not None:
                 py_path = path
                 break
 
@@ -127,12 +170,19 @@ class JSONValidatorLoader:
         Returns:
             JSON configuratie als dict of None
         """
+        # Weiger onveilige IDs vóór cachelookup en bestandstoegang
+        if not _is_safe_regel_id(regel_id):
+            logger.warning(f"Ongeldig regel ID geweigerd: {regel_id!r}")
+            return None
+
         if regel_id in self._json_cache:
             return cast(dict[str, Any], self._json_cache[regel_id])
 
-        json_path = self.regels_dir / f"{regel_id}.json"
+        json_path = _resolve_within_root(
+            self.regels_dir, self.regels_dir / f"{regel_id}.json"
+        )
 
-        if not json_path.exists():
+        if json_path is None:
             return None
 
         try:
