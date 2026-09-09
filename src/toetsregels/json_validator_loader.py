@@ -8,6 +8,8 @@ waar elke toetsregel bestaat uit een JSON configuratie en bijbehorende Python im
 import importlib.util
 import json
 import logging
+import os
+import stat
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -35,21 +37,42 @@ def _is_safe_regel_id(regel_id: Any) -> bool:
 
 def _resolve_within_root(root: Path, path: Path) -> Path | None:
     """
-    Resolve ``path`` en geef het terug als het binnen ``root`` blijft.
+    Controleer of ``path`` binnen ``root`` blijft en geef het laadpad terug.
+
+    De controle gebeurt op de volledig geresolveerde vormen van root en pad,
+    maar teruggegeven wordt het OORSPRONKELIJKE ``path`` -- niet de
+    geresolveerde variant. Daardoor blijven ``module.__file__`` en op
+    ``__file__`` gebaseerde companionbestanden op de gekozen (alias)locatie
+    staan, precies zoals vóór deze padcheck.
 
     Symlinks binnen de root blijven toegestaan; symlinks die naar buiten wijzen,
     ontbrekende bestanden en padfouten (loops, ongeldige namen) leveren None op.
     Dit borgt uitsluitend confinement binnen het aangewezen pad; er wordt geen
     bescherming geclaimd tegen gelijktijdige vijandige mutatie van het
-    bestandssysteem.
+    bestandssysteem, zoals een symlinkswap na de controle.
     """
     try:
+        # Snelpad voor het normale geval: ``path`` is ``root`` plus precies één
+        # naamcomponent en dat component is zelf geen symlink. Het bestand ligt
+        # dan hoe dan ook direct onder ``root`` -- er is geen enkele symlink die
+        # het daarbuiten kan brengen -- dus de twee volledige resolves voegen
+        # niets toe. Er wordt niets onthouden: elke aanroep doet een verse lstat,
+        # zodat latere map- of symlinkwijzigingen meteen meetellen. Symlinks,
+        # ontbrekende paden en alles wat niet exact één component onder de root
+        # ligt, volgen hieronder de volledige route.
+        if (
+            path.parent == root
+            and path.name not in (".", "..")
+            and not stat.S_ISLNK(os.lstat(path).st_mode)
+        ):
+            return path
+
         resolved_root = root.resolve(strict=True)
         resolved_path = path.resolve(strict=True)
         resolved_path.relative_to(resolved_root)
     except (OSError, ValueError, RuntimeError):
         return None
-    return resolved_path
+    return path
 
 
 class JSONValidatorLoader:

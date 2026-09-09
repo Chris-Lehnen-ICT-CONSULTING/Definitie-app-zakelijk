@@ -50,7 +50,10 @@ def _load_loader_module():
     return module
 
 
-JSONValidatorLoader = _load_loader_module().JSONValidatorLoader
+_LOADER_MODULE = _load_loader_module()
+JSONValidatorLoader = _LOADER_MODULE.JSONValidatorLoader
+# Witbox: het snelpad-contract van de padcheck zit in deze module-private helper
+_resolve_within_root = _LOADER_MODULE._resolve_within_root
 
 
 # --------------------------------------------------------------------------
@@ -208,6 +211,41 @@ class TestOndersteundeFunctionaliteit(_LoaderTestBase):
         assert marker.exists()
         assert validator.validate("d", "b", None)[1] == "con03"
 
+    def test_interne_symlink_houdt_companionpad_op_de_aliaslocatie(self):
+        marker = self.root / "marker_con04.txt"
+        marker_pad = str(marker)
+        bron = (
+            "from pathlib import Path\n"
+            "\n"
+            "_HIER = Path(__file__).parent\n"
+            f"Path({marker_pad!r}).write_text(str(_HIER), encoding='utf-8')\n"
+            "_BRON = (_HIER / 'CON_04.companion.txt').read_text(encoding='utf-8')\n"
+            "\n"
+            "\n"
+            "class CON04Validator:\n"
+            "    def __init__(self, config):\n"
+            "        self.config = config\n"
+            "\n"
+            "    def validate(self, definitie, begrip, context=None):\n"
+            "        return (True, _BRON, 1.0)\n"
+        )
+        _write_json(self.regels / "CON-04.json")
+        impl = self.validators / "_impl"
+        impl.mkdir()
+        (impl / "CON_04.py").write_text(bron, encoding="utf-8")
+        (impl / "CON_04.companion.txt").write_text("impl", encoding="utf-8")
+        alias_companion = self.validators / "CON_04.companion.txt"
+        alias_companion.write_text("alias", encoding="utf-8")
+        (self.validators / "CON_04.py").symlink_to(impl / "CON_04.py")
+
+        validator = self.loader().load_validator("CON-04")
+
+        # De alias is echt geladen: __file__ wijst naar de gekozen validators/,
+        # niet naar validators/_impl, dus companionlookup blijft daar staan.
+        assert validator is not None
+        assert marker.read_text(encoding="utf-8") == str(self.validators)
+        assert validator.validate("d", "b", None)[1] == "alias"
+
 
 class TestLexicaleSiblingKeuze(_LoaderTestBase):
     def test_validators_dir_is_lexicale_sibling_bij_regels_dir_symlink(self):
@@ -359,6 +397,27 @@ class TestPadConfinement(_LoaderTestBase):
         assert loader.load_json_config("DANG-01") is None
         assert loader.load_validator("LOOP-01") is None
         assert loader.load_validator("LOOP-02") is None
+
+
+class TestPadcheckSnelpad(_LoaderTestBase):
+    """Het snelpad voor gewone bestanden mag de confinement niet verzwakken."""
+
+    def test_snelpad_geldt_alleen_voor_een_bestaand_direct_kind(self):
+        _write_json(self.outside / "ESCAPE01.json", {"geheim": "buiten"})
+        _write_json(self.regels / "sub" / "NEST01.json")
+        (self.regels / "LINK01.json").symlink_to(self.outside / "ESCAPE01.json")
+
+        escape = self.regels / ".." / "outside" / "ESCAPE01.json"
+        nested = self.regels / "sub" / "NEST01.json"
+
+        # Bestaat en is geen symlink, maar is geen direct kind van de root:
+        # het snelpad mag niet aanslaan, de volledige route moet oordelen.
+        assert _resolve_within_root(self.regels, escape) is None
+        # Direct kind, maar ontbrekend of uitgaande symlink: ook geen snelpad.
+        assert _resolve_within_root(self.regels, self.regels / "WEG01.json") is None
+        assert _resolve_within_root(self.regels, self.regels / "LINK01.json") is None
+        # Genest binnen de root blijft via de volledige route gewoon geldig.
+        assert _resolve_within_root(self.regels, nested) is not None
 
 
 if __name__ == "__main__":
