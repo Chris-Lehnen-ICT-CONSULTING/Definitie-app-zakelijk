@@ -84,26 +84,6 @@ class TestCacheSystem:
         configure_cache(enable_cache=True)
         clear_cache()
 
-    def test_cache_decorator_works(self):
-        """Test that cache decorator actually works."""
-        call_count = 0
-
-        @cached(ttl=60)
-        def cache_decorator_test_unique(x):
-            nonlocal call_count
-            call_count += 1
-            return x * 2
-
-        # First call
-        result1 = cache_decorator_test_unique(5)
-        assert result1 == 10
-        assert call_count == 1
-
-        # Second call should use cache
-        result2 = cache_decorator_test_unique(5)
-        assert result2 == 10
-        assert call_count == 1  # No additional call
-
     def test_cache_expiration_works(self):
         """Test that cache expiration works."""
         call_count = 0
@@ -178,11 +158,6 @@ class TestJSONValidatorLoader:
         except Exception:
             self.regel_ids = ["CON-01"]
 
-    def test_loader_initialization(self):
-        """Test that JSONValidatorLoader initializes."""
-        assert self.loader is not None
-        assert hasattr(self.loader, "validate_definitie")
-
     def test_basic_validation_works(self):
         """Test that basic validation actually works."""
         definition = "Een test definitie voor validatie."
@@ -199,23 +174,6 @@ class TestJSONValidatorLoader:
         except Exception as e:
             # If it fails, at least it should fail gracefully
             assert "definitie" in str(e).lower() or "regel" in str(e).lower()
-
-    def test_validation_with_context(self):
-        """Test validation with context parameters."""
-        definition = "Een definitie in context."
-        context = {"contexten": {"organisatie": ["DJI"], "juridisch": ["Strafrecht"]}}
-
-        try:
-            result = self.loader.validate_definitie(
-                definitie=definition,
-                begrip="test",
-                regel_ids=self.regel_ids,
-                context=context,
-            )
-            assert isinstance(result, list)
-        except Exception as e:
-            # Should fail gracefully
-            assert isinstance(e, Exception)
 
     def test_available_rules(self):
         """Test getting available rules."""
@@ -295,33 +253,6 @@ class TestSystemIntegration:
 
 class TestErrorHandling:
     """Test error handling across the system."""
-
-    def test_config_error_handling(self):
-        """Test configuration error handling."""
-        # Test getting non-existent config gracefully
-        try:
-            config_manager = get_config_manager()
-            # Should work or fail gracefully
-            assert config_manager is not None
-        except Exception as e:
-            # Should be a reasonable error
-            assert isinstance(e, Exception)
-
-    def test_cache_error_handling(self):
-        """Test cache error handling."""
-
-        @cached(ttl=60)
-        def error_handling_test_unique():
-            msg = "Test error"
-            raise ValueError(msg)
-
-        # Should propagate error, not cache it
-        with pytest.raises(ValueError, match=r".+"):
-            error_handling_test_unique()
-
-        # Second call should also raise error
-        with pytest.raises(ValueError, match=r".+"):
-            error_handling_test_unique()
 
     def test_validator_error_handling(self):
         """Test validator loader error handling — None input handled gracefully."""

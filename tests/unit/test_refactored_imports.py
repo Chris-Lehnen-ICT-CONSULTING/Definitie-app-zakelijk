@@ -39,15 +39,6 @@ def test_ui_imports():
     assert UIComponents
 
 
-@patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test-fake"})
-def test_services_imports():
-    """Test services module imports (nieuwe architectuur)."""
-    from services.service_factory import get_definition_service
-
-    service = get_definition_service()
-    assert service is not None
-
-
 def test_session_state_defaults():
     """Test session state default values."""
     from ui.session_state import SessionStateManager
