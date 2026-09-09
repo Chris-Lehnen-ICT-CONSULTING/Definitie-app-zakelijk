@@ -14,6 +14,11 @@ set -euo pipefail
 # Gebruik: check_no_todo_markers.sh [PAD ...]
 #   Zonder args (productie): comment-pass over src/tests/scripts, string-pass over src.
 #   Met args (tests): beide passes over de opgegeven paden.
+#   Elk argument is een PAD, nooit een rg-optie (DEF-735): opties/globs staan
+#   vóór het `--`-scheidingsteken, targets erna. Zonder die grens leest rg een
+#   argument als `--pre=<script>` als eigen optie (willekeurige uitvoering, en
+#   de gate eindigt stil op 0). Het houdt tevens paden met spatie of
+#   voorloopstreepje bruikbaar.
 
 COMMENT_MARKERS='(TODO|FIXME|XXX|TBD|HACK|NOCOMMIT|@todo|@fixme)'
 PATTERN_START='^\s*#\s*'"$COMMENT_MARKERS"'\b'
@@ -37,10 +42,10 @@ fi
 
 set +e
 OUTPUT_COMMENT=$(rg -n -i -S -e "$PATTERN_START|$PATTERN_INLINE" \
-  "${COMMENT_TARGETS[@]}" --glob '!**/*.md' --glob '!**/*.html')
+  --glob '!**/*.md' --glob '!**/*.html' -- "${COMMENT_TARGETS[@]}")
 RC_COMMENT=$?
 OUTPUT_STRING=$(rg -n -e "$STRING_MARKERS" \
-  "${STRING_TARGETS[@]}" --glob '!**/*.md' --glob '!**/*.html')
+  --glob '!**/*.md' --glob '!**/*.html' -- "${STRING_TARGETS[@]}")
 RC_STRING=$?
 set -e
 
