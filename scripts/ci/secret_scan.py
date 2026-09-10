@@ -25,7 +25,9 @@ bereikbare historie van de canonieke origin-branches/tags en de PR-head. Het
 bereik wordt eerst bewezen met vaste, read-only en begrensde git-commando's
 (repository, shallow, partial/promisor van elke remote, objecttype, aanwezigheid
 van alle bereikbare objecten, niet-lege range en historie) voordat er iets wordt
-gescand; beide deelscans tellen mee in één resultaat. Dat lokale refs de
+gescand; beide deelscans tellen mee in één resultaat. Met `new_branch=True`
+(DEF-741) is er geen voorganger: `base` moet dan de nulbase zijn en het eerste
+deelbereik is de volledige historie van `head` in plaats van een range. Dat lokale refs de
 *volledigheid* van de fetch niet bewijzen, blijft een caller-contract.
 
 Deze module is geen CLI en geen generieke commandrunner: de vlaggenset ligt
@@ -67,6 +69,12 @@ _GIT = "git"
 
 #: Volledig, ondubbelzinnig commit-ID; `\A..\Z` sluit een newline-staart uit.
 _COMMIT_ID_PATROON = re.compile(r"\A[0-9a-f]{40}\Z")
+
+#: De nulbase die een push bij een branchcreatie als voorganger meldt (DEF-741).
+#: Hexadecimaal van vorm, maar nooit een bestaand object: alleen `new_branch`
+#: mag hem als `base` krijgen, en dan uitsluitend om aan te geven dát er geen
+#: voorganger is. Hij gaat nooit een objectcontrole of een log-optie in.
+_NUL_SHA = "0" * 40
 
 #: Canonieke CI-invoer: origin-branches en tags. Lokale of stash-refs niet.
 _CANONIEKE_REFS = ("refs/remotes/origin", "refs/tags")
@@ -582,12 +590,19 @@ def _objecten_probleem(
 
 
 def _bepaal_bereik(
-    scope: Path, base: str, head: str, seconden: int
+    scope: Path, base: str, head: str, seconden: int, *, new_branch: bool = False
 ) -> _GitBereik | ScanErrorCode:
     """Bewijs scope, commitobjecten en niet-leeg bereik vóór er iets scant.
 
     Shallow en partial worden vóór de objectinspectie afgevangen: in zo'n
     checkout zegt een aanwezig object niets over de bereikbare historie.
+
+    `new_branch` verandert uitsluitend de *eerste* deelscan (DEF-741): er is dan
+    geen voorganger, dus het bereik is de volledige historie van `head` — niet
+    `parent..head`, niet `main..head` en geen lege-tree-terugval. `base` is dan
+    de nulbase en wordt daarom nergens als object getoetst of in een log-optie
+    gezet. Alle overige eisen (werkboom, shallow, partial, head-object,
+    canonieke ankers, objectvolledigheid) blijven ongewijzigd gelden.
     """
     if _git_uit(["rev-parse", "--is-inside-work-tree"], scope, seconden) != "true":
         return ScanErrorCode.SCOPE_MISSING
@@ -603,7 +618,10 @@ def _bepaal_bereik(
     if partial.returncode != 1:
         return ScanErrorCode.GIT_FAILED
 
-    for commit in (base, head):
+    # De nulbase is geen object; bij `new_branch` is `head` het enige anker dat
+    # bestaat en dus ook het enige dat getoetst wordt.
+    ankercommits = (head,) if new_branch else (base, head)
+    for commit in ankercommits:
         if _git_uit(["cat-file", "-t", commit], scope, seconden) != "commit":
             return ScanErrorCode.COMMIT_MISSING
 
@@ -611,7 +629,7 @@ def _bepaal_bereik(
     if isinstance(ankers, ScanErrorCode):
         return ankers
 
-    bereik = f"{base}..{head}"
+    bereik = head if new_branch else f"{base}..{head}"
     commits = _git_regels(["rev-list", "--full-history", bereik], scope, seconden)
     if commits is None:
         return ScanErrorCode.GIT_FAILED
@@ -619,7 +637,10 @@ def _bepaal_bereik(
         return ScanErrorCode.EMPTY_RANGE
 
     historie = list(dict.fromkeys([*ankers, head]))
-    probleem = _objecten_probleem(scope, [*historie, base], seconden)
+    # Alleen echte ankers de objectcontrole in: bij `new_branch` zou de nulbase
+    # rev-list laten falen op een object dat per definitie niet bestaat.
+    te_toetsen = historie if new_branch else [*historie, base]
+    probleem = _objecten_probleem(scope, te_toetsen, seconden)
     if probleem is not None:
         return probleem
 
@@ -650,6 +671,8 @@ def _voer_git_scan_uit(
     base: str,
     head: str,
     timeout: float,
+    *,
+    new_branch: bool = False,
 ) -> ScanResult:
     """Elke bekende faalmodus krijgt hier haar eigen statische code."""
     if not _geldige_timeout(timeout):
@@ -671,6 +694,12 @@ def _voer_git_scan_uit(
 
     if not _is_commit_id(base) or not _is_commit_id(head):
         return _fout(ScanErrorCode.INVALID_COMMIT_ID)
+    # De modus en de basis moeten bij elkaar passen, ook wanneer een andere
+    # caller deze functie rechtstreeks gebruikt: `new_branch` staat uitsluitend
+    # de nulbase toe. Zonder deze grens zou een echte commit als `base` stil de
+    # volledige-historiescan krijgen in plaats van de gevraagde range.
+    if new_branch and base != _NUL_SHA:
+        return _fout(ScanErrorCode.INVALID_COMMIT_ID)
 
     scope = _veilig_pad(source)
     if scope is None or not scope.is_dir():
@@ -678,7 +707,7 @@ def _voer_git_scan_uit(
 
     seconden = int(timeout)
     try:
-        bereik = _bepaal_bereik(scope, base, head, seconden)
+        bereik = _bepaal_bereik(scope, base, head, seconden, new_branch=new_branch)
     except subprocess.TimeoutExpired:
         return _fout(ScanErrorCode.TIMEOUT)
     except OSError:
@@ -704,12 +733,20 @@ def scan_git(
     base: str,
     head: str,
     timeout: float = 30,
+    *,
+    new_branch: bool = False,
 ) -> ScanResult:
     """Scan de expliciete `base..head`-range én de canonieke historie.
 
     `base` en `head` zijn volledige commit-ID's — geen refs, geen vlaggen. De
     historie loopt over de origin-branches en tags plus de PR-head, met vaste
     log-opties (`--full-history -m`) en geverifieerde hex-ID's.
+
+    `new_branch` (keyword-only, DEF-741) is voor een push die een branch aanmaakt
+    en dus geen voorganger meldt: `base` moet dan exact de nulbase zijn en het
+    eerste deelbereik wordt de volledige historie van `head`, inclusief de
+    rootcommit. Alle overige eisen blijven gelijk. De bestaande positionele
+    aanroep verandert niet en houdt het rangegedrag.
 
     Geeft altijd een `ScanResult` en werpt geen exceptie; alleen
     `ScanStatus.CLEAN` is succes. Wat de aanroeper hier *niet* van krijgt, is
@@ -721,5 +758,7 @@ def scan_git(
     # exceptietekst kan onbetrouwbare tool- of Git-inhoud dragen.
     resultaat = _fout(ScanErrorCode.UNEXPECTED_FAILURE)
     with contextlib.suppress(Exception):
-        resultaat = _voer_git_scan_uit(binary, source, config, base, head, timeout)
+        resultaat = _voer_git_scan_uit(
+            binary, source, config, base, head, timeout, new_branch=new_branch
+        )
     return resultaat

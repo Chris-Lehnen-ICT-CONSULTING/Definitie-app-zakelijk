@@ -13,6 +13,15 @@ vaste refspec — zonder prune, delete of terugval — en scant ten slotte zowel
 `base..head`-range met de canonieke historie (`scan_git()`) als de actuele boom
 (`scan_directory()`). Beide deelscans zijn vereist; elke fout geeft nonzero.
 
+`--mode new-branch` (DEF-741) is dezelfde gate voor een push die een branch
+aanmaakt en daarom geen voorganger meldt. `--base` moet dan exact de nulbase
+zijn — elke andere waarde wordt afgekeurd — en het bereik is de volledige
+historie van `--head`, inclusief de rootcommit; er wordt nooit een parent, een
+hoofdbranch of een lege tree als vervangende grens gekozen. Werkboomcontrole,
+HEAD-eis, volledige fetch, canonieke refs, objectvolledigheid en de aparte scan
+van de actuele boom gelden onverkort. In `full` blijft de nulbase een
+onbestaande commit en dus een weigering.
+
 `--mode staged` is aanvullende lokale feedback op de index: dezelfde validatie en
 dezelfde controle dat `source` een werkboomroot is, maar geen fetch, geen
 `base`/`head` en geen enkele uitspraak over de historie. Nul gescande bytes blijft
@@ -42,6 +51,9 @@ _BYTES = "scanned_bytes"
 
 _MODE_FULL = "full"
 _MODE_STAGED = "staged"
+#: DEF-741: aparte modus voor een push die een branch aanmaakt. De keuzes staan
+#: vast in de parser; een andere waarde blijft een afgekeurde invoer.
+_MODE_NEW_BRANCH = "new-branch"
 
 #: De canonieke remote en de volledige refspec ernaartoe. Geen `--prune`, geen
 #: `--prune-tags`, geen smaller bereik als terugval. De tag-refspec staat bewust
@@ -115,7 +127,11 @@ def _fout_resultaat(code: secret_scan.ScanErrorCode) -> secret_scan.ScanResult:
 def _parser() -> argparse.ArgumentParser:
     """De vaste vlaggenset; geen hulptekst, geen defaults uit de omgeving."""
     parser = _StilleParser(prog="secret-scan-gate", add_help=False)
-    parser.add_argument("--mode", required=True, choices=(_MODE_FULL, _MODE_STAGED))
+    parser.add_argument(
+        "--mode",
+        required=True,
+        choices=(_MODE_FULL, _MODE_NEW_BRANCH, _MODE_STAGED),
+    )
     parser.add_argument("--source", required=True)
     parser.add_argument("--config", required=True)
     parser.add_argument("--binary", required=True)
@@ -206,7 +222,9 @@ def _fetch(invoer: _Invoer) -> None:
         raise _InvoerError(secret_scan.ScanErrorCode.FETCH_FAILED)
 
 
-def _scan(invoer: _Invoer, base: str, head: str) -> secret_scan.ScanResult:
+def _scan(
+    invoer: _Invoer, base: str, head: str, *, new_branch: bool = False
+) -> secret_scan.ScanResult:
     """Beide deelscans zijn vereist: de expliciete historie én de actuele boom."""
     deelscans = [
         secret_scan.scan_git(
@@ -216,6 +234,7 @@ def _scan(invoer: _Invoer, base: str, head: str) -> secret_scan.ScanResult:
             base,
             head,
             invoer.seconden,
+            new_branch=new_branch,
         ),
         secret_scan.scan_directory(
             invoer.binary, invoer.source, invoer.config, invoer.seconden
@@ -227,13 +246,25 @@ def _scan(invoer: _Invoer, base: str, head: str) -> secret_scan.ScanResult:
     return secret_scan._samengevoegd(deelscans)
 
 
-def _full(invoer: _Invoer, argumenten: argparse.Namespace) -> secret_scan.ScanResult:
-    """De verplichte gate: expliciete grenzen, volledige fetch, beide deelscans."""
+def _historie(
+    invoer: _Invoer, argumenten: argparse.Namespace, *, new_branch: bool
+) -> secret_scan.ScanResult:
+    """De verplichte gate: expliciete grenzen, volledige fetch, beide deelscans.
+
+    `new_branch` verschilt alleen in de grens (DEF-741): de push meldt geen
+    voorganger, dus `--base` moet exact de nulbase zijn en de eerste deelscan
+    loopt over de volledige historie van `--head`. De werkboomcontrole, de
+    HEAD-eis, de volledige fetch en beide verplichte deelscans zijn identiek aan
+    `full`. In `full` blijft de nulbase een onbestaande commit en dus een
+    weigering.
+    """
     base = _commit_id(argumenten.base)
+    if new_branch and base != secret_scan._NUL_SHA:
+        raise _InvoerError(secret_scan.ScanErrorCode.INVALID_COMMIT_ID)
     head = _commit_id(argumenten.head)
     _controleer_head(invoer, head)
     _fetch(invoer)
-    return _scan(invoer, base, head)
+    return _scan(invoer, base, head, new_branch=new_branch)
 
 
 def _staged_argv(invoer: _Invoer) -> list[str]:
@@ -264,7 +295,7 @@ def _gate(argv: list[str]) -> secret_scan.ScanResult:
     _controleer_werkboom(invoer)
     if argumenten.mode == _MODE_STAGED:
         return _staged(invoer)
-    return _full(invoer, argumenten)
+    return _historie(invoer, argumenten, new_branch=argumenten.mode == _MODE_NEW_BRANCH)
 
 
 def main(argv: list[str]) -> int:
