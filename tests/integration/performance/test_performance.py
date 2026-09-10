@@ -36,31 +36,37 @@ class TestPerformanceBenchmarks:
         self.process = psutil.Process(os.getpid())
         self.initial_memory = self.process.memory_info().rss
 
-    def test_cache_performance(self):
+    def test_cache_performance(self, tmp_path):
         """Test cache performance benchmarks."""
-        cache_manager = CacheManager()
+        # max_size expliciet: deze werklast zit exact op de evictiegrens, dus
+        # een gewijzigde constructor-default zou de test stil laten omvallen.
+        max_size = 1000
+        cache_manager = CacheManager(cache_dir=str(tmp_path), max_size=max_size)
+        operations = max_size
 
         # Benchmark cache set operations
-        start_time = time.time()
-        for i in range(1000):
+        start_time = time.perf_counter()
+        for i in range(operations):
             cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
-        set_time = time.time() - start_time
+        set_time = time.perf_counter() - start_time
 
         # Benchmark cache get operations
-        start_time = time.time()
-        for i in range(1000):
-            cache_manager.get(f"key_{i}")
-        get_time = time.time() - start_time
+        start_time = time.perf_counter()
+        for i in range(operations):
+            assert cache_manager.get(f"key_{i}") == f"value_{i}"
+        get_time = time.perf_counter() - start_time
+
+        # Correctheid vóór de tijdsdrempels: op een trage runner mag het
+        # gedragsbewijs niet wegvallen (DEF-563).
+        stats = cache_manager.get_stats()
+        assert stats["hits"] == operations
+        assert stats["misses"] == 0
+        assert stats["entries"] == max_size
+        assert stats["evictions"] == 0, "werklast past precies, geen eviction verwacht"
 
         # Performance assertions
         assert set_time < 2.0, f"Cache set operations too slow: {set_time:.2f}s"
         assert get_time < 0.5, f"Cache get operations too slow: {get_time:.2f}s"
-
-        # Hit rate should be high
-        stats = cache_manager.get_stats()
-        assert (
-            stats["hit_rate"] > 0.9
-        ), f"Cache hit rate too low: {stats['hit_rate']:.2f}"
 
     @pytest.mark.skipif(
         not HAS_OPENAI_KEY,
@@ -353,40 +359,45 @@ class TestLoadTesting:
             validation_rate > 100
         ), f"Validation rate too low: {validation_rate:.2f} validations/sec"
 
-    def test_stress_testing(self):
+    def test_stress_testing(self, tmp_path):
         """Test system under stress conditions."""
-        # Simulate high load conditions
-        cache_manager = CacheManager()
+        # Simulate high load conditions. max_size expliciet: de verwachtingen
+        # hieronder mogen niet meebewegen met de constructor-default (DEF-563).
+        max_size = 1000
+        cache_manager = CacheManager(cache_dir=str(tmp_path), max_size=max_size)
 
         # Test with many rapid operations
-        start_time = time.time()
-        operations = 0
+        operations = 2500
+        assert operations > max_size, "werklast moet eviction uitlokken"
+        start_time = time.perf_counter()
 
-        # Run for 5 seconds
-        while time.time() - start_time < 5.0:
+        # Fixed load: every run exercises filling and eviction.
+        for i in range(operations):
             # Rapid cache operations
-            key = f"stress_key_{operations}"
-            value = f"stress_value_{operations}"
+            key = f"stress_key_{i}"
+            value = f"stress_value_{i}"
 
             cache_manager.set(key, value, ttl=60)
-            cache_manager.get(key)
+            assert cache_manager.get(key) == value
 
-            operations += 1
-
-        end_time = time.time()
+        end_time = time.perf_counter()
         actual_time = end_time - start_time
 
-        # Performance assertions
+        # System should remain stable. Correctheid vóór de tijdsdrempel: een
+        # trage runner mag dit gedragsbewijs niet overslaan (DEF-563).
+        # hit_rate is hier weggelaten: die volgt met round() uit hits en misses
+        # en kan naast de twee exacte assertions niet zelfstandig falen.
+        stats = cache_manager.get_stats()
+        assert stats["hits"] == operations
+        assert stats["misses"] == 0
+        assert stats["entries"] == max_size
+        assert stats["evictions"] == operations - max_size
+
+        # Performance assertion
         ops_per_second = operations / actual_time
         assert (
             ops_per_second > 500
         ), f"Stress test performance too low: {ops_per_second:.2f} ops/sec"
-
-        # System should remain stable
-        stats = cache_manager.get_stats()
-        assert (
-            stats["hit_rate"] > 0.9
-        ), f"Hit rate degraded under stress: {stats['hit_rate']:.2f}"
 
 
 class TestOptimizationEffectiveness:
@@ -617,22 +628,39 @@ class TestPerformanceRegression:
             memory_increase < 30 * 1024 * 1024
         ), f"Memory usage regression: {memory_increase / 1024 / 1024:.2f}MB"
 
-    def test_throughput_regression(self):
+    def test_throughput_regression(self, tmp_path):
         """Test throughput regression."""
-        cache_manager = CacheManager()
+        # max_size expliciet: de verwachtingen hieronder mogen niet meebewegen
+        # met de constructor-default (DEF-563).
+        max_size = 1000
+        cache_manager = CacheManager(cache_dir=str(tmp_path), max_size=max_size)
 
         # Test throughput
-        start_time = time.time()
-        operations = 0
+        operations = 2000
+        assert operations > max_size, "werklast moet eviction uitlokken"
+        start_time = time.perf_counter()
 
-        # Run for 2 seconds
-        while time.time() - start_time < 2.0:
-            cache_manager.set(f"key_{operations}", f"value_{operations}", ttl=300)
-            cache_manager.get(f"key_{operations}")
-            operations += 1
+        # A fixed fill/eviction mix, including durable writes, on every runner.
+        for i in range(operations):
+            cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
+            assert cache_manager.get(f"key_{i}") == f"value_{i}"
 
-        end_time = time.time()
+        end_time = time.perf_counter()
         throughput = operations / (end_time - start_time)
+
+        # Correctheid eerst. De tijdsdrempel hieronder valt op trage runners om
+        # (DEF-563: 608 ops/sec gemeten); dat mag het gedragsbewijs niet wissen.
+        stats = cache_manager.get_stats()
+        assert stats["hits"] == operations
+        assert stats["misses"] == 0
+        assert stats["evictions"] == operations - max_size
+        assert stats["entries"] == max_size
+
+        # Reopen outside the timed block: prove persistence and actual eviction.
+        reopened = CacheManager(cache_dir=str(tmp_path), max_size=max_size)
+        assert reopened.get("key_0") is None
+        for i in range(operations - max_size, operations):
+            assert reopened.get(f"key_{i}") == f"value_{i}"
 
         # Should maintain high throughput
         assert throughput > 1000, f"Throughput regression: {throughput:.2f} ops/sec"

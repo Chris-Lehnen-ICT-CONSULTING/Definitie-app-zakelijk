@@ -92,6 +92,12 @@ jobs:
       - name: Run preflight checks
         run: python -I -B scripts/ci/preflight_checks.py .
 
+      - name: Test timing inventory guard (DEF-563)
+        run: python -I -B scripts/ci/test_timing_assert_ratchet.py
+
+      - name: Check timing inventory dispositions (DEF-563)
+        run: python -I -B scripts/ci/timing_assert_ratchet.py .
+
   validate-branch-name:
     name: Validate Branch Name
     runs-on: ubuntu-latest

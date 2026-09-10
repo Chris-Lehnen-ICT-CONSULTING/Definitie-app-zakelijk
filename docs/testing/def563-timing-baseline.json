@@ -1,0 +1,997 @@
+{
+  "schema": 1,
+  "source_commit": "523c1d06e6377cf77e8882e398a41021407f294e",
+  "entries": {
+    "tests/ci/test_offline_gate_bootstrap.py::test_runner_kapt_af_op_het_procesbudget": {
+      "source_sha256": "82f4107a3c04cd30d82c025e232b8f174925d655567fce2f88be826bfadf3843",
+      "comparisons": [
+        "verstreken < 60"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/conftest.py::benchmark_timer::Timer::assert_under": {
+      "source_sha256": "c16749af99b77d353d231f89a5060ca2429dd1b3f3b7895015b64697de22b53a",
+      "comparisons": [
+        "self.elapsed < seconds"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/functionality/test_bulk_with_delay.py::test_bulk_generation_with_delay": {
+      "source_sha256": "92ae86c3966940a9648f0480d870b472434d57e5f8a9af12fb7ae11835246ff0",
+      "comparisons": [
+        "respons.generation_time >= 0.0",
+        "verstreken >= sum((pauze for _, _, pauze in GENERATIEPLAN))"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_context_flow_performance.py::TestContextFlowPerformance::test_simple_context_processing": {
+      "source_sha256": "a339321b49e474f6639322968fa9320131b76a367e07b6f06c93f1bd64ce9d82",
+      "comparisons": [
+        "metrics.throughput_per_sec > 10"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_context_flow_performance.py::TestContextFlowPerformance::test_context_manager_performance": {
+      "source_sha256": "a339321b49e474f6639322968fa9320131b76a367e07b6f06c93f1bd64ce9d82",
+      "comparisons": [
+        "metrics.throughput_per_sec > 100"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_context_flow_performance.py::TestScalability::test_concurrent_context_processing": {
+      "source_sha256": "a339321b49e474f6639322968fa9320131b76a367e07b6f06c93f1bd64ce9d82",
+      "comparisons": [
+        "p95_time < 500"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_context_flow_performance.py::TestLatencyPercentiles::test_latency_distribution": {
+      "source_sha256": "a339321b49e474f6639322968fa9320131b76a367e07b6f06c93f1bd64ce9d82",
+      "comparisons": [
+        "p95 < 100",
+        "p99 < 200"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_context_flow_performance.py::TestWorstCaseScenarios::test_maximum_context_size": {
+      "source_sha256": "a339321b49e474f6639322968fa9320131b76a367e07b6f06c93f1bd64ce9d82",
+      "comparisons": [
+        "elapsed < 1000"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def110_regression.py::TestDEF110Regression::test_startup_time_acceptable": {
+      "source_sha256": "5359a02e896d96bade80488026f8b5f2fdce8709b9ac39cef68889aa1ae5e7b4",
+      "comparisons": [
+        "elapsed < 15"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def138_performance.py::TestClassificationPerformance::test_classification_speed": {
+      "source_sha256": "750136e7d7700c2eeb71ab1770435ed644989def23025dce97a91163a19ec39d",
+      "comparisons": [
+        "elapsed < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def138_performance.py::TestClassificationPerformance::test_100_classifications_performance": {
+      "source_sha256": "750136e7d7700c2eeb71ab1770435ed644989def23025dce97a91163a19ec39d",
+      "comparisons": [
+        "avg_time < 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def66_lazy_loading.py::TestServiceContainerPerformance::test_service_container_init_under_200ms": {
+      "source_sha256": "ac1c8e799adc0de164ecb2777eeb031e0042dc100501d05112d64b267fd3a906",
+      "comparisons": [
+        "duration_ms < MAX_CONTAINER_INIT_MS"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def66_lazy_loading.py::TestPerformanceRegression::test_tabbed_interface_init_under_200ms": {
+      "source_sha256": "ac1c8e799adc0de164ecb2777eeb031e0042dc100501d05112d64b267fd3a906",
+      "comparisons": [
+        "duration_ms < MAX_TABBED_INTERFACE_INIT_MS"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def90_validation_lazy_loading.py::TestCombinedLazyLoading::test_orchestrator_init_fast_with_both_lazy": {
+      "source_sha256": "3f80a83ba1ddda7c393d71860312536427b0636180407622c55513c73e1de1ca",
+      "comparisons": [
+        "duration_ms < 100"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_def90_validation_lazy_loading.py::TestPerformanceRegressionValidation::test_orchestrator_init_under_400ms_with_both_lazy": {
+      "source_sha256": "3f80a83ba1ddda7c393d71860312536427b0636180407622c55513c73e1de1ca",
+      "comparisons": [
+        "duration_ms < MAX_ORCHESTRATOR_INIT_WITH_VALIDATION_MS"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_parallel_voorbeelden.py::test_parallel_execution_performance": {
+      "source_sha256": "da06405322abf757c1481a61bb71fb7e6f231cbf7f810a95fac413ca2a47713b",
+      "comparisons": [
+        "parallel_duration < expected_sequential_time",
+        "parallel_duration < expected_parallel_time"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_parallel_voorbeelden.py::test_real_world_timing_comparison": {
+      "source_sha256": "da06405322abf757c1481a61bb71fb7e6f231cbf7f810a95fac413ca2a47713b",
+      "comparisons": [
+        "speedup > 4.0",
+        "improvement_pct > 75"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_per007_performance.py::TestPerformance::test_context_processing_under_100ms": {
+      "source_sha256": "162a2d2cf202116f8be012c7b7613ccdbe447fa22fa439d3974d09040bf9207b",
+      "comparisons": [
+        "avg_time < 100",
+        "max_time < 200"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_per007_performance.py::TestPerformance::test_deduplication_performance": {
+      "source_sha256": "162a2d2cf202116f8be012c7b7613ccdbe447fa22fa439d3974d09040bf9207b",
+      "comparisons": [
+        "avg_time < 50"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_per007_performance.py::TestPerformance::test_ui_formatting_performance": {
+      "source_sha256": "162a2d2cf202116f8be012c7b7613ccdbe447fa22fa439d3974d09040bf9207b",
+      "comparisons": [
+        "avg_time < 1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_per007_performance.py::TestPerformance::test_astra_validation_performance": {
+      "source_sha256": "162a2d2cf202116f8be012c7b7613ccdbe447fa22fa439d3974d09040bf9207b",
+      "comparisons": [
+        "avg_time < 10"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_per007_performance.py::TestPerformance::test_end_to_end_flow_performance": {
+      "source_sha256": "162a2d2cf202116f8be012c7b7613ccdbe447fa22fa439d3974d09040bf9207b",
+      "comparisons": [
+        "avg_time < 200",
+        "max_time < 400"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_per007_performance.py::TestPerformance::test_concurrent_processing_performance": {
+      "source_sha256": "162a2d2cf202116f8be012c7b7613ccdbe447fa22fa439d3974d09040bf9207b",
+      "comparisons": [
+        "total_time_ms < sequential_estimate * 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_cache_performance": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "set_time < 2.0",
+        "get_time < 0.5"
+      ],
+      "status": "retain-risk",
+      "reason": "Twee absolute opslag-/leestijdgrenzen; bekende CI-variatie. Behoud tot representatieve meting is bewezen. Waardecontrole en exacte hits/misses/entries/evictions blijven verplicht."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_async_api_performance": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "speedup > 3.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_resilience_framework_performance": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "overhead < 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_rate_limiter_performance": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "end_time - start_time < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_configuration_loading_performance": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "config_load_time < 0.5",
+        "config_access_time < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestLoadTesting::test_concurrent_cache_access": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "end_time - start_time < 10.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestLoadTesting::test_concurrent_api_calls": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "end_time - start_time < 5.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestLoadTesting::test_high_volume_validation": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "validation_time < 5.0",
+        "validation_rate > 100"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestLoadTesting::test_stress_testing": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "ops_per_second > 500"
+      ],
+      "status": "retain-risk",
+      "reason": "Absolute doorvoer met vaste 2500 operaties en eviction; bekende CI-variatie. Geen gelijkwaardige kalibratie bewezen. Waarden en exacte cache-statistieken blijven verplicht."
+    },
+    "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_caching_effectiveness": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "second_call_time < first_call_time * 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_async_optimization_effectiveness": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "speedup > 3.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_resilience_effectiveness": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "end_time - start_time < 5.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_rate_limiting_effectiveness": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "actual_rate <= 15"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceRegression::test_api_response_time_regression": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "response_time < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance.py::TestPerformanceRegression::test_throughput_regression": {
+      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "comparisons": [
+        "throughput > 1000"
+      ],
+      "status": "retain-risk",
+      "reason": "Absolute doorvoer met vaste 2000 operaties en duurzame writes; historisch zowel rood als groen. Behoud tot vervanging is bewezen; waardecontrole, eviction en alle behouden waarden na reopen verplicht."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestAIToetserPerformance::test_single_validation_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestAIToetserPerformance::test_batch_validation_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 10.0",
+        "throughput > 5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestAIToetserPerformance::test_concurrent_validation_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 5.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestCachePerformance::test_cache_hit_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "hit_perf['duration'] < miss_perf['duration'] * 0.1",
+        "hit_perf['duration'] < 0.001"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestCachePerformance::test_cache_scalability_binnen_twee_seconden": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestConfigurationPerformance::test_config_loading_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 1.0",
+        "loading_rate > 50"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestConfigurationPerformance::test_toetsregels_loading_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestSanitizationPerformance::test_sanitization_speed": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 1.0",
+        "sanitization_rate > 100"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestSanitizationPerformance::test_large_content_sanitization": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestDocumentProcessingPerformance::test_text_extraction_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestDocumentProcessingPerformance::test_concurrent_document_processing": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestSystemPerformanceIntegration::test_end_to_end_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "perf_result['duration'] < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestSystemPerformanceIntegration::test_sustained_load_performance": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "throughput >= 10"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_performance_comprehensive.py::TestPerformanceRegression::test_performance_baselines": {
+      "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
+      "comparisons": [
+        "validation_time < self.baselines['single_validation']",
+        "config_time < self.baselines['config_loading']",
+        "extraction_time < self.baselines['text_extraction']",
+        "sanitization_time < self.baselines['sanitization']"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceBaseline::test_single_validation_performance": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "avg_time < MAX_AVG_TIME",
+        "p95_time < MAX_P95_TIME",
+        "p99_time < MAX_P99_TIME"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceBaseline::test_batch_validation_performance": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "time_per_item < MAX_TIME_PER_ITEM"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceBaseline::test_concurrent_validation_performance": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "efficiency_ratio < MAX_EFFICIENCY_RATIO"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceRegression::test_validation_context_conversion_performance": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "avg_time < MAX_CONTEXT_TIME"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceRegression::test_error_handling_performance": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "avg_error_time < MAX_ERROR_TIME"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceRegression::test_schema_compliance_performance": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "avg_compliance_time < MAX_COMPLIANCE_TIME"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_story_2_4_performance.py::TestStory24PerformanceProfiler::test_load_test_simulation": {
+      "source_sha256": "a4a96e80f170d0b18fd4527e727d50b9910775eb7e6826ad87c8e74ec78b08cf",
+      "comparisons": [
+        "throughput >= MIN_THROUGHPUT",
+        "avg_response_time <= MAX_AVG_RESPONSE_TIME",
+        "p95_response_time <= MAX_P95_RESPONSE_TIME"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_validation_performance_baseline.py::test_validation_latency_bounds": {
+      "source_sha256": "efc04b0b4dfa4d3183f51789e631ec78fceaf79e7e5ed0ae82bbf2c1c0a253a2",
+      "comparisons": [
+        "p95 <= max_ms"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_validation_performance_baseline.py::test_adapter_kapt_blokkerende_regel_af": {
+      "source_sha256": "efc04b0b4dfa4d3183f51789e631ec78fceaf79e7e5ed0ae82bbf2c1c0a253a2",
+      "comparisons": [
+        "elapsed < ADAPTER_TIMEOUT_BUDGET_S"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/performance/test_validation_performance_baseline.py::test_concurrent_validation_scaling": {
+      "source_sha256": "efc04b0b4dfa4d3183f51789e631ec78fceaf79e7e5ed0ae82bbf2c1c0a253a2",
+      "comparisons": [
+        "elapsed <= expected_max"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/regression/test_regression_suite.py::TestPerformanceAndMemory::test_import_performance": {
+      "source_sha256": "65eaa4fe6cfafb5a34e2b738d774a97c3aed54ffef289d5c2b9a8a7c7f3b557d",
+      "comparisons": [
+        "import_time < 5.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/regression/test_story_2_4_regression.py::TestStory24RegressionSuite::test_no_performance_regression": {
+      "source_sha256": "22312d0f393ffd0637ea9480097304ba1119c05fa2e7d80497e8e4ccbc30433c",
+      "comparisons": [
+        "avg_time < MAX_ACCEPTABLE_AVG_TIME",
+        "max_time < MAX_ACCEPTABLE_MAX_TIME"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_sanitization_performance": {
+      "source_sha256": "8256cc5c2b132b90e33c8a307c558be6f9e6a2e5f81fa574837136658c51d62f",
+      "comparisons": [
+        "processing_time < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/security/test_security_comprehensive.py::TestSecurityPerformance::test_security_validation_performance": {
+      "source_sha256": "8256cc5c2b132b90e33c8a307c558be6f9e6a2e5f81fa574837136658c51d62f",
+      "comparisons": [
+        "total_time < 5.0",
+        "avg_time < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/security/test_security_comprehensive.py::TestSecurityPerformance::test_sanitization_performance": {
+      "source_sha256": "8256cc5c2b132b90e33c8a307c558be6f9e6a2e5f81fa574837136658c51d62f",
+      "comparisons": [
+        "total_time < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/services/orchestrators/test_definition_orchestrator_v2.py::TestDefinitionOrchestratorV2::test_monitoring_integration": {
+      "source_sha256": "56ab172e73392a28362c649246c7f64999cf1cf8e38b1a7b01ba4c6b145f8a4a",
+      "comparisons": [
+        "afronding.kwargs['duration'] >= 0.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/services/orchestrators/test_definition_orchestrator_v2.py::TestDefinitionOrchestratorV2Integration::test_performance_benchmarks": {
+      "source_sha256": "56ab172e73392a28362c649246c7f64999cf1cf8e38b1a7b01ba4c6b145f8a4a",
+      "comparisons": [
+        "duur < 5.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/services/test_batch_validation.py::test_batch_validate_performance_benefit": {
+      "source_sha256": "6b9904bee3751a6a4db5360e12934849094dcb03414bd0a6afd842e21cedcc15",
+      "comparisons": [
+        "time_batch <= time_seq * 1.2"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/services/web_lookup/test_sru_integration.py::TestSRUCircuitBreakerIntegration::test_empty_search_with_circuit_breaker": {
+      "source_sha256": "caf46f651a34ad33313f30fd9a63a66eaed1c569941d937e6aa80897d063123d",
+      "comparisons": [
+        "elapsed < 20"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/test_def_154_prompt_module_pipeline.py::test_performance_multiple_iterations": {
+      "source_sha256": "c2bace5c9164aaf570a1745012d19971eb8c360b991332792f982b2f4ca51b61",
+      "comparisons": [
+        "avg_time < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/test_export_levels_comprehensive.py::TestLargeDataset::test_large_export_performance": {
+      "source_sha256": "672c794641745ab14ad42fad3ad031e864093e07ec59bf992a2e7931f589365b",
+      "comparisons": [
+        "duration < 10.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/test_history_removal.py::TestPerformanceImprovement::test_import_time": {
+      "source_sha256": "4fe4f438d9ee03fd75a0552369b3878ae618d55d99713590c4dba1b1e27a94ca",
+      "comparisons": [
+        "import_time < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/test_legacy_vs_new_parity.py::TestLegacyVsNewParity::test_performance_comparison": {
+      "source_sha256": "9d75cc99391e2a421c04968161035afb902dbf8446cbbc0c175f2eebcfe04cbc",
+      "comparisons": [
+        "new_time < legacy_time * 1.2"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/test_modular_prompt_builder.py::TestBasicPromptGeneration::test_performance_baseline": {
+      "source_sha256": "75c40351717c9205042edd418cfacb278d6467c3209c6e6a6421f7a4780c19db",
+      "comparisons": [
+        "generation_time < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/integration/test_prompt_security_and_edge_cases.py::TestPromptPerformance::test_prompt_generation_speed": {
+      "source_sha256": "199b05998e6e3353b35f13002ff54d9c4d342b94a9dfb1b5b1ba57611b6f39c0",
+      "comparisons": [
+        "avg_time < 0.05"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/smoke/test_web_lookup_timeout_smoke.py::test_web_lookup_timeout_budget_respected": {
+      "source_sha256": "695d4754d271f7417befb9c60cbb6b54460682865d3d7a7a67959f24652b310f",
+      "comparisons": [
+        "duration < 0.15"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/database/test_sqlite_backup.py::TestBegrensdeContention::test_vergrendelde_bron_faalt_begrensd": {
+      "source_sha256": "52d50ac041d1bc435087b4ef3535b9a8e03c04934c6678dfd95d19e5b553ef8d",
+      "comparisons": [
+        "elapsed < 4.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/database/test_sqlite_backup.py::TestTotaleDeadline::test_verifier_lockwacht_is_begrensd_op_resterend_budget": {
+      "source_sha256": "52d50ac041d1bc435087b4ef3535b9a8e03c04934c6678dfd95d19e5b553ef8d",
+      "comparisons": [
+        "elapsed < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/database/test_sqlite_backup.py::TestTotaleDeadline::test_bronlockwacht_gebruikt_resterend_budget_niet_volledig_budget": {
+      "source_sha256": "52d50ac041d1bc435087b4ef3535b9a8e03c04934c6678dfd95d19e5b553ef8d",
+      "comparisons": [
+        "elapsed < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/services/classification/test_term_based_classifier.py::TestPerformance::test_classification_speed_smoke": {
+      "source_sha256": "4478cbfba6a7467b0fcaef9c9e2bcf59457c6631815d462602a0e3d0e58c51c3",
+      "comparisons": [
+        "avg_time_ms < 10"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/services/prompts/test_module_context_thread_safety.py::TestModuleContextPerformance::test_set_shared_performance": {
+      "source_sha256": "c7a2e2c4bbebd25380f7417afd49ba3bf0ef8e336d7dafc84826b1e700771781",
+      "comparisons": [
+        "overhead_factor < 10",
+        "safe_time < 0.05"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/services/prompts/test_module_context_thread_safety.py::TestModuleContextPerformance::test_get_shared_performance": {
+      "source_sha256": "c7a2e2c4bbebd25380f7417afd49ba3bf0ef8e336d7dafc84826b1e700771781",
+      "comparisons": [
+        "overhead_factor < 10",
+        "safe_time < 0.05"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/services/prompts/test_module_context_thread_safety.py::TestModuleContextPerformance::test_concurrent_performance": {
+      "source_sha256": "c7a2e2c4bbebd25380f7417afd49ba3bf0ef8e336d7dafc84826b1e700771781",
+      "comparisons": [
+        "ops_per_sec > 10000"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/services/web_lookup/test_sru_circuit_breaker.py::TestCircuitBreaker::test_performance_improvement_with_circuit_breaker": {
+      "source_sha256": "d3db7ba7ca762e982f2a1679389f5fc376646b818292f7f5d5b6b8617bfc3733",
+      "comparisons": [
+        "time_enabled < time_disabled"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/services/web_lookup/test_wikipedia_synonym_extractor.py::TestWikipediaSynonymExtractor::test_rate_limit_enforced": {
+      "source_sha256": "ee78191139aff99bfb3fd483c0b34eac86eca9f530c4cbc2e11844e35bd3ddfd",
+      "comparisons": [
+        "elapsed >= 0.2"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_async_request_validation_performance": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "perf_result['duration'] < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_concurrent_request_validation": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "total_time < 2.0",
+        "throughput > 10"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_async_security_pipeline": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "pipeline_time < 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncThreatDetection::test_concurrent_threat_detection": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "detection_time < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncThreatDetection::test_adaptive_threat_response": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "level_result['processing_time'] < 3.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncRateLimiting::test_distributed_rate_limiting": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "total_time < 5.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncRateLimiting::test_burst_protection": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "burst_time < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityIntegration::test_async_security_with_caching": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "second_call_time < first_call_time * 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityIntegration::test_async_security_error_handling": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "error_handling_time < 2.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityPerformance::test_high_concurrency_security": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "total_time < 10.0",
+        "throughput > 50"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityPerformance::test_security_latency_distribution": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "len(valid_latencies) >= num_requests * 0.9",
+        "avg_latency < 0.1",
+        "p95_latency < 0.2",
+        "p99_latency < 0.5"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityDecorator::test_async_security_decorator": {
+      "source_sha256": "a0df3785cb1ef09e9359d44b97de63d3a49761926d999db71a6648be7e6819ea",
+      "comparisons": [
+        "execution_time < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_category_models.py::TestCategoryModels::test_category_change_result_auto_timestamp": {
+      "source_sha256": "10121fa414741e5f913d158dbedfc3554d45c0953c83bf1acc75b29465179174",
+      "comparisons": [
+        "(datetime.now(UTC) - result.timestamp).total_seconds() < 1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_context_payload_schema.py::TestPerformanceOptimization::test_validation_speed": {
+      "source_sha256": "27772d99dca847fe933c307478c6d86b519cf6431c8c358d6792cd2ec125c801",
+      "comparisons": [
+        "avg_time_ms < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_context_payload_schema.py::TestPerformanceOptimization::test_compiled_validator_performance": {
+      "source_sha256": "27772d99dca847fe933c307478c6d86b519cf6431c8c358d6792cd2ec125c801",
+      "comparisons": [
+        "avg_time_ms < 0.05"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_def138_edge_cases.py::TestPerformanceEdgeCases::test_very_long_context": {
+      "source_sha256": "c01a4e0f5f2e68c9f73989f37518d679dae6e1887a7eb97fc28f9bc20d5e7911",
+      "comparisons": [
+        "elapsed < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_def138_edge_cases.py::TestPerformanceEdgeCases::test_many_classifications": {
+      "source_sha256": "c01a4e0f5f2e68c9f73989f37518d679dae6e1887a7eb97fc28f9bc20d5e7911",
+      "comparisons": [
+        "avg_time < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_feature_flags_context_flow.py::TestPerformanceImpact::test_flag_check_performance": {
+      "source_sha256": "65ffb02409438ba12dd712a7a8854d4a48e9fb687d70961b84c3c8531b664e7c",
+      "comparisons": [
+        "avg_time_ms < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_performance_tracking_fix.py::TestTimerScope::test_timer_resets_per_main_call": {
+      "source_sha256": "6a98d59aa54ab80e8fd6b10b09221c02100e094cc068bcb712646ade86f62704",
+      "comparisons": [
+        "40 < first_time < 60",
+        "20 < second_time < 40",
+        "second_time < 100"
+      ],
+      "status": "deterministic",
+      "reason": "Klok is gemockt met [1.0, 1.05, 2.0, 2.03]; controleert niet-cumulatieve meetwaarden. Test is momenteel geskipt wegens verouderde main-mocks: geen actuele CI-bescherming claimen, niet wegens runnerflakiness verwijderen."
+    },
+    "tests/unit/test_performance_tracking_fix.py::TestRerunTimingRealistic::test_rerun_time_reasonable": {
+      "source_sha256": "6a98d59aa54ab80e8fd6b10b09221c02100e094cc068bcb712646ade86f62704",
+      "comparisons": [
+        "measured_time_ms < 1000"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_waits_for_refill": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "0.4 <= elapsed <= 0.7"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_timeout": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "0.4 <= elapsed <= 0.7"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_non_blocking": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "elapsed < 0.1"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_infinite_wait": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "0.15 <= elapsed <= 0.35"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_partial_refill": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "2.3 <= elapsed <= 2.8"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_over_capacity_waits": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "0.4 <= elapsed <= 0.7"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_smart_rate_limiter.py::TestTokenBucketAcquire::test_acquire_token_refill_during_wait": {
+      "source_sha256": "add498debeec00e507a7c686de6cfa6b3d5bdb03c32d8bdf6862a867e09d1161",
+      "comparisons": [
+        "0.5 <= elapsed <= 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_us043_remove_legacy_routes.py::TestPerformanceImprovement::test_context_processing_under_100ms": {
+      "source_sha256": "5bb5e4fe7ddfd540cede21586c7cbabe1e8d05f8bbf540edd9a3b1f92c1f74f3",
+      "comparisons": [
+        "elapsed < 100"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_working_system.py::TestCacheSystem::test_cache_performance_benefit": {
+      "source_sha256": "7c9080da105042fe119e4899ea9be59ed5949581f7b2bedcf72f0e2cc2ee0228",
+      "comparisons": [
+        "second_time < first_time"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_working_system.py::TestPerformanceBasics::test_config_loading_speed": {
+      "source_sha256": "7c9080da105042fe119e4899ea9be59ed5949581f7b2bedcf72f0e2cc2ee0228",
+      "comparisons": [
+        "end - start < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/test_working_system.py::TestPerformanceBasics::test_cache_speed": {
+      "source_sha256": "7c9080da105042fe119e4899ea9be59ed5949581f7b2bedcf72f0e2cc2ee0228",
+      "comparisons": [
+        "end - start < 1.0"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/ui/test_async_bridge_bounded.py::_assert_released": {
+      "source_sha256": "7125d6f3161a846dbd8d6428d941816d14432768b85cd92257800d47c97a7a97",
+      "comparisons": [
+        "elapsed <= limit"
+      ],
+      "status": "unreviewed",
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+    },
+    "tests/unit/utils/test_resilience_timeout.py::test_with_full_resilience_bounds_execution_time": {
+      "source_sha256": "c62238654db6fd195d8dc62b4454744d4cbe316011bb1633f65ab473c1b82b74",
+      "comparisons": [
+        "elapsed < 1.5"
+      ],
+      "status": "contract",
+      "reason": "Begrensde uitvoering: timeout=0.5 bij dummyprovider die 6 seconden wacht, plus TimeoutError en elapsed<1.5. Beschermt tegen providerhang; correcte foutsoort alleen bewijst geen tijdige afbreking. Grens behouden."
+    }
+  }
+}

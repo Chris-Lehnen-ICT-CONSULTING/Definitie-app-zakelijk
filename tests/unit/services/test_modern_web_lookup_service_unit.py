@@ -1,5 +1,4 @@
 import asyncio
-import time
 
 import pytest
 
@@ -10,37 +9,60 @@ pytestmark = [pytest.mark.unit]
 
 
 @pytest.mark.asyncio
-async def test_parallel_lookup_concurrency_and_timeout(monkeypatch):
-    # Patch providers with small delays
+async def test_parallel_lookup_waits_for_both_providers(monkeypatch):
+    """Beide providers moeten starten vóór een van beide mag terugkeren."""
     from tests.fixtures.web_lookup_mocks import SRUServiceStub, wikipedia_lookup_stub
 
-    async def slow_wiki(term: str, language: str = "nl"):
-        await asyncio.sleep(0.3)
+    entered = set()
+    both_entered = asyncio.Event()
+    release = asyncio.Event()
+
+    async def arrive(provider):
+        entered.add(provider)
+        if entered == {"wikipedia", "overheid"}:
+            both_entered.set()
+        await release.wait()
+
+    async def blocked_wiki(term: str, language: str = "nl"):
+        await arrive("wikipedia")
         return await wikipedia_lookup_stub(term, language)
 
-    class SlowSRU(SRUServiceStub):
+    class BlockedSRU(SRUServiceStub):
         async def search(self, *a, **k):  # type: ignore[override]
-            await asyncio.sleep(0.3)
+            await arrive("overheid")
             return await super().search(*a, **k)
 
     monkeypatch.setattr(
-        "services.web_lookup.wikipedia_service.wikipedia_lookup", slow_wiki
+        "services.web_lookup.wikipedia_service.wikipedia_lookup", blocked_wiki
     )
-    monkeypatch.setattr("services.web_lookup.sru_service.SRUService", SlowSRU)
+    monkeypatch.setattr("services.web_lookup.sru_service.SRUService", BlockedSRU)
 
     svc = ModernWebLookupService()
     req = LookupRequest(
         term="authenticatie", sources=["wikipedia", "overheid"], max_results=2
     )
 
-    start = time.perf_counter()
-    results = await svc.lookup(req)
-    elapsed = time.perf_counter() - start
+    lookup = asyncio.create_task(svc.lookup(req))
+    try:
+        # Vangnet tegen een hang bij de seriële mutant, geen snelheidsnorm.
+        await asyncio.wait_for(both_entered.wait(), timeout=5)
+        assert (
+            not lookup.done()
+        ), "lookup mag niet klaar zijn met geblokkeerde providers"
+        release.set()
+        results = await asyncio.wait_for(lookup, timeout=5)
+    finally:
+        release.set()
+        if not lookup.done():
+            lookup.cancel()
+        await asyncio.gather(lookup, return_exceptions=True)
 
-    # Concurrency: total elapsed should be closer to 0.3s than 0.6s
-    assert elapsed < 0.55, f"Expected concurrent lookups, took {elapsed:.2f}s"
     assert isinstance(results, list)
-    assert len(results) >= 1
+    assert len(results) == 2
+    assert {(r.source.name, r.definition) for r in results} == {
+        ("Wikipedia", "Mock Wikipedia definitie voor authenticatie"),
+        ("Overheid.nl", "Mock overheid definitie voor authenticatie"),
+    }
 
 
 @pytest.mark.asyncio
