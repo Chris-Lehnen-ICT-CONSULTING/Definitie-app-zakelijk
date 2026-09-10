@@ -36,21 +36,21 @@ class TestPerformanceBenchmarks:
         self.process = psutil.Process(os.getpid())
         self.initial_memory = self.process.memory_info().rss
 
-    def test_cache_performance(self):
+    def test_cache_performance(self, tmp_path):
         """Test cache performance benchmarks."""
-        cache_manager = CacheManager()
+        cache_manager = CacheManager(cache_dir=str(tmp_path))
 
         # Benchmark cache set operations
-        start_time = time.time()
+        start_time = time.perf_counter()
         for i in range(1000):
             cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
-        set_time = time.time() - start_time
+        set_time = time.perf_counter() - start_time
 
         # Benchmark cache get operations
-        start_time = time.time()
+        start_time = time.perf_counter()
         for i in range(1000):
-            cache_manager.get(f"key_{i}")
-        get_time = time.time() - start_time
+            assert cache_manager.get(f"key_{i}") == f"value_{i}"
+        get_time = time.perf_counter() - start_time
 
         # Performance assertions
         assert set_time < 2.0, f"Cache set operations too slow: {set_time:.2f}s"
@@ -353,27 +353,25 @@ class TestLoadTesting:
             validation_rate > 100
         ), f"Validation rate too low: {validation_rate:.2f} validations/sec"
 
-    def test_stress_testing(self):
+    def test_stress_testing(self, tmp_path):
         """Test system under stress conditions."""
         # Simulate high load conditions
-        cache_manager = CacheManager()
+        cache_manager = CacheManager(cache_dir=str(tmp_path))
 
         # Test with many rapid operations
-        start_time = time.time()
-        operations = 0
+        operations = 2500
+        start_time = time.perf_counter()
 
-        # Run for 5 seconds
-        while time.time() - start_time < 5.0:
+        # Fixed load: every run exercises filling and eviction.
+        for i in range(operations):
             # Rapid cache operations
-            key = f"stress_key_{operations}"
-            value = f"stress_value_{operations}"
+            key = f"stress_key_{i}"
+            value = f"stress_value_{i}"
 
             cache_manager.set(key, value, ttl=60)
-            cache_manager.get(key)
+            assert cache_manager.get(key) == value
 
-            operations += 1
-
-        end_time = time.time()
+        end_time = time.perf_counter()
         actual_time = end_time - start_time
 
         # Performance assertions
@@ -384,6 +382,10 @@ class TestLoadTesting:
 
         # System should remain stable
         stats = cache_manager.get_stats()
+        assert stats["hits"] == operations
+        assert stats["misses"] == 0
+        assert stats["entries"] == cache_manager.max_size
+        assert stats["evictions"] == operations - cache_manager.max_size
         assert (
             stats["hit_rate"] > 0.9
         ), f"Hit rate degraded under stress: {stats['hit_rate']:.2f}"
@@ -617,25 +619,36 @@ class TestPerformanceRegression:
             memory_increase < 30 * 1024 * 1024
         ), f"Memory usage regression: {memory_increase / 1024 / 1024:.2f}MB"
 
-    def test_throughput_regression(self):
+    def test_throughput_regression(self, tmp_path):
         """Test throughput regression."""
-        cache_manager = CacheManager()
+        cache_manager = CacheManager(cache_dir=str(tmp_path))
 
         # Test throughput
-        start_time = time.time()
-        operations = 0
+        operations = 2000
+        start_time = time.perf_counter()
 
-        # Run for 2 seconds
-        while time.time() - start_time < 2.0:
-            cache_manager.set(f"key_{operations}", f"value_{operations}", ttl=300)
-            cache_manager.get(f"key_{operations}")
-            operations += 1
+        # A fixed fill/eviction mix, including durable writes, on every runner.
+        for i in range(operations):
+            cache_manager.set(f"key_{i}", f"value_{i}", ttl=300)
+            assert cache_manager.get(f"key_{i}") == f"value_{i}"
 
-        end_time = time.time()
+        end_time = time.perf_counter()
         throughput = operations / (end_time - start_time)
 
         # Should maintain high throughput
         assert throughput > 1000, f"Throughput regression: {throughput:.2f} ops/sec"
+
+        stats = cache_manager.get_stats()
+        assert stats["hits"] == operations
+        assert stats["misses"] == 0
+        assert stats["evictions"] == operations - cache_manager.max_size
+        assert stats["entries"] == cache_manager.max_size
+
+        # Reopen outside the timed block: prove persistence and actual eviction.
+        reopened = CacheManager(cache_dir=str(tmp_path))
+        assert reopened.get("key_0") is None
+        for i in range(operations - cache_manager.max_size, operations):
+            assert reopened.get(f"key_{i}") == f"value_{i}"
 
 
 if __name__ == "__main__":
