@@ -1,5 +1,12 @@
 # Makefile for History Tab Removal Verification
 # Include this in your main Makefile or run standalone with: make -f scripts/testing/Makefile.history_removal verify
+#
+# DEF-666: deze wrapper is bij de bron uitgeschakeld. De $(error ...) hieronder
+# staat op kolom 0 en wordt dus al bij het INLEZEN geexpandeerd: elk doel, ook
+# -n, -q en een include vanuit een andere Makefile, faalt voordat er ook maar
+# een recept of shell-expansie draait. De recepten hieronder blijven ongewijzigd
+# staan en worden niet meer bereikt.
+$(error DEF-666-QUARANTINE-GUARD: scripts/testing/Makefile.history_removal is bij de bron uitgeschakeld)
 
 .PHONY: verify-history-removal baseline-history test-history-removal clean-history-verification help
 

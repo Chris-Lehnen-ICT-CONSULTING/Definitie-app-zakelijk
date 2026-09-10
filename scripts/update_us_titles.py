@@ -4,6 +4,13 @@ Update all User Story titles to include descriptive information.
 Scans all US-*.md files and updates the titel field with US-ID + description.
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/update_us_titles.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import re
 from pathlib import Path
 

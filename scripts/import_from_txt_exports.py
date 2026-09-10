@@ -5,6 +5,13 @@ Import definities from TXT exports back into database.
 Used for data recovery after accidental database overwrites.
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/import_from_txt_exports.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import re
 import sqlite3
 import sys

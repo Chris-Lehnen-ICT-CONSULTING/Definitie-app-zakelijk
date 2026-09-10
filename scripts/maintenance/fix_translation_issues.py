@@ -4,6 +4,13 @@ Script om vertaalproblemen in documentatie op te lossen.
 Fixes translation issues in documentation files.
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/maintenance/fix_translation_issues.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import re
 from pathlib import Path
 

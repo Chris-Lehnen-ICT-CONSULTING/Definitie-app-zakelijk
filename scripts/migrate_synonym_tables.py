@@ -4,6 +4,13 @@ Migration script to add synonym_groups and synonym_group_members tables.
 This migration implements the schema from PHASE 1.1 (lines 354-444 in schema.sql).
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/migrate_synonym_tables.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import sqlite3
 from pathlib import Path
 

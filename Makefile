@@ -175,7 +175,7 @@ test-markers-check: check-python
 # DEF-665: de grep-gate loopt via één gedeelde wrapper, zodat Make en CI
 # hetzelfde contract gebruiken. De handhavingsvlag staat hier expliciet; de gate
 # accepteert alleen "true"/"false", dus een typefout schakelt niets stil uit.
-.PHONY: grep-check semgrep-check epic-check test-tool-gates
+.PHONY: grep-check semgrep-check epic-check quarantine-check test-tool-gates
 
 grep-check: check-python
 	@echo "[grep-check] Fail-closed grep-gate op src/ (DEF-665)"
@@ -194,6 +194,14 @@ epic-check: check-python
 	@echo "[epic-check] Fail-closed EPIC/US-validatiegate (DEF-665)" >&2
 	@$(PY) -I -B scripts/ci/epic_validation_gate.py
 
+quarantine-check: check-python
+	@echo "[quarantine-check] Bronquarantaine-integriteit (DEF-666)"
+	@# Read-only: leest en hasht de 49 gequarantainede bronnen, het manifest en
+	@# de geregistreerde actieve configuratie. De checker voert nooit een
+	@# geïnspecteerd bestand uit. Er is bewust geen root-, scope- of waivervlag:
+	@# de repository-root ligt vast in de checker zelf.
+	@$(PY) -I -B scripts/ci/quarantine_guard_check.py
+
 test-tool-gates: check-python
 	@echo "[test-tool-gates] Vaste unittest-suites voor de toolgates (DEF-665)"
 	@# De scriptpaden liggen vast: geen variabele, geen module-import vanuit de
@@ -206,6 +214,14 @@ test-tool-gates: check-python
 	@$(PY) -I -B scripts/ci/test_complexity_gate.py
 	@$(PY) -I -B scripts/ci/test_semgrep_gate.py
 	@$(PY) -I -B scripts/ci/test_epic_validation_gate.py
+	@# DEF-666: eerst de checker zelf, zodat dit doel de integriteitspoort
+	@# onafhankelijk draait en niet leunt op een testmethode die de CLI aanroept.
+	@$(PY) -I -B scripts/ci/quarantine_guard_check.py
+	@# Daarna de bronblokkades en de manifestintegriteit. `-I` is hier extra van
+	@# belang: het houdt PYTHONOPTIMIZE uit de omgeving, zodat de asserts van
+	@# deze suites actief blijven.
+	@$(PY) -I -B scripts/ci/test_quarantine_guard_check.py
+	@$(PY) -I -B scripts/ci/test_quarantine_integrity.py
 
 # DEF-522: de fail-closed secret-gate loopt via één gedeelde CLI. Alle invoer is
 # expliciet en absoluut; er is geen terugval op HEAD, een baseline of een smaller

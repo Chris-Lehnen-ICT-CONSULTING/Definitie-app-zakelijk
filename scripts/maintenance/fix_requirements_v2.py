@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """Enhanced fix for all requirement documents - Phase 2."""
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/maintenance/fix_requirements_v2.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import re
 from pathlib import Path
 

@@ -4,6 +4,13 @@ Advanced Dutch Translation Script for Justice Documentation
 Implements comprehensive translation with domain-specific terminology
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/docs/translate_to_dutch.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import logging
 import re
 import shutil

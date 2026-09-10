@@ -6,6 +6,13 @@ This script recovers all example types (practical, counter, synonyms, antonyms, 
 that were lost during the git branch switch on 2025-10-30 15:43.
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/recover_voorbeelden.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import re
 import sqlite3
 import sys

@@ -4,6 +4,13 @@ SMART Compliance Fixer for Justice Documentation
 Ensures all documentation meets SMART criteria standards
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/maintenance/fix_smart_compliance.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import logging
 import re
 import shutil
