@@ -9,6 +9,13 @@ Discovery: Definitie 39 (identiteitsmiddel) has NO voorbeelden in current table,
 but has 29 voorbeelden in old2 backup table - this is data loss from migration!
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/restore_orphaned_voorbeelden.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import sqlite3
 from datetime import datetime
 

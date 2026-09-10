@@ -4,6 +4,13 @@ History Tab Removal Tool - Precise and Safe Removal
 Removes all History Tab references from the codebase
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/maintenance/remove_history_tab.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import re
 import shutil
 import sys

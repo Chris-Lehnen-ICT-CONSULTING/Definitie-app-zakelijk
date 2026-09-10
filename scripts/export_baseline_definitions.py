@@ -11,6 +11,13 @@ Usage:
     python scripts/export_baseline_definitions.py
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/export_baseline_definitions.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import json
 import sqlite3
 from datetime import datetime

@@ -10,6 +10,13 @@ compact directory tree for the `src/` folder (depth-limited).
 
 from __future__ import annotations
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/docs/generate_source_tree.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 from pathlib import Path
 
 DOC_PATH = Path("docs/architecture/source-tree.md")

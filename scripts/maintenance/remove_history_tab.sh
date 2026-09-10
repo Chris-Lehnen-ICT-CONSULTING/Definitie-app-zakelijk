@@ -1,4 +1,10 @@
 #!/bin/bash
+printf '%s\n' 'DEF-666-QUARANTINE-GUARD: scripts/maintenance/remove_history_tab.sh is bij de bron uitgeschakeld.' >&2
+return 92 2>/dev/null || exit 92
+# DEF-666: de blokkade hierboven staat vóór elke instelling, functiedefinitie en
+# opdracht. Gesourcet stopt zij het script zonder de aanroepende shell te doden;
+# rechtstreeks uitgevoerd sluit zij af met status 92. De code hieronder blijft
+# ongewijzigd staan en wordt niet meer bereikt.
 # History Tab Removal Script - Safe and Atomic Operation
 # Created: $(date +"%Y-%m-%d %H:%M:%S")
 

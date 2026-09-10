@@ -8,6 +8,13 @@ Usage:
     python scripts/testing/verify_history_removal.py [--baseline|--verify]
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/testing/verify_history_removal.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import argparse
 import contextlib
 import json

@@ -5,10 +5,14 @@ Database Backup and Restore Utility
 Features:
 - Create timestamped backups
 - Compress backups with gzip
-- Restore from backup
 - Verify backup integrity
-- Clean old backups (retention policy)
 - List available backups
+
+NIET BESCHIKBAAR (DEF-666): 'restore from backup' en 'clean old backups' zijn bij
+de bron uitgeschakeld. Zowel ``DatabaseBackupManager.restore_backup`` en
+``clean_old_backups`` als de CLI-acties ``restore`` en ``clean`` weigeren
+onvoorwaardelijk, vóór elke bijwerking. Herinschakeling vereist een aparte,
+gereviewde issue. De backupcreatie, -verificatie en -opsomming blijven werken.
 """
 
 import argparse
@@ -46,15 +50,9 @@ from database.sqlite_backup import (
 GZIP_CHUNK_BYTES = 1024 * 1024
 """Chunkgrootte voor (de)compressie; vóór elke chunk wordt het budget gecontroleerd."""
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("logs/backup_restore.log"),
-        logging.StreamHandler(sys.stdout),
-    ],
-)
+# DEF-666: geen logbestandconfiguratie op moduleniveau. Importeren van dit
+# script mag niets schrijven; main() zet de FileHandler op, ná de afwijzing van
+# de geblokkeerde acties en ná het aanmaken van logs/.
 logger = logging.getLogger(__name__)
 
 
@@ -272,6 +270,11 @@ class DatabaseBackupManager:
         """
         Restore database from backup.
 
+        NIET BESCHIKBAAR (DEF-666): deze bewerking overschrijft de live database
+        en is bij de bron uitgeschakeld. De aanroep faalt onvoorwaardelijk vóór
+        elke bijwerking; er wordt geen argument aangeraakt en geen bestand
+        geopend. Herinschakeling vereist een aparte, gereviewde issue.
+
         Args:
             backup_path: Path to backup file
             create_backup_before_restore: Create backup of current DB before restore
@@ -279,6 +282,11 @@ class DatabaseBackupManager:
         Returns:
             True if restore successful
         """
+        raise RuntimeError(
+            "DEF-666-QUARANTINE-GUARD: DatabaseBackupManager.restore_backup is bij de bron uitgeschakeld. "
+            "Herinschakeling vereist een aparte, gereviewde issue."
+        )
+
         if not backup_path.exists():
             msg = f"Backup not found: {backup_path}"
             raise FileNotFoundError(msg)
@@ -385,6 +393,11 @@ class DatabaseBackupManager:
         """
         Clean old backups based on retention policy.
 
+        NIET BESCHIKBAAR (DEF-666): deze bewerking verwijdert backupbestanden en
+        is bij de bron uitgeschakeld. De aanroep faalt onvoorwaardelijk vóór elke
+        bijwerking, ook met ``dry_run=True``. Herinschakeling vereist een aparte,
+        gereviewde issue. Gebruik ``list_backups()`` om de retentie te bekijken.
+
         Args:
             days: Delete backups older than this many days
             keep_minimum: Always keep at least this many recent backups
@@ -393,6 +406,11 @@ class DatabaseBackupManager:
         Returns:
             Number of backups deleted
         """
+        raise RuntimeError(
+            "DEF-666-QUARANTINE-GUARD: DatabaseBackupManager.clean_old_backups is bij de bron uitgeschakeld. "
+            "Herinschakeling vereist een aparte, gereviewde issue."
+        )
+
         logger.info(
             f"Cleaning backups older than {days} days (keeping minimum {keep_minimum})"
         )
@@ -454,21 +472,23 @@ Examples:
   # List all backups
   python scripts/backup_restore.py list
 
-  # Restore from a specific backup
-  python scripts/backup_restore.py restore data/backups/definities_backup_20250102_143022.db.gz
+  # Verify a backup
+  python scripts/backup_restore.py verify data/backups/definities_backup_20250102_143022.db.gz
 
-  # Clean old backups (dry run)
-  python scripts/backup_restore.py clean --days 30 --dry-run
-
-  # Clean old backups (actual)
-  python scripts/backup_restore.py clean --days 30 --keep-minimum 10
+NIET BESCHIKBAAR (DEF-666):
+  De acties 'restore' en 'clean' zijn bij de bron uitgeschakeld. Zij worden
+  geweigerd voordat er een map wordt aangemaakt of een bestand wordt geraakt.
+  Herinschakeling vereist een aparte, gereviewde issue.
         """,
     )
 
     parser.add_argument(
         "action",
         choices=["backup", "restore", "list", "verify", "clean"],
-        help="Action to perform",
+        help=(
+            "Action to perform. NIET BESCHIKBAAR (DEF-666): 'restore' en 'clean' "
+            "zijn bij de bron uitgeschakeld en worden onvoorwaardelijk geweigerd."
+        ),
     )
 
     parser.add_argument(
@@ -499,14 +519,20 @@ Examples:
         "--days",
         type=int,
         default=30,
-        help="Days to keep backups (for clean action, default: 30)",
+        help=(
+            "Days to keep backups (for clean action, default: 30). "
+            "NIET BESCHIKBAAR (DEF-666): de actie 'clean' is uitgeschakeld."
+        ),
     )
 
     parser.add_argument(
         "--keep-minimum",
         type=int,
         default=5,
-        help="Minimum number of backups to keep (default: 5)",
+        help=(
+            "Minimum number of backups to keep (default: 5). "
+            "NIET BESCHIKBAAR (DEF-666): de actie 'clean' is uitgeschakeld."
+        ),
     )
 
     parser.add_argument(
@@ -518,13 +544,36 @@ Examples:
     parser.add_argument(
         "--no-safety-backup",
         action="store_true",
-        help="Do not create safety backup before restore",
+        help=(
+            "Do not create safety backup before restore. "
+            "NIET BESCHIKBAAR (DEF-666): de actie 'restore' is uitgeschakeld."
+        ),
     )
 
     args = parser.parse_args()
 
+    # DEF-666: de afwijzing staat direct na het parsen en dus vóór de logmap,
+    # vóór de backupmap en vóór de constructor. Geen enkele bijwerking gaat
+    # eraan vooraf. parser.error() schrijft naar stderr en sluit af met 2.
+    if args.action in ("restore", "clean"):
+        parser.error(
+            "DEF-666-QUARANTINE-GUARD: de acties 'restore' en 'clean' zijn bij de bron uitgeschakeld. "
+            "Alleen 'backup', 'list' en 'verify' zijn beschikbaar."
+        )
+
     # Ensure log directory exists
     Path("logs").mkdir(exist_ok=True)
+
+    # DEF-666: logbestandconfiguratie hoort hier, niet op moduleniveau: pas ná
+    # de afwijzing en ná het aanmaken van logs/.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler("logs/backup_restore.log"),
+            logging.StreamHandler(sys.stdout),
+        ],
+    )
 
     try:
         manager = DatabaseBackupManager(

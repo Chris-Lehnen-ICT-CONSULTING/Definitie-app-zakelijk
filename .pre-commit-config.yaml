@@ -42,12 +42,19 @@ repos:
   # Local custom hooks
   - repo: local
     hooks:
-      - id: fix-requirements-frontmatter
-        name: Normalize requirements frontmatter (policy)
-        entry: python3 scripts/docs/fix_requirements_frontmatter.py
+      - id: quarantine-source-integrity
+        name: Bronquarantaine-integriteit (DEF-666)
+        # Vervangt de oude frontmatternormalisator: dat script staat sinds
+        # DEF-666 in bronquarantaine en mag niet meer automatisch draaien. Deze
+        # gate leest en hasht alleen; hij voert geen geïnspecteerd bestand uit.
+        # Er is geen vlag, omgevingsvariabele of scope-optie om hem te omzeilen;
+        # de repository-root ligt vast in de checker zelf. `-I -B` sluit
+        # PYTHONPATH/PYTHONOPTIMIZE uit en laat geen bytecode achter, gelijk aan
+        # de aanroep in de toolgates.
+        entry: python3 -I -B scripts/ci/quarantine_guard_check.py
         language: system
+        always_run: true
         pass_filenames: false
-        files: ^docs/backlog/requirements/REQ-.*\.md$
         stages: [pre-commit]
       - id: no-todo-markers
         name: Block TODO/FIXME markers in code

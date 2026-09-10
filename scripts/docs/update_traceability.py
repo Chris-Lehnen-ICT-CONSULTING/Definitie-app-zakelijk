@@ -4,6 +4,13 @@ Traceability Update Script for Justice Documentation
 Ensures all cross-references and dependencies are valid and complete
 """
 
+# DEF-666: bij de bron uitgeschakeld. Deze blokkade staat vóór elke import,
+# definitie en bijwerking; de oorspronkelijke code blijft ongewijzigd staan.
+raise RuntimeError(
+    "DEF-666-QUARANTINE-GUARD: scripts/docs/update_traceability.py is bij de bron uitgeschakeld. "
+    "Herinschakeling vereist een aparte, gereviewde issue."
+)
+
 import json
 import logging
 import re
