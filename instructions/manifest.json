@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "blocks": {
+    "definitie.policy": {
+      "disposition": "shared",
+      "required_in": [
+        "codex-app.definitie",
+        "codex-cli.definitie",
+        "claude-cli.definitie",
+        "cowork.definitie"
+      ]
+    },
+    "guidelines.policy": {
+      "disposition": "shared",
+      "required_in": [
+        "codex-app.guidelines",
+        "codex-cli.guidelines",
+        "claude-cli.guidelines",
+        "cowork.guidelines"
+      ]
+    },
+    "claude.reference.project-policy": {
+      "disposition": "claude-only",
+      "required_in": [
+        "claude-native.project.patterns",
+        "claude-native.project.project-rules",
+        "claude-native.project.streamlit-patterns"
+      ]
+    }
+  },
+  "publications": {
+    "codex-app.definitie": {
+      "environment": "codex-app",
+      "blocks": [
+        "definitie.policy"
+      ]
+    },
+    "codex-app.guidelines": {
+      "environment": "codex-app",
+      "blocks": [
+        "guidelines.policy"
+      ]
+    },
+    "codex-cli.definitie": {
+      "environment": "codex-cli",
+      "blocks": [
+        "definitie.policy"
+      ]
+    },
+    "codex-cli.guidelines": {
+      "environment": "codex-cli",
+      "blocks": [
+        "guidelines.policy"
+      ]
+    },
+    "claude-cli.definitie": {
+      "environment": "claude-cli",
+      "blocks": [
+        "definitie.policy"
+      ]
+    },
+    "claude-cli.guidelines": {
+      "environment": "claude-cli",
+      "blocks": [
+        "guidelines.policy"
+      ]
+    },
+    "cowork.definitie": {
+      "environment": "cowork",
+      "blocks": [
+        "definitie.policy"
+      ]
+    },
+    "cowork.guidelines": {
+      "environment": "cowork",
+      "blocks": [
+        "guidelines.policy"
+      ]
+    },
+    "claude-native.project.patterns": {
+      "environment": "claude-cli",
+      "blocks": [
+        "claude.reference.project-policy"
+      ]
+    },
+    "claude-native.project.project-rules": {
+      "environment": "claude-cli",
+      "blocks": [
+        "claude.reference.project-policy"
+      ]
+    },
+    "claude-native.project.streamlit-patterns": {
+      "environment": "claude-cli",
+      "blocks": [
+        "claude.reference.project-policy"
+      ]
+    }
+  },
+  "chains": {
+    "codex-app.definitie": {
+      "publications": [
+        "codex-app.definitie"
+      ],
+      "max_bytes": 32768
+    },
+    "codex-app.guidelines": {
+      "publications": [
+        "codex-app.definitie",
+        "codex-app.guidelines"
+      ],
+      "max_bytes": 32768
+    },
+    "codex-cli.definitie": {
+      "publications": [
+        "codex-cli.definitie"
+      ],
+      "max_bytes": 32768
+    },
+    "codex-cli.guidelines": {
+      "publications": [
+        "codex-cli.definitie",
+        "codex-cli.guidelines"
+      ],
+      "max_bytes": 32768
+    },
+    "claude-cli.definitie": {
+      "publications": [
+        "claude-cli.definitie"
+      ],
+      "max_bytes": 65536
+    },
+    "claude-cli.guidelines": {
+      "publications": [
+        "claude-cli.definitie",
+        "claude-cli.guidelines"
+      ],
+      "max_bytes": 65536
+    },
+    "cowork.definitie": {
+      "publications": [
+        "cowork.definitie"
+      ],
+      "max_bytes": 65536
+    },
+    "cowork.guidelines": {
+      "publications": [
+        "cowork.definitie",
+        "cowork.guidelines"
+      ],
+      "max_bytes": 65536
+    },
+    "claude-native.project": {
+      "publications": [
+        "claude-cli.definitie",
+        "claude-native.project.patterns",
+        "claude-native.project.project-rules",
+        "claude-native.project.streamlit-patterns"
+      ],
+      "max_bytes": 65536
+    },
+    "claude-native.guidelines": {
+      "publications": [
+        "claude-cli.definitie",
+        "claude-native.project.patterns",
+        "claude-native.project.project-rules",
+        "claude-native.project.streamlit-patterns",
+        "claude-cli.guidelines"
+      ],
+      "max_bytes": 65536
+    }
+  }
+}
