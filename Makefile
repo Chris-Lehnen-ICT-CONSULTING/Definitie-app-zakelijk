@@ -233,12 +233,19 @@ test-tool-gates: check-python
 SECRET_SCAN_SOURCE ?= $(CURDIR)
 SECRET_SCAN_CONFIG ?= $(CURDIR)/.gitleaks.toml
 SECRET_SCAN_TIMEOUT ?= 300
+# DEF-741: de modus komt net als de grenzen uit de omgeving. Default blijft
+# `full`, zodat een lokale run en een gewone push/PR ongewijzigd draaien. De
+# waarde wordt gequote doorgegeven en nergens geïnterpreteerd. De recipe laat
+# alleen de twee historie-modi door (zie de guard in `secret-scan`); welke
+# waarden de CLI verder kent, bepaalt haar eigen parser.
+SECRET_SCAN_MODE ?= full
 export SECRET_SCAN_ABS_SOURCE = $(abspath $(SECRET_SCAN_SOURCE))
 export SECRET_SCAN_ABS_CONFIG = $(abspath $(SECRET_SCAN_CONFIG))
 export SECRET_SCAN_ABS_BINARY = $(abspath $(SECRET_SCAN_BINARY))
 export SECRET_SCAN_BASE
 export SECRET_SCAN_HEAD
 export SECRET_SCAN_TIMEOUT
+export SECRET_SCAN_MODE
 
 secret-scan: check-python
 	@echo "[secret-scan] Fail-closed gate: expliciete range, canonieke historie en werkboom"
@@ -247,7 +254,20 @@ secret-scan: check-python
 		echo "Er is geen terugval op HEAD, een baseline of een smaller bereik."; \
 		exit 1; \
 	fi
-	@$(PY) scripts/ci/secret_scan_gate.py --mode full \
+	@# DEF-741: deze aanroep is de verplichte gate en scant altijd de historie en
+	@# de werkboom. Alleen de twee historie-modi mogen hier binnenkomen; `staged`
+	@# is precommit-feedback op de index en zou de scope stil versmallen tot wat
+	@# toevallig gestaged is. Een lege of onbekende waarde valt in hetzelfde net.
+	@# De melding is vast en citeert de ingevoerde waarde niet.
+	@case "$$SECRET_SCAN_MODE" in \
+		full|new-branch) ;; \
+		*) \
+			echo "FOUT: SECRET_SCAN_MODE moet 'full' of 'new-branch' zijn."; \
+			echo "Deze gate scant altijd de historie en de werkboom; 'staged' is"; \
+			echo "precommit-feedback op de index en hier geen geldige modus."; \
+			exit 1 ;; \
+	esac
+	@$(PY) scripts/ci/secret_scan_gate.py --mode "$$SECRET_SCAN_MODE" \
 		--source "$$SECRET_SCAN_ABS_SOURCE" \
 		--config "$$SECRET_SCAN_ABS_CONFIG" \
 		--binary "$$SECRET_SCAN_ABS_BINARY" \

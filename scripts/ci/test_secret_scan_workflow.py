@@ -17,6 +17,15 @@ De config is de zelfgemaakte minimale fixtureconfig; de projectuitzonderingen zi
 elders bewezen. Alle procesuitvoer wordt opgevangen: faalmeldingen tonen alleen
 status, code en tellingen, nooit een canarywaarde of ruwe tooltekst.
 
+**Modusselectie (DEF-741).** De job kiest zelf `full` of `new-branch` en geeft
+die via de omgeving door aan Make. Die keuze wordt statisch getoetst — de ene
+toegestane expressie ligt hier vast en wordt letterlijk vergeleken, er wordt geen
+GitHub-expressie geëmuleerd — en de doorgifte zelf wordt echt uitgevoerd: met
+`SECRET_SCAN_MODE=new-branch` loopt de nulbase schoon door de keten, zonder die
+variabele blijft `full` gelden en wordt diezelfde nulbase afgewezen. Dezelfde
+variabele mag de scope niet kúnnen versmallen: `staged` scant alleen de index en
+blijft daarom ook bij een schone index een nonzero uitkomst voor deze aanroep.
+
 Naast de aanroep controleert de leesstap twee dingen die de uitvoering zelf niet
 kan aantonen, omdat de test de omgeving van de gate expliciet zelf meegeeft:
 dat de job-`env` geen context gebruikt die GitHub daar niet beschikbaar stelt
@@ -108,6 +117,37 @@ _MAKE_TIMEOUT = 300
 _TOOL_TIMEOUT = "60"
 _CLEAN = secret_scan.ScanStatus.CLEAN.value
 _BLOCKED = secret_scan.ScanStatus.BLOCKED.value
+
+#: De nulbase van een branchcreatie; gedeeld met de gate-suite.
+_NULBASE = gate._NULBASE
+_NEW_BRANCH = gate._NEW_BRANCH
+_git = canary_fixtures._git
+
+#: `staged` bestaat in de CLI voor precommit-feedback op de index en doet geen
+#: enkele uitspraak over de historie. De verplichte gate mag daar niet via de
+#: modusvariabele naartoe te versmallen zijn.
+_STAGED = "staged"
+
+#: De exacte selectie die de workflow moet maken (DEF-741). Alleen een push die
+#: werkelijk een branch aanmaakt krijgt de nieuwe modus; al het andere blijft
+#: `full`. Deze test emuleert geen GitHub-expressies — zij legt de ene toegestane
+#: formulering vast en vergelijkt die letterlijk, op witruimte na.
+_MODE_EXPRESSIE = (
+    "${{ (github.event_name == 'push' && github.event.created == true "
+    "&& github.event.deleted == false "
+    "&& startsWith(github.ref, 'refs/heads/') "
+    "&& github.event.before == '0000000000000000000000000000000000000000') "
+    "&& 'new-branch' || 'full' }}"
+)
+
+#: De basisgrens blijft ongewijzigd: juist bij een branchcreatie levert
+#: `github.event.before` de nulbase die de nieuwe modus vereist.
+_BASE_EXPRESSIE = "${{ github.event.pull_request.base.sha || github.event.before }}"
+
+
+def _genormaliseerd(waarde: object) -> str:
+    """Vergelijk expressies zonder over regelafbreking of inspringing te vallen."""
+    return " ".join(str(waarde).split())
 
 
 def _verboden_contexten(waarde: str) -> list[str]:
@@ -211,9 +251,20 @@ def _document(stdout: str) -> dict | None:
 
 
 def _draai_make(
-    argv: list[str], opzet: gate._Fixture, omgeving: _Omgeving, *, verboden: str
+    argv: list[str],
+    opzet: gate._Fixture,
+    omgeving: _Omgeving,
+    *,
+    verboden: str,
+    base: str | None = None,
+    extra: dict[str, str] | None = None,
 ) -> _Uitkomst:
-    """Voer de gevalideerde aanroep uit in de clone, met expliciete invoer."""
+    """Voer de gevalideerde aanroep uit in de clone, met expliciete invoer.
+
+    `base` en `extra` zijn er voor DEF-741: de modus komt uit de omgeving, net
+    als de grenzen, dus de keten wordt met dezelfde variabelen gestuurd als in
+    de workflow.
+    """
     kindomgeving = _git_omgeving()
     kindomgeving.update(
         {
@@ -221,11 +272,12 @@ def _draai_make(
             "SECRET_SCAN_SOURCE": str(opzet.clone),
             "SECRET_SCAN_CONFIG": str(opzet.config),
             "SECRET_SCAN_BINARY": str(omgeving.binary),
-            "SECRET_SCAN_BASE": opzet.base,
+            "SECRET_SCAN_BASE": base or opzet.base,
             "SECRET_SCAN_HEAD": opzet.head,
             "SECRET_SCAN_TIMEOUT": _TOOL_TIMEOUT,
         }
     )
+    kindomgeving.update(extra or {})
     voltooid = subprocess.run(
         argv,
         cwd=str(opzet.clone),
@@ -267,6 +319,103 @@ def test_workflowketen_op_schone_clone_geeft_clean(omgeving: _Omgeving) -> None:
     assert uitkomst.document["status"] == _CLEAN, _diagnose(uitkomst)
     assert uitkomst.document["scanned_bytes"] > 0, _diagnose(uitkomst)
     assert uitkomst.exit_code == 0, _diagnose(uitkomst)
+
+
+def test_workflow_kiest_new_branch_alleen_bij_branchcreatie() -> None:
+    """De job zet de modus zelf, en alleen op een push die een branch aanmaakt."""
+    document = yaml.safe_load(_WORKFLOW.read_text(encoding="utf-8"))
+    job = document.get("jobs", {}).get(_JOB)
+    if not isinstance(job, dict):
+        pytest.fail(f"job {_JOB} ontbreekt in {_WORKFLOW.name}.")
+    job_env = job.get("env") or {}
+
+    assert _genormaliseerd(job_env.get("SECRET_SCAN_MODE")) == _genormaliseerd(
+        _MODE_EXPRESSIE
+    ), (
+        "de job moet SECRET_SCAN_MODE zetten met exact deze selectie; een ruimere "
+        "voorwaarde zou een gewone push of PR de volledige-historiemodus geven, "
+        "een engere laat de branchcreatie weer op een onbestaande grens vallen."
+    )
+    assert _genormaliseerd(job_env.get("SECRET_SCAN_BASE")) == _genormaliseerd(
+        _BASE_EXPRESSIE
+    ), (
+        "SECRET_SCAN_BASE moet ongewijzigd blijven: juist bij een branchcreatie "
+        "levert github.event.before de nulbase die de nieuwe modus vereist."
+    )
+
+
+def test_keten_geeft_new_branch_modus_door(omgeving: _Omgeving) -> None:
+    """Met SECRET_SCAN_MODE=new-branch loopt de nulbase schoon door de keten."""
+    argv = _gate_argv()
+    opzet = _keten_clone(omgeving, "workflow-new-branch")
+
+    uitkomst = _draai_make(
+        argv,
+        opzet,
+        omgeving,
+        verboden=_canary(),
+        base=_NULBASE,
+        extra={"SECRET_SCAN_MODE": _NEW_BRANCH},
+    )
+
+    assert not uitkomst.lekt
+    assert (
+        uitkomst.document is not None
+    ), f"{_diagnose(uitkomst)} — de keten leverde geen uitkomst van de gate."
+    assert uitkomst.document["status"] == _CLEAN, (
+        f"{_diagnose(uitkomst)} — deze branchcreatie is schoon. Blijft dit rood, "
+        "dan geeft Make de gevraagde modus niet door aan de CLI."
+    )
+    assert uitkomst.exit_code == 0, _diagnose(uitkomst)
+
+
+def test_keten_zonder_modus_blijft_full(omgeving: _Omgeving) -> None:
+    """Zonder SECRET_SCAN_MODE blijft `full` gelden, inclusief de nulbase-weigering."""
+    argv = _gate_argv()
+    opzet = _keten_clone(omgeving, "workflow-default-full")
+
+    uitkomst = _draai_make(argv, opzet, omgeving, verboden=_canary(), base=_NULBASE)
+
+    assert not uitkomst.lekt
+    assert uitkomst.document is not None, _diagnose(uitkomst)
+    assert uitkomst.document["status"] != _CLEAN, (
+        f"{_diagnose(uitkomst)} — zonder expliciete modus hoort de keten `full` "
+        "te draaien en de nulbase af te wijzen. Groen betekent hier dat de "
+        "volledige-historiemodus stil de default is geworden."
+    )
+    assert uitkomst.exit_code != 0, _diagnose(uitkomst)
+
+
+def test_keten_weigert_staged_modus(omgeving: _Omgeving) -> None:
+    """De verplichte gate mag niet via de modusvariabele naar de index krimpen.
+
+    `staged` scant alleen wat gestaged is en zegt niets over de historie of de
+    werkboom. Zou `make secret-scan` die modus accepteren, dan levert een schone
+    index groen op terwijl de verplichte scan nooit heeft gedraaid.
+    """
+    argv = _gate_argv()
+    opzet = _keten_clone(omgeving, "workflow-staged")
+
+    # Echt schoon gestaged werk: de gekopieerde ketenbestanden. Zonder deze stap
+    # zou een lege index de uitkomst al nonzero maken en bewees deze test niets
+    # over de modusgrens.
+    for relpad in _KETENBESTANDEN:
+        _git(opzet.clone, "add", "--", relpad)
+
+    uitkomst = _draai_make(
+        argv, opzet, omgeving, verboden=_canary(), extra={"SECRET_SCAN_MODE": _STAGED}
+    )
+
+    # Beide vormen van weigeren zijn goed: Make die de modus zelf afwijst (dan is
+    # er geen JSON-regel) of een gate die niet schoon meldt.
+    schoon = uitkomst.document is not None and uitkomst.document["status"] == _CLEAN
+    assert not uitkomst.lekt
+    assert not schoon, (
+        f"{_diagnose(uitkomst)} — de index is schoon, maar deze aanroep is de "
+        "verplichte gate. Een schone uitkomst betekent hier dat SECRET_SCAN_MODE "
+        "de scope tot de index heeft versmald."
+    )
+    assert uitkomst.exit_code != 0, _diagnose(uitkomst)
 
 
 def test_workflowketen_blokkeert_op_canary(omgeving: _Omgeving) -> None:

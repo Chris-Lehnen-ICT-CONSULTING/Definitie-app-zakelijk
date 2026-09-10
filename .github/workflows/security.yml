@@ -23,6 +23,17 @@ jobs:
       # omgeving naar de gate; nooit als expressie in een shellregel.
       SECRET_SCAN_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       SECRET_SCAN_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      # DEF-741: een push die een branch aanmaakt meldt geen voorganger —
+      # github.event.before is dan de nulbase, die als grens niet bestaat.
+      # Uitsluitend dat geval krijgt de volledige-historiemodus; elke andere
+      # push en elke PR houdt `full`. De keuze reist alleen via de omgeving naar
+      # Make en komt nergens in een shellregel terecht.
+      SECRET_SCAN_MODE: >-
+        ${{ (github.event_name == 'push' && github.event.created == true &&
+        github.event.deleted == false &&
+        startsWith(github.ref, 'refs/heads/') &&
+        github.event.before == '0000000000000000000000000000000000000000')
+        && 'new-branch' || 'full' }}
       # DEF-463: pin gelijk aan .pre-commit-config.yaml en .gitleaks.toml.
       GITLEAKS_VERSION: 8.29.1
       # De runner-context is hier niet beschikbaar: op job-env laat een

@@ -7,8 +7,10 @@ gekeken — status, statische code en tellingen. Procesuitvoer komt nooit in een
 faalmelding terecht, en elke run toetst apart dat de gevoelige invoerwaarde niet
 in stdout of stderr staat.
 
-**Full-modus.** De fixture is een lokale origin-repository met daaruit een gewone
-clone; er komt geen netwerk aan te pas. Drie gevallen:
+**Historie-modi (`full` en `new-branch`).** De fixture is een lokale
+origin-repository met daaruit een gewone clone; er komt geen netwerk aan te pas.
+Drie gevallen, die in beide modi hetzelfde moeten uitpakken en daarom over beide
+zijn geparametriseerd — alleen de `--base` verschilt:
 
 1. *Schoon* → `clean`, exitcode 0. Zou dit falen, dan blokkeert de gate elke
    schone PR.
@@ -104,6 +106,26 @@ _CANARY_BESTAND = canary_fixtures._CANARY_BESTAND
 _SCHOON_BESTAND = "src/module.py"
 _SCHONE_INHOUD = 'WAARDE = "gewone tekst"\n'
 _README = "# Gate\n\nGewone tekst, geen sleutels.\n"
+
+#: De twee historie-modi (DEF-741). `full` houdt de expliciete `base..head`-range;
+#: `new-branch` is de aparte modus voor een net aangemaakte branch, waar de push
+#: géén bruikbare voorganger meldt en de volledige historie van head telt.
+_FULL = "full"
+_NEW_BRANCH = "new-branch"
+
+#: De nulbase die GitHub bij een branchcreatie in `github.event.before` zet. In
+#: `new-branch` is dit de enige toegestane `--base`; in `full` blijft het een
+#: onbestaande commit en dus een weigering.
+_NULBASE = "0" * 40
+
+#: Statische code voor een leeg bereik; een rootcommit mag die nooit opleveren.
+_EMPTY_RANGE = secret_scan.ScanErrorCode.EMPTY_RANGE.value
+
+#: Beide modi voor de gedeelde gedragstests; dezelfde asserties, andere grenzen.
+_HISTORIEMODI = (
+    pytest.param(_FULL, id="full"),
+    pytest.param(_NEW_BRANCH, id="new-branch"),
+)
 
 
 @dataclass(frozen=True)
@@ -214,6 +236,17 @@ def _full_argumenten(
     ]
 
 
+def _historie_argumenten(aanroep: _Aanroep, opzet: _Fixture, modus: str) -> list[str]:
+    """De grenzen per historie-modus; alleen de `--base` verschilt.
+
+    `full` krijgt de expliciete voorganger uit de fixture, `new-branch` de
+    nulbase van een branchcreatie. `--head` is in beide gevallen de werkelijk
+    uitgecheckte commit, zodat de HEAD-eis in beide modi geldt.
+    """
+    base = opzet.base if modus == _FULL else _NULBASE
+    return [*_basis_argumenten(aanroep, modus), "--base", base, "--head", opzet.head]
+
+
 def _staged_argumenten(aanroep: _Aanroep) -> list[str]:
     """Staged kent geen grenzen: de index is het hele bereik."""
     return _basis_argumenten(aanroep, "staged")
@@ -272,11 +305,14 @@ def omgeving() -> _Omgeving:
     )
 
 
-def test_full_op_schone_clone_geeft_clean(omgeving: _Omgeving) -> None:
+@pytest.mark.parametrize("modus", _HISTORIEMODI)
+def test_historiemodus_op_schone_clone_geeft_clean(
+    omgeving: _Omgeving, modus: str
+) -> None:
     """Een schone origin met clone blokkeert niet en toont aantoonbaar scanwerk."""
-    opzet = _origin_met_clone(omgeving, "full-schoon")
+    opzet = _origin_met_clone(omgeving, f"schoon-{modus}")
     aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
-    argumenten = _full_argumenten(aanroep, opzet.base, opzet.head)
+    argumenten = _historie_argumenten(aanroep, opzet, modus)
 
     uitkomst = _draai(argumenten, verboden=_canary())
 
@@ -289,9 +325,10 @@ def test_full_op_schone_clone_geeft_clean(omgeving: _Omgeving) -> None:
     assert uitkomst.exit_code == 0, _diagnose(uitkomst)
 
 
-def test_full_ziet_werkkopie_canary(omgeving: _Omgeving) -> None:
+@pytest.mark.parametrize("modus", _HISTORIEMODI)
+def test_historiemodus_ziet_werkkopie_canary(omgeving: _Omgeving, modus: str) -> None:
     """Een canary die in geen enkele commit staat, komt alleen uit de boomscan."""
-    opzet = _origin_met_clone(omgeving, "full-werkkopie")
+    opzet = _origin_met_clone(omgeving, f"werkkopie-{modus}")
     canary = _canary()
     doel = opzet.clone / _CANARY_BESTAND
     doel.parent.mkdir(parents=True, exist_ok=True)
@@ -306,7 +343,7 @@ def test_full_ziet_werkkopie_canary(omgeving: _Omgeving) -> None:
     )
 
     aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
-    argumenten = _full_argumenten(aanroep, opzet.base, opzet.head)
+    argumenten = _historie_argumenten(aanroep, opzet, modus)
 
     uitkomst = _draai(argumenten, verboden=canary)
 
@@ -315,15 +352,18 @@ def test_full_ziet_werkkopie_canary(omgeving: _Omgeving) -> None:
     assert uitkomst.document["status"] == _BLOCKED, (
         f"{_diagnose(uitkomst)} — de canary staat in geen enkele commit, alleen "
         "in de actuele werkboom. Een uitblijvende blokkade betekent hier dat de "
-        "boomscan niet meedoet in de full-modus."
+        "boomscan niet meedoet in deze modus."
     )
     assert uitkomst.document["finding_count"] > 0, _diagnose(uitkomst)
     assert uitkomst.exit_code != 0, _diagnose(uitkomst)
 
 
-def test_full_ziet_zijtak_canary_van_na_de_clone(omgeving: _Omgeving) -> None:
+@pytest.mark.parametrize("modus", _HISTORIEMODI)
+def test_historiemodus_ziet_zijtak_canary_van_na_de_clone(
+    omgeving: _Omgeving, modus: str
+) -> None:
     """Alleen een werkelijk uitgevoerde volledige fetch haalt deze zijtak binnen."""
-    opzet = _origin_met_clone(omgeving, "full-zijtak")
+    opzet = _origin_met_clone(omgeving, f"zijtak-{modus}")
     canary = _canary()
     zijtak = f"{canary_fixtures._BRANCH}-zijtak"
     _git(opzet.origin, "checkout", "-b", zijtak, opzet.base)
@@ -344,7 +384,7 @@ def test_full_ziet_zijtak_canary_van_na_de_clone(omgeving: _Omgeving) -> None:
     )
 
     aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
-    argumenten = _full_argumenten(aanroep, opzet.base, opzet.head)
+    argumenten = _historie_argumenten(aanroep, opzet, modus)
 
     uitkomst = _draai(argumenten, verboden=canary)
 
@@ -356,6 +396,213 @@ def test_full_ziet_zijtak_canary_van_na_de_clone(omgeving: _Omgeving) -> None:
         "van de canonieke origin-refs niet werkelijk wordt uitgevoerd."
     )
     assert uitkomst.document["finding_count"] > 0, _diagnose(uitkomst)
+    assert uitkomst.exit_code != 0, _diagnose(uitkomst)
+
+
+def _clone_op_nieuwe_tak(omgeving: _Omgeving, naam: str, canary: str) -> _Fixture:
+    """Origin waarin een canary later uit de inhoud is gehaald, plus een tak die
+    daarna op de al bestaande commit is aangemaakt; de clone staat op die tak.
+
+    Dit is precies het geval dat DEF-741 raakt: bij het pushen van deze tak meldt
+    GitHub geen voorganger, terwijl de canary in de historie vóór het aftakpunt
+    zit — niet in de werkboom en niet in de commits van de tak zelf.
+    """
+    basis, config = _nieuwe_basis(omgeving, naam)
+    origin = _nieuwe_repo(basis, "origin")
+    base = _commit(origin, "README.md", _README, "chore: basis")
+    _commit(origin, _CANARY_BESTAND, _canary_regel(canary), "chore: sleutel")
+    midden = _commit(origin, _CANARY_BESTAND, _SCHONE_INHOUD, "chore: sleutel eruit")
+
+    tak = f"{canary_fixtures._BRANCH}-nieuw"
+    _git(origin, "checkout", "-b", tak, midden)
+    head = _commit(origin, "NOTITIES.md", "# Notities\n", "chore: notities")
+    _git(origin, "checkout", canary_fixtures._BRANCH)
+
+    _git(basis, "clone", "--no-hardlinks", "--branch", tak, "--", str(origin), "clone")
+    clone = basis / "clone"
+    _bewijs_isolatie(clone)
+    return _Fixture(
+        origin=origin,
+        clone=clone,
+        config=config,
+        base=base,
+        midden=midden,
+        head=head,
+    )
+
+
+def _clone_met_alleen_rootcommit(omgeving: _Omgeving, naam: str) -> _Fixture:
+    """Origin met precies één commit; die rootcommit heeft geen ouder."""
+    basis, config = _nieuwe_basis(omgeving, naam)
+    origin = _nieuwe_repo(basis, "origin")
+    root = _commit(origin, "README.md", _README, "chore: basis")
+
+    _git(basis, "clone", "--no-hardlinks", "--", str(origin), "clone")
+    clone = basis / "clone"
+    _bewijs_isolatie(clone)
+    return _Fixture(
+        origin=origin,
+        clone=clone,
+        config=config,
+        base=root,
+        midden=root,
+        head=root,
+    )
+
+
+def test_new_branch_ziet_canary_voor_het_aftakpunt(omgeving: _Omgeving) -> None:
+    """De volledige historie van head telt, ook wat vóór het aftakpunt ligt."""
+    canary = _canary()
+    opzet = _clone_op_nieuwe_tak(omgeving, "nb-aftakpunt", canary)
+
+    # Booleans vóór de asserties: de canary-waarde mag nooit in een faalmelding
+    # van pytest belanden.
+    # Het bestand bestáát nog in de werkboom; de verwijderingscommit heeft er
+    # schone inhoud in gezet. De canary-waarde zelf moet eruit zijn.
+    in_werkkopie = canary in (opzet.clone / _CANARY_BESTAND).read_text(encoding="utf-8")
+    in_takcommits = canary in _git(opzet.clone, "log", "-p", f"{opzet.midden}..HEAD")
+    in_historie = canary in _git(opzet.clone, "log", "-p", "HEAD")
+    assert not in_werkkopie, (
+        "fixturefout: de canary staat nog in de inhoud van de werkkopie, dus de "
+        "boomscan zou hem sowieso vinden."
+    )
+    assert not in_takcommits, (
+        "fixturefout: de canary zit in de commits van de tak zelf, dus deze test "
+        "zegt niets over de historie vóór het aftakpunt."
+    )
+    assert in_historie, (
+        "fixturefout: de canary is niet bereikbaar vanaf head, dus er valt hier "
+        "niets te vinden."
+    )
+
+    aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
+    argumenten = _historie_argumenten(aanroep, opzet, _NEW_BRANCH)
+
+    uitkomst = _draai(argumenten, verboden=canary)
+
+    assert not uitkomst.lekt, "de canary-waarde staat in de publieke uitvoer."
+    assert uitkomst.document is not None, _diagnose(uitkomst)
+    assert uitkomst.document["status"] == _BLOCKED, (
+        f"{_diagnose(uitkomst)} — de canary ligt in de historie vóór het "
+        "aftakpunt van deze tak. Een uitblijvende blokkade betekent dat deze "
+        "modus niet de volledige historie van head scant."
+    )
+    assert uitkomst.document["finding_count"] > 0, _diagnose(uitkomst)
+    assert uitkomst.exit_code != 0, _diagnose(uitkomst)
+
+
+def test_new_branch_op_rootcommit_scant_schoon(omgeving: _Omgeving) -> None:
+    """Een head zonder ouder is een geldige scope, geen leeg bereik."""
+    opzet = _clone_met_alleen_rootcommit(omgeving, "nb-rootcommit")
+    aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
+    argumenten = _historie_argumenten(aanroep, opzet, _NEW_BRANCH)
+
+    uitkomst = _draai(argumenten, verboden=_canary())
+
+    assert not uitkomst.lekt
+    assert uitkomst.document is not None, _diagnose(uitkomst)
+    assert uitkomst.document["code"] != _EMPTY_RANGE, (
+        f"{_diagnose(uitkomst)} — een rootcommit heeft geen ouder, maar wel "
+        "inhoud. Die als leeg bereik afwijzen zou elke eerste push blokkeren."
+    )
+    assert uitkomst.document["status"] == _CLEAN, _diagnose(uitkomst)
+    assert uitkomst.document["scanned_bytes"] > 0, _diagnose(uitkomst)
+    assert uitkomst.exit_code == 0, _diagnose(uitkomst)
+
+
+def _nb_zonder_base(aanroep: _Aanroep, opzet: _Fixture) -> list[str]:
+    """Ook deze modus eist een expliciete grens; impliciet is geen invoer."""
+    return [*_basis_argumenten(aanroep, _NEW_BRANCH), "--head", opzet.head]
+
+
+def _nb_met_echte_base(aanroep: _Aanroep, opzet: _Fixture) -> list[str]:
+    """Een bestaande commit als base hoort bij `full`, niet bij deze modus."""
+    return [
+        *_basis_argumenten(aanroep, _NEW_BRANCH),
+        "--base",
+        opzet.base,
+        "--head",
+        opzet.head,
+    ]
+
+
+def _nb_head_is_niet_de_werkboom(aanroep: _Aanroep, opzet: _Fixture) -> list[str]:
+    """De HEAD-eis blijft gelden; `midden` bestaat wel, maar staat niet uitgecheckt."""
+    return [
+        *_basis_argumenten(aanroep, _NEW_BRANCH),
+        "--base",
+        _NULBASE,
+        "--head",
+        opzet.midden,
+    ]
+
+
+def _nb_lege_scope(aanroep: _Aanroep, opzet: _Fixture) -> list[str]:
+    """Een map die geen werkboomroot is, levert geen scope op."""
+    leeg = opzet.clone.parent / "leeg"
+    leeg.mkdir(exist_ok=True)
+    vervangen = _Aanroep(binary=aanroep.binary, source=leeg, config=aanroep.config)
+    return [
+        *_basis_argumenten(vervangen, _NEW_BRANCH),
+        "--base",
+        _NULBASE,
+        "--head",
+        opzet.head,
+    ]
+
+
+def _nb_fetchfout(aanroep: _Aanroep, opzet: _Fixture) -> list[str]:
+    """Een onbereikbare origin mag geen stil versmald bereik opleveren."""
+    _git(opzet.clone, "remote", "set-url", "origin", str(opzet.clone.parent / "weg"))
+    return [
+        *_basis_argumenten(aanroep, _NEW_BRANCH),
+        "--base",
+        _NULBASE,
+        "--head",
+        opzet.head,
+    ]
+
+
+@pytest.mark.parametrize(
+    "bouw",
+    [
+        pytest.param(_nb_zonder_base, id="zonder-base"),
+        pytest.param(_nb_met_echte_base, id="niet-nul-base"),
+        pytest.param(_nb_head_is_niet_de_werkboom, id="head-is-niet-de-werkboom"),
+        pytest.param(_nb_lege_scope, id="lege-scope"),
+        pytest.param(_nb_fetchfout, id="fetchfout"),
+    ],
+)
+def test_new_branch_foutpad_geeft_nonzero(
+    omgeving: _Omgeving, bouw: Callable[[_Aanroep, _Fixture], list[str]]
+) -> None:
+    """De nieuwe modus verzwakt geen enkele bestaande grens."""
+    opzet = _origin_met_clone(omgeving, "nb-foutpad")
+    aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
+
+    uitkomst = _draai(bouw(aanroep, opzet), verboden=_canary())
+
+    assert not uitkomst.lekt
+    assert uitkomst.exit_code != 0, _diagnose(uitkomst)
+    assert uitkomst.document is not None, _diagnose(uitkomst)
+    assert uitkomst.document["status"] != _CLEAN, _diagnose(uitkomst)
+
+
+def test_full_weigert_de_nulbase(omgeving: _Omgeving) -> None:
+    """`full` blijft een onbestaande voorganger afwijzen; de nieuwe modus is apart."""
+    opzet = _origin_met_clone(omgeving, "full-nulbase")
+    aanroep = _Aanroep(omgeving.binary, opzet.clone, opzet.config)
+
+    uitkomst = _draai(
+        _full_argumenten(aanroep, _NULBASE, opzet.head), verboden=_canary()
+    )
+
+    assert not uitkomst.lekt
+    assert uitkomst.document is not None, _diagnose(uitkomst)
+    assert uitkomst.document["status"] != _CLEAN, (
+        f"{_diagnose(uitkomst)} — de nulbase wijst geen commit aan. Groen worden "
+        "op dat bereik zou een push met een onbewezen grens doorlaten."
+    )
     assert uitkomst.exit_code != 0, _diagnose(uitkomst)
 
 
