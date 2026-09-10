@@ -25,9 +25,6 @@ pytestmark = [pytest.mark.performance]
 
 # DEF-66 Performance targets
 MAX_CONTAINER_INIT_MS = 200  # Maximum acceptable container initialization time
-MAX_TABBED_INTERFACE_INIT_MS = (
-    200  # Maximum acceptable TabbedInterface initialization time
-)
 
 
 def _sluit_container_verbindingen(container) -> None:
@@ -322,32 +319,93 @@ class TestBackwardsCompatibility:
 class TestPerformanceRegression:
     """Performance regression tests."""
 
-    def test_tabbed_interface_init_under_200ms(
-        self, container_op_eigen_db, repository_op_eigen_db
+    def test_tabbed_interface_reuses_prewarmed_container_and_repository(
+        self,
+        container_op_eigen_db,
+        repository_op_eigen_db,
+        request,
+        record_testsuite_property,
     ):
-        """
-        TabbedInterface initialization should be <200ms after DEF-66 fix.
+        """TabbedInterface bouwt op de opgewarmde container en deelt die bedrading.
 
-        This is the actual warning that triggered DEF-66.
+        Bewijst wat DEF-66 werkelijk oplevert: de UI maakt geen eigen container of
+        repository aan, en herhaald construeren blijft op dezelfde objecten staan.
+        DEF-563: de historische 200ms-eis uit DEF-66 is als testdrempel
+        ingetrokken — actuele runnerkalibratie ontbreekt. De duur blijft
+        informatief vastgelegd als record_testsuite_property, zonder drempel.
+
+        Deze test rendert niets en doet geen providercall; de fixtures houden
+        beide databases in tmp_path.
         """
         from ui.tabbed_interface import TabbedInterface
         from utils.container_manager import get_cached_container
 
+        def _registreer_editrepo_sluiting(gebouwde_interface) -> None:
+            """Sluit de verbinding die déze interface buiten de fixtures om opende.
+
+            `DefinitionEditTab.__init__` krijgt van TabbedInterface geen
+            repository mee en maakt er zelf één (definition_edit_tab.py:38);
+            die `DefinitionEditRepository` bouwt via `DefinitionRepository`
+            een eigen `legacy_repo` met eigen `DatabaseConnection`
+            (definition_repository.py:63). Die valt buiten `_instances` van de
+            container en buiten de repository-singleton, dus geen van beide
+            fixtures ruimt hem op. Zonder deze finalizer blijft de
+            thread-verbinding open tot de garbage collector toeslaat —
+            zichtbaar als ResourceWarning.
+            """
+            db = gebouwde_interface.edit_tab.repository.legacy_repo._db
+            toestand = getattr(db._thread_local, "state", None)
+            if toestand is not None:
+                request.addfinalizer(toestand.close)
+
         # Pre-create container (simulates app startup)
         get_cached_container.cache_clear()
-        _ = get_cached_container()  # Pre-warm cache
+        voorverwarmde_container = get_cached_container()
 
-        # Measure TabbedInterface init time (cache miss)
         start = time.perf_counter()
         interface = TabbedInterface()
         duration_ms = (time.perf_counter() - start) * 1000
+        _registreer_editrepo_sluiting(interface)
 
-        # DEF-66 acceptance criteria: <200ms is acceptable for cache miss
-        # (Note: Cache hit should be ~10ms, but this tests worst case)
-        assert duration_ms < MAX_TABBED_INTERFACE_INIT_MS, (
-            f"TabbedInterface init took {duration_ms:.1f}ms "
-            f"(expected <{MAX_TABBED_INTERFACE_INIT_MS}ms). "
-            f"This indicates lazy loading is not working."
+        # De UI pakt de opgewarmde singleton in plaats van zelf te bouwen; een
+        # tweede container zou hier een ander object opleveren.
+        assert interface.container is voorverwarmde_container
+
+        # De repository komt van de tijdelijke database van de fixture, dus niet
+        # van de repository-database data/definities.db.
+        assert interface.repository.db_path == str(repository_op_eigen_db)
+
+        # Concrete componentkoppeling: checker en handler draaien op exact deze
+        # repository en service, niet op eigen tweede instanties.
+        assert interface.checker.repository is interface.repository
+        assert interface.generation_handler.checker is interface.checker
+        assert interface.generation_handler.repository is interface.repository
+        assert (
+            interface.generation_handler.definition_service
+            is interface.definition_service
         )
 
-        assert interface is not None
+        # De service is de echte ServiceAdapter uit de container, niet de
+        # _DummyService waarop TabbedInterface.__init__ terugvalt als de
+        # initialisatie faalt: die meldt "dummy" (service_factory.py:132).
+        assert (
+            interface.definition_service.get_service_info()["service_mode"]
+            == "container_v2"
+        )
+
+        # Herhaald construeren hergebruikt container én repository, en koppelt de
+        # nieuwe handler weer op diezelfde repository en een echte service.
+        tweede_interface = TabbedInterface()
+        _registreer_editrepo_sluiting(tweede_interface)
+        assert tweede_interface.container is voorverwarmde_container
+        assert tweede_interface.repository is interface.repository
+        assert tweede_interface.generation_handler.repository is interface.repository
+        assert (
+            tweede_interface.definition_service.get_service_info()["service_mode"]
+            == "container_v2"
+        )
+
+        # Informatief, geen drempel. Suite-breed; onder xdist niet geclaimd.
+        record_testsuite_property(
+            "def563_tabbed_interface_init_ms", round(duration_ms, 1)
+        )

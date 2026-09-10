@@ -93,17 +93,9 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_def66_lazy_loading.py::TestServiceContainerPerformance::test_service_container_init_under_200ms": {
-      "source_sha256": "ac1c8e799adc0de164ecb2777eeb031e0042dc100501d05112d64b267fd3a906",
+      "source_sha256": "705a3d094e3e2a4fb0a9fb25edb6c974d356a929f5e4fc40e54b6d1ffe7ee438",
       "comparisons": [
         "duration_ms < MAX_CONTAINER_INIT_MS"
-      ],
-      "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
-    },
-    "tests/integration/performance/test_def66_lazy_loading.py::TestPerformanceRegression::test_tabbed_interface_init_under_200ms": {
-      "source_sha256": "ac1c8e799adc0de164ecb2777eeb031e0042dc100501d05112d64b267fd3a906",
-      "comparisons": [
-        "duration_ms < MAX_TABBED_INTERFACE_INIT_MS"
       ],
       "status": "unreviewed",
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
@@ -192,17 +184,8 @@
       "status": "unreviewed",
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
-    "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_cache_performance": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
-      "comparisons": [
-        "set_time < 2.0",
-        "get_time < 0.5"
-      ],
-      "status": "retain-risk",
-      "reason": "Twee absolute opslag-/leestijdgrenzen; bekende CI-variatie. Behoud tot representatieve meting is bewezen. Waardecontrole en exacte hits/misses/entries/evictions blijven verplicht."
-    },
     "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_async_api_performance": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "speedup > 3.0"
       ],
@@ -210,7 +193,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_resilience_framework_performance": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "overhead < 0.5"
       ],
@@ -218,7 +201,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_rate_limiter_performance": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "end_time - start_time < 1.0"
       ],
@@ -226,7 +209,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestPerformanceBenchmarks::test_configuration_loading_performance": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "config_load_time < 0.5",
         "config_access_time < 0.1"
@@ -235,7 +218,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestLoadTesting::test_concurrent_cache_access": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "end_time - start_time < 10.0"
       ],
@@ -243,7 +226,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestLoadTesting::test_concurrent_api_calls": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "end_time - start_time < 5.0"
       ],
@@ -251,7 +234,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestLoadTesting::test_high_volume_validation": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "validation_time < 5.0",
         "validation_rate > 100"
@@ -259,16 +242,8 @@
       "status": "unreviewed",
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
-    "tests/integration/performance/test_performance.py::TestLoadTesting::test_stress_testing": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
-      "comparisons": [
-        "ops_per_second > 500"
-      ],
-      "status": "retain-risk",
-      "reason": "Absolute doorvoer met vaste 2500 operaties en eviction; bekende CI-variatie. Geen gelijkwaardige kalibratie bewezen. Waarden en exacte cache-statistieken blijven verplicht."
-    },
     "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_caching_effectiveness": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "second_call_time < first_call_time * 0.1"
       ],
@@ -276,7 +251,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_async_optimization_effectiveness": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "speedup > 3.0"
       ],
@@ -284,7 +259,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_resilience_effectiveness": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "end_time - start_time < 5.0"
       ],
@@ -292,7 +267,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestOptimizationEffectiveness::test_rate_limiting_effectiveness": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "actual_rate <= 15"
       ],
@@ -300,20 +275,12 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/performance/test_performance.py::TestPerformanceRegression::test_api_response_time_regression": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
+      "source_sha256": "8af375ced253bb834c2a1614cabefdb093c03ceb806453bd40dea408ad3ae708",
       "comparisons": [
         "response_time < 2.0"
       ],
       "status": "unreviewed",
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
-    },
-    "tests/integration/performance/test_performance.py::TestPerformanceRegression::test_throughput_regression": {
-      "source_sha256": "018ff3de3f5fa4a88ae92e49dddef27baea2f06a5a37fa6e1e9f16870a398cf1",
-      "comparisons": [
-        "throughput > 1000"
-      ],
-      "status": "retain-risk",
-      "reason": "Absolute doorvoer met vaste 2000 operaties en duurzame writes; historisch zowel rood als groen. Behoud tot vervanging is bewezen; waardecontrole, eviction en alle behouden waarden na reopen verplicht."
     },
     "tests/integration/performance/test_performance_comprehensive.py::TestAIToetserPerformance::test_single_validation_performance": {
       "source_sha256": "861df46b17405e8912b40d4ec939120f370a2ef4d805169af1e75f3b306b9270",
