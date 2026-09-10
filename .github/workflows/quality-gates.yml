@@ -65,54 +65,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
       - name: Install ripgrep
         run: |
           sudo apt-get update
           sudo apt-get install -y ripgrep
 
-      - name: Run preflight-checks.sh
-        # DEF-665: dezelfde tekens, maar via step-env in plaats van rechtstreeks in
-        # de shellstrings; dat houdt de stap parseerbaar voor statische analyse.
-        env:
-          SHIELD_ICON: "🛡️"
-          PACKAGE_ICON: "📦"
-          LOCK_ICON: "🔒"
-          LIST_ICON: "📋"
-          FAIL_ICON: "❌"
-          WARN_ICON: "⚠️"
-          PASS_ICON: "✅"
-        run: |
-          # Copy preflight checks from unified agent dir if available
-          # Otherwise, create minimal version
-          if [ -f "$HOME/.ai-agents/preflight-checks.sh" ]; then
-            bash "$HOME/.ai-agents/preflight-checks.sh"
-          else
-            # Fallback: run key checks inline
-            echo "${SHIELD_ICON}  Running inline preflight checks..."
+      # DEF-737: de preflight staat nu volledig in de repository. De oude stap
+      # draaide een persoonlijk script uit de homedir als dat er toevallig was,
+      # en viel anders terug op drie losse `rg -q`-regels — twee verschillende
+      # gates, waarvan er één niet te reviewen viel en de ander stil groen kon
+      # zijn (`rg` zonder pad leest van stdin, `-q` verbergt een leesfout).
+      # Geen HOME-terugval meer: wat hier draait, staat in de PR.
+      #
+      # Secrets horen niet bij deze job: de verplichte gitleaks-gate in
+      # security.yml (DEF-522) beoordeelt werkboom én historie.
+      - name: Test the preflight gate
+        # De gate bewaakt de codebase, dus zijn eigen regressietests horen te
+        # slagen vóór zijn oordeel iets waard is.
+        run: python -I -B scripts/ci/test_preflight_checks.py
 
-            # Check forbidden imports
-            echo "${PACKAGE_ICON} Checking forbidden imports..."
-            if rg -q "import streamlit" src/services/ 2>/dev/null; then
-              echo "${FAIL_ICON} Found 'import streamlit' in services/"
-              exit 1
-            fi
-
-            # Check for hardcoded secrets
-            echo "${LOCK_ICON} Checking for hardcoded secrets..."
-            if rg -q "api_key.*=.*[\"'][A-Za-z0-9]" --type py 2>/dev/null; then
-              echo "${FAIL_ICON} Potential hardcoded API key found"
-              exit 1
-            fi
-
-            # Check for TODO markers in staged code
-            echo "${LIST_ICON} Checking for TODO markers..."
-            if rg -q "TODO|FIXME|XXX|HACK" --type py 2>/dev/null; then
-              echo "${WARN_ICON}  Found TODO markers (should use backlog)"
-              # Warning only, not fatal
-            fi
-
-            echo "${PASS_ICON} Preflight checks passed"
-          fi
+      - name: Run preflight checks
+        run: python -I -B scripts/ci/preflight_checks.py .
 
   validate-branch-name:
     name: Validate Branch Name
