@@ -266,6 +266,14 @@ def _draai_make(
     de workflow.
     """
     kindomgeving = _git_omgeving()
+    # De modus van de omringende run mag deze keten niet sturen. In de workflow
+    # zet de job SECRET_SCAN_MODE op job-niveau, dus bij een branchcreatie staat
+    # `new-branch` in de omgeving van élke stap — ook die van deze tests. Wordt
+    # hij niet gewist, dan draait de default-case hier stil in `new-branch` met
+    # een echte base en valt de gate op `invalid_commit_id`. Elke test zet de
+    # modus voortaan zelf via `extra`, of laat hem bewust weg om Make's default
+    # te toetsen.
+    kindomgeving.pop("SECRET_SCAN_MODE", None)
     kindomgeving.update(
         {
             "PY": sys.executable,
@@ -304,10 +312,32 @@ def omgeving() -> _Omgeving:
     )
 
 
-def test_workflowketen_op_schone_clone_geeft_clean(omgeving: _Omgeving) -> None:
-    """De aanroep uit de verplichte job loopt door tot een schone uitkomst."""
+@pytest.mark.parametrize(
+    "buitenmodus",
+    [
+        pytest.param(None, id="zonder-jobmodus"),
+        pytest.param(_NEW_BRANCH, id="jobmodus-new-branch"),
+    ],
+)
+def test_workflowketen_op_schone_clone_geeft_clean(
+    omgeving: _Omgeving, monkeypatch: pytest.MonkeyPatch, buitenmodus: str | None
+) -> None:
+    """De aanroep uit de verplichte job loopt door tot een schone uitkomst.
+
+    Beide gevallen krijgen exact dezelfde expliciete invoer; alleen de omringende
+    omgeving verschilt. Bij een branchcreatie staat `new-branch` op job-niveau en
+    dus in de omgeving van élke stap, ook deze testrun. Die waarde mag de keten
+    niet verleggen: gebeurt dat wel, dan draait dit geval in `new-branch` met een
+    echte base en valt de gate op `invalid_commit_id` in plaats van schoon te
+    zijn.
+    """
+    if buitenmodus is None:
+        monkeypatch.delenv("SECRET_SCAN_MODE", raising=False)
+    else:
+        monkeypatch.setenv("SECRET_SCAN_MODE", buitenmodus)
+
     argv = _gate_argv()
-    opzet = _keten_clone(omgeving, "workflow-schoon")
+    opzet = _keten_clone(omgeving, f"workflow-schoon-{buitenmodus or 'default'}")
 
     uitkomst = _draai_make(argv, opzet, omgeving, verboden=_canary())
 
