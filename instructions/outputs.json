@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "files": {
+    "CLAUDE.md": [
+      "claude-cli.definitie"
+    ],
+    "AGENTS.md": [
+      "codex-cli.definitie",
+      "codex-app.definitie"
+    ],
+    "instructions/generated/cowork-project.md": [
+      "cowork.definitie"
+    ],
+    ".claude/rules/patterns.md": [
+      "claude-native.project.patterns"
+    ],
+    ".claude/rules/project-rules.md": [
+      "claude-native.project.project-rules"
+    ],
+    ".claude/rules/streamlit-patterns.md": [
+      "claude-native.project.streamlit-patterns"
+    ],
+    "docs/guidelines/CLAUDE.md": [
+      "claude-cli.guidelines"
+    ],
+    "docs/guidelines/AGENTS.md": [
+      "codex-cli.guidelines",
+      "codex-app.guidelines"
+    ],
+    "instructions/generated/cowork-guidelines.md": [
+      "cowork.guidelines"
+    ]
+  }
+}
