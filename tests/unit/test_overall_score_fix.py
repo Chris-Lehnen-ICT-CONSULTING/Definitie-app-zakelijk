@@ -31,23 +31,31 @@ def test_normalize_validation_always_includes_overall_score():
 
     adapter = ServiceAdapter(container)
 
+    # DEF-622 (contract 1.3.0): een expliciete None ("totaalscore niet
+    # beschikbaar", regel zonder cijfer) blijft None — nooit een impliciete
+    # 0.0. De overige gevallen blijven numeriek en onderscheidend.
     test_cases = [
-        (None, "None input"),
-        ({}, "Empty dict"),
-        ({"violations": []}, "Dict without overall_score"),
-        ({"overall_score": None}, "Dict with None overall_score"),
-        ({"overall_score": 0.75}, "Dict with valid overall_score"),
+        (None, "None input", 0.0),
+        ({}, "Empty dict", 0.0),
+        ({"violations": []}, "Dict without overall_score", 0.0),
+        ({"overall_score": None}, "Dict with None overall_score", None),
+        ({"overall_score": 0.75}, "Dict with valid overall_score", 0.75),
     ]
 
-    for input_val, description in test_cases:
+    for input_val, description, verwacht in test_cases:
         result = adapter.normalize_validation(input_val)
         assert "overall_score" in result, f"Missing overall_score for {description}"
-        assert isinstance(
-            result["overall_score"], int | float
-        ), f"Invalid type for {description}"
-        print(
-            f"✓ normalize_validation({description}): overall_score = {result['overall_score']}"
-        )
+        score = result["overall_score"]
+        if verwacht is None:
+            assert (
+                score is None
+            ), f"{description}: None moet None blijven, kreeg {score!r}"
+        else:
+            assert isinstance(score, int | float) and not isinstance(
+                score, bool
+            ), f"Invalid type for {description}"
+            assert score == verwacht, f"{description}: {score!r} != {verwacht!r}"
+        print(f"✓ normalize_validation({description}): overall_score = {score}")
 
     print("\nnormalize_validation always includes 'overall_score' in output.")
 

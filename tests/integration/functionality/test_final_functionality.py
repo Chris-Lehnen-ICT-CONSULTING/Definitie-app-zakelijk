@@ -206,9 +206,19 @@ async def test_definition_generation(bevroren_omgeving):
         "system",
     ):
         assert sleutel in validatie, f"validatiecontract mist {sleutel!r}"
-    score = validatie["overall_score"]
-    assert isinstance(score, (int, float)) and not isinstance(score, bool)
-    assert 0.0 <= float(score) <= 1.0
-    assert isinstance(validatie["is_acceptable"], bool)
+    # DEF-622 (contract 1.3.0): CON-01 draagt geen cijfer, dus de totaalscore
+    # is met de echte regelset "niet beschikbaar" (None, geen impliciete 0.0)
+    # en de gate sluit fail-closed op `overall_score_unavailable`. De
+    # regeluitkomsten blijven wel zichtbaar; CON-01 zelf heeft in dit
+    # generatiepad een echte uitkomst zonder cijfer.
+    assert validatie["overall_score"] is None
+    assert validatie["is_acceptable"] is False
+    assert "overall_score_unavailable" in (
+        validatie.get("acceptance_gate", {}).get("gates_failed", [])
+    ), validatie.get("acceptance_gate")
+    con01 = validatie["rule_results"]["CON-01"]
+    assert con01["status"] in {"pass", "fail", "review_required"}
+    assert con01["score"] is None
+    assert validatie["rule_statuses"]["CON-01"] == con01["status"]
     # Er zijn echt regels geëvalueerd: geslaagd of overtreden, niet allebei leeg.
     assert validatie["passed_rules"] or validatie["violations"]

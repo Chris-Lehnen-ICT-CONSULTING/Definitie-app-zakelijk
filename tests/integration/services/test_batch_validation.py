@@ -6,6 +6,7 @@ import os
 import pytest
 
 from services.validation.interfaces import VALIDATION_STATUS_VALIDATED
+from services.validation.modular_validation_service import ModularValidationService
 from toetsregels.manager import get_toetsregel_manager
 
 pytestmark = [pytest.mark.integration]
@@ -56,19 +57,15 @@ async def test_batch_validate_interface():
 
 @pytest.mark.unit
 @pytest.mark.asyncio
-async def test_batch_validate_order_preservation():
+async def test_batch_validate_order_preservation(service_met_totaalscore):
     """Test that batch results are returned in same order as input."""
-    m = pytest.importorskip(
-        "services.validation.modular_validation_service",
-        reason="ModularValidationService not implemented yet",
-    )
-
-    svc = m.ModularValidationService
-    # DEF-621: de echte contractmanager. Zonder manager dekt de regelset het
-    # contract niet en levert de fail-closed guard `validation_unknown`; dan
-    # is elke uitkomst gelijk en bewijst een volgorde- of
-    # acceptatie-assertie niets meer.
-    service = svc(get_toetsregel_manager(), None, None)
+    # DEF-622: met de echte regelset (CON-01 zonder cijfer) is de totaalscore
+    # niet beschikbaar en elke uitkomst `is_acceptable=False` — dan bewijst
+    # een acceptatiepatroon geen volgorde meer. Het volgordebewijs loopt
+    # daarom op de synthetische regelset mét totaalscore (dezelfde
+    # aggregatiemechanica, minus de regels zonder cijfer); DEF-621 blijft:
+    # de echte contractmanager, geen `validation_unknown`.
+    service = service_met_totaalscore()
 
     # Items with predictable quality order
     items = [
@@ -96,12 +93,22 @@ async def test_batch_validate_order_preservation():
     # waardoor de asserties hieronder stil zouden kunnen slagen.
     for r in results:
         assert r["validation_status"] == VALIDATION_STATUS_VALIDATED, r
+        assert isinstance(r["overall_score"], float), r["overall_score"]
 
     # Check order preserved by checking acceptability pattern
     assert results[0]["is_acceptable"] is False, "Empty text should fail"
     assert results[1]["is_acceptable"] is True, "Good definition should pass"
     assert results[2]["is_acceptable"] is False, "Short text should fail"
     assert results[3]["is_acceptable"] is True, "Perfect definition should pass"
+
+    # Met de echte regelset (CON-01 zonder cijfer, geen context) blijft de
+    # volgorde gelijk, maar sluit de productgate fail-closed op alle vier:
+    # het patroon hierboven is dus géén productclaim.
+    echte = await ModularValidationService(
+        get_toetsregel_manager(), None, None
+    ).batch_validate(items)
+    assert [r["overall_score"] for r in echte[1:]] == [None, None, None]
+    assert all(r["is_acceptable"] is False for r in echte)
 
 
 @pytest.mark.unit
