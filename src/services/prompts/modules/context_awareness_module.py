@@ -57,6 +57,18 @@ class ContextAwarenessModule(BasePromptModule):
     DEF-188: Added IMPLICIT_CONTEXT_MECHANISMS teaching GPT-4 HOW to embed context.
     """
 
+    # DEF-622 (B-02): de CON-01-norm voor namen uit de context. Bewust één
+    # tekst voor alle formatteringsniveaus, zodat de generator nooit een
+    # absoluut naamverbod krijgt waar de norm een noodzakelijke naam toestaat.
+    CONTEXTNAAM_NORM = (
+        "De registratiecontext (waar de definitie geldt) hoort bij het record, "
+        "niet in de definitiezin: vermeld haar niet als registratiecontext "
+        "(geen 'binnen [organisatie]', 'volgens [wet]' of 'in de context van'). "
+        "Een naam uit de context mag alléén in de zin staan als die inhoudelijk "
+        "noodzakelijk is om het begrip af te bakenen of te identificeren "
+        "(bijvoorbeeld de exclusieve uitgever van een keurmerk)."
+    )
+
     # DEF-188: 3 Mechanisms for implicit context processing
     IMPLICIT_CONTEXT_MECHANISMS = """
 📌 HOE CONTEXT IMPLICIET VERWERKEN (3 Mechanismen):
@@ -250,7 +262,8 @@ Refereer context-specifieke verbanden.
 
         sections.append("📊 UITGEBREIDE CONTEXT ANALYSE:")
         sections.append(
-            "⚠️ VERPLICHT: Gebruik onderstaande specifieke context om de definitie te formuleren voor deze organisatorische, juridische en wettelijke setting. Maak de definitie contextspecifiek zonder de context expliciet te benoemen."
+            "⚠️ VERPLICHT: Gebruik onderstaande specifieke context om de definitie te formuleren voor deze organisatorische, juridische en wettelijke setting. Maak de definitie contextspecifiek. "
+            + self.CONTEXTNAAM_NORM
         )
         sections.append("")
 
@@ -299,8 +312,8 @@ Refereer context-specifieke verbanden.
         sections.append("📌 VERPLICHTE CONTEXT INFORMATIE:")
         sections.append(
             "⚠️ BELANGRIJKE INSTRUCTIE: Verwerk de onderstaande context IMPLICIET in de definitie. "
-            "Maak de definitie specifiek voor deze context door je woordkeuze en formulering aan te passen, "
-            "maar VERMIJD het expliciet noemen van contextnamen (zoals organisatienamen, wettelijke kaders, etc.)."
+            "Maak de definitie specifiek voor deze context door je woordkeuze en formulering aan te passen. "
+            + self.CONTEXTNAAM_NORM
         )
         sections.append("")
 
@@ -353,7 +366,12 @@ Refereer context-specifieke verbanden.
         mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
         if context_text:
-            base = f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text])}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+            base = (
+                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text])}\n"
+                "⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande "
+                "organisatorische, juridische en wettelijke context. "
+                + self.CONTEXTNAAM_NORM
+            )
             return base + mechanisms
 
         return "📍 Context: Geen specifieke context beschikbaar." + mechanisms

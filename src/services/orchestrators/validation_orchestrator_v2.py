@@ -272,6 +272,16 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # DEF-622: CON-01 bindt bewijs en beoordeling aan de exacte
         # recordtekst, ook wanneer cleaning de getoetste tekst wijzigt.
         enriched["record_text"] = definition.definitie
+        # De op het record vastgelegde expertbeoordeling van de naamfunctie
+        # (B-07). Alleen uit het record; een aanroeper kan haar hier niet
+        # meegeven voor een ander record. Vervalt vanzelf bij een gewijzigde
+        # tekst/context/term (vingerafdruk).
+        review = (definition.metadata or {}).get("context_review")
+        enriched["context_review"] = review if isinstance(review, dict) else None
+        # De recordversie waartegen de beoordeling wordt gelegd (E2).
+        enriched["definition_version"] = (definition.metadata or {}).get(
+            "version_number"
+        )
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:

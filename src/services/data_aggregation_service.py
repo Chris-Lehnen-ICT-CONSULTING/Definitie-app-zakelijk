@@ -198,6 +198,12 @@ class DataAggregationService:
             )
             export_data.metadata["juridische_context"] = ", ".join(map(str, jur_list))
             export_data.metadata["wettelijke_basis"] = ", ".join(map(str, wet_list))
+            # DEF-622: de vastgelegde CON-01-expertbeoordeling reist mee naar
+            # de validatiegate vóór export (en is zo ook exporteerbaar bewijs).
+            if hasattr(definitie_record, "get_context_review"):
+                review = definitie_record.get_context_review()
+                if review is not None:
+                    export_data.metadata["context_review"] = review
 
             # Timestamps
             export_data.created_at = definitie_record.created_at

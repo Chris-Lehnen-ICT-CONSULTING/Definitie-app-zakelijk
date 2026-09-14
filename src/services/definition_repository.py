@@ -873,6 +873,14 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 definition.metadata["validation_issues"] = json.loads(
                     record.validation_issues
                 )
+            # DEF-622 (B-07): de vastgelegde CON-01-expertbeoordeling reist
+            # als eigen sleutel mee, zodat de validatie haar kan toepassen en
+            # de UI haar kan tonen. Zij bindt via haar vingerafdruk aan de
+            # exacte tekst/context/term; een gewijzigd concept hergebruikt
+            # haar dus niet.
+            review = record.get_context_review()
+            if review is not None:
+                definition.metadata["context_review"] = review
 
         # DEF-151: Restore generation prompt data from database
         if record.generation_prompt_data:

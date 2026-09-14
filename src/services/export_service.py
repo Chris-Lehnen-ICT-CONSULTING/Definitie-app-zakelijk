@@ -399,12 +399,28 @@ class ExportService:
                 or export_data.definitie_gecorrigeerd
                 or export_data.definitie_origineel
             )
+            # DEF-622: de opgeslagen drie contextlijsten en de vastgelegde
+            # CON-01-beoordeling reizen mee, anders keurt CON-01 elke export
+            # af op "geen context" en kent de gate de expertbeoordeling niet.
+            # Of de gate daarna slaagt (totaalscore, algemene vaststel-/
+            # exportvoorwaarden) blijft de algemene gate van DEF-630.
+            from services.validation.interfaces import ValidationContext
+
+            ctx = export_data.context_dict or {}
+            metadata: dict[str, Any] = {
+                "organisatorische_context": list(ctx.get("organisatorisch") or []),
+                "juridische_context": list(ctx.get("juridisch") or []),
+                "wettelijke_basis": list(ctx.get("wettelijk") or []),
+                "definition_id": export_data.metadata.get("id"),
+                "definition_version": export_data.metadata.get("versie"),
+                "context_review": export_data.metadata.get("context_review"),
+            }
             try:
                 result = await self.validation_orchestrator.validate_text(
                     begrip=export_data.begrip,
                     text=text_for_validation,
                     ontologische_categorie=None,
-                    context=None,
+                    context=ValidationContext(metadata=metadata),
                 )
             except Exception as e:  # pragma: no cover - defensive
                 msg = f"Validatie mislukt vóór export: {e!s}"

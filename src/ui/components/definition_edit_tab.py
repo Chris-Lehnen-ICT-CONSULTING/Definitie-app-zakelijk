@@ -1352,6 +1352,12 @@ class DefinitionEditTab:
                 orch = container.orchestrator()
                 from services.validation.interfaces import ValidationContext
 
+                # DEF-622: het bewerkte record identificeert zichzelf (DUP_01
+                # sluit het eigen record uit) en draagt de vastgelegde
+                # CON-01-beoordeling mee; die vervalt vanzelf bij een
+                # gewijzigde tekst (vingerafdruk).
+                geladen = SessionStateManager.get_value("editing_definition")
+                geladen_meta = getattr(geladen, "metadata", None) or {}
                 vc = ValidationContext(
                     correlation_id=None,
                     metadata={
@@ -1359,6 +1365,8 @@ class DefinitionEditTab:
                         or [],
                         "juridische_context": definition.juridische_context or [],
                         "wettelijke_basis": definition.wettelijke_basis or [],
+                        "definition_id": def_id,
+                        "context_review": geladen_meta.get("context_review"),
                     },
                 )
                 v = run_async(
@@ -1382,9 +1390,13 @@ class DefinitionEditTab:
                                 "severity": item.get("severity", "warning"),
                             }
                         )
+                    ruwe_score = v.get("overall_score", 0.0)
                     results = {
                         "valid": bool(v.get("is_acceptable", False)),
-                        "score": float(v.get("overall_score", 0.0) or 0.0),
+                        # DEF-622: None = totaalscore niet beschikbaar, geen 0.0.
+                        "score": (
+                            None if ruwe_score is None else float(ruwe_score or 0.0)
+                        ),
                         "issues": normalized_issues,
                         "raw_v2": v,
                     }

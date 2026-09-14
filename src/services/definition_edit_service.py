@@ -585,10 +585,15 @@ class DefinitionEditService:
                     normalized_issues.append(
                         {"rule": rule, "message": message, "severity": severity}
                     )
+                # DEF-622: een expliciete None is 'totaalscore niet
+                # beschikbaar' en blijft None; alleen een ontbrekende sleutel
+                # valt terug op 0.0.
+                ruwe_score = results.get("overall_score", 0.0)
                 return {
                     "valid": bool(results.get("is_acceptable", False)),
-                    "score": float(results.get("overall_score", 0.0) or 0.0),
+                    "score": None if ruwe_score is None else float(ruwe_score or 0.0),
                     "issues": normalized_issues,
+                    "rule_results": dict(results.get("rule_results") or {}),
                 }
 
             # Case 2: legacy object with attributes

@@ -406,6 +406,9 @@ class ExpertReviewTab:
         # Definition details
         self._render_definition_details(selected_def)
 
+        # DEF-622 (B-07): contextcontract en naamfunctie-beoordeling
+        self._render_contextcontract(selected_def)
+
         # Side-by-side comparison if edited
         self._render_comparison_view(selected_def)
 
@@ -522,6 +525,131 @@ class ExpertReviewTab:
         # Validation issues
         self._render_validation_issues(definitie)
 
+    def _render_contextcontract(self, definitie: DefinitieRecord) -> None:
+        """CON-01 op het record: uitkomst, deeluitkomsten en de naamfunctie-beoordeling.
+
+        DEF-622 (B-04/B-07/B-08): een geselecteerde contextwaarde in de
+        definitiezin is een beoordelingssignaal. De expert legt hier per
+        naamsignaal de functie (registratiecontext / inhoudelijk noodzakelijk /
+        onduidelijk) mét reden vast; die beoordeling wordt op het record
+        bewaard, is gebonden aan de exacte tekst/context/term en vervalt bij
+        een wijziging. Een open naamfunctie blokkeert vaststellen; het concept
+        blijft bewerkbaar.
+        """
+        from domain.context.contract import (
+            FUNCTIE_NOODZAKELIJK,
+            FUNCTIE_ONDUIDELIJK,
+            FUNCTIE_REGISTRATIE,
+            STATUS_FAIL,
+            STATUS_OPEN,
+            STATUS_PASS,
+            beoordeel_context,
+        )
+        from domain.context.normalisatie import lees_contextwaarden
+        from ui.components.validation_view import render_rule_results
+
+        contexten = {
+            "organisatorische_context": lees_contextwaarden(
+                definitie.organisatorische_context
+            ),
+            "juridische_context": lees_contextwaarden(definitie.juridische_context),
+            "wettelijke_basis": lees_contextwaarden(definitie.wettelijke_basis),
+        }
+        review = (
+            definitie.get_context_review()
+            if hasattr(definitie, "get_context_review")
+            else None
+        )
+        uitkomst = beoordeel_context(
+            definitie.begrip or "",
+            definitie.definitie or "",
+            contexten,
+            review=review,
+            definitie_versie=definitie.version_number,
+        )
+
+        st.markdown("#### 🧭 Contextcontract (CON-01)")
+        render_rule_results({"CON-01": uitkomst.als_dict()})
+
+        open_delen = [
+            p for p in uitkomst.parts if p.status == STATUS_OPEN and p.evidence
+        ]
+        if not open_delen:
+            if uitkomst.status == STATUS_PASS and review:
+                st.caption(
+                    f"Naamfunctie beoordeeld door {review.get('actor') or 'onbekend'}; "
+                    "de beoordeling vervalt bij een wijziging van tekst of context."
+                )
+            elif uitkomst.status == STATUS_FAIL:
+                st.caption(
+                    "Voldoet niet: pas de definitietekst aan (bewerk het concept) "
+                    "en beoordeel opnieuw."
+                )
+            return
+
+        st.markdown("**Beoordeel de functie van de gevonden naam/namen:**")
+        functies = {
+            FUNCTIE_REGISTRATIE: "registratiecontext (hoort niet in de definitiezin)",
+            FUNCTIE_NOODZAKELIJK: "inhoudelijk noodzakelijk voor afbakening/identificatie",
+            FUNCTIE_ONDUIDELIJK: "nog onduidelijk (blijft open)",
+        }
+        beslissingen: dict[str, dict[str, str]] = {}
+        for part in open_delen:
+            sleutel = f"con01_{definitie.id}_{part.id}"
+            st.markdown(
+                f"- **'{part.evidence}'** (positie {part.position}, "
+                f"vastgelegd als {part.field}: '{part.context_value}')"
+            )
+            functie = st.selectbox(
+                "Functie van deze naam",
+                options=list(functies),
+                format_func=lambda f, _m=functies: _m[f],
+                key=f"{sleutel}_functie",
+            )
+            reden = st.text_input(
+                "Reden (verplicht)",
+                key=f"{sleutel}_reden",
+                placeholder="Bijv. Stichting Zilver is de exclusieve uitgever van dit keurmerk",
+            )
+            beslissingen[part.id] = {
+                "function": functie,
+                "reason": (reden or "").strip(),
+            }
+
+        onvolledig = [pid for pid, b in beslissingen.items() if not b["reason"]]
+        if st.button(
+            "📝 Leg beoordeling vast",
+            key=f"con01_{definitie.id}_vastleggen",
+            disabled=bool(onvolledig),
+            help="Geef bij elke naam een reden op" if onvolledig else None,
+        ):
+            actor = SessionStateManager.get_value("user", default="expert")
+            bestaande = dict(review or {})
+            bestaande_beslissingen = (
+                dict(bestaande.get("decisions") or {})
+                if bestaande.get("fingerprint") == uitkomst.fingerprint
+                else {}
+            )
+            bestaande_beslissingen.update(beslissingen)
+            nieuwe_review = {
+                "fingerprint": uitkomst.fingerprint,
+                "actor": actor,
+                "decisions": bestaande_beslissingen,
+                "reviewed_at": datetime.now().isoformat(),
+            }
+            if self.repository.set_context_review(
+                definitie.id, nieuwe_review, updated_by=actor
+            ):
+                # Opslaan bumpt de versie: herlaad het record zodat de
+                # vaststelling straks tegen de actuele versie loopt.
+                vers = self.repository.get_definitie(definitie.id)
+                if vers is not None:
+                    SessionStateManager.set_value("selected_review_definition", vers)
+                st.success("✅ Beoordeling vastgelegd")
+                st.rerun()
+            else:
+                st.error("❌ Beoordeling kon niet worden vastgelegd")
+
     def _render_validation_issues(self, definitie: DefinitieRecord) -> None:
         """Render validation issues voor review."""
         issues = definitie.get_validation_issues_list()
@@ -630,6 +758,30 @@ class ExpertReviewTab:
                     help="Selecteer alle partners die expliciet akkoord zijn met deze definitie.",
                 )
 
+                # DEF-622 (B-03/B-10): maximaal één vastgesteld record per
+                # begrip + volledige context. Bestaat er al een leidend
+                # record, dan is vervangen een bewuste keuze van de expert.
+                vervang_id: int | None = None
+                leidend = self.repository.find_leidende_definitie(
+                    definitie.begrip,
+                    definitie.organisatorische_context,
+                    definitie.juridische_context or "",
+                    definitie.get_wettelijke_basis_list(),
+                    eigen_id=definitie.id,
+                )
+                if leidend is not None:
+                    st.warning(
+                        f"⚠️ Er is al een vastgestelde definitie (ID {leidend.id}) "
+                        f"voor '{leidend.begrip}' met dezelfde context: "
+                        f"“{leidend.definitie}”"
+                    )
+                    if st.checkbox(
+                        f"Vervang de vastgestelde definitie (ID {leidend.id}) door "
+                        "deze; de eerdere wordt gearchiveerd (historie blijft)",
+                        key=f"vervang_{definitie.id}_{leidend.id}",
+                    ):
+                        vervang_id = leidend.id
+
                 approve_label = (
                     "Vaststellen met override"
                     if gate_status == "override_required"
@@ -670,6 +822,8 @@ class ExpertReviewTab:
                         ufo_categorie=ufo_categorie,
                         # DEF-482: de versie die de reviewer op het scherm had.
                         expected_version=definitie.version_number,
+                        # DEF-622 (B-10): alleen bij bewuste keuze.
+                        vervang_definitie_id=vervang_id,
                     )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
@@ -678,6 +832,11 @@ class ExpertReviewTab:
                         st.error(
                             f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}"
                         )
+                        if res.gate_status == "conflict":
+                            st.info(
+                                "Kies hierboven expliciet of de bestaande "
+                                "vastgestelde definitie wordt vervangen."
+                            )
             with col2:
                 st.markdown("#### ❌ Afwijzen")
                 reason = st.text_area(
@@ -866,15 +1025,21 @@ class ExpertReviewTab:
                     else []
                 )
                 if issues:
+                    # DEF-622: een ontbrekende score is 'niet beschikbaar'
+                    # (None), geen 0.0 — en dus ook geen oordeel ≥ 0,75.
+                    ruwe = getattr(definitie, "validation_score", None)
                     try:
-                        score = float(
-                            getattr(definitie, "validation_score", 0.0) or 0.0
-                        )
-                    except Exception:
-                        score = 0.0
-                    # Map DB issues → V2 violations
+                        score = None if ruwe is None else float(ruwe)
+                    except (TypeError, ValueError):
+                        score = None
+                    # Map DB issues → V2 violations. De vastgelegde CON-01-
+                    # beoordeling is geen violation en blijft hier buiten.
+                    from database.models import CONTEXT_REVIEW_CODE
+
                     mapped = []
                     for it in issues:
+                        if it.get("code") == CONTEXT_REVIEW_CODE:
+                            continue
                         try:
                             mapped.append(
                                 {
@@ -897,7 +1062,7 @@ class ExpertReviewTab:
                     v2 = {
                         "version": "1.0.0",
                         "overall_score": score,
-                        "is_acceptable": bool(score >= 0.75),
+                        "is_acceptable": score is not None and score >= 0.75,
                         "violations": mapped,
                         "passed_rules": [],
                         "detailed_scores": {},
