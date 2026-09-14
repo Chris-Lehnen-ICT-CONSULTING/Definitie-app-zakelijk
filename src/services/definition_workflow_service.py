@@ -814,25 +814,43 @@ class DefinitionWorkflowService:
         nog beoordeeld moet worden. Een technisch probleem blokkeert ook:
         een vereiste beoordeling is dan niet uitgevoerd.
         """
-        contexten = {
-            "organisatorische_context": lees_contextwaarden(
-                definition.organisatorische_context
-            ),
-            "juridische_context": lees_contextwaarden(definition.juridische_context),
-            "wettelijke_basis": lees_contextwaarden(definition.wettelijke_basis),
-        }
-        review = (
-            definition.get_context_review()
-            if hasattr(definition, "get_context_review")
-            else None
-        )
+        # Eén tekst- en contextbasis met experttab, readback en export (K4):
+        # de definitiezin en de contractvelden zoals het record ze draagt.
+        # Een vervanger zonder recordadapter (tests met kale objecten) krijgt
+        # de kale velden: geen beoordeling, geen bekende versie.
+        if isinstance(definition, DefinitieRecord):
+            velden = definition.get_contractvelden()
+            tekst = definition.get_definitie_tekst()
+        else:
+            velden = {
+                "organisatorische_context": lees_contextwaarden(
+                    getattr(definition, "organisatorische_context", None)
+                ),
+                "juridische_context": lees_contextwaarden(
+                    getattr(definition, "juridische_context", None)
+                ),
+                "wettelijke_basis": lees_contextwaarden(
+                    getattr(definition, "wettelijke_basis", None)
+                ),
+                "context_review": None,
+                "definition_version": None,
+            }
+            tekst = getattr(definition, "definitie", None) or ""
+        review = velden["context_review"]
         uitkomst = beoordeel_context(
-            definition.begrip or "",
-            definition.definitie or "",
-            contexten,
+            getattr(definition, "begrip", None) or "",
+            tekst,
+            {
+                sleutel: velden[sleutel]
+                for sleutel in (
+                    "organisatorische_context",
+                    "juridische_context",
+                    "wettelijke_basis",
+                )
+            },
             review=review,
             # E2: de beoordeling geldt voor precies deze recordversie.
-            definitie_versie=getattr(definition, "version_number", None),
+            definitie_versie=velden["definition_version"],
         )
         if uitkomst.status == STATUS_PASS:
             return []

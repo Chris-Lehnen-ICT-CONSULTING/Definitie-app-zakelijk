@@ -545,27 +545,19 @@ class ExpertReviewTab:
             STATUS_PASS,
             beoordeel_context,
         )
-        from domain.context.normalisatie import lees_contextwaarden
         from ui.components.validation_view import render_rule_results
 
-        contexten = {
-            "organisatorische_context": lees_contextwaarden(
-                definitie.organisatorische_context
-            ),
-            "juridische_context": lees_contextwaarden(definitie.juridische_context),
-            "wettelijke_basis": lees_contextwaarden(definitie.wettelijke_basis),
-        }
-        review = (
-            definitie.get_context_review()
-            if hasattr(definitie, "get_context_review")
-            else None
-        )
+        # Dezelfde tekst- en contextbasis als gate, readback en export (K4):
+        # de definitiezin en de contractvelden van het record.
+        velden = definitie.get_contractvelden()
+        contexten = definitie.get_contextlijsten()
+        review = velden["context_review"]
         uitkomst = beoordeel_context(
             definitie.begrip or "",
-            definitie.definitie or "",
+            definitie.get_definitie_tekst(),
             contexten,
             review=review,
-            definitie_versie=definitie.version_number,
+            definitie_versie=velden["definition_version"],
         )
 
         st.markdown("#### 🧭 Contextcontract (CON-01)")
@@ -617,13 +609,24 @@ class ExpertReviewTab:
             }
 
         onvolledig = [pid for pid, b in beslissingen.items() if not b["reason"]]
+        # K5: de handelende gebruiker is de bestaande identiteit (sessie-
+        # gebruiker of de "Reviewer naam" van de reviewflow). Zonder identiteit
+        # wordt geen actor verzonnen: vastleggen is dan geblokkeerd.
+        actor = self._handelende_gebruiker()
+        hulp = None
+        if onvolledig:
+            hulp = "Geef bij elke naam een reden op"
+        elif not actor:
+            hulp = "Vul eerst de reviewer naam in (onder de reviewbeslissing)"
         if st.button(
             "📝 Leg beoordeling vast",
             key=f"con01_{definitie.id}_vastleggen",
-            disabled=bool(onvolledig),
-            help="Geef bij elke naam een reden op" if onvolledig else None,
+            disabled=bool(onvolledig) or not actor,
+            help=hulp,
         ):
-            actor = SessionStateManager.get_value("user", default="expert")
+            if not actor:
+                st.error("❌ Vastleggen vereist een reviewer naam")
+                return
             bestaande = dict(review or {})
             bestaande_beslissingen = (
                 dict(bestaande.get("decisions") or {})
@@ -661,6 +664,19 @@ class ExpertReviewTab:
             else:
                 st.error("❌ Beoordeling kon niet worden vastgelegd")
             st.rerun()
+
+    @staticmethod
+    def _handelende_gebruiker() -> str | None:
+        """De bestaande gebruikersidentiteit van deze sessie, of None.
+
+        Eerst de sessiegebruiker, anders de "Reviewer naam" die de reviewflow
+        al vereist voor "Submit Review". Geen verzonnen standaardwaarde (K5).
+        """
+        for sleutel in ("user", "reviewer_name_input"):
+            waarde = SessionStateManager.get_value(sleutel)
+            if isinstance(waarde, str) and waarde.strip():
+                return waarde.strip()
+        return None
 
     def _render_validation_issues(self, definitie: DefinitieRecord) -> None:
         """Render validation issues voor review."""
@@ -1267,45 +1283,25 @@ class ExpertReviewTab:
     def _revalidate_definition(self, definitie: DefinitieRecord) -> None:
         """Re-validate definitie met current rules en toon details (gedeeld)."""
         try:
-            from services.interfaces import Definition
-            from services.validation.interfaces import ValidationContext
             from ui.cached_services import get_cached_service_container
             from ui.helpers.async_bridge import run_async
 
             container = get_cached_service_container()
             orch = container.orchestrator()
 
-            # Build Definition from record
-            definition = Definition(
-                begrip=definitie.begrip,
-                definitie=definitie.definitie,
-                organisatorische_context=(
-                    definitie.get_org_list()
-                    if hasattr(definitie, "get_org_list")
-                    else []
-                ),
-                juridische_context=(
-                    definitie.get_jur_list()
-                    if hasattr(definitie, "get_jur_list")
-                    else []
-                ),
-                wettelijke_basis=(
-                    definitie.get_wettelijke_basis_list()
-                    if hasattr(definitie, "get_wettelijke_basis_list")
-                    else []
-                ),
-                categorie=definitie.categorie,
-            )
-            ctx = ValidationContext(
-                correlation_id=None,
-                metadata={
-                    "organisatorische_context": definition.organisatorische_context
-                    or [],
-                    "juridische_context": definition.juridische_context or [],
-                    "wettelijke_basis": definition.wettelijke_basis or [],
-                },
-            )
-            v2 = run_async(orch.validation_service.validate_definition(definition, ctx))
+            # K3: het opgeslagen record via de canonieke recordadapter
+            # (readback), zodat id, de drie contextlijsten, recordversie en
+            # de vastgelegde beoordeling naar de orchestrator reizen. Een
+            # losse `Definition` zonder die velden gaf een lege context en
+            # verloor de beoordeling.
+            if definitie.id is None:
+                st.error("❌ Hervalidatie vereist een opgeslagen definitie")
+                return
+            definition = container.repository().get(definitie.id)
+            if definition is None:
+                st.error(f"❌ Definitie {definitie.id} niet gevonden")
+                return
+            v2 = run_async(orch.validation_service.validate_definition(definition))
             # Sla resultaat op en render buiten de kolommen (full-width)
             vkey = f"review_v2_validation_{definitie.id}"
             if isinstance(v2, dict):

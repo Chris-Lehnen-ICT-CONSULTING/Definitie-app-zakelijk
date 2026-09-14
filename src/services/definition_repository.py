@@ -22,6 +22,7 @@ from database.definitie_repository import (
     SourceType,
     Unset,
 )
+from database.models import TOELICHTING_SCHEIDING, splits_definitietekst
 from domain.context.normalisatie import (
     canoniseer_contextlijst,
     contextsleutel,
@@ -781,7 +782,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
             record.definitie = (
-                f"{definition.definitie}\n\nToelichting: {definition.toelichting}"
+                f"{definition.definitie}{TOELICHTING_SCHEIDING} "
+                f"{definition.toelichting}"
             )
 
         return record
@@ -818,14 +820,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     def _record_to_definition(self, record: DefinitieRecord) -> Definition:
         """Converteer DefinitieRecord naar Definition."""
-        # Split definitie en toelichting indien aanwezig
-        definitie_text = record.definitie
-        toelichting = None
-
-        if "\n\nToelichting:" in definitie_text:
-            parts = definitie_text.split("\n\nToelichting:", 1)
-            definitie_text = parts[0]
-            toelichting = parts[1].strip() if len(parts) > 1 else None
+        # Split definitie en toelichting indien aanwezig — dezelfde
+        # tekstbasis als het CON-01-contract op het record (DEF-622, K4).
+        definitie_text, toelichting = splits_definitietekst(record.definitie or "")
 
         import json as _json
 
@@ -1183,7 +1180,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 # Voorkom dubbele embed: _record_to_definition levert definitie zonder 'Toelichting:'
                 # dus we kunnen veilig toevoegen
                 updates["definitie"] = (
-                    f"{base}\n\nToelichting: {str(definition.toelichting).strip()}"
+                    f"{base}{TOELICHTING_SCHEIDING} "
+                    f"{str(definition.toelichting).strip()}"
                 )
         except Exception as exc:  # pragma: no cover - defensive guard
             logger.debug(

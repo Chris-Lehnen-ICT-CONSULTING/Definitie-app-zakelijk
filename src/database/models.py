@@ -11,6 +11,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, cast
 
+from domain.context.normalisatie import lees_contextwaarden
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,6 +42,18 @@ class VaststelconflictError(ValueError):
 
 #: Marker van de vastgelegde CON-01-expertbeoordeling in `validation_issues`.
 CONTEXT_REVIEW_CODE = "CON-01-REVIEW"
+
+# Scheiding waarmee de servicelaag een toelichting in de kolom `definitie`
+# inbedt; de enige plek waar die conventie is vastgelegd.
+TOELICHTING_SCHEIDING = "\n\nToelichting:"
+
+
+def splits_definitietekst(tekst: str) -> tuple[str, str | None]:
+    """Splits een recordtekst in (definitiezin, toelichting-of-None)."""
+    if TOELICHTING_SCHEIDING not in tekst:
+        return tekst, None
+    zin, toelichting = tekst.split(TOELICHTING_SCHEIDING, 1)
+    return zin, toelichting.strip() or None
 
 
 class DefinitieStatus(Enum):
@@ -140,6 +154,42 @@ class DefinitieRecord:
     def set_validation_issues(self, issues: list[dict[str, Any]]) -> None:
         """Set validation issues als JSON string."""
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
+
+    def get_definitie_tekst(self) -> str:
+        """De definitiezin: de recordtekst zonder ingebedde toelichting.
+
+        De kolom `definitie` kan `"<zin>\\n\\nToelichting: <toelichting>"`
+        bevatten (servicelaag). Het CON-01-contract, de vaststelgate, de
+        experttab, readback en validatie gebruiken allemaal déze tekstbasis,
+        zodat één beoordeling overal dezelfde vingerafdruk heeft (DEF-622,
+        koppelingenbevinding K4).
+        """
+        return splits_definitietekst(self.definitie or "")[0]
+
+    def get_contextlijsten(self) -> dict[str, list[str]]:
+        """De drie opgeslagen contextlijsten, gelezen zoals het contract ze leest."""
+        return {
+            "organisatorische_context": lees_contextwaarden(
+                self.organisatorische_context
+            ),
+            "juridische_context": lees_contextwaarden(self.juridische_context),
+            "wettelijke_basis": lees_contextwaarden(self.wettelijke_basis),
+        }
+
+    def get_contractvelden(self) -> dict[str, Any]:
+        """De CON-01-contractvelden zoals dit opgeslagen record ze draagt.
+
+        Eén adapter voor vaststelgate, experttab, export en herhaalde
+        validatie (koppelingenbevindingen K2/K3): de drie contextlijsten,
+        id, recordversie en de vastgelegde beoordeling komen uitsluitend
+        van het record — een aanroeper kan ze niet vervangen.
+        """
+        return {
+            **self.get_contextlijsten(),
+            "definition_id": self.id,
+            "definition_version": self.version_number,
+            "context_review": self.get_context_review(),
+        }
 
     def get_context_review(self) -> dict[str, Any] | None:
         """De vastgelegde CON-01-expertbeoordeling van de naamfunctie (DEF-622).

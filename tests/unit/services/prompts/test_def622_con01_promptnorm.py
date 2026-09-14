@@ -92,3 +92,16 @@ def test_regelinstructie_con01_kent_de_uitzondering():
     assert REGISTRATIE in con01
     assert NOODZAKELIJK in con01
     assert "zonder expliciete benoeming van contextnamen" not in con01
+
+
+@pytest.mark.parametrize("categorie", [None, "type", "proces"])
+def test_afsluitende_checklist_spreekt_de_uitzondering_niet_tegen(categorie):
+    """K6: de actieve DefinitionTaskModule-checklist stond nog op een
+    ongeclausuleerd verbod ("Context verwerkt zonder expliciete benoeming")
+    naast de gewijzigde CON-01-instructie."""
+    from services.prompts.modules.definition_task_module import DefinitionTaskModule
+
+    checklist = DefinitionTaskModule()._build_checklist(categorie)
+    assert "zonder expliciete benoeming" not in checklist
+    assert NOODZAKELIJK in checklist
+    assert REGISTRATIE in checklist

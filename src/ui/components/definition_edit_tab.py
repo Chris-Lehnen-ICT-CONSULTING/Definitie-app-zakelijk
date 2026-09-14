@@ -1354,8 +1354,9 @@ class DefinitionEditTab:
 
                 # DEF-622: het bewerkte record identificeert zichzelf (DUP_01
                 # sluit het eigen record uit) en draagt de vastgelegde
-                # CON-01-beoordeling mee; die vervalt vanzelf bij een
-                # gewijzigde tekst (vingerafdruk).
+                # CON-01-beoordeling mee mét de geladen recordversie (K1):
+                # de beoordeling vervalt bij een gewijzigde tekst
+                # (vingerafdruk) én bij een nieuwere recordversie.
                 geladen = SessionStateManager.get_value("editing_definition")
                 geladen_meta = getattr(geladen, "metadata", None) or {}
                 vc = ValidationContext(
@@ -1366,6 +1367,7 @@ class DefinitionEditTab:
                         "juridische_context": definition.juridische_context or [],
                         "wettelijke_basis": definition.wettelijke_basis or [],
                         "definition_id": def_id,
+                        "definition_version": geladen_meta.get("version_number"),
                         "context_review": geladen_meta.get("context_review"),
                     },
                 )

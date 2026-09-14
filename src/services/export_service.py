@@ -394,30 +394,32 @@ class ExportService:
         )
         # Optionele async validatiegate
         if self.enable_validation_gate and self.validation_orchestrator is not None:
-            text_for_validation = (
-                export_data.definitie_aangepast
-                or export_data.definitie_gecorrigeerd
-                or export_data.definitie_origineel
-            )
-            # DEF-622: de opgeslagen drie contextlijsten en de vastgelegde
-            # CON-01-beoordeling reizen mee, anders keurt CON-01 elke export
-            # af op "geen context" en kent de gate de expertbeoordeling niet.
-            # Of de gate daarna slaagt (totaalscore, algemene vaststel-/
-            # exportvoorwaarden) blijft de algemene gate van DEF-630.
+            # DEF-622 (K2): de gate oordeelt op het opgeslagen record. De
+            # contractvelden (drie contextlijsten, id, recordversie en de
+            # vastgelegde CON-01-beoordeling) komen uitsluitend van het record,
+            # niet uit de export-data ná de merge met `additional_data` — die
+            # kon versie, id, context en beoordeling vervangen en zo een
+            # verlopen beoordeling laten gelden. Tekstbasis: de definitiezin
+            # van het record (K4), tenzij de export een aangepaste tekst
+            # meekrijgt — dan wordt díe getoetst (en vervalt een beoordeling
+            # op de oorspronkelijke zin via de vingerafdruk). Of de gate
+            # daarna slaagt (totaalscore, algemene exportvoorwaarden) blijft
+            # de algemene gate van DEF-630.
             from services.validation.interfaces import ValidationContext
 
-            ctx = export_data.context_dict or {}
-            metadata: dict[str, Any] = {
-                "organisatorische_context": list(ctx.get("organisatorisch") or []),
-                "juridische_context": list(ctx.get("juridisch") or []),
-                "wettelijke_basis": list(ctx.get("wettelijk") or []),
-                "definition_id": export_data.metadata.get("id"),
-                "definition_version": export_data.metadata.get("versie"),
-                "context_review": export_data.metadata.get("context_review"),
-            }
+            record = definitie_record
+            if record is None and definitie_id is not None:
+                record = self.repository.get_definitie(definitie_id)
+            if record is None:
+                msg = "Validatie vóór export vereist een opgeslagen definitie"
+                raise ValueError(msg)
+            text_for_validation = (
+                export_data.definitie_aangepast or record.get_definitie_tekst()
+            )
+            metadata: dict[str, Any] = record.get_contractvelden()
             try:
                 result = await self.validation_orchestrator.validate_text(
-                    begrip=export_data.begrip,
+                    begrip=record.begrip,
                     text=text_for_validation,
                     ontologische_categorie=None,
                     context=ValidationContext(metadata=metadata),
