@@ -149,11 +149,18 @@ class DefinitieRecord:
         beoordeling reist mee met het record. De binding aan tekst/context/
         term zit in de vingerafdruk in de beoordeling zelf.
         """
-        for issue in self.get_validation_issues_list():
-            if isinstance(issue, dict) and issue.get("code") == CONTEXT_REVIEW_CODE:
-                review = issue.get("context_review")
-                return dict(review) if isinstance(review, dict) else None
-        return None
+        markers = [
+            issue
+            for issue in self.get_validation_issues_list()
+            if isinstance(issue, dict) and issue.get("code") == CONTEXT_REVIEW_CODE
+        ]
+        if len(markers) != 1:
+            # Geen marker: geen beoordeling. Meer dan één: ambigu, en een
+            # ambigue beoordeling is fail-closed géén beoordeling
+            # (reviewbevinding E3) — nooit de eerste of de gunstigste kiezen.
+            return None
+        review = markers[0].get("context_review")
+        return dict(review) if isinstance(review, dict) else None
 
     def set_context_review(self, review: dict[str, Any] | None) -> None:
         """Vervang (of verwijder bij None) de vastgelegde CON-01-beoordeling."""

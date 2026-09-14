@@ -186,15 +186,21 @@ def bereken_vingerafdruk(
     begrip: str,
     tekst: str,
     contexten: Mapping[str, Any],
-    definitie_versie: int | str | None = None,
 ) -> str:
-    """Bind een beoordeling aan term, exacte tekst, canonieke context en versie.
+    """Bind een beoordeling aan term, exacte tekst, canonieke context en contract.
 
     De term hoort erbij: dezelfde zin met dezelfde context kan onder een ander
     begrip een andere beoordeling vragen. De context gaat als vergelijkings-
     sleutel mee, zodat schrijfwijze en volgorde van dezelfde waarden geen
     nieuwe beoordeling afdwingen. De tekst gaat exact mee: één teken verschil
     is een nieuwe beoordeling.
+
+    De definitieversie zit bewust níet in de vingerafdruk maar is een apart,
+    expliciet veld op de beoordeling (`version_number`) dat tegen de versie
+    van het beoordeelde record wordt gelegd (reviewbevinding E2). Zo kan
+    dezelfde inhoud op twee plekken nooit twee verschillende vingerafdrukken
+    krijgen, terwijl tekst wijzigen en terugzetten (nieuwere versie) een
+    eerdere beoordeling wél laat vervallen.
     """
     bron = {
         "versie": CONTRACTVERSIE,
@@ -203,9 +209,6 @@ def bereken_vingerafdruk(
         "context": {
             veld: list(contextsleutel(contexten.get(veld))) for veld in CONTEXT_VELDEN
         },
-        "definitie_versie": (
-            None if definitie_versie is None else str(definitie_versie)
-        ),
     }
     return hashlib.sha256(
         json.dumps(bron, ensure_ascii=False, sort_keys=True).encode("utf-8")
@@ -291,16 +294,30 @@ def _tekst(waarde: Any) -> str:
     return waarde.strip() if isinstance(waarde, str) else ""
 
 
+def _versienummer(waarde: Any) -> int | None:
+    """Een geheel versienummer, of None wanneer de waarde er geen is."""
+    if isinstance(waarde, bool) or waarde is None:
+        return None
+    if isinstance(waarde, int):
+        return waarde
+    if isinstance(waarde, str) and waarde.strip().isdigit():
+        return int(waarde.strip())
+    return None
+
+
 def _geldige_beoordeling(
-    review: Any, fingerprint: str
+    review: Any, fingerprint: str, definitie_versie: int | str | None = None
 ) -> tuple[dict[str, dict[str, str]], dict[str, Any]]:
     """Filter de aangeleverde beoordeling op bruikbaarheid.
 
     Geeft (beslissingen per onderdeel, samenvatting voor het resultaat). Een
-    beoordeling telt alleen bij een gelijke vingerafdruk én een benoemde
-    actor; een beslissing telt alleen met een bekende functie én een
-    vastgelegde reden. Wat niet telt, wordt in de samenvatting benoemd — een
-    genegeerde beoordeling mag niet stil verdwijnen.
+    beoordeling telt alleen bij een gelijke vingerafdruk, een benoemde actor
+    én — wanneer zowel de beoordeling als het record een versienummer dragen
+    — een gelijk versienummer (reviewbevinding E2: tekst wijzigen en
+    terugzetten geeft dezelfde vingerafdruk maar een nieuwere versie). Een
+    beslissing telt alleen met een bekende functie én een vastgelegde reden.
+    Wat niet telt, wordt in de samenvatting benoemd — een genegeerde
+    beoordeling mag niet stil verdwijnen.
     """
     if not isinstance(review, Mapping):
         return {}, {"applied": False, "reason": "geen beoordeling aangeleverd"}
@@ -318,8 +335,20 @@ def _geldige_beoordeling(
     }
     if aangeleverd != fingerprint:
         samenvatting["reason"] = (
-            "eerdere beoordeling geldt niet meer: tekst, context, term of "
-            "versie is gewijzigd"
+            "eerdere beoordeling geldt niet meer: tekst, context of term is gewijzigd"
+        )
+        return {}, samenvatting
+    beoordeelde_versie = _versienummer(review.get("version_number"))
+    actuele_versie = _versienummer(definitie_versie)
+    if (
+        beoordeelde_versie is not None
+        and actuele_versie is not None
+        and beoordeelde_versie != actuele_versie
+    ):
+        samenvatting["version_number"] = beoordeelde_versie
+        samenvatting["reason"] = (
+            f"eerdere beoordeling hoort bij versie {beoordeelde_versie}; het "
+            f"record is inmiddels versie {actuele_versie}"
         )
         return {}, samenvatting
     if not actor:
@@ -483,9 +512,12 @@ def beoordeel_context(
 
     `contexten` is de metadata-mapping met (mogelijk) de drie lijsten;
     `review` is de eerder vastgelegde menselijke beoordeling
-    (`{"fingerprint", "actor", "decisions": {onderdeel: {"function", "reason"}}}`).
+    (`{"fingerprint", "actor", "version_number", "decisions": {onderdeel:
+    {"function", "reason"}}}`); `definitie_versie` is de versie van het
+    beoordeelde record, waartegen `version_number` van de beoordeling wordt
+    gelegd.
     """
-    fingerprint = bereken_vingerafdruk(begrip, tekst, contexten, definitie_versie)
+    fingerprint = bereken_vingerafdruk(begrip, tekst, contexten)
     heeft_context = any(
         canoniseer_contextlijst(contexten.get(v)) for v in CONTEXT_VELDEN
     )
@@ -504,7 +536,9 @@ def beoordeel_context(
             review=None,
         )
 
-    beslissingen, samenvatting = _geldige_beoordeling(review, fingerprint)
+    beslissingen, samenvatting = _geldige_beoordeling(
+        review, fingerprint, definitie_versie
+    )
     parts: list[Deeluitkomst] = [
         Deeluitkomst(
             id=ONDERDEEL_CONTEXT,

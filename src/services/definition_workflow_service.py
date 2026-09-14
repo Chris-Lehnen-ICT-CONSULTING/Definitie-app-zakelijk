@@ -831,6 +831,8 @@ class DefinitionWorkflowService:
             definition.definitie or "",
             contexten,
             review=review,
+            # E2: de beoordeling geldt voor precies deze recordversie.
+            definitie_versie=getattr(definition, "version_number", None),
         )
         if uitkomst.status == STATUS_PASS:
             return []

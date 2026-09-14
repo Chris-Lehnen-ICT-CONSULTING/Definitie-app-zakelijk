@@ -372,14 +372,20 @@ class TestInterRecordConflict:
         assert _rij(repo, kandidaat)["status"] == DefinitieStatus.REVIEW.value
 
     def test_gelijktijdige_vaststelpogingen_laten_een_leidend_record_over(
-        self, tmp_path
+        self, tmp_path, monkeypatch
     ):
         """Twee concurrerende pogingen zonder leidend record: precies één slaagt.
 
-        De invariant wordt binnen `BEGIN IMMEDIATE` hercontroleerd, dus de
-        uitkomst is onafhankelijk van de scheduling: wie de lock als tweede
-        krijgt, ziet de gecommitte vaststelling van de eerste.
+        Overlap wordt afgedwongen met synchronisatie, niet met timing: thread
+        A houdt zijn schrijftransactie (na de hercontrole ónder de lock) vast
+        tot thread B aantoonbaar aan zijn eigen ``BEGIN IMMEDIATE`` is
+        begonnen (trace-callback op B's connectie). B wacht dus werkelijk op
+        A's lock, en ziet daarna A's gecommitte vaststelling bij zijn eigen
+        hercontrole. Zonder de hercontrole/invariant onder de lock zouden
+        beide slagen — dat is wat deze test onderscheidt (B-10).
         """
+        from database.definitie_crud import DefinitieCrudRepository
+
         svc, repo = _service(tmp_path)
         eerste = repo.legacy_repo.create_definitie(
             _record(definitie="eerste kandidaat")
@@ -390,33 +396,123 @@ class TestInterRecordConflict:
             duplicate_reason="synthetische tweede kandidaat",
         )
         versies = {eerste: _versie(repo, eerste), tweede: _versie(repo, tweede)}
-        uitkomsten: dict[int, Any] = {}
+        uitkomsten: dict[str, Any] = {}
+        fouten: list[str] = []
+        a_in_transactie = threading.Event()
+        b_begint = threading.Event()
+        origineel = DefinitieCrudRepository.find_leidende_definitie
 
-        def _stel_vast(definitie_id: int) -> None:
-            eigen_svc, _ = _service(tmp_path)
-            uitkomsten[definitie_id] = eigen_svc.approve(
-                definitie_id,
-                ACTOR,
-                user_role="reviewer",
-                notes="",
-                expected_version=versies[definitie_id],
-            )
+        def _hercontrole_met_wachttijd(self_crud, *args, **kwargs):
+            resultaat = origineel(self_crud, *args, **kwargs)
+            conn = self_crud._db.get_connection()
+            if threading.current_thread().name == "A" and conn.in_transaction:
+                # A zit nu ónder de schrijflock; laat B aantoonbaar wachten.
+                a_in_transactie.set()
+                if not b_begint.wait(10):
+                    fouten.append("thread B begon niet aan BEGIN IMMEDIATE")
+            return resultaat
 
-        threads = [
-            threading.Thread(target=_stel_vast, args=(d,)) for d in (eerste, tweede)
-        ]
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join(timeout=30)
+        monkeypatch.setattr(
+            DefinitieCrudRepository,
+            "find_leidende_definitie",
+            _hercontrole_met_wachttijd,
+        )
 
-        geslaagd = [d for d, u in uitkomsten.items() if u.success]
-        assert len(geslaagd) == 1, {
-            d: (u.success, u.error_message) for d, u in uitkomsten.items()
+        def _stel_vast(naam: str, definitie_id: int) -> None:
+            eigen_svc, eigen_repo = _service(tmp_path)
+            conn = eigen_repo.legacy_repo._db.get_connection()
+
+            def traceer(statement: str) -> None:
+                if naam == "B" and statement.strip().upper().startswith(
+                    "BEGIN IMMEDIATE"
+                ):
+                    b_begint.set()
+
+            conn.set_trace_callback(traceer)
+            try:
+                uitkomsten[naam] = eigen_svc.approve(
+                    definitie_id,
+                    ACTOR,
+                    user_role="reviewer",
+                    notes="",
+                    expected_version=versies[definitie_id],
+                )
+            finally:
+                conn.set_trace_callback(None)
+
+        thread_a = threading.Thread(target=_stel_vast, args=("A", eerste), name="A")
+        thread_b = threading.Thread(target=_stel_vast, args=("B", tweede), name="B")
+        thread_a.start()
+        assert a_in_transactie.wait(10), "A bereikte de hercontrole onder de lock niet"
+        thread_b.start()
+        thread_a.join(timeout=30)
+        thread_b.join(timeout=30)
+
+        assert not fouten, fouten
+        assert not thread_a.is_alive() and not thread_b.is_alive()
+        assert uitkomsten["A"].success is True, uitkomsten["A"].error_message
+        assert uitkomsten["B"].success is False
+        assert uitkomsten["B"].gate_status == "conflict", uitkomsten["B"]
+        assert _vastgestelde(repo) == [eerste]
+
+    def test_beoordelaar_is_de_handelende_gebruiker(self, tmp_path):
+        """V3: de beoordeling draagt de actor die haar opslaat; een afwijkende
+        beoordelaar in de payload wordt vóór mutatie geweigerd."""
+        from domain.context.contract import beoordeel_context
+        from domain.context.normalisatie import lees_contextwaarden
+
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(
+            _record(definitie="kwaliteitsmerk dat Stichting Zilver verleent")
+        )
+        rec = repo.get_definitie(did)
+        uitkomst = beoordeel_context(
+            rec.begrip,
+            rec.definitie,
+            {
+                "organisatorische_context": lees_contextwaarden(
+                    rec.organisatorische_context
+                ),
+                "juridische_context": lees_contextwaarden(rec.juridische_context),
+                "wettelijke_basis": lees_contextwaarden(rec.wettelijke_basis),
+            },
+        )
+        naam = next(p for p in uitkomst.parts if p.evidence)
+        beoordeling = {
+            "fingerprint": uitkomst.fingerprint,
+            "actor": "expert-A",
+            "decisions": {naam.id: {"function": "necessary", "reason": "Uitgever."}},
         }
-        assert _vastgestelde(repo) == geslaagd
-        mislukt = next(u for d, u in uitkomsten.items() if not u.success)
-        assert mislukt.gate_status == "conflict", mislukt
+        versie_voor = _versie(repo, did)
+
+        with pytest.raises(ValueError, match="beoordelaar"):
+            repo.set_context_review(did, beoordeling, updated_by="expert-B")
+        with pytest.raises(ValueError, match="handelende gebruiker"):
+            repo.set_context_review(did, beoordeling, updated_by="")
+        for ongeldig in (True, 7, ["expert-A"]):
+            with pytest.raises(ValueError, match="beoordelaar"):
+                repo.set_context_review(
+                    did, {**beoordeling, "actor": ongeldig}, updated_by="expert-A"
+                )
+        # Niets gemuteerd: geen versiebump, geen beoordeling.
+        assert _versie(repo, did) == versie_voor
+        assert repo.get_definitie(did).get_context_review() is None
+
+        # Consistent (of zonder actor): de handelende gebruiker wordt vastgelegd.
+        zonder_actor = {k: v for k, v in beoordeling.items() if k != "actor"}
+        assert repo.set_context_review(did, zonder_actor, updated_by="expert-A")
+        opgeslagen = repo.get_definitie(did).get_context_review()
+        assert opgeslagen["actor"] == "expert-A"
+        assert opgeslagen["version_number"] == _versie(repo, did)
+        # De vaststeller mag een ander zijn (bestaand contract).
+        uitkomst_b = svc.approve(
+            did,
+            "expert-B",
+            user_role="reviewer",
+            notes="",
+            expected_version=_versie(repo, did),
+        )
+        assert uitkomst_b.success is True, uitkomst_b.error_message
 
 
 # -------------------------------------------------- persistentiegrens (DB)
@@ -492,6 +588,146 @@ class TestPersistentiegrens:
             leidend, {"organisatorische_context": '["stichting zilver"]'}
         )
         assert _vastgestelde(repo) == [leidend]
+
+
+class TestReviewbevindingenVaststelling:
+    """Onafhankelijke reviewbevindingen E1–E3 op de eerste vaststelcommit."""
+
+    def test_ander_begrip_met_synoniem_en_zelfde_context_is_geen_conflict(
+        self, tmp_path
+    ):
+        """E1: de B-10-exclusiviteit geldt voor hetzelfde begrip; een ander
+        begrip dat ons begrip als synoniem voert, is geen leidend record."""
+        svc, repo = _service(tmp_path)
+        ander = repo.legacy_repo.create_definitie(
+            DefinitieRecord(
+                begrip="waarmerk",
+                definitie="ander begrip, zelfde context",
+                categorie="type",
+                organisatorische_context=ORG,
+                juridische_context=JUR,
+                wettelijke_basis=WET,
+                status=DefinitieStatus.ESTABLISHED.value,
+                validation_score=0.9,
+            )
+        )
+        repo.legacy_repo._db.get_connection().execute(
+            "INSERT INTO definitie_voorbeelden (definitie_id, voorbeeld_type, "
+            "voorbeeld_tekst, actief) VALUES (?, 'synonyms', 'keurmerk', 1)",
+            (ander,),
+        )
+        # De generatielookup ziet het synoniem wél als duplicaat (bestaande
+        # functie); bewust ernaast aanmaken vraagt daar een reden.
+        kandidaat = repo.legacy_repo.create_definitie(
+            _record(),
+            allow_duplicate=True,
+            duplicate_reason="synthetisch synoniemgeval",
+        )
+
+        uitkomst = svc.approve(
+            kandidaat,
+            ACTOR,
+            user_role="reviewer",
+            notes="",
+            expected_version=_versie(repo, kandidaat),
+        )
+
+        assert uitkomst.success is True, uitkomst.error_message
+        assert _rij(repo, ander)["status"] == DefinitieStatus.ESTABLISHED.value
+
+    def test_teruggezette_tekst_herleeft_oude_beoordeling_niet(self, tmp_path):
+        """E2: de beoordeling is aan de versie gebonden; tekst wijzigen en
+        terugzetten levert dezelfde tekst maar een nieuwere versie op."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(
+            _record(definitie="kwaliteitsmerk dat Stichting Zilver verleent")
+        )
+        _beoordeling(repo, did, "necessary")
+        assert repo.legacy_repo.update_definitie(
+            did, {"definitie": "kwaliteitsmerk dat Stichting Zilver verleent (v2)"}
+        )
+        assert repo.legacy_repo.update_definitie(
+            did, {"definitie": "kwaliteitsmerk dat Stichting Zilver verleent"}
+        )
+
+        uitkomst = svc.approve(
+            did,
+            ACTOR,
+            user_role="reviewer",
+            notes="",
+            expected_version=_versie(repo, did),
+        )
+
+        assert uitkomst.success is False and uitkomst.gate_status == "blocked"
+        assert any(
+            "nog te beoordelen" in r.lower() for r in uitkomst.gate_reasons or []
+        )
+
+    @pytest.mark.parametrize(
+        "markers",
+        [
+            # Twee markers, tegenstrijdig: ambigu → geen beoordeling.
+            [("necessary", True), ("registration", True)],
+            [("registration", True), ("necessary", True)],
+            # Eerste geldig, tweede misvormd: fail-closed.
+            [("necessary", True), ("necessary", False)],
+        ],
+    )
+    def test_dubbele_of_misvormde_beoordelingsmarkers_tellen_niet(
+        self, tmp_path, markers
+    ):
+        """E3: meerdere of misvormde CON-01-REVIEW-markers zijn geen beoordeling."""
+        from database.models import CONTEXT_REVIEW_CODE
+        from domain.context.contract import beoordeel_context
+        from domain.context.normalisatie import lees_contextwaarden
+
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(
+            _record(definitie="kwaliteitsmerk dat Stichting Zilver verleent")
+        )
+        rec = repo.get_definitie(did)
+        uitkomst = beoordeel_context(
+            rec.begrip,
+            rec.definitie,
+            {
+                "organisatorische_context": lees_contextwaarden(
+                    rec.organisatorische_context
+                ),
+                "juridische_context": lees_contextwaarden(rec.juridische_context),
+                "wettelijke_basis": lees_contextwaarden(rec.wettelijke_basis),
+            },
+        )
+        naam = next(p for p in uitkomst.parts if p.evidence)
+        issues = []
+        for functie, geldig in markers:
+            review: Any = {
+                "fingerprint": uitkomst.fingerprint,
+                "actor": ACTOR,
+                "version_number": rec.version_number + 1,
+                "decisions": {naam.id: {"function": functie, "reason": "Synthetisch."}},
+            }
+            issues.append(
+                {
+                    "code": CONTEXT_REVIEW_CODE,
+                    "rule_id": "CON-01",
+                    "severity": "info",
+                    "context_review": review if geldig else "misvormd",
+                }
+            )
+        assert repo.legacy_repo.update_definitie(
+            did, {"validation_issues": json.dumps(issues, ensure_ascii=False)}
+        )
+
+        assert repo.get_definitie(did).get_context_review() is None
+        uitkomst_vaststelling = svc.approve(
+            did,
+            ACTOR,
+            user_role="reviewer",
+            notes="",
+            expected_version=_versie(repo, did),
+        )
+        assert uitkomst_vaststelling.success is False
+        assert uitkomst_vaststelling.gate_status == "blocked"
 
 
 def _rij_kolom(repo: DefinitionRepository, definitie_id: int, kolom: str) -> Any:

@@ -202,6 +202,12 @@ class DefinitieCrudRepository:
         ):
             if rij.id is None or rij.id == eigen_id:
                 continue
+            if rij.via_synoniem:
+                # De exclusiviteit geldt voor hetzelfde begrip (B-10). Een
+                # ánder begrip dat dit begrip als synoniem voert, hoort bij
+                # de generatielookup, niet bij de vaststelinvariant
+                # (reviewbevinding E1).
+                continue
             record = self.get_definitie(int(rij.id))
             if record is not None:
                 return record
@@ -244,11 +250,51 @@ class DefinitieCrudRepository:
         Lees-wijzig-schrijf binnen één transactie op `validation_issues`;
         de overige issues blijven staan. Een gewone update: versie en audit
         volgen het bestaande pad.
+
+        Herkomst (reviewbevinding V3): de beoordelaar in de beoordeling is de
+        handelende gebruiker die haar opslaat (`updated_by`, de auditactor).
+        Een payload met een andere beoordelaar wordt vóór mutatie geweigerd;
+        ontbreekt de beoordelaar, dan wordt de handelende gebruiker gestempeld.
+        Wie later vaststelt mag een ander zijn (bestaand contract).
+
+        Versiebinding (reviewbevinding E2): de beoordeling krijgt het
+        versienummer van het record ná deze opslag; elke latere wijziging
+        (ook tekst terugzetten) geeft een nieuwere versie en laat haar
+        vervallen.
         """
+        if review is not None:
+            if not isinstance(review, dict):
+                msg = "context_review moet een dict zijn"
+                raise ValueError(msg)
+            actor = review.get("actor")
+            handelend = updated_by if isinstance(updated_by, str) else None
+            handelend = (handelend or "").strip() or None
+            if handelend is None:
+                msg = (
+                    "set_context_review vereist een handelende gebruiker "
+                    "(updated_by) als betrouwbare beoordelaarsbron"
+                )
+                raise ValueError(msg)
+            if actor is not None and (
+                not isinstance(actor, str) or actor.strip() != handelend
+            ):
+                msg = (
+                    f"beoordelaar in de beoordeling ({actor!r}) wijkt af van de "
+                    f"handelende gebruiker ({handelend!r}); geweigerd vóór opslag"
+                )
+                raise ValueError(msg)
+
         with self._db.transaction():
             current = self.get_definitie(definitie_id)
             if not current:
                 return False
+            if review is not None:
+                review = {
+                    **review,
+                    "actor": handelend,
+                    # De versie die het record ná deze opslag draagt.
+                    "version_number": int(current.version_number or 0) + 1,
+                }
             current.set_context_review(review)
             return self.update_definitie(
                 definitie_id,
