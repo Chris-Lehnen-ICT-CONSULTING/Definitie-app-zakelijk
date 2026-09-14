@@ -34,6 +34,24 @@ from utils.type_helpers import ensure_string
 logger = logging.getLogger(__name__)
 
 
+def _score_uit_resultaat(agent_result: Any) -> float | None:
+    """De totaalscore uit een UI-resultaat.
+
+    DEF-622: een expliciete None (totaalscore niet beschikbaar) blijft None;
+    alleen een ontbrekende sleutel valt terug op 0.0. Modulefunctie, zodat de
+    renderers hem ook zonder volledig geconstrueerde tab kunnen aanroepen.
+    """
+    if not isinstance(agent_result, dict):
+        return 0.0
+    if "validation_score" in agent_result:
+        score = agent_result["validation_score"]
+    elif "final_score" in agent_result:
+        score = agent_result["final_score"]
+    else:
+        score = 0.0
+    return None if score is None else float(score)
+
+
 def _validatie_is_onbepaald(agent_result: Any) -> bool:
     """Of de validatie geen oordeel kon vormen (DEF-621).
 
@@ -111,6 +129,12 @@ class DefinitionGeneratorTab:
 
         if check_result:
             self.duplicate_renderer.render_check_results(check_result)
+
+        # DEF-622 (B-09): "Gebruik Deze" toont het gekozen record; vóór deze
+        # wijziging las niets `selected_definition` en deed de knop niets.
+        selected = SessionStateManager.get_value("selected_definition")
+        if selected is not None and not check_result:
+            self.duplicate_renderer.render_selected_definition(selected)
 
         if generation_result:
             self._render_generation_results(generation_result)
@@ -390,10 +414,13 @@ class DefinitionGeneratorTab:
                     if _validatie_is_onbepaald(agent_result):
                         st.metric("Validatie", "Niet te bepalen")
                     else:
-                        score = agent_result.get(
-                            "validation_score", agent_result.get("final_score", 0.0)
+                        score = _score_uit_resultaat(agent_result)
+                        # DEF-622: None is 'niet beschikbaar' (regel zonder
+                        # cijfer in de set), nooit 0.00.
+                        st.metric(
+                            "Finale Score",
+                            "Niet beschikbaar" if score is None else f"{score:.2f}",
                         )
-                        st.metric("Finale Score", f"{score:.2f}")
                     marker = agent_result.get("marker")
                     if marker:
                         st.caption(marker)
@@ -588,10 +615,18 @@ class DefinitionGeneratorTab:
                 if _validatie_is_onbepaald(agent_result):
                     st.success("✅ Definitie gegenereerd — validatie niet te bepalen")
                 else:
-                    score = self._extract_score_from_result(agent_result)
-                    st.success(
-                        f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})"
-                    )
+                    score = _score_uit_resultaat(agent_result)
+                    if score is None:
+                        # DEF-622: geen totaalscore beschikbaar; de
+                        # regeluitkomsten staan in de toetsingssectie.
+                        st.success(
+                            "✅ Definitie succesvol gegenereerd! "
+                            "(Totaalscore niet beschikbaar — zie toetsresultaten)"
+                        )
+                    else:
+                        st.success(
+                            f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})"
+                        )
             else:
                 # DEF-524: het faalpad zet de echte oorzaak in error_message;
                 # de oude read op "reason" bestond daar nooit → "Onbekende fout".
@@ -651,15 +686,9 @@ class DefinitionGeneratorTab:
                 "- Taalkundige kwaliteitsregels (ARAI-xx serie)"
             )
 
-    def _extract_score_from_result(self, agent_result: dict) -> float:
-        """Extract validation score from agent result."""
-        return float(
-            safe_dict_get(
-                agent_result,
-                "validation_score",
-                safe_dict_get(agent_result, "final_score", 0.0),
-            )
-        )
+    def _extract_score_from_result(self, agent_result: dict) -> float | None:
+        """Extract validation score from agent result (zie `_score_uit_resultaat`)."""
+        return _score_uit_resultaat(agent_result)
 
     def _render_agent_result_debug(self, agent_result: Any) -> None:
         """Render debug info for agent_result structure."""

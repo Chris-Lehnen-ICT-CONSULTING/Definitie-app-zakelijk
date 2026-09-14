@@ -1182,6 +1182,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         if getattr(sanitized_request, "options", None)
                         else False
                     ),
+                    # DEF-622 (besluit 5): de reden voor een bewust geforceerd
+                    # duplicaat reist mee naar de audit van het nieuwe concept.
+                    "force_duplicate_reason": (
+                        safe_dict_get(
+                            sanitized_request.options, "force_duplicate_reason", None
+                        )
+                        if getattr(sanitized_request, "options", None)
+                        else None
+                    ),
                 },
             )
 

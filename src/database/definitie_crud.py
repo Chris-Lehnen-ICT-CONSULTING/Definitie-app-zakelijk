@@ -9,7 +9,7 @@ from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
-from database.models import DefinitieRecord, DefinitieStatus, normalize_wettelijke_basis
+from database.models import DefinitieRecord, DefinitieStatus
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +42,20 @@ class DefinitieCrudRepository:
         self._search = search
 
     def create_definitie(
-        self, record: DefinitieRecord, allow_duplicate: bool = False
+        self,
+        record: DefinitieRecord,
+        allow_duplicate: bool = False,
+        duplicate_reason: str | None = None,
     ) -> int:
-        """Maak nieuwe definitie aan."""
+        """Maak nieuwe definitie aan.
+
+        DEF-622 (besluit 5): naast een bestaande definitie met gelijk begrip en
+        gelijke context mag alleen bewust worden aangemaakt, mét reden. Die
+        reden komt in de audit van het nieuwe record; het bestaande record
+        wordt niet aangeraakt. `allow_duplicate=True` zonder reden wordt
+        geweigerd zodra er werkelijk een duplicaat is — zonder duplicaat is
+        er niets te verantwoorden.
+        """
         # DEF-198: Clean architecture - import from utils/, callback registered by UI
         from utils.progress_callback import operation_progress
 
@@ -56,14 +67,24 @@ class DefinitieCrudRepository:
             wb_value = (
                 record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
             )
+            reden = (duplicate_reason or "").strip()
 
             # DEF-391: INSERT + audit-log atomair (all-or-nothing).
             # DEF-482/DEF-483: de duplicaatcontrole draait binnen dezelfde
             # BEGIN IMMEDIATE, zodat gelijktijdige creates geserialiseerd worden
             # en de tweede de gecommitte rij van de eerste ziet.
             with self._db.transaction() as conn:
-                if not allow_duplicate:
-                    self._weiger_duplicaat(record)
+                bestaand = self._actief_duplicaat(record)
+                if bestaand is not None and not allow_duplicate:
+                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+                    raise ValueError(msg)
+                if bestaand is not None and not reden:
+                    msg = (
+                        f"Definitie voor '{record.begrip}' bestaat al in deze "
+                        "context; bewust een nieuw concept ernaast aanmaken "
+                        "vereist een reden voor de audit"
+                    )
+                    raise ValueError(msg)
                 include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
                 columns, values = AuditHelpers.build_insert_columns(
                     record, wb_value, include_legacy
@@ -81,18 +102,28 @@ class DefinitieCrudRepository:
                 if record_id is None:
                     raise RuntimeError("Failed to get lastrowid after INSERT")
 
+                audit = f"Nieuwe definitie aangemaakt voor '{record.begrip}'"
+                if bestaand is not None:
+                    audit += (
+                        f" — bewust naast bestaande definitie {bestaand} "
+                        f"(zelfde begrip en context); reden: {reden}"
+                    )
                 self._audit.log_geschiedenis(
-                    record_id,
-                    "created",
-                    record.created_by,
-                    f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
+                    record_id, "created", record.created_by, audit
                 )
 
             logger.info(f"Created definitie {record_id}")
             return record_id
 
-    def _weiger_duplicaat(self, record: DefinitieRecord) -> None:
-        """Gooi ``ValueError`` als er al een actieve definitie in deze context is."""
+    def _actief_duplicaat(self, record: DefinitieRecord) -> int | None:
+        """Het id van een actieve definitie met gelijk begrip en gelijke context.
+
+        DEF-622: via `find_duplicates`, dat op de genormaliseerde volledige
+        context vergelijkt. Bewust die naad en niet rechtstreeks de
+        kandidaatselectie: de racetest (DEF-482/DEF-727) hangt zijn handshake
+        aan `find_duplicates` binnen de schrijftransactie. Een gearchiveerd
+        record is historie en telt niet als duplicaat.
+        """
         duplicates = self._duplicates.find_duplicates(
             record.begrip,
             record.organisatorische_context,
@@ -102,10 +133,15 @@ class DefinitieCrudRepository:
                 json.loads(record.wettelijke_basis) if record.wettelijke_basis else []
             ),
         )
-        if duplicates and any(
-            d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-            for d in duplicates
-        ):
+        for match in duplicates:
+            bestaand = match.definitie_record
+            if bestaand.status != DefinitieStatus.ARCHIVED.value and bestaand.id:
+                return int(bestaand.id)
+        return None
+
+    def _weiger_duplicaat(self, record: DefinitieRecord) -> None:
+        """Gooi ``ValueError`` als er al een actieve definitie in deze context is."""
+        if self._actief_duplicaat(record) is not None:
             msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
             raise ValueError(msg)
 
@@ -132,82 +168,29 @@ class DefinitieCrudRepository:
         categorie: str | None = None,
         wettelijke_basis: list[str] | None = None,
     ) -> DefinitieRecord | None:
-        """Zoek definitie op basis van begrip en context."""
-        with self._db.get_connection() as conn:
-            query = """
-                SELECT * FROM definities
-                WHERE begrip = ? AND organisatorische_context = ?
-                AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
-            """
-            params: list[Any] = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
+        """Zoek de leidende definitie op begrip (of synoniem) en gelijke context.
 
-            if categorie is not None:
-                query += " AND categorie = ?"
-                params.append(categorie)
-
-            if wettelijke_basis is not None:
-                wb_json = normalize_wettelijke_basis(wettelijke_basis)
-                query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                params.extend([wb_json, wb_json])
-
-            if status:
-                query += " AND status = ?"
-                params.append(status.value)
-
-            query += " ORDER BY version_number DESC LIMIT 1"
-
-            cursor = conn.execute(query, params)
-            row = cursor.fetchone()
-
-            if row:
-                return self._audit.row_to_record(row)
-
-            # Synoniem-fallback
-            syn_query = """
-                SELECT d.*
-                FROM definities d
-                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
-                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
-                  AND v.voorbeeld_type = 'synonyms'
-                  AND v.actief = TRUE
-                  AND d.organisatorische_context = ?
-                  AND (d.juridische_context = ? OR (d.juridische_context IS NULL AND ? = ''))
-            """
-            syn_params: list[Any] = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
-
-            if categorie is not None:
-                syn_query += " AND d.categorie = ?"
-                syn_params.append(categorie)
-
-            if wettelijke_basis is not None:
-                wb_json = normalize_wettelijke_basis(wettelijke_basis)
-                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
-                syn_params.extend([wb_json, wb_json])
-
-            if status:
-                syn_query += " AND d.status = ?"
-                syn_params.append(status.value)
-            else:
-                syn_query += " AND d.status != 'archived'"
-
-            syn_query += " ORDER BY d.version_number DESC LIMIT 1"
-
-            cursor = conn.execute(syn_query, syn_params)
-            row = cursor.fetchone()
-            if row:
-                return self._audit.row_to_record(row)
-
-            return None
+        DEF-622 (B-03): de vergelijking loopt over de genormaliseerde
+        volledige contextverzameling (`zoek_gelijke_context`), niet over de
+        ruwe JSON-strings. Bij meerdere treffers wint het vastgestelde record;
+        daarna in beoordeling, dan concept, telkens de hoogste versie.
+        Gearchiveerde records tellen alleen bij een expliciete statusvraag.
+        """
+        kandidaten = self._duplicates.zoek_gelijke_context(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            categorie=categorie,
+            status=status,
+        )
+        for rij in kandidaten:
+            if rij.id is None:
+                continue
+            record = self.get_definitie(int(rij.id))
+            if record is not None:
+                return record
+        return None
 
     def update_definitie(
         self,

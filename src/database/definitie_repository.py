@@ -99,9 +99,12 @@ class DefinitieRepository:
 
     # === CRUD ===
     def create_definitie(
-        self, record: DefinitieRecord, allow_duplicate: bool = False
+        self,
+        record: DefinitieRecord,
+        allow_duplicate: bool = False,
+        duplicate_reason: str | None = None,
     ) -> int:
-        return self._crud.create_definitie(record, allow_duplicate)
+        return self._crud.create_definitie(record, allow_duplicate, duplicate_reason)
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         return self._crud.get_definitie(definitie_id)

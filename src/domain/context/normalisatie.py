@@ -29,13 +29,44 @@ Inrichtingen` blijven verschillende contextwaarden (besluit DEF-622).
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from typing import Any
 
 __all__ = [
     "canoniseer_contextlijst",
     "contextsleutel",
+    "lees_contextwaarden",
 ]
+
+
+def lees_contextwaarden(opgeslagen: Any) -> list[str]:
+    """Lees een opgeslagen of aangeleverd contextveld terug als losse waarden.
+
+    De databasekolommen bevatten een JSON-array als tekst; de UI levert soms
+    dezelfde JSON-tekst aan, soms een lijst, soms één vrije tekstwaarde uit
+    oudere data. Zonder deze stap zou een string per teken worden gesplitst
+    (`'["DJI"]'` → `['"', '[', ']', 'd', 'i', 'j']`) — het tweede defect uit
+    DEF-672. Eén gedeelde lezer (DEF-622), zodat lookup, duplicaatcontrole en
+    servicelaag dezelfde waarden zien.
+    """
+    if opgeslagen is None:
+        return []
+    if isinstance(opgeslagen, list | tuple | set | frozenset):
+        return [str(waarde) for waarde in opgeslagen]
+    tekst = str(opgeslagen)
+    if not tekst.strip():
+        return []
+    try:
+        geparsed = json.loads(tekst)
+    except (json.JSONDecodeError, TypeError):
+        # Een vrije tekstwaarde uit oudere data is één contextwaarde.
+        return [tekst]
+    if isinstance(geparsed, list):
+        return [str(waarde) for waarde in geparsed]
+    if geparsed is None:
+        return []
+    return [str(geparsed)]
 
 
 def _losse_waarden(waarden: Any) -> Iterable[Any]:

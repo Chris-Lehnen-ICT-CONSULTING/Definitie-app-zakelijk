@@ -239,6 +239,41 @@ def test_generatiedetails_tonen_finale_score_bij_validated() -> None:
     assert ("Finale Score", "0.82") in _metric_calls(mock_st)
 
 
+def _zonder_cijfer_result() -> dict[str, Any]:
+    """DEF-622: gevalideerd, maar de totaalscore is niet beschikbaar (None)."""
+    resultaat = _agent_result(duration=1.0, violations=0)
+    resultaat["final_score"] = None
+    resultaat["validation_score"] = None
+    resultaat["validation_details"]["overall_score"] = None
+    resultaat["validation_details"]["validation_status"] = "validated"
+    return resultaat
+
+
+def test_generatiestatus_toont_niet_beschikbaar_bij_totaalscore_none() -> None:
+    """DEF-622: None is 'niet beschikbaar' — geen crash en geen 0.00."""
+    tab = _make_tab()
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        tab._render_generation_status(_zonder_cijfer_result())
+
+    teksten = _status_teksten(mock_st)
+    assert any("gegenereerd" in t.lower() for t in teksten), teksten
+    assert not any("0.00" in t for t in teksten), teksten
+    assert any("niet beschikbaar" in t.lower() for t in teksten), teksten
+
+
+def test_generatiedetails_tonen_niet_beschikbaar_bij_totaalscore_none() -> None:
+    tab = _make_tab()
+
+    with patch("ui.components.definition_generator_tab.st") as mock_st:
+        mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
+        tab._render_generation_details(_zonder_cijfer_result())
+
+    calls = _metric_calls(mock_st)
+    assert ("Finale Score", "Niet beschikbaar") in calls, calls
+    assert not any("0.00" in str(c[1]) for c in calls if len(c) > 1), calls
+
+
 def test_validatiesectie_geeft_de_discriminator_door() -> None:
     """De gedeelde renderer moet het volledige genormaliseerde dict krijgen.
 

@@ -22,7 +22,11 @@ from database.definitie_repository import (
     SourceType,
     Unset,
 )
-from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
+from domain.context.normalisatie import (
+    canoniseer_contextlijst,
+    contextsleutel,
+    lees_contextwaarden,
+)
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -121,13 +125,18 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # Maak nieuwe
             # Converteer Definition naar DefinitieRecord
             record = self._definition_to_record(definition)
-            # Bypass duplicate guard indien expliciet toegestaan via metadata
+            # Bypass duplicate guard indien expliciet toegestaan via metadata.
+            # DEF-622 (besluit 5): de bijbehorende reden reist mee naar de
+            # audit; de DB-laag weigert een geforceerd duplicaat zonder reden.
             allow_duplicate = False
+            duplicate_reason: str | None = None
             try:
                 if definition.metadata and bool(
                     definition.metadata.get("force_duplicate")
                 ):
                     allow_duplicate = True
+                    reden = definition.metadata.get("force_duplicate_reason")
+                    duplicate_reason = reden if isinstance(reden, str) else None
             except (KeyError, TypeError, AttributeError) as e:
                 logger.debug(
                     f"force_duplicate check failed for '{definition.begrip}': {e}"
@@ -135,7 +144,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 allow_duplicate = False
 
             result_id = self.legacy_repo.create_definitie(
-                record, allow_duplicate=allow_duplicate
+                record,
+                allow_duplicate=allow_duplicate,
+                duplicate_reason=duplicate_reason,
             )
 
             if not result_id or result_id <= 0:
@@ -419,23 +430,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _contextwaarden(opgeslagen: Any) -> list[str]:
         """Lees een opgeslagen contextveld terug als losse waarden.
 
-        De kolom bevat een JSON-array. Zonder deze stap zou de string per teken
-        worden gesplitst (`'["DJI"]'` → `['"', '[', ']', 'd', 'i', 'j']`) — het
-        tweede defect uit DEF-672.
+        Dunne laag over de gedeelde lezer `lees_contextwaarden` (DEF-622), zodat
+        lookup, duplicaatcontrole en servicelaag dezelfde waarden zien.
         """
-        if not opgeslagen:
-            return []
-        if isinstance(opgeslagen, list):
-            return [str(waarde) for waarde in opgeslagen]
-        try:
-            geparsed = json.loads(opgeslagen)
-        except (json.JSONDecodeError, TypeError):
-            # Een vrije tekstwaarde uit oudere data is één contextwaarde,
-            # geen reeks tekens.
-            return [str(opgeslagen)]
-        if isinstance(geparsed, list):
-            return [str(waarde) for waarde in geparsed]
-        return [str(geparsed)]
+        return lees_contextwaarden(opgeslagen)
 
     def find_duplicates(self, definition: Definition) -> list[Definition]:
         """
