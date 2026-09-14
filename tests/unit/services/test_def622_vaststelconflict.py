@@ -909,26 +909,149 @@ class TestReviewversiebinding:
         soorten = [s for s, _ in _audit(repo, did)]
         assert soorten.count("status_changed") == 1
 
-    def test_binding_reist_mee_zonder_inhoudelijke_wijziging_en_vervalt_erna(
-        self, tmp_path
-    ):
-        """De binding volgt alleen versiebumps zonder schrijfactie op term,
-        tekst of context; een vervallen binding herleeft niet."""
+    @pytest.mark.parametrize(
+        "update",
+        [
+            {"validation_score": 0.95},
+            {"toelichting_proces": "synthetisch"},
+            {"categorie": "proces"},
+            {"ufo_categorie": "Kind"},
+            {"status": DefinitieStatus.DRAFT.value},
+            {"definitie": "kwaliteitsmerk dat Stichting Zilver verleent"},
+        ],
+        ids=[
+            "score",
+            "toelichting_proces",
+            "categorie",
+            "ufo",
+            "status_draft",
+            "tekst",
+        ],
+    )
+    def test_generieke_update_laat_de_beoordeling_vervallen(self, tmp_path, update):
+        """V2c (tweede deltareview): behoud is begrensd tot de toegestane
+        atomaire statusactie (vaststelling). Elke generieke recordwijziging —
+        ook zonder tekstwijziging — maakt de versiegebonden beoordeling
+        ongeldig; er is geen automatische verlengingsregel."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        _beoordeling(repo, did, "necessary")
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (2, 2)
+
+        assert repo.legacy_repo.update_definitie(did, dict(update))
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (2, 3)
+        gate = svc.preview_gate(did)
+        assert gate["status"] == "blocked"
+        assert any("versie" in r for r in gate["reasons"]), gate
+
+    def test_behoud_geldt_alleen_voor_de_vaststelling(self, tmp_path):
+        """Alleen `change_status(..., ESTABLISHED)` — de atomaire vaststel-
+        actie — neemt een geldig gebonden beoordeling mee; een generieke
+        statuswijziging via dezelfde persistentielaag doet dat niet."""
         svc, repo = _service(tmp_path)
         did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
         _beoordeling(repo, did, "necessary")
 
-        assert repo.legacy_repo.update_definitie(did, {"validation_score": 0.95})
-        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 3)
-        assert svc.preview_gate(did)["status"] == "pass"
-
-        # Tekst opnieuw geschreven (zelfde inhoud): de binding vervalt.
-        assert repo.legacy_repo.update_definitie(did, {"definitie": self.NAAMTEKST})
-        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 4)
+        # Generieke statusactie naar draft: geen behoud.
+        assert repo.legacy_repo.change_status(did, DefinitieStatus.DRAFT, ACTOR)
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (2, 3)
         assert svc.preview_gate(did)["status"] == "blocked"
-        # ... en herleeft niet bij een latere niet-inhoudelijke wijziging.
+
+        # Opnieuw beoordelen op de actuele versie en vaststellen: behoud.
+        _beoordeling(repo, did, "necessary")
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (4, 4)
+        assert repo.legacy_repo.change_status(
+            did, DefinitieStatus.REVIEW, ACTOR
+        )  # generiek: geen behoud
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (4, 5)
+        _beoordeling(repo, did, "necessary")
+        uitkomst = svc.approve(
+            did, ACTOR, user_role="reviewer", notes="", expected_version=6
+        )
+        assert uitkomst.success is True, uitkomst.error_message
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (7, 7)
+
+    @pytest.mark.parametrize(
+        "payloadversie", [True, 1.0, "1"], ids=["bool", "float", "tekst"]
+    )
+    def test_payloadversie_met_ongeldig_type_wordt_geweigerd(
+        self, tmp_path, payloadversie
+    ):
+        """V2b (tweede deltareview): numerieke gelijkheid volstaat niet —
+        `True`/`1.0` bij expected_version=1 zijn geen geldige versie en
+        worden vóór mutatie geweigerd."""
+        from domain.context.contract import beoordeel_context
+
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        rec = repo.get_definitie(did)
+        uitkomst = beoordeel_context(
+            rec.begrip, rec.get_definitie_tekst(), rec.get_contextlijsten()
+        )
+        naam = next(p for p in uitkomst.parts if p.evidence)
+        payload = {
+            "fingerprint": uitkomst.fingerprint,
+            "actor": ACTOR,
+            "version_number": payloadversie,
+            "decisions": {naam.id: {"function": "necessary", "reason": "Uitgever."}},
+        }
+        with pytest.raises(ValueError, match="versie"):
+            repo.set_context_review(did, payload, updated_by=ACTOR, expected_version=1)
+        assert _versie(repo, did) == 1
+        assert repo.get_definitie(did).get_context_review() is None
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+    def test_ongeldig_versietype_wordt_bij_vaststelling_niet_geldig_gestempeld(
+        self, tmp_path
+    ):
+        """V2b: een bewaarde marker met reviewversie `2.0` op recordversie 2
+        is geen geldige binding; de vaststelactie op de persistentielaag mag
+        haar niet als integer 3 overnemen."""
+        from database.models import CONTEXT_REVIEW_CODE
+        from domain.context.contract import beoordeel_context
+
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        rec = repo.get_definitie(did)
+        uitkomst = beoordeel_context(
+            rec.begrip, rec.get_definitie_tekst(), rec.get_contextlijsten()
+        )
+        naam = next(p for p in uitkomst.parts if p.evidence)
+        marker = {
+            "code": CONTEXT_REVIEW_CODE,
+            "rule_id": "CON-01",
+            "severity": "info",
+            "context_review": {
+                "fingerprint": uitkomst.fingerprint,
+                "actor": ACTOR,
+                "version_number": 2.0,
+                "decisions": {naam.id: {"function": "necessary", "reason": "Uitg."}},
+            },
+        }
+        # Marker 2.0 komt op recordversie 2 te staan: numeriek "gelijk".
+        assert repo.legacy_repo.update_definitie(
+            did, {"validation_issues": json.dumps([marker], ensure_ascii=False)}
+        )
+        assert _versie(repo, did) == 2
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+        # Generieke wijziging: de marker mag niet als integer 3 herleven.
         assert repo.legacy_repo.update_definitie(
             did, {"toelichting_proces": "synthetisch"}
         )
-        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 5)
+        assert _versie(repo, did) == 3
+        assert repo.get_definitie(did).get_context_review()["version_number"] == 2.0
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+        # Rechtstreeks op de persistentielaag vaststellen (zonder gate), met
+        # marker 3.0 op recordversie 3: ook de vaststelactie neemt een
+        # verkeerd getypeerde versie niet als integer mee.
+        marker["context_review"]["version_number"] = 4.0
+        assert repo.legacy_repo.update_definitie(
+            did, {"validation_issues": json.dumps([marker], ensure_ascii=False)}
+        )
+        assert _versie(repo, did) == 4
+        assert repo.legacy_repo.change_status(did, DefinitieStatus.ESTABLISHED, ACTOR)
+        assert _versie(repo, did) == 5
+        assert repo.get_definitie(did).get_context_review()["version_number"] == 4.0
         assert svc.preview_gate(did)["status"] == "blocked"

@@ -28,6 +28,16 @@ _IDENTITEITSVELDEN: tuple[str, ...] = (
 _BEOORDELINGSVELDEN: tuple[str, ...] = ("definitie", *_IDENTITEITSVELDEN)
 
 
+def _is_versienummer(waarde: Any) -> bool:
+    """Strikt een geheel versienummer: geen bool, float of tekst.
+
+    Numerieke gelijkheid volstaat niet — `True == 1` en `2.0 == 2` — terwijl
+    het contract (`domain.context.contract`) zulke waarden terecht als geen
+    versie leest (tweede deltareview V2b).
+    """
+    return isinstance(waarde, int) and not isinstance(waarde, bool)
+
+
 class Unset:
     """Type van de ``UNSET``-sentinel: parameter niet meegegeven (anders dan ``None``)."""
 
@@ -275,7 +285,7 @@ class DefinitieCrudRepository:
         Elke latere schrijfactie op term, tekst of context laat de binding
         vervallen; zie `update_definitie`.
         """
-        if isinstance(expected_version, bool) or not isinstance(expected_version, int):
+        if not _is_versienummer(expected_version):
             msg = (
                 "set_context_review vereist expected_version: de recordversie "
                 f"die de beoordelaar beoordeeld heeft (gekregen: {expected_version!r})"
@@ -303,6 +313,14 @@ class DefinitieCrudRepository:
                 )
                 raise ValueError(msg)
             meegegeven = review.get("version_number")
+            if meegegeven is not None and not _is_versienummer(meegegeven):
+                # Strikt type (tweede deltareview V2b): `True`/`1.0` zijn
+                # numeriek gelijk aan 1 maar geen geldige versie.
+                msg = (
+                    f"beoordeling draagt geen geldig versienummer "
+                    f"({meegegeven!r}); geweigerd vóór opslag"
+                )
+                raise ValueError(msg)
             if meegegeven is not None and meegegeven != expected_version:
                 msg = (
                     f"beoordeling hoort bij versie {meegegeven!r}, maar beoordeeld "
@@ -347,10 +365,11 @@ class DefinitieCrudRepository:
         """De `validation_issues`-JSON met de beoordeling op de nieuwe versie,
         of None wanneer er niets mee te nemen valt.
 
-        Alleen een beoordeling die nú aan de actuele recordversie gebonden is
-        groeit mee, en alleen bij een update die term, tekst en context niet
-        schrijft en `validation_issues` niet zelf zet. Een al vervallen
-        binding herleeft hier dus nooit (reviewbevinding E2).
+        Alleen een beoordeling die nú — met een strikt geheel versienummer —
+        aan de actuele recordversie gebonden is groeit mee, en alleen bij een
+        update die term, tekst en context niet schrijft en `validation_issues`
+        niet zelf zet. Een al vervallen of verkeerd getypeerde binding
+        herleeft hier dus nooit (reviewbevinding E2, tweede deltareview V2b).
         """
         if "validation_issues" in updates or any(
             veld in updates for veld in _BEOORDELINGSVELDEN
@@ -360,7 +379,7 @@ class DefinitieCrudRepository:
         if review is None:
             return None
         gebonden = review.get("version_number")
-        if isinstance(gebonden, bool) or gebonden != actueel.version_number:
+        if not _is_versienummer(gebonden) or gebonden != actueel.version_number:
             return None
         actueel.set_context_review(
             {**review, "version_number": actueel.version_number + 1}
@@ -420,8 +439,16 @@ class DefinitieCrudRepository:
         updates: dict[str, Any],
         updated_by: str | None = None,
         _skip_audit: bool = False,
+        _behoud_beoordeling: bool = False,
     ) -> bool:
-        """Update bestaande definitie."""
+        """Update bestaande definitie.
+
+        ``_behoud_beoordeling`` is voorbehouden aan de atomaire vaststelactie
+        (`change_status(..., ESTABLISHED)`): alleen dáár groeit een geldig
+        gebonden CON-01-beoordeling mee naar de nieuwe versie. Elke andere
+        wijziging — ook zonder tekstwijziging — laat de versiegebonden
+        beoordeling vervallen (tweede deltareview V2c).
+        """
         current = self.get_definitie(definitie_id)
         if not current:
             return False
@@ -512,12 +539,17 @@ class DefinitieCrudRepository:
                     eigen_id=definitie_id,
                 )
 
-            # DEF-622 (deltareview V2c): een versiebump zónder schrijfactie op
-            # term, tekst of context (statuswijziging, score, bron, ...) neemt
-            # de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar de
-            # nieuwe versie. Anders zou de vaststelling haar eigen, zojuist
+            # DEF-622 (deltareview V2c): uitsluitend de atomaire vaststelactie
+            # neemt de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar
+            # de nieuwe versie; anders zou de vaststelling haar eigen, zojuist
             # geldige beoordeling door de statusversiebump laten vervallen.
-            meegroeiend = self._meegroeiende_beoordeling(actueel, updates)
+            # Geen generieke verlengingsregel: elke andere update laat de
+            # versiegebonden beoordeling vervallen.
+            meegroeiend = (
+                self._meegroeiende_beoordeling(actueel, updates)
+                if _behoud_beoordeling
+                else None
+            )
             if meegroeiend is not None:
                 set_clauses.append("validation_issues = ?")
                 params.append(meegroeiend)
@@ -589,7 +621,13 @@ class DefinitieCrudRepository:
         # committen, zodat de statuswijziging en de audit-trail all-or-nothing zijn.
         with self._db.transaction():
             success = self.update_definitie(
-                definitie_id, updates, changed_by, _skip_audit=True
+                definitie_id,
+                updates,
+                changed_by,
+                _skip_audit=True,
+                # Alleen de vaststelling neemt een geldig gebonden CON-01-
+                # beoordeling mee (DEF-622, V2c); andere statusacties niet.
+                _behoud_beoordeling=new_status == DefinitieStatus.ESTABLISHED,
             )
 
             if success:
