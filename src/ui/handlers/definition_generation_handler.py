@@ -100,6 +100,10 @@ class DefinitionGenerationHandler:
         if afwijsreden:
             st.error(f"❌ Generatie geweigerd: {afwijsreden}.")
             logger.warning("Generatie geweigerd: ongeldig begrip (%s)", afwijsreden)
+            # DEF-622: ook een afgewezen aanvraag verbruikt de eenmalige
+            # force-opties; anders raken ze de volgende, geldige aanvraag
+            # (reviewbevinding D3).
+            self._wis_force_opties(_sm=SessionStateManager)
             return
         # Genormaliseerd doorgeven: consistente sleutels voor duplicate-check
         # en opslag (de allowlist staat rand-spaties toe, opslag hoort ze niet).

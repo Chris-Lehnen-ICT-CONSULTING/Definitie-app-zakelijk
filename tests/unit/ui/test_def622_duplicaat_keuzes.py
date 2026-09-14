@@ -188,6 +188,23 @@ class TestForceVlagPlaktNiet:
         assert "force_duplicate" not in opties
         assert "force_duplicate_reason" not in opties
 
+    def test_na_geweigerd_begrip(self, sessie):
+        """Reviewbevinding: de vroege afwijzing van een ongeldig begrip liet
+        de force-opties staan en raakte zo de volgende, geldige aanvraag."""
+        self._sessie_met_force()
+        service = MagicMock()
+        self._handler(service).handle_definition_generation(
+            "12345",  # geen letter: afgewezen vóór generatie
+            {"organisatorische_context": ["Stichting Zilver"]},
+            _st=self._fake_st(),
+            _sm=SessionStateManager,
+        )
+        service.generate_definition.assert_not_called()
+        opties = SessionStateManager.get_value("generation_options")
+        assert "force_generate" not in opties
+        assert "force_duplicate" not in opties
+        assert "force_duplicate_reason" not in opties
+
 
 async def _coro(waarde: Any) -> Any:
     return waarde

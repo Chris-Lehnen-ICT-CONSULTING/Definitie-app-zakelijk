@@ -22,6 +22,7 @@ from database.definitie_repository import (
     SourceType,  # Data modellen en enums
     get_definitie_repository,  # Repository toegang en factory
 )
+from domain.context.normalisatie import contextsleutel
 from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
 
 # Integrated service imports verplaatst naar functie niveau om circulaire imports te voorkomen
@@ -166,20 +167,14 @@ class DefinitieChecker:
             ),  # Categorie is onderdeel van unieke key
             wettelijke_basis=wettelijke_basis,
         )
-        # Extra filtering: vereis ook match op wettelijke_basis (lijst, order-onafhankelijk)
-        if existing:
-            try:
-
-                def _norm(lst: list[str] | None) -> tuple[str, ...]:
-                    return tuple(sorted([str(x).strip().lower() for x in (lst or [])]))
-
-                if _norm(existing.get_wettelijke_basis_list()) != _norm(
-                    wettelijke_basis or []
-                ):
-                    existing = None
-            except Exception as e:
-                # Als er iets misgaat met parsing, behandel als geen exacte match
-                logger.debug(f"Exact match check failed for '{begrip}': {e}")
+        # Defensieve nacontrole op wettelijke basis, met dezelfde normalisatie
+        # als de repository (DEF-622). Een eigen `strip().lower()`-variant
+        # liet hier een door de repository gevonden record weer vallen bij
+        # herhaalde/lege waarden of Unicode-casefold (reviewbevinding D1).
+        if existing and contextsleutel(
+            existing.get_wettelijke_basis_list()
+        ) != contextsleutel(wettelijke_basis or []):
+            existing = None
         if existing:
             return self._handle_exact_match(existing, search_term=begrip)
 
@@ -193,23 +188,16 @@ class DefinitieChecker:
             ),  # Categorie is onderdeel van unieke key
             wettelijke_basis=wettelijke_basis,
         )
-        # Extra filtering op wettelijke_basis
+        # Dezelfde nacontrole voor de duplicaatlijst (zie hierboven).
         if duplicates:
-            try:
-
-                def _norm(lst: list[str] | None) -> tuple[str, ...]:
-                    return tuple(sorted([str(x).strip().lower() for x in (lst or [])]))
-
-                wb_norm = _norm(wettelijke_basis or [])
-                duplicates = [
-                    d
-                    for d in duplicates
-                    if hasattr(d.definitie_record, "get_wettelijke_basis_list")
-                    and _norm(d.definitie_record.get_wettelijke_basis_list()) == wb_norm
-                ]
-            except Exception as e:
-                # Fallback: laat duplicates ongewijzigd
-                logger.debug(f"Duplicate filtering failed for '{begrip}': {e}")
+            wb_sleutel = contextsleutel(wettelijke_basis or [])
+            duplicates = [
+                d
+                for d in duplicates
+                if hasattr(d.definitie_record, "get_wettelijke_basis_list")
+                and contextsleutel(d.definitie_record.get_wettelijke_basis_list())
+                == wb_sleutel
+            ]
         if duplicates:
             return self._handle_duplicates(duplicates)
 

@@ -59,6 +59,17 @@ class DefinitieCrudRepository:
         # DEF-198: Clean architecture - import from utils/, callback registered by UI
         from utils.progress_callback import operation_progress
 
+        # Alleen betekenisvolle tekst is een auditreden; een ander type
+        # (bytes, getal, lijst) is een programmeerfout en wordt geweigerd vóór
+        # het record wordt aangeraakt (reviewbevinding D4).
+        if duplicate_reason is not None and not isinstance(duplicate_reason, str):
+            msg = (
+                "duplicate_reason moet tekst zijn (auditreden), niet "
+                f"{type(duplicate_reason).__name__}"
+            )
+            raise ValueError(msg)
+        reden = (duplicate_reason or "").strip()
+
         with operation_progress("saving_to_database"):
             now = datetime.now(UTC)
             record.created_at = now
@@ -67,7 +78,6 @@ class DefinitieCrudRepository:
             wb_value = (
                 record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
             )
-            reden = (duplicate_reason or "").strip()
 
             # DEF-391: INSERT + audit-log atomair (all-or-nothing).
             # DEF-482/DEF-483: de duplicaatcontrole draait binnen dezelfde

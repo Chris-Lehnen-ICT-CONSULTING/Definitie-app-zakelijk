@@ -53,7 +53,9 @@ def lees_contextwaarden(opgeslagen: Any) -> list[str]:
     if opgeslagen is None:
         return []
     if isinstance(opgeslagen, list | tuple | set | frozenset):
-        return [str(waarde) for waarde in opgeslagen]
+        # Een ontbrekende waarde (None) is geen contextwaarde — en zeker niet
+        # de tekst "None". Dezelfde keuze als `canoniseer_contextlijst`.
+        return [str(waarde) for waarde in opgeslagen if waarde is not None]
     tekst = str(opgeslagen)
     if not tekst.strip():
         return []
@@ -63,7 +65,7 @@ def lees_contextwaarden(opgeslagen: Any) -> list[str]:
         # Een vrije tekstwaarde uit oudere data is één contextwaarde.
         return [tekst]
     if isinstance(geparsed, list):
-        return [str(waarde) for waarde in geparsed]
+        return [str(waarde) for waarde in geparsed if waarde is not None]
     if geparsed is None:
         return []
     return [str(geparsed)]

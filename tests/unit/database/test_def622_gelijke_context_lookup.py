@@ -216,3 +216,42 @@ def test_bewust_nieuw_concept_vereist_reden_en_laat_bestaand_record_ongemoeid(re
 
     # Zonder duplicaat is een reden niet nodig: er valt niets te verantwoorden.
     assert repo.create_definitie(_record(begrip="waarmerk"), allow_duplicate=True)
+
+
+@pytest.mark.parametrize("reden", [b"x", b"\x00", 42, ["reden"], {"r": 1}])
+def test_ongeldige_reden_wordt_geweigerd_voor_mutatie(repo, reden):
+    """Reviewbevinding: alleen betekenisvolle tekst is een auditreden."""
+    repo.create_definitie(_record())
+    record = _record(definitie="nieuw concept")
+    with pytest.raises(ValueError, match="reden"):
+        repo.create_definitie(record, allow_duplicate=True, duplicate_reason=reden)
+    # Niets gemuteerd of geschreven.
+    assert record.created_at is None
+    assert [
+        m.definitie_record.definitie
+        for m in repo.find_duplicates(
+            "keurmerk", ORG, JUR, wettelijke_basis=["Regeling Z"]
+        )
+    ] == ["kwaliteitsmerk voor gecontroleerde producten"]
+
+
+def test_lookup_vindt_record_met_opgeslagen_null_in_contextlijst(repo):
+    """Reviewbevinding: een JSON-null in een opgeslagen lijst is geen waarde 'None'."""
+    conn = repo._db.get_connection()
+    conn.execute(
+        "INSERT INTO definities (begrip, definitie, categorie, organisatorische_context, "
+        "juridische_context, wettelijke_basis, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            "keurmerk",
+            "tekst",
+            "type",
+            '["Stichting Zilver", null]',
+            '[null, "privaatrecht"]',
+            '["Regeling Z", null]',
+            DefinitieStatus.DRAFT.value,
+        ),
+    )
+    gevonden = repo.find_definitie(
+        "keurmerk", '["Stichting Zilver"]', JUR, wettelijke_basis=["Regeling Z"]
+    )
+    assert gevonden is not None and gevonden.definitie == "tekst"
