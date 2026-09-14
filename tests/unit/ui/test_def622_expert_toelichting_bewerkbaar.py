@@ -50,10 +50,12 @@ def sessie(monkeypatch):
     return st.session_state
 
 
-def _record(repo: DefinitieRepository, *, definitie: str) -> DefinitieRecord:
+def _record(
+    repo: DefinitieRepository, *, definitie: str, begrip: str = "Zilverkeurmerk"
+) -> DefinitieRecord:
     did = repo.create_definitie(
         DefinitieRecord(
-            begrip="Zilverkeurmerk",
+            begrip=begrip,
             definitie=definitie,
             categorie="type",
             organisatorische_context='["Stichting Zilver"]',
@@ -168,6 +170,82 @@ def test_zin_en_toelichting_samen_bewerkt_worden_beide_opgeslagen(repo, sessie):
     na = repo.get_definitie(rec.id)
     assert na.definitie == f"{NIEUWE_ZIN}{TOELICHTING_SCHEIDING} {NIEUWE_TOELICHTING}"
     assert na.get_definitie_tekst() == NIEUWE_ZIN
+
+
+def test_na_opslag_is_de_vergelijkingsbasis_het_opgeslagen_record(repo, sessie):
+    """Reviewrepro (v2): A → B opslaan → veld terug naar A → nogmaals opslaan.
+    De tweede opslag moet A wegschrijven. Dat kan alleen als de getoonde
+    selectie na de eerste opslag uit een echte readback komt; tegen het oude
+    record lijkt A 'ongewijzigd' en blijft de DB op B staan."""
+    rec = _record(repo, definitie=f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}")
+    SessionStateManager.set_value("selected_review_definition", rec)
+
+    # Eerste opslag: A → B.
+    SessionStateManager.set_value(f"edited_toelichting_{rec.id}", NIEUWE_TOELICHTING)
+    with patch("ui.components.expert_review_tab.st", _mock_st()):
+        ExpertReviewTab(repo)._submit_review(
+            rec, "📝 Wijzigingen Vereist", "", "synthetische-expert"
+        )
+    assert repo.get_definitie(rec.id).definitie == (
+        f"{ZIN}{TOELICHTING_SCHEIDING} {NIEUWE_TOELICHTING}"
+    )
+    basis = SessionStateManager.get_value("selected_review_definition")
+    assert basis.definitie == f"{ZIN}{TOELICHTING_SCHEIDING} {NIEUWE_TOELICHTING}"
+    assert basis.version_number == repo.get_definitie(rec.id).version_number
+
+    # Volgende rerun: de expert zet het veld terug naar A.
+    m = _mock_st({f"edit_toel_{rec.id}": TOELICHTING})
+    with patch("ui.components.expert_review_tab.st", m):
+        ExpertReviewTab(repo)._render_comparison_view(basis)
+    assert SessionStateManager.get_value(f"edited_toelichting_{rec.id}") == TOELICHTING
+
+    # Tweede opslag: B → A.
+    with patch("ui.components.expert_review_tab.st", _mock_st()):
+        ExpertReviewTab(repo)._submit_review(
+            basis, "📝 Wijzigingen Vereist", "", "synthetische-expert"
+        )
+    na = repo.get_definitie(rec.id)
+    assert na.definitie == f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}"
+    assert na.get_definitie_tekst() == ZIN
+
+
+def test_mislukte_opslag_ververst_niets_en_verwerkt_geen_besluit(repo, sessie):
+    rec = _record(repo, definitie=f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}")
+    SessionStateManager.set_value("selected_review_definition", rec)
+    SessionStateManager.set_value(f"edited_toelichting_{rec.id}", NIEUWE_TOELICHTING)
+    m = _mock_st()
+    tab = ExpertReviewTab(repo)
+    with (
+        patch("ui.components.expert_review_tab.st", m),
+        patch.object(tab.repository, "update_definitie", return_value=False) as upd,
+    ):
+        tab._submit_review(rec, "📝 Wijzigingen Vereist", "notitie", "expert")
+
+    # Eén poging (de veldwijziging); geen tweede update voor approval_notes.
+    assert upd.call_count == 1
+    assert any(
+        "niet worden opgeslagen" in str(c.args[0]) for c in m.error.call_args_list
+    )
+    assert not m.warning.called
+    # De selectie is niet vervangen alsof de opslag slaagde.
+    assert SessionStateManager.get_value("selected_review_definition") is rec
+
+
+def test_refresh_raakt_geen_ander_geselecteerd_record(repo, sessie):
+    rec = _record(repo, definitie=f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}")
+    ander = _record(repo, definitie="Ander record.", begrip="Goudkeurmerk")
+    SessionStateManager.set_value("selected_review_definition", ander)
+    SessionStateManager.set_value(f"edited_toelichting_{rec.id}", NIEUWE_TOELICHTING)
+    with patch("ui.components.expert_review_tab.st", _mock_st()):
+        ExpertReviewTab(repo)._submit_review(
+            rec, "📝 Wijzigingen Vereist", "", "synthetische-expert"
+        )
+
+    # Opslag van rec is gebeurd, maar de selectie van het andere record blijft.
+    assert repo.get_definitie(rec.id).definitie == (
+        f"{ZIN}{TOELICHTING_SCHEIDING} {NIEUWE_TOELICHTING}"
+    )
+    assert SessionStateManager.get_value("selected_review_definition") is ander
 
 
 def test_geleegde_toelichting_wordt_verwijderd_en_zin_blijft(repo, sessie):

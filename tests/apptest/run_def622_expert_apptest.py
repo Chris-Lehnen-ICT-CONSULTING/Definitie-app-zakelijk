@@ -338,6 +338,28 @@ def main(db_pad: str) -> dict:
         assert not at.exception, [str(e.value) for e in at.exception]
         toelichting_bewerking["teksten_na"] = _teksten(at)
     toelichting_bewerking["rij_na"] = _rij(db_pad, toel_id)
+
+    # 7b. Reviewrepro (v2): na de eerste opslag het veld terugzetten naar de
+    # oorspronkelijke toelichting en nogmaals opslaan → de DB moet A bevatten;
+    # de getoonde selectie is dan de opgeslagen versie (echte readback).
+    if toelichting_bewerking["toelichtingsveld_aanwezig"]:
+        toelichting_bewerking["selectie_na_eerste_opslag"] = getattr(
+            _ss(at, "selected_review_definition"), "definitie", None
+        )
+        at.text_area(key=f"edit_toel_{toel_id}").input(GOUD_TOELICHTING).run()
+        assert not at.exception, [str(e.value) for e in at.exception]
+        toelichting_bewerking["gemarkeerd_na_terugzetten"] = _ss(
+            at, f"edited_toelichting_{toel_id}"
+        )
+        at.button(key=f"submit_{toel_id}").click().run()
+        assert not at.exception, [str(e.value) for e in at.exception]
+        toelichting_bewerking["veld_na_tweede_opslag"] = str(
+            at.text_area(key=f"edit_toel_{toel_id}").value
+        )
+        toelichting_bewerking["selectie_na_tweede_opslag"] = getattr(
+            _ss(at, "selected_review_definition"), "definitie", None
+        )
+    toelichting_bewerking["rij_na_terugzetten"] = _rij(db_pad, toel_id)
     waarnemingen["toelichting_bewerking"] = toelichting_bewerking
     return waarnemingen
 

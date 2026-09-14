@@ -1302,9 +1302,15 @@ class ExpertReviewTab:
             # Update alles in één keer indien er wijzigingen zijn
             if updates:
                 # DEF-439: definitie.id is int at runtime (loaded record)
-                self.repository.update_definitie(
+                opgeslagen = self.repository.update_definitie(
                     cast(int, definitie.id), updates, reviewer
                 )
+                if not opgeslagen:
+                    # Niets doen alsof de opslag slaagde: geen refresh van de
+                    # selectie, geen besluitverwerking op een niet-opgeslagen
+                    # tekst.
+                    st.error("❌ Wijzigingen konden niet worden opgeslagen")
+                    return
 
             # Process decision
             if "Goedkeuren" in decision:
@@ -1354,6 +1360,9 @@ class ExpertReviewTab:
                                     else ""
                                 )
                             )
+                        # De veldwijzigingen zijn wél opgeslagen; de selectie
+                        # blijft in beeld en moet die opgeslagen versie zijn.
+                        self._ververs_selectie_na_opslag(definitie)
                 except Exception as se:
                     st.error(f"❌ Gate-workflow fout: {se!s}")
 
@@ -1366,6 +1375,12 @@ class ExpertReviewTab:
                     reviewer,
                 )
                 st.warning("⚠️ Wijzigingen gemarkeerd - definitie blijft in review")
+                # Reviewbevinding 3 (v2): de getoonde selectie — en daarmee de
+                # vergelijkingsbasis van de bewerkvelden — is na de opslag de
+                # opgeslagen versie uit een echte readback. Anders lijkt een
+                # terugzetting naar de oorspronkelijke tekst 'ongewijzigd' tegen
+                # het oude record en gaat een tweede opslag verloren.
+                self._ververs_selectie_na_opslag(definitie)
 
             elif "Afwijzen" in decision:
                 # Lazy import: UI-laaggrens verbiedt top-level database-imports
@@ -1386,9 +1401,26 @@ class ExpertReviewTab:
                     st.rerun()
                 else:
                     st.error("❌ Kon definitie niet afwijzen")
+                    # Zelfde reden als bij een geblokkeerde goedkeuring.
+                    self._ververs_selectie_na_opslag(definitie)
 
         except Exception as e:
             st.error(f"❌ Fout bij review submission: {e!s}")
+
+    def _ververs_selectie_na_opslag(self, definitie: DefinitieRecord) -> None:
+        """Vervang de getoonde selectie door het opgeslagen record (echte
+        readback, actuele versie na alle updates). Alleen het geselecteerde
+        record wordt ververst; er wordt geen widgetwaarde overschreven — de
+        bewerkvelden herberekenen hun markering op de volgende rerun tegen
+        deze basis."""
+        if definitie.id is None:
+            return
+        geselecteerd = SessionStateManager.get_value("selected_review_definition")
+        if geselecteerd is None or getattr(geselecteerd, "id", None) != definitie.id:
+            return
+        vers = self.repository.get_definitie(definitie.id)
+        if vers is not None:
+            SessionStateManager.set_value("selected_review_definition", vers)
 
     def _save_review_draft(
         self, definitie: DefinitieRecord, decision: str, comments: str

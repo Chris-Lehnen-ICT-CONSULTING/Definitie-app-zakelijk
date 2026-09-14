@@ -210,3 +210,24 @@ def test_bestaande_toelichting_apart_bewerkbaar_en_opgeslagen(waarnemingen):
     assert na["definitie"] == f"{GOUD_ZIN}{SCHEIDING} {GOUD_TOELICHTING_NIEUW}"
     assert na["status"] == "review"
     assert na["updated_by"] == REVIEWER
+
+
+def test_terugzetten_na_eerste_opslag_wordt_bij_tweede_opslag_bewaard(waarnemingen):
+    """Reviewrepro (v2), echte AppTest: A → B opslaan → veld terug naar A →
+    nogmaals opslaan. De getoonde selectie is na elke opslag de opgeslagen
+    versie (echte readback), zodat het terugzetten als wijziging telt en de
+    tweede opslag A wegschrijft; UI en SQLite tonen hetzelfde."""
+    tb = waarnemingen["toelichting_bewerking"]
+    assert tb["toelichtingsveld_aanwezig"] is True
+    # Na de eerste opslag is de selectie het opgeslagen record (B).
+    assert tb["selectie_na_eerste_opslag"] == (
+        f"{GOUD_ZIN}{SCHEIDING} {GOUD_TOELICHTING_NIEUW}"
+    )
+    # Terugzetten naar A telt als wijziging t.o.v. de opgeslagen versie.
+    assert tb["gemarkeerd_na_terugzetten"] == GOUD_TOELICHTING
+    # Tweede opslag: UI en DB tonen A; de selectie is opnieuw ververst.
+    assert tb["veld_na_tweede_opslag"] == GOUD_TOELICHTING
+    terug = tb["rij_na_terugzetten"]
+    assert terug["definitie"] == f"{GOUD_ZIN}{SCHEIDING} {GOUD_TOELICHTING}"
+    assert tb["selectie_na_tweede_opslag"] == terug["definitie"]
+    assert terug["status"] == "review"
