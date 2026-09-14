@@ -154,11 +154,12 @@ def svc(request) -> ModularValidationService:
 
 
 async def _resultaat_voor(svc, case: dict) -> dict:
+    # DEF-622: een case mag recordcontext meegeven (CON-01 leest die).
     return await svc.validate_definition(
         begrip=case.get("begrip", "begrip"),
         text=_tekst_van(case),
         ontologische_categorie=case.get("categorie"),
-        context={},
+        context=dict(case.get("context") or {}),
     )
 
 
@@ -179,15 +180,25 @@ def _beschikbare_invoer(case: dict) -> set[str]:
 
     Spiegelt `ModularValidationService._available_inputs` voor de argumenten
     die deze runner meegeeft: tekst en begrip altijd, categorie alleen als de
-    case er een noemt, en géén repository of contextlijsten. Bewust hier
-    uitgeschreven en niet uit de service geleend — dat laatste zou de
-    verwachting met de implementatie mee laten bewegen.
+    case er een noemt, contextlijsten alleen als de case ze meegeeft, en géén
+    repository. Bewust hier uitgeschreven en niet uit de service geleend —
+    dat laatste zou de verwachting met de implementatie mee laten bewegen.
     """
     beschikbaar = {"definition_text"}
     if str(case.get("begrip", "begrip")).strip():
         beschikbaar.add("term")
     if case.get("categorie"):
         beschikbaar.add("ontological_category")
+    context = case.get("context") or {}
+    if any(
+        context.get(veld)
+        for veld in (
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+        )
+    ):
+        beschikbaar.add("context_lists")
     return beschikbaar
 
 

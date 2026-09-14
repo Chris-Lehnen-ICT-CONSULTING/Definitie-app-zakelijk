@@ -7,7 +7,10 @@
 #   required_fields:  velden waarop de failure branch steunt
 #   positief/negatief/grens (bij automatisch): begrip, tekst,
 #     optioneel categorie, verwacht_in_melding, verwacht (grens),
-#     tekst_herhaal: {token, n} voor lengtecases
+#     tekst_herhaal: {token, n} voor lengtecases,
+#     context: {organisatorische_context|juridische_context|
+#       wettelijke_basis: [...]} voor regels die recordcontext lezen
+#       (DEF-622: CON-01 faalt zonder context — B-01)
 #   probe (bij niet-automatisch): sterkst denkbare poging de regel te
 #     laten afgaan; de runner bewijst dat er dan géén violation komt.
 #
@@ -206,16 +209,25 @@ ARAI-06:
     verwacht: geen_violation
 
 CON-01:
-  required_fields: [herkenbaar_patronen]
+  # DEF-622: geen patroonlijst meer; de regel leest de recordcontext.
+  required_fields: []
   negatief:
+    # B-01: zonder enige contextwaarde bij het record voldoet de definitie niet.
     begrip: afspraak
-    tekst: "afspraak die in de context van toezicht geldt"
+    tekst: "afspraak: schriftelijke overeenkomst tussen partijen"
+    verwacht_in_melding: "geen organisatorische context"
   positief:
     begrip: afspraak
     tekst: "afspraak: schriftelijke overeenkomst tussen partijen"
+    context:
+      organisatorische_context: [Stichting Zilver]
   grens:
+    # B-04: een geselecteerde naam in de zin is een beoordelingssignaal
+    # (review_required), geen automatische violation.
     begrip: afspraak
-    tekst: "afspraak: overeenkomst met contextafhankelijke inhoud"
+    tekst: "afspraak: overeenkomst die Stichting Zilver toekent"
+    context:
+      organisatorische_context: [Stichting Zilver]
     verwacht: geen_violation
 
 CON-02:

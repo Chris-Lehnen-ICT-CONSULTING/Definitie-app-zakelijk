@@ -680,6 +680,7 @@ class ModularValidationService:
             "passed_rules": [],
             "detailed_scores": {},
             "rule_statuses": {},
+            "rule_results": {},
             "evaluation_coverage": {
                 "evaluated": 0,
                 "passed": 0,
@@ -976,16 +977,29 @@ class ModularValidationService:
         # DEF-606/DEF-624: regels met scorepolicy 'excluded_from_score'
         # declareren zelf dat ze niet meewegen; dat is dezelfde uitkomst als de
         # bestaande ARAI-/baseline-nullering, maar nu uit het contract i.p.v.
-        # uit een prefixvergelijking.
+        # uit een prefixvergelijking. DEF-622: 'no_score' weegt evenmin mee,
+        # maar met een ander gevolg — zie `zonder_cijfer` hieronder.
         for code, record in state.rule_records.items():
-            if record.score_policy is ScorePolicy.EXCLUDED_FROM_SCORE:
+            if record.score_policy is not ScorePolicy.SCORED:
                 weights[code] = 0.0
+
+        # DEF-622 (B-06): een regel zonder cijfer maakt de totaalscore
+        # onbeschikbaar. Er is geen productbesluit over een noemer zónder die
+        # regel, dus de score wordt niet over "de rest" berekend en het
+        # ontbrekende cijfer wordt nergens als 0 of 1 ingevuld.
+        zonder_cijfer = sorted(
+            code
+            for code in state.internal_rules
+            if (record := state.rule_records.get(code)) is not None
+            and record.score_policy is ScorePolicy.NO_SCORE
+        )
 
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []
         passed_rules: list[str] = []
         rule_statuses: dict[str, str] = {}
         review_items: list[dict[str, Any]] = []
+        rule_results: dict[str, dict[str, Any]] = {}
 
         # DEF-244: begrip is now in eval_ctx.begrip (thread-safe)
         for code in sorted(state.internal_rules):
@@ -1001,6 +1015,8 @@ class ModularValidationService:
                     passed_rules=passed_rules,
                     rule_statuses=rule_statuses,
                     review_items=review_items,
+                    rule_results=rule_results,
+                    geen_cijfer=code in zonder_cijfer,
                 )
             # Support both (score, violation) tuple and dict-like outputs (for tests that patch the method)
             elif isinstance(out, tuple):
@@ -1049,7 +1065,7 @@ class ModularValidationService:
         # DEF-244: begrip cleanup removed - now in eval_ctx (immutable, thread-safe)
 
         # 5) Aggregatie (gewogen) en afronding
-        overall = calculate_weighted_score(rule_scores, weights)
+        overall: float | None = calculate_weighted_score(rule_scores, weights)
 
         # Quality band scaling: gently penalize very short/very long texts to
         # avoid saturating at 1.0 for minimale/overdadige gevallen. Calibrated
@@ -1081,6 +1097,12 @@ class ModularValidationService:
             scale = 0.9
 
         overall = round(overall * scale, 2)
+
+        # DEF-622: totaalscore niet beschikbaar zolang een regel zonder cijfer
+        # in de set zit. Bewust ná de berekening hierboven en niet ervoor:
+        # de uitkomst is 'niet beschikbaar', niet 'de score over de rest'.
+        if zonder_cijfer:
+            overall = None
 
         # Extra heuristics (language/structure) to align with golden expectations
         try:
@@ -1143,6 +1165,11 @@ class ModularValidationService:
             detailed = self._calculate_category_scores(
                 rule_scores, default_value=overall
             )
+            # DEF-622: de categorie waarin een regel zonder cijfer valt heeft
+            # evenmin een cijfer — een gemiddelde zonder die regel zou dezelfde
+            # verzonnen noemer zijn als bij de totaalscore.
+            for code in zonder_cijfer:
+                detailed[category_for_rule(code)] = None
         except (TypeError, ValueError, ZeroDivisionError) as e:
             # DEF-231: Conservatieve fallback bij categorie-berekening fout
             logger.warning(
@@ -1191,7 +1218,10 @@ class ModularValidationService:
                 },
             )
             acceptance_gate = {
-                "acceptable": determine_acceptability(overall, self._overall_threshold),
+                "acceptable": (
+                    overall is not None
+                    and determine_acceptability(overall, self._overall_threshold)
+                ),
                 "gates_passed": [],
                 "gates_failed": [],
                 "thresholds": {
@@ -1220,7 +1250,9 @@ class ModularValidationService:
 
         has_blockers = _has_blocking_errors(violations)
         # Soft floor: score >= 0.60 zonder blocking errors (0.60 = acceptabel minimaal)
-        soft_ok = (overall >= 0.60) and (not has_blockers)
+        # DEF-622: zonder totaalscore is er geen soft floor — een drempel die
+        # niet toetsbaar is, is niet gehaald.
+        soft_ok = overall is not None and overall >= 0.60 and not has_blockers
         # Blocking errors overrulen de acceptance gate
         gate_ok = bool(acceptance_gate.get("acceptable", False)) and (not has_blockers)
         is_ok = gate_ok or soft_ok
@@ -1250,6 +1282,21 @@ class ModularValidationService:
             is_ok = False
             blokkades.append(
                 ("evaluation_error", f"evaluatiefout in {dekking['error']} regel(s)")
+            )
+
+        # DEF-622: geen totaalscore betekent dat de scoredrempel niet toetsbaar
+        # is. Dat is fail-closed een blokkade, geen vrijstelling: de bestaande
+        # score-eis wordt niet stil verwijderd. De algemene herdefinitie van
+        # de vaststelgate zonder totaalscore is DEF-630.
+        if overall is None:
+            is_ok = False
+            blokkades.append(
+                (
+                    "overall_score_unavailable",
+                    "totaalscore niet beschikbaar: regel(s) zonder cijfer "
+                    + ", ".join(zonder_cijfer)
+                    + "; de scoredrempel is niet toetsbaar (DEF-622/DEF-630)",
+                )
             )
 
         # DEF-674: een gevonden duplicaat blokkeert de acceptatie. DUP_01 valt
@@ -1298,6 +1345,11 @@ class ModularValidationService:
             "rule_statuses": rule_statuses,
             "evaluation_coverage": dekking,
             "review_required": review_items,
+            # DEF-622: gestructureerde deeluitkomsten van regels zonder cijfer
+            # (CON-01): status, vingerafdruk en onderdelen met aanleiding,
+            # reden en vervolgstap. Altijd aanwezig, zodat een consument niet
+            # hoeft te raden of het veld ontbreekt of leeg is.
+            "rule_results": rule_results,
             # DEF-215: Include degraded mode metadata for UI transparency
             "system": {
                 "correlation_id": correlation_id,
@@ -1528,6 +1580,8 @@ class ModularValidationService:
         passed_rules: list[str],
         rule_statuses: dict[str, str],
         review_items: list[dict[str, Any]],
+        rule_results: dict[str, dict[str, Any]] | None = None,
+        geen_cijfer: bool = False,
     ) -> None:
         """Boek één regeluitkomst in score, violations en dekking.
 
@@ -1535,17 +1589,32 @@ class ModularValidationService:
         wegen dus mee in de kwaliteitsscore. `review_required`,
         `not_evaluated` en `error` vallen uit de noemer — ze worden nooit
         stil als 1,0 meegeteld en verschijnen apart in de evaluatiedekking.
+
+        DEF-622: een regel zonder cijfer (`geen_cijfer`) boekt nooit een
+        score, ook niet bij pass of fail; haar gestructureerde uitkomst
+        (`metadata["rule_result"]`) landt in `rule_results`. Een technische
+        fout op zo'n regel krijgt daar een apart herkenbaar foutonderdeel,
+        zonder interne details als normuitleg (B-08).
         """
         rule_statuses[code] = outcome.status.value
 
+        if rule_results is not None and geen_cijfer:
+            detail = outcome.metadata.get("rule_result")
+            if isinstance(detail, dict):
+                rule_results[code] = dict(detail)
+            elif outcome.status is ResultStatus.ERROR:
+                rule_results[code] = self._technische_fout_uitkomst()
+
         if outcome.status is ResultStatus.PASS:
-            rule_scores[code] = 1.0 if outcome.score is None else outcome.score
+            if not geen_cijfer:
+                rule_scores[code] = 1.0 if outcome.score is None else outcome.score
             passed_rules.append(code)
             return
 
         if outcome.status is ResultStatus.FAIL:
             score, violation = self._outcome_naar_violation(code, ctx, outcome, state)
-            rule_scores[code] = score
+            if not geen_cijfer:
+                rule_scores[code] = score
             if violation is not None:
                 violations.append(violation)
             else:
@@ -1868,7 +1937,13 @@ class ModularValidationService:
                 "Herschrijf naar één compacte zin; vermijd 'en/maar/of' en bijzinnen."
             )
         if c == "CON-01":
-            return "Noem de context niet expliciet; formuleer context-neutraal."
+            # DEF-622 (B-02): registratiecontext hoort buiten de zin; een
+            # inhoudelijk noodzakelijke naam mag blijven staan.
+            return (
+                "Leg de registratiecontext bij het record vast, niet in de "
+                "definitiezin; alleen een naam die nodig is om het begrip af te "
+                "bakenen mag blijven staan."
+            )
         if c == "ESS-02":
             return "Maak de ontologische categorie expliciet (type/particulier/proces/resultaat)."
 
@@ -1908,9 +1983,43 @@ class ModularValidationService:
             code, rule, text, ctx, reason=reason, details=details
         )
 
+    @staticmethod
+    def _technische_fout_uitkomst() -> dict[str, Any]:
+        """Het `rule_results`-blok voor een regel zonder cijfer die crashte.
+
+        B-08: een technische fout is geen inhoudelijk 'Voldoet niet' en wordt
+        apart getoond, zonder interne foutdetails als normuitleg. De
+        technische oorzaak staat in het log (`_evaluate_via_registry`).
+        """
+        return {
+            "status": ResultStatus.ERROR.value,
+            "score": None,
+            "contract_version": None,
+            "fingerprint": None,
+            "parts": [
+                {
+                    "id": "uitvoering",
+                    "status": ResultStatus.ERROR.value,
+                    "evidence": None,
+                    "context_value": None,
+                    "field": None,
+                    "position": None,
+                    "reason": (
+                        "Dit onderdeel kon niet worden gecontroleerd. De "
+                        "beoordeling is nog onvolledig."
+                    ),
+                    "action": (
+                        "Controleer opnieuw. Blijft dit terugkomen, meld het dan "
+                        "als technisch probleem."
+                    ),
+                }
+            ],
+            "review": None,
+        }
+
     def _calculate_category_scores(
-        self, rule_scores: dict[str, float], default_value: float
-    ) -> dict[str, float]:
+        self, rule_scores: dict[str, float], default_value: float | None
+    ) -> dict[str, float | None]:
         """Bereken echte categorie-scores op basis van rule_scores en regelprefix.
 
         Categorieën: taal (ARAI/VER), juridisch (ESS/VAL), structuur (STR/INT), samenhang (CON/SAM).
@@ -1932,24 +2041,33 @@ class ModularValidationService:
                 logger.debug(f"Category score aggregation skipped rule {rid}: {e}")
                 continue
 
-        def avg(xs: list[float]) -> float:
-            return sum(xs) / len(xs) if xs else default_value
+        def avg(xs: list[float]) -> float | None:
+            if xs:
+                return round(sum(xs) / len(xs), 2)
+            # Lege categorie: val terug op de totaalscore; is die er niet
+            # (DEF-622), dan is er ook hier geen cijfer.
+            return None if default_value is None else round(default_value, 2)
 
         # Rond scores af op 2 decimalen voor stabiele UI/tests
         return {
-            "taal": round(avg(buckets.get("taal", [])), 2),
-            "juridisch": round(avg(buckets.get("juridisch", [])), 2),
-            "structuur": round(avg(buckets.get("structuur", [])), 2),
-            "samenhang": round(avg(buckets.get("samenhang", [])), 2),
+            "taal": avg(buckets.get("taal", [])),
+            "juridisch": avg(buckets.get("juridisch", [])),
+            "structuur": avg(buckets.get("structuur", [])),
+            "samenhang": avg(buckets.get("samenhang", [])),
         }
 
     def _evaluate_acceptance_gates(
         self,
-        overall: float,
-        detailed: dict[str, float],
+        overall: float | None,
+        detailed: dict[str, float | None],
         violations: list[dict[str, Any]],
     ) -> dict[str, Any]:
-        """Evalueer acceptance gates (critical/overall/category)."""
+        """Evalueer acceptance gates (critical/overall/category).
+
+        DEF-622: een score die niet beschikbaar is (`None`) haalt de drempel
+        niet — de gate meldt `..._unavailable` in plaats van de eis stil over
+        te slaan.
+        """
         critical = 0
         for v in violations or []:
             lvl = str(v.get("severity_level", ""))
@@ -1964,14 +2082,18 @@ class ModularValidationService:
         else:
             gates_failed.append(f"critical_violations={critical}")
 
-        if float(overall) >= float(self._overall_threshold):
+        if overall is None:
+            gates_failed.append("overall_score_unavailable")
+        elif float(overall) >= float(self._overall_threshold):
             gates_passed.append(f"overall>={self._overall_threshold}")
         else:
             gates_failed.append(f"overall<{self._overall_threshold}")
 
         for cat in ("taal", "juridisch", "structuur", "samenhang"):
-            val = float(detailed.get(cat, self._category_threshold))
-            if val < float(self._category_threshold):
+            val = detailed.get(cat, self._category_threshold)
+            if val is None:
+                gates_failed.append(f"{cat}_unavailable")
+            elif float(val) < float(self._category_threshold):
                 gates_failed.append(f"{cat}<{self._category_threshold}")
 
         return {

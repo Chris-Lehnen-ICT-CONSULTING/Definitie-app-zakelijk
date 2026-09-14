@@ -80,7 +80,10 @@ async def test_int01_single_sentence_pass_and_multi_sentence_fail():
 
 
 @pytest.mark.asyncio
-async def test_con01_forbidden_context_patterns_and_duplicate_signal():
+async def test_con01_name_signal_stays_open_and_duplicate_signal():
+    """DEF-622 (B-04): een geselecteerde contextnaam in de zin is een
+    beoordelingssignaal (review_required), geen automatische violation; de
+    duplicaatmelding komt los daarvan van DUP_01."""
     # Set up repo with existing definition → duplicate signal as warning
     existing = _FakeDef(
         1,
@@ -95,7 +98,9 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
         get_toetsregel_manager(), None, None, repository=repo
     )
 
-    # FAIL: explicit context mention should trigger CON-01
+    # OPEN: de geselecteerde namen DJI en strafrecht staan letterlijk in de
+    # zin → naamsignaal dat op menselijke beoordeling wacht (B-04), geen
+    # violation. De frase "binnen de context van" is bewust géén afkeurgrond.
     text_bad = "Registratie is het formeel vastleggen van gegevens binnen de context van het strafrecht bij DJI."
     res_bad = await svc.validate_definition(
         begrip="registratie",
@@ -107,9 +112,18 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
             "categorie": "proces",
         },
     )
-    assert any(
+    assert res_bad["rule_statuses"]["CON-01"] == "review_required", res_bad[
+        "rule_statuses"
+    ]
+    assert not any(
         v.get("code") == "CON-01" for v in res_bad.get("violations", [])
     ), res_bad
+    signalen = {
+        p["evidence"]
+        for p in res_bad["rule_results"]["CON-01"]["parts"]
+        if p.get("evidence")
+    }
+    assert signalen == {"strafrecht", "DJI"}, signalen
 
     # Also expect a duplicate-context warning via repo signal.
     # DEF-674: die melding komt van DUP_01, de regel die de database bevraagt.
@@ -123,7 +137,7 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
     ), f"Expected DUP_01 duplicate warning, got: {res_bad.get('violations', [])}"
     assert dup_warns[0].get("metadata", {}).get("existing_definition_id") == 1
 
-    # PASS: no explicit context wording → CON-01 should not appear (duplicate still may warn if same context)
+    # PASS: geen geselecteerde naam in de zin → CON-01 voldoet (duplicate still may warn if same context)
     text_ok = "Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem"
     res_ok = await svc.validate_definition(
         begrip="registratie",
@@ -135,7 +149,7 @@ async def test_con01_forbidden_context_patterns_and_duplicate_signal():
             "categorie": "proces",
         },
     )
+    assert res_ok["rule_statuses"]["CON-01"] == "pass", res_ok["rule_statuses"]
     assert not any(
-        v.get("code") == "CON-01" and v.get("severity") != "warning"
-        for v in res_ok.get("violations", [])
+        v.get("code") == "CON-01" for v in res_ok.get("violations", [])
     ), res_ok

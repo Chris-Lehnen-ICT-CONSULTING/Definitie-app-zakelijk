@@ -7,16 +7,24 @@ pytestmark = [pytest.mark.unit]
 
 
 @pytest.mark.asyncio
-async def test_additional_patterns_con01_detects_context_wording():
+async def test_con01_has_no_meta_phrase_heuristic_anymore():
+    """DEF-622 (B-04): geen automatische afkeur op meta-contextfrasen.
+
+    Vóór DEF-622 vuurde CON-01 op `binnen de context van`, `strafrecht` en
+    `OM` uit een vaste lijst. Nu tellen alleen de werkelijk geselecteerde
+    contextwaarden: met een context die geen van deze woorden bevat, voldoet
+    de definitie — ook al staat die frase erin.
+    """
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "registratie: het vastleggen van gegevens binnen de context van het strafrecht bij het OM"
     res = await svc.validate_definition(
         begrip="registratie",
         text=text,
         ontologische_categorie=None,
-        context={},
+        context={"organisatorische_context": ["Stichting Zilver"]},
     )
-    assert any(v.get("code") == "CON-01" for v in res.get("violations", [])), res
+    assert res["rule_statuses"]["CON-01"] == "pass", res["rule_statuses"]
+    assert not any(v.get("code") == "CON-01" for v in res.get("violations", [])), res
 
 
 @pytest.mark.asyncio

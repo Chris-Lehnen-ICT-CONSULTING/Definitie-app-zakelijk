@@ -118,7 +118,13 @@ async def test_volledige_set_levert_een_gewoon_validatieoordeel(
 
     assert resultaat["validation_status"] == VALIDATION_STATUS_VALIDATED
     assert "unknown_reason" not in resultaat
-    assert isinstance(resultaat["overall_score"], float)
+    # DEF-622: met de volledige set is er wél geëvalueerd, maar de totaalscore
+    # is niet beschikbaar (CON-01 zonder cijfer). Dat is `None` — en
+    # onderscheidt zich van de fail-closed placeholder 0.0 bij
+    # validation_unknown doordat er werkelijk regels zijn beoordeeld.
+    assert resultaat["overall_score"] is None
+    assert resultaat["evaluation_coverage"]["evaluated"] > 0
+    assert "CON-01" in resultaat["rule_results"]
 
 
 @pytest.mark.parametrize(
