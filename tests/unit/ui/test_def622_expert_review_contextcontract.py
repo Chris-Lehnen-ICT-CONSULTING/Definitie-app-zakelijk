@@ -132,6 +132,32 @@ def test_vastleggen_bewaart_beoordeling_ververst_versie_en_maakt_vaststelbaar(
         expected_version=vers.version_number,
     )
     assert uitkomst.success is True, uitkomst.error_message
+    # Readback ná vaststelling: de eigen beoordeling is nog gebonden (V2c).
+    na = repo.get_definitie(rec.id)
+    assert na is not None and na.status == DefinitieStatus.ESTABLISHED.value
+    assert na.get_context_review()["version_number"] == na.version_number
+    assert workflow.preview_gate(rec.id)["status"] == "pass"
+
+
+def test_verouderd_snapshot_wordt_niet_vastgelegd(repo, sessie):
+    """V2a in de UI: is het record intussen gewijzigd, dan wordt de invoer
+    niet aan de nieuwe versie gebonden; de gebruiker ziet dat en het
+    geselecteerde record wordt ververst."""
+    rec = _record(repo)
+    SessionStateManager.set_value("selected_review_definition", rec)
+    assert repo.update_definitie(rec.id, {"definitie": TEKST + " aan leden"})
+    m = _mock_st("necessary", "Exclusieve uitgever.", True)
+    with (
+        patch("ui.components.expert_review_tab.st", m),
+        patch("ui.components.validation_view.st", m),
+    ):
+        ExpertReviewTab(repo)._render_contextcontract(rec)
+    na = repo.get_definitie(rec.id)
+    assert na.get_context_review() is None
+    assert na.version_number == rec.version_number + 1
+    assert "intussen gewijzigd" in _teksten(m)
+    geselecteerd: Any = SessionStateManager.get_value("selected_review_definition")
+    assert geselecteerd.version_number == na.version_number
 
 
 def test_beoordeling_vervalt_na_tekstwijziging(repo, sessie):

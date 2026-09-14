@@ -1007,9 +1007,16 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         definitie_id: int,
         review: dict[str, Any] | None,
         updated_by: str | None = None,
+        *,
+        expected_version: int,
     ) -> bool:
-        """Leg de CON-01-expertbeoordeling van de naamfunctie vast (B-07)."""
-        return self.legacy_repo.set_context_review(definitie_id, review, updated_by)
+        """Leg de CON-01-expertbeoordeling van de naamfunctie vast (B-07).
+
+        ``expected_version`` is de beoordeelde recordversie (optimistic lock).
+        """
+        return self.legacy_repo.set_context_review(
+            definitie_id, review, updated_by, expected_version=expected_version
+        )
 
     # ===== Legacy compatibility surface for workflow/UI =====
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:

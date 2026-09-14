@@ -22,6 +22,11 @@ _IDENTITEITSVELDEN: tuple[str, ...] = (
     "wettelijke_basis",
 )
 
+# De velden waarop de CON-01-beoordeling inhoudelijk rust (de vingerafdruk:
+# term, tekst en context). Een schrijfactie op één ervan laat de binding
+# van de beoordeling aan de recordversie vervallen (DEF-622, E2/V2c).
+_BEOORDELINGSVELDEN: tuple[str, ...] = ("definitie", *_IDENTITEITSVELDEN)
+
 
 class Unset:
     """Type van de ``UNSET``-sentinel: parameter niet meegegeven (anders dan ``None``)."""
@@ -244,6 +249,8 @@ class DefinitieCrudRepository:
         definitie_id: int,
         review: dict[str, Any] | None,
         updated_by: str | None = None,
+        *,
+        expected_version: int,
     ) -> bool:
         """Leg de CON-01-expertbeoordeling vast op het record (DEF-622, B-07).
 
@@ -257,11 +264,23 @@ class DefinitieCrudRepository:
         ontbreekt de beoordelaar, dan wordt de handelende gebruiker gestempeld.
         Wie later vaststelt mag een ander zijn (bestaand contract).
 
-        Versiebinding (reviewbevinding E2): de beoordeling krijgt het
-        versienummer van het record ná deze opslag; elke latere wijziging
-        (ook tekst terugzetten) geeft een nieuwere versie en laat haar
-        vervallen.
+        Versiebinding (reviewbevinding E2, deltareview V2a): `expected_version`
+        is de recordversie die de beoordelaar vóór zich had. Ónder de
+        schrijflock moet het record nog precies die versie dragen, anders
+        wordt niets geschreven (``False``, zoals de optimistic lock van
+        `approve`). Een payload die zelf een ander versienummer draagt is
+        verouderde invoer (een eerder opgeslagen beoordeling die opnieuw
+        wordt aangeboden) en wordt vóór mutatie geweigerd: alleen actuele
+        invoer bindt aan de resulterende opslagversie (`expected_version + 1`).
+        Elke latere schrijfactie op term, tekst of context laat de binding
+        vervallen; zie `update_definitie`.
         """
+        if isinstance(expected_version, bool) or not isinstance(expected_version, int):
+            msg = (
+                "set_context_review vereist expected_version: de recordversie "
+                f"die de beoordelaar beoordeeld heeft (gekregen: {expected_version!r})"
+            )
+            raise ValueError(msg)
         if review is not None:
             if not isinstance(review, dict):
                 msg = "context_review moet een dict zijn"
@@ -283,24 +302,70 @@ class DefinitieCrudRepository:
                     f"handelende gebruiker ({handelend!r}); geweigerd vóór opslag"
                 )
                 raise ValueError(msg)
+            meegegeven = review.get("version_number")
+            if meegegeven is not None and meegegeven != expected_version:
+                msg = (
+                    f"beoordeling hoort bij versie {meegegeven!r}, maar beoordeeld "
+                    f"is versie {expected_version}: verouderde invoer, geweigerd "
+                    "vóór opslag; beoordeel de actuele versie opnieuw"
+                )
+                raise ValueError(msg)
 
         with self._db.transaction():
             current = self.get_definitie(definitie_id)
             if not current:
+                return False
+            if current.version_number != expected_version:
+                logger.warning(
+                    f"set_context_review geweigerd: definitie {definitie_id} is "
+                    f"versie {current.version_number}, beoordeeld is versie "
+                    f"{expected_version}"
+                )
                 return False
             if review is not None:
                 review = {
                     **review,
                     "actor": handelend,
                     # De versie die het record ná deze opslag draagt.
-                    "version_number": int(current.version_number or 0) + 1,
+                    "version_number": expected_version + 1,
                 }
             current.set_context_review(review)
             return self.update_definitie(
                 definitie_id,
-                {"validation_issues": current.validation_issues},
+                {
+                    "validation_issues": current.validation_issues,
+                    # SQL-guard op dezelfde versie (WHERE version_number = ?).
+                    "version_number": expected_version,
+                },
                 updated_by,
             )
+
+    @staticmethod
+    def _meegroeiende_beoordeling(
+        actueel: DefinitieRecord, updates: dict[str, Any]
+    ) -> str | None:
+        """De `validation_issues`-JSON met de beoordeling op de nieuwe versie,
+        of None wanneer er niets mee te nemen valt.
+
+        Alleen een beoordeling die nú aan de actuele recordversie gebonden is
+        groeit mee, en alleen bij een update die term, tekst en context niet
+        schrijft en `validation_issues` niet zelf zet. Een al vervallen
+        binding herleeft hier dus nooit (reviewbevinding E2).
+        """
+        if "validation_issues" in updates or any(
+            veld in updates for veld in _BEOORDELINGSVELDEN
+        ):
+            return None
+        review = actueel.get_context_review()
+        if review is None:
+            return None
+        gebonden = review.get("version_number")
+        if isinstance(gebonden, bool) or gebonden != actueel.version_number:
+            return None
+        actueel.set_context_review(
+            {**review, "version_number": actueel.version_number + 1}
+        )
+        return actueel.validation_issues
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """Haal definitie op op basis van ID.
@@ -414,17 +479,12 @@ class DefinitieCrudRepository:
             params.append(updated_by)
 
         expected_version = updates.get("version_number")
-        set_clauses.append("version_number = version_number + 1")
 
         where_clause = "id = ?"
         where_params: list[Any] = [definitie_id]
         if expected_version is not None:
             where_clause += " AND version_number = ?"
             where_params.append(expected_version)
-
-        query = (
-            "UPDATE definities SET " + ", ".join(set_clauses) + f" WHERE {where_clause}"
-        )
 
         # DEF-391: UPDATE + audit-log atomair (all-or-nothing).
         with self._db.transaction() as conn:
@@ -451,6 +511,22 @@ class DefinitieCrudRepository:
                     updates.get("wettelijke_basis", actueel.wettelijke_basis),
                     eigen_id=definitie_id,
                 )
+
+            # DEF-622 (deltareview V2c): een versiebump zónder schrijfactie op
+            # term, tekst of context (statuswijziging, score, bron, ...) neemt
+            # de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar de
+            # nieuwe versie. Anders zou de vaststelling haar eigen, zojuist
+            # geldige beoordeling door de statusversiebump laten vervallen.
+            meegroeiend = self._meegroeiende_beoordeling(actueel, updates)
+            if meegroeiend is not None:
+                set_clauses.append("validation_issues = ?")
+                params.append(meegroeiend)
+            set_clauses.append("version_number = version_number + 1")
+            query = (
+                "UPDATE definities SET "
+                + ", ".join(set_clauses)
+                + f" WHERE {where_clause}"
+            )
 
             cursor = conn.execute(query, params + where_params)
             if cursor.rowcount == 0 and expected_version is not None:

@@ -71,6 +71,7 @@ def _leg_beoordeling_vast(repo: DefinitionRepository, definitie_id: int) -> str:
             },
         },
         updated_by=ACTOR,
+        expected_version=rec.version_number,
     )
     return uitkomst.fingerprint
 

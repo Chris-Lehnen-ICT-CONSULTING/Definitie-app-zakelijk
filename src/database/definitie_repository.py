@@ -179,9 +179,17 @@ class DefinitieRepository:
         definitie_id: int,
         review: dict[str, Any] | None,
         updated_by: str | None = None,
+        *,
+        expected_version: int,
     ) -> bool:
-        """Leg de CON-01-expertbeoordeling van de naamfunctie vast."""
-        return self._crud.set_context_review(definitie_id, review, updated_by)
+        """Leg de CON-01-expertbeoordeling van de naamfunctie vast.
+
+        ``expected_version`` is de recordversie die de beoordelaar beoordeeld
+        heeft; wijkt de opgeslagen versie af, dan wordt niets geschreven.
+        """
+        return self._crud.set_context_review(
+            definitie_id, review, updated_by, expected_version=expected_version
+        )
 
     # === Transactiegrens (DEF-482) ===
     def transaction(

@@ -108,6 +108,53 @@ async def test_necessary_name_review_expires_when_text_changes(validator):
     assert changed["rule_statuses"]["CON-01"] == "review_required"
 
 
+@pytest.mark.parametrize(
+    "versie",
+    ["ontbreekt", None, True, [], {}, "invalid", 2.5, 2],
+    ids=["ontbreekt", "None", "True", "lijst", "dict", "tekst", "float", "ander"],
+)
+async def test_review_without_valid_version_does_not_count_for_versioned_record(
+    validator, versie
+):
+    """V2b: draagt het record een versie, dan telt een beoordeling zonder
+    geldig (gelijk) versienummer niet; alleen bij een record zónder versie
+    (los tekstfragment) blijft de vingerafdruk de enige binding."""
+    text = "kwaliteitsmerk dat uitsluitend door Stichting Zilver wordt verleend"
+    context = {
+        "organisatorische_context": ["Stichting Zilver"],
+        "definition_version": 3,
+    }
+    first = await assess(validator, text, context)
+    detail = first["rule_results"]["CON-01"]
+    review = {
+        "fingerprint": detail["fingerprint"],
+        "actor": "synthetische-expert",
+        "decisions": {
+            detail["parts"][1]["id"]: {
+                "function": "necessary",
+                "reason": "De exclusieve uitgever identificeert dit keurmerk.",
+            }
+        },
+    }
+    if versie != "ontbreekt":
+        review["version_number"] = versie
+    context["context_review"] = review
+
+    result = await assess(validator, text, context)
+    assert result["rule_statuses"]["CON-01"] == "review_required"
+    samenvatting = result["rule_results"]["CON-01"]["review"]
+    assert samenvatting["applied"] is False
+    assert "versie" in samenvatting["reason"]
+
+    # Gelijk versienummer: de beoordeling telt.
+    context["context_review"] = {**review, "version_number": 3}
+    assert (await assess(validator, text, context))["rule_statuses"]["CON-01"] == "pass"
+    # Zonder recordversie (los fragment) blijft de vingerafdruk de binding.
+    context.pop("definition_version")
+    context["context_review"] = review
+    assert (await assess(validator, text, context))["rule_statuses"]["CON-01"] == "pass"
+
+
 async def test_technical_error_is_visible_separately_and_is_no_violation(validator):
     """B-06/B-08: een technische fout is geen inhoudelijk 'Voldoet niet'."""
     with patch(

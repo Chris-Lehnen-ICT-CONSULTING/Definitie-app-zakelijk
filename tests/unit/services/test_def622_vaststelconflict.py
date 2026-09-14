@@ -137,8 +137,17 @@ def _beoordeling(repo: DefinitionRepository, definitie_id: int, functie: str) ->
             },
         },
         updated_by=ACTOR,
+        # De versie die de beoordelaar vóór zich had (optimistic lock, V2a).
+        expected_version=record.version_number,
     )
     assert ok
+
+
+def _reviewversie(repo: DefinitionRepository, definitie_id: int) -> int | None:
+    record = repo.get_definitie(definitie_id)
+    assert record is not None
+    review = record.get_context_review()
+    return None if review is None else review.get("version_number")
 
 
 def _versie(repo: DefinitionRepository, definitie_id: int) -> int:
@@ -486,13 +495,20 @@ class TestInterRecordConflict:
         versie_voor = _versie(repo, did)
 
         with pytest.raises(ValueError, match="beoordelaar"):
-            repo.set_context_review(did, beoordeling, updated_by="expert-B")
+            repo.set_context_review(
+                did, beoordeling, updated_by="expert-B", expected_version=versie_voor
+            )
         with pytest.raises(ValueError, match="handelende gebruiker"):
-            repo.set_context_review(did, beoordeling, updated_by="")
+            repo.set_context_review(
+                did, beoordeling, updated_by="", expected_version=versie_voor
+            )
         for ongeldig in (True, 7, ["expert-A"]):
             with pytest.raises(ValueError, match="beoordelaar"):
                 repo.set_context_review(
-                    did, {**beoordeling, "actor": ongeldig}, updated_by="expert-A"
+                    did,
+                    {**beoordeling, "actor": ongeldig},
+                    updated_by="expert-A",
+                    expected_version=versie_voor,
                 )
         # Niets gemuteerd: geen versiebump, geen beoordeling.
         assert _versie(repo, did) == versie_voor
@@ -500,7 +516,9 @@ class TestInterRecordConflict:
 
         # Consistent (of zonder actor): de handelende gebruiker wordt vastgelegd.
         zonder_actor = {k: v for k, v in beoordeling.items() if k != "actor"}
-        assert repo.set_context_review(did, zonder_actor, updated_by="expert-A")
+        assert repo.set_context_review(
+            did, zonder_actor, updated_by="expert-A", expected_version=versie_voor
+        )
         opgeslagen = repo.get_definitie(did).get_context_review()
         assert opgeslagen["actor"] == "expert-A"
         assert opgeslagen["version_number"] == _versie(repo, did)
@@ -735,3 +753,182 @@ def _rij_kolom(repo: DefinitionRepository, definitie_id: int, kolom: str) -> Any
     return conn.execute(
         f"SELECT {kolom} FROM definities WHERE id = ?", (definitie_id,)
     ).fetchone()[0]
+
+
+# -------------------------------------------- deltareview V2a-V2c (e9ecf6c09)
+
+
+class TestReviewversiebinding:
+    """De versiebinding van de beoordeling (deltareview V2a-V2c).
+
+    De beoordeling bindt aan (vingerafdruk, recordversie). Drie lekken zijn
+    gedicht: verouderde invoer die opnieuw geldig gestempeld werd (V2a), een
+    ontbrekend of ongeldig reviewversienummer dat de controle uitschakelde
+    (V2b) en de vaststelling die haar eigen geldige beoordeling door de
+    statusversiebump meteen liet vervallen (V2c). Lokale CON-binding en
+    readback; geen nieuwe DEF-630-gate-eis.
+    """
+
+    NAAMTEKST = "kwaliteitsmerk dat Stichting Zilver verleent"
+
+    def test_verouderde_invoer_wordt_niet_opnieuw_geldig_gestempeld(self, tmp_path):
+        """V2a: dezelfde oude beoordeling opnieuw aanbieden na wijzigen en
+        terugzetten bindt niet aan de actuele versie; alleen actuele invoer
+        op de actuele versie telt."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        _beoordeling(repo, did, "necessary")
+        oud = repo.get_definitie(did).get_context_review()
+        assert (oud["version_number"], _versie(repo, did)) == (2, 2)
+        assert repo.legacy_repo.update_definitie(
+            did, {"definitie": self.NAAMTEKST + " (v2)"}
+        )
+        assert repo.legacy_repo.update_definitie(did, {"definitie": self.NAAMTEKST})
+        assert _versie(repo, did) == 4
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+        # Oude payload op de actuele versie: verouderde invoer, geweigerd vóór
+        # mutatie. Op haar eigen (oude) versie: stale write, niets geschreven.
+        with pytest.raises(ValueError, match="versie"):
+            repo.set_context_review(did, oud, updated_by=ACTOR, expected_version=4)
+        assert (
+            repo.set_context_review(did, oud, updated_by=ACTOR, expected_version=2)
+            is False
+        )
+        zonder_versie = {k: v for k, v in oud.items() if k != "version_number"}
+        for ongeldig in (None, True, "4", 4.0):
+            with pytest.raises(ValueError, match="expected_version"):
+                repo.set_context_review(
+                    did,
+                    zonder_versie,
+                    updated_by=ACTOR,
+                    expected_version=ongeldig,  # type: ignore[arg-type]
+                )
+        assert _versie(repo, did) == 4
+        assert repo.get_definitie(did).get_context_review() == oud
+        uitkomst = svc.approve(
+            did, ACTOR, user_role="reviewer", notes="", expected_version=4
+        )
+        assert uitkomst.success is False and uitkomst.gate_status == "blocked"
+
+        # Actuele invoer op de actuele versie bindt wél.
+        _beoordeling(repo, did, "necessary")
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (5, 5)
+        uitkomst = svc.approve(
+            did, ACTOR, user_role="reviewer", notes="", expected_version=5
+        )
+        assert uitkomst.success is True, uitkomst.error_message
+
+    @pytest.mark.parametrize(
+        "versie",
+        ["ontbreekt", None, True, [], {}, "invalid", 2.5],
+        ids=["ontbreekt", "None", "True", "lijst", "dict", "tekst", "float"],
+    )
+    def test_ontbrekende_of_ongeldige_reviewversie_blokkeert(self, tmp_path, versie):
+        """V2b: via de generieke update een verder geldige marker met een
+        ontbrekend/ongeldig versienummer: het record heeft een versie, dus de
+        beoordeling telt niet en de vaststelling blijft geblokkeerd."""
+        from database.models import CONTEXT_REVIEW_CODE
+        from domain.context.contract import beoordeel_context
+        from domain.context.normalisatie import lees_contextwaarden
+
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        rec = repo.get_definitie(did)
+        uitkomst = beoordeel_context(
+            rec.begrip,
+            rec.definitie,
+            {
+                "organisatorische_context": lees_contextwaarden(
+                    rec.organisatorische_context
+                ),
+                "juridische_context": lees_contextwaarden(rec.juridische_context),
+                "wettelijke_basis": lees_contextwaarden(rec.wettelijke_basis),
+            },
+        )
+        naam = next(p for p in uitkomst.parts if p.evidence)
+        review: dict[str, Any] = {
+            "fingerprint": uitkomst.fingerprint,
+            "actor": ACTOR,
+            "decisions": {naam.id: {"function": "necessary", "reason": "Uitgever."}},
+        }
+        if versie != "ontbreekt":
+            review["version_number"] = versie
+        marker = {
+            "code": CONTEXT_REVIEW_CODE,
+            "rule_id": "CON-01",
+            "severity": "info",
+            "context_review": review,
+        }
+        assert repo.legacy_repo.update_definitie(
+            did, {"validation_issues": json.dumps([marker], ensure_ascii=False)}
+        )
+        assert repo.get_definitie(did).get_context_review() is not None
+
+        gate = svc.preview_gate(did)
+        assert gate["status"] == "blocked"
+        assert any("versie" in r for r in gate["reasons"]), gate
+        vaststelling = svc.approve(
+            did,
+            ACTOR,
+            user_role="reviewer",
+            notes="",
+            expected_version=_versie(repo, did),
+        )
+        assert vaststelling.success is False
+        assert vaststelling.gate_status == "blocked"
+        assert _rij(repo, did)["status"] == DefinitieStatus.REVIEW.value
+
+    def test_vaststelling_behoudt_de_eigen_geldige_beoordeling(self, tmp_path):
+        """V2c: de statusversiebump van de vaststelling neemt de beoordeling
+        atomair mee; readback toont een vastgesteld record waarvan de
+        CON-01-binding nog klopt (legitieme keten review -> opslaan ->
+        vaststellen -> readback)."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        _beoordeling(repo, did, "necessary")
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (2, 2)
+        assert svc.preview_gate(did)["status"] == "pass"
+
+        uitkomst = svc.approve(
+            did, ACTOR, user_role="reviewer", notes="", expected_version=2
+        )
+        assert uitkomst.success is True, uitkomst.error_message
+
+        rij = _rij(repo, did)
+        assert rij["status"] == DefinitieStatus.ESTABLISHED.value
+        assert rij["version_number"] == 3
+        assert _reviewversie(repo, did) == 3
+        assert svc.preview_gate(did)["status"] == "pass"
+        # Readback via de servicelaag: dezelfde, nog geldige binding.
+        definition = repo.get(did)
+        assert definition is not None
+        assert definition.metadata["version_number"] == 3
+        assert definition.metadata["context_review"]["version_number"] == 3
+        # De statusaudit blijft één reguliere regel.
+        soorten = [s for s, _ in _audit(repo, did)]
+        assert soorten.count("status_changed") == 1
+
+    def test_binding_reist_mee_zonder_inhoudelijke_wijziging_en_vervalt_erna(
+        self, tmp_path
+    ):
+        """De binding volgt alleen versiebumps zonder schrijfactie op term,
+        tekst of context; een vervallen binding herleeft niet."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        _beoordeling(repo, did, "necessary")
+
+        assert repo.legacy_repo.update_definitie(did, {"validation_score": 0.95})
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 3)
+        assert svc.preview_gate(did)["status"] == "pass"
+
+        # Tekst opnieuw geschreven (zelfde inhoud): de binding vervalt.
+        assert repo.legacy_repo.update_definitie(did, {"definitie": self.NAAMTEKST})
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 4)
+        assert svc.preview_gate(did)["status"] == "blocked"
+        # ... en herleeft niet bij een latere niet-inhoudelijke wijziging.
+        assert repo.legacy_repo.update_definitie(
+            did, {"toelichting_proces": "synthetisch"}
+        )
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 5)
+        assert svc.preview_gate(did)["status"] == "blocked"

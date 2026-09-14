@@ -847,6 +847,12 @@ class DefinitionWorkflowService:
             blokkades.append(
                 f"CON-01 {label}{aanleiding}: {part.reason} Vervolgstap: {part.action}"
             )
+        # Een aangeleverde maar niet toegepaste beoordeling verdwijnt niet
+        # stil: de reden (vingerafdruk, versie, beoordelaar) staat erbij.
+        samenvatting = uitkomst.review if isinstance(uitkomst.review, dict) else {}
+        if review is not None and not samenvatting.get("applied"):
+            reden = samenvatting.get("reason") or "beoordeling niet bruikbaar"
+            blokkades.append(f"CON-01: eerdere beoordeling niet toegepast: {reden}")
         return blokkades or [f"CON-01 {label}: contextcontract niet voldaan"]
 
     def _conflict_met_leidend_record(

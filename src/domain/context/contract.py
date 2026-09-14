@@ -312,12 +312,15 @@ def _geldige_beoordeling(
 
     Geeft (beslissingen per onderdeel, samenvatting voor het resultaat). Een
     beoordeling telt alleen bij een gelijke vingerafdruk, een benoemde actor
-    én — wanneer zowel de beoordeling als het record een versienummer dragen
-    — een gelijk versienummer (reviewbevinding E2: tekst wijzigen en
-    terugzetten geeft dezelfde vingerafdruk maar een nieuwere versie). Een
-    beslissing telt alleen met een bekende functie én een vastgelegde reden.
-    Wat niet telt, wordt in de samenvatting benoemd — een genegeerde
-    beoordeling mag niet stil verdwijnen.
+    én — wanneer het record een versienummer draagt — een geldig én gelijk
+    versienummer in de beoordeling (reviewbevinding E2: tekst wijzigen en
+    terugzetten geeft dezelfde vingerafdruk maar een nieuwere versie;
+    deltareview V2b: een ontbrekend of ongeldig reviewversienummer mag die
+    controle niet uitschakelen). Alleen zonder recordversie — een los
+    tekstfragment — blijft de vingerafdruk de enige binding. Een beslissing
+    telt alleen met een bekende functie én een vastgelegde reden. Wat niet
+    telt, wordt in de samenvatting benoemd — een genegeerde beoordeling mag
+    niet stil verdwijnen.
     """
     if not isinstance(review, Mapping):
         return {}, {"applied": False, "reason": "geen beoordeling aangeleverd"}
@@ -340,17 +343,21 @@ def _geldige_beoordeling(
         return {}, samenvatting
     beoordeelde_versie = _versienummer(review.get("version_number"))
     actuele_versie = _versienummer(definitie_versie)
-    if (
-        beoordeelde_versie is not None
-        and actuele_versie is not None
-        and beoordeelde_versie != actuele_versie
-    ):
-        samenvatting["version_number"] = beoordeelde_versie
-        samenvatting["reason"] = (
-            f"eerdere beoordeling hoort bij versie {beoordeelde_versie}; het "
-            f"record is inmiddels versie {actuele_versie}"
-        )
-        return {}, samenvatting
+    if actuele_versie is not None:
+        if beoordeelde_versie is None:
+            samenvatting["version_number"] = None
+            samenvatting["reason"] = (
+                "eerdere beoordeling draagt geen geldig versienummer; het record "
+                f"is versie {actuele_versie} en vraagt een nieuwe beoordeling"
+            )
+            return {}, samenvatting
+        if beoordeelde_versie != actuele_versie:
+            samenvatting["version_number"] = beoordeelde_versie
+            samenvatting["reason"] = (
+                f"eerdere beoordeling hoort bij versie {beoordeelde_versie}; het "
+                f"record is inmiddels versie {actuele_versie}"
+            )
+            return {}, samenvatting
     if not actor:
         samenvatting["reason"] = "beoordeling zonder benoemde beoordelaar genegeerd"
         return {}, samenvatting

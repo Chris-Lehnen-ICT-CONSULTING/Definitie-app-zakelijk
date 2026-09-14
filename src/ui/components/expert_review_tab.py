@@ -637,18 +637,30 @@ class ExpertReviewTab:
                 "decisions": bestaande_beslissingen,
                 "reviewed_at": datetime.now().isoformat(),
             }
-            if self.repository.set_context_review(
-                definitie.id, nieuwe_review, updated_by=actor
-            ):
-                # Opslaan bumpt de versie: herlaad het record zodat de
-                # vaststelling straks tegen de actuele versie loopt.
-                vers = self.repository.get_definitie(definitie.id)
-                if vers is not None:
-                    SessionStateManager.set_value("selected_review_definition", vers)
+            opgeslagen = self.repository.set_context_review(
+                definitie.id,
+                nieuwe_review,
+                updated_by=actor,
+                # De versie die de expert vóór zich had (V2a): is het record
+                # intussen gewijzigd, dan bindt deze invoer niet.
+                expected_version=definitie.version_number,
+            )
+            # Opslaan bumpt de versie: herlaad het record zodat de
+            # vaststelling straks tegen de actuele versie loopt. Ook bij een
+            # verouderd snapshot wordt de selectie ververst.
+            vers = self.repository.get_definitie(definitie.id)
+            if vers is not None:
+                SessionStateManager.set_value("selected_review_definition", vers)
+            if opgeslagen:
                 st.success("✅ Beoordeling vastgelegd")
-                st.rerun()
+            elif vers is not None and vers.version_number != definitie.version_number:
+                st.warning(
+                    "⚠️ Beoordeling niet vastgelegd: de definitie is intussen "
+                    "gewijzigd; beoordeel de actuele versie opnieuw"
+                )
             else:
                 st.error("❌ Beoordeling kon niet worden vastgelegd")
+            st.rerun()
 
     def _render_validation_issues(self, definitie: DefinitieRecord) -> None:
         """Render validation issues voor review."""
