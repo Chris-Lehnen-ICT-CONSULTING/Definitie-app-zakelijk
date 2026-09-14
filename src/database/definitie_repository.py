@@ -25,6 +25,7 @@ from database.models import (
     DefinitieStatus,
     DuplicateMatch,
     SourceType,
+    VaststelconflictError,
     VoorbeeldenRecord,
 )
 from database.synonym_sync import SynonymSyncService
@@ -39,6 +40,7 @@ __all__ = [
     "DuplicateMatch",
     "SourceType",
     "Unset",
+    "VaststelconflictError",
     "VoorbeeldenRecord",
     "clear_repository_singleton",
     "get_definitie_repository",
@@ -152,6 +154,34 @@ class DefinitieRepository:
             ufo_categorie=ufo_categorie,
             expected_version=expected_version,
         )
+
+    # === Contextcontract en vaststelinvariant (DEF-622) ===
+    def find_leidende_definitie(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = "",
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
+    ) -> DefinitieRecord | None:
+        """Het vastgestelde, leidende record voor begrip + volledige context."""
+        return self._crud.find_leidende_definitie(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            eigen_id=eigen_id,
+        )
+
+    def set_context_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+    ) -> bool:
+        """Leg de CON-01-expertbeoordeling van de naamfunctie vast."""
+        return self._crud.set_context_review(definitie_id, review, updated_by)
 
     # === Transactiegrens (DEF-482) ===
     def transaction(

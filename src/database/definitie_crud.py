@@ -9,9 +9,18 @@ from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
-from database.models import DefinitieRecord, DefinitieStatus
+from database.models import DefinitieRecord, DefinitieStatus, VaststelconflictError
 
 logger = logging.getLogger(__name__)
+
+# De velden die samen de vaststel-identiteit vormen (B-03/B-10): begrip plus
+# de drie contextlijsten. Categorie hoort daar bewust niet bij.
+_IDENTITEITSVELDEN: tuple[str, ...] = (
+    "begrip",
+    "organisatorische_context",
+    "juridische_context",
+    "wettelijke_basis",
+)
 
 
 class Unset:
@@ -95,6 +104,17 @@ class DefinitieCrudRepository:
                         "vereist een reden voor de audit"
                     )
                     raise ValueError(msg)
+                if record.status == DefinitieStatus.ESTABLISHED.value:
+                    # B-03/B-10: ook een direct als vastgesteld aangemaakt
+                    # record (import, tooling) mag geen tweede leidend record
+                    # naast een bestaand vastgesteld record zetten.
+                    self._eis_geen_vaststelconflict(
+                        record.begrip,
+                        record.organisatorische_context,
+                        record.juridische_context,
+                        record.wettelijke_basis,
+                        eigen_id=None,
+                    )
                 include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
                 columns, values = AuditHelpers.build_insert_columns(
                     record, wb_value, include_legacy
@@ -154,6 +174,87 @@ class DefinitieCrudRepository:
         if self._actief_duplicaat(record) is not None:
             msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
             raise ValueError(msg)
+
+    def find_leidende_definitie(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = "",
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
+    ) -> DefinitieRecord | None:
+        """Het vastgestelde, leidende record voor begrip + volledige context.
+
+        Ongeacht categorie (B-03/B-10): categorie mag de exclusiviteit niet
+        ongemerkt uitschakelen. `eigen_id` sluit het record zelf uit. Leest
+        via een kale connectie en ziet dus ook de nog niet gecommitte staat
+        binnen een lopende transactie — precies wat de hercontrole onder de
+        schrijflock nodig heeft.
+        """
+        for rij in self._duplicates.zoek_gelijke_context(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            categorie=None,
+            status=DefinitieStatus.ESTABLISHED,
+        ):
+            if rij.id is None or rij.id == eigen_id:
+                continue
+            record = self.get_definitie(int(rij.id))
+            if record is not None:
+                return record
+        return None
+
+    def _eis_geen_vaststelconflict(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any,
+        wettelijke_basis: Any,
+        *,
+        eigen_id: int | None,
+    ) -> None:
+        """De B-03/B-10-invariant op de persistentiegrens."""
+        leidend = self.find_leidende_definitie(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            eigen_id=eigen_id,
+        )
+        if leidend is not None:
+            msg = (
+                f"Er is al een vastgestelde definitie (ID {leidend.id}) voor "
+                f"'{begrip}' met dezelfde context; maximaal één leidend record "
+                "per begrip en context (DEF-622). Vervang die bewust of archiveer "
+                "haar eerst."
+            )
+            raise VaststelconflictError(msg, conflict_id=leidend.id)
+
+    def set_context_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+    ) -> bool:
+        """Leg de CON-01-expertbeoordeling vast op het record (DEF-622, B-07).
+
+        Lees-wijzig-schrijf binnen één transactie op `validation_issues`;
+        de overige issues blijven staan. Een gewone update: versie en audit
+        volgen het bestaande pad.
+        """
+        with self._db.transaction():
+            current = self.get_definitie(definitie_id)
+            if not current:
+                return False
+            current.set_context_review(review)
+            return self.update_definitie(
+                definitie_id,
+                {"validation_issues": current.validation_issues},
+                updated_by,
+            )
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """Haal definitie op op basis van ID.
@@ -230,6 +331,9 @@ class DefinitieCrudRepository:
             # net zo goed te landen als een float: het is de expliciete
             # vastlegging dat er geen oordeel is.
             "validation_score",
+            # DEF-622: de CON-01-expertbeoordeling reist in dit veld mee;
+            # zonder dit veld kon een beoordeling nooit worden bijgewerkt.
+            "validation_issues",
             "reviewed_by",
             "review_date",
             "improved_version",
@@ -278,6 +382,30 @@ class DefinitieCrudRepository:
 
         # DEF-391: UPDATE + audit-log atomair (all-or-nothing).
         with self._db.transaction() as conn:
+            # DEF-622 (B-03/B-10): de invariant "maximaal één vastgesteld
+            # record per begrip + volledige context" wordt hier, ónder de
+            # schrijflock, hercontroleerd op de resulterende staat. Zo kan
+            # geen enkele schrijfroute (statuswijziging, begrip-/context-
+            # wijziging van een vastgesteld record, gelijktijdige poging) er
+            # omheen. Categorie is bewust geen onderdeel van de identiteit.
+            # Verse lezing ónder de lock: `current` van vóór de transactie kan
+            # door een gelijktijdige vaststelling verouderd zijn.
+            actueel = self.get_definitie(definitie_id) or current
+            nieuwe_status = updates.get("status", actueel.status)
+            raakt_identiteit = any(veld in updates for veld in _IDENTITEITSVELDEN)
+            if nieuwe_status == DefinitieStatus.ESTABLISHED.value and (
+                actueel.status != DefinitieStatus.ESTABLISHED.value or raakt_identiteit
+            ):
+                self._eis_geen_vaststelconflict(
+                    updates.get("begrip", actueel.begrip),
+                    updates.get(
+                        "organisatorische_context", actueel.organisatorische_context
+                    ),
+                    updates.get("juridische_context", actueel.juridische_context),
+                    updates.get("wettelijke_basis", actueel.wettelijke_basis),
+                    eigen_id=definitie_id,
+                )
+
             cursor = conn.execute(query, params + where_params)
             if cursor.rowcount == 0 and expected_version is not None:
                 logger.warning(
@@ -343,11 +471,14 @@ class DefinitieCrudRepository:
             )
 
             if success:
+                # DEF-622 (B-10): een notitie bij een statuswijziging — zoals
+                # de verwijzing naar de opvolger bij archivering — hoort in
+                # de reguliere statusaudit.
+                reden = f"Status gewijzigd naar {new_status.value}"
+                if notes and notes.strip():
+                    reden += f": {notes.strip()}"
                 self._audit.log_geschiedenis(
-                    definitie_id,
-                    "status_changed",
-                    changed_by,
-                    f"Status gewijzigd naar {new_status.value}",
+                    definitie_id, "status_changed", changed_by, reden
                 )
 
         return success

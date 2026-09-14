@@ -47,6 +47,9 @@ def _approve_service_met_mock_repo():
     svc.repository.in_transaction.return_value = False
     svc.repository.get_definitie.return_value = definition
     svc.repository.change_status.return_value = True
+    # DEF-622: geen leidend record voor deze identiteit (een MagicMock zou
+    # als 'bestaand vastgesteld record' tellen en de vaststelling weigeren).
+    svc.repository.find_leidende_definitie.return_value = None
     svc.workflow_service = Mock()
     svc.workflow_service.can_change_status.return_value = True
     svc.audit_logger = None

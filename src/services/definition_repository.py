@@ -977,6 +977,32 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             "total_deletes": 0,
         }
 
+    # ===== Contextcontract en vaststelinvariant (DEF-622) =====
+    def find_leidende_definitie(
+        self, record: DefinitieRecord
+    ) -> DefinitieRecord | None:
+        """Het vastgestelde, leidende record met dezelfde identiteit als `record`.
+
+        Identiteit = begrip + volledige genormaliseerde context, ongeacht
+        categorie (B-03/B-10). Het record zelf telt niet mee.
+        """
+        return self.legacy_repo.find_leidende_definitie(
+            record.begrip,
+            record.organisatorische_context,
+            record.juridische_context or "",
+            record.get_wettelijke_basis_list(),
+            eigen_id=record.id,
+        )
+
+    def set_context_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+    ) -> bool:
+        """Leg de CON-01-expertbeoordeling van de naamfunctie vast (B-07)."""
+        return self.legacy_repo.set_context_review(definitie_id, review, updated_by)
+
     # ===== Legacy compatibility surface for workflow/UI =====
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """Pass-through naar legacy repository (compat met bestaande callers)."""

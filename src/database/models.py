@@ -24,6 +24,24 @@ def normalize_wettelijke_basis(basis: list[str] | None) -> str:
         return json.dumps(basis or [], ensure_ascii=False)
 
 
+class VaststelconflictError(ValueError):
+    """Er is al een vastgesteld, leidend record voor dit begrip en deze context.
+
+    DEF-622 (B-03/B-10): maximaal één vastgestelde definitie per begrip +
+    volledige genormaliseerde context, ongeacht categorie. Wordt op de
+    persistentiegrens gegooid, zodat geen enkele schrijfroute er stil omheen
+    kan. Vervanging is een bewuste keuze in `DefinitionWorkflowService`.
+    """
+
+    def __init__(self, message: str, conflict_id: int | None = None) -> None:
+        super().__init__(message)
+        self.conflict_id = conflict_id
+
+
+#: Marker van de vastgelegde CON-01-expertbeoordeling in `validation_issues`.
+CONTEXT_REVIEW_CODE = "CON-01-REVIEW"
+
+
 class DefinitieStatus(Enum):
     """Status van een definitie in het systeem."""
 
@@ -122,6 +140,44 @@ class DefinitieRecord:
     def set_validation_issues(self, issues: list[dict[str, Any]]) -> None:
         """Set validation issues als JSON string."""
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
+
+    def get_context_review(self) -> dict[str, Any] | None:
+        """De vastgelegde CON-01-expertbeoordeling van de naamfunctie (DEF-622).
+
+        Bewaard als één markerelement (`code == CONTEXT_REVIEW_CODE`) in de
+        bestaande `validation_issues`-lijst: geen schemawijziging, en de
+        beoordeling reist mee met het record. De binding aan tekst/context/
+        term zit in de vingerafdruk in de beoordeling zelf.
+        """
+        for issue in self.get_validation_issues_list():
+            if isinstance(issue, dict) and issue.get("code") == CONTEXT_REVIEW_CODE:
+                review = issue.get("context_review")
+                return dict(review) if isinstance(review, dict) else None
+        return None
+
+    def set_context_review(self, review: dict[str, Any] | None) -> None:
+        """Vervang (of verwijder bij None) de vastgelegde CON-01-beoordeling."""
+        overig = [
+            issue
+            for issue in self.get_validation_issues_list()
+            if not (
+                isinstance(issue, dict) and issue.get("code") == CONTEXT_REVIEW_CODE
+            )
+        ]
+        if review is not None:
+            overig.append(
+                {
+                    "code": CONTEXT_REVIEW_CODE,
+                    "rule_id": "CON-01",
+                    "severity": "info",
+                    "description": (
+                        "Expertbeoordeling van de naamfunctie (CON-01) door "
+                        f"{review.get('actor') or 'onbekend'}"
+                    ),
+                    "context_review": dict(review),
+                }
+            )
+        self.set_validation_issues(overig)
 
     def get_wettelijke_basis_list(self) -> list[str]:
         """Haal wettelijke basis op als list."""
