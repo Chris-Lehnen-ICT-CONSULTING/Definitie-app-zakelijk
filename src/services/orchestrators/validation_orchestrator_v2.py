@@ -7,11 +7,13 @@ gebeurt sequentieel; parallelisme volgt in een latere iteratie.
 
 from __future__ import annotations
 
+import copy
 import logging
 import uuid
 from collections.abc import Iterable
 from typing import Any
 
+from domain.context.normalisatie import canoniseer_contextlijst
 from services.interfaces import (
     CleaningServiceInterface,
     Definition,
@@ -87,21 +89,10 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     cleaning = await self.cleaning_service.clean_text(text, begrip)
                     cleaned_text = cleaning.cleaned_text if cleaning else text
 
-                # Build context dict with all relevant fields
-                context_dict: dict[str, Any] | None = None
-                if context:
-                    context_dict = {}
-                    if context.profile:
-                        context_dict["profile"] = context.profile
-                    if context.correlation_id:
-                        context_dict["correlation_id"] = str(context.correlation_id)
-                    if context.locale:
-                        context_dict["locale"] = context.locale
-                    if context.feature_flags:
-                        context_dict["feature_flags"] = dict(context.feature_flags)
-
-                # No enrichment with 'definition' here: not available in validate_text
-                # Context info should be supplied via ValidationContext only.
+                # Geen verrijking met 'definition' hier: die is in validate_text
+                # niet beschikbaar. Context (incl. de drie lijsten) komt via
+                # ValidationContext.metadata.
+                context_dict = self._context_dict(context)
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
@@ -153,20 +144,15 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     cleaned = await self.cleaning_service.clean_definition(definition)
                     text = cleaned.cleaned_text if cleaned else definition.definitie
 
-                # Build context dict with all relevant fields
-                context_dict: dict[str, Any] | None = None
-                if context:
-                    context_dict = {}
-                    if context.profile:
-                        context_dict["profile"] = context.profile
-                    if context.correlation_id:
-                        context_dict["correlation_id"] = str(context.correlation_id)
-                    if context.locale:
-                        context_dict["locale"] = context.locale
-                    if context.feature_flags:
-                        context_dict["feature_flags"] = dict(context.feature_flags)
+                # DEF-622: het record is de bron van zijn eigen context. De
+                # drie lijsten, id en categorie reizen altijd mee — ook zonder
+                # ValidationContext en ook als een lijst leeg is — zodat
+                # CON-01 en DUP_01 op het record oordelen en niet op wat een
+                # aanroeper toevallig in metadata heeft gezet.
+                context_dict = self._enrich_context_with_definition_fields(
+                    self._context_dict(context), definition
+                )
 
-                # Call underlying service (geen automatische enrich met 'definition')
                 result = await self.validation_service.validate_definition(
                     begrip=definition.begrip,
                     text=text,
@@ -217,34 +203,62 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         return results
 
     # Internal helpers
+    @staticmethod
+    def _context_dict(context: ValidationContext | None) -> dict[str, Any] | None:
+        """Vertaal een ValidationContext naar de dict die de service verwacht.
+
+        DEF-622: `metadata` reist mee. Daarin zitten de drie contextlijsten,
+        `options` (force_duplicate) en de contextbeoordeling voor CON-01; vóór
+        deze wijziging verdween dat blok stil op deze grens, waardoor CON-01
+        en DUP_01 nooit context zagen. Een deep copy, zodat de service en de
+        verrijking hieronder de invoer van de aanroeper niet kunnen muteren.
+        """
+        if context is None:
+            return None
+        context_dict: dict[str, Any] = {}
+        if context.metadata:
+            context_dict.update(copy.deepcopy(dict(context.metadata)))
+        if context.profile:
+            context_dict["profile"] = context.profile
+        if context.correlation_id:
+            context_dict["correlation_id"] = str(context.correlation_id)
+        if context.locale:
+            context_dict["locale"] = context.locale
+        if context.feature_flags:
+            context_dict["feature_flags"] = dict(context.feature_flags)
+        return context_dict
+
     def _enrich_context_with_definition_fields(
         self, ctx: dict | None, definition: Definition
     ) -> dict:
         """Add definition fields to context metadata for richer validation.
 
-        Minimale verrijking zonder complexe regels: dit stelt de validator in staat
-        duplicaten en context-afhankelijke checks beter te signaleren.
+        DEF-622: de drie contextlijsten van het record zijn gezaghebbend en
+        worden altijd gezet — canoniek (getrimd, ontdubbeld, gesorteerd, met
+        behoud van schrijfwijze) en ook wanneer ze leeg zijn. Een lege lijst
+        expliciet doorgeven is nodig: anders blijft een verouderde waarde uit
+        de aanroeper-metadata staan en oordeelt CON-01/DUP_01 op context die
+        het record niet draagt. Geen soft-fail op dit contract: een record
+        waarvan de contextlijsten niet te lezen zijn, is een defect record.
         """
         enriched: dict = dict(ctx or {})
 
         # Top-level context velden (compatibel met validator meta-checks)
-        try:
-            if definition.organisatorische_context:
-                enriched["organisatorische_context"] = list(
-                    definition.organisatorische_context
-                )
-            if definition.juridische_context:
-                enriched["juridische_context"] = list(definition.juridische_context)
-            if definition.wettelijke_basis:
-                enriched["wettelijke_basis"] = list(definition.wettelijke_basis)
-            if definition.categorie:
-                enriched["categorie"] = definition.categorie
-        except (TypeError, AttributeError) as e:
-            # DEF-248: Log context enrichment failures - may indicate malformed definition
-            logger.warning(
-                f"Failed to enrich context fields: {type(e).__name__}: {e}",
-                extra={"begrip": getattr(definition, "begrip", "unknown")},
-            )
+        enriched["organisatorische_context"] = canoniseer_contextlijst(
+            definition.organisatorische_context
+        )
+        enriched["juridische_context"] = canoniseer_contextlijst(
+            definition.juridische_context
+        )
+        enriched["wettelijke_basis"] = canoniseer_contextlijst(
+            definition.wettelijke_basis
+        )
+        if definition.categorie:
+            enriched["categorie"] = definition.categorie
+        if definition.id is not None:
+            # Voor de duplicaatcontrole: het record mag niet zijn eigen
+            # duplicaat zijn.
+            enriched["definition_id"] = definition.id
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:
