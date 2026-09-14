@@ -228,32 +228,34 @@ def render_rule_results(rule_results: dict[str, Any]) -> None:
         label = _UITKOMSTLABEL.get(status, status or "onbekend")
         st.markdown(f"**{code}** · {label} — zonder cijfer (uitkomst met motivering)")
         for part in detail.get("parts") or []:
-            if not isinstance(part, dict):
-                continue
-            deelstatus = str(part.get("status") or "")
-            deellabel = _UITKOMSTLABEL.get(deelstatus, deelstatus)
-            aanleiding = part.get("evidence")
-            kop = f"{deellabel}"
-            if aanleiding:
-                kop += f" · aanleiding: '{aanleiding}'"
-                positie = part.get("position")
-                if isinstance(positie, int):
-                    kop += f" (positie {positie})"
-            reden = str(part.get("reason") or "")
-            actie = str(part.get("action") or "")
-            if deelstatus == "pass":
-                st.success(f"{kop} — {reden}")
-                continue
-            tekst = f"{kop}\n\n{reden}\n\n**Vervolgstap:** {actie}"
-            if deelstatus == "fail":
-                st.error(tekst)
-            elif deelstatus == "error":
-                st.warning(tekst)
-            else:
-                st.warning(tekst)
+            if isinstance(part, dict):
+                _render_deeluitkomst(part)
         review = detail.get("review")
         if isinstance(review, dict) and review.get("reason"):
             st.markdown(f"_Beoordeling: {review['reason']}_")
+
+
+def _render_deeluitkomst(part: dict[str, Any]) -> None:
+    """Eén onderdeel: kop (label + aanleiding + positie), reden en vervolgstap."""
+    deelstatus = str(part.get("status") or "")
+    kop = _UITKOMSTLABEL.get(deelstatus, deelstatus)
+    aanleiding = part.get("evidence")
+    if aanleiding:
+        kop += f" · aanleiding: '{aanleiding}'"
+        positie = part.get("position")
+        if isinstance(positie, int):
+            kop += f" (positie {positie})"
+    reden = str(part.get("reason") or "")
+    if deelstatus == "pass":
+        st.success(f"{kop} — {reden}")
+        return
+    tekst = f"{kop}\n\n{reden}\n\n**Vervolgstap:** {part.get('action') or ''}"
+    # Een technische fout en een open onderdeel zijn geen 'Voldoet niet'
+    # (B-06/B-08): waarschuwing, geen fout.
+    if deelstatus == "fail":
+        st.error(tekst)
+    else:
+        st.warning(tekst)
 
 
 def render_v2_validation_details(validation_result: dict[str, Any]) -> None:

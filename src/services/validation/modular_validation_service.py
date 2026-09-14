@@ -990,8 +990,8 @@ class ModularValidationService:
         zonder_cijfer = sorted(
             code
             for code in state.internal_rules
-            if (record := state.rule_records.get(code)) is not None
-            and record.score_policy is ScorePolicy.NO_SCORE
+            if (regelrecord := state.rule_records.get(code)) is not None
+            and regelrecord.score_policy is ScorePolicy.NO_SCORE
         )
 
         rule_scores: dict[str, float] = {}
@@ -1065,7 +1065,7 @@ class ModularValidationService:
         # DEF-244: begrip cleanup removed - now in eval_ctx (immutable, thread-safe)
 
         # 5) Aggregatie (gewogen) en afronding
-        overall: float | None = calculate_weighted_score(rule_scores, weights)
+        gewogen: float = calculate_weighted_score(rule_scores, weights)
 
         # Quality band scaling: gently penalize very short/very long texts to
         # avoid saturating at 1.0 for minimale/overdadige gevallen. Calibrated
@@ -1096,13 +1096,10 @@ class ModularValidationService:
         elif wcount > 60:
             scale = 0.9
 
-        overall = round(overall * scale, 2)
-
         # DEF-622: totaalscore niet beschikbaar zolang een regel zonder cijfer
         # in de set zit. Bewust ná de berekening hierboven en niet ervoor:
         # de uitkomst is 'niet beschikbaar', niet 'de score over de rest'.
-        if zonder_cijfer:
-            overall = None
+        overall: float | None = None if zonder_cijfer else round(gewogen * scale, 2)
 
         # Extra heuristics (language/structure) to align with golden expectations
         try:
@@ -1599,11 +1596,7 @@ class ModularValidationService:
         rule_statuses[code] = outcome.status.value
 
         if rule_results is not None and geen_cijfer:
-            detail = outcome.metadata.get("rule_result")
-            if isinstance(detail, dict):
-                rule_results[code] = dict(detail)
-            elif outcome.status is ResultStatus.ERROR:
-                rule_results[code] = self._technische_fout_uitkomst()
+            self._boek_rule_result(code, outcome, rule_results)
 
         if outcome.status is ResultStatus.PASS:
             if not geen_cijfer:
@@ -1643,6 +1636,23 @@ class ModularValidationService:
                     "correlation_id": ctx.correlation_id,
                 },
             )
+
+    def _boek_rule_result(
+        self,
+        code: str,
+        outcome: EvaluationOutcome,
+        rule_results: dict[str, dict[str, Any]],
+    ) -> None:
+        """De gestructureerde uitkomst van een regel zonder cijfer boeken.
+
+        Een technische fout zonder detail krijgt het aparte foutonderdeel
+        (B-06/B-08), zonder interne details als normuitleg.
+        """
+        detail = outcome.metadata.get("rule_result")
+        if isinstance(detail, dict):
+            rule_results[code] = dict(detail)
+        elif outcome.status is ResultStatus.ERROR:
+            rule_results[code] = self._technische_fout_uitkomst()
 
     @staticmethod
     def _synchroniseer_gate(

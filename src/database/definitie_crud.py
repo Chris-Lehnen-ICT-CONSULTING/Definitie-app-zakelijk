@@ -291,43 +291,11 @@ class DefinitieCrudRepository:
                 f"die de beoordelaar beoordeeld heeft (gekregen: {expected_version!r})"
             )
             raise ValueError(msg)
-        if review is not None:
-            if not isinstance(review, dict):
-                msg = "context_review moet een dict zijn"
-                raise ValueError(msg)
-            actor = review.get("actor")
-            handelend = updated_by if isinstance(updated_by, str) else None
-            handelend = (handelend or "").strip() or None
-            if handelend is None:
-                msg = (
-                    "set_context_review vereist een handelende gebruiker "
-                    "(updated_by) als betrouwbare beoordelaarsbron"
-                )
-                raise ValueError(msg)
-            if actor is not None and (
-                not isinstance(actor, str) or actor.strip() != handelend
-            ):
-                msg = (
-                    f"beoordelaar in de beoordeling ({actor!r}) wijkt af van de "
-                    f"handelende gebruiker ({handelend!r}); geweigerd vóór opslag"
-                )
-                raise ValueError(msg)
-            meegegeven = review.get("version_number")
-            if meegegeven is not None and not _is_versienummer(meegegeven):
-                # Strikt type (tweede deltareview V2b): `True`/`1.0` zijn
-                # numeriek gelijk aan 1 maar geen geldige versie.
-                msg = (
-                    f"beoordeling draagt geen geldig versienummer "
-                    f"({meegegeven!r}); geweigerd vóór opslag"
-                )
-                raise ValueError(msg)
-            if meegegeven is not None and meegegeven != expected_version:
-                msg = (
-                    f"beoordeling hoort bij versie {meegegeven!r}, maar beoordeeld "
-                    f"is versie {expected_version}: verouderde invoer, geweigerd "
-                    "vóór opslag; beoordeel de actuele versie opnieuw"
-                )
-                raise ValueError(msg)
+        handelend = (
+            None
+            if review is None
+            else self._geldige_beoordelaar(review, updated_by, expected_version)
+        )
 
         with self._db.transaction():
             current = self.get_definitie(definitie_id)
@@ -357,6 +325,79 @@ class DefinitieCrudRepository:
                 },
                 updated_by,
             )
+
+    def _bewaak_vaststelinvariant(
+        self, definitie_id: int, actueel: DefinitieRecord, updates: dict[str, Any]
+    ) -> None:
+        """Hercontrole van 'maximaal één vastgesteld record' op de resulterende
+        staat, ónder de schrijflock (B-03/B-10).
+
+        Alleen wanneer de update een record vastgesteld maakt of de identiteit
+        (begrip/context) van een vastgesteld record raakt; categorie is bewust
+        geen onderdeel van de identiteit.
+        """
+        nieuwe_status = updates.get("status", actueel.status)
+        raakt_identiteit = any(veld in updates for veld in _IDENTITEITSVELDEN)
+        if nieuwe_status == DefinitieStatus.ESTABLISHED.value and (
+            actueel.status != DefinitieStatus.ESTABLISHED.value or raakt_identiteit
+        ):
+            self._eis_geen_vaststelconflict(
+                updates.get("begrip", actueel.begrip),
+                updates.get(
+                    "organisatorische_context", actueel.organisatorische_context
+                ),
+                updates.get("juridische_context", actueel.juridische_context),
+                updates.get("wettelijke_basis", actueel.wettelijke_basis),
+                eigen_id=definitie_id,
+            )
+
+    @staticmethod
+    def _geldige_beoordelaar(
+        review: Any, updated_by: str | None, expected_version: int
+    ) -> str:
+        """Controleer de payload vóór mutatie; geeft de handelende gebruiker.
+
+        Weigert (ValueError) een payload die geen dict is, zonder handelende
+        gebruiker, met een afwijkende beoordelaar (V3), met een versienummer
+        van een ongeldig type (V2b) of van een andere versie dan beoordeeld
+        (V2a: verouderde invoer).
+        """
+        if not isinstance(review, dict):
+            msg = "context_review moet een dict zijn"
+            raise ValueError(msg)
+        handelend = (updated_by if isinstance(updated_by, str) else "").strip()
+        if not handelend:
+            msg = (
+                "set_context_review vereist een handelende gebruiker "
+                "(updated_by) als betrouwbare beoordelaarsbron"
+            )
+            raise ValueError(msg)
+        actor = review.get("actor")
+        if actor is not None and (
+            not isinstance(actor, str) or actor.strip() != handelend
+        ):
+            msg = (
+                f"beoordelaar in de beoordeling ({actor!r}) wijkt af van de "
+                f"handelende gebruiker ({handelend!r}); geweigerd vóór opslag"
+            )
+            raise ValueError(msg)
+        meegegeven = review.get("version_number")
+        if meegegeven is not None and not _is_versienummer(meegegeven):
+            # Strikt type (tweede deltareview V2b): `True`/`1.0` zijn
+            # numeriek gelijk aan 1 maar geen geldige versie.
+            msg = (
+                f"beoordeling draagt geen geldig versienummer "
+                f"({meegegeven!r}); geweigerd vóór opslag"
+            )
+            raise ValueError(msg)
+        if meegegeven is not None and meegegeven != expected_version:
+            msg = (
+                f"beoordeling hoort bij versie {meegegeven!r}, maar beoordeeld "
+                f"is versie {expected_version}: verouderde invoer, geweigerd "
+                "vóór opslag; beoordeel de actuele versie opnieuw"
+            )
+            raise ValueError(msg)
+        return handelend
 
     @staticmethod
     def _meegroeiende_beoordeling(
@@ -524,20 +565,7 @@ class DefinitieCrudRepository:
             # Verse lezing ónder de lock: `current` van vóór de transactie kan
             # door een gelijktijdige vaststelling verouderd zijn.
             actueel = self.get_definitie(definitie_id) or current
-            nieuwe_status = updates.get("status", actueel.status)
-            raakt_identiteit = any(veld in updates for veld in _IDENTITEITSVELDEN)
-            if nieuwe_status == DefinitieStatus.ESTABLISHED.value and (
-                actueel.status != DefinitieStatus.ESTABLISHED.value or raakt_identiteit
-            ):
-                self._eis_geen_vaststelconflict(
-                    updates.get("begrip", actueel.begrip),
-                    updates.get(
-                        "organisatorische_context", actueel.organisatorische_context
-                    ),
-                    updates.get("juridische_context", actueel.juridische_context),
-                    updates.get("wettelijke_basis", actueel.wettelijke_basis),
-                    eigen_id=definitie_id,
-                )
+            self._bewaak_vaststelinvariant(definitie_id, actueel, updates)
 
             # DEF-622 (deltareview V2c): uitsluitend de atomaire vaststelactie
             # neemt de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar

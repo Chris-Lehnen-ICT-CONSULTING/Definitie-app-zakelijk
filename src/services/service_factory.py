@@ -237,7 +237,7 @@ class ServiceAdapter:
                 logger.warning(f"Failed to extract validation score, using 0.0: {e}")
         return 0.0
 
-    def _extract_is_acceptable(self, result: Any, score: float) -> bool:
+    def _extract_is_acceptable(self, result: Any, score: float | None) -> bool:
         """Extract acceptance status with fallback to score threshold."""
         # Try direct fields first
         for field in ["is_acceptable", "is_valid"]:
@@ -245,8 +245,9 @@ class ServiceAdapter:
                 return bool(getattr(result, field))
             if isinstance(result, dict) and field in result:
                 return bool(result[field])
-        # Fallback to score threshold
-        return score >= 0.5
+        # Fallback to score threshold. DEF-622: zonder totaalscore (None) is
+        # er geen drempel te toetsen — fail-closed niet acceptabel.
+        return score is not None and score >= 0.5
 
     @staticmethod
     def _met_discriminator(genormaliseerd: dict, bron: Any) -> dict:

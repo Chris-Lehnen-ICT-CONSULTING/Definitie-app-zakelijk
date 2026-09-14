@@ -993,19 +993,27 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     # ===== Contextcontract en vaststelinvariant (DEF-622) =====
     def find_leidende_definitie(
-        self, record: DefinitieRecord
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = "",
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
     ) -> DefinitieRecord | None:
-        """Het vastgestelde, leidende record met dezelfde identiteit als `record`.
+        """Het vastgestelde, leidende record met dezelfde identiteit.
 
         Identiteit = begrip + volledige genormaliseerde context, ongeacht
-        categorie (B-03/B-10). Het record zelf telt niet mee.
+        categorie (B-03/B-10). `eigen_id` telt niet mee. Dezelfde signatuur
+        als de DB-facade, zodat aanroepers die (DEF-439) de DB-laag
+        annoteren maar runtime deze laag krijgen, één aanroep hebben.
         """
         return self.legacy_repo.find_leidende_definitie(
-            record.begrip,
-            record.organisatorische_context,
-            record.juridische_context or "",
-            record.get_wettelijke_basis_list(),
-            eigen_id=record.id,
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            eigen_id=eigen_id,
         )
 
     def set_context_review(

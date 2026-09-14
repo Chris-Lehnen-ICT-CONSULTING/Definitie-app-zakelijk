@@ -305,6 +305,60 @@ def _versienummer(waarde: Any) -> int | None:
     return None
 
 
+def _versieconflict(
+    beoordeeld: Any, definitie_versie: int | str | None
+) -> dict[str, Any] | None:
+    """De reden waarom de versiebinding niet klopt, of None wanneer zij klopt.
+
+    Draagt het record een versie, dan moet de beoordeling een geldig én gelijk
+    versienummer hebben (E2, V2b). Zonder recordversie is er niets te
+    vergelijken: dan bindt uitsluitend de vingerafdruk.
+    """
+    actuele_versie = _versienummer(definitie_versie)
+    if actuele_versie is None:
+        return None
+    beoordeelde_versie = _versienummer(beoordeeld)
+    if beoordeelde_versie is None:
+        return {
+            "version_number": None,
+            "reason": (
+                "eerdere beoordeling draagt geen geldig versienummer; het record "
+                f"is versie {actuele_versie} en vraagt een nieuwe beoordeling"
+            ),
+        }
+    if beoordeelde_versie != actuele_versie:
+        return {
+            "version_number": beoordeelde_versie,
+            "reason": (
+                f"eerdere beoordeling hoort bij versie {beoordeelde_versie}; het "
+                f"record is inmiddels versie {actuele_versie}"
+            ),
+        }
+    return None
+
+
+def _bruikbare_beslissingen(
+    ruwe: Any,
+) -> tuple[dict[str, dict[str, str]], list[str]]:
+    """(bruikbare beslissingen per onderdeel, genegeerde onderdelen).
+
+    Een beslissing telt alleen met een bekende functie én een vastgelegde reden.
+    """
+    beslissingen: dict[str, dict[str, str]] = {}
+    genegeerd: list[str] = []
+    for onderdeel, beslissing in (ruwe.items() if isinstance(ruwe, Mapping) else ()):
+        if not isinstance(beslissing, Mapping) or not isinstance(onderdeel, str):
+            genegeerd.append(str(onderdeel))
+            continue
+        functie = _tekst(beslissing.get("function")).lower()
+        reden = _tekst(beslissing.get("reason"))
+        if functie not in _BEKENDE_FUNCTIES or not reden:
+            genegeerd.append(onderdeel)
+            continue
+        beslissingen[onderdeel] = {"function": functie, "reason": reden}
+    return beslissingen, genegeerd
+
+
 def _geldige_beoordeling(
     review: Any, fingerprint: str, definitie_versie: int | str | None = None
 ) -> tuple[dict[str, dict[str, str]], dict[str, Any]]:
@@ -341,40 +395,15 @@ def _geldige_beoordeling(
             "eerdere beoordeling geldt niet meer: tekst, context of term is gewijzigd"
         )
         return {}, samenvatting
-    beoordeelde_versie = _versienummer(review.get("version_number"))
-    actuele_versie = _versienummer(definitie_versie)
-    if actuele_versie is not None:
-        if beoordeelde_versie is None:
-            samenvatting["version_number"] = None
-            samenvatting["reason"] = (
-                "eerdere beoordeling draagt geen geldig versienummer; het record "
-                f"is versie {actuele_versie} en vraagt een nieuwe beoordeling"
-            )
-            return {}, samenvatting
-        if beoordeelde_versie != actuele_versie:
-            samenvatting["version_number"] = beoordeelde_versie
-            samenvatting["reason"] = (
-                f"eerdere beoordeling hoort bij versie {beoordeelde_versie}; het "
-                f"record is inmiddels versie {actuele_versie}"
-            )
-            return {}, samenvatting
+    versieprobleem = _versieconflict(review.get("version_number"), definitie_versie)
+    if versieprobleem is not None:
+        samenvatting.update(versieprobleem)
+        return {}, samenvatting
     if not actor:
         samenvatting["reason"] = "beoordeling zonder benoemde beoordelaar genegeerd"
         return {}, samenvatting
 
-    beslissingen: dict[str, dict[str, str]] = {}
-    genegeerd: list[str] = []
-    ruwe = review.get("decisions")
-    for onderdeel, beslissing in (ruwe.items() if isinstance(ruwe, Mapping) else ()):
-        if not isinstance(beslissing, Mapping) or not isinstance(onderdeel, str):
-            genegeerd.append(str(onderdeel))
-            continue
-        functie = _tekst(beslissing.get("function")).lower()
-        reden = _tekst(beslissing.get("reason"))
-        if functie not in _BEKENDE_FUNCTIES or not reden:
-            genegeerd.append(onderdeel)
-            continue
-        beslissingen[onderdeel] = {"function": functie, "reason": reden}
+    beslissingen, genegeerd = _bruikbare_beslissingen(review.get("decisions"))
 
     samenvatting["applied"] = bool(beslissingen)
     if genegeerd:

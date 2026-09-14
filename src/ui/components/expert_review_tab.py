@@ -580,11 +580,16 @@ class ExpertReviewTab:
             return
 
         st.markdown("**Beoordeel de functie van de gevonden naam/namen:**")
-        functies = {
+        functies: dict[str, str] = {
             FUNCTIE_REGISTRATIE: "registratiecontext (hoort niet in de definitiezin)",
             FUNCTIE_NOODZAKELIJK: "inhoudelijk noodzakelijk voor afbakening/identificatie",
             FUNCTIE_ONDUIDELIJK: "nog onduidelijk (blijft open)",
         }
+        functie_opties: list[str] = list(functies)
+
+        def _functielabel(functie_code: str) -> str:
+            return functies[functie_code]
+
         beslissingen: dict[str, dict[str, str]] = {}
         for part in open_delen:
             sleutel = f"con01_{definitie.id}_{part.id}"
@@ -594,8 +599,8 @@ class ExpertReviewTab:
             )
             functie = st.selectbox(
                 "Functie van deze naam",
-                options=list(functies),
-                format_func=lambda f, _m=functies: _m[f],
+                options=functie_opties,
+                format_func=_functielabel,
                 key=f"{sleutel}_functie",
             )
             reden = st.text_input(
@@ -604,7 +609,7 @@ class ExpertReviewTab:
                 placeholder="Bijv. Stichting Zilver is de exclusieve uitgever van dit keurmerk",
             )
             beslissingen[part.id] = {
-                "function": functie,
+                "function": str(functie or FUNCTIE_ONDUIDELIJK),
                 "reason": (reden or "").strip(),
             }
 
@@ -624,8 +629,10 @@ class ExpertReviewTab:
             disabled=bool(onvolledig) or not actor,
             help=hulp,
         ):
-            if not actor:
-                st.error("❌ Vastleggen vereist een reviewer naam")
+            if not actor or definitie.id is None:
+                st.error(
+                    "❌ Vastleggen vereist een reviewer naam en een opgeslagen definitie"
+                )
                 return
             bestaande = dict(review or {})
             bestaande_beslissingen = (
@@ -634,36 +641,46 @@ class ExpertReviewTab:
                 else {}
             )
             bestaande_beslissingen.update(beslissingen)
-            nieuwe_review = {
-                "fingerprint": uitkomst.fingerprint,
-                "actor": actor,
-                "decisions": bestaande_beslissingen,
-                "reviewed_at": datetime.now().isoformat(),
-            }
-            opgeslagen = self.repository.set_context_review(
-                definitie.id,
-                nieuwe_review,
-                updated_by=actor,
-                # De versie die de expert vóór zich had (V2a): is het record
-                # intussen gewijzigd, dan bindt deze invoer niet.
-                expected_version=definitie.version_number,
+            self._leg_beoordeling_vast(
+                definitie,
+                {
+                    "fingerprint": uitkomst.fingerprint,
+                    "actor": actor,
+                    "decisions": bestaande_beslissingen,
+                    "reviewed_at": datetime.now().isoformat(),
+                },
+                actor,
             )
-            # Opslaan bumpt de versie: herlaad het record zodat de
-            # vaststelling straks tegen de actuele versie loopt. Ook bij een
-            # verouderd snapshot wordt de selectie ververst.
-            vers = self.repository.get_definitie(definitie.id)
-            if vers is not None:
-                SessionStateManager.set_value("selected_review_definition", vers)
-            if opgeslagen:
-                st.success("✅ Beoordeling vastgelegd")
-            elif vers is not None and vers.version_number != definitie.version_number:
-                st.warning(
-                    "⚠️ Beoordeling niet vastgelegd: de definitie is intussen "
-                    "gewijzigd; beoordeel de actuele versie opnieuw"
-                )
-            else:
-                st.error("❌ Beoordeling kon niet worden vastgelegd")
-            st.rerun()
+
+    def _leg_beoordeling_vast(
+        self, definitie: DefinitieRecord, nieuwe_review: dict[str, Any], actor: str
+    ) -> None:
+        """Sla de beoordeling op tegen de getoonde versie en ververs de selectie."""
+        definitie_id = cast(int, definitie.id)
+        opgeslagen = self.repository.set_context_review(
+            definitie_id,
+            nieuwe_review,
+            updated_by=actor,
+            # De versie die de expert vóór zich had (V2a): is het record
+            # intussen gewijzigd, dan bindt deze invoer niet.
+            expected_version=definitie.version_number,
+        )
+        # Opslaan bumpt de versie: herlaad het record zodat de vaststelling
+        # straks tegen de actuele versie loopt. Ook bij een verouderd
+        # snapshot wordt de selectie ververst.
+        vers = self.repository.get_definitie(definitie_id)
+        if vers is not None:
+            SessionStateManager.set_value("selected_review_definition", vers)
+        if opgeslagen:
+            st.success("✅ Beoordeling vastgelegd")
+        elif vers is not None and vers.version_number != definitie.version_number:
+            st.warning(
+                "⚠️ Beoordeling niet vastgelegd: de definitie is intussen "
+                "gewijzigd; beoordeel de actuele versie opnieuw"
+            )
+        else:
+            st.error("❌ Beoordeling kon niet worden vastgelegd")
+        st.rerun()
 
     @staticmethod
     def _handelende_gebruiker() -> str | None:
@@ -1047,57 +1064,8 @@ class ExpertReviewTab:
             v2 = SessionStateManager.get_value(vkey)
             if not v2:
                 # Probeer bestaande DB-validatie te mappen naar V2-formaat
-                issues = (
-                    definitie.get_validation_issues_list()
-                    if hasattr(definitie, "get_validation_issues_list")
-                    else []
-                )
-                if issues:
-                    # DEF-622: een ontbrekende score is 'niet beschikbaar'
-                    # (None), geen 0.0 — en dus ook geen oordeel ≥ 0,75.
-                    ruwe = getattr(definitie, "validation_score", None)
-                    try:
-                        score = None if ruwe is None else float(ruwe)
-                    except (TypeError, ValueError):
-                        score = None
-                    # Map DB issues → V2 violations. De vastgelegde CON-01-
-                    # beoordeling is geen violation en blijft hier buiten.
-                    from database.models import CONTEXT_REVIEW_CODE
-
-                    mapped = []
-                    for it in issues:
-                        if it.get("code") == CONTEXT_REVIEW_CODE:
-                            continue
-                        try:
-                            mapped.append(
-                                {
-                                    "code": it.get("code") or it.get("rule_id") or "",
-                                    "severity": it.get("severity", "warning"),
-                                    "message": it.get("message")
-                                    or it.get("description")
-                                    or "",
-                                    "description": it.get("description")
-                                    or it.get("message")
-                                    or "",
-                                    "rule_id": it.get("rule_id")
-                                    or it.get("code")
-                                    or "",
-                                    "category": it.get("category", "system"),
-                                }
-                            )
-                        except (AttributeError, TypeError, KeyError) as e:
-                            logger.warning(f"Could not map issue to V2 format: {e}")
-                    v2 = {
-                        "version": "1.0.0",
-                        "overall_score": score,
-                        "is_acceptable": score is not None and score >= 0.75,
-                        "violations": mapped,
-                        "passed_rules": [],
-                        "detailed_scores": {},
-                        "system": {
-                            "correlation_id": "00000000-0000-0000-0000-000000000000"
-                        },
-                    }
+                v2 = self._v2_uit_opgeslagen_validatie(definitie)
+                if v2:
                     SessionStateManager.set_value(vkey, v2)
 
             if v2:
@@ -1113,6 +1081,58 @@ class ExpertReviewTab:
             logger.exception(
                 "Failed to render validation results for definitie %s", definitie.id
             )
+
+    @staticmethod
+    def _v2_uit_opgeslagen_validatie(
+        definitie: DefinitieRecord,
+    ) -> dict[str, Any] | None:
+        """Map de in de DB opgeslagen validatie-issues naar het V2-formaat.
+
+        None wanneer er geen issues zijn. DEF-622: een ontbrekende score is
+        'niet beschikbaar' (None), geen 0.0 — en dus ook geen oordeel ≥ 0,75;
+        de vastgelegde CON-01-beoordeling is geen violation en blijft buiten
+        de lijst.
+        """
+        from database.models import CONTEXT_REVIEW_CODE
+
+        issues = (
+            definitie.get_validation_issues_list()
+            if hasattr(definitie, "get_validation_issues_list")
+            else []
+        )
+        if not issues:
+            return None
+        ruwe = getattr(definitie, "validation_score", None)
+        try:
+            score = None if ruwe is None else float(ruwe)
+        except (TypeError, ValueError):
+            score = None
+        mapped = []
+        for it in issues:
+            if it.get("code") == CONTEXT_REVIEW_CODE:
+                continue
+            try:
+                mapped.append(
+                    {
+                        "code": it.get("code") or it.get("rule_id") or "",
+                        "severity": it.get("severity", "warning"),
+                        "message": it.get("message") or it.get("description") or "",
+                        "description": it.get("description") or it.get("message") or "",
+                        "rule_id": it.get("rule_id") or it.get("code") or "",
+                        "category": it.get("category", "system"),
+                    }
+                )
+            except (AttributeError, TypeError, KeyError) as e:
+                logger.warning(f"Could not map issue to V2 format: {e}")
+        return {
+            "version": "1.0.0",
+            "overall_score": score,
+            "is_acceptable": score is not None and score >= 0.75,
+            "violations": mapped,
+            "passed_rules": [],
+            "detailed_scores": {},
+            "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+        }
 
     def _render_review_history(self) -> None:
         """Render review geschiedenis."""

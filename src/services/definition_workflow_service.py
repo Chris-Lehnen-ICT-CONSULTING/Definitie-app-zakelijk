@@ -264,52 +264,19 @@ class DefinitionWorkflowService:
             definition = self.repository.get_definitie(definition_id)
             if not definition:
                 return self._mislukt(f"Definitie {definition_id} niet gevonden")
-            if definition.version_number != expected_version:
-                # Het beoordeelde snapshot (UI) is ouder dan de database: niet
-                # beoordelen, niet schrijven. Dezelfde waarde dient hieronder als
-                # SQL-guard voor wijzigingen tussen gate en UPDATE.
-                return self._mislukt(
-                    "Definitie is intussen gewijzigd; beoordeel opnieuw",
-                    gate_status="stale",
-                    gate_reasons=[],
-                )
-
             current_status = definition.status
-            if not self.workflow_service.can_change_status(
-                current_status, "established", user_role
-            ):
-                return self._mislukt(
-                    f"Transitie van {current_status} naar ESTABLISHED niet toegestaan"
-                )
-
-            # US-160: Gate-evaluatie vóór de transactie (kort lockvenster); de
-            # version guard hieronder borgt dat precies deze versie wordt vastgesteld.
-            gate = self._evaluate_gate(definition)
-            if gate["status"] == "blocked":
-                return self._mislukt(
-                    f"Vaststellen geblokkeerd: {'; '.join(gate['reasons'])}",
-                    gate_status="blocked",
-                    gate_reasons=gate["reasons"],
-                )
-            if gate["status"] == "override_required" and not (notes and notes.strip()):
-                return self._mislukt(
-                    "Override vereist: geef een reden op in het notitieveld",
-                    gate_status="override_required",
-                    gate_reasons=gate["reasons"],
-                )
-
-            # DEF-622: conflictcontrole vóór de transactie (kort lockvenster,
-            # duidelijke melding); de bindende hercontrole zit hieronder ónder
-            # de schrijflock.
-            conflict = self._conflict_met_leidend_record(
-                definition, vervang_definitie_id
+            # Controles vóór de transactie (kort lockvenster): versie, transitie,
+            # gate (US-160) en conflict (DEF-622). De version guard en de
+            # hercontrole ónder de schrijflock hieronder blijven bindend.
+            geweigerd, gate = self._vooraf_geweigerd(
+                definition,
+                expected_version=expected_version,
+                user_role=user_role,
+                notes=notes,
+                vervang_definitie_id=vervang_definitie_id,
             )
-            if conflict is not None:
-                return self._mislukt(
-                    f"Vaststellen geblokkeerd: {conflict}",
-                    gate_status="conflict",
-                    gate_reasons=[conflict],
-                )
+            if geweigerd is not None:
+                return geweigerd
 
             try:
                 with self.repository.transaction():
@@ -431,6 +398,76 @@ class DefinitionWorkflowService:
             gate_status=gate_status,
             gate_reasons=gate_reasons,
         )
+
+    def _vooraf_geweigerd(
+        self,
+        definition: DefinitieRecord,
+        *,
+        expected_version: int,
+        user_role: str | None,
+        notes: str,
+        vervang_definitie_id: int | None,
+    ) -> tuple[WorkflowResult | None, dict[str, Any]]:
+        """De controles van `approve` vóór de transactie, in deze volgorde:
+        versie (stale), transitie, gate (US-160), conflict (DEF-622).
+
+        Geeft (weigering of None, gate). De gate wordt pas geëvalueerd als
+        versie en transitie kloppen.
+        """
+        leeg: dict[str, Any] = {"status": "blocked", "reasons": []}
+        if definition.version_number != expected_version:
+            # Het beoordeelde snapshot (UI) is ouder dan de database: niet
+            # beoordelen, niet schrijven. Dezelfde waarde dient in `approve`
+            # als SQL-guard voor wijzigingen tussen gate en UPDATE.
+            return (
+                self._mislukt(
+                    "Definitie is intussen gewijzigd; beoordeel opnieuw",
+                    gate_status="stale",
+                    gate_reasons=[],
+                ),
+                leeg,
+            )
+        if not self.workflow_service.can_change_status(
+            definition.status, "established", user_role
+        ):
+            return (
+                self._mislukt(
+                    f"Transitie van {definition.status} naar ESTABLISHED niet toegestaan"
+                ),
+                leeg,
+            )
+        gate = self._evaluate_gate(definition)
+        if gate["status"] == "blocked":
+            return (
+                self._mislukt(
+                    f"Vaststellen geblokkeerd: {'; '.join(gate['reasons'])}",
+                    gate_status="blocked",
+                    gate_reasons=gate["reasons"],
+                ),
+                gate,
+            )
+        if gate["status"] == "override_required" and not (notes and notes.strip()):
+            return (
+                self._mislukt(
+                    "Override vereist: geef een reden op in het notitieveld",
+                    gate_status="override_required",
+                    gate_reasons=gate["reasons"],
+                ),
+                gate,
+            )
+        # DEF-622: conflictcontrole vóór de transactie (duidelijke melding);
+        # de bindende hercontrole zit in `approve` ónder de schrijflock.
+        conflict = self._conflict_met_leidend_record(definition, vervang_definitie_id)
+        if conflict is not None:
+            return (
+                self._mislukt(
+                    f"Vaststellen geblokkeerd: {conflict}",
+                    gate_status="conflict",
+                    gate_reasons=[conflict],
+                ),
+                gate,
+            )
+        return None, gate
 
     def _publiceer_na_commit(
         self,
@@ -690,22 +727,7 @@ class DefinitionWorkflowService:
         reasons: list[str] = []
 
         # 1) Context aanwezig? (JSON arrays in TEXT voor org/jur; wet via helper)
-        import json as _json
-
-        def _parse_list(val: Any) -> list[Any]:
-            try:
-                if not val:
-                    return []
-                return list(_json.loads(val)) if isinstance(val, str) else list(val)
-            except (TypeError, ValueError):
-                # DEF-246: JSON parse or list conversion failed
-                return []
-
-        org_list = _parse_list(getattr(definition, "organisatorische_context", []))
-        jur_list = _parse_list(getattr(definition, "juridische_context", []))
-        wb_list: list[Any] = []
-        if hasattr(definition, "get_wettelijke_basis_list"):
-            wb_list = definition.get_wettelijke_basis_list() or []
+        org_list, jur_list, wb_list = self._gate_contextlijsten(definition)
 
         if policy.hard_requirements.get("min_one_context_required", True):
             if not (org_list or jur_list or wb_list):
@@ -804,6 +826,32 @@ class DefinitionWorkflowService:
         return {"status": "pass", "reasons": []}
 
     @staticmethod
+    def _gate_contextlijsten(
+        definition: DefinitieRecord,
+    ) -> tuple[list[Any], list[Any], list[Any]]:
+        """(organisatorisch, juridisch, wettelijk) zoals de gate ze leest.
+
+        JSON-arrays in TEXT voor org/jur; wet via de recordhelper. Onleesbare
+        waarden tellen als leeg (DEF-246).
+        """
+        import json as _json
+
+        def _parse_list(val: Any) -> list[Any]:
+            try:
+                if not val:
+                    return []
+                return list(_json.loads(val)) if isinstance(val, str) else list(val)
+            except (TypeError, ValueError):
+                return []
+
+        org_list = _parse_list(getattr(definition, "organisatorische_context", []))
+        jur_list = _parse_list(getattr(definition, "juridische_context", []))
+        wb_list: list[Any] = []
+        if hasattr(definition, "get_wettelijke_basis_list"):
+            wb_list = definition.get_wettelijke_basis_list() or []
+        return org_list, jur_list, wb_list
+
+    @staticmethod
     def _con01_blokkades(definition: DefinitieRecord) -> list[str]:
         """De CON-01-vaststelvoorwaarde (B-07), herberekend op het record.
 
@@ -884,7 +932,13 @@ class DefinitionWorkflowService:
         bewust vervangt. Een `vervang_definitie_id` dat niet het leidende
         record is, wordt geweigerd: vervanging is geen vrijbrief.
         """
-        leidend = self.repository.find_leidende_definitie(definition)
+        leidend = self.repository.find_leidende_definitie(
+            definition.begrip,
+            definition.organisatorische_context,
+            definition.juridische_context or "",
+            definition.get_wettelijke_basis_list(),
+            eigen_id=definition.id,
+        )
         if leidend is None:
             if vervang_definitie_id is not None:
                 return (
