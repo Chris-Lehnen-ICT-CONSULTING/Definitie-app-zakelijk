@@ -15,6 +15,7 @@ Alle databases zijn tijdelijk en synthetisch.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 from unittest.mock import AsyncMock
 
@@ -194,9 +195,164 @@ class TestExportContractvelden:
             )
         assert gezien and gezien[0]["rule_statuses"]["CON-01"] == "review_required"
 
+    @pytest.mark.asyncio
+    async def test_exportuitvoer_draagt_dezelfde_contractvelden_als_de_validator(
+        self, tmp_path
+    ):
+        """K2 (delta 1): aanvullende data mag de contractvelden ook in het
+        exportobject/de uitvoer niet vervangen — validator en uitvoer gebruiken
+        exact dezelfde recordgegevens."""
+        import json as _json
+
+        from services.export_service import ExportFormat
+
+        repo = _repo(tmp_path)
+        did = self._verouderd(repo)
+        spy = AsyncMock()
+        spy.validate_text.return_value = {
+            "version": "1.3.0",
+            "is_acceptable": True,
+            "system": {},
+        }
+        service = _export_service(repo, tmp_path, spy)
+
+        pad = await service.export_definitie_async(
+            definitie_id=did,
+            additional_data={
+                "metadata": {
+                    "id": did + 100,
+                    "versie": 2,
+                    "context_review": {"fingerprint": "vervalst", "actor": "x"},
+                    "organisatorische_context": "Stichting Goud",
+                },
+                "context_dict": {"organisatorisch": ["Stichting Goud"]},
+            },
+            format=ExportFormat.JSON,
+        )
+        uitvoer = _json.loads(Path(pad).read_text(encoding="utf-8"))
+        assert uitvoer["metadata"]["id"] == did
+        assert uitvoer["metadata"]["versie"] == 4
+        assert uitvoer["metadata"]["context_review"]["actor"] == ACTOR
+        assert uitvoer["metadata"]["context_review"]["version_number"] == 2
+        assert uitvoer["metadata"]["organisatorische_context"] == "Stichting Zilver"
+        assert uitvoer["context"]["organisatorisch"] == ["Stichting Zilver"]
+        assert uitvoer["context"]["juridisch"] == ["privaatrecht"]
+        assert uitvoer["context"]["wettelijk"] == ["Regeling Z"]
+
+    @pytest.mark.asyncio
+    async def test_export_leest_het_record_een_keer(self, tmp_path):
+        """K2 (delta 2): één recordlezing voor aggregatie én validatie; een
+        tussentijdse wijziging kan niet tot 'validatie v3 / export v2' leiden."""
+        from services.export_service import ExportFormat
+
+        repo = _repo(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record())
+        spy = AsyncMock()
+        spy.validate_text.return_value = {
+            "version": "1.3.0",
+            "is_acceptable": True,
+            "system": {},
+        }
+        service = _export_service(repo, tmp_path, spy)
+
+        lezingen: list[int] = []
+        echte_get = service.repository.get_definitie
+
+        def _geteld(definitie_id: int):
+            rec = echte_get(definitie_id)
+            lezingen.append(rec.version_number if rec else -1)
+            # Tussen twee lezingen wijzigt het record: een tweede lezing zou
+            # een andere snapshot zien.
+            repo.legacy_repo.update_definitie(
+                definitie_id, {"definitie": "ander kwaliteitsmerk"}
+            )
+            return rec
+
+        service.repository.get_definitie = _geteld  # type: ignore[method-assign]
+        service.data_aggregation_service.repository.get_definitie = _geteld  # type: ignore[method-assign]
+
+        await service.export_definitie_async(definitie_id=did, format=ExportFormat.TXT)
+
+        assert lezingen == [1], lezingen
+        aanroep = spy.validate_text.call_args.kwargs
+        assert aanroep["text"] == ZIN
+        assert aanroep["context"].metadata["definition_version"] == 1
+
+    @pytest.mark.asyncio
+    async def test_expliciete_legacytekst_krijgt_dezelfde_tekstbasis(self, tmp_path):
+        """K4 (delta 4): exact dezelfde opgeslagen legacytekst als
+        `definitie_aangepast` meegeven verandert de vingerafdruk niet; de
+        toelichting blijft een afzonderlijk gegeven."""
+        from services.export_service import ExportFormat
+
+        repo = _repo(tmp_path)
+        volledig = f"{ZIN}\n\nToelichting: {TOELICHTING}"
+        did = repo.legacy_repo.create_definitie(_record(definitie=volledig))
+        _beoordeel(repo, did)
+        orchestrator = _echte_orchestrator()
+        gezien: list[dict[str, Any]] = []
+        echte = orchestrator.validate_text
+
+        async def _spion(**kwargs):
+            resultaat = await echte(**kwargs)
+            gezien.append({"text": kwargs["text"], "resultaat": resultaat})
+            return {**resultaat, "is_acceptable": True}
+
+        orchestrator.validate_text = _spion  # type: ignore[method-assign]
+        service = _export_service(repo, tmp_path, orchestrator)
+
+        pad = await service.export_definitie_async(
+            definitie_id=did,
+            additional_data={"definitie_aangepast": volledig},
+            format=ExportFormat.JSON,
+        )
+        assert gezien[0]["text"] == ZIN
+        assert gezien[0]["resultaat"]["rule_statuses"]["CON-01"] == "pass"
+        import json as _json
+
+        uitvoer = _json.loads(Path(pad).read_text(encoding="utf-8"))
+        assert uitvoer["definitie"]["definitie_aangepast"] == ZIN
+        assert uitvoer["definitie"]["definitie_origineel"] == ZIN
+        assert uitvoer["taalkundig"]["toelichting"] == TOELICHTING
+
 
 class TestReadbackTekstbasis:
     """K4: één tekstbasis voor beoordeling, gate, readback en validatie."""
+
+    @pytest.mark.asyncio
+    async def test_cleaning_verandert_de_tekstbasis_van_de_binding_niet(self, tmp_path):
+        """Record→domein-readback met de productie-orchestrator (mét
+        cleaning): de binding hoort bij de recordtekst, niet bij de
+        opgeschoonde tekst die `clean_definition` in het object schrijft."""
+        from services.cleaning_service import CleaningConfig, CleaningService
+        from services.null_repository import NullDefinitionRepository
+        from services.orchestrators.validation_orchestrator_v2 import (
+            ValidationOrchestratorV2,
+        )
+        from services.validation.modular_validation_service import (
+            ModularValidationService,
+        )
+        from toetsregels.manager import get_toetsregel_manager
+
+        repo = _repo(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record())
+        _beoordeel(repo, did)
+        svc = DefinitionWorkflowService(WorkflowService(), repo)
+        assert svc.preview_gate(did)["status"] == "pass"
+
+        orchestrator = ValidationOrchestratorV2(
+            ModularValidationService(
+                toetsregel_manager=get_toetsregel_manager(),
+                repository=NullDefinitionRepository(),
+            ),
+            cleaning_service=CleaningService(CleaningConfig()),
+        )
+        definition = repo.get(did)
+        resultaat = await orchestrator.validate_definition(definition)
+        assert resultaat["rule_statuses"]["CON-01"] == "pass", resultaat[
+            "rule_results"
+        ]["CON-01"]["review"]
+        assert resultaat["rule_results"]["CON-01"]["review"]["applied"] is True
 
     def test_definitiezin_is_de_tekstbasis(self, tmp_path):
         repo = _repo(tmp_path)

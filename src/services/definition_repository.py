@@ -818,6 +818,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             )
             return None
 
+    def van_record(self, record: DefinitieRecord) -> Definition:
+        """De canonieke recordadapter: één al gelezen record naar Definition.
+
+        Voor aanroepers die het record zelf al hebben gelezen en dezelfde
+        snapshot in beide vormen nodig hebben (DEF-622, K3: getoonde selectie
+        en validatie uit dezelfde lezing).
+        """
+        return self._record_to_definition(record)
+
     def _record_to_definition(self, record: DefinitieRecord) -> Definition:
         """Converteer DefinitieRecord naar Definition."""
         # Split definitie en toelichting indien aanwezig — dezelfde

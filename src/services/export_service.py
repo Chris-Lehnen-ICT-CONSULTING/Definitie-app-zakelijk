@@ -387,29 +387,34 @@ class ExportService:
         format: ExportFormat = ExportFormat.TXT,
     ) -> str:
         """Asynchrone export met optionele validatiegate."""
+        # DEF-622 (K2): één recordlezing — dezelfde snapshot voor aggregatie,
+        # validatie én uitvoer. Een tweede lezing kon een tussentijds gewijzigd
+        # record toetsen terwijl de export de eerdere versie bevatte.
+        record = definitie_record
+        if record is None and definitie_id is not None:
+            record = self.repository.get_definitie(definitie_id)
+            if record is None:
+                msg = f"Definitie met ID {definitie_id} niet gevonden"
+                raise ValueError(msg)
         export_data = self.data_aggregation_service.aggregate_definitie_for_export(
             definitie_id=definitie_id,
-            definitie_record=definitie_record,
+            definitie_record=record,
             additional_data=additional_data,
         )
         # Optionele async validatiegate
         if self.enable_validation_gate and self.validation_orchestrator is not None:
             # DEF-622 (K2): de gate oordeelt op het opgeslagen record. De
             # contractvelden (drie contextlijsten, id, recordversie en de
-            # vastgelegde CON-01-beoordeling) komen uitsluitend van het record,
-            # niet uit de export-data ná de merge met `additional_data` — die
-            # kon versie, id, context en beoordeling vervangen en zo een
-            # verlopen beoordeling laten gelden. Tekstbasis: de definitiezin
-            # van het record (K4), tenzij de export een aangepaste tekst
-            # meekrijgt — dan wordt díe getoetst (en vervalt een beoordeling
-            # op de oorspronkelijke zin via de vingerafdruk). Of de gate
-            # daarna slaagt (totaalscore, algemene exportvoorwaarden) blijft
-            # de algemene gate van DEF-630.
+            # vastgelegde CON-01-beoordeling) komen uitsluitend van het record;
+            # de aggregatie borgt dezelfde velden in de uitvoer, zodat
+            # validator en export exact dezelfde gegevens gebruiken.
+            # Tekstbasis (K4): de definitiezin — van het record, of van een
+            # expliciet meegegeven aangepaste tekst (door de aggregatie op
+            # dezelfde conventie gesplitst; een andere zin laat een beoordeling
+            # via de vingerafdruk vervallen). Of de gate daarna slaagt
+            # (totaalscore, algemene exportvoorwaarden) blijft DEF-630.
             from services.validation.interfaces import ValidationContext
 
-            record = definitie_record
-            if record is None and definitie_id is not None:
-                record = self.repository.get_definitie(definitie_id)
             if record is None:
                 msg = "Validatie vóór export vereist een opgeslagen definitie"
                 raise ValueError(msg)

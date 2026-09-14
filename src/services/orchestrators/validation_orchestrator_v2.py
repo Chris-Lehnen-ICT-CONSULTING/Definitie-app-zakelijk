@@ -146,19 +146,24 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
 
         with operation_progress("validating_definition"):
             try:
-                text = definition.definitie
-                if self.cleaning_service is not None:
-                    cleaned = await self.cleaning_service.clean_definition(definition)
-                    text = cleaned.cleaned_text if cleaned else definition.definitie
-
                 # DEF-622: het record is de bron van zijn eigen context. De
                 # drie lijsten, id en categorie reizen altijd mee — ook zonder
                 # ValidationContext en ook als een lijst leeg is — zodat
                 # CON-01 en DUP_01 op het record oordelen en niet op wat een
-                # aanroeper toevallig in metadata heeft gezet.
+                # aanroeper toevallig in metadata heeft gezet. Vóór de
+                # cleaning: `clean_definition` schrijft de opgeschoonde tekst
+                # in het object terug, en de CON-01-binding (record_text,
+                # vingerafdruk) hoort bij de recordtekst zoals opgeslagen —
+                # anders vervalt een geldige beoordeling zodra cleaning een
+                # hoofdletter of punt toevoegt (koppelingenbevinding).
                 context_dict = self._enrich_context_with_definition_fields(
                     self._context_dict(context), definition
                 )
+
+                text = definition.definitie
+                if self.cleaning_service is not None:
+                    cleaned = await self.cleaning_service.clean_definition(definition)
+                    text = cleaned.cleaned_text if cleaned else definition.definitie
 
                 result = await self.validation_service.validate_definition(
                     begrip=definition.begrip,

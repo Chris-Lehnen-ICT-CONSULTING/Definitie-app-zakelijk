@@ -1289,18 +1289,22 @@ class ExpertReviewTab:
             container = get_cached_service_container()
             orch = container.orchestrator()
 
-            # K3: het opgeslagen record via de canonieke recordadapter
-            # (readback), zodat id, de drie contextlijsten, recordversie en
-            # de vastgelegde beoordeling naar de orchestrator reizen. Een
-            # losse `Definition` zonder die velden gaf een lege context en
-            # verloor de beoordeling.
+            # K3: één actuele lezing van het opgeslagen record; de getoonde
+            # selectie én het validatieresultaat komen uit diezelfde lezing
+            # (geen oude selectie naast een nieuwere uitkomst). De canonieke
+            # recordadapter zet dat record om, zodat id, de drie
+            # contextlijsten, recordversie en de vastgelegde beoordeling naar
+            # de orchestrator reizen. Een losse `Definition` zonder die velden
+            # gaf een lege context en verloor de beoordeling.
             if definitie.id is None:
                 st.error("❌ Hervalidatie vereist een opgeslagen definitie")
                 return
-            definition = container.repository().get(definitie.id)
-            if definition is None:
+            actueel = self.repository.get_definitie(definitie.id)
+            if actueel is None:
                 st.error(f"❌ Definitie {definitie.id} niet gevonden")
                 return
+            SessionStateManager.set_value("selected_review_definition", actueel)
+            definition = container.repository().van_record(actueel)
             v2 = run_async(orch.validation_service.validate_definition(definition))
             # Sla resultaat op en render buiten de kolommen (full-width)
             vkey = f"review_v2_validation_{definitie.id}"

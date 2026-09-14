@@ -207,6 +207,42 @@ def test_revalidate_gebruikt_de_canonieke_recordadapter(repo, sessie):
     m.rerun.assert_called_once()
 
 
+def test_revalidate_ververst_selectie_en_resultaat_uit_hetzelfde_record(repo, sessie):
+    """K3 (delta 3): is het record intussen gewijzigd, dan horen het getoonde
+    record en het validatieresultaat bij dezelfde actuele lezing — geen oude
+    v2-selectie naast een v3-uitkomst."""
+    rec = _record(repo)
+    _beoordeel(repo, rec)
+    oud = repo.get_definitie(rec.id)  # versie 2, Zilver-tekst, met beoordeling
+    SessionStateManager.set_value("selected_review_definition", oud)
+    assert repo.update_definitie(
+        rec.id,
+        {"definitie": "ander kwaliteitsmerk", "organisatorische_context": "[]"},
+    )
+
+    container = SimpleNamespace(
+        repository=lambda: DefinitionRepository(repo.db_path),
+        orchestrator=lambda: SimpleNamespace(validation_service=_echte_validatie()),
+    )
+    m = MagicMock()
+    with (
+        patch(
+            "ui.cached_services.get_cached_service_container", return_value=container
+        ),
+        patch("ui.components.expert_review_tab.st", m),
+    ):
+        ExpertReviewTab(repo)._revalidate_definition(oud)
+
+    v2: Any = SessionStateManager.get_value(f"review_v2_validation_{rec.id}")
+    assert v2["rule_statuses"]["CON-01"] == "fail"  # geen context meer
+    getoond: Any = SessionStateManager.get_value("selected_review_definition")
+    assert getoond.version_number == 3
+    assert getoond.definitie == "ander kwaliteitsmerk"
+    assert getoond.get_context_review() is None or (
+        getoond.get_context_review()["version_number"] != 3
+    )
+
+
 # ------------------------------------------------------------------ K5 actor
 
 
