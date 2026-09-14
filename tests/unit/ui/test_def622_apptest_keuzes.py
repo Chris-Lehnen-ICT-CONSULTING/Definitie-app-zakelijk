@@ -168,6 +168,34 @@ def test_tekstvergelijking_bij_gegenereerde_definitie(waarnemingen):
     assert "[-" in letterlijk and "{+" in letterlijk
 
 
+def test_editor_vergelijkt_met_de_actuele_tekst(waarnemingen):
+    """Reviewbevinding 2: in de echte editor verschijnt de vergelijking zolang
+    de editortekst de generatie-eindtekst is; na herschrijven in het echte
+    tekstveld verdwijnt de (dan misleidende) melding met de oude eindtekst;
+    terugzetten toont haar weer. De DB wordt daarbij niet geraakt."""
+    ed = waarnemingen["editor_tekstwijziging"]
+    assert ed["geladen_id"] == ed["record_id"]
+
+    voor = ed["voor_herschrijven"]
+    assert voor["text_area"] == "Controle die op dossiers wordt uitgevoerd."
+    assert MELDING in voor["waarschuwingen"]
+    assert "Bekijk wijzigingen" in voor["expanders"]
+    assert "de controle die op dossiers wordt uitgevoerd" in "\n".join(
+        voor["letterlijk"]
+    )
+
+    na = ed["na_herschrijven"]
+    assert (
+        na["text_area"] == "Controle die door de expert op dossiers wordt uitgevoerd."
+    )
+    assert MELDING not in na["waarschuwingen"], na["waarschuwingen"]
+    assert "Bekijk wijzigingen" not in na["expanders"]
+
+    terug = ed["na_terugzetten"]
+    assert MELDING in terug["waarschuwingen"]
+    assert ed["rij_definitie"] == "Controle die op dossiers wordt uitgevoerd."
+
+
 def test_historisch_record_in_editor_zonder_tekstvergelijking(waarnemingen):
     """Het gezaaide record heeft geen generatiebewijs: de echte editor toont
     geen melding en geen vergelijking (geen verzonnen beginversie)."""

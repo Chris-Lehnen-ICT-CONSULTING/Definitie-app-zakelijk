@@ -939,15 +939,23 @@ class DefinitionEditTab:
                 # DEF-622 (besluit tekstvergelijking): ook bij een opnieuw
                 # geopend record, alleen met echt bewijs en zolang de zin nog
                 # de generatie-eindtekst is (na handmatige wijziging: niets).
+                # De actuele zin is wat in de editor staat (recordgebonden
+                # widgetwaarde uit `_render_editor`), niet het geladen record:
+                # anders blijft na herschrijven een melding met de oude
+                # eindtekst staan (reviewbevinding op batch 2).
                 from ui.components.tekstwijziging import (
                     render_tekstwijziging,
                     tekstwijziging_uit_bewijs,
                 )
 
+                actuele_tekst = SessionStateManager.get_value(
+                    f"edit_{definition.id}_definitie",
+                    getattr(definition, "definitie", None),
+                )
                 render_tekstwijziging(
                     tekstwijziging_uit_bewijs(
                         prompt_data if isinstance(prompt_data, dict) else None,
-                        actuele_tekst=getattr(definition, "definitie", None),
+                        actuele_tekst=actuele_tekst,
                     )
                 )
 

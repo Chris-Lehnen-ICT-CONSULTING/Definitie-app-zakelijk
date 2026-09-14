@@ -117,6 +117,36 @@ def _zaai_tekstwijziging(db_pad: str) -> dict[str, int]:
     }
 
 
+GOUD_ZIN = "Kwaliteitskeurmerk dat uitsluitend door Stichting Goud wordt verleend."
+GOUD_TOELICHTING = "Stichting Zilver verleent een ander merk."
+GOUD_TOELICHTING_NIEUW = (
+    "Stichting Zilver verleent het Zilverkeurmerk, een ander merk met een "
+    "eigen register."
+)
+
+
+def _zaai_toelichting(db_pad: str) -> int:
+    """Een review-record met een ingebedde inhoudelijke toelichting
+    (opslagconventie `<zin>\\n\\nToelichting: …`), eigen begrip/context."""
+    from database.definitie_repository import (
+        DefinitieRecord,
+        DefinitieRepository,
+        DefinitieStatus,
+    )
+    from database.models import TOELICHTING_SCHEIDING
+
+    return DefinitieRepository(db_pad).create_definitie(
+        DefinitieRecord(
+            begrip="goudkeurmerk",
+            definitie=f"{GOUD_ZIN}{TOELICHTING_SCHEIDING} {GOUD_TOELICHTING}",
+            categorie="type",
+            organisatorische_context='["Stichting Goud"]',
+            status=DefinitieStatus.REVIEW.value,
+            validation_score=0.9,
+        )
+    )
+
+
 def _rij(db_pad: str, definitie_id: int) -> dict:
     """Lees het record via een nieuwe verbinding (geen repositorycache)."""
     from database.definitie_repository import DefinitieRepository
@@ -285,6 +315,30 @@ def main(db_pad: str) -> dict:
             "info": [str(i.value) for i in at.info],
         }
     waarnemingen["tekstwijziging"] = tekstwijziging
+
+    # 7. Bestaande inhoudelijke toelichting apart bewerkbaar (reviewbevinding
+    # 3): eigen veld naast de zin; bewerken + "Wijzigingen Vereist" → readback
+    # met de zin ongewijzigd en de nieuwe toelichting opnieuw ingebed.
+    toel_id = _zaai_toelichting(db_pad)
+    at = _vers(db_pad, toel_id)
+    velden_voor = {
+        t.key: str(t.value) for t in at.text_area if t.key and t.key.startswith("edit_")
+    }
+    toelichting_bewerking: dict = {
+        "record_id": toel_id,
+        "velden_voor": velden_voor,
+        "toelichtingsveld_aanwezig": f"edit_toel_{toel_id}" in velden_voor,
+        "rij_voor": _rij(db_pad, toel_id),
+    }
+    if toelichting_bewerking["toelichtingsveld_aanwezig"]:
+        at.text_area(key=f"edit_toel_{toel_id}").input(GOUD_TOELICHTING_NIEUW).run()
+        at.text_input(key="reviewer_name_input").input(REVIEWER).run()
+        at.radio(key=f"decision_{toel_id}").set_value("📝 Wijzigingen Vereist").run()
+        at.button(key=f"submit_{toel_id}").click().run()
+        assert not at.exception, [str(e.value) for e in at.exception]
+        toelichting_bewerking["teksten_na"] = _teksten(at)
+    toelichting_bewerking["rij_na"] = _rij(db_pad, toel_id)
+    waarnemingen["toelichting_bewerking"] = toelichting_bewerking
     return waarnemingen
 
 

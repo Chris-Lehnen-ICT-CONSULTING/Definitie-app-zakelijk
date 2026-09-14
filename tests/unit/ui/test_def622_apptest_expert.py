@@ -181,3 +181,32 @@ def test_tekstvergelijking_bij_opnieuw_geopend_record(waarnemingen):
     for naam in ("stale", "historisch"):
         assert MELDING not in tw[naam]["waarschuwingen"], naam
         assert "Bekijk wijzigingen" not in tw[naam]["expanders"], naam
+
+
+GOUD_ZIN = "Kwaliteitskeurmerk dat uitsluitend door Stichting Goud wordt verleend."
+GOUD_TOELICHTING = "Stichting Zilver verleent een ander merk."
+GOUD_TOELICHTING_NIEUW = (
+    "Stichting Zilver verleent het Zilverkeurmerk, een ander merk met een "
+    "eigen register."
+)
+SCHEIDING = "\n\nToelichting:"
+
+
+def test_bestaande_toelichting_apart_bewerkbaar_en_opgeslagen(waarnemingen):
+    """Reviewbevinding 3: in de echte expertweergave heeft een record met een
+    ingebedde inhoudelijke toelichting een eigen bewerkveld naast de zin;
+    bewerken en "Wijzigingen Vereist" slaat de zin ongewijzigd en de nieuwe
+    toelichting opnieuw ingebed op (kern blijft de zin alleen)."""
+    tb = waarnemingen["toelichting_bewerking"]
+    rid = tb["record_id"]
+    assert tb["toelichtingsveld_aanwezig"] is True, tb["velden_voor"]
+    # Beide velden met hun eigen beginwaarde, nooit de samengevoegde tekst.
+    assert tb["velden_voor"][f"edit_def_{rid}"] == GOUD_ZIN
+    assert tb["velden_voor"][f"edit_toel_{rid}"] == GOUD_TOELICHTING
+    assert all(SCHEIDING not in v for v in tb["velden_voor"].values())
+
+    assert tb["rij_voor"]["definitie"] == f"{GOUD_ZIN}{SCHEIDING} {GOUD_TOELICHTING}"
+    na = tb["rij_na"]
+    assert na["definitie"] == f"{GOUD_ZIN}{SCHEIDING} {GOUD_TOELICHTING_NIEUW}"
+    assert na["status"] == "review"
+    assert na["updated_by"] == REVIEWER

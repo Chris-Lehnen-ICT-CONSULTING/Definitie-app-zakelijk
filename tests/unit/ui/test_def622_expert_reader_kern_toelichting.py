@@ -114,13 +114,18 @@ def test_details_tonen_zin_en_toelichting_afzonderlijk(repo, sessie):
 def test_bewerkweergave_bewerkt_alleen_de_zin(repo, sessie):
     rec = _record(repo, definitie=f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}")
     m = _mock_st()
-    m.text_area.return_value = ZIN
+    # Elk tekstveld geeft (zoals Streamlit) zijn eigen, ongewijzigde waarde terug.
+    m.text_area.side_effect = lambda _label, **kw: SessionStateManager.get_value(
+        kw["key"], ""
+    )
     with patch("ui.components.expert_review_tab.st", m):
         ExpertReviewTab(repo)._render_comparison_view(rec)
 
     assert SessionStateManager.get_value(f"edit_def_{rec.id}") == ZIN
-    # Ongewijzigde zin: geen 'aangepast'-markering en geen bewerkte versie.
+    # Ongewijzigd: geen 'aangepast'-markering en geen bewerkte versie; de
+    # toelichting staat in een eigen veld (reviewbevinding 3), niet in de zin.
     assert SessionStateManager.get_value(f"edited_definition_{rec.id}") is None
+    assert SessionStateManager.get_value(f"edited_toelichting_{rec.id}") is None
     teksten = _teksten(m)
     assert ZIN in teksten and all(TOELICHTING_SCHEIDING not in t for t in teksten)
 

@@ -166,14 +166,19 @@ def opschonen(definitie: str, begrip: str) -> str:
         # Regex: ^vonnis\s+is\b (\s+ = één of meer spaties)
         regex_lijst.append(rf"^{begrip_esc}\s+{w_esc}\b")
 
-    # Patroon 3c: Extra patroon voor begrip gevolgd door dubbelepunt of streepje
-    # Voorbeelden: 'Vonnis:', 'vonnis -', 'vonnis: '
-    # Regex: ^vonnis\b\s*[:\-]\s* — mét woordgrens en verplícht scheidingsteken.
+    # Patroon 3c: Extra patroon voor begrip als label, gevolgd door een
+    # dubbelepunt of een los streepje. Voorbeelden: 'Vonnis:', 'vonnis -',
+    # 'vonnis: '. Regex: ^vonnis\b(?:\s*:|\s+-)\s* — mét woordgrens en
+    # verplícht scheidingsteken.
     # DEF-622: zonder die twee eisen sneed dit patroon het begrip als woorddeel
     # weg ("Controlehandeling die …" → "handeling die …") en verwijderde het een
     # bovenbegrip dat het begrip herhaalt ("Handeling die …" bij begrip
     # "handeling" → "die …"). Of zo'n herhaling circulair is, beoordeelt SAM-05.
-    regex_lijst.append(rf"^{begrip_esc}\b\s*[:\-]\s*")
+    # Een streepje telt alleen als labelscheider met witruimte ervóór: een
+    # koppelteken dat aan het begrip vastzit is een samenstelling of
+    # samentrekking ("Controle-handeling", "Controle- en toezichtshandeling")
+    # en draagt betekenis (reviewbevinding op batch 2).
+    regex_lijst.append(rf"^{begrip_esc}\b(?:\s*:|\s+-)\s*")
 
     # ✅ 4. Verwijder alle opeenvolgende verboden prefixes
     while True:

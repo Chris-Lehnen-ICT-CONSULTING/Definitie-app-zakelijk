@@ -136,7 +136,10 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     )
 
     req = GenerationRequest(
-        id="00000000-0000-0000-0000-000000000000", begrip="e2e-term"
+        id="00000000-0000-0000-0000-000000000000",
+        begrip="e2e-term",
+        # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+        organisatorische_context=["DJI"],
     )
     resp = await orch.create_definition(req, context={})
 

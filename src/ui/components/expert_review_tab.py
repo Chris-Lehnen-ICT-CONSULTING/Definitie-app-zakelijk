@@ -1026,13 +1026,18 @@ class ExpertReviewTab:
         st.markdown("#### ✏️ Definitie Bewerking")
 
         col1, col2 = st.columns(2)
-        # DEF-622: de expert bewerkt de definitiezin; een ingebedde toelichting
-        # blijft een afzonderlijk gegeven en wordt bij opslaan opnieuw ingebed.
-        zin, _toelichting = splits_definitietekst(definitie.definitie or "")
+        # DEF-622: de expert bewerkt de definitiezin en — als het record er
+        # een heeft — de ingebedde inhoudelijke toelichting elk in een eigen
+        # veld; bij opslaan worden ze volgens dezelfde conventie opnieuw
+        # ingebed. De kern (CON-01-toetsing) blijft de zin alleen.
+        zin, toelichting = splits_definitietekst(definitie.definitie or "")
 
         with col1:
             st.markdown("**Originele AI Definitie**")
             st.info(zin)
+            if toelichting:
+                st.caption("Toelichting")
+                st.info(toelichting)
 
         with col2:
             st.markdown("**Expert Aangepaste Versie**")
@@ -1058,6 +1063,30 @@ class ExpertReviewTab:
                 )
             else:
                 SessionStateManager.clear_value(f"edited_definition_{definitie.id}")
+
+            if toelichting:
+                # Alleen een bestaande inhoudelijke toelichting is bewerkbaar;
+                # dit is geen veld voor een CON-01-naamgrond (die hoort in de
+                # beoordeling). Terugzetten naar het origineel wist de
+                # markering, zodat een latere opslag geen oude wijziging meeneemt.
+                toel_key = f"edit_toel_{definitie.id}"
+                if toel_key not in st.session_state:
+                    SessionStateManager.set_value(toel_key, toelichting)
+                edited_toelichting = st.text_area(
+                    "Bewerk toelichting",
+                    height=100,
+                    key=toel_key,
+                    help="Bestaande inhoudelijke toelichting bij de definitie",
+                )
+                if edited_toelichting != toelichting:
+                    st.info("✏️ Toelichting aangepast")
+                    SessionStateManager.set_value(
+                        f"edited_toelichting_{definitie.id}", edited_toelichting
+                    )
+                else:
+                    SessionStateManager.clear_value(
+                        f"edited_toelichting_{definitie.id}"
+                    )
 
     def _render_review_form(self, definitie: DefinitieRecord) -> None:
         """Render review form met approval options."""
@@ -1238,14 +1267,23 @@ class ExpertReviewTab:
             # Check voor aangepaste velden
             updates: dict[str, Any] = {}
 
-            # Check voor aangepaste definitie (alleen de zin; een ingebedde
-            # toelichting blijft behouden — DEF-622, CON-GT-007/CW-GEN-11)
+            # Check voor aangepaste definitiezin en/of bestaande inhoudelijke
+            # toelichting; beide worden volgens de opslagconventie opnieuw
+            # ingebed (DEF-622, CON-GT-007/CW-GEN-11; reviewbevinding 3).
             edited_def = SessionStateManager.get_value(
                 f"edited_definition_{definitie.id}"
             )
+            edited_toel = SessionStateManager.get_value(
+                f"edited_toelichting_{definitie.id}"
+            )
             zin, toelichting = splits_definitietekst(definitie.definitie or "")
-            if edited_def and edited_def != zin:
-                updates["definitie"] = _met_toelichting(edited_def, toelichting)
+            nieuwe_zin = edited_def if edited_def and edited_def != zin else zin
+            nieuwe_toelichting = toelichting
+            if toelichting is not None and isinstance(edited_toel, str):
+                # Geleegd veld = toelichting verwijderd; de zin blijft.
+                nieuwe_toelichting = edited_toel.strip() or None
+            if nieuwe_zin != zin or nieuwe_toelichting != toelichting:
+                updates["definitie"] = _met_toelichting(nieuwe_zin, nieuwe_toelichting)
 
             # Check voor aangepaste UFO categorie
             ufo_selected = SessionStateManager.get_value(f"review_ufo_{definitie.id}")

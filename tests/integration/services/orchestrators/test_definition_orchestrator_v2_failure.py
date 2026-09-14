@@ -99,6 +99,8 @@ async def test_orchestrator_failure_flow_with_enhancement_and_feedback():
         begrip="verificatie",
         ontologische_categorie="proces",
         context="DJI",
+        # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+        organisatorische_context=["DJI"],
         actor="tester",
         legal_basis="testing",
     )

@@ -148,6 +148,8 @@ async def test_definition_generation(bevroren_omgeving):
         id=str(uuid.uuid4()),
         begrip="recidive",
         context="Reclassering Nederland",
+        # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+        organisatorische_context=["Reclassering Nederland"],
         ontologische_categorie=OntologischeCategorie.PROCES.value,
     )
 
