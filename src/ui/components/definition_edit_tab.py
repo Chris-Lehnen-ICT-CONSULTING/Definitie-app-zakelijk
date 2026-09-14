@@ -936,6 +936,20 @@ class DefinitionEditTab:
                 prompt_template = (
                     prompt_data.get("prompt") if isinstance(prompt_data, dict) else None
                 )
+                # DEF-622 (besluit tekstvergelijking): ook bij een opnieuw
+                # geopend record, alleen met echt bewijs en zolang de zin nog
+                # de generatie-eindtekst is (na handmatige wijziging: niets).
+                from ui.components.tekstwijziging import (
+                    render_tekstwijziging,
+                    tekstwijziging_uit_bewijs,
+                )
+
+                render_tekstwijziging(
+                    tekstwijziging_uit_bewijs(
+                        prompt_data if isinstance(prompt_data, dict) else None,
+                        actuele_tekst=getattr(definition, "definitie", None),
+                    )
+                )
 
             if prompt_template:
                 # Create container for PromptDebugSection (EXACT same pattern as generator tab)

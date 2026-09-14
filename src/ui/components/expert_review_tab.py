@@ -15,6 +15,10 @@ import streamlit as st
 from config.config_manager import ConfigSection, get_config
 from services.definition_workflow_service import ufo_categorie_uit_selectie
 from ui.components.formatters import format_record_context
+from ui.components.tekstwijziging import (
+    render_tekstwijziging,
+    tekstwijziging_uit_bewijs,
+)
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -24,6 +28,37 @@ if TYPE_CHECKING:
         DefinitieRecord,
         DefinitieRepository,
     )
+
+
+def splits_definitietekst(tekst: str) -> tuple[str, str | None]:
+    """(definitiezin, toelichting) volgens de opslagconventie van het record.
+
+    Lazy import: de UI-laag importeert de databaselaag niet op moduleniveau.
+    """
+    from database.models import splits_definitietekst as _splits
+
+    return _splits(tekst)
+
+
+def _met_toelichting(zin: str, toelichting: str | None) -> str:
+    """Bed een toelichting opnieuw in volgens dezelfde conventie."""
+    from database.models import TOELICHTING_SCHEIDING
+
+    return f"{zin}{TOELICHTING_SCHEIDING} {toelichting}" if toelichting else zin
+
+
+def _generatiebewijs(definitie: DefinitieRecord) -> dict[str, Any] | None:
+    """De per record bewaarde generatieregistratie (tekststadia), of None."""
+    import json
+
+    ruw = getattr(definitie, "generation_prompt_data", None)
+    if not ruw:
+        return None
+    try:
+        bewijs = json.loads(ruw)
+    except (TypeError, ValueError):
+        return None
+    return bewijs if isinstance(bewijs, dict) else None
 
 
 class ExpertReviewTab:
@@ -424,8 +459,22 @@ class ExpertReviewTab:
             col1, col2 = st.columns([2, 1])
 
             with col1:
+                # DEF-622 (CON-GT-007/CW-GEN-11): de legacy reader toonde de
+                # samengevoegde kolomtekst; kern en toelichting zijn twee
+                # gegevens en worden afzonderlijk getoond.
+                zin, toelichting = splits_definitietekst(definitie.definitie or "")
                 st.markdown("#### Definitie")
-                st.info(definitie.definitie)
+                st.info(zin)
+                if toelichting:
+                    st.markdown("#### Toelichting")
+                    st.info(toelichting)
+                # Besluit tekstvergelijking: alleen met echt bewijs en zolang
+                # de zin nog de generatie-eindtekst is.
+                render_tekstwijziging(
+                    tekstwijziging_uit_bewijs(
+                        _generatiebewijs(definitie), actuele_tekst=zin
+                    )
+                )
 
                 st.markdown("#### Context")
                 org_val, jur_val, wb_val = format_record_context(definitie)
@@ -977,10 +1026,13 @@ class ExpertReviewTab:
         st.markdown("#### ✏️ Definitie Bewerking")
 
         col1, col2 = st.columns(2)
+        # DEF-622: de expert bewerkt de definitiezin; een ingebedde toelichting
+        # blijft een afzonderlijk gegeven en wordt bij opslaan opnieuw ingebed.
+        zin, _toelichting = splits_definitietekst(definitie.definitie or "")
 
         with col1:
             st.markdown("**Originele AI Definitie**")
-            st.info(definitie.definitie)
+            st.info(zin)
 
         with col2:
             st.markdown("**Expert Aangepaste Versie**")
@@ -988,7 +1040,7 @@ class ExpertReviewTab:
             # Key-only pattern: initialize state before widget
             edit_key = f"edit_def_{definitie.id}"
             if edit_key not in st.session_state:
-                SessionStateManager.set_value(edit_key, definitie.definitie)
+                SessionStateManager.set_value(edit_key, zin)
 
             # Editable text area (key-only, no value= parameter)
             edited_definitie = st.text_area(
@@ -999,7 +1051,7 @@ class ExpertReviewTab:
             )
 
             # Show changes
-            if edited_definitie != definitie.definitie:
+            if edited_definitie != zin:
                 st.info("✏️ Definitie aangepast")
                 SessionStateManager.set_value(
                     f"edited_definition_{definitie.id}", edited_definitie
@@ -1184,14 +1236,16 @@ class ExpertReviewTab:
 
         try:
             # Check voor aangepaste velden
-            updates = {}
+            updates: dict[str, Any] = {}
 
-            # Check voor aangepaste definitie
+            # Check voor aangepaste definitie (alleen de zin; een ingebedde
+            # toelichting blijft behouden — DEF-622, CON-GT-007/CW-GEN-11)
             edited_def = SessionStateManager.get_value(
                 f"edited_definition_{definitie.id}"
             )
-            if edited_def and edited_def != definitie.definitie:
-                updates["definitie"] = edited_def
+            zin, toelichting = splits_definitietekst(definitie.definitie or "")
+            if edited_def and edited_def != zin:
+                updates["definitie"] = _met_toelichting(edited_def, toelichting)
 
             # Check voor aangepaste UFO categorie
             ufo_selected = SessionStateManager.get_value(f"review_ufo_{definitie.id}")

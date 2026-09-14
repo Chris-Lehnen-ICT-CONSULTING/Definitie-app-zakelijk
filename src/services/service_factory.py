@@ -458,6 +458,11 @@ class ServiceAdapter:
             "web_sources_count",
             "web_lookup_debug",
             "web_lookup_debug_available",
+            # DEF-622 (besluit tekstvergelijking): de echte tekststadia voor
+            # de gedeelde renderer; alleen doorgeven wat de generatie leverde.
+            "definitie_kern_geextraheerd",
+            "definitie_eindtekst",
+            "tekst_na_generatie_aangepast",
         ):
             v = safe_dict_get(md, k)
             if v is not None:

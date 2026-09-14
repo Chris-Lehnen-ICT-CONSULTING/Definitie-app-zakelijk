@@ -69,6 +69,29 @@ def _rijen(db_pad: str) -> list[dict]:
         conn.close()
 
 
+def _generatiebewijs(db_pad: str, definitie_id: int) -> dict | None:
+    """De per record bewaarde generatieregistratie (tekststadia) uit de DB."""
+    conn = sqlite3.connect(db_pad)
+    try:
+        rij = conn.execute(
+            "SELECT generation_prompt_data FROM definities WHERE id = ?",
+            (definitie_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+    if not rij or not rij[0]:
+        return None
+    bewijs = json.loads(rij[0])
+    return {
+        k: bewijs.get(k)
+        for k in (
+            "definitie_kern_geextraheerd",
+            "definitie_eindtekst",
+            "tekst_na_generatie_aangepast",
+        )
+    }
+
+
 def _geschiedenis(db_pad: str, definitie_id: int) -> list[dict]:
     conn = sqlite3.connect(db_pad)
     conn.row_factory = sqlite3.Row
@@ -149,6 +172,10 @@ def main(db_pad: str) -> dict:
         ),
         "text_areas": [str(t.value) for t in at.text_area],
         "teksten": _teksten(at),
+        # Historisch record zonder generatiebewijs in de echte editor: geen
+        # tekstvergelijkingsmelding (geen verzonnen beginversie).
+        "waarschuwingen": [str(w.value) for w in at.warning],
+        "expanders": [e.label for e in at.expander],
     }
 
     # Genereer Nieuw zonder reden → niets geforceerd, waarschuwing.
@@ -173,6 +200,16 @@ def main(db_pad: str) -> dict:
     assert not at.exception, [str(e.value) for e in at.exception]
     rijen = _rijen(db_pad)
     nieuwe = [r for r in rijen if r["id"] != bestaand_id]
+    # Besluit tekstvergelijking: de bevroren modeltekst begint met een
+    # lidwoord dat de opschoning verwijdert — een echte wijziging na
+    # generatie, dus melding + uitklapbare vergelijking in de generatietab.
+    waarnemingen["tekstwijziging_generatie"] = {
+        "waarschuwingen": [str(w.value) for w in at.warning],
+        "expanders": [e.label for e in at.expander],
+        "letterlijk": [str(t.value) for t in at.text],
+        "gegenereerde_tekst": nieuwe[0]["definitie"] if nieuwe else None,
+        "bewijs": _generatiebewijs(db_pad, nieuwe[0]["id"]) if nieuwe else None,
+    }
     waarnemingen["nieuw_met_reden"] = {
         "options": dict(_ss(at, "generation_options") or {}),
         "trigger": bool(_ss(at, "trigger_auto_generation") or False),

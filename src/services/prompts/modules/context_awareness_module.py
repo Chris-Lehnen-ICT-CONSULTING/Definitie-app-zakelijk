@@ -91,7 +91,7 @@ Refereer context-specifieke verbanden.
 ❌ "begeleiding" → ✅ "reclasseringstoezicht"
 ❌ "functionaris" → ✅ "officier van justitie"
 
-🧪 TEST: Kan een expert de context raden ZONDER label?
+🧪 TEST: Is elke naam in de zin inhoudelijk noodzakelijk voor de afbakening, en is er niets (kenmerk, register, nummer) toegevoegd alleen om de context herkenbaar te maken?
 """
 
     def __init__(self) -> None:

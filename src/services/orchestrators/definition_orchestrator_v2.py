@@ -994,10 +994,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # - "Ontologische categorie:" metadata header
             # - "[term]:" prefix (e.g., "Vervoersverbod:")
             # - Forbidden words, circular definitions, etc.
-            from opschoning.opschoning_enhanced import opschonen_enhanced
+            from opschoning.opschoning_enhanced import (
+                extract_definition_from_gpt_response,
+                opschonen_enhanced,
+            )
 
             definitie_zonder_header = opschonen_enhanced(
                 raw_gpt_output, sanitized_request.begrip, handle_gpt_format=True
+            )
+            # DEF-622 (besluit tekstvergelijking): de echte definitiekern vóór
+            # nabewerking — alleen de GPT-kop eraf, niets opgeschoond. Het al
+            # opgeschoonde `definitie_origineel` hierboven is géén vóórtekst.
+            definitie_kern_geextraheerd = extract_definition_from_gpt_response(
+                raw_gpt_output
             )
 
             logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
@@ -1164,6 +1173,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # Store original definition without metadata headers (for UI display)
                     # This is the GPT output with "Ontologische categorie:" header removed
                     "definitie_origineel": definitie_zonder_header,
+                    # DEF-622 (besluit tekstvergelijking): de echte tekststadia.
+                    # `definitie_kern_geextraheerd` is de modeltekst vóór
+                    # nabewerking; `definitie_eindtekst` de getoetste, getoonde
+                    # én opgeslagen kandidaat; de vlag zegt of de app de tekst
+                    # ná generatie heeft gewijzigd (opschoning of enhancement).
+                    "definitie_kern_geextraheerd": definitie_kern_geextraheerd,
+                    "definitie_eindtekst": cleaned_text,
+                    "tekst_na_generatie_aangepast": (
+                        definitie_kern_geextraheerd != cleaned_text
+                    ),
                     # Doorgeven van force_duplicate voor downstream repository
                     "force_duplicate": (
                         bool(
@@ -1412,17 +1431,23 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             }
 
     @staticmethod
-    def _herstelbare_overtredingen(validation_result: Any) -> list[dict[str, Any]]:
+    def _herstelbare_overtredingen(validation_result: Any) -> list[Any]:
         """Overtredingen die de bestaande enhancement mogen bereiken.
 
         Uitgesloten: regels zonder cijfer (`rule_results`, i.e. CON-01): hun
         uitkomst vraagt een expertbeoordeling of een bewuste gebruikersactie,
         geen automatisch tekstherstel (DEF-622; herstelontwerp is DEF-638).
+
+        Runtimecontract ongewijzigd: net als vóór DEF-622 gaan de
+        schema-conforme violation-dicts van het validatieresultaat door
+        (`list[Any]`, zoals `ensure_list` ze leverde); de interface annoteert
+        de dataclass `ValidationViolation` — die bestaande discrepantie wordt
+        hier niet beslist.
         """
         zonder_cijfer = set(
             ensure_dict(safe_dict_get(validation_result, "rule_results", {})).keys()
         )
-        overtredingen: list[dict[str, Any]] = []
+        overtredingen: list[Any] = []
         for overtreding in ensure_list(
             safe_dict_get(validation_result, "violations", [])
         ):

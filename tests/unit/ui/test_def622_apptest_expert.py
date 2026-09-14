@@ -152,3 +152,32 @@ def test_vijf_weergaven_zonder_cijfer(waarnemingen):
     # als normuitleg.
     assert "stichting goud" in laag
     assert "synthetische storing" not in laag
+
+
+MELDING = "De tekst is na generatie aangepast. Bekijk wijzigingen."
+
+
+def test_tekstvergelijking_bij_opnieuw_geopend_record(waarnemingen):
+    """Besluit tekstvergelijking (Chris): in de echte expertweergave verschijnt
+    de melding met de uitklapbare vergelijking van de echte kern vóór
+    nabewerking en de eindtekst — alleen bij een record mét bewijs waarvan
+    de zin nog de generatie-eindtekst is."""
+    tw = waarnemingen["tekstwijziging"]
+
+    gegenereerd = tw["gegenereerd"]
+    assert MELDING in gegenereerd["waarschuwingen"]
+    assert "Bekijk wijzigingen" in gegenereerd["expanders"]
+    letterlijk = "\n".join(gegenereerd["letterlijk"])
+    assert "handeling die door een toezichthouder wordt verricht" in letterlijk
+    assert "Handeling die door een toezichthouder wordt verricht." in letterlijk
+    # Herkenbare toevoegingen/verwijderingen (hoofdletter en punt).
+    assert "[-handeling-]" in letterlijk and "{+Handeling+}" in letterlijk
+    assert "- handeling" in letterlijk and "+ Handeling" in letterlijk
+    # De definitiezin zelf staat als definitie in de details.
+    assert (
+        "Handeling die door een toezichthouder wordt verricht." in gegenereerd["info"]
+    )
+
+    for naam in ("stale", "historisch"):
+        assert MELDING not in tw[naam]["waarschuwingen"], naam
+        assert "Bekijk wijzigingen" not in tw[naam]["expanders"], naam

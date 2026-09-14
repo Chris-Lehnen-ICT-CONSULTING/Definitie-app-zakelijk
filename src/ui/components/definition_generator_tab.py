@@ -29,7 +29,7 @@ from ui.components.voorbeelden_renderer import VoorbeeldenRenderer
 from ui.helpers.context_helpers import has_min_one_context
 from ui.session_state import SessionStateManager
 from utils.dict_helpers import safe_dict_get
-from utils.type_helpers import ensure_string
+from utils.type_helpers import ensure_dict, ensure_string
 
 logger = logging.getLogger(__name__)
 
@@ -346,20 +346,28 @@ class DefinitionGeneratorTab:
     def _render_dual_definition(
         self, agent_result: dict[str, Any], generation_result: dict[str, Any]
     ) -> None:
-        """Render both original and corrected definitions."""
-        if (
-            agent_result["definitie_origineel"]
-            != agent_result["definitie_gecorrigeerd"]
-        ):
-            st.success("🔧 **Definitie is opgeschoond**")
-        else:
-            st.info("✅ **Geen opschoning nodig - definitie was al correct**")
+        """Render de uiteindelijke definitie met, alleen bij een echte
+        wijziging, de tekstvergelijking (DEF-622, besluit Chris).
 
-        st.subheader("1️⃣ Originele AI Definitie")
-        st.info(agent_result["definitie_origineel"])
+        De oude weergave zette het al opgeschoonde `definitie_origineel` naast
+        de eindtekst en meldde "geen opschoning nodig" terwijl de nabewerking
+        wél iets had verwijderd. Nu vergelijkt de gedeelde renderer de echte
+        geëxtraheerde kern vóór nabewerking met de uiteindelijke tekst, en
+        zwijgt hij zonder bewijs of zonder wijziging.
+        """
+        from ui.components.tekstwijziging import (
+            render_tekstwijziging,
+            tekstwijziging_uit_bewijs,
+        )
 
-        st.subheader("2️⃣ Finale Definitie")
-        st.info(agent_result["definitie_gecorrigeerd"])
+        eindtekst = ensure_string(agent_result.get("definitie_gecorrigeerd") or "")
+        st.subheader("📝 Definitie")
+        st.info(eindtekst)
+        render_tekstwijziging(
+            tekstwijziging_uit_bewijs(
+                ensure_dict(agent_result.get("metadata") or {}), eindtekst
+            )
+        )
 
         # Cache for UI use
         try:

@@ -66,6 +66,57 @@ def _zaai(db_pad: str) -> int:
     )
 
 
+KERN_RUW = (
+    "Ontologische categorie: type\nhandeling die door een toezichthouder wordt verricht"
+)
+KERN_GEEXTRAHEERD = "handeling die door een toezichthouder wordt verricht"
+EINDTEKST = "Handeling die door een toezichthouder wordt verricht."
+STALE_TEKST = "Handeling die de expert daarna zelf herschreef."
+
+
+def _zaai_tekstwijziging(db_pad: str) -> dict[str, int]:
+    """Drie records voor de tekstvergelijking bij een opnieuw geopend record:
+    gegenereerd mét bewijs (melding), daarna handmatig gewijzigd (stale: geen
+    melding) en historisch zonder bewijs (geen melding)."""
+    from database.definitie_repository import (
+        DefinitieRecord,
+        DefinitieRepository,
+        DefinitieStatus,
+    )
+
+    repo = DefinitieRepository(db_pad)
+    bewijs = json.dumps(
+        {
+            "prompt": "bevroren prompt",
+            "definitie_kern_geextraheerd": KERN_GEEXTRAHEERD,
+            "definitie_eindtekst": EINDTEKST,
+            "tekst_na_generatie_aangepast": True,
+        },
+        ensure_ascii=False,
+    )
+
+    def _record(definitie: str, context: str, met_bewijs: bool) -> int:
+        # Eigen context per record: dit zijn drie verschillende definities,
+        # geen duplicaten; de duplicaatgrens (B-03) blijft ongemoeid.
+        rec = DefinitieRecord(
+            begrip="controlehandeling",
+            definitie=definitie,
+            categorie="proces",
+            organisatorische_context=f'["{context}"]',
+            status=DefinitieStatus.REVIEW.value,
+            validation_score=0.9,
+        )
+        if met_bewijs:
+            rec.generation_prompt_data = bewijs
+        return repo.create_definitie(rec)
+
+    return {
+        "gegenereerd": _record(EINDTEKST, "Team Koper", True),
+        "stale": _record(STALE_TEKST, "Team Zilver", True),
+        "historisch": _record(EINDTEKST, "Team Goud", False),
+    }
+
+
 def _rij(db_pad: str, definitie_id: int) -> dict:
     """Lees het record via een nieuwe verbinding (geen repositorycache)."""
     from database.definitie_repository import DefinitieRepository
@@ -219,6 +270,21 @@ def main(db_pad: str) -> dict:
         for naam, res in (_ss(at, "def622_uitkomsten") or {}).items()
     }
     waarnemingen["weergave_teksten"] = _teksten(at)
+
+    # 6. Tekstvergelijking bij een opnieuw geopend record (expertweergave):
+    # melding + uitklapbare vergelijking alleen met echt bewijs en zolang de
+    # zin de generatie-eindtekst is; stale/historisch: niets.
+    tekstwijziging: dict[str, dict] = {}
+    for naam, rid in _zaai_tekstwijziging(db_pad).items():
+        at = _vers(db_pad, rid)
+        tekstwijziging[naam] = {
+            "record_id": rid,
+            "waarschuwingen": [str(w.value) for w in at.warning],
+            "expanders": [e.label for e in at.expander],
+            "letterlijk": [str(t.value) for t in at.text],
+            "info": [str(i.value) for i in at.info],
+        }
+    waarnemingen["tekstwijziging"] = tekstwijziging
     return waarnemingen
 
 

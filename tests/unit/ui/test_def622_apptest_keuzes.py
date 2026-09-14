@@ -147,6 +147,35 @@ def test_genereer_nieuw_met_reden_slaat_concept_op_naast_bestaand_record(
     assert na["last_generation_result_aanwezig"] is True
 
 
+MELDING = "De tekst is na generatie aangepast. Bekijk wijzigingen."
+
+
+def test_tekstvergelijking_bij_gegenereerde_definitie(waarnemingen):
+    """Besluit tekstvergelijking (Chris): in de echte generatietab verschijnt
+    na een echte wijziging door de app de exacte melding met de uitklapbare
+    vergelijking van de echte kern vóór nabewerking en de eindtekst; het
+    bewijs is per record bewaard."""
+    tw = waarnemingen["tekstwijziging_generatie"]
+    assert MELDING in tw["waarschuwingen"]
+    assert "Bekijk wijzigingen" in tw["expanders"]
+    bewijs = tw["bewijs"]
+    assert bewijs and bewijs["tekst_na_generatie_aangepast"] is True
+    assert bewijs["definitie_eindtekst"] == tw["gegenereerde_tekst"]
+    assert bewijs["definitie_kern_geextraheerd"] != bewijs["definitie_eindtekst"]
+    letterlijk = "\n".join(tw["letterlijk"])
+    assert bewijs["definitie_kern_geextraheerd"] in letterlijk
+    assert bewijs["definitie_eindtekst"] in letterlijk
+    assert "[-" in letterlijk and "{+" in letterlijk
+
+
+def test_historisch_record_in_editor_zonder_tekstvergelijking(waarnemingen):
+    """Het gezaaide record heeft geen generatiebewijs: de echte editor toont
+    geen melding en geen vergelijking (geen verzonnen beginversie)."""
+    na = waarnemingen["na_bewerk"]
+    assert MELDING not in na["waarschuwingen"]
+    assert "Bekijk wijzigingen" not in na["expanders"]
+
+
 def test_con01_uitleg_is_zichtbaar(waarnemingen):
     start = "\n".join(waarnemingen["start_teksten"]).lower()
     assert "totaalscore:** niet beschikbaar" in start

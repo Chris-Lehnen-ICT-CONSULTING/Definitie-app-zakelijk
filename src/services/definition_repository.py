@@ -764,6 +764,18 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         ),
                         "created_at": definition.metadata.get("generated_at")
                         or definition.metadata.get("generation_time"),
+                        # DEF-622 (besluit tekstvergelijking): de echte
+                        # tekststadia per record, in de bestaande
+                        # generatieregistratie (geen schemawijziging).
+                        "definitie_kern_geextraheerd": definition.metadata.get(
+                            "definitie_kern_geextraheerd"
+                        ),
+                        "definitie_eindtekst": definition.metadata.get(
+                            "definitie_eindtekst"
+                        ),
+                        "tekst_na_generatie_aangepast": definition.metadata.get(
+                            "tekst_na_generatie_aangepast"
+                        ),
                     }
                     # Only store non-None values
                     prompt_data = {
