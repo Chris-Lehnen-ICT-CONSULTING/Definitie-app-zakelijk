@@ -109,6 +109,20 @@ class DefinitionGenerationHandler:
         # en opslag (de allowlist staat rand-spaties toe, opslag hoort ze niet).
         begrip = begrip.strip()
 
+        # DEF-622 (B-01, besloten vervolg): zonder minimaal één inhoudelijke
+        # contextwaarde geen duplicaatcontrole en geen modelaanroep, maar een
+        # vraag om context. De harde grens staat in de orchestrator; dit is de
+        # vroege, begrijpelijke melding in de UI.
+        if not self._heeft_inhoudelijke_context(context_data):
+            st.error(
+                "❌ Generatie niet gestart: vul minimaal één contextwaarde in "
+                "(organisatorische context, juridische context of wettelijke "
+                "basis). De context hoort bij het record en stuurt de generatie."
+            )
+            logger.warning("Generatie niet gestart: geen context voor %r", begrip)
+            self._wis_force_opties(_sm=SessionStateManager)
+            return
+
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
                 # EPIC-010: Consistente context variabelen voor alle 3 types
@@ -541,6 +555,21 @@ class DefinitionGenerationHandler:
             # volgende, ongerelateerde generatie stil de duplicaatcontrole
             # over en reisde `force_duplicate` mee naar DUP_01 en de opslag.
             self._wis_force_opties(_sm=SessionStateManager)
+
+    @staticmethod
+    def _heeft_inhoudelijke_context(context_data: dict[str, Any]) -> bool:
+        """Minstens één niet-lege waarde in de drie contextlijsten (B-01)."""
+        from domain.context.normalisatie import lees_contextwaarden
+
+        return any(
+            waarde.strip()
+            for veld in (
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
+            )
+            for waarde in lees_contextwaarden(context_data.get(veld))
+        )
 
     @staticmethod
     def _wis_force_opties(*, _sm: Any) -> None:
