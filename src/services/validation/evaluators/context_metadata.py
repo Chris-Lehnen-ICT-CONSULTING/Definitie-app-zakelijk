@@ -26,6 +26,7 @@ from typing import Any
 
 from domain.context.contract import (
     CONTEXT_VELDEN,
+    STATUS_ERROR,
     STATUS_FAIL,
     STATUS_PASS,
     ContextUitkomst,
@@ -71,7 +72,14 @@ class ContextMetadataEvaluator:
         self, record: RuleRecord, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> EvaluationOutcome:
         metadata = ctx.metadata or {}
-        tekst = ctx.cleaned_text or ctx.raw_text or ""
+        # Bewijs en vingerafdruk binden aan de exacte recordtekst, niet aan
+        # een opgeschoonde variant: de expert beoordeelt wat op het record
+        # staat, en een gewijzigde recordtekst moet een eerdere beoordeling
+        # laten vervallen — ook wanneer cleaning het verschil wegpoetst.
+        # `record_text` komt van de orchestrator (die vóór de service kan
+        # cleanen); anders is de ongeschoonde invoer van de service de tekst.
+        recordtekst = metadata.get("record_text")
+        tekst = recordtekst if isinstance(recordtekst, str) else (ctx.raw_text or "")
         uitkomst = beoordeel_context(
             ctx.begrip or "",
             tekst,
@@ -93,18 +101,18 @@ def _naar_outcome(
             metadata={"rule_result": detail},
         )
 
+    open_delen = [
+        p for p in uitkomst.parts if p.status not in (STATUS_FAIL, STATUS_PASS)
+    ]
     if uitkomst.status == STATUS_FAIL:
         falend = [p for p in uitkomst.parts if p.status == STATUS_FAIL]
-        open_delen = [
-            p for p in uitkomst.parts if p.status not in (STATUS_FAIL, STATUS_PASS)
-        ]
         melding = "; ".join(dict.fromkeys(p.reason for p in falend))
         acties = list(dict.fromkeys(p.action for p in falend))
         if open_delen:
-            # B-08: bij falen én open blijven beide zichtbaar, ook in de
-            # violation die de bestaande UI toont.
+            # B-08: bij falen én open (of mislukt) blijven beide zichtbaar,
+            # ook in de violation die de bestaande UI toont.
             acties.append(
-                "Daarnaast wacht nog een naamsignaal op beoordeling: "
+                "Daarnaast is nog niet elk naamsignaal beoordeeld: "
                 + ", ".join(f"'{p.evidence}'" for p in open_delen if p.evidence)
             )
         return EvaluationOutcome(
@@ -124,9 +132,18 @@ def _naar_outcome(
             metadata={"rule_result": detail},
         )
 
-    open_delen = [
-        p for p in uitkomst.parts if p.status not in (STATUS_FAIL, STATUS_PASS)
-    ]
+    if uitkomst.status == STATUS_ERROR:
+        # Een mislukt onderdeel zonder bewezen overtreding: de regel als
+        # geheel is een technische fout (fail-closed op de acceptatie), met de
+        # afgeronde onderdelen zichtbaar in `rule_result`.
+        mislukt = [p for p in uitkomst.parts if p.status == STATUS_ERROR]
+        return EvaluationOutcome(
+            status=ResultStatus.ERROR,
+            score=None,
+            reason="deelcontrole mislukt voor: " + ", ".join(p.id for p in mislukt),
+            metadata={"rule_result": detail},
+        )
+
     reden = "; ".join(dict.fromkeys(p.reason for p in open_delen)) or (
         "De functie van een naam in de definitiezin is nog niet beoordeeld."
     )

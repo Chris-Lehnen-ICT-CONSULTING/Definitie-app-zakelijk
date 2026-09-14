@@ -665,10 +665,11 @@ class TestOverallScoreHandling:
         _response = await service_adapter.generate_definition("Test", {})
         result = service_adapter.to_ui_response(_response)
 
-        # Verify defaults to 0.0 when None
-        assert result["validation_details"]["overall_score"] == 0.0
-        assert result["final_score"] == 0.0
-        assert isinstance(result["final_score"], float)
+        # DEF-622 (B-06): een expliciete None is 'totaalscore niet beschikbaar'
+        # en mag nooit als 0.0 doorreizen — dat zou een slechte definitie
+        # suggereren waar alleen geen cijfer is.
+        assert result["validation_details"]["overall_score"] is None
+        assert result["final_score"] is None
 
     @pytest.mark.asyncio
     async def test_overall_score_invalid_string(
@@ -1061,13 +1062,15 @@ class TestOverallScoreHandling:
         # Verify all handled correctly
         assert results[0]["final_score"] == 95.0
         assert results[1]["final_score"] == 0.0  # Missing defaults to 0.0
-        assert results[2]["final_score"] == 0.0  # None defaults to 0.0
+        # DEF-622: een expliciete None blijft 'niet beschikbaar', geen 0.0.
+        assert results[2]["final_score"] is None
 
         # All should have proper validation_details
-        for result in results:
+        for result in results[:2]:
             assert "validation_details" in result
             assert "overall_score" in result["validation_details"]
             assert isinstance(result["validation_details"]["overall_score"], float)
+        assert results[2]["validation_details"]["overall_score"] is None
 
     @pytest.mark.asyncio
     async def test_validation_details_missing_entirely(

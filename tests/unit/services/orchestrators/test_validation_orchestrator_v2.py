@@ -134,12 +134,14 @@ class TestValidationOrchestratorV2:
             "dirty text", "test_begrip"
         )
 
-        # Verify validation used cleaned text
+        # Verify validation used cleaned text. DEF-622: de exacte invoertekst
+        # reist als `record_text` mee, zodat CON-01 bewijs en beoordeling
+        # daaraan bindt en niet aan de opgeschoonde variant.
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
             text="cleaned text",
             ontologische_categorie=None,
-            context=None,
+            context={"record_text": "dirty text"},
         )
 
     @pytest.mark.asyncio

@@ -201,6 +201,61 @@ def _build_detailed_assessment(validation_result: dict) -> list[str]:
     return lines
 
 
+#: Nederlandse uitkomstlabels (B-06/B-08). Een technische fout is bewust een
+#: eigen label: hij is geen 'Voldoet niet'.
+_UITKOMSTLABEL: dict[str, str] = {
+    "pass": "✅ Voldoet",
+    "fail": "❌ Voldoet niet",
+    "review_required": "🟠 Nog te beoordelen",
+    "error": "⚙️ Technisch probleem",
+    "not_evaluated": "⏸️ Niet beoordeeld",
+}
+
+
+def render_rule_results(rule_results: dict[str, Any]) -> None:
+    """Toon de uitkomsten van regels zonder cijfer (DEF-622, CON-01).
+
+    Per regel de samengestelde uitkomst, per onderdeel de aanleiding
+    (gevonden tekst), de reden en de vervolgstap (B-08). Een geslaagd
+    onderdeel wordt kort genoemd; een falend, open of mislukt onderdeel krijgt
+    zijn volledige uitleg, zodat de gebruiker weet wat er aan de hand is en
+    wat hij kan doen.
+    """
+    for code, detail in sorted(rule_results.items()):
+        if not isinstance(detail, dict):
+            continue
+        status = str(detail.get("status") or "")
+        label = _UITKOMSTLABEL.get(status, status or "onbekend")
+        st.markdown(f"**{code}** · {label} — zonder cijfer (uitkomst met motivering)")
+        for part in detail.get("parts") or []:
+            if not isinstance(part, dict):
+                continue
+            deelstatus = str(part.get("status") or "")
+            deellabel = _UITKOMSTLABEL.get(deelstatus, deelstatus)
+            aanleiding = part.get("evidence")
+            kop = f"{deellabel}"
+            if aanleiding:
+                kop += f" · aanleiding: '{aanleiding}'"
+                positie = part.get("position")
+                if isinstance(positie, int):
+                    kop += f" (positie {positie})"
+            reden = str(part.get("reason") or "")
+            actie = str(part.get("action") or "")
+            if deelstatus == "pass":
+                st.success(f"{kop} — {reden}")
+                continue
+            tekst = f"{kop}\n\n{reden}\n\n**Vervolgstap:** {actie}"
+            if deelstatus == "fail":
+                st.error(tekst)
+            elif deelstatus == "error":
+                st.warning(tekst)
+            else:
+                st.warning(tekst)
+        review = detail.get("review")
+        if isinstance(review, dict) and review.get("reason"):
+            st.markdown(f"_Beoordeling: {review['reason']}_")
+
+
 def render_v2_validation_details(validation_result: dict[str, Any]) -> None:
     """Render V2 validation details consistently for all tabs."""
     # Backwards-compatible simple renderer delegates to the unified detailed list without toggle.
@@ -262,15 +317,34 @@ def render_validation_detailed_list(
 
     from ui.session_state import SessionStateManager
 
-    # Score
-    overall_score = float(validation_result.get("overall_score", 0.0))
-    score_color = (
-        "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
-    )
-    st.markdown(
-        f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
-        unsafe_allow_html=True,
-    )
+    # Score. DEF-622: `None` is 'niet beschikbaar' (een regel zonder cijfer
+    # in de set) en nooit 0,00 — dat zou een slechte definitie suggereren
+    # terwijl er alleen geen totaalcijfer is. De regeluitkomsten hieronder
+    # blijven gewoon zichtbaar.
+    ruwe_score = validation_result.get("overall_score", 0.0)
+    if ruwe_score is None:
+        zonder_cijfer = sorted(
+            code
+            for code, detail in (validation_result.get("rule_results") or {}).items()
+            if isinstance(detail, dict) and detail.get("score") is None
+        )
+        toelichting = (
+            f" (regel zonder cijfer: {', '.join(zonder_cijfer)})"
+            if zonder_cijfer
+            else ""
+        )
+        st.markdown(f"**Totaalscore:** niet beschikbaar{toelichting}")
+    else:
+        overall_score = float(ruwe_score)
+        score_color = (
+            "green"
+            if overall_score > 0.8
+            else ("orange" if overall_score > 0.6 else "red")
+        )
+        st.markdown(
+            f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
+            unsafe_allow_html=True,
+        )
 
     # Gate indicator (supports both acceptance_gate and review/preview gate formats)
     g = gate or validation_result.get("acceptance_gate") or {}
@@ -318,6 +392,10 @@ def render_validation_detailed_list(
                     else "niet voldaan"
                 )
                 st.error(f"Gates: NIET OK · {reason}")
+
+    # DEF-622: uitkomsten van regels zonder cijfer (CON-01) altijd tonen —
+    # niet achter de toggle, want zonder totaalscore zijn dit dé uitkomsten.
+    render_rule_results(validation_result.get("rule_results") or {})
 
     # Toggle + details
     details_key = f"{key_prefix}_show_validation_details"

@@ -178,6 +178,18 @@ def test_update_bewaart_de_score_bij_legacy_zonder_status() -> None:
     assert repo.update_definitie.call_args.args[1]["validation_score"] == 0.82
 
 
+def test_niet_beschikbare_totaalscore_wordt_op_geen_route_nul() -> None:
+    """DEF-622 (B-06): een expliciete None (totaalscore niet beschikbaar) is
+    geen 0.0 — ook niet op de updateroute, die een ontbrekende score wél als
+    0.0 bewaart."""
+    aangemaakt = _genereer(_ui_response(None, "validated"))
+    assert aangemaakt.create_definitie.call_args.args[0].validation_score is None
+
+    bijgewerkt = _update(_ui_response(None, "validated"))
+    updates = bijgewerkt.update_definitie.call_args.args[1]
+    assert "validation_score" in updates and updates["validation_score"] is None
+
+
 # ------------------------- route 2 tegen de ECHTE repository (einde-tot-einde)
 #
 # De mocktests hierboven bewijzen welk payload de checker samenstelt, maar niet

@@ -49,7 +49,9 @@ class ViolationDict(TypedDict):
 class ValidationDetailsDict(TypedDict):
     """Canonical validation details for V2 contract."""
 
-    overall_score: float  # 0.0-1.0
+    # 0.0-1.0, of None wanneer de totaalscore niet beschikbaar is (DEF-622:
+    # een regel zonder cijfer in de set). Nooit als 0.0 interpreteren.
+    overall_score: float | None
     is_acceptable: bool
     violations: list[ViolationDict]
     passed_rules: list[str]
@@ -61,6 +63,14 @@ class ValidationDetailsDict(TypedDict):
     validation_status: NotRequired[str]
     unknown_reason: NotRequired[str]
     validation_readiness: NotRequired[dict[str, Any]]
+    # DEF-622: gestructureerde regeluitkomsten en gate reizen mee wanneer de
+    # bron ze draagt (contract 1.3.0 van het validatieresultaat).
+    rule_results: NotRequired[dict[str, Any]]
+    rule_statuses: NotRequired[dict[str, str]]
+    review_required: NotRequired[list[dict[str, Any]]]
+    evaluation_coverage: NotRequired[dict[str, Any]]
+    detailed_scores: NotRequired[dict[str, float | None]]
+    acceptance_gate: NotRequired[dict[str, Any]]
 
 
 # NOTE (DEF-82): VoorbeeldenDict TypedDict REMOVED - gebruik Pydantic versie

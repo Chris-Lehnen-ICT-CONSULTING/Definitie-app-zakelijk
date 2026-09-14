@@ -185,6 +185,12 @@ async def test_fingerprint_binds_term_text_and_context(validator):
     [
         {"actor": "", "reason": "Exclusieve uitgever."},
         {"actor": "synthetische-expert", "reason": "  "},
+        # Reviewbevinding 2: ongeldige typen mogen niet via str(...) tot een
+        # 'geldige' beoordelaar of onderbouwing worden.
+        {"actor": True, "reason": True},
+        {"actor": [""], "reason": "Exclusieve uitgever."},
+        {"actor": "synthetische-expert", "reason": ["Exclusieve uitgever."]},
+        {"actor": 1, "reason": "Exclusieve uitgever."},
     ],
 )
 async def test_review_without_actor_or_reason_does_not_count(validator, review):
@@ -204,12 +210,119 @@ async def test_review_without_actor_or_reason_does_not_count(validator, review):
     assert result["rule_statuses"]["CON-01"] == "review_required"
 
 
-async def test_uppercase_acronym_does_not_match_ordinary_lowercase_word(validator):
-    """`OM` als context mag niet elke 'om' in de tekst tot naamsignaal maken."""
-    result = await assess(
-        validator,
-        "kwaliteitsmerk om producten te onderscheiden",
-        {"organisatorische_context": ["OM"]},
+@pytest.mark.parametrize(
+    ("tekst", "waarden", "verwacht"),
+    [
+        # Reviewbevinding 1: de detectie volgt dezelfde casefold-normalisatie
+        # als de context zelf; de opgeslagen schrijfwijze bepaalt niet of een
+        # gewoon woord een signaal is (B-04: signaal, mens beoordeelt).
+        ("kwaliteitsmerk om producten te onderscheiden", ("OM", "om"), "om"),
+        ("merk dat dji toekent", ("DJI", "dji"), "dji"),
+        (
+            "merk van Stichting Straße",
+            ("Stichting Straße", "Stichting STRASSE"),
+            "Stichting Straße",
+        ),
+    ],
+)
+async def test_detection_follows_casefold_regardless_of_stored_spelling(
+    validator, tekst, waarden, verwacht
+):
+    uitkomsten = []
+    for waarde in waarden:
+        result = await assess(validator, tekst, {"organisatorische_context": [waarde]})
+        detail = result["rule_results"]["CON-01"]
+        signalen = [p["evidence"] for p in detail["parts"] if p.get("evidence")]
+        uitkomsten.append(
+            (result["rule_statuses"]["CON-01"], signalen, detail["fingerprint"])
+        )
+    statussen = {u[0] for u in uitkomsten}
+    assert statussen == {"review_required"}, uitkomsten
+    assert all(u[1] == [verwacht] for u in uitkomsten), uitkomsten
+    # Gelijke canonieke context → gelijke vingerafdruk én gelijke beoordeling.
+    assert len({u[2] for u in uitkomsten}) == 1
+
+
+async def test_evidence_binds_to_exact_record_text_across_cleaning(validator):
+    """Reviewbevinding 3: bewijs en vingerafdruk horen bij de exacte recordtekst.
+
+    Een cleaningstap die alleen witruimte strept mag een eerdere beoordeling
+    niet geldig houden voor een gewijzigde recordtekst, en de gerapporteerde
+    positie hoort bij de tekst die de expert ziet.
+    """
+
+    class _Strip:
+        def clean_text(self, text: str) -> str:
+            return text.strip()
+
+    validator.cleaning_service = _Strip()
+    context = {"organisatorische_context": ["Stichting Zilver"]}
+    basis = await assess(validator, "merk dat Stichting Zilver toekent", context)
+    detail = basis["rule_results"]["CON-01"]
+    naam = next(p for p in detail["parts"] if p.get("evidence"))
+    assert naam["position"] == 9
+
+    context["context_review"] = {
+        "fingerprint": detail["fingerprint"],
+        "actor": "synthetische-expert",
+        "decisions": {naam["id"]: {"function": "necessary", "reason": "Uitgever."}},
+    }
+    assert (await assess(validator, "merk dat Stichting Zilver toekent", context))[
+        "rule_statuses"
+    ]["CON-01"] == "pass"
+
+    verschoven = await assess(validator, "  merk dat Stichting Zilver toekent", context)
+    verschoven_detail = verschoven["rule_results"]["CON-01"]
+    assert verschoven_detail["fingerprint"] != detail["fingerprint"]
+    assert verschoven["rule_statuses"]["CON-01"] == "review_required"
+    assert (
+        next(p for p in verschoven_detail["parts"] if p.get("evidence"))["position"]
+        == 11
     )
-    assert result["rule_statuses"]["CON-01"] == "pass"
-    assert not any(p.get("evidence") for p in result["rule_results"]["CON-01"]["parts"])
+
+
+async def test_partial_failure_keeps_proven_parts_visible(validator):
+    """Reviewbevinding 4: een fout in één deelcontrole wist de andere niet."""
+    from domain.context import contract as contractmodule
+
+    text = "merk binnen Stichting Zilver en Stichting Goud"
+    context = {"organisatorische_context": ["Stichting Zilver", "Stichting Goud"]}
+    first = await assess(validator, text, context)
+    detail = first["rule_results"]["CON-01"]
+    zilver = next(p for p in detail["parts"] if p.get("evidence") == "Stichting Zilver")
+    context["context_review"] = {
+        "fingerprint": detail["fingerprint"],
+        "actor": "synthetische-expert",
+        "decisions": {
+            zilver["id"]: {"function": "registration", "reason": "Alleen registratie."}
+        },
+    }
+
+    origineel = contractmodule._naamdeel
+
+    def _faalt_op_goud(treffer, beslissing):
+        if treffer.gevonden == "Stichting Goud":
+            raise RuntimeError("synthetische deelstoring")
+        return origineel(treffer, beslissing)
+
+    with patch.object(contractmodule, "_naamdeel", side_effect=_faalt_op_goud):
+        result = await assess(validator, text, context)
+
+    assert result["rule_statuses"]["CON-01"] == "fail"
+    parts = {p["id"]: p for p in result["rule_results"]["CON-01"]["parts"]}
+    assert parts[zilver["id"]]["status"] == "fail"
+    foutdelen = [p for p in parts.values() if p["status"] == "error"]
+    assert len(foutdelen) == 1 and foutdelen[0]["evidence"] == "Stichting Goud"
+    assert "synthetische deelstoring" not in foutdelen[0]["reason"]
+    assert result["rule_results"]["CON-01"]["fingerprint"] == detail["fingerprint"]
+    assert any(v.get("code") == "CON-01" for v in result["violations"])
+
+    # Zonder bewezen overtreding blijft de regel als geheel een technische
+    # fout, mét de afgeronde onderdelen zichtbaar.
+    context.pop("context_review")
+    with patch.object(contractmodule, "_naamdeel", side_effect=_faalt_op_goud):
+        alleen_fout = await assess(validator, text, context)
+    assert alleen_fout["rule_statuses"]["CON-01"] == "error"
+    statussen = {p["status"] for p in alleen_fout["rule_results"]["CON-01"]["parts"]}
+    assert statussen == {"pass", "review_required", "error"}
+    assert not any(v.get("code") == "CON-01" for v in alleen_fout["violations"])

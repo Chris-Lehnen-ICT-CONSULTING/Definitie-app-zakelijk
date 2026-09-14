@@ -82,6 +82,12 @@ def _opslaanbare_validatiescore(
     ):
         return None
 
+    if "final_score" in integrated_result and integrated_result["final_score"] is None:
+        # DEF-622: een expliciete None is 'totaalscore niet beschikbaar' (een
+        # regel zonder cijfer in de set). Die mag op geen enkele route als
+        # 0.0 in de kolom belanden — dat zou een verzonnen oordeel zijn.
+        return None
+
     score = integrated_result.get("final_score")
     return standaard if score is None else float(score)
 

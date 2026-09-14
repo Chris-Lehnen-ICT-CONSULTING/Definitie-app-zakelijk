@@ -93,6 +93,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 # niet beschikbaar. Context (incl. de drie lijsten) komt via
                 # ValidationContext.metadata.
                 context_dict = self._context_dict(context)
+                if cleaned_text != text:
+                    # DEF-622: CON-01 bindt bewijs en beoordeling aan de exacte
+                    # invoertekst, ook wanneer de service de opgeschoonde
+                    # variant toetst.
+                    context_dict = dict(context_dict or {})
+                    context_dict["record_text"] = text
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
@@ -262,6 +268,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # Voor de duplicaatcontrole: het record mag niet zijn eigen duplicaat
         # zijn; `None` betekent expliciet 'nog niet opgeslagen'.
         enriched["definition_id"] = definition.id
+        # DEF-622: CON-01 bindt bewijs en beoordeling aan de exacte
+        # recordtekst, ook wanneer cleaning de getoetste tekst wijzigt.
+        enriched["record_text"] = definition.definitie
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:

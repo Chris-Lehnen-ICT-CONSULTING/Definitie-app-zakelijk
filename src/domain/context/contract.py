@@ -33,12 +33,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
 from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "CONTEXT_VELDEN",
@@ -47,6 +50,7 @@ __all__ = [
     "FUNCTIE_ONDUIDELIJK",
     "FUNCTIE_REGISTRATIE",
     "ONDERDEEL_CONTEXT",
+    "STATUS_ERROR",
     "STATUS_FAIL",
     "STATUS_OPEN",
     "STATUS_PASS",
@@ -72,6 +76,14 @@ ONDERDEEL_CONTEXT = "context_aanwezig"
 STATUS_PASS = "pass"
 STATUS_FAIL = "fail"
 STATUS_OPEN = "review_required"
+STATUS_ERROR = "error"
+
+_UITLEG_DEELFOUT = (
+    "Dit onderdeel kon niet worden gecontroleerd. De beoordeling is nog onvolledig."
+)
+_ACTIE_DEELFOUT = (
+    "Controleer opnieuw. Blijft dit terugkomen, meld het dan als technisch probleem."
+)
 
 # De drie beoordelingsuitkomsten van een naamtreffer (B-04).
 FUNCTIE_REGISTRATIE = "registration"
@@ -200,35 +212,52 @@ def bereken_vingerafdruk(
     ).hexdigest()
 
 
-#: Maximale lengte van een los acroniem dat hoofdlettergevoelig wordt gezocht.
-_ACRONIEM_MAX = 6
+@dataclass(frozen=True)
+class _GevouwenTekst:
+    """De tekst in casefold-vorm plus de terugvertaling naar originele posities.
 
+    Casefold kan de lengte veranderen (`ß` → `ss`), dus een treffer in de
+    gevouwen tekst moet naar de oorspronkelijke tekst worden teruggerekend om
+    de werkelijk gevonden schrijfwijze en positie te kunnen rapporteren.
+    """
 
-def _is_acroniem(waarde: str) -> bool:
-    """Een los woord in uitsluitend hoofdletters (`OM`, `DJI`, `KMAR`)."""
-    return (
-        " " not in waarde
-        and len(waarde) <= _ACRONIEM_MAX
-        and waarde.isalpha()
-        and waarde.isupper()
-    )
+    gevouwen: str
+    #: Per index in `gevouwen`: de index in de oorspronkelijke tekst.
+    origineel_van: tuple[int, ...]
+
+    @classmethod
+    def van(cls, tekst: str) -> _GevouwenTekst:
+        delen: list[str] = []
+        terug: list[int] = []
+        for index, teken in enumerate(tekst):
+            gevouwen = teken.casefold()
+            delen.append(gevouwen)
+            terug.extend([index] * len(gevouwen))
+        return cls("".join(delen), tuple(terug))
+
+    def origineel_bereik(self, start: int, einde: int) -> tuple[int, int]:
+        """Vertaal een [start, einde) in de gevouwen tekst naar het origineel."""
+        if start >= len(self.origineel_van):
+            return len(self.origineel_van), len(self.origineel_van)
+        eerste = self.origineel_van[start]
+        laatste = self.origineel_van[einde - 1] if einde > start else eerste
+        return eerste, laatste + 1
 
 
 def _patroon_voor(waarde: str) -> re.Pattern[str]:
-    """Woordgrenspatroon voor één contextwaarde.
+    """Woordgrenspatroon voor één contextwaarde, op de gevouwen tekst.
 
-    Meerdere spaties in de waarde matchen willekeurige whitespace in de
-    tekst. Een los acroniem (`OM`, `DJI`, `KMAR`) wordt hoofdlettergevoelig
-    gezocht: anders zou `OM` elke `om` in de zin tot naamsignaal maken. Alle
-    andere waarden — ook een meerwoordige naam die toevallig in hoofdletters
-    is vastgelegd — zijn hoofdletteronafhankelijk, zodat `stichting zilver`
-    en `Stichting Zilver` dezelfde naam zijn; de werkelijk gevonden
-    schrijfwijze is de evidence.
+    De waarde wordt met dezelfde casefold-normalisatie gezocht als waarmee de
+    context zelf wordt vergeleken (`contextsleutel`): schrijfwijze van de
+    opgeslagen waarde bepaalt dus niet óf er een signaal is. Een gewoon woord
+    dat samenvalt met een contextwaarde (`om` bij context `OM`) is daarmee
+    een signaal dat de mens beoordeelt (B-04) — er is bewust geen eigen
+    heuristiek die dat onderscheid automatisch maakt. Meerdere spaties in de
+    waarde matchen willekeurige whitespace.
     """
-    delen = [re.escape(deel) for deel in waarde.split()]
+    delen = [re.escape(deel) for deel in waarde.casefold().split()]
     kern = r"\s+".join(delen)
-    vlaggen = 0 if _is_acroniem(waarde) else re.IGNORECASE
-    return re.compile(rf"(?<!\w){kern}(?!\w)", vlaggen)
+    return re.compile(rf"(?<!\w){kern}(?!\w)")
 
 
 def vind_naamtreffers(tekst: str, contexten: Mapping[str, Any]) -> list[Naamtreffer]:
@@ -236,22 +265,30 @@ def vind_naamtreffers(tekst: str, contexten: Mapping[str, Any]) -> list[Naamtref
 
     Alleen de wérkelijk geselecteerde waarden tellen; er is geen vaste
     naamlijst en geen aliasmapping (`DJI` en `Dienst Justitiële Inrichtingen`
-    zijn twee waarden). Gesorteerd op positie.
+    zijn twee waarden). `gevonden` en `positie` slaan op de oorspronkelijke
+    tekst. Gesorteerd op positie.
     """
+    gevouwen = _GevouwenTekst.van(tekst)
     treffers: list[Naamtreffer] = []
     for veld in CONTEXT_VELDEN:
         for waarde in canoniseer_contextlijst(contexten.get(veld)):
-            for match in _patroon_voor(waarde).finditer(tekst):
+            for match in _patroon_voor(waarde).finditer(gevouwen.gevouwen):
+                start, einde = gevouwen.origineel_bereik(match.start(), match.end())
                 treffers.append(
                     Naamtreffer(
                         veld=veld,
                         contextwaarde=waarde,
-                        gevonden=match.group(0),
-                        positie=match.start(),
+                        gevonden=tekst[start:einde],
+                        positie=start,
                     )
                 )
     treffers.sort(key=lambda t: (t.positie, t.veld, t.contextwaarde.casefold()))
     return treffers
+
+
+def _tekst(waarde: Any) -> str:
+    """Een getrimde tekst, of leeg wanneer de waarde geen tekst is."""
+    return waarde.strip() if isinstance(waarde, str) else ""
 
 
 def _geldige_beoordeling(
@@ -268,8 +305,12 @@ def _geldige_beoordeling(
     if not isinstance(review, Mapping):
         return {}, {"applied": False, "reason": "geen beoordeling aangeleverd"}
 
-    actor = str(review.get("actor") or "").strip()
-    aangeleverd = str(review.get("fingerprint") or "")
+    # Alleen een échte, niet-lege tekst telt als beoordelaar, vingerafdruk of
+    # reden. Een `str(...)`-conversie zou van `True` of `[""]` een niet-lege
+    # string maken en zo een beoordeling zonder geldige beoordelaar of
+    # onderbouwing laten doortellen (reviewbevinding op de contractcommit).
+    actor = _tekst(review.get("actor"))
+    aangeleverd = _tekst(review.get("fingerprint"))
     samenvatting: dict[str, Any] = {
         "applied": False,
         "actor": actor or None,
@@ -289,15 +330,15 @@ def _geldige_beoordeling(
     genegeerd: list[str] = []
     ruwe = review.get("decisions")
     for onderdeel, beslissing in (ruwe.items() if isinstance(ruwe, Mapping) else ()):
-        if not isinstance(beslissing, Mapping):
+        if not isinstance(beslissing, Mapping) or not isinstance(onderdeel, str):
             genegeerd.append(str(onderdeel))
             continue
-        functie = str(beslissing.get("function") or "").strip().lower()
-        reden = str(beslissing.get("reason") or "").strip()
+        functie = _tekst(beslissing.get("function")).lower()
+        reden = _tekst(beslissing.get("reason"))
         if functie not in _BEKENDE_FUNCTIES or not reden:
-            genegeerd.append(str(onderdeel))
+            genegeerd.append(onderdeel)
             continue
-        beslissingen[str(onderdeel)] = {"function": functie, "reason": reden}
+        beslissingen[onderdeel] = {"function": functie, "reason": reden}
 
     samenvatting["applied"] = bool(beslissingen)
     if genegeerd:
@@ -381,13 +422,53 @@ def _veldnaam(veld: str) -> str:
 
 
 def _samengesteld(parts: tuple[Deeluitkomst, ...]) -> str:
-    """B-08: één fail → fail; alles pass → pass; anders open."""
+    """B-08: één fail → fail; alles pass → pass; technische fout → error; anders open.
+
+    Een bewezen overtreding blijft leidend, ook naast een mislukt onderdeel.
+    Zonder overtreding maakt een mislukt onderdeel de regel als geheel een
+    technische fout — geen 'Voldoet', want een vereiste beoordeling is niet
+    uitgevoerd, en geen 'Voldoet niet', want een fout bewijst geen
+    overtreding.
+    """
     statussen = {p.status for p in parts}
     if STATUS_FAIL in statussen:
         return STATUS_FAIL
+    if STATUS_ERROR in statussen:
+        return STATUS_ERROR
     if statussen == {STATUS_PASS}:
         return STATUS_PASS
     return STATUS_OPEN
+
+
+def _naamdeel_veilig(
+    treffer: Naamtreffer, beslissing: dict[str, str] | None
+) -> Deeluitkomst:
+    """Eén deelcontrole; een fout erin raakt de overige onderdelen niet.
+
+    Het mislukte onderdeel wordt als apart `error`-deel gepubliceerd, mét de
+    aanleiding (evidence) maar zonder interne foutdetails als normuitleg
+    (B-08). De technische oorzaak is voor het log van de aanroeper.
+    """
+    try:
+        return _naamdeel(treffer, beslissing)
+    except Exception as exc:
+        logger.warning(
+            "CON-01: deelcontrole voor naamsignaal %s mislukte: %s: %s",
+            treffer.id,
+            type(exc).__name__,
+            exc,
+            exc_info=True,
+        )
+        return Deeluitkomst(
+            id=treffer.id,
+            status=STATUS_ERROR,
+            evidence=treffer.gevonden,
+            context_value=treffer.contextwaarde,
+            field=treffer.veld,
+            position=treffer.positie,
+            reason=_UITLEG_DEELFOUT,
+            action=_ACTIE_DEELFOUT,
+        )
 
 
 def beoordeel_context(
@@ -433,7 +514,7 @@ def beoordeel_context(
         )
     ]
     for treffer in vind_naamtreffers(tekst, contexten):
-        parts.append(_naamdeel(treffer, beslissingen.get(treffer.id)))
+        parts.append(_naamdeel_veilig(treffer, beslissingen.get(treffer.id)))
 
     delen = tuple(parts)
     return ContextUitkomst(
