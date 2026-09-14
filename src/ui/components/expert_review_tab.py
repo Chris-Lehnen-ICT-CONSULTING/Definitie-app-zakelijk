@@ -1311,6 +1311,12 @@ class ExpertReviewTab:
                     # tekst.
                     st.error("❌ Wijzigingen konden niet worden opgeslagen")
                     return
+                # Reviewbevinding 3 (v3): de veldopslag is bevestigd, dus de
+                # vergelijkingsbasis is vanaf hier de opgeslagen versie — ook
+                # als de vervolgactie hieronder een exception geeft. De latere
+                # refresh na approval_notes/statusverwerking blijft voor de
+                # nieuwste versie.
+                self._ververs_selectie_na_opslag(definitie)
 
             # Process decision
             if "Goedkeuren" in decision:

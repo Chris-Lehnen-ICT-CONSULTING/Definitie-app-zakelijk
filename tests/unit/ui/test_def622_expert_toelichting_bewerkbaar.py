@@ -209,6 +209,61 @@ def test_na_opslag_is_de_vergelijkingsbasis_het_opgeslagen_record(repo, sessie):
     assert na.get_definitie_tekst() == ZIN
 
 
+def test_workflowexception_na_geslaagde_veldopslag_houdt_readback_als_basis(
+    repo, sessie
+):
+    """Reviewrepro (v3): veldopslag B slaagt, maar de goedkeuringsworkflow
+    geeft een exception. De fout is zichtbaar, er wordt geen succes gemeld, en
+    de selectie is tóch de opgeslagen versie (readback incl. versie), zodat
+    terugzetten naar A bij de volgende opslag A wegschrijft."""
+    rec = _record(repo, definitie=f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}")
+    SessionStateManager.set_value("selected_review_definition", rec)
+    SessionStateManager.set_value(f"edited_toelichting_{rec.id}", NIEUWE_TOELICHTING)
+
+    container = MagicMock()
+    container.definition_workflow_service.return_value.submit_for_review.side_effect = (
+        RuntimeError("synthetische workflowstoring")
+    )
+    m = _mock_st()
+    with (
+        patch("ui.components.expert_review_tab.st", m),
+        patch(
+            "ui.cached_services.get_cached_service_container", return_value=container
+        ),
+    ):
+        ExpertReviewTab(repo)._submit_review(
+            rec, "👍 Goedkeuren", "", "synthetische-expert"
+        )
+
+    # Fout zichtbaar, geen succesmelding.
+    assert any(
+        "synthetische workflowstoring" in str(c.args[0]) for c in m.error.call_args_list
+    )
+    assert not m.success.called
+    # DB heeft B; de selectie is de readback daarvan, inclusief versie.
+    opgeslagen = repo.get_definitie(rec.id)
+    assert opgeslagen.definitie == f"{ZIN}{TOELICHTING_SCHEIDING} {NIEUWE_TOELICHTING}"
+    basis = SessionStateManager.get_value("selected_review_definition")
+    assert basis.id == rec.id
+    assert basis.definitie == opgeslagen.definitie
+    assert basis.version_number == opgeslagen.version_number
+
+    # Terugzetten naar A op die basis telt als wijziging; volgende opslag → A.
+    with patch(
+        "ui.components.expert_review_tab.st",
+        _mock_st({f"edit_toel_{rec.id}": TOELICHTING}),
+    ):
+        ExpertReviewTab(repo)._render_comparison_view(basis)
+    assert SessionStateManager.get_value(f"edited_toelichting_{rec.id}") == TOELICHTING
+    with patch("ui.components.expert_review_tab.st", _mock_st()):
+        ExpertReviewTab(repo)._submit_review(
+            basis, "📝 Wijzigingen Vereist", "", "synthetische-expert"
+        )
+    assert repo.get_definitie(rec.id).definitie == (
+        f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}"
+    )
+
+
 def test_mislukte_opslag_ververst_niets_en_verwerkt_geen_besluit(repo, sessie):
     rec = _record(repo, definitie=f"{ZIN}{TOELICHTING_SCHEIDING} {TOELICHTING}")
     SessionStateManager.set_value("selected_review_definition", rec)
