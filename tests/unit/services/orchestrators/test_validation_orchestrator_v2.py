@@ -93,12 +93,13 @@ class TestValidationOrchestratorV2:
         assert result["overall_score"] == 0.95
         assert result["is_acceptable"] is True
 
-        # Verify service was called with correct args
+        # Verify service was called with correct args. DEF-622: de exacte
+        # invoertekst reist altijd als `record_text` mee (CON-01-binding).
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
             text="test text",
             ontologische_categorie="PROCES",
-            context={"profile": "standard"},
+            context={"profile": "standard", "record_text": "test text"},
         )
 
     @pytest.mark.asyncio
@@ -112,12 +113,13 @@ class TestValidationOrchestratorV2:
 
         assert result["is_acceptable"] is True
 
-        # Verify service was called with None context
+        # Verify service was called without caller context. DEF-622: alleen de
+        # exacte invoertekst reist als `record_text` mee (CON-01-binding).
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
             text="test text",
             ontologische_categorie=None,
-            context=None,
+            context={"record_text": "test text"},
         )
 
     @pytest.mark.asyncio

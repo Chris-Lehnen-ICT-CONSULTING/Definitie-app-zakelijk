@@ -8,6 +8,7 @@ nodig, dus dit transport is een harde eis en geen best-effort verrijking.
 """
 
 from copy import deepcopy
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -61,7 +62,8 @@ async def test_text_transports_context_metadata_without_mutating_input():
         "keurmerk", "kwaliteitsmerk", context=ValidationContext(metadata=metadata)
     )
     supplied = service.validate_definition.call_args.kwargs["context"]
-    assert service.received == metadata
+    # Alles uit metadata komt aan; daarnaast reist de exacte invoertekst mee.
+    assert service.received == {**metadata, "record_text": "kwaliteitsmerk"}
     # De dubbel heeft `supplied` in de diepte gemuteerd; de aanroeper mag
     # daar niets van merken.
     assert supplied["organisatorische_context"][-1] == "gemuteerd door service"
@@ -112,6 +114,77 @@ async def test_definition_context_travels_without_validation_context():
     assert supplied["organisatorische_context"] == []
     assert supplied["juridische_context"] == []
     assert supplied["definition_id"] is None
+
+
+@pytest.mark.parametrize("met_cleaner", [False, True])
+async def test_validate_text_binds_record_text_to_actual_text_argument(met_cleaner):
+    """Een aanroeper kan `record_text` niet zelf meegeven (reviewbevinding R3).
+
+    Zonder deze regel bond CON-01 bewijs en beoordeling aan een door de
+    aanroeper opgegeven tekst zonder naam, terwijl de werkelijk getoetste
+    tekst wél een naam bevat — en bleef een oude beoordeling geldig voor een
+    nieuwe tekst. `record_text` komt onvoorwaardelijk uit het `text`-argument,
+    ongeacht cleaning of aangeleverde metadata.
+    """
+    service = _service()
+    cleaning = None
+    if met_cleaner:
+        cleaning = AsyncMock()
+        cleaning.clean_text.return_value = SimpleNamespace(
+            cleaned_text="merk dat Stichting Zilver toekent"
+        )
+    await ValidationOrchestratorV2(service, cleaning).validate_text(
+        "keurmerk",
+        "merk dat Stichting Zilver toekent",
+        context=ValidationContext(
+            metadata={
+                "organisatorische_context": ["Stichting Zilver"],
+                "record_text": "merk zonder naam",
+            }
+        ),
+    )
+    assert service.received["record_text"] == "merk dat Stichting Zilver toekent"
+
+
+async def test_spoofed_record_text_cannot_revive_an_old_review():
+    """Door de echte service: gespoofte recordtekst + oude beoordeling telt niet."""
+    from services.null_repository import NullDefinitionRepository
+    from services.validation.modular_validation_service import (
+        ModularValidationService,
+    )
+    from toetsregels.manager import get_toetsregel_manager
+
+    orchestrator = ValidationOrchestratorV2(
+        ModularValidationService(
+            toetsregel_manager=get_toetsregel_manager(),
+            repository=NullDefinitionRepository(),
+        )
+    )
+    context = {"organisatorische_context": ["Stichting Zilver"]}
+    oud = await orchestrator.validate_text(
+        "keurmerk",
+        "merk dat Stichting Zilver toekent",
+        context=ValidationContext(metadata=context),
+    )
+    detail = oud["rule_results"]["CON-01"]
+    naam = next(p for p in detail["parts"] if p.get("evidence"))
+    gespooft = {
+        **context,
+        "record_text": "merk dat Stichting Zilver toekent",
+        "context_review": {
+            "fingerprint": detail["fingerprint"],
+            "actor": "synthetische-expert",
+            "decisions": {naam["id"]: {"function": "necessary", "reason": "Uitgever."}},
+        },
+    }
+    nieuw = await orchestrator.validate_text(
+        "keurmerk",
+        "merk dat Stichting Zilver toekent binnen de registratieomgeving",
+        context=ValidationContext(metadata=gespooft),
+    )
+    assert nieuw["rule_statuses"]["CON-01"] == "review_required"
+    assert nieuw["rule_results"]["CON-01"]["fingerprint"] != detail["fingerprint"]
+    assert nieuw["rule_results"]["CON-01"]["review"]["applied"] is False
 
 
 async def test_empty_record_category_and_id_override_caller_values():

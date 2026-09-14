@@ -92,13 +92,14 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 # Geen verrijking met 'definition' hier: die is in validate_text
                 # niet beschikbaar. Context (incl. de drie lijsten) komt via
                 # ValidationContext.metadata.
-                context_dict = self._context_dict(context)
-                if cleaned_text != text:
-                    # DEF-622: CON-01 bindt bewijs en beoordeling aan de exacte
-                    # invoertekst, ook wanneer de service de opgeschoonde
-                    # variant toetst.
-                    context_dict = dict(context_dict or {})
-                    context_dict["record_text"] = text
+                # DEF-622: CON-01 bindt bewijs en beoordeling aan de exacte
+                # invoertekst — onvoorwaardelijk uit het `text`-argument, ook
+                # zonder cleaning en ongeacht wat een aanroeper in metadata
+                # onder `record_text` meegeeft. Anders kon een aanroeper de
+                # binding spoofen en een oude beoordeling laten gelden voor
+                # een nieuwe tekst (reviewbevinding R3).
+                context_dict = dict(self._context_dict(context) or {})
+                context_dict["record_text"] = text
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
