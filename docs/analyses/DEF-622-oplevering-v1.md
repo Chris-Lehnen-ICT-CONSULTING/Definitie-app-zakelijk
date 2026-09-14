@@ -67,3 +67,7 @@ make test-acceptance test-contract
 ```
 
 Alle bovenstaande gate-aanroepen eindigden met exit 0. De kwaliteitsgates zijn daarnaast herhaald met de exacte lockfile-toolversies in een tijdelijke omgeving; alle eveneens exit 0. De finale code/tests/config verschillen niet van de geteste codecommit. Geen dependencies of databaseschema gewijzigd, geen nieuwe productie-printstatements, `git diff --check` schoon voor src/tests/config. Het opgenomen unified-diff-patchbestand gebruikt vanzelfsprekend contextspaties op lege regels; die zijn nodig voor het patchformaat.
+
+## CI-aanvulling na de eerste push
+
+Twee CI-controles vroegen onderhoud van bestaande baselineverwijzingen. In `bc3608e48` zijn zes grep-regelnummers en twee timingmodulehashes plus de broncommit bijgewerkt. Alle uitzonderingen, beoordelingen, timingasserties en toleranties zijn behouden. Beide echte guards slagen nu lokaal en de onafhankelijke deltareview is gesloten zonder nieuwe bevindingen. Zie `DEF-622-ci-aansluiting-v1.md`. Productiecode en tests zijn ongewijzigd; de bovenstaande functionele verificatie blijft geldig.
