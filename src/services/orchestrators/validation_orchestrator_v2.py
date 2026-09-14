@@ -253,12 +253,15 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         enriched["wettelijke_basis"] = canoniseer_contextlijst(
             definition.wettelijke_basis
         )
-        if definition.categorie:
-            enriched["categorie"] = definition.categorie
-        if definition.id is not None:
-            # Voor de duplicaatcontrole: het record mag niet zijn eigen
-            # duplicaat zijn.
-            enriched["definition_id"] = definition.id
+        # Ook categorie en id zijn recordwaarden en worden altijd gezet — óók
+        # als het record ze niet heeft. Anders blijft een conflicterende
+        # aanroeperwaarde staan en zoekt DUP_01 op een categorie die het
+        # record niet draagt (reviewbevinding op de transportcommit).
+        enriched["categorie"] = definition.categorie
+        enriched["ontologische_categorie"] = definition.ontologische_categorie
+        # Voor de duplicaatcontrole: het record mag niet zijn eigen duplicaat
+        # zijn; `None` betekent expliciet 'nog niet opgeslagen'.
+        enriched["definition_id"] = definition.id
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:
