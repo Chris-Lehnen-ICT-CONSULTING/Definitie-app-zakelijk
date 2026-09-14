@@ -110,8 +110,19 @@ async def test_necessary_name_review_expires_when_text_changes(validator):
 
 @pytest.mark.parametrize(
     "versie",
-    ["ontbreekt", None, True, [], {}, "invalid", 2.5, 2],
-    ids=["ontbreekt", "None", "True", "lijst", "dict", "tekst", "float", "ander"],
+    ["ontbreekt", None, True, [], {}, "invalid", 2.5, 2, "3", 3.0],
+    ids=[
+        "ontbreekt",
+        "None",
+        "True",
+        "lijst",
+        "dict",
+        "tekst",
+        "float",
+        "ander",
+        "cijfertekst",
+        "float-gelijk",
+    ],
 )
 async def test_review_without_valid_version_does_not_count_for_versioned_record(
     validator, versie
@@ -149,7 +160,17 @@ async def test_review_without_valid_version_does_not_count_for_versioned_record(
     # Gelijk versienummer: de beoordeling telt.
     context["context_review"] = {**review, "version_number": 3}
     assert (await assess(validator, text, context))["rule_statuses"]["CON-01"] == "pass"
-    # Zonder recordversie (los fragment) blijft de vingerafdruk de binding.
+    # Een misvormde recordversie ontgrendelt de vingerafdruk-alleen-semantiek
+    # niet: het record is versiegebonden, de vergelijking is onmogelijk.
+    for misvormd in ("3", 3.0, True):
+        context["definition_version"] = misvormd
+        misvormd_resultaat = await assess(validator, text, context)
+        assert misvormd_resultaat["rule_statuses"]["CON-01"] == "review_required"
+        assert (
+            "versie" in misvormd_resultaat["rule_results"]["CON-01"]["review"]["reason"]
+        )
+    # Zonder recordversie (los, onopgeslagen fragment) blijft de vingerafdruk
+    # de enige binding.
     context.pop("definition_version")
     context["context_review"] = review
     assert (await assess(validator, text, context))["rule_statuses"]["CON-01"] == "pass"

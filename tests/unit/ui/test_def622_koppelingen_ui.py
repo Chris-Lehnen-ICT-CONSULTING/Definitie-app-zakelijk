@@ -86,6 +86,7 @@ def _beoordeel(repo: DefinitieRepository, rec: DefinitieRecord) -> None:
         {
             "fingerprint": uitkomst.fingerprint,
             "actor": ACTOR,
+            "version_number": rec.version_number,
             "decisions": {naam.id: {"function": "necessary", "reason": "Uitgever."}},
         },
         updated_by=ACTOR,

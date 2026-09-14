@@ -74,6 +74,7 @@ def _beoordeel(repo: DefinitionRepository, definitie_id: int) -> str:
         {
             "fingerprint": uitkomst.fingerprint,
             "actor": ACTOR,
+            "version_number": rec.version_number,
             "decisions": {
                 naam.id: {"function": "necessary", "reason": "Exclusieve uitgever."}
             },

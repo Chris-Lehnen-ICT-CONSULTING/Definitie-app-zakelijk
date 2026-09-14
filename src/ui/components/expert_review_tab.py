@@ -646,6 +646,10 @@ class ExpertReviewTab:
                 {
                     "fingerprint": uitkomst.fingerprint,
                     "actor": actor,
+                    # V2b: de beoordeelde (getoonde) recordversie hoort in de
+                    # beoordeling zelf; expected_version is alleen de
+                    # concurrency-guard bij het opslaan.
+                    "version_number": definitie.version_number,
                     "decisions": bestaande_beslissingen,
                     "reviewed_at": datetime.now().isoformat(),
                 },

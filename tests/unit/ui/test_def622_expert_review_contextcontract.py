@@ -100,11 +100,27 @@ def test_vastleggen_bewaart_beoordeling_ververst_versie_en_maakt_vaststelbaar(
     rec = _record(repo)
     SessionStateManager.set_value("selected_review_definition", rec)
     m = _mock_st("necessary", "Exclusieve uitgever van dit keurmerk.", True)
+    echte_set = repo.set_context_review
+    payloads: list[dict[str, Any]] = []
+
+    def _gezien(definitie_id, review, updated_by=None, *, expected_version):
+        payloads.append(dict(review))
+        return echte_set(
+            definitie_id, review, updated_by, expected_version=expected_version
+        )
+
     with (
         patch("ui.components.expert_review_tab.st", m),
         patch("ui.components.validation_view.st", m),
+        patch.object(repo, "set_context_review", _gezien),
     ):
         ExpertReviewTab(repo)._render_contextcontract(rec)
+
+    # V2b: de UI levert de beoordeelde (getoonde) versie in de payload zelf,
+    # als strikt geheel getal; expected_version is alleen de concurrency-guard.
+    assert len(payloads) == 1
+    assert payloads[0]["version_number"] == rec.version_number
+    assert type(payloads[0]["version_number"]) is int
 
     # Beoordeling op het record, met actor en gebonden vingerafdruk.
     vers = repo.get_definitie(rec.id)

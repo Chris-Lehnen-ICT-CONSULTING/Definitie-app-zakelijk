@@ -58,6 +58,7 @@ __all__ = [
     "Deeluitkomst",
     "beoordeel_context",
     "bereken_vingerafdruk",
+    "is_versienummer",
     "vind_naamtreffers",
 ]
 
@@ -294,44 +295,51 @@ def _tekst(waarde: Any) -> str:
     return waarde.strip() if isinstance(waarde, str) else ""
 
 
-def _versienummer(waarde: Any) -> int | None:
-    """Een geheel versienummer, of None wanneer de waarde er geen is."""
-    if isinstance(waarde, bool) or waarde is None:
-        return None
-    if isinstance(waarde, int):
-        return waarde
-    if isinstance(waarde, str) and waarde.strip().isdigit():
-        return int(waarde.strip())
-    return None
+def is_versienummer(waarde: Any) -> bool:
+    """De ene strikte versieconventie van de beoordeling (V2b).
+
+    Alleen een geheel getal is een versienummer: geen bool (`True == 1`),
+    geen float (`2.0 == 2`), geen cijfertekst (`"2"`), geen None. Invoer,
+    gate en behoud bij vaststelling gebruiken allemaal déze test, zodat een
+    waarde nooit op de ene plek telt en op de andere niet.
+    """
+    return isinstance(waarde, int) and not isinstance(waarde, bool)
 
 
-def _versieconflict(
-    beoordeeld: Any, definitie_versie: int | str | None
-) -> dict[str, Any] | None:
+def _versieconflict(beoordeeld: Any, definitie_versie: Any) -> dict[str, Any] | None:
     """De reden waarom de versiebinding niet klopt, of None wanneer zij klopt.
 
     Draagt het record een versie, dan moet de beoordeling een geldig én gelijk
-    versienummer hebben (E2, V2b). Zonder recordversie is er niets te
-    vergelijken: dan bindt uitsluitend de vingerafdruk.
+    versienummer hebben (E2, V2b). Alleen zonder recordversie (`None`: een los,
+    onopgeslagen fragment) is er niets te vergelijken en bindt uitsluitend de
+    vingerafdruk. Een misvormde recordversie ontgrendelt die semantiek niet:
+    het record is versiegebonden, de vergelijking is onmogelijk, dus de
+    beoordeling telt niet.
     """
-    actuele_versie = _versienummer(definitie_versie)
-    if actuele_versie is None:
+    if definitie_versie is None:
         return None
-    beoordeelde_versie = _versienummer(beoordeeld)
-    if beoordeelde_versie is None:
+    if not is_versienummer(definitie_versie):
+        return {
+            "version_number": None,
+            "reason": (
+                f"recordversie {definitie_versie!r} is geen geldig versienummer; "
+                "de versiebinding van de beoordeling is niet te controleren"
+            ),
+        }
+    if not is_versienummer(beoordeeld):
         return {
             "version_number": None,
             "reason": (
                 "eerdere beoordeling draagt geen geldig versienummer; het record "
-                f"is versie {actuele_versie} en vraagt een nieuwe beoordeling"
+                f"is versie {definitie_versie} en vraagt een nieuwe beoordeling"
             ),
         }
-    if beoordeelde_versie != actuele_versie:
+    if beoordeeld != definitie_versie:
         return {
-            "version_number": beoordeelde_versie,
+            "version_number": beoordeeld,
             "reason": (
-                f"eerdere beoordeling hoort bij versie {beoordeelde_versie}; het "
-                f"record is inmiddels versie {actuele_versie}"
+                f"eerdere beoordeling hoort bij versie {beoordeeld}; het "
+                f"record is inmiddels versie {definitie_versie}"
             ),
         }
     return None

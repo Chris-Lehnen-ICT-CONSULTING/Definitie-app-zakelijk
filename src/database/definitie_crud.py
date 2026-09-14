@@ -10,6 +10,7 @@ from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
 from database.models import DefinitieRecord, DefinitieStatus, VaststelconflictError
+from domain.context.contract import is_versienummer
 
 logger = logging.getLogger(__name__)
 
@@ -28,14 +29,10 @@ _IDENTITEITSVELDEN: tuple[str, ...] = (
 _BEOORDELINGSVELDEN: tuple[str, ...] = ("definitie", *_IDENTITEITSVELDEN)
 
 
-def _is_versienummer(waarde: Any) -> bool:
-    """Strikt een geheel versienummer: geen bool, float of tekst.
-
-    Numerieke gelijkheid volstaat niet — `True == 1` en `2.0 == 2` — terwijl
-    het contract (`domain.context.contract`) zulke waarden terecht als geen
-    versie leest (tweede deltareview V2b).
-    """
-    return isinstance(waarde, int) and not isinstance(waarde, bool)
+# Eén strikte versieconventie voor invoer, gate en behoud bij vaststelling
+# (V2b): de test van het contract zelf, zodat de persistentie nooit iets
+# aanneemt wat de gate weigert — of andersom.
+_is_versienummer = is_versienummer
 
 
 class Unset:
@@ -358,9 +355,11 @@ class DefinitieCrudRepository:
         """Controleer de payload vóór mutatie; geeft de handelende gebruiker.
 
         Weigert (ValueError) een payload die geen dict is, zonder handelende
-        gebruiker, met een afwijkende beoordelaar (V3), met een versienummer
-        van een ongeldig type (V2b) of van een andere versie dan beoordeeld
-        (V2a: verouderde invoer).
+        gebruiker, met een afwijkende beoordelaar (V3), zonder of met een
+        ongeldig getypeerd versienummer (V2b: de payload draagt zelf de
+        beoordeelde versie als strikt geheel getal; `expected_version` is
+        alleen de concurrency-guard, geen vervanging) of met een andere
+        versie dan beoordeeld (V2a: verouderde invoer).
         """
         if not isinstance(review, dict):
             msg = "context_review moet een dict zijn"
@@ -382,15 +381,17 @@ class DefinitieCrudRepository:
             )
             raise ValueError(msg)
         meegegeven = review.get("version_number")
-        if meegegeven is not None and not _is_versienummer(meegegeven):
-            # Strikt type (tweede deltareview V2b): `True`/`1.0` zijn
-            # numeriek gelijk aan 1 maar geen geldige versie.
+        if not _is_versienummer(meegegeven):
+            # Strikt type (V2b): ontbrekend, null, `True`/`1.0`/`"1"` zijn
+            # geen versienummer — numerieke gelijkheid volstaat niet, en een
+            # kloppende expected_version vervangt de payloadversie niet.
             msg = (
-                f"beoordeling draagt geen geldig versienummer "
-                f"({meegegeven!r}); geweigerd vóór opslag"
+                "beoordeling draagt geen geldig versienummer "
+                f"({meegegeven!r}); de beoordeelde recordversie hoort als "
+                "geheel getal in de beoordeling zelf; geweigerd vóór opslag"
             )
             raise ValueError(msg)
-        if meegegeven is not None and meegegeven != expected_version:
+        if meegegeven != expected_version:
             msg = (
                 f"beoordeling hoort bij versie {meegegeven!r}, maar beoordeeld "
                 f"is versie {expected_version}: verouderde invoer, geweigerd "

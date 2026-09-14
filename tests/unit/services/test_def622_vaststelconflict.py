@@ -132,6 +132,9 @@ def _beoordeling(repo: DefinitionRepository, definitie_id: int, functie: str) ->
         {
             "fingerprint": uitkomst.fingerprint,
             "actor": ACTOR,
+            # De beoordeelde recordversie hoort in de payload zelf (V2b);
+            # expected_version is alleen de concurrency-guard.
+            "version_number": record.version_number,
             "decisions": {
                 naam.id: {"function": functie, "reason": "Synthetische motivering."}
             },
@@ -487,12 +490,13 @@ class TestInterRecordConflict:
             },
         )
         naam = next(p for p in uitkomst.parts if p.evidence)
+        versie_voor = _versie(repo, did)
         beoordeling = {
             "fingerprint": uitkomst.fingerprint,
             "actor": "expert-A",
+            "version_number": versie_voor,
             "decisions": {naam.id: {"function": "necessary", "reason": "Uitgever."}},
         }
-        versie_voor = _versie(repo, did)
 
         with pytest.raises(ValueError, match="beoordelaar"):
             repo.set_context_review(
@@ -795,12 +799,12 @@ class TestReviewversiebinding:
             repo.set_context_review(did, oud, updated_by=ACTOR, expected_version=2)
             is False
         )
-        zonder_versie = {k: v for k, v in oud.items() if k != "version_number"}
+        actueel_payload = {**oud, "version_number": 4}
         for ongeldig in (None, True, "4", 4.0):
             with pytest.raises(ValueError, match="expected_version"):
                 repo.set_context_review(
                     did,
-                    zonder_versie,
+                    actueel_payload,
                     updated_by=ACTOR,
                     expected_version=ongeldig,  # type: ignore[arg-type]
                 )
@@ -1054,4 +1058,101 @@ class TestReviewversiebinding:
         assert repo.legacy_repo.change_status(did, DefinitieStatus.ESTABLISHED, ACTOR)
         assert _versie(repo, did) == 5
         assert repo.get_definitie(did).get_context_review()["version_number"] == 4.0
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+    # ------------------------------------------ V2b, vierde ronde (mandaat)
+
+    def _payload(self, repo: DefinitionRepository, did: int) -> dict[str, Any]:
+        from domain.context.contract import beoordeel_context
+
+        rec = repo.get_definitie(did)
+        uitkomst = beoordeel_context(
+            rec.begrip, rec.get_definitie_tekst(), rec.get_contextlijsten()
+        )
+        naam = next(p for p in uitkomst.parts if p.evidence)
+        return {
+            "fingerprint": uitkomst.fingerprint,
+            "actor": ACTOR,
+            "decisions": {naam.id: {"function": "necessary", "reason": "Uitgever."}},
+        }
+
+    @pytest.mark.parametrize("variant", ["ontbreekt", "None"])
+    def test_payload_zonder_versienummer_wordt_geweigerd(self, tmp_path, variant):
+        """V2b (a): de payload draagt zelf de beoordeelde versie; ontbreekt
+        die (of is hij null), dan is dat geen actuele invoer — ook niet met een
+        kloppende expected_version, die alleen de concurrency-guard is."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        payload = self._payload(repo, did)
+        if variant == "None":
+            payload["version_number"] = None
+
+        with pytest.raises(ValueError, match="versienummer"):
+            repo.set_context_review(did, payload, updated_by=ACTOR, expected_version=1)
+        assert _versie(repo, did) == 1
+        assert repo.get_definitie(did).get_context_review() is None
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+        # Dezelfde invoer mét de beoordeelde versie bindt wél: opslaan →
+        # readback → vaststelling door een ander → readback gebonden.
+        assert repo.set_context_review(
+            did, {**payload, "version_number": 1}, updated_by=ACTOR, expected_version=1
+        )
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (2, 2)
+        uitkomst = svc.approve(
+            did, "expert-B", user_role="reviewer", notes="", expected_version=2
+        )
+        assert uitkomst.success is True, uitkomst.error_message
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (3, 3)
+        assert svc.preview_gate(did)["status"] == "pass"
+
+    def test_payloadversie_ongelijk_aan_beoordeelde_versie_wordt_geweigerd(
+        self, tmp_path
+    ):
+        """V2b: payloadversie en expected_version moeten dezelfde beoordeelde
+        versie zijn; een afwijkende payloadversie is verouderde invoer."""
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        assert repo.legacy_repo.update_definitie(did, {"validation_score": 0.95})
+        payload = {**self._payload(repo, did), "version_number": 1}
+        with pytest.raises(ValueError, match="versie"):
+            repo.set_context_review(did, payload, updated_by=ACTOR, expected_version=2)
+        assert _versie(repo, did) == 2
+        assert repo.get_definitie(did).get_context_review() is None
+        assert svc.preview_gate(did)["status"] == "blocked"
+
+    def test_opgeslagen_tekstversie_telt_niet_bij_gate_noch_bij_vaststelling(
+        self, tmp_path
+    ):
+        """V2b (b): één strikte integerconventie voor invoer, gate en carry.
+        Een bewaarde marker met tekstversie "2" op recordversie 2 passeert de
+        gate niet en wordt bij vaststelling niet als integer meegenomen."""
+        from database.models import CONTEXT_REVIEW_CODE
+
+        svc, repo = _service(tmp_path)
+        did = repo.legacy_repo.create_definitie(_record(definitie=self.NAAMTEKST))
+        marker = {
+            "code": CONTEXT_REVIEW_CODE,
+            "rule_id": "CON-01",
+            "severity": "info",
+            "context_review": {**self._payload(repo, did), "version_number": "2"},
+        }
+        assert repo.legacy_repo.update_definitie(
+            did, {"validation_issues": json.dumps([marker], ensure_ascii=False)}
+        )
+        assert _versie(repo, did) == 2
+        assert repo.get_definitie(did).get_context_review()["version_number"] == "2"
+
+        gate = svc.preview_gate(did)
+        assert gate["status"] == "blocked"
+        assert any("versie" in r for r in gate["reasons"]), gate
+        vaststelling = svc.approve(
+            did, ACTOR, user_role="reviewer", notes="", expected_version=2
+        )
+        assert vaststelling.success is False and vaststelling.gate_status == "blocked"
+
+        # Rechtstreeks op de persistentielaag (zonder gate): geen herstempeling.
+        assert repo.legacy_repo.change_status(did, DefinitieStatus.ESTABLISHED, ACTOR)
+        assert _versie(repo, did) == 3
+        assert repo.get_definitie(did).get_context_review()["version_number"] == "2"
         assert svc.preview_gate(did)["status"] == "blocked"
