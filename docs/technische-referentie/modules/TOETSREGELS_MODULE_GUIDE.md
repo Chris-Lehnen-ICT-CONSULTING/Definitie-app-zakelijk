@@ -14,17 +14,18 @@ V2 gebruikt primair JSON‑regels via de ToetsregelManager. Python validators zi
 src/toetsregels/
 ├── regels/
 │   ├── ESS-03.json          # JSON configuratie (canoniek voor V2)
-│   ├── CON-01.json          # Alleen JSON (fallback pattern‑based)
+│   ├── CON-01.json          # Actief runtimecontract: context_metadata, geen cijfer
 │   └── ...
 └── validators/
     ├── ESS_03.py            # Python validator (underscores)
-    ├── CON_01.py            # Python validator (underscores)
     └── ...
 ```
 
 Let op naamgeving:
 - JSON: koppeltekens (bijv. `ESS-03.json`).
 - Python: underscores (bijv. `ESS_03.py`) in de map `validators/`.
+
+CON-01 wordt uitsluitend beoordeeld door `ContextMetadataEvaluator` via `ModularValidationService`. De oude CON-01-Pythonvalidators zijn uitgefaseerd; de legacy-loader geeft hiervoor een migratiemelding. De overige Pythonvoorbeelden hieronder beschrijven de nog bestaande legacylaag.
 
 ## Nieuwe Toetsregel Maken
 

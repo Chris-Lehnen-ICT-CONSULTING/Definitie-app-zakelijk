@@ -422,7 +422,7 @@ AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
 - [ASTRA Validatieregels Vergelijking](./ASTRA_VALIDATIEREGELS_VERGELIJKING.md)
 - [Gebruikers Uitleg Validatieregels](../handleidingen/gebruikers/uitleg-validatieregels.md)
 - [CON-01 JSON Config](../../src/toetsregels/regels/CON-01.json)
-- [CON-01 Validator Code](../../src/toetsregels/validators/CON_01.py)
+- [Historische CON-01-validatorcode vóór uitfasering](https://github.com/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakelijk/blob/dc7a70e80a47b750d8800c334805a968857bbd7b/src/toetsregels/validators/CON_01.py)
 - [Unit Tests](../../tests/validation/test_con01_duplicate_count.py)
 
 ---

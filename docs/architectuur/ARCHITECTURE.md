@@ -385,6 +385,8 @@ st.text_area("Label", value=data, key="edit_field")  # Stale data over reruns!
 
 **Pattern**: Duaal JSON+Python formaat voor declaratieve + imperatieve validatie.
 
+**Actualisatie DEF-464:** dit beschrijft de legacylaag. CON-01 gebruikt het actieve JSON-runtimecontract en `ContextMetadataEvaluator` in `ModularValidationService`, zonder numeriek cijfer. De twee oude CON-01-Pythonvalidators zijn uitgefaseerd; de overige legacyregels zijn hiermee niet gemigreerd.
+
 **Structure**:
 ```
 config/toetsregels/regels/
@@ -395,7 +397,6 @@ config/toetsregels/regels/
 
 src/toetsregels/regels/
 ├── ARAI_01.py           # Implementatie (validate functie)
-├── CON_01.py
 ├── ESS_01.py
 ...
 ```
