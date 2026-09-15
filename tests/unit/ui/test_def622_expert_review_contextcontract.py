@@ -85,7 +85,9 @@ def test_open_naamsignaal_is_zichtbaar_met_uitleg(repo, sessie):
     tekst = _teksten(m)
     assert "Nog te beoordelen" in tekst
     assert "Stichting Zilver" in tekst
-    assert "Laat de expert de functie van de naam beoordelen" in tekst
+    # R1: de vervolgstap benoemt een treffer (geen bewezen naam) en alle keuzes.
+    assert "Laat de expert de functie van deze treffer beoordelen" in tekst
+    assert "geen contextvermelding" in tekst
     # Zonder reden is vastleggen uitgeschakeld.
     assert m.button.call_args.kwargs.get("disabled") is True
 

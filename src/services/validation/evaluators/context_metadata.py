@@ -7,9 +7,11 @@ zonder dat zij iets met de geselecteerde context te maken hadden, en liet
 `domain.context.contract.beoordeel_context`:
 
 - geen betekenisvolle context bij het record → `fail` (B-01);
-- een geselecteerde contextwaarde letterlijk in de zin → `review_required`
-  totdat een expert de functie van de naam heeft beoordeeld (B-04); na die
-  beoordeling `fail` (registratiecontext) of `pass` (noodzakelijk);
+- een geselecteerde contextwaarde letterlijk (case-insensitief) in de zin →
+  `review_required` totdat een expert de functie van die treffer heeft
+  beoordeeld (B-04); na die beoordeling `fail` (registratiecontext) of `pass`
+  (noodzakelijke naam, of — R1 — geen contextvermelding: een gewoon woord
+  dat samenvalt met de contextwaarde);
 - nooit een cijfer (B-06): `score` blijft `None`, de regel declareert
   `score_policy: no_score`.
 

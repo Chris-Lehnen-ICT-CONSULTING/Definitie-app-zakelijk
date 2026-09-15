@@ -209,4 +209,6 @@ def test_con01_uitleg_is_zichtbaar(waarnemingen):
     assert "totaalscore:** niet beschikbaar" in start
     assert "nog te beoordelen" in start
     assert "stichting zilver" in start
-    assert "laat de expert de functie van de naam beoordelen" in start
+    # R1: de vervolgstap benoemt een treffer (geen bewezen naam) en alle keuzes.
+    assert "laat de expert de functie van deze treffer beoordelen" in start
+    assert "geen contextvermelding" in start

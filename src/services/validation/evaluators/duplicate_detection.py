@@ -164,11 +164,30 @@ class DuplicateDetectionEvaluator:
         dezelfde `contextsleutel`, dus volgorde, hoofdletters, whitespace en
         duplicaten maken geen verschil — en een bestaand record met een
         niet-canonieke schrijfwijze wordt gewoon herkend.
+
+        Een opgeslagen record is niet zijn eigen duplicaat (DEF-622 R2 /
+        DEF-677): `ValidationOrchestratorV2` levert `definition_id` mee. Alleen
+        een aantoonbaar eigen record — canonieke ID, strikt geheel getal, gelijk
+        aan de kandidaat-ID — wordt overgeslagen; de overige kandidaten worden
+        gewoon verder onderzocht, zodat een tweede écht duplicaat ook wordt
+        gevonden wanneer het eigen record als eerste kandidaat komt. Een
+        ontbrekend of ongeldig eigen ID (`None`, bool, float, cijfertekst) is
+        geen bewijs van hetzelfde record en sluit niets uit.
         """
         gezocht = tuple(contextsleutel(lijst) for lijst in contexten)
         categorie = metadata.get("categorie") or metadata.get("ontologische_categorie")
+        eigen_id = metadata.get("definition_id")
+        if not _is_record_id(eigen_id):
+            eigen_id = None
 
         for kandidaat in repository.find_duplicate_candidates(begrip):
+            kandidaat_id = getattr(kandidaat, "id", None)
+            if (
+                eigen_id is not None
+                and _is_record_id(kandidaat_id)
+                and kandidaat_id == eigen_id
+            ):
+                continue
             kandidaat_context = (
                 kandidaat.organisatorische_context,
                 kandidaat.juridische_context,
@@ -185,6 +204,13 @@ class DuplicateDetectionEvaluator:
                 "status": getattr(kandidaat, "status", None),
             }
         return None
+
+
+def _is_record_id(waarde: Any) -> bool:
+    """Canonieke record-ID: strikt een geheel getal (zelfde conventie als de
+    versiebinding, V2b). Geen bool (`True == 1`), geen float (`1.0 == 1`),
+    geen cijfertekst, geen None — numerieke gelijkheid is geen identiteit."""
+    return isinstance(waarde, int) and not isinstance(waarde, bool)
 
 
 def _is_geforceerd(metadata: dict[str, Any]) -> bool:
