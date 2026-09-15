@@ -10,12 +10,15 @@ Wat de regel toetst:
   drie lijsten. Zonder context: *Voldoet niet*. Dat is een inhoudelijke
   overtreding van het record, geen ontbrekende meting.
 - **B-02/B-04 naamfunctie** — een geselecteerde contextwaarde die letterlijk
-  in de definitiezin staat is een *beoordelingssignaal*, geen afkeurgrond.
-  Pas na menselijke beoordeling van de functie van die naam volgt de
-  uitkomst: registratiecontext genoemd → *Voldoet niet*; inhoudelijk
-  noodzakelijk voor afbakening/identificatie → *Voldoet*; onduidelijk →
-  *Nog te beoordelen*. Er is bewust géén automatische afkeurheuristiek op
-  meta-frasen ("in de context van", "juridisch"): die is niet goedgekeurd.
+  (case-insensitief) in de definitiezin staat is een *beoordelingssignaal*,
+  geen afkeurgrond en geen bewezen naam. Pas na menselijke beoordeling van de
+  functie van die treffer volgt de uitkomst: registratiecontext genoemd →
+  *Voldoet niet*; inhoudelijk noodzakelijk voor afbakening/identificatie →
+  *Voldoet*; geen contextvermelding (een gewoon woord dat samenvalt met de
+  contextwaarde, zoals `om` bij `OM`) → *Voldoet*; onduidelijk → *Nog te
+  beoordelen*. Er is bewust géén automatische afkeurheuristiek op meta-frasen
+  ("in de context van", "juridisch") en géén automatische
+  hoofdletter-/acroniemheuristiek: beide zijn niet goedgekeurd.
 - **B-06 geen cijfer** — de regel levert een uitkomst met motivering, nooit
   een score. Het ontbreken van een cijfer is geen 0 en geen 1.
 - **B-08 samenstelling** — alle vereiste onderdelen voldoen → *Voldoet*;
@@ -46,6 +49,7 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "CONTEXT_VELDEN",
     "CONTRACTVERSIE",
+    "FUNCTIE_GEEN_CONTEXT",
     "FUNCTIE_NOODZAKELIJK",
     "FUNCTIE_ONDUIDELIJK",
     "FUNCTIE_REGISTRATIE",
@@ -86,12 +90,21 @@ _ACTIE_DEELFOUT = (
     "Controleer opnieuw. Blijft dit terugkomen, meld het dan als technisch probleem."
 )
 
-# De drie beoordelingsuitkomsten van een naamtreffer (B-04).
+# De vier beoordelingsuitkomsten van een naamtreffer (B-04; R1). Dit zijn
+# beslissingen per treffer, geen regelstatussen: de regel kent pass / fail /
+# review_required / error, meer niet. Een nieuwe uitkomst maakt bestaande
+# beslissingen niet ongeldig, dus geen contractversiebump.
 FUNCTIE_REGISTRATIE = "registration"
 FUNCTIE_NOODZAKELIJK = "necessary"
+FUNCTIE_GEEN_CONTEXT = "not_context"
 FUNCTIE_ONDUIDELIJK = "unclear"
 _BEKENDE_FUNCTIES = frozenset(
-    {FUNCTIE_REGISTRATIE, FUNCTIE_NOODZAKELIJK, FUNCTIE_ONDUIDELIJK}
+    {
+        FUNCTIE_REGISTRATIE,
+        FUNCTIE_NOODZAKELIJK,
+        FUNCTIE_GEEN_CONTEXT,
+        FUNCTIE_ONDUIDELIJK,
+    }
 )
 
 # Gebruikersuitleg (B-08): aanleiding, reden en vervolgstap in begrijpelijk
@@ -108,9 +121,11 @@ _ACTIE_GEEN_CONTEXT = (
 _UITLEG_CONTEXT_AANWEZIG = "Er is minstens één contextwaarde vastgelegd."
 
 _ACTIE_OPEN = (
-    "Laat de expert de functie van de naam beoordelen en de reden vastleggen: "
-    "registratiecontext (verwijderen uit de definitiezin) of inhoudelijk "
-    "noodzakelijk voor de afbakening (mag blijven staan)."
+    "Laat de expert de functie van deze treffer beoordelen en de reden "
+    "vastleggen: registratiecontext (verwijderen uit de definitiezin), "
+    "inhoudelijk noodzakelijke naam voor de afbakening (mag blijven staan) of "
+    "geen contextvermelding (een gewoon woord dat samenvalt met de "
+    "contextwaarde; mag blijven staan)."
 )
 _ACTIE_REGISTRATIE = (
     "Verwijder de zinsnede uit de definitie en behoud de context bij het record."
@@ -256,8 +271,9 @@ def _patroon_voor(waarde: str) -> re.Pattern[str]:
     opgeslagen waarde bepaalt dus niet óf er een signaal is. Een gewoon woord
     dat samenvalt met een contextwaarde (`om` bij context `OM`) is daarmee
     een signaal dat de mens beoordeelt (B-04) — er is bewust geen eigen
-    heuristiek die dat onderscheid automatisch maakt. Meerdere spaties in de
-    waarde matchen willekeurige whitespace.
+    heuristiek die dat onderscheid automatisch maakt; de expert sluit zo'n
+    treffer gemotiveerd met `FUNCTIE_GEEN_CONTEXT` (R1). Meerdere spaties in
+    de waarde matchen willekeurige whitespace.
     """
     delen = [re.escape(deel) for deel in waarde.casefold().split()]
     kern = r"\s+".join(delen)
@@ -423,9 +439,11 @@ def _geldige_beoordeling(
 
 
 def _naamdeel(treffer: Naamtreffer, beslissing: dict[str, str] | None) -> Deeluitkomst:
+    # De aanleiding benoemt een treffer, geen bewezen naam (R1): de tekst kan
+    # ook een gewoon woord zijn dat toevallig samenvalt met de contextwaarde.
     aanleiding = (
-        f"De naam '{treffer.gevonden}' staat in de definitiezin en is ook "
-        f"vastgelegd als {_veldnaam(treffer.veld)} ('{treffer.contextwaarde}')."
+        f"'{treffer.gevonden}' in de definitiezin komt overeen met de vastgelegde "
+        f"{_veldnaam(treffer.veld)} '{treffer.contextwaarde}'."
     )
     if beslissing is None:
         return Deeluitkomst(
@@ -436,8 +454,9 @@ def _naamdeel(treffer: Naamtreffer, beslissing: dict[str, str] | None) -> Deelui
             field=treffer.veld,
             position=treffer.positie,
             reason=(
-                f"{aanleiding} Nog niet is vastgesteld of de naam nodig is om "
-                "dit begrip af te bakenen of alleen de registratiecontext noemt."
+                f"{aanleiding} Nog niet is vastgesteld of dit de context noemt "
+                "en, zo ja, of dat nodig is om dit begrip af te bakenen of "
+                "alleen de registratiecontext is."
             ),
             action=_ACTIE_OPEN,
         )
@@ -471,6 +490,24 @@ def _naamdeel(treffer: Naamtreffer, beslissing: dict[str, str] | None) -> Deelui
                 f"afbakening of identificatie: {motivering}"
             ),
             action="Geen actie nodig; de naam mag in de definitiezin blijven.",
+        )
+    if functie == FUNCTIE_GEEN_CONTEXT:
+        # R1: een gewoon woord dat samenvalt met de contextwaarde. Voldoet
+        # zonder naamclaim; de reden van de expert draagt de motivering.
+        return Deeluitkomst(
+            id=treffer.id,
+            status=STATUS_PASS,
+            evidence=treffer.gevonden,
+            context_value=treffer.contextwaarde,
+            field=treffer.veld,
+            position=treffer.positie,
+            reason=(
+                f"{aanleiding} Beoordeeld als geen contextvermelding: {motivering}"
+            ),
+            action=(
+                "Geen actie nodig; het woord verwijst niet naar de context en "
+                "mag in de definitiezin blijven."
+            ),
         )
     return Deeluitkomst(
         id=treffer.id,

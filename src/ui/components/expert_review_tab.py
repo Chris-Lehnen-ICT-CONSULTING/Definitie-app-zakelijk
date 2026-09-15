@@ -579,13 +579,14 @@ class ExpertReviewTab:
 
         DEF-622 (B-04/B-07/B-08): een geselecteerde contextwaarde in de
         definitiezin is een beoordelingssignaal. De expert legt hier per
-        naamsignaal de functie (registratiecontext / inhoudelijk noodzakelijk /
-        onduidelijk) mét reden vast; die beoordeling wordt op het record
-        bewaard, is gebonden aan de exacte tekst/context/term en vervalt bij
-        een wijziging. Een open naamfunctie blokkeert vaststellen; het concept
-        blijft bewerkbaar.
+        treffer de functie (registratiecontext / inhoudelijk noodzakelijk /
+        geen contextvermelding / onduidelijk) mét reden vast; die beoordeling
+        wordt op het record bewaard, is gebonden aan de exacte
+        tekst/context/term en vervalt bij een wijziging. Een open naamfunctie
+        blokkeert vaststellen; het concept blijft bewerkbaar.
         """
         from domain.context.contract import (
+            FUNCTIE_GEEN_CONTEXT,
             FUNCTIE_NOODZAKELIJK,
             FUNCTIE_ONDUIDELIJK,
             FUNCTIE_REGISTRATIE,
@@ -628,10 +629,15 @@ class ExpertReviewTab:
                 )
             return
 
-        st.markdown("**Beoordeel de functie van de gevonden naam/namen:**")
+        st.markdown("**Beoordeel de functie van de gevonden treffer(s):**")
         functies: dict[str, str] = {
             FUNCTIE_REGISTRATIE: "registratiecontext (hoort niet in de definitiezin)",
             FUNCTIE_NOODZAKELIJK: "inhoudelijk noodzakelijk voor afbakening/identificatie",
+            # R1: een gewoon woord dat samenvalt met de contextwaarde ('om' bij
+            # 'OM') sluit de expert gemotiveerd, zonder onjuiste naamclaim.
+            FUNCTIE_GEEN_CONTEXT: (
+                "Dit is geen contextvermelding (gewoon woord, geen verwijzing)"
+            ),
             FUNCTIE_ONDUIDELIJK: "nog onduidelijk (blijft open)",
         }
         functie_opties: list[str] = list(functies)
@@ -647,7 +653,7 @@ class ExpertReviewTab:
                 f"vastgelegd als {part.field}: '{part.context_value}')"
             )
             functie = st.selectbox(
-                "Functie van deze naam",
+                "Functie van deze treffer",
                 options=functie_opties,
                 format_func=_functielabel,
                 key=f"{sleutel}_functie",

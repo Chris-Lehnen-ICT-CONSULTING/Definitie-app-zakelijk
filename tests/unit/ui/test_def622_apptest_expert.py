@@ -231,3 +231,59 @@ def test_terugzetten_na_eerste_opslag_wordt_bij_tweede_opslag_bewaard(waarneming
     assert terug["definitie"] == f"{GOUD_ZIN}{SCHEIDING} {GOUD_TOELICHTING}"
     assert tb["selectie_na_tweede_opslag"] == terug["definitie"]
     assert terug["status"] == "review"
+
+
+OM_ZIN = (
+    "Handeling die door een toezichthouder wordt verricht om naleving vast te stellen."
+)
+OM_REDEN = "'om' is hier het voegwoord, geen verwijzing naar het Openbaar Ministerie."
+FUNCTIE_GEEN_CONTEXT = "not_context"  # opgeslagen functiecode, bewust als literal
+
+
+def test_gewoon_woord_geen_contextvermelding_via_echte_expertweergave(waarnemingen):
+    """R1 (DEF-622): 'om' bij context 'OM' is een open signaal dat de expert
+    gemotiveerd als 'geen contextvermelding' sluit — zichtbare derde keuze →
+    reden/actor → opslag/readback met vingerafdruk en strikte versie →
+    re-validate: CON-01 'Voldoet' zonder cijfer en zonder naamclaim.
+    Bewijsgrens: de algemene vaststelgate (DEF-630) valt hierbuiten."""
+    gw = waarnemingen["gewoon_woord"]
+    rid = gw["record_id"]
+    assert len(gw["functiesleutels"]) == 1, gw["functiesleutels"]
+    # Aanleiding: het gewone woord wordt niet als bewezen naam gepresenteerd.
+    start = "\n".join(gw["start_teksten"]).lower()
+    assert "'om'" in start
+    assert "de naam 'om'" not in start
+    # De derde keuze is zichtbaar, met een begrijpelijk label.
+    assert gw["optie_aanwezig"] is True, gw.get("opties")
+    assert "geen contextvermelding" in (gw["label_geen_context"] or "").lower()
+    assert gw["label_geen_context"] in gw["opties"]
+
+    # Opslag/readback: reden, actor, vingerafdruk, strikte versiebinding.
+    rij = gw["na_vastleggen"]["rij"]
+    review = rij["review"]
+    assert review["actor"] == REVIEWER
+    assert review["fingerprint"]
+    # Vastleggen bumpt de recordversie en bindt de beoordeling aan die versie
+    # (zelfde conventie als de bestaande necessary-flow), strikt als int.
+    assert rij["version_number"] == gw["rij_voor"]["version_number"] + 1
+    assert review["version_number"] == rij["version_number"]
+    assert isinstance(review["version_number"], int)
+    (beslissing,) = review["decisions"].values()
+    assert beslissing["function"] == FUNCTIE_GEEN_CONTEXT
+    assert beslissing["reason"] == OM_REDEN
+    assert rij["definitie"] == OM_ZIN
+    # `_leg_beoordeling_vast` toont st.success en doet direct st.rerun(); de
+    # blijvend zichtbare toestand na die rerun is beoordeeld-door + motivering.
+    na_tekst = "\n".join(gw["na_vastleggen"]["teksten"]).lower()
+    assert f"naamfunctie beoordeeld door {REVIEWER.lower()}" in na_tekst
+    assert f"beoordeeld als geen contextvermelding: {OM_REDEN.lower()}" in na_tekst
+
+    # Re-validate op de echte orchestrator: Voldoet, zonder cijfer, geen violation.
+    na = gw["na_revalidate"]
+    assert na["con01_status"] == "pass", na
+    assert na["con01_score"] is None
+    assert na["review"]["applied"] is True
+    assert na["con01_violations"] == []
+    assert na["overall_score"] is None
+    # Het record zelf is niet gewijzigd door de beoordeling (alleen de review).
+    assert rij["status"] == "review" and rid == gw["record_id"]

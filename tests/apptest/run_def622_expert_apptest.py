@@ -147,6 +147,35 @@ def _zaai_toelichting(db_pad: str) -> int:
     )
 
 
+# R1 (DEF-622): gewoon woord 'om' bij contextwaarde 'OM'. De opgeslagen
+# functiecode van de keuze 'geen contextvermelding', bewust als literal: de
+# proef toetst de persistente waarde, onafhankelijk van de contractconstante.
+FUNCTIE_GEEN_CONTEXT = "not_context"
+OM_ZIN = (
+    "Handeling die door een toezichthouder wordt verricht om naleving vast te stellen."
+)
+OM_REDEN = "'om' is hier het voegwoord, geen verwijzing naar het Openbaar Ministerie."
+
+
+def _zaai_om(db_pad: str) -> int:
+    from database.definitie_repository import (
+        DefinitieRecord,
+        DefinitieRepository,
+        DefinitieStatus,
+    )
+
+    return DefinitieRepository(db_pad).create_definitie(
+        DefinitieRecord(
+            begrip="toezicht",
+            definitie=OM_ZIN,
+            categorie="proces",
+            organisatorische_context='["OM"]',
+            status=DefinitieStatus.REVIEW.value,
+            validation_score=0.9,
+        )
+    )
+
+
 def _rij(db_pad: str, definitie_id: int) -> dict:
     """Lees het record via een nieuwe verbinding (geen repositorycache)."""
     from database.definitie_repository import DefinitieRepository
@@ -361,6 +390,57 @@ def main(db_pad: str) -> dict:
         )
     toelichting_bewerking["rij_na_terugzetten"] = _rij(db_pad, toel_id)
     waarnemingen["toelichting_bewerking"] = toelichting_bewerking
+
+    # 8. R1: gewoon woord 'om' bij context 'OM' — open signaal; de expert kiest
+    # gemotiveerd 'geen contextvermelding' → vastleggen → readback (reden,
+    # actor, vingerafdruk, strikte versie) → re-validate: CON-01 'Voldoet'
+    # zonder cijfer, zonder naamclaim.
+    om_id = _zaai_om(db_pad)
+    at = _vers(db_pad, om_id)
+    functies = _functiesleutels(at, om_id)
+    gewoon_woord: dict = {
+        "record_id": om_id,
+        "functiesleutels": functies,
+        "start_teksten": _teksten(at),
+        "rij_voor": _rij(db_pad, om_id),
+        "optie_aanwezig": False,
+    }
+    if len(functies) == 1:
+        functie_sleutel = functies[0]
+        keuze = at.selectbox(key=functie_sleutel)
+        gewoon_woord["opties"] = list(keuze.options)
+        try:
+            gewoon_woord["label_geen_context"] = str(
+                keuze.format_func(FUNCTIE_GEEN_CONTEXT)
+            )
+            gewoon_woord["optie_aanwezig"] = True
+        except KeyError:
+            gewoon_woord["label_geen_context"] = None
+    if gewoon_woord["optie_aanwezig"]:
+        reden_sleutel = functie_sleutel[: -len("_functie")] + "_reden"
+        at.text_input(key="reviewer_name_input").input(REVIEWER).run()
+        at.selectbox(key=functie_sleutel).select(FUNCTIE_GEEN_CONTEXT).run()
+        at.text_input(key=reden_sleutel).input(OM_REDEN).run()
+        at.button(key=f"con01_{om_id}_vastleggen").click().run()
+        assert not at.exception, [str(e.value) for e in at.exception]
+        gewoon_woord["na_vastleggen"] = {
+            "teksten": _teksten(at),
+            "rij": _rij(db_pad, om_id),
+        }
+        at.button(key=f"revalidate_{om_id}").click().run()
+        assert not at.exception, [str(e.value) for e in at.exception]
+        v2 = _ss(at, f"review_v2_validation_{om_id}") or {}
+        con01 = (v2.get("rule_results") or {}).get("CON-01", {})
+        gewoon_woord["na_revalidate"] = {
+            "con01_status": (v2.get("rule_statuses") or {}).get("CON-01"),
+            "con01_score": con01.get("score", "ontbreekt"),
+            "review": con01.get("review"),
+            "overall_score": v2.get("overall_score", "ontbreekt"),
+            "con01_violations": [
+                v for v in v2.get("violations") or [] if v.get("code") == "CON-01"
+            ],
+        }
+    waarnemingen["gewoon_woord"] = gewoon_woord
     return waarnemingen
 
 
