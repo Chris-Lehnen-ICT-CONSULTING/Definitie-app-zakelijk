@@ -17,6 +17,19 @@ from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
+_CON01_RETIRED_MESSAGE = (
+    "De legacy-validator voor CON-01 is uitgefaseerd; "
+    "gebruik ModularValidationService voor de beoordeling van CON-01."
+)
+
+
+def _is_retired_con01(regel_id: Any) -> bool:
+    return isinstance(regel_id, str) and regel_id.upper() in {
+        "CON-01",
+        "CON_01",
+        "CON01",
+    }
+
 
 def _is_safe_regel_id(regel_id: Any) -> bool:
     """
@@ -116,6 +129,11 @@ class JSONValidatorLoader:
         # Weiger onveilige IDs vóór cachelookup, bestandstoegang en import
         if not _is_safe_regel_id(regel_id):
             logger.warning(f"Ongeldig regel ID geweigerd: {regel_id!r}")
+            return None
+
+        # Ook een eerder gecachte legacy-validator mag niet meer uitvoeren.
+        if _is_retired_con01(regel_id):
+            logger.warning(_CON01_RETIRED_MESSAGE)
             return None
 
         # Check cache
@@ -265,8 +283,14 @@ class JSONValidatorLoader:
         results = []
         passed = 0
         failed = 0
+        retired = 0
 
         for regel_id in regel_ids:
+            if _is_retired_con01(regel_id):
+                results.append(f"⏭️ {regel_id}: {_CON01_RETIRED_MESSAGE}")
+                retired += 1
+                continue
+
             validator = self.load_validator(regel_id)
 
             if validator is None:
@@ -292,8 +316,14 @@ class JSONValidatorLoader:
         # Voeg samenvatting toe aan begin
         total = len(regel_ids)
         if total > 0:
-            score_percentage = (passed / total) * 100
-            summary = f"📊 **Toetsing Samenvatting**: {passed}/{total} regels geslaagd ({score_percentage:.1f}%)"
+            if retired:
+                summary = (
+                    "📊 **Toetsing Samenvatting**: onvolledig; CON-01 is niet beoordeeld. "
+                    "Gebruik ModularValidationService voor een volledige toetsing."
+                )
+            else:
+                score_percentage = (passed / total) * 100
+                summary = f"📊 **Toetsing Samenvatting**: {passed}/{total} regels geslaagd ({score_percentage:.1f}%)"
             if failed > 0:
                 summary += f" | ❌ {failed} gefaald"
             results.insert(0, summary)

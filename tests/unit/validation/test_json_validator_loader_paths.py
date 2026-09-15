@@ -125,26 +125,26 @@ class _LoaderTestBase(unittest.TestCase):
 
 class TestOndersteundeFunctionaliteit(_LoaderTestBase):
     def test_custom_regels_dir_laadt_en_cachet_echte_nepvalidator(self):
-        marker = self.root / "marker_con01.txt"
-        _write_json(self.regels / "CON-01.json")
+        marker = self.root / "marker_con05.txt"
+        _write_json(self.regels / "CON-05.json")
         _write_validator(
-            self.validators / "CON_01.py", "CON01Validator", "con01", marker
+            self.validators / "CON_05.py", "CON05Validator", "con05", marker
         )
 
         loader = self.loader()
-        validator = loader.load_validator("CON-01")
+        validator = loader.load_validator("CON-05")
 
         assert validator is not None
         assert marker.exists(), "validatormodule is niet echt uitgevoerd"
-        assert validator.validate("def", "begrip", None) == (True, "con01", 1.0)
-        assert validator.config["id"] == "CON-01"
-        assert loader.load_validator("CON-01") is validator, "cache verbroken"
-        assert loader.load_json_config("CON-01")["id"] == "CON-01"
+        assert validator.validate("def", "begrip", None) == (True, "con05", 1.0)
+        assert validator.config["id"] == "CON-05"
+        assert loader.load_validator("CON-05") is validator, "cache verbroken"
+        assert loader.load_json_config("CON-05")["id"] == "CON-05"
 
-        resultaten = loader.validate_definitie("een definitie", "begrip", ["CON-01"])
+        resultaten = loader.validate_definitie("een definitie", "begrip", ["CON-05"])
         assert resultaten == [
             "📊 **Toetsing Samenvatting**: 1/1 regels geslaagd (100.0%)",
-            "✅ CON-01: con01",
+            "✅ CON-05: con05",
         ]
 
     def test_tweede_kandidaat_zonder_streepjes_en_subcomponent_id(self):
