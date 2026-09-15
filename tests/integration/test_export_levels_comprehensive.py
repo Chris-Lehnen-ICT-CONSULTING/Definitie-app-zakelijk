@@ -205,12 +205,14 @@ def export_service(populated_db, tmp_path):
 class TestExportLevelsFormats:
     """Test export levels × formats matrix (12 combinations)."""
 
+    # DEF-743: UITGEBREID en COMPLEET exporteren het opgeslagen bronbewijs als
+    # eigen veld `bronbewijs`; BASIS niet. Exportcontract: 17 / 26 / 37.
     @pytest.mark.parametrize(
         ("level", "expected_field_count"),
         [
             (ExportLevel.BASIS, 17),  # 10 definitie + 7 voorbeelden
-            (ExportLevel.UITGEBREID, 25),  # 18 definitie + 7 voorbeelden
-            (ExportLevel.COMPLEET, 36),  # 29 definitie + 7 voorbeelden
+            (ExportLevel.UITGEBREID, 26),  # 19 definitie (+ bronbewijs) + 7 voorbeelden
+            (ExportLevel.COMPLEET, 37),  # 30 definitie (+ bronbewijs) + 7 voorbeelden
         ],
     )
     @pytest.mark.parametrize(
@@ -248,6 +250,9 @@ class TestExportLevelsFormats:
         # Verify file was created
         assert Path(export_path).exists()
 
+        # DEF-743: bronbewijs hoort bij UITGEBREID en COMPLEET, niet bij BASIS.
+        bronbewijs_expected = level != ExportLevel.BASIS
+
         # Parse and verify field count based on format
         if format == ExportFormat.CSV:
             with open(export_path, encoding="utf-8") as f:
@@ -256,6 +261,10 @@ class TestExportLevelsFormats:
                 assert len(headers) == expected_field_count, (
                     f"CSV {level.value}: expected {expected_field_count} fields, "
                     f"got {len(headers)} ({headers})"
+                )
+                assert ("bronbewijs" in headers) is bronbewijs_expected, (
+                    f"CSV {level.value}: bronbewijs-kolom "
+                    f"{'verwacht' if bronbewijs_expected else 'niet verwacht'} ({headers})"
                 )
 
                 # Verify we have data rows
@@ -269,6 +278,11 @@ class TestExportLevelsFormats:
             assert len(df.columns) == expected_field_count, (
                 f"Excel {level.value}: expected {expected_field_count} columns, "
                 f"got {len(df.columns)} ({list(df.columns)})"
+            )
+            assert ("bronbewijs" in df.columns) is bronbewijs_expected, (
+                f"Excel {level.value}: bronbewijs-kolom "
+                f"{'verwacht' if bronbewijs_expected else 'niet verwacht'} "
+                f"({list(df.columns)})"
             )
             assert len(df) == len(
                 all_defs
@@ -286,6 +300,11 @@ class TestExportLevelsFormats:
             assert len(first_def) == expected_field_count, (
                 f"JSON {level.value}: expected {expected_field_count} fields, "
                 f"got {len(first_def)} ({list(first_def.keys())})"
+            )
+            assert ("bronbewijs" in first_def) is bronbewijs_expected, (
+                f"JSON {level.value}: bronbewijs-veld "
+                f"{'verwacht' if bronbewijs_expected else 'niet verwacht'} "
+                f"({list(first_def.keys())})"
             )
 
         elif format == ExportFormat.TXT:

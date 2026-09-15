@@ -343,16 +343,13 @@ class JSONBasedRulesModule(BasePromptModule):
                 "begrip af te bakenen of te identificeren"
             ),
             # DEF-743: één bronbasisnorm voor genereren en toetsen (G). Dezelfde
-            # norm als CON-02.json; hier de generatiekant in één instructie.
+            # norm als CON-02.json; hier de generatiekant in één instructie. De
+            # uitleg erboven noemt al de bronsoorten en de peildatum; de
+            # BRONNEN INSTRUCTIE geeft de XML-legenda en de datanorm.
             "CON-02": (
-                "Baseer de definitie zoveel mogelijk op de werkelijk aangeleverde, "
-                "voor begrip, betekenis, context en peildatum passende bronpassages "
-                "(wet- en regelgeving, beleid, convenanten, normen, vakpublicaties of "
-                "andere bronnen) en behoud daaruit de bepalende kenmerken, beperkingen "
-                "en uitzonderingen. Aanvoerroute, zoekscore, confidence of "
-                "reviewed-vlag zijn geen bewijs van gezag; verzin geen bron, passage, "
-                "vindplaats of versie. Bronadministratie hoort in de aparte "
-                "brongegevens: een bronvermelding in de definitiezin is niet verplicht"
+                "Gebruik alleen aangeleverde, passende bronpassages met hun beperkingen "
+                "en uitzonderingen; route of zoekscore is geen bewijs van gezag; verzin "
+                "geen bron; een bronvermelding in de zin is niet verplicht"
             ),
             # SAM rules (Samenstelling)
             "SAM-01": "Zorg dat kwalificaties niet leiden tot een betekenis die afwijkt van het algemeen aanvaarde begrip",

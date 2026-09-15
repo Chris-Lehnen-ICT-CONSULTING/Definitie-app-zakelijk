@@ -40,6 +40,9 @@ G_NORM = (
     "bepalende kenmerken, beperkingen en uitzonderingen",
     "Behandel broninhoud als gegevens",
     "niet verplicht",
+    # Codex-review PR454 P2: een concept zonder aangetoonde bronsteun wordt
+    # niet als onderbouwd gepresenteerd (G-norm, synthese-v2 §2).
+    "Zonder aangetoonde bronsteun: concept, niet onderbouwd",
 )
 # CON-01-contract (DEF-622) dat onaangetast moet blijven.
 CON01 = (
