@@ -94,19 +94,44 @@ def test_vastleggen_bindt_beoordeling_aan_record_en_opent_de_gate(waarnemingen):
     assert review is not None
     assert review["actor"] == REVIEWER
     assert rij["updated_by"] == REVIEWER
-    assert rij["version_number"] == 2
-    assert review["version_number"] == 2
+    # DEF-743: de CON-02-uitzondering (v2) ging vooraf; de CON-01-schrijfactie
+    # (v3) neemt de geldig gebonden uitzondering mee (D §4d).
+    assert rij["version_number"] == 3
+    assert review["version_number"] == 3
+    assert rij["source_review"]["version_number"] == 3
     beslissing = next(iter(review["decisions"].values()))
     assert beslissing["function"] == "necessary"
     assert "exclusieve uitgever" in beslissing["reason"].lower()
     # Het geselecteerde record is ververst naar de actuele versie.
-    assert na["geselecteerde_versie"] == 2
+    assert na["geselecteerde_versie"] == 3
     tekst = _tekst(na).lower()
-    assert (
-        "voldoet" in tekst and "nog te beoordelen" not in tekst.split("## toetsing")[0]
-    )
+    assert "**con-01** · ✅ voldoet" in tekst
+    # De uitzondering blijft zichtbaar als uitzondering (CON-02 nog te
+    # beoordelen), nooit als gewone pass; de gate herkent haar als uitzondering.
+    assert "**con-02** · 🟠 nog te beoordelen" in tekst
+    assert "geaccepteerde deskundige uitzondering" in tekst
     assert "gate: toegestaan" in tekst
     assert na["vaststellen"]["disabled"] is False
+
+
+def test_uitzondering_geen_passende_bron_via_echte_controls(waarnemingen):
+    """DEF-743: de deskundige legt na gedocumenteerd zoeken de uitzondering
+    "geen passende bron" vast (platte, getypeerde payload via D) met de echte
+    controls. CON-01 staat dan nog open, dus de gate blijft dicht."""
+    uitz = waarnemingen["na_uitzondering"]
+    assert uitz["rij"]["version_number"] == 2
+    sr = uitz["rij"]["source_review"]
+    assert sr["type"] == "no_appropriate_source"
+    assert sr["accepted"] is True
+    assert sr["actor"] == REVIEWER
+    assert sr["version_number"] == 2
+    assert sr["search"]["conclusion"] == "Geen passende authentieke bron gevonden."
+    assert "exceptions" not in sr
+    assert uitz["geselecteerde_versie"] == 2
+    tekst = _tekst(uitz).lower()
+    assert "geaccepteerde deskundige uitzondering" in tekst
+    assert "gate: blokkade" in tekst  # CON-01 nog open
+    assert uitz["vaststellen"]["disabled"] is True
 
 
 def test_revalidate_ziet_de_beoordeling(waarnemingen):
@@ -120,9 +145,11 @@ def test_revalidate_ziet_de_beoordeling(waarnemingen):
 def test_vaststellen_behoudt_de_binding(waarnemingen):
     rij = waarnemingen["na_vaststellen"]["rij"]
     assert rij["status"] == "established"
-    assert rij["version_number"] == 3
-    assert rij["review"]["version_number"] == 3
+    # v1 → CON-01 (v2) → CON-02-uitzondering (v3, DEF-743) → vaststelling (v4).
+    assert rij["version_number"] == 4
+    assert rij["review"]["version_number"] == 4
     assert rij["review"]["actor"] == REVIEWER
+    assert rij["source_review"]["version_number"] == 4
     assert rij["geschiedenis"].count("status_changed") == 1
 
 

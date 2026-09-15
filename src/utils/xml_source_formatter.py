@@ -4,6 +4,11 @@ Standaardiseert RAG, web lookup en document bronnen naar uniform
 XML-tags format: <bronnen><bron type="..." ...>tekst</bron></bronnen>.
 
 DEF-315: Eén format voor alle brontypen.
+DEF-743: Bronnen zijn DATA. Een `score` is uitsluitend een zoek-/selectiescore;
+er wordt geen betrouwbaarheid, gezag of `level` uit afgeleid. `confidence` en
+`level` blijven als kwargs bestaan voor bestaande aanroepers buiten de
+generatieprompt (rag_service._format_context), maar de generatieprompt geeft
+ze niet door. Een lege passage is geen bron.
 """
 
 from __future__ import annotations
@@ -42,19 +47,29 @@ def format_bron(
     Args:
         nr: Volgnummer (doorlopend over alle brontypen).
         type: Brontype — "rag", "web", of "document".
-        chunk_text: De brontekst (wordt XML-escaped).
-        score: Optionele relevantiescore (0.0-1.0).
-        confidence: Optionele betrouwbaarheidsscore (0.0-1.0).
-        level: Optioneel level ("high"/"medium"/"low").
-            Wordt automatisch berekend uit confidence als niet meegegeven.
-        **attrs: Type-specifieke attributen, bijv.:
-            RAG: rechtsgebied, regeling, artikel
-            Web: provider, url, ecli, wet, artikel, citatie
-            Document: titel, citatie
+        chunk_text: De brontekst (wordt XML-escaped). Mag niet leeg zijn.
+        score: Optionele zoek-/selectiescore (0.0-1.0) van de zoekfunctie.
+            Zegt niets over gezag, toepasselijkheid of betrouwbaarheid.
+        confidence: Alleen voor bestaande aanroepers buiten de generatieprompt;
+            wordt uitsluitend gerenderd als hij expliciet is meegegeven.
+        level: Idem; wordt uit `confidence` afgeleid als die is meegegeven.
+        **attrs: Aangeleverde coördinaten (alleen als niet None/leeg), bijv.:
+            RAG: rechtsgebied, regeling, artikel, lid, bronbestand, pagina, sectie
+            Web: provider, url, titel, ecli, wet, artikel, citatie, opgehaald
+            Document: titel, bestand, citatie, selectie
+            Nooit verzonnen waarden meegeven: wat ontbreekt blijft weg.
 
     Returns:
         XML string: <bron nr="1" type="rag" ...>tekst</bron>
+
+    Raises:
+        ValueError: Bij een lege of alleen-witruimte passage — die is geen bron.
     """
+    text = str(chunk_text)
+    if not text.strip():
+        msg = f"<bron nr={nr} type={type}> zonder inhoud: een lege passage is geen bron"
+        raise ValueError(msg)
+
     parts = [f'nr="{nr}"', f'type="{type}"']
 
     if score is not None:
@@ -74,7 +89,7 @@ def format_bron(
             parts.append(f"{key}={quoteattr(str(value))}")
 
     attr_str = " ".join(parts)
-    escaped_text = escape(str(chunk_text))
+    escaped_text = escape(text)
     return f"  <bron {attr_str}>\n    {escaped_text}\n  </bron>"
 
 

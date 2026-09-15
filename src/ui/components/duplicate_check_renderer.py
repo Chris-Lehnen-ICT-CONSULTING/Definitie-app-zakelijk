@@ -99,8 +99,8 @@ class DuplicateCheckRenderer:
             with col2:
                 st.markdown(f"**Status:** `{definitie.status}`")
                 st.markdown(f"**Categorie:** `{definitie.categorie}`")
-                if definitie.validation_score:
-                    st.markdown(f"**Score:** {definitie.validation_score:.2f}")
+                # DEF-743 (besluit 3): geen totaalcijfer als kwaliteitsoordeel —
+                # ook niet de historische `validation_score` uit het record.
                 st.markdown(
                     f"**Gemaakt:** {definitie.created_at.strftime('%Y-%m-%d') if definitie.created_at else 'Onbekend'}"
                 )

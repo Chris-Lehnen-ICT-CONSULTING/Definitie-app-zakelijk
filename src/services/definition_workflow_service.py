@@ -775,6 +775,12 @@ class DefinitionWorkflowService:
             )
         else:
             niet_overrulebaar.extend(self._con01_blokkades(definition))
+        # DEF-743 (CON-02): verouderd, technisch mislukt of ontbrekend bronbewijs
+        # kan niet als goedgekeurd gelden; een geaccepteerde deskundige
+        # uitzondering wordt als uitzondering herkend. Smalle guard naast de
+        # bestaande scoregate (die blijft ongewijzigd, incl. de blokkade bij
+        # `validation_score is None` — DEF-630).
+        niet_overrulebaar.extend(self._con02_blokkades(definition))
 
         hard_block = any(
             r in reasons
@@ -920,6 +926,123 @@ class DefinitionWorkflowService:
             reden = samenvatting.get("reason") or "beoordeling niet bruikbaar"
             blokkades.append(f"CON-01: eerdere beoordeling niet toegepast: {reden}")
         return blokkades or [f"CON-01 {label}: contextcontract niet voldaan"]
+
+    @staticmethod
+    def _gedekt_door_uitzondering(part: Any, uitzondering: Any) -> bool:
+        """Onderdelen die door een geaccepteerde uitzondering gedekt zijn:
+        het uitzonderingsonderdeel zelf, en bij 'geen passende bron' de
+        AI-onderdelen die alleen open staan omdat er geen bron is. Een
+        deskundige *correctie* (C §6b) is géén uitzondering: haar onderdeel
+        telt gewoon op status (fail/open blokkeert, pass niet)."""
+        from domain.sources.contract import (
+            AI_ONDERDELEN,
+            BASIS_REVIEW,
+            ONDERDEEL_UITZONDERING_GEEN_BRON,
+            ONDERDEEL_VERWIJZING,
+            STATUS_ERROR,
+            STATUS_FAIL,
+        )
+
+        if part.field == BASIS_REVIEW and (
+            part.id == ONDERDEEL_UITZONDERING_GEEN_BRON
+            or (uitzondering == "reference" and part.id == ONDERDEEL_VERWIJZING)
+        ):
+            return True
+        return bool(
+            uitzondering == "no_source"
+            and part.id in AI_ONDERDELEN
+            and part.field is None
+            and part.status not in (STATUS_FAIL, STATUS_ERROR)
+        )
+
+    @staticmethod
+    def _con02_blokkades(definition: DefinitieRecord) -> list[str]:
+        """De CON-02-bronbewijsvoorwaarde (DEF-743), herberekend op het record.
+
+        Pure replay van de kern (`beoordeel_bronbasis`) op de opgeslagen
+        tekst, context, bronset, AI-beoordeling en deskundige uitzondering —
+        geen AI-aanroep. Voldoet → geen blokkade; Voldoet niet / technisch
+        probleem / nog te beoordelen (verouderd of onbewezen bronbewijs, geen
+        beoordeling) → blokkade met de reden. Een geaccepteerde uitzondering (`review.accepted_exception`)
+        wordt als uitzondering herkend: het onderdeel dat zij dekt blokkeert
+        niet; de overige onderdelen blijven onverminderd gelden. Een
+        niet-toegepaste eerdere uitzondering wordt benoemd, nooit stil
+        genegeerd.
+
+        Een record ZONDER bronnen is 'nog te beoordelen' en blokkeert óók:
+        ontbrekend bronbewijs kan niet als goedgekeurd gelden. De route is de
+        gedocumenteerde deskundige uitzondering "geen passende bron" (besluit
+        15-09-2026); een geaccepteerde uitzondering wordt hier als uitzondering
+        herkend en blokkeert niet. Een deskundige *correctie* (C §6b) is geen
+        uitzondering: haar onderdeel telt op status.
+
+        Alleen voor een echt `DefinitieRecord`: een kale vervanger zonder
+        bronvelden (tests) heeft geen bronbewijs om te beoordelen en krijgt
+        geen verzonnen blokkade. Zonder bronkern: fail-closed blokkade.
+        """
+        if not isinstance(definition, DefinitieRecord):
+            return []
+        try:
+            from domain.sources.contract import (
+                STATUS_ERROR,
+                STATUS_FAIL,
+                STATUS_PASS,
+                beoordeel_bronbasis,
+            )
+        except ImportError as e:
+            logger.error("Bronbeoordelingskern niet beschikbaar: %s", e)
+            return ["CON-02: bronbeoordelingskern niet beschikbaar (fail-closed)"]
+
+        velden = definition.get_contractvelden()
+        bronnen = velden.get("provenance_sources")
+        if bronnen is None:
+            bronnen = velden.get("sources")
+        review = velden.get("source_review")
+        uitkomst = beoordeel_bronbasis(
+            definition.begrip or "",
+            definition.get_definitie_tekst(),
+            definition.get_contextlijsten(),
+            list(bronnen or []),
+            assessment=velden.get("source_assessment"),
+            review=review,
+            definitie_versie=velden.get("definition_version"),
+            peildatum=velden.get("peildatum"),
+        )
+        if uitkomst.status == STATUS_PASS:
+            return []
+        samenvatting = uitkomst.review if isinstance(uitkomst.review, dict) else {}
+        uitzondering = samenvatting.get("accepted_exception")
+        label = {
+            STATUS_FAIL: "Voldoet niet",
+            STATUS_ERROR: "Technisch probleem",
+        }.get(uitkomst.status, "Nog te beoordelen")
+        blokkades: list[str] = []
+        for part in uitkomst.parts:
+            if part.status == STATUS_PASS:
+                continue
+            if DefinitionWorkflowService._gedekt_door_uitzondering(part, uitzondering):
+                continue
+            aanleiding = f" (aanleiding: '{part.evidence}')" if part.evidence else ""
+            blokkades.append(
+                f"CON-02 {label}{aanleiding}: {part.reason} Vervolgstap: {part.action}"
+            )
+        if review is not None and not samenvatting.get("applied"):
+            reden = samenvatting.get("reason") or "uitzondering niet bruikbaar"
+            blokkades.append(f"CON-02: eerdere uitzondering niet toegepast: {reden}")
+        beoordeling = samenvatting.get("assessment")
+        # Alleen een bestaande beoordeling die niet (meer) bindt is 'verouderd';
+        # zonder bronnen is er per definitie geen beoordeling (dat dekt de
+        # uitzondering of de open onderdelen hierboven).
+        if (
+            isinstance(beoordeling, dict)
+            and beoordeling.get("applied") is False
+            and beoordeling.get("status") == "assessed"
+        ):
+            blokkades.append(
+                "CON-02: bronbeoordeling verouderd/niet toegepast: "
+                f"{beoordeling.get('reason') or 'hoort niet bij deze tekst, context of bronset'}"
+            )
+        return blokkades
 
     def _conflict_met_leidend_record(
         self, definition: DefinitieRecord, vervang_definitie_id: int | None

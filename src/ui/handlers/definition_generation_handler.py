@@ -718,6 +718,30 @@ class DefinitionGenerationHandler:
             logger.warning(f"Could not build document context summary: {e}")
             return ""
 
+    @staticmethod
+    def _document_citation_label(
+        doc: Any, text: str, idx: int, matched_term: bool
+    ) -> str | None:
+        """Bronvermelding binnen het document: pagina (pdf) of alinea (docx);
+        een volledig kort document zonder termtreffer heet zo."""
+        if not matched_term:
+            return "volledig document"
+        citation_label = None
+        try:
+            mime = getattr(doc, "mime_type", "") or ""
+            if mime == "application/pdf":
+                page_num = text.count("\f", 0, idx) + 1
+                citation_label = f"p. {page_num}"
+            elif (
+                mime == "application/vnd.openxmlformats-"
+                "officedocument.wordprocessingml.document"
+            ):
+                para_num = text.count("\n", 0, idx) + 1
+                citation_label = f"¶ {para_num}"
+        except (AttributeError, IndexError):
+            citation_label = None
+        return citation_label
+
     def _build_document_snippets(
         self,
         begrip: str,
@@ -726,13 +750,15 @@ class DefinitionGenerationHandler:
         per_doc_max: int = 4,
         snippet_window: int = 280,
     ) -> list[dict[str, Any]]:
-        """Zoek op begrip in geselecteerde documenten en bouw korte snippets."""
+        """Selecteer termpassages of volledige korte, expliciet gekozen documenten."""
         try:
             if not begrip or not selected_doc_ids:
                 return []
 
             processor = get_document_processor()
             begrip_lower = str(begrip).strip().lower()
+            if not begrip_lower:
+                return []
 
             # Stel totaal-limiet af op aantal documenten x per-doc-limiet
             if max_snippets_total is None:
@@ -752,44 +778,49 @@ class DefinitionGenerationHandler:
                 try:
                     import re
 
+                    matched_term = begrip_lower in haystack
+                    if not matched_term and (
+                        not text.strip() or len(text) > snippet_window
+                    ):
+                        continue
+                    positions = (
+                        (
+                            m.start()
+                            for m in re.finditer(re.escape(begrip_lower), haystack)
+                        )
+                        if matched_term
+                        else iter([0])
+                    )
                     count_for_doc = 0
-                    for m in re.finditer(re.escape(begrip_lower), haystack):
+                    for idx in positions:
                         if len(snippets) >= max_snippets_total:
                             break
                         if count_for_doc >= max(1, per_doc_max):
                             break
 
-                        idx = m.start()
                         start = max(0, idx - snippet_window // 2)
                         end = min(
                             len(text),
                             idx + len(begrip) + snippet_window // 2,
                         )
+                        if not matched_term:
+                            start, end = 0, len(text)
                         raw = text[start:end].replace("\n", " ").strip()
-
-                        # Bepaal bronvermelding binnen document
-                        citation_label = None
-                        try:
-                            mime = getattr(doc, "mime_type", "") or ""
-                            if mime == "application/pdf":
-                                page_num = text.count("\f", 0, idx) + 1
-                                citation_label = f"p. {page_num}"
-                            elif (
-                                mime == "application/vnd.openxmlformats-"
-                                "officedocument.wordprocessingml.document"
-                            ):
-                                para_num = text.count("\n", 0, idx) + 1
-                                citation_label = f"¶ {para_num}"
-                        except (AttributeError, IndexError):
-                            citation_label = None
-
+                        citation_label = self._document_citation_label(
+                            doc, text, idx, matched_term
+                        )
                         snippet = {
                             "provider": "documents",
                             "title": getattr(doc, "filename", "document"),
                             "filename": getattr(doc, "filename", None),
                             "doc_id": getattr(doc, "id", None),
                             "snippet": raw,
-                            "score": 1.0,
+                            "score": 1.0 if matched_term else 0.0,
+                            "selection_basis": (
+                                "term_match"
+                                if matched_term
+                                else "selected_short_document"
+                            ),
                             "used_in_prompt": True,
                             "citation_label": citation_label,
                         }

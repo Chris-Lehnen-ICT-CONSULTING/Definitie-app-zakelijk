@@ -1,0 +1,3 @@
+# DEF-743 F — SHA-256-manifest kwitantiekanaal-fix (2026-09-15 19:49 CEST); twee eigen bestanden
+42f8c2e870ce84cf8ecf0a08719a505a091880f8261ee25c2605d8cba553d672  src/services/source_proposal_service.py
+c1598d670d285cd50f222eeeb61e9c6ffdfe2eab957b77e30c4dc1d1aec39585  tests/unit/services/test_def743_voorstelworkflow.py

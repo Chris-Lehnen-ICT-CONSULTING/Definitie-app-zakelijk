@@ -112,16 +112,41 @@ def _vereist_repository(rule_id: str) -> bool:
     return RECORDS[rule_id].executability is Executability.REPOSITORY
 
 
+def _vereist_bronbeoordeling(rule_id: str) -> bool:
+    """Automatische oordeelregel: AI + code + deskundige op aangeleverde bronnen.
+
+    DEF-743: CON-02 is `automated` (de runtime beoordeelt werkelijk, zodra een
+    bronbeoordelingsdienst en bronnen aanwezig zijn) maar `judgment` (het
+    oordeel over gezag en betekenissteun is geen tekstpatroon). Deze matrix
+    draait zonder dienst en zonder bronnen; daar levert zo'n regel per
+    contract een expliciet open onderdeel (`review_required`) op — nooit
+    `pass`, nooit een violation op een bronwoord. Het gedrag mét bronnen en
+    beoordeling staat in `test_def743_source_evidence_evaluator.py`.
+    """
+    record = RECORDS[rule_id]
+    return (
+        record.executability is Executability.JUDGMENT
+        and record.automation_status is AutomationStatus.AUTOMATED
+    )
+
+
 AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if _is_automatisch(r))
 # Automatische regels die de matrix werkelijk kan meten: alles wat geen
-# repository nodig heeft. De repository-regels worden hieronder apart getoetst
-# (`TestRepositoryregelsZonderRepository`); hun gedrág mét repository staat in
-# `test_con01_duplicaatdetectie.py` en `test_contractconsistentie_def674.py`.
+# repository en geen bronbeoordeling nodig heeft. De repository-regels worden
+# hieronder apart getoetst (`TestRepositoryregelsZonderRepository`); hun gedrág
+# mét repository staat in `test_con01_duplicaatdetectie.py` en
+# `test_contractconsistentie_def674.py`. De bronbeoordelingsregels idem
+# (`TestBronbeoordelingsregelsZonderBronnen`).
 AUTOMATISCH_TEKSTPAD_IDS = sorted(
-    r for r in AUTOMATISCHE_IDS if not _vereist_repository(r)
+    r
+    for r in AUTOMATISCHE_IDS
+    if not _vereist_repository(r) and not _vereist_bronbeoordeling(r)
 )
 AUTOMATISCH_REPOSITORY_IDS = sorted(
     r for r in AUTOMATISCHE_IDS if _vereist_repository(r)
+)
+AUTOMATISCH_BRONBEOORDELING_IDS = sorted(
+    r for r in AUTOMATISCHE_IDS if _vereist_bronbeoordeling(r)
 )
 NIET_AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if not _is_automatisch(r))
 
@@ -229,13 +254,14 @@ class TestMatrixVolledigheid:
     def test_entry_contract(self, rule_id):
         entry = MATRIX[rule_id]
         status = RECORDS[rule_id].automation_status
-        if _is_automatisch(rule_id) and not _vereist_repository(rule_id):
+        if rule_id in AUTOMATISCH_TEKSTPAD_IDS:
             for verplicht in ("positief", "negatief", "grens"):
                 assert verplicht in entry, f"{rule_id}: case '{verplicht}' ontbreekt"
         else:
-            # Ook een automatische regel die de repository vereist draagt een
-            # probe: deze matrix meet het tekstpad, en daar hoort zij
-            # `not_evaluated` op te leveren (DEF-674).
+            # Ook een automatische regel die de repository of een
+            # bronbeoordeling vereist draagt een probe: deze matrix meet het
+            # tekstpad, en daar hoort zij `not_evaluated` (DEF-674) resp.
+            # `review_required` (DEF-743) op te leveren.
             assert "probe" in entry, f"{rule_id}: adversariële probe ontbreekt"
             assert entry.get("reden"), f"{rule_id}: reden verplicht bij {status.value}"
         # Dispositie-koppeling (ALG-375): elke niet-automatische status en
@@ -454,6 +480,49 @@ class TestRepositoryregelsZonderRepository:
             "een andere regel naar `executability: repository`, dan verdwijnt "
             "zij stil uit vier gedragstests en houdt alleen de zwakkere "
             f"not_evaluated-toets over: {AUTOMATISCH_REPOSITORY_IDS}"
+        )
+
+
+class TestBronbeoordelingsregelsZonderBronnen:
+    """Automatische oordeelregels op aangeleverde bronnen (DEF-743).
+
+    Deze matrix meet het tekstpad: geen bronnen, geen beoordelingsdienst.
+    Een regel met `executability: judgment` + `automated` levert daar per
+    contract `review_required` op — expliciet open, nooit `pass` en nooit een
+    violation op een bronwoord in de zin (de oude CON-02-fout). Het gedrag mét
+    bronnen, beoordeling en deskundige uitzonderingen staat in
+    `test_def743_source_evidence_evaluator.py`.
+    """
+
+    @pytest.mark.parametrize("rule_id", AUTOMATISCH_BRONBEOORDELING_IDS, ids=str)
+    @pytest.mark.asyncio
+    async def test_zonder_bronnen_expliciet_open(self, svc, rule_id):
+        entry = MATRIX[rule_id]
+        res = await _resultaat_voor(svc, entry["probe"])
+        status = res["rule_statuses"].get(rule_id)
+        assert status == "review_required", (
+            f"{rule_id} vereist bronnen en een beoordeling; zonder die invoer is "
+            f"{status!r} niet het contractuele antwoord"
+        )
+        assert (
+            rule_id in res["rule_results"]
+        ), f"{rule_id}: geen gestructureerde uitkomst"
+        assert res["rule_results"][rule_id]["score"] is None
+
+    @pytest.mark.parametrize("rule_id", AUTOMATISCH_BRONBEOORDELING_IDS, ids=str)
+    @pytest.mark.asyncio
+    async def test_bronwoord_in_de_zin_geeft_geen_violation_en_geen_pass(
+        self, svc, rule_id
+    ):
+        entry = MATRIX[rule_id]
+        res = await _resultaat_voor(svc, entry["bronwoord"])
+        assert not _violations_uit(res, rule_id)
+        assert res["rule_statuses"].get(rule_id) == "review_required"
+
+    def test_er_is_ten_minste_een_bronbeoordelingsregel(self):
+        assert AUTOMATISCH_BRONBEOORDELING_IDS == ["CON-02"], (
+            "de bronbeoordelingsklasse is vastgepind op CON-02: "
+            f"{AUTOMATISCH_BRONBEOORDELING_IDS}"
         )
 
 

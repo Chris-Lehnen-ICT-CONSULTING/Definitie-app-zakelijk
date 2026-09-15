@@ -6,6 +6,7 @@ Dit elimineert de directe afhankelijkheid van services op UI session state.
 """
 
 import logging
+from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -17,7 +18,9 @@ logger = logging.getLogger(__name__)
 
 # DEF-622 (K2): de contractvelden die uitsluitend van het opgeslagen record
 # komen. Aanvullende exportdata kan ze niet vervangen — validator en uitvoer
-# gebruiken zo exact dezelfde recordgegevens.
+# gebruiken zo exact dezelfde recordgegevens. DEF-743: de bronvelden van het
+# kerncontract (bronset, AI-beoordeling, deskundigenuitzondering, peildatum)
+# horen daar ook bij.
 _CONTRACT_METADATA: tuple[str, ...] = (
     "id",
     "versie",
@@ -25,8 +28,175 @@ _CONTRACT_METADATA: tuple[str, ...] = (
     "organisatorische_context",
     "juridische_context",
     "wettelijke_basis",
+    "sources",
+    "provenance_sources",
+    "source_assessment",
+    "source_review",
+    "peildatum",
 )
 _CONTRACT_CONTEXT: tuple[str, ...] = ("organisatorisch", "juridisch", "wettelijk")
+
+#: Sleutels van het exporteerbare bronbewijs (DEF-743 §5 persistentiecontract).
+_BRONBEWIJS_LEEG: dict[str, Any] = {
+    "status": "absent",
+    "current": False,
+    "reason": None,
+    "source_reference": None,
+    "peildatum": None,
+    "sources": [],
+    "source_receipt": None,
+    "source_assessment": None,
+    "source_review": None,
+    "source_review_status": {"status": "absent", "reason": None},
+    "source_assessment_status": {"applicable": False, "reason": None},
+    "con02": None,
+    "history": [],
+    "review_history": [],
+    "proposals": [],
+}
+
+
+def con02_replay(
+    record: DefinitieRecord,
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+    """De actuele CON-02-uitkomst van het record via de kernreplay (bevinding 3).
+
+    `beoordeel_bronbasis` (C) bindt de opgeslagen AI-beoordeling en de
+    deskundigenuitzondering aan de vingerafdruk van precies dit record; een
+    beoordeling van een eerdere bronidentiteit/peildatum/tekst wordt daar
+    níet toegepast. Geeft (regelresultaat of None, toepasbaarheidsstatus).
+    Zonder kernhelpers: geen replay en expliciet niet toepasbaar — nooit een
+    pass louter omdat het bewijsomhulsel bij de kandidaat past.
+    """
+    bewijs = record.get_source_evidence()
+    if bewijs is None or bewijs.get("source_assessment") is None:
+        return None, {
+            "applicable": False,
+            "reason": "geen opgeslagen AI-bronbeoordeling",
+        }
+    try:
+        from domain.sources.contract import beoordeel_bronbasis
+    except ImportError as e:
+        return None, {
+            "applicable": False,
+            "reason": f"kernhelpers niet beschikbaar: {e}",
+        }
+    try:
+        uitkomst = beoordeel_bronbasis(
+            record.begrip or "",
+            record.get_definitie_tekst(),
+            record.get_contextlijsten(),
+            bewijs.get("sources") or [],
+            assessment=bewijs.get("source_assessment"),
+            review=record.get_source_review(),
+            definitie_versie=record.version_number,
+            peildatum=bewijs.get("peildatum"),
+        ).als_dict()
+    except Exception as e:  # replay mag de export niet breken; wel eerlijk
+        logger.warning("CON-02-replay voor export mislukte: %s", e, exc_info=True)
+        return None, {"applicable": False, "reason": f"replay mislukt: {e}"}
+    samenvatting = (uitkomst.get("review") or {}).get("assessment") or {}
+    return uitkomst, {
+        "applicable": samenvatting.get("applied") is True,
+        "reason": samenvatting.get("reason"),
+    }
+
+
+def bronbewijs_uit_record(record: DefinitieRecord) -> dict[str, Any]:
+    """Het exporteerbare bronbewijs, uitsluitend uit het opgeslagen record.
+
+    Volledige bronset (citaten, coördinaten, geneste metadata), kwitantie,
+    AI-beoordeling (delen, bewijs, onzekerheid, afgewezen bewijs, technische
+    fout, attributie), deskundigenuitzondering + status (een uitzondering
+    blijft herkenbaar als uitzondering), stale-status, en samenvattingen van
+    historie en voorstellen. Geen cijfer: er is er geen. Een record met alleen
+    `source_reference` is onvolledig bewijs (`reference_only`); er wordt
+    niets bij verzonnen.
+    """
+    status = record.get_source_evidence_status()
+    bewijs = record.get_source_evidence() or {}
+    geschiedenis = record.get_source_evidence_history()
+    voorstelrecords = record.get_source_proposals()
+    if not (
+        isinstance(status, dict)
+        and isinstance(bewijs, dict)
+        and isinstance(geschiedenis, list)
+        and isinstance(voorstelrecords, list)
+    ):
+        # Geen echt record (vervanger in tests): geen bewijs, niets verzonnen.
+        return deepcopy(_BRONBEWIJS_LEEG)
+    historie = [
+        {
+            "origin": h.get("origin"),
+            "version_number": h.get("version_number"),
+            "recorded_at": h.get("recorded_at"),
+            "superseded_at": h.get("superseded_at"),
+            "superseded_on_version": h.get("superseded_on_version"),
+            "candidate": (h.get("candidate") or {}).get("definitie"),
+            "source_count": len(h.get("sources") or []),
+            "assessment_status": (h.get("source_assessment") or {}).get("status"),
+            "assessment_fingerprint": (h.get("source_assessment") or {}).get(
+                "fingerprint"
+            ),
+        }
+        for h in geschiedenis
+        if isinstance(h, dict)
+    ]
+    voorstellen = [
+        {
+            "proposal_id": v.get("proposal_id"),
+            "status": v.get("status"),
+            "actor": v.get("actor"),
+            "reserved_at": v.get("reserved_at"),
+            "original_text": (v.get("original") or {}).get("text"),
+            "candidate_text": (v.get("outcome") or {}).get("candidate_text"),
+            "rationale": (v.get("outcome") or {}).get("rationale"),
+            "events": list(v.get("events") or []),
+        }
+        for v in voorstelrecords
+        if isinstance(v, dict)
+    ]
+    con02, toepasbaarheid = con02_replay(record)
+    reviewhistorie = record.get_source_review_history()
+    return {
+        **_BRONBEWIJS_LEEG,
+        "status": status["status"],
+        "current": status["current"],
+        "reason": status["reason"],
+        "source_reference": record.source_reference,
+        "peildatum": bewijs.get("peildatum"),
+        "sources": list(bewijs.get("sources") or []),
+        "source_receipt": bewijs.get("source_receipt"),
+        # Ruwe opgeslagen beoordeling (historisch bewijs) + of zij nog op dit
+        # record van toepassing is volgens de kernbinding.
+        "source_assessment": bewijs.get("source_assessment"),
+        "source_assessment_status": toepasbaarheid,
+        # De actuele, eerlijke CON-02-uitkomst (replay): status/parts/review.
+        "con02": con02,
+        "source_review": record.get_source_review(),
+        "source_review_status": record.get_source_review_status(),
+        "history": historie,
+        "review_history": reviewhistorie if isinstance(reviewhistorie, list) else [],
+        "proposals": voorstellen,
+    }
+
+
+def bronregels_uit_bewijs(bronbewijs: dict[str, Any]) -> list[str]:
+    """Korte, leesbare bronregels (titel · route · vindplaats/URL) uit het bewijs."""
+    regels: list[str] = []
+    for bron in bronbewijs.get("sources") or []:
+        if not isinstance(bron, dict):
+            continue
+        titel = str(bron.get("title") or bron.get("filename") or "onbekende bron")
+        delen = [titel]
+        if bron.get("provider"):
+            delen.append(f"route: {bron['provider']}")
+        if bron.get("citation_label"):
+            delen.append(f"vindplaats: {bron['citation_label']}")
+        if bron.get("url"):
+            delen.append(str(bron["url"]))
+        regels.append(" · ".join(delen))
+    return regels
 
 
 @dataclass
@@ -89,6 +259,11 @@ class DefinitieExportData:
 
     # Expert review
     expert_review: str = ""
+
+    # DEF-743: het opgeslagen bronbewijs (zie `bronbewijs_uit_record`).
+    bronbewijs: dict[str, Any] = field(
+        default_factory=lambda: deepcopy(_BRONBEWIJS_LEEG)
+    )
 
     # Technische metadata
     marker: str | None = None
@@ -220,6 +395,17 @@ class DataAggregationService:
                 review = definitie_record.get_context_review()
                 if review is not None:
                     export_data.metadata["context_review"] = review
+            # DEF-743: het opgeslagen bronbewijs — bronset, AI-beoordeling,
+            # deskundigenuitzondering, peildatum en stale-status — komt
+            # uitsluitend van het record. De contractsleutels landen in de
+            # metadata (validatiegate + uitvoer), het volledige bewijs in
+            # `bronbewijs`; zonder bewijs ontbreken de bronsleutels (niets
+            # verzonnen) en zegt de status `reference_only`/`absent`.
+            if isinstance(definitie_record, DefinitieRecord):
+                export_data.bronbewijs = bronbewijs_uit_record(definitie_record)
+                self._zet_broncontractvelden(export_data, definitie_record)
+                if not export_data.bronnen:
+                    export_data.bronnen = bronregels_uit_bewijs(export_data.bronbewijs)
 
             # Timestamps
             export_data.created_at = definitie_record.created_at
@@ -308,6 +494,26 @@ class DataAggregationService:
         return export_data
 
     @staticmethod
+    def _zet_broncontractvelden(
+        export_data: DefinitieExportData, definitie_record: DefinitieRecord
+    ) -> None:
+        """De CON-02-contractsleutels van het record in de exportmetadata (DEF-743)."""
+        velden = definitie_record.get_contractvelden()
+        if not isinstance(velden, dict):
+            return  # geen echt record (vervanger in tests)
+        for sleutel in (
+            "sources",
+            "provenance_sources",
+            "source_assessment",
+            "source_review",
+            "peildatum",
+        ):
+            if velden.get(sleutel) is not None:
+                export_data.metadata[sleutel] = velden[sleutel]
+            else:
+                export_data.metadata.pop(sleutel, None)
+
+    @staticmethod
     def _borg_contractvelden(
         export_data: DefinitieExportData, definitie_record: DefinitieRecord
     ) -> None:
@@ -316,6 +522,7 @@ class DataAggregationService:
         Aanvullende exportdata kon id, versie, context en beoordeling
         overschrijven; de validator oordeelde dan op andere gegevens dan de
         uitvoer bevatte. Een poging daartoe wordt gelogd, niet gehonoreerd.
+        DEF-743: hetzelfde geldt voor de bronvelden en het bronbewijs.
         """
         lijsten = definitie_record.get_contextlijsten()
         review = definitie_record.get_context_review()
@@ -324,6 +531,9 @@ class DataAggregationService:
         ):
             # Geen echt record (vervanger in tests): niets te borgen.
             return
+        contract = definitie_record.get_contractvelden()
+        if not isinstance(contract, dict):
+            return
         recordwaarden: dict[str, Any] = {
             "id": definitie_record.id,
             "versie": definitie_record.version_number,
@@ -331,7 +541,19 @@ class DataAggregationService:
             "organisatorische_context": ", ".join(lijsten["organisatorische_context"]),
             "juridische_context": ", ".join(lijsten["juridische_context"]),
             "wettelijke_basis": ", ".join(lijsten["wettelijke_basis"]),
+            "sources": contract.get("sources"),
+            "provenance_sources": contract.get("provenance_sources"),
+            "source_assessment": contract.get("source_assessment"),
+            "source_review": contract.get("source_review"),
+            "peildatum": contract.get("peildatum"),
         }
+        recordbewijs = bronbewijs_uit_record(definitie_record)
+        if export_data.bronbewijs != recordbewijs:
+            logger.warning(
+                "Export: aanvullende data probeerde het bronbewijs te vervangen; "
+                "recordbewijs behouden"
+            )
+            export_data.bronbewijs = recordbewijs
         recordcontext = {
             "organisatorisch": list(lijsten["organisatorische_context"]),
             "juridisch": list(lijsten["juridische_context"]),
@@ -440,6 +662,7 @@ class DataAggregationService:
             "bronnen": export_data.bronnen,
             "bronnen_gebruikt": export_data.bronnen_gebruikt,
             "expert_review": export_data.expert_review,
+            "bronbewijs": export_data.bronbewijs,
             "marker": export_data.marker,
             "prompt_text": export_data.prompt_text,
         }

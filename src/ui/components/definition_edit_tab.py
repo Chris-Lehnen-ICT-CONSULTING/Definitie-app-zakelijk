@@ -19,6 +19,38 @@ from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
+#: Compacte staat van het bronbewijs voor lijsten (DEF-743). Een opgeslagen
+#: cijfer wordt niet meer als actuele kwaliteit getoond (besluit 3).
+_BRONBASIS_LABEL = {
+    "present": "bronbewijs",
+    "reference_only": "alleen verwijzing",
+    "absent": "geen bronnen",
+    "invalid": "bewijs onleesbaar",
+}
+
+#: Toepassen van een voorstel vervangt de opgeslagen tekst; een niet-opgeslagen
+#: bewerking in het widget zou daarbij zonder spoor verloren gaan.
+_MELDING_ONOPGESLAGEN = (
+    "Sla eerst je bewerking op: toepassen vervangt de opgeslagen tekst door het "
+    "voorstel en zou je niet-opgeslagen bewerking verliezen."
+)
+
+
+def _als_dict(waarde: Any) -> dict[str, Any]:
+    """Typegetrouwe vernauwing: een dict, anders een lege dict."""
+    return waarde if isinstance(waarde, dict) else {}
+
+
+def bronbasis_label(metadata: dict[str, Any] | None) -> str:
+    """Leesbaar label voor `source_evidence_status` uit de recordmetadata."""
+    status = (metadata or {}).get("source_evidence_status")
+    if not isinstance(status, dict):
+        return ""
+    label = _BRONBASIS_LABEL.get(str(status.get("status") or ""), "")
+    if label == "bronbewijs" and status.get("current") is False:
+        label = "bronbewijs (verouderd)"
+    return label
+
 
 class DefinitionEditTab:
     """Tab voor het bewerken van definities met rich text editor."""
@@ -186,6 +218,10 @@ class DefinitionEditTab:
                 definition = SessionStateManager.get_value("editing_definition")
                 if definition:
                     self._render_generation_prompt_section(definition)
+                    # DEF-743: bronbasis (CON-02) van het opgeslagen record en
+                    # het handmatige verbetervoorstel — uitsluitend op verzoek.
+                    self._render_bronbasis_section(definition)
+                    self._render_voorstel_section(definition)
 
         with col2:
             # Sidebar with metadata and history
@@ -311,7 +347,6 @@ class DefinitionEditTab:
                     ) or "draft"
                     source_type = d.metadata.get("source_type") if d.metadata else None
                     status_disp = _status_label(status, source_type)
-                    score = d.metadata.get("validation_score") if d.metadata else None
                     rows.append(
                         {
                             "Selecteer": bool(prev_selected_id == d.id),
@@ -321,7 +356,9 @@ class DefinitionEditTab:
                             "UFO-categorie": getattr(d, "ufo_categorie", None) or "",
                             "Status": status_disp,
                             "Herkomst": _source_label(source_type),
-                            "Score": score if score is not None else "",
+                            # DEF-743 (besluit 3): geen opgeslagen cijfer als
+                            # actuele kwaliteit; wel de staat van het bronbewijs.
+                            "Bronbasis": bronbasis_label(d.metadata),
                             "Organisatorische context": _join_list(
                                 getattr(d, "organisatorische_context", [])
                             ),
@@ -352,7 +389,7 @@ class DefinitionEditTab:
                         "UFO-categorie": st.column_config.TextColumn(disabled=True),
                         "Status": st.column_config.TextColumn(disabled=True),
                         "Herkomst": st.column_config.TextColumn(disabled=True),
-                        "Score": st.column_config.TextColumn(disabled=True),
+                        "Bronbasis": st.column_config.TextColumn(disabled=True),
                         "Organisatorische context": st.column_config.TextColumn(
                             disabled=True
                         ),
@@ -455,6 +492,16 @@ class DefinitionEditTab:
                             self._start_edit_session(int(d.id))
                 st.markdown("---")
 
+    @staticmethod
+    def _plaats_klaargezette_tekst(def_id: Any) -> None:
+        """F2 (DEF-743): een toegepast voorstel is in de vorige run klaargezet;
+        plaats het hier — vóór de widgetconstructie — in het widget. Alleen
+        als het klaargezette voorstel bij dít record hoort."""
+        pending = SessionStateManager.get_value(f"edit_{def_id}_pending_definitie")
+        if isinstance(pending, str):
+            SessionStateManager.set_value(f"edit_{def_id}_definitie", pending)
+            SessionStateManager.clear_value(f"edit_{def_id}_pending_definitie")
+
     def _render_editor(self) -> None:
         """Render the rich text editor."""
         st.markdown("### ✏️ Bewerk Definitie")
@@ -485,6 +532,7 @@ class DefinitionEditTab:
         st.markdown("**Definitie:**")
 
         # Use text area as fallback (st_quill requires additional setup)
+        self._plaats_klaargezette_tekst(definition.id)
         SessionStateManager.initialize_session_state(
             {k("definitie"): definition.definitie}
         )
@@ -802,7 +850,9 @@ class DefinitionEditTab:
         from ui.components.examples_block import render_examples_block
 
         # Get repository voor edit functionaliteit
-        repo = DefinitieRepository()
+        # Zelfde database als de geïnjecteerde repository (DEF-743): geen
+        # tweede, hardcoded productiepad naast de geïnjecteerde.
+        repo = getattr(self.repository, "legacy_repo", None) or DefinitieRepository()
 
         # REMOVED: _reset_voorbeelden_context() call (caused data loss!)
         # De reset wiste voorbeelden uit session state bij elke render, terwijl ze
@@ -897,11 +947,11 @@ class DefinitionEditTab:
             if metadata.get("updated_by"):
                 st.caption(f"**Bewerkt door:** {metadata['updated_by']}")
 
-            # Validation score
-            if metadata.get("validation_score"):
-                score = metadata["validation_score"]
-                color = "green" if score > 0.8 else "orange" if score > 0.6 else "red"
-                st.markdown(f"**Validatie Score:** :{color}[{score:.2f}]")
+            # DEF-743 (besluit 3): geen opgeslagen validatiecijfer als actuele
+            # kwaliteit; de regeloordelen staan in de Kwaliteitstoetsing.
+            label = bronbasis_label(metadata)
+            if label:
+                st.caption(f"**Bronbasis:** {label}")
 
             # Source info
             if metadata.get("source_type"):
@@ -981,6 +1031,351 @@ class DefinitionEditTab:
                 },
             )
             # Silently fail - not critical
+
+    # ------------------------------------------------------------------
+    # DEF-743: bronbasis (CON-02) en handmatig verbetervoorstel op verzoek
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _handelende_gebruiker() -> str | None:
+        """Bestaande gebruikersidentiteit (sessie-`user`, reviewer naam); nooit verzonnen."""
+        for sleutel in ("user", "edit_reviewer_name_input", "reviewer_name_input"):
+            waarde = SessionStateManager.get_value(sleutel)
+            if isinstance(waarde, str) and waarde.strip():
+                return waarde.strip()
+        return None
+
+    def _proposal_service(self) -> Any | None:
+        """`SourceProposalService` uit de gecachte container (AI-service + router)."""
+        if self.edit_service.proposal_service is not None:
+            return self.edit_service.proposal_service
+        try:
+            from services.source_proposal_service import SourceProposalService
+            from ui.cached_services import get_cached_service_container
+
+            container = get_cached_service_container()
+            dienst = SourceProposalService(
+                container.ai_service(), model_router=container.model_router()
+            )
+        except Exception as e:
+            logger.warning(
+                "Voorsteldienst niet beschikbaar: %s: %s", type(e).__name__, e
+            )
+            return None
+        self.edit_service.proposal_service = dienst
+        return dienst
+
+    def _bronbasis_van_geladen_record(self, definition: Any) -> dict[str, Any] | None:
+        """CON-02-uitkomst (pure replay, geen AI) voor het opgeslagen record."""
+        if getattr(definition, "id", None) is None:
+            return None
+        try:
+            record = self.repository.get_definitie(int(definition.id))
+            if record is None:
+                return None
+            laatste = SessionStateManager.get_value("edit_last_validation")
+            huidig = laatste.get("raw_v2") if isinstance(laatste, dict) else None
+            return self.edit_service.bronbasis_van_record(record, huidig)
+        except ImportError as e:
+            logger.warning("Bronbeoordelingskern niet beschikbaar: %s", e)
+            return None
+        except Exception as e:
+            logger.error("Bronbasis niet te bepalen: %s", e, exc_info=True)
+            return None
+
+    def _render_bronbasis_section(self, definition: Any) -> None:
+        """Bronbasis van het opgeslagen record: bronnen, kwitantie, AI-oordeel,
+        citaten, uitzonderingen — uit het ID-only geladen record."""
+        try:
+            from ui.components.sources_renderer import SourcesRenderer
+
+            meta = dict(getattr(definition, "metadata", None) or {})
+            basis = self._bronbasis_van_geladen_record(definition)
+            bronnen = meta.get("provenance_sources")
+            if bronnen is None:
+                bronnen = meta.get("sources")
+            with st.expander(
+                "📚 Bronbasis (CON-02) — opgeslagen record", expanded=False
+            ):
+                if basis is None:
+                    st.caption(
+                        "Bronbeoordelingskern niet beschikbaar of record niet opgeslagen: "
+                        "alleen de bronnen worden getoond."
+                    )
+                SourcesRenderer().render_bronbasis_section(
+                    sources=bronnen if isinstance(bronnen, list) else None,
+                    assessment=(basis or {}).get("assessment")
+                    or meta.get("source_assessment"),
+                    receipt=meta.get("source_receipt"),
+                    review=meta.get("source_review"),
+                    con02=(basis or {}).get("con02"),
+                    evidence_status=meta.get("source_evidence_status"),
+                    review_status=meta.get("source_review_status"),
+                    titel="",
+                )
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning("Bronbasis-sectie kon niet worden getoond: %s", e)
+
+    def _render_voorstel_section(self, definition: Any) -> None:
+        """Handmatig verbetervoorstel (DEF-743, besluit 2): uitsluitend na een
+        expliciete knop; nooit automatisch bij een CON-02-failure of rerun.
+        De oorspronkelijke tekst blijft staan; toepassen is een aparte,
+        bewuste keuze met hertoetsing."""
+        def_id = getattr(definition, "id", None)
+        if def_id is None:
+            return
+        meta = dict(getattr(definition, "metadata", None) or {})
+        status_code = meta.get("status")
+        with st.expander("🛠️ Verbetervoorstel op verzoek (CON-02)", expanded=False):
+            st.caption(
+                "Een CON-02-uitkomst 'voldoet niet' is niet vanzelf een fout in de "
+                "definitiezin: ontbrekend bewijs, brontransport, een technische fout "
+                "of AI-onzekerheid worden eerst onderscheiden. Maximaal één "
+                "voorstelaanvraag per oorspronkelijke generatie (DEF-638)."
+            )
+            actor = self._handelende_gebruiker()
+            if not actor:
+                st.text_input(
+                    "Reviewer naam (vereist voor aanvragen/toepassen)",
+                    key="edit_reviewer_name_input",
+                )
+                actor = self._handelende_gebruiker()
+
+            # Bestaande voorstellen (bewijs, ook geblokkeerd/fout/afgewezen).
+            voorstellen = [
+                v for v in (meta.get("source_proposals") or []) if isinstance(v, dict)
+            ]
+            ongewijzigd = not self._onopgeslagen_bewerking(int(def_id), definition)
+            alleen_lezen = status_code in ("established", "archived")
+
+            laatste = SessionStateManager.get_value(f"edit_{def_id}_voorstel_resultaat")
+            if isinstance(laatste, dict):
+                self._toon_voorstelresultaat(laatste)
+
+            hulp = None
+            if alleen_lezen:
+                hulp = "Alleen-lezen status: geen voorstel mogelijk"
+            elif not actor:
+                hulp = "Vul eerst een reviewer naam in"
+            elif not ongewijzigd:
+                hulp = "Sla eerst je bewerking op: een voorstel geldt voor de opgeslagen tekst"
+            if st.button(
+                "🛠️ Vraag verbetervoorstel aan",
+                key=f"edit_{def_id}_vraag_voorstel",
+                disabled=hulp is not None,
+                help=hulp,
+            ):
+                self._vraag_voorstel(int(def_id), str(actor))
+
+            for voorstel in voorstellen:
+                self._render_voorstel(
+                    int(def_id), voorstel, actor, alleen_lezen, ongewijzigd
+                )
+
+    @staticmethod
+    def _onopgeslagen_bewerking(def_id: int, definition: Any = None) -> bool:
+        """Staat er in het tekstwidget een bewerking die nog niet is opgeslagen?
+
+        Vergelijkt het widget (`edit_{id}_definitie`) met het geladen record.
+        Zonder vergelijkbaar geladen record is het antwoord fail-closed 'ja':
+        toepassen mag nooit iets overschrijven dat niet is nagekeken.
+        """
+        geladen = (
+            definition
+            if definition is not None
+            else SessionStateManager.get_value("editing_definition")
+        )
+        if geladen is None or getattr(geladen, "id", None) != def_id:
+            return True
+        opgeslagen = (getattr(geladen, "definitie", "") or "").strip()
+        bewerkt = SessionStateManager.get_value(f"edit_{def_id}_definitie", opgeslagen)
+        return (bewerkt or "").strip() != opgeslagen
+
+    def _toon_voorstelresultaat(self, resultaat: dict[str, Any]) -> None:
+        status = str(resultaat.get("status") or "")
+        bericht = str(resultaat.get("message") or status)
+        diagnose = _als_dict(resultaat.get("diagnose"))
+        oorzaak = diagnose.get("cause")
+        if status in ("proposed", "applied"):
+            st.success(f"✅ {bericht}")
+        elif status in ("blocked", "attempt_consumed", "no_evidence", "unavailable"):
+            st.warning(
+                f"⛔ Geen voorstel: {bericht}"
+                + (f" (oorzaak: {oorzaak})" if oorzaak else "")
+            )
+        elif status in ("version_conflict", "stale_original", "not_editable"):
+            st.warning(f"🔄 {bericht}")
+        elif status == "unsaved_changes":
+            st.warning(f"💾 {bericht}")
+        elif status == "rejected":
+            st.info(f"ℹ️ {bericht}")
+        else:
+            st.error(f"❌ {bericht}" + (f" (oorzaak: {oorzaak})" if oorzaak else ""))
+        for bevinding in diagnose.get("findings") or []:
+            st.caption(f"Bevinding: {bevinding}")
+
+    def _render_voorstel(
+        self,
+        def_id: int,
+        voorstel: dict[str, Any],
+        actor: str | None,
+        alleen_lezen: bool,
+        ongewijzigd: bool,
+    ) -> None:
+        pid = str(voorstel.get("proposal_id") or "")
+        status = str(voorstel.get("status") or "")
+        uitkomst = _als_dict(voorstel.get("outcome"))
+        origineel = _als_dict(voorstel.get("original"))
+        label = {
+            "proposed": "voorstel beschikbaar",
+            "applied": "toegepast",
+            "rejected": "afgewezen",
+            "superseded": "vervangen",
+            "reserved": "aangevraagd (geen uitkomst vastgelegd)",
+        }.get(status, status)
+        st.markdown(
+            f"**Voorstel {pid[:8]} — {label}** · door {voorstel.get('actor') or 'onbekend'}"
+        )
+        uitkomststatus = str(uitkomst.get("status") or "")
+        if uitkomststatus in ("blocked", "error"):
+            fout = (
+                uitkomst.get("error")
+                if isinstance(uitkomst.get("error"), dict)
+                else None
+            )
+            st.warning(
+                f"Geen bruikbaar voorstel ({uitkomststatus}): "
+                f"{uitkomst.get('rationale') or (fout or {}).get('message') or 'geen details'}"
+            )
+        if uitkomst.get("candidate_text"):
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.markdown("**Oorspronkelijke tekst (bewaard)**")
+                st.text(str(origineel.get("text") or ""))
+            with col_b:
+                st.markdown("**Voorgestelde tekst**")
+                st.text(str(uitkomst.get("candidate_text")))
+            if uitkomst.get("rationale"):
+                st.caption(f"Reden: {uitkomst.get('rationale')}")
+            st.caption(
+                f"Model: {uitkomst.get('model') or 'onbekend'} · prompt {uitkomst.get('prompt_version') or '?'}"
+                f" · bronbinding {str(uitkomst.get('assessment_fingerprint') or '?')[:12]}"
+            )
+        if status == "proposed" and uitkomststatus == "proposed" and not alleen_lezen:
+            hulp = None if actor else "Vul eerst een reviewer naam in"
+            # Toepassen vervangt de opgeslagen tekst; een niet-opgeslagen
+            # bewerking in het widget zou daarbij verloren gaan (niet in het
+            # bewaarde origineel, niet in de historie). Afwijzen raakt de tekst
+            # niet en blijft beschikbaar.
+            hulp_toepassen = hulp
+            if hulp_toepassen is None and not ongewijzigd:
+                hulp_toepassen = _MELDING_ONOPGESLAGEN
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button(
+                    "✅ Pas voorstel toe (hertoetsing met dezelfde bronnen)",
+                    key=f"edit_{def_id}_voorstel_{pid}_toepassen",
+                    disabled=hulp_toepassen is not None,
+                    help=hulp_toepassen,
+                ):
+                    self._pas_voorstel_toe(def_id, pid, str(actor))
+            with c2:
+                if st.button(
+                    "❌ Wijs voorstel af",
+                    key=f"edit_{def_id}_voorstel_{pid}_afwijzen",
+                    disabled=not actor,
+                    help=hulp,
+                ):
+                    self._wijs_voorstel_af(def_id, pid, str(actor))
+
+    @staticmethod
+    def _getoonde_versie(def_id: int) -> int | None:
+        """F3: de recordversie die de editor vóór zich had (geen verse lezing)."""
+        geladen = SessionStateManager.get_value("editing_definition")
+        if geladen is None or getattr(geladen, "id", None) != def_id:
+            return None
+        versie = (getattr(geladen, "metadata", None) or {}).get("version_number")
+        return (
+            versie if isinstance(versie, int) and not isinstance(versie, bool) else None
+        )
+
+    def _vraag_voorstel(self, def_id: int, actor: str) -> None:
+        """Eén expliciete aanvraag; reservering en uitkomst bij D, model via F."""
+        from ui.helpers.async_bridge import run_async
+
+        self._proposal_service()
+        laatste = SessionStateManager.get_value("edit_last_validation")
+        huidig = laatste.get("raw_v2") if isinstance(laatste, dict) else None
+        try:
+            resultaat = run_async(
+                self.edit_service.vraag_verbetervoorstel(
+                    def_id,
+                    actor=actor,
+                    huidig_resultaat=huidig,
+                    expected_version=self._getoonde_versie(def_id),
+                )
+            )
+        except Exception as e:
+            logger.error("Voorstelaanvraag mislukt: %s", e, exc_info=True)
+            resultaat = {"status": "error", "message": f"{type(e).__name__}: {e}"}
+        SessionStateManager.set_value(f"edit_{def_id}_voorstel_resultaat", resultaat)
+        self._refresh_current_definition()
+
+    def _pas_voorstel_toe(self, def_id: int, proposal_id: str, actor: str) -> None:
+        from ui.helpers.async_bridge import run_async
+
+        if self._onopgeslagen_bewerking(def_id):
+            # Zelfde controle als de knop, maar in de handler zelf: geen dienst-,
+            # hertoetsings- of DB-aanroep, niets klaargezet, widget onaangeroerd.
+            SessionStateManager.set_value(
+                f"edit_{def_id}_voorstel_resultaat",
+                {"status": "unsaved_changes", "message": _MELDING_ONOPGESLAGEN},
+            )
+            st.rerun()
+            return
+        try:
+            resultaat = run_async(
+                self.edit_service.pas_voorstel_toe(
+                    def_id,
+                    proposal_id,
+                    actor=actor,
+                    expected_version=self._getoonde_versie(def_id),
+                )
+            )
+        except Exception as e:
+            logger.error("Voorstel toepassen mislukt: %s", e, exc_info=True)
+            resultaat = {"status": "error", "message": f"{type(e).__name__}: {e}"}
+        SessionStateManager.set_value(f"edit_{def_id}_voorstel_resultaat", resultaat)
+        if resultaat.get("status") == "applied":
+            # F2: het tekstwidget van deze run bestaat al; zijn session-state-
+            # sleutel mag nú niet meer worden gezet (StreamlitAPIException).
+            # De toegepaste tekst wordt daarom klaargezet en pas in de
+            # volgende run, vóór de widgetconstructie in `_render_editor`,
+            # in het widget geplaatst. De hertoetsing is het actuele
+            # resultaat (geen oude pass) — dat is geen widgetsleutel.
+            SessionStateManager.set_value(
+                f"edit_{def_id}_pending_definitie", resultaat.get("candidate_text")
+            )
+            validatie = resultaat.get("validation")
+            if isinstance(validatie, dict):
+                from services.definition_edit_service import (
+                    normaliseer_validatieresultaat,
+                )
+
+                SessionStateManager.set_value(
+                    "edit_last_validation", normaliseer_validatieresultaat(validatie)
+                )
+        self._refresh_current_definition()
+
+    def _wijs_voorstel_af(self, def_id: int, proposal_id: str, actor: str) -> None:
+        resultaat = self.edit_service.wijs_voorstel_af(
+            def_id,
+            proposal_id,
+            actor=actor,
+            expected_version=self._getoonde_versie(def_id),
+        )
+        SessionStateManager.set_value(f"edit_{def_id}_voorstel_resultaat", resultaat)
+        self._refresh_current_definition()
 
     def _render_version_history(self) -> None:
         """Render compact version history panel."""
@@ -1154,7 +1549,11 @@ class DefinitionEditTab:
                     from database.definitie_repository import DefinitieRepository
                     from ui.helpers.examples import resolve_examples
 
-                    repo = DefinitieRepository()
+                    # Zelfde database als de geïnjecteerde repository (DEF-743).
+                    repo = (
+                        getattr(self.repository, "legacy_repo", None)
+                        or DefinitieRepository()
+                    )
                     state_key = f"edit_{definition_id}_examples"
                     voorbeelden = resolve_examples(
                         state_key, session["definition"], repository=repo
@@ -1333,6 +1732,10 @@ class DefinitionEditTab:
         """Validate the current definition and return results (do not render here)."""
         try:
             # Create definition object from current state
+            from services.definition_edit_service import (
+                bouw_validatiecontext,
+                normaliseer_validatieresultaat,
+            )
             from services.interfaces import Definition
 
             def_id = SessionStateManager.get_value("editing_definition_id")
@@ -1340,7 +1743,13 @@ class DefinitionEditTab:
             def k(name: str) -> str:
                 return f"edit_{def_id}_{name}"
 
+            # DEF-622/DEF-743: de kandidaat is de ACTUELE bewerkte tekst, term en
+            # drie contextlijsten (ook leeg); id, recordversie, vastgelegde
+            # beoordelingen én de bronset komen uit het ID-only geladen record.
+            geladen = SessionStateManager.get_value("editing_definition")
+            geladen_meta = dict(getattr(geladen, "metadata", None) or {})
             definition = Definition(
+                id=def_id,
                 begrip=SessionStateManager.get_value(k("begrip"), ""),
                 definitie=SessionStateManager.get_value(k("definitie"), ""),
                 organisatorische_context=SessionStateManager.get_value(
@@ -1362,7 +1771,7 @@ class DefinitionEditTab:
 
             # Validate (DEF-439: edit_service resolveert naar Any -> expliciet getypeerd)
             results: dict[str, Any] | None = self.edit_service._validate_definition(
-                definition
+                definition, geladen_meta
             )
 
             # Als de service None teruggeeft (alleen async API beschikbaar), gebruik UI async-bridge
@@ -1374,24 +1783,14 @@ class DefinitionEditTab:
                 orch = container.orchestrator()
                 from services.validation.interfaces import ValidationContext
 
-                # DEF-622: het bewerkte record identificeert zichzelf (DUP_01
-                # sluit het eigen record uit) en draagt de vastgelegde
-                # CON-01-beoordeling mee mét de geladen recordversie (K1):
-                # de beoordeling vervalt bij een gewijzigde tekst
-                # (vingerafdruk) én bij een nieuwere recordversie.
-                geladen = SessionStateManager.get_value("editing_definition")
-                geladen_meta = getattr(geladen, "metadata", None) or {}
+                # Dezelfde contextdict als het sync pad (pariteit): het
+                # bewerkte record identificeert zichzelf (DUP_01), draagt de
+                # CON-01-beoordeling mét geladen recordversie (K1) en de
+                # bronset/CON-02-review van het geladen record mee; de
+                # wrapper verkrijgt zelf de bronbeoordeling (C §8).
                 vc = ValidationContext(
                     correlation_id=None,
-                    metadata={
-                        "organisatorische_context": definition.organisatorische_context
-                        or [],
-                        "juridische_context": definition.juridische_context or [],
-                        "wettelijke_basis": definition.wettelijke_basis or [],
-                        "definition_id": def_id,
-                        "definition_version": geladen_meta.get("version_number"),
-                        "context_review": geladen_meta.get("context_review"),
-                    },
+                    metadata=bouw_validatiecontext(definition, geladen_meta),
                 )
                 v = run_async(
                     orch.validation_service.validate_text(
@@ -1401,29 +1800,9 @@ class DefinitionEditTab:
                         context=vc,
                     )
                 )
-                # Normaliseer naar UI-structuur
+                # Normaliseer naar UI-structuur (status/onderdelen/dekking bewaard)
                 if isinstance(v, dict):
-                    violations = v.get("violations", []) or []
-                    normalized_issues = []
-                    for item in violations:
-                        normalized_issues.append(
-                            {
-                                "rule": item.get("rule_id") or item.get("code"),
-                                "message": item.get("description")
-                                or item.get("message", ""),
-                                "severity": item.get("severity", "warning"),
-                            }
-                        )
-                    ruwe_score = v.get("overall_score", 0.0)
-                    results = {
-                        "valid": bool(v.get("is_acceptable", False)),
-                        # DEF-622: None = totaalscore niet beschikbaar, geen 0.0.
-                        "score": (
-                            None if ruwe_score is None else float(ruwe_score or 0.0)
-                        ),
-                        "issues": normalized_issues,
-                        "raw_v2": v,
-                    }
+                    results = normaliseer_validatieresultaat(v)
 
             return results
 
@@ -1475,203 +1854,34 @@ class DefinitionEditTab:
             render_validation_detailed_list(
                 v2, key_prefix=kp, show_toggle=True, gate=None
             )
-        elif results["valid"]:
-            st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")
+            return
+        # Terugval zonder ruw V2-resultaat (sync pad / legacy): geen cijfer
+        # (DEF-743, besluit 3), wel oordeel, dekking en regeluitkomsten.
+        from ui.components.validation_view import (
+            bereken_beoordelingsdekking,
+            dekkingsregel,
+            render_rule_results,
+        )
+
+        if results.get("valid"):
+            st.success("✅ Validatie geslaagd (geen totaalcijfer; zie regeloordelen)")
         else:
             st.warning(
-                f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}"
+                "⚠️ Validatie problemen gevonden (geen totaalcijfer; zie regeloordelen)"
             )
+        st.markdown(dekkingsregel(bereken_beoordelingsdekking(results)))
+        rule_results = results.get("rule_results")
+        if isinstance(rule_results, dict) and rule_results:
+            render_rule_results(rule_results)
+        for issue in results.get("issues") or []:
+            if isinstance(issue, dict):
+                st.markdown(
+                    f"- {issue.get('rule') or '?'} ({issue.get('severity') or 'warning'}): "
+                    f"{issue.get('message') or ''}"
+                )
 
         # Let op: Geen extra 'Uitleg bij alle regels' sectie meer.
         # De gedeelde renderer toont inline uitleg per regel om duplicatie te voorkomen.
-
-    def _build_rule_hint_markdown(self, rule_id: str) -> str:
-        """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.
-
-        Toont:
-        - Wat toetst de regel (uitleg/toetsvraag)
-        - Optioneel voorbeelden (goed/fout) als bullets
-        - Link naar uitgebreide handleiding
-        """
-        try:
-            import json as _json
-            from pathlib import Path
-
-            rules_dir = Path("src/toetsregels/regels")
-            json_path = rules_dir / f"{rule_id}.json"
-            if not json_path.exists():
-                alt = rule_id.replace("_", "-")
-                json_path = rules_dir / f"{alt}.json"
-
-            name = explanation = ""
-            good = bad = []
-            if json_path.exists():
-                data = _json.loads(json_path.read_text(encoding="utf-8"))
-                name = str(data.get("naam") or "").strip()
-                explanation = str(
-                    data.get("uitleg") or data.get("toetsvraag") or ""
-                ).strip()
-                good = list(data.get("goede_voorbeelden") or [])
-                bad = list(data.get("foute_voorbeelden") or [])
-
-            lines = []
-            title = f"**{rule_id}** — {name}" if name else f"**{rule_id}**"
-            lines.append(title)
-            if explanation:
-                lines.append(f"Wat toetst: {explanation}")
-            if good:
-                lines.append("\nGoed voorbeeld:")
-                lines.extend([f"- {g}" for g in good[:2]])
-            if bad:
-                lines.append("\nFout voorbeeld:")
-                lines.extend([f"- {b}" for b in bad[:2]])
-            lines.append(
-                "\nMeer uitleg: [Validatieregels (CON-01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
-            )
-            return "\n".join(lines)
-        except (FileNotFoundError, KeyError, TypeError, ValueError, OSError):
-            # FileNotFoundError: rule file not found, KeyError: missing dict key
-            # TypeError: wrong type, ValueError: JSON decode, OSError: file read error
-            return (
-                "Meer uitleg: [Validatieregels (CON-01 e.a.)]"
-                "(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
-            )
-
-    def _render_v2_validation_details(self, validation_result: dict) -> None:
-        """Render V2 validatie details: score, samenvatting, violations en geslaagde regels."""
-        try:
-            overall_score = float(validation_result.get("overall_score", 0.0))
-            violations = list(validation_result.get("violations") or [])
-            passed_rules = list(validation_result.get("passed_rules") or [])
-
-            score_color = (
-                "green"
-                if overall_score > 0.8
-                else ("orange" if overall_score > 0.6 else "red")
-            )
-            st.markdown(
-                f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
-                unsafe_allow_html=True,
-            )
-
-            # Samenvatting
-            failed_ids = sorted(
-                {
-                    str(v.get("rule_id") or v.get("code") or "")
-                    for v in violations
-                    if isinstance(v, dict)
-                }
-            )
-            passed_ids = sorted({str(r) for r in passed_rules})
-            total = len(set(failed_ids).union(passed_ids))
-            passed_count = len(passed_ids)
-            failed_count = len(failed_ids)
-            pct = (passed_count / total * 100.0) if total > 0 else 0.0
-            st.markdown(
-                f"📊 **Toetsing Samenvatting**: {passed_count}/{total} regels geslaagd ({pct:.1f}%)"
-                + (f" | ❌ {failed_count} gefaald" if failed_count else "")
-            )
-
-            # Violations
-            if violations:
-                st.markdown("#### ❌ Gevallen regels")
-
-                def _v_key(v: dict[str, Any]) -> tuple[int, int, str]:
-                    rid = str(v.get("rule_id") or v.get("code") or "")
-                    return self._rule_sort_key(rid)
-
-                for v in sorted(violations, key=_v_key):
-                    rid = str(v.get("rule_id") or v.get("code") or "")
-                    sev = str(v.get("severity", "warning")).lower()
-                    desc = v.get("description") or v.get("message") or ""
-                    suggestion = v.get("suggestion")
-                    if suggestion:
-                        desc = f"{desc} · Wat verbeteren: {suggestion}"
-                    emoji = "❌" if sev in {"critical", "error", "high"} else "⚠️"
-                    name, explanation = self._get_rule_info(rid)
-                    name_part = f" — {name}" if name else ""
-                    expl_labeled = (
-                        f" · Wat toetst: {explanation}"
-                        if explanation
-                        else " · Wat toetst: —"
-                    )
-                    st.markdown(
-                        f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}"
-                    )
-
-            # Geslaagde regels
-            if passed_ids:
-                with st.expander("✅ Geslaagde regels", expanded=False):
-                    for rid in sorted(passed_ids, key=self._rule_sort_key):
-                        name, explanation = self._get_rule_info(rid)
-                        name_part = f" — {name}" if name else ""
-                        wat_toetst = (
-                            f"Wat toetst: {explanation}"
-                            if explanation
-                            else "Wat toetst: —"
-                        )
-                        st.markdown(f"✅ {rid}{name_part}: OK · {wat_toetst}")
-        except (KeyError, TypeError, AttributeError, ValueError) as e:
-            # KeyError: missing dict key, TypeError: wrong type, AttributeError: missing method
-            logger.debug(
-                f"V2 validation details render error: {e}",
-                extra={
-                    "component": "definition_edit_tab",
-                    "operation": "render_v2_validation_details",
-                    "error_type": type(e).__name__,
-                },
-            )
-            st.warning(f"Kon gedetailleerde validatie niet tonen: {e!s}")
-
-    def _get_rule_info(self, rule_id: str) -> tuple[str, str]:
-        """Haal (naam, uitleg) op voor een regel uit JSON, indien beschikbaar."""
-        try:
-            import json as _json
-            from pathlib import Path
-
-            rid = (rule_id or "").replace("_", "-")
-            json_path = Path("src/toetsregels/regels") / f"{rid}.json"
-            if not json_path.exists():
-                return "", ""
-            data = _json.loads(json_path.read_text(encoding="utf-8"))
-            name = str(data.get("naam") or "").strip()
-            explanation = str(
-                data.get("uitleg") or data.get("toetsvraag") or ""
-            ).strip()
-            return name, explanation
-        except (FileNotFoundError, KeyError, TypeError, ValueError, OSError):
-            # FileNotFoundError: rule file not found, KeyError: missing dict key
-            # TypeError: wrong type, ValueError: JSON decode, OSError: file read error
-            return "", ""
-
-    def _rule_sort_key(self, rule_id: str) -> tuple[int, int, str]:
-        """Zelfde groeperings- en sorteersleutel als generator-tab."""
-        rid = (rule_id or "").upper().replace("_", "-")
-        prefix = rid.split("-", 1)[0] if "-" in rid else rid[:4]
-        order = {
-            "CON": 0,
-            "ESS": 1,
-            "STR": 2,
-            "INT": 3,
-            "SAM": 4,
-            "ARAI": 5,
-            "VER": 6,
-            "VAL": 7,
-        }
-        grp = order.get(prefix, 99)
-        num = 9999
-        try:
-            tail = rid.split("-", 1)[1] if "-" in rid else ""
-            import re as _re
-
-            m = _re.search(r"(\d+)", tail)
-            if m:
-                num = int(m.group(1))
-        except (ValueError, TypeError, AttributeError, IndexError):
-            # ValueError: int() fails, TypeError: wrong type, AttributeError: missing method
-            # IndexError: split fails
-            num = 9999
-        return (grp, num, rid)
 
     def _undo_changes(self) -> None:
         """Undo recent changes."""

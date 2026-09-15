@@ -10,19 +10,32 @@ import logging
 import sqlite3
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager, suppress
+from copy import deepcopy
 from datetime import datetime
 from typing import Any, cast
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
     UNSET,
+    Bronhelpers,
     DefinitieRecord,
     DefinitieRepository as LegacyRepository,
     DefinitieStatus,
     SourceType,
     Unset,
+    Voorstelreservering,
+    Voorsteltoepassing,
 )
-from database.models import TOELICHTING_SCHEIDING, splits_definitietekst
+from database.models import (
+    KANDIDAATSTADIA,
+    SOURCE_EVIDENCE_HISTORY_KEY,
+    SOURCE_EVIDENCE_KEY,
+    SOURCE_PROPOSALS_KEY,
+    TOELICHTING_SCHEIDING,
+    bouw_bronbewijs,
+    serialiseer_generatieregistratie,
+    splits_definitietekst,
+)
 from domain.context.normalisatie import (
     canoniseer_contextlijst,
     contextsleutel,
@@ -49,6 +62,78 @@ MELDING_NIET_BEVESTIGD = (
 )
 MELDING_DATABASEFOUT = "Databasefout tijdens opslaan; de wijziging is niet bevestigd."
 
+__all__ = [
+    "Bronhelpers",
+    "DefinitionRepository",
+    "Voorstelreservering",
+    "Voorsteltoepassing",
+    "bronnen_uit_metadata",
+]
+
+
+def bronnen_uit_metadata(metadata: dict[str, Any] | None) -> list[Any] | None:
+    """De aangeleverde bronlijst uit `Definition.metadata`, of None (sleutel afwezig).
+
+    `provenance_sources` is de canonieke sleutel, `sources` de legacy-alias
+    (kerncontract C §1, freeze punt 2). Eén van beide volstaat; zijn beide
+    aanwezig, dan moeten ze inhoudelijk gelijk zijn — anders wordt er geen
+    keuze gemaakt maar gesloten geweigerd (`ValueError`). `None` als waarde
+    telt als afwezig; niets wordt verzonnen.
+    """
+    if not metadata:
+        return None
+    kandidaten = {
+        sleutel: metadata[sleutel]
+        for sleutel in ("provenance_sources", "sources")
+        if metadata.get(sleutel) is not None
+    }
+    if not kandidaten:
+        return None
+    for sleutel, waarde in kandidaten.items():
+        if not isinstance(waarde, list):
+            msg = f"{sleutel} moet een lijst zijn (gekregen: {type(waarde).__name__})"
+            raise ValueError(msg)
+    if len(kandidaten) == 2 and (
+        kandidaten["provenance_sources"] != kandidaten["sources"]
+    ):
+        msg = (
+            "provenance_sources en sources verschillen; de bronset is ambigu en "
+            "wordt niet opgeslagen (fail-closed)"
+        )
+        raise ValueError(msg)
+    return cast(list[Any], next(iter(kandidaten.values())))
+
+
+def _bewijsinvoer_uit_metadata(metadata: dict[str, Any]) -> dict[str, Any] | None:
+    """De structurele `source_evidence`-invoer voor de DB-laag, of None."""
+    bronnen = bronnen_uit_metadata(metadata)
+    if bronnen is None:
+        return None
+    return {
+        "sources": deepcopy(bronnen),
+        "source_receipt": deepcopy(metadata.get("source_receipt")),
+        "source_assessment": deepcopy(metadata.get("source_assessment")),
+        "peildatum": metadata.get("peildatum"),
+        "generation_id": metadata.get("generation_id"),
+        "generated_at": metadata.get("generated_at") or metadata.get("generation_time"),
+        "tekststadia": {
+            veld: metadata.get(veld)
+            for veld in KANDIDAATSTADIA
+            if metadata.get(veld) is not None
+        },
+    }
+
+
+def _voeg_bewijsinvoer_toe(
+    updates: dict[str, Any], metadata: dict[str, Any] | None
+) -> None:
+    """Zet de structurele `source_evidence`-invoer in `updates` als de metadata die draagt."""
+    if not metadata:
+        return
+    bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
+    if bewijsinvoer is not None:
+        updates["source_evidence"] = bewijsinvoer
+
 
 class DefinitionRepository(DefinitionRepositoryInterface):
     """
@@ -58,14 +143,27 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     maakt het herbruikbaar als een focused service met de nieuwe interface.
     """
 
-    def __init__(self, db_path: str = "data/definities.db"):
+    def __init__(
+        self,
+        db_path: str = "data/definities.db",
+        *,
+        bronhelpers: Bronhelpers | None = None,
+    ):
         """
         Initialiseer de DefinitionRepository.
 
         Args:
             db_path: Pad naar de SQLite database
+            bronhelpers: alleen voor isolatie in tests; productie gebruikt de
+                echte kernhelpers van `domain.sources` (DEF-743)
         """
-        self.legacy_repo = LegacyRepository(db_path)
+        # Zonder seam blijft de aanroep exact de bestaande (bestaande tests
+        # leggen de constructoraanroep vast).
+        self.legacy_repo = (
+            LegacyRepository(db_path)
+            if bronhelpers is None
+            else LegacyRepository(db_path, bronhelpers=bronhelpers)
+        )
         self.db_path = db_path
         self._stats = {
             "total_saves": 0,
@@ -745,51 +843,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         exc,
                     )
 
-            # DEF-151: Store generation prompt data as JSON
-            # Extract relevant metadata for prompt storage
-            if (
-                "prompt_text" in definition.metadata
-                or "prompt_template" in definition.metadata
-            ):
-                try:
-                    prompt_data = {
-                        "prompt": definition.metadata.get("prompt_text")
-                        or definition.metadata.get("prompt_template"),
-                        "model": definition.metadata.get("model", "unknown"),
-                        "temperature": definition.metadata.get("temperature"),
-                        "tokens_used": definition.metadata.get("tokens_used", 0),
-                        "tokens_prompt": definition.metadata.get("tokens_prompt"),
-                        "tokens_completion": definition.metadata.get(
-                            "tokens_completion"
-                        ),
-                        "created_at": definition.metadata.get("generated_at")
-                        or definition.metadata.get("generation_time"),
-                        # DEF-622 (besluit tekstvergelijking): de echte
-                        # tekststadia per record, in de bestaande
-                        # generatieregistratie (geen schemawijziging).
-                        "definitie_kern_geextraheerd": definition.metadata.get(
-                            "definitie_kern_geextraheerd"
-                        ),
-                        "definitie_eindtekst": definition.metadata.get(
-                            "definitie_eindtekst"
-                        ),
-                        "tekst_na_generatie_aangepast": definition.metadata.get(
-                            "tekst_na_generatie_aangepast"
-                        ),
-                    }
-                    # Only store non-None values
-                    prompt_data = {
-                        k: v for k, v in prompt_data.items() if v is not None
-                    }
-                    record.generation_prompt_data = _json.dumps(
-                        prompt_data, ensure_ascii=False
-                    )
-                except Exception as exc:
-                    logger.warning(
-                        "Could not serialize generation prompt data for '%s': %s",
-                        definition.begrip,
-                        exc,
-                    )
+            # DEF-151 + DEF-743: promptregistratie en bronbewijs in dezelfde
+            # generatieregistratie (helper; geen gedragswijziging).
+            record.generation_prompt_data = self._generatieregistratie_voor_record(
+                definition.metadata, definition.begrip, record
+            )
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
@@ -799,6 +857,84 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             )
 
         return record
+
+    @staticmethod
+    def _promptregistratie(metadata: dict[str, Any], begrip: str) -> dict[str, Any]:
+        """De DEF-151-promptregistratie uit de metadata, of {} (ook bij fout)."""
+        # DEF-151: Store generation prompt data as JSON
+        # Extract relevant metadata for prompt storage
+        prompt_data: dict[str, Any] = {}
+        if "prompt_text" in metadata or "prompt_template" in metadata:
+            try:
+                prompt_data = {
+                    "prompt": metadata.get("prompt_text")
+                    or metadata.get("prompt_template"),
+                    "model": metadata.get("model", "unknown"),
+                    "temperature": metadata.get("temperature"),
+                    "tokens_used": metadata.get("tokens_used", 0),
+                    "tokens_prompt": metadata.get("tokens_prompt"),
+                    "tokens_completion": metadata.get("tokens_completion"),
+                    "created_at": metadata.get("generated_at")
+                    or metadata.get("generation_time"),
+                    # DEF-622 (besluit tekstvergelijking): de echte
+                    # tekststadia per record, in de bestaande
+                    # generatieregistratie (geen schemawijziging).
+                    "definitie_kern_geextraheerd": metadata.get(
+                        "definitie_kern_geextraheerd"
+                    ),
+                    "definitie_eindtekst": metadata.get("definitie_eindtekst"),
+                    "tekst_na_generatie_aangepast": metadata.get(
+                        "tekst_na_generatie_aangepast"
+                    ),
+                }
+                # Only store non-None values
+                prompt_data = {k: v for k, v in prompt_data.items() if v is not None}
+                # Serialisatie als proef: een niet-serialiseerbare
+                # promptregistratie blijft (zoals voorheen) een warning.
+                json.dumps(prompt_data, ensure_ascii=False)
+            except Exception as exc:
+                logger.warning(
+                    "Could not serialize generation prompt data for '%s': %s",
+                    begrip,
+                    exc,
+                )
+                prompt_data = {}
+        return prompt_data
+
+    def _generatieregistratie_voor_record(
+        self, metadata: dict[str, Any], begrip: str, record: DefinitieRecord
+    ) -> str | None:
+        """De `generation_prompt_data`-JSON voor een nieuw record, of None.
+
+        DEF-743: het bronbewijs (bronset, kwitantie, AI-beoordeling,
+        kandidaatstadia, peildatum) in dezelfde generatieregistratie —
+        ook zónder promptregistratie. Anders dan de promptdata is dit
+        bewijs: een serialisatiefout laat de opslag falen (ValueError →
+        RepositoryError), er wordt nooit stil bronbewijs weggelaten.
+        """
+        prompt_data = self._promptregistratie(metadata, begrip)
+        bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
+        if bewijsinvoer is not None:
+            prompt_data[SOURCE_EVIDENCE_KEY] = bouw_bronbewijs(
+                begrip=record.begrip,
+                definitie_tekst=splits_definitietekst(record.definitie or "")[0],
+                contexten=record.get_contextlijsten(),
+                sources=bewijsinvoer["sources"],
+                source_receipt=bewijsinvoer["source_receipt"],
+                source_assessment=bewijsinvoer["source_assessment"],
+                peildatum=bewijsinvoer["peildatum"],
+                origin="generation",
+                version_number=record.version_number,
+                recorded_by=record.created_by,
+                generation_id=bewijsinvoer["generation_id"],
+                generated_at=bewijsinvoer["generated_at"],
+                tekststadia=bewijsinvoer["tekststadia"],
+            )
+            prompt_data[SOURCE_EVIDENCE_HISTORY_KEY] = []
+            prompt_data[SOURCE_PROPOSALS_KEY] = []
+        if not prompt_data:
+            return None
+        return serialiseer_generatieregistratie(prompt_data)
 
     def get_generation_prompt_data(self, definition_id: int) -> dict | None:
         """
@@ -907,6 +1043,14 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     record.generation_prompt_data
                 )
 
+        # DEF-743: het opgeslagen bronbewijs onder exact de sleutels van het
+        # kerncontract. `provenance_sources` (canoniek) en `sources` (alias)
+        # krijgen elk een eigen deepcopy van dezelfde opgeslagen lijst; de
+        # deskundigenuitzondering is expliciet None wanneer zij ontbreekt.
+        # Zonder bewijs ontbreken de bronsleutels: niets wordt verzonnen, en
+        # de statusvelden maken "alleen korte verwijzing" of "afwezig" expliciet.
+        self._herstel_bronbewijs(record, definition.metadata)
+
         # DEF-156: Load voorbeelden from database and populate metadata
         # This ensures voorbeelden persist when loading definitions in Bewerk tab
         try:
@@ -931,6 +1075,129 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.warning(f"Could not load voorbeelden for definitie {record.id}: {e}")
 
         return definition
+
+    @staticmethod
+    def _herstel_bronbewijs(record: DefinitieRecord, metadata: dict[str, Any]) -> None:
+        """Zet het opgeslagen bronbewijs terug in `Definition.metadata` (DEF-743)."""
+        metadata["source_reference"] = record.source_reference
+        metadata["source_evidence_status"] = record.get_source_evidence_status()
+        metadata["source_review"] = record.get_source_review()
+        metadata["source_review_status"] = record.get_source_review_status()
+        metadata["source_evidence_history"] = record.get_source_evidence_history()
+        metadata["source_review_history"] = record.get_source_review_history()
+        metadata["source_proposals"] = record.get_source_proposals()
+        bewijs = record.get_source_evidence()
+        if bewijs is None:
+            return
+        # Reviewbevinding 2: de expliciete generatie-id (kern C) komt terug
+        # zodat een bewerking dezelfde generatie blijft; nooit verzonnen.
+        if isinstance(bewijs.get("generation_id"), str) and bewijs["generation_id"]:
+            metadata["generation_id"] = bewijs["generation_id"]
+        bronnen = bewijs.get("sources") or []
+        metadata["sources"] = deepcopy(bronnen)
+        metadata["provenance_sources"] = deepcopy(bronnen)
+        metadata["source_receipt"] = deepcopy(bewijs.get("source_receipt"))
+        metadata["source_assessment"] = deepcopy(bewijs.get("source_assessment"))
+        metadata["peildatum"] = bewijs.get("peildatum")
+        metadata["source_evidence"] = bewijs
+
+    # ===== Bronbewijs, CON-02-uitzondering en voorstellen (DEF-743) =====
+    def set_source_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> bool:
+        """Leg de CON-02-deskundigenuitzondering vast (freeze punt 1, platte vorm).
+
+        ``expected_version`` is de beoordeelde recordversie (optimistic lock);
+        de vingerafdruk wordt over het opgeslagen record herberekend en de
+        inhoudelijke eisen komen van de kernhelper `valideer_bronreview`.
+        """
+        return self.legacy_repo.set_source_review(
+            definitie_id, review, updated_by, expected_version=expected_version
+        )
+
+    def set_source_assessment(
+        self,
+        definitie_id: int,
+        assessment: dict[str, Any],
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> bool:
+        """Vervang de AI-bronbeoordeling in het actuele bewijs (herbeoordeling)."""
+        return self.legacy_repo.set_source_assessment(
+            definitie_id, assessment, updated_by, expected_version=expected_version
+        )
+
+    def reserve_source_proposal(
+        self, definitie_id: int, *, updated_by: str, expected_version: int
+    ) -> Voorstelreservering:
+        """Reserveer de ene voorstelpoging van deze generatie (vóór de modelaanroep)."""
+        return self.legacy_repo.reserve_source_proposal(
+            definitie_id, updated_by=updated_by, expected_version=expected_version
+        )
+
+    def record_source_proposal_outcome(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        outcome: dict[str, Any],
+        *,
+        updated_by: str,
+        expected_version: int,
+    ) -> bool:
+        """Leg de uitkomst (`proposed`/`blocked`/`error`) van de reservering vast."""
+        return self.legacy_repo.record_source_proposal_outcome(
+            definitie_id,
+            proposal_id,
+            outcome,
+            updated_by=updated_by,
+            expected_version=expected_version,
+        )
+
+    def apply_source_proposal(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        *,
+        updated_by: str,
+        expected_version: int,
+        validation: dict[str, Any],
+        source_assessment: dict[str, Any] | None = None,
+    ) -> Voorsteltoepassing:
+        """Pas een voorgesteld voorstel atomair toe met het volledige validatieresultaat."""
+        return self.legacy_repo.apply_source_proposal(
+            definitie_id,
+            proposal_id,
+            updated_by=updated_by,
+            expected_version=expected_version,
+            validation=validation,
+            source_assessment=source_assessment,
+        )
+
+    def set_source_proposal_status(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        status: str,
+        updated_by: str,
+        *,
+        expected_version: int,
+        note: str | None = None,
+    ) -> bool:
+        """Sluit een voorgesteld voorstel af (`rejected`/`superseded`)."""
+        return self.legacy_repo.set_source_proposal_status(
+            definitie_id,
+            proposal_id,
+            status,
+            updated_by,
+            expected_version=expected_version,
+            note=note,
+        )
 
     @contextmanager
     def _get_connection(self) -> Iterator[sqlite3.Connection]:
@@ -1222,4 +1489,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # Extra velden
         if definition.metadata and "status" in definition.metadata:
             updates["status"] = definition.metadata["status"]
+
+        # DEF-743: nieuwe bronbewijs-invoer reist als structurele sleutel mee;
+        # de DB-laag voegt haar ónder de schrijflock samen met het opgeslagen
+        # bewijs (gelijk = geen wijziging; anders historie + nieuw). Sleutel
+        # afwezig = bewijs onaangeraakt. Conflicterende aliassen: ValueError
+        # (→ RepositoryError), niets geschreven.
+        _voeg_bewijsinvoer_toe(updates, definition.metadata)
         return updates

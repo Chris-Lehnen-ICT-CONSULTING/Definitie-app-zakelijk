@@ -1,0 +1,20 @@
+# DEF-743 — checkpoint 15 september, circa 19:42 CEST
+
+Vervolg op uitvoering-v6.md; zelfde opdracht/rollen/scope/geen commit push merge/geen akkoordvragen. Blijvend: geen expertgoldset, DEF630gate niet omzeilen, Gskillwerkboom niet livegesynct. Oude 94scenarios zijn ontwerpen.
+
+## Qualitycorrecties
+
+C klaar/bevroren Claude93e4fe9d-5c65-42ce-b693-2ff52cc2966a, exec43673 klaar ofeindigt. /tmp/DEF-743-quality-C-report.md +hashes.log 5files. Broncontract/normalisatie/validationorchestrator/sourceassessment/prompt_servicev2 helperextractie/typen, 2170passed5skip1xfail21subtests40.46sec +journey3pass. Eigencomplexity0/mypy0/lint0. SAMECodexC reviewactief exec82122 session01a0a5dd-436b-7911-8beb-e0bc8d552687, /tmp/DEF-743-codex-quality-C.jsonl → -result.md, brief/tmp/DEF-743-codex-quality-C-brief.md. Alleen5qualityfilesdelta, snapshot/tmp/DEF-743-prequality-files; geenbredeherreview.
+D klaar/bevroren Claudefbae79f1-73f5-4e0c-9bbf-62e52d11737f exec36001 klaar, /tmp/DEF-743-quality-D-report.md/hash/logs. 790pass1skip30.89s, TXTexactequivalentcases0fouten, mypy0, nieuwecomplexity0. Oudeinvalidreceipt rawbehouden/nietapplicable; geldigeproducerVORM metcorehelpers(nietdaadwerkelijkproducerinvoke) geldigroundtrip. SAMECodexDreviewgesloten /tmp/DEF-743-codex-quality-D-result.md noP1P2,6hashesstable. Duurzaamreviews/D-kwaliteit-sluitreview.md.
+F code klaar/eindrapportwordtgeschreven Claude3e4e2d44-3076-4ec5-8a0a-20131f5e5f6d exec20578 /tmp/DEF-743-quality-F-v2.jsonl. /tmp/DEF-743-quality-F-hashes.log (8product+5test) en -tests.log/-tests.exit0,292PASSEDregels. Globaalmypy0;nieuweFcomplexity0, exact42oldfindings behouden. Redconflict2tests bewezen; conflictclaimblokvóórreserve, alleoudeguardsbehouden. SAMECodexFreviewactiefexec2213 session01a0a5d5-2233-7761-8691-76561e0eb331, /tmp/DEF-743-codex-quality-F.jsonl →-result.md. Brief/tmp/DEF-743-codex-quality-F-brief.md.
+
+LetoprootbriefF bevatteongestaafdegok overeersteexit1(missingpath). Nietovernemen: werkelijkJSONLvroeg2Applytestsfail door tijdelijkeCNameError _technische_blokkade terwijlChelpernogwerdingevoerd,plusintentioneleREDclaimtests. Final292tests0 opvastgelegdeversieenfinalrootgatezijnbewijs. Correctie/tmp/DEF-743-quality-root-notes.md;laatsteFrapportkanookdaadwerkelijkecausenoemen. Nietalsnieuwhuidigbugmelden.
+
+## Echte gecombineerde eindcontroles
+
+Pinnedtools/tmp/DEF-743-quality-venv Ruff0.16.5mypy2.3.1, origineledepsvia.pth; geenprojectdepwijziging. `make complexity-check mypy-check orphan-check silent-except-check overrides-check test-markers-check lint PY=/tmp/DEF-743-quality-venv/bin/python` ALLES EXIT0 /tmp/DEF-743-final-v2-quality.log+exit. Complexity194<=201(basisHEAD199),mypy0,orphan0,silent55<=57,overrides2,alle421testfilesmarkers,Ruff/Black390filesclean. Geenbaselineverlaagdofverhoogd. Eerderegrepcheck0/tmp/DEF-743-grep-check.log;nafinaldeltaeventueelactualiseren.
+
+Rootactievecanonieke make test-cov-ci (EXACTzelfdealleunitselectieinclslowalsmake test,plus45%coveragevloer): exec74283, /tmp/DEF-743-final-v2-coverage.log + .exit, /tmp/DEF-743-final-gates-v2/unit-cov-inventaris.json /unit-cov-junit.xml /unit-coverage.xml. Startsnapshot82files/tmp/DEF-743-final-v2-before.json. Daarna /tmp/DEF-743-snapshot.py afterjsonen driftvergelijk,geenproofalsdrift. Budget900sec. Vorigev1make test5789pass1failDfixtureverholpen,isgeenfinalproof. Nietonnodigzelfdeunitrunnaastcoverage herhalen; strengeridentiekprofiel.
+Rootfinalofflinejourneyactiefexec57822, /tmp/DEF-743-final-v2-journey.log +exit +Junit. Vorigefinaljourney3pass6warn33s, nuactuelerefactorscontrole.
+
+Volgende: C/F reviewslezen; finalcoverage+journeyafwachten; evtconcreetnieuwebugownedClaudeCLI,geenautobroadreviewloop. Daarna exacteunchangedhashes/diffcheck/pinnedqualityalsgeenwijzigingnietherhalen; duurzaamfinalerapportmettestaantallen/coverage/hashes/reviews, Linearcommentactualiseren(laatsteea2e8ab7-f176-4566-9974-5fcbde76f08917:22UTC),geenDonezonderexpertacceptatie. EindantwoordDutchcompactscope+bewijs+ongecommitbranch+materialexpert/DEF630limits. Doorgaan tottechnicalimplementationcorrect/openissuesresolved. Noggeenfinaleopleverclaim.

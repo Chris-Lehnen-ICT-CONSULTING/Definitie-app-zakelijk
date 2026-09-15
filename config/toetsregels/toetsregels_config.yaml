@@ -81,6 +81,10 @@ runtime_contract:
     - "ontological_category"
     - "duplicate_detection"
     - "judgment_review"
+    # DEF-743 (CON-02): broninhoudelijke beoordeling — code toetst binding en
+    # citaatbestaan, de AI beoordeelt gezag/betekenissteun, de deskundige
+    # legt uitzonderingen vast. Geen cijfer (score_policy no_score).
+    - "source_evidence"
 
   required_inputs:
     - "definition_text"
@@ -94,9 +98,10 @@ runtime_contract:
 
   executability: ["deterministic", "repository", "judgment", "not_automatable"]
   automation_status: ["automated", "review_required", "not_evaluated"]
-  # no_score (DEF-622, B-06): uitkomst met motivering, zonder cijfer. Zolang
-  # zo'n regel in de geëvalueerde set zit is er geen totaalscore
-  # (overall_score null); er wordt geen noemer zonder die regel verzonnen.
+  # no_score (DEF-622, B-06; DEF-743 voor CON-02): uitkomst met motivering,
+  # zonder cijfer. Zolang zo'n regel in de geëvalueerde set zit is er geen
+  # totaalscore (overall_score null); er wordt geen noemer zonder die regel
+  # verzonnen.
   score_policy: ["scored", "excluded_from_score", "no_score"]
 
   # Uitkomst van één regelevaluatie. Alleen pass en fail zijn werkelijk

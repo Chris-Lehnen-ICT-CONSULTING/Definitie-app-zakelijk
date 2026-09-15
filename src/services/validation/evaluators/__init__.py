@@ -34,6 +34,7 @@ from services.validation.evaluators.registry import (
     UnknownEvaluatorError,
     get_default_registry,
 )
+from services.validation.evaluators.source_evidence import SourceEvidenceEvaluator
 
 __all__ = [
     "DuplicateEvaluatorError",
@@ -64,6 +65,7 @@ def build_default_registry() -> EvaluatorRegistry:
         QualificationEvaluator(),
         CompoundEvaluator(),
         ContextMetadataEvaluator(),
+        SourceEvidenceEvaluator(),
         DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),
         *DEFERRED_EVALUATORS,

@@ -469,12 +469,12 @@ class PromptOrchestrator:
             active.add("integrity_rules")
             active.add("sam_rules")
             logger.debug("DEF-123: Legal rule modules activated (juridische context)")
-        if context.has_any_context():
-            # DEF-622: het contextcontract (CON-01) geldt voor élke context —
-            # ook uitsluitend organisatorische. Zonder deze module miste de
-            # feitelijk verzonden prompt de naamuitzondering van CON-01 bij een
-            # alleen-organisatorische context (CW-GEN-04).
-            active.add("con_rules")
+        # DEF-622: het contextcontract (CON-01) geldt voor élke context — ook
+        # uitsluitend organisatorische (CW-GEN-04). DEF-743: de bronbasisnorm
+        # (CON-02) geldt ongeacht context, dus de module is altijd actief; de
+        # module zelf toont CON-01 alleen als er context is (smal: geen
+        # blanket-activering van integrity/sam, CON-01 ongewijzigd).
+        active.add("con_rules")
 
         # ESS and STR rules are category-dependent but we don't know category yet
         # Include both for now - can be optimized in Phase 2 with pre-classification

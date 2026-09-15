@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from export.export_txt import bronbewijs_regels
 from services.data_aggregation_service import (
     DataAggregationService,
     DefinitieExportData,
@@ -89,6 +90,24 @@ def _veilige_cel(waarde: Any) -> Any:
 def _veilige_rij(rij: dict[str, Any]) -> dict[str, Any]:
     """Pas `_veilige_cel` toe op elke waarde in een exportrij."""
     return {sleutel: _veilige_cel(waarde) for sleutel, waarde in rij.items()}
+
+
+def _celwaarden(rij: dict[str, Any]) -> dict[str, Any]:
+    """Gestructureerde waarden (dict/list) als compacte JSON-tekst voor CSV/Excel.
+
+    DEF-743: het bronbewijs is een genest document; in een cel wordt het één
+    JSON-string met exact dezelfde inhoud als in de JSON-export. Bewust
+    strikt (geen `default=str`): een niet-serialiseerbare waarde faalt
+    zichtbaar in plaats van stil een onleesbare cel op te leveren.
+    """
+    return {
+        sleutel: (
+            json.dumps(waarde, ensure_ascii=False)
+            if isinstance(waarde, dict | list)
+            else waarde
+        )
+        for sleutel, waarde in rij.items()
+    }
 
 
 def _json_datumwaarde(waarde: Any) -> str:
@@ -207,6 +226,7 @@ EXPORT_LEVEL_FIELDS = {
             "created_by",  # + User info
             "updated_by",  # + User info
             "ketenpartners",  # + Team info
+            "bronbewijs",  # + DEF-743: opgeslagen bronbewijs (compact JSON)
         ],
         "voorbeelden": [
             "voorkeursterm",
@@ -249,6 +269,7 @@ EXPORT_LEVEL_FIELDS = {
             "approval_notes",
             "last_exported_at",
             "export_destinations",
+            "bronbewijs",  # DEF-743: opgeslagen bronbewijs (compact JSON)
         ],
         "voorbeelden": [
             "voorkeursterm",
@@ -504,6 +525,9 @@ class ExportService:
             "bronnen": {
                 "bronnen": export_data.bronnen,
                 "bronnen_gebruikt": export_data.bronnen_gebruikt,
+                # DEF-743: het volledige opgeslagen bronbewijs (bronset met
+                # citaten/coördinaten, AI-beoordeling, uitzondering, status).
+                "bronbewijs": export_data.bronbewijs,
             },
             "review": {
                 "expert_review": export_data.expert_review,
@@ -724,6 +748,31 @@ class ExportService:
         else:
             logger.info(basis)
 
+    @staticmethod
+    def _exportwaarde_voor_veld(
+        field: str, value: Any, export_data: DefinitieExportData
+    ) -> Any:
+        """De rijwaarde van één definitieveld (zelfde afhandeling per veld als voorheen)."""
+        # Special handling voor bepaalde velden
+        if field in ["created_at", "updated_at"] and value:
+            # Voor Excel: strip timezone
+            return value.replace(tzinfo=None) if value.tzinfo else value
+        if field in [
+            "validation_issues",
+            "ketenpartners",
+            "export_destinations",
+        ]:
+            # JSON velden: converteer naar string
+            return str(value) if value else ""
+        if field == "datum_voorstel" and value:
+            return value.isoformat() if hasattr(value, "isoformat") else str(value)
+        if field == "bronbewijs":
+            # DEF-743: geen recordkolom maar het geaggregeerde bewijs;
+            # dict in JSON, compacte JSON-string in CSV/Excel (zie
+            # `_celwaarde`), leesbaar in TXT.
+            return export_data.bronbewijs
+        return value or ""
+
     def _build_export_row(
         self,
         definitie: DefinitieRecord,
@@ -746,25 +795,9 @@ class ExportService:
 
         # Definitie velden uit database
         for field in fields_config["definitie"]:
-            value = getattr(definitie, field, None)
-
-            # Special handling voor bepaalde velden
-            if field in ["created_at", "updated_at"] and value:
-                # Voor Excel: strip timezone
-                row[field] = value.replace(tzinfo=None) if value.tzinfo else value
-            elif field in [
-                "validation_issues",
-                "ketenpartners",
-                "export_destinations",
-            ]:
-                # JSON velden: converteer naar string
-                row[field] = str(value) if value else ""
-            elif field == "datum_voorstel" and value:
-                row[field] = (
-                    value.isoformat() if hasattr(value, "isoformat") else str(value)
-                )
-            else:
-                row[field] = value or ""
+            row[field] = self._exportwaarde_voor_veld(
+                field, getattr(definitie, field, None), export_data
+            )
 
         # Voorbeelden velden uit export_data
         if "voorkeursterm" in fields_config["voorbeelden"]:
@@ -821,7 +854,7 @@ class ExportService:
                 for field in fieldnames:
                     if field in row and isinstance(row[field], datetime):
                         row[field] = row[field].isoformat()
-                writer.writerow(_veilige_rij(row))
+                writer.writerow(_veilige_rij(_celwaarden(row)))
 
         self._log_export_result(data, skipped, "CSV", level, path)
         return BulkExportResult(path=str(path), skipped=skipped, exported=len(data))
@@ -841,7 +874,9 @@ class ExportService:
         # Format-specific: Excel writing with pandas. DEF-593: openpyxl schrijft
         # de celwaarde rauw, dus Excel leest `=...` als formule — zelfde vector
         # als bij CSV.
-        df = pd.DataFrame([_veilige_rij(row) for row in data], columns=fieldnames)
+        df = pd.DataFrame(
+            [_veilige_rij(_celwaarden(row)) for row in data], columns=fieldnames
+        )
         df.to_excel(path, index=False, engine="openpyxl")
 
         self._log_export_result(data, skipped, "Excel", level, path)
@@ -954,6 +989,7 @@ class ExportService:
             "synoniemen": "Synoniemen",
             "antoniemen": "Antoniemen",
             "toelichting": "Toelichting",
+            "bronbewijs": "Bronbewijs (CON-02)",
         }
 
         # Format each definition
@@ -966,6 +1002,14 @@ class ExportService:
                         value = value.strftime("%Y-%m-%d %H:%M:%S")
 
                     label = field_labels.get(field, field.replace("_", " ").title())
+
+                    if field == "bronbewijs" and isinstance(value, dict):
+                        # DEF-743: leesbaar bronbewijs (zelfde regels als de
+                        # individuele TXT-export).
+                        lines.append(f"{label}:")
+                        lines.extend(f"  {regel}" for regel in bronbewijs_regels(value))
+                        lines.append("")
+                        continue
 
                     # Speciale weergave voor lijst velden (komen als "; " separated string)
                     if field in [

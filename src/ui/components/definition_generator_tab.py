@@ -34,22 +34,30 @@ from utils.type_helpers import ensure_dict, ensure_string
 logger = logging.getLogger(__name__)
 
 
-def _score_uit_resultaat(agent_result: Any) -> float | None:
-    """De totaalscore uit een UI-resultaat.
+def _dekkingstegel(agent_result: Any) -> str:
+    """Compacte beoordelingsdekking voor de detailtegel (DEF-743, besluit 3).
 
-    DEF-622: een expliciete None (totaalscore niet beschikbaar) blijft None;
-    alleen een ontbrekende sleutel valt terug op 0.0. Modulefunctie, zodat de
-    renderers hem ook zonder volledig geconstrueerde tab kunnen aanroepen.
+    Geen totaalcijfer en geen vervangende deelscore: alleen wat werkelijk is
+    beoordeeld. Zonder regelstatussen in het resultaat: 'zie toetsresultaten'.
+    De import is lokaal (zie `_validatie_is_onbepaald`).
     """
-    if not isinstance(agent_result, dict):
-        return 0.0
-    if "validation_score" in agent_result:
-        score = agent_result["validation_score"]
-    elif "final_score" in agent_result:
-        score = agent_result["final_score"]
-    else:
-        score = 0.0
-    return None if score is None else float(score)
+    from ui.components.validation_view import bereken_beoordelingsdekking
+
+    details = (
+        agent_result.get("validation_details")
+        if isinstance(agent_result, dict)
+        else None
+    )
+    dekking = (
+        bereken_beoordelingsdekking(details) if isinstance(details, dict) else None
+    )
+    if not dekking:
+        return "Zie toetsresultaten"
+    return (
+        f"{dekking['pass']} voldoet · {dekking['fail']} niet · "
+        f"{dekking['review_required'] + dekking['not_evaluated']} open · "
+        f"{dekking['error']} fout"
+    )
 
 
 def _validatie_is_onbepaald(agent_result: Any) -> bool:
@@ -416,19 +424,13 @@ class DefinitionGeneratorTab:
             if isinstance(agent_result, dict):
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    # DEF-621: zonder oordeel geen cijfer. De tegel toonde de
-                    # placeholder 0.00 als "Finale Score" - niet te
-                    # onderscheiden van een definitie die werkelijk nul haalt.
+                    # DEF-621: zonder oordeel geen cijfer. DEF-743 (besluit 3):
+                    # ook mét oordeel geen totaalcijfer of deelscore — de
+                    # tegel toont de beoordelingsdekking (wat is uitgevoerd).
                     if _validatie_is_onbepaald(agent_result):
                         st.metric("Validatie", "Niet te bepalen")
                     else:
-                        score = _score_uit_resultaat(agent_result)
-                        # DEF-622: None is 'niet beschikbaar' (regel zonder
-                        # cijfer in de set), nooit 0.00.
-                        st.metric(
-                            "Finale Score",
-                            "Niet beschikbaar" if score is None else f"{score:.2f}",
-                        )
+                        st.metric("Validatie", _dekkingstegel(agent_result))
                     marker = agent_result.get("marker")
                     if marker:
                         st.caption(marker)
@@ -623,18 +625,13 @@ class DefinitionGeneratorTab:
                 if _validatie_is_onbepaald(agent_result):
                     st.success("✅ Definitie gegenereerd — validatie niet te bepalen")
                 else:
-                    score = _score_uit_resultaat(agent_result)
-                    if score is None:
-                        # DEF-622: geen totaalscore beschikbaar; de
-                        # regeluitkomsten staan in de toetsingssectie.
-                        st.success(
-                            "✅ Definitie succesvol gegenereerd! "
-                            "(Totaalscore niet beschikbaar — zie toetsresultaten)"
-                        )
-                    else:
-                        st.success(
-                            f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})"
-                        )
+                    # DEF-743 (besluit 3): geen totaalcijfer, ook niet als het
+                    # resultaat er nog een draagt; de regeloordelen en de
+                    # beoordelingsdekking staan in de toetsingssectie.
+                    st.success(
+                        "✅ Definitie succesvol gegenereerd! "
+                        "(Geen totaalcijfer — zie toetsresultaten en beoordelingsdekking)"
+                    )
             else:
                 # DEF-524: het faalpad zet de echte oorzaak in error_message;
                 # de oude read op "reason" bestond daar nooit → "Onbekende fout".
@@ -647,7 +644,7 @@ class DefinitionGeneratorTab:
         elif hasattr(agent_result, "success"):
             if agent_result.success:
                 st.success(
-                    f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})"
+                    "✅ Definitie succesvol gegenereerd! (Geen totaalcijfer — zie toetsresultaten)"
                 )
             else:
                 st.warning(
@@ -693,10 +690,6 @@ class DefinitionGeneratorTab:
                 "- Geavanceerde structuur validatie (STR-xx serie)\n"
                 "- Taalkundige kwaliteitsregels (ARAI-xx serie)"
             )
-
-    def _extract_score_from_result(self, agent_result: dict) -> float | None:
-        """Extract validation score from agent result (zie `_score_uit_resultaat`)."""
-        return _score_uit_resultaat(agent_result)
 
     def _render_agent_result_debug(self, agent_result: Any) -> None:
         """Render debug info for agent_result structure."""

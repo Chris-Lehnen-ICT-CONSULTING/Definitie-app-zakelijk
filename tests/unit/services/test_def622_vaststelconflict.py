@@ -63,9 +63,27 @@ def _record(
     categorie: str = "type",
     status: str = DefinitieStatus.REVIEW.value,
     score: float | None = 0.9,
+    begrip: str = "keurmerk",
 ) -> DefinitieRecord:
+    # DEF-743: een record zonder bronnen kan alleen worden vastgesteld met een
+    # gedocumenteerde deskundige uitzondering "geen passende bron" (CON-02).
+    # Die wordt hier als echte, gebonden marker gezaaid (geen versiebump), zodat
+    # deze proeven de CON-01-vaststelvoorwaarde blijven isoleren.
+    from domain.context.normalisatie import lees_contextwaarden
+    from tests.fixtures.def743_fakes import geen_bron_uitzondering_marker
+
+    marker = geen_bron_uitzondering_marker(
+        begrip,
+        definitie,
+        {
+            "organisatorische_context": lees_contextwaarden(org),
+            "juridische_context": lees_contextwaarden(jur),
+            "wettelijke_basis": lees_contextwaarden(wet),
+        },
+        actor=ACTOR,
+    )
     return DefinitieRecord(
-        begrip="keurmerk",
+        begrip=begrip,
         definitie=definitie,
         categorie=categorie,
         organisatorische_context=org,
@@ -75,6 +93,7 @@ def _record(
         # Synthetisch positieve overige gatecomponenten (DEF-630 blijft
         # eigenaar van de algemene score-/expertgate).
         validation_score=score,
+        validation_issues=json.dumps([marker], ensure_ascii=False),
     )
 
 
@@ -144,6 +163,28 @@ def _beoordeling(repo: DefinitionRepository, definitie_id: int, functie: str) ->
         expected_version=record.version_number,
     )
     assert ok
+
+
+def _geen_bron_uitzondering(repo: DefinitionRepository, definitie_id: int) -> None:
+    """Leg de gedocumenteerde uitzondering "geen passende bron" (opnieuw) vast
+    via D, gebonden aan de actuele kandidaat (DEF-743). Versie +1."""
+    from tests.fixtures.def743_fakes import geen_bron_uitzondering_marker
+
+    record = repo.get_definitie(definitie_id)
+    assert record is not None
+    marker = geen_bron_uitzondering_marker(
+        record.begrip,
+        record.get_definitie_tekst(),
+        record.get_contextlijsten(),
+        actor=ACTOR,
+        version_number=record.version_number,
+    )
+    assert repo.set_source_review(
+        definitie_id,
+        marker["source_review"],
+        updated_by=ACTOR,
+        expected_version=record.version_number,
+    )
 
 
 def _reviewversie(repo: DefinitionRepository, definitie_id: int) -> int | None:
@@ -815,11 +856,17 @@ class TestReviewversiebinding:
         )
         assert uitkomst.success is False and uitkomst.gate_status == "blocked"
 
+        # DEF-743: ook de CON-02-uitzondering verviel door de tekstwijziging
+        # (versiebinding; herleeft nooit). De deskundige legt haar opnieuw vast
+        # vóór de CON-01-beoordeling (die neemt haar mee): versie 5.
+        _geen_bron_uitzondering(repo, did)
+        assert _versie(repo, did) == 5
+
         # Actuele invoer op de actuele versie bindt wél.
         _beoordeling(repo, did, "necessary")
-        assert (_reviewversie(repo, did), _versie(repo, did)) == (5, 5)
+        assert (_reviewversie(repo, did), _versie(repo, did)) == (6, 6)
         uitkomst = svc.approve(
-            did, ACTOR, user_role="reviewer", notes="", expected_version=5
+            did, ACTOR, user_role="reviewer", notes="", expected_version=6
         )
         assert uitkomst.success is True, uitkomst.error_message
 

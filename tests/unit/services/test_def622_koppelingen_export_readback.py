@@ -37,16 +37,38 @@ def _repo(tmp_path) -> DefinitionRepository:
     return DefinitionRepository(str(tmp_path / "koppelingen.db"))
 
 
-def _record(definitie: str = ZIN) -> DefinitieRecord:
+def _record(definitie: str = ZIN, org: str = '["Stichting Zilver"]') -> DefinitieRecord:
+    # DEF-743: zonder bronnen is vaststelling alleen mogelijk met een
+    # gedocumenteerde uitzondering "geen passende bron" (CON-02); als echte,
+    # gebonden marker gezaaid (geen versiebump) zodat deze proeven CON-01
+    # blijven isoleren. De tekstbasis van de binding is de definitiezin.
+    import json as _json
+
+    from database.models import splits_definitietekst
+    from domain.context.normalisatie import lees_contextwaarden
+    from tests.fixtures.def743_fakes import geen_bron_uitzondering_marker
+
+    zin, _ = splits_definitietekst(definitie)
+    marker = geen_bron_uitzondering_marker(
+        "keurmerk",
+        zin,
+        {
+            "organisatorische_context": lees_contextwaarden(org),
+            "juridische_context": ["privaatrecht"],
+            "wettelijke_basis": ["Regeling Z"],
+        },
+        actor=ACTOR,
+    )
     return DefinitieRecord(
         begrip="keurmerk",
         definitie=definitie,
         categorie="type",
-        organisatorische_context='["Stichting Zilver"]',
+        organisatorische_context=org,
         juridische_context='["privaatrecht"]',
         wettelijke_basis='["Regeling Z"]',
         status=DefinitieStatus.REVIEW.value,
         validation_score=0.9,
+        validation_issues=_json.dumps([marker], ensure_ascii=False),
     )
 
 
@@ -369,9 +391,11 @@ class TestReadbackTekstbasis:
     @pytest.mark.asyncio
     async def test_gate_en_domeinreadback_oordelen_gelijk(self, tmp_path):
         repo = _repo(tmp_path)
-        record = _record(definitie=f"{ZIN}\n\nToelichting: {TOELICHTING}")
         # Stichting Goud staat alleen in de toelichting, niet in de zin.
-        record.organisatorische_context = '["Stichting Zilver", "Stichting Goud"]'
+        record = _record(
+            definitie=f"{ZIN}\n\nToelichting: {TOELICHTING}",
+            org='["Stichting Zilver", "Stichting Goud"]',
+        )
         did = repo.legacy_repo.create_definitie(record)
         _beoordeel(repo, did)
 

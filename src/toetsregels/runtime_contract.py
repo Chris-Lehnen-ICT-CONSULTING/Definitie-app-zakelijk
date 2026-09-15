@@ -109,6 +109,8 @@ class EvaluatorType(StrEnum):
     ONTOLOGICAL_CATEGORY = "ontological_category"
     DUPLICATE_DETECTION = "duplicate_detection"
     JUDGMENT_REVIEW = "judgment_review"
+    # DEF-743: broninhoudelijke beoordeling (AI + code + deskundige), CON-02.
+    SOURCE_EVIDENCE = "source_evidence"
 
 
 class ExamplePairPolicy(StrEnum):

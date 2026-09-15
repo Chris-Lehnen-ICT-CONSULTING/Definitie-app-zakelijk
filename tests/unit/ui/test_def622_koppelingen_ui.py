@@ -163,7 +163,8 @@ def test_editor_validatie_vervoert_de_geladen_recordversie(repo, sessie):
         orchestrator=lambda: SimpleNamespace(validation_service=orchestrator)
     )
     tab = DefinitionEditTab.__new__(DefinitionEditTab)
-    tab.edit_service = SimpleNamespace(_validate_definition=lambda _d: None)
+    # DEF-743: het sync-pad krijgt ook de geladen recordmetadata mee.
+    tab.edit_service = SimpleNamespace(_validate_definition=lambda _d, _m=None: None)
     with patch(
         "ui.cached_services.get_cached_service_container", return_value=container
     ):

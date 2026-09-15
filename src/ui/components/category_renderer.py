@@ -435,9 +435,9 @@ class CategoryRenderer:
 
             st.success(new_definition)
 
-        if isinstance(new_result, dict) and "validation_score" in new_result:
-            new_score = new_result["validation_score"]
-            st.markdown(f"**Kwaliteitsscore nieuwe definitie:** {new_score:.2f}")
+        # DEF-743 (besluit 3): geen kwaliteitstotaal bij de vergelijking; een
+        # eventuele `validation_score` in het resultaat wordt niet getoond
+        # (bij `None` gaf de oude opmaak bovendien een TypeError).
 
     # ============ Private methods ============
 

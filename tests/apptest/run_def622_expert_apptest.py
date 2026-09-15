@@ -204,6 +204,7 @@ def _rij(db_pad: str, definitie_id: int) -> dict:
         "updated_by": rec.updated_by,
         "approved_by": rec.approved_by,
         "review": review,
+        "source_review": rec.get_source_review(),
         "geschiedenis": geschiedenis,
     }
 
@@ -281,6 +282,41 @@ def main(db_pad: str) -> dict:
     assert len(functies) == 1, functies
     functie_sleutel = functies[0]
     reden_sleutel = functie_sleutel[: -len("_functie")] + "_reden"
+
+    # 1b. DEF-743 (CON-02): de deskundige legt na gedocumenteerd zoeken de
+    # uitzondering "geen passende bron" vast — via de echte experttab-controls.
+    # Versie +1; de uitzondering blijft zichtbaar als uitzondering (CON-02 nog
+    # te beoordelen), nooit als pass. Vóór de CON-01-beoordeling: elke andere
+    # versiebump laat een eerdere CON-01-beoordeling vervallen (DEF-622 V2c),
+    # terwijl een CON-01-schrijfactie een geldig gebonden CON-02-uitzondering
+    # wél meeneemt (D §4d).
+    s = f"con02_{record_id}"
+    at.text_input(key="reviewer_name_input").input(REVIEWER).run()
+    at.selectbox(key=f"{s}_soort").select("no_appropriate_source").run()
+    at.text_area(key=f"{s}_queries").input(
+        "keurmerk definitie\nStichting Zilver keurmerk"
+    )
+    at.text_area(key=f"{s}_consulted").input(
+        "wetten.overheid.nl\nintern begrippenregister"
+    )
+    at.text_input(key=f"{s}_conclusie").input(
+        "Geen passende authentieke bron gevonden."
+    )
+    at.text_area(key=f"{s}_motivering").input(
+        "Organisatie-eigen keurmerk zonder authentieke of gezaghebbende bron."
+    )
+    at.checkbox(key=f"{s}_accepted").check()
+    at.run()
+    at.button(key=f"{s}_vastleggen").click().run()
+    assert not at.exception, [str(e.value) for e in at.exception]
+    waarnemingen["na_uitzondering"] = {
+        "teksten": _teksten(at),
+        "rij": _rij(db_pad, record_id),
+        "geselecteerde_versie": getattr(
+            _ss(at, "selected_review_definition"), "version_number", None
+        ),
+        "vaststellen": _knop(at, f"approve_btn_{record_id}"),
+    }
 
     # 2. Identiteit + naamfunctie + reden → vastleggen → readback.
     at.text_input(key="reviewer_name_input").input(REVIEWER).run()

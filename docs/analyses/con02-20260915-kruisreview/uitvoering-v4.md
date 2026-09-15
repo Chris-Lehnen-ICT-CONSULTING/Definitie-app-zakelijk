@@ -1,0 +1,22 @@
+# DEF-743 — checkpoint 15 september, circa 18:28 CEST
+
+Opdracht blijft implementeer nu. Alle drie beslissingen akkoord, geen nieuwe gebruikersvraag nodig. Claude Code CLI schrijft app/testcode; Codex CLI reviewt; Codex+Cowork analyse afgerond. Branch feature/DEF-743-con02-bronbasis @ dc7a70e80. Geen commit/push/merge.
+
+## Afgeronde reviewpakketten
+
+- E prompts: 613 tests groen, Ruff/Black0, dezelfde Codex-reviewer sluit alle bevindingen. /tmp/DEF-743-codex-prompt-close-result.md, manifest /tmp/DEF-743-prompt-fix2-hashes.log. Receipt v2 oorspronkelijke kanaal/index/hash behouden; conservatieve markupbehandeling bewaart vergelijkingen.
+- G skills: 6MD+3ZIP in aparte setupwerkboom feature/DEF-743-con02-skills @7ab73dc. 80 gerichte checks groen, eerdere619-suitegroen. Codex-review zonder bevindingen /tmp/DEF-743-codex-skills-review-result.md; /tmp/DEF-743-skills-manifest-sha256.txt. Geen live-sync/upload/install, oudealiasZIPs baseline behouden. GWriteWIP geweigerd en niet herhaald; geen noodzakelijke taak geblokkeerd.
+
+## Actief
+
+- C: eerste1596tests groen maar onafhankelijke review7bevindingen. Claude93e4fe9d-5c65-42ce-b693-2ff52cc2966a, exec66037, /tmp/DEF-743-core-review-fix-v5.jsonl, brief gelijkprefix.md. Fixes: geen pass bij tegenstrijdige/openclaims; echte bronmetadata inAIprompt; foutreceipt bijlegebronnen; ontbrekendeJSONonderdelen technischefout; eigen assessment_receipt met werkelijk verzonden passages/hashes/afkapping; sourcesalias beidewrappers; correct bestuursorgaanvoorbeeld zonder disjunctiefout. Ccontract6b part_correction stabiel voorD/F. Bij klaar SAMECodexreviewer01a0a5dd-436b-7911-8beb-e0bc8d552687 hervatten. Oude review /tmp/DEF-743-codex-core-review-v2-result.md. NieuweCmanifest alleenownfiles, vorige34bevatte2muterendeDtests.
+- D fixes klaar:145tests groen/lint0, /tmp/DEF-743-persistence-fix-report.md + -hashes.log; contractv2.2. Vierreviewpunten opgelost+source_review_history+part_correctionroundtrip/export. SAMECodexreview01a0a5d1-8cb5-78c0-b00d-fd800562319b actiefexec21891 /tmp/DEF-743-codex-persistence-followup.jsonl. DClaude fbae79f1-73f5-4e0c-9bbf-62e52d11737f beschikbaarvoorevtfix.
+- F Claude3e4e2d44-3076-4ec5-8a0a-20131f5e5f6d actiefexec83893 /tmp/DEF-743-ui-manual-fix-v3.jsonl (briefzelfdeprefix.md). Achtreviewpunten: echteoorzaak+semantischgebondenbewijs, fullEditorApplywidgetfoutnaDBcommit, getoondeexpected_version/status, geldigecitatie/namenbehouden, bronIDbijgelijkeinhoud, echtebeoordeeldepassage, malformedJSONdurableerror, receipttransport(Dfixed). Tevens part_correctionUI+AppTests, relevanteDEF622fixtures/labelfixes. OudeFexec30195 gecontroleerdSIGINTPID33715 na tool-read, exite0, SAMEsessionresume. SAMECodexreviewer01a0a5d5-2233-7761-8691-76561e0eb331 hervatten bijgereed. Review /tmp/DEF-743-codex-ui-review-result.md heeft8bevindingen; expertfile drift explicietgeenapproval. HistorischBreview eerder opdezelfdebestandsnaam afzonderlijk behouden /tmp/DEF-743-codex-B-historical-review-result.md; toekomstigeFsluitreview eigenversienaam.
+
+## Eindverificatie nog nodig
+
+C7fixesreview, F8fixesreview+deskundigencorrectie, Dreviewsluiten. F moet nieuwe C assessment_receipt feitelijkesourceweergave consumeren (Cfix5), geen canonicalfullpassage tenonrechte als AI-sent tonen; D bewaartvolledigeassessmental. Daarna echtegecombineerdeAppTests+offlinejourney en canonieke make test PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python metvers/tmp/GATE_REPORTS plusmake lint. Geen brede handmatige pytest inrepoworkdir alsgatebewijs: twee PerformanceTrackerfailures zijn OfflineGateError vanwege relatief data/definities.db; run_profile start in eigenveilige werkdirectory. Details /tmp/DEF-743-root-runner-analysis.md. Niet productiecode wijzigen oftests overslaan.
+
+Geen expertgoldset/modelkwaliteit bewezen;94scenariozijn ontwerpen. Bestaande scoreNone-vaststelgate blijft aparteDEF630afhankelijkheid, nietomzeilen. GeenstoryDone vóóracceptatie. LaatsteLinearvoortgangcomment3cd5a86e-4cce-4c7d-a41a-ed289267a6e7 om16:21UTC. ReviewrapportenC/D/Fv1 enE/Ggesloten+manifesten duurzaamonderreviews/.
+
+AlleClaudeinitinventories6localtools/MCP[]; geendelegatie. Root schrijftalleendocs/briefs/analyse, geenapp/testcode. WIPactiveprotectedwrite nietomzeilen; checkpointshier. Kloktijden uitCLIrapportenkunnenverzonnenzijn(C18:45terwijlvroeger); datuminplaatsvandergelijketijd. Mutatietestsbewijzentestdiscriminatie, geenchronologischRED-first. Laatusergeen60secstilte, maargeenonnodigeakkoordvragen.

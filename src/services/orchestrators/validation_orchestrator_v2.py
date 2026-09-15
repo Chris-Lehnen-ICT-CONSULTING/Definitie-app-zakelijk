@@ -14,6 +14,12 @@ from collections.abc import Iterable
 from typing import Any
 
 from domain.context.normalisatie import canoniseer_contextlijst
+from domain.sources.contract import (
+    beoordeling_niet_beschikbaar,
+    beoordeling_technische_fout,
+    bereken_bronvingerafdruk,
+)
+from domain.sources.normalisatie import canoniseer_bronnen, kwitantiefout
 from services.interfaces import (
     CleaningServiceInterface,
     Definition,
@@ -28,6 +34,85 @@ from services.validation.interfaces import (
 from services.validation.mappers import create_degraded_result, ensure_schema_compliance
 
 logger = logging.getLogger(__name__)
+
+
+#: Uitkomst van de alias-normalisatie naast de gekozen lijst.
+_ALIAS_OK = None
+_ALIAS_CONFLICT = "conflict"
+_ALIAS_ONGELDIG = "invalid"
+
+
+def _normaliseer_bronalias(context_dict: dict[str, Any]) -> tuple[Any, str | None]:
+    """Eén bronlijst uit `provenance_sources` (canoniek) en/of `sources` (legacy).
+
+    Aanwezigheid en geldigheid worden apart bepaald. Aanwezig = de sleutel
+    staat in de context; een aanwezige waarde `None` telt als expliciete
+    afwezigheid (D levert `source_*`-velden expliciet als `None` wanneer het
+    record ze niet draagt). Een aanwezige waarde die geen lijst en geen `None`
+    is (tekst, dict, bool, getal, …) is **ongeldig** en kan de conflictcontrole
+    niet omzeilen. Twee aanwezige geldige lijsten moeten gelijk zijn (freeze
+    punt 2), anders conflict. Geeft (bronnen, status) met status `None`,
+    `"conflict"` of `"invalid"`; er wordt nooit een lege lijst verzonnen. De
+    gekozen lijst wordt als deep copy onder `provenance_sources` gezet, zodat
+    de evaluator exact dezelfde bronnen ziet als de beoordeling.
+    """
+    lijsten: dict[str, list[Any]] = {}
+    for sleutel in ("provenance_sources", "sources"):
+        if sleutel not in context_dict:
+            continue
+        waarde = context_dict[sleutel]
+        if waarde is None:
+            continue
+        if not isinstance(waarde, list):
+            return None, _ALIAS_ONGELDIG
+        lijsten[sleutel] = waarde
+    if len(lijsten) == 2 and lijsten["provenance_sources"] != lijsten["sources"]:
+        return lijsten["provenance_sources"], _ALIAS_CONFLICT
+    gekozen = lijsten.get("provenance_sources", lijsten.get("sources"))
+    if gekozen is not None:
+        context_dict["provenance_sources"] = copy.deepcopy(gekozen)
+    return gekozen, _ALIAS_OK
+
+
+def _technische_blokkade(
+    aliasstatus: str | None, receipt: dict[str, Any] | None, correlation_id: str
+) -> tuple[str, str] | None:
+    """(foutsoort, melding) die de bronbeoordeling vóór elke AI-aanroep blokkeert.
+
+    Vaste volgorde, fail-closed: ongeldige alias → aliasconflict →
+    verzamelfout in de kwitantie. Elke blokkade wordt gelogd; `None` betekent
+    dat de beoordeling door mag.
+    """
+    if aliasstatus == _ALIAS_ONGELDIG:
+        logger.error(
+            "DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' "
+            "(correlation_id=%s); bronbeoordeling niet uitgevoerd",
+            correlation_id,
+        )
+        return (
+            "source_alias_invalid",
+            "bronlijst onder 'sources' of 'provenance_sources' is geen lijst",
+        )
+    if aliasstatus == _ALIAS_CONFLICT:
+        logger.error(
+            "DEF-743: verschillende bronlijsten onder 'sources' en "
+            "'provenance_sources' (correlation_id=%s); bronbeoordeling niet "
+            "uitgevoerd",
+            correlation_id,
+        )
+        return (
+            "source_alias_conflict",
+            "verschillende bronlijsten onder 'sources' en 'provenance_sources'",
+        )
+    verzamelfout = kwitantiefout(receipt)
+    if verzamelfout is not None:
+        logger.error(
+            "DEF-743: kwitantie meldt een verzamelfout (correlation_id=%s): %s",
+            correlation_id,
+            verzamelfout,
+        )
+        return "receipt_error", verzamelfout
+    return None
 
 
 class ValidationOrchestratorV2(ValidationOrchestratorInterface):
@@ -47,12 +132,16 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         self,
         validation_service: ValidationServiceInterface,
         cleaning_service: CleaningServiceInterface | None = None,
+        source_assessment_service: Any | None = None,
     ) -> None:
         if validation_service is None:
             msg = "validation_service is vereist"
             raise ValueError(msg)
         self.validation_service = validation_service
         self.cleaning_service = cleaning_service
+        # DEF-743: de AI-bronbeoordeling (CON-02) is standaard onderdeel van
+        # elke validatie met bronnen; deze wrapper verkrijgt haar zelf.
+        self.source_assessment_service = source_assessment_service
 
     async def validate_text(
         self,
@@ -101,6 +190,14 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 context_dict = dict(self._context_dict(context) or {})
                 context_dict["record_text"] = text
 
+                # DEF-743: de bronbeoordeling hoort bij exact deze tekst en
+                # wordt hier standaard verkregen (nooit uit aanroepermetadata).
+                assessment = await self._beoordeel_bronnen(
+                    begrip, text, context_dict, correlation_id
+                )
+                if assessment is not None:
+                    context_dict["source_assessment"] = assessment
+
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
                     begrip=begrip,
@@ -110,7 +207,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
 
                 # Ensure result is schema-compliant
-                return ensure_schema_compliance(result, correlation_id)
+                return self._met_bronbeoordeling(
+                    ensure_schema_compliance(result, correlation_id), assessment
+                )
 
             except Exception as e:
                 logger.error(
@@ -160,6 +259,16 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     self._context_dict(context), definition
                 )
 
+                # DEF-743: bronbeoordeling op de recordtekst, vóór de cleaning
+                # (die het object in-place kan wijzigen), zodat de binding bij
+                # de opgeslagen kandidaat hoort.
+                recordtekst = context_dict["record_text"]
+                assessment = await self._beoordeel_bronnen(
+                    definition.begrip, recordtekst, context_dict, correlation_id
+                )
+                if assessment is not None:
+                    context_dict["source_assessment"] = assessment
+
                 text = definition.definitie
                 if self.cleaning_service is not None:
                     cleaned = await self.cleaning_service.clean_definition(definition)
@@ -173,7 +282,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
 
                 # Ensure result is schema-compliant
-                return ensure_schema_compliance(result, correlation_id)
+                return self._met_bronbeoordeling(
+                    ensure_schema_compliance(result, correlation_id), assessment
+                )
 
             except Exception as e:
                 logger.error(
@@ -215,6 +326,110 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         return results
 
     # Internal helpers
+    async def _beoordeel_bronnen(
+        self,
+        begrip: str,
+        tekst: str,
+        context_dict: dict[str, Any],
+        correlation_id: str,
+    ) -> dict[str, Any] | None:
+        """De standaard AI-bronbeoordeling voor exact deze validatie (DEF-743).
+
+        Een door de aanroeper meegegeven `source_assessment` wordt hier
+        weggegooid: zij is nooit een kortere weg naar een positief oordeel.
+        Volgorde, fail-closed: (1) bronalias normaliseren — `sources` (legacy)
+        en `provenance_sources` (canoniek) zijn beide toegestaan, samen alleen
+        als ze gelijk zijn, anders een technische fout; (2) een verzamelfout in
+        de kwitantie is een technische fout, óók zonder bronnen en óók zonder
+        dienst; (3) zonder bronnen geen AI-aanroep en geen beoordeling (`None`:
+        de evaluator meldt expliciet open); (4) zonder geïnjecteerde dienst is
+        de beoordeling expliciet `unavailable`; (5) een fout in de dienst is een
+        technische fout — nooit stil een pass. De aanroepermetadata en de
+        kandidaat blijven onaangeroerd.
+        """
+        context_dict.pop("source_assessment", None)
+        bronnen, aliasstatus = _normaliseer_bronalias(context_dict)
+        canoniek = canoniseer_bronnen(bronnen)
+        peildatum = context_dict.get("peildatum")
+
+        def _vingerafdruk() -> str:
+            return bereken_bronvingerafdruk(
+                begrip, tekst, context_dict, canoniek, peildatum=peildatum
+            )
+
+        receipt = context_dict.get("source_receipt")
+        receipt = receipt if isinstance(receipt, dict) else None
+        blokkade = _technische_blokkade(aliasstatus, receipt, correlation_id)
+        if blokkade is not None:
+            soort, melding = blokkade
+            return beoordeling_technische_fout(
+                _vingerafdruk(), soort, melding, sources=canoniek
+            )
+
+        if not canoniek:
+            return None
+
+        if self.source_assessment_service is None:
+            logger.warning(
+                "DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft "
+                "open (correlation_id=%s)",
+                correlation_id,
+            )
+            return beoordeling_niet_beschikbaar(
+                _vingerafdruk(),
+                "geen bronbeoordelingsdienst beschikbaar; AI-beoordeling niet uitgevoerd",
+            )
+
+        # De werkelijke afkapgrens van de dienst gaat mee naar de evaluator,
+        # zodat de replay de beoordelingskwitantie aan die grens bindt.
+        grens = getattr(self.source_assessment_service, "max_passage_chars", None)
+        if isinstance(grens, int) and not isinstance(grens, bool) and grens > 0:
+            context_dict["assessment_max_passage_chars"] = grens
+        try:
+            assessment = await self.source_assessment_service.assess(
+                begrip,
+                tekst,
+                context_dict,
+                bronnen,
+                peildatum=peildatum,
+                correlation_id=correlation_id,
+                receipt=receipt,
+            )
+            document = (
+                assessment.als_dict() if hasattr(assessment, "als_dict") else assessment
+            )
+            if not isinstance(document, dict):
+                msg = f"beoordelingsdienst gaf {type(document).__name__} terug"
+                raise TypeError(msg)
+            return document
+        except Exception as exc:
+            logger.error(
+                "DEF-743: bronbeoordeling mislukt (correlation_id=%s): %s: %s",
+                correlation_id,
+                type(exc).__name__,
+                exc,
+            )
+            return beoordeling_technische_fout(
+                _vingerafdruk(),
+                "unknown",
+                f"{type(exc).__name__}: {exc}",
+                sources=canoniek,
+            )
+
+    @staticmethod
+    def _met_bronbeoordeling(
+        result: ValidationResult, assessment: dict[str, Any] | None
+    ) -> ValidationResult:
+        """Geef de verkregen beoordeling volledig terug (contract 1.4.0).
+
+        Zo kan de aanroeper (generatie, editor, opslag) haar bewaren zonder
+        tweede AI-aanroep. Een kopie: het resultaat mag de context van de
+        evaluator niet delen.
+        """
+        if isinstance(result, dict):
+            result["source_assessment"] = copy.deepcopy(assessment)
+        return result
+
     @staticmethod
     def _context_dict(context: ValidationContext | None) -> dict[str, Any] | None:
         """Vertaal een ValidationContext naar de dict die de service verwacht.
@@ -287,6 +502,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         enriched["definition_version"] = (definition.metadata or {}).get(
             "version_number"
         )
+        self._verrijk_met_bronvelden(enriched, definition)
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:
@@ -310,3 +526,37 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             )
 
         return enriched
+
+    @staticmethod
+    def _verrijk_met_bronvelden(
+        enriched: dict[str, Any], definition: Definition
+    ) -> None:
+        """De bronvelden van het record zijn gezaghebbend (DEF-743).
+
+        Draagt het record `provenance_sources` (canoniek) en/of `sources`
+        (rijke alias), dan vervangen die de aanroeperwaarden onder dezelfde
+        sleutels (deep copy); de gedeelde alias-normalisatie in
+        `_beoordeel_bronnen` kiest daarna de lijst en faalt gesloten bij een
+        conflict — voor record- én tekstvalidatie hetzelfde. `source_review` en
+        `peildatum` komen eveneens van het record. Een opgeslagen
+        `source_receipt` is generatiehistorie en gaat niet mee als invoer voor
+        een herbeoordeling; een opgeslagen `source_assessment` wordt hier niet
+        overgenomen — de wrapper verkrijgt altijd een verse beoordeling.
+        """
+        meta = definition.metadata or {}
+        if "provenance_sources" in meta or "sources" in meta:
+            # Het record wint volledig: aanroeperlijsten onder beide sleutels
+            # vervallen, zodat een verouderde aanroeperlijst nooit een
+            # schijnconflict met (of stille voorrang op) het record krijgt.
+            enriched.pop("provenance_sources", None)
+            enriched.pop("sources", None)
+        for sleutel in ("provenance_sources", "sources"):
+            if sleutel in meta:
+                enriched[sleutel] = copy.deepcopy(meta[sleutel])
+        if "source_review" in meta:
+            review = meta["source_review"]
+            enriched["source_review"] = (
+                copy.deepcopy(review) if isinstance(review, dict) else None
+            )
+        if "peildatum" in meta:
+            enriched["peildatum"] = meta["peildatum"]

@@ -17,6 +17,7 @@ Key improvements:
 import logging
 import time
 import uuid
+from copy import deepcopy
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional, cast
 
@@ -137,6 +138,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         synonym_orchestrator: Optional["SynonymOrchestrator"] = None,
         # RAG context retrieval (DEF-271)
         rag_service: Any | None = None,
+        # DEF-743: AI-bronbeoordeling (CON-02); lazy opgebouwd op ai_service
+        source_assessment_service: Any | None = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -186,6 +189,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # DEF-271: RAG context retrieval
         self.rag_service = rag_service
 
+        # DEF-743: bronbeoordeling; None → lazy op de gedeelde AI-service
+        self._source_assessment_service = source_assessment_service
+
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
             f"feedback_loop={self.config.enable_feedback_loop}, "
@@ -219,6 +225,25 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.debug("DEF-66: PromptServiceV2 initialized successfully")
 
         return self._prompt_service
+
+    @property
+    def source_assessment_service(self) -> Any:
+        """De AI-bronbeoordeling voor CON-02 (DEF-743), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam. Een
+        aanroeper kan een eigen dienst injecteren (tests: fake-AI-grens).
+        """
+        if self._source_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.source_assessment_service import (
+                SourceAssessmentService,
+            )
+
+            self._source_assessment_service = SourceAssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._source_assessment_service
 
     @property
     def validation_service(self) -> "ValidationOrchestratorInterface":
@@ -280,6 +305,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     ValidationServiceInterface, modular_validation_service
                 ),
                 cleaning_service=cleaning_adapter,
+                # DEF-743: de wrapper verkrijgt de bronbeoordeling standaard.
+                source_assessment_service=self.source_assessment_service,
             )
 
             logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")
@@ -595,8 +622,14 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                     # Attach to context so prompt service can optionally use it
                     context = context or {}
+                    # DEF-743: een eigen lijst, geen alias van
+                    # `provenance_sources`. Vóór deze fix werden de RAG-
+                    # bronnen die hieronder aan `provenance_sources` worden
+                    # toegevoegd stil óók webbronnen voor de promptservice
+                    # (dubbele injectie), en klopte de kwitantie-index van het
+                    # webkanaal niet meer met de werkelijk aangeleverde lijst.
                     context["web_lookup"] = {
-                        "sources": provenance_sources,
+                        "sources": list(provenance_sources),
                         "top_k": top_k,
                         "debug": debug_info,
                     }
@@ -724,6 +757,23 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 2.7: RAG chunks → provenance_sources (DEF-364)
             # =====================================
+            # DEF-743: de werkelijk aangeleverde kanaallijsten, in de volgorde
+            # die de promptservice ziet, zodat de kwitantie (E, v2) per
+            # (kanaal, positie) + oorspronkelijke hash aan precies deze
+            # bronobjecten wordt gekoppeld — geen reconstructie achteraf.
+            kanaal_web: list[dict[str, Any]] = list(
+                ensure_list(
+                    safe_dict_get(
+                        ensure_dict(safe_dict_get(context, "web_lookup", {})),
+                        "sources",
+                        [],
+                    )
+                )
+                if context
+                else []
+            )
+            kanaal_rag: list[dict[str, Any]] = []
+            kanaal_docs: list[dict[str, Any]] = []
             if rag_chunks:
                 for chunk in rag_chunks:
                     title = (
@@ -740,23 +790,43 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         ]
                         if p
                     ]
-                    provenance_sources.append(
-                        {
-                            "provider": "rag",
-                            "title": title,
-                            "url": None,
-                            "snippet": chunk.get("chunk_text", ""),
-                            "score": float(chunk.get("score", 0.0)),
-                            "used_in_prompt": True,
-                            "source_label": f"RAG: {title}",
-                            "is_authoritative": False,
-                            "legal": (
-                                {"citation_text": " · ".join(citation_parts)}
-                                if citation_parts
-                                else None
-                            ),
-                        }
-                    )
+                    rag_bron = {
+                        "provider": "rag",
+                        **{
+                            key: chunk[key]
+                            for key in (
+                                "chunk_id",
+                                "document_id",
+                                "chunk_index",
+                                "created_at",
+                                "filename",
+                                "bron_type",
+                                "rechtsgebied",
+                                "wet_regeling",
+                                "artikel_lid",
+                            )
+                            if chunk.get(key) is not None
+                        },
+                        **(
+                            {"metadata": deepcopy(chunk["metadata"])}
+                            if isinstance(chunk.get("metadata"), dict)
+                            else {}
+                        ),
+                        "title": title,
+                        "url": None,
+                        "snippet": chunk.get("chunk_text", ""),
+                        "score": float(chunk.get("score", 0.0)),
+                        "used_in_prompt": True,
+                        "source_label": f"RAG: {title}",
+                        "is_authoritative": False,
+                        "legal": (
+                            {"citation_text": " · ".join(citation_parts)}
+                            if citation_parts
+                            else None
+                        ),
+                    }
+                    provenance_sources.append(rag_bron)
+                    kanaal_rag.append(rag_bron)
 
             # =====================================
             # PHASE 2.9: Merge document snippets into provenance sources (EPIC-018)
@@ -775,6 +845,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             normalized_docs.append(
                                 {
                                     "provider": "documents",
+                                    **{
+                                        key: safe_dict_get(s, key)
+                                        for key in (
+                                            "filename",
+                                            "citation_label",
+                                            "selection_basis",
+                                        )
+                                        if safe_dict_get(s, key) is not None
+                                    },
                                     "title": ensure_string(
                                         safe_dict_get(s, "title")
                                         or safe_dict_get(s, "filename")
@@ -808,8 +887,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         provenance_sources = normalized_docs + (
                             provenance_sources or []
                         )
+                        kanaal_docs = normalized_docs
                         context = context or {}
-                        context["documents"] = {"snippets": normalized_docs}
+                        context["documents"] = {
+                            **docs_ctx,
+                            "snippets": normalized_docs,
+                        }
             except TypeError as e:
                 # DEF-229: Log document snippet merge failures
                 # Note: Only TypeError possible in outer block (list concatenation)
@@ -829,6 +912,45 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.info(
                 f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
                 f"ontological_category={sanitized_request.ontologische_categorie})"
+            )
+
+            # DEF-743: de kwitantie van de promptservice zegt welke bronnen
+            # wérkelijk (en met welke exacte, gesanitiseerde/afgekapte inhoud)
+            # in de prompt stonden. Koppel haar aan de aangeleverde bronnen:
+            # gebruikte bronnen krijgen `used_in_prompt=True` + `prompt_content`,
+            # weggelaten bronnen `used_in_prompt=False` + reden. Zonder
+            # kwitantie blijft de lijst zoals de bronselectie haar leverde.
+            source_receipt = self._kwitantie_uit(prompt_result)
+            source_receipt_correlation: dict[str, int] | None = None
+            if source_receipt is not None:
+                from domain.sources.normalisatie import (
+                    koppel_kwitantie,
+                    kwitantie_koppelrapport,
+                )
+
+                provenance_sources = koppel_kwitantie(
+                    provenance_sources,
+                    source_receipt,
+                    kanalen={
+                        "rag": kanaal_rag,
+                        "web": kanaal_web,
+                        "document": kanaal_docs,
+                    },
+                )
+                source_receipt_correlation = kwitantie_koppelrapport(provenance_sources)
+                if (
+                    source_receipt_correlation["unmatched"]
+                    or source_receipt_correlation["ambiguous"]
+                ):
+                    logger.warning(
+                        "Generation %s: kwitantie niet volledig te koppelen: %s",
+                        generation_id,
+                        source_receipt_correlation,
+                    )
+            peildatum = (
+                safe_dict_get(sanitized_request.options, "peildatum")
+                if sanitized_request.options
+                else None
             )
 
             # Debug summary: how many sources vs injected snippets in prompt
@@ -1036,17 +1158,28 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             except (TypeError, AttributeError) as e:
                 # DEF-229: Log options extraction failures
                 logger.debug(f"Could not extract generation options for metadata: {e}")
+            # DEF-743: dezelfde bronset (gekoppeld aan de kwitantie) gaat
+            # naar de validatie; de wrapper verkrijgt daar de bronbeoordeling
+            # voor exact de getoetste kandidaat en geeft haar terug.
+            bronmeta = {
+                "provenance_sources": deepcopy(provenance_sources),
+                "source_receipt": deepcopy(source_receipt),
+                "source_review": None,
+                "peildatum": peildatum,
+            }
             validation_context = ValidationContext(
                 correlation_id=corr,
-                metadata=meta,
+                metadata={**meta, **bronmeta},
             )
             # DEF-622: de getoetste kandidaat is exact de kandidaat die wordt
             # getoond en opgeslagen. De validatie-orchestrator schoont een
             # Definition in-place; daarom gaat een kopie mee en wordt, als de
             # validatie de tekst tóch wijzigt, die tekst de kandidaat en
             # opnieuw getoetst (wijziging na toetsing vereist hertoetsing).
-            cleaned_text, raw_validation = await self._toets_kandidaat(
-                sanitized_request, cleaned_text, validation_context, generation_id
+            cleaned_text, raw_validation, source_assessment = (
+                await self._toets_kandidaat(
+                    sanitized_request, cleaned_text, validation_context, generation_id
+                )
             )
             validation_result = self._normaliseer_validatie(
                 raw_validation, generation_id
@@ -1090,10 +1223,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     corr2 = uuid.uuid4()
                 enhanced_context = ValidationContext(
                     correlation_id=corr2,
-                    metadata={"generation_id": generation_id, "enhanced": True},
+                    metadata={
+                        "generation_id": generation_id,
+                        "enhanced": True,
+                        **deepcopy(bronmeta),
+                    },
                 )
-                cleaned_text, raw_validation = await self._toets_kandidaat(
-                    sanitized_request, enhanced_text, enhanced_context, generation_id
+                cleaned_text, raw_validation, source_assessment = (
+                    await self._toets_kandidaat(
+                        sanitized_request,
+                        enhanced_text,
+                        enhanced_context,
+                        generation_id,
+                    )
                 )
                 validation_result = self._normaliseer_validatie(
                     raw_validation, generation_id
@@ -1124,6 +1266,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ontological_category_used": sanitized_request.ontologische_categorie,
                     # Epic 3: Web lookup metadata
                     "sources": provenance_sources,
+                    # DEF-743: één bronbasis. `provenance_sources` is de
+                    # canonieke validatiesleutel (zelfde inhoud als `sources`);
+                    # de kwitantie, de verkregen AI-beoordeling (gebonden aan
+                    # exact de opgeslagen kandidaat) en de nog lege
+                    # deskundigenbeoordeling reizen vóór opslag mee.
+                    "provenance_sources": deepcopy(provenance_sources),
+                    "source_receipt": deepcopy(source_receipt),
+                    "source_receipt_correlation": source_receipt_correlation,
+                    "source_assessment": source_assessment,
+                    "source_review": None,
+                    "peildatum": peildatum,
+                    "generation_id": generation_id,
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
                     "web_lookup_timeout": web_lookup_timeout,
@@ -1354,20 +1508,35 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     # PRIVATE HELPER METHODS
     # =====================================
 
+    @staticmethod
+    def _kwitantie_uit(prompt_result: Any) -> dict[str, Any] | None:
+        """De bronkwitantie van de promptservice (DEF-743), of None."""
+        metadata = getattr(prompt_result, "metadata", None)
+        if not isinstance(metadata, dict):
+            return None
+        receipt = metadata.get("source_receipt")
+        return deepcopy(receipt) if isinstance(receipt, dict) else None
+
     async def _toets_kandidaat(
         self,
         request: GenerationRequest,
         tekst: str,
         validation_context: ValidationContext,
         generation_id: str,
-    ) -> tuple[str, Any]:
-        """Toets een kandidaattekst en geef (definitieve tekst, ruw resultaat).
+    ) -> tuple[str, Any, dict[str, Any] | None]:
+        """Toets een kandidaattekst; geef (definitieve tekst, ruw resultaat, bronbeoordeling).
 
         DEF-622: de validatie-orchestrator schoont het meegegeven Definition-
         object in-place. Wijzigt de validatie de tekst, dan is dát de
         kandidaat die getoond en opgeslagen wordt, en die wordt opnieuw
         getoetst (wijziging na toetsing vereist hertoetsing). Zo is de
         opgeslagen tekst altijd exact de getoetste tekst.
+
+        DEF-743: de bronset uit `validation_context.metadata` gaat elke
+        poging ongewijzigd mee; de wrapper verkrijgt per kandidaattekst een
+        eigen bronbeoordeling en geeft haar terug in
+        `raw_validation["source_assessment"]` — die hoort dus altijd bij
+        exact de definitieve tekst.
         """
         kandidaat = tekst
         raw_validation: Any = None
@@ -1385,7 +1554,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 definition=kopie, context=validation_context
             )
             if kopie.definitie == kandidaat:
-                return kandidaat, raw_validation
+                return (
+                    kandidaat,
+                    raw_validation,
+                    self._bronbeoordeling_uit(raw_validation),
+                )
             if poging == 2:
                 # Aanhoudende mutatie: het oordeel hoort bij een andere tekst
                 # dan de kandidaat. Fail-closed — geen oordeel koppelen aan een
@@ -1400,7 +1573,21 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 "hertoetsing op de definitieve tekst"
             )
             kandidaat = kopie.definitie
-        return kandidaat, raw_validation  # pragma: no cover - lus eindigt altijd eerder
+        return (
+            kandidaat,
+            raw_validation,
+            None,
+        )  # pragma: no cover - lus eindigt altijd eerder
+
+    @staticmethod
+    def _bronbeoordeling_uit(raw_validation: Any) -> dict[str, Any] | None:
+        """De door de wrapper verkregen bronbeoordeling (contract 1.4.0), of None.
+
+        Alleen een echt object telt; een validatiedubbel zonder dit veld
+        levert `None` — dan is er geen beoordeling, en wordt er geen verzonnen.
+        """
+        beoordeling = safe_dict_get(raw_validation, "source_assessment")
+        return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
 
     @staticmethod
     def _normaliseer_validatie(raw_validation: Any, generation_id: str) -> Any:

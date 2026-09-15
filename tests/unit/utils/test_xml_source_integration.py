@@ -1,12 +1,15 @@
 """Integratie test: alle 3 brontypen in één <bronnen> blok (DEF-315).
 
-Simuleert het pad dat prompt_service_v2._collect_and_inject_bronnen() aflegt:
+Drijft de echte collector `PromptServiceV2._collect_and_inject_bronnen()`:
 RAG + web + document bronnen worden verzameld en in één XML blok gewrapped.
+DEF-743: de collector geeft geen confidence/level meer door en kent geen
+documentconstante 0.70; alleen de zoekscore en aangeleverde coördinaten.
 """
 
 import pytest
 
-from utils.xml_source_formatter import format_bron, wrap_bronnen
+from services.definition_generator_context import EnrichedContext
+from services.prompts.prompt_service_v2 import PromptServiceV2
 
 pytestmark = [pytest.mark.unit]
 
@@ -16,61 +19,31 @@ def _simulate_collect_bronnen(
     web_sources: list[dict],
     doc_snippets: list[dict],
 ) -> str:
-    """Simuleer de bron-verzameling zoals prompt_service_v2 dat doet."""
-    all_brons: list[str] = []
-    nr = 0
-
-    # RAG
-    for chunk in rag_chunks:
-        nr += 1
-        all_brons.append(
-            format_bron(
-                nr=nr,
-                type="rag",
-                chunk_text=chunk["chunk_text"],
-                score=chunk.get("score"),
-                confidence=chunk.get("score"),
-                rechtsgebied=chunk.get("rechtsgebied"),
-                regeling=chunk.get("wet_regeling"),
-                artikel=chunk.get("artikel_lid"),
-            )
-        )
-
-    # Web
-    for src in web_sources:
-        nr += 1
-        legal = src.get("legal", {}) or {}
-        all_brons.append(
-            format_bron(
-                nr=nr,
-                type="web",
-                chunk_text=src.get("snippet", ""),
-                score=float(src.get("score", 0.0)),
-                confidence=float(src.get("score", 0.0)),
-                provider=src.get("provider", ""),
-                url=src.get("url", ""),
-                ecli=legal.get("ecli", ""),
-                wet=legal.get("law", ""),
-                artikel=legal.get("article", ""),
-                citatie=legal.get("citation_text", ""),
-            )
-        )
-
-    # Document
-    for doc in doc_snippets:
-        nr += 1
-        all_brons.append(
-            format_bron(
-                nr=nr,
-                type="document",
-                chunk_text=doc.get("snippet", ""),
-                confidence=0.70,
-                titel=doc.get("title", ""),
-                citatie=doc.get("citation_label", ""),
-            )
-        )
-
-    return wrap_bronnen(all_brons)
+    """Verzamel via de echte collector; geef alleen het <bronnen>-blok terug."""
+    svc = PromptServiceV2()
+    svc._aug_cfg = {
+        "enabled": True,
+        "max_snippets": 10,
+        "max_tokens_per_snippet": 300,
+        "total_token_budget": 5000,
+        "prioritize_juridical": False,
+    }
+    enriched = EnrichedContext(
+        base_context={"organisatorisch": [], "juridisch": [], "wettelijk": []},
+        sources=[],
+        expanded_terms={},
+        confidence_scores={},
+        metadata={
+            "rag_chunks": rag_chunks,
+            "web_lookup": {"sources": web_sources, "top_k": len(web_sources)},
+            "documents": {"snippets": doc_snippets},
+        },
+    )
+    text = svc._collect_and_inject_bronnen("BODY", enriched)
+    if text == "BODY":
+        return ""
+    assert text.startswith("BODY\n\n")
+    return text[len("BODY\n\n") :]
 
 
 class TestThreeSourceTypesIntegration:
@@ -130,17 +103,23 @@ class TestThreeSourceTypesIntegration:
         assert 'rechtsgebied="bestuursrecht"' in result
         assert 'regeling="Awb"' in result
         assert 'artikel="1:1"' in result
-        assert 'confidence="0.92"' in result
-        assert 'level="high"' in result
+        assert 'score="0.92"' in result
 
         # Web-specifieke attributen
         assert 'provider="rechtspraak.nl"' in result
         assert 'ecli="ECLI:NL:HR:2024:123"' in result
+        assert 'url="https://rechtspraak.nl/example"' in result
+        assert 'score="0.85"' in result
 
         # Document-specifieke attributen
         assert 'titel="beleidsnota.pdf"' in result
-        assert 'confidence="0.70"' in result
-        assert 'level="medium"' in result
+        assert 'citatie="¶ 2"' in result
+
+        # DEF-743: zoekscore is geen betrouwbaarheid; geen confidence/level,
+        # geen documentconstante 0.70.
+        assert "confidence=" not in result
+        assert "level=" not in result
+        assert "0.70" not in result
 
         # Bronteksten
         assert "bestuursorgaan" in result
