@@ -8,7 +8,7 @@ modelnaam). De service:
    (`domain.sources.contract.bereken_bronvingerafdruk`);
 2. bouwt een prompt waarin broninhoud **gegevens** is (afgeschermd blok,
    XML-escaped, zonder zoekscore/confidence/vlaggen als gezagssignaal);
-3. valideert de gestructureerde modeluitvoer fail-closed via het domein:
+3. valideert de gestructureerde modeluitvoer fail-closed via het broncontract:
    verzonnen bron-id's, citaten die niet in de verzonden passage staan,
    onbekende statussen/profielen en afgekapte of niet-JSON antwoorden worden
    afgewezen en onder `rejected` zichtbaar gemaakt — nooit stil gerepareerd;
