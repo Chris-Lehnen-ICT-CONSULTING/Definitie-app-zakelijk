@@ -237,7 +237,7 @@ class ServiceAdapter:
                 logger.warning(f"Failed to extract validation score, using 0.0: {e}")
         return 0.0
 
-    def _extract_is_acceptable(self, result: Any, score: float) -> bool:
+    def _extract_is_acceptable(self, result: Any, score: float | None) -> bool:
         """Extract acceptance status with fallback to score threshold."""
         # Try direct fields first
         for field in ["is_acceptable", "is_valid"]:
@@ -245,8 +245,9 @@ class ServiceAdapter:
                 return bool(getattr(result, field))
             if isinstance(result, dict) and field in result:
                 return bool(result[field])
-        # Fallback to score threshold
-        return score >= 0.5
+        # Fallback to score threshold. DEF-622: zonder totaalscore (None) is
+        # er geen drempel te toetsen — fail-closed niet acceptabel.
+        return score is not None and score >= 0.5
 
     @staticmethod
     def _met_discriminator(genormaliseerd: dict, bron: Any) -> dict:
@@ -270,10 +271,20 @@ class ServiceAdapter:
         zou daar drie velden uit het niets toekennen. Alleen een `str`-status,
         een `str`-reden en een `dict`-readiness tellen als werkelijk aanwezig.
         """
+        # DEF-622: de gestructureerde regeluitkomsten en de gate reizen mee.
+        # `rule_results` draagt de CON-01-deeluitkomsten (aanleiding, reden,
+        # vervolgstap) die de UI moet tonen nu er geen totaalscore is; zonder
+        # dit transport verdwenen ze op precies dit pad.
         for veld, verwacht_type in (
             ("validation_status", str),
             ("unknown_reason", str),
             ("validation_readiness", dict),
+            ("rule_results", dict),
+            ("rule_statuses", dict),
+            ("review_required", list),
+            ("evaluation_coverage", dict),
+            ("detailed_scores", dict),
+            ("acceptance_gate", dict),
         ):
             if isinstance(bron, dict):
                 if veld in bron:
@@ -283,6 +294,20 @@ class ServiceAdapter:
             if isinstance(waarde, verwacht_type):
                 genormaliseerd[veld] = waarde
         return genormaliseerd
+
+    def _score_of_niet_beschikbaar(self, bron: Any) -> float | None:
+        """`overall_score` uit een dict: None blijft None (DEF-622).
+
+        Een expliciete None betekent 'totaalscore niet beschikbaar' en mag
+        nooit als 0.0 doorreizen — dat is de impliciete nul die B-06 verbiedt.
+        Ontbreekt de sleutel helemaal (legacy), dan blijft de oude default.
+        """
+        if isinstance(bron, dict) and "overall_score" in bron:
+            waarde = bron["overall_score"]
+            if waarde is None:
+                return None
+            return self._safe_float(waarde)
+        return self._safe_float(safe_dict_get(bron, "score", 0.0))
 
     def normalize_validation(self, result: Any) -> dict:
         """Normalize any validation format to canonical V2 dict.
@@ -305,11 +330,7 @@ class ServiceAdapter:
         if isinstance(result, dict):
             return self._met_discriminator(
                 {
-                    "overall_score": self._safe_float(
-                        safe_dict_get(
-                            result, "overall_score", safe_dict_get(result, "score", 0.0)
-                        )
-                    ),
+                    "overall_score": self._score_of_niet_beschikbaar(result),
                     "is_acceptable": bool(
                         safe_dict_get(
                             result,
@@ -334,13 +355,7 @@ class ServiceAdapter:
                     if isinstance(data, dict):
                         return self._met_discriminator(
                             {
-                                "overall_score": self._safe_float(
-                                    safe_dict_get(
-                                        data,
-                                        "overall_score",
-                                        safe_dict_get(data, "score", 0.0),
-                                    )
-                                ),
+                                "overall_score": self._score_of_niet_beschikbaar(data),
                                 "is_acceptable": bool(
                                     safe_dict_get(
                                         data,
@@ -370,7 +385,11 @@ class ServiceAdapter:
             schema = ensure_schema_compliance(result)
             # Derive score robustly: prefer schema value, otherwise fallback extract
             extracted_score = self._extract_score(result)
-            overall = self._safe_float(schema.get("overall_score", extracted_score))
+            overall = (
+                self._score_of_niet_beschikbaar(schema)
+                if "overall_score" in schema
+                else self._safe_float(extracted_score)
+            )
 
             # Derive acceptance robustly: prefer schema, else based on score
             is_acceptable = schema.get("is_acceptable")
@@ -439,6 +458,11 @@ class ServiceAdapter:
             "web_sources_count",
             "web_lookup_debug",
             "web_lookup_debug_available",
+            # DEF-622 (besluit tekstvergelijking): de echte tekststadia voor
+            # de gedeelde renderer; alleen doorgeven wat de generatie leverde.
+            "definitie_kern_geextraheerd",
+            "definitie_eindtekst",
+            "tekst_na_generatie_aangepast",
         ):
             v = safe_dict_get(md, k)
             if v is not None:

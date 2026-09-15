@@ -1,0 +1,50 @@
+--- a/skills/definitie-toetsregels/reference.md
++++ b/skills/definitie-toetsregels/reference.md
+@@ -26,7 +26,7 @@
+ 
+ | ID | Naam | Prior. | Instructie (generatie) |
+ |----|------|--------|----------------------|
+-| CON-01 | Context impliciet, niet expliciet | **hoog** | Verwerk de context impliciet in de formulering zonder expliciete benoeming van contextnamen |
++| CON-01 | Context impliciet, niet expliciet | **hoog** (geen cijfer) | Verwerk de context impliciet in de formulering; vermeld de registratiecontext niet in de definitiezin. Een naam uit de context mag alleen voorkomen als die inhoudelijk noodzakelijk is om het begrip af te bakenen of te identificeren (DEF-622, B-02) |
+ | CON-02 | Authentieke bron | **hoog** | Baseer de definitie op een authentieke bron (wetgeving, officiële documenten, standaarden) |
+ | CON-CIRC-001 | Geen circulaire definitie | midden | Het begrip zelf mag niet letterlijk voorkomen in de definitie |
+ 
+--- a/skills/definitie-toetsregels/SKILL.md
++++ b/skills/definitie-toetsregels/SKILL.md
+@@ -73,6 +73,10 @@
+ | Hard minimum | 0.75 | Definitie wordt geblokkeerd — moet worden verbeterd |
+ | Soft minimum | 0.65 | Override nodig — gebruiker moet expliciet goedkeuren |
+ 
++### Uitzondering: CON-01 zonder cijfer (DEF-622)
++
++CON-01 (contextcontract) krijgt **geen cijfer** en telt niet als 0 of 1 mee in de weging. De uitkomst is een gemotiveerd oordeel met drie inhoudelijke uitkomsten: *Voldoet*, *Voldoet niet* (met aanleiding en reden) of *Nog te beoordelen* (een naam uit de context staat in de definitiezin; een expert legt vast of die inhoudelijk noodzakelijk is of alleen de registratiecontext noemt). Een **technische uitvoeringsfout** is daarvan afzonderlijk herkenbaar (*Technisch probleem*): geen inhoudelijke overtreding, maar de verplichte controle is dan niet uitgevoerd en een volledige *Voldoet* is niet mogelijk. Zolang een regel zonder cijfer meedoet, is de **appbrede totaalscore tijdelijk niet beschikbaar**; de regeluitkomsten blijven zichtbaar en de bestaande drempels worden niet stil versoepeld (fail-closed). Er is geen nieuwe formule of noemer "over de rest": de scoreformule is van DEF-624, de algemene herdefinitie van de vaststelgate zonder totaalscore van DEF-630.
++
+ > **Prioriteit-/aanbevelingsverdelingen** en de **DEF-126 regel-naar-generatie-instructie-transformatie** (incl. DEF-171-optimalisatie): zie [`reference.md`](reference.md).
+ 
+ ## Gerelateerde skills
+--- a/skills/definitie-nederlandse-definities/reference.md
++++ b/skills/definitie-nederlandse-definities/reference.md
+@@ -205,7 +205,7 @@
+ 
+ ## Impliciete Contextverwerking
+ 
+-Noem context NIET expliciet. Verwerk via drie mechanismen:
++Vermeld de registratiecontext niet in de definitiezin; een naam uit de context mag alleen voorkomen als die inhoudelijk noodzakelijk is om het begrip af te bakenen of te identificeren (CON-01, DEF-622). Verwerk de context verder via drie mechanismen:
+ 
+ **Vocabulaire**: kies domeinspecifieke termen
+ - ❌ `persoon` → ✅ `verdachte` (strafrecht)
+@@ -222,7 +222,7 @@
+ - ❌ `begeleiding` → ✅ `reclasseringstoezicht`
+ - ❌ `overplaatsing` → ✅ `selectie en plaatsing`
+ 
+-**Zelftest**: "Kan een domeinexpert het rechtsgebied raden ZONDER dat het label er expliciet bij staat?"
++**Zelftest**: "Kan een domeinexpert het rechtsgebied raden zonder dat de registratiecontext genoemd wordt — en is elke naam die wél in de zin staat inhoudelijk noodzakelijk?"
+ 
+ ## Checklist voor het Beoordelen van een Definitie
+ 
+@@ -235,4 +235,4 @@
+ 7. ☐ Geen circulaire verwijzing
+ 8. ☐ Beschrijft de aard, niet het doel
+ 9. ☐ Geen vage of subjectieve termen
+-10. ☐ Context impliciet verwerkt via vocabulaire
++10. ☐ Registratiecontext niet in de zin; een contextnaam alleen als die inhoudelijk noodzakelijk is

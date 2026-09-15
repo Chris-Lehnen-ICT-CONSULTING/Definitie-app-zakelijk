@@ -15,6 +15,10 @@ import streamlit as st
 from config.config_manager import ConfigSection, get_config
 from services.definition_workflow_service import ufo_categorie_uit_selectie
 from ui.components.formatters import format_record_context
+from ui.components.tekstwijziging import (
+    render_tekstwijziging,
+    tekstwijziging_uit_bewijs,
+)
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -24,6 +28,37 @@ if TYPE_CHECKING:
         DefinitieRecord,
         DefinitieRepository,
     )
+
+
+def splits_definitietekst(tekst: str) -> tuple[str, str | None]:
+    """(definitiezin, toelichting) volgens de opslagconventie van het record.
+
+    Lazy import: de UI-laag importeert de databaselaag niet op moduleniveau.
+    """
+    from database.models import splits_definitietekst as _splits
+
+    return _splits(tekst)
+
+
+def _met_toelichting(zin: str, toelichting: str | None) -> str:
+    """Bed een toelichting opnieuw in volgens dezelfde conventie."""
+    from database.models import TOELICHTING_SCHEIDING
+
+    return f"{zin}{TOELICHTING_SCHEIDING} {toelichting}" if toelichting else zin
+
+
+def _generatiebewijs(definitie: DefinitieRecord) -> dict[str, Any] | None:
+    """De per record bewaarde generatieregistratie (tekststadia), of None."""
+    import json
+
+    ruw = getattr(definitie, "generation_prompt_data", None)
+    if not ruw:
+        return None
+    try:
+        bewijs = json.loads(ruw)
+    except (TypeError, ValueError):
+        return None
+    return bewijs if isinstance(bewijs, dict) else None
 
 
 class ExpertReviewTab:
@@ -406,6 +441,9 @@ class ExpertReviewTab:
         # Definition details
         self._render_definition_details(selected_def)
 
+        # DEF-622 (B-07): contextcontract en naamfunctie-beoordeling
+        self._render_contextcontract(selected_def)
+
         # Side-by-side comparison if edited
         self._render_comparison_view(selected_def)
 
@@ -421,8 +459,22 @@ class ExpertReviewTab:
             col1, col2 = st.columns([2, 1])
 
             with col1:
+                # DEF-622 (CON-GT-007/CW-GEN-11): de legacy reader toonde de
+                # samengevoegde kolomtekst; kern en toelichting zijn twee
+                # gegevens en worden afzonderlijk getoond.
+                zin, toelichting = splits_definitietekst(definitie.definitie or "")
                 st.markdown("#### Definitie")
-                st.info(definitie.definitie)
+                st.info(zin)
+                if toelichting:
+                    st.markdown("#### Toelichting")
+                    st.info(toelichting)
+                # Besluit tekstvergelijking: alleen met echt bewijs en zolang
+                # de zin nog de generatie-eindtekst is.
+                render_tekstwijziging(
+                    tekstwijziging_uit_bewijs(
+                        _generatiebewijs(definitie), actuele_tekst=zin
+                    )
+                )
 
                 st.markdown("#### Context")
                 org_val, jur_val, wb_val = format_record_context(definitie)
@@ -521,6 +573,180 @@ class ExpertReviewTab:
 
         # Validation issues
         self._render_validation_issues(definitie)
+
+    def _render_contextcontract(self, definitie: DefinitieRecord) -> None:
+        """CON-01 op het record: uitkomst, deeluitkomsten en de naamfunctie-beoordeling.
+
+        DEF-622 (B-04/B-07/B-08): een geselecteerde contextwaarde in de
+        definitiezin is een beoordelingssignaal. De expert legt hier per
+        naamsignaal de functie (registratiecontext / inhoudelijk noodzakelijk /
+        onduidelijk) mét reden vast; die beoordeling wordt op het record
+        bewaard, is gebonden aan de exacte tekst/context/term en vervalt bij
+        een wijziging. Een open naamfunctie blokkeert vaststellen; het concept
+        blijft bewerkbaar.
+        """
+        from domain.context.contract import (
+            FUNCTIE_NOODZAKELIJK,
+            FUNCTIE_ONDUIDELIJK,
+            FUNCTIE_REGISTRATIE,
+            STATUS_FAIL,
+            STATUS_OPEN,
+            STATUS_PASS,
+            beoordeel_context,
+        )
+        from ui.components.validation_view import render_rule_results
+
+        # Dezelfde tekst- en contextbasis als gate, readback en export (K4):
+        # de definitiezin en de contractvelden van het record.
+        velden = definitie.get_contractvelden()
+        contexten = definitie.get_contextlijsten()
+        review = velden["context_review"]
+        uitkomst = beoordeel_context(
+            definitie.begrip or "",
+            definitie.get_definitie_tekst(),
+            contexten,
+            review=review,
+            definitie_versie=velden["definition_version"],
+        )
+
+        st.markdown("#### 🧭 Contextcontract (CON-01)")
+        render_rule_results({"CON-01": uitkomst.als_dict()})
+
+        open_delen = [
+            p for p in uitkomst.parts if p.status == STATUS_OPEN and p.evidence
+        ]
+        if not open_delen:
+            if uitkomst.status == STATUS_PASS and review:
+                st.caption(
+                    f"Naamfunctie beoordeeld door {review.get('actor') or 'onbekend'}; "
+                    "de beoordeling vervalt bij een wijziging van tekst of context."
+                )
+            elif uitkomst.status == STATUS_FAIL:
+                st.caption(
+                    "Voldoet niet: pas de definitietekst aan (bewerk het concept) "
+                    "en beoordeel opnieuw."
+                )
+            return
+
+        st.markdown("**Beoordeel de functie van de gevonden naam/namen:**")
+        functies: dict[str, str] = {
+            FUNCTIE_REGISTRATIE: "registratiecontext (hoort niet in de definitiezin)",
+            FUNCTIE_NOODZAKELIJK: "inhoudelijk noodzakelijk voor afbakening/identificatie",
+            FUNCTIE_ONDUIDELIJK: "nog onduidelijk (blijft open)",
+        }
+        functie_opties: list[str] = list(functies)
+
+        def _functielabel(functie_code: str) -> str:
+            return functies[functie_code]
+
+        beslissingen: dict[str, dict[str, str]] = {}
+        for part in open_delen:
+            sleutel = f"con01_{definitie.id}_{part.id}"
+            st.markdown(
+                f"- **'{part.evidence}'** (positie {part.position}, "
+                f"vastgelegd als {part.field}: '{part.context_value}')"
+            )
+            functie = st.selectbox(
+                "Functie van deze naam",
+                options=functie_opties,
+                format_func=_functielabel,
+                key=f"{sleutel}_functie",
+            )
+            reden = st.text_input(
+                "Reden (verplicht)",
+                key=f"{sleutel}_reden",
+                placeholder="Bijv. Stichting Zilver is de exclusieve uitgever van dit keurmerk",
+            )
+            beslissingen[part.id] = {
+                "function": str(functie or FUNCTIE_ONDUIDELIJK),
+                "reason": (reden or "").strip(),
+            }
+
+        onvolledig = [pid for pid, b in beslissingen.items() if not b["reason"]]
+        # K5: de handelende gebruiker is de bestaande identiteit (sessie-
+        # gebruiker of de "Reviewer naam" van de reviewflow). Zonder identiteit
+        # wordt geen actor verzonnen: vastleggen is dan geblokkeerd.
+        actor = self._handelende_gebruiker()
+        hulp = None
+        if onvolledig:
+            hulp = "Geef bij elke naam een reden op"
+        elif not actor:
+            hulp = "Vul eerst de reviewer naam in (onder de reviewbeslissing)"
+        if st.button(
+            "📝 Leg beoordeling vast",
+            key=f"con01_{definitie.id}_vastleggen",
+            disabled=bool(onvolledig) or not actor,
+            help=hulp,
+        ):
+            if not actor or definitie.id is None:
+                st.error(
+                    "❌ Vastleggen vereist een reviewer naam en een opgeslagen definitie"
+                )
+                return
+            bestaande = dict(review or {})
+            bestaande_beslissingen = (
+                dict(bestaande.get("decisions") or {})
+                if bestaande.get("fingerprint") == uitkomst.fingerprint
+                else {}
+            )
+            bestaande_beslissingen.update(beslissingen)
+            self._leg_beoordeling_vast(
+                definitie,
+                {
+                    "fingerprint": uitkomst.fingerprint,
+                    "actor": actor,
+                    # V2b: de beoordeelde (getoonde) recordversie hoort in de
+                    # beoordeling zelf; expected_version is alleen de
+                    # concurrency-guard bij het opslaan.
+                    "version_number": definitie.version_number,
+                    "decisions": bestaande_beslissingen,
+                    "reviewed_at": datetime.now().isoformat(),
+                },
+                actor,
+            )
+
+    def _leg_beoordeling_vast(
+        self, definitie: DefinitieRecord, nieuwe_review: dict[str, Any], actor: str
+    ) -> None:
+        """Sla de beoordeling op tegen de getoonde versie en ververs de selectie."""
+        definitie_id = cast(int, definitie.id)
+        opgeslagen = self.repository.set_context_review(
+            definitie_id,
+            nieuwe_review,
+            updated_by=actor,
+            # De versie die de expert vóór zich had (V2a): is het record
+            # intussen gewijzigd, dan bindt deze invoer niet.
+            expected_version=definitie.version_number,
+        )
+        # Opslaan bumpt de versie: herlaad het record zodat de vaststelling
+        # straks tegen de actuele versie loopt. Ook bij een verouderd
+        # snapshot wordt de selectie ververst.
+        vers = self.repository.get_definitie(definitie_id)
+        if vers is not None:
+            SessionStateManager.set_value("selected_review_definition", vers)
+        if opgeslagen:
+            st.success("✅ Beoordeling vastgelegd")
+        elif vers is not None and vers.version_number != definitie.version_number:
+            st.warning(
+                "⚠️ Beoordeling niet vastgelegd: de definitie is intussen "
+                "gewijzigd; beoordeel de actuele versie opnieuw"
+            )
+        else:
+            st.error("❌ Beoordeling kon niet worden vastgelegd")
+        st.rerun()
+
+    @staticmethod
+    def _handelende_gebruiker() -> str | None:
+        """De bestaande gebruikersidentiteit van deze sessie, of None.
+
+        Eerst de sessiegebruiker, anders de "Reviewer naam" die de reviewflow
+        al vereist voor "Submit Review". Geen verzonnen standaardwaarde (K5).
+        """
+        for sleutel in ("user", "reviewer_name_input"):
+            waarde = SessionStateManager.get_value(sleutel)
+            if isinstance(waarde, str) and waarde.strip():
+                return waarde.strip()
+        return None
 
     def _render_validation_issues(self, definitie: DefinitieRecord) -> None:
         """Render validation issues voor review."""
@@ -630,6 +856,30 @@ class ExpertReviewTab:
                     help="Selecteer alle partners die expliciet akkoord zijn met deze definitie.",
                 )
 
+                # DEF-622 (B-03/B-10): maximaal één vastgesteld record per
+                # begrip + volledige context. Bestaat er al een leidend
+                # record, dan is vervangen een bewuste keuze van de expert.
+                vervang_id: int | None = None
+                leidend = self.repository.find_leidende_definitie(
+                    definitie.begrip,
+                    definitie.organisatorische_context,
+                    definitie.juridische_context or "",
+                    definitie.get_wettelijke_basis_list(),
+                    eigen_id=definitie.id,
+                )
+                if leidend is not None:
+                    st.warning(
+                        f"⚠️ Er is al een vastgestelde definitie (ID {leidend.id}) "
+                        f"voor '{leidend.begrip}' met dezelfde context: "
+                        f"“{leidend.definitie}”"
+                    )
+                    if st.checkbox(
+                        f"Vervang de vastgestelde definitie (ID {leidend.id}) door "
+                        "deze; de eerdere wordt gearchiveerd (historie blijft)",
+                        key=f"vervang_{definitie.id}_{leidend.id}",
+                    ):
+                        vervang_id = leidend.id
+
                 approve_label = (
                     "Vaststellen met override"
                     if gate_status == "override_required"
@@ -670,6 +920,8 @@ class ExpertReviewTab:
                         ufo_categorie=ufo_categorie,
                         # DEF-482: de versie die de reviewer op het scherm had.
                         expected_version=definitie.version_number,
+                        # DEF-622 (B-10): alleen bij bewuste keuze.
+                        vervang_definitie_id=vervang_id,
                     )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
@@ -678,6 +930,11 @@ class ExpertReviewTab:
                         st.error(
                             f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}"
                         )
+                        if res.gate_status == "conflict":
+                            st.info(
+                                "Kies hierboven expliciet of de bestaande "
+                                "vastgestelde definitie wordt vervangen."
+                            )
             with col2:
                 st.markdown("#### ❌ Afwijzen")
                 reason = st.text_area(
@@ -769,10 +1026,18 @@ class ExpertReviewTab:
         st.markdown("#### ✏️ Definitie Bewerking")
 
         col1, col2 = st.columns(2)
+        # DEF-622: de expert bewerkt de definitiezin en — als het record er
+        # een heeft — de ingebedde inhoudelijke toelichting elk in een eigen
+        # veld; bij opslaan worden ze volgens dezelfde conventie opnieuw
+        # ingebed. De kern (CON-01-toetsing) blijft de zin alleen.
+        zin, toelichting = splits_definitietekst(definitie.definitie or "")
 
         with col1:
             st.markdown("**Originele AI Definitie**")
-            st.info(definitie.definitie)
+            st.info(zin)
+            if toelichting:
+                st.caption("Toelichting")
+                st.info(toelichting)
 
         with col2:
             st.markdown("**Expert Aangepaste Versie**")
@@ -780,7 +1045,7 @@ class ExpertReviewTab:
             # Key-only pattern: initialize state before widget
             edit_key = f"edit_def_{definitie.id}"
             if edit_key not in st.session_state:
-                SessionStateManager.set_value(edit_key, definitie.definitie)
+                SessionStateManager.set_value(edit_key, zin)
 
             # Editable text area (key-only, no value= parameter)
             edited_definitie = st.text_area(
@@ -791,13 +1056,37 @@ class ExpertReviewTab:
             )
 
             # Show changes
-            if edited_definitie != definitie.definitie:
+            if edited_definitie != zin:
                 st.info("✏️ Definitie aangepast")
                 SessionStateManager.set_value(
                     f"edited_definition_{definitie.id}", edited_definitie
                 )
             else:
                 SessionStateManager.clear_value(f"edited_definition_{definitie.id}")
+
+            if toelichting:
+                # Alleen een bestaande inhoudelijke toelichting is bewerkbaar;
+                # dit is geen veld voor een CON-01-naamgrond (die hoort in de
+                # beoordeling). Terugzetten naar het origineel wist de
+                # markering, zodat een latere opslag geen oude wijziging meeneemt.
+                toel_key = f"edit_toel_{definitie.id}"
+                if toel_key not in st.session_state:
+                    SessionStateManager.set_value(toel_key, toelichting)
+                edited_toelichting = st.text_area(
+                    "Bewerk toelichting",
+                    height=100,
+                    key=toel_key,
+                    help="Bestaande inhoudelijke toelichting bij de definitie",
+                )
+                if edited_toelichting != toelichting:
+                    st.info("✏️ Toelichting aangepast")
+                    SessionStateManager.set_value(
+                        f"edited_toelichting_{definitie.id}", edited_toelichting
+                    )
+                else:
+                    SessionStateManager.clear_value(
+                        f"edited_toelichting_{definitie.id}"
+                    )
 
     def _render_review_form(self, definitie: DefinitieRecord) -> None:
         """Render review form met approval options."""
@@ -860,51 +1149,8 @@ class ExpertReviewTab:
             v2 = SessionStateManager.get_value(vkey)
             if not v2:
                 # Probeer bestaande DB-validatie te mappen naar V2-formaat
-                issues = (
-                    definitie.get_validation_issues_list()
-                    if hasattr(definitie, "get_validation_issues_list")
-                    else []
-                )
-                if issues:
-                    try:
-                        score = float(
-                            getattr(definitie, "validation_score", 0.0) or 0.0
-                        )
-                    except Exception:
-                        score = 0.0
-                    # Map DB issues → V2 violations
-                    mapped = []
-                    for it in issues:
-                        try:
-                            mapped.append(
-                                {
-                                    "code": it.get("code") or it.get("rule_id") or "",
-                                    "severity": it.get("severity", "warning"),
-                                    "message": it.get("message")
-                                    or it.get("description")
-                                    or "",
-                                    "description": it.get("description")
-                                    or it.get("message")
-                                    or "",
-                                    "rule_id": it.get("rule_id")
-                                    or it.get("code")
-                                    or "",
-                                    "category": it.get("category", "system"),
-                                }
-                            )
-                        except (AttributeError, TypeError, KeyError) as e:
-                            logger.warning(f"Could not map issue to V2 format: {e}")
-                    v2 = {
-                        "version": "1.0.0",
-                        "overall_score": score,
-                        "is_acceptable": bool(score >= 0.75),
-                        "violations": mapped,
-                        "passed_rules": [],
-                        "detailed_scores": {},
-                        "system": {
-                            "correlation_id": "00000000-0000-0000-0000-000000000000"
-                        },
-                    }
+                v2 = self._v2_uit_opgeslagen_validatie(definitie)
+                if v2:
                     SessionStateManager.set_value(vkey, v2)
 
             if v2:
@@ -920,6 +1166,58 @@ class ExpertReviewTab:
             logger.exception(
                 "Failed to render validation results for definitie %s", definitie.id
             )
+
+    @staticmethod
+    def _v2_uit_opgeslagen_validatie(
+        definitie: DefinitieRecord,
+    ) -> dict[str, Any] | None:
+        """Map de in de DB opgeslagen validatie-issues naar het V2-formaat.
+
+        None wanneer er geen issues zijn. DEF-622: een ontbrekende score is
+        'niet beschikbaar' (None), geen 0.0 — en dus ook geen oordeel ≥ 0,75;
+        de vastgelegde CON-01-beoordeling is geen violation en blijft buiten
+        de lijst.
+        """
+        from database.models import CONTEXT_REVIEW_CODE
+
+        issues = (
+            definitie.get_validation_issues_list()
+            if hasattr(definitie, "get_validation_issues_list")
+            else []
+        )
+        if not issues:
+            return None
+        ruwe = getattr(definitie, "validation_score", None)
+        try:
+            score = None if ruwe is None else float(ruwe)
+        except (TypeError, ValueError):
+            score = None
+        mapped = []
+        for it in issues:
+            if it.get("code") == CONTEXT_REVIEW_CODE:
+                continue
+            try:
+                mapped.append(
+                    {
+                        "code": it.get("code") or it.get("rule_id") or "",
+                        "severity": it.get("severity", "warning"),
+                        "message": it.get("message") or it.get("description") or "",
+                        "description": it.get("description") or it.get("message") or "",
+                        "rule_id": it.get("rule_id") or it.get("code") or "",
+                        "category": it.get("category", "system"),
+                    }
+                )
+            except (AttributeError, TypeError, KeyError) as e:
+                logger.warning(f"Could not map issue to V2 format: {e}")
+        return {
+            "version": "1.0.0",
+            "overall_score": score,
+            "is_acceptable": score is not None and score >= 0.75,
+            "violations": mapped,
+            "passed_rules": [],
+            "detailed_scores": {},
+            "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+        }
 
     def _render_review_history(self) -> None:
         """Render review geschiedenis."""
@@ -967,14 +1265,25 @@ class ExpertReviewTab:
 
         try:
             # Check voor aangepaste velden
-            updates = {}
+            updates: dict[str, Any] = {}
 
-            # Check voor aangepaste definitie
+            # Check voor aangepaste definitiezin en/of bestaande inhoudelijke
+            # toelichting; beide worden volgens de opslagconventie opnieuw
+            # ingebed (DEF-622, CON-GT-007/CW-GEN-11; reviewbevinding 3).
             edited_def = SessionStateManager.get_value(
                 f"edited_definition_{definitie.id}"
             )
-            if edited_def and edited_def != definitie.definitie:
-                updates["definitie"] = edited_def
+            edited_toel = SessionStateManager.get_value(
+                f"edited_toelichting_{definitie.id}"
+            )
+            zin, toelichting = splits_definitietekst(definitie.definitie or "")
+            nieuwe_zin = edited_def if edited_def and edited_def != zin else zin
+            nieuwe_toelichting = toelichting
+            if toelichting is not None and isinstance(edited_toel, str):
+                # Geleegd veld = toelichting verwijderd; de zin blijft.
+                nieuwe_toelichting = edited_toel.strip() or None
+            if nieuwe_zin != zin or nieuwe_toelichting != toelichting:
+                updates["definitie"] = _met_toelichting(nieuwe_zin, nieuwe_toelichting)
 
             # Check voor aangepaste UFO categorie
             ufo_selected = SessionStateManager.get_value(f"review_ufo_{definitie.id}")
@@ -993,9 +1302,21 @@ class ExpertReviewTab:
             # Update alles in één keer indien er wijzigingen zijn
             if updates:
                 # DEF-439: definitie.id is int at runtime (loaded record)
-                self.repository.update_definitie(
+                opgeslagen = self.repository.update_definitie(
                     cast(int, definitie.id), updates, reviewer
                 )
+                if not opgeslagen:
+                    # Niets doen alsof de opslag slaagde: geen refresh van de
+                    # selectie, geen besluitverwerking op een niet-opgeslagen
+                    # tekst.
+                    st.error("❌ Wijzigingen konden niet worden opgeslagen")
+                    return
+                # Reviewbevinding 3 (v3): de veldopslag is bevestigd, dus de
+                # vergelijkingsbasis is vanaf hier de opgeslagen versie — ook
+                # als de vervolgactie hieronder een exception geeft. De latere
+                # refresh na approval_notes/statusverwerking blijft voor de
+                # nieuwste versie.
+                self._ververs_selectie_na_opslag(definitie)
 
             # Process decision
             if "Goedkeuren" in decision:
@@ -1045,6 +1366,9 @@ class ExpertReviewTab:
                                     else ""
                                 )
                             )
+                        # De veldwijzigingen zijn wél opgeslagen; de selectie
+                        # blijft in beeld en moet die opgeslagen versie zijn.
+                        self._ververs_selectie_na_opslag(definitie)
                 except Exception as se:
                     st.error(f"❌ Gate-workflow fout: {se!s}")
 
@@ -1057,6 +1381,12 @@ class ExpertReviewTab:
                     reviewer,
                 )
                 st.warning("⚠️ Wijzigingen gemarkeerd - definitie blijft in review")
+                # Reviewbevinding 3 (v2): de getoonde selectie — en daarmee de
+                # vergelijkingsbasis van de bewerkvelden — is na de opslag de
+                # opgeslagen versie uit een echte readback. Anders lijkt een
+                # terugzetting naar de oorspronkelijke tekst 'ongewijzigd' tegen
+                # het oude record en gaat een tweede opslag verloren.
+                self._ververs_selectie_na_opslag(definitie)
 
             elif "Afwijzen" in decision:
                 # Lazy import: UI-laaggrens verbiedt top-level database-imports
@@ -1077,9 +1407,26 @@ class ExpertReviewTab:
                     st.rerun()
                 else:
                     st.error("❌ Kon definitie niet afwijzen")
+                    # Zelfde reden als bij een geblokkeerde goedkeuring.
+                    self._ververs_selectie_na_opslag(definitie)
 
         except Exception as e:
             st.error(f"❌ Fout bij review submission: {e!s}")
+
+    def _ververs_selectie_na_opslag(self, definitie: DefinitieRecord) -> None:
+        """Vervang de getoonde selectie door het opgeslagen record (echte
+        readback, actuele versie na alle updates). Alleen het geselecteerde
+        record wordt ververst; er wordt geen widgetwaarde overschreven — de
+        bewerkvelden herberekenen hun markering op de volgende rerun tegen
+        deze basis."""
+        if definitie.id is None:
+            return
+        geselecteerd = SessionStateManager.get_value("selected_review_definition")
+        if geselecteerd is None or getattr(geselecteerd, "id", None) != definitie.id:
+            return
+        vers = self.repository.get_definitie(definitie.id)
+        if vers is not None:
+            SessionStateManager.set_value("selected_review_definition", vers)
 
     def _save_review_draft(
         self, definitie: DefinitieRecord, decision: str, comments: str
@@ -1090,45 +1437,29 @@ class ExpertReviewTab:
     def _revalidate_definition(self, definitie: DefinitieRecord) -> None:
         """Re-validate definitie met current rules en toon details (gedeeld)."""
         try:
-            from services.interfaces import Definition
-            from services.validation.interfaces import ValidationContext
             from ui.cached_services import get_cached_service_container
             from ui.helpers.async_bridge import run_async
 
             container = get_cached_service_container()
             orch = container.orchestrator()
 
-            # Build Definition from record
-            definition = Definition(
-                begrip=definitie.begrip,
-                definitie=definitie.definitie,
-                organisatorische_context=(
-                    definitie.get_org_list()
-                    if hasattr(definitie, "get_org_list")
-                    else []
-                ),
-                juridische_context=(
-                    definitie.get_jur_list()
-                    if hasattr(definitie, "get_jur_list")
-                    else []
-                ),
-                wettelijke_basis=(
-                    definitie.get_wettelijke_basis_list()
-                    if hasattr(definitie, "get_wettelijke_basis_list")
-                    else []
-                ),
-                categorie=definitie.categorie,
-            )
-            ctx = ValidationContext(
-                correlation_id=None,
-                metadata={
-                    "organisatorische_context": definition.organisatorische_context
-                    or [],
-                    "juridische_context": definition.juridische_context or [],
-                    "wettelijke_basis": definition.wettelijke_basis or [],
-                },
-            )
-            v2 = run_async(orch.validation_service.validate_definition(definition, ctx))
+            # K3: één actuele lezing van het opgeslagen record; de getoonde
+            # selectie én het validatieresultaat komen uit diezelfde lezing
+            # (geen oude selectie naast een nieuwere uitkomst). De canonieke
+            # recordadapter zet dat record om, zodat id, de drie
+            # contextlijsten, recordversie en de vastgelegde beoordeling naar
+            # de orchestrator reizen. Een losse `Definition` zonder die velden
+            # gaf een lege context en verloor de beoordeling.
+            if definitie.id is None:
+                st.error("❌ Hervalidatie vereist een opgeslagen definitie")
+                return
+            actueel = self.repository.get_definitie(definitie.id)
+            if actueel is None:
+                st.error(f"❌ Definitie {definitie.id} niet gevonden")
+                return
+            SessionStateManager.set_value("selected_review_definition", actueel)
+            definition = container.repository().van_record(actueel)
+            v2 = run_async(orch.validation_service.validate_definition(definition))
             # Sla resultaat op en render buiten de kolommen (full-width)
             vkey = f"review_v2_validation_{definitie.id}"
             if isinstance(v2, dict):

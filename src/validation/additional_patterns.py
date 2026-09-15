@@ -21,13 +21,10 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
         r"\bdoeltreffend\b",
         r"\bvoldoende\b",
     ],
-    "CON-01": [
-        r"\b(in de context van|binnen de context|juridische context)\b",
-        r"\b(DJI|OM|KMAR|Openbaar Ministerie)\b",
-        r"\bvolgens het Wetboek van\b",
-        r"\bin het strafrecht\b",
-        r"\bin de strafrechtelijke context\b",
-    ],
+    # CON-01 staat hier bewust niet meer (DEF-622, B-04): een vaste lijst
+    # meta-frasen en organisatienamen is geen goedgekeurde afkeurgrond. De
+    # regel leest de werkelijk geselecteerde contextwaarden via
+    # `domain.context.contract`.
     "ESS-01": [
         r"\b(om te|met als doel|bedoeld om|teneinde|zodat)\b",
         r"\b(gericht op|ten behoeve van)\b",

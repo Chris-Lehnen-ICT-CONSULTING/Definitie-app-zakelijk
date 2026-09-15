@@ -7,16 +7,40 @@ pytestmark = [pytest.mark.unit]
 
 
 @pytest.mark.asyncio
-async def test_con01_flags_context_wording_more_generic():
+async def test_con01_fails_without_context_and_signals_selected_name():
+    """DEF-622: geen vaste woordenlijst meer (B-04).
+
+    Zonder recordcontext voldoet de definitie niet (B-01). Mét de context
+    `strafrecht` is het woord in de zin een naamsignaal dat op beoordeling
+    wacht — geen automatische violation.
+    """
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = "maatregel: actie binnen het strafrecht"
-    res = await svc.validate_definition(
+    zonder_context = await svc.validate_definition(
         begrip="maatregel",
         text=text,
         ontologische_categorie=None,
         context={},
     )
-    assert any(v.get("code") == "CON-01" for v in res.get("violations", [])), res
+    assert zonder_context["rule_statuses"]["CON-01"] == "fail", zonder_context[
+        "rule_statuses"
+    ]
+    assert any(
+        v.get("code") == "CON-01" for v in zonder_context.get("violations", [])
+    ), zonder_context
+
+    met_context = await svc.validate_definition(
+        begrip="maatregel",
+        text=text,
+        ontologische_categorie=None,
+        context={"juridische_context": ["strafrecht"]},
+    )
+    assert met_context["rule_statuses"]["CON-01"] == "review_required", met_context[
+        "rule_statuses"
+    ]
+    assert not any(
+        v.get("code") == "CON-01" for v in met_context.get("violations", [])
+    ), met_context
 
 
 @pytest.mark.asyncio

@@ -290,7 +290,14 @@ class JSONBasedRulesModule(BasePromptModule):
             "VER-02": "Formuleer de definitie in het enkelvoud",
             "VER-03": "Gebruik de infinitief voor werkwoord-termen (niet vervoegd)",
             # CON rules (Context)
-            "CON-01": "Verwerk de context impliciet in de formulering zonder expliciete benoeming van contextnamen",
+            # DEF-622 (B-02): registratiecontext buiten de zin; een inhoudelijk
+            # noodzakelijke naam mag blijven staan.
+            "CON-01": (
+                "Verwerk de context impliciet in de formulering; vermeld de "
+                "registratiecontext niet in de definitiezin. Een naam uit de context "
+                "mag alleen voorkomen als die inhoudelijk noodzakelijk is om het "
+                "begrip af te bakenen of te identificeren"
+            ),
             "CON-02": "Baseer de definitie op een authentieke bron (wetgeving, officiële documenten, standaarden)",
             # SAM rules (Samenstelling)
             "SAM-01": "Zorg dat kwalificaties niet leiden tot een betekenis die afwijkt van het algemeen aanvaarde begrip",

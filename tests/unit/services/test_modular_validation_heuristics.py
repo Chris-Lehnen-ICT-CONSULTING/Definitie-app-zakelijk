@@ -58,10 +58,14 @@ async def test_too_minimal_structure_violation_blocks_acceptance():
 
 @pytest.mark.unit
 @pytest.mark.asyncio
-async def test_soft_accept_minimal_ok_without_blocking_errors():
-    from services.validation.modular_validation_service import ModularValidationService
-
-    svc = ModularValidationService(get_toetsregel_manager(), None, None)
+async def test_soft_accept_minimal_ok_without_blocking_errors(
+    service_met_totaalscore,
+):
+    # DEF-622: met de echte 53-regelset is de totaalscore niet beschikbaar
+    # (CON-01 zonder cijfer) en blokkeert de gate fail-closed; de soft floor
+    # is dan niet toetsbaar. Deze test bewijst de soft-floormechanica op de
+    # regelset mínus de regels zonder cijfer.
+    svc = service_met_totaalscore()
     # DEF-621: de oude databanktekst scoort met de echte 53-regelmanager 0,55
     # en is dan niet acceptabel - die invoer toetst de soft floor dus niet
     # meer. Deze invoer is gemeten op 0,64: onder de drempel van 0,75, zonder

@@ -225,6 +225,8 @@ async def test_orchestrator_v2(bevroren_omgeving):
         id=str(uuid.uuid4()),
         begrip="hoger beroep",
         context="Gerechtshof",
+        # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+        organisatorische_context=["Gerechtshof"],
         # Canonieke, kleine waarde: `service_factory` geeft `.value` door en de
         # CHECK-constraint op definities.categorie kent alleen deze vorm.
         ontologische_categorie=OntologischeCategorie.PROCES.value,

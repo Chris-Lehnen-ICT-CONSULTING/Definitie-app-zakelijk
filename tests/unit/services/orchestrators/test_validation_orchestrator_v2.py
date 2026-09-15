@@ -93,12 +93,13 @@ class TestValidationOrchestratorV2:
         assert result["overall_score"] == 0.95
         assert result["is_acceptable"] is True
 
-        # Verify service was called with correct args
+        # Verify service was called with correct args. DEF-622: de exacte
+        # invoertekst reist altijd als `record_text` mee (CON-01-binding).
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
             text="test text",
             ontologische_categorie="PROCES",
-            context={"profile": "standard"},
+            context={"profile": "standard", "record_text": "test text"},
         )
 
     @pytest.mark.asyncio
@@ -112,12 +113,13 @@ class TestValidationOrchestratorV2:
 
         assert result["is_acceptable"] is True
 
-        # Verify service was called with None context
+        # Verify service was called without caller context. DEF-622: alleen de
+        # exacte invoertekst reist als `record_text` mee (CON-01-binding).
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
             text="test text",
             ontologische_categorie=None,
-            context=None,
+            context={"record_text": "test text"},
         )
 
     @pytest.mark.asyncio
@@ -134,12 +136,14 @@ class TestValidationOrchestratorV2:
             "dirty text", "test_begrip"
         )
 
-        # Verify validation used cleaned text
+        # Verify validation used cleaned text. DEF-622: de exacte invoertekst
+        # reist als `record_text` mee, zodat CON-01 bewijs en beoordeling
+        # daaraan bindt en niet aan de opgeschoonde variant.
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
             text="cleaned text",
             ontologische_categorie=None,
-            context=None,
+            context={"record_text": "dirty text"},
         )
 
     @pytest.mark.asyncio
@@ -159,13 +163,17 @@ class TestValidationOrchestratorV2:
 
         assert result["is_acceptable"] is True
 
-        # Verify service was called correctly
-        mock_validation_service.validate_definition.assert_called_once_with(
-            begrip="test_begrip",
-            text="test definitie",
-            ontologische_categorie="OBJECT",
-            context={"profile": "advanced"},
-        )
+        # Verify service was called correctly. DEF-622: het record levert
+        # altijd zijn drie (hier lege) contextlijsten mee, naast het profiel.
+        mock_validation_service.validate_definition.assert_called_once()
+        kwargs = mock_validation_service.validate_definition.call_args.kwargs
+        assert kwargs["begrip"] == "test_begrip"
+        assert kwargs["text"] == "test definitie"
+        assert kwargs["ontologische_categorie"] == "OBJECT"
+        assert kwargs["context"]["profile"] == "advanced"
+        assert kwargs["context"]["organisatorische_context"] == []
+        assert kwargs["context"]["juridische_context"] == []
+        assert kwargs["context"]["wettelijke_basis"] == []
 
     @pytest.mark.asyncio
     async def test_validate_definition_with_cleaning(
@@ -179,13 +187,15 @@ class TestValidationOrchestratorV2:
         # Verify cleaning was called
         mock_cleaning_service.clean_definition.assert_called_once_with(definition)
 
-        # Verify validation used cleaned text
-        mock_validation_service.validate_definition.assert_called_once_with(
-            begrip="test_begrip",
-            text="cleaned definition text",
-            ontologische_categorie=None,
-            context=None,
-        )
+        # Verify validation used cleaned text. DEF-622: ook zonder
+        # ValidationContext reist de recordcontext mee (hier leeg).
+        mock_validation_service.validate_definition.assert_called_once()
+        kwargs = mock_validation_service.validate_definition.call_args.kwargs
+        assert kwargs["begrip"] == "test_begrip"
+        assert kwargs["text"] == "cleaned definition text"
+        assert kwargs["ontologische_categorie"] is None
+        assert kwargs["context"]["organisatorische_context"] == []
+        assert "profile" not in kwargs["context"]
 
     @pytest.mark.asyncio
     async def test_batch_validate_sequential(self, orchestrator):

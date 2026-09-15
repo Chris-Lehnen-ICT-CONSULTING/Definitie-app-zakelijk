@@ -151,10 +151,19 @@ class AutomationStatus(StrEnum):
 
 
 class ScorePolicy(StrEnum):
-    """Of de uitkomst meetelt in de kwaliteitsscore."""
+    """Of de uitkomst meetelt in de kwaliteitsscore.
+
+    `NO_SCORE` (DEF-622, besluit B-06): de regel levert een uitkomst met
+    motivering maar geen cijfer. Anders dan `EXCLUDED_FROM_SCORE` — die regel
+    telt bewust niet mee en laat de totaalscore over de overige regels
+    intact — betekent `NO_SCORE` dat er geen totaalscore beschikbaar is
+    zolang geen productbesluit een noemer zonder deze regel vaststelt. Het
+    ontbrekende cijfer mag nooit als 0 of 1 worden ingevuld.
+    """
 
     SCORED = "scored"
     EXCLUDED_FROM_SCORE = "excluded_from_score"
+    NO_SCORE = "no_score"
 
 
 class ResultStatus(StrEnum):

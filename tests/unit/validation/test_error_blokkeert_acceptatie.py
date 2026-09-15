@@ -111,10 +111,11 @@ class _KapotteRepository:
         raise RuntimeError("SQLite: database is locked")
 
 
-async def _met_kapotte_repository() -> dict:
-    svc = ModularValidationService(
-        get_toetsregel_manager(), None, None, repository=_KapotteRepository()
-    )
+async def _met_kapotte_repository(svc: ModularValidationService | None = None) -> dict:
+    if svc is None:
+        svc = ModularValidationService(
+            get_toetsregel_manager(), None, None, repository=_KapotteRepository()
+        )
     return await svc.validate_definition(
         begrip=BEGRIP, text=TEKST, ontologische_categorie=None, context=CONTEXT
     )
@@ -136,7 +137,9 @@ class TestErrorBlokkeertAcceptatie:
         )
 
     @pytest.mark.asyncio
-    async def test_de_score_zelf_blijft_over_pass_en_fail(self):
+    async def test_de_score_zelf_blijft_over_pass_en_fail(
+        self, service_met_totaalscore
+    ):
         """Besluit 6 blijft intact: de ERROR gaat niet als 0,0 de score in.
 
         Deze test eiste eerder `overall_score >= 0,75`, omdat de geërrorde
@@ -150,12 +153,18 @@ class TestErrorBlokkeertAcceptatie:
         drempel: dezelfde tekst moet met en zonder kapotte repository exact
         hetzelfde cijfer opleveren. Zou de ERROR alsnog als 0,0 meetellen, dan
         zakt de score en valt deze test om.
+
+        DEF-622: op de echte regelset is de totaalscore None (CON-01 zonder
+        cijfer) en zou `None == None` niets bewijzen; daarom op de regelset
+        mínus de regels zonder cijfer.
         """
-        met_storing = await _met_kapotte_repository()
-        svc = ModularValidationService(get_toetsregel_manager(), None, None)
-        zonder = await svc.validate_definition(
+        met_storing = await _met_kapotte_repository(
+            service_met_totaalscore(_KapotteRepository())
+        )
+        zonder = await service_met_totaalscore().validate_definition(
             begrip=BEGRIP, text=TEKST, ontologische_categorie=None, context=CONTEXT
         )
+        assert isinstance(zonder["overall_score"], float)
         assert met_storing["overall_score"] == zonder["overall_score"], (
             "een mislukte duplicaatcontrole beweegt de kwaliteitsscore: "
             f"{met_storing['overall_score']} met storing tegen "
@@ -166,11 +175,16 @@ class TestErrorBlokkeertAcceptatie:
         assert zonder["is_acceptable"] is True, zonder["overall_score"]
 
     @pytest.mark.asyncio
-    async def test_zonder_repository_blijft_het_resultaat_acceptabel(self):
+    async def test_zonder_repository_blijft_het_resultaat_acceptabel(
+        self, service_met_totaalscore
+    ):
         # De tegenhanger: de blokkade mag niet elke validatie afkeuren. De UI
         # valideert standaard zonder repository, en dan is er geen error.
-        svc = ModularValidationService(get_toetsregel_manager(), None, None)
-        res = await svc.validate_definition(
+        # DEF-622: op de echte regelset blokkeert de niet-beschikbare
+        # totaalscore élk resultaat; de errorblokkade wordt daarom op de
+        # regelset mínus de regels zonder cijfer bewezen, en op de echte
+        # regelset alleen als afwezige `evaluation_error`-poort.
+        res = await service_met_totaalscore().validate_definition(
             begrip=BEGRIP, text=TEKST, ontologische_categorie=None, context=CONTEXT
         )
         assert res["evaluation_coverage"]["error"] == 0, res["evaluation_coverage"]
@@ -178,6 +192,15 @@ class TestErrorBlokkeertAcceptatie:
             f"zonder errors hoort dezelfde tekst gewoon acceptabel te zijn "
             f"(score {res['overall_score']})"
         )
+
+        echt = await ModularValidationService(
+            get_toetsregel_manager(), None, None
+        ).validate_definition(
+            begrip=BEGRIP, text=TEKST, ontologische_categorie=None, context=CONTEXT
+        )
+        gefaald = (echt.get("acceptance_gate") or {}).get("gates_failed") or []
+        assert "evaluation_error" not in gefaald, gefaald
+        assert "overall_score_unavailable" in gefaald, gefaald
 
 
 def _record(rule_id: str, patronen: list[str]) -> RuleRecord:

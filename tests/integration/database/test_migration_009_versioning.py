@@ -24,6 +24,10 @@ from domain.ontological_categories import OntologischeCategorie
 
 pytestmark = [pytest.mark.integration]
 
+#: DEF-622 (besluit 5): bewust naast een bestaande definitie in dezelfde
+#: context aanmaken vraagt een reden voor de audit van het nieuwe record.
+VERSIEREDEN = "synthetische versietest (DEF-622: auditreden verplicht)"
+
 
 class TestMigration009Versioning:
     """Test versioning system after UNIQUE INDEX removal."""
@@ -75,7 +79,9 @@ class TestMigration009Versioning:
             previous_version_id=id_v1,
             created_by="reviewer",
         )
-        id_v2 = repo.create_definitie(v2, allow_duplicate=True)
+        id_v2 = repo.create_definitie(
+            v2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
         assert id_v2 > 0
         assert id_v2 != id_v1
 
@@ -92,7 +98,9 @@ class TestMigration009Versioning:
             previous_version_id=id_v2,
             created_by="admin",
         )
-        id_v3 = repo.create_definitie(v3, allow_duplicate=True)
+        id_v3 = repo.create_definitie(
+            v3, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
         assert id_v3 > 0
         assert id_v3 not in [id_v1, id_v2]
 
@@ -150,7 +158,9 @@ class TestMigration009Versioning:
             repo.create_definitie(d2, allow_duplicate=False)
 
         # Explicit allow_duplicate=True should succeed (versioning)
-        id2 = repo.create_definitie(d2, allow_duplicate=True)
+        id2 = repo.create_definitie(
+            d2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
         assert id2 > 0
 
     def test_different_contexts_allowed(self, repo):
@@ -229,7 +239,9 @@ class TestMigration009Versioning:
             organisatorische_context="test",
             status=DefinitieStatus.ARCHIVED.value,  # ARCHIVED
         )
-        id_old = repo.create_definitie(old, allow_duplicate=True)
+        id_old = repo.create_definitie(
+            old, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
 
         # Create new definition with same context (should succeed - old is archived)
         new = DefinitieRecord(
@@ -256,7 +268,9 @@ class TestMigration009Versioning:
             status=DefinitieStatus.DRAFT.value,
             version_number=1,
         )
-        id_v1 = repo.create_definitie(v1, allow_duplicate=True)
+        id_v1 = repo.create_definitie(
+            v1, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
 
         v2 = DefinitieRecord(
             begrip="begrip_met_geschiedenis",
@@ -267,7 +281,9 @@ class TestMigration009Versioning:
             version_number=2,
             previous_version_id=id_v1,
         )
-        id_v2 = repo.create_definitie(v2, allow_duplicate=True)
+        id_v2 = repo.create_definitie(
+            v2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
 
         v3 = DefinitieRecord(
             begrip="begrip_met_geschiedenis",
@@ -278,7 +294,9 @@ class TestMigration009Versioning:
             version_number=3,
             previous_version_id=id_v2,
         )
-        id_v3 = repo.create_definitie(v3, allow_duplicate=True)
+        id_v3 = repo.create_definitie(
+            v3, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
 
         # Query all versions
         all_versions = repo.search_definities(
@@ -340,9 +358,15 @@ class TestMigration009Versioning:
         d2 = DefinitieRecord(**base, definitie="Alternatief 2")
         d3 = DefinitieRecord(**base, definitie="Alternatief 3")
 
-        id1 = repo.create_definitie(d1, allow_duplicate=True)
-        id2 = repo.create_definitie(d2, allow_duplicate=True)
-        id3 = repo.create_definitie(d3, allow_duplicate=True)
+        id1 = repo.create_definitie(
+            d1, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
+        id2 = repo.create_definitie(
+            d2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
+        id3 = repo.create_definitie(
+            d3, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
 
         # All should succeed
         assert len({id1, id2, id3}) == 3

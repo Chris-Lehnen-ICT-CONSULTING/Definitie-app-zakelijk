@@ -111,12 +111,13 @@ class TestValidationOrchestratorV2Unit:
         """Test validate_text basic functionality."""
         result = await orchestrator.validate_text("begrip", "text")
 
-        # Verify underlying service was called (text gets cleaned)
+        # Verify underlying service was called (text gets cleaned). DEF-622:
+        # de exacte invoertekst reist als `record_text` mee (CON-01-binding).
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="begrip",
             text="cleaned text",
             ontologische_categorie=None,
-            context=None,
+            context={"record_text": "text"},
         )
 
         # Verify result structure

@@ -107,10 +107,22 @@ class _RepositoryZonderDuplicaat:
         return []
 
 
-async def _valideer(repository: Any, **extra_context: Any) -> dict[str, Any]:
-    svc = ModularValidationService(
-        get_toetsregel_manager(), None, None, repository=repository
-    )
+async def _valideer(
+    repository: Any,
+    svc: ModularValidationService | None = None,
+    **extra_context: Any,
+) -> dict[str, Any]:
+    """Valideer de vaste invoer; `svc` overschrijft de standaard echte service.
+
+    DEF-622: met de echte regelset is de totaalscore niet beschikbaar en is
+    elke uitkomst fail-closed geblokkeerd op `overall_score_unavailable`.
+    Tests die een acceptabele baseline nodig hebben, geven een service uit de
+    fixture `service_met_totaalscore` mee.
+    """
+    if svc is None:
+        svc = ModularValidationService(
+            get_toetsregel_manager(), None, None, repository=repository
+        )
     return await svc.validate_definition(
         begrip=BEGRIP,
         text=TEKST,
@@ -215,8 +227,11 @@ class TestGateIsOokInternConsistent:
     """
 
     @staticmethod
-    async def _zwakke_maar_acceptabele_definitie() -> dict[str, Any]:
-        svc = ModularValidationService(get_toetsregel_manager(), None, None)
+    async def _zwakke_maar_acceptabele_definitie(fabriek) -> dict[str, Any]:
+        # DEF-622: op de echte regelset is niets meer acceptabel (totaalscore
+        # niet beschikbaar); de soft-floormechanica wordt bewezen op de
+        # regelset mínus de regels zonder cijfer.
+        svc = fabriek()
         return await svc.validate_definition(
             begrip="besluit",
             text="type document met uniek zaaknummer volgens de wet",
@@ -225,8 +240,10 @@ class TestGateIsOokInternConsistent:
         )
 
     @pytest.mark.asyncio
-    async def test_een_acceptabele_gate_noemt_geen_gefaalde_poorten(self):
-        res = await self._zwakke_maar_acceptabele_definitie()
+    async def test_een_acceptabele_gate_noemt_geen_gefaalde_poorten(
+        self, service_met_totaalscore
+    ):
+        res = await self._zwakke_maar_acceptabele_definitie(service_met_totaalscore)
         gate = res.get("acceptance_gate") or {}
         if not gate or res["is_acceptable"] is not True:
             pytest.skip("deze invoer levert geen acceptabel resultaat op")
@@ -242,14 +259,14 @@ class TestGateIsOokInternConsistent:
             ), f"gate noemt zich acceptabel maar draagt een blokkadereden: {reden}"
 
     @pytest.mark.asyncio
-    async def test_overruled_gronden_blijven_zichtbaar(self):
+    async def test_overruled_gronden_blijven_zichtbaar(self, service_met_totaalscore):
         """Wat overruled is mag niet verdwijnen, alleen verhuizen.
 
         Bewust in het bestaande `reasons`-veld en niet in een nieuw veld: het
         contractschema hanteert `additionalProperties: false` op dit object, dus
         een extra veld zou een versiebump van het publieke contract vragen.
         """
-        res = await self._zwakke_maar_acceptabele_definitie()
+        res = await self._zwakke_maar_acceptabele_definitie(service_met_totaalscore)
         gate = res.get("acceptance_gate") or {}
         if not gate or res["is_acceptable"] is not True:
             pytest.skip("deze invoer levert geen acceptabel resultaat op")
@@ -260,8 +277,10 @@ class TestGateIsOokInternConsistent:
         )
 
     @pytest.mark.asyncio
-    async def test_status_past_bij_de_uitkomst(self):
-        acceptabel = await self._zwakke_maar_acceptabele_definitie()
+    async def test_status_past_bij_de_uitkomst(self, service_met_totaalscore):
+        acceptabel = await self._zwakke_maar_acceptabele_definitie(
+            service_met_totaalscore
+        )
         geblokkeerd = await _valideer(_KapotteRepository())
         for res, verwacht in ((acceptabel, "pass"), (geblokkeerd, "blocked")):
             gate = res.get("acceptance_gate") or {}
@@ -317,11 +336,20 @@ class TestDuplicaatLooptViaDeStatusboekhouding:
         )
         gate = res.get("acceptance_gate") or {}
         assert gate.get("acceptable") is False, gate
+        # DEF-622: op de echte regelset is élk resultaat geblokkeerd op de
+        # niet-beschikbare totaalscore; de duplicaatblokkade moet daarnaast
+        # als eigen poort herkenbaar zijn, anders bewijst `False` hier niets.
+        assert "blocking_rule" in (gate.get("gates_failed") or []), gate
 
     @pytest.mark.asyncio
-    async def test_zonder_duplicaat_blijft_dup01_geslaagd(self):
+    async def test_zonder_duplicaat_blijft_dup01_geslaagd(
+        self, service_met_totaalscore
+    ):
         """Tegenhanger: de regel mag niet altijd falen."""
-        res = await _valideer(_RepositoryZonderDuplicaat())
+        res = await _valideer(
+            _RepositoryZonderDuplicaat(),
+            svc=service_met_totaalscore(_RepositoryZonderDuplicaat()),
+        )
         assert res["rule_statuses"].get("DUP_01") == ResultStatus.PASS.value, res[
             "rule_statuses"
         ].get("DUP_01")
@@ -332,6 +360,8 @@ class TestDuplicaatLooptViaDeStatusboekhouding:
             "dezelfde tekst hoort zonder duplicaat gewoon acceptabel te zijn "
             f"(score {res['overall_score']})"
         )
+        gate = res.get("acceptance_gate") or {}
+        assert "blocking_rule" not in (gate.get("gates_failed") or []), gate
 
     @pytest.mark.asyncio
     async def test_geforceerd_duplicaat_behoudt_de_bedoelde_severity(self):
@@ -440,14 +470,26 @@ class TestDup01BlijftBuitenDeScore:
     """
 
     @pytest.mark.asyncio
-    async def test_de_score_beweegt_niet_met_de_duplicaatuitkomst(self):
-        met_duplicaat = await _valideer(_RepositoryMetDuplicaat())
-        zonder_duplicaat = await _valideer(_RepositoryZonderDuplicaat())
+    async def test_de_score_beweegt_niet_met_de_duplicaatuitkomst(
+        self, service_met_totaalscore
+    ):
+        # DEF-622: op de echte regelset is de totaalscore None in beide runs
+        # en zou deze vergelijking niets bewijzen; daarom op de regelset
+        # mínus de regels zonder cijfer.
+        met_duplicaat = await _valideer(
+            _RepositoryMetDuplicaat(),
+            svc=service_met_totaalscore(_RepositoryMetDuplicaat()),
+        )
+        zonder_duplicaat = await _valideer(
+            _RepositoryZonderDuplicaat(),
+            svc=service_met_totaalscore(_RepositoryZonderDuplicaat()),
+        )
 
         # Voorwaarde: de twee runs verschillen daadwerkelijk in DUP_01-status,
         # anders vergelijkt deze test twee identieke situaties.
         assert met_duplicaat["rule_statuses"]["DUP_01"] == ResultStatus.FAIL.value
         assert zonder_duplicaat["rule_statuses"]["DUP_01"] == ResultStatus.PASS.value
+        assert isinstance(zonder_duplicaat["overall_score"], float)
 
         assert met_duplicaat["overall_score"] == zonder_duplicaat["overall_score"], (
             "DUP_01 is excluded_from_score, dus een gevonden duplicaat mag het "

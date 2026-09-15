@@ -182,12 +182,22 @@ async def test_deterministic_floating_point_rounding():
     # hieronder draait geen enkele keer.
     assert result["validation_status"] == VALIDATION_STATUS_VALIDATED, result
 
-    # Check overall score has at most 2 decimal places
-    score = result["overall_score"]
-    assert score == round(score, 2), f"Score must be rounded to 2 decimals: {score}"
+    # DEF-622: met de echte regelset is de totaalscore niet beschikbaar
+    # (CON-01 zonder cijfer); dat is `None`, geen afgerond getal én geen 0.
+    assert result["overall_score"] is None, result["overall_score"]
 
-    # Check all detailed scores have at most 2 decimal places
-    for category, cat_score in result["detailed_scores"].items():
+    # Check all detailed scores have at most 2 decimal places. De categorie
+    # van de regel zonder cijfer (samenhang) is eveneens None; de overige
+    # categorieën dragen wél een afgerond cijfer — zonder die eis zou deze
+    # lus bij louter None triviaal groen zijn.
+    numeriek = {
+        category: cat_score
+        for category, cat_score in result["detailed_scores"].items()
+        if cat_score is not None
+    }
+    assert result["detailed_scores"]["samenhang"] is None
+    assert numeriek, "geen enkele categorie draagt een cijfer"
+    for category, cat_score in numeriek.items():
         assert cat_score == round(
             cat_score, 2
         ), f"Category {category} score must be rounded to 2 decimals: {cat_score}"

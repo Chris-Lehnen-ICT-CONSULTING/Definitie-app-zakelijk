@@ -9,9 +9,30 @@ from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
-from database.models import DefinitieRecord, DefinitieStatus, normalize_wettelijke_basis
+from database.models import DefinitieRecord, DefinitieStatus, VaststelconflictError
+from domain.context.contract import is_versienummer
 
 logger = logging.getLogger(__name__)
+
+# De velden die samen de vaststel-identiteit vormen (B-03/B-10): begrip plus
+# de drie contextlijsten. Categorie hoort daar bewust niet bij.
+_IDENTITEITSVELDEN: tuple[str, ...] = (
+    "begrip",
+    "organisatorische_context",
+    "juridische_context",
+    "wettelijke_basis",
+)
+
+# De velden waarop de CON-01-beoordeling inhoudelijk rust (de vingerafdruk:
+# term, tekst en context). Een schrijfactie op één ervan laat de binding
+# van de beoordeling aan de recordversie vervallen (DEF-622, E2/V2c).
+_BEOORDELINGSVELDEN: tuple[str, ...] = ("definitie", *_IDENTITEITSVELDEN)
+
+
+# Eén strikte versieconventie voor invoer, gate en behoud bij vaststelling
+# (V2b): de test van het contract zelf, zodat de persistentie nooit iets
+# aanneemt wat de gate weigert — of andersom.
+_is_versienummer = is_versienummer
 
 
 class Unset:
@@ -42,11 +63,33 @@ class DefinitieCrudRepository:
         self._search = search
 
     def create_definitie(
-        self, record: DefinitieRecord, allow_duplicate: bool = False
+        self,
+        record: DefinitieRecord,
+        allow_duplicate: bool = False,
+        duplicate_reason: str | None = None,
     ) -> int:
-        """Maak nieuwe definitie aan."""
+        """Maak nieuwe definitie aan.
+
+        DEF-622 (besluit 5): naast een bestaande definitie met gelijk begrip en
+        gelijke context mag alleen bewust worden aangemaakt, mét reden. Die
+        reden komt in de audit van het nieuwe record; het bestaande record
+        wordt niet aangeraakt. `allow_duplicate=True` zonder reden wordt
+        geweigerd zodra er werkelijk een duplicaat is — zonder duplicaat is
+        er niets te verantwoorden.
+        """
         # DEF-198: Clean architecture - import from utils/, callback registered by UI
         from utils.progress_callback import operation_progress
+
+        # Alleen betekenisvolle tekst is een auditreden; een ander type
+        # (bytes, getal, lijst) is een programmeerfout en wordt geweigerd vóór
+        # het record wordt aangeraakt (reviewbevinding D4).
+        if duplicate_reason is not None and not isinstance(duplicate_reason, str):
+            msg = (
+                "duplicate_reason moet tekst zijn (auditreden), niet "
+                f"{type(duplicate_reason).__name__}"
+            )
+            raise ValueError(msg)
+        reden = (duplicate_reason or "").strip()
 
         with operation_progress("saving_to_database"):
             now = datetime.now(UTC)
@@ -62,8 +105,28 @@ class DefinitieCrudRepository:
             # BEGIN IMMEDIATE, zodat gelijktijdige creates geserialiseerd worden
             # en de tweede de gecommitte rij van de eerste ziet.
             with self._db.transaction() as conn:
-                if not allow_duplicate:
-                    self._weiger_duplicaat(record)
+                bestaand = self._actief_duplicaat(record)
+                if bestaand is not None and not allow_duplicate:
+                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+                    raise ValueError(msg)
+                if bestaand is not None and not reden:
+                    msg = (
+                        f"Definitie voor '{record.begrip}' bestaat al in deze "
+                        "context; bewust een nieuw concept ernaast aanmaken "
+                        "vereist een reden voor de audit"
+                    )
+                    raise ValueError(msg)
+                if record.status == DefinitieStatus.ESTABLISHED.value:
+                    # B-03/B-10: ook een direct als vastgesteld aangemaakt
+                    # record (import, tooling) mag geen tweede leidend record
+                    # naast een bestaand vastgesteld record zetten.
+                    self._eis_geen_vaststelconflict(
+                        record.begrip,
+                        record.organisatorische_context,
+                        record.juridische_context,
+                        record.wettelijke_basis,
+                        eigen_id=None,
+                    )
                 include_legacy = AuditHelpers.has_legacy_columns_in_conn(conn)
                 columns, values = AuditHelpers.build_insert_columns(
                     record, wb_value, include_legacy
@@ -81,18 +144,28 @@ class DefinitieCrudRepository:
                 if record_id is None:
                     raise RuntimeError("Failed to get lastrowid after INSERT")
 
+                audit = f"Nieuwe definitie aangemaakt voor '{record.begrip}'"
+                if bestaand is not None:
+                    audit += (
+                        f" — bewust naast bestaande definitie {bestaand} "
+                        f"(zelfde begrip en context); reden: {reden}"
+                    )
                 self._audit.log_geschiedenis(
-                    record_id,
-                    "created",
-                    record.created_by,
-                    f"Nieuwe definitie aangemaakt voor '{record.begrip}'",
+                    record_id, "created", record.created_by, audit
                 )
 
             logger.info(f"Created definitie {record_id}")
             return record_id
 
-    def _weiger_duplicaat(self, record: DefinitieRecord) -> None:
-        """Gooi ``ValueError`` als er al een actieve definitie in deze context is."""
+    def _actief_duplicaat(self, record: DefinitieRecord) -> int | None:
+        """Het id van een actieve definitie met gelijk begrip en gelijke context.
+
+        DEF-622: via `find_duplicates`, dat op de genormaliseerde volledige
+        context vergelijkt. Bewust die naad en niet rechtstreeks de
+        kandidaatselectie: de racetest (DEF-482/DEF-727) hangt zijn handshake
+        aan `find_duplicates` binnen de schrijftransactie. Een gearchiveerd
+        record is historie en telt niet als duplicaat.
+        """
         duplicates = self._duplicates.find_duplicates(
             record.begrip,
             record.organisatorische_context,
@@ -102,12 +175,258 @@ class DefinitieCrudRepository:
                 json.loads(record.wettelijke_basis) if record.wettelijke_basis else []
             ),
         )
-        if duplicates and any(
-            d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-            for d in duplicates
-        ):
+        for match in duplicates:
+            bestaand = match.definitie_record
+            if bestaand.status != DefinitieStatus.ARCHIVED.value and bestaand.id:
+                return int(bestaand.id)
+        return None
+
+    def _weiger_duplicaat(self, record: DefinitieRecord) -> None:
+        """Gooi ``ValueError`` als er al een actieve definitie in deze context is."""
+        if self._actief_duplicaat(record) is not None:
             msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
             raise ValueError(msg)
+
+    def find_leidende_definitie(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = "",
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
+    ) -> DefinitieRecord | None:
+        """Het vastgestelde, leidende record voor begrip + volledige context.
+
+        Ongeacht categorie (B-03/B-10): categorie mag de exclusiviteit niet
+        ongemerkt uitschakelen. `eigen_id` sluit het record zelf uit. Leest
+        via een kale connectie en ziet dus ook de nog niet gecommitte staat
+        binnen een lopende transactie — precies wat de hercontrole onder de
+        schrijflock nodig heeft.
+        """
+        for rij in self._duplicates.zoek_gelijke_context(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            categorie=None,
+            status=DefinitieStatus.ESTABLISHED,
+        ):
+            if rij.id is None or rij.id == eigen_id:
+                continue
+            if rij.via_synoniem:
+                # De exclusiviteit geldt voor hetzelfde begrip (B-10). Een
+                # ánder begrip dat dit begrip als synoniem voert, hoort bij
+                # de generatielookup, niet bij de vaststelinvariant
+                # (reviewbevinding E1).
+                continue
+            record = self.get_definitie(int(rij.id))
+            if record is not None:
+                return record
+        return None
+
+    def _eis_geen_vaststelconflict(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any,
+        wettelijke_basis: Any,
+        *,
+        eigen_id: int | None,
+    ) -> None:
+        """De B-03/B-10-invariant op de persistentiegrens."""
+        leidend = self.find_leidende_definitie(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            eigen_id=eigen_id,
+        )
+        if leidend is not None:
+            msg = (
+                f"Er is al een vastgestelde definitie (ID {leidend.id}) voor "
+                f"'{begrip}' met dezelfde context; maximaal één leidend record "
+                "per begrip en context (DEF-622). Vervang die bewust of archiveer "
+                "haar eerst."
+            )
+            raise VaststelconflictError(msg, conflict_id=leidend.id)
+
+    def set_context_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> bool:
+        """Leg de CON-01-expertbeoordeling vast op het record (DEF-622, B-07).
+
+        Lees-wijzig-schrijf binnen één transactie op `validation_issues`;
+        de overige issues blijven staan. Een gewone update: versie en audit
+        volgen het bestaande pad.
+
+        Herkomst (reviewbevinding V3): de beoordelaar in de beoordeling is de
+        handelende gebruiker die haar opslaat (`updated_by`, de auditactor).
+        Een payload met een andere beoordelaar wordt vóór mutatie geweigerd;
+        ontbreekt de beoordelaar, dan wordt de handelende gebruiker gestempeld.
+        Wie later vaststelt mag een ander zijn (bestaand contract).
+
+        Versiebinding (reviewbevinding E2, deltareview V2a): `expected_version`
+        is de recordversie die de beoordelaar vóór zich had. Ónder de
+        schrijflock moet het record nog precies die versie dragen, anders
+        wordt niets geschreven (``False``, zoals de optimistic lock van
+        `approve`). Een payload die zelf een ander versienummer draagt is
+        verouderde invoer (een eerder opgeslagen beoordeling die opnieuw
+        wordt aangeboden) en wordt vóór mutatie geweigerd: alleen actuele
+        invoer bindt aan de resulterende opslagversie (`expected_version + 1`).
+        Elke latere schrijfactie op term, tekst of context laat de binding
+        vervallen; zie `update_definitie`.
+        """
+        if not _is_versienummer(expected_version):
+            msg = (
+                "set_context_review vereist expected_version: de recordversie "
+                f"die de beoordelaar beoordeeld heeft (gekregen: {expected_version!r})"
+            )
+            raise ValueError(msg)
+        handelend = (
+            None
+            if review is None
+            else self._geldige_beoordelaar(review, updated_by, expected_version)
+        )
+
+        with self._db.transaction():
+            current = self.get_definitie(definitie_id)
+            if not current:
+                return False
+            if current.version_number != expected_version:
+                logger.warning(
+                    f"set_context_review geweigerd: definitie {definitie_id} is "
+                    f"versie {current.version_number}, beoordeeld is versie "
+                    f"{expected_version}"
+                )
+                return False
+            if review is not None:
+                review = {
+                    **review,
+                    "actor": handelend,
+                    # De versie die het record ná deze opslag draagt.
+                    "version_number": expected_version + 1,
+                }
+            current.set_context_review(review)
+            return self.update_definitie(
+                definitie_id,
+                {
+                    "validation_issues": current.validation_issues,
+                    # SQL-guard op dezelfde versie (WHERE version_number = ?).
+                    "version_number": expected_version,
+                },
+                updated_by,
+            )
+
+    def _bewaak_vaststelinvariant(
+        self, definitie_id: int, actueel: DefinitieRecord, updates: dict[str, Any]
+    ) -> None:
+        """Hercontrole van 'maximaal één vastgesteld record' op de resulterende
+        staat, ónder de schrijflock (B-03/B-10).
+
+        Alleen wanneer de update een record vastgesteld maakt of de identiteit
+        (begrip/context) van een vastgesteld record raakt; categorie is bewust
+        geen onderdeel van de identiteit.
+        """
+        nieuwe_status = updates.get("status", actueel.status)
+        raakt_identiteit = any(veld in updates for veld in _IDENTITEITSVELDEN)
+        if nieuwe_status == DefinitieStatus.ESTABLISHED.value and (
+            actueel.status != DefinitieStatus.ESTABLISHED.value or raakt_identiteit
+        ):
+            self._eis_geen_vaststelconflict(
+                updates.get("begrip", actueel.begrip),
+                updates.get(
+                    "organisatorische_context", actueel.organisatorische_context
+                ),
+                updates.get("juridische_context", actueel.juridische_context),
+                updates.get("wettelijke_basis", actueel.wettelijke_basis),
+                eigen_id=definitie_id,
+            )
+
+    @staticmethod
+    def _geldige_beoordelaar(
+        review: Any, updated_by: str | None, expected_version: int
+    ) -> str:
+        """Controleer de payload vóór mutatie; geeft de handelende gebruiker.
+
+        Weigert (ValueError) een payload die geen dict is, zonder handelende
+        gebruiker, met een afwijkende beoordelaar (V3), zonder of met een
+        ongeldig getypeerd versienummer (V2b: de payload draagt zelf de
+        beoordeelde versie als strikt geheel getal; `expected_version` is
+        alleen de concurrency-guard, geen vervanging) of met een andere
+        versie dan beoordeeld (V2a: verouderde invoer).
+        """
+        if not isinstance(review, dict):
+            msg = "context_review moet een dict zijn"
+            raise ValueError(msg)
+        handelend = (updated_by if isinstance(updated_by, str) else "").strip()
+        if not handelend:
+            msg = (
+                "set_context_review vereist een handelende gebruiker "
+                "(updated_by) als betrouwbare beoordelaarsbron"
+            )
+            raise ValueError(msg)
+        actor = review.get("actor")
+        if actor is not None and (
+            not isinstance(actor, str) or actor.strip() != handelend
+        ):
+            msg = (
+                f"beoordelaar in de beoordeling ({actor!r}) wijkt af van de "
+                f"handelende gebruiker ({handelend!r}); geweigerd vóór opslag"
+            )
+            raise ValueError(msg)
+        meegegeven = review.get("version_number")
+        if not _is_versienummer(meegegeven):
+            # Strikt type (V2b): ontbrekend, null, `True`/`1.0`/`"1"` zijn
+            # geen versienummer — numerieke gelijkheid volstaat niet, en een
+            # kloppende expected_version vervangt de payloadversie niet.
+            msg = (
+                "beoordeling draagt geen geldig versienummer "
+                f"({meegegeven!r}); de beoordeelde recordversie hoort als "
+                "geheel getal in de beoordeling zelf; geweigerd vóór opslag"
+            )
+            raise ValueError(msg)
+        if meegegeven != expected_version:
+            msg = (
+                f"beoordeling hoort bij versie {meegegeven!r}, maar beoordeeld "
+                f"is versie {expected_version}: verouderde invoer, geweigerd "
+                "vóór opslag; beoordeel de actuele versie opnieuw"
+            )
+            raise ValueError(msg)
+        return handelend
+
+    @staticmethod
+    def _meegroeiende_beoordeling(
+        actueel: DefinitieRecord, updates: dict[str, Any]
+    ) -> str | None:
+        """De `validation_issues`-JSON met de beoordeling op de nieuwe versie,
+        of None wanneer er niets mee te nemen valt.
+
+        Alleen een beoordeling die nú — met een strikt geheel versienummer —
+        aan de actuele recordversie gebonden is groeit mee, en alleen bij een
+        update die term, tekst en context niet schrijft en `validation_issues`
+        niet zelf zet. Een al vervallen of verkeerd getypeerde binding
+        herleeft hier dus nooit (reviewbevinding E2, tweede deltareview V2b).
+        """
+        if "validation_issues" in updates or any(
+            veld in updates for veld in _BEOORDELINGSVELDEN
+        ):
+            return None
+        review = actueel.get_context_review()
+        if review is None:
+            return None
+        gebonden = review.get("version_number")
+        if not _is_versienummer(gebonden) or gebonden != actueel.version_number:
+            return None
+        actueel.set_context_review(
+            {**review, "version_number": actueel.version_number + 1}
+        )
+        return actueel.validation_issues
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """Haal definitie op op basis van ID.
@@ -132,82 +451,29 @@ class DefinitieCrudRepository:
         categorie: str | None = None,
         wettelijke_basis: list[str] | None = None,
     ) -> DefinitieRecord | None:
-        """Zoek definitie op basis van begrip en context."""
-        with self._db.get_connection() as conn:
-            query = """
-                SELECT * FROM definities
-                WHERE begrip = ? AND organisatorische_context = ?
-                AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
-            """
-            params: list[Any] = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
+        """Zoek de leidende definitie op begrip (of synoniem) en gelijke context.
 
-            if categorie is not None:
-                query += " AND categorie = ?"
-                params.append(categorie)
-
-            if wettelijke_basis is not None:
-                wb_json = normalize_wettelijke_basis(wettelijke_basis)
-                query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
-                params.extend([wb_json, wb_json])
-
-            if status:
-                query += " AND status = ?"
-                params.append(status.value)
-
-            query += " ORDER BY version_number DESC LIMIT 1"
-
-            cursor = conn.execute(query, params)
-            row = cursor.fetchone()
-
-            if row:
-                return self._audit.row_to_record(row)
-
-            # Synoniem-fallback
-            syn_query = """
-                SELECT d.*
-                FROM definities d
-                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
-                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
-                  AND v.voorbeeld_type = 'synonyms'
-                  AND v.actief = TRUE
-                  AND d.organisatorische_context = ?
-                  AND (d.juridische_context = ? OR (d.juridische_context IS NULL AND ? = ''))
-            """
-            syn_params: list[Any] = [
-                begrip,
-                organisatorische_context,
-                juridische_context,
-                juridische_context,
-            ]
-
-            if categorie is not None:
-                syn_query += " AND d.categorie = ?"
-                syn_params.append(categorie)
-
-            if wettelijke_basis is not None:
-                wb_json = normalize_wettelijke_basis(wettelijke_basis)
-                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
-                syn_params.extend([wb_json, wb_json])
-
-            if status:
-                syn_query += " AND d.status = ?"
-                syn_params.append(status.value)
-            else:
-                syn_query += " AND d.status != 'archived'"
-
-            syn_query += " ORDER BY d.version_number DESC LIMIT 1"
-
-            cursor = conn.execute(syn_query, syn_params)
-            row = cursor.fetchone()
-            if row:
-                return self._audit.row_to_record(row)
-
-            return None
+        DEF-622 (B-03): de vergelijking loopt over de genormaliseerde
+        volledige contextverzameling (`zoek_gelijke_context`), niet over de
+        ruwe JSON-strings. Bij meerdere treffers wint het vastgestelde record;
+        daarna in beoordeling, dan concept, telkens de hoogste versie.
+        Gearchiveerde records tellen alleen bij een expliciete statusvraag.
+        """
+        kandidaten = self._duplicates.zoek_gelijke_context(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            categorie=categorie,
+            status=status,
+        )
+        for rij in kandidaten:
+            if rij.id is None:
+                continue
+            record = self.get_definitie(int(rij.id))
+            if record is not None:
+                return record
+        return None
 
     def update_definitie(
         self,
@@ -215,8 +481,16 @@ class DefinitieCrudRepository:
         updates: dict[str, Any],
         updated_by: str | None = None,
         _skip_audit: bool = False,
+        _behoud_beoordeling: bool = False,
     ) -> bool:
-        """Update bestaande definitie."""
+        """Update bestaande definitie.
+
+        ``_behoud_beoordeling`` is voorbehouden aan de atomaire vaststelactie
+        (`change_status(..., ESTABLISHED)`): alleen dáár groeit een geldig
+        gebonden CON-01-beoordeling mee naar de nieuwe versie. Elke andere
+        wijziging — ook zonder tekstwijziging — laat de versiegebonden
+        beoordeling vervallen (tweede deltareview V2c).
+        """
         current = self.get_definitie(definitie_id)
         if not current:
             return False
@@ -237,6 +511,9 @@ class DefinitieCrudRepository:
             # net zo goed te landen als een float: het is de expliciete
             # vastlegging dat er geen oordeel is.
             "validation_score",
+            # DEF-622: de CON-01-expertbeoordeling reist in dit veld mee;
+            # zonder dit veld kon een beoordeling nooit worden bijgewerkt.
+            "validation_issues",
             "reviewed_by",
             "review_date",
             "improved_version",
@@ -271,7 +548,6 @@ class DefinitieCrudRepository:
             params.append(updated_by)
 
         expected_version = updates.get("version_number")
-        set_clauses.append("version_number = version_number + 1")
 
         where_clause = "id = ?"
         where_params: list[Any] = [definitie_id]
@@ -279,12 +555,40 @@ class DefinitieCrudRepository:
             where_clause += " AND version_number = ?"
             where_params.append(expected_version)
 
-        query = (
-            "UPDATE definities SET " + ", ".join(set_clauses) + f" WHERE {where_clause}"
-        )
-
         # DEF-391: UPDATE + audit-log atomair (all-or-nothing).
         with self._db.transaction() as conn:
+            # DEF-622 (B-03/B-10): de invariant "maximaal één vastgesteld
+            # record per begrip + volledige context" wordt hier, ónder de
+            # schrijflock, hercontroleerd op de resulterende staat. Zo kan
+            # geen enkele schrijfroute (statuswijziging, begrip-/context-
+            # wijziging van een vastgesteld record, gelijktijdige poging) er
+            # omheen. Categorie is bewust geen onderdeel van de identiteit.
+            # Verse lezing ónder de lock: `current` van vóór de transactie kan
+            # door een gelijktijdige vaststelling verouderd zijn.
+            actueel = self.get_definitie(definitie_id) or current
+            self._bewaak_vaststelinvariant(definitie_id, actueel, updates)
+
+            # DEF-622 (deltareview V2c): uitsluitend de atomaire vaststelactie
+            # neemt de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar
+            # de nieuwe versie; anders zou de vaststelling haar eigen, zojuist
+            # geldige beoordeling door de statusversiebump laten vervallen.
+            # Geen generieke verlengingsregel: elke andere update laat de
+            # versiegebonden beoordeling vervallen.
+            meegroeiend = (
+                self._meegroeiende_beoordeling(actueel, updates)
+                if _behoud_beoordeling
+                else None
+            )
+            if meegroeiend is not None:
+                set_clauses.append("validation_issues = ?")
+                params.append(meegroeiend)
+            set_clauses.append("version_number = version_number + 1")
+            query = (
+                "UPDATE definities SET "
+                + ", ".join(set_clauses)
+                + f" WHERE {where_clause}"
+            )
+
             cursor = conn.execute(query, params + where_params)
             if cursor.rowcount == 0 and expected_version is not None:
                 logger.warning(
@@ -346,15 +650,24 @@ class DefinitieCrudRepository:
         # committen, zodat de statuswijziging en de audit-trail all-or-nothing zijn.
         with self._db.transaction():
             success = self.update_definitie(
-                definitie_id, updates, changed_by, _skip_audit=True
+                definitie_id,
+                updates,
+                changed_by,
+                _skip_audit=True,
+                # Alleen de vaststelling neemt een geldig gebonden CON-01-
+                # beoordeling mee (DEF-622, V2c); andere statusacties niet.
+                _behoud_beoordeling=new_status == DefinitieStatus.ESTABLISHED,
             )
 
             if success:
+                # DEF-622 (B-10): een notitie bij een statuswijziging — zoals
+                # de verwijzing naar de opvolger bij archivering — hoort in
+                # de reguliere statusaudit.
+                reden = f"Status gewijzigd naar {new_status.value}"
+                if notes and notes.strip():
+                    reden += f": {notes.strip()}"
                 self._audit.log_geschiedenis(
-                    definitie_id,
-                    "status_changed",
-                    changed_by,
-                    f"Status gewijzigd naar {new_status.value}",
+                    definitie_id, "status_changed", changed_by, reden
                 )
 
         return success

@@ -90,14 +90,18 @@ class TestSinglePathClassification:
         self, mock_interface, mock_session_state
     ):
         """Test that generation blocks when no classification exists."""
-        # Setup: no determined category, no manual override
+        # Setup: no determined category, no manual override. DEF-622: de
+        # contextgrens gaat vóór de classificatiecontrole; deze proef isoleert
+        # de classificatie en geeft daarom inhoudelijke context mee (state én
+        # handler-argument).
+        context = {
+            "organisatorische_context": ["Justitie"],
+            "juridische_context": ["Strafrecht"],
+            "wettelijke_basis": [],
+        }
         mock_session_state.get_value.side_effect = lambda key, default=None: {
             "begrip": "test",
-            "global_context": {
-                "organisatorische_context": [],
-                "juridische_context": [],
-                "wettelijke_basis": [],
-            },
+            "global_context": context,
             "generation_options": {},
             "selected_documents": [],
             "determined_category": None,  # NO CLASSIFICATION
@@ -111,7 +115,7 @@ class TestSinglePathClassification:
             mock_st.error = Mock()
 
             # Call generation
-            mock_interface._handle_definition_generation("test", {})
+            mock_interface._handle_definition_generation("test", context)
 
             # Verify error was shown
             mock_st.error.assert_called_once()
@@ -123,14 +127,16 @@ class TestSinglePathClassification:
         self, mock_interface, mock_session_state
     ):
         """Test that manual override bypasses pre-classification requirement."""
-        # Setup: manual override set
+        # Setup: manual override set. DEF-622: inhoudelijke context, zodat
+        # alleen de classificatieroute wordt getoetst (state én handler-argument).
+        context = {
+            "organisatorische_context": ["Justitie"],
+            "juridische_context": ["Strafrecht"],
+            "wettelijke_basis": [],
+        }
         mock_session_state.get_value.side_effect = lambda key, default=None: {
             "begrip": "test",
-            "global_context": {
-                "organisatorische_context": [],
-                "juridische_context": [],
-                "wettelijke_basis": [],
-            },
+            "global_context": context,
             "generation_options": {},
             "selected_documents": [],
             "determined_category": None,  # No pre-classification
@@ -157,7 +163,7 @@ class TestSinglePathClassification:
             }
 
             # Call generation - should NOT error
-            mock_interface._handle_definition_generation("test", {})
+            mock_interface._handle_definition_generation("test", context)
 
             # Verify NO error was shown
             assert not mock_st.error.called
@@ -166,14 +172,16 @@ class TestSinglePathClassification:
         self, mock_interface, mock_session_state
     ):
         """Test that generation succeeds when pre-classification exists."""
-        # Setup: pre-classification exists
+        # Setup: pre-classification exists. DEF-622: inhoudelijke context, zodat
+        # alleen de classificatieroute wordt getoetst (state én handler-argument).
+        context = {
+            "organisatorische_context": ["Justitie"],
+            "juridische_context": ["Strafrecht"],
+            "wettelijke_basis": [],
+        }
         mock_session_state.get_value.side_effect = lambda key, default=None: {
             "begrip": "authenticatie",
-            "global_context": {
-                "organisatorische_context": [],
-                "juridische_context": [],
-                "wettelijke_basis": [],
-            },
+            "global_context": context,
             "generation_options": {},
             "selected_documents": [],
             "determined_category": "PROCES",  # Pre-classification exists
@@ -202,7 +210,7 @@ class TestSinglePathClassification:
             }
 
             # Call generation - should succeed
-            mock_interface._handle_definition_generation("authenticatie", {})
+            mock_interface._handle_definition_generation("authenticatie", context)
 
             # Verify NO error
             assert not mock_st.error.called
@@ -416,12 +424,13 @@ class TestClassificationFlow:
         """Test that generation without classification is blocked."""
         interface, mock_session = interface_with_mocks
 
-        # Setup: no classification
+        # Setup: no classification. DEF-622: inhoudelijke context, zodat de
+        # blokkade uit de classificatiecontrole komt en niet uit de contextgrens.
         state = {
             "begrip": "test",
             "global_context": {
-                "organisatorische_context": [],
-                "juridische_context": [],
+                "organisatorische_context": ["Justitie"],
+                "juridische_context": ["Strafrecht"],
                 "wettelijke_basis": [],
             },
             "generation_options": {},

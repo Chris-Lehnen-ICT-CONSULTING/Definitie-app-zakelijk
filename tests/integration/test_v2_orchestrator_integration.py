@@ -236,6 +236,8 @@ class TestV2OrchestratorIntegration:
             id="test-123",
             begrip="testbegrip",
             context="juridische context",
+            # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+            juridische_context=["juridische context"],
             ontologische_categorie="proces",
             options={"temperature": 0.7, "max_tokens": 500},
         )
@@ -329,7 +331,11 @@ class TestV2OrchestratorIntegration:
         services["validation_service"].validate_definition.return_value = mislukt
 
         request = GenerationRequest(
-            id="test-456", begrip="complexbegrip", ontologische_categorie="object"
+            id="test-456",
+            begrip="complexbegrip",
+            ontologische_categorie="object",
+            # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+            organisatorische_context=["DJI"],
         )
 
         response = await orchestrator.create_definition(request)
@@ -362,7 +368,12 @@ class TestV2OrchestratorIntegration:
             "AI Service Error"
         )
 
-        request = GenerationRequest(id="test-789", begrip="errorbegrip")
+        request = GenerationRequest(
+            id="test-789",
+            begrip="errorbegrip",
+            # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+            organisatorische_context=["DJI"],
+        )
 
         response = await orchestrator.create_definition(request)
 
@@ -395,6 +406,8 @@ class TestV2OrchestratorIntegration:
             id="test-feedback",
             begrip="feedbackbegrip",
             ontologische_categorie="handeling",
+            # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+            organisatorische_context=["DJI"],
         )
 
         response = await orchestrator.create_definition(request)
@@ -428,7 +441,12 @@ class TestV2OrchestratorIntegration:
 
         services["cleaning_service"].clean_text = echte_async_clean_text
 
-        request = GenerationRequest(id="test-clean", begrip="cleantest")
+        request = GenerationRequest(
+            id="test-clean",
+            begrip="cleantest",
+            # DEF-622: generatie vereist minimaal één canonieke contextwaarde.
+            organisatorische_context=["DJI"],
+        )
 
         response = await orchestrator.create_definition(request)
 

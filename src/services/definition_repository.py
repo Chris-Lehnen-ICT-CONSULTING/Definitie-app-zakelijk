@@ -22,7 +22,12 @@ from database.definitie_repository import (
     SourceType,
     Unset,
 )
-from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
+from database.models import TOELICHTING_SCHEIDING, splits_definitietekst
+from domain.context.normalisatie import (
+    canoniseer_contextlijst,
+    contextsleutel,
+    lees_contextwaarden,
+)
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -121,13 +126,18 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # Maak nieuwe
             # Converteer Definition naar DefinitieRecord
             record = self._definition_to_record(definition)
-            # Bypass duplicate guard indien expliciet toegestaan via metadata
+            # Bypass duplicate guard indien expliciet toegestaan via metadata.
+            # DEF-622 (besluit 5): de bijbehorende reden reist mee naar de
+            # audit; de DB-laag weigert een geforceerd duplicaat zonder reden.
             allow_duplicate = False
+            duplicate_reason: str | None = None
             try:
                 if definition.metadata and bool(
                     definition.metadata.get("force_duplicate")
                 ):
                     allow_duplicate = True
+                    reden = definition.metadata.get("force_duplicate_reason")
+                    duplicate_reason = reden if isinstance(reden, str) else None
             except (KeyError, TypeError, AttributeError) as e:
                 logger.debug(
                     f"force_duplicate check failed for '{definition.begrip}': {e}"
@@ -135,7 +145,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 allow_duplicate = False
 
             result_id = self.legacy_repo.create_definitie(
-                record, allow_duplicate=allow_duplicate
+                record,
+                allow_duplicate=allow_duplicate,
+                duplicate_reason=duplicate_reason,
             )
 
             if not result_id or result_id <= 0:
@@ -419,23 +431,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _contextwaarden(opgeslagen: Any) -> list[str]:
         """Lees een opgeslagen contextveld terug als losse waarden.
 
-        De kolom bevat een JSON-array. Zonder deze stap zou de string per teken
-        worden gesplitst (`'["DJI"]'` → `['"', '[', ']', 'd', 'i', 'j']`) — het
-        tweede defect uit DEF-672.
+        Dunne laag over de gedeelde lezer `lees_contextwaarden` (DEF-622), zodat
+        lookup, duplicaatcontrole en servicelaag dezelfde waarden zien.
         """
-        if not opgeslagen:
-            return []
-        if isinstance(opgeslagen, list):
-            return [str(waarde) for waarde in opgeslagen]
-        try:
-            geparsed = json.loads(opgeslagen)
-        except (json.JSONDecodeError, TypeError):
-            # Een vrije tekstwaarde uit oudere data is één contextwaarde,
-            # geen reeks tekens.
-            return [str(opgeslagen)]
-        if isinstance(geparsed, list):
-            return [str(waarde) for waarde in geparsed]
-        return [str(geparsed)]
+        return lees_contextwaarden(opgeslagen)
 
     def find_duplicates(self, definition: Definition) -> list[Definition]:
         """
@@ -765,6 +764,18 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         ),
                         "created_at": definition.metadata.get("generated_at")
                         or definition.metadata.get("generation_time"),
+                        # DEF-622 (besluit tekstvergelijking): de echte
+                        # tekststadia per record, in de bestaande
+                        # generatieregistratie (geen schemawijziging).
+                        "definitie_kern_geextraheerd": definition.metadata.get(
+                            "definitie_kern_geextraheerd"
+                        ),
+                        "definitie_eindtekst": definition.metadata.get(
+                            "definitie_eindtekst"
+                        ),
+                        "tekst_na_generatie_aangepast": definition.metadata.get(
+                            "tekst_na_generatie_aangepast"
+                        ),
                     }
                     # Only store non-None values
                     prompt_data = {
@@ -783,7 +794,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
             record.definitie = (
-                f"{definition.definitie}\n\nToelichting: {definition.toelichting}"
+                f"{definition.definitie}{TOELICHTING_SCHEIDING} "
+                f"{definition.toelichting}"
             )
 
         return record
@@ -818,16 +830,20 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             )
             return None
 
+    def van_record(self, record: DefinitieRecord) -> Definition:
+        """De canonieke recordadapter: één al gelezen record naar Definition.
+
+        Voor aanroepers die het record zelf al hebben gelezen en dezelfde
+        snapshot in beide vormen nodig hebben (DEF-622, K3: getoonde selectie
+        en validatie uit dezelfde lezing).
+        """
+        return self._record_to_definition(record)
+
     def _record_to_definition(self, record: DefinitieRecord) -> Definition:
         """Converteer DefinitieRecord naar Definition."""
-        # Split definitie en toelichting indien aanwezig
-        definitie_text = record.definitie
-        toelichting = None
-
-        if "\n\nToelichting:" in definitie_text:
-            parts = definitie_text.split("\n\nToelichting:", 1)
-            definitie_text = parts[0]
-            toelichting = parts[1].strip() if len(parts) > 1 else None
+        # Split definitie en toelichting indien aanwezig — dezelfde
+        # tekstbasis als het CON-01-contract op het record (DEF-622, K4).
+        definitie_text, toelichting = splits_definitietekst(record.definitie or "")
 
         import json as _json
 
@@ -875,6 +891,14 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 definition.metadata["validation_issues"] = json.loads(
                     record.validation_issues
                 )
+            # DEF-622 (B-07): de vastgelegde CON-01-expertbeoordeling reist
+            # als eigen sleutel mee, zodat de validatie haar kan toepassen en
+            # de UI haar kan tonen. Zij bindt via haar vingerafdruk aan de
+            # exacte tekst/context/term; een gewijzigd concept hergebruikt
+            # haar dus niet.
+            review = record.get_context_review()
+            if review is not None:
+                definition.metadata["context_review"] = review
 
         # DEF-151: Restore generation prompt data from database
         if record.generation_prompt_data:
@@ -978,6 +1002,47 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             "total_updates": 0,
             "total_deletes": 0,
         }
+
+    # ===== Contextcontract en vaststelinvariant (DEF-622) =====
+    def find_leidende_definitie(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = "",
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
+    ) -> DefinitieRecord | None:
+        """Het vastgestelde, leidende record met dezelfde identiteit.
+
+        Identiteit = begrip + volledige genormaliseerde context, ongeacht
+        categorie (B-03/B-10). `eigen_id` telt niet mee. Dezelfde signatuur
+        als de DB-facade, zodat aanroepers die (DEF-439) de DB-laag
+        annoteren maar runtime deze laag krijgen, één aanroep hebben.
+        """
+        return self.legacy_repo.find_leidende_definitie(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            eigen_id=eigen_id,
+        )
+
+    def set_context_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> bool:
+        """Leg de CON-01-expertbeoordeling van de naamfunctie vast (B-07).
+
+        ``expected_version`` is de beoordeelde recordversie (optimistic lock).
+        """
+        return self.legacy_repo.set_context_review(
+            definitie_id, review, updated_by, expected_version=expected_version
+        )
 
     # ===== Legacy compatibility surface for workflow/UI =====
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
@@ -1144,7 +1209,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 # Voorkom dubbele embed: _record_to_definition levert definitie zonder 'Toelichting:'
                 # dus we kunnen veilig toevoegen
                 updates["definitie"] = (
-                    f"{base}\n\nToelichting: {str(definition.toelichting).strip()}"
+                    f"{base}{TOELICHTING_SCHEIDING} "
+                    f"{str(definition.toelichting).strip()}"
                 )
         except Exception as exc:  # pragma: no cover - defensive guard
             logger.debug(

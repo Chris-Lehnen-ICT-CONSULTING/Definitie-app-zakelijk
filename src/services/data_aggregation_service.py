@@ -11,8 +11,22 @@ from datetime import datetime
 from typing import Any
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from database.models import splits_definitietekst
 
 logger = logging.getLogger(__name__)
+
+# DEF-622 (K2): de contractvelden die uitsluitend van het opgeslagen record
+# komen. Aanvullende exportdata kan ze niet vervangen — validator en uitvoer
+# gebruiken zo exact dezelfde recordgegevens.
+_CONTRACT_METADATA: tuple[str, ...] = (
+    "id",
+    "versie",
+    "context_review",
+    "organisatorische_context",
+    "juridische_context",
+    "wettelijke_basis",
+)
+_CONTRACT_CONTEXT: tuple[str, ...] = ("organisatorisch", "juridisch", "wettelijk")
 
 
 @dataclass
@@ -124,13 +138,15 @@ class DataAggregationService:
                 msg = f"Definitie met ID {definitie_id} niet gevonden"
                 raise ValueError(msg)
 
-        # Basis export data
+        # Basis export data. Tekstbasis (DEF-622, K4): de definitiezin; een in
+        # de kolom ingebedde toelichting blijft een afzonderlijk gegeven.
+        zin, ingebedde_toelichting = splits_definitietekst(
+            definitie_record.definitie if definitie_record else ""
+        )
         export_data = DefinitieExportData(
             begrip=definitie_record.begrip if definitie_record else "",
-            definitie_origineel=definitie_record.definitie if definitie_record else "",
-            definitie_gecorrigeerd=(
-                definitie_record.definitie if definitie_record else ""
-            ),
+            definitie_origineel=zin,
+            definitie_gecorrigeerd=zin,
         )
 
         # Vul metadata
@@ -198,6 +214,12 @@ class DataAggregationService:
             )
             export_data.metadata["juridische_context"] = ", ".join(map(str, jur_list))
             export_data.metadata["wettelijke_basis"] = ", ".join(map(str, wet_list))
+            # DEF-622: de vastgelegde CON-01-expertbeoordeling reist mee naar
+            # de validatiegate vóór export (en is zo ook exporteerbaar bewijs).
+            if hasattr(definitie_record, "get_context_review"):
+                review = definitie_record.get_context_review()
+                if review is not None:
+                    export_data.metadata["context_review"] = review
 
             # Timestamps
             export_data.created_at = definitie_record.created_at
@@ -267,9 +289,75 @@ class DataAggregationService:
                         )
 
             self._merge_additional_data(export_data, additional_data)
+            if isinstance(definitie_record, DefinitieRecord):
+                self._borg_contractvelden(export_data, definitie_record)
+
+        # Zelfde tekstconventie voor een expliciet meegegeven (legacy)tekst
+        # (DEF-622, K4): de zin is de tekstbasis, de toelichting blijft apart.
+        if export_data.definitie_aangepast:
+            zin_aangepast, toelichting_aangepast = splits_definitietekst(
+                export_data.definitie_aangepast
+            )
+            export_data.definitie_aangepast = zin_aangepast
+            if toelichting_aangepast and not export_data.toelichting:
+                export_data.toelichting = toelichting_aangepast
+        if ingebedde_toelichting and not export_data.toelichting:
+            export_data.toelichting = ingebedde_toelichting
 
         logger.debug(f"Geaggregeerde export data voor begrip '{export_data.begrip}'")
         return export_data
+
+    @staticmethod
+    def _borg_contractvelden(
+        export_data: DefinitieExportData, definitie_record: DefinitieRecord
+    ) -> None:
+        """Zet de contractvelden terug op de recordwaarden na de merge (K2).
+
+        Aanvullende exportdata kon id, versie, context en beoordeling
+        overschrijven; de validator oordeelde dan op andere gegevens dan de
+        uitvoer bevatte. Een poging daartoe wordt gelogd, niet gehonoreerd.
+        """
+        lijsten = definitie_record.get_contextlijsten()
+        review = definitie_record.get_context_review()
+        if not isinstance(lijsten, dict) or not (
+            review is None or isinstance(review, dict)
+        ):
+            # Geen echt record (vervanger in tests): niets te borgen.
+            return
+        recordwaarden: dict[str, Any] = {
+            "id": definitie_record.id,
+            "versie": definitie_record.version_number,
+            "context_review": review,
+            "organisatorische_context": ", ".join(lijsten["organisatorische_context"]),
+            "juridische_context": ", ".join(lijsten["juridische_context"]),
+            "wettelijke_basis": ", ".join(lijsten["wettelijke_basis"]),
+        }
+        recordcontext = {
+            "organisatorisch": list(lijsten["organisatorische_context"]),
+            "juridisch": list(lijsten["juridische_context"]),
+            "wettelijk": list(lijsten["wettelijke_basis"]),
+        }
+        afgewezen = [
+            veld
+            for veld in _CONTRACT_METADATA
+            if export_data.metadata.get(veld) != recordwaarden[veld]
+        ] + [
+            f"context_dict.{veld}"
+            for veld in _CONTRACT_CONTEXT
+            if export_data.context_dict.get(veld) != recordcontext[veld]
+        ]
+        if afgewezen:
+            logger.warning(
+                "Export: aanvullende data probeerde contractvelden te vervangen; "
+                "recordwaarden behouden voor %s",
+                ", ".join(afgewezen),
+            )
+        for veld, waarde in recordwaarden.items():
+            if waarde is None:
+                export_data.metadata.pop(veld, None)
+            else:
+                export_data.metadata[veld] = waarde
+        export_data.context_dict.update(recordcontext)
 
     def _merge_additional_data(
         self, export_data: DefinitieExportData, additional_data: dict[str, Any]

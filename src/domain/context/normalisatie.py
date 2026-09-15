@@ -29,13 +29,43 @@ Inrichtingen` blijven verschillende contextwaarden (besluit DEF-622).
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from typing import Any
 
 __all__ = [
     "canoniseer_contextlijst",
     "contextsleutel",
+    "lees_contextwaarden",
 ]
+
+
+def lees_contextwaarden(opgeslagen: Any) -> list[str]:
+    """Lees een opgeslagen of aangeleverd contextveld terug als losse waarden.
+
+    De databasekolommen bevatten een JSON-array als tekst; de UI levert soms
+    dezelfde JSON-tekst aan, soms een lijst, soms één vrije tekstwaarde uit
+    oudere data. Zonder deze stap zou een string per teken worden gesplitst
+    (`'["DJI"]'` → `['"', '[', ']', 'd', 'i', 'j']`) — het tweede defect uit
+    DEF-672. Eén gedeelde lezer (DEF-622), zodat lookup, duplicaatcontrole en
+    servicelaag dezelfde waarden zien.
+    """
+    if isinstance(opgeslagen, list | tuple | set | frozenset):
+        # Een ontbrekende waarde (None) is geen contextwaarde — en zeker niet
+        # de tekst "None". Dezelfde keuze als `canoniseer_contextlijst`.
+        return [str(waarde) for waarde in opgeslagen if waarde is not None]
+    tekst = "" if opgeslagen is None else str(opgeslagen)
+    if not tekst.strip():
+        return []
+    try:
+        geparsed: Any = json.loads(tekst)
+    except (json.JSONDecodeError, TypeError):
+        # Een vrije tekstwaarde uit oudere data is één contextwaarde.
+        return [tekst]
+    if not isinstance(geparsed, list):
+        # JSON null is geen waarde; een enkele JSON-waarde is één waarde.
+        geparsed = [] if geparsed is None else [geparsed]
+    return [str(waarde) for waarde in geparsed if waarde is not None]
 
 
 def _losse_waarden(waarden: Any) -> Iterable[Any]:

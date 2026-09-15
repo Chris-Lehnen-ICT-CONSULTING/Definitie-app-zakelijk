@@ -11,6 +11,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, cast
 
+from domain.context.normalisatie import lees_contextwaarden
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,6 +24,36 @@ def normalize_wettelijke_basis(basis: list[str] | None) -> str:
     except Exception as e:
         logger.debug(f"Wettelijke basis normalisatie gefaald, gebruik raw dump: {e}")
         return json.dumps(basis or [], ensure_ascii=False)
+
+
+class VaststelconflictError(ValueError):
+    """Er is al een vastgesteld, leidend record voor dit begrip en deze context.
+
+    DEF-622 (B-03/B-10): maximaal één vastgestelde definitie per begrip +
+    volledige genormaliseerde context, ongeacht categorie. Wordt op de
+    persistentiegrens gegooid, zodat geen enkele schrijfroute er stil omheen
+    kan. Vervanging is een bewuste keuze in `DefinitionWorkflowService`.
+    """
+
+    def __init__(self, message: str, conflict_id: int | None = None) -> None:
+        super().__init__(message)
+        self.conflict_id = conflict_id
+
+
+#: Marker van de vastgelegde CON-01-expertbeoordeling in `validation_issues`.
+CONTEXT_REVIEW_CODE = "CON-01-REVIEW"
+
+# Scheiding waarmee de servicelaag een toelichting in de kolom `definitie`
+# inbedt; de enige plek waar die conventie is vastgelegd.
+TOELICHTING_SCHEIDING = "\n\nToelichting:"
+
+
+def splits_definitietekst(tekst: str) -> tuple[str, str | None]:
+    """Splits een recordtekst in (definitiezin, toelichting-of-None)."""
+    if TOELICHTING_SCHEIDING not in tekst:
+        return tekst, None
+    zin, toelichting = tekst.split(TOELICHTING_SCHEIDING, 1)
+    return zin, toelichting.strip() or None
 
 
 class DefinitieStatus(Enum):
@@ -122,6 +154,87 @@ class DefinitieRecord:
     def set_validation_issues(self, issues: list[dict[str, Any]]) -> None:
         """Set validation issues als JSON string."""
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
+
+    def get_definitie_tekst(self) -> str:
+        """De definitiezin: de recordtekst zonder ingebedde toelichting.
+
+        De kolom `definitie` kan `"<zin>\\n\\nToelichting: <toelichting>"`
+        bevatten (servicelaag). Het CON-01-contract, de vaststelgate, de
+        experttab, readback en validatie gebruiken allemaal déze tekstbasis,
+        zodat één beoordeling overal dezelfde vingerafdruk heeft (DEF-622,
+        koppelingenbevinding K4).
+        """
+        return splits_definitietekst(self.definitie or "")[0]
+
+    def get_contextlijsten(self) -> dict[str, list[str]]:
+        """De drie opgeslagen contextlijsten, gelezen zoals het contract ze leest."""
+        return {
+            "organisatorische_context": lees_contextwaarden(
+                self.organisatorische_context
+            ),
+            "juridische_context": lees_contextwaarden(self.juridische_context),
+            "wettelijke_basis": lees_contextwaarden(self.wettelijke_basis),
+        }
+
+    def get_contractvelden(self) -> dict[str, Any]:
+        """De CON-01-contractvelden zoals dit opgeslagen record ze draagt.
+
+        Eén adapter voor vaststelgate, experttab, export en herhaalde
+        validatie (koppelingenbevindingen K2/K3): de drie contextlijsten,
+        id, recordversie en de vastgelegde beoordeling komen uitsluitend
+        van het record — een aanroeper kan ze niet vervangen.
+        """
+        return {
+            **self.get_contextlijsten(),
+            "definition_id": self.id,
+            "definition_version": self.version_number,
+            "context_review": self.get_context_review(),
+        }
+
+    def get_context_review(self) -> dict[str, Any] | None:
+        """De vastgelegde CON-01-expertbeoordeling van de naamfunctie (DEF-622).
+
+        Bewaard als één markerelement (`code == CONTEXT_REVIEW_CODE`) in de
+        bestaande `validation_issues`-lijst: geen schemawijziging, en de
+        beoordeling reist mee met het record. De binding aan tekst/context/
+        term zit in de vingerafdruk in de beoordeling zelf.
+        """
+        markers = [
+            issue
+            for issue in self.get_validation_issues_list()
+            if isinstance(issue, dict) and issue.get("code") == CONTEXT_REVIEW_CODE
+        ]
+        if len(markers) != 1:
+            # Geen marker: geen beoordeling. Meer dan één: ambigu, en een
+            # ambigue beoordeling is fail-closed géén beoordeling
+            # (reviewbevinding E3) — nooit de eerste of de gunstigste kiezen.
+            return None
+        review = markers[0].get("context_review")
+        return dict(review) if isinstance(review, dict) else None
+
+    def set_context_review(self, review: dict[str, Any] | None) -> None:
+        """Vervang (of verwijder bij None) de vastgelegde CON-01-beoordeling."""
+        overig = [
+            issue
+            for issue in self.get_validation_issues_list()
+            if not (
+                isinstance(issue, dict) and issue.get("code") == CONTEXT_REVIEW_CODE
+            )
+        ]
+        if review is not None:
+            overig.append(
+                {
+                    "code": CONTEXT_REVIEW_CODE,
+                    "rule_id": "CON-01",
+                    "severity": "info",
+                    "description": (
+                        "Expertbeoordeling van de naamfunctie (CON-01) door "
+                        f"{review.get('actor') or 'onbekend'}"
+                    ),
+                    "context_review": dict(review),
+                }
+            )
+        self.set_validation_issues(overig)
 
     def get_wettelijke_basis_list(self) -> list[str]:
         """Haal wettelijke basis op als list."""

@@ -111,17 +111,23 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 # Gemeten verwachtingen (huidige code)
 # --------------------------------------------------------------------------
 
+#: DEF-622: de drie contextlijsten reizen nu mee naar de validatieservice.
+#: Daardoor draait DUP_01 (pass: geen duplicaat) i.p.v. `not_evaluated`, en
+#: signaleert CON-01 de geselecteerde juridische context "strafprocesrecht" in
+#: de definitiezin als naamsignaal (`review_required`, B-04) i.p.v. `pass`.
 VERWACHTE_DEKKING: dict[str, float | int] = {
     "evaluated": 36,
     "passed": 30,
     "failed": 6,
-    "review_required": 12,
-    "not_evaluated": 5,
+    "review_required": 13,
+    "not_evaluated": 4,
     "error": 0,
     "total": 53,
     "coverage_ratio": 0.6792,
 }
-VERWACHTE_SCORE = 0.69
+#: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
+#: beschikbaar — `None`, nooit 0.0.
+VERWACHTE_SCORE = None
 VERWACHTE_GESLAAGDE_REGELS = [
     "ARAI-01",
     "ARAI-02",
@@ -131,8 +137,8 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "ARAI-04SUB1",
     "ARAI-05",
     "ARAI-06",
-    "CON-01",
     "CON-CIRC-001",
+    "DUP_01",
     "ESS-02",
     "ESS-CONT-001",
     "INT-04",

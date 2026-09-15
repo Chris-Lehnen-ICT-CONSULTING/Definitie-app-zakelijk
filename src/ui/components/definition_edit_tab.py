@@ -936,6 +936,28 @@ class DefinitionEditTab:
                 prompt_template = (
                     prompt_data.get("prompt") if isinstance(prompt_data, dict) else None
                 )
+                # DEF-622 (besluit tekstvergelijking): ook bij een opnieuw
+                # geopend record, alleen met echt bewijs en zolang de zin nog
+                # de generatie-eindtekst is (na handmatige wijziging: niets).
+                # De actuele zin is wat in de editor staat (recordgebonden
+                # widgetwaarde uit `_render_editor`), niet het geladen record:
+                # anders blijft na herschrijven een melding met de oude
+                # eindtekst staan (reviewbevinding op batch 2).
+                from ui.components.tekstwijziging import (
+                    render_tekstwijziging,
+                    tekstwijziging_uit_bewijs,
+                )
+
+                actuele_tekst = SessionStateManager.get_value(
+                    f"edit_{definition.id}_definitie",
+                    getattr(definition, "definitie", None),
+                )
+                render_tekstwijziging(
+                    tekstwijziging_uit_bewijs(
+                        prompt_data if isinstance(prompt_data, dict) else None,
+                        actuele_tekst=actuele_tekst,
+                    )
+                )
 
             if prompt_template:
                 # Create container for PromptDebugSection (EXACT same pattern as generator tab)
@@ -1352,6 +1374,13 @@ class DefinitionEditTab:
                 orch = container.orchestrator()
                 from services.validation.interfaces import ValidationContext
 
+                # DEF-622: het bewerkte record identificeert zichzelf (DUP_01
+                # sluit het eigen record uit) en draagt de vastgelegde
+                # CON-01-beoordeling mee mét de geladen recordversie (K1):
+                # de beoordeling vervalt bij een gewijzigde tekst
+                # (vingerafdruk) én bij een nieuwere recordversie.
+                geladen = SessionStateManager.get_value("editing_definition")
+                geladen_meta = getattr(geladen, "metadata", None) or {}
                 vc = ValidationContext(
                     correlation_id=None,
                     metadata={
@@ -1359,6 +1388,9 @@ class DefinitionEditTab:
                         or [],
                         "juridische_context": definition.juridische_context or [],
                         "wettelijke_basis": definition.wettelijke_basis or [],
+                        "definition_id": def_id,
+                        "definition_version": geladen_meta.get("version_number"),
+                        "context_review": geladen_meta.get("context_review"),
                     },
                 )
                 v = run_async(
@@ -1382,9 +1414,13 @@ class DefinitionEditTab:
                                 "severity": item.get("severity", "warning"),
                             }
                         )
+                    ruwe_score = v.get("overall_score", 0.0)
                     results = {
                         "valid": bool(v.get("is_acceptable", False)),
-                        "score": float(v.get("overall_score", 0.0) or 0.0),
+                        # DEF-622: None = totaalscore niet beschikbaar, geen 0.0.
+                        "score": (
+                            None if ruwe_score is None else float(ruwe_score or 0.0)
+                        ),
                         "issues": normalized_issues,
                         "raw_v2": v,
                     }

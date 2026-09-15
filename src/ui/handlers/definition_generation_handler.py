@@ -100,10 +100,28 @@ class DefinitionGenerationHandler:
         if afwijsreden:
             st.error(f"❌ Generatie geweigerd: {afwijsreden}.")
             logger.warning("Generatie geweigerd: ongeldig begrip (%s)", afwijsreden)
+            # DEF-622: ook een afgewezen aanvraag verbruikt de eenmalige
+            # force-opties; anders raken ze de volgende, geldige aanvraag
+            # (reviewbevinding D3).
+            self._wis_force_opties(_sm=SessionStateManager)
             return
         # Genormaliseerd doorgeven: consistente sleutels voor duplicate-check
         # en opslag (de allowlist staat rand-spaties toe, opslag hoort ze niet).
         begrip = begrip.strip()
+
+        # DEF-622 (B-01, besloten vervolg): zonder minimaal één inhoudelijke
+        # contextwaarde geen duplicaatcontrole en geen modelaanroep, maar een
+        # vraag om context. De harde grens staat in de orchestrator; dit is de
+        # vroege, begrijpelijke melding in de UI.
+        if not self._heeft_inhoudelijke_context(context_data):
+            st.error(
+                "❌ Generatie niet gestart: vul minimaal één contextwaarde in "
+                "(organisatorische context, juridische context of wettelijke "
+                "basis). De context hoort bij het record en stuurt de generatie."
+            )
+            logger.warning("Generatie niet gestart: geen context voor %r", begrip)
+            self._wis_force_opties(_sm=SessionStateManager)
+            return
 
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
@@ -240,13 +258,29 @@ class DefinitionGenerationHandler:
                                 )
                                 st.rerun()
                         with c2:
+                            # DEF-622 (besluit 5): bewust naast een bestaande
+                            # definitie genereren vraagt een reden voor de audit.
+                            force_reden = (
+                                st.text_input(
+                                    "Reden om toch een nieuw concept te genereren",
+                                    key="force_generate_reason",
+                                )
+                                or ""
+                            ).strip()
                             if st.button(
                                 "🚀 Genereer nieuwe definitie",
                                 key="btn_force_generate",
                             ):
+                                if not force_reden:
+                                    st.warning(
+                                        "Geef een reden op om toch een nieuw "
+                                        "concept te genereren."
+                                    )
+                                    return
                                 # Forceer generatie en duid duplicaat als geaccepteerd
                                 options["force_generate"] = True
                                 options["force_duplicate"] = True
+                                options["force_duplicate_reason"] = force_reden
                                 SessionStateManager.set_value(
                                     "generation_options", options
                                 )
@@ -328,7 +362,12 @@ class DefinitionGenerationHandler:
                         options={
                             k: v
                             for k, v in options.items()
-                            if k in ("force_generate", "force_duplicate")
+                            if k
+                            in (
+                                "force_generate",
+                                "force_duplicate",
+                                "force_duplicate_reason",
+                            )
                         },
                         document_context=doc_summary,
                         document_snippets=doc_snippets,
@@ -483,14 +522,6 @@ class DefinitionGenerationHandler:
                         ),
                     )
 
-                # Reset force flag na generatie
-                try:
-                    if options.get("force_generate"):
-                        options.pop("force_generate", None)
-                        SessionStateManager.set_value("generation_options", options)
-                except (KeyError, AttributeError) as e:
-                    logger.debug(f"Could not reset force_generate flag: {e}")
-
                 # V2 validation is already included in agent_result
                 if isinstance(agent_result, dict):
                     validation_details = agent_result.get("validation_details", {})
@@ -518,6 +549,38 @@ class DefinitionGenerationHandler:
         except Exception as e:
             st.error(f"❌ Fout bij generatie: {e!s}")
             logger.error(f"Global generation failed: {e}", exc_info=True)
+        finally:
+            # DEF-622 (besluit 5): de force-keuze is eenmalig en mag niet
+            # plakken — ook niet na een mislukte generatie. Anders sloeg de
+            # volgende, ongerelateerde generatie stil de duplicaatcontrole
+            # over en reisde `force_duplicate` mee naar DUP_01 en de opslag.
+            self._wis_force_opties(_sm=SessionStateManager)
+
+    @staticmethod
+    def _heeft_inhoudelijke_context(context_data: dict[str, Any]) -> bool:
+        """Minstens één niet-lege waarde in de drie contextlijsten (B-01)."""
+        from domain.context.normalisatie import lees_contextwaarden
+
+        return any(
+            waarde.strip()
+            for veld in (
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
+            )
+            for waarde in lees_contextwaarden(context_data.get(veld))
+        )
+
+    @staticmethod
+    def _wis_force_opties(*, _sm: Any) -> None:
+        opties = ensure_dict(_sm.get_value("generation_options", {}))
+        gewist = False
+        for sleutel in ("force_generate", "force_duplicate", "force_duplicate_reason"):
+            if sleutel in opties:
+                opties.pop(sleutel, None)
+                gewist = True
+        if gewist:
+            _sm.set_value("generation_options", opties)
 
     def handle_duplicate_check(
         self,

@@ -94,7 +94,10 @@ runtime_contract:
 
   executability: ["deterministic", "repository", "judgment", "not_automatable"]
   automation_status: ["automated", "review_required", "not_evaluated"]
-  score_policy: ["scored", "excluded_from_score"]
+  # no_score (DEF-622, B-06): uitkomst met motivering, zonder cijfer. Zolang
+  # zo'n regel in de geëvalueerde set zit is er geen totaalscore
+  # (overall_score null); er wordt geen noemer zonder die regel verzonnen.
+  score_policy: ["scored", "excluded_from_score", "no_score"]
 
   # Uitkomst van één regelevaluatie. Alleen pass en fail zijn werkelijk
   # uitgevoerde, betrouwbare beoordelingen.
@@ -218,7 +221,10 @@ scoring:
     en error vallen uit de noemer — zij tellen nooit als 1,0 mee. Naast de
     kwaliteitsscore rapporteert het resultaat een apart dekkingsblok
     (evaluation_coverage), zodat een lagere dekking niet als hogere
-    kwaliteit kan verschijnen.
+    kwaliteit kan verschijnen. DEF-622: zit er een regel met score_policy
+    no_score (CON-01) in de geëvalueerde set, dan is de totaalscore niet
+    beschikbaar (overall_score null) — een productbesluit over een noemer
+    zonder die regel is er niet; de regeluitkomsten blijven zichtbaar.
 
   weights:
     by_priority:

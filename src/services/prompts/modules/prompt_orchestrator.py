@@ -468,8 +468,13 @@ class PromptOrchestrator:
             # Legal context requires integrity and coherence rules
             active.add("integrity_rules")
             active.add("sam_rules")
-            active.add("con_rules")
             logger.debug("DEF-123: Legal rule modules activated (juridische context)")
+        if context.has_any_context():
+            # DEF-622: het contextcontract (CON-01) geldt voor élke context —
+            # ook uitsluitend organisatorische. Zonder deze module miste de
+            # feitelijk verzonden prompt de naamuitzondering van CON-01 bij een
+            # alleen-organisatorische context (CW-GEN-04).
+            active.add("con_rules")
 
         # ESS and STR rules are category-dependent but we don't know category yet
         # Include both for now - can be optimized in Phase 2 with pre-classification

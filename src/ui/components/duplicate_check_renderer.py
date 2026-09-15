@@ -105,13 +105,14 @@ class DuplicateCheckRenderer:
                     f"**Gemaakt:** {definitie.created_at.strftime('%Y-%m-%d') if definitie.created_at else 'Onbekend'}"
                 )
 
-            # Action buttons
+            # Action buttons — de drie bestaande keuzes blijven behouden (B-09).
             st.markdown("---")
             col1, col2, col3 = st.columns(3)
 
             with col1:
                 if st.button("✅ Gebruik Deze", key=f"use_{definitie.id}"):
                     self._use_existing_definition(definitie)
+                    st.rerun()
 
             with col2:
                 if st.button("📝 Bewerk", key=f"edit_{definitie.id}"):
@@ -121,12 +122,20 @@ class DuplicateCheckRenderer:
                 can_generate = has_min_one_context()
                 if not can_generate:
                     st.caption("Minstens één context vereist om nieuw te genereren.")
+                # Bewust naast een bestaande definitie genereren vraagt een
+                # reden: die gaat mee in de audit van het nieuwe concept
+                # (DEF-622, besluit 5). Het bestaande record wijzigt niet.
+                reden = st.text_input(
+                    "Reden om toch een nieuw concept te genereren",
+                    key=f"new_reason_{definitie.id}",
+                    placeholder="Bijv. de bestaande definitie dekt de nieuwe regeling niet",
+                )
                 if st.button(
                     "🔄 Genereer Nieuw",
                     key=f"new_{definitie.id}",
                     disabled=not can_generate,
                 ):
-                    self._trigger_new_generation()
+                    self._trigger_new_generation(reden=reden)
 
     def _render_duplicate_matches(self, duplicates: list) -> None:
         """Render list of potential duplicates (max 3)."""
@@ -158,9 +167,35 @@ class DuplicateCheckRenderer:
                 if st.button("Gebruik deze definitie", key=f"dup_use_{definitie.id}"):
                     self._use_existing_definition(definitie)
 
+    def render_selected_definition(self, definitie: DefinitieRecord) -> None:
+        """Toon het met 'Gebruik Deze' gekozen record (B-09).
+
+        De keuze is pas een keuze als de gebruiker ziet waarmee hij verder
+        werkt: tekst, context, status en id, plus de weg naar bewerken.
+        """
+        st.markdown("### ✅ Gekozen bestaande definitie")
+        st.markdown(f"**{definitie.begrip}** (ID: {definitie.id})")
+        st.markdown(f"**Definitie:** {definitie.definitie}")
+        org, jur, wet = format_record_context(definitie)
+        if org:
+            st.markdown(f"**Organisatorisch:** {org}")
+        if jur:
+            st.markdown(f"**Juridisch:** {jur}")
+        if wet:
+            st.markdown(f"**Wettelijk:** {wet}")
+        st.markdown(f"**Status:** `{definitie.status}`")
+        if st.button("📝 Open in Bewerk-tab", key=f"selected_edit_{definitie.id}"):
+            self._edit_existing_definition(definitie)
+
     def _use_existing_definition(self, definitie: DefinitieRecord) -> None:
-        """Set definition as selected in session state."""
+        """Kies het bestaande record om mee verder te werken.
+
+        De duplicaatmelding maakt plaats voor het gekozen record; anders
+        blijven melding en keuze naast elkaar staan en is niet zichtbaar dat
+        er gekozen is.
+        """
         SessionStateManager.set_value("selected_definition", definitie)
+        SessionStateManager.clear_value("last_check_result")
 
     def _edit_existing_definition(self, definitie: DefinitieRecord) -> None:
         """Navigate to edit tab with definition loaded."""
@@ -169,17 +204,28 @@ class DuplicateCheckRenderer:
         st.success("✏️ Bewerk-tab geopend — laden van definitie…")
         st.rerun()
 
-    def _trigger_new_generation(self) -> None:
-        """Trigger new generation with force flags."""
+    def _trigger_new_generation(self, reden: str | None = None) -> None:
+        """Start een nieuwe generatie naast het bestaande record, met reden.
+
+        Zonder reden gebeurt er niets: bewust naast een bestaande definitie
+        genereren is een keuze die in de audit van het nieuwe concept moet
+        staan (DEF-622, besluit 5). De force-opties zijn eenmalig; de handler
+        ruimt ze na de generatie op zodat ze niet blijven plakken.
+        """
+        reden = (reden or "").strip()
+        if not reden:
+            st.warning(
+                "Geef een reden op om toch een nieuw concept te genereren; "
+                "die reden wordt bij het nieuwe concept vastgelegd."
+            )
+            return
         options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
         options["force_generate"] = True
         options["force_duplicate"] = True
+        options["force_duplicate_reason"] = reden
         SessionStateManager.set_value("generation_options", options)
-        try:
-            SessionStateManager.clear_value("last_check_result")
-            SessionStateManager.clear_value("selected_definition")
-        except Exception as e:
-            logger.warning(f"Failed to clear session state: {e}")
+        SessionStateManager.clear_value("last_check_result")
+        SessionStateManager.clear_value("selected_definition")
         # Trigger automatische generatie bij volgende render
         SessionStateManager.set_value("trigger_auto_generation", True)
         st.rerun()

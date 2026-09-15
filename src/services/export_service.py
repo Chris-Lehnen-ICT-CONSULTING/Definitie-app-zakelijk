@@ -387,24 +387,47 @@ class ExportService:
         format: ExportFormat = ExportFormat.TXT,
     ) -> str:
         """Asynchrone export met optionele validatiegate."""
+        # DEF-622 (K2): één recordlezing — dezelfde snapshot voor aggregatie,
+        # validatie én uitvoer. Een tweede lezing kon een tussentijds gewijzigd
+        # record toetsen terwijl de export de eerdere versie bevatte.
+        record = definitie_record
+        if record is None and definitie_id is not None:
+            record = self.repository.get_definitie(definitie_id)
+            if record is None:
+                msg = f"Definitie met ID {definitie_id} niet gevonden"
+                raise ValueError(msg)
         export_data = self.data_aggregation_service.aggregate_definitie_for_export(
             definitie_id=definitie_id,
-            definitie_record=definitie_record,
+            definitie_record=record,
             additional_data=additional_data,
         )
         # Optionele async validatiegate
         if self.enable_validation_gate and self.validation_orchestrator is not None:
+            # DEF-622 (K2): de gate oordeelt op het opgeslagen record. De
+            # contractvelden (drie contextlijsten, id, recordversie en de
+            # vastgelegde CON-01-beoordeling) komen uitsluitend van het record;
+            # de aggregatie borgt dezelfde velden in de uitvoer, zodat
+            # validator en export exact dezelfde gegevens gebruiken.
+            # Tekstbasis (K4): de definitiezin — van het record, of van een
+            # expliciet meegegeven aangepaste tekst (door de aggregatie op
+            # dezelfde conventie gesplitst; een andere zin laat een beoordeling
+            # via de vingerafdruk vervallen). Of de gate daarna slaagt
+            # (totaalscore, algemene exportvoorwaarden) blijft DEF-630.
+            from services.validation.interfaces import ValidationContext
+
+            if record is None:
+                msg = "Validatie vóór export vereist een opgeslagen definitie"
+                raise ValueError(msg)
             text_for_validation = (
-                export_data.definitie_aangepast
-                or export_data.definitie_gecorrigeerd
-                or export_data.definitie_origineel
+                export_data.definitie_aangepast or record.get_definitie_tekst()
             )
+            metadata: dict[str, Any] = record.get_contractvelden()
             try:
                 result = await self.validation_orchestrator.validate_text(
-                    begrip=export_data.begrip,
+                    begrip=record.begrip,
                     text=text_for_validation,
                     ontologische_categorie=None,
-                    context=None,
+                    context=ValidationContext(metadata=metadata),
                 )
             except Exception as e:  # pragma: no cover - defensive
                 msg = f"Validatie mislukt vóór export: {e!s}"

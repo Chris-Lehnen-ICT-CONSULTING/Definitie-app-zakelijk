@@ -49,6 +49,7 @@ from services.interfaces import (
 # modulaire validatie via ensure_schema_compliance), niet met de legacy dataclass
 # services.interfaces.ValidationResult. Annotaties uitgelijnd op het runtime-type.
 from services.validation.interfaces import (
+    ValidationContext,
     ValidationOrchestratorInterface,
     ValidationResult,
 )
@@ -58,6 +59,38 @@ from utils.type_helpers import ensure_dict, ensure_list, ensure_string
 UTC = UTC  # Python 3.10 compatibility - must be after all imports
 
 logger = logging.getLogger(__name__)
+
+#: DEF-622 (B-01, besloten vervolg): een nieuwe definitiegeneratie vraagt
+#: minstens één inhoudelijke waarde in de drie contextlijsten. Ontbreekt die,
+#: dan vraagt de app om context en wordt het model niet aangeroepen. Dit is
+#: de definitiegeneratiegrens; de AI-laag zelf (synoniemen, classificatie)
+#: krijgt géén algemene contextplicht.
+CONTEXT_VEREIST_MELDING = (
+    "Vul minimaal één contextwaarde in (organisatorische context, juridische "
+    "context of wettelijke basis) voordat een definitie wordt gegenereerd. De "
+    "context hoort bij het record en stuurt de generatie; zonder context wordt "
+    "het model niet aangeroepen."
+)
+
+
+class KandidaatNietStabielError(RuntimeError):
+    """De validatie bleef de kandidaattekst wijzigen; het oordeel is niet aan
+    exact de getoonde/opgeslagen tekst te koppelen (DEF-622)."""
+
+
+def heeft_inhoudelijke_context(request: GenerationRequest) -> bool:
+    """Minstens één niet-lege waarde in de drie contextlijsten van de aanvraag."""
+    from domain.context.normalisatie import lees_contextwaarden
+
+    return any(
+        waarde.strip()
+        for veld in (
+            request.organisatorische_context,
+            request.juridische_context,
+            request.wettelijke_basis,
+        )
+        for waarde in lees_contextwaarden(veld)
+    )
 
 
 if TYPE_CHECKING:
@@ -336,6 +369,26 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         """
         start_time = time.time()
         generation_id = request.id if request.id else str(uuid.uuid4())
+
+        # DEF-622 (B-01): de definitiegeneratiegrens. Vóór elke fase die een
+        # model kan aanroepen (synoniemverrijking, web lookup, generatie):
+        # zonder inhoudelijke context geen generatie, maar een vraag om context.
+        if not heeft_inhoudelijke_context(request):
+            logger.warning(
+                f"Generation {generation_id}: geen context voor '{request.begrip}'; "
+                "generatie niet gestart"
+            )
+            return DefinitionResponseV2(
+                success=False,
+                error=CONTEXT_VEREIST_MELDING,
+                metadata={
+                    "generation_id": generation_id,
+                    "duration": time.time() - start_time,
+                    "error_type": "context_required",
+                    "orchestrator_version": "v2.0",
+                    "phases_completed": 0,
+                },
+            )
 
         try:
             # Track generation start
@@ -941,10 +994,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # - "Ontologische categorie:" metadata header
             # - "[term]:" prefix (e.g., "Vervoersverbod:")
             # - Forbidden words, circular definitions, etc.
-            from opschoning.opschoning_enhanced import opschonen_enhanced
+            from opschoning.opschoning_enhanced import (
+                extract_definition_from_gpt_response,
+                opschonen_enhanced,
+            )
 
             definitie_zonder_header = opschonen_enhanced(
                 raw_gpt_output, sanitized_request.begrip, handle_gpt_format=True
+            )
+            # DEF-622 (besluit tekstvergelijking): de echte definitiekern vóór
+            # nabewerking — alleen de GPT-kop eraf, niets opgeschoond. Het al
+            # opgeschoonde `definitie_origineel` hierboven is géén vóórtekst.
+            definitie_kern_geextraheerd = extract_definition_from_gpt_response(
+                raw_gpt_output
             )
 
             logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
@@ -952,9 +1014,6 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 6: Validation
             # =====================================
-            # Use ValidationOrchestratorInterface.validate_text
-            from services.validation.interfaces import ValidationContext
-
             # Tolerant correlation_id: als generation_id geen geldige UUID is, genereer er één
             try:
                 corr = uuid.UUID(generation_id)
@@ -981,49 +1040,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 correlation_id=corr,
                 metadata=meta,
             )
-            # Validate using Definition object per interface contract
-            temp_definition = Definition(
-                begrip=sanitized_request.begrip,
-                definitie=cleaned_text,
-                organisatorische_context=sanitized_request.organisatorische_context
-                or [],
-                juridische_context=sanitized_request.juridische_context or [],
-                wettelijke_basis=sanitized_request.wettelijke_basis or [],
-                ontologische_categorie=sanitized_request.ontologische_categorie,
-                created_by=sanitized_request.actor,
+            # DEF-622: de getoetste kandidaat is exact de kandidaat die wordt
+            # getoond en opgeslagen. De validatie-orchestrator schoont een
+            # Definition in-place; daarom gaat een kopie mee en wordt, als de
+            # validatie de tekst tóch wijzigt, die tekst de kandidaat en
+            # opnieuw getoetst (wijziging na toetsing vereist hertoetsing).
+            cleaned_text, raw_validation = await self._toets_kandidaat(
+                sanitized_request, cleaned_text, validation_context, generation_id
             )
-            raw_validation = await self.validation_service.validate_definition(
-                definition=temp_definition,
-                context=validation_context,
+            validation_result = self._normaliseer_validatie(
+                raw_validation, generation_id
             )
-            # Normalize to schema-conform dict for internal decisions
-            try:
-                from services.validation.mappers import ensure_schema_compliance
-
-                validation_result = ensure_schema_compliance(raw_validation)
-            except (ImportError, TypeError, ValueError, AttributeError) as e:
-                # DEF-229: Log schema compliance failures with context
-                logger.warning(
-                    f"Generation {generation_id}: Validation schema mapping failed, using fallback: {e}",
-                    extra={
-                        "error_type": type(e).__name__,
-                        "generation_id": generation_id,
-                    },
-                    exc_info=True,
-                )
-                # Defensive fallback to simple mapping
-                is_ok = getattr(raw_validation, "is_valid", False)
-                vio_list = getattr(raw_validation, "violations", None)
-                if vio_list is None:
-                    vio_list = getattr(raw_validation, "errors", []) or []
-                validation_result = {
-                    "is_acceptable": bool(is_ok),
-                    "violations": vio_list,
-                    "passed_rules": [],
-                    "detailed_scores": {},
-                    "version": "v2",
-                    "system": {},
-                }
 
             logger.info(
                 f"Generation {generation_id}: Validation complete (valid: {safe_dict_get(validation_result, 'is_acceptable', False)})"
@@ -1032,19 +1059,30 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 7: Enhancement (if validation failed and enabled)
             # =====================================
+            # DEF-622 (besloten vervolg): geen automatisch tekstherstel op
+            # CON-01. De herstelgrond is uitsluitend een overtreding van een
+            # andere regel; een CON-01-uitkomst (Voldoet niet / Nog te
+            # beoordelen / technisch probleem) of een gate die alleen dicht
+            # is door de ontbrekende totaalscore is géén herstelgrond. Het
+            # herstelontwerp zelf (DEF-638) wordt hier niet beslist.
             was_enhanced = False
+            herstelbare_overtredingen = self._herstelbare_overtredingen(
+                validation_result
+            )
             if (
-                not safe_dict_get(validation_result, "is_acceptable", False)
+                herstelbare_overtredingen
                 and self.config.enable_enhancement
                 and self.enhancement_service
             ):
                 enhanced_text = await self.enhancement_service.enhance_definition(
                     cleaned_text,
-                    ensure_list(safe_dict_get(validation_result, "violations", [])),
+                    herstelbare_overtredingen,
                     context=sanitized_request,
                 )
 
-                # Re-validate enhanced text with new context
+                # Hertoetsing van de daadwerkelijk bewaarde kandidaat: de
+                # verbeterde tekst wordt opnieuw getoetst; een oud oordeel
+                # geldt niet voor gewijzigde inhoud.
                 try:
                     corr2 = uuid.UUID(generation_id)
                 except ValueError:
@@ -1054,49 +1092,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     correlation_id=corr2,
                     metadata={"generation_id": generation_id, "enhanced": True},
                 )
-                # Re-validate enhanced text using Definition object
-                enhanced_definition = Definition(
-                    begrip=sanitized_request.begrip,
-                    definitie=enhanced_text,
-                    organisatorische_context=sanitized_request.organisatorische_context
-                    or [],
-                    juridische_context=sanitized_request.juridische_context or [],
-                    wettelijke_basis=sanitized_request.wettelijke_basis or [],
-                    ontologische_categorie=sanitized_request.ontologische_categorie,
-                    created_by=sanitized_request.actor,
+                cleaned_text, raw_validation = await self._toets_kandidaat(
+                    sanitized_request, enhanced_text, enhanced_context, generation_id
                 )
-                raw_validation = await self.validation_service.validate_definition(
-                    definition=enhanced_definition,
-                    context=enhanced_context,
+                validation_result = self._normaliseer_validatie(
+                    raw_validation, generation_id
                 )
-                try:
-                    from services.validation.mappers import ensure_schema_compliance
-
-                    validation_result = ensure_schema_compliance(raw_validation)
-                except (ImportError, TypeError, ValueError, AttributeError) as e:
-                    # DEF-229: Log enhancement validation mapping failures
-                    logger.warning(
-                        f"Generation {generation_id}: Enhanced validation schema mapping failed: {e}",
-                        extra={
-                            "error_type": type(e).__name__,
-                            "generation_id": generation_id,
-                        },
-                        exc_info=True,
-                    )
-                    is_ok = getattr(raw_validation, "is_valid", False)
-                    vio_list = getattr(raw_validation, "violations", None)
-                    if vio_list is None:
-                        vio_list = getattr(raw_validation, "errors", []) or []
-                    validation_result = {
-                        "is_acceptable": bool(is_ok),
-                        "violations": vio_list,
-                        "passed_rules": [],
-                        "detailed_scores": {},
-                        "version": "v2",
-                        "system": {},
-                    }
-
-                cleaned_text = enhanced_text
                 was_enhanced = True
                 logger.info(
                     f"Generation {generation_id}: Enhancement applied, re-validated"
@@ -1172,6 +1173,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # Store original definition without metadata headers (for UI display)
                     # This is the GPT output with "Ontologische categorie:" header removed
                     "definitie_origineel": definitie_zonder_header,
+                    # DEF-622 (besluit tekstvergelijking): de echte tekststadia.
+                    # `definitie_kern_geextraheerd` is de modeltekst vóór
+                    # nabewerking; `definitie_eindtekst` de getoetste, getoonde
+                    # én opgeslagen kandidaat; de vlag zegt of de app de tekst
+                    # ná generatie heeft gewijzigd (opschoning of enhancement).
+                    "definitie_kern_geextraheerd": definitie_kern_geextraheerd,
+                    "definitie_eindtekst": cleaned_text,
+                    "tekst_na_generatie_aangepast": (
+                        definitie_kern_geextraheerd != cleaned_text
+                    ),
                     # Doorgeven van force_duplicate voor downstream repository
                     "force_duplicate": (
                         bool(
@@ -1181,6 +1192,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         )
                         if getattr(sanitized_request, "options", None)
                         else False
+                    ),
+                    # DEF-622 (besluit 5): de reden voor een bewust geforceerd
+                    # duplicaat reist mee naar de audit van het nieuwe concept.
+                    "force_duplicate_reason": (
+                        safe_dict_get(
+                            sanitized_request.options, "force_duplicate_reason", None
+                        )
+                        if getattr(sanitized_request, "options", None)
+                        else None
                     ),
                 },
             )
@@ -1333,6 +1353,111 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     # =====================================
     # PRIVATE HELPER METHODS
     # =====================================
+
+    async def _toets_kandidaat(
+        self,
+        request: GenerationRequest,
+        tekst: str,
+        validation_context: ValidationContext,
+        generation_id: str,
+    ) -> tuple[str, Any]:
+        """Toets een kandidaattekst en geef (definitieve tekst, ruw resultaat).
+
+        DEF-622: de validatie-orchestrator schoont het meegegeven Definition-
+        object in-place. Wijzigt de validatie de tekst, dan is dát de
+        kandidaat die getoond en opgeslagen wordt, en die wordt opnieuw
+        getoetst (wijziging na toetsing vereist hertoetsing). Zo is de
+        opgeslagen tekst altijd exact de getoetste tekst.
+        """
+        kandidaat = tekst
+        raw_validation: Any = None
+        for poging in (1, 2):
+            kopie = Definition(
+                begrip=request.begrip,
+                definitie=kandidaat,
+                organisatorische_context=request.organisatorische_context or [],
+                juridische_context=request.juridische_context or [],
+                wettelijke_basis=request.wettelijke_basis or [],
+                ontologische_categorie=request.ontologische_categorie,
+                created_by=request.actor,
+            )
+            raw_validation = await self.validation_service.validate_definition(
+                definition=kopie, context=validation_context
+            )
+            if kopie.definitie == kandidaat:
+                return kandidaat, raw_validation
+            if poging == 2:
+                # Aanhoudende mutatie: het oordeel hoort bij een andere tekst
+                # dan de kandidaat. Fail-closed — geen oordeel koppelen aan een
+                # tekst die niet exact getoetst is, en niets opslaan.
+                raise KandidaatNietStabielError(
+                    "de nabewerking in de validatie blijft de kandidaattekst "
+                    "wijzigen; de definitie is niet stabiel te toetsen en wordt "
+                    "niet opgeslagen"
+                )
+            logger.info(
+                f"Generation {generation_id}: validatie wijzigde de kandidaattekst; "
+                "hertoetsing op de definitieve tekst"
+            )
+            kandidaat = kopie.definitie
+        return kandidaat, raw_validation  # pragma: no cover - lus eindigt altijd eerder
+
+    @staticmethod
+    def _normaliseer_validatie(raw_validation: Any, generation_id: str) -> Any:
+        """Schema-conforme dict voor interne beslissingen, met defensieve fallback."""
+        try:
+            from services.validation.mappers import ensure_schema_compliance
+
+            return ensure_schema_compliance(raw_validation)
+        except (ImportError, TypeError, ValueError, AttributeError) as e:
+            # DEF-229: Log schema compliance failures with context
+            logger.warning(
+                f"Generation {generation_id}: Validation schema mapping failed, "
+                f"using fallback: {e}",
+                extra={"error_type": type(e).__name__, "generation_id": generation_id},
+                exc_info=True,
+            )
+            is_ok = getattr(raw_validation, "is_valid", False)
+            vio_list = getattr(raw_validation, "violations", None)
+            if vio_list is None:
+                vio_list = getattr(raw_validation, "errors", []) or []
+            return {
+                "is_acceptable": bool(is_ok),
+                "violations": vio_list,
+                "passed_rules": [],
+                "detailed_scores": {},
+                "version": "v2",
+                "system": {},
+            }
+
+    @staticmethod
+    def _herstelbare_overtredingen(validation_result: Any) -> list[Any]:
+        """Overtredingen die de bestaande enhancement mogen bereiken.
+
+        Uitgesloten: regels zonder cijfer (`rule_results`, i.e. CON-01): hun
+        uitkomst vraagt een expertbeoordeling of een bewuste gebruikersactie,
+        geen automatisch tekstherstel (DEF-622; herstelontwerp is DEF-638).
+
+        Runtimecontract ongewijzigd: net als vóór DEF-622 gaan de
+        schema-conforme violation-dicts van het validatieresultaat door
+        (`list[Any]`, zoals `ensure_list` ze leverde); de interface annoteert
+        de dataclass `ValidationViolation` — die bestaande discrepantie wordt
+        hier niet beslist.
+        """
+        zonder_cijfer = set(
+            ensure_dict(safe_dict_get(validation_result, "rule_results", {})).keys()
+        )
+        overtredingen: list[Any] = []
+        for overtreding in ensure_list(
+            safe_dict_get(validation_result, "violations", [])
+        ):
+            if not isinstance(overtreding, dict):
+                continue
+            code = overtreding.get("code") or overtreding.get("rule_id")
+            if code in zonder_cijfer:
+                continue
+            overtredingen.append(overtreding)
+        return overtredingen
 
     def _create_definition_object(
         self,

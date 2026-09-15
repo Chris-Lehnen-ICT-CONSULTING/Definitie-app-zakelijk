@@ -32,6 +32,10 @@ from database.definitie_repository import DefinitieRecord, DefinitieRepository
 
 pytestmark = [pytest.mark.integration]
 
+#: DEF-622 (besluit 5): bewust naast een bestaande definitie in dezelfde
+#: context aanmaken vraagt een reden voor de audit van het nieuwe record.
+VERSIEREDEN = "synthetische versietest (DEF-622: auditreden verplicht)"
+
 # ============================================================================
 # MIGRATIE-INVOER
 # ============================================================================
@@ -403,7 +407,9 @@ class TestPostMigration:
             wettelijke_basis="[]",
         )
 
-        id2 = repo.create_definitie(record2, allow_duplicate=True)
+        id2 = repo.create_definitie(
+            record2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
         assert id2 > 0
         assert id2 != id1, "Should create separate definition"
 
@@ -479,7 +485,9 @@ class TestPostMigration:
         )
 
         repo.create_definitie(record1)
-        repo.create_definitie(record2, allow_duplicate=True)
+        repo.create_definitie(
+            record2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+        )
 
         # find_duplicates should detect both
         duplicates = repo.find_duplicates(
@@ -517,7 +525,11 @@ class TestPostMigration:
                 wettelijke_basis="[]",
             )
             allow_dup = i > 1  # First one doesn't need flag
-            repo.create_definitie(record, allow_duplicate=allow_dup)
+            repo.create_definitie(
+                record,
+                allow_duplicate=allow_dup,
+                duplicate_reason=VERSIEREDEN if allow_dup else None,
+            )
 
         # Verify all 3 variants exist
         duplicates = repo.find_duplicates(
@@ -572,7 +584,9 @@ class TestRollback:
             )
 
             repo.create_definitie(record1)
-            repo.create_definitie(record2, allow_duplicate=True)
+            repo.create_definitie(
+                record2, allow_duplicate=True, duplicate_reason=VERSIEREDEN
+            )
 
             # Attempt rollback - should fail due to duplicates
             rollback_sql = read_required_migration(MIGRATION_009_ROLLBACK)

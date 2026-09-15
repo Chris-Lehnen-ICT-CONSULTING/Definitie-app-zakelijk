@@ -30,7 +30,14 @@ from services.interfaces import Definition
 # verdwenen of van betekenis veranderd. Zie de conditionele constraint in
 # het JSON-schema - bij validation_unknown zijn overall_score en
 # is_acceptable uitsluitend fail-closed placeholders.
-CONTRACT_VERSION = "1.2.0"
+#
+# 1.3.0 (DEF-622): additief uitgebreid met rule_results (gestructureerde
+# deeluitkomsten van regels zonder cijfer, CON-01). overall_score en de
+# categoriescores kunnen nu None zijn: de totaalscore is niet beschikbaar
+# zolang een regel met score_policy no_score in de geevalueerde set zit
+# (productbesluit: geen noemer zonder CON-01). Bestaande consumers moeten
+# None aankunnen; geen enkel veld is verdwenen.
+CONTRACT_VERSION = "1.3.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -65,11 +72,12 @@ class ValidationResult(TypedDict, total=False):
 
     # Required fields
     version: str
-    overall_score: float  # 0.0-1.0
+    # 0.0-1.0, of None wanneer de totaalscore niet beschikbaar is (DEF-622).
+    overall_score: float | None
     is_acceptable: bool
     violations: list["RuleViolation"]
     passed_rules: list[str]
-    detailed_scores: dict[str, float]  # category -> score
+    detailed_scores: dict[str, float | None]  # category -> score (of None)
     system: "SystemMetadata"
 
     # Optional fields
@@ -83,6 +91,9 @@ class ValidationResult(TypedDict, total=False):
     rule_statuses: NotRequired[dict[str, RuleResultStatus]]
     evaluation_coverage: NotRequired["EvaluationCoverage"]
     review_required: NotRequired[list["ReviewRequirement"]]
+
+    # DEF-622: gestructureerde uitkomst per regel zonder cijfer (CON-01).
+    rule_results: NotRequired[dict[str, "RuleResult"]]
 
     # DEF-621: bij validation_unknown is er niet geevalueerd.
     # overall_score en is_acceptable blijven aanwezig voor
@@ -139,6 +150,41 @@ class EvaluationCoverage(TypedDict):
     error: int
     total: int
     coverage_ratio: float  # evaluated / total
+
+
+class RuleResultPart(TypedDict):
+    """Eén zichtbare deelcontrole van een regel zonder cijfer (DEF-622, B-08).
+
+    `evidence` is de werkelijk gevonden tekst; `context_value` de geselecteerde
+    contextwaarde, apart bewaard omdat de schrijfwijze kan verschillen.
+    `reason` en `action` zijn de gebruikersuitleg: waarom dit niet voldoet of
+    nog open staat, en wat de gebruiker kan doen.
+    """
+
+    id: str
+    status: Literal["pass", "fail", "review_required", "error"]
+    evidence: str | None
+    context_value: str | None
+    field: str | None
+    position: int | None
+    reason: str
+    action: str
+
+
+class RuleResult(TypedDict):
+    """Gestructureerde uitkomst van een regel zonder cijfer (DEF-622, B-06).
+
+    `score` is bewust altijd None. `fingerprint` bindt een menselijke
+    beoordeling aan term, exacte tekst, canonieke context en contractversie;
+    verandert daar iets, dan geldt de eerdere beoordeling niet meer.
+    """
+
+    status: RuleResultStatus
+    score: None
+    contract_version: str | None
+    fingerprint: str | None
+    parts: list[RuleResultPart]
+    review: dict[str, Any] | None
 
 
 class ReviewRequirement(TypedDict):

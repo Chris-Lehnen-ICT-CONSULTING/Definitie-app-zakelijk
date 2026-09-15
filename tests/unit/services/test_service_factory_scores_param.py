@@ -61,7 +61,7 @@ def _def_response(score_present: bool, score_value):
         (True, 90, 90.0),  # int
         (True, "75.5", 75.5),  # numeric string
         (True, "", 0.0),  # empty string → default
-        (True, None, 0.0),  # None → default
+        (True, None, None),  # DEF-622: None = niet beschikbaar, geen 0.0
         (True, True, 1.0),  # bool True → 1.0
         (True, False, 0.0),  # bool False → 0.0
         (True, 0, 0.0),  # zero preserved

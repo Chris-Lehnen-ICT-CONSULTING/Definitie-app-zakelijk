@@ -1,40 +1,15 @@
 {
   "id": "CON_01",
-  "naam": "Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming",
-  "uitleg": "Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf. Bij de generatiestap wordt tevens een duplicate‑controle toegepast op begrip én synoniemen: als er al een definitie met gelijke context bestaat (organisatorisch, juridisch en wettelijke basis), verschijnt een duplicate‑gate met uitleg.",
-  "toelichting": "Een definitie moet afgestemd zijn op de organisatorische, juridische en/of wettelijke context die via invoervelden door de gebruiker is opgegeven. Deze context mag niet letterlijk in de definitie worden herhaald of benoemd. De contextuele betekenis moet impliciet doorklinken in de formulering. Tijdens de definitie‑generatie vindt een duplicate‑controle plaats op zowel het begrip als de opgegeven synoniemen (case‑insensitief). Wanneer met identieke context (organisatorisch, juridisch en wettelijke basis; wettelijke basis is orde‑onafhankelijk) al een definitie bestaat, wordt dit gemeld met een duidelijke toelichting (bijv. ‘Gevonden via synoniem … met gelijke context’), zodat je bewust kunt kiezen voor hergebruik of nieuwe generatie.",
-  "toetsvraag": "Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?",
-  "herkenbaar_patronen": [
-    "\\b(in de context van)\\b",
-    "\\b(in het kader van)\\b",
-    "\\bbinnen de context\\b",
-    "\\bvolgens de .*context\\b",
-    "\\bjuridisch(e)?\\b",
-    "\\bbeleidsmatig(e)?\\b",
-    "\\boperationeel\\b",
-    "\\btechnisch(e)?\\b",
-    "\\bcontext\\b",
-    "\\bin juridische context\\b",
-    "\\bin operationele context\\b",
-    "\\bin technische context\\b",
-    "\\bin beleidsmatige context\\b",
-    "\\b(Dienst Justiti[eë]le Inrichtingen|DJI|Openbaar Ministerie|OM|ZM|KMAR)\\b",
-    "\\bstrafrecht\\b",
-    "\\bbestuursrecht\\b",
-    "\\bciviel recht\\b",
-    "\\bburgerlijk recht\\b",
-    "\\binternationaal recht\\b",
-    "\\bvolgens het Wetboek van (Strafvordering|Strafrecht|Bestuursrecht)\\b",
-    "\\bop grond van de (wet|regelgeving|bepaling)\\b",
-    "\\bmet basis in de (wet|regeling)\\b",
-    "\\bwettelijke grondslag\\b",
-    "\\bzoals toegepast binnen\\b"
-  ],
+  "naam": "Eigen definitie voor elke context. Registratiecontext buiten de definitiezin",
+  "uitleg": "Leg bij het record minstens één contextwaarde vast (organisatorische context, juridische context of wettelijke basis). De registratiecontext wordt buiten de definitiezin vastgelegd en mag niet als registratiecontext in die zin worden vermeld. Een naam mag wel in de definitiezin voorkomen wanneer die inhoudelijk noodzakelijk is voor de afbakening of identificatie van het begrip, ook wanneer dezelfde naam bij de registratiecontext staat.",
+  "toelichting": "De definitie is afgestemd op de context die bij het record is vastgelegd; die context hoort naast de definitie, niet erin. Staat een geselecteerde contextwaarde letterlijk in de definitiezin, dan is dat een beoordelingssignaal en geen afkeurgrond: de functie van de naam bepaalt het oordeel. Noemt de naam alleen de registratiecontext (waar de definitie wordt gebruikt), dan voldoet de definitie niet. Is de naam inhoudelijk noodzakelijk om het begrip af te bakenen of te identificeren (bijvoorbeeld de exclusieve uitgever van een keurmerk), dan mag zij blijven staan. Is de functie onvoldoende duidelijk, dan blijft de beoordeling open en kan de definitie wel als concept worden bewaard maar niet worden vastgesteld. De regel geeft geen cijfer: de uitkomst is Voldoet, Voldoet niet of Nog te beoordelen, met per onderdeel de aanleiding, de reden en de vervolgstap. Er is geen vaste lijst verboden woorden; alleen de werkelijk geselecteerde contextwaarden tellen, zonder aliasmapping. De duplicaatcontrole op begrip en gelijke context is regel DUP_01.",
+  "toetsvraag": "Is bij het record context vastgelegd, en staat de registratiecontext buiten de definitiezin — of is een genoemde naam inhoudelijk noodzakelijk voor de afbakening of identificatie van het begrip?",
   "goede_voorbeelden": [
-    "Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen."
+    "Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.",
+    "Zilverkeurmerk is een kwaliteitskeurmerk dat uitsluitend door Stichting Zilver wordt verleend."
   ],
   "foute_voorbeelden": [
-    "Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering."
+    "Toezicht is controle zoals uitgevoerd binnen Dienst Justitiële Inrichtingen in het strafrecht."
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",
@@ -57,7 +32,9 @@
     ],
     "executability": "deterministic",
     "automation_status": "automated",
-    "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "score_policy": "no_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "Het foute voorbeeld noemt een contextnaam in de definitiezin; of dat een overtreding is hangt af van de geselecteerde context bij het record en van de menselijke beoordeling van de naamfunctie (B-04). Zonder record en beoordeling is het paar geen deterministische regressiecase.",
+    "example_pair_issue": "DEF-622"
   }
 }

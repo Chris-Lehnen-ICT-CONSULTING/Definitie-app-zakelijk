@@ -133,6 +133,10 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
             begrip="verificatie",
             ontologische_categorie="proces",
             context="DJI",
+            # DEF-622: generatie vereist minimaal één contextwaarde in de
+            # canonieke lijsten; deze proef toetst de enhancement-route,
+            # niet de lege-contextgrens.
+            organisatorische_context=["DJI"],
             actor="tester",
             legal_basis="testing",
         )

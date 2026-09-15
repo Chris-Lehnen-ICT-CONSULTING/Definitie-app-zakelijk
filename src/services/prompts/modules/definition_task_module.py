@@ -237,7 +237,7 @@ Formuleer nu de definitie van het begrip in dit datablok, volgens deze specifica
 → Geen toelichting, voorbeelden of haakjes
 → Ontologische categorie is duidelijk{ont_cat}
 → Geen verboden woorden (aspect, element, kan, moet, etc.)
-→ Context verwerkt zonder expliciete benoeming"""
+→ Context impliciet verwerkt: de registratiecontext niet in de zin; een naam uit de context alleen als die inhoudelijk noodzakelijk is"""
 
     def _build_quality_control(self, has_context: bool) -> str:
         """

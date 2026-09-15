@@ -176,12 +176,16 @@ def _basisresultaat(**overrides: Any) -> dict[str, Any]:
     return resultaat
 
 
-def test_contractversie_is_verhoogd_naar_1_2_0() -> None:
-    assert CONTRACT_VERSION == "1.2.0"
+def test_contractversie_is_verhoogd_naar_1_3_0() -> None:
+    # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
+    # rule_results toe en maakt overall_score nullable.
+    assert CONTRACT_VERSION == "1.3.0"
     assert _schema()["properties"]["validation_status"]["enum"] == [
         VALIDATION_STATUS_VALIDATED,
         VALIDATION_STATUS_UNKNOWN,
     ]
+    assert "rule_results" in _schema()["properties"]
+    assert _schema()["properties"]["overall_score"]["type"] == ["number", "null"]
 
 
 def test_unknown_resultaat_is_schemageldig() -> None:
@@ -260,10 +264,11 @@ def test_incompleet_readinessobject_is_schema_ongeldig() -> None:
         Draft202012Validator(_schema()).validate(resultaat)
 
 
-def test_schemaomschrijving_noemt_contractversie_1_2_0() -> None:
-    """De omschrijving mag niet op 1.1.0 blijven staan terwijl de versie 1.2.0 is.
+def test_schemaomschrijving_noemt_contractversie_1_3_0() -> None:
+    """De omschrijving mag niet op een oudere versie blijven staan.
 
     Een schema dat zichzelf verkeerd nummert is precies zo misleidend als een
     resultaat dat zichzelf verkeerd nummert.
     """
-    assert "1.2.0" in _schema()["description"]
+    assert "1.3.0" in _schema()["description"]
+    assert CONTRACT_VERSION in _schema()["description"]
