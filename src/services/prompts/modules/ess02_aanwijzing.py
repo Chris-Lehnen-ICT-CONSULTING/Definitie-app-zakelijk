@@ -7,6 +7,16 @@ variant dragen die alsnog vier exclusieve keuzes of een markerplicht
 suggereert. Tekst volgens de vastgestelde ESS-02-besluiten (DEF-749): niveau
 en aard apart, vier overlappende richtingen als hulp, geen verplicht
 woordenlijstje, opgegeven categorie als te controleren betekenisclaim.
+
+Onvoldoende grond (reviewcorrectie P2): het uitvoercontract is één zin met
+uitsluitend de definitiekern, zonder toelichting. De aanwijzing vraagt
+daarom géén afzonderlijke melding in of naast de uitvoer — dat zou met het
+contract botsen — maar één voorlopige kandidaat zonder vermenging van
+betekenislagen en zonder verzonnen grond. De ontbrekende keuze blijft
+zichtbaar via de ESS-02-beoordeling zelf (`review_required`, zie
+`JudgmentReviewEvaluator._ess02_reden`), niet via de modeluitvoer. Dat is
+dezelfde lijn als ESS-01 (DEF-746): hoogstens een herkenbaar voorlopig
+voorstel; grond, onzekerheid of toelichting niet in de definitiekern.
 """
 
 from __future__ import annotations
@@ -23,6 +33,9 @@ GEDEELDE_ESS02_AANWIJZING = (
     "activiteit mag haar uitkomst noemen zonder van betekenis te veranderen. "
     "Behandel een opgegeven categorie als te controleren betekenisclaim, niet als "
     "toestemming om strijdige broninhoud te herschrijven. Bij onvoldoende grond "
-    "voor een noodzakelijke betekeniskeuze: meld de ontbrekende keuze afzonderlijk "
-    "en verzin geen context, bron, identiteit of expertbesluit."
+    "voor een noodzakelijke betekeniskeuze: verzin geen context, bron, identiteit "
+    "of expertbesluit, vermeng de betekenislagen niet als alternatief en geef één "
+    "voorlopige kandidaat voor de door context en bronnen best ondersteunde "
+    "lezing, zonder melding, toelichting of tweede lezing in de zin; de "
+    "ESS-02-beoordeling blijft dan nog te beoordelen."
 )

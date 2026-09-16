@@ -205,6 +205,53 @@ async def test_echte_samengestelde_prompt_volgt_de_besluiten(category):
         assert "Template voor Object" in prompt
 
 
+#: Instructies die een aparte melding of tweede uitvoerregel zouden vragen en
+#: daarmee botsen met "één enkele zin" / "uitsluitend de definitiekern".
+STRIJDIG_MET_UITVOERCONTRACT = (
+    "meld de ontbrekende keuze afzonderlijk",
+    "meld de ontbrekende keuze apart",
+    "geef de ontbrekende keuze apart",
+)
+
+
+@pytest.mark.parametrize("category", [*VIER, None])
+async def test_onvoldoende_grond_blijft_binnen_het_uitvoercontract(category):
+    """Codex-review P2 (DEF-750): geen tegenstrijdige uitvoerinstructies.
+
+    Bij onvoldoende grond voor een noodzakelijke betekeniskeuze mag de echte
+    eindprompt niet tegelijk een afzonderlijke melding vragen én uitsluitend
+    de definitiekern in één zin zonder toelichting eisen. Het gedrag is
+    eenduidig: één voorlopige kandidaat binnen het contract, geen vermenging
+    van betekenislagen, geen verzonnen grond; de open betekenisvraag blijft
+    bij de ESS-02-beoordeling (nog te beoordelen), niet in de zin.
+    """
+    request = GenerationRequest(
+        id=f"def750-p2-{category}",
+        begrip="registratie",
+        ontologische_categorie=category,
+        organisatorische_context=["DJI"],
+        actor="test_user",
+    )
+    prompt = (await PromptServiceV2().build_generation_prompt(request)).text
+    # Het uitvoercontract staat er (ongewijzigd).
+    assert "één enkele zin, zonder toelichting" in prompt
+    assert "Lever uitsluitend de definitiekern" in prompt
+    # Geen instructie die een aparte melding in of naast de uitvoer vraagt.
+    for strijdig in STRIJDIG_MET_UITVOERCONTRACT:
+        assert strijdig not in prompt, strijdig
+    # Het eenduidige gedrag staat op elke ESS-02-plaats (regelkaart én
+    # betekenislaagsectie delen dezelfde aanwijzing).
+    assert prompt.count("zonder melding, toelichting of tweede lezing in de zin") == 2
+    assert prompt.count("vermeng de betekenislagen niet als alternatief") == 2
+    assert "verzin geen context, bron, identiteit of expertbesluit" in prompt
+    assert "de ESS-02-beoordeling blijft dan nog te beoordelen" in prompt
+    # ESS-01 (DEF-746) ongewijzigd naast deze correctie.
+    assert "hoogstens een herkenbaar voorlopig voorstel" in prompt
+    assert (
+        "voeg grond, onzekerheid of toelichting niet toe aan de definitiekern" in prompt
+    )
+
+
 def test_parser_blijft_tolerant_voor_oude_markerregels():
     # Backcompat: een eventuele markerregel uit een ouder model of een
     # opgeslagen ruwe uitvoer wordt nog steeds gestript; zonder marker
