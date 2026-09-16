@@ -637,6 +637,12 @@ def render_validation_detailed_list(
     # niet achter de toggle, want zonder totaalscore zijn dit dé uitkomsten.
     render_rule_results(validation_result.get("rule_results") or {})
 
+    # DEF-746: de open reden is ook bij ingeklapte details zichtbaar. Passages
+    # zijn gebruikersinvoer: toon ze letterlijk, niet als Markdown of HTML.
+    for review_item in validation_result.get("review_required") or []:
+        if isinstance(review_item, dict) and review_item.get("rule_id") == "ESS-01":
+            st.text(str(review_item.get("reason") or "ESS-01 — Nog te beoordelen"))
+
     # Toggle + details
     details_key = f"{key_prefix}_show_validation_details"
     if show_toggle and st.button(

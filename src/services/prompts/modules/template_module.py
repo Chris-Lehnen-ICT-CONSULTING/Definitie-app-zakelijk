@@ -158,13 +158,13 @@ class TemplateModule(BasePromptModule):
             Template string of None
         """
         templates = {
-            "Proces": "[Handeling/activiteit] waarbij [actor/systeem] [actie] uitvoert [met welk doel/resultaat]",
-            "Object": "[Fysiek/digitaal ding] dat [kenmerkende eigenschap] heeft en [functie/rol] vervult",
+            "Proces": "[Handeling/activiteit] waarbij [actor/systeem] [kenmerkende handeling] uitvoert [met een onderscheidend resultaat indien onderbouwd]",
+            "Object": "[Fysiek/digitaal ding] met [onderscheidende kenmerken]; neem een functie of rol alleen op bij gegeven begripsbepalende grond volgens ESS-01",
             "Actor": "[Persoon/instantie/systeem] die [verantwoordelijkheid/rol] heeft voor [domein/activiteit]",
             "Toestand": "[Status/situatie] waarin [object/actor] zich bevindt wanneer [voorwaarde/kenmerk]",
             "Gebeurtenis": "[Voorval/incident] dat optreedt wanneer [trigger/voorwaarde] en resulteert in [uitkomst]",
-            "Maatregel": "[Interventie/actie] die wordt toegepast om [doel] te bereiken bij [situatie]",
-            "Informatie": "[Gegevens/data] over [onderwerp] die [doel/gebruik] dient",
+            "Maatregel": "[Interventie/actie] met [onderbouwde kenmerkende inhoud en toepassingsvoorwaarden]; een doel volgt alleen uit gegeven begripsafbakening volgens ESS-01",
+            "Informatie": "[Gegevens/data] over [onderwerp] met [onderscheidende inhoud of herkomst]",
             "Regel": "[Voorschrift/norm] dat bepaalt [wat] onder [welke voorwaarden]",
             "Recht": "[Bevoegdheid/aanspraak] van [rechthebbende] om [wat te doen/krijgen]",
             "Verplichting": "[Plicht/opdracht] voor [verplichte partij] om [actie/nalating] te doen",
@@ -205,7 +205,7 @@ class TemplateModule(BasePromptModule):
                 [
                     "- [begrip]: [categorie] die/dat [onderscheidend kenmerk]",
                     "- [begrip]: [bovenbegrip] met als kenmerk [specificatie]",
-                    "- [begrip]: [type/soort] [bovenbegrip] voor [doel/functie]",
+                    "- [begrip]: [bovenbegrip] met [onderbouwd onderscheidend kenmerk]",
                 ]
             )
 
@@ -223,14 +223,14 @@ class TemplateModule(BasePromptModule):
         """
         examples_map = {
             "Proces": [
-                "  ✅ toezicht: systematisch volgen van handelingen om naleving van regels te waarborgen",
+                "  Grensgeval — toezicht: systematisch volgen van handelingen om naleving van regels te waarborgen. Onderbouw eerst of nalevingswaarborg begripsbepalend is of een gewenst effect; zinsvorm alleen geeft geen goed/fout-label (ESS-01).",
                 "  ✅ registratie: proces waarbij gegevens formeel worden vastgelegd in een systeem",
                 "  ✅ beoordeling: evaluatie van prestaties aan de hand van vooraf bepaalde criteria",
             ],
             "Object": [
                 "  ✅ dossier: verzameling documenten die betrekking hebben op één zaak of persoon",
-                "  ✅ systeem: geheel van onderling verbonden componenten met een gemeenschappelijk doel",
-                "  ✅ register: officiële vastlegging van geordende gegevens voor raadpleging",
+                "  Grensgeval — systeem: een gemeenschappelijk doel is alleen toelaatbaar met gegeven begripsbepalende grond (ESS-01); zonder grond blijft dit open.",
+                "  Grensgeval — register: officiële vastlegging van geordende gegevens voor raadpleging. Onderbouw of raadpleging de gegeven betekenis bepaalt of alleen bijkomend gebruik is (ESS-01); zonder grond blijft dit open.",
             ],
             "Actor": [
                 "  ✅ toezichthouder: functionaris belast met het controleren van naleving van voorschriften",
@@ -240,7 +240,7 @@ class TemplateModule(BasePromptModule):
             "Maatregel": [
                 "  ✅ sanctie: corrigerende actie opgelegd bij geconstateerde overtreding",
                 "  ✅ waarschuwing: formele kennisgeving van ongewenst gedrag met dreiging van consequenties",
-                "  ✅ interventie: doelgerichte handeling om een ongewenste situatie te veranderen",
+                "  Grensgeval — gegeven afbakening: interventie is een gerichte ingreep in een bestaand proces ter verandering daarvan. Kandidaat: gerichte ingreep in een bestaand proces om de gang daarvan te veranderen. De doelfunctie is alleen toelaatbaar bij deze bevestigde grond volgens ESS-01; zonder grond blijft dit open.",
             ],
             "Regel": [
                 "  ✅ voorschrift: bindende bepaling die aangeeft wat verplicht of verboden is",

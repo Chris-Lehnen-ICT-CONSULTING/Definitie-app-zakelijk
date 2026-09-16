@@ -304,7 +304,25 @@ class JSONBasedRulesModule(BasePromptModule):
             "ARAI-05": "Vermijd impliciete verwijzingen naar aannames, gewoonten of niet-toegelichte contexten",
             "ARAI-06": "Start zonder lidwoord ('de', 'het', 'een'), zonder koppelwerkwoord ('is', 'betekent') en zonder herhaling van het begrip",
             # ESS rules (Essentie)
-            "ESS-01": "Beschrijf WAT het begrip is, niet WAARVOOR het dient of wordt gebruikt",
+            "ESS-01": (
+                "Beschrijf de kenmerken die het begrip binnen de gegeven betekenis afbakenen. "
+                "Neem geen niet-begripsbepalend doel, gewenst effect, motief of incidenteel "
+                "(vervolg)gebruik op in de definitiekern, ook niet als onderscheidend kenmerk "
+                "naast een genus. Behoud een functie, rol of gebruiksbestemming uitsluitend "
+                "wanneer de gegeven bron of expliciet bevestigde domeinafbakening onderbouwt "
+                "dat die het begrip mede bepaalt. Een bestemming is niet hetzelfde als actuele "
+                "werking: sluit een defect of ongebruikt exemplaar niet onbedoeld uit. "
+                "Geef gebruikte grond en onzekerheid apart bij de kandidaat; een "
+                "modelmotivering is geen menselijk bewijs. De app kan overig doel of gebruik "
+                "als apart toelichtingsvoorstel aanbieden. Verander term en registratiecontext "
+                "niet; volg voor de definitiekern het bestaande CON-01-beleid, inclusief "
+                "noodzakelijke namen. Verzin geen bron, afbakening of beoordeling. Bij "
+                "ontbrekende of strijdige informatie: maak dit zichtbaar en geef hoogstens "
+                "een herkenbaar voorlopig voorstel. Volg het bestaande uitvoerformaat: "
+                "voeg grond, onzekerheid of toelichting niet toe aan de definitiekern. "
+                "Een bevestigde overtreding blijft voldoet niet, ook bij een gezaghebbende "
+                "bron; het oordeel start geen automatische wijziging of regeneratie."
+            ),
             "ESS-02": "Maak de ontologische categorie expliciet: kies duidelijk tussen proces, type, resultaat of exemplaar",
             "ESS-03": "Noem criteria voor unieke identificatie van instanties (zoals serienummer, kenteken, ID, registratienummer)",
             "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",

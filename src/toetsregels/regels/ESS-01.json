@@ -1,9 +1,9 @@
 {
   "id": "ESS_01",
   "naam": "Essentie, niet doel",
-  "uitleg": "Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.",
-  "toelichting": "Definities moeten focussen op de aard en kenmerken van een begrip, niet op de reden waarom het bestaat of waarvoor het gebruikt wordt. Formuleringen als ‘om te’, ‘met als doel’, of ‘zodat’ wijzen vaak op een doel in plaats van op een definitie.",
-  "toetsvraag": "Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?",
+  "uitleg": "De definitie bakent het begrip af binnen de vastgelegde betekenis. Een niet-begripsbepalend doel, gewenst effect, motief of gebruik hoort niet in de definitiekern: niet als vervanging van de afbakening, niet als extra vervolggebruik en ook niet als onderscheidend kenmerk naast een genus. Een functie, rol of gebruiksbestemming mag behouden blijven wanneer herleidbare domeininformatie aantoont dat zij het begrip mede bepaalt. Bij onvoldoende of strijdige grond blijft dit punt open voor inhoudelijke beoordeling. Woordkeuze of zinsvorm beslist het oordeel niet.",
+  "toelichting": "Beoordeel de rol van het kenmerk binnen de vastgelegde betekenis. Doelwoorden zijn aanwijzingen, geen bewijs. Behoud een onderbouwd begripsbepalende functie; ontbrekende grond blijft open. Overig doel kan apart als toelichtingsvoorstel worden aangeboden. Een bevestigde overtreding blijft voldoet niet, ook bij een gezaghebbende bron; het oordeel start geen automatische wijziging of regeneratie. Projectkeuze functiegrens: gebruikersbesluit 16 september 2026, DEF-746; bron en afwijking afzonderlijk vastgelegd in docs/plans/2026-09-16-def746-technische-specificatie.md (DEF-625).",
+  "toetsvraag": "Bakent de kern het begrip af en zijn de opgenomen functies, doelen of gebruiksbestemmingen begripsbepalend en onderbouwd?",
   "herkenbaar_patronen": [
     "\\bom te\\b",
     "\\bmet als doel\\b",
@@ -17,10 +17,10 @@
     "\\bgericht op\\b"
   ],
   "goede_voorbeelden": [
-    "meldpunt: instantie die meldingen registreert over strafbare feiten"
+    "requirement: behoefte of eis van een belanghebbende"
   ],
   "foute_voorbeelden": [
-    "meldpunt: instantie om meldingen te kunnen verwerken"
+    "requirement: behoefte of eis van een belanghebbende, die dient als brug naar systeemontwerp"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",
@@ -32,7 +32,7 @@
   "relatie": [
     {
       "fulltext": "Essentie, niet doel",
-      "fullurl": "https://www.astraonline.nl/index.php/Essentie,_niet_doel"
+      "fullurl": "https://www.astraonline.nl/index.php?title=Essentie,_niet_doel&oldid=8543"
     }
   ],
   "runtime_contract": {
@@ -44,7 +44,7 @@
     "automation_status": "review_required",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "essentie versus doel is een inhoudelijk oordeel; het om-te-patroon herkent de gesplitste constructie in het eigen foute voorbeeld niet.",
+    "example_pair_reason": "Het primaire ASTRA-paar (revisie 8543) vraagt inhoudelijke beoordeling van vervolggebruik; geen patroontreffer is geen bewijs van voldoen. De functiegrens is expliciet projectbeleid (DEF-746/625).",
     "example_pair_issue": "DEF-624"
   }
 }

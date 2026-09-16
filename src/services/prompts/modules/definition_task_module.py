@@ -274,7 +274,7 @@ Formuleer nu de definitie van het begrip in dit datablok:
 
         # De vier klassieke vragen (wat/niet doel, afbakening, context, essentie)
         # staan al als ESS-01, ESS-03/05, CON-01 en ESS-CONT-001 in de prompt.
-        return f"""#### 🔍 KWALITEITSCONTROLE: WAT (niet doel), afgebakend, passend bij {context_vraag}, essentie."""
+        return f"""#### 🔍 KWALITEITSCONTROLE: Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij {context_vraag}, en volg CON-01."""
 
     def _build_metadata(
         self, begrip: str, word_type: str, org_contexts: list[str], has_context: bool

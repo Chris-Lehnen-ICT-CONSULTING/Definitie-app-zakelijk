@@ -143,7 +143,7 @@ class OutputSpecificationModule(BasePromptModule):
 - Geen punt aan het einde
 - Geen haakjes BEHALVE voor afkortingen (bijv. DJI, AVG)
 - Geen voorbeelden in de definitie
-- Focus op WAT het is, niet het doel of gebruik"""
+- Volg ESS-01: begripsafbakening, met onderbouwde begripsbepalende functies; overig doel of gebruik alleen als afzonderlijk voorstel buiten deze definitiekern"""
 
     def _build_character_limit_warning(self, min_chars: int, max_chars: int) -> str:
         """
