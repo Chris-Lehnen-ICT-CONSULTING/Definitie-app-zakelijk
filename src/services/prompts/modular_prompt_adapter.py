@@ -120,7 +120,7 @@ def get_cached_orchestrator() -> PromptOrchestrator:
                     # De "Veelgemaakte fouten" sectie (~1.000 tokens) wordt volledig afgedekt door:
                     # - ARAI-06 (geen lidwoorden/koppelwerkwoorden)
                     # - STR-01, STR-02, STR-03 (structuur regels)
-                    # - ESS-02 (geen meta-woorden)
+                    # - ESS-02 (betekenisniveau en aard; geen markerplicht, DEF-750)
                     # - ARAI-02, ARAI-03 (containerbegrippen, bijvoeglijke naamwoorden)
                     # - VER-01, VER-02, VER-03 (enkelvoud, infinitief)
                     # Plus: validatiematrix tabel vat alle patronen al samen

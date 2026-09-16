@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "c187337a2a04a2ee32a2b2c25c203f9ae5bd849d",
+  "source_commit": "6dc2de3e473ae1bca440e543e086e89402d2ac77",
   "entries": {
     "tests/ci/test_offline_gate_bootstrap.py::test_runner_kapt_af_op_het_procesbudget": {
       "source_sha256": "82f4107a3c04cd30d82c025e232b8f174925d655567fce2f88be826bfadf3843",
@@ -528,20 +528,20 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/services/orchestrators/test_definition_orchestrator_v2.py::TestDefinitionOrchestratorV2::test_monitoring_integration": {
-      "source_sha256": "56ab172e73392a28362c649246c7f64999cf1cf8e38b1a7b01ba4c6b145f8a4a",
+      "source_sha256": "84eb2cbcb60622807a26963bf8915a6d16fc071fe0b86c24469080d0cc28f6c7",
       "comparisons": [
         "afronding.kwargs['duration'] >= 0.0"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-750 (bestandshash verschoven door promptverwachtingsasserties in TestDefinitionOrchestratorV2Integration::test_ontological_category_end_to_end); deze timingvergelijking en functie zijn AST-gelijk aan basis bceb6ab80. Status en eigenaar ongewijzigd."
     },
     "tests/integration/services/orchestrators/test_definition_orchestrator_v2.py::TestDefinitionOrchestratorV2Integration::test_performance_benchmarks": {
-      "source_sha256": "56ab172e73392a28362c649246c7f64999cf1cf8e38b1a7b01ba4c6b145f8a4a",
+      "source_sha256": "84eb2cbcb60622807a26963bf8915a6d16fc071fe0b86c24469080d0cc28f6c7",
       "comparisons": [
         "duur < 5.0"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-750 (bestandshash verschoven door promptverwachtingsasserties in TestDefinitionOrchestratorV2Integration::test_ontological_category_end_to_end); deze timingvergelijking en functie zijn AST-gelijk aan basis bceb6ab80. Status en eigenaar ongewijzigd."
     },
     "tests/integration/services/test_batch_validation.py::test_batch_validate_performance_benefit": {
       "source_sha256": "b24e0b19be157800f2b70ab4aba9fbfc0c975fdb755f655703834ef8fd62724f",

@@ -50,7 +50,9 @@ class _FakeRepo:
 
 
 @pytest.mark.asyncio
-async def test_ess02_marker_override_passes():
+async def test_ess02_marker_geeft_geen_automatische_pass():
+    # DEF-750: een geldige marker was een vrijstelling (automatische pass);
+    # nu blijft ESS-02 open voor menselijke beoordeling, ook mét marker.
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     res = await svc.validate_definition(
         begrip="toezicht",
@@ -58,14 +60,16 @@ async def test_ess02_marker_override_passes():
         ontologische_categorie=None,
         context={"marker": "proces"},
     )
-    # No ESS-02 violation expected
     assert not any(v.get("code") == "ESS-02" for v in res.get("violations", []))
+    assert res["rule_statuses"]["ESS-02"] == "review_required"
+    assert "ESS-02" not in res["passed_rules"]
 
 
 @pytest.mark.asyncio
-async def test_ess02_ambiguity_fails():
+async def test_ess02_meerdere_categoriewoorden_geven_geen_automatische_fail():
+    # DEF-750: twee categoriewoorden waren een "ambigu"-fail met severity
+    # error/critical; dat is geen betekenisbewijs. De uitkomst blijft open.
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
-    # Text suggests both process and result
     text = "… is een proces en tevens het resultaat van …"
     res = await svc.validate_definition(
         begrip="sanctionering",
@@ -73,10 +77,8 @@ async def test_ess02_ambiguity_fails():
         ontologische_categorie=None,
         context={},
     )
-    assert any(
-        v.get("code") == "ESS-02" and v.get("severity") == "error"
-        for v in res["violations"]
-    )
+    assert not any(v.get("code") == "ESS-02" for v in res["violations"])
+    assert res["rule_statuses"]["ESS-02"] == "review_required"
 
 
 @pytest.mark.asyncio

@@ -254,7 +254,7 @@ class ValidationRenderer:
             "CON-CIRC-001": "Detecteert of het begrip letterlijk in de definitie voorkomt.",
             "STR-TERM-001": "Terminologiekwesties (bijv. 'HTTP-protocol' i.p.v. 'HTTP protocol').",
             "STR-ORG-001": "Lange, komma-rijke zinnen of redundantie/tegenstrijdigheid.",
-            "ESS-02": "Eenduidige ontologische marker (type/particulier/proces/resultaat).",
+            "ESS-02": "Betekenisniveau en aard van de definitiekern (menselijk oordeel; geen markerplicht).",
             "CON-01": "Context niet letterlijk benoemen; waarschuwt bij dubbele context.",
         }
         return "", fallback.get(rule_id, "Geen beschrijving beschikbaar.")
@@ -345,8 +345,9 @@ class ValidationRenderer:
                     if not (c > 300 and cm >= 6) and not redund
                     else ""
                 )
-            if rid == "ESS-02":
-                return "Eenduidige ontologische marker aanwezig."
+            # DEF-750: ESS-02 is reviewplichtig en komt nooit meer als
+            # geslaagde regel binnen; de oude pass-verklaring "eenduidige
+            # ontologische marker aanwezig" was geen inhoudelijke grond.
             if rid == "CON-01":
                 return "Context niet letterlijk benoemd; geen duplicaat gedetecteerd."
             if rid in {"ESS-03", "ESS-04", "ESS-05"}:

@@ -110,10 +110,13 @@ async def test_category_aggregation():
 
     # Check that all categories have scores. DEF-622: de categorie van een
     # regel zonder cijfer (CON-01 → samenhang) draagt None, geen verzonnen
-    # gemiddelde; de overige drie dragen een afgerond cijfer.
+    # gemiddelde. DEF-750: ESS-02 draagt eveneens `no_score` en valt in
+    # 'juridisch', dus ook die categorie draagt None; de overige twee dragen
+    # een afgerond cijfer.
     assert "detailed_scores" in result
     assert result["detailed_scores"]["samenhang"] is None
-    for category in ["taal", "juridisch", "structuur"]:
+    assert result["detailed_scores"]["juridisch"] is None
+    for category in ["taal", "structuur"]:
         assert category in result["detailed_scores"], f"Missing category: {category}"
         score = result["detailed_scores"][category]
         assert score is not None, f"Category {category} zonder cijfer"

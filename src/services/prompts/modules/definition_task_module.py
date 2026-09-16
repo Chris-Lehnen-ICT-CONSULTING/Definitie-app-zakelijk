@@ -133,8 +133,9 @@ class DefinitionTaskModule(BasePromptModule):
                     self._build_metadata(begrip, word_type, org_contexts, has_context)
                 )
 
-            # Ontologische marker instructie
-            sections.append(self._build_ontological_marker())
+            # DEF-750: geen aparte markerregel in de uitvoer; de categorie is
+            # metadata bij de opdracht, geen eerste uitvoerregel.
+            sections.append(self._build_categorie_metadata_afspraak())
 
             # Finale definitie opdracht
             sections.append(self._build_final_instruction(begrip))
@@ -242,21 +243,27 @@ Formuleer nu de definitie van het begrip in dit datablok:
         """
         ont_cat = ""
         if ontological_category:
+            # DEF-750: dezelfde vier richtingen als de ESS-02-sectie — niveau
+            # en aard, geen woordplicht. 'type' is niet "soort/categorie".
             category_hints = {
-                "proces": "activiteit/handeling",
-                "type": "soort/categorie",
-                "resultaat": "uitkomst/gevolg",
-                "exemplaar": "specifiek geval",
+                "proces": "activiteit als kern",
+                "type": "algemeen begrip; benoem een passend genus",
+                "resultaat": "uitkomst als kern",
+                "exemplaar": "één bepaald ding of voorval",
             }
             # Normaliseer case zodat de focus-regel consistent is met de guidance
             # in SemanticCategorisationModule (die ook .lower() gebruikt). DEF-447.
             normalized = ontological_category.lower()
             if normalized in category_hints:
-                ont_cat = f"\n🎯 Focus: Dit is een **{normalized}** ({category_hints[normalized]})"
+                ont_cat = (
+                    f"\n🎯 Focus: opgegeven categorie **{normalized}** "
+                    f"({category_hints[normalized]}) — een te controleren "
+                    "betekenisclaim, geen verplicht woord"
+                )
 
-        # Zinsvorm, eindpunt/haakjes, verboden woorden en de ontologische
-        # categorie staan al in de OUTPUT FORMAT-, STR-, ARAI- en ESS-02-secties
-        # en in de marker hieronder; hier alleen de focus en het contextcontract.
+        # Zinsvorm, eindpunt/haakjes, verboden woorden en de betekenislaag
+        # staan al in de OUTPUT FORMAT-, STR-, ARAI- en ESS-02-secties; hier
+        # alleen de focus en het contextcontract.
         return f"""📋 **CONSTRUCTIE GUIDE - Bouw je definitie op:**{ont_cat}
 → Context impliciet verwerkt: de registratiecontext niet in de zin; een naam uit de context alleen als die inhoudelijk noodzakelijk is"""
 
@@ -299,12 +306,19 @@ Formuleer nu de definitie van het begrip in dit datablok:
         # Promptmetadata onderaan; hier alleen wat daar niet staat.
         return """#### 📊 METADATA voor traceerbaarheid: Builder versie Modular Architecture v2.0"""
 
-    def _build_ontological_marker(self) -> str:
-        """Bouw ontologische marker instructie."""
+    def _build_categorie_metadata_afspraak(self) -> str:
+        """DEF-750: de categorie is metadata, geen uitvoerregel.
+
+        Vóór DEF-750 vroeg dit blok een aparte eerste regel
+        "Ontologische categorie: soort | exemplaar | proces | resultaat". Die
+        markerregel reisde nooit naar de validatie en bewees niets over de
+        kern; de uitvoer is uitsluitend de definitiekern. De parser
+        (`opschoning_enhanced.extract_definition_from_gpt_response`) blijft
+        tolerant voor een eventuele oude markerregel.
+        """
         return """---
 
-📋 **Ontologische marker (lever als eerste regel):**
-- Ontologische categorie: soort | exemplaar | proces | resultaat"""
+📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
 
     def _build_final_instruction(self, begrip: str) -> str:
         """Bouw finale definitie instructie."""
