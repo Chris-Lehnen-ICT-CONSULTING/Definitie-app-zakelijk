@@ -87,7 +87,7 @@ class TestBasicPromptGeneration:
         with pytest.raises(ValueError, match="Begrip mag niet leeg zijn"):
             builder.build_prompt("   ", context, config)
 
-    def test_performance_baseline(self):
+    def test_performance_baseline(self, record_testsuite_property):
         """Test performance baseline voor Fase 1 componenten."""
         import time
 
@@ -108,8 +108,11 @@ class TestBasicPromptGeneration:
             generation_time < 1.0
         ), f"Prompt generatie te langzaam: {generation_time:.3f}s"
 
-        # Prompt moet volledige lengte hebben nu alle componenten geïmplementeerd zijn
-        assert 5000 < len(prompt) < 20000  # Volledige prompt met alle 6 componenten
+        # DEF-746: 20k tekens is een richtwaarde, geen inhoudelijk promptcontract.
+        # Bewaar de meting in het testrapport zonder norminformatie af te kappen.
+        record_testsuite_property("prompt_length_chars", len(prompt))
+        record_testsuite_property("prompt_length_reference_chars", 20_000)
+        assert len(prompt) > 5000  # Volledige prompt met alle 6 componenten
 
     def test_build_prompt_includes_begrip(self):
         """Integratie-invariant: het te definiëren begrip komt voor in de
