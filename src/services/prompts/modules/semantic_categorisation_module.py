@@ -1,29 +1,32 @@
 """
-Semantic Categorisation Module - ESS-02 ontologische categorie instructies.
+Semantic Categorisation Module - ESS-02 betekenisniveau en aard.
 
 Deze module is verantwoordelijk voor:
-1. ESS-02 basis instructies
-2. Category-specific guidance voor type/proces/resultaat/exemplaar
-3. Dynamische categorie bepaling
+1. De gedeelde ESS-02-aanwijzing (betekenisniveau en aard, DEF-750)
+2. Richtinggevende hints per praktische categorie type/proces/resultaat/exemplaar
+3. Doorzetten van de opgegeven categorie naar shared state
 
 Toelichting (ESS-02 vs. UI-injectie van categorie)
-- De app/UI bepaalt de ontologische categorie (bv. type/proces/resultaat/exemplaar) en injecteert die in de
-  promptcontext/metadata.
-- ESS-02 maakt deze categorie zichtbaar en dwingend voor het taalmodel door:
-  - Expliciete, categorie-specifieke schrijfaanwijzingen en voorbeeldformuleringen te geven.
-  - De categorie door te zetten naar shared state zodat andere modules (bijv. TemplateModule en
-    DefinitionTaskModule) automatisch de juiste templates, patronen en "focus"-regels kiezen.
-  - Veilige basisinstructies te tonen als de categorie ontbreekt, zodat het model alsnog goede keuzes kan maken.
-- Zonder ESS-02 blijft de categorie alleen metadata; met ESS-02 krijgt het model concrete guidance om de categorie
-  ondubbelzinnig in de definitie tot uitdrukking te brengen (consistent over de hele prompt).
-- Compacte modus (optioneel): beperk ESS-02 tot de verplichte keuze tussen de vier categorieën plus korte hints,
-  zonder uitgebreide voorbeelden, om tokens te besparen.
+- De app/UI bepaalt of kiest de ontologische categorie (type/proces/resultaat/exemplaar)
+  en injecteert die in de promptcontext/metadata.
+- De vier categorieën zijn praktische, overlappende richtingen — geen vier
+  elkaar uitsluitende ontologische klassen en geen verplicht woordenlijstje.
+  ESS-02 vraagt dat de definitiekern met een passend bovenbegrip en kenmerken
+  duidelijk maakt of een algemeen begrip of één bepaald ding/voorval wordt
+  bedoeld, en waar relevant of de kern een activiteit of haar uitkomst is.
+- De opgegeven categorie is een te controleren betekenisclaim: zij stuurt de
+  hints en templates (TemplateModule, DefinitionTaskModule via shared state),
+  maar geeft geen toestemming om strijdige broninhoud te herschrijven en is
+  geen validatiebewijs. Zonder categorie blijft de gedeelde aanwijzing staan.
+- Er is geen aparte markerregel in de uitvoer: de uitvoer is uitsluitend de
+  definitiekern (DEF-750).
 """
 
 import logging
 from typing import Any
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
+from .ess02_aanwijzing import GEDEELDE_ESS02_AANWIJZING
 
 logger = logging.getLogger(__name__)
 
@@ -132,19 +135,19 @@ class SemanticCategorisationModule(BasePromptModule):
         Returns:
             ESS-02 sectie tekst
         """
-        # Basis ESS-02 sectie (altijd aanwezig)
-        base_section = """### 📐 Let op betekenislaag (ESS-02 - Ontologische categorie):
-Je **moet** de opgegeven ontologische categorie volgen door de JUISTE KICK-OFF term te kiezen:
+        # Basis ESS-02 sectie (altijd aanwezig). DEF-750: één gedeelde
+        # aanwijzing — niveau en aard apart, vier richtingen als hulp, geen
+        # markerplicht en geen onvoorwaardelijk verbod op 'soort' of 'type'.
+        base_section = f"""### 📐 Betekenislaag (ESS-02 - betekenisniveau en aard):
+{GEDEELDE_ESS02_AANWIJZING}
 
-• PROCES begrippen → start met: 'activiteit waarbij...', 'handeling die...', 'proces waarin...'
-• TYPE begrippen → start met: [kernwoord] dat/die [kenmerk] (bijv. 'woord dat...', 'document dat...', 'persoon die...')
-• RESULTAAT begrippen → start met: 'resultaat van...', 'uitkomst van...', 'product dat...'
-• EXEMPLAAR begrippen → start met: 'exemplaar van... dat...', 'specifiek geval van...'
+Praktische richtingen (hulpmiddelen; zij overlappen en sluiten elkaar niet uit):
+• TYPE — algemeen begrip; benoem een passend genus (bijv. "document dat informatie over één behandeld onderwerp vastlegt")
+• PROCES — activiteit als kern; waar nodig algemeen begrip onderscheiden van één bepaald voorval (bijv. "activiteit waarbij meetwaarden in een register worden vastgelegd")
+• RESULTAAT — uitkomst als kern; relevante ontstaansrelatie behouden (bijv. "resultaat van het vastleggen van meetwaarden in een register")
+• EXEMPLAAR — één bepaald ding, ook abstract, of voorval; gegeven identificatie en aard behouden (bijv. "meting met identificatie M-17 die op 16 september 2026 om 10:00 is uitgevoerd aan sensor S-4")
 
-⚠️ Let op: Start NOOIT met 'is een' of andere koppelwerkwoorden!
-⚠️ Voor TYPE: Start NOOIT met meta-woorden als kick-off ('soort...', 'type...', 'categorie...')!
-De kick-off term MOET een concreet zelfstandig naamwoord zijn (bijv. 'woord', 'document', 'persoon').
-Je MAG wel 'soort' gebruiken in de UITLEG, niet als START."""
+Start niet met 'is een' of een ander koppelwerkwoord (ARAI-06); de kick-off is een zelfstandig naamwoord of naamwoordgroep."""
 
         # Voeg category-specific guidance toe indien beschikbaar
         if categorie and self.detailed_guidance_enabled:
@@ -173,17 +176,23 @@ Je MAG wel 'soort' gebruiken in de UITLEG, niet als START."""
         Returns:
             Category-specific guidance of None
         """
+        # DEF-750: hints per praktische richting. Kick-offs zijn voorbeelden,
+        # geen verplicht vocabulaire; de ESS-01-grensgevallen (DEF-746) blijven
+        # letterlijk staan. 'soort'/'type' zijn geen fout op zichzelf: een
+        # genus 'soort ...' past niet wanneer de dingen zelf bedoeld zijn, maar
+        # kan passen bij een begrip waarvan de instanties soorten zijn.
         category_guidance_map = {
-            "proces": """**PROCES CATEGORIE - Formuleer als ACTIVITEIT/HANDELING:**
+            "proces": """**PROCES — activiteit als kern:**
 
-⚠️ BELANGRIJK: De kick-off termen hieronder zijn ZELFSTANDIGE NAAMWOORDEN (handelingsnaamwoorden),
-geen werkwoorden! Ze voldoen dus aan STR-01 (start met zelfstandig naamwoord) en ARAI-01
-(geen vervoegd werkwoord als kern).
+De kick-off is een handelingsnaamwoord ('activiteit', 'handeling', 'proces', 'meting'), geen werkwoord
+(STR-01, ARAI-01). Onderscheid waar nodig het algemene begrip (elke registratie) van één bepaald voorval
+(de registratie van 16 september 2026 aan sensor S-4). Een activiteit mag haar uitkomst noemen
+("... en die leidt tot een resultaat in een register") zonder een uitkomstbegrip te worden.
 
-KICK-OFF opties (kies één):
-- 'activiteit waarbij...' → focus op wat er gebeurt
-- 'handeling die...' → focus op de actie
-- 'proces waarin...' → focus op het verloop
+Bijvoorbeeld:
+- 'activiteit waarbij...' → wat er gebeurt
+- 'handeling die...' → de actie
+- 'proces waarin...' → het verloop
 
 VERVOLG met:
 - WIE voert het uit (actor/rol)
@@ -197,44 +206,46 @@ VOORBEELDEN (GOED):
 ✅ "proces waarin documenten systematisch worden geanalyseerd"
 
 VOORBEELDEN (FOUT):
-❌ "is een activiteit waarbij..." (start met 'is')
+❌ "is een activiteit waarbij..." (koppelwerkwoord als start)
 ❌ "het observeren van..." (werkwoordelijk)
-❌ "manier om gegevens te verzamelen" (te abstract)""",
-            "type": """**TYPE CATEGORIE - Begin met het ZELFSTANDIG NAAMWOORD dat de klasse aanduidt:**
+❌ "activiteit of resultaat van het vastleggen van meetwaarden" (twee betekenislagen als alternatief in één kern)""",
+            "type": """**TYPE — algemeen begrip; benoem een passend genus:**
 
-⚠️ BELANGRIJK: Begin DIRECT met het kernwoord, NIET met meta-woorden als kick-off!
-
-INSTRUCTIE: Start met het concrete zelfstandig naamwoord (bijv. 'woord', 'document', 'persoon')
-die de klasse benoemt, gevolgd door onderscheidende kenmerken
+Start met het zelfstandig naamwoord dat het bovenbegrip benoemt (bijv. 'woord', 'document', 'persoon',
+'sanctie'), gevolgd door onderscheidende kenmerken. Een genus als 'soort ...' of 'type ...' past niet
+wanneer de woorden of documenten zelf bedoeld zijn, maar kan passen bij een begrip waarvan de instanties
+zelf soorten zijn; het woord is geen fout op zichzelf. Onderscheid waar relevant het algemene begrip van
+één bepaald ding of voorval.
 
 STRUCTUUR van je definitie:
-1. Start: [Zelfstandig naamwoord van de klasse]
+1. Start: [zelfstandig naamwoord van het bovenbegrip]
 2. Vervolg: [die/dat/met] [onderscheidend kenmerk]
 
 VERVOLG met:
-- BREDERE KLASSE (impliciet door kernwoord keuze)
+- BOVENBEGRIP (impliciet door de keuze van het kernwoord)
 - ONDERSCHEIDENDE KENMERKEN (wat maakt dit uniek)
-- VERSCHIL met andere types (hoe te onderscheiden)
+- VERSCHIL met verwante begrippen (hoe te onderscheiden)
 
 VOORBEELDEN (GOED):
 ✅ "woord dat handelingen of toestanden uitdrukt"
 ✅ "document dat juridische beslissingen formeel vastlegt"
 ✅ "persoon die bevoegd is tot het nemen van besluiten"
 Grensgevallen: maatregel en interventie. Leid een begripsbepalend doel niet af uit de categorie TYPE; gebruik gegeven domeingrond en ESS-01. Zonder grond geen voorbeeld als algemeen correct presenteren.
+Grensgeval — "soort collegiale toetsing waarbij deelnemers samen een voorgestelde oplossing doorlopen": past niet wanneer concrete toetsingen bedoeld zijn, wel wanneer soorten toetsingen bedoeld zijn; de bedoeling volgt uit de gegeven context, niet uit het woord.
 
 VOORBEELDEN (FOUT):
-❌ "soort woord dat..." (begin niet met 'soort')
-❌ "type document dat..." (begin niet met 'type')
-❌ "categorie van personen die..." (begin niet met 'categorie')
-❌ "is een woord dat..." (geen koppelwerkwoord)
-❌ "betreft een..." (geen koppelwerkwoord)""",
-            "resultaat": """**RESULTAAT CATEGORIE - Formuleer als UITKOMST/PRODUCT:**
+❌ "is een woord dat..." (koppelwerkwoord als start)
+❌ "betreft een..." (koppelwerkwoord als start)""",
+            "resultaat": """**RESULTAAT — uitkomst als kern:**
 
-KICK-OFF opties (kies één):
+Benoem de onderbouwde uitkomst met een passend zelfstandig naamwoord; een uitkomst is niet noodzakelijk een maatregel.
+Behoud de relevante ontstaansrelatie zonder de activiteit tot hoofdbetekenis te maken.
+
+Bijvoorbeeld:
 - 'resultaat van...' → algemene uitkomst
-- 'uitkomst van...' → proces resultaat
-- 'product dat ontstaat door...' → tastbaar resultaat
-- 'gevolg van...' → causaal resultaat
+- 'uitkomst van...' → uitkomst van een beoordeling of proces
+- 'product dat ontstaat door...' → tastbare uitkomst
+- 'gevolg van...' → causale uitkomst
 
 VERVOLG met:
 - UIT WELK PROCES het voortkomt (oorsprong)
@@ -247,27 +258,31 @@ VOORBEELDEN (GOED):
 ✅ "product dat ontstaat door het combineren van verschillende databronnen"
 
 VOORBEELDEN (FOUT):
-❌ "is het resultaat van..." (start met 'is')
+❌ "is het resultaat van..." (koppelwerkwoord als start)
 ❌ "de uitkomst..." (lidwoord)""",
-            "exemplaar": """**EXEMPLAAR CATEGORIE - Formuleer als SPECIFIEK GEVAL:**
+            "exemplaar": """**EXEMPLAAR — één bepaald ding, ook abstract, of voorval:**
 
-KICK-OFF opties (kies één):
-- 'exemplaar van... dat...' → concrete instantie
-- 'specifiek geval van...' → individueel voorbeeld
-- 'individuele instantie van...' → uniek voorkomen
+Benoem het bepaalde ding of voorval met de gegeven identificatie (nummer, datum, plaats) en behoud zijn
+aard: een specifieke meting blijft een activiteit, een specifiek rapport blijft een document. Het woord
+'exemplaar' is niet vereist; dat er nu maar één geval bestaat maakt een begrip nog geen exemplaar.
+
+Bijvoorbeeld:
+- 'meting met identificatie M-17 die op ... is uitgevoerd aan ...' → geïdentificeerd voorval
+- 'exemplaar van... dat...' → geïdentificeerd ding
+- 'specifiek geval van...' → geïdentificeerde gebeurtenis
 
 VERVOLG met:
-- Van welke ALGEMENE KLASSE dit een exemplaar is
-- Wat dit exemplaar UNIEK maakt (identificerende kenmerken)
+- Van welk ALGEMEEN BEGRIP dit één geval is
+- Wat dit geval UNIEK maakt (identificerende kenmerken)
 - WANNEER/WAAR het voorkomt (contextualisering)
 
 VOORBEELDEN (GOED):
+✅ "meting met identificatie M-17 die op 16 september 2026 om 10:00 is uitgevoerd aan sensor S-4"
 ✅ "exemplaar van een adelaar dat op 25 mei 2024 in de Biesbosch werd waargenomen"
-✅ "specifiek geval van een observatie uitgevoerd op 12 maart 2024"
 ✅ "individuele instantie van een besluit genomen door de rechtbank op 1 april 2024"
 
 VOORBEELDEN (FOUT):
-❌ "is een exemplaar van..." (start met 'is')
+❌ "is een exemplaar van..." (koppelwerkwoord als start)
 ❌ "het exemplaar..." (lidwoord)""",
         }
 

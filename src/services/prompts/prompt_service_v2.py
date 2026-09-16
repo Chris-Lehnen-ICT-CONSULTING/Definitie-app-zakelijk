@@ -448,7 +448,9 @@ class PromptServiceV2:
                 enriched_context.metadata["ontologische_categorie"] = cat
 
                 # Minimal mapping from ESS category → template semantic category
-                # Proces → "Proces"; type/exemplaar → "Object"; resultaat → "Maatregel"
+                # Proces → "Proces"; type/exemplaar → "Object"; resultaat → "Resultaat"
+                # DEF-750: RESULTAAT stuurde eerder generiek naar "Maatregel";
+                # een uitkomst is niet noodzakelijk een maatregel.
                 mapping = {
                     "proces": "Proces",
                     "activiteit": "Proces",
@@ -456,8 +458,8 @@ class PromptServiceV2:
                     "soort": "Object",
                     "exemplaar": "Object",
                     "particulier": "Object",
-                    "resultaat": "Maatregel",
-                    "uitkomst": "Maatregel",
+                    "resultaat": "Resultaat",
+                    "uitkomst": "Resultaat",
                 }
                 semantic = mapping.get(cat)
                 if semantic and "semantic_category" not in enriched_context.metadata:

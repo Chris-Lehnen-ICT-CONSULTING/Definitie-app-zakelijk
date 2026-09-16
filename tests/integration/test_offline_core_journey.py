@@ -118,15 +118,18 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: DEF-743: CON-02 toetst de aangeleverde bronnen; deze journey levert er
 #: geen aan, dus CON-02 is expliciet open (`review_required`) i.p.v. een
 #: woordpatroon-`fail` — één regel minder gefaald, één meer open.
+#: DEF-750: ESS-02 is een menselijk betekenisoordeel; de marker-/categoriehit-
+#: pass is vervallen, dus ESS-02 is open (`review_required`) i.p.v. `pass` —
+#: één regel minder geslaagd, één meer open.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 35,
-    "passed": 30,
+    "evaluated": 34,
+    "passed": 29,
     "failed": 5,
-    "review_required": 14,
+    "review_required": 15,
     "not_evaluated": 4,
     "error": 0,
     "total": 53,
-    "coverage_ratio": 0.6604,
+    "coverage_ratio": 0.6415,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -142,7 +145,6 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "ARAI-06",
     "CON-CIRC-001",
     "DUP_01",
-    "ESS-02",
     "ESS-CONT-001",
     "INT-04",
     "INT-07",
@@ -329,13 +331,17 @@ def _bewijs_generatie(respons: Any, oproepen: list[Any], begrip: str) -> None:
         f"<context>Organisatorisch: {ORGANISATORISCH}" in prompt
     ), "generatie: organisatorische context staat niet in het contextdatablok"
     # De opgegeven categorie stuurt de prompt aantoonbaar: de opbouw schakelt
-    # naar het procesblok en zegt dat expliciet tegen het model.
+    # naar het procesblok en noemt de categorie als opgegeven, te controleren
+    # betekenisclaim (DEF-750: geen exclusieve klasse, geen markerregel).
     assert (
-        f"Dit is een **{CATEGORIE}**" in prompt
+        f"opgegeven categorie **{CATEGORIE}**" in prompt
     ), f"generatie: categorie {CATEGORIE!r} stuurt de prompt niet aan"
     assert (
-        "PROCES CATEGORIE - Formuleer als ACTIVITEIT/HANDELING" in prompt
+        "PROCES — activiteit als kern" in prompt
     ), "generatie: het procesblok ontbreekt in de prompt"
+    assert (
+        "Ontologische marker (lever als eerste regel)" not in prompt
+    ), "generatie: de vervallen markerregel staat nog in de prompt"
 
 
 def _bewijs_validatie(validatie: Any) -> None:
