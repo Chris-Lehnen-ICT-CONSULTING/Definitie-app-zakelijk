@@ -176,15 +176,19 @@ def _basisresultaat(**overrides: Any) -> dict[str, Any]:
     return resultaat
 
 
-def test_contractversie_is_verhoogd_naar_1_4_0() -> None:
+def test_contractversie_is_verhoogd_naar_2_0_0() -> None:
     # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
     # rule_results toe en maakt overall_score nullable; 1.4.0 (DEF-743) voegt
     # source_assessment toe (de volledige AI-bronbeoordeling van CON-02).
-    assert CONTRACT_VERSION == "1.4.0"
+    # 2.0.0 (DEF-624): validation_status verplicht en zonder default; een
+    # afwezige status betekent niet langer "validated" (SemVer-major).
+    assert CONTRACT_VERSION == "2.0.0"
     assert _schema()["properties"]["validation_status"]["enum"] == [
         VALIDATION_STATUS_VALIDATED,
         VALIDATION_STATUS_UNKNOWN,
     ]
+    assert "default" not in _schema()["properties"]["validation_status"]
+    assert "validation_status" in _schema()["required"]
     assert "rule_results" in _schema()["properties"]
     assert _schema()["properties"]["overall_score"]["type"] == ["number", "null"]
     bronbeoordeling = _schema()["properties"]["source_assessment"]
@@ -274,11 +278,11 @@ def test_incompleet_readinessobject_is_schema_ongeldig() -> None:
         Draft202012Validator(_schema()).validate(resultaat)
 
 
-def test_schemaomschrijving_noemt_contractversie_1_3_0() -> None:
+def test_schemaomschrijving_noemt_de_actuele_contractversie() -> None:
     """De omschrijving mag niet op een oudere versie blijven staan.
 
     Een schema dat zichzelf verkeerd nummert is precies zo misleidend als een
     resultaat dat zichzelf verkeerd nummert.
     """
-    assert "1.4.0" in _schema()["description"]
+    assert "2.0.0" in _schema()["description"]
     assert CONTRACT_VERSION in _schema()["description"]

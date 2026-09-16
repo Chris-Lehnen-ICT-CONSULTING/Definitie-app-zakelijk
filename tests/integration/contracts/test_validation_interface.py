@@ -221,6 +221,7 @@ class TestValidationInterfaceContract:
     ) -> None:
         result = {
             "version": CONTRACT_VERSION,
+            "validation_status": "validated",  # DEF-624: verplicht veld
             "overall_score": 0.85,
             "is_acceptable": True,
             "violations": [],
@@ -247,6 +248,7 @@ class TestValidationInterfaceContract:
     ) -> None:
         result = {
             "version": CONTRACT_VERSION,
+            "validation_status": "validated",  # DEF-624: verplicht veld
             "overall_score": 0.5,
             "is_acceptable": False,
             "violations": [

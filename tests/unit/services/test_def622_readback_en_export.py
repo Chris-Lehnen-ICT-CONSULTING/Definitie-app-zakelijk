@@ -144,6 +144,9 @@ class TestExportAansluiting:
         spy = AsyncMock()
         spy.validate_text.return_value = {
             "version": "1.3.0",
+            # DEF-624: de spy staat voor een uitgevoerde run; zonder status
+            # blokkeert de exportgate (geen runbewijs).
+            "validation_status": "validated",
             "is_acceptable": True,
             "system": {},
         }

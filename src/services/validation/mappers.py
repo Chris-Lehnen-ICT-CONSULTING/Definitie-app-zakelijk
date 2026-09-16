@@ -3,6 +3,14 @@
 Deze module handelt de conversie af tussen:
 - services.interfaces.ValidationResult (dataclass) - gebruikt door legacy services
 - services.validation.interfaces.ValidationResult (TypedDict) - JSON Schema conform
+
+DEF-624 (contract 2.0.0): elke uitvoer draagt een expliciete runstatus. Een
+conversie verzint nooit een run: een legacy object of dict zonder geldige
+`validation_status` wordt `validation_unknown` (contract_status_missing/
+invalid), een degraded result is `validation_unknown` (validation_error).
+Alleen wat de bron werkelijk draagt reist mee; er worden geen geslaagde
+regels of nullen voor een niet-beschikbare score verzonnen, en de invoer
+wordt niet gemuteerd.
 """
 
 import logging
@@ -15,24 +23,56 @@ from typing import Any, cast
 from services.interfaces import ValidationResult as DataclassResult
 from services.validation.interfaces import (
     CONTRACT_VERSION,
+    UNKNOWN_REASON_VALIDATION_ERROR,
+    VALIDATION_STATUS_UNKNOWN,
     ImprovementSuggestion,
     RuleViolation,
     SystemMetadata,
     ValidationResult as TypedDictResult,
     ViolationLocation,
 )
+from services.validation.result_contract import (
+    met_expliciete_runstatus,
+    neem_contractvelden_over,
+)
 
 # Module logger
 logger = logging.getLogger(__name__)
 
-# Default passed rules configuration
+# Historische default (tot 1.4.0): drie verzonnen `BASIC-00x`-regels wanneer
+# een legacy resultaat geen violations en geen passed_rules droeg. Sinds
+# DEF-624 wordt deze lijst nergens meer ingevuld - een conversie verzint geen
+# geslaagde regels. De naam blijft geëxporteerd voor bestaande imports.
 DEFAULT_PASSED_RULES = ["BASIC-001", "BASIC-002", "BASIC-003"]
+
+
+def _score_uit_object(result: Any) -> float | None:
+    """`overall_score`, anders het legacy `score`; een expliciete None blijft None.
+
+    Ontbreekt elk scoreattribuut, dan geldt de oude default 0.0.
+    """
+    if hasattr(result, "overall_score"):
+        waarde = result.overall_score
+    elif hasattr(result, "score"):
+        waarde = result.score
+    else:
+        return 0.0
+    if waarde is None:
+        return None
+    try:
+        return float(waarde)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def dataclass_to_schema_dict(
     result: DataclassResult, correlation_id: str | None = None
 ) -> TypedDictResult:
     """Converteer ValidationResult dataclass naar schema-conform TypedDict.
+
+    De dataclass draagt geen runbewijs: zonder een werkelijk aanwezig,
+    geldig `validation_status`-attribuut is de uitkomst `validation_unknown`
+    (contract_status_missing), ook bij `is_valid=True` (DEF-624).
 
     Args:
         result: De dataclass ValidationResult van legacy services
@@ -47,7 +87,7 @@ def dataclass_to_schema_dict(
 
     # Map violations naar schema format
     violations: list[RuleViolation] = []
-    for v in getattr(result, "violations", []):
+    for v in getattr(result, "violations", None) or []:
         # Handle severity enum vs string
         severity = getattr(v, "severity", "warning")
         if hasattr(severity, "value"):  # It's an enum
@@ -112,12 +152,9 @@ def dataclass_to_schema_dict(
                 suggestion["impact"] = s.impact
             suggestions.append(suggestion)
 
-    # Calculate scores
-    overall_score = getattr(result, "score", 0.0)
-    # Legacy compatibility - check for old attribute name
-    if hasattr(result, "overall_score"):
-        # Deprecated: overall_score is replaced by score
-        overall_score = getattr(result, "overall_score", 0.0)
+    # Scores: `overall_score` gaat vóór het legacy `score`; None blijft None
+    # (niet beschikbaar is geen nul, DEF-622).
+    overall_score = _score_uit_object(result)
 
     # Map detailed scores - gebruik defaults als niet aanwezig
     detailed_scores = getattr(result, "detailed_scores", {})
@@ -153,17 +190,24 @@ def dataclass_to_schema_dict(
     if hasattr(result, "error") and result.error:
         system["error"] = str(result.error)
 
-    # Get passed rules
-    passed_rules = getattr(result, "passed_rules", [])
-    if not passed_rules and not violations:
-        # If no violations and no explicit passed rules, use defaults
-        passed_rules = DEFAULT_PASSED_RULES
+    # Geslaagde regels: alleen wat de bron zelf meldt. De oude default
+    # (DEFAULT_PASSED_RULES bij "geen violations") verzon bewijs.
+    passed_rules = list(getattr(result, "passed_rules", None) or [])
+
+    # Oordeel: het expliciete veld, anders de oude scoredrempel. Zonder
+    # totaalscore is er geen drempel te toetsen (fail-closed).
+    if hasattr(result, "is_acceptable"):
+        is_acceptable = bool(result.is_acceptable)
+    elif hasattr(result, "is_valid"):
+        is_acceptable = bool(result.is_valid)
+    else:
+        is_acceptable = overall_score is not None and overall_score >= 0.5
 
     # Build final TypedDict result
-    schema_result: TypedDictResult = {
+    schema_result: dict[str, Any] = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,
-        "is_acceptable": getattr(result, "is_valid", overall_score >= 0.5),
+        "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
         "detailed_scores": detailed_scores,
@@ -174,13 +218,22 @@ def dataclass_to_schema_dict(
     if suggestions:
         schema_result["improvement_suggestions"] = suggestions
 
-    return schema_result
+    # DEF-624: de contractvelden die het object werkelijk draagt reizen mee
+    # (aanwezigheid vóór typecontrole: een ongeldige status blijft "ongeldig",
+    # een expliciete lege bronbeoordeling blijft None); daarna maakt de
+    # runstatus zichzelf expliciet (afwezig -> unknown).
+    neem_contractvelden_over(schema_result, result)
+    return cast(TypedDictResult, met_expliciete_runstatus(schema_result))
 
 
 def ensure_schema_compliance(
     result: Any, correlation_id: str | None = None
 ) -> TypedDictResult:
     """Ensure any result is schema-compliant.
+
+    Geeft altijd een nieuw dict terug met een expliciete runstatus; de
+    invoer wordt niet gemuteerd (DEF-624). Een dict zonder geldige
+    `validation_status` wordt `validation_unknown`.
 
     Args:
         result: Either a dataclass ValidationResult or dict-like result
@@ -191,13 +244,18 @@ def ensure_schema_compliance(
     """
     # If already a dict with correct structure, validate and return
     if isinstance(result, dict) and "version" in result and "system" in result:
-        # Ensure correlation_id is set
-        if not result.get("system", {}).get("correlation_id"):
-            if "system" not in result:
-                result["system"] = {}
-            result["system"]["correlation_id"] = correlation_id or str(uuid.uuid4())
+        uit: dict[str, Any] = dict(result)
+        system = uit.get("system")
+        if not isinstance(system, dict):
+            system = {}
+        # Ensure correlation_id is set (op een kopie van `system`)
+        if not system.get("correlation_id"):
+            uit["system"] = {
+                **system,
+                "correlation_id": correlation_id or str(uuid.uuid4()),
+            }
         # DEF-439: runtime-gevalideerde shape (version+system aanwezig) → TypedDict
-        return cast(TypedDictResult, result)
+        return cast(TypedDictResult, met_expliciete_runstatus(uit))
 
     # If it's a dataclass, convert it
     if hasattr(result, "__dataclass_fields__"):
@@ -219,6 +277,10 @@ def create_degraded_result(
     error: str, correlation_id: str | None = None, begrip: str | None = None
 ) -> TypedDictResult:
     """Create a degraded mode result for errors.
+
+    Een servicefout is geen uitgevoerde run: het resultaat is expliciet
+    `validation_unknown` met reden `validation_error` (DEF-624). De
+    placeholders 0.0/False zijn geen kwaliteitsoordeel.
 
     Args:
         error: Error message
@@ -261,6 +323,8 @@ def create_degraded_result(
 
     result: TypedDictResult = {
         "version": CONTRACT_VERSION,
+        "validation_status": VALIDATION_STATUS_UNKNOWN,
+        "unknown_reason": UNKNOWN_REASON_VALIDATION_ERROR,
         "overall_score": 0.0,
         "is_acceptable": False,
         "violations": [violation],

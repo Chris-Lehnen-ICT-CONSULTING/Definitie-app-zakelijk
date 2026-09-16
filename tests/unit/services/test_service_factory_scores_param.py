@@ -27,6 +27,8 @@ def _def_response(score_present: bool, score_value):
     # Build dict similar to production contract
     vd = {
         "is_acceptable": True,
+        # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+        "validation_status": "validated",
         "violations": [],
         "passed_rules": ["rule1"],
     }

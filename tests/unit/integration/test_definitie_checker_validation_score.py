@@ -17,6 +17,10 @@ heeft geen call-sites; die is hier bewust geen onderwerp.
 
 De discriminator komt uitsluitend uit het geneste `validation_details`. De
 top-level `final_score` draagt hem niet: daar staat de placeholder zelf.
+
+DEF-624: een resultaat zónder discriminator is evenmin runbewijs. De drie
+"legacy zonder status"-gevallen bewaren daarom geen score meer; alleen een
+expliciete `validated` doet dat.
 """
 
 from __future__ import annotations
@@ -121,11 +125,16 @@ def test_generatie_bewaart_de_score_bij_validated() -> None:
     assert repo.create_definitie.call_args.args[0].validation_score == 0.82
 
 
-def test_generatie_bewaart_de_score_bij_legacy_zonder_status() -> None:
-    """Zonder discriminator geldt onverkort het bestaande gedrag."""
+def test_generatie_bewaart_geen_score_bij_legacy_zonder_status() -> None:
+    """DEF-624: zonder discriminator is er geen runbewijs, dus geen score.
+
+    Onder DEF-621 gold hier nog "onverkort het bestaande gedrag" (0.82 werd
+    bewaard). Een resultaat zonder status kan een run niet aantonen; de
+    kolom blijft leeg, net als bij een expliciete `validation_unknown`.
+    """
     repo = _genereer(_ui_response(0.82, None))
 
-    assert repo.create_definitie.call_args.args[0].validation_score == 0.82
+    assert repo.create_definitie.call_args.args[0].validation_score is None
 
 
 # --------------------------------------- route 2: update_existing_definition
@@ -172,10 +181,13 @@ def test_update_bewaart_de_score_bij_validated() -> None:
     assert repo.update_definitie.call_args.args[1]["validation_score"] == 0.82
 
 
-def test_update_bewaart_de_score_bij_legacy_zonder_status() -> None:
+def test_update_wist_de_score_bij_legacy_zonder_status() -> None:
+    """DEF-624: zonder runbewijs wordt de kolom leeggemaakt, niet gevuld."""
     repo = _update(_ui_response(0.82, None))
 
-    assert repo.update_definitie.call_args.args[1]["validation_score"] == 0.82
+    updates = repo.update_definitie.call_args.args[1]
+    assert "validation_score" in updates, updates
+    assert updates["validation_score"] is None
 
 
 def test_niet_beschikbare_totaalscore_wordt_op_geen_route_nul() -> None:
@@ -252,11 +264,12 @@ def test_echte_update_bewaart_de_score_bij_validated(tmp_path) -> None:
     assert na.version_number == 2, na.version_number
 
 
-def test_echte_update_bewaart_de_score_bij_legacy_zonder_status(tmp_path) -> None:
+def test_echte_update_wist_de_score_bij_legacy_zonder_status(tmp_path) -> None:
+    """DEF-624: ook door de echte repository landt er geen score zonder runbewijs."""
     succes, na = _update_echt(tmp_path, _ui_response(0.82, None))
 
     assert succes is True
-    assert na.validation_score == 0.82, na.validation_score
+    assert na.validation_score is None, na.validation_score
 
 
 def test_echte_update_slaat_null_op_en_niet_de_string_none(tmp_path) -> None:

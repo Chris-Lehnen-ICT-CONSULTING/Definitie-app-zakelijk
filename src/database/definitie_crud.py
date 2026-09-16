@@ -115,9 +115,18 @@ def _geparste_issuelijst(basis_json: str | None) -> list[Any] | None:
 
 
 def _technische_resultaatfout(validation: Mapping[str, Any]) -> str | None:
-    """Technische onbruikbaarheid op resultaatniveau: status, readiness, dekking."""
-    if validation.get("validation_status") == "validation_unknown":
-        return "validation_status=validation_unknown"
+    """Technische onbruikbaarheid op resultaatniveau: status, readiness, dekking.
+
+    DEF-624: alleen een expliciete `validated` is een uitgevoerde run. Een
+    afwezige, null of ongeldige status is geen runbewijs en levert dezelfde
+    afwijzing als `validation_unknown`, met de contractreden erbij.
+    """
+    from services.validation.result_contract import bepaal_runstatus
+
+    runstatus = bepaal_runstatus(validation)
+    if not runstatus.uitgevoerd:
+        reden = f" ({runstatus.reason})" if runstatus.reason else ""
+        return f"validation_status={runstatus.status}{reden}"
     readiness = validation.get("validation_readiness")
     if isinstance(readiness, Mapping) and readiness.get("ready") is False:
         return "validation_readiness.ready=False"

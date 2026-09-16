@@ -514,8 +514,14 @@ def diagnose_bronbasis(
     de validatiestatus (fail-closed guard) en de kwitantie (E). Volgorde:
     technisch/geen uitkomst → `_diagnose_zonder_bevinding` → fail met
     falende onderdelen (`_diagnose_tekstgebrek`) → open → geen bevinding.
+
+    `validation_status` is None wanneer de bronbasis uit het opgeslagen record
+    komt (geen sessierun; de replay werkt op vastgelegd, gebonden bewijs).
+    Is er wél een status, dan telt alleen `validated` als uitgevoerde run
+    (DEF-624): `validation_unknown` én elke waarde buiten het contract zijn
+    technisch, geen inhoudelijke bevinding.
     """
-    if validation_status == "validation_unknown":
+    if validation_status is not None and validation_status != "validated":
         return Diagnose(OORZAAK_TECHNISCH, False, _OMSCHRIJVING[OORZAAK_TECHNISCH])
     if not isinstance(con02, Mapping):
         return Diagnose(

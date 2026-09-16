@@ -259,12 +259,20 @@ class TestServiceAdapter:
         assert result["success"] is True
         assert result["definitie_gecorrigeerd"] == "Test definitie"
         assert result["definitie_origineel"] == "Test definitie origineel"
-        assert result["final_score"] == 0.95
+        # DEF-624: de legacy dataclass (`is_valid=True, score=0.95`) draagt
+        # geen runbewijs; de adapter maakt dat expliciet en geeft geen oordeel.
+        assert result["final_score"] == 0.0
 
         # Check validation_details (V2 format)
         assert "validation_details" in result
-        assert result["validation_details"]["overall_score"] == 0.95
-        assert result["validation_details"]["is_acceptable"] is True
+        assert result["validation_details"]["overall_score"] == 0.0
+        assert result["validation_details"]["is_acceptable"] is False
+        assert result["validation_details"]["validation_status"] == (
+            "validation_unknown"
+        )
+        assert result["validation_details"]["unknown_reason"] == (
+            "contract_status_missing"
+        )
         assert isinstance(result["validation_details"]["violations"], list)
 
         # Check voorbeelden (now a dict with categories)
@@ -287,7 +295,7 @@ class TestServiceAdapter:
 
         # Legacy fields should still work for backward compatibility
         assert result.get("marker") == "✅"
-        assert result.get("validation_score") == 0.95  # Legacy alias for final_score
+        assert result.get("validation_score") == 0.0  # Legacy alias for final_score
 
         # Verify request creation
         call_args = mock_orchestrator.create_definition.call_args[0][0]
@@ -551,6 +559,8 @@ class TestOverallScoreHandling:
         # Setup with valid overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": 85.5,
             "is_acceptable": True,
             "violations": [],
@@ -592,6 +602,8 @@ class TestOverallScoreHandling:
         # Setup with missing overall_score key
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             # overall_score is missing
             "is_acceptable": False,
             "violations": [
@@ -635,6 +647,8 @@ class TestOverallScoreHandling:
         # Setup with None overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": None,  # Explicitly None
             "is_acceptable": True,
             "violations": [],
@@ -679,6 +693,8 @@ class TestOverallScoreHandling:
         # Setup with string overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": "not_a_number",  # Invalid string
             "is_acceptable": False,
             "violations": [],
@@ -728,6 +744,8 @@ class TestOverallScoreHandling:
         # Setup with string that can be converted to float
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": "75.5",  # String that converts to float
             "is_acceptable": True,
             "violations": [],
@@ -769,6 +787,8 @@ class TestOverallScoreHandling:
         # Setup with list overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": [85, 90],  # Invalid list type
             "is_acceptable": True,
             "violations": [],
@@ -809,6 +829,8 @@ class TestOverallScoreHandling:
         # Setup with dict overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": {"score": 85},  # Invalid dict type
             "is_acceptable": True,
             "violations": [],
@@ -849,6 +871,8 @@ class TestOverallScoreHandling:
         # Setup with zero overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": 0,  # Valid zero
             "is_acceptable": False,
             "violations": [
@@ -894,6 +918,8 @@ class TestOverallScoreHandling:
         # Setup with negative overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": -10.5,  # Negative score
             "is_acceptable": False,
             "violations": [],
@@ -937,6 +963,8 @@ class TestOverallScoreHandling:
         # Setup with very large overall_score
         mock_validation = Mock()
         validation_dict = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": 999999999.99,  # Very large score
             "is_acceptable": True,
             "violations": [],
@@ -991,6 +1019,8 @@ class TestOverallScoreHandling:
         # Scenario 1: Normal score
         mock_val1 = Mock()
         mock_val1.to_dict.return_value = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": 95.0,
             "is_acceptable": True,
             "violations": [],
@@ -1011,6 +1041,8 @@ class TestOverallScoreHandling:
         # Scenario 2: Missing score
         mock_val2 = Mock()
         mock_val2.to_dict.return_value = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             # Missing overall_score
             "is_acceptable": False,
             "violations": [],
@@ -1031,6 +1063,8 @@ class TestOverallScoreHandling:
         # Scenario 3: None score
         mock_val3 = Mock()
         mock_val3.to_dict.return_value = {
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "overall_score": None,
             "is_acceptable": True,
             "violations": [],
@@ -1178,7 +1212,12 @@ class TestIntegrationScenarios:
         assert result["success"] is True
         assert result["definitie_gecorrigeerd"] == "Complex definitie"
         assert result["voorbeelden"] == {"voorbeeldzinnen": ["V1", "V2"]}
-        assert result["final_score"] == 0.85
+        # DEF-624: de legacy dataclass draagt geen runbewijs; de 0.85 is dan
+        # geen oordeel maar wordt de fail-closed placeholder.
+        assert result["final_score"] == 0.0
+        assert result["validation_details"]["validation_status"] == (
+            "validation_unknown"
+        )
         # Check validation details instead of direct score
         assert "overall_score" in result["validation_details"]
 
@@ -1288,12 +1327,14 @@ class TestNormalizeValidationDraagtDeDiscriminator:
             == self.ONBEPAALD["validation_readiness"]
         )
 
-    def test_legacy_resultaat_krijgt_de_velden_niet_opgedrongen(self, service_adapter):
-        """Zonder bronvelden blijft de vorm exact als voorheen.
+    def test_legacy_resultaat_zonder_status_is_geen_run(self, service_adapter):
+        """DEF-624 keert de DEF-621-keuze om: afwezig is `validation_unknown`.
 
-        Een lege of verzonnen `validation_status` zou de discriminator juist
-        onbruikbaar maken: elk legacy-resultaat zou dan een status dragen die
-        niemand heeft vastgesteld.
+        Voorheen bleef een legacy-resultaat zonder bronvelden exact als
+        voorheen, met 0.82/True als oordeel zonder enig runbewijs. Er wordt
+        nog steeds geen `validated` verzonnen - de status die nu wél wordt
+        gezet zegt juist dat niemand een run heeft vastgesteld, met de
+        contractreden erbij.
         """
         genormaliseerd = service_adapter.normalize_validation(
             {"overall_score": 0.82, "is_acceptable": True}
@@ -1304,9 +1345,13 @@ class TestNormalizeValidationDraagtDeDiscriminator:
             "is_acceptable",
             "violations",
             "passed_rules",
+            "validation_status",
+            "unknown_reason",
         }
-        assert genormaliseerd["overall_score"] == 0.82
-        assert genormaliseerd["is_acceptable"] is True
+        assert genormaliseerd["validation_status"] == "validation_unknown"
+        assert genormaliseerd["unknown_reason"] == "contract_status_missing"
+        assert genormaliseerd["overall_score"] == 0.0
+        assert genormaliseerd["is_acceptable"] is False
 
     def test_validated_resultaat_behoudt_zijn_status(self, service_adapter):
         genormaliseerd = service_adapter.normalize_validation(
@@ -1324,12 +1369,15 @@ class TestNormalizeValidationDraagtDeDiscriminator:
         assert "validation_readiness" not in genormaliseerd
         assert genormaliseerd["overall_score"] == 0.82
 
-    def test_none_resultaat_blijft_ongewijzigd(self, service_adapter):
+    def test_none_resultaat_is_expliciet_geen_run(self, service_adapter):
+        """DEF-624: geen resultaat is geen run; de UI ziet dat expliciet."""
         assert service_adapter.normalize_validation(None) == {
             "overall_score": 0.0,
             "is_acceptable": False,
             "violations": [],
             "passed_rules": [],
+            "validation_status": "validation_unknown",
+            "unknown_reason": "contract_status_missing",
         }
 
     def test_schemapad_leest_de_discriminator_uit_het_bronobject(self, service_adapter):
@@ -1392,18 +1440,20 @@ class TestNormalizeValidationDraagtDeDiscriminator:
         assert genormaliseerd["unknown_reason"] == "ruleset_incomplete"
         assert genormaliseerd["validation_readiness"] == READINESS_7_VAN_53
 
-    def test_legacy_object_krijgt_geen_verzonnen_discriminator(self, service_adapter):
-        """Een object zonder de velden mag ze niet toebedeeld krijgen.
+    def test_legacy_object_krijgt_geen_verzonnen_validated(self, service_adapter):
+        """Een object zonder de velden krijgt nooit `validated` toebedeeld.
 
         `Mock` is hier het scherpst denkbare geval: elk attribuut bestaat
-        daar, dus een kale `hasattr`-check zou drie verzonnen velden
-        opleveren. Dat zou de discriminator waardeloos maken - elk
-        legacy-resultaat zou dan een status dragen die niemand heeft
-        vastgesteld.
+        daar, dus een kale `hasattr`-check zou een verzonnen status uit een
+        Mock-attribuut kunnen lezen. DEF-624: wat er wél komt is de
+        expliciete onbekend-uitkomst (contract_status_missing) - dat is geen
+        verzonnen run maar de vaststelling dat er geen run is. Een readiness
+        wordt niet verzonnen.
         """
         for bron in (_LegacyValidatieObject(), Mock(spec=[]), MagicMock()):
             genormaliseerd = service_adapter.normalize_validation(bron)
 
-            assert "validation_status" not in genormaliseerd, bron
-            assert "unknown_reason" not in genormaliseerd, bron
+            assert genormaliseerd["validation_status"] == "validation_unknown", bron
+            assert genormaliseerd["unknown_reason"] == "contract_status_missing", bron
+            assert genormaliseerd["is_acceptable"] is False, bron
             assert "validation_readiness" not in genormaliseerd, bron

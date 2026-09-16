@@ -211,17 +211,25 @@ class ServiceAdapter:
             )
         return violations
 
-    def _extract_score(self, result: Any) -> float:
-        """Extract score from various result formats with safe fallback."""
+    def _score_of_none(self, waarde: Any) -> float | None:
+        """Een expliciete None is 'niet beschikbaar' en blijft None (DEF-622/624)."""
+        return None if waarde is None else self._safe_float(waarde)
+
+    def _extract_score(self, result: Any) -> float | None:
+        """Extract score from various result formats with safe fallback.
+
+        Een werkelijk aanwezige None (legacy `score` of `overall_score`) blijft
+        None; alleen een ontbrekende score valt terug op 0.0.
+        """
         # Try modern 'score' field first
         if hasattr(result, "score"):
-            return self._safe_float(result.score)
+            return self._score_of_none(result.score)
         # Try dict access
         if isinstance(result, dict) and "score" in result:
-            return self._safe_float(result["score"])
+            return self._score_of_none(result["score"])
         # Fallback to deprecated key 'overall_score' (dict format only)
         if isinstance(result, dict) and "overall_score" in result:
-            return self._safe_float(result["overall_score"])
+            return self._score_of_none(result["overall_score"])
         # As a last resort, attempt to convert known result objects to dict-like structures
         for method_name in ("to_dict", "dict", "model_dump"):
             try:
@@ -230,9 +238,9 @@ class ServiceAdapter:
                     data = method()
                     if isinstance(data, dict):
                         if "score" in data:
-                            return self._safe_float(data["score"])
+                            return self._score_of_none(data["score"])
                         if "overall_score" in data:
-                            return self._safe_float(data["overall_score"])
+                            return self._score_of_none(data["overall_score"])
             except Exception as e:
                 logger.warning(f"Failed to extract validation score, using 0.0: {e}")
         return 0.0
@@ -251,62 +259,83 @@ class ServiceAdapter:
 
     @staticmethod
     def _met_discriminator(genormaliseerd: dict, bron: Any) -> dict:
-        """Neem de DEF-621-discriminator mee wanneer de bron hem draagt.
+        """Neem de contractvelden mee en maak de runstatus expliciet (DEF-621/624).
 
         `normalize_validation` bouwt bewust een nieuw dict met vaste sleutels
         - dat maakt de vorm voorspelbaar, maar wierp ook het verschil weg
         tussen een oordeel en een fail-closed placeholder. De Generator-tab
-        rendert precies dit genormaliseerde dict, dus zonder deze drie velden
-        kan de gedeelde stop daar niet vuren en verschijnt "Overall Score:
-        0.00" alsof de definitie slecht scoort.
+        rendert precies dit genormaliseerde dict, dus zonder deze velden kan
+        de gedeelde stop daar niet vuren en verschijnt "Overall Score: 0.00"
+        alsof de definitie slecht scoort.
 
-        Uitsluitend doorgeven wat er werkelijk staat: een verzonnen
-        `validation_status` op een legacy-resultaat zou de discriminator
-        onbruikbaar maken.
+        Wat de bron werkelijk draagt wordt doorgegeven. DEF-624 keert de
+        oude keuze om legacy "niets op te dringen" om: een resultaat zónder
+        geldige `validation_status` is geen uitgevoerde run en wordt expliciet
+        `validation_unknown` met reden contract_status_missing/invalid
+        (`services.validation.result_contract`). Een hoge score of
+        `is_acceptable=True` zonder runbewijs kwam anders als groen oordeel
+        de UI in (probe /tmp/def624-status-loss-probe.log). Er wordt geen
+        `validated` verzonnen en geen readiness verzonnen.
 
         Leest zowel expliciete dictsleutels als werkelijk aanwezige
         objectattributen, want niet elk pad door `normalize_validation`
         levert een dict aan. Op de objectkant geldt een typecontrole: een
         `Mock` verzint elk attribuut dat je opvraagt, en een kale `hasattr`
-        zou daar drie velden uit het niets toekennen. Alleen een `str`-status,
-        een `str`-reden en een `dict`-readiness tellen als werkelijk aanwezig.
+        zou daar velden uit het niets toekennen.
         """
+        from services.validation.result_contract import (  # lazy, zoals mappers
+            lees_veld,
+            met_expliciete_runstatus,
+            neem_contractvelden_over,
+        )
+
         # DEF-622: de gestructureerde regeluitkomsten en de gate reizen mee.
         # `rule_results` draagt de CON-01-deeluitkomsten (aanleiding, reden,
         # vervolgstap) die de UI moet tonen nu er geen totaalscore is; zonder
-        # dit transport verdwenen ze op precies dit pad.
-        for veld, verwacht_type in (
-            ("validation_status", str),
-            ("unknown_reason", str),
-            ("validation_readiness", dict),
-            ("rule_results", dict),
-            ("rule_statuses", dict),
-            ("review_required", list),
-            ("evaluation_coverage", dict),
-            ("detailed_scores", dict),
-            ("acceptance_gate", dict),
-        ):
-            if isinstance(bron, dict):
+        # dit transport verdwenen ze op precies dit pad. DEF-743/624: ook de
+        # bronbeoordeling (`source_assessment`) hoort bij het resultaat.
+        if isinstance(bron, dict):
+            # Een dict is al de transportvorm: alles wat er staat reist mee.
+            for veld in (
+                "validation_status",
+                "unknown_reason",
+                "validation_readiness",
+                "rule_results",
+                "rule_statuses",
+                "review_required",
+                "evaluation_coverage",
+                "detailed_scores",
+                "acceptance_gate",
+                "source_assessment",
+            ):
                 if veld in bron:
                     genormaliseerd[veld] = bron[veld]
-                continue
-            waarde = getattr(bron, veld, None)
-            if isinstance(waarde, verwacht_type):
-                genormaliseerd[veld] = waarde
-        return genormaliseerd
+        else:
+            # Objectkant: alleen werkelijk gedragen attributen (geen
+            # Mock-verzinsels), met aanwezigheid vóór typecontrole zodat een
+            # ongeldige status "ongeldig" blijft en een expliciete lege
+            # bronbeoordeling (None) niet verdwijnt (reviewbevindingen 4/5).
+            neem_contractvelden_over(genormaliseerd, bron)
+            aanwezig, scores = lees_veld(bron, "detailed_scores")
+            if aanwezig and isinstance(scores, dict):
+                genormaliseerd["detailed_scores"] = scores
+        return met_expliciete_runstatus(genormaliseerd)
 
     def _score_of_niet_beschikbaar(self, bron: Any) -> float | None:
-        """`overall_score` uit een dict: None blijft None (DEF-622).
+        """`overall_score` (of legacy `score`) uit een dict: None blijft None.
 
         Een expliciete None betekent 'totaalscore niet beschikbaar' en mag
-        nooit als 0.0 doorreizen — dat is de impliciete nul die B-06 verbiedt.
-        Ontbreekt de sleutel helemaal (legacy), dan blijft de oude default.
+        nooit als 0.0 doorreizen — dat is de impliciete nul die B-06 verbiedt
+        (DEF-622). Dat geldt ook voor de legacy-sleutel `score` (DEF-624,
+        reviewbevinding 1): anders werd 'niet beschikbaar' via to_ui_response
+        alsnog een opslaanbare nul. Ontbreekt elke scoresleutel, dan blijft
+        de oude default 0.0.
         """
-        if isinstance(bron, dict) and "overall_score" in bron:
-            waarde = bron["overall_score"]
-            if waarde is None:
-                return None
-            return self._safe_float(waarde)
+        if isinstance(bron, dict):
+            if "overall_score" in bron:
+                return self._score_of_none(bron["overall_score"])
+            if "score" in bron:
+                return self._score_of_none(bron["score"])
         return self._safe_float(safe_dict_get(bron, "score", 0.0))
 
     def normalize_validation(self, result: Any) -> dict:
@@ -317,14 +346,18 @@ class ServiceAdapter:
         - Legacy ValidationResult dataclass/object via adapter
         - Ensures severity mapping (error->high, warning->medium, other->low) for legacy items
         """
-        # Handle None case
+        # Handle None case. DEF-624: geen resultaat is geen run; de UI krijgt
+        # dat expliciet te zien in plaats van een stille 0.0.
         if result is None:
-            return {
-                "overall_score": 0.0,
-                "is_acceptable": False,
-                "violations": [],
-                "passed_rules": [],
-            }
+            return self._met_discriminator(
+                {
+                    "overall_score": 0.0,
+                    "is_acceptable": False,
+                    "violations": [],
+                    "passed_rules": [],
+                },
+                {},
+            )
 
         # If it's already a dict-like result, normalize directly
         if isinstance(result, dict):
@@ -384,11 +417,10 @@ class ServiceAdapter:
 
             schema = ensure_schema_compliance(result)
             # Derive score robustly: prefer schema value, otherwise fallback extract
-            extracted_score = self._extract_score(result)
             overall = (
                 self._score_of_niet_beschikbaar(schema)
                 if "overall_score" in schema
-                else self._safe_float(extracted_score)
+                else self._extract_score(result)
             )
 
             # Derive acceptance robustly: prefer schema, else based on score

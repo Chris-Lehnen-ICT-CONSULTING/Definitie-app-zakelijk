@@ -99,8 +99,17 @@ def normaliseer_validatieresultaat(v: Mapping[str, Any]) -> dict[str, Any]:
     ontbreekt óf expliciet None is. Er wordt nooit een 0.0 of een positief
     cijfer ingevuld (DEF-622/DEF-743); `valid` blijft fail-closed False bij
     een ontbrekend oordeel.
+
+    DEF-624: de runstatus wordt via het contract expliciet gemaakt. Een
+    resultaat zonder geldige `validation_status` is geen uitgevoerde run:
+    `valid` is dan False, `validation_status` is `validation_unknown` en
+    `unknown_reason` draagt de contractreden - ook in `raw_v2`, dat de
+    gedeelde weergave rendert. De bron wordt niet gemuteerd.
     """
-    violations = v.get("violations", []) or []
+    from services.validation.result_contract import met_expliciete_runstatus
+
+    ruw = met_expliciete_runstatus(v)
+    violations = ruw.get("violations", []) or []
     normalized_issues = []
     for item in violations:
         if not isinstance(item, dict):
@@ -112,23 +121,23 @@ def normaliseer_validatieresultaat(v: Mapping[str, Any]) -> dict[str, Any]:
                 "severity": item.get("severity", "warning"),
             }
         )
-    ruwe_score = v.get("overall_score")
+    ruwe_score = ruw.get("overall_score")
     try:
         score = None if ruwe_score is None else float(ruwe_score)
     except (TypeError, ValueError):
         score = None
-    ruw = dict(v)
     return {
-        "valid": v.get("is_acceptable") is True,
+        "valid": ruw.get("is_acceptable") is True,
         "score": score,
         "issues": normalized_issues,
-        "rule_results": deepcopy(dict(v.get("rule_results") or {})),
-        "rule_statuses": deepcopy(dict(v.get("rule_statuses") or {})),
-        "evaluation_coverage": deepcopy(v.get("evaluation_coverage")),
-        "review_required": deepcopy(list(v.get("review_required") or [])),
-        "validation_status": v.get("validation_status"),
-        "validation_readiness": deepcopy(v.get("validation_readiness")),
-        "source_assessment": deepcopy(v.get("source_assessment")),
+        "rule_results": deepcopy(dict(ruw.get("rule_results") or {})),
+        "rule_statuses": deepcopy(dict(ruw.get("rule_statuses") or {})),
+        "evaluation_coverage": deepcopy(ruw.get("evaluation_coverage")),
+        "review_required": deepcopy(list(ruw.get("review_required") or [])),
+        "validation_status": ruw.get("validation_status"),
+        "unknown_reason": ruw.get("unknown_reason"),
+        "validation_readiness": deepcopy(ruw.get("validation_readiness")),
+        "source_assessment": deepcopy(ruw.get("source_assessment")),
         "raw_v2": ruw,
     }
 
@@ -788,9 +797,14 @@ class DefinitionEditService:
         if not _gebonden(assessment) and isinstance(huidig_resultaat, Mapping):
             sessie = huidig_resultaat.get("source_assessment")
             if _gebonden(sessie):
+                from services.validation.result_contract import bepaal_runstatus
+
                 assessment = sessie
                 bron = "sessie"
-                basis["validation_status"] = huidig_resultaat.get("validation_status")
+                # DEF-624: de status van het sessieresultaat via het contract;
+                # een sessieresultaat zonder geldige status is geen run en
+                # levert daarmee de technische diagnose, geen voorstel.
+                basis["validation_status"] = bepaal_runstatus(huidig_resultaat).status
         uitkomst = beoordeel_bronbasis(
             record.begrip or "",
             tekst,
@@ -1042,11 +1056,22 @@ class DefinitionEditService:
 
     @classmethod
     def _technische_fout_in_validatie(cls, v: Mapping[str, Any]) -> str | None:
-        """Reden waarom een hertoetsing niet als bewijs kan dienen, of None."""
-        from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+        """Reden waarom een hertoetsing niet als bewijs kan dienen, of None.
 
-        if v.get("validation_status") == VALIDATION_STATUS_UNKNOWN:
-            return "validatie niet te bepalen (regelset onvolledig)"
+        DEF-624: alleen een expliciete `validated` is een uitgevoerde run;
+        een afwezige, null of ongeldige status is geen runbewijs.
+        """
+        from services.validation.interfaces import UNKNOWN_REASON_RULESET_INCOMPLETE
+        from services.validation.result_contract import bepaal_runstatus
+
+        runstatus = bepaal_runstatus(v)
+        if not runstatus.uitgevoerd:
+            if runstatus.reason == UNKNOWN_REASON_RULESET_INCOMPLETE:
+                return "validatie niet te bepalen (regelset onvolledig)"
+            return (
+                "validatie niet te bepalen (geen geldig runbewijs: "
+                f"validation_status {runstatus.reason or 'onbekend'})"
+            )
         if _als_mapping(v.get("system")).get("degraded_mode"):
             return "validatie draaide in beperkte modus"
         if _als_mapping(v.get("rule_statuses")).get("CON-02") == "error":

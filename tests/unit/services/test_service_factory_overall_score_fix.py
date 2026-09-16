@@ -80,6 +80,8 @@ class TestOverallScoreRobustness:
 
         validation_dict = {
             "is_acceptable": True,
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "violations": [],
             "passed_rules": ["rule1"],
         }
@@ -246,6 +248,8 @@ class TestConcurrentValidations:
 
             validation_dict = {
                 "is_acceptable": is_acceptable,
+                # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                "validation_status": "validated",
                 "violations": [],
                 "passed_rules": ["rule1"] if is_acceptable else [],
             }
@@ -311,6 +315,8 @@ class TestConcurrentValidations:
                 validation_dict = {
                     "overall_score": {"nested": "dict"},  # Invalid type
                     "is_acceptable": False,
+                    # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                    "validation_status": "validated",
                     "violations": [],
                     "passed_rules": [],
                 }
@@ -319,6 +325,8 @@ class TestConcurrentValidations:
                 validation_dict = {
                     "overall_score": 80.0 + i,
                     "is_acceptable": True,
+                    # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                    "validation_status": "validated",
                     "violations": [],
                     "passed_rules": ["rule1"],
                 }
@@ -390,6 +398,8 @@ class TestProductionReadiness:
         validation_dict = {
             "overall_score": 85.5,
             "is_acceptable": True,
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "violations": [],
             "passed_rules": ["rule1"],
         }

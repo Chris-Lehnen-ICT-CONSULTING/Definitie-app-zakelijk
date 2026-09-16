@@ -42,6 +42,8 @@ class TestValidationOrchestratorV2Unit:
                 "version": CONTRACT_VERSION,
                 "overall_score": 0.85,
                 "is_acceptable": True,
+                # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                "validation_status": "validated",
                 "violations": [],
                 "passed_rules": ["RULE-001"],
                 "detailed_scores": {"taal": 0.9, "juridisch": 0.8},
@@ -401,6 +403,8 @@ class TestValidationOrchestratorV2Unit:
             "version": CONTRACT_VERSION,
             "overall_score": 0.85,
             "is_acceptable": True,
+            # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+            "validation_status": "validated",
             "violations": [],
             "passed_rules": ["RULE-001"],
             "detailed_scores": {"taal": 0.9, "juridisch": 0.8},
@@ -464,6 +468,8 @@ class TestStory24UnitTestHelpers:
                 "version": CONTRACT_VERSION,
                 "overall_score": score,
                 "is_acceptable": acceptable,
+                # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                "validation_status": "validated",
                 "violations": violations or [],
                 "passed_rules": ["MOCK-RULE-001"],
                 "detailed_scores": {"taal": score, "juridisch": score},
@@ -512,6 +518,8 @@ class TestStory24UnitTestHelpers:
                     "version": CONTRACT_VERSION,
                     "overall_score": 0.8,
                     "is_acceptable": True,
+                    # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                    "validation_status": "validated",
                     "violations": [],
                     "passed_rules": ["TEST-RULE"],
                     "detailed_scores": {"test": 0.8},

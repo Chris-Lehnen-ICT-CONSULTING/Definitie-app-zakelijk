@@ -513,6 +513,99 @@ def _render_deeluitkomst(part: dict[str, Any]) -> None:
         st.warning(tekst)
 
 
+def _onbekend_melding(validation_result: dict[str, Any], reden: str | None) -> str:
+    """De melding bij een niet-uitgevoerde run, met de reden die klopt (DEF-624).
+
+    Een ontbrekende of ongeldige status is géén incomplete regelset: die
+    oorzaak bij de regelset leggen zou de gebruiker naar de verkeerde plek
+    sturen. Alleen `ruleset_incomplete` draagt een gemeten telling; bij een
+    ontbrekend contract is er niets gemeten en wordt er niets verzonnen.
+    De telling is een extraatje, geen voorwaarde: de guard mag nooit klappen
+    op de vorm van het readiness-object. Een exceptie hier zou in de Edit-tab
+    stil worden weggeslikt en de hele Kwaliteitstoetsing laten verdwijnen.
+    """
+    from services.validation.interfaces import (
+        UNKNOWN_REASON_CONTRACT_STATUS_INVALID,
+        UNKNOWN_REASON_CONTRACT_STATUS_MISSING,
+        UNKNOWN_REASON_RULESET_INCOMPLETE,
+        UNKNOWN_REASON_VALIDATION_ERROR,
+    )
+
+    slot = "Er is niets getoetst; de definitie is niet afgekeurd."
+    if reden == UNKNOWN_REASON_CONTRACT_STATUS_MISSING:
+        return (
+            "⚠️ Validatie niet te bepalen: het resultaat draagt geen runbewijs "
+            "(validation_status ontbreekt). Er is geen uitgevoerde toetsing "
+            "vastgelegd; de definitie is niet afgekeurd."
+        )
+    if reden == UNKNOWN_REASON_CONTRACT_STATUS_INVALID:
+        return (
+            "⚠️ Validatie niet te bepalen: het resultaat draagt geen geldig "
+            "runbewijs (validation_status is ongeldig). Er is geen uitgevoerde "
+            "toetsing vastgelegd; de definitie is niet afgekeurd."
+        )
+    if reden == UNKNOWN_REASON_VALIDATION_ERROR:
+        systeem = validation_result.get("system")
+        fout = systeem.get("error") if isinstance(systeem, dict) else None
+        detail = f": {fout}" if fout else ""
+        return f"⚠️ Validatie niet te bepalen: de toetsing is technisch mislukt{detail}. {slot}"
+
+    readiness = validation_result.get("validation_readiness")
+    if not isinstance(readiness, dict):
+        readiness = {}
+    geladen = readiness.get("loaded_total")
+    verwacht = readiness.get("expected_total")
+    telling = (
+        f" ({geladen} van {verwacht})"
+        if isinstance(geladen, int) and isinstance(verwacht, int)
+        else ""
+    )
+    if reden == UNKNOWN_REASON_RULESET_INCOMPLETE or telling:
+        return (
+            f"⚠️ Validatie niet te bepalen: niet alle toetsregels konden "
+            f"worden geladen{telling}. {slot}"
+        )
+    return f"⚠️ Validatie niet te bepalen: de toetsing leverde geen oordeel. {slot}"
+
+
+def _historische_bevindingen(validation_result: dict[str, Any]) -> list[str]:
+    """Wat een resultaat zonder runbewijs nog aan bevindingen draagt, neutraal.
+
+    Beschikbaar voor uitleg (DEF-624), niet als actuele geldige verklaring:
+    geen ✅/❌, geen gate, geen telling - alleen de tekst per bevinding.
+    """
+    regels: list[str] = []
+    for v in validation_result.get("violations") or []:
+        if not isinstance(v, dict):
+            continue
+        rid = str(v.get("rule_id") or v.get("code") or "?")
+        tekst = str(v.get("description") or v.get("message") or "")
+        regels.append(f"{rid}: {tekst}".rstrip(": "))
+    for code, detail in sorted((validation_result.get("rule_results") or {}).items()):
+        if isinstance(detail, dict) and detail.get("status"):
+            regels.append(
+                f"{code}: {_UITKOMSTLABEL.get(str(detail['status']), str(detail['status']))}"
+            )
+    return regels
+
+
+def _render_historische_bevindingen(validation_result: dict[str, Any]) -> None:
+    """Eerder vastgelegde bevindingen tonen zonder ze als oordeel te presenteren."""
+    regels = _historische_bevindingen(validation_result)
+    if not regels:
+        return
+    with st.expander(
+        f"Eerder vastgelegde bevindingen ({len(regels)}) — geen actuele toetsing",
+        expanded=False,
+    ):
+        st.text(
+            "Deze bevindingen horen bij een resultaat zonder geldig runbewijs en "
+            "gelden niet als actuele toetsing."
+        )
+        for regel in regels:
+            st.text(f"- {regel}")
+
+
 def render_v2_validation_details(validation_result: dict[str, Any]) -> None:
     """Render V2 validation details consistently for all tabs."""
     # Backwards-compatible simple renderer delegates to the unified detailed list without toggle.
@@ -536,40 +629,37 @@ def render_validation_detailed_list(
         show_toggle: Whether to show a toggle to expand/collapse details
         gate: Optional explicit gate dict. If None, tries validation_result['acceptance_gate']
     """
-    # DEF-621: fail-closed stop vóór elk oordeel. Dit is het enige renderpad
-    # van alle drie de tabs; loopt hij door bij `validation_unknown`, dan
-    # verschijnt "Overall Score: 0.00" als kwaliteitsoordeel terwijl er juist
-    # niets is geëvalueerd - en een meegegeven gate uit een review- of
-    # previewscherm zou daar groen bovenop komen. De score, de gate, de
-    # toggle en beide detailhelpers blijven daarom onbereikt.
+    # DEF-621/DEF-624: fail-closed stop vóór elk oordeel. Dit is het enige
+    # renderpad van alle drie de tabs; loopt hij door zonder uitgevoerde run,
+    # dan verschijnt een oordeel terwijl er juist niets (betrouwbaar) is
+    # geëvalueerd - en een meegegeven gate uit een review- of previewscherm
+    # zou daar groen bovenop komen. De score, de gate, de toggle en beide
+    # detailhelpers blijven daarom onbereikt. Sinds DEF-624 stopt de guard
+    # niet alleen bij een expliciete `validation_unknown` maar bij elk
+    # resultaat zonder geldige status: dat is geen runbewijs.
     #
     # De import staat bewust hier en niet op modulniveau: `services` trekt bij
     # het laden het hele servicepakket mee (container, numpy, httpx), en dan
     # zou het enkel importeren van deze viewmodule een halve applicatie
     # starten. Dit bestand hanteert die lazy UI-laaggrens al voor
     # `SessionStateManager`.
-    from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+    from services.validation.interfaces import (
+        UNKNOWN_REASON_CONTRACT_STATUS_INVALID,
+        UNKNOWN_REASON_CONTRACT_STATUS_MISSING,
+    )
+    from services.validation.result_contract import bepaal_runstatus
 
-    if validation_result.get("validation_status") == VALIDATION_STATUS_UNKNOWN:
-        # De telling is een extraatje, geen voorwaarde: de guard mag nooit
-        # klappen op de vorm van het readiness-object. Een exceptie hier zou
-        # in de Edit-tab stil worden weggeslikt en de hele Kwaliteitstoetsing
-        # laten verdwijnen - geen score, maar ook geen melding.
-        readiness = validation_result.get("validation_readiness")
-        if not isinstance(readiness, dict):
-            readiness = {}
-        geladen = readiness.get("loaded_total")
-        verwacht = readiness.get("expected_total")
-        telling = (
-            f" ({geladen} van {verwacht})"
-            if isinstance(geladen, int) and isinstance(verwacht, int)
-            else ""
-        )
-        st.warning(
-            f"⚠️ Validatie niet te bepalen: niet alle toetsregels konden "
-            f"worden geladen{telling}. Er is niets getoetst; de definitie is "
-            f"niet afgekeurd."
-        )
+    runstatus = bepaal_runstatus(validation_result)
+    if not runstatus.uitgevoerd:
+        st.warning(_onbekend_melding(validation_result, runstatus.reason))
+        # Alleen bij een ontbrekend contract dragen de aanwezige bevindingen
+        # iets van een eerder resultaat; bij ruleset_incomplete is er niets
+        # getoetst en bij een servicefout is de violation de fout zelf.
+        if runstatus.reason in (
+            UNKNOWN_REASON_CONTRACT_STATUS_MISSING,
+            UNKNOWN_REASON_CONTRACT_STATUS_INVALID,
+        ):
+            _render_historische_bevindingen(validation_result)
         return
 
     from ui.session_state import SessionStateManager

@@ -5,6 +5,13 @@ Tests cover:
 1. Factory functions: create_validation_result, create_degraded_result
 2. Normalization: normalize_to_unified (dict, dataclass, legacy formats)
 3. Validators: is_valid_result, get_blocking_violations, get_category_score
+
+DEF-624: de fabriek verzint geen run. Waar een test een uitgevoerde run
+modelleert (de test is dan zelf de producent) geeft hij
+`validation_status=VALIDATION_STATUS_VALIDATED` mee via `_gevalideerd`;
+zonder status is de uitkomst expliciet `validation_unknown`. Legacy dicts en
+dataclasses zonder status zijn geen run: geen oordeel, geen verzonnen
+`BASIC-00x`-regels, en een None-score blijft None.
 """
 
 from __future__ import annotations
@@ -17,6 +24,11 @@ from unittest.mock import patch
 
 import pytest
 
+from services.validation.interfaces import (
+    UNKNOWN_REASON_CONTRACT_STATUS_MISSING,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
+)
 from services.validation.types import (
     _VALIDATION_RESULT_REQUIRED_KEYS,
     CONTRACT_VERSION,
@@ -35,6 +47,13 @@ from services.validation.types import (
 )
 
 pytestmark = [pytest.mark.unit]
+
+
+def _gevalideerd(**kwargs: Any) -> ValidationResult:
+    """De fabriek als producent van een werkelijk uitgevoerde run (DEF-624)."""
+    kwargs.setdefault("validation_status", VALIDATION_STATUS_VALIDATED)
+    return create_validation_result(**kwargs)
+
 
 # ==============================================================================
 # Test Fixtures
@@ -68,7 +87,7 @@ def error_violation() -> ViolationDict:
 @pytest.fixture
 def valid_result() -> ValidationResult:
     """Create a valid ValidationResult for testing."""
-    return create_validation_result(
+    return _gevalideerd(
         overall_score=0.85,
         is_acceptable=True,
         violations=[],
@@ -97,7 +116,7 @@ class TestCreateValidationResult:
 
     def test_minimal_args_creates_valid_result(self) -> None:
         """Create result with only required args produces valid schema."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.75,
             is_acceptable=True,
         )
@@ -113,7 +132,7 @@ class TestCreateValidationResult:
 
     def test_auto_generated_correlation_id_is_valid_uuid(self) -> None:
         """Auto-generated correlation_id should be a valid UUID string."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.5,
             is_acceptable=True,
         )
@@ -126,7 +145,7 @@ class TestCreateValidationResult:
     def test_explicit_correlation_id_used(self) -> None:
         """Explicit correlation_id should be used when provided."""
         explicit_id = "test-correlation-id-12345"
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.5,
             is_acceptable=True,
             correlation_id=explicit_id,
@@ -136,7 +155,7 @@ class TestCreateValidationResult:
 
     def test_default_detailed_scores_match_overall(self) -> None:
         """Default detailed_scores should match overall_score for all categories."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.8,
             is_acceptable=True,
         )
@@ -151,7 +170,7 @@ class TestCreateValidationResult:
         self, custom_detailed_scores: CategoryScores
     ) -> None:
         """Custom detailed_scores should be preserved exactly."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.8,
             is_acceptable=True,
             detailed_scores=custom_detailed_scores,
@@ -161,7 +180,7 @@ class TestCreateValidationResult:
 
     def test_violations_included(self, minimal_violation: ViolationDict) -> None:
         """Violations should be included in result."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.6,
             is_acceptable=False,
             violations=[minimal_violation],
@@ -173,7 +192,7 @@ class TestCreateValidationResult:
     def test_passed_rules_included(self) -> None:
         """Passed rules should be included in result."""
         rules = ["RULE-001", "RULE-002", "RULE-003"]
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.9,
             is_acceptable=True,
             passed_rules=rules,
@@ -201,7 +220,7 @@ class TestCreateValidationResult:
             "thresholds": {"min_score": 0.7},
         }
 
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.85,
             is_acceptable=True,
             violations=[minimal_violation],
@@ -237,7 +256,7 @@ class TestCreateValidationResult:
 
     def test_timestamp_is_iso_format(self) -> None:
         """System timestamp should be in ISO 8601 format."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.5,
             is_acceptable=True,
         )
@@ -260,13 +279,23 @@ class TestCreateValidationResult:
         self, score: float, acceptable: bool
     ) -> None:
         """Test various score and acceptable value combinations."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=score,
             is_acceptable=acceptable,
         )
 
         assert result["overall_score"] == score
         assert result["is_acceptable"] is acceptable
+
+    def test_zonder_runstatus_verzint_de_fabriek_geen_run(self) -> None:
+        """DEF-624: alleen een producent zet `validated`; de default is onbekend."""
+        result = create_validation_result(overall_score=0.9, is_acceptable=True)
+
+        assert result["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert result["unknown_reason"] == UNKNOWN_REASON_CONTRACT_STATUS_MISSING
+        assert result["is_acceptable"] is False
+        assert result["overall_score"] == 0.0
+        assert is_valid_result(result)
 
 
 # ==============================================================================
@@ -475,13 +504,33 @@ class TestNormalizeToUnified:
         normalized = normalize_to_unified(mock_result, correlation_id="dc-test-id")
 
         assert normalized["version"] == CONTRACT_VERSION
-        assert normalized["overall_score"] == 0.8
-        assert normalized["is_acceptable"] is True
+        # DEF-624: de dataclass draagt geen runbewijs; `is_valid=True` en de
+        # 0.8 zijn dan geen oordeel. De inhoud (violations, regels, systeem)
+        # reist wél ongewijzigd mee.
+        assert normalized["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert normalized["unknown_reason"] == UNKNOWN_REASON_CONTRACT_STATUS_MISSING
+        assert normalized["overall_score"] == 0.0
+        assert normalized["is_acceptable"] is False
         assert len(normalized["violations"]) == 1
         assert normalized["violations"][0]["code"] == "VAL-TST-001"
         assert normalized["passed_rules"] == ["RULE-001"]
         assert normalized["system"]["correlation_id"] == "dc-test-id"
         assert normalized["system"]["engine_version"] == "1.0.0"
+
+    def test_dataclass_met_runstatus_blijft_validated(self) -> None:
+        """Een object dat zijn run meldt behoudt score en oordeel."""
+
+        @dataclass
+        class Producent:
+            is_valid: bool = True
+            score: float = 0.8
+            validation_status: str = VALIDATION_STATUS_VALIDATED
+
+        normalized = normalize_to_unified(Producent(), correlation_id="dc-test-id")
+
+        assert normalized["validation_status"] == VALIDATION_STATUS_VALIDATED
+        assert normalized["overall_score"] == 0.8
+        assert normalized["is_acceptable"] is True
 
     def test_dataclass_with_enum_severity(self) -> None:
         """Should handle dataclass with enum severity."""
@@ -532,8 +581,10 @@ class TestNormalizeToUnified:
         normalized = normalize_to_unified(legacy, correlation_id="legacy-id")
 
         assert normalized["version"] == CONTRACT_VERSION
-        assert normalized["overall_score"] == 0.75
-        assert normalized["is_acceptable"] is True
+        # DEF-624: een legacy dict zonder status is geen run.
+        assert normalized["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert normalized["overall_score"] == 0.0
+        assert normalized["is_acceptable"] is False
         assert len(normalized["violations"]) == 1
         assert "system" in normalized
         assert normalized["system"]["correlation_id"] == "legacy-id"
@@ -562,16 +613,25 @@ class TestNormalizeToUnified:
         assert len(warning_violations) == 1
 
     def test_legacy_dict_infers_acceptable_from_score(self) -> None:
-        """Should infer is_acceptable from score when not provided."""
+        """Should infer is_acceptable from score when not provided.
+
+        DEF-624: de drempelafleiding geldt alleen voor een uitgevoerde run;
+        zonder status is het oordeel fail-closed False, ongeacht de score.
+        """
         # Score >= 0.5 -> acceptable
-        legacy_high: dict[str, Any] = {"score": 0.6}
+        legacy_high: dict[str, Any] = {"score": 0.6, "validation_status": "validated"}
         normalized_high = normalize_to_unified(legacy_high)
         assert normalized_high["is_acceptable"] is True
 
         # Score < 0.5 -> not acceptable
-        legacy_low: dict[str, Any] = {"score": 0.4}
+        legacy_low: dict[str, Any] = {"score": 0.4, "validation_status": "validated"}
         normalized_low = normalize_to_unified(legacy_low)
         assert normalized_low["is_acceptable"] is False
+
+        # Zonder runbewijs: geen oordeel, hoe hoog de score ook is.
+        zonder_status = normalize_to_unified({"score": 0.6})
+        assert zonder_status["is_acceptable"] is False
+        assert zonder_status["validation_status"] == VALIDATION_STATUS_UNKNOWN
 
     def test_legacy_dict_with_suggestions(self) -> None:
         """Should convert legacy suggestions to improvement_suggestions."""
@@ -618,12 +678,20 @@ class TestNormalizeToUnified:
         assert normalized["violations"] == []
 
     def test_overall_score_from_different_keys(self) -> None:
-        """Should extract score from 'score' or 'overall_score' key."""
-        with_score: dict[str, Any] = {"score": 0.7}
-        with_overall: dict[str, Any] = {"overall_score": 0.8}
+        """Should extract score from 'score' or 'overall_score' key.
+
+        Met runstatus: de sleutel wordt gelezen; zonder runstatus (DEF-624)
+        wordt de gelezen waarde de fail-closed placeholder.
+        """
+        with_score: dict[str, Any] = {"score": 0.7, "validation_status": "validated"}
+        with_overall: dict[str, Any] = {
+            "overall_score": 0.8,
+            "validation_status": "validated",
+        }
 
         assert normalize_to_unified(with_score)["overall_score"] == 0.7
         assert normalize_to_unified(with_overall)["overall_score"] == 0.8
+        assert normalize_to_unified({"score": 0.7})["overall_score"] == 0.0
 
 
 # ==============================================================================
@@ -640,7 +708,7 @@ class TestIsValidResult:
 
     def test_factory_created_result_is_valid(self) -> None:
         """Result from factory function should be valid."""
-        result = create_validation_result(overall_score=0.5, is_acceptable=True)
+        result = _gevalideerd(overall_score=0.5, is_acceptable=True)
         assert is_valid_result(result) is True
 
     def test_non_dict_returns_false(self) -> None:
@@ -664,7 +732,7 @@ class TestIsValidResult:
     )
     def test_missing_required_field_returns_false(self, missing_field: str) -> None:
         """Missing any required field should return False."""
-        result = create_validation_result(overall_score=0.5, is_acceptable=True)
+        result = _gevalideerd(overall_score=0.5, is_acceptable=True)
         del result[missing_field]  # type: ignore[misc]
 
         assert is_valid_result(result) is False
@@ -710,7 +778,7 @@ class TestGetBlockingViolations:
         self, minimal_violation: ViolationDict, error_violation: ViolationDict
     ) -> None:
         """Should return only violations with error severity."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.5,
             is_acceptable=False,
             violations=[minimal_violation, error_violation],
@@ -724,7 +792,7 @@ class TestGetBlockingViolations:
 
     def test_empty_when_no_errors(self, minimal_violation: ViolationDict) -> None:
         """Should return empty list when no error violations."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.7,
             is_acceptable=True,
             violations=[minimal_violation],  # warning severity
@@ -752,7 +820,7 @@ class TestGetBlockingViolations:
                 "category": "structuur",
             },
         ]
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.3,
             is_acceptable=False,
             violations=errors,
@@ -764,7 +832,7 @@ class TestGetBlockingViolations:
 
     def test_handles_empty_violations(self) -> None:
         """Should handle result with no violations."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.9,
             is_acceptable=True,
             violations=[],
@@ -803,7 +871,7 @@ class TestGetCategoryScore:
         self, custom_detailed_scores: CategoryScores
     ) -> None:
         """Should return correct score for each category."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.8,
             is_acceptable=True,
             detailed_scores=custom_detailed_scores,
@@ -816,7 +884,7 @@ class TestGetCategoryScore:
 
     def test_returns_overall_score_when_category_missing(self) -> None:
         """Should return overall_score when category not in detailed_scores."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.7,
             is_acceptable=True,
             detailed_scores={"taal": 0.8},  # Only taal present
@@ -829,7 +897,7 @@ class TestGetCategoryScore:
 
     def test_returns_overall_for_system_category(self) -> None:
         """System category should fall back to overall_score."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.75,
             is_acceptable=True,
         )
@@ -871,7 +939,7 @@ class TestGetCategoryScore:
     )
     def test_all_standard_categories(self, category: str) -> None:
         """Should work for all standard category types."""
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.5,
             is_acceptable=True,
         )
@@ -921,11 +989,11 @@ class TestEdgeCases:
     def test_boundary_scores(self) -> None:
         """Test boundary score values."""
         # Minimum score
-        result_min = create_validation_result(overall_score=0.0, is_acceptable=False)
+        result_min = _gevalideerd(overall_score=0.0, is_acceptable=False)
         assert result_min["overall_score"] == 0.0
 
         # Maximum score
-        result_max = create_validation_result(overall_score=1.0, is_acceptable=True)
+        result_max = _gevalideerd(overall_score=1.0, is_acceptable=True)
         assert result_max["overall_score"] == 1.0
 
     def test_large_violations_list(self) -> None:
@@ -941,7 +1009,7 @@ class TestEdgeCases:
             for i in range(100)
         ]
 
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.3,
             is_acceptable=False,
             violations=violations,
@@ -960,7 +1028,7 @@ class TestEdgeCases:
             "category": "taal",
         }
 
-        result = create_validation_result(
+        result = _gevalideerd(
             overall_score=0.7,
             is_acceptable=True,
             violations=[violation],
@@ -1183,7 +1251,7 @@ class TestDataclassConversionEdgeCases:
         assert normalized["violations"][0]["severity"] == "warning"
 
     def test_dataclass_with_none_score(self) -> None:
-        """Should handle None score by defaulting to 0.0."""
+        """DEF-622/DEF-624: een None-score is 'niet beschikbaar' en blijft None."""
 
         @dataclass
         class ResultWithNoneScore:
@@ -1192,7 +1260,8 @@ class TestDataclassConversionEdgeCases:
         mock_result = ResultWithNoneScore(score=None)
         normalized = normalize_to_unified(mock_result)
 
-        assert normalized["overall_score"] == 0.0
+        assert normalized["overall_score"] is None
+        assert normalized["is_acceptable"] is False
 
     def test_dataclass_with_profile_and_timestamp(self) -> None:
         """Should convert profile_used and timestamp metadata."""
@@ -1226,20 +1295,26 @@ class TestDataclassConversionEdgeCases:
         assert normalized["system"]["error"] == "Service unavailable"
 
     def test_dataclass_with_default_passed_rules(self) -> None:
-        """Should add default passed rules when none provided and no violations."""
+        """DEF-624: geen verzonnen `BASIC-00x`-regels bij "geen violations".
+
+        De oude default presenteerde bewijs van regels die nooit zijn
+        gedraaid - ook wanneer de bron zijn run meldt.
+        """
 
         @dataclass
         class ResultNoViolations:
             score: float = 0.9
             is_valid: bool = True
 
-        mock_result = ResultNoViolations()
-        normalized = normalize_to_unified(mock_result)
+        @dataclass
+        class ProducentNoViolations(ResultNoViolations):
+            validation_status: str = VALIDATION_STATUS_VALIDATED
 
-        # Should have default passed rules
-        assert "BASIC-001" in normalized["passed_rules"]
-        assert "BASIC-002" in normalized["passed_rules"]
-        assert "BASIC-003" in normalized["passed_rules"]
+        for mock_result in (ResultNoViolations(), ProducentNoViolations()):
+            normalized = normalize_to_unified(mock_result)
+
+            assert normalized["passed_rules"] == [], mock_result
+            assert "BASIC-001" not in normalized["passed_rules"]
 
 
 # ==============================================================================
@@ -1345,15 +1420,15 @@ class TestLegacyDictConversionEdgeCases:
         assert normalized["detailed_scores"]["structuur"] == 0.6
 
     def test_legacy_dict_defaults_passed_rules(self) -> None:
-        """Should add default passed rules when none and no violations."""
-        legacy: dict[str, Any] = {
-            "score": 0.9,
-            "is_valid": True,
-        }
+        """DEF-624: geen verzonnen `BASIC-00x`-regels bij "geen violations"."""
+        for legacy in (
+            {"score": 0.9, "is_valid": True},
+            {"score": 0.9, "is_valid": True, "validation_status": "validated"},
+        ):
+            normalized = normalize_to_unified(legacy)
 
-        normalized = normalize_to_unified(legacy)
-
-        assert "BASIC-001" in normalized["passed_rules"]
+            assert normalized["passed_rules"] == [], legacy
+            assert "BASIC-001" not in normalized["passed_rules"]
 
     def test_legacy_dict_violation_missing_fields_default(self) -> None:
         """Should provide defaults for missing violation fields."""
@@ -1383,16 +1458,16 @@ class TestLegacyDictConversionEdgeCases:
         assert normalized["system"]["timestamp"] == "2024-06-01T12:00:00Z"
 
     def test_legacy_dict_with_none_score(self) -> None:
-        """Should handle explicit None score by defaulting to 0.0."""
-        legacy: dict[str, Any] = {
-            "score": None,
-        }
+        """DEF-622/DEF-624: een expliciete None-score blijft None (niet beschikbaar)."""
+        for legacy in (
+            {"score": None},
+            {"score": None, "validation_status": "validated"},
+        ):
+            normalized = normalize_to_unified(legacy)
 
-        normalized = normalize_to_unified(legacy)
-
-        assert normalized["overall_score"] == 0.0
-        # None score < 0.5, so not acceptable
-        assert normalized["is_acceptable"] is False
+            assert normalized["overall_score"] is None, legacy
+            # Zonder totaalscore is er geen drempel: fail-closed niet acceptabel.
+            assert normalized["is_acceptable"] is False, legacy
 
 
 # ==============================================================================

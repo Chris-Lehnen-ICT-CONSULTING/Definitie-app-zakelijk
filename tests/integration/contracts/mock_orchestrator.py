@@ -6,6 +6,9 @@ from uuid import uuid4
 from services.interfaces import Definition
 from services.validation.interfaces import (
     CONTRACT_VERSION,
+    UNKNOWN_REASON_VALIDATION_ERROR,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
     ValidationContext,
     ValidationOrchestratorInterface,
     ValidationRequest,
@@ -48,8 +51,11 @@ class MockValidationOrchestrator(ValidationOrchestratorInterface):
 
         # Degraded path (simulated upstream failure)
         if self.should_fail or self.degraded_mode:
+            # DEF-624: een storing is geen uitgevoerde run.
             return {
                 "version": CONTRACT_VERSION,
+                "validation_status": VALIDATION_STATUS_UNKNOWN,
+                "unknown_reason": UNKNOWN_REASON_VALIDATION_ERROR,
                 "overall_score": 0.0,
                 "is_acceptable": False,
                 "violations": [
@@ -73,6 +79,8 @@ class MockValidationOrchestrator(ValidationOrchestratorInterface):
         if text == "":
             return {
                 "version": CONTRACT_VERSION,
+                # DEF-624: de mock evalueerde werkelijk (lege tekst -> violation).
+                "validation_status": VALIDATION_STATUS_VALIDATED,
                 "overall_score": 0.0,
                 "is_acceptable": False,
                 "violations": [
@@ -98,6 +106,7 @@ class MockValidationOrchestrator(ValidationOrchestratorInterface):
         score = self.default_score if self.default_score is not None else 0.85
         return {
             "version": CONTRACT_VERSION,
+            "validation_status": VALIDATION_STATUS_VALIDATED,  # DEF-624: echte run
             "overall_score": score,
             "is_acceptable": True,
             "violations": [],
