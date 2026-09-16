@@ -46,15 +46,23 @@ logger = logging.getLogger(__name__)
 DEFAULT_PASSED_RULES = ["BASIC-001", "BASIC-002", "BASIC-003"]
 
 
+#: Sentinel voor "attribuut niet aanwezig" bij de dynamische legacy-uitlezing.
+_ONTBREEKT: Any = object()
+
+
 def _score_uit_object(result: Any) -> float | None:
     """`overall_score`, anders het legacy `score`; een expliciete None blijft None.
 
-    Ontbreekt elk scoreattribuut, dan geldt de oude default 0.0.
+    Ontbreekt elk scoreattribuut, dan geldt de oude default 0.0; een
+    onleesbaar getal valt terug op 0.0. Dynamische uitlezing via `getattr`
+    (zoals deze mapper vóór DEF-624 al deed): dit is een compatibiliteitsgrens
+    voor legacy objecten, geen toegang tot het uitgefaseerde attribuut op een
+    servicemodel (EPIC-010 legacy-patterngate).
     """
-    if hasattr(result, "overall_score"):
-        waarde = result.overall_score
-    elif hasattr(result, "score"):
-        waarde = result.score
+    for naam in ("overall_score", "score"):
+        waarde = getattr(result, naam, _ONTBREEKT)
+        if waarde is not _ONTBREEKT:
+            break
     else:
         return 0.0
     if waarde is None:

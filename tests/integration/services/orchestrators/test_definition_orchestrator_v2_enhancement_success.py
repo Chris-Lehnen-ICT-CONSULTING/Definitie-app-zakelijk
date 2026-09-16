@@ -59,8 +59,10 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
     )
 
     # First validation fails, second succeeds
+    # DEF-624: beide dubbels staan voor een uitgevoerde run (fail én pass).
     fail_result = {
         "version": "1.0.0",
+        "validation_status": "validated",
         "overall_score": 0.45,
         "is_acceptable": False,
         "violations": [
@@ -83,6 +85,7 @@ async def test_enhancement_applied_leads_to_successful_validation_and_save():
     }
     ok_result = {
         "version": "1.0.0",
+        "validation_status": "validated",
         "overall_score": 0.82,
         "is_acceptable": True,
         "violations": [],
