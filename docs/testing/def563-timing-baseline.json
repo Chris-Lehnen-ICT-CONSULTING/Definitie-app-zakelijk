@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "3717d7d79b44a464b4e1096845bae88d5ca27977",
+  "source_commit": "c187337a2a04a2ee32a2b2c25c203f9ae5bd849d",
   "entries": {
     "tests/ci/test_offline_gate_bootstrap.py::test_runner_kapt_af_op_het_procesbudget": {
       "source_sha256": "82f4107a3c04cd30d82c025e232b8f174925d655567fce2f88be826bfadf3843",
@@ -592,7 +592,7 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/test_modular_prompt_builder.py::TestBasicPromptGeneration::test_performance_baseline": {
-      "source_sha256": "75c40351717c9205042edd418cfacb278d6467c3209c6e6a6421f7a4780c19db",
+      "source_sha256": "3436a67dbc1ffabfbe2c9ebc9210d6d7d920e3c33723dc5e73689e03de39a7c7",
       "comparisons": [
         "generation_time < 1.0"
       ],

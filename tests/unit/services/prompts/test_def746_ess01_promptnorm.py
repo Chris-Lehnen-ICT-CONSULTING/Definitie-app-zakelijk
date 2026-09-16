@@ -73,6 +73,13 @@ def test_templates_maken_geen_onvoorwaardelijk_doelvoorbeeld(category):
         )
         assert "grensgeval" in output.content.lower()
         assert "begripsbepalend" in output.content
+    elif category == "Object":
+        assert "Grensgeval — systeem:" in output.content
+        assert "Grensgeval — register:" in output.content
+        assert "zonder grond blijft dit open" in output.content
+    elif category == "Maatregel":
+        assert "Grensgeval — gegeven afbakening: interventie" in output.content
+        assert "alleen toelaatbaar bij deze bevestigde grond" in output.content
 
 
 @pytest.mark.parametrize("category", ["type", "proces", "resultaat", "exemplaar"])
@@ -84,3 +91,14 @@ def test_categorie_is_geen_functiegrond(category):
     assert '✅ "maatregel die recidive moet voorkomen"' not in output.content
     assert '✅ "interventie gericht op gedragsverandering"' not in output.content
     assert "WAT het betekent/bewerkstelligt (doel/functie)" not in output.content
+    if category == "type":
+        assert "Grensgevallen: maatregel en interventie" in output.content
+        assert (
+            "Zonder grond geen voorbeeld als algemeen correct presenteren"
+            in output.content
+        )
+    elif category == "resultaat":
+        assert (
+            "een doel of functie alleen met begripsbepalende grond volgens ESS-01"
+            in output.content
+        )

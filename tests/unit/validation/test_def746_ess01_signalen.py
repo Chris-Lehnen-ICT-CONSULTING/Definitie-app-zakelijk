@@ -49,18 +49,24 @@ async def test_service_signaal_blijft_open_en_zichtbaar(
         assert f"Te beoordelen passage: {fragment}." in item["reason"]
     else:
         assert "inhoudelijke beoordeling blijft nodig" in item["reason"]
-    shown = []
-    for api in ("markdown", "info", "warning", "success", "error", "write", "text"):
+    shown = {
+        api: []
+        for api in ("markdown", "info", "warning", "success", "error", "write", "text")
+    }
+    for api in shown:
         monkeypatch.setattr(
             validation_view.st,
             api,
-            lambda t, *a, **kw: shown.append(str(t)),
+            lambda t, *a, _api=api, **kw: shown[_api].append(str(t)),
             raising=False,
         )
     monkeypatch.setattr(validation_view.st, "button", lambda *a, **kw: False)
     SessionStateManager.set_value("def746_show_validation_details", False)
     validation_view.render_validation_detailed_list(result, key_prefix="def746")
-    assert item["reason"] in "\n".join(shown)
+    assert item["reason"] in shown["text"]
+    for api, values in shown.items():
+        if api != "text":
+            assert item["reason"] not in "\n".join(values)
 
 
 async def test_herhaalde_passage_wordt_een_keer_uitgelegd():
