@@ -21,6 +21,7 @@ import streamlit as _default_st
 from document_processing.document_processor import get_document_processor
 from domain.ontological_categories import OntologischeCategorie
 from integration.definitie_checker import CheckAction, DefinitieChecker
+from ui.helpers.categorie_weergave import generatiecategorie_van
 from ui.session_state import SessionStateManager as _DefaultSM
 from utils.type_helpers import ensure_dict
 
@@ -142,17 +143,23 @@ class DefinitionGenerationHandler:
                     "manual_ontological_category"
                 )
 
+                # DEF-751: een keuze of voorstel buiten de vier generatie-
+                # categorieën viel hier stil terug op PROCES — en reisde zo
+                # ook de duplicaatvoorcontrole en het model in. Nu stopt de
+                # handler vóór checker en model met een begrijpelijke melding;
+                # de echte waarde reist exact door. Herkomst (handmatig vs.
+                # model) blijft alleen sessie-informatie, geen bevestiging.
                 if manual_category:
                     # Gebruik handmatige override
-                    category_map = {
-                        "type": OntologischeCategorie.TYPE,
-                        "proces": OntologischeCategorie.PROCES,
-                        "resultaat": OntologischeCategorie.RESULTAAT,
-                        "exemplaar": OntologischeCategorie.EXEMPLAAR,
-                    }
-                    auto_categorie = category_map.get(
-                        manual_category.lower(), OntologischeCategorie.PROCES
-                    )
+                    auto_categorie = generatiecategorie_van(manual_category)
+                    if auto_categorie is None:
+                        self._weiger_categorie(
+                            manual_category,
+                            "handmatige keuze",
+                            _st=st,
+                            _sm=SessionStateManager,
+                        )
+                        return
                     category_reasoning = (
                         f"Handmatig gekozen door gebruiker: {manual_category}"
                     )
@@ -179,22 +186,16 @@ class DefinitionGenerationHandler:
                         )
                         return
 
-                    # Converteer string naar OntologischeCategorie enum
-                    category_map = {
-                        "TYPE": OntologischeCategorie.TYPE,
-                        "PROCES": OntologischeCategorie.PROCES,
-                        "RESULTAAT": OntologischeCategorie.RESULTAAT,
-                        "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
-                    }
-                    # DEF-138 FIX: uppercase determined_category voor case-insensitive match
-                    auto_categorie = category_map.get(
-                        (
-                            determined_category.upper()
-                            if determined_category
-                            else "PROCES"
-                        ),
-                        OntologischeCategorie.PROCES,
-                    )
+                    # DEF-138: kastongevoelig; DEF-751: geen PROCES-fallback
+                    auto_categorie = generatiecategorie_van(determined_category)
+                    if auto_categorie is None:
+                        self._weiger_categorie(
+                            determined_category,
+                            "voorgestelde categorie",
+                            _st=st,
+                            _sm=SessionStateManager,
+                        )
+                        return
                     category_reasoning = SessionStateManager.get_value(
                         "category_reasoning", ""
                     )
@@ -581,6 +582,25 @@ class DefinitionGenerationHandler:
                 gewist = True
         if gewist:
             _sm.set_value("generation_options", opties)
+
+    def _weiger_categorie(
+        self, waarde: Any, herkomst: str, *, _st: Any, _sm: Any
+    ) -> None:
+        """DEF-751: een keuze/voorstel buiten de vier generatiecategorieën
+        stopt de generatie vóór duplicaatvoorcontrole en model — geen stille
+        PROCES. De afgewezen aanvraag verbruikt de eenmalige force-opties
+        (zelfde regel als de begrip- en contextgate)."""
+        _st.error(
+            f"❌ Generatie niet gestart: de {herkomst} '{waarde}' is geen "
+            "categorie waarmee gegenereerd kan worden "
+            "(type, proces, resultaat, exemplaar). Kies hierboven opnieuw."
+        )
+        logger.warning(
+            "Generatie niet gestart: %s %r is geen generatiecategorie",
+            herkomst,
+            waarde,
+        )
+        self._wis_force_opties(_sm=_sm)
 
     def handle_duplicate_check(
         self,

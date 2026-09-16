@@ -15,6 +15,7 @@ from config.config_manager import ConfigSection, get_config
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import AutoSaveResult, DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
+from ui.helpers.categorie_weergave import bouw_categorie_opties, categorie_label
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -601,14 +602,20 @@ class DefinitionEditTab:
             ] + org_custom_values
             SessionStateManager.set_value(k("organisatorische_context"), org_resolved)
 
-            # Category
+            # Category — DEF-751: de geladen waarde komt exact terug (ook een
+            # schemawaarde buiten de vier keuzes of een lege), zonder
+            # ValueError en zonder stille omzetting naar proces; alleen-lezen
+            # volgt hetzelfde beleid als de overige velden.
+            categorie_opties, categorie_index = bouw_categorie_opties(
+                definition.categorie
+            )
             categorie = st.selectbox(
                 "Categorie",
-                ["type", "proces", "resultaat", "exemplaar"],
-                index=["type", "proces", "resultaat", "exemplaar"].index(
-                    definition.categorie or "proces"
-                ),
+                options=categorie_opties,
+                index=categorie_index,
+                format_func=categorie_label,
                 key=k("categorie"),
+                disabled=disabled,
                 help="Ontologische categorie van het begrip",
             )
 
@@ -1656,7 +1663,10 @@ class DefinitionEditTab:
                 "organisatorische_context": org_list,
                 "juridische_context": jur_list,
                 "wettelijke_basis": wet_list,
-                "categorie": SessionStateManager.get_value(k("categorie")),
+                # DEF-751: een lege keuze (record zonder categorie) wordt geen
+                # kolomwaarde; `_definition_to_updates` slaat None over, zodat
+                # opslaan zonder categorieactie niets herclassificeert.
+                "categorie": SessionStateManager.get_value(k("categorie")) or None,
                 "ufo_categorie": (
                     SessionStateManager.get_value(k("ufo_categorie")) or None
                 ),
@@ -1762,7 +1772,10 @@ class DefinitionEditTab:
                 or [],
                 wettelijke_basis=SessionStateManager.get_value(k("wettelijke_basis"))
                 or [],
-                categorie=SessionStateManager.get_value(k("categorie"), "proces"),
+                # DEF-751: zonder widgetwaarde geldt de geladen categorie, geen
+                # verzonnen proces.
+                categorie=SessionStateManager.get_value(k("categorie"))
+                or getattr(geladen, "categorie", None),
                 toelichting=SessionStateManager.get_value(k("toelichting"), ""),
                 metadata={
                     "status": SessionStateManager.get_value(k("status"), "draft")
