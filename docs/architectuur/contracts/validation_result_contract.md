@@ -26,15 +26,28 @@ Dit document definieert het bindende contract voor `ValidationResult` objecten i
 ## Scope & Status
 
 - **Scope**: Alle validation responses van ValidationOrchestratorV2
-- **Versie**: 1.1.0 (SemVer)
-- **Backward Compatibility**: Gegarandeerd binnen major version
+- **Versie**: 2.0.0 (SemVer)
+- **Backward Compatibility**: Gegarandeerd binnen major version. De overgang 1.x → 2.0.0 is een betekenisverandering (zie tabel); legacy-invoer blijft leesbaar via de normalisatie in `services.validation.result_contract`, maar levert nooit een oordeel.
 
 ### Wijzigingen
 
 | Versie | Wijziging |
 | --- | --- |
+| 2.0.0 | DEF-624 (deellevering 1, 16-09-2026): `validation_status` is verplicht in de canonieke uitvoervorm en heeft geen `default: validated` meer. Een afwezige, null of ongeldige status betekent niet langer "uitgevoerde run" maar wordt aan de invoergrens (dict, legacy object, fabriek, adapter) `validation_unknown` met reden `contract_status_missing` / `contract_status_invalid`; een degraded result is `validation_unknown` met `validation_error`. `validation_readiness` is alleen bij `ruleset_incomplete` verplicht (alleen dan gemeten). Bij `validation_unknown` is `is_acceptable` altijd `false` en `overall_score` 0 of null. Conversies verzinnen geen geslaagde regels (de oude `BASIC-00x`-default vervalt) en maken van een `None`-score geen 0.0 (ook niet via de legacy-sleutel `score`). In de TypedDict-binding zijn de schemaverplichte velden `Required[...]` (`ValidationResult.__required_keys__` == `required`); een expliciet `source_assessment: null` reist bij conversie mee en een aanwezige ongeldige status wordt als `contract_status_invalid` (niet als ontbrekend) gemeld. `services.validation.types` voert geen eigen versie meer maar herexporteert dit contract; de fabriek normaliseert een afwezige/ongeldige status via de centrale statusbepaling (AC 1) en weigert alleen tegenstrijdige expliciete metadata (reden bij validated, expliciete unknown zonder contractuele reden, `ruleset_incomplete` zonder volledige readiness, readiness buiten de schemavorm); `is_valid_result` volgt de conditionele schema-eisen incl. de unknown-placeholders en de readinessvorm. Vorige versie gepind als `schemas/validation_result_v1.4.0.schema.json`. |
+| 1.4.0 | DEF-743: `source_assessment` (volledige AI-bronbeoordeling CON-02, of null) toegevoegd. Additief. |
+| 1.3.0 | DEF-622: `rule_results` toegevoegd; `overall_score` en categoriescores mogen `null` zijn (geen noemer zonder CON-01). Additief. |
+| 1.2.0 | DEF-621: `validation_status`, `unknown_reason` (`ruleset_incomplete`) en `validation_readiness` toegevoegd. Additief. |
 | 1.1.0 | DEF-624: `rule_statuses`, `evaluation_coverage` en `review_required` toegevoegd. Additief; geen veld verdwenen of van betekenis veranderd. `additionalProperties` blijft bewust `false` — een nieuw veld mag niet stil binnenglippen. |
 | 1.0.0 | Initieel contract. Gepind als `schemas/validation_result_v1.0.0.schema.json`. |
+
+### Runstatus (2.0.0)
+
+`validation_status` zegt uitsluitend of een producent werkelijk een run
+uitvoerde; het is niet de kwaliteitsuitkomst. Een fail, een open review
+(`review_required`) of een technische regelfout (`rule_statuses[...] = error`)
+blijft `validated`. Alleen `validated` opent een gate, bewaart een score of
+laat een hertoetsing als bewijs gelden; een `validation_unknown` draagt zijn
+regel- en bronuitkomsten uitsluitend ter uitleg mee.
 
 ## Versie Beheer
 

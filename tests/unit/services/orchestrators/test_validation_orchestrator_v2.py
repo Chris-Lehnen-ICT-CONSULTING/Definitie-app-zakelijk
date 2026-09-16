@@ -31,6 +31,8 @@ class TestValidationOrchestratorV2:
                 "version": CONTRACT_VERSION,
                 "overall_score": 0.95,
                 "is_acceptable": True,
+                # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                "validation_status": "validated",
                 "violations": [],
                 "passed_rules": ["RULE-001", "RULE-002"],
                 "detailed_scores": {
@@ -225,6 +227,8 @@ class TestValidationOrchestratorV2:
                 "version": CONTRACT_VERSION,
                 "overall_score": score,
                 "is_acceptable": True,
+                # DEF-624: het mock-resultaat staat voor een uitgevoerde run.
+                "validation_status": "validated",
                 "violations": [],
                 "passed_rules": [],
                 "detailed_scores": {},

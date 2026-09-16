@@ -240,10 +240,22 @@ def test_normalisatie_bewaart_status_delen_bewijs_dekking_en_geen_nul():
 @pytest.mark.parametrize("score", [None, "nvt"])
 def test_normalisatie_geeft_geen_cijfer_bij_none_of_onleesbaar(score):
     uit = normaliseer_validatieresultaat(
-        {"overall_score": score, "is_acceptable": True}
+        {
+            "overall_score": score,
+            "is_acceptable": True,
+            "validation_status": "validated",
+        }
     )
     assert uit["score"] is None
     assert uit["valid"] is True
+    # DEF-624: zonder runbewijs is het oordeel fail-closed False, en een
+    # niet-beschikbare of onleesbare score wordt ook dan geen 0.0.
+    zonder_run = normaliseer_validatieresultaat(
+        {"overall_score": score, "is_acceptable": True}
+    )
+    assert zonder_run["score"] is None
+    assert zonder_run["valid"] is False
+    assert zonder_run["validation_status"] == "validation_unknown"
 
 
 def test_normalisatie_neemt_geen_positief_oordeel_aan_zonder_sleutel():

@@ -1,13 +1,18 @@
 """
 Unified ValidationResult types for DEF-238.
 
-This module provides the single source of truth for validation result types,
-replacing the multiple inconsistent representations across the codebase.
+This module provides factory and normalisation helpers for validation results.
 
 Key Design Decisions:
 - TypedDict-based for JSON serialization compatibility and compile-time type safety
 - Schema-first approach aligned with validation_result.schema.json
-- VERSION 2.0.0 introduces acceptance_gate for establishment decision support
+- DEF-624: één contractdefinitie. `CONTRACT_VERSION`, `ValidationResult` en de
+  gedeelde deel-TypedDicts komen uit `services.validation.interfaces`; dit
+  bestand herexporteert ze (bestaande imports blijven werken) en voert geen
+  eigen, afwijkend versienummer meer. Elke uitvoer draagt een expliciete
+  runstatus; een conversie verzint nooit een run (`validated` komt alleen van
+  een producent die werkelijk evalueerde), geen geslaagde regels en geen nul
+  voor een niet-beschikbare score.
 - All factory functions guarantee schema compliance
 
 Migration Path:
@@ -28,13 +33,35 @@ from __future__ import annotations
 
 import logging
 import uuid
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any, Literal, NotRequired, cast
 
 from typing_extensions import TypedDict
 
-# Contract version - bump on breaking changes to schema
-CONTRACT_VERSION = "2.0.0"
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    UNKNOWN_REASON_RULESET_INCOMPLETE,
+    UNKNOWN_REASON_VALIDATION_ERROR,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
+    AcceptanceGate,
+    ProcessingTimings,
+    TextSpan,
+    UnknownReason,
+    ValidationReadinessDict,
+    ValidationResult,
+    ValidationStatus,
+    ViolationLocation,
+)
+from services.validation.result_contract import (
+    BEKENDE_REDENEN,
+    Runstatus,
+    bepaal_runstatus,
+    is_geldige_readiness,
+    met_expliciete_runstatus,
+    neem_contractvelden_over,
+)
 
 # Module logger
 logger = logging.getLogger(__name__)
@@ -65,28 +92,19 @@ GateStatus = Literal["pass", "blocked", "override_required"]
 # ==============================================================================
 # Supporting TypedDicts
 # ==============================================================================
-
-
-class TextSpan(TypedDict):
-    """Text span with start/end indices for locating violations."""
-
-    start: int  # 0-based character index
-    end: int  # 0-based character index (exclusive)
-
-
-class ViolationLocation(TypedDict, total=False):
-    """Location of a violation in text - all fields optional."""
-
-    text_span: NotRequired[TextSpan]
-    indices: NotRequired[list[int]]  # Alternative: list of character positions
-    line: NotRequired[int]  # 1-based line number
-    column: NotRequired[int]  # 1-based column number
+#
+# TextSpan, ViolationLocation, ProcessingTimings, AcceptanceGate en
+# ValidationResult zijn herexports van de canonieke binding in
+# services.validation.interfaces. De typen hieronder bestaan alleen hier:
+# strikter (verplichte sleutels) dan hun canonieke tegenhanger, voor de
+# fabrieken in dit bestand.
 
 
 class ViolationDict(TypedDict):
     """Single validation violation with full metadata.
 
-    Schema requires: code, severity, message, rule_id, category
+    Schema requires: code, severity, message, rule_id, category.
+    Strikte (total=True) variant van interfaces.RuleViolation.
     """
 
     # Required fields (per schema)
@@ -100,14 +118,6 @@ class ViolationDict(TypedDict):
     location: NotRequired[ViolationLocation]
     suggestions: NotRequired[list[str]]  # Possible fixes
     metadata: NotRequired[dict[str, Any]]  # Additional context
-
-
-class ProcessingTimings(TypedDict, total=False):
-    """Detailed timing breakdown for performance monitoring."""
-
-    cleaning_ms: NotRequired[int]
-    validation_ms: NotRequired[int]
-    enhancement_ms: NotRequired[int]
 
 
 class SystemMetadata(TypedDict):
@@ -129,12 +139,12 @@ class SystemMetadata(TypedDict):
 
 
 class CategoryScores(TypedDict, total=False):
-    """Score breakdown by validation category (0.0-1.0 each)."""
+    """Score breakdown by validation category (0.0-1.0 each, of None)."""
 
-    taal: float  # Language quality score
-    juridisch: float  # Legal compliance score
-    structuur: float  # Structural quality score
-    samenhang: float  # Coherence/consistency score
+    taal: float | None  # Language quality score
+    juridisch: float | None  # Legal compliance score
+    structuur: float | None  # Structural quality score
+    samenhang: float | None  # Coherence/consistency score
 
 
 class ImprovementSuggestion(TypedDict):
@@ -154,50 +164,6 @@ class ImprovementSuggestion(TypedDict):
     ]  # Expected impact on score (schema: low/medium/high)
 
 
-class AcceptanceGate(TypedDict, total=False):
-    """Acceptance gate evaluation for establishment decision.
-
-    New in VERSION 2.0.0 - supports establishment workflow.
-    """
-
-    status: GateStatus  # "pass" | "blocked" | "override_required"
-    acceptable: bool  # Whether definition meets minimum thresholds
-    gates_passed: list[str]  # List of passed gate identifiers
-    gates_failed: list[str]  # List of failed gate identifiers
-    reasons: list[str]  # Human-readable reasons for decision
-    thresholds: dict[str, float]  # Thresholds used for decision
-
-
-# ==============================================================================
-# Main ValidationResult Type
-# ==============================================================================
-
-
-class ValidationResult(TypedDict, total=False):
-    """Unified ValidationResult contract aligned with JSON Schema.
-
-    This is the single source of truth for validation results.
-    All required fields per validation_result.schema.json:
-    - version, overall_score, is_acceptable, violations,
-    - passed_rules, detailed_scores, system
-
-    VERSION 2.0.0 adds optional acceptance_gate for establishment support.
-    """
-
-    # Required fields (per schema)
-    version: str  # Contract version (SemVer pattern: \d+.\d+.\d+)
-    overall_score: float  # 0.0-1.0
-    is_acceptable: bool  # Whether validation passed minimum requirements
-    violations: list[ViolationDict]  # All validation violations
-    passed_rules: list[str]  # Rule IDs that passed
-    detailed_scores: CategoryScores  # Score breakdown by category
-    system: SystemMetadata  # System metadata
-
-    # Optional fields
-    improvement_suggestions: NotRequired[list[ImprovementSuggestion]]
-    acceptance_gate: NotRequired[AcceptanceGate]  # New in 2.0.0
-
-
 # ==============================================================================
 # Factory Functions
 # ==============================================================================
@@ -206,6 +172,8 @@ class ValidationResult(TypedDict, total=False):
 # Vereiste keys per ValidationResult JSON-schema. Wordt gebruikt door
 # _assert_validation_result_keys() om externe data (bv. uit Case 1 in
 # normalize_to_unified) lichtgewicht te valideren voordat we cast'en.
+# `validation_status` staat hier bewust niet bij: dat is de invoergrens
+# (afwezig -> validation_unknown), geen reden om de invoer te weigeren.
 _VALIDATION_RESULT_REQUIRED_KEYS = frozenset(
     {
         "version",
@@ -251,8 +219,18 @@ def _assert_validation_result_keys(data: dict[str, Any]) -> None:
         )
 
 
+def _scores_per_categorie(overall_score: float | None) -> CategoryScores:
+    """Afgeleide categoriescores; None blijft None (niet beschikbaar is geen nul)."""
+    return {
+        "taal": overall_score,
+        "juridisch": overall_score,
+        "structuur": overall_score,
+        "samenhang": overall_score,
+    }
+
+
 def create_validation_result(
-    overall_score: float,
+    overall_score: float | None,
     is_acceptable: bool,
     violations: list[ViolationDict] | None = None,
     passed_rules: list[str] | None = None,
@@ -263,11 +241,32 @@ def create_validation_result(
     duration_ms: int | None = None,
     improvement_suggestions: list[ImprovementSuggestion] | None = None,
     acceptance_gate: AcceptanceGate | None = None,
+    *,
+    validation_status: ValidationStatus | None = None,
+    unknown_reason: UnknownReason | None = None,
+    validation_readiness: ValidationReadinessDict | None = None,
 ) -> ValidationResult:
     """Create a new schema-compliant ValidationResult.
 
+    DEF-624: alleen een producent die werkelijk een run uitvoerde geeft
+    `validation_status=VALIDATION_STATUS_VALIDATED` mee. Zonder status
+    verzint de fabriek geen run: het resultaat is dan expliciet
+    `validation_unknown` (contract_status_missing), met `is_acceptable`
+    False en de fail-closed placeholder als score.
+
+    De status gaat door de centrale statusbepaling (AC 1): None/afwezig wordt
+    `validation_unknown` met `contract_status_missing`, een waarde buiten het
+    contract ("ok", True, 1, []) wordt `validation_unknown` met
+    `contract_status_invalid` - genormaliseerd, geen exception. Alleen
+    expliciet meegegeven, tegenstrijdige metadata wordt geweigerd
+    (ValueError): een reden bij `validated`, een expliciete
+    `validation_unknown` zonder contractuele reden, `ruleset_incomplete`
+    zonder (volledige) readiness, een readiness die niet de schemavorm heeft,
+    of een reden die de afgeleide reden tegenspreekt. De fabriek verzint
+    nooit een reden of een readiness.
+
     Args:
-        overall_score: Overall validation score (0.0-1.0)
+        overall_score: Overall validation score (0.0-1.0), of None (niet beschikbaar)
         is_acceptable: Whether the validation passed minimum requirements
         violations: List of validation violations (default: empty list)
         passed_rules: List of passed rule IDs (default: empty list)
@@ -277,10 +276,21 @@ def create_validation_result(
         profile_used: Validation profile name
         duration_ms: Total processing time in milliseconds
         improvement_suggestions: AI-powered improvement suggestions
-        acceptance_gate: Acceptance gate evaluation (VERSION 2.0.0)
+        acceptance_gate: Acceptance gate evaluation
+        validation_status: De runstatus van de producent (validated of
+            validation_unknown); None = geen run vastgelegd; een andere
+            waarde = ongeldig, wordt genormaliseerd tot validation_unknown.
+        unknown_reason: Verplicht bij een expliciete validation_unknown;
+            verboden bij validated; moet bij een afgeleide status (None of
+            ongeldig) gelijk zijn aan de afgeleide reden.
+        validation_readiness: Verplicht bij unknown_reason ruleset_incomplete;
+            als meegegeven altijd in de volledige schemavorm.
 
     Returns:
         Schema-compliant ValidationResult
+
+    Raises:
+        ValueError: bij expliciete metadata zonder schemageldige uitvoer.
 
     Example:
         result = create_validation_result(
@@ -294,6 +304,7 @@ def create_validation_result(
                 "category": "structuur",
             }],
             passed_rules=["BASIC-001", "BASIC-002"],
+            validation_status=VALIDATION_STATUS_VALIDATED,
         )
     """
     # Generate correlation_id if not provided
@@ -308,12 +319,7 @@ def create_validation_result(
 
     # Default detailed_scores based on overall_score
     if detailed_scores is None:
-        detailed_scores = {
-            "taal": overall_score,
-            "juridisch": overall_score,
-            "structuur": overall_score,
-            "samenhang": overall_score,
-        }
+        detailed_scores = _scores_per_categorie(overall_score)
 
     # Build system metadata
     system: SystemMetadata = {
@@ -327,19 +333,31 @@ def create_validation_result(
     if duration_ms is not None:
         system["duration_ms"] = duration_ms
 
-    # Build result.
-    # cast(CategoryScores, ...) is veilig: detailed_scores is in deze functie
-    # zelf gebouwd uit overall_score (een float) en heeft daardoor de CategoryScores-shape
-    # (`total=False` TypedDict accepteert optional float-keys). Geen externe data.
-    result: ValidationResult = {
+    # Build result. Opbouw als dict[str, Any]; de shape voldoet aan het
+    # canonieke TypedDict (strikte lokale deeltypen zijn subtypes daarvan).
+    result: dict[str, Any] = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,
         "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
-        "detailed_scores": cast("CategoryScores", detailed_scores),
+        "detailed_scores": detailed_scores,
         "system": system,
     }
+    if validation_status is not None:
+        # Ruw meegeven; de centrale statusbepaling (met_expliciete_runstatus)
+        # maakt afwezig/ongeldig hierna expliciet validation_unknown.
+        result["validation_status"] = validation_status
+    _controleer_expliciete_metadata(
+        validation_status,
+        bepaal_runstatus(result),
+        unknown_reason,
+        validation_readiness,
+    )
+    if unknown_reason is not None:
+        result["unknown_reason"] = unknown_reason
+    if validation_readiness is not None:
+        result["validation_readiness"] = validation_readiness
 
     # Add optional fields
     if improvement_suggestions:
@@ -347,7 +365,57 @@ def create_validation_result(
     if acceptance_gate:
         result["acceptance_gate"] = acceptance_gate
 
-    return result
+    return cast("ValidationResult", met_expliciete_runstatus(result))
+
+
+def _controleer_expliciete_metadata(
+    gegeven_status: Any,
+    runstatus: Runstatus,
+    unknown_reason: str | None,
+    validation_readiness: Mapping[str, Any] | None,
+) -> None:
+    """Weiger expliciete metadata waarvoor het schema geen geldige uitvoer kent.
+
+    De status zelf wordt nooit geweigerd (die is al centraal bepaald); alleen
+    wat de aanroeper er tegenstrijdig bij meegeeft.
+    """
+    if validation_readiness is not None and not is_geldige_readiness(
+        validation_readiness
+    ):
+        msg = (
+            "validation_readiness voldoet niet aan het contract: precies de "
+            "vijf velden ready, expected_total, loaded_total, missing_rule_ids, "
+            "unexpected_rule_ids met de juiste typen"
+        )
+        raise ValueError(msg)
+    if runstatus.uitgevoerd:
+        if unknown_reason is not None:
+            msg = "validated draagt geen unknown_reason"
+            raise ValueError(msg)
+        return
+    if gegeven_status == VALIDATION_STATUS_UNKNOWN:
+        # Expliciete unknown: de producent moet zelf een contractuele reden geven.
+        if unknown_reason not in BEKENDE_REDENEN:
+            msg = (
+                "validation_unknown vereist een contractuele unknown_reason "
+                f"({sorted(BEKENDE_REDENEN)}); kreeg {unknown_reason!r}"
+            )
+            raise ValueError(msg)
+        if (
+            unknown_reason == UNKNOWN_REASON_RULESET_INCOMPLETE
+            and validation_readiness is None
+        ):
+            msg = "ruleset_incomplete vereist de gemeten validation_readiness"
+            raise ValueError(msg)
+        return
+    # Afgeleide unknown (status None of ongeldig): de reden komt uit de
+    # statusbepaling; een afwijkende expliciete reden is tegenstrijdig.
+    if unknown_reason is not None and unknown_reason != runstatus.reason:
+        msg = (
+            f"unknown_reason {unknown_reason!r} spreekt de afgeleide reden "
+            f"{runstatus.reason!r} voor validation_status {gegeven_status!r} tegen"
+        )
+        raise ValueError(msg)
 
 
 def create_degraded_result(
@@ -360,7 +428,9 @@ def create_degraded_result(
 
     Used when validation cannot complete normally due to service errors,
     timeouts, or other operational failures. The result is schema-compliant
-    but indicates the error condition clearly.
+    but indicates the error condition clearly: een servicefout is geen
+    uitgevoerde run, dus `validation_unknown` met reden `validation_error`
+    (DEF-624).
 
     Args:
         error: Error message describing the failure
@@ -414,8 +484,10 @@ def create_degraded_result(
         "error": error,
     }
 
-    result: ValidationResult = {
+    result: dict[str, Any] = {
         "version": CONTRACT_VERSION,
+        "validation_status": VALIDATION_STATUS_UNKNOWN,
+        "unknown_reason": UNKNOWN_REASON_VALIDATION_ERROR,
         "overall_score": 0.0,
         "is_acceptable": False,
         "violations": [violation],
@@ -432,7 +504,7 @@ def create_degraded_result(
     if suggestions:
         result["improvement_suggestions"] = suggestions
 
-    return result
+    return cast("ValidationResult", result)
 
 
 def normalize_to_unified(
@@ -445,6 +517,11 @@ def normalize_to_unified(
     1. Dict with 'version' and 'system' keys (already schema-compliant)
     2. Dataclass ValidationResult (from services.interfaces)
     3. Legacy dicts without version/system structure
+
+    In alle gevallen draagt de uitvoer een expliciete runstatus (DEF-624):
+    zonder geldige `validation_status` in de bron is dat
+    `validation_unknown` (contract_status_missing/invalid). De bron wordt
+    niet gemuteerd.
 
     Args:
         result: Any validation result format
@@ -465,15 +542,20 @@ def normalize_to_unified(
     # Case 1: Already a schema-compliant dict
     if isinstance(result, dict) and "version" in result and "system" in result:
         # Make shallow copy to avoid mutating input
-        result = {**result}
+        uit: dict[str, Any] = {**result}
+        system = uit.get("system")
+        if not isinstance(system, dict):
+            system = {}
         # Ensure correlation_id is set (copy system dict too to avoid mutation)
-        if not result.get("system", {}).get("correlation_id"):
-            result["system"] = {**result.get("system", {})}
-            result["system"]["correlation_id"] = correlation_id or str(uuid.uuid4())
+        if not system.get("correlation_id"):
+            uit["system"] = {
+                **system,
+                "correlation_id": correlation_id or str(uuid.uuid4()),
+            }
         # Runtime validation: externe data — verifieer essentiële keys
         # voordat we cast'en, anders crasht downstream code laat.
-        _assert_validation_result_keys(result)
-        return cast("ValidationResult", result)
+        _assert_validation_result_keys(uit)
+        return cast("ValidationResult", met_expliciete_runstatus(uit))
 
     # Case 2: Dataclass with __dataclass_fields__
     if hasattr(result, "__dataclass_fields__"):
@@ -497,6 +579,18 @@ def normalize_to_unified(
 # ==============================================================================
 # Internal Conversion Helpers
 # ==============================================================================
+
+
+def _score_van(waarde: Any, *, aanwezig: bool) -> float | None:
+    """None blijft None; ontbrekend wordt de oude default 0.0."""
+    if not aanwezig:
+        return 0.0
+    if waarde is None:
+        return None
+    try:
+        return float(waarde)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def _convert_dataclass_to_unified(
@@ -580,25 +674,22 @@ def _convert_dataclass_to_unified(
                 suggestion["impact"] = s.impact
             improvement_suggestions.append(suggestion)
 
-    # Extract scores
-    overall_score = getattr(result, "score", 0.0)
-    if overall_score is None:
-        overall_score = 0.0
+    # Extract scores: None blijft None (DEF-622)
+    if hasattr(result, "score"):
+        overall_score = _score_van(result.score, aanwezig=True)
+    else:
+        overall_score = _score_van(
+            getattr(result, "overall_score", None),
+            aanwezig=hasattr(result, "overall_score"),
+        )
 
     # Detailed scores
     detailed_scores = getattr(result, "detailed_scores", None)
     if not detailed_scores:
-        detailed_scores = {
-            "taal": overall_score,
-            "juridisch": overall_score,
-            "structuur": overall_score,
-            "samenhang": overall_score,
-        }
+        detailed_scores = _scores_per_categorie(overall_score)
 
-    # Passed rules
-    passed_rules = getattr(result, "passed_rules", [])
-    if not passed_rules and not violations:
-        passed_rules = ["BASIC-001", "BASIC-002", "BASIC-003"]
+    # Passed rules: alleen wat de bron meldt; geen verzonnen BASIC-00x.
+    passed_rules = list(getattr(result, "passed_rules", None) or [])
 
     # Build system metadata
     system: SystemMetadata = {"correlation_id": correlation_id}
@@ -616,25 +707,31 @@ def _convert_dataclass_to_unified(
     if hasattr(result, "error") and result.error:
         system["error"] = str(result.error)
 
-    # Build final result
-    is_acceptable = getattr(result, "is_valid", overall_score >= 0.5)
+    # Build final result. Zonder totaalscore is er geen drempel (fail-closed).
+    if hasattr(result, "is_valid"):
+        is_acceptable = bool(result.is_valid)
+    elif hasattr(result, "is_acceptable"):
+        is_acceptable = bool(result.is_acceptable)
+    else:
+        is_acceptable = overall_score is not None and overall_score >= 0.5
 
-    # cast(CategoryScores, ...) veilig: detailed_scores is hier zelf gebouwd
-    # (geen externe bron) en past binnen het total=False TypedDict-contract.
-    unified: ValidationResult = {
+    unified: dict[str, Any] = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,
         "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
-        "detailed_scores": cast("CategoryScores", detailed_scores),
+        "detailed_scores": detailed_scores,
         "system": system,
     }
 
     if improvement_suggestions:
         unified["improvement_suggestions"] = improvement_suggestions
 
-    return unified
+    # DEF-624: contractvelden die de bron werkelijk draagt (ook een
+    # ongeldige status of een expliciete lege bronbeoordeling) reizen mee.
+    neem_contractvelden_over(unified, result)
+    return cast("ValidationResult", met_expliciete_runstatus(unified))
 
 
 def _convert_legacy_dict_to_unified(
@@ -649,14 +746,20 @@ def _convert_legacy_dict_to_unified(
     if not correlation_id:
         correlation_id = str(uuid.uuid4())
 
-    # Extract what we can from the dict
-    overall_score = result.get("score", result.get("overall_score", 0.0))
-    if overall_score is None:
-        overall_score = 0.0
+    # Extract what we can from the dict; None blijft None (DEF-622)
+    if "score" in result:
+        overall_score = _score_van(result["score"], aanwezig=True)
+    else:
+        overall_score = _score_van(
+            result.get("overall_score"), aanwezig="overall_score" in result
+        )
 
-    is_acceptable = result.get(
-        "is_valid", result.get("is_acceptable", overall_score >= 0.5)
-    )
+    if "is_valid" in result:
+        is_acceptable = bool(result["is_valid"])
+    elif "is_acceptable" in result:
+        is_acceptable = bool(result["is_acceptable"])
+    else:
+        is_acceptable = overall_score is not None and overall_score >= 0.5
 
     # Convert violations if present
     violations: list[ViolationDict] = []
@@ -703,17 +806,10 @@ def _convert_legacy_dict_to_unified(
     # Detailed scores
     detailed_scores = result.get("detailed_scores")
     if not detailed_scores:
-        detailed_scores = {
-            "taal": overall_score,
-            "juridisch": overall_score,
-            "structuur": overall_score,
-            "samenhang": overall_score,
-        }
+        detailed_scores = _scores_per_categorie(overall_score)
 
-    # Passed rules
-    passed_rules = result.get("passed_rules", [])
-    if not passed_rules and not violations:
-        passed_rules = ["BASIC-001", "BASIC-002", "BASIC-003"]
+    # Passed rules: alleen wat de bron meldt; geen verzonnen BASIC-00x.
+    passed_rules = list(result.get("passed_rules") or [])
 
     # System metadata
     system: SystemMetadata = {
@@ -721,15 +817,13 @@ def _convert_legacy_dict_to_unified(
         "timestamp": result.get("timestamp", datetime.now(UTC).isoformat()),
     }
 
-    # cast(CategoryScores, ...) veilig: detailed_scores is hier zelf gebouwd
-    # (geen externe bron) en past binnen het total=False TypedDict-contract.
-    unified: ValidationResult = {
+    unified: dict[str, Any] = {
         "version": CONTRACT_VERSION,
         "overall_score": overall_score,
         "is_acceptable": is_acceptable,
         "violations": violations,
         "passed_rules": passed_rules,
-        "detailed_scores": cast("CategoryScores", detailed_scores),
+        "detailed_scores": detailed_scores,
         "system": system,
     }
 
@@ -750,7 +844,9 @@ def _convert_legacy_dict_to_unified(
         if improvement_suggestions:
             unified["improvement_suggestions"] = improvement_suggestions
 
-    return unified
+    # DEF-624: zie _convert_dataclass_to_unified.
+    neem_contractvelden_over(unified, result)
+    return cast("ValidationResult", met_expliciete_runstatus(unified))
 
 
 # ==============================================================================
@@ -760,6 +856,17 @@ def _convert_legacy_dict_to_unified(
 
 def is_valid_result(result: Any) -> bool:
     """Check if a result is a valid schema-compliant ValidationResult.
+
+    Naast de verplichte sleutels en `system.correlation_id` eist de canonieke
+    vorm (2.0.0) een geldige `validation_status`, en volgt zij de
+    conditionele schema-eisen: `unknown_reason` verplicht (en contractueel)
+    bij validation_unknown, verboden bij validated; bij validation_unknown de
+    fail-closed placeholders (`is_acceptable` False, `overall_score` 0 of
+    None); `validation_readiness` verplicht bij ruleset_incomplete en, zodra
+    aanwezig, in de volledige schemavorm. Zo kan deze check niet True zeggen
+    waar het schema de status-/unknown-/readinessuitkomst weigert (DEF-624,
+    reviewbevinding 2 en deltareview). Lichtgewicht: overige value-types en
+    geneste structuren (violations, scores per categorie) blijven buiten scope.
 
     Args:
         result: Any object to check
@@ -783,9 +890,43 @@ def is_valid_result(result: Any) -> bool:
     if not required_fields.issubset(result.keys()):
         return False
 
+    status = result.get("validation_status")
+    if status not in (VALIDATION_STATUS_VALIDATED, VALIDATION_STATUS_UNKNOWN):
+        return False
+    # Dezelfde conditionele eisen als het schema (allOf): een reden alleen
+    # en verplicht bij unknown, de fail-closed placeholders bij unknown
+    # (is_acceptable false, overall_score 0 of null), readiness verplicht
+    # bij ruleset_incomplete en - zodra aanwezig - altijd in de schemavorm.
+    reden = result.get("unknown_reason")
+    if status == VALIDATION_STATUS_VALIDATED and "unknown_reason" in result:
+        return False
+    if status == VALIDATION_STATUS_UNKNOWN:
+        if reden not in BEKENDE_REDENEN:
+            return False
+        if result.get("is_acceptable") is not False:
+            return False
+        if not _is_unknown_placeholder(result.get("overall_score")):
+            return False
+        if (
+            reden == UNKNOWN_REASON_RULESET_INCOMPLETE
+            and "validation_readiness" not in result
+        ):
+            return False
+    if "validation_readiness" in result and not is_geldige_readiness(
+        result["validation_readiness"]
+    ):
+        return False
+
     # Check system has correlation_id
     system = result.get("system", {})
     return isinstance(system, dict) and "correlation_id" in system
+
+
+def _is_unknown_placeholder(score: Any) -> bool:
+    """Schema bij validation_unknown: overall_score is 0 (geen bool) of null."""
+    if score is None:
+        return True
+    return isinstance(score, int | float) and not isinstance(score, bool) and score == 0
 
 
 def get_blocking_violations(result: ValidationResult) -> list[ViolationDict]:
@@ -797,10 +938,16 @@ def get_blocking_violations(result: ValidationResult) -> list[ViolationDict]:
     Returns:
         List of error-severity violations
     """
-    return [v for v in result.get("violations", []) if v.get("severity") == "error"]
+    return [
+        cast("ViolationDict", v)
+        for v in result.get("violations", [])
+        if v.get("severity") == "error"
+    ]
 
 
-def get_category_score(result: ValidationResult, category: CategoryType) -> float:
+def get_category_score(
+    result: ValidationResult, category: CategoryType
+) -> float | None:
     """Get the score for a specific category.
 
     Args:
@@ -808,10 +955,18 @@ def get_category_score(result: ValidationResult, category: CategoryType) -> floa
         category: Category to get score for
 
     Returns:
-        Score for the category (0.0-1.0), defaults to overall_score if not found
+        Score for the category (0.0-1.0), of None wanneer niet beschikbaar;
+        defaults to overall_score if the category is not found.
     """
     scores = result.get("detailed_scores", {})
-    return cast("float", scores.get(category, result.get("overall_score", 0.0)))
+    if category in scores:
+        return scores[category]
+    return result.get("overall_score", 0.0)
+
+
+def is_uitgevoerde_run(result: Any) -> bool:
+    """Alleen een expliciete `validated` is een uitgevoerde run (DEF-624)."""
+    return bepaal_runstatus(result).uitgevoerd
 
 
 # ==============================================================================
@@ -839,6 +994,7 @@ __all__ = [
     "create_validation_result",
     "get_blocking_violations",
     "get_category_score",
+    "is_uitgevoerde_run",
     "is_valid_result",
     "normalize_to_unified",
 ]

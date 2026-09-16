@@ -61,12 +61,14 @@ def _dekkingstegel(agent_result: Any) -> str:
 
 
 def _validatie_is_onbepaald(agent_result: Any) -> bool:
-    """Of de validatie geen oordeel kon vormen (DEF-621).
+    """Of de validatie geen oordeel kon vormen (DEF-621/DEF-624).
 
     Bij een incomplete regelset levert de service `validation_unknown` met
     `overall_score` 0.0 en `is_acceptable` False. Dat zijn fail-closed
     placeholders, geen kwaliteitsoordeel: er is niets getoetst. Elke
     weergave die die nullen als cijfer toont, liegt tegen de gebruiker.
+    DEF-624: ook een resultaat zónder geldige status is geen uitgevoerde
+    run en telt als onbepaald.
 
     De status komt uit het genormaliseerde `validation_details`; dat is het
     enige validatiedict dat deze tab van de adapter krijgt. Bewust een
@@ -76,14 +78,14 @@ def _validatie_is_onbepaald(agent_result: Any) -> bool:
     De import staat lokaal omdat `services` bij het laden het hele
     servicepakket meetrekt; deze module hoort licht importeerbaar te blijven.
     """
-    from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+    from services.validation.result_contract import is_uitgevoerde_run
 
     if not isinstance(agent_result, dict):
         return False
     details = agent_result.get("validation_details")
     if not isinstance(details, dict):
         return False
-    return details.get("validation_status") == VALIDATION_STATUS_UNKNOWN
+    return not is_uitgevoerde_run(details)
 
 
 class DefinitionGeneratorTab:

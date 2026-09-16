@@ -713,6 +713,9 @@ class TestUIVolgtDePrimaireUitkomst:
 
     def test_geen_groene_gate_bij_onacceptabel_resultaat(self):
         resultaat = {
+            # DEF-624: een uitgevoerde run; zonder status stopt de weergave
+            # al vóór de gate en bewijst deze test niets over de gate-logica.
+            "validation_status": "validated",
             "overall_score": 0.81,
             "is_acceptable": False,
             "violations": [],
@@ -737,6 +740,7 @@ class TestUIVolgtDePrimaireUitkomst:
     def test_wel_groen_bij_acceptabel_resultaat(self):
         """Tegenhanger: de melding mag niet altijd wegvallen."""
         resultaat = {
+            "validation_status": "validated",  # DEF-624: uitgevoerde run
             "overall_score": 0.90,
             "is_acceptable": True,
             "violations": [],

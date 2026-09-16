@@ -10,7 +10,7 @@ Definieert het contract voor alle ValidationOrchestrator implementaties met:
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, Literal, NotRequired
+from typing import Any, Final, Literal, NotRequired, Required
 from uuid import UUID
 
 from typing_extensions import TypedDict
@@ -43,25 +43,59 @@ from services.interfaces import Definition
 # heeft verkregen, of null wanneer er geen AI-beoordeling was (geen bronnen).
 # Zo kan een aanroeper haar bewaren zonder tweede modelaanroep. SemVer-minor:
 # geen veld is verdwenen of van betekenis veranderd.
-CONTRACT_VERSION = "1.4.0"
+#
+# 2.0.0 (DEF-624): de betekenis van een AFWEZIGE validation_status is
+# veranderd, en dat is een SemVer-major. Tot 1.4.0 declareerde het schema
+# `default: validated`: een resultaat zonder status gold als uitgevoerde run.
+# Vanaf 2.0.0 is validation_status verplicht in de canonieke uitvoervorm en
+# geldt aan de invoergrens (dict, legacy object, fabriek): afwezig, null of
+# ongeldig = validation_unknown met een concrete contractreden
+# (contract_status_missing / contract_status_invalid). Legacy-invoer blijft
+# leesbaar - zij wordt genormaliseerd, niet afgewezen - maar levert nooit
+# meer een oordeel op. Een servicefout (degraded) is eveneens expliciet
+# validation_unknown (validation_error). Geen veld is verdwenen; het vorige
+# contract blijft gepind als validation_result_v1.4.0.schema.json. Dit
+# nummer vervangt tevens de niet-canonieke "2.0.0" die services.validation.
+# types eerder los van dit bestand voerde; types importeert de versie nu
+# vanaf hier.
+CONTRACT_VERSION = "2.0.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
 # "validated"          - er is werkelijk geevalueerd; overall_score en
-#                        is_acceptable dragen een inhoudelijk oordeel.
-# "validation_unknown" - de regelset dekt het contract niet, dus er is niet
-#                        geevalueerd. Dit is technisch niet betrouwbaar te
-#                        bepalen, niet inhoudelijk invalid.
-VALIDATION_STATUS_VALIDATED = "validated"
-VALIDATION_STATUS_UNKNOWN = "validation_unknown"
+#                        is_acceptable dragen een inhoudelijk oordeel. Alleen
+#                        een producent die werkelijk een run uitvoerde zet
+#                        deze waarde; een conversie verzint nooit een run.
+# "validation_unknown" - er is geen betrouwbaar uitgevoerde run: de regelset
+#                        dekt het contract niet, de status ontbreekt of is
+#                        ongeldig, of de service faalde. Dit is technisch
+#                        niet te bepalen, niet inhoudelijk invalid.
+VALIDATION_STATUS_VALIDATED: Final = "validated"
+VALIDATION_STATUS_UNKNOWN: Final = "validation_unknown"
 ValidationStatus = Literal["validated", "validation_unknown"]
 
-# Machineleesbare reden bij validation_unknown. Bewust een enkele waarde:
-# een consumer moet erop kunnen matchen. De onderliggende oorzaak
-# (ontbrekende regelbestanden, onleesbare root-SSOT, mislukte lader) hoort
-# in het log.
-UNKNOWN_REASON_RULESET_INCOMPLETE = "ruleset_incomplete"
-UnknownReason = Literal["ruleset_incomplete"]
+# Machineleesbare reden bij validation_unknown. Een consumer moet erop
+# kunnen matchen; de onderliggende oorzaak (ontbrekende regelbestanden,
+# onleesbare root-SSOT, mislukte lader, de exacte exceptie) hoort in het log.
+#
+# ruleset_incomplete       - de geladen regelset dekt het contract niet
+#                            (DEF-621); validation_readiness is dan aanwezig.
+# contract_status_missing  - het resultaat droeg geen (of null) status; er is
+#                            geen run vastgelegd (DEF-624). Geen readiness:
+#                            die is niet gemeten en wordt niet verzonnen.
+# contract_status_invalid  - het resultaat droeg een waarde buiten het
+#                            contract (DEF-624).
+# validation_error         - de validatieservice faalde; degraded result.
+UNKNOWN_REASON_RULESET_INCOMPLETE: Final = "ruleset_incomplete"
+UNKNOWN_REASON_CONTRACT_STATUS_MISSING: Final = "contract_status_missing"
+UNKNOWN_REASON_CONTRACT_STATUS_INVALID: Final = "contract_status_invalid"
+UNKNOWN_REASON_VALIDATION_ERROR: Final = "validation_error"
+UnknownReason = Literal[
+    "ruleset_incomplete",
+    "contract_status_missing",
+    "contract_status_invalid",
+    "validation_error",
+]
 
 # Uitkomst van één regelevaluatie. Alleen "pass" en "fail" zijn werkelijk
 # uitgevoerde, betrouwbare beoordelingen; uitsluitend die twee beïnvloeden
@@ -72,19 +106,33 @@ RuleResultStatus = Literal["pass", "fail", "review_required", "not_evaluated", "
 class ValidationResult(TypedDict, total=False):
     """ValidationResult contract gebonden aan JSON Schema.
 
-    Alle verplichte velden conform validation_result.schema.json.
-    Gebruikt TypedDict voor compile-time type safety zonder runtime overhead.
+    Alle verplichte velden conform validation_result.schema.json staan als
+    `Required[...]` gemarkeerd (DEF-624): `ValidationResult.__required_keys__`
+    is exact de `required`-lijst van het schema, zodat de binding geen
+    ontbrekend verplicht veld accepteert dat het schema weigert. De overige
+    velden zijn optioneel (`total=False`). Legacy-invoer zonder deze velden
+    wordt niet hier maar aan de conversiegrens (mappers/types/adapter)
+    genormaliseerd. Gebruikt TypedDict voor compile-time type safety zonder
+    runtime overhead.
     """
 
     # Required fields
-    version: str
+    version: Required[str]
     # 0.0-1.0, of None wanneer de totaalscore niet beschikbaar is (DEF-622).
-    overall_score: float | None
-    is_acceptable: bool
-    violations: list["RuleViolation"]
-    passed_rules: list[str]
-    detailed_scores: dict[str, float | None]  # category -> score (of None)
-    system: "SystemMetadata"
+    overall_score: Required[float | None]
+    is_acceptable: Required[bool]
+    violations: Required[list["RuleViolation"]]
+    passed_rules: Required[list[str]]
+    # category -> score (of None)
+    detailed_scores: Required[dict[str, float | None]]
+    system: Required["SystemMetadata"]
+    # DEF-624 (2.0.0): verplicht in de canonieke uitvoervorm. Bij
+    # validation_unknown is er niet (betrouwbaar) geevalueerd; overall_score
+    # en is_acceptable zijn dan uitsluitend fail-closed placeholders (0.0 of
+    # None respectievelijk False) en geen kwaliteitsoordeel. Aan de
+    # invoergrens wordt een afwezige, null of ongeldige status door
+    # services.validation.result_contract tot validation_unknown gemaakt.
+    validation_status: Required[ValidationStatus]
 
     # Optional fields
     improvement_suggestions: NotRequired[list["ImprovementSuggestion"]]
@@ -106,11 +154,9 @@ class ValidationResult(TypedDict, total=False):
     # domain.sources.contract), of None zonder AI-beoordeling.
     source_assessment: NotRequired[dict[str, Any] | None]
 
-    # DEF-621: bij validation_unknown is er niet geevalueerd.
-    # overall_score en is_acceptable blijven aanwezig voor
-    # compatibiliteit, maar zijn dan uitsluitend fail-closed
-    # placeholders (0.0 respectievelijk False) en geen kwaliteitsoordeel.
-    validation_status: NotRequired[ValidationStatus]
+    # DEF-621/DEF-624: verplicht bij validation_unknown; validation_readiness
+    # alleen bij unknown_reason ruleset_incomplete (de enige reden waarbij
+    # werkelijk een readiness is gemeten).
     unknown_reason: NotRequired[UnknownReason]
     validation_readiness: NotRequired["ValidationReadinessDict"]
 
@@ -253,7 +299,7 @@ class ImprovementSuggestion(TypedDict, total=False):
 class SystemMetadata(TypedDict, total=False):
     """System metadata met verplichte correlation_id."""
 
-    correlation_id: str  # UUID format, required per schema
+    correlation_id: Required[str]  # UUID format, required per schema
     engine_version: NotRequired[str]
     profile_used: NotRequired[str]
     timestamp: NotRequired[str]  # ISO 8601

@@ -453,7 +453,17 @@ class ExportService:
             except Exception as e:  # pragma: no cover - defensive
                 msg = f"Validatie mislukt vóór export: {e!s}"
                 raise ValueError(msg) from e
-            if not isinstance(result, dict) or not result.get("is_acceptable", False):
+            # DEF-624: alleen een uitgevoerde run (`validated`) kan de gate
+            # openen; een resultaat zonder geldige status is geen runbewijs,
+            # ongeacht `is_acceptable`. Welke voorwaarden de gate verder
+            # stelt blijft DEF-630.
+            from services.validation.result_contract import is_uitgevoerde_run
+
+            if (
+                not isinstance(result, dict)
+                or not is_uitgevoerde_run(result)
+                or not result.get("is_acceptable", False)
+            ):
                 msg = "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
                 raise ValueError(msg)
 
