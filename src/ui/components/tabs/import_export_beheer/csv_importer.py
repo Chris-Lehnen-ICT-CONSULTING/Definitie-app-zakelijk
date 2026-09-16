@@ -15,6 +15,8 @@ from typing import TYPE_CHECKING, Protocol
 import pandas as pd
 import streamlit as st
 
+from ui.helpers.categorie_weergave import STANDAARD_CATEGORIEEN, is_opslagcategorie
+
 if TYPE_CHECKING:
     from database.definitie_repository import DefinitieRepository
 
@@ -45,6 +47,32 @@ _MAX_FILE_SIZE_BYTES = _MAX_FILE_SIZE_MB * 1024 * 1024
 _MAX_FIELD_LENGTH = 10_000
 
 logger = logging.getLogger(__name__)
+
+# DEF-751: de opslag (CHECK op `definities.categorie`) kent geen "geen
+# categorie" en geen vrije tekst. Een rij zonder of met een niet-opslagbare
+# categorie wordt daarom gemeld en overgeslagen — als technische grens van
+# het huidige schema, niet als inhoudelijk oordeel over de definitie. Er
+# wordt niets verzonnen (vóór B1 kreeg zo'n rij stil "Type" mee, wat op de
+# CHECK strandde met een cryptische melding). Labelvrij opslaan mét herkomst
+# is een openstaande schemavraag (DEF-751 B2).
+_CATEGORIE_TECHNISCHE_GRENS = (
+    "de definitie zelf is niet inhoudelijk beoordeeld of afgekeurd, maar de "
+    "opslag kan een definitie zonder geldige categorie nog niet bewaren. "
+    f"Geldige waarden: {', '.join(STANDAARD_CATEGORIEEN)} "
+    "(of een bestaande opslagcode zoals ENT/ACT/REL/ATT/AUT/STA/OTH)."
+)
+
+
+def _categorie_probleem(categorie: str) -> str | None:
+    """Reden waarom deze categoriewaarde niet opgeslagen kan worden, of None."""
+    if not categorie:
+        return f"categorie ontbreekt; {_CATEGORIE_TECHNISCHE_GRENS}"
+    if not is_opslagcategorie(categorie):
+        return (
+            f"categorie '{categorie}' is geen opslagwaarde (hoofdlettergevoelig); "
+            f"{_CATEGORIE_TECHNISCHE_GRENS}"
+        )
+    return None
 
 
 def _cell_str(value: object) -> str:
@@ -205,7 +233,14 @@ class CSVImporter:
                 definitie = definitie[:_MAX_FIELD_LENGTH]
 
                 context = _cell_str(row.get("context", "")) or "Algemeen"
-                categorie = _cell_str(row.get("categorie", "")) or "Type"
+                # DEF-751: geen default en geen omzetting; melden en overslaan.
+                categorie = _cell_str(row.get("categorie", ""))
+                categorie_probleem = _categorie_probleem(categorie)
+                if categorie_probleem:
+                    errors.append(
+                        f"Rij {idx + 1}: niet opgeslagen — {categorie_probleem}"
+                    )
+                    continue
 
                 # Check duplicaat
                 if skip_duplicates:

@@ -92,6 +92,26 @@ def get_provider_label(provider: str) -> str:
     return labels.get(provider, provider.replace("_", " ").title())
 
 
+# DEF-751: de elf opslagwaarden uit de CHECK-constraint op `definities.categorie`
+# (schema.sql) met hun weergavenaam — gedeelde bron voor weergave én voor de
+# vraag of een waarde überhaupt opgeslagen kan worden (categorie_weergave.py).
+CATEGORY_DISPLAY_NAMES: dict[str, str] = {
+    # Ontological categories
+    "type": "Type/Klasse",
+    "proces": "Proces/Activiteit",
+    "resultaat": "Resultaat/Uitkomst",
+    "exemplaar": "Exemplaar/Instantie",
+    # UFO categories
+    "ENT": "Entiteit",
+    "ACT": "Activiteit",
+    "REL": "Relatie",
+    "ATT": "Attribuut",
+    "AUT": "Autorisatie",
+    "STA": "Status",
+    "OTH": "Overig",
+}
+
+
 def get_category_display_name(category: str) -> str:
     """Get user-friendly display name for ontological/UFO category.
 
@@ -101,22 +121,7 @@ def get_category_display_name(category: str) -> str:
     Returns:
         Display name with emoji (e.g., 'Type/Klasse', 'Entiteit')
     """
-    category_names = {
-        # Ontological categories
-        "type": "Type/Klasse",
-        "proces": "Proces/Activiteit",
-        "resultaat": "Resultaat/Uitkomst",
-        "exemplaar": "Exemplaar/Instantie",
-        # UFO categories
-        "ENT": "Entiteit",
-        "ACT": "Activiteit",
-        "REL": "Relatie",
-        "ATT": "Attribuut",
-        "AUT": "Autorisatie",
-        "STA": "Status",
-        "OTH": "Overig",
-    }
-    return category_names.get(category, category)
+    return CATEGORY_DISPLAY_NAMES.get(category, category)
 
 
 def extract_definition_from_result(generation_result: dict[str, Any]) -> str:
