@@ -244,12 +244,103 @@ async def test_onvoldoende_grond_blijft_binnen_het_uitvoercontract(category):
     assert prompt.count("zonder melding, toelichting of tweede lezing in de zin") == 2
     assert prompt.count("vermeng de betekenislagen niet als alternatief") == 2
     assert "verzin geen context, bron, identiteit of expertbesluit" in prompt
-    assert "de ESS-02-beoordeling blijft dan nog te beoordelen" in prompt
+    assert "ESS-02 blijft dan nog te beoordelen" in prompt
     # ESS-01 (DEF-746) ongewijzigd naast deze correctie.
     assert "hoogstens een herkenbaar voorlopig voorstel" in prompt
     assert (
         "voeg grond, onzekerheid of toelichting niet toe aan de definitiekern" in prompt
     )
+
+
+#: Twee documentbronnen die voor hetzelfde begrip en domein een tegengestelde
+#: betekenislaag geven (activiteit versus uitsluitend de uitkomst): een
+#: werkelijk betekenisconflict in de zin van besluit C3.
+CONFLICTBRONNEN = [
+    {
+        "provider": "documents",
+        "doc_id": "doc-activiteit",
+        "filename": "handboek.txt",
+        "title": "handboek.txt",
+        "snippet": (
+            "Registratie is de activiteit waarbij meetwaarden in het register "
+            "worden vastgelegd."
+        ),
+        "score": 1.0,
+        "selection_basis": "term_match",
+    },
+    {
+        "provider": "documents",
+        "doc_id": "doc-uitkomst",
+        "filename": "besluit.txt",
+        "title": "besluit.txt",
+        "snippet": (
+            "Onder registratie wordt uitsluitend de uitkomst verstaan: de in het "
+            "register vastgelegde meetwaarden."
+        ),
+        "score": 1.0,
+        "selection_basis": "term_match",
+    },
+]
+
+#: De vroegere onvoorwaardelijke kandidaatplicht (tweede Codex-P2).
+ONVOORWAARDELIJKE_KANDIDAATPLICHT = (
+    "Bij onvoldoende grond voor een noodzakelijke betekeniskeuze: verzin geen"
+)
+
+
+@pytest.mark.parametrize("category", ["proces", None])
+async def test_werkelijke_tegenspraak_kent_geen_onvoorwaardelijke_kandidaatplicht(
+    category,
+):
+    """Tweede Codex-P2 (DEF-750): C3 blijft voorwaarde bij werkelijk conflict.
+
+    Twee tegengestelde bronnen bereiken aantoonbaar de echte eindprompt. De
+    aanwijzing mag dan niet onvoorwaardelijk één voorlopig gekozen lezing
+    vragen: onvoldoende grond zónder tegenspraak (kandidaat toegestaan) en
+    werkelijke tegenspraak (eerst verduidelijken; geen model- of
+    standaardkeuze als bevestiging) zijn twee gevallen. De instructie is
+    statisch — het model beoordeelt zelf of er tegenspraak is — en een actieve
+    verduidelijkingsroute bestaat in het enkelvoudige uitvoercontract niet;
+    dat is een gedocumenteerde open contractgrens, geen claim van oplossing.
+    """
+    request = GenerationRequest(
+        id=f"def750-p2b-{category}",
+        begrip="registratie",
+        ontologische_categorie=category,
+        organisatorische_context=["DJI"],
+        actor="test_user",
+    )
+    result = await PromptServiceV2().build_generation_prompt(
+        request,
+        context={
+            "documents": {
+                "snippets": CONFLICTBRONNEN,
+                "selected_ids": [b["doc_id"] for b in CONFLICTBRONNEN],
+            }
+        },
+    )
+    prompt = result.text
+    # Beide bronnen staan werkelijk in de prompt (CON-02-bronblok intact).
+    assert result.metadata["source_receipt"]["status"] == "used"
+    for bron in CONFLICTBRONNEN:
+        assert bron["snippet"] in prompt
+    assert "BRONNEN INSTRUCTIE (CON-02)" in prompt
+    # Geen onvoorwaardelijke kandidaatplicht meer.
+    assert ONVOORWAARDELIJKE_KANDIDAATPLICHT not in prompt
+    # Beide gevallen staan onderscheiden op elke ESS-02-plaats (regelkaart én
+    # betekenislaagsectie delen de aanwijzing).
+    assert prompt.count("zonder werkelijke tegenspraak") == 2
+    assert prompt.count("Bij werkelijke tegenspraak") == 2
+    assert prompt.count("eerst worden verduidelijkt") == 2
+    assert prompt.count("kies niet stil") == 2
+    assert prompt.count("geldt niet als bevestiging") == 2
+    # De kandidaat wordt uitsluitend in het geval zonder tegenspraak gevraagd.
+    delen = prompt.split("geef één voorlopige kandidaat")
+    assert len(delen) == 3
+    for voorafgaand in delen[:-1]:
+        assert "zonder werkelijke tegenspraak" in voorafgaand[-400:]
+    # ESS-01 (DEF-746) ongewijzigd.
+    assert "hoogstens een herkenbaar voorlopig voorstel" in prompt
 
 
 def test_parser_blijft_tolerant_voor_oude_markerregels():

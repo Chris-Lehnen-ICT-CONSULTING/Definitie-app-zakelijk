@@ -318,7 +318,7 @@ Formuleer nu de definitie van het begrip in dit datablok:
         """
         return """---
 
-📋 **Categorie is metadata:** een afzonderlijk categorielabel hoort niet bij de definitiezin. Het opgegeven label is een voorstel en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
+📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
 
     def _build_final_instruction(self, begrip: str) -> str:
         """Bouw finale definitie instructie."""

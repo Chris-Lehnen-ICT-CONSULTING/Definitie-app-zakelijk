@@ -141,13 +141,11 @@ class SemanticCategorisationModule(BasePromptModule):
         base_section = f"""### 📐 Betekenislaag (ESS-02 - betekenisniveau en aard):
 {GEDEELDE_ESS02_AANWIJZING}
 
-Praktische richtingen (hulpmiddelen; zij overlappen en sluiten elkaar niet uit):
+Praktische richtingen (hulpmiddelen, overlappend, niet exclusief):
 • TYPE — algemeen begrip; benoem een passend genus (bijv. "document dat informatie over één behandeld onderwerp vastlegt")
-• PROCES — activiteit als kern; waar nodig algemeen begrip onderscheiden van één bepaald voorval (bijv. "activiteit waarbij meetwaarden in een register worden vastgelegd")
+• PROCES — activiteit als kern; algemeen begrip of één bepaald voorval (bijv. "activiteit waarbij meetwaarden in een register worden vastgelegd")
 • RESULTAAT — uitkomst als kern; relevante ontstaansrelatie behouden (bijv. "resultaat van het vastleggen van meetwaarden in een register")
-• EXEMPLAAR — één bepaald ding, ook abstract, of voorval; gegeven identificatie en aard behouden (bijv. "meting met identificatie M-17 die op 16 september 2026 om 10:00 is uitgevoerd aan sensor S-4")
-
-Start niet met 'is een' of een ander koppelwerkwoord (ARAI-06); de kick-off is een zelfstandig naamwoord of naamwoordgroep."""
+• EXEMPLAAR — één bepaald ding, ook abstract, of voorval; gegeven identificatie en aard behouden (bijv. "meting M-17 van 16 september 2026 aan sensor S-4")"""
 
         # Voeg category-specific guidance toe indien beschikbaar
         if categorie and self.detailed_guidance_enabled:
@@ -184,10 +182,9 @@ Start niet met 'is een' of een ander koppelwerkwoord (ARAI-06); de kick-off is e
         category_guidance_map = {
             "proces": """**PROCES — activiteit als kern:**
 
-De kick-off is een handelingsnaamwoord ('activiteit', 'handeling', 'proces', 'meting'), geen werkwoord
-(STR-01, ARAI-01). Onderscheid waar nodig het algemene begrip (elke registratie) van één bepaald voorval
-(de registratie van 16 september 2026 aan sensor S-4). Een activiteit mag haar uitkomst noemen
-("... en die leidt tot een resultaat in een register") zonder een uitkomstbegrip te worden.
+De kick-off is een handelingsnaamwoord ('activiteit', 'handeling', 'proces'), geen werkwoord (STR-01, ARAI-01).
+Onderscheid waar nodig het algemene begrip van één bepaald voorval. Een activiteit mag haar uitkomst noemen
+zonder een uitkomstbegrip te worden.
 
 Bijvoorbeeld:
 - 'activiteit waarbij...' → wat er gebeurt
