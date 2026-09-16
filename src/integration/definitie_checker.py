@@ -67,20 +67,19 @@ def _opslaanbare_validatiescore(
 
     De discriminator komt uitsluitend uit het geneste `validation_details`;
     de top-level score draagt hem niet, want dat is de placeholder zelf.
+    DEF-624: ook een ontbrekende of ongeldige status is geen runbewijs; een
+    score uit zo'n resultaat wordt niet als oordeel bewaard.
 
     `standaard` houdt het bestaande gedrag per route intact: de generatieroute
     slaat een ontbrekende score op als `None`, de updateroute als 0.0.
     """
-    from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+    from services.validation.result_contract import is_uitgevoerde_run
 
     if not isinstance(integrated_result, dict):
         return standaard
 
     details = integrated_result.get("validation_details")
-    if (
-        isinstance(details, dict)
-        and details.get("validation_status") == VALIDATION_STATUS_UNKNOWN
-    ):
+    if not isinstance(details, dict) or not is_uitgevoerde_run(details):
         return None
 
     if "final_score" in integrated_result and integrated_result["final_score"] is None:
@@ -759,12 +758,8 @@ def generate_or_retrieve_definition(
                     or ""
                 )
 
-                # Derive validation score from canonical fields
-                final_score = integrated_result.get("final_score")
-                if final_score is None:
-                    vd = integrated_result.get("validation_details") or {}
-                    final_score = vd.get("overall_score")
-
+                # DEF-624: dezelfde grens als de twee levende routes - geen
+                # score bewaren uit een resultaat zonder runbewijs.
                 record = DefinitieRecord(
                     begrip=begrip,
                     definitie=definitie_text,
@@ -772,9 +767,7 @@ def generate_or_retrieve_definition(
                     organisatorische_context=organisatorische_context,
                     juridische_context=juridische_context,
                     status=DefinitieStatus.REVIEW.value,
-                    validation_score=(
-                        float(final_score) if final_score is not None else None
-                    ),
+                    validation_score=_opslaanbare_validatiescore(integrated_result),
                     source_type=SourceType.GENERATED.value,
                     source_reference="IntegratedService_V2",
                     created_by=created_by or "integrated_service",

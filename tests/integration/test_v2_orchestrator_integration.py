@@ -83,9 +83,13 @@ def validatieresultaat(
     overall_score: float,
     violations: tuple[dict[str, str], ...] = (),
 ) -> ValidationResult:
-    """Schema-conform resultaat volgens het actieve TypedDict-contract."""
+    """Schema-conform resultaat volgens het actieve TypedDict-contract.
+
+    DEF-624: het dubbel staat voor een uitgevoerde run en zegt dat expliciet.
+    """
     resultaat: ValidationResult = {
         "version": CONTRACT_VERSION,
+        "validation_status": "validated",
         "overall_score": overall_score,
         "is_acceptable": is_acceptable,
         "violations": [dict(v) for v in violations],

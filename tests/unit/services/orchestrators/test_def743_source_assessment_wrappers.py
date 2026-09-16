@@ -131,7 +131,9 @@ async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
     assert result["source_assessment"]["fingerprint"] == bereken_bronvingerafdruk(
         BEGRIP, TEKST, CONTEXT, [BRON], peildatum="2026-09-15"
     )
-    assert result["version"] == CONTRACT_VERSION == "1.4.0"
+    # DEF-624: 2.0.0 (validation_status verplicht, geen default); de
+    # bronbeoordeling (1.4.0-veld) reist ongewijzigd mee.
+    assert result["version"] == CONTRACT_VERSION == "2.0.0"
 
 
 async def test_aanroeper_beoordeling_is_nooit_een_kortere_weg():

@@ -18,6 +18,12 @@ pytestmark = [pytest.mark.contract]
 
 
 def test_dataclass_to_schema_minimal_maps_core_fields():
+    """DEF-624: de legacy dataclass draagt geen runbewijs.
+
+    De conversie levert `validation_unknown` (contract_status_missing) met de
+    fail-closed placeholders, en verzint geen geslaagde regels meer: de oude
+    `DEFAULT_PASSED_RULES` blijft alleen als naam importeerbaar.
+    """
     dc = DCValidationResult(is_valid=True, definition_text="txt", score=0.8)
     mapped = dataclass_to_schema_dict(
         dc, correlation_id="00000000-0000-0000-0000-000000000000"
@@ -25,11 +31,14 @@ def test_dataclass_to_schema_minimal_maps_core_fields():
 
     assert isinstance(mapped, dict)
     assert mapped["version"] == CONTRACT_VERSION
-    assert mapped["overall_score"] == 0.8
-    assert mapped["is_acceptable"] is True
+    assert mapped["validation_status"] == "validation_unknown"
+    assert mapped["unknown_reason"] == "contract_status_missing"
+    assert mapped["overall_score"] == 0.0
+    assert mapped["is_acceptable"] is False
     assert mapped["system"]["correlation_id"]
-    # No violations -> defaults to passed rules list
-    assert mapped["passed_rules"] == DEFAULT_PASSED_RULES
+    # No violations -> nog steeds geen verzonnen passed rules
+    assert mapped["passed_rules"] == []
+    assert DEFAULT_PASSED_RULES == ["BASIC-001", "BASIC-002", "BASIC-003"]
 
 
 def test_violation_mapping_and_defaults():

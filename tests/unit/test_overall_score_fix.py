@@ -34,12 +34,19 @@ def test_normalize_validation_always_includes_overall_score():
     # DEF-622 (contract 1.3.0): een expliciete None ("totaalscore niet
     # beschikbaar", regel zonder cijfer) blijft None — nooit een impliciete
     # 0.0. De overige gevallen blijven numeriek en onderscheidend.
+    # DEF-624: alleen een uitgevoerde run (`validated`) draagt de score door;
+    # zonder status is 0.75 geen oordeel en wordt het de fail-closed placeholder.
     test_cases = [
         (None, "None input", 0.0),
         ({}, "Empty dict", 0.0),
         ({"violations": []}, "Dict without overall_score", 0.0),
         ({"overall_score": None}, "Dict with None overall_score", None),
-        ({"overall_score": 0.75}, "Dict with valid overall_score", 0.75),
+        (
+            {"overall_score": 0.75, "validation_status": "validated"},
+            "Dict with valid overall_score",
+            0.75,
+        ),
+        ({"overall_score": 0.75}, "Dict with score but no run status", 0.0),
     ]
 
     for input_val, description, verwacht in test_cases:

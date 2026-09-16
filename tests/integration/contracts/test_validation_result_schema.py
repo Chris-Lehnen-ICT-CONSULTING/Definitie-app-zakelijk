@@ -202,6 +202,7 @@ def test_onbekend_veld_wordt_nog_steeds_geweigerd():
 
     instantie = {
         "version": "1.1.0",
+        "validation_status": "validated",  # DEF-624: verplicht veld
         "overall_score": 0.8,
         "is_acceptable": True,
         "violations": [],
@@ -220,6 +221,7 @@ def test_ongeldige_resultaatstatus_wordt_geweigerd():
 
     instantie = {
         "version": "1.1.0",
+        "validation_status": "validated",  # DEF-624: verplicht veld
         "overall_score": 0.8,
         "is_acceptable": True,
         "violations": [],
@@ -238,6 +240,7 @@ def test_incompleet_dekkingsblok_wordt_geweigerd():
 
     instantie = {
         "version": "1.1.0",
+        "validation_status": "validated",  # DEF-624: verplicht veld
         "overall_score": 0.8,
         "is_acceptable": True,
         "violations": [],

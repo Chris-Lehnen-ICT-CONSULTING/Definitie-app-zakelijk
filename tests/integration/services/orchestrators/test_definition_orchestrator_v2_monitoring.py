@@ -55,6 +55,7 @@ async def test_orchestrator_monitoring_token_count_and_components():
 
     validation_service.validate_definition.return_value = {
         "version": "1.0.0",
+        "validation_status": "validated",  # DEF-624: uitgevoerde run
         "overall_score": 0.9,
         "is_acceptable": True,
         "violations": [],

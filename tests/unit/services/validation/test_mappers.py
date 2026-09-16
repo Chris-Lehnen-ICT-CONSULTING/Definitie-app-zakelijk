@@ -1,11 +1,23 @@
-"""Tests voor ValidationResult mappers."""
+"""Tests voor ValidationResult mappers.
+
+DEF-624: een legacy dataclass draagt geen runbewijs. De conversie levert
+daarom `validation_unknown` (contract_status_missing) met de fail-closed
+placeholders 0.0/False; wat het object wél draagt (violations, locaties,
+metadata) reist ongewijzigd mee. Alleen een object met een werkelijk
+aanwezige, geldige `validation_status` blijft `validated`.
+"""
 
 import uuid
 from dataclasses import dataclass
 
 import pytest
 
-from services.validation.interfaces import CONTRACT_VERSION
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    UNKNOWN_REASON_CONTRACT_STATUS_MISSING,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
+)
 from services.validation.mappers import (
     create_degraded_result,
     dataclass_to_schema_dict,
@@ -17,7 +29,7 @@ pytestmark = [pytest.mark.unit]
 
 @dataclass
 class MockValidationResult:
-    """Mock dataclass voor testing."""
+    """Mock dataclass voor testing (legacy vorm: geen runstatus)."""
 
     is_valid: bool
     score: float
@@ -26,6 +38,13 @@ class MockValidationResult:
     passed_rules: list = None
     detailed_scores: dict = None
     error: str = None
+
+
+@dataclass
+class MockProducentResult(MockValidationResult):
+    """Een object dat wél een werkelijk uitgevoerde run meldt."""
+
+    validation_status: str = VALIDATION_STATUS_VALIDATED
 
 
 @dataclass
@@ -45,7 +64,12 @@ class TestMappers:
     """Test suite voor ValidationResult mappers."""
 
     def test_dataclass_to_schema_dict_basic(self):
-        """Test basic dataclass to TypedDict conversion."""
+        """Test basic dataclass to TypedDict conversion.
+
+        DEF-624: de legacy dataclass draagt geen runbewijs, dus ondanks
+        `is_valid=True, score=0.95` is de uitkomst `validation_unknown` met
+        de fail-closed placeholders. De regels die het object meldt reizen mee.
+        """
         result = MockValidationResult(
             is_valid=True,
             score=0.95,
@@ -62,14 +86,29 @@ class TestMappers:
         schema_dict = dataclass_to_schema_dict(result)
 
         assert schema_dict["version"] == CONTRACT_VERSION
-        assert schema_dict["overall_score"] == 0.95
-        assert schema_dict["is_acceptable"] is True
+        assert schema_dict["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert schema_dict["unknown_reason"] == UNKNOWN_REASON_CONTRACT_STATUS_MISSING
+        assert schema_dict["overall_score"] == 0.0
+        assert schema_dict["is_acceptable"] is False
         assert len(schema_dict["violations"]) == 0
         assert len(schema_dict["passed_rules"]) == 2
         assert "system" in schema_dict
         assert "correlation_id" in schema_dict["system"]
         # Verify it's a valid UUID
         uuid.UUID(schema_dict["system"]["correlation_id"])
+
+    def test_dataclass_met_runstatus_blijft_validated(self):
+        """Een producent die zijn run meldt behoudt score en oordeel."""
+        result = MockProducentResult(
+            is_valid=True, score=0.95, violations=[], passed_rules=["RULE-001"]
+        )
+
+        schema_dict = dataclass_to_schema_dict(result)
+
+        assert schema_dict["validation_status"] == VALIDATION_STATUS_VALIDATED
+        assert "unknown_reason" not in schema_dict
+        assert schema_dict["overall_score"] == 0.95
+        assert schema_dict["is_acceptable"] is True
 
     def test_dataclass_to_schema_dict_with_violations(self):
         """Test conversion with violations."""
@@ -99,7 +138,9 @@ class TestMappers:
         schema_dict = dataclass_to_schema_dict(result, "test-correlation-id")
 
         assert schema_dict["is_acceptable"] is False
-        assert schema_dict["overall_score"] == 0.3
+        # DEF-624: zonder runbewijs is de score de fail-closed placeholder.
+        assert schema_dict["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert schema_dict["overall_score"] == 0.0
         assert len(schema_dict["violations"]) == 1
 
         violation = schema_dict["violations"][0]
@@ -113,9 +154,15 @@ class TestMappers:
         assert schema_dict["system"]["correlation_id"] == "test-correlation-id"
 
     def test_ensure_schema_compliance_with_dict(self):
-        """Test that valid dict passes through."""
+        """Test that valid dict passes through.
+
+        DEF-624: een schema-conform dict draagt zijn runstatus expliciet
+        (`validated`, gezet door de producent); dan is de doorgifte
+        inhoudelijk een pass-through.
+        """
         valid_dict = {
             "version": CONTRACT_VERSION,
+            "validation_status": VALIDATION_STATUS_VALIDATED,
             "overall_score": 0.8,
             "is_acceptable": True,
             "violations": [],
@@ -132,7 +179,29 @@ class TestMappers:
         result = ensure_schema_compliance(valid_dict)
 
         assert result == valid_dict
+        assert result is not valid_dict
         assert result["system"]["correlation_id"] == "existing-id"
+
+    def test_ensure_schema_compliance_dict_zonder_status_is_geen_run(self):
+        """Hetzelfde dict zonder status: geen oordeel, wel dezelfde inhoud."""
+        zonder_status = {
+            "version": CONTRACT_VERSION,
+            "overall_score": 0.8,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": ["TEST-001"],
+            "detailed_scores": {"taal": 0.8},
+            "system": {"correlation_id": "existing-id"},
+        }
+
+        result = ensure_schema_compliance(zonder_status)
+
+        assert result["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert result["unknown_reason"] == UNKNOWN_REASON_CONTRACT_STATUS_MISSING
+        assert result["is_acceptable"] is False
+        assert result["overall_score"] == 0.0
+        assert result["passed_rules"] == ["TEST-001"]
+        assert "validation_status" not in zonder_status, "invoer gemuteerd"
 
     def test_ensure_schema_compliance_adds_correlation_id(self):
         """Test that missing correlation_id is added."""
@@ -164,8 +233,11 @@ class TestMappers:
         result = ensure_schema_compliance(dataclass_result, "test-id")
 
         assert result["version"] == CONTRACT_VERSION
-        assert result["overall_score"] == 0.75
-        assert result["is_acceptable"] is True
+        # DEF-624: de dataclass draagt geen runbewijs.
+        assert result["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert result["overall_score"] == 0.0
+        assert result["is_acceptable"] is False
+        assert result["passed_rules"] == ["CHECK-001"]
         assert result["system"]["correlation_id"] == "test-id"
 
     def test_create_degraded_result(self):
@@ -214,10 +286,17 @@ class TestMappers:
         assert schema_dict["detailed_scores"]["samenhang"] == 0.6
 
     def test_dataclass_without_passed_rules(self):
-        """Test that default passed_rules are generated when no violations."""
-        result = MockValidationResult(is_valid=True, score=1.0, violations=[])
+        """DEF-624: geen verzonnen geslaagde regels bij "geen violations".
 
-        schema_dict = dataclass_to_schema_dict(result)
+        De oude default (`BASIC-001..003`) presenteerde bewijs van regels die
+        nooit zijn gedraaid; ook een producent die zijn run meldt krijgt ze
+        niet toebedeeld.
+        """
+        for result in (
+            MockValidationResult(is_valid=True, score=1.0, violations=[]),
+            MockProducentResult(is_valid=True, score=1.0, violations=[]),
+        ):
+            schema_dict = dataclass_to_schema_dict(result)
 
-        assert len(schema_dict["passed_rules"]) > 0
-        assert "BASIC-001" in schema_dict["passed_rules"]
+            assert schema_dict["passed_rules"] == [], result
+            assert "BASIC-001" not in schema_dict["passed_rules"]

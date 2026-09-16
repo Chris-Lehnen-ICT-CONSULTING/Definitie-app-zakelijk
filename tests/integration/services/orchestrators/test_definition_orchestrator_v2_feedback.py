@@ -69,6 +69,7 @@ async def test_orchestrator_feedback_loop_integration_success():
     # Validation accept with a warning-level violation
     ok_result = {
         "version": "1.0.0",
+        "validation_status": "validated",  # DEF-624: uitgevoerde run
         "overall_score": 0.82,
         "is_acceptable": True,
         "violations": [
