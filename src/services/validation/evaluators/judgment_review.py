@@ -54,7 +54,38 @@ class JudgmentReviewEvaluator:
         signalen = self._signalen(record, ctx, deps)
         toetsvraag = str(record.get("toetsvraag") or record.get("naam") or "").strip()
         reden = toetsvraag or "Deze regel vereist een inhoudelijk oordeel."
+        if record.rule_id.upper() == "ESS-01":
+            reden = self._ess01_reden(ctx, signalen)
         return EvaluationOutcome.review_required(reden, signals=signalen)
+
+    @staticmethod
+    def _ess01_reden(ctx: EvaluationContext, signalen: tuple[str, ...]) -> str:
+        """A: citeer passages in het bestaande redenveld; geen inhoudelijk oordeel."""
+        reden = (
+            "ESS-01 — Nog te beoordelen: welke kenmerken bepalen de betekenis van "
+            "dit begrip? Beoordeel eventuele functie- of doelkenmerken en leg de grond vast."
+        )
+        treffers = sorted(
+            (hit.start(), hit.group())
+            for patroon in signalen
+            for hit in re.finditer(patroon, ctx.cleaned_text, re.IGNORECASE)
+        )
+        passages = dict.fromkeys(fragment for _, fragment in treffers)
+        if not passages:
+            return (
+                reden
+                + " Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+            )
+        return (
+            reden
+            + " "
+            + " ".join(
+                f"Te beoordelen passage: {fragment}. Bepaalt deze passage het begrip of "
+                "beschrijft zij een doel, gebruik of verband? Dit signaal geeft nog geen "
+                "inhoudelijk oordeel."
+                for fragment in passages
+            )
+        )
 
     @staticmethod
     def _signalen(

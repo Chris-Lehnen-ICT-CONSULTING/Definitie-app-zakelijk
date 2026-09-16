@@ -1526,8 +1526,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     ) -> tuple[str, Any, dict[str, Any] | None]:
         """Toets een kandidaattekst; geef (definitieve tekst, ruw resultaat, bronbeoordeling).
 
-        DEF-622: de validatie-orchestrator schoont het meegegeven Definition-
-        object in-place. Wijzigt de validatie de tekst, dan is dát de
+        DEF-622/747: uitsluitend toetsen wijzigt het Definition-object niet.
+        De mutatieguard blijft als vangnet: wijzigt de validatie toch de tekst,
+        dan is dát de
         kandidaat die getoond en opgeslagen wordt, en die wordt opnieuw
         getoetst (wijziging na toetsing vereist hertoetsing). Zo is de
         opgeslagen tekst altijd exact de getoetste tekst.

@@ -104,6 +104,7 @@ class MockStreamlit:
         self.warning = lambda msg=None, *a, **k: self.messages.append(("warning", msg))
         self.info = lambda msg=None, *a, **k: self.messages.append(("info", msg))
         self.write = lambda msg=None, *a, **k: self.messages.append(("write", msg))
+        self.text = lambda msg=None, *a, **k: self.messages.append(("text", msg))
         self.expander = lambda *a, **k: _Ctx()
         self.sidebar = _Ctx()
         self.tabs = lambda names: [_Ctx() for _ in (names or [])]

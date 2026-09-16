@@ -220,8 +220,7 @@ VOORBEELDEN (GOED):
 ✅ "woord dat handelingen of toestanden uitdrukt"
 ✅ "document dat juridische beslissingen formeel vastlegt"
 ✅ "persoon die bevoegd is tot het nemen van besluiten"
-✅ "maatregel die recidive moet voorkomen"
-✅ "interventie gericht op gedragsverandering"
+Grensgevallen: maatregel en interventie. Leid een begripsbepalend doel niet af uit de categorie TYPE; gebruik gegeven domeingrond en ESS-01. Zonder grond geen voorbeeld als algemeen correct presenteren.
 
 VOORBEELDEN (FOUT):
 ❌ "soort woord dat..." (begin niet met 'soort')
@@ -239,7 +238,7 @@ KICK-OFF opties (kies één):
 
 VERVOLG met:
 - UIT WELK PROCES het voortkomt (oorsprong)
-- WAT het betekent/bewerkstelligt (doel/functie)
+- WAT het resultaat vastlegt of inhoudt; een doel of functie alleen met begripsbepalende grond volgens ESS-01
 - WIE het produceert (actor)
 
 VOORBEELDEN (GOED):
