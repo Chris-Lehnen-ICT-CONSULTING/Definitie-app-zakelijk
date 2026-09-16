@@ -1,7 +1,7 @@
 """ValidationOrchestratorV2 — sequentiële orchestrator voor validatie.
 
 Deze orchestrator levert een dunne, async-first laag bovenop de
-`ValidationServiceInterface`, met optionele pre-cleaning. Batchverwerking
+`ValidationServiceInterface`, met behoud van de oorspronkelijke invoer. Batchverwerking
 gebeurt sequentieel; parallelisme volgt in een latere iteratie.
 """
 
@@ -125,7 +125,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
     - Concrete implementatie van ValidationOrchestratorInterface
     - Dunne orchestration laag bovenop bestaande services
     - Sequentiële batch processing (parallelisme in latere story)
-    - Optionele pre-cleaning support
+    - Geen cleaning tijdens toetsen; constructorparameter behouden voor compatibiliteit
     """
 
     def __init__(
@@ -150,7 +150,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         ontologische_categorie: str | None = None,
         context: ValidationContext | None = None,
     ) -> ValidationResult:
-        """Valideer losse tekst met optionele pre-cleaning.
+        """Valideer exact de aangeleverde tekst zonder opschoning.
 
         Args:
             begrip: Het begrip waarvoor de tekst wordt gevalideerd
@@ -173,11 +173,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
 
         with operation_progress("validating_definition"):
             try:
-                cleaned_text = text
-                if self.cleaning_service is not None:
-                    cleaning = await self.cleaning_service.clean_text(text, begrip)
-                    cleaned_text = cleaning.cleaned_text if cleaning else text
-
+                # DEF-747/624: uitsluitend toetsen gebruikt exact de invoer.
+                # Cleaning hoort bij een expliciete generatie-/voorstelstap.
                 # Geen verrijking met 'definition' hier: die is in validate_text
                 # niet beschikbaar. Context (incl. de drie lijsten) komt via
                 # ValidationContext.metadata.
@@ -201,7 +198,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
                     begrip=begrip,
-                    text=cleaned_text,
+                    text=text,
                     ontologische_categorie=ontologische_categorie,
                     context=context_dict,
                 )
@@ -224,7 +221,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         definition: Definition,
         context: ValidationContext | None = None,
     ) -> ValidationResult:
-        """Valideer een volledig Definition-object met optionele pre-cleaning.
+        """Valideer een volledig Definition-object zonder tekst- of metadatamutatie.
 
         Args:
             definition: Te valideren Definition object
@@ -249,19 +246,15 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 # drie lijsten, id en categorie reizen altijd mee — ook zonder
                 # ValidationContext en ook als een lijst leeg is — zodat
                 # CON-01 en DUP_01 op het record oordelen en niet op wat een
-                # aanroeper toevallig in metadata heeft gezet. Vóór de
-                # cleaning: `clean_definition` schrijft de opgeschoonde tekst
-                # in het object terug, en de CON-01-binding (record_text,
-                # vingerafdruk) hoort bij de recordtekst zoals opgeslagen —
-                # anders vervalt een geldige beoordeling zodra cleaning een
-                # hoofdletter of punt toevoegt (koppelingenbevinding).
+                # aanroeper toevallig in metadata heeft gezet. DEF-747/624:
+                # toetsing wijzigt geen tekst of metadata; validatie en de
+                # CON-01/02-binding gebruiken dezelfde opgeslagen recordtekst.
                 context_dict = self._enrich_context_with_definition_fields(
                     self._context_dict(context), definition
                 )
 
-                # DEF-743: bronbeoordeling op de recordtekst, vóór de cleaning
-                # (die het object in-place kan wijzigen), zodat de binding bij
-                # de opgeslagen kandidaat hoort.
+                # DEF-743/747: bronbeoordeling en toetsing delen exact de
+                # ongewijzigde recordtekst en dezelfde contextbinding.
                 recordtekst = context_dict["record_text"]
                 assessment = await self._beoordeel_bronnen(
                     definition.begrip, recordtekst, context_dict, correlation_id
@@ -270,9 +263,6 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     context_dict["source_assessment"] = assessment
 
                 text = definition.definitie
-                if self.cleaning_service is not None:
-                    cleaned = await self.cleaning_service.clean_definition(definition)
-                    text = cleaned.cleaned_text if cleaned else definition.definitie
 
                 result = await self.validation_service.validate_definition(
                     begrip=definition.begrip,

@@ -131,17 +131,13 @@ class TestValidationOrchestratorV2:
             begrip="test_begrip", text="dirty text"
         )
 
-        # Verify cleaning was called
-        mock_cleaning_service.clean_text.assert_called_once_with(
-            "dirty text", "test_begrip"
-        )
+        # DEF-747: een geïnjecteerde cleaner maakt toetsen geen wijzigingsactie.
+        mock_cleaning_service.clean_text.assert_not_called()
 
-        # Verify validation used cleaned text. DEF-622: de exacte invoertekst
-        # reist als `record_text` mee, zodat CON-01 bewijs en beoordeling
-        # daaraan bindt en niet aan de opgeschoonde variant.
+        # Validatortransport en reviewbinding gebruiken dezelfde originele tekst.
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="test_begrip",
-            text="cleaned text",
+            text="dirty text",
             ontologische_categorie=None,
             context={"record_text": "dirty text"},
         )
@@ -184,15 +180,14 @@ class TestValidationOrchestratorV2:
 
         await orchestrator_with_cleaning.validate_definition(definition=definition)
 
-        # Verify cleaning was called
-        mock_cleaning_service.clean_definition.assert_called_once_with(definition)
+        # DEF-747: toetsing muteert het invoerobject niet.
+        mock_cleaning_service.clean_definition.assert_not_called()
 
-        # Verify validation used cleaned text. DEF-622: ook zonder
-        # ValidationContext reist de recordcontext mee (hier leeg).
+        # Ook zonder ValidationContext reist de recordcontext mee (hier leeg).
         mock_validation_service.validate_definition.assert_called_once()
         kwargs = mock_validation_service.validate_definition.call_args.kwargs
         assert kwargs["begrip"] == "test_begrip"
-        assert kwargs["text"] == "cleaned definition text"
+        assert kwargs["text"] == "dirty definitie"
         assert kwargs["ontologische_categorie"] is None
         assert kwargs["context"]["organisatorische_context"] == []
         assert "profile" not in kwargs["context"]
@@ -297,10 +292,10 @@ class TestValidationOrchestratorV2:
         assert result["system"]["error"] == "Service unavailable"
 
     @pytest.mark.asyncio
-    async def test_validate_definition_handles_cleaning_exception(
+    async def test_validate_definition_does_not_depend_on_cleaner(
         self, mock_validation_service, mock_cleaning_service
     ):
-        """Test that cleaning service exceptions are handled gracefully."""
+        """DEF-747: een defecte cleaner wordt bij uitsluitend toetsen niet gebruikt."""
         # Make cleaning service raise exception
         mock_cleaning_service.clean_definition.side_effect = Exception(
             "Cleaning failed"
@@ -315,10 +310,9 @@ class TestValidationOrchestratorV2:
 
         result = await orchestrator.validate_definition(definition)
 
-        # Should return degraded result
-        assert result["is_acceptable"] is False
-        assert result["overall_score"] == 0.0
-        assert any("Cleaning failed" in v["message"] for v in result["violations"])
+        mock_cleaning_service.clean_definition.assert_not_called()
+        assert result["is_acceptable"] is True
+        assert result["overall_score"] == 0.95
 
     @pytest.mark.asyncio
     async def test_context_propagation_with_all_fields(

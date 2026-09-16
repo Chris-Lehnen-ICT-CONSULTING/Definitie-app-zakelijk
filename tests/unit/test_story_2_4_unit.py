@@ -111,11 +111,10 @@ class TestValidationOrchestratorV2Unit:
         """Test validate_text basic functionality."""
         result = await orchestrator.validate_text("begrip", "text")
 
-        # Verify underlying service was called (text gets cleaned). DEF-622:
-        # de exacte invoertekst reist als `record_text` mee (CON-01-binding).
+        # DEF-747: toetsing en CON-01-binding gebruiken dezelfde oorspronkelijke tekst.
         mock_validation_service.validate_definition.assert_called_once_with(
             begrip="begrip",
-            text="cleaned text",
+            text="text",
             ontologische_categorie=None,
             context={"record_text": "text"},
         )
@@ -148,7 +147,7 @@ class TestValidationOrchestratorV2Unit:
         # Verify service call with context conversion
         call_args = mock_validation_service.validate_definition.call_args
         assert call_args[1]["begrip"] == "testbegrip"
-        assert call_args[1]["text"] == "cleaned text"  # Text gets cleaned
+        assert call_args[1]["text"] == "test text"
         assert call_args[1]["ontologische_categorie"] == "object"
 
         # Verify context was converted to dict
@@ -162,17 +161,17 @@ class TestValidationOrchestratorV2Unit:
     async def test_validate_text_with_cleaning(
         self, orchestrator, mock_cleaning_service, mock_validation_service
     ):
-        """Test validate_text with text cleaning."""
+        """DEF-747: een geïnjecteerde cleaner verandert uitsluitend toetsen niet."""
         mock_cleaning_service.clean_text.return_value.cleaned_text = "super clean text"
 
         await orchestrator.validate_text("begrip", "dirty text")
 
-        # Verify cleaning was called
-        mock_cleaning_service.clean_text.assert_called_once_with("dirty text", "begrip")
+        mock_cleaning_service.clean_text.assert_not_called()
 
-        # Verify validation received cleaned text
+        # Verify validation received the original text.
         call_args = mock_validation_service.validate_definition.call_args
-        assert call_args[1]["text"] == "super clean text"
+        assert call_args[1]["text"] == "dirty text"
+        assert call_args[1]["context"]["record_text"] == "dirty text"
 
     @pytest.mark.asyncio
     async def test_validate_text_without_cleaning_service(
@@ -208,17 +207,17 @@ class TestValidationOrchestratorV2Unit:
 
         await orchestrator.validate_definition(definition)
 
-        # Verify service call (definitie gets cleaned)
+        # Verify service call preserves the definition text.
         call_args = mock_validation_service.validate_definition.call_args
         assert call_args[1]["begrip"] == "testbegrip"
-        assert call_args[1]["text"] == "clean definitie"  # Text gets cleaned
+        assert call_args[1]["text"] == "test definitie"
         assert call_args[1]["ontologische_categorie"] == "proces"
 
     @pytest.mark.asyncio
     async def test_validate_definition_with_cleaning(
         self, orchestrator, mock_cleaning_service
     ):
-        """Test validate_definition with cleaning."""
+        """DEF-747: toetsing laat de cleaner en oorspronkelijke definitie ongemoeid."""
         from services.interfaces import Definition
 
         definition = Definition(begrip="begrip", definitie="dirty definitie")
@@ -228,8 +227,8 @@ class TestValidationOrchestratorV2Unit:
 
         await orchestrator.validate_definition(definition)
 
-        # Verify cleaning was called with definition
-        mock_cleaning_service.clean_definition.assert_called_once_with(definition)
+        mock_cleaning_service.clean_definition.assert_not_called()
+        assert definition.definitie == "dirty definitie"
 
     # ========================================
     # BATCH_VALIDATE METHOD TESTS

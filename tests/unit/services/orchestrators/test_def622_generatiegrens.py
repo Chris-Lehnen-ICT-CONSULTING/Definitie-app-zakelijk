@@ -354,17 +354,28 @@ class NietIdempotenteCleaning:
         )
 
 
+def _injecteer_validatiemutatie(orch, adversarieel):
+    """DEF-747: bewijs de mutatieguard aan de validatorgrens, los van cleaning."""
+    echte_validatie = orch.validation_service.validate_definition
+
+    async def _muteer_na_toetsing(definition, context=None):
+        resultaat = await echte_validatie(definition, context)
+        await adversarieel.clean_definition(definition)
+        return resultaat
+
+    orch.validation_service.validate_definition = _muteer_na_toetsing
+
+
 async def test_een_mutatie_wordt_hertoetst_en_exact_opgeslagen(tmp_path):
-    """Wijzigt de validatie de tekst één keer (in-place cleaning), dan wordt
+    """Wijzigt de validatiegrens de tekst één keer, dan wordt
     de gewijzigde tekst de kandidaat en opnieuw getoetst; de tweede toetsing
     is stabiel en de opgeslagen tekst is exact de getoetste tekst
     (CON-01-vingerafdruk op precies die tekst)."""
     from domain.context.contract import bereken_vingerafdruk
 
     adversarieel = NietIdempotenteCleaning(mutaties=1)
-    orch, provider, repo = _orchestrator(
-        tmp_path, "Kwaliteitsmerk voor producten.", validatie_cleaning=adversarieel
-    )
+    orch, provider, repo = _orchestrator(tmp_path, "Kwaliteitsmerk voor producten.")
+    _injecteer_validatiemutatie(orch, adversarieel)
 
     antwoord = await orch.create_definition(_request(org=["Team Koper"]))
 
@@ -388,9 +399,8 @@ async def test_blijvende_mutatie_koppelt_geen_oordeel_aan_een_andere_tekst(
     andere tekst dan de kandidaat: fail-closed — geen resultaat, geen opslag,
     en een duidelijke reden; het model is één keer aangeroepen."""
     adversarieel = NietIdempotenteCleaning(mutaties=99)
-    orch, provider, repo = _orchestrator(
-        tmp_path, "Kwaliteitsmerk voor producten.", validatie_cleaning=adversarieel
-    )
+    orch, provider, repo = _orchestrator(tmp_path, "Kwaliteitsmerk voor producten.")
+    _injecteer_validatiemutatie(orch, adversarieel)
     ids_voor = sorted(r.id for r in repo.legacy_repo.get_all())
 
     antwoord = await orch.create_definition(_request(org=["Team Koper"]))
