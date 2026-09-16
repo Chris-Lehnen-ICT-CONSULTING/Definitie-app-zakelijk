@@ -1,0 +1,27 @@
+ZELFTEST — ongewijzigd pakket: GROEN
+  ROOD           formulier: P01-definitie vervangen door P02-definitie (tekst komt elders voor)
+                     [formulier] C02-P01 input.definitie niet exact in eigen sectie
+  ROOD           formulier: definities P01 en P02 onderling verwisseld
+                     [formulier] C02-P01 input.definitie niet exact in eigen sectie
+                     [formulier] C02-P02 input.definitie niet exact in eigen sectie
+  ROOD           formulier: passage lid 1 uit P31-sectie verwijderd (staat nog in P01)
+                     [formulier] C02-P31 passage S-AWB13/artikel 1:3 lid 1 niet in eigen sectie
+  ROOD           register: P01 input.definitie vervormd
+                     [input] C02-P01.input wijkt af van basis
+                     [formulier] C02-P01 input.definitie niet exact in eigen sectie
+  ROOD           fixture: awb-3-2 één byte toegevoegd
+                     [fixtures] S-AWB32 hash/bytes wijken af van basis/bronmanifest-v3
+  ROOD           register: actor ingevuld bij P02
+                     [oordeel] niet leeg: C02-P02
+  ROOD           formulier: acceptatievakje P03 aangevinkt
+                     [formulier-oordeel] C02-P03: beoordelingsblok wijkt af van lege template bij regel 3: '- [x] **Acceptatie** — historische verwachting + huidige laa'
+                     [formulier-oordeel] aangevinkt vakje aanwezig
+  ROOD           formulier: P05 motivering op vervolgregel ('- **Motivering:**\n  Bron steunt deze definitie.')
+                     [formulier-oordeel] C02-P05: beoordelingsblok wijkt af van lege template bij regel 6: '  Bron steunt deze definitie.'
+  ROOD           formulier: P06 extra alinea na Datum in het beoordelingsblok
+                     [formulier-oordeel] C02-P06: beoordelingsblok wijkt af van lege template bij regel 9: 'Akkoord, geen bezwaar.'
+  ROOD           formulier: P31 (laatste sectie) motivering op labelregel ingevuld
+                     [formulier-oordeel] C02-P31: beoordelingsblok wijkt af van lege template bij regel 5: '- **Motivering:** ok'
+  ROOD           basis: snapshot v6 gewijzigd
+                     [basis] snapshot gewijzigd: basis/casusregister-geintegreerd-v6.json
+ZELFTEST GESLAAGD: alle mutanten rood, ongewijzigd groen.

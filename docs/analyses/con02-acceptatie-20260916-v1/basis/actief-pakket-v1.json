@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-14",
+  "status": "Actuele ASTRA gelezen; 31 praktijkontwerpen; 3 beperkte offline proeven; deskundige beoordeling/volledige keten open",
+  "entry": "LEESMIJ-v2.md",
+  "findings": "vervolg-actuele-astra-v1.md",
+  "cases": "casusregister-geintegreerd-v6.json",
+  "readable_cases": "praktijktestgevallen-v4.md",
+  "sources": "bronmanifest-v3.json",
+  "norm_status": "astra-ophaalstatus-v2.json",
+  "review_form": "beoordelingsformulier-v2.json",
+  "retrieval": "retrieval-fixtures-v1.json",
+  "component_evidence": "proeven-20260914-v1/uitkomst-v1.json",
+  "component_command": "proeven-20260914-v1/command-runtime-v1.json",
+  "verification": "verificatie-testpakket-v3.json",
+  "norm_scope": "Alleen actuele primaire ASTRA; geen oudere revisietekst of geschiedenisvergelijking.",
+  "full_case_execution": false,
+  "expert_adjudication": "pending"
+}

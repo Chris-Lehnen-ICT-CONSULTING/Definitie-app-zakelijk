@@ -1,0 +1,3433 @@
+{
+  "schema_version": 5,
+  "created": "2026-09-14",
+  "status": "Actieve praktijkuitbreiding: actuele primaire ASTRA gelezen; 31 praktische ontwerpen, deskundige adjudicatie pending. Componentproeven worden afzonderlijk gekoppeld; geen volledige ketentestclaim.",
+  "commit": "d68a98a909630e15db6e1cb9c9c8171f957bff9d",
+  "main_verified_on": "2026-09-12",
+  "identity_rule": "47 eerdere scenario’s, IDs, input en historische waarnemingen behouden. Alleen verwachtingen N01/N04/N09 expliciet aangevuld na actuele normlezing. P01–P28 scenario’s behouden; P29–P31 nieuw. Drie losse componentwaarnemingen zijn geen volledige case-pass.",
+  "policy_dimensions": {
+    "D2": "Actuele ASTRA noemt ook beleidsdocumenten van de organisatie. A lokale betekenisbron met onafhankelijke review blijft lokale uitwerking; B altijd extern is extra beperking; C geen betekenisbron vereist expliciet toepasselijkheidsbeleid.",
+    "D3": "Precieze, korte bronverwijzing plus gerichte hyperlink volgens actuele ASTRA. Plaats bij record sluit aan bij afzonderlijke bronvermelding in voorbeeld; verplicht inline is niet vastgesteld. Offline-uitzondering is aanvullend beleid.",
+    "D4a": "Codex volledig scorevrij; Cowork registratie scoort, inhoudelijk oordeel niet.",
+    "D4b": "Codex ontbrekende essentiële invoer not_evaluated; Cowork geen registratie review_required / onvolledige registratie fail.",
+    "D5": "Brongezag/actualiteit per toepassingsprofiel nog te bepalen."
+  },
+  "default_gate_effect": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+  "themes": {
+    "bronwoorden_en_betekenis": [
+      "C02-H01",
+      "C02-H03",
+      "C02-H04",
+      "C02-N01",
+      "C02-N02",
+      "C02-N03",
+      "C02-N04",
+      "CW-CON02-001",
+      "CW-CON02-003",
+      "CW-CON02-004",
+      "CW-CON02-005",
+      "CW-CON02-015"
+    ],
+    "registratie_en_invoer": [
+      "C02-H02",
+      "C02-H05",
+      "C02-H06",
+      "C02-H07",
+      "CW-CON02-002",
+      "CW-CON02-006",
+      "CW-CON02-007",
+      "CW-CON02-008",
+      "CW-CON02-013",
+      "C02-N23"
+    ],
+    "bronkeuze_en_functie": [
+      "C02-N06",
+      "C02-N07",
+      "C02-N09",
+      "C02-N10",
+      "C02-N11",
+      "C02-N12",
+      "C02-N16",
+      "C02-N17",
+      "C02-N18",
+      "CW-CON02-009",
+      "CW-CON02-010",
+      "CW-CON02-011",
+      "C02-N24"
+    ],
+    "lokale_oorsprong_en_toepasselijkheid": [
+      "C02-N08",
+      "CW-CON02-014",
+      "CW-CON02-016",
+      "C02-N19",
+      "C02-N20",
+      "C02-N22"
+    ],
+    "versie_transport_en_handeling": [
+      "C02-N05",
+      "C02-N13",
+      "C02-N14",
+      "C02-N15",
+      "CW-CON02-012",
+      "C02-N21"
+    ],
+    "praktijk_bronroutes": [
+      "C02-P01",
+      "C02-P02",
+      "C02-P03",
+      "C02-P04",
+      "C02-P05",
+      "C02-P06",
+      "C02-P07",
+      "C02-P08",
+      "C02-P09",
+      "C02-P10",
+      "C02-P11",
+      "C02-P12",
+      "C02-P13",
+      "C02-P14",
+      "C02-P15",
+      "C02-P16",
+      "C02-P17",
+      "C02-P18",
+      "C02-P19",
+      "C02-P20",
+      "C02-P21",
+      "C02-P22",
+      "C02-P23",
+      "C02-P24",
+      "C02-P25",
+      "C02-P26",
+      "C02-P27",
+      "C02-P28",
+      "C02-P29",
+      "C02-P30",
+      "C02-P31"
+    ]
+  },
+  "cases": [
+    {
+      "id": "C02-H01",
+      "scenario": "good",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "label": "good",
+        "text": "gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG"
+      },
+      "original_ref": "casusregister-v2.json#C02-H01",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "pass",
+          "cache": "pass"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#good",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required: concrete passage niet bewezen",
+        "codex_D2_B": "review_required: concrete passage niet bewezen"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-H03",
+      "scenario": "fabricated_source",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "label": "fabricated_source",
+        "text": "Handeling volgens verzonnen document S-999."
+      },
+      "original_ref": "casusregister-v2.json#C02-H03",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "pass",
+          "cache": "pass"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#fabricated_source",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "fail: expliciet fictieve bron",
+        "codex_D2_B": "fail: expliciet fictieve bron"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-H04",
+      "scenario": "intended_no_source",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "label": "intended_no_source",
+        "text": "Voorwerp bedoeld om gegevens te bewaren."
+      },
+      "original_ref": "casusregister-v2.json#C02-H04",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "pass",
+          "cache": "pass"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#intended_no_source",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "not_evaluated: doelfrase is geen bron",
+        "codex_D2_B": "not_evaluated: doelfrase is geen bron",
+        "cowork_D4b": "review_required bij ontbrekende bronregistratie; een doelfrase geeft geen ontheffing."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N01",
+      "scenario": "passende passage zonder bronwoorden",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "term": "driehoek",
+        "text": "Veelhoek met precies drie zijden.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetische geometrie"
+          ],
+          "sources": [
+            {
+              "id": "GS1",
+              "title": "Synthetisch geometrieprotocol",
+              "version": "1",
+              "issuer": "Synthetische begripsbeheerder",
+              "url": "urn:con02:fixture:GS1:v1",
+              "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+              "scope": "Synthetische geometrie",
+              "verified_fixture": true
+            }
+          ]
+        }
+      },
+      "original_ref": "casusregister-v2.json#C02-N01",
+      "scenario_changed": false,
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele primaire toelichting vraagt precieze korte bronverwijzing en gerichte hyperlink; ontbreken daarvan is apart te behandelen. Geen scenario of historische waarneming gewijzigd.",
+      "observed": {
+        "service": [
+          {
+            "loader": "manager",
+            "entry": "direct",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_text",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_definition",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "direct",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_text",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_definition",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          }
+        ],
+        "evidence_ref": "codex-herstel-v1/bewijs-v1.json#/probe/parsed_result/results",
+        "execution": "retained_real_service"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → pass na menselijke bevestiging van brongezag en dekking Aanvullend: precieze korte bronverwijzing en gerichte hyperlink aantonen of een expliciete toepasselijke uitzondering vaststellen; synthetische URN is op zichzelf geen bewezen gerichte hyperlink.",
+        "codex_D2_B": "review_required; pass uitsluitend na bewijs van passende externe bronstatus en menselijke bevestiging van betekenissteun; zonder externe bronstatus concept onder B Aanvullend: precieze korte bronverwijzing en gerichte hyperlink aantonen of een expliciete toepasselijke uitzondering vaststellen; synthetische URN is op zichzelf geen bewezen gerichte hyperlink."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetische fixture; verified_fixture is geen productieauthenticiteit. N05 test alleen opnieuw aanroepen, niet opslag/stale-handhaving.",
+        "Synthetisch; geen juridische goldset.",
+        "Positief structuurvoorbeeld, geen inhoudelijk gevalideerd geval. Pass alleen na werkelijk vastgesteld brongezag, toepasselijkheid en actuele bevoegde review; fixtureflag voldoet niet."
+      ],
+      "prediction_before_execution": {
+        "value": "fail",
+        "source": "codex-herstel-v1/casusregister-v1.json#C02-N01",
+        "kind": "historically_preserved_prediction_not_relabelled_as_actual"
+      },
+      "previous_proposed": {
+        "codex_D2_A": "review_required → pass na menselijke bevestiging van brongezag en dekking",
+        "codex_D2_B": "review_required; pass uitsluitend na bewijs van passende externe bronstatus en menselijke bevestiging van betekenissteun; zonder externe bronstatus concept onder B"
+      }
+    },
+    {
+      "id": "C02-N02",
+      "scenario": "zelfde definitie met tegengestelde passage",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "term": "driehoek",
+        "text": "Veelhoek met precies drie zijden.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetische geometrie"
+          ],
+          "sources": [
+            {
+              "id": "GS1",
+              "title": "Synthetisch geometrieprotocol",
+              "version": "1",
+              "issuer": "Synthetische begripsbeheerder",
+              "url": "urn:con02:fixture:GS1:v1",
+              "passage": "Een driehoek is een veelhoek met precies vier zijden.",
+              "scope": "Synthetische geometrie",
+              "verified_fixture": true
+            }
+          ]
+        }
+      },
+      "original_ref": "casusregister-v2.json#C02-N02",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": [
+          {
+            "loader": "manager",
+            "entry": "direct",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies vier zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_text",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_definition",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "direct",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies vier zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_text",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_definition",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          }
+        ],
+        "evidence_ref": "codex-herstel-v1/bewijs-v1.json#/probe/parsed_result/results",
+        "execution": "retained_real_service"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → fail na bevestigde tegenspraak",
+        "codex_D2_B": "review_required → fail na bevestigde tegenspraak"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetische fixture; verified_fixture is geen productieauthenticiteit. N05 test alleen opnieuw aanroepen, niet opslag/stale-handhaving.",
+        "Synthetisch; geen juridische goldset."
+      ],
+      "prediction_before_execution": {
+        "value": "fail",
+        "source": "codex-herstel-v1/casusregister-v1.json#C02-N02",
+        "kind": "historically_preserved_prediction_not_relabelled_as_actual"
+      }
+    },
+    {
+      "id": "C02-N03",
+      "scenario": "onjuiste betekenis met trefwoord",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "term": "driehoek",
+        "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetische geometrie"
+          ],
+          "sources": [
+            {
+              "id": "GS1",
+              "title": "Synthetisch geometrieprotocol",
+              "version": "1",
+              "issuer": "Synthetische begripsbeheerder",
+              "url": "urn:con02:fixture:GS1:v1",
+              "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+              "scope": "Synthetische geometrie",
+              "verified_fixture": true
+            }
+          ]
+        }
+      },
+      "original_ref": "casusregister-v2.json#C02-N03",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": [
+          {
+            "loader": "manager",
+            "entry": "direct",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_text",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_definition",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "direct",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_text",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_definition",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies vier zijden volgens het geometrieprotocol.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          }
+        ],
+        "evidence_ref": "codex-herstel-v1/bewijs-v1.json#/probe/parsed_result/results",
+        "execution": "retained_real_service"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → fail: passage dekt drie, definitie vier",
+        "codex_D2_B": "review_required → fail: passage dekt drie, definitie vier"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetische fixture; verified_fixture is geen productieauthenticiteit. N05 test alleen opnieuw aanroepen, niet opslag/stale-handhaving.",
+        "Synthetisch; geen juridische goldset."
+      ],
+      "prediction_before_execution": {
+        "value": "pass",
+        "source": "codex-herstel-v1/casusregister-v1.json#C02-N03",
+        "kind": "historically_preserved_prediction_not_relabelled_as_actual"
+      }
+    },
+    {
+      "id": "C02-N04",
+      "scenario": "getrouwe parafrase met trefwoord",
+      "origin": "Codex",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "term": "driehoek",
+        "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetische geometrie"
+          ],
+          "sources": [
+            {
+              "id": "GS1",
+              "title": "Synthetisch geometrieprotocol",
+              "version": "1",
+              "issuer": "Synthetische begripsbeheerder",
+              "url": "urn:con02:fixture:GS1:v1",
+              "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+              "scope": "Synthetische geometrie",
+              "verified_fixture": true
+            }
+          ]
+        }
+      },
+      "original_ref": "casusregister-v2.json#C02-N04",
+      "scenario_changed": false,
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele primaire toelichting vraagt precieze korte bronverwijzing en gerichte hyperlink; ontbreken daarvan is apart te behandelen. Geen scenario of historische waarneming gewijzigd.",
+      "observed": {
+        "service": [
+          {
+            "loader": "manager",
+            "entry": "direct",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_text",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_definition",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "direct",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "1",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies drie zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_text",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_definition",
+            "status": "pass",
+            "overall_score": 0.61,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek die volgens het geometrieprotocol precies drie zijden heeft.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          }
+        ],
+        "evidence_ref": "codex-herstel-v1/bewijs-v1.json#/probe/parsed_result/results",
+        "execution": "retained_real_service"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → pass na bevestiging Aanvullend: precieze korte bronverwijzing en gerichte hyperlink aantonen of een expliciete toepasselijke uitzondering vaststellen; synthetische URN is op zichzelf geen bewezen gerichte hyperlink.",
+        "codex_D2_B": "review_required; pass uitsluitend na bewijs van passende externe bronstatus en menselijke bevestiging van betekenissteun; zonder externe bronstatus concept onder B Aanvullend: precieze korte bronverwijzing en gerichte hyperlink aantonen of een expliciete toepasselijke uitzondering vaststellen; synthetische URN is op zichzelf geen bewezen gerichte hyperlink."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetische fixture; verified_fixture is geen productieauthenticiteit. N05 test alleen opnieuw aanroepen, niet opslag/stale-handhaving.",
+        "Synthetisch; geen juridische goldset.",
+        "Positief structuurvoorbeeld, geen inhoudelijk gevalideerd geval. Pass alleen na werkelijk vastgesteld brongezag, toepasselijkheid en actuele bevoegde review; fixtureflag voldoet niet."
+      ],
+      "prediction_before_execution": {
+        "value": "pass",
+        "source": "codex-herstel-v1/casusregister-v1.json#C02-N04",
+        "kind": "historically_preserved_prediction_not_relabelled_as_actual"
+      },
+      "previous_proposed": {
+        "codex_D2_A": "review_required → pass na bevestiging",
+        "codex_D2_B": "review_required; pass uitsluitend na bewijs van passende externe bronstatus en menselijke bevestiging van betekenissteun; zonder externe bronstatus concept onder B"
+      }
+    },
+    {
+      "id": "CW-CON02-001",
+      "scenario": "echte bron, precieze vindplaats, ASTRA-conforme verwijzing",
+      "origin": "Cowork",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "tekst": "persoonsgegeven: gegeven over een geidentificeerde of identificeerbare natuurlijke persoon zoals bedoeld in artikel 4 van de AVG"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-001",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": true,
+          "patroon_bronpatronen_algemeen_treffer": true
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-001",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "review_required: bronverwijzing is geen bewijs van brongezag, citaatgetrouwheid of steun. Pass alleen na complete vastgelegde controle.",
+        "cowork": "review_required: bronverwijzing is geen bewijs van brongezag, citaatgetrouwheid of steun. Pass alleen na complete vastgelegde controle.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Oorspronkelijke scenariofrase ASTRA-conforme verwijzing is onbewezen; uitsluitend voor identiteit behouden, niet als bronfeit geaccepteerd."
+      ]
+    },
+    {
+      "id": "CW-CON02-003",
+      "scenario": "verzonnen bron met signaalwoord",
+      "origin": "Cowork",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "tekst": "handeling volgens verzonnen document S-999"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-003",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-003",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "fail bij bewezen fictieve bron; onbekende bronstatus eerst review_required, niet automatisch vervalsing.",
+        "cowork": "fail bij bewezen fictieve bron; onbekende bronstatus eerst review_required, niet automatisch vervalsing.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-H03"
+      ]
+    },
+    {
+      "id": "CW-CON02-004",
+      "scenario": "signaalwoord in niet-bronfunctie (homoniem gebruik)",
+      "origin": "Cowork",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "tekst": "voorwerp bedoeld om gegevens te bewaren"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-004",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-004",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "not_evaluated: doeltaal is geen bronbasis; geen inhoudelijke pass.",
+        "cowork": "review_required; geen bronsignaal is geen vrijstelling.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-H04"
+      ]
+    },
+    {
+      "id": "CW-CON02-005",
+      "scenario": "signaalwoord in niet-bronfunctie via zelfstandig naamwoord wet",
+      "origin": "Cowork",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "tekst": "natuurwet: regelmaat die zonder menselijk ingrijpen geldt"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-005",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-005",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "not_evaluated bij ontbrekende bronbasis; woorddeel wet bewijst niets en treft de onderzochte woordgrensregex hier niet.",
+        "cowork": "review_required bij ontbrekende bronregistratie; geen pass op het woord wet.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan."
+      ]
+    },
+    {
+      "id": "CW-CON02-015",
+      "scenario": "bronnaam kunstmatig ingevoegd om de detector te laten slagen",
+      "origin": "Cowork",
+      "theme": "bronwoorden_en_betekenis",
+      "input": {
+        "tekst": "driehoek: veelhoek met drie zijden conform de standaard"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-015",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": true
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-015",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "not_evaluated bij ontbrekende bronbasis; bewuste opvulling levert geen semantische pass. Bewezen bronverzinsel kan fail opleveren.",
+        "cowork": "fail wegens kunstmatige bronfrase zonder bronregistratie (Cowork Q5.1/Q6.1); Codex onderscheidt ontbrekende invoer van bewezen onjuistheid.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-N03"
+      ]
+    },
+    {
+      "id": "C02-H02",
+      "scenario": "bad",
+      "origin": "Codex",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "label": "bad",
+        "text": "gegevensverwerking: handeling met gegevens (geen bron vermeld)"
+      },
+      "original_ref": "casusregister-v2.json#C02-H02",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "fail",
+          "cache": "fail"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#bad",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "not_evaluated: bron ontbreekt",
+        "codex_D2_B": "not_evaluated: bron ontbreekt",
+        "cowork_D4b": "review_required bij ontbrekende bronregistratie; een doelfrase geeft geen ontheffing."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-H05",
+      "scenario": "structured_source",
+      "origin": "Codex",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "label": "structured_source",
+        "text": "Handeling met gegevens.",
+        "context": {
+          "sources": [
+            {
+              "url": "https://www.w3.org/TR/skos-reference/",
+              "title": "SKOS Reference",
+              "passage": "Synthetic fixture; not evidence for this definition."
+            }
+          ]
+        }
+      },
+      "original_ref": "casusregister-v2.json#C02-H05",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "fail",
+          "cache": "fail"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#structured_source",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required: metadata noemt bewust niet-onderbouwende passage; geen pass",
+        "codex_D2_B": "review_required: metadata noemt bewust niet-onderbouwende passage; geen pass"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-H06",
+      "scenario": "only_name",
+      "origin": "Codex",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "label": "only_name",
+        "text": "Handeling met gegevens onder de AVG."
+      },
+      "original_ref": "casusregister-v2.json#C02-H06",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "fail",
+          "cache": "fail"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#only_name",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required: titel bewijst geen steun",
+        "codex_D2_B": "review_required: titel bewijst geen steun"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-H07",
+      "scenario": "empty",
+      "origin": "Codex",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "label": "empty",
+        "text": ""
+      },
+      "original_ref": "casusregister-v2.json#C02-H07",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": {
+          "manager": "fail",
+          "cache": "fail"
+        },
+        "evidence_ref": "gedeeld-start-v1/historisch/docs/analyses/def606-regeldossiers/CON-02-bewijs-v1/uitkomsten.json#empty",
+        "execution": "historical_retained"
+      },
+      "proposed": {
+        "codex_D2_A": "not_evaluated: lege tekst; VAL-EMP behandelt invoer",
+        "codex_D2_B": "not_evaluated: lege tekst; VAL-EMP behandelt invoer"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Historisch waarnemingsbewijs; inhoudelijke verwachting is voorstel v1, geen goldset.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "CW-CON02-002",
+      "scenario": "echte bron, alleen naam zonder vindplaats",
+      "origin": "Cowork",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "tekst": "persoonsgegeven: gegeven over een natuurlijke persoon onder de AVG"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-002",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": true
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-002",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "not_evaluated zolang essentiële bron-/passage-invoer ontbreekt; aanwezige maar onbeoordeelde basis review_required.",
+        "cowork": "review_required bij alleen bronnaam; registratiecontrole fail bij ontbrekende locator/versie (D4b).",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-H06"
+      ]
+    },
+    {
+      "id": "CW-CON02-006",
+      "scenario": "gestructureerde bron aanwezig, definitiezin bronvrij (CON-01-conforme opmaak)",
+      "origin": "Cowork",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "tekst": "bestuursorgaan: orgaan van een rechtspersoon dat met openbaar gezag is bekleed"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-006",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-006",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "review_required; pass alleen na werkelijk vastgesteld brongezag, locator, versie, passage en steunreview. Gevuld wettelijke_basis-label is onvoldoende.",
+        "cowork": "review_required; pass alleen na werkelijk vastgesteld brongezag, locator, versie, passage en steunreview. Gevuld wettelijke_basis-label is onvoldoende.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-H05"
+      ]
+    },
+    {
+      "id": "CW-CON02-007",
+      "scenario": "recordpatroon treft wel, hardgecodeerde indicator niet",
+      "origin": "Cowork",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "tekst": "beslagobject: zaak zoals beschreven in paragraaf 3 van de Beleidsregel Beslag"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-007",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": true,
+          "patroon_bronpatronen_algemeen_treffer": true
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-007",
+        "service": [
+          {
+            "loader": "manager",
+            "text": "beslagobject: zaak zoals beschreven in paragraaf 3 van de Beleidsregel Beslag",
+            "status": "fail",
+            "violations": [
+              {
+                "code": "CON-02",
+                "severity": "error",
+                "severity_level": "critical",
+                "message": "Geen authentieke bron/basis in definitietekst",
+                "description": "Geen authentieke bron/basis in definitietekst",
+                "rule_id": "CON-02",
+                "category": "samenhang",
+                "suggestion": "Voeg een authentieke bron/basis toe (bijv. 'volgens', 'conform', of wet/regeling).",
+                "metadata": {
+                  "detected_pattern": "\\bzoals beschreven in\\b",
+                  "position": 19
+                }
+              }
+            ]
+          },
+          {
+            "loader": "cache",
+            "text": "beslagobject: zaak zoals beschreven in paragraaf 3 van de Beleidsregel Beslag",
+            "status": "fail",
+            "violations": [
+              {
+                "code": "CON-02",
+                "severity": "error",
+                "severity_level": "critical",
+                "message": "Geen authentieke bron/basis in definitietekst",
+                "description": "Geen authentieke bron/basis in definitietekst",
+                "rule_id": "CON-02",
+                "category": "samenhang",
+                "suggestion": "Voeg een authentieke bron/basis toe (bijv. 'volgens', 'conform', of wet/regeling).",
+                "metadata": {
+                  "detected_pattern": "\\bzoals beschreven in\\b",
+                  "position": 19
+                }
+              }
+            ]
+          }
+        ],
+        "execution": "real_service_and_pattern",
+        "service_evidence_ref": "review-grensuitvoer-v1.json#/service"
+      },
+      "proposed": {
+        "codex": "review_required op grond van opgegeven maar ongecontroleerde verwijzing; geen semantische pass door patroonhit. Eerst registratie compleet maken.",
+        "cowork": "review_required op grond van opgegeven maar ongecontroleerde verwijzing; geen semantische pass door patroonhit. Eerst registratie compleet maken.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan."
+      ],
+      "code_inference": {
+        "rule_score": 0.7,
+        "basis": "generic.py + modular_validation_service._outcome_naar_violation + synthese-bronnen-v1/additional_patterns.py",
+        "not_a_measured_rule_score": true
+      }
+    },
+    {
+      "id": "CW-CON02-008",
+      "scenario": "specifieke vindplaats zonder signaalfrase",
+      "origin": "Cowork",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "tekst": "verdachte: persoon tegen wie uit feiten een redelijk vermoeden van schuld voortvloeit (art. 27 lid 1 Sv)"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-008",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": true,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-008",
+        "service": [
+          {
+            "loader": "manager",
+            "text": "verdachte: persoon tegen wie uit feiten een redelijk vermoeden van schuld voortvloeit (art. 27 lid 1 Sv)",
+            "status": "fail",
+            "violations": [
+              {
+                "code": "CON-02",
+                "severity": "error",
+                "severity_level": "critical",
+                "message": "Geen authentieke bron/basis in definitietekst",
+                "description": "Geen authentieke bron/basis in definitietekst",
+                "rule_id": "CON-02",
+                "category": "samenhang",
+                "suggestion": "Voeg een authentieke bron/basis toe (bijv. 'volgens', 'conform', of wet/regeling)."
+              }
+            ]
+          },
+          {
+            "loader": "cache",
+            "text": "verdachte: persoon tegen wie uit feiten een redelijk vermoeden van schuld voortvloeit (art. 27 lid 1 Sv)",
+            "status": "fail",
+            "violations": [
+              {
+                "code": "CON-02",
+                "severity": "error",
+                "severity_level": "critical",
+                "message": "Geen authentieke bron/basis in definitietekst",
+                "description": "Geen authentieke bron/basis in definitietekst",
+                "rule_id": "CON-02",
+                "category": "samenhang",
+                "suggestion": "Voeg een authentieke bron/basis toe (bijv. 'volgens', 'conform', of wet/regeling)."
+              }
+            ]
+          }
+        ],
+        "execution": "real_service_and_pattern",
+        "service_evidence_ref": "review-grensuitvoer-v1.json#/service"
+      },
+      "proposed": {
+        "codex": "review_required op grond van opgegeven maar ongecontroleerde locator; geen bewezen juridische juistheid of voltooide bronreview.",
+        "cowork": "review_required op grond van opgegeven maar ongecontroleerde locator; geen bewezen juridische juistheid of voltooide bronreview.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan."
+      ],
+      "code_inference": {
+        "rule_score": 0.0,
+        "basis": "generic.py + modular_validation_service._outcome_naar_violation + synthese-bronnen-v1/additional_patterns.py",
+        "not_a_measured_rule_score": true
+      }
+    },
+    {
+      "id": "CW-CON02-013",
+      "scenario": "lege invoer",
+      "origin": "Cowork",
+      "theme": "registratie_en_invoer",
+      "input": {
+        "tekst": ""
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-013",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-013",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "not_evaluated: lege tekst; VAL-EMP behandelt invoer.",
+        "cowork": "not_evaluated: lege tekst; VAL-EMP behandelt invoer.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-H07"
+      ]
+    },
+    {
+      "id": "C02-N23",
+      "scenario": "Bron met titel en passage opgegeven, maar essentiële locator en versie/editie ontbreken; geen technische transportfout.",
+      "origin": "Codex synthese na kruisreview",
+      "theme": "registratie_en_invoer",
+      "scenario_changed": false,
+      "new_scenario": true,
+      "input": {
+        "description": "Bron met titel en passage opgegeven, maar essentiële locator en versie/editie ontbreken; geen technische transportfout."
+      },
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "options": "Codex D4b: not_evaluated voor ontbrekende essentiële invoer; Cowork D4b: fail technische registratiecontrole. Onder beide geen semantische pass of vaststelling zolang verplicht bewijs ontbreekt."
+      },
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "Nieuw onderscheidend scenario; bestaand ID niet herschreven.",
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Cowork Q5.3 versus Codex P05; expliciete aggregatie/statuskeuze.",
+        "Niet uitgevoerd; verwachting is voorstel/bestaand gatecontract, geen gemeten productgedrag."
+      ]
+    },
+    {
+      "id": "C02-N06",
+      "scenario": "GS1 betreft geometrie; driehoek betekent in geselecteerde context samenwerking van drie organisaties.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N06",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → fail bij onvoldoende steun",
+        "codex_D2_B": "review_required → fail bij onvoldoende steun"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Gelijk label is geen begrip; CON-01/ESS-02.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N07",
+      "scenario": "GS1 zegt drie zijden, GS2 vier; beide gecontroleerd en in dezelfde context, definitie zegt drie.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N07",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required; eerst gemotiveerde bronkeuze",
+        "codex_D2_B": "review_required; eerst gemotiveerde bronkeuze"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Geen bronnen middelen; na adjudicatie pass/fail.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N09",
+      "scenario": "Gecontroleerd fysiek boek met editie, pagina en passende passage; geen URL.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N09",
+      "scenario_changed": false,
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele primaire toelichting vraagt precieze korte bronverwijzing en gerichte hyperlink; ontbreken daarvan is apart te behandelen. Geen scenario of historische waarneming gewijzigd.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "Betekenissteun kan na deskundige review worden bevestigd; complete CON-02-conformiteit blijft open zolang gerichte hyperlink ontbreekt en geen expliciete toepasselijke offline-uitzondering is vastgesteld. Geen automatische fail van de broninhoud en geen onvoorwaardelijke pass.",
+        "codex_D2_B": "Betekenissteun kan na deskundige review worden bevestigd; complete CON-02-conformiteit blijft open zolang gerichte hyperlink ontbreekt en geen expliciete toepasselijke offline-uitzondering is vastgesteld. Geen automatische fail van de broninhoud en geen onvoorwaardelijke pass. Onder optie B ook externe bronstatus bevestigen; B is lokale extra beperking."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "NL-SBB §2.5/5.2; geen URL ≠ geen bron.",
+        "Synthetisch; geen juridische goldset."
+      ],
+      "previous_proposed": {
+        "codex_D2_A": "review_required → pass mogelijk",
+        "codex_D2_B": "review_required → pass mogelijk"
+      }
+    },
+    {
+      "id": "C02-N10",
+      "scenario": "Site onbereikbaar; gecontroleerde snapshot met passage, peildatum, context en aantoonbaar geldig tijdvak.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N10",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → pass mogelijk binnen bewezen geldigheid; onbekende actualiteit geen pass",
+        "codex_D2_B": "review_required → pass mogelijk binnen bewezen geldigheid; onbekende actualiteit geen pass"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Hash bewijst bytes, niet gezag.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N11",
+      "scenario": "HTTP 200; bron bevat alleen voorbeelden, niet noodzakelijke kenmerken.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N11",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required → fail na bevestiging",
+        "codex_D2_B": "review_required → fail na bevestiging"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Bereikbaarheid ≠ betekenissteun.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N12",
+      "scenario": "Juiste inline bronverwijzing noemt geselecteerde contextwaarde.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N12",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "CON-02 review → pass mogelijk bij bewezen bronsteun. CON-01 naamtreffer → functiebeoordeling: registratiecontext afkeuren, inhoudelijk noodzakelijke naam toestaan, onduidelijk open. Geen automatisch conflict of algemene vaststeltoestemming.",
+        "codex_D2_B": "CON-02 review → pass mogelijk bij bewezen bronsteun. CON-01 naamtreffer → functiebeoordeling: registratiecontext afkeuren, inhoudelijk noodzakelijke naam toestaan, onduidelijk open. Geen automatisch conflict of algemene vaststeltoestemming."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "CON-01-besluiten-v4 B-02/B-04; actualisatie U01. Het scenario zegt niet of de naam inhoudelijk noodzakelijk is; het vervolg blijft daarom voorwaardelijk.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N16",
+      "scenario": "Bronverwijzing aantoonbaar vervalst; definitie zonder trefwoord.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N16",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "fail na bewezen vervalsing",
+        "codex_D2_B": "fail na bewezen vervalsing"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Onvindbaar of 404 alleen is geen bewijs van vervalsing.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N17",
+      "scenario": "Bron en definitie hebben gelijk label; synoniem/homoniem of ancestorkenmerken verschillen.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N17",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required; betekenisvergelijking, daarna pass/fail",
+        "codex_D2_B": "review_required; betekenisvergelijking, daarna pass/fail"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Geen term-/record-ID-gelijkheid als bewijs.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N18",
+      "scenario": "Model vult sourcevelden en verified=true in; geen inhoud gecontroleerd.",
+      "origin": "Codex",
+      "theme": "bronkeuze_en_functie",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N18",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required; geen pass op modelverklaring",
+        "codex_D2_B": "review_required; geen pass op modelverklaring"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Metadata is nog geen bewijs.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "CW-CON02-009",
+      "scenario": "bron uit ander domein of tijdvak dan de vastgelegde context",
+      "origin": "Cowork",
+      "theme": "bronkeuze_en_functie",
+      "input": {
+        "tekst": "aanslag: besluit tot vaststelling van een belastingschuld conform de Algemene wet inzake rijksbelastingen"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-009",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": true
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-009",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "review_required: toepasselijkheid en gekozen betekenis controleren; fail na bevestigde onvoldoende steun. Juridische scenario-inhoud onbeoordeeld.",
+        "cowork": "review_required: toepasselijkheid en gekozen betekenis controleren; fail na bevestigde onvoldoende steun. Juridische scenario-inhoud onbeoordeeld.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-N06"
+      ]
+    },
+    {
+      "id": "CW-CON02-010",
+      "scenario": "bronconflict: twee bronnen met onverenigbare afbakening",
+      "origin": "Cowork",
+      "theme": "bronkeuze_en_functie",
+      "input": {
+        "tekst": "ambtenaar: persoon zoals bedoeld in de Ambtenarenwet 2017 en tevens zoals bedoeld in artikel 84 van het Wetboek van Strafrecht"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-010",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": true,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-010",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "review_required: conflict vastleggen en bronkeuze motiveren; pas daarna pass/fail op actuele betekenissteun. Geen werkelijke bronconflictproef.",
+        "cowork": "review_required: conflict vastleggen en bronkeuze motiveren; pas daarna pass/fail op actuele betekenissteun. Geen werkelijke bronconflictproef.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-N07"
+      ]
+    },
+    {
+      "id": "CW-CON02-011",
+      "scenario": "parafrase versus citaat zonder markering",
+      "origin": "Cowork",
+      "theme": "bronkeuze_en_functie",
+      "input": {
+        "tekst": "woning: elke plaats die feitelijk als woning in gebruik is conform de Awb"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-011",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": true
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-011",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "review_required: eerst passage, citaat/parafrase/synthese en relatie tot kenmerken verifiëren. Geen juridisch getrouwheidsbewijs.",
+        "cowork": "review_required: eerst passage, citaat/parafrase/synthese en relatie tot kenmerken verifiëren. Geen juridisch getrouwheidsbewijs.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-N17"
+      ]
+    },
+    {
+      "id": "C02-N08",
+      "scenario": "Nieuw intern begrip zonder passende externe bron; eigen vastgelegd betekenisbesluit P1 en zoekverantwoording; nog geen menselijke review.",
+      "origin": "Codex",
+      "theme": "lokale_oorsprong_en_toepasselijkheid",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N08",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "review_required; pass mogelijk na bewezen lokale bronstatus/betekenissteun en onafhankelijke bevoegde review (andere vaststeller dan opsteller, of tweede reviewer).",
+        "codex_D2_B": "review_required; concept tot passende externe bron bestaat",
+        "cowork_RV06": "review_required; pass mogelijk na bewezen lokale bronstatus/betekenissteun en onafhankelijke bevoegde review (andere vaststeller dan opsteller, of tweede reviewer)."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Beslissend verschil A/B. Lokale oorsprong niet automatisch goed.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "CW-CON02-014",
+      "scenario": "niet-juridisch begrip zonder gezaghebbende bron beschikbaar",
+      "origin": "Cowork",
+      "theme": "lokale_oorsprong_en_toepasselijkheid",
+      "input": {
+        "tekst": "driehoek: veelhoek met drie zijden"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-014",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": false,
+          "patroon_herkenbaar_treffer": false,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-014",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "Geen vrijstelling op onbewezen premisse; bij ontbrekende essentiële bronbasis not_evaluated, toepasselijkheid ter review. Algemeen bekend is geen bewijs.",
+        "cowork": "review_required; geen vrijstelling zolang premisse geen passende bron onbewezen blijft.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Premisse dat passende externe bron ontbreekt is niet aangetoond voor het concrete driehoekbegrip; geen ASTRA-ontheffing bewezen."
+      ]
+    },
+    {
+      "id": "CW-CON02-016",
+      "scenario": "begrip zonder passende externe bron, MET bevoegd vastgelegd lokaal betekenisbesluit en zoekverantwoording",
+      "origin": "Cowork",
+      "theme": "lokale_oorsprong_en_toepasselijkheid",
+      "input": {
+        "tekst": "driehoek: veelhoek met drie zijden"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-016",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {},
+        "pattern_evidence_ref": null,
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex": "D2-A: pass mogelijk na aantoonbaar passende lokale bronstatus, steun en onafhankelijke bevoegde review; B: concept zonder externe bron. Het scenario is een veronderstelde beleidsgrens, geen bewijs dat voor driehoek geen externe bron bestaat.",
+        "cowork": "D2-A: pass mogelijk na aantoonbaar passende lokale bronstatus, steun en onafhankelijke bevoegde review; B: concept zonder externe bron. Het scenario is een veronderstelde beleidsgrens, geen bewijs dat voor driehoek geen externe bron bestaat.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst.",
+        "Premisse dat passende externe bron ontbreekt is niet aangetoond voor het concrete driehoekbegrip; geen ASTRA-ontheffing bewezen."
+      ],
+      "related_case_ids": [
+        "C02-N08",
+        "CW-CON02-014"
+      ],
+      "scenario_unchanged_relative_to": "Eigen introductie in Cowork-v2; variant van CW-CON02-014, geen herschrijving van 014."
+    },
+    {
+      "id": "C02-N19",
+      "scenario": "N08-variant: lokale betekenisbesluitvaststeller is dezelfde persoon als de definitieopsteller; geen tweede reviewer.",
+      "origin": "Codex synthese na kruisreview",
+      "theme": "lokale_oorsprong_en_toepasselijkheid",
+      "scenario_changed": false,
+      "new_scenario": true,
+      "input": {
+        "description": "N08-variant: lokale betekenisbesluitvaststeller is dezelfde persoon als de definitieopsteller; geen tweede reviewer."
+      },
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "options": "D2-A: review_required; onafhankelijkheidsvoorwaarde niet vervuld, geen pass. D2-B: concept zonder externe bron."
+      },
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "Nieuw onderscheidend scenario; bestaand ID niet herschreven.",
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "RV-06; governancevoorstel, geen bewezen ASTRA-eis.",
+        "Niet uitgevoerd; verwachting is voorstel/bestaand gatecontract, geen gemeten productgedrag."
+      ]
+    },
+    {
+      "id": "C02-N20",
+      "scenario": "N08-variant: lokaal betekenisbesluit, zoekverantwoording en complete bronbinding; andere bevoegde vaststeller dan opsteller; actuele passende steun door reviewer werkelijk bevestigd.",
+      "origin": "Codex synthese na kruisreview",
+      "theme": "lokale_oorsprong_en_toepasselijkheid",
+      "scenario_changed": false,
+      "new_scenario": true,
+      "input": {
+        "description": "N08-variant: lokaal betekenisbesluit, zoekverantwoording en complete bronbinding; andere bevoegde vaststeller dan opsteller; actuele passende steun door reviewer werkelijk bevestigd."
+      },
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "options": "D2-A: pass mogelijk als alle gegeven voorwaarden aantoonbaar waar zijn; D2-B: concept zolang externe bron ontbreekt. Geen algemene vaststeltoestemming."
+      },
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "Nieuw onderscheidend scenario; bestaand ID niet herschreven.",
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "RV-06; synthetisch positief structuurvoorbeeld met expliciete voorwaarden, geen echte review uitgevoerd.",
+        "Niet uitgevoerd; verwachting is voorstel/bestaand gatecontract, geen gemeten productgedrag."
+      ]
+    },
+    {
+      "id": "C02-N22",
+      "scenario": "Geen externe of lokale betekenisbron geregistreerd; uitsluitend een bevoegd, versiegebonden toepasselijkheidsbesluit met zoekverantwoording dat geen passende bron beschikbaar is.",
+      "origin": "Codex synthese na kruisreview",
+      "theme": "lokale_oorsprong_en_toepasselijkheid",
+      "scenario_changed": false,
+      "new_scenario": true,
+      "input": {
+        "description": "Geen externe of lokale betekenisbron geregistreerd; uitsluitend een bevoegd, versiegebonden toepasselijkheidsbesluit met zoekverantwoording dat geen passende bron beschikbaar is."
+      },
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "options": "Codex D2-A/B: geen pass zonder betekenisbron. Cowork D2-C: pass mogelijk na expliciet goedgekeurd toepasselijkheidsbeleid en aantoonbaar bevoegd actueel besluit; geen ongetoetste claim of gatebypass."
+      },
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "Nieuw onderscheidend scenario; bestaand ID niet herschreven.",
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Onderscheid Cowork Q2/K-2 van lokale betekenisbron. Nieuw beleid, geen bewezen ASTRA-vrijstelling.",
+        "Niet uitgevoerd; verwachting is voorstel/bestaand gatecontract, geen gemeten productgedrag."
+      ]
+    },
+    {
+      "id": "C02-N05",
+      "scenario": "nieuwe bronversie na eerdere review",
+      "origin": "Codex",
+      "theme": "versie_transport_en_handeling",
+      "input": {
+        "term": "driehoek",
+        "text": "Veelhoek met precies drie zijden.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetische geometrie"
+          ],
+          "sources": [
+            {
+              "id": "GS1",
+              "title": "Synthetisch geometrieprotocol",
+              "version": "2",
+              "issuer": "Synthetische begripsbeheerder",
+              "url": "urn:con02:fixture:GS1:v1",
+              "passage": "Een driehoek is een veelhoek met precies vier zijden.",
+              "scope": "Synthetische geometrie",
+              "verified_fixture": true
+            }
+          ]
+        }
+      },
+      "original_ref": "casusregister-v2.json#C02-N05",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": [
+          {
+            "loader": "manager",
+            "entry": "direct",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "2",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies vier zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_text",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "manager",
+            "entry": "validate_definition",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "direct",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "context": {
+                "organisatorische_context": [
+                  "Synthetische geometrie"
+                ],
+                "sources": [
+                  {
+                    "id": "GS1",
+                    "title": "Synthetisch geometrieprotocol",
+                    "version": "2",
+                    "issuer": "Synthetische begripsbeheerder",
+                    "url": "urn:con02:fixture:GS1:v1",
+                    "passage": "Een driehoek is een veelhoek met precies vier zijden.",
+                    "scope": "Synthetische geometrie",
+                    "verified_fixture": true
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_text",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          },
+          {
+            "loader": "cache",
+            "entry": "validate_definition",
+            "status": "fail",
+            "overall_score": 0.58,
+            "received": {
+              "begrip": "driehoek",
+              "text": "Veelhoek met precies drie zijden.",
+              "ontologische_categorie": null,
+              "context": {
+                "profile": "default"
+              }
+            }
+          }
+        ],
+        "evidence_ref": "codex-herstel-v1/bewijs-v1.json#/probe/parsed_result/results",
+        "execution": "retained_real_service"
+      },
+      "proposed": {
+        "codex_D2_A": "Geldigheid van eerdere review stale; regeloordeel opnieuw open. Verifieer eerst versie 2 tegenover locator v1; daarna bron-/betekenisreview. Geen opslag- of poortbewijs uit deze proef.",
+        "codex_D2_B": "Geldigheid van eerdere review stale; regeloordeel opnieuw open. Verifieer eerst versie 2 tegenover locator v1; daarna bron-/betekenisreview. Geen opslag- of poortbewijs uit deze proef."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetische fixture; verified_fixture is geen productieauthenticiteit. N05 test alleen opnieuw aanroepen, niet opslag/stale-handhaving.",
+        "Synthetisch; geen juridische goldset."
+      ],
+      "prediction_before_execution": {
+        "value": "fail",
+        "source": "codex-herstel-v1/casusregister-v1.json#C02-N05",
+        "kind": "historically_preserved_prediction_not_relabelled_as_actual"
+      }
+    },
+    {
+      "id": "C02-N13",
+      "scenario": "Reviewrecord score 0.95 zonder actueel verplicht snapshot; verzoek vaststelling/export.",
+      "origin": "Codex",
+      "theme": "versie_transport_en_handeling",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N13",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "blocked; draftopslag toegestaan, draft-export alleen gelabeld",
+        "codex_D2_B": "blocked; draftopslag toegestaan, draft-export alleen gelabeld"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Bestaand DEF-611/630-besluit.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N14",
+      "scenario": "Bronset wijzigt na review, tekst gelijk; reload/edit/export.",
+      "origin": "Codex",
+      "theme": "versie_transport_en_handeling",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N14",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "stale; gerichte herbeoordeling, historie onveranderd",
+        "codex_D2_B": "stale; gerichte herbeoordeling, historie onveranderd"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "DEF-626/627/630; N05 bewijst dit opslaggedrag niet.",
+        "Synthetisch; geen juridische goldset."
+      ]
+    },
+    {
+      "id": "C02-N15",
+      "scenario": "Broninformatie ingediend maar verloren in transport.",
+      "origin": "Codex",
+      "theme": "versie_transport_en_handeling",
+      "input": {},
+      "original_ref": "casusregister-v2.json#C02-N15",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "RV-06/10/11: onafhankelijkheid en bewijsniveau expliciet; scenario onveranderd. D4-statusverschil behouden.",
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "codex_D2_A": "error; geen geldig bewijs; expliciet herstelbaar concept behouden",
+        "codex_D2_B": "error; geen geldig bewijs; expliciet herstelbaar concept behouden"
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Gebruikersomissie (not_evaluated) versus contractfout.",
+        "Synthetisch; geen juridische goldset.",
+        "Gerelateerde wrapperproef bewijst contextverlies, niet deze volledige gebruikers-/UI-/opslagroute."
+      ]
+    },
+    {
+      "id": "CW-CON02-012",
+      "scenario": "gewijzigde bronversie na eerdere goedkeuring",
+      "origin": "Cowork",
+      "theme": "versie_transport_en_handeling",
+      "input": {
+        "tekst": "vreemdeling: persoon die de Nederlandse nationaliteit niet bezit zoals bepaald in de Vreemdelingenwet 2000"
+      },
+      "original_ref": "cowork-ontvangen-v2/con02-cowork-20260914/bijlagen/gevallen-cw-v2.json#CW-CON02-012",
+      "scenario_changed": false,
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "CR-04/06/09 en RV-10/11: patroonwaarneming, exacte serviceproef en historisch verwant bewijs gescheiden; voorwaardelijke normverwachting ingevuld.",
+      "observed": {
+        "pattern": {
+          "patroon_hardcoded_treffer": true,
+          "patroon_herkenbaar_treffer": true,
+          "patroon_bronpatronen_specifiek_treffer": false,
+          "patroon_bronpatronen_algemeen_treffer": false
+        },
+        "pattern_evidence_ref": "cowork-ontvangen-v1/con02-cowork-20260912/bijlagen/proefuitkomsten-cw-v1.json#CW-CON02-012",
+        "service": null,
+        "execution": "pattern_only"
+      },
+      "proposed": {
+        "codex": "Eerdere review wordt stale bij relevante bronwijziging; actuele beoordeling opnieuw nodig. Geen uitgevoerde versie-/opslag-/poortproef.",
+        "cowork": "Eerdere review wordt stale bij relevante bronwijziging; actuele beoordeling opnieuw nodig. Geen uitgevoerde versie-/opslag-/poortproef.",
+        "D3_inline_alternative": "Zelfde bron-/reviewvereisten; daarnaast inline verwijzing vereist indien Chris dat alternatief kiest. Geen automatische CON-02-pass."
+      },
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetisch en inhoudelijk onbeoordeeld; geen juridische goldset. Patroonproef biedt geen echte bronnen, versies of review aan.",
+        "Verwant historisch/scenariobewijs is geen aparte servicewaarneming op deze exacte tekst."
+      ],
+      "related_case_ids": [
+        "C02-N05"
+      ]
+    },
+    {
+      "id": "C02-N21",
+      "scenario": "CON-02 wordt uitgesloten van scoring terwijl statusconsumer en verplichte-bewijsgate nog ontbreken; legacyrecord heeft alleen oude trefwoord-pass.",
+      "origin": "Codex synthese na kruisreview",
+      "theme": "versie_transport_en_handeling",
+      "scenario_changed": false,
+      "new_scenario": true,
+      "input": {
+        "description": "CON-02 wordt uitgesloten van scoring terwijl statusconsumer en verplichte-bewijsgate nog ontbreken; legacyrecord heeft alleen oude trefwoord-pass."
+      },
+      "observed": {
+        "service": null,
+        "execution": "not_executed"
+      },
+      "proposed": {
+        "options": "Geen toegestane gekoppelde activering; legacy unknown/stale. Eerst contract en handelingen end-to-end verifiëren. Geen tijdelijke bewijsontheffing."
+      },
+      "expectation_version": "integrated-v1",
+      "expectation_change_reason": "Nieuw onderscheidend scenario; bestaand ID niet herschreven.",
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "RV-05/DEF-630; migratievoorwaarde, geen uitgevoerde deployproef.",
+        "Niet uitgevoerd; verwachting is voorstel/bestaand gatecontract, geen gemeten productgedrag."
+      ]
+    },
+    {
+      "id": "C02-N24",
+      "scenario": "diefstal: wegnemen van een goed volgens het Wetboek van Strafrecht",
+      "origin": "Cowork SC-04/W-01-v3; Codex geïntegreerde verwerking",
+      "theme": "bronkeuze_en_functie",
+      "input": {
+        "text": "diefstal: wegnemen van een goed volgens het Wetboek van Strafrecht"
+      },
+      "new_scenario": true,
+      "observed": {
+        "execution": "not_executed",
+        "service": null
+      },
+      "code_inference": {
+        "CON02": "Indicator bevat volgens en treft deze frase.",
+        "CON01": "Record context_metadata; evaluator roept generieke toets met default patronen_zijn_positief=False. Zowel record als additional_patterns bevatten passende Wetboek-frase; generieke forbidden_patterns-finding codeafgeleid.",
+        "sources": [
+          "synthese-relatiebronnen-v1/CON-01.json",
+          "synthese-relatiebronnen-v1/context_metadata.py",
+          "synthese-bronnen-v1/additional_patterns.py",
+          "review-aanvulling-v1/code/src/services/validation/evaluators/generic.py"
+        ],
+        "limits": "Geen nieuwe runtime/service/scherm/poortuitvoering; aanvullende CON-01-codelezing door Codex, niet retrospectief aan Cowork toegeschreven."
+      },
+      "proposed": {
+        "CON02": "Geen inhoudelijke pass op de frase; noodzakelijke bronbasis ontbreekt: Codex not_evaluated, Cowork review_required; daadwerkelijke steun vereist review.",
+        "CON01": "Functie en geselecteerde context beoordelen volgens bestaande besluiten-v4; geen noodzakelijk normconflict of nieuw CON-01-beleid uit patroonoverlap afleiden."
+      },
+      "expectation_version": "integrated-v2",
+      "expectation_change_reason": "Nieuw concreet scenario na SC-04; oude ID’s behouden.",
+      "consequence": "Geen vaststelling of niet-draft-export zonder actueel verplicht bewijs en bevoegde review; conceptopslag en gelabelde draft-export mogelijk. Regelpass geeft geen algemene toestemming.",
+      "limitations": [
+        "Synthetische juridische tekst, niet inhoudelijk gevalideerd.",
+        "Patroonoverlap is geen bewijs dat beide vastgestelde normen onverenigbaar zijn."
+      ]
+    },
+    {
+      "id": "C02-P01",
+      "title": "Volledige Awb-bron, inhoudelijk passende definitie",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Upload en selecteer S-AWB13; registreer versie, art. 1:3 lid 1 en passage. Nog geen deskundig oordeel.",
+      "when": "Genereer/beoordeel de vastgezette definitie met geselecteerde bron.",
+      "then": "Leg passage, bronhash, locator en betekenisvergelijking vast; markeer zonder echte review nog niet als goedgekeurd.",
+      "source_based_oracle": "Alle kenmerken zijn in lid 1 terug te vinden. Het ontbreken van de naam Awb in de definitiezin maakt de bronsteun niet onjuist. De actuele ASTRA verlangt wél een precieze/korte verwijzing en gerichte hyperlink bij de bronregistratie; ontbreken van bronnaam in de definitiezin is een andere vraag.",
+      "expert_question": "Zijn schriftelijk, bestuursorgaan en publiekrechtelijke rechtshandeling volledig en toepasselijk?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1",
+        "D3: bron bij record versus inline",
+        "D5"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P02",
+      "title": "Bron aanwezig maar publiekrechtelijke beperking ontbreekt",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "beslissing van een bestuursorgaan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Zelfde bronpakket als P01.",
+      "when": "Beoordeel deze ingekorte definitie.",
+      "then": "Signaleer ontbrekende kenmerken; bronaanwezigheid mag dit niet als inhoudelijk conform afdoen.",
+      "source_based_oracle": "Schriftelijk en publiekrechtelijke rechtshandeling uit lid 1 ontbreken.",
+      "expert_question": "Maakt de weglating de afbakening te ruim in het gekozen Awb-profiel?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P03",
+      "title": "Gezaghebbende upload gaat over een ander begrip",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-BW3"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Selecteer uitsluitend BW3-artikelen 1, 2 en 2a.",
+      "when": "Beoordeel besluit.",
+      "then": "Registreer dat deze passages de Awb-betekenis niet onderbouwen; brongezag alleen levert geen passend bewijs.",
+      "source_based_oracle": "S-BW3 bevat goederen/zaken/dieren; geen besluitbegrip.",
+      "expert_question": "Is er voor deze definitie enige relevante steun in het aangeleverde fragment?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P04",
+      "title": "Bestaand meegegeven tekstbestand zonder eigen herkomst",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-UPLOAD32"
+      ],
+      "input": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht van het bestuursorgaan om bij besluitvoorbereiding de nodige kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Gebruik alleen het bestaande uploadbestand; neem het externe manifest niet automatisch als door de app ontvangen bewijs aan.",
+      "when": "Upload, selecteer en beoordeel; inspecteer ontvangen bewijsvelden.",
+      "then": "Tekst kan inhoudelijk bruikbaar zijn, maar URL/versie/review mogen niet worden verzonnen uit de bestandsnaam.",
+      "source_based_oracle": "Wetszin is buiten de app met S-AWB32 vergeleken; het oorspronkelijke bestand zelf mist versie/URL. De kop is geen wettelijke definitie. Het ontbreken van een gecontroleerde gerichte hyperlink/vindplaats is een apart normcontrolepunt; een bestandsnaam vervangt dat niet.",
+      "expert_question": "Kan deze omschrijving uit de normzin worden afgeleid, en welk expliciet bronbewijs is nodig?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D4b: ontbrekende essentiële invoer Codex not_evaluated / Cowork review_required of fail",
+        "D5"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P05",
+      "title": "Meegegeven bestand gekoppeld aan gecontroleerde wetspassage",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-UPLOAD32",
+        "S-AWB32"
+      ],
+      "input": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht van het bestuursorgaan om bij besluitvoorbereiding de nodige kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Zelfde oorspronkelijke bestand als P04; voeg expliciete vergelijking met S-AWB32, versie en art. 3:2 toe.",
+      "when": "Beoordeel bronbinding en afgeleide definitie.",
+      "then": "Toon de traceerbare koppeling; onderscheid letterlijke wetszin van afgeleide begripsomschrijving.",
+      "source_based_oracle": "Exacte wetszin gelijk; kop Zorgvuldigheidsbeginsel is redactioneel toegevoegd.",
+      "expert_question": "Accepteert de deskundige de afleiding, met behoud van alle normelementen?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P06",
+      "title": "Hernoemen maakt dezelfde bron niet onafhankelijk",
+      "route": "upload",
+      "priority": "P2",
+      "source_ids": [
+        "S-AWB13",
+        "S-RENAME"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Upload beide bestanden met identieke bytes en verschillende namen in testomgeving.",
+      "when": "Vergelijk document-IDs en genormaliseerde bronregistratie.",
+      "then": "Bestands-IDs mogen verschillen; registreer één inhoudelijke bronversie en geen twee onafhankelijke bevestigingen.",
+      "source_based_oracle": "Hashes zijn identiek; bekeken processor-ID is naamafhankelijk.",
+      "expert_question": "Blijft de semantische bronidentiteit duidelijk ondanks twee bestandsrecords?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL",
+      "component_observation": {
+        "evidence_ref": "proeven-20260914-v1/uitkomst-v1.json",
+        "command_ref": "proeven-20260914-v1/command-runtime-v1.json",
+        "status": "component_checked",
+        "full_case_pass": false
+      }
+    },
+    {
+      "id": "C02-P07",
+      "title": "Dezelfde bestandsnaam met gewijzigde wetszin",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-UPLOAD32",
+        "M-UPLOAD"
+      ],
+      "input": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht om alleen relevante feiten te onderzoeken",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Gebruik eerst originele upload; bied daarna de gemuteerde kopie met dezelfde basename aan. Dit is testmanipulatie, geen wetswijziging.",
+      "when": "Controleer duplicate-handling, inhoudshash en eventuele eerdere reviewbinding.",
+      "then": "Meld nieuwe/afwijkende inhoud of expliciete afwijzing van vervanging; nooit stil oude review voor nieuwe inhoud laten gelden.",
+      "source_based_oracle": "Mutant verwijdert de af te wegen belangen; naamgelijkheid bewijst geen inhoudsgelijkheid.",
+      "expert_question": "Wordt de cumulatieve norm onterecht beperkt?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P08",
+      "title": "RAG haalt het juiste beleidsregellid op",
+      "route": "RAG",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "beleidsregel",
+        "definitie": "bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, over belangenafweging, feitenvaststelling of uitleg van wettelijke voorschriften bij het gebruik van een bestuursbevoegdheid",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Indexeer S-AWB13; gebruik gecontroleerde retrieval R-BELEID.",
+      "when": "Beoordeel de vaste definitie en volg lid 4 door prompt en bewijsregistratie.",
+      "then": "Alle kenmerken en uitsluiting blijven controleerbaar; retrievalscore vervangt review niet.",
+      "source_based_oracle": "Steun in volledig lid 4; algemene regel is niet hetzelfde als algemeen verbindend voorschrift.",
+      "expert_question": "Is de parafrase van lid 4 inhoudelijk equivalent?",
+      "retrieval_recipe": "R-BELEID",
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P09",
+      "title": "Hoge RAG-score met verkeerd lid",
+      "route": "RAG",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "beleidsregel",
+        "definitie": "algemeen verbindend voorschrift van een bestuursorgaan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Retrieval R-VERKEERD-LID geeft alleen besluit/lid 1 met score 0.99.",
+      "when": "Beoordeel bronsteun voor beleidsregel.",
+      "then": "Geen inhoudelijke goedkeuring op score of alleen artikelnummer; markeer verkeerde passage en ontbrekend lid 4.",
+      "source_based_oracle": "Lid 1 definieert besluit; lid 4 sluit algemeen verbindend voorschrift expliciet uit.",
+      "expert_question": "Welke passage is werkelijk gebruikt, en waaruit blijkt de inhoudelijke tegenspraak?",
+      "retrieval_recipe": "R-VERKEERD-LID",
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P10",
+      "title": "Dierenuitzondering aanwezig in corpus maar buiten top vijf",
+      "route": "RAG",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13",
+        "S-BW3"
+      ],
+      "input": {
+        "begrip": "zaak",
+        "definitie": "voor menselijke beheersing vatbaar stoffelijk object, waaronder een dier",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "given": "Gebruik R-DIER-BUITEN-TOP5; art. 2a staat als kandidaat op rang 6 en 7.",
+      "when": "Laat top_k=5 ophalen en beoordeel de vaste definitie.",
+      "then": "Bewaar werkelijk ontvangen chunks; claim niet dat art. 2a is meegenomen omdat het is geïndexeerd. Onvoldoende/tegenstrijdig bewijs moet review uitlokken.",
+      "source_based_oracle": "Volledige corpus bevat Dieren zijn geen zaken; top vijf mist deze beperking.",
+      "expert_question": "Herkent men dat de gekozen bronset onvoldoende is om inclusief dieren te bevestigen?",
+      "retrieval_recipe": "R-DIER-BUITEN-TOP5",
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P11",
+      "title": "Zelfde dierencasus met volledige relevante retrieval",
+      "route": "RAG",
+      "priority": "P1",
+      "source_ids": [
+        "S-BW3"
+      ],
+      "input": {
+        "begrip": "zaak",
+        "definitie": "voor menselijke beheersing vatbaar stoffelijk object, waaronder een dier",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "given": "Gebruik R-DIER-VOLLEDIG met art. 2 en beide leden van 2a.",
+      "when": "Beoordeel dezelfde definitie als P10.",
+      "then": "Signaleer expliciete strijd met art. 2a lid 1; lid 2 maakt dieren niet alsnog zaken.",
+      "source_based_oracle": "Art. 2a lid 1 sluit dieren uit; lid 2 regelt toepasselijkheid van bepalingen met beperkingen.",
+      "expert_question": "Bevestigt de deskundige het onderscheid kwalificatie versus toepasselijke bepalingen?",
+      "retrieval_recipe": "R-DIER-VOLLEDIG",
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P12",
+      "title": "Begripsnaam staat niet letterlijk in de ondersteunende wetszin",
+      "route": "upload",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB32"
+      ],
+      "input": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht van het bestuursorgaan om bij besluitvoorbereiding kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Upload S-AWB32 met kop Artikel 3:2; het woord zorgvuldigheidsbeginsel komt er niet in voor.",
+      "when": "Inspecteer letterlijke snippetselectie en werkelijk aan generatie/validatie doorgegeven tekst.",
+      "then": "Rapporteer werkelijk wel/geen passage; geen bronbewijs claimen op basis van alleen een upload of documentaantal.",
+      "source_based_oracle": "Relevante wetszin bestaat, maar de term ontbreekt letterlijk. Dit onderscheidt vindbaarheid van normsteun.",
+      "expert_question": "Is de afgeleide omschrijving passend, ook zonder letterlijke naam in de bron?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL",
+      "component_observation": {
+        "evidence_ref": "proeven-20260914-v1/uitkomst-v1.json",
+        "command_ref": "proeven-20260914-v1/command-runtime-v1.json",
+        "status": "component_checked",
+        "full_case_pass": false
+      }
+    },
+    {
+      "id": "C02-P13",
+      "title": "Artikel/lid en chunk-ID door normalisatie en opslag",
+      "route": "RAG",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "aanvraag",
+        "definitie": "verzoek van een belanghebbende om een besluit te nemen",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Gebruik een echte geïndexeerde lid-3-passage met werkelijke document-ID, chunk-ID en lidmetadata. Bronversie/hash zijn geen aangetoond ingestcontract: lever deze afzonderlijk via de voorgestelde testadapter aan en leg dat als nieuwe testvoorwaarde vast.",
+      "when": "Leg raw retrieval, prompt, provenance, opslag, herladen en export naast elkaar.",
+      "then": "Dezelfde gekozen passage en bronversie moeten terugvindbaar blijven; noteer exact eerste verliespunt.",
+      "source_based_oracle": "Codebijlage toont document-/chunk-ID en lid in raw retrieval en verlies daarvan in de provenanceprojectie. Bronversie/hash ontbreken als expliciet ingestcontract; er kan pas transportverlies worden getest nadat ze aantoonbaar zijn aangeleverd. Latere opslag-/exportstappen zijn nog niet getest.",
+      "expert_question": "Kan een andere reviewer exact dezelfde passage terugvinden?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P14",
+      "title": "Alleen een reviewed/high-wikipagina",
+      "route": "LLM-WIKI",
+      "priority": "P1",
+      "source_ids": [
+        "S-WIKI"
+      ],
+      "input": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "given": "Upload alleen de echte begrippenpagina, zonder bronpagina of raw.",
+      "when": "Beoordeel bewijs en frontmatter.",
+      "then": "Reviewed/high gelden als beweringen van dit bestand; geen daadwerkelijke onafhankelijke review of volledig primaire keten afleiden.",
+      "source_based_oracle": "De pagina noemt twee sources; die zijn niet automatisch opgehaald door deze upload.",
+      "expert_question": "Welke concrete claim kan worden vastgesteld zonder de onderliggende bronnen?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P15",
+      "title": "Wiki met navolgbare raw-steun voor afgebakende definitieclaim",
+      "route": "LLM-WIKI",
+      "priority": "P1",
+      "source_ids": [
+        "S-WIKI",
+        "S-WIKISOURCE",
+        "S-RAW",
+        "S-RAWREGISTER"
+      ],
+      "input": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "given": "Bied pagina, bronpagina, raw en register-uittreksel samen aan; controleer raw-hash en Architecture/Core idea.",
+      "when": "Maak voor alleen deze definitie een claim-passagekoppeling.",
+      "then": "Bewaar afgeleide/ruwe bronrol en capturedatum; markeer geen totale wikivalidatie. Overige bronnen in pagina blijven buiten gecontroleerde scope.",
+      "source_based_oracle": "Raw beschrijft persistente interlinked markdown-wiki, LLM-onderhoud en immutable raw sources. De tweede pluginbron en andere claims zijn hier niet geverifieerd.",
+      "expert_question": "Zijn de vier kenmerken voldoende ondersteund en correct afgebakend tot het patroon?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P16",
+      "title": "Wiki wijzigt betekenis maar behoudt reviewed-label",
+      "route": "LLM-WIKI",
+      "priority": "P1",
+      "source_ids": [
+        "M-WIKI",
+        "S-RAW"
+      ],
+      "input": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling bronnen die het taalmodel tijdens onderhoud herschrijft",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "given": "Gebruik alleen de duidelijk als mutant geregistreerde wikikopie naast originele raw.",
+      "when": "Vergelijk gewijzigde definitie met Architecture / Raw sources.",
+      "then": "Detecteer inhoudelijke tegenspraak ondanks ongewijzigde reviewed/high-frontmatter.",
+      "source_based_oracle": "Raw zegt immutable en never modifies; mutant zegt herschrijven.",
+      "expert_question": "Welk kenmerk is omgekeerd, en waarom is oude frontmatter geen actuele review?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P17",
+      "title": "Raw-bestand gewijzigd zonder registerhash te actualiseren",
+      "route": "LLM-WIKI",
+      "priority": "P1",
+      "source_ids": [
+        "S-WIKI",
+        "M-RAW",
+        "S-RAWREGISTER"
+      ],
+      "input": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "given": "Gebruik M-RAW met de verwachte registerhash van S-RAW.",
+      "when": "Herbereken hash vóór claimbeoordeling.",
+      "then": "Meld integriteitsafwijking; verwijs niet stil naar oorspronkelijke capture als bewijs voor andere bytes.",
+      "source_based_oracle": "immutable is in testkopie mutable geworden; hash verschilt aantoonbaar.",
+      "expert_question": "Welk bronexemplaar is beoordeeld en kan dat nog aan het register worden gebonden?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL",
+      "component_observation": {
+        "evidence_ref": "proeven-20260914-v1/uitkomst-v1.json",
+        "command_ref": "proeven-20260914-v1/command-runtime-v1.json",
+        "status": "external_integrity_checked",
+        "full_case_pass": false
+      }
+    },
+    {
+      "id": "C02-P18",
+      "title": "Niet-aangeleverde wiki-bron niet als gelezen registreren",
+      "route": "LLM-WIKI",
+      "priority": "P2",
+      "source_ids": [
+        "S-WIKI",
+        "S-RAW"
+      ],
+      "input": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "given": "Pagina noemt Karpathy en praneybehl; alleen Karpathy-raw is meegeleverd.",
+      "when": "Controleer sources-resolutie en gebruikte bewijsclaims.",
+      "then": "Ontbrekende tweede bron blijft expliciet onopgelost; geen verzonnen passage/URL-inhoud. Afgebakende claim mag afzonderlijk worden beoordeeld met S-RAW.",
+      "source_based_oracle": "Een identifier in frontmatter is geen gelezen document. Het voorbeeld met 100 artikelen/400K woorden valt buiten deze onderbouwde claim.",
+      "expert_question": "Is duidelijk welke claims wél en niet door de beschikbare bron worden gedragen?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P19",
+      "title": "Beschikking omvat ook afwijzing",
+      "route": "wettekst",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "beschikking",
+        "definitie": "besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Gecontroleerde Awb-art. 1:3 lid 2 beschikbaar.",
+      "when": "Vergelijk definitie en expliciete randcasus afwijzing van een aanvraag om zo een besluit.",
+      "then": "Behoud afwijzing in afbakening; niet alleen positieve/toewijzende besluiten accepteren.",
+      "source_based_oracle": "De gekozen definitie volgt lid 2 inclusief de expliciete inclusie.",
+      "expert_question": "Klopt afbakening in het Awb-profiel, zonder ononderzochte praktijkuitzonderingen te verzinnen?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P20",
+      "title": "Aanvraag zonder belanghebbende-eis",
+      "route": "wettekst",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "aanvraag",
+        "definitie": "verzoek van een willekeurige persoon om een besluit te nemen",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Gecontroleerde Awb-art. 1:3 lid 3 beschikbaar.",
+      "when": "Beoordeel definitie en grenscasus verzoeker zonder belanghebbendheid.",
+      "then": "Markeer verbreding van het wettelijke begrip; bepaal belanghebbendheid niet automatisch op fictieve persoonsgegevens.",
+      "source_based_oracle": "Lid 3 noemt een belanghebbende, niet iedere willekeurige persoon.",
+      "expert_question": "Welke betekenisbeperking gaat verloren?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P21",
+      "title": "Goed is ruimer dan alleen stoffelijk object",
+      "route": "wettekst",
+      "priority": "P1",
+      "source_ids": [
+        "S-BW3"
+      ],
+      "input": {
+        "begrip": "goed",
+        "definitie": "voor menselijke beheersing vatbaar stoffelijk object",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "given": "Gebruik BW3-art. 1 en 2 naast elkaar.",
+      "when": "Vergelijk definitie en grenscasus vermogensrecht.",
+      "then": "Signaleer verwisseling van goed en zaak; behoud vermogensrechten in goederenbegrip.",
+      "source_based_oracle": "Art. 1 omvat zaken én vermogensrechten; art. 2 definieert zaken.",
+      "expert_question": "Is de extensie door deze begripsverwisseling te beperkt?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P22",
+      "title": "Geen zaken betekent niet dat zakenbepalingen nooit gelden",
+      "route": "wettekst",
+      "priority": "P1",
+      "source_ids": [
+        "S-BW3"
+      ],
+      "input": {
+        "begrip": "dier",
+        "definitie": "levend wezen waarop geen bepalingen met betrekking tot zaken van toepassing zijn",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "given": "Gebruik beide leden van BW3-art. 2a; beoordeling beperkt tot de juridische toevoeging aan de definitie.",
+      "when": "Beoordeel de absolute uitsluiting.",
+      "then": "Verwerp nooit-bepalingen-van-toepassing als strijdig met lid 2; claim niet dat de wet hier een volledige biologische definitie geeft.",
+      "source_based_oracle": "Lid 2 verklaart bepalingen met beperkingen van toepassing.",
+      "expert_question": "Blijft het onderscheid tussen juridische kwalificatie en toepasselijkheid correct?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P23",
+      "title": "Dezelfde bron via upload, RAG en wiki telt niet driemaal",
+      "route": "keten",
+      "priority": "P1",
+      "source_ids": [
+        "S-WIKI",
+        "S-RAW"
+      ],
+      "input": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "given": "Bied S-RAW aan via upload én RAG; S-WIKI citeert dezelfde raw-capture.",
+      "when": "Vergelijk evidencegraph en aantallen onafhankelijke bronnen.",
+      "then": "Behoud de drie routes maar één onderliggende capture; geen onafhankelijkheid uit kanaalaantal afleiden.",
+      "source_based_oracle": "Alle routes komen uit dezelfde oorspronkelijke tekst, gekoppeld op hash/canonieke URL.",
+      "expert_question": "Is brononafhankelijkheid inhoudelijk onderbouwd in plaats van geteld?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "D1/D3/D5: voorgestelde bron- en betekeniscontrole; nog vast te stellen"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P24",
+      "title": "Bron wijzigt na deskundige beoordeling",
+      "route": "keten",
+      "priority": "P1",
+      "source_ids": [
+        "S-UPLOAD32",
+        "M-UPLOAD"
+      ],
+      "input": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht om de nodige kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Voor uitvoering is een echte review van exact origineel vereist; testkopie krijgt daarna gewijzigde bytes. Geen review is nu aanwezig.",
+      "when": "Bied mutant aan onder gelijknamig bronrecord en probeer vaststelling/niet-draft-export.",
+      "then": "Oud oordeel geldt niet automatisch voor nieuwe bronhash; markeer ontbrekende actuele binding en blokkeer zolang vereist bewijs ontbreekt.",
+      "source_based_oracle": "P07-mutatie verandert de norminhoud; eerdere review bindt aan eerdere bytes.",
+      "expert_question": "Is review zichtbaar gekoppeld aan de beoordeelde bron én definitieversie?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Bestaand DEF-630: actueel bewijs/review",
+        "D5: nieuw versiecontract"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P25",
+      "title": "Definitie wijzigt na deskundige beoordeling",
+      "route": "keten",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "beslissing van een bestuursorgaan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Vereist bij uitvoering echte review van P01; wijzig daarna definitie naar P02 zonder review.",
+      "when": "Sla op, herlaad en probeer vaststelling/niet-draft-export.",
+      "then": "Eerder oordeel mag de nieuwe definitie niet afdekken; status/gate blijven na herladen consistent.",
+      "source_based_oracle": "Nieuwe tekst mist kenmerken die oude beoordeelde tekst wel had.",
+      "expert_question": "Is definitiehash/revisie onderdeel van de reviewbinding?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Bestaand DEF-630: actueel snapshot/evidence/actor/review"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P26",
+      "title": "Boolean reviewed=true is geen beoordelaarsbewijs",
+      "route": "keten",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Voer bij testadapter alleen reviewed=true op zonder reviewer-identiteit, bevoegdheid, passage en datum. Gebruik geen echte identiteit als fictie.",
+      "when": "Valideer en probeer vaststelling/niet-draft-export.",
+      "then": "Geen bevoegde review fabriceren; ontbrekende actor/evidencevelden blijven een blokkade.",
+      "source_based_oracle": "Boolean zegt niets over wie welke versie heeft beoordeeld.",
+      "expert_question": "Zijn identiteit, bevoegdheid, oordeel en exacte beoordeelde inhoud aantoonbaar?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Bestaand DEF-630: actor/review",
+        "D4b-statuskeuze nog open"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P27",
+      "title": "Bewijspakket blijft inspecteerbaar na opslaan/herladen/export",
+      "route": "keten",
+      "priority": "P1",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Uitvoering vereist echt volledig beoordeeld P01-record; zonder dat alleen gelabelde draft.",
+      "when": "Leg vóór opslag en na herladen/export bron, lid, passage, definitieversie, reviewer en uitkomst vast.",
+      "then": "Vergelijk dezelfde bindingsvelden; export zonder nodig bewijs is geen geslaagde overdracht. CON-02-conform is geen algemene exporttoestemming. Controleer ook behoud van de korte citeervorm en gerichte hyperlink in de bronpresentatie.",
+      "source_based_oracle": "Primaire vindplaats art. 1:3 lid 1 en bronversie zijn reproduceerbaar vastgelegd.",
+      "expert_question": "Kan een tweede reviewer uitsluitend met export exact de beoordeling reconstrueren?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Bestaand DEF-630",
+        "D3: recordgebonden bewijscontract"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P28",
+      "title": "Hoge totaalscore heft ontbrekend bronbewijs niet op",
+      "route": "keten",
+      "priority": "P1",
+      "source_ids": [
+        "S-BW3"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "given": "Gebruik niet-passende bron P03 en een gecontroleerde testscore 0.99; essentiële actuele evidence/review ontbreekt.",
+      "when": "Volg regelstatus door adapters, UI, opslag, herladen en vaststelling/niet-draft-export.",
+      "then": "Geen toestemming op basis van score; ontbrekende vereisten blijven blokkerend. Concept mag alleen herkenbaar concept blijven.",
+      "source_based_oracle": "BW3-fragment ondersteunt besluit niet; ranking/score is geen passagebewijs.",
+      "expert_question": "Blijft de beslispoort gekoppeld aan bewijsstatus op alle stappen?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Bestaand DEF-630",
+        "D4a scorekeuze open",
+        "D4b statusnaam open"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Actuele bronbasis gelezen; oorspronkelijke praktijkscenario-invoer gelijk. Verwijskwaliteit onderscheiden van betekenissteun en lokale governance.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P29",
+      "title": "Juiste betekenis, maar verwijzing slechts naar wetten-startpagina",
+      "route": "bronverwijzing",
+      "priority": "P2",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht",
+        "citation_display": "Awb",
+        "source_hyperlink": "https://wetten.overheid.nl/"
+      },
+      "given": "Zelfde definitie/passage als P01; bronlabel Awb zonder artikel/lid en hyperlink alleen naar de startpagina.",
+      "when": "Controleer inhoudelijke bronsteun en verwijskwaliteit afzonderlijk in het vastgezette testrecord.",
+      "then": "Markeer onvoldoende precieze verwijzing; leid daaruit niet af dat de definitie inhoudelijk onjuist is.",
+      "source_based_oracle": "De beschikbare bronpassage ondersteunt besluit. De verwijzing leidt niet specifiek naar art. 1:3 lid 1.",
+      "expert_question": "Is de bronverwijzing nauwkeurig, kort en bereikbaar volgens de actuele norm, los van de juistheid van de definitie?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Actuele ASTRA-toelichting: vindplaats, citeervorm, hyperlink",
+        "Status-/scorevertaling blijft D4-keuze"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Nieuw scenario voor expliciete verwijseisen uit de nu gelezen actuele primaire norm.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P30",
+      "title": "Precieze bron met onnodig lange citeervorm",
+      "route": "bronverwijzing",
+      "priority": "P2",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht",
+        "citation_display": "artikel 1:3 lid 1 van de Algemene wet bestuursrecht",
+        "source_hyperlink": "https://wetten.overheid.nl/jci1.3:c:BWBR0005537&hoofdstuk=1&titeldeel=1.1&artikel=1:3&z=2026-08-15&g=2026-08-15"
+      },
+      "given": "Zelfde definitie/passage als P01; correcte artikel/lid/versie en artikelhyperlink, maar uitgeschreven wetsnaam in het bronlabel.",
+      "when": "Controleer inhoudelijke bronsteun en verwijskwaliteit afzonderlijk in het vastgezette testrecord.",
+      "then": "Geef gerichte verkorting van het bronlabel naar art. 1:3 lid 1 Awb; behoud vindplaats en hyperlink. Geen semantische afkeuring uitsluitend vanwege citeerlengte.",
+      "source_based_oracle": "De actuele toelichting onderscheidt compacte wetsafkorting van lange wetsnaam. De broninhoud verandert niet door deze redactie.",
+      "expert_question": "Is de bronverwijzing nauwkeurig, kort en bereikbaar volgens de actuele norm, los van de juistheid van de definitie?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Actuele ASTRA-toelichting: vindplaats, citeervorm, hyperlink",
+        "Status-/scorevertaling blijft D4-keuze"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Nieuw scenario voor expliciete verwijseisen uit de nu gelezen actuele primaire norm.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    },
+    {
+      "id": "C02-P31",
+      "title": "Vindplaats compleet, beschikbare hyperlink ontbreekt",
+      "route": "bronverwijzing",
+      "priority": "P2",
+      "source_ids": [
+        "S-AWB13"
+      ],
+      "input": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht",
+        "citation_display": "art. 1:3 lid 1 Awb",
+        "source_hyperlink": null
+      },
+      "given": "Zelfde definitie/passage als P01; kort label en vaste bronversie aanwezig, maar hyperlinkveld leeg terwijl de primaire online wet is gevonden.",
+      "when": "Controleer inhoudelijke bronsteun en verwijskwaliteit afzonderlijk in het vastgezette testrecord.",
+      "then": "Meld de ontbrekende gerichte hyperlink als apart verwijskwaliteitsgebrek. Een algemene claim dat CON-02 geen hyperlink verlangt is hier onvoldoende.",
+      "source_based_oracle": "De actuele toelichting vraagt een gerichte hyperlink. In deze casus bestaat een primaire online bron; een eventuele offline uitzondering is niet van toepassing verklaard.",
+      "expert_question": "Is de bronverwijzing nauwkeurig, kort en bereikbaar volgens de actuele norm, los van de juistheid van de definitie?",
+      "retrieval_recipe": null,
+      "policy_dependency": [
+        "Actuele ASTRA-toelichting: vindplaats, citeervorm, hyperlink",
+        "Status-/scorevertaling blijft D4-keuze"
+      ],
+      "execution": "not_executed",
+      "expert_adjudication": {
+        "status": "pending",
+        "reviewer": null,
+        "decision": null,
+        "evidence": null
+      },
+      "gate": "Zolang actueel verplicht bronbewijs of bevoegde review ontbreekt: geen vaststelling/niet-draft-export (bestaand DEF-630-contract). Draft uitsluitend herkenbaar als concept; een CON-02-pass heft andere blokkades niet op.",
+      "expectation_version": "astra-current-v1",
+      "expectation_change_reason": "Nieuw scenario voor expliciete verwijseisen uit de nu gelezen actuele primaire norm.",
+      "norm_source_id": "S-ASTRA-ACTUEEL"
+    }
+  ],
+  "synthesis_check_ref": "cowork-synthesecontrole-ontvangen-v1/con02-cowork-synthesecontrole/cowork-synthesecontrole-v1.md",
+  "synthesis_disposition_ref": "verwerking-synthesecontrole-v1.md",
+  "predecessor": {
+    "path": "../casusregister-geintegreerd-v2.json",
+    "sha256": "e2701a945b8fdd0352b365eab134f8e5a680ed599a1e266b51830c5bffc28b12",
+    "cases_unchanged": 47
+  },
+  "predecessor_practice": {
+    "path": "casusregister-geintegreerd-v5.json",
+    "sha256": "a3ce410b288fb6205b491e592de05bdecd86a3dad645425e495c67e9cfc23ac5",
+    "reason": "Geraakte historische verwachting N09 en positieve structuurgevallen N01/N04 expliciet gecorrigeerd; componentwaarnemingen gebonden. Inputs/waarnemingen blijven behouden."
+  },
+  "source_manifest": "bronmanifest-v3.json",
+  "reference_resolution": {
+    "legacy_cases": "Relatieve original_ref/evidence_ref in de 47 overgenomen cases blijven relatief aan de bovenliggende map con02-20260912-samenwerking.",
+    "practice_cases": "C02-P01–P31 verwijzen via bronmanifest-v3.json; retrieval_recipe via retrieval-fixtures-v1.json. S-ASTRA-ACTUEEL is normgrondslag, geen extra gegenereerde domeinbron in de casusinvoer."
+  },
+  "norm_basis": {
+    "source_id": "S-ASTRA-ACTUEEL",
+    "url": "https://www.astraonline.nl/index.php/Baseren_op_authentieke_bron",
+    "scope": "actuele pagina; geen historische vergelijking",
+    "direct_norm": [
+      "authentieke bron waar mogelijk",
+      "precieze vindplaats",
+      "korte citeervorm",
+      "gerichte hyperlink"
+    ],
+    "local_contracts": [
+      "DEF-630 bewijs/actor/review/vaststelling/export"
+    ],
+    "proposals": [
+      "onafhankelijke betekenisreview",
+      "bronhash-/versiecontract",
+      "D4a/D4b scoring en statussen"
+    ],
+    "important_distinction": "De norm noemt eigen organisatiebeleid als mogelijke gezaghebbende bron; altijd extern is geen directe ASTRA-eis. Een offline uitzondering op hyperlinkgebruik vergt expliciete lokale onderbouwing."
+  }
+}

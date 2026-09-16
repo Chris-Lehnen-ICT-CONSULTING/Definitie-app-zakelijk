@@ -1,0 +1,201 @@
+{
+  "created": "2026-09-14",
+  "scope": "CON-02 praktijkontwerp met actuele primair gelezen ASTRA-norm; norminterpretatie/acceptatie en deskundige adjudicatie gescheiden.",
+  "date_semantics": "source_version is publicatie-/consolidatieversie of capture; kopie/uploadtijd vervangt deze niet. Geldigheid geldt uitsluitend voor gelezen pagina op raadpleegdatum.",
+  "sources": [
+    {
+      "id": "S-AWB13",
+      "path": "fixtures/awb-1-3-20260815.txt",
+      "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+      "bytes": 708,
+      "kind": "primary_law_transcription",
+      "origin": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+      "source_version": "2026-08-15",
+      "locators": [
+        "artikel 1:3 lid 1",
+        "artikel 1:3 lid 2",
+        "artikel 1:3 lid 3",
+        "artikel 1:3 lid 4"
+      ],
+      "verification": "Volledige vier leden letterlijk overgenomen uit gelezen wetten.overheid.nl-DOM op 2026-09-14. Teksttranscriptie, geen originele HTML-download. De pagina toonde geldend van 15-08-2026 t/m heden. Geen oordeel over alle uitzonderingen elders in de Awb.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-AWB32",
+      "path": "fixtures/awb-3-2-20260815.txt",
+      "sha256": "ad520ff75fb2732204b93c2307e0b1806a400eedfd427cd4c19425e41bbdef97",
+      "bytes": 178,
+      "kind": "primary_law_transcription",
+      "origin": "https://wetten.overheid.nl/jci1.3:c:BWBR0005537&hoofdstuk=3&afdeling=3.2&artikel=3:2&z=2026-08-15&g=2026-08-15",
+      "source_version": "2026-08-15",
+      "locators": [
+        "artikel 3:2"
+      ],
+      "verification": "Volledig artikel gelezen in dezelfde Awb-DOM op 2026-09-14; letterlijke teksttranscriptie.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-BW3",
+      "path": "fixtures/bw3-1-2-2a-20250701.txt",
+      "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+      "bytes": 467,
+      "kind": "primary_law_transcription",
+      "origin": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+      "source_version": "2025-07-01",
+      "locators": [
+        "artikel 1",
+        "artikel 2",
+        "artikel 2a lid 1",
+        "artikel 2a lid 2"
+      ],
+      "verification": "Artikelen volledig letterlijk overgenomen uit gelezen wetten.overheid.nl-DOM op 2026-09-14. Pagina toonde geldend van 01-07-2025 t/m heden en nog niet in werking getreden wijzigingen; dit is een geconsolideerde versie, geen Staatsbladpublicatie.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-UPLOAD32",
+      "path": "fixtures/meegegeven-awb-artikel-3-2.txt",
+      "sha256": "73a64ab39bd2c2120adf13d323481153deed88b0a5f38b9e99d494ad0e5b9be0",
+      "bytes": 203,
+      "kind": "existing_local_upload",
+      "origin": "/Users/chrislehnen/Projecten/Wetsanalyse/test-data/awb-artikel-3-2.txt",
+      "source_version": null,
+      "locators": [
+        "wetszin onder beschrijvende kop"
+      ],
+      "verification": "Byte-identieke kopie van bestaand lokaal bestand. Geen nieuw deskundigenoordeel. De wetszin komt exact overeen met S-AWB32; oorspronkelijke upload bevat zelf geen URL of versie. Kop Zorgvuldigheidsbeginsel is een toegevoegde beschrijving.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-WIKI",
+      "path": "fixtures/wiki/LLM-wiki.md",
+      "sha256": "4704009b44d40c13904afd8018c4f35e9c1257c3f05c11291b8e157af764d966",
+      "bytes": 1898,
+      "kind": "derived_wiki",
+      "origin": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/begrippen/LLM-wiki.md",
+      "source_version": "last_updated 2026-08-03",
+      "locators": [
+        "frontmatter",
+        "Definitie"
+      ],
+      "verification": "Byte-identieke kopie van bestaand lokaal bestand. Geen nieuw deskundigenoordeel.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-WIKISOURCE",
+      "path": "fixtures/wiki/karpathy-llm-wiki-gist.md",
+      "sha256": "b918678627ab4c9027fbcd9869f7db6dfe3c7d567c8340a0c08bdfff682a7253",
+      "bytes": 4434,
+      "kind": "derived_source_page",
+      "origin": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/sources/karpathy-llm-wiki-gist.md",
+      "source_version": "gedeclareerd last_updated 2026-08-03",
+      "locators": [
+        "samenvatting; verwijzingen naar raw"
+      ],
+      "verification": "Byte-identieke kopie van bestaand lokaal bestand. Geen nieuw deskundigenoordeel. De frontmatterdatum is geen onveranderlijk revisie-ID; SHA256 identificeert de precieze kopie.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-RAW",
+      "path": "fixtures/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+      "sha256": "dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401",
+      "bytes": 11985,
+      "kind": "historical_primary_capture",
+      "origin": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+      "source_version": "capture 2026-07-08",
+      "locators": [
+        "The core idea",
+        "Architecture / Raw sources"
+      ],
+      "verification": "Byte-identieke kopie van bestaand lokaal bestand. Geen nieuw deskundigenoordeel. SHA256 komt overeen met raw/BRONNEN.md; upstream niet opnieuw opgehaald. Canonieke URL volgens dat register: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f .",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "M-WIKI",
+      "path": "fixtures/mutanten/LLM-wiki-onjuist.md",
+      "sha256": "05b9d41bdfb27160c30724616e0ba44370973343f4fbcfd14af45fcad7e471dd",
+      "bytes": 1930,
+      "kind": "intentional_test_mutation",
+      "origin": "S-WIKI",
+      "source_version": "TEST-MUTATIE, geen echte wiki-revisie",
+      "locators": [
+        "Definitie"
+      ],
+      "verification": "Alleen definitie gewijzigd; reviewed/high bewust behouden als negatieve test. Nooit terugschrijven naar oorspronkelijke wiki.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "M-RAW",
+      "path": "fixtures/mutanten/karpathy-raw-gewijzigd.md",
+      "sha256": "addb6e3a4034d12ab178044bef2bec643b0d8f17a2a5487fafdbede31355e3df",
+      "bytes": 11983,
+      "kind": "intentional_test_mutation",
+      "origin": "S-RAW",
+      "source_version": "TEST-MUTATIE, geen auteursrevisie",
+      "locators": [
+        "Architecture / Raw sources"
+      ],
+      "verification": "immutable -> mutable; verwachte registerhash blijft die van S-RAW. Hiermee moet integriteitscontrole falen.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "M-UPLOAD",
+      "path": "fixtures/mutanten/meegegeven-awb-artikel-3-2.txt",
+      "sha256": "2a12e4a4b9fab6efe364f59e4547e2bb41034395410fe66e23ec30031f3b34e4",
+      "bytes": 177,
+      "kind": "intentional_test_mutation",
+      "origin": "S-UPLOAD32",
+      "source_version": "TEST-MUTATIE, geen wetswijziging",
+      "locators": [
+        "artikeltekst"
+      ],
+      "verification": "Zelfde bestandsnaam in aparte map, inhoud gewijzigd. Geen fictieve historische wetsversie.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-RENAME",
+      "path": "fixtures/hernoemd/awb-1-3-andere-naam.txt",
+      "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+      "bytes": 708,
+      "kind": "identical_bytes_renamed",
+      "origin": "S-AWB13",
+      "source_version": "2026-08-15",
+      "locators": [
+        "artikel 1:3"
+      ],
+      "verification": "Exact dezelfde bytes als S-AWB13, andere bestandsnaam.",
+      "copied_at": "2026-09-14"
+    },
+    {
+      "id": "S-RAWREGISTER",
+      "path": "fixtures/raw/register-uittreksel.md",
+      "sha256": "e7500aa7bad7c12ec056f8c6bb356e14bb85d9946bc91dde10224144e3fd0f33",
+      "bytes": 486,
+      "kind": "local_register_excerpt",
+      "origin": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/BRONNEN.md",
+      "origin_sha256": "e62aabf373437aab37f404bed775964f03ebca33afd240b97ac48b6a7dd0dd36",
+      "source_version": null,
+      "copied_at": "2026-09-14",
+      "locators": [
+        "rij 2026-07-08-karpathy-llm-wiki-gist.md"
+      ],
+      "verification": "Exacte relevante registerrij in nieuw uittreksel met eigen kop en toelichting. Geen byte-identieke kopie van hele register; bronversie onbekend. Hash uit rij komt overeen met S-RAW, niet met M-RAW."
+    },
+    {
+      "id": "S-ASTRA-ACTUEEL",
+      "path": "fixtures/astra-actueel-20260914.md",
+      "sha256": "54aa8f6fc8cc316dbd5f7edef243ec69d6fdc9ced301a5d247d7d67b27f181b4",
+      "bytes": 1483,
+      "kind": "primary_norm_read_short_quote_and_summary",
+      "origin": "https://www.astraonline.nl/index.php/Baseren_op_authentieke_bron",
+      "source_version": "actuele pagina geraadpleegd 2026-09-14",
+      "retrieved_at": "2026-09-14T12:54:04Z",
+      "locators": [
+        "tabel: Regel",
+        "tabel: Toelichting",
+        "tabel: Voorbeelden"
+      ],
+      "verification": "Primaire actuele pagina inhoudelijk gelezen in browser. Vastlegging bevat kort letterlijk regelcitaat en gelabelde samenvatting, geen volledige bronbytes. Geen oude revisie of vergelijking als normgrondslag."
+    }
+  ],
+  "supersedes": "bronmanifest-v2.json"
+}
