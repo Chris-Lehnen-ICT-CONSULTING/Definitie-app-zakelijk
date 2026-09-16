@@ -13,7 +13,12 @@ from typing import Any
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
-from database.definitie_crud import UNSET, DefinitieCrudRepository, Unset
+from database.definitie_crud import (
+    UNSET,
+    Bronhelpers,
+    DefinitieCrudRepository,
+    Unset,
+)
 from database.definitie_duplicates import (
     DefinitieDuplicateRepository,
     DuplicaatKandidaatRij,
@@ -27,6 +32,8 @@ from database.models import (
     SourceType,
     VaststelconflictError,
     VoorbeeldenRecord,
+    Voorstelreservering,
+    Voorsteltoepassing,
 )
 from database.synonym_sync import SynonymSyncService
 from database.voorbeelden_repository import VoorbeeldenRepository
@@ -34,6 +41,7 @@ from domain.ontological_categories import OntologischeCategorie
 
 __all__ = [
     "UNSET",
+    "Bronhelpers",
     "DefinitieRecord",
     "DefinitieRepository",
     "DefinitieStatus",
@@ -42,6 +50,8 @@ __all__ = [
     "Unset",
     "VaststelconflictError",
     "VoorbeeldenRecord",
+    "Voorstelreservering",
+    "Voorsteltoepassing",
     "clear_repository_singleton",
     "get_definitie_repository",
     "validate_and_get_repository",
@@ -53,7 +63,12 @@ logger = logging.getLogger(__name__)
 class DefinitieRepository:
     """Facade — delegeert naar gefocuste sub-repositories."""
 
-    def __init__(self, db_path: str = "data/definities.db"):
+    def __init__(
+        self,
+        db_path: str = "data/definities.db",
+        *,
+        bronhelpers: Bronhelpers | None = None,
+    ):
         self.db_path = db_path
         self._db = DatabaseConnection(db_path)
         self._db.init_database()
@@ -61,7 +76,11 @@ class DefinitieRepository:
         self._duplicates = DefinitieDuplicateRepository(self._db, self._audit)
         self._search = DefinitieSearchRepository(self._db, self._audit)
         self._crud = DefinitieCrudRepository(
-            self._db, self._audit, self._duplicates, self._search
+            self._db,
+            self._audit,
+            self._duplicates,
+            self._search,
+            bronhelpers=bronhelpers,
         )
         self._import_export = DefinitieImportExportRepository(self._db, self._audit)
         self._synonym_sync = SynonymSyncService(
@@ -189,6 +208,95 @@ class DefinitieRepository:
         """
         return self._crud.set_context_review(
             definitie_id, review, updated_by, expected_version=expected_version
+        )
+
+    # === Bronbewijs, CON-02-uitzondering en voorstellen (DEF-743) ===
+    def set_source_review(
+        self,
+        definitie_id: int,
+        review: dict[str, Any] | None,
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> bool:
+        """Leg de CON-02-deskundigenuitzondering vast (platte getypeerde vorm)."""
+        return self._crud.set_source_review(
+            definitie_id, review, updated_by, expected_version=expected_version
+        )
+
+    def set_source_assessment(
+        self,
+        definitie_id: int,
+        assessment: dict[str, Any],
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> bool:
+        """Vervang de AI-bronbeoordeling in het actuele bewijs (herbeoordeling)."""
+        return self._crud.set_source_assessment(
+            definitie_id, assessment, updated_by, expected_version=expected_version
+        )
+
+    def reserve_source_proposal(
+        self, definitie_id: int, *, updated_by: str, expected_version: int
+    ) -> Voorstelreservering:
+        return self._crud.reserve_source_proposal(
+            definitie_id, updated_by=updated_by, expected_version=expected_version
+        )
+
+    def record_source_proposal_outcome(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        outcome: dict[str, Any],
+        *,
+        updated_by: str,
+        expected_version: int,
+    ) -> bool:
+        return self._crud.record_source_proposal_outcome(
+            definitie_id,
+            proposal_id,
+            outcome,
+            updated_by=updated_by,
+            expected_version=expected_version,
+        )
+
+    def apply_source_proposal(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        *,
+        updated_by: str,
+        expected_version: int,
+        validation: dict[str, Any],
+        source_assessment: dict[str, Any] | None = None,
+    ) -> Voorsteltoepassing:
+        return self._crud.apply_source_proposal(
+            definitie_id,
+            proposal_id,
+            updated_by=updated_by,
+            expected_version=expected_version,
+            validation=validation,
+            source_assessment=source_assessment,
+        )
+
+    def set_source_proposal_status(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        status: str,
+        updated_by: str,
+        *,
+        expected_version: int,
+        note: str | None = None,
+    ) -> bool:
+        return self._crud.set_source_proposal_status(
+            definitie_id,
+            proposal_id,
+            status,
+            updated_by,
+            expected_version=expected_version,
+            note=note,
         )
 
     # === Transactiegrens (DEF-482) ===

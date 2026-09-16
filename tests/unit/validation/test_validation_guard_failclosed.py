@@ -581,11 +581,14 @@ def test_ui_stopt_voor_score_gate_en_detailrenderer(
     ), getoond
 
 
-def test_ui_toont_score_bij_validated(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_ui_toont_uitkomsten_bij_validated(monkeypatch: pytest.MonkeyPatch) -> None:
     """De early return mag niet alle resultaten onderdrukken.
 
     Zonder deze positieve regressie zou een renderer die altijd stopt de
-    negatieve test ook groen maken - en dan toont de UI nooit meer een score.
+    negatieve test ook groen maken - en dan toont de UI nooit meer uitkomsten.
+    DEF-743 (besluit 3): bij een gevalideerd resultaat verschijnt géén
+    totaalcijfer (ook niet de meegegeven 0.82) maar wel de beoordelingsdekking
+    en de detailhelpers worden bereikt.
     """
     from ui.components import validation_view
 
@@ -609,8 +612,12 @@ def test_ui_toont_score_bij_validated(monkeypatch: pytest.MonkeyPatch) -> None:
         show_toggle=False,
     )
 
-    assert any("Overall Score" in t for t in getoond), getoond
-    assert bereikt == ["stats", "detail"], bereikt
+    assert not any("Overall Score" in t for t in getoond), getoond
+    assert not any("0.82" in t for t in getoond), getoond
+    assert any("Beoordelingsdekking" in t for t in getoond), getoond
+    assert any("OK regel" in t for t in getoond), getoond
+    # De stats-helper wordt door de dekkingsberekening én de detaillijst bereikt.
+    assert "stats" in bereikt and bereikt[-1] == "detail", bereikt
 
 
 @pytest.mark.parametrize(

@@ -115,15 +115,18 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: Daardoor draait DUP_01 (pass: geen duplicaat) i.p.v. `not_evaluated`, en
 #: signaleert CON-01 de geselecteerde juridische context "strafprocesrecht" in
 #: de definitiezin als naamsignaal (`review_required`, B-04) i.p.v. `pass`.
+#: DEF-743: CON-02 toetst de aangeleverde bronnen; deze journey levert er
+#: geen aan, dus CON-02 is expliciet open (`review_required`) i.p.v. een
+#: woordpatroon-`fail` — één regel minder gefaald, één meer open.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 36,
+    "evaluated": 35,
     "passed": 30,
-    "failed": 6,
-    "review_required": 13,
+    "failed": 5,
+    "review_required": 14,
     "not_evaluated": 4,
     "error": 0,
     "total": 53,
-    "coverage_ratio": 0.6792,
+    "coverage_ratio": 0.6604,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -161,7 +164,6 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "VER-02",
 ]
 VERWACHTE_GEFAALDE_REGELS = [
-    "CON-02",
     "ESS-03",
     "ESS-05",
     "INT-01",
@@ -175,6 +177,30 @@ VERWACHTE_GEFAALDE_REGELS = [
 VERWACHTE_GATE: dict[str, Any] = {
     "status": "override_required",
     "reasons": ["Geen validatieresultaat beschikbaar (eerst (her)valideren)"],
+}
+#: De generieke scorereden uit `VERWACHTE_GATE`, apart benoemd omdat hij ook
+#: naast de CON-02-blokkades hoort te staan (de gate laat geen reden vallen).
+VERWACHTE_SCOREREDEN = VERWACHTE_GATE["reasons"][0]
+
+#: DEF-743 (CON-02): deze journey levert geen bronnen aan (web lookup is door de
+#: testgate geblokkeerd, geen RAG, geen upload). Zonder bronbewijs is CON-02
+#: 'nog te beoordelen' en blokkeert de vaststelgate — dat is geen defect maar
+#: de norm (besluit 15-09-2026). De enige gedocumenteerde route is de
+#: deskundige uitzondering "geen passende bron" na gedocumenteerd zoeken; die
+#: wordt hieronder via de echte repositorycommand vastgelegd (bevroren platte
+#: vorm, C-contract §6) en blijft zichtbaar een uitzondering — geen pass.
+CON02_ONDERDELEN = ("brongezag/toepasselijkheid", "betekenissteun", "verwijskwaliteit")
+UITZONDERINGSMOTIVERING = (
+    "synthetisch begrip zonder externe bron: geen passende authentieke of "
+    "gezaghebbende bron beschikbaar voor deze betekenis, context en peildatum"
+)
+GEDOCUMENTEERD_ZOEKEN = {
+    "queries": [f"{BEGRIP} definitie", f"{BEGRIP} Wetboek van Strafrecht"],
+    "consulted": [
+        "wetten.overheid.nl (geblokkeerd in de offline journey)",
+        "intern register",
+    ],
+    "conclusion": "geen passende bron gevonden; uitzondering gedocumenteerd",
 }
 
 #: Vaststellen wordt geweigerd omdat een synthetische actor geen rol draagt en
@@ -403,22 +429,68 @@ def _bewijs_geschiedenis(historie: list[dict[str, Any]]) -> None:
     ), f"geschiedenis: type is {regel['wijziging_type']!r}"
 
 
-def _bewijs_reviewrij(rij: dict[str, Any] | None) -> None:
+def _bewijs_reviewrij(
+    rij: dict[str, Any] | None, *, versie: int = 3, actor: str = INDIENER
+) -> None:
     """Na indienen staat de rij aantoonbaar in review, met opgehoogde versie.
 
     De statuswijziging verbruikt zélf een versienummer (2 → 3). Dat is relevant
     voor de reviewer: het snapshot dat hij beoordeelt heeft een ander
-    versienummer dan de bewerking die hij las.
+    versienummer dan de bewerking die hij las. De vastgelegde CON-02-
+    uitzondering verbruikt daarna opnieuw een versie (3 → 4) en zet de
+    beoordelaar als handelende gebruiker.
     """
     assert rij is not None, "review: geen rij gevonden bij dit id"
     assert rij["status"] == "review", f"review: status is {rij['status']!r}"
     assert (
-        rij["version_number"] == 3
-    ), f"review: versie is {rij['version_number']} i.p.v. 3"
-    assert rij["updated_by"] == INDIENER, f"review: indiener is {rij['updated_by']!r}"
+        rij["version_number"] == versie
+    ), f"review: versie is {rij['version_number']} i.p.v. {versie}"
+    assert rij["updated_by"] == actor, f"review: indiener is {rij['updated_by']!r}"
     assert (
         rij["definitie"] == NIEUWE_DEFINITIE
     ), f"review: beoordeelde tekst wijkt af: {rij['definitie']!r}"
+
+
+def _bewijs_gate_geblokkeerd_zonder_bronbewijs(gate: dict[str, Any]) -> None:
+    """Vóór de deskundige uitzondering blokkeert CON-02 (nog te beoordelen).
+
+    Drie open onderdelen, elk met een eigen reden, náást de generieke
+    scorereden: de gate laat geen reden vallen en maakt van ontbrekend
+    bronbewijs geen 'override_required'.
+    """
+    assert gate["status"] == "blocked", f"review: gate vóór uitzondering: {gate}"
+    redenen = gate["reasons"]
+    for onderdeel in CON02_ONDERDELEN:
+        assert any(
+            r.startswith("CON-02 Nog te beoordelen") and onderdeel in r for r in redenen
+        ), f"review: CON-02-blokkade voor {onderdeel!r} ontbreekt: {redenen}"
+    assert VERWACHTE_SCOREREDEN in redenen, f"review: scorereden ontbreekt: {redenen}"
+    assert (
+        len(redenen) == len(CON02_ONDERDELEN) + 1
+    ), f"review: onverwachte reden: {redenen}"
+
+
+def _bewijs_uitzondering_vastgelegd(
+    repository: Any, definitie_id: int, *, versie: int
+) -> dict[str, Any]:
+    """De uitzondering staat op het record, gebonden aan versie en vingerafdruk.
+
+    Gelezen via de repository (de route van gate en export), niet via de invoer:
+    een geaccepteerd commando bewijst nog geen duurzame, gebonden review.
+    """
+    record = repository.get_definitie(definitie_id)
+    assert record is not None, "review: record na uitzondering niet gevonden"
+    velden = record.get_contractvelden()
+    review = velden.get("source_review")
+    assert isinstance(
+        review, dict
+    ), f"review: geen uitzondering op het record: {velden!r}"
+    assert review["type"] == "no_appropriate_source", review
+    assert review["accepted"] is True, review
+    assert review["actor"] == BEOORDELAAR, review
+    assert review["version_number"] == versie, review
+    assert review["search"]["conclusion"] == GEDOCUMENTEERD_ZOEKEN["conclusion"], review
+    return review
 
 
 def _bewijs_reviewbesluit(
@@ -590,17 +662,64 @@ async def test_offline_kernjourney_van_generatie_tot_export(
     rij_in_review = _verse_rij(omgeving.db_path, definitie_id)
     _bewijs_reviewrij(rij_in_review)
 
+    # DEF-743 (CON-02): zonder bronbewijs blokkeert de gate — vóór enige
+    # uitzondering. Dit is de norm en wordt hier eerst bewezen.
+    _bewijs_gate_geblokkeerd_zonder_bronbewijs(workflow.preview_gate(definitie_id))
+
+    # De deskundige legt de gedocumenteerde uitzondering "geen passende bron"
+    # vast via de echte repositorycommand (optimistic lock op de beoordeelde
+    # versie, vingerafdruk over het OPGESLAGEN record zoals D die herberekent:
+    # begrip, definitiezin, contextlijsten, opgeslagen bronset, peildatum).
+    from domain.sources.contract import bereken_bronvingerafdruk
+
+    repository = omgeving.container.repository()
+    record_in_review = repository.get_definitie(definitie_id)
+    assert record_in_review is not None, "review: record niet leesbaar via repository"
+    bewijs = record_in_review.get_source_evidence() or {}
+    assert not (bewijs.get("sources") or []), (
+        "review: deze journey hoort geen bronnen te dragen; de uitzondering "
+        f"'geen passende bron' is dan niet de juiste route: {bewijs.get('sources')!r}"
+    )
+    uitzondering = {
+        "type": "no_appropriate_source",
+        "accepted": True,
+        "actor": BEOORDELAAR,
+        "rationale": UITZONDERINGSMOTIVERING,
+        "version_number": rij_in_review["version_number"],
+        "fingerprint": bereken_bronvingerafdruk(
+            record_in_review.begrip,
+            record_in_review.get_definitie_tekst(),
+            record_in_review.get_contextlijsten(),
+            bewijs.get("sources") or [],
+            peildatum=bewijs.get("peildatum"),
+        ),
+        "reviewed_at": None,
+        "search": dict(GEDOCUMENTEERD_ZOEKEN),
+    }
+    assert repository.set_source_review(
+        definitie_id,
+        uitzondering,
+        BEOORDELAAR,
+        expected_version=rij_in_review["version_number"],
+    ), "review: de uitzondering is niet vastgelegd (versieconflict of afwijzing)"
+    rij_met_uitzondering = _verse_rij(omgeving.db_path, definitie_id)
+    _bewijs_reviewrij(rij_met_uitzondering, versie=4, actor=BEOORDELAAR)
+    _bewijs_uitzondering_vastgelegd(repository, definitie_id, versie=4)
+
+    # Mét de geaccepteerde uitzondering blijft alleen de generieke scoregate
+    # (DEF-630) over: `override_required`, niet 'pass' — de uitzondering is
+    # geen goedkeuring en de rolloze actor kan nog steeds niet vaststellen.
     gate = workflow.preview_gate(definitie_id)
     vaststellen = workflow.approve(
         definitie_id,
         user=BEOORDELAAR,
         notes="synthetische override-reden bij ontbrekende score",
-        expected_version=rij_in_review["version_number"],
+        expected_version=rij_met_uitzondering["version_number"],
     )
     _bewijs_reviewbesluit(indienen, gate, vaststellen)
 
     rij_na_review = _verse_rij(omgeving.db_path, definitie_id)
-    _bewijs_reviewrij(rij_na_review)
+    _bewijs_reviewrij(rij_na_review, versie=4, actor=BEOORDELAAR)
     assert (
         rij_na_review["approved_by"] is None
     ), f"review: er is toch vastgesteld door {rij_na_review['approved_by']!r}"

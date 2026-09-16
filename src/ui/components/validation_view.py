@@ -147,6 +147,115 @@ def _calculate_validation_stats(violations: list, passed_rules: list) -> dict:
     }
 
 
+#: Regelstatussen in vaste weergavevolgorde (DEF-743, besluit 3): eerst de
+#: werkelijk uitgevoerde oordelen, dan wat open, mislukt of niet gedraaid is.
+_DEKKING_VOLGORDE: tuple[tuple[str, str], ...] = (
+    ("pass", "✅ {n} voldoet"),
+    ("fail", "❌ {n} voldoet niet"),
+    ("review_required", "🟠 {n} nog te beoordelen"),
+    ("error", "⚙️ {n} technisch probleem"),
+    ("not_evaluated", "⏸️ {n} niet beoordeeld"),
+)
+
+
+def bereken_beoordelingsdekking(
+    validation_result: dict[str, Any],
+) -> dict[str, int] | None:
+    """Telling per regelstatus: wat is werkelijk beoordeeld en wat niet.
+
+    DEF-743 (besluit 3, 15-09-2026): de app toont geen totaalcijfer en geen
+    vervangende deelscore, wél welke controles daadwerkelijk zijn uitgevoerd
+    en welke nog niet beoordeeld zijn. Bron in volgorde van betrouwbaarheid:
+    ``evaluation_coverage`` (DEF-624), anders ``rule_statuses``, anders — voor
+    een oud resultaat zonder statussen — alleen de pass/fail-lijsten. Een
+    ontbrekende beoordeling wordt nooit als pass of als nul ingevuld; is er
+    niets te tellen, dan is de dekking onbekend (None).
+    """
+    dekking = validation_result.get("evaluation_coverage")
+    if isinstance(dekking, dict) and isinstance(dekking.get("total"), int):
+        telling = {
+            "pass": int(dekking.get("passed") or 0),
+            "fail": int(dekking.get("failed") or 0),
+            "review_required": int(dekking.get("review_required") or 0),
+            "error": int(dekking.get("error") or 0),
+            "not_evaluated": int(dekking.get("not_evaluated") or 0),
+        }
+        return {"total": int(dekking["total"]), **telling}
+
+    statussen = validation_result.get("rule_statuses")
+    if isinstance(statussen, dict) and statussen:
+        telling = {status: 0 for status, _ in _DEKKING_VOLGORDE}
+        for status in statussen.values():
+            sleutel = str(status)
+            telling[sleutel] = telling.get(sleutel, 0) + 1
+        return {"total": len(statussen), **telling}
+
+    stats = _calculate_validation_stats(
+        list(validation_result.get("violations") or []),
+        list(validation_result.get("passed_rules") or []),
+    )
+    if not stats["total"]:
+        return None
+    return {
+        "total": stats["total"],
+        "pass": stats["passed_count"],
+        "fail": stats["failed_count"],
+        "review_required": 0,
+        "error": 0,
+        "not_evaluated": 0,
+    }
+
+
+def dekkingsregel(dekking: dict[str, int] | None) -> str:
+    """De dekkingsregel voor de UI, zonder percentage of cijfer.
+
+    Een percentage of 'x/y geslaagd' is een vervangende deelscore en kan
+    bij lagere dekking een hogere kwaliteit suggereren; daarom alleen de
+    absolute tellingen per status.
+    """
+    if not dekking:
+        return (
+            "📋 **Beoordelingsdekking**: onbekend — het resultaat bevat geen "
+            "regelstatussen."
+        )
+    delen = [
+        sjabloon.format(n=dekking.get(status, 0))
+        for status, sjabloon in _DEKKING_VOLGORDE
+        if dekking.get(status, 0) or status in ("pass", "fail")
+    ]
+    return f"📋 **Beoordelingsdekking**: {dekking['total']} regels · " + " · ".join(
+        delen
+    )
+
+
+def _statuslijst_regels(
+    validation_result: dict[str, Any], *, uitgesloten: set[str]
+) -> list[str]:
+    """Regels die open, mislukt of niet gedraaid zijn — als eigen lijnen.
+
+    Zij staan noch bij de violations noch bij de geslaagde regels en zouden
+    anders onzichtbaar blijven; een regel met gestructureerde uitkomst
+    (``rule_results``) wordt apart in detail getoond en hier overgeslagen.
+    """
+    statussen = validation_result.get("rule_statuses")
+    if not isinstance(statussen, dict):
+        return []
+    lijnen: list[str] = []
+    for status, label in (
+        ("review_required", "🟠 Nog te beoordelen"),
+        ("error", "⚙️ Technisch probleem"),
+        ("not_evaluated", "⏸️ Niet beoordeeld"),
+    ):
+        codes = sorted(
+            (str(code) for code, s in statussen.items() if str(s) == status),
+            key=_rule_sort_key,
+        )
+        codes = [c for c in codes if c not in uitgesloten]
+        if codes:
+            lijnen.append(f"{label}: {', '.join(codes)}")
+    return lijnen
+
+
 def _build_detailed_assessment(validation_result: dict) -> list[str]:
     """Build a mixed list of summary, violations and passed rules lines."""
     violations = list(validation_result.get("violations") or [])
@@ -162,12 +271,8 @@ def _build_detailed_assessment(validation_result: dict) -> list[str]:
         return "📋"
 
     lines: list[str] = []
-    # Summary first
-    summary = (
-        f"📊 **Toetsing Samenvatting**: {stats['passed_count']}/{stats['total']} regels geslaagd ({stats['percentage']:.1f}%)"
-        + (f" | ❌ {stats['failed_count']} gefaald" if stats["failed_count"] else "")
-    )
-    lines.append(summary)
+    # Summary first: de dekking, geen 'x/y geslaagd (z%)' (DEF-743, besluit 3).
+    lines.append(dekkingsregel(bereken_beoordelingsdekking(validation_result)))
 
     # Violations (sorted)
     def _v_key(v: dict[str, Any]) -> tuple[int, int]:
@@ -212,14 +317,157 @@ _UITKOMSTLABEL: dict[str, str] = {
 }
 
 
+#: Herkomst van een deeloordeel (DEF-743): het `field` van een CON-02-onderdeel
+#: zegt wáár het oordeel vandaan komt. Een AI-oordeel is herkenbaar als AI; een
+#: deskundige uitzondering is herkenbaar als uitzondering, nooit als gewone pass.
+_HERKOMSTLABEL: dict[str, str] = {
+    "source_assessment": "AI-beoordeling",
+    "source_review": "deskundige uitzondering",
+}
+
+#: Onderdeelnamen van CON-02 (voor de correctieweergave).
+_ONDERDEELLABEL: dict[str, str] = {
+    "source_authority": "brongezag/toepasselijkheid",
+    "semantic_support": "betekenissteun",
+    "reference_quality": "verwijskwaliteit",
+}
+
+#: Labels voor een geaccepteerde uitzondering (`review.accepted_exception`).
+_UITZONDERINGSLABEL: dict[str, str] = {
+    "reference": "verwijzingsuitzondering (bron zonder bruikbare hyperlink)",
+    "no_source": "uitzondering wegens onderbouwd ontbreken van een passende bron",
+}
+
+
+def _als_dict(waarde: Any) -> dict[str, Any]:
+    """Typegetrouwe vernauwing: een dict, anders een lege dict."""
+    return waarde if isinstance(waarde, dict) else {}
+
+
+def _correctieregel(review: dict[str, Any], correctie: dict[str, Any]) -> str:
+    """DEF-743 C §6b: correctie van één AI-onderdeel — geen uitzondering en
+    geen globale pass; het oorspronkelijke AI-oordeel blijft zichtbaar."""
+    origineel = _als_dict(correctie.get("original"))
+    onderdeel = _ONDERDEELLABEL.get(
+        str(correctie.get("part_id")), str(correctie.get("part_id"))
+    )
+    return (
+        f"🧑‍⚖️ Deskundige correctie van {onderdeel} door "
+        f"{correctie.get('actor') or review.get('actor') or 'onbekend'}: "
+        f"{_UITKOMSTLABEL.get(str(correctie.get('status')), str(correctie.get('status')))}"
+        f" (bewijsclaims: {len(correctie.get('evidence') or [])}). "
+        f"Oorspronkelijk AI-oordeel: "
+        f"{_UITKOMSTLABEL.get(str(origineel.get('status')), str(origineel.get('status')))}"
+        + (f" — {origineel.get('reason')}" if origineel.get("reason") else "")
+        + ". Dit is een correctie van één onderdeel, geen uitzondering en geen "
+        "algemene beoordeling."
+    )
+
+
+def _beoordelingsstatusregel(
+    status: str, beoordeling: dict[str, Any], attributie: str
+) -> str | None:
+    """Een niet-uitgevoerde AI-beoordeling: technisch mislukt, geen bronnen,
+    geen dienst. None als de status daar niet over gaat."""
+    if status == "error":
+        return (
+            "⚙️ AI-bronbeoordeling technisch mislukt"
+            f"{attributie}: {beoordeling.get('reason') or 'geen details'}"
+        )
+    if status == "no_sources":
+        return "ℹ️ Geen bronnen aangeleverd: geen AI-bronbeoordeling uitgevoerd."
+    if status == "unavailable":
+        return (
+            "⚙️ Geen bronbeoordelingsdienst beschikbaar: "
+            f"{beoordeling.get('reason') or 'AI-beoordeling niet uitgevoerd'}"
+        )
+    return None
+
+
+def _beoordelingsregel(beoordeling: dict[str, Any]) -> str | None:
+    """Het `assessment`-blok: status van de AI-beoordeling, of en waarom die
+    niet is toegepast (stale/historisch, technische fout) en de attributie."""
+    status = str(beoordeling.get("status") or "")
+    model = beoordeling.get("model")
+    provider = beoordeling.get("provider")
+    attributie = f" ({provider or 'onbekende provider'} · {model})" if model else ""
+    statusregel = _beoordelingsstatusregel(status, beoordeling, attributie)
+    if statusregel is not None:
+        return statusregel
+    if beoordeling.get("applied") is False and status == "assessed":
+        return (
+            "⏳ AI-bronbeoordeling is verouderd/historisch en niet toegepast: "
+            f"{beoordeling.get('reason') or 'hoort niet bij deze tekst, context of bronset'}"
+        )
+    if beoordeling.get("applied") is False:
+        return (
+            "ℹ️ AI-bronbeoordeling niet uitgevoerd: "
+            f"{beoordeling.get('reason') or 'geen beoordeling beschikbaar'}"
+        )
+    if beoordeling.get("applied"):
+        afgewezen = beoordeling.get("rejected") or 0
+        return f"🤖 AI-bronbeoordeling toegepast{attributie}" + (
+            f"; {afgewezen} modelclaim(s) afgewezen (onbewezen of verzonnen)"
+            if afgewezen
+            else ""
+        )
+    return None
+
+
+def _review_regels(review: dict[str, Any]) -> list[str]:
+    """Leesbare regels over de review-/beoordelingssamenvatting van een regel.
+
+    CON-01 kent alleen `applied`/`reason`; CON-02 (DEF-743) draagt daarnaast
+    `accepted_exception`, `type`, `actor` en een `assessment`-blok (status van
+    de AI-beoordeling, of en waarom die niet is toegepast — stale/historisch,
+    technische fout — en de attributie). Alles wat niet telt wordt benoemd,
+    nooit stil weggelaten.
+    """
+    regels: list[str] = []
+    uitzondering = review.get("accepted_exception")
+    correctie = review.get("applied_correction")
+    if isinstance(correctie, dict) and correctie:
+        regels.append(_correctieregel(review, correctie))
+    if uitzondering:
+        label = _UITZONDERINGSLABEL.get(str(uitzondering), str(uitzondering))
+        actor = review.get("actor") or "onbekend"
+        regels.append(
+            f"🧑‍⚖️ Geaccepteerde deskundige {label} — vastgelegd door {actor}. "
+            "Dit is een uitzondering, geen positieve bronbeoordeling."
+        )
+    elif (
+        review.get("applied") is False
+        and review.get("reason")
+        and (review.get("actor") or review.get("type") or review.get("fingerprint"))
+    ):
+        # Alleen een wérkelijk aangeleverde beoordeling kan 'niet toegepast' zijn;
+        # zonder beoordeling is er niets te melden.
+        regels.append(
+            f"⏳ Eerdere deskundige beoordeling niet toegepast: {review['reason']}"
+        )
+    elif review.get("applied") and review.get("reason"):
+        regels.append(f"Beoordeling: {review['reason']}")
+    elif review.get("reason") and "accepted_exception" not in review:
+        # CON-01-vorm: alleen applied/reason.
+        regels.append(f"Beoordeling: {review['reason']}")
+
+    beoordeling = review.get("assessment")
+    if isinstance(beoordeling, dict):
+        beoordelingsregel = _beoordelingsregel(beoordeling)
+        if beoordelingsregel is not None:
+            regels.append(beoordelingsregel)
+    return regels
+
+
 def render_rule_results(rule_results: dict[str, Any]) -> None:
-    """Toon de uitkomsten van regels zonder cijfer (DEF-622, CON-01).
+    """Toon de uitkomsten van regels zonder cijfer (DEF-622 CON-01, DEF-743 CON-02).
 
     Per regel de samengestelde uitkomst, per onderdeel de aanleiding
-    (gevonden tekst), de reden en de vervolgstap (B-08). Een geslaagd
-    onderdeel wordt kort genoemd; een falend, open of mislukt onderdeel krijgt
-    zijn volledige uitleg, zodat de gebruiker weet wat er aan de hand is en
-    wat hij kan doen.
+    (gevonden tekst of geverifieerd citaat), de herkomst (AI of deskundige),
+    de reden en de vervolgstap (B-08). Een geslaagd onderdeel wordt kort
+    genoemd; een falend, open of mislukt onderdeel krijgt zijn volledige
+    uitleg. Een geaccepteerde uitzondering en een niet-toegepaste
+    (stale/historische) beoordeling worden expliciet benoemd.
     """
     for code, detail in sorted(rule_results.items()):
         if not isinstance(detail, dict):
@@ -231,14 +479,21 @@ def render_rule_results(rule_results: dict[str, Any]) -> None:
             if isinstance(part, dict):
                 _render_deeluitkomst(part)
         review = detail.get("review")
-        if isinstance(review, dict) and review.get("reason"):
-            st.markdown(f"_Beoordeling: {review['reason']}_")
+        if isinstance(review, dict):
+            for regel in _review_regels(review):
+                st.markdown(f"_{regel}_")
 
 
 def _render_deeluitkomst(part: dict[str, Any]) -> None:
-    """Eén onderdeel: kop (label + aanleiding + positie), reden en vervolgstap."""
+    """Eén onderdeel: kop (label + herkomst + aanleiding + positie), reden en vervolgstap."""
     deelstatus = str(part.get("status") or "")
     kop = _UITKOMSTLABEL.get(deelstatus, deelstatus)
+    herkomst = _HERKOMSTLABEL.get(str(part.get("field") or ""))
+    if herkomst:
+        kop += f" · {herkomst}"
+    onderdeel = part.get("id")
+    if onderdeel and str(onderdeel).startswith("expert_exception"):
+        kop += " · uitzondering"
     aanleiding = part.get("evidence")
     if aanleiding:
         kop += f" · aanleiding: '{aanleiding}'"
@@ -319,34 +574,17 @@ def render_validation_detailed_list(
 
     from ui.session_state import SessionStateManager
 
-    # Score. DEF-622: `None` is 'niet beschikbaar' (een regel zonder cijfer
-    # in de set) en nooit 0,00 — dat zou een slechte definitie suggereren
-    # terwijl er alleen geen totaalcijfer is. De regeluitkomsten hieronder
-    # blijven gewoon zichtbaar.
-    ruwe_score = validation_result.get("overall_score", 0.0)
-    if ruwe_score is None:
-        zonder_cijfer = sorted(
-            code
-            for code, detail in (validation_result.get("rule_results") or {}).items()
-            if isinstance(detail, dict) and detail.get("score") is None
-        )
-        toelichting = (
-            f" (regel zonder cijfer: {', '.join(zonder_cijfer)})"
-            if zonder_cijfer
-            else ""
-        )
-        st.markdown(f"**Totaalscore:** niet beschikbaar{toelichting}")
-    else:
-        overall_score = float(ruwe_score)
-        score_color = (
-            "green"
-            if overall_score > 0.8
-            else ("orange" if overall_score > 0.6 else "red")
-        )
-        st.markdown(
-            f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
-            unsafe_allow_html=True,
-        )
+    # DEF-743 (besluit 3, 15-09-2026): geen totaalcijfer en geen vervangende
+    # deelscore — ook niet uit een oud resultaat dat nog een getal draagt.
+    # `overall_score` wordt bewust niet gelezen: een oud opgeslagen cijfer is
+    # geen actuele kwaliteit. Wat wél telt: de regeloordelen hieronder en de
+    # werkelijke beoordelingsdekking (wat is uitgevoerd, wat niet).
+    st.markdown(
+        "**Totaalscore:** niet beschikbaar — de app toont per regel het "
+        "oordeel en de beoordelingsdekking, geen cijfer (DEF-743)."
+    )
+    dekking = bereken_beoordelingsdekking(validation_result)
+    st.markdown(dekkingsregel(dekking))
 
     # Gate indicator (supports both acceptance_gate and review/preview gate formats)
     g = gate or validation_result.get("acceptance_gate") or {}
@@ -417,24 +655,43 @@ def render_validation_detailed_list(
     if not show_details:
         return
 
-    # Summary (blue info bar) + detailed assessment
-    stats = _calculate_validation_stats(
+    # Summary (blue info bar) + detailed assessment. De samenvatting is de
+    # dekking (tellingen per status), geen 'x/y geslaagd (z%)' — een
+    # percentage is een vervangende deelscore (DEF-743, besluit 3). De stats
+    # blijven de bron van de gefaalde/geslaagde regelcodes hieronder.
+    _calculate_validation_stats(
         list(validation_result.get("violations") or []),
         list(validation_result.get("passed_rules") or []),
     )
-    st.info(
-        f"📊 **Toetsing Samenvatting**: {stats['passed_count']}/{stats['total']} regels geslaagd ({stats['percentage']:.1f}%)"
-        + (f" | ❌ {stats['failed_count']} gefaald" if stats["failed_count"] else "")
-    )
+    st.info(dekkingsregel(dekking))
 
     lines = _build_detailed_assessment(validation_result)
     # Filter out the summary line if present (we render a styled summary above)
-    lines = [ln for ln in lines if not ln.startswith("📊 ")]
+    lines = [ln for ln in lines if not ln.startswith("📋 **Beoordelingsdekking**")]
+    # Regels die open, mislukt of niet gedraaid zijn horen zichtbaar te
+    # blijven; regels met gestructureerde uitkomst staan al hierboven.
+    lines.extend(
+        _statuslijst_regels(
+            validation_result,
+            uitgesloten={
+                str(code)
+                for code, detail in (
+                    validation_result.get("rule_results") or {}
+                ).items()
+                if isinstance(detail, dict)
+            },
+        )
+    )
     if not lines:
         st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
         return
 
     for line in lines:
+        # Statuslijsten (open/mislukt/niet gedraaid): informatief, geen
+        # uitleg-expander per regel (het is een opsomming van codes).
+        if line.startswith(("🟠 Nog te beoordelen:", "⚙️ Technisch probleem:", "⏸️ ")):
+            st.info(line)
+            continue
         # Color per status
         if line.startswith("✅"):
             st.success(line)

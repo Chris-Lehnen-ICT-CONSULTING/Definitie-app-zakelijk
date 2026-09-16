@@ -73,8 +73,8 @@ class FormatExporter:
                 "Export niveau",
                 ["Basis", "Uitgebreid", "Compleet"],
                 help="Basis: 17 velden (definitie + voorbeelden)\n"
-                "Uitgebreid: 25 velden (+ metadata, proces, users)\n"
-                "Compleet: 36 velden (alle database velden)",
+                "Uitgebreid: 26 velden (+ metadata, proces, users, bronbewijs)\n"
+                "Compleet: 37 velden (alle database velden + bronbewijs)",
                 key="bulk_level",
             )
 
@@ -131,8 +131,8 @@ class FormatExporter:
                 "Export niveau",
                 ["Basis", "Uitgebreid", "Compleet"],
                 help="Basis: 17 velden (definitie + voorbeelden)\n"
-                "Uitgebreid: 25 velden (+ metadata, proces, users)\n"
-                "Compleet: 36 velden (alle database velden)",
+                "Uitgebreid: 26 velden (+ metadata, proces, users, bronbewijs)\n"
+                "Compleet: 37 velden (alle database velden + bronbewijs)",
                 key="individual_level",
             )
 
@@ -332,8 +332,8 @@ class FormatExporter:
         # Toon veldenaantal per niveau
         field_counts = {
             "Basis": "17 velden",
-            "Uitgebreid": "25 velden",
-            "Compleet": "36 velden",
+            "Uitgebreid": "26 velden",
+            "Compleet": "37 velden",
         }
         field_count = field_counts.get(level, "17 velden")
 

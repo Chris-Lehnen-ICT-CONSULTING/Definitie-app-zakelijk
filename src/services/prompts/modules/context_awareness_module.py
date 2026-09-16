@@ -4,7 +4,8 @@ Enhanced Context Awareness Module - Intelligent context processing met adaptieve
 Deze module integreert alle business logic van de Context Aware builder:
 1. Context richness scoring (0.0-1.0)
 2. Dynamische prompt aanpassing op basis van context kwaliteit
-3. Confidence indicators (high/medium/low levels)
+3. Neutrale bronpresentatie (route + inhoud; DEF-743: geen confidence-label —
+   `confidence_indicators` in de config heeft geen renderend effect meer)
 4. Advanced source formatting
 5. Abbreviation/expansion handling
 6. Verwerking van V2-contexten (organisatorisch, juridisch, wettelijk)
@@ -19,7 +20,6 @@ from services.prompts.sanitization import (
     datablok,
     sanitize_prompt_blok,
 )
-from utils.xml_source_formatter import confidence_to_level
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
@@ -50,7 +50,7 @@ class ContextAwarenessModule(BasePromptModule):
     Combineert alle context processing logic in één module:
     - Context richness scoring
     - Adaptive formatting based on context quality
-    - Source confidence visualization
+    - Bronpresentatie: route + inhoud, zonder gezags-/confidence-label (DEF-743)
     - Abbreviation handling
     - V2-contextverwerking: organisatorisch/juridisch/wettelijk (geen legacy 'domein')
 
@@ -274,12 +274,10 @@ Refereer context-specifieke verbanden.
             self._format_detailed_base_context(enriched_context.base_context)
         )
 
-        # Sources met confidence indicators
+        # Aangeleverde contextbronnen: route + inhoud, zonder gezagslabel (DEF-743)
         if enriched_context.sources:
             blok_regels.append("")
-            blok_regels.extend(
-                self._format_sources_with_confidence(enriched_context.sources)
-            )
+            blok_regels.extend(self._format_sources(enriched_context.sources))
 
         # Expanded terms
         if self.include_abbreviations and enriched_context.expanded_terms:
@@ -399,11 +397,16 @@ Refereer context-specifieke verbanden.
 
         return sections
 
-    def _format_sources_with_confidence(
-        self, sources: list[ContextSource]
-    ) -> list[str]:
+    def _format_sources(self, sources: list[ContextSource]) -> list[str]:
         """
-        Format sources met confidence indicators.
+        Format aangeleverde contextbronnen: route + inhoud.
+
+        DEF-743: het vroegere `[high] Document (confidence=0.90)` kwam uit een
+        vaste constante (`definition_generator_context`: 0.9 voor
+        `document_context`) en suggereerde gezag/betrouwbaarheid. Een
+        aanvoerroute of confidence is geen bewijs van brongezag; dat oordeel
+        valt onder CON-02 op de brongegevens. De 150-tekenspreview en de
+        plaats binnen het `context`-datablok zijn ongewijzigd.
 
         Args:
             sources: Lijst van source objecten
@@ -414,10 +417,8 @@ Refereer context-specifieke verbanden.
         sections = ["ADDITIONELE BRONNEN:"]
 
         for source in sources:
-            level = confidence_to_level(source.confidence)
             sections.append(
-                f"  [{level}] {source.source_type.title()} "
-                f"(confidence={source.confidence:.2f}): {source.content[:150]}..."
+                f"  {source.source_type.title()}: {source.content[:150]}..."
             )
 
         return sections

@@ -108,20 +108,25 @@ async def test_ver01_lemma_plural_triggers():
 
 
 @pytest.mark.asyncio
-async def test_con02_authentic_source_required():
-    svc = ModularValidationService(get_toetsregel_manager(), None, None)
-    res = await svc.validate_definition(
-        begrip="maatregel",
-        text="maatregel: corrigerende actie …",
-        ontologische_categorie=None,
-        context={},
-    )
-    assert any(v.get("code") == "CON-02" for v in res.get("violations", []))
+async def test_con02_bronbasis_is_zonder_bronnen_open_niet_woordpatroon():
+    """DEF-743: CON-02 toetst de aangeleverde bronnen, niet een bronwoord in de zin.
 
-    res_ok = await svc.validate_definition(
-        begrip="maatregel",
-        text="maatregel: corrigerende actie volgens het Wetboek …",
-        ontologische_categorie=None,
-        context={},
-    )
-    assert not any(v.get("code") == "CON-02" for v in res_ok.get("violations", []))
+    Vóór DEF-743 gaf `volgens het Wetboek` een pass en het ontbreken ervan een
+    violation. Nu is zonder bronnen de uitkomst in beide gevallen expliciet
+    'nog te beoordelen': geen violation, geen pass, geen cijfer.
+    """
+    svc = ModularValidationService(get_toetsregel_manager(), None, None)
+    for text in (
+        "maatregel: corrigerende actie …",
+        "maatregel: corrigerende actie volgens het Wetboek …",
+    ):
+        res = await svc.validate_definition(
+            begrip="maatregel",
+            text=text,
+            ontologische_categorie=None,
+            context={},
+        )
+        assert not any(v.get("code") == "CON-02" for v in res.get("violations", []))
+        assert res["rule_statuses"]["CON-02"] == "review_required"
+        assert "CON-02" not in res["passed_rules"]
+        assert res["rule_results"]["CON-02"]["score"] is None

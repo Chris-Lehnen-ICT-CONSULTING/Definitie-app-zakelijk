@@ -41,6 +41,24 @@ def sessie(monkeypatch):
 
 
 def _record(repo: DefinitieRepository) -> DefinitieRecord:
+    # DEF-743: zonder bronnen is vaststelling alleen mogelijk met een
+    # gedocumenteerde uitzondering "geen passende bron" (CON-02); als echte,
+    # gebonden marker gezaaid (geen versiebump) zodat deze proeven CON-01
+    # blijven isoleren.
+    import json as _json
+
+    from tests.fixtures.def743_fakes import geen_bron_uitzondering_marker
+
+    marker = geen_bron_uitzondering_marker(
+        "keurmerk",
+        TEKST,
+        {
+            "organisatorische_context": ["Stichting Zilver"],
+            "juridische_context": ["privaatrecht"],
+            "wettelijke_basis": ["Regeling Z"],
+        },
+        actor="synthetische-expert",
+    )
     did = repo.create_definitie(
         DefinitieRecord(
             begrip="keurmerk",
@@ -51,6 +69,7 @@ def _record(repo: DefinitieRepository) -> DefinitieRecord:
             wettelijke_basis='["Regeling Z"]',
             status=DefinitieStatus.REVIEW.value,
             validation_score=0.9,
+            validation_issues=_json.dumps([marker], ensure_ascii=False),
         )
     )
     rec = repo.get_definitie(did)

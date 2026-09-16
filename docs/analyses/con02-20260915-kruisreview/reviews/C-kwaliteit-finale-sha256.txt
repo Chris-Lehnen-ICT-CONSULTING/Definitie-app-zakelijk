@@ -1,0 +1,2 @@
+7846cdb8eebaf57ade7ef251c9a81aaa9146384d03f21cfd2835eaf40845485b  src/domain/sources/contract.py
+e51affe8fc51ec180aebf82c907f3fa612f9e25a8d843d9cf0652d25d79716ce  tests/unit/validation/test_def743_source_assessment_service.py

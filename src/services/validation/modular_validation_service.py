@@ -1928,8 +1928,9 @@ class ModularValidationService:
             return "Vereenvoudig de zinsstructuur: minder komma's en kortere zinsdelen."
         if reason == "redundancy":
             return "Verwijder redundante/tegenstrijdige bewoordingen; kies één heldere formulering."
-        if reason == "auth_source" and c == "CON-02":
-            return "Voeg een authentieke bron/basis toe (bijv. 'volgens', 'conform', of wet/regeling)."
+        # DEF-743: de CON-02-suggestie "voeg 'volgens'/'conform' toe" is
+        # vervallen — een bronwoord is geen bron. CON-02 bouwt zijn eigen,
+        # oorzaakafhankelijke suggestie in de source_evidence-evaluator.
         if reason == "unique_id" and c == "ESS-03":
             return (
                 "Voeg een uniek identificatiecriterium toe (nummer/code/registratie)."

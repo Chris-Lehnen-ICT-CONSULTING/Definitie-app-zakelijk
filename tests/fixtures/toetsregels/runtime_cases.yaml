@@ -231,18 +231,27 @@ CON-01:
     verwacht: geen_violation
 
 CON-02:
+  # DEF-743: broninhoudelijke beoordeling (evaluator source_evidence, judgment
+  # + automated, no_score). Zonder bronnen en zonder beoordelingsdienst is de
+  # uitkomst expliciet open; een bronwoord in de zin bewijst geen bron.
   required_fields: []
-  negatief:
+  reden: >
+    De regel beoordeelt gezag, betekenissteun en verwijskwaliteit op de
+    aangeleverde bronpassages (AI + code + deskundige). Het tekstpad van deze
+    matrix levert geen bronnen en geen dienst; dan is 'nog te beoordelen' het
+    contractuele antwoord. Het gedrag mét bronnen staat in
+    test_def743_source_evidence_evaluator.py.
+  issue: DEF-743
+  probe:
     begrip: protocol
     tekst: "protocol: werkinstructie binnen de organisatie"
-    verwacht_in_melding: "authentieke bron"
-  positief:
+    context:
+      organisatorische_context: [Synthetische Organisatie]
+  bronwoord:
     begrip: protocol
-    tekst: "protocol: werkinstructie volgens de richtlijn"
-  grens:
-    begrip: protocol
-    tekst: "protocol: werkinstructie in de wetgeving"
-    verwacht: violation
+    tekst: "protocol: werkinstructie volgens de richtlijn, zoals bepaald in de wet"
+    context:
+      organisatorische_context: [Synthetische Organisatie]
 
 CON-CIRC-001:
   required_fields: [circular_definition]

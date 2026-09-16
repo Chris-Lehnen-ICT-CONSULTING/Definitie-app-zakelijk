@@ -195,8 +195,9 @@ def test_generatiestatus_toont_geen_score_bij_validation_unknown() -> None:
     assert any("gegenereerd" in t.lower() for t in teksten), teksten
 
 
-def test_generatiestatus_toont_score_bij_validated() -> None:
-    """De positieve regressie: het normale pad blijft ongewijzigd."""
+def test_generatiestatus_toont_geen_cijfer_bij_validated() -> None:
+    """De positieve regressie: gegenereerd, maar (DEF-743, besluit 3) zonder
+    totaalcijfer — ook al draagt het resultaat er nog een."""
     tab = _make_tab()
     resultaat = _agent_result(duration=1.0, violations=0)
     resultaat["final_score"] = 0.82
@@ -206,7 +207,9 @@ def test_generatiestatus_toont_score_bij_validated() -> None:
         tab._render_generation_status(resultaat)
 
     teksten = _status_teksten(mock_st)
-    assert any("Score: 0.82" in t for t in teksten), teksten
+    assert any("gegenereerd" in t.lower() for t in teksten), teksten
+    assert not any("0.82" in t for t in teksten), teksten
+    assert any("geen totaalcijfer" in t.lower() for t in teksten), teksten
 
 
 def test_generatiedetails_tonen_geen_finale_score_bij_validation_unknown() -> None:
@@ -225,18 +228,29 @@ def test_generatiedetails_tonen_geen_finale_score_bij_validation_unknown() -> No
     assert ("Verwerkingstijd", "1.0s") in calls, calls
 
 
-def test_generatiedetails_tonen_finale_score_bij_validated() -> None:
-    """Positieve regressie op de detailtegels."""
+def test_generatiedetails_tonen_dekking_in_plaats_van_finale_score() -> None:
+    """Positieve regressie op de detailtegels: geen 'Finale Score' (DEF-743,
+    besluit 3) maar de beoordelingsdekking uit de regelstatussen."""
     tab = _make_tab()
     resultaat = _agent_result(duration=1.0, violations=0)
     resultaat["final_score"] = 0.82
     resultaat["validation_details"]["validation_status"] = "validated"
+    resultaat["validation_details"]["rule_statuses"] = {
+        "A": "pass",
+        "B": "fail",
+        "C": "review_required",
+        "D": "error",
+    }
 
     with patch("ui.components.definition_generator_tab.st") as mock_st:
         mock_st.columns.return_value = (MagicMock(), MagicMock(), MagicMock())
         tab._render_generation_details(resultaat)
 
-    assert ("Finale Score", "0.82") in _metric_calls(mock_st)
+    calls = _metric_calls(mock_st)
+    labels = [c[0] for c in calls if c]
+    assert "Finale Score" not in labels, calls
+    assert ("Validatie", "1 voldoet · 1 niet · 1 open · 1 fout") in calls, calls
+    assert not any("0.82" in str(c[1]) for c in calls if len(c) > 1), calls
 
 
 def _zonder_cijfer_result() -> dict[str, Any]:
@@ -259,7 +273,7 @@ def test_generatiestatus_toont_niet_beschikbaar_bij_totaalscore_none() -> None:
     teksten = _status_teksten(mock_st)
     assert any("gegenereerd" in t.lower() for t in teksten), teksten
     assert not any("0.00" in t for t in teksten), teksten
-    assert any("niet beschikbaar" in t.lower() for t in teksten), teksten
+    assert any("geen totaalcijfer" in t.lower() for t in teksten), teksten
 
 
 def test_generatiedetails_tonen_niet_beschikbaar_bij_totaalscore_none() -> None:
@@ -270,7 +284,8 @@ def test_generatiedetails_tonen_niet_beschikbaar_bij_totaalscore_none() -> None:
         tab._render_generation_details(_zonder_cijfer_result())
 
     calls = _metric_calls(mock_st)
-    assert ("Finale Score", "Niet beschikbaar") in calls, calls
+    # Zonder regelstatussen in het resultaat: verwijzing, nooit een cijfer.
+    assert ("Validatie", "Zie toetsresultaten") in calls, calls
     assert not any("0.00" in str(c[1]) for c in calls if len(c) > 1), calls
 
 

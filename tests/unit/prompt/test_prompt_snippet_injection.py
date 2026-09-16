@@ -35,8 +35,11 @@ def test_prompt_includes_document_snippets_as_xml_brons():
     bron = brons[0]
     assert 'type="document"' in bron
     assert 'nr="1"' in bron
-    assert 'confidence="0.70"' in bron
+    # DEF-743: geen vaste confidence 0.70 meer — een upload is geen gezag.
+    assert "confidence=" not in bron
+    assert "level=" not in bron
     assert 'titel="test.docx"' in bron
+    assert 'citatie="¶ 2"' in bron
     assert "Korte tekst rondom het begrip." in bron
 
 

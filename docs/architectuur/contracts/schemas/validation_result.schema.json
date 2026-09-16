@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/your-org/definitie-app/schemas/validation_result.schema.json",
   "title": "ValidationResult",
-  "description": "Contract schema for validation results from ValidationOrchestratorV2. Contractversie 1.3.0 (DEF-622): additief uitgebreid met rule_results (gestructureerde deeluitkomsten van regels zonder cijfer, CON-01); overall_score en de categoriescores mogen null zijn wanneer de totaalscore niet beschikbaar is (productbesluit: geen noemer zonder CON-01). Bovenop 1.2.0 (DEF-621: validation_status, unknown_reason, validation_readiness) en 1.1.0 (DEF-624: rule_statuses, evaluation_coverage, review_required). Bestaande consumers moeten null op overall_score aankunnen; additionalProperties blijft bewust false zodat een nieuw veld niet stil kan binnenglippen.",
+  "description": "Contract schema for validation results from ValidationOrchestratorV2. Contractversie 1.4.0 (DEF-743): additief uitgebreid met source_assessment (de volledige AI-bronbeoordeling van CON-02 die de wrapper voor exact deze validatie verkreeg, of null zonder AI-beoordeling). Bovenop 1.3.0 (DEF-622: rule_results; overall_score en categoriescores mogen null zijn wanneer de totaalscore niet beschikbaar is — productbesluit: geen noemer zonder CON-01), 1.2.0 (DEF-621: validation_status, unknown_reason, validation_readiness) en 1.1.0 (DEF-624: rule_statuses, evaluation_coverage, review_required). Bestaande consumers moeten null op overall_score aankunnen; additionalProperties blijft bewust false zodat een nieuw veld niet stil kan binnenglippen.",
   "type": "object",
   "required": [
     "version",
@@ -341,6 +341,16 @@
         },
         "additionalProperties": false
       }
+    },
+    "source_assessment": {
+      "type": ["object", "null"],
+      "description": "DEF-743 (CON-02): de volledige, gevalideerde AI-bronbeoordeling die de async wrapper voor exact deze validatie heeft verkregen (contract domain.sources.contract §5: contract_version, prompt_version, fingerprint, status assessed|error|no_sources|unavailable, error, attribution, sources, parts met geverifieerd bewijs, rejected). null wanneer geen AI-beoordeling is uitgevoerd (geen bronnen). Bewust vrij van vorm binnen het object: het is een store-ready document, gebonden via fingerprint aan rule_results.CON-02.",
+      "properties": {
+        "contract_version": {"type": ["string", "null"]},
+        "fingerprint": {"type": ["string", "null"]},
+        "status": {"type": "string", "enum": ["assessed", "error", "no_sources", "unavailable"]}
+      },
+      "required": ["status", "fingerprint"]
     },
     "evaluation_coverage": {
       "type": "object",

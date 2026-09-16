@@ -6,14 +6,131 @@ business logic for the definition edit interface.
 """
 
 import logging
+from collections.abc import Mapping
+from copy import deepcopy
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, cast
 
+from database.models import DefinitieRecord
 from services.definition_edit_repository import DefinitionEditRepository
 from services.exceptions import RepositoryError
 from services.interfaces import Definition
 from services.validation.modular_validation_service import ModularValidationService
+
+#: Sleutels uit het geladen record die de toetsing van de bewerkte kandidaat
+#: mee moet krijgen (DEF-622 CON-01, DEF-743 CON-02). De bronset is die van
+#: het ID-only geladen record; de bewerkte tekst/term/context komen uit de
+#: editor. Een `source_assessment` reist bewust NIET mee: de actieve wrapper
+#: verkrijgt zelf een beoordeling voor exact deze kandidaat (C-contract §8) en
+#: negeert een meegegeven beoordeling — een UI kan zo nooit een oude positieve
+#: beoordeling voor een gewijzigde tekst laten gelden.
+_RECORDSLEUTELS_VOOR_TOETSING: tuple[str, ...] = (
+    "context_review",
+    "source_review",
+    "peildatum",
+)
+
+
+def bouw_validatiecontext(
+    definition: Definition, geladen_metadata: Mapping[str, Any] | None
+) -> dict[str, Any]:
+    """Eén contextdict voor de sync- én async-toetsing van de bewerkte kandidaat.
+
+    - De drie contextlijsten komen uit de bewerkte kandidaat en gaan altijd
+      mee, ook leeg: de editor is gezaghebbend (CON-01-transport, DEF-622).
+    - `record_text` = de exacte bewerkte tekst (CON-01/CON-02 binden eraan).
+    - `definition_id`/`definition_version`/`context_review`/`source_review`/
+      `peildatum` komen uit het geladen record; een verouderde beoordeling
+      vervalt in de kern via vingerafdruk + versie, niet via UI-logica.
+    - `provenance_sources` = dezelfde bronset als het geladen record (deep
+      copy; `sources` als terugval voor oudere metadata). Zonder bronset
+      geen sleutel: er wordt niets verzonnen.
+    """
+    meta: Mapping[str, Any] = geladen_metadata or {}
+    ctx: dict[str, Any] = {
+        "organisatorische_context": list(definition.organisatorische_context or []),
+        "juridische_context": list(definition.juridische_context or []),
+        "wettelijke_basis": list(definition.wettelijke_basis or []),
+        "definition_id": definition.id,
+        "definition_version": meta.get("version_number"),
+        "record_text": definition.definitie,
+    }
+    for sleutel in _RECORDSLEUTELS_VOOR_TOETSING:
+        ctx[sleutel] = deepcopy(meta.get(sleutel))
+    bronnen = meta.get("provenance_sources")
+    if bronnen is None:
+        bronnen = meta.get("sources")
+    if isinstance(bronnen, list):
+        ctx["provenance_sources"] = deepcopy(bronnen)
+    return ctx
+
+
+def _als_mapping(waarde: Any) -> Mapping[str, Any]:
+    """Typegetrouwe vernauwing: een mapping, anders een lege mapping."""
+    return waarde if isinstance(waarde, Mapping) else {}
+
+
+def _als_dict(waarde: Any) -> dict[str, Any]:
+    """Typegetrouwe vernauwing: een dict, anders een lege dict."""
+    return waarde if isinstance(waarde, dict) else {}
+
+
+@dataclass(frozen=True)
+class _Weigering:
+    """Een weigering (status/message[/validation]) als onderscheidbaar type,
+    zodat een aanroeper haar niet met een validatieresultaat verwart."""
+
+    payload: dict[str, Any]
+
+
+def normaliseer_validatieresultaat(v: Mapping[str, Any]) -> dict[str, Any]:
+    """Vertaal een V2-validatieresultaat naar de UI-structuur van de editor.
+
+    Bewaart alles wat de gebruiker moet kunnen zien: de gestructureerde
+    regeluitkomsten (`rule_results`), de status per regel (`rule_statuses`),
+    de beoordelingsdekking (`evaluation_coverage`), open onderdelen
+    (`review_required`), de validatiestatus/readiness (fail-closed guard) en
+    de volledige bronbeoordeling (`source_assessment`, contract 1.4.0). Het
+    ruwe resultaat blijft onder `raw_v2`.
+
+    `score` is uitsluitend informatief-intern: `None` wanneer de sleutel
+    ontbreekt óf expliciet None is. Er wordt nooit een 0.0 of een positief
+    cijfer ingevuld (DEF-622/DEF-743); `valid` blijft fail-closed False bij
+    een ontbrekend oordeel.
+    """
+    violations = v.get("violations", []) or []
+    normalized_issues = []
+    for item in violations:
+        if not isinstance(item, dict):
+            continue
+        normalized_issues.append(
+            {
+                "rule": item.get("rule_id") or item.get("code"),
+                "message": item.get("description") or item.get("message", ""),
+                "severity": item.get("severity", "warning"),
+            }
+        )
+    ruwe_score = v.get("overall_score")
+    try:
+        score = None if ruwe_score is None else float(ruwe_score)
+    except (TypeError, ValueError):
+        score = None
+    ruw = dict(v)
+    return {
+        "valid": v.get("is_acceptable") is True,
+        "score": score,
+        "issues": normalized_issues,
+        "rule_results": deepcopy(dict(v.get("rule_results") or {})),
+        "rule_statuses": deepcopy(dict(v.get("rule_statuses") or {})),
+        "evaluation_coverage": deepcopy(v.get("evaluation_coverage")),
+        "review_required": deepcopy(list(v.get("review_required") or [])),
+        "validation_status": v.get("validation_status"),
+        "validation_readiness": deepcopy(v.get("validation_readiness")),
+        "source_assessment": deepcopy(v.get("source_assessment")),
+        "raw_v2": ruw,
+    }
 
 
 class AutoSaveResult(Enum):
@@ -50,6 +167,7 @@ class DefinitionEditService:
         self,
         repository: DefinitionEditRepository | None = None,
         validation_service: ModularValidationService | None = None,
+        proposal_service: Any | None = None,
     ):
         """
         Initialize the edit service.
@@ -57,9 +175,13 @@ class DefinitionEditService:
         Args:
             repository: Repository for data access
             validation_service: Service for validation
+            proposal_service: DEF-743: `SourceProposalService` voor het
+                handmatige verbetervoorstel (alleen op expliciet verzoek).
+                Zonder dienst is de aanvraag geblokkeerd, nooit stil.
         """
         self.repository = repository or DefinitionEditRepository()
         self.validation_service = validation_service
+        self.proposal_service = proposal_service
 
         # Auto-save configuration
         self.auto_save_interval = 30  # seconds
@@ -495,11 +617,22 @@ class DefinitionEditService:
 
         return updated
 
-    def _validate_definition(self, definition: Definition) -> dict[str, Any] | None:
+    def _validate_definition(
+        self,
+        definition: Definition,
+        geladen_metadata: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         """Validate definition using injected validation service (sync only).
 
         Async validation is not executed here. If only an async API is available,
         return None and let the UI call validation via async_bridge.
+
+        DEF-743: de kandidaat is de ACTUELE bewerkte tekst/term/drie contexten;
+        `geladen_metadata` (het ID-only geladen record) levert dezelfde
+        bronset, recordversie en vastgelegde beoordelingen als het async pad
+        (`bouw_validatiecontext`). Zonder `geladen_metadata` wordt
+        `definition.metadata` gebruikt (een via de repository geladen record
+        draagt die sleutels zelf).
         """
         if not self.validation_service:
             return None
@@ -509,20 +642,17 @@ class DefinitionEditService:
 
             vs = self.validation_service
 
-            # Bouw context_dict uit Context Model V2 lijsten
-            context_dict = None
-            try:
-                org = getattr(definition, "organisatorische_context", None) or []
-                jur = getattr(definition, "juridische_context", None) or []
-                wet = getattr(definition, "wettelijke_basis", None) or []
-                if org or jur or wet:
-                    context_dict = {
-                        "organisatorische_context": list(org),
-                        "juridische_context": list(jur),
-                        "wettelijke_basis": list(wet),
-                    }
-            except Exception:
-                context_dict = None
+            # Eén contextdict voor sync én async (pariteit): bewerkte lijsten
+            # altijd expliciet (ook leeg), bronset/versie/beoordeling uit het
+            # geladen record.
+            context_dict: dict[str, Any] = bouw_validatiecontext(
+                definition,
+                (
+                    geladen_metadata
+                    if geladen_metadata is not None
+                    else (definition.metadata or {})
+                ),
+            )
 
             if hasattr(vs, "validate_text"):
                 fn = vs.validate_text
@@ -552,17 +682,6 @@ class DefinitionEditService:
                 try:
                     results = fn(definition)
                 except TypeError:
-                    if (
-                        context_dict is None
-                        and definition.metadata
-                        and definition.metadata.get("juridische_context")
-                    ):
-                        context_dict = {
-                            # DEF-439: waarde als list (context_dict = dict[str, list]).
-                            "juridische_context": list(
-                                definition.metadata.get("juridische_context") or []
-                            )
-                        }
                     results = fn(
                         begrip=definition.begrip,
                         text=definition.definitie,
@@ -576,25 +695,9 @@ class DefinitionEditService:
             # Normalize result to UI format
             # Case 1: dict schema (ModularValidationService/Orchestrator ensure_schema)
             if isinstance(results, dict):
-                violations = results.get("violations", []) or []
-                normalized_issues = []
-                for v in violations:
-                    rule = v.get("rule_id") or v.get("code")
-                    message = v.get("description") or v.get("message", "")
-                    severity = v.get("severity", "warning")
-                    normalized_issues.append(
-                        {"rule": rule, "message": message, "severity": severity}
-                    )
-                # DEF-622: een expliciete None is 'totaalscore niet
-                # beschikbaar' en blijft None; alleen een ontbrekende sleutel
-                # valt terug op 0.0.
-                ruwe_score = results.get("overall_score", 0.0)
-                return {
-                    "valid": bool(results.get("is_acceptable", False)),
-                    "score": None if ruwe_score is None else float(ruwe_score or 0.0),
-                    "issues": normalized_issues,
-                    "rule_results": dict(results.get("rule_results") or {}),
-                }
+                # DEF-743: status, onderdelen, bewijs, open/technische
+                # onderdelen en dekking blijven behouden; geen 0.0-terugval.
+                return normaliseer_validatieresultaat(results)
 
             # Case 2: legacy object with attributes
             if hasattr(results, "overall_status") or hasattr(
@@ -614,9 +717,11 @@ class DefinitionEditService:
                         )
                     except Exception as e:
                         logger.warning(f"Validation issue normalisatie gefaald: {e}")
+                # DEF-743: een ontbrekend cijfer blijft None (geen 0.0).
+                legacy_score = getattr(results, "validation_score", None)
                 return {
                     "valid": getattr(results, "overall_status", "") == "success",
-                    "score": getattr(results, "validation_score", 0.0) or 0.0,
+                    "score": None if legacy_score is None else float(legacy_score),
                     "issues": normalized_issues,
                 }
 
@@ -626,6 +731,521 @@ class DefinitionEditService:
         except Exception as e:
             logger.error(f"Validation error: {e}")
             return None
+
+    # ===== DEF-743: handmatig verbetervoorstel (CON-02) — alleen op verzoek =====
+
+    def bronbasis_van_record(
+        self, record: Any, huidig_resultaat: Mapping[str, Any] | None
+    ) -> dict[str, Any]:
+        """De actuele CON-02-uitkomst + bronbeoordeling voor het OPGESLAGEN record.
+
+        Altijd een pure replay van de kern (`beoordeel_bronbasis`) tegen de
+        ACTUELE opgeslagen deskundige beoordeling en recordversie — nooit het
+        samengestelde CON-02-verdict uit een eerder sessieresultaat (dat
+        kent de sindsdien vastgelegde correctie/uitzondering niet). Als
+        beoordelingsinvoer geldt de opgeslagen volledige beoordeling wanneer
+        die exact aan het record bindt; alleen als die ontbreekt of niet
+        (meer) bindt, de sessiebeoordeling van de eigen wrapper, mits exact
+        gebonden (zelfde vingerafdruk, status `assessed`). Nooit een
+        AI-aanroep. Het oorspronkelijke AI-oordeel blijft via de kern
+        zichtbaar (`applied_correction.original`).
+        """
+        from domain.sources.contract import (
+            beoordeel_bronbasis,
+            bereken_bronvingerafdruk,
+        )
+
+        velden = record.get_contractvelden()
+        bronnen = velden.get("provenance_sources")
+        if bronnen is None:
+            bronnen = velden.get("sources")
+        bronnen = list(bronnen or [])
+        contexten = record.get_contextlijsten()
+        tekst = record.get_definitie_tekst()
+        peildatum = velden.get("peildatum")
+        vingerafdruk = bereken_bronvingerafdruk(
+            record.begrip or "", tekst, contexten, bronnen, peildatum=peildatum
+        )
+        basis: dict[str, Any] = {
+            "bronnen": bronnen,
+            "contexten": contexten,
+            "tekst": tekst,
+            "peildatum": peildatum,
+            "fingerprint": vingerafdruk,
+            "receipt": velden.get("source_receipt"),
+            "validation_status": None,
+        }
+
+        def _gebonden(beoordeling: Any) -> bool:
+            return (
+                isinstance(beoordeling, Mapping)
+                and beoordeling.get("fingerprint") == vingerafdruk
+                and beoordeling.get("status") == "assessed"
+            )
+
+        assessment = velden.get("source_assessment")
+        bron = "record"
+        if not _gebonden(assessment) and isinstance(huidig_resultaat, Mapping):
+            sessie = huidig_resultaat.get("source_assessment")
+            if _gebonden(sessie):
+                assessment = sessie
+                bron = "sessie"
+                basis["validation_status"] = huidig_resultaat.get("validation_status")
+        uitkomst = beoordeel_bronbasis(
+            record.begrip or "",
+            tekst,
+            contexten,
+            bronnen,
+            assessment=assessment,
+            review=velden.get("source_review"),
+            definitie_versie=velden.get("definition_version"),
+            peildatum=peildatum,
+        )
+        basis["con02"] = uitkomst.als_dict()
+        basis["assessment"] = assessment
+        basis["bron"] = bron
+        return basis
+
+    @staticmethod
+    def _canonieke_bronnen_met_passage(
+        bronnen: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        from domain.sources.normalisatie import canoniseer_bronnen
+
+        uit: list[dict[str, Any]] = []
+        for bron in canoniseer_bronnen(bronnen):
+            d = bron.als_dict()
+            d["passage"] = bron.passage
+            uit.append(d)
+        return uit
+
+    @staticmethod
+    def _weergavecontrole(
+        record: Any, expected_version: int | None
+    ) -> dict[str, Any] | None:
+        """F3: de getoonde versie en de actuele bewerkbaarheid, vóór elke aanroep.
+
+        De UI geeft de recordversie mee die de gebruiker vóór zich had; wijkt
+        het opgeslagen record daarvan af, dan is het antwoord een
+        versieconflict — nooit stil de nieuwste versie. Een intussen
+        vastgesteld of gearchiveerd record is niet bewerkbaar.
+        """
+        if expected_version is not None and record.version_number != expected_version:
+            return {
+                "status": "version_conflict",
+                "message": (
+                    f"De definitie is intussen gewijzigd (getoond: versie "
+                    f"{expected_version}, opgeslagen: versie {record.version_number}); "
+                    "ververs en beoordeel de actuele versie opnieuw."
+                ),
+                "version_number": record.version_number,
+            }
+        if str(getattr(record, "status", "") or "") in ("established", "archived"):
+            return {
+                "status": "not_editable",
+                "message": (
+                    f"De definitie heeft status '{record.status}' en is niet bewerkbaar; "
+                    "zet haar via de Expert-tab terug naar Concept."
+                ),
+                "version_number": record.version_number,
+            }
+        return None
+
+    def _actievoorbereiding(
+        self, definitie_id: int, actor: str, expected_version: int | None
+    ) -> DefinitieRecord | dict[str, Any]:
+        """Gedeelde aanloop van aanvragen/toepassen/afwijzen, in vaste volgorde:
+        reviewer-identiteit → record → weergaveversie/bewerkbaarheid (F3).
+        Geeft het record, of de weigering (dict) die de aanroeper teruggeeft."""
+        if not (actor or "").strip():
+            return {
+                "status": "no_actor",
+                "message": "Een reviewer-identiteit is vereist.",
+            }
+        record = self.repository.get_definitie(definitie_id)
+        if record is None:
+            return {"status": "not_found", "message": "Definitie niet gevonden."}
+        geweigerd = self._weergavecontrole(record, expected_version)
+        if geweigerd is not None:
+            return geweigerd
+        return record
+
+    @staticmethod
+    def _reserveringsweigering(reservering: Any, diagnose: Any) -> dict[str, Any]:
+        """De reservering bij D is niet gelukt: geen modelaanroep, met reden."""
+        return {
+            "status": reservering.status,
+            "diagnose": diagnose.als_dict(),
+            "message": reservering.reason
+            or {
+                "attempt_consumed": "Voor deze generatie is al een voorstel aangevraagd "
+                "(maximaal één poging per generatie, DEF-638).",
+                "version_conflict": "De definitie is intussen gewijzigd; ververs en "
+                "probeer opnieuw.",
+                "no_evidence": "Geen opgeslagen bronbewijs bij dit record.",
+            }.get(reservering.status, reservering.status),
+            "proposal_id": getattr(reservering, "proposal_id", None),
+        }
+
+    async def vraag_verbetervoorstel(
+        self,
+        definitie_id: int,
+        *,
+        actor: str,
+        huidig_resultaat: Mapping[str, Any] | None = None,
+        expected_version: int | None = None,
+    ) -> dict[str, Any]:
+        """Expliciete aanvraag van één verbetervoorstel (DEF-743, besluit 2).
+
+        Volgorde: oorzaak bepalen (H) → alléén bij een aantoonbare
+        tekortkoming een duurzame reservering bij D (max één poging per
+        oorspronkelijke generatie) → één modelaanroep → uitkomst
+        (`proposed|blocked|error`) vastleggen. De oorspronkelijke tekst
+        wordt hier nooit gewijzigd. Geen dienst/geen reservering ⇒ geen
+        aanroep, met een expliciete reden.
+        """
+        from services.source_proposal_service import diagnose_bronbasis
+
+        voorbereid = self._actievoorbereiding(definitie_id, actor, expected_version)
+        if isinstance(voorbereid, dict):
+            return voorbereid
+        record = voorbereid
+        try:
+            basis = self.bronbasis_van_record(record, huidig_resultaat)
+        except Exception as e:
+            logger.error("Bronbasis niet te bepalen: %s", e, exc_info=True)
+            return {
+                "status": "error",
+                "message": f"Bronbasis niet te bepalen: {type(e).__name__}: {e}",
+            }
+        diagnose = diagnose_bronbasis(
+            basis["con02"],
+            basis["assessment"],
+            validation_status=basis["validation_status"],
+            receipt=basis["receipt"],
+        )
+        if not diagnose.voorstel_mogelijk:
+            # Geen modelaanroep en geen reservering: de poging blijft
+            # beschikbaar tot er wél een aantoonbare tekortkoming met bewijs is.
+            return {
+                "status": "blocked",
+                "diagnose": diagnose.als_dict(),
+                "message": diagnose.toelichting,
+                "proposal_id": None,
+            }
+        if self.proposal_service is None:
+            return {
+                "status": "unavailable",
+                "diagnose": diagnose.als_dict(),
+                "message": "Geen voorsteldienst beschikbaar (AI-service niet geconfigureerd).",
+            }
+
+        reservering = self.repository.reserve_source_proposal(
+            definitie_id, updated_by=actor, expected_version=record.version_number
+        )
+        # D-contract: bij `reserved` zijn proposal_id en version_number gezet;
+        # zonder die binding is er niets om een uitkomst aan vast te leggen —
+        # dan geen modelaanroep (fail-closed, dezelfde weigering).
+        proposal_id = reservering.proposal_id
+        gereserveerde_versie = reservering.version_number
+        if (
+            reservering.status != "reserved"
+            or proposal_id is None
+            or gereserveerde_versie is None
+        ):
+            return self._reserveringsweigering(reservering, diagnose)
+
+        try:
+            voorstel = await self.proposal_service.stel_voor(
+                begrip=record.begrip or "",
+                tekst=basis["tekst"],
+                contexten=basis["contexten"],
+                bronnen=self._canonieke_bronnen_met_passage(basis["bronnen"]),
+                con02=basis["con02"],
+                assessment=basis["assessment"],
+                peildatum=basis["peildatum"],
+                validation_status=basis["validation_status"],
+                receipt=basis["receipt"],
+            )
+        except Exception as e:
+            # F7: de reservering staat al; een onverwachte fout in de dienst
+            # wordt als duurzame `error`-uitkomst vastgelegd (poging verbruikt,
+            # geen herhaling) — zonder prompt- of brontekst in de melding.
+            logger.error(
+                "Voorsteldienst faalde onverwacht: %s", type(e).__name__, exc_info=True
+            )
+            from services.source_proposal_service import Voorstel
+
+            voorstel = Voorstel(
+                status="error",
+                diagnose=diagnose,
+                error={
+                    "type": "unexpected",
+                    "message": f"{type(e).__name__} in de voorsteldienst",
+                },
+                findings=diagnose.bevindingen,
+            )
+        vastgelegd = self.repository.record_source_proposal_outcome(
+            definitie_id,
+            proposal_id,
+            voorstel.als_outcome(),
+            updated_by=actor,
+            expected_version=gereserveerde_versie,
+        )
+        if not vastgelegd:
+            logger.error(
+                "Voorsteluitkomst niet vastgelegd (definitie %s, voorstel %s)",
+                definitie_id,
+                proposal_id,
+            )
+        self._clear_cache(definitie_id)
+        return {
+            "status": voorstel.status,
+            "proposal_id": proposal_id,
+            "diagnose": voorstel.diagnose.als_dict(),
+            "candidate_text": voorstel.candidate_text,
+            "rationale": voorstel.rationale,
+            "behouden": list(voorstel.behouden),
+            "onzekerheid": voorstel.onzekerheid,
+            "error": voorstel.error,
+            "recorded": bool(vastgelegd),
+            "message": (
+                "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd."
+                if voorstel.status == "proposed"
+                else voorstel.rationale
+                or (voorstel.error or {}).get("message")
+                or voorstel.status
+            ),
+        }
+
+    def _async_validate_text(self) -> Any | None:
+        """De async `validate_text` van de geïnjecteerde validatiedienst, of None."""
+        vs = self.validation_service
+        if vs is None:
+            return None
+        fn = getattr(vs, "validate_text", None)
+        if fn is None:
+            fn = getattr(getattr(vs, "validation_service", None), "validate_text", None)
+        return fn
+
+    @staticmethod
+    def _beoordelingsfout(v: Mapping[str, Any]) -> str | None:
+        """Ontbrekende of niet-uitgevoerde bronbeoordeling in de hertoetsing."""
+        beoordeling = v.get("source_assessment")
+        if not isinstance(beoordeling, Mapping):
+            return "geen bronbeoordeling in het hertoetsingsresultaat"
+        if beoordeling.get("status") != "assessed":
+            return (
+                f"bronbeoordeling niet uitgevoerd (status {beoordeling.get('status')})"
+            )
+        return None
+
+    @classmethod
+    def _technische_fout_in_validatie(cls, v: Mapping[str, Any]) -> str | None:
+        """Reden waarom een hertoetsing niet als bewijs kan dienen, of None."""
+        from services.validation.interfaces import VALIDATION_STATUS_UNKNOWN
+
+        if v.get("validation_status") == VALIDATION_STATUS_UNKNOWN:
+            return "validatie niet te bepalen (regelset onvolledig)"
+        if _als_mapping(v.get("system")).get("degraded_mode"):
+            return "validatie draaide in beperkte modus"
+        if _als_mapping(v.get("rule_statuses")).get("CON-02") == "error":
+            return "bronbeoordeling technisch mislukt (CON-02: error)"
+        beoordelingsfout = cls._beoordelingsfout(v)
+        if beoordelingsfout is not None:
+            return beoordelingsfout
+        dekking = v.get("evaluation_coverage")
+        if isinstance(dekking, Mapping) and int(dekking.get("error") or 0):
+            return f"{dekking.get('error')} regel(s) met technische fout"
+        return None
+
+    @staticmethod
+    def _toepasbare_kandidaat(
+        record: DefinitieRecord, proposal_id: str
+    ) -> str | dict[str, Any]:
+        """De kandidaattekst van een toepasbaar voorstel, of de weigering.
+
+        Vaste volgorde: voorstel bestaat → status `proposed` → origineel is
+        nog de opgeslagen tekst (anders `stale_original`) → kandidaattekst.
+        """
+        voorstel = record.get_source_proposal(proposal_id)
+        if not isinstance(voorstel, dict):
+            return {"status": "not_found", "message": "Voorstel niet gevonden."}
+        if voorstel.get("status") != "proposed":
+            return {
+                "status": "invalid_status",
+                "message": f"Voorstel heeft status '{voorstel.get('status')}' en is niet toepasbaar.",
+            }
+        origineel = _als_dict(voorstel.get("original"))
+        if origineel.get("text") != record.get_definitie_tekst():
+            return {
+                "status": "stale_original",
+                "message": "De definitietekst is gewijzigd sinds het voorstel; het voorstel "
+                "is verouderd.",
+            }
+        uitkomst = _als_dict(voorstel.get("outcome"))
+        kandidaat = str(uitkomst.get("candidate_text") or "").strip()
+        if not kandidaat:
+            return {
+                "status": "invalid_status",
+                "message": "Voorstel bevat geen kandidaattekst.",
+            }
+        return kandidaat
+
+    async def _hertoets_kandidaat(
+        self, definitie_id: int, record: DefinitieRecord, kandidaat: str
+    ) -> Mapping[str, Any] | _Weigering:
+        """Hertoets de kandidaat met DEZELFDE bronset via de async
+        `validate_text`. Geeft het volledige validatieresultaat, of een
+        `technical_error`-weigering wanneer de hertoetsing niet als bewijs kan
+        dienen (het origineel blijft dan intact)."""
+        import inspect
+
+        from services.validation.interfaces import ValidationContext
+
+        # De geïnjecteerde dienst is in productie de DefinitionOrchestratorV2
+        # (met `.validation_service` = ValidationOrchestratorV2) of direct de
+        # validatie-orchestrator; beide leveren de async `validate_text`.
+        fn = self._async_validate_text()
+        if fn is None or not inspect.iscoroutinefunction(fn):
+            return _Weigering(
+                {
+                    "status": "technical_error",
+                    "message": "Geen asynchrone validatiedienst beschikbaar voor hertoetsing.",
+                }
+            )
+        geladen = self.repository.get(definitie_id)
+        geladen_meta = dict(getattr(geladen, "metadata", None) or {})
+        contexten = record.get_contextlijsten()
+        kandidaat_def = Definition(
+            id=definitie_id,
+            begrip=record.begrip or "",
+            definitie=kandidaat,
+            organisatorische_context=list(
+                contexten.get("organisatorische_context") or []
+            ),
+            juridische_context=list(contexten.get("juridische_context") or []),
+            wettelijke_basis=list(contexten.get("wettelijke_basis") or []),
+            categorie=record.categorie,
+        )
+        vc = ValidationContext(
+            correlation_id=None,
+            metadata=bouw_validatiecontext(kandidaat_def, geladen_meta),
+        )
+        try:
+            v = await fn(
+                begrip=kandidaat_def.begrip,
+                text=kandidaat,
+                ontologische_categorie=record.categorie,
+                context=vc,
+            )
+        except Exception as e:
+            logger.error("Hertoetsing van voorstel mislukt: %s", e, exc_info=True)
+            return _Weigering(
+                {
+                    "status": "technical_error",
+                    "message": f"Hertoetsing mislukt: {type(e).__name__}: {e}",
+                }
+            )
+        if not isinstance(v, Mapping):
+            return _Weigering(
+                {
+                    "status": "technical_error",
+                    "message": "Hertoetsing gaf geen resultaat.",
+                }
+            )
+        fout = self._technische_fout_in_validatie(v)
+        if fout:
+            return _Weigering(
+                {
+                    "status": "technical_error",
+                    "message": f"Hertoetsing niet bruikbaar als bewijs: {fout}. "
+                    "De oorspronkelijke tekst blijft staan.",
+                    "validation": dict(v),
+                }
+            )
+        return v
+
+    async def pas_voorstel_toe(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        *,
+        actor: str,
+        expected_version: int | None = None,
+    ) -> dict[str, Any]:
+        """Neem een opgeslagen voorstel over: hertoets mét dezelfde bronset,
+        daarna atomair opslaan bij D tegen de getoonde versie.
+
+        Een verouderd of vervalst voorstel wordt geweigerd; een technische
+        fout in de hertoetsing laat het origineel intact (het voorstel blijft
+        `proposed`, de reden wordt gemeld). Nooit een oude pass behouden: D
+        slaat de nieuwe volledige validatie en bronbeoordeling op.
+        """
+        voorbereid = self._actievoorbereiding(definitie_id, actor, expected_version)
+        if isinstance(voorbereid, dict):
+            return voorbereid
+        record = voorbereid
+        kandidaat = self._toepasbare_kandidaat(record, proposal_id)
+        if isinstance(kandidaat, dict):
+            return kandidaat
+        hertoetsing = await self._hertoets_kandidaat(definitie_id, record, kandidaat)
+        if isinstance(hertoetsing, _Weigering):
+            return hertoetsing.payload
+        v = hertoetsing
+        toepassing = self.repository.apply_source_proposal(
+            definitie_id,
+            proposal_id,
+            updated_by=actor,
+            expected_version=record.version_number,
+            source_assessment=dict(v["source_assessment"]),
+            validation=dict(v),
+        )
+        self._clear_cache(definitie_id)
+        return {
+            "status": toepassing.status,
+            "version_number": getattr(toepassing, "version_number", None),
+            "message": getattr(toepassing, "reason", None)
+            or (
+                "Voorstel toegepast en opnieuw getoetst."
+                if toepassing.status == "applied"
+                else toepassing.status
+            ),
+            "validation": dict(v),
+            "candidate_text": kandidaat,
+        }
+
+    def wijs_voorstel_af(
+        self,
+        definitie_id: int,
+        proposal_id: str,
+        *,
+        actor: str,
+        note: str | None = None,
+        expected_version: int | None = None,
+    ) -> dict[str, Any]:
+        """Wijs een voorstel expliciet af (status bewaard als bewijs)."""
+        voorbereid = self._actievoorbereiding(definitie_id, actor, expected_version)
+        if isinstance(voorbereid, dict):
+            return voorbereid
+        record = voorbereid
+        ok = self.repository.set_source_proposal_status(
+            definitie_id,
+            proposal_id,
+            "rejected",
+            actor,
+            expected_version=record.version_number,
+            note=note,
+        )
+        self._clear_cache(definitie_id)
+        return {
+            "status": "rejected" if ok else "version_conflict",
+            "message": (
+                "Voorstel afgewezen."
+                if ok
+                else "Afwijzen niet vastgelegd: versie gewijzigd of voorstel niet toepasbaar."
+            ),
+        }
 
     def _generate_session_id(self, definitie_id: int, user: str) -> str:
         """Generate unique session ID."""

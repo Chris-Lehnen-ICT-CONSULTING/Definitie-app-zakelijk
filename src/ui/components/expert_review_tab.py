@@ -47,6 +47,37 @@ def _met_toelichting(zin: str, toelichting: str | None) -> str:
     return f"{zin}{TOELICHTING_SCHEIDING} {toelichting}" if toelichting else zin
 
 
+_BRONBASIS_LABEL = {
+    "present": "bronbewijs",
+    "reference_only": "alleen verwijzing",
+    "absent": "geen bronnen",
+    "invalid": "bewijs onleesbaar",
+}
+
+
+def _bronbasis_label(definitie: Any) -> str:
+    """Compacte staat van het bronbewijs van een record (DEF-743, besluit 3).
+
+    Vervangt het opgeslagen cijfer in lijsten: dat is geen actuele kwaliteit.
+    Zonder D-lezer (`get_source_evidence_status`) een lege string — niets
+    wordt verzonnen.
+    """
+    lezer = getattr(definitie, "get_source_evidence_status", None)
+    if not callable(lezer):
+        return ""
+    try:
+        status = lezer()
+    except (TypeError, ValueError, AttributeError) as e:
+        logger.warning("Bronbewijsstatus niet leesbaar: %s", e)
+        return ""
+    if not isinstance(status, dict):
+        return ""
+    label = _BRONBASIS_LABEL.get(str(status.get("status") or ""), "")
+    if label == "bronbewijs" and status.get("current") is False:
+        label = "bronbewijs (verouderd)"
+    return label
+
+
 def _generatiebewijs(definitie: DefinitieRecord) -> dict[str, Any] | None:
     """De per record bewaarde generatieregistratie (tekststadia), of None."""
     import json
@@ -141,9 +172,10 @@ class ExpertReviewTab:
                     key="review_search",
                 )
             with col_sort:
+                # DEF-743 (besluit 3): geen sortering op een opgeslagen cijfer.
                 sort_by = st.selectbox(
                     "Sorteer op",
-                    ["Datum (nieuw eerst)", "Datum (oud eerst)", "Begrip A-Z", "Score"],
+                    ["Datum (nieuw eerst)", "Datum (oud eerst)", "Begrip A-Z"],
                     key="review_sort",
                 )
 
@@ -251,11 +283,9 @@ class ExpertReviewTab:
                                 "Herkomst": _source_label(
                                     getattr(d, "source_type", None)
                                 ),
-                                "Score": (
-                                    f"{d.validation_score:.2f}"
-                                    if d.validation_score is not None
-                                    else ""
-                                ),
+                                # DEF-743 (besluit 3): geen opgeslagen cijfer
+                                # als actuele kwaliteit; wel het bronbewijs.
+                                "Bronbasis": _bronbasis_label(d),
                                 "Organisatorische context": org,
                                 "Juridische context": jur,
                                 "Wettelijke basis": wet,
@@ -281,7 +311,7 @@ class ExpertReviewTab:
                                 "UFO-categorie",
                                 "Status",
                                 "Herkomst",
-                                "Score",
+                                "Bronbasis",
                                 "Organisatorische context",
                                 "Juridische context",
                                 "Wettelijke basis",
@@ -302,7 +332,7 @@ class ExpertReviewTab:
                             "UFO-categorie": st.column_config.TextColumn(disabled=True),
                             "Status": st.column_config.TextColumn(disabled=True),
                             "Herkomst": st.column_config.TextColumn(disabled=True),
-                            "Score": st.column_config.TextColumn(disabled=True),
+                            "Bronbasis": st.column_config.TextColumn(disabled=True),
                             "Organisatorische context": st.column_config.TextColumn(
                                 disabled=True
                             ),
@@ -387,17 +417,10 @@ class ExpertReviewTab:
                     st.caption(" | ".join(ctx_parts))
 
             with col2:
-                # Metadata
-                if definitie.validation_score:
-                    score_color = (
-                        "green"
-                        if definitie.validation_score > 0.8
-                        else "orange" if definitie.validation_score > 0.6 else "red"
-                    )
-                    st.markdown(
-                        f"Score: <span style='color: {score_color}'>{definitie.validation_score:.2f}</span>",
-                        unsafe_allow_html=True,
-                    )
+                # Metadata (DEF-743: geen opgeslagen cijfer als actuele kwaliteit)
+                bronbasis = _bronbasis_label(definitie)
+                if bronbasis:
+                    st.caption(f"Bronbasis: {bronbasis}")
 
                 if definitie.created_at:
                     st.caption(f"Gemaakt: {definitie.created_at.strftime('%Y-%m-%d')}")
@@ -443,6 +466,9 @@ class ExpertReviewTab:
 
         # DEF-622 (B-07): contextcontract en naamfunctie-beoordeling
         self._render_contextcontract(selected_def)
+
+        # DEF-743: bronbasis (CON-02) en de twee deskundige uitzonderingen
+        self._render_bronbasiscontract(selected_def)
 
         # Side-by-side comparison if edited
         self._render_comparison_view(selected_def)
@@ -557,8 +583,9 @@ class ExpertReviewTab:
                 st.write(f"**Status:** {self._status_label(definitie.status)}")
                 st.write(f"**Versie:** {definitie.version_number}")
 
-                if definitie.validation_score:
-                    st.write(f"**Score:** {definitie.validation_score:.2f}")
+                bronbasis = _bronbasis_label(definitie)
+                if bronbasis:
+                    st.write(f"**Bronbasis:** {bronbasis}")
 
                 if definitie.created_at:
                     st.write(
@@ -710,6 +737,479 @@ class ExpertReviewTab:
                 },
                 actor,
             )
+
+    # ------------------------------------------------------------------
+    # DEF-743: bronbasis (CON-02) — uitkomst, bronbewijs en uitzonderingen
+    # ------------------------------------------------------------------
+
+    def _render_bronbasiscontract(self, definitie: DefinitieRecord) -> None:
+        """CON-02 op het record: pure replay van de kern (geen AI), bronbewijs
+        en de twee goedgekeurde deskundige uitzonderingen.
+
+        - *Geen passende bron* (besluit 15-09-2026): alleen na gedocumenteerd
+          zoeken (zoektermen, geraadpleegde bronnen, conclusie) + motivering +
+          expliciete acceptatie.
+        - *Verwijzingsuitzondering* (besluit 1): bestaande bron zonder
+          bruikbare hyperlink; bewaarde bronversie/stabiel id/exacte
+          vindplaats komen uit de opgeslagen canonieke bronset (niet uit vrije
+          invoer) + motivering + acceptatie.
+        Beide blijven uitzonderingen (`review_required` + herkenbare
+        markering), nooit een gewone pass; de vaststelling blijft DEF-630.
+        - *Correctie van één AI-onderdeel* (C §6b, `part_correction`): de
+          deskundige vervangt het oordeel over precies één onderdeel mét
+          gebonden bewijs (bestaand bron-id, bewaarde inhoudshash/versie,
+          letterlijk citaat, vindplaats); het oorspronkelijke AI-oordeel
+          blijft zichtbaar. Geen uitzondering en geen globale pass.
+        Eén actuele getypeerde beoordeling per record: een nieuwe vervangt de
+        vorige (D bewaart de historie) — dat wordt vooraf gemeld.
+        """
+        try:
+            from domain.sources.contract import (
+                AI_ONDERDELEN,
+                REVIEW_TYPE_CORRECTIE,
+                REVIEW_TYPE_GEEN_BRON,
+                REVIEW_TYPE_VERWIJZING,
+                beoordeel_bronbasis,
+                bereken_bronvingerafdruk,
+            )
+            from domain.sources.normalisatie import canoniseer_bronnen
+        except ImportError as e:
+            st.markdown("#### 📚 Bronbasis (CON-02)")
+            st.warning(f"Bronbeoordelingskern niet beschikbaar: {e}")
+            return
+
+        st.markdown("#### 📚 Bronbasis (CON-02)")
+        velden = definitie.get_contractvelden()
+        bronnen = velden.get("provenance_sources")
+        if bronnen is None:
+            bronnen = velden.get("sources")
+        bronnen = list(bronnen or [])
+        contexten = definitie.get_contextlijsten()
+        tekst = definitie.get_definitie_tekst()
+        peildatum = velden.get("peildatum")
+        review = velden.get("source_review")
+        uitkomst = beoordeel_bronbasis(
+            definitie.begrip or "",
+            tekst,
+            contexten,
+            bronnen,
+            assessment=velden.get("source_assessment"),
+            review=review,
+            definitie_versie=velden.get("definition_version"),
+            peildatum=peildatum,
+        )
+        self._toon_bronbasis(definitie, velden, bronnen, review, uitkomst)
+
+        # ---- deskundige uitzonderingen ----
+        actor = self._handelende_gebruiker()
+        vingerafdruk = bereken_bronvingerafdruk(
+            definitie.begrip or "", tekst, contexten, bronnen, peildatum=peildatum
+        )
+        self._toon_beoordelingsaanhef(review, actor)
+        sleutel = f"con02_{definitie.id}"
+        soorten = {
+            "": "— kies —",
+            REVIEW_TYPE_GEEN_BRON: "Geen passende bron (na onderbouwd zoeken)",
+            REVIEW_TYPE_VERWIJZING: "Verwijzingsuitzondering (bron zonder bruikbare hyperlink)",
+            REVIEW_TYPE_CORRECTIE: "Correctie van één AI-onderdeel (met gebonden bewijs)",
+        }
+        soort = st.selectbox(
+            "Soort beoordeling",
+            options=list(soorten),
+            format_func=lambda s: soorten[s],
+            key=f"{sleutel}_soort",
+        )
+        payload: dict[str, Any] | None = None
+        onvolledig: list[str] = []
+        if soort == REVIEW_TYPE_GEEN_BRON:
+            payload, onvolledig = self._geen_bron_invoer(sleutel, REVIEW_TYPE_GEEN_BRON)
+        elif soort == REVIEW_TYPE_VERWIJZING:
+            payload, onvolledig = self._verwijzing_invoer(
+                sleutel, canoniseer_bronnen(bronnen), REVIEW_TYPE_VERWIJZING
+            )
+        elif soort == REVIEW_TYPE_CORRECTIE:
+            payload, onvolledig = self._correctie_invoer(
+                sleutel, uitkomst, canoniseer_bronnen(bronnen), AI_ONDERDELEN
+            )
+        if soort and self._bronreview_vastleggen(
+            definitie, sleutel, actor, payload, onvolledig, vingerafdruk
+        ):
+            return
+        self._verwijderknop_bronreview(definitie, sleutel, actor, review)
+
+    def _toon_bronbasis(
+        self,
+        definitie: DefinitieRecord,
+        velden: dict[str, Any],
+        bronnen: list[Any],
+        review: Any,
+        uitkomst: Any,
+    ) -> None:
+        """De bronbasis-sectie (bronnen, kwitantie, AI-oordeel, uitzondering)."""
+        from ui.components.sources_renderer import SourcesRenderer
+
+        lezer = getattr(definitie, "get_source_evidence_status", None)
+        review_lezer = getattr(definitie, "get_source_review_status", None)
+        SourcesRenderer().render_bronbasis_section(
+            sources=bronnen,
+            assessment=velden.get("source_assessment"),
+            receipt=velden.get("source_receipt"),
+            review=review,
+            con02=uitkomst.als_dict(),
+            evidence_status=lezer() if callable(lezer) else None,
+            review_status=review_lezer() if callable(review_lezer) else None,
+            titel="",
+        )
+
+    @staticmethod
+    def _toon_beoordelingsaanhef(review: Any, actor: str | None) -> None:
+        """Kop en voorwaarden boven de invoer: vervanging van een bestaande
+        beoordeling wordt vooraf gemeld; zonder reviewer-identiteit geen actor."""
+        st.markdown("**Deskundige beoordeling vastleggen (uitzondering of correctie)**")
+        st.caption(
+            "Een uitzondering is geen positieve bronbeoordeling en geen vaststelling; "
+            "brongezag en betekenissteun blijven onverminderd beoordeeld. Leg een "
+            "bronbeoordeling vast vóór de CON-01-naamfunctiebeoordeling: elke "
+            "andere versiebump laat een eerdere CON-01-beoordeling vervallen "
+            "(DEF-622 V2c), terwijl het vastleggen van CON-01 een geldige "
+            "bronbeoordeling wél meeneemt."
+        )
+        if isinstance(review, dict) and review:
+            st.warning(
+                "Er is al een vastgelegde CON-02-beoordeling "
+                f"(type '{review.get('type')}', door {review.get('actor') or 'onbekend'}, "
+                f"recordversie {review.get('version_number')}). Een nieuwe beoordeling "
+                "vervangt die; de vorige blijft bewaard in de beoordelingshistorie."
+            )
+        if not actor:
+            st.info(
+                "Vul eerst de reviewer naam in (onder de reviewbeslissing) om een "
+                "beoordeling te kunnen vastleggen."
+            )
+
+    @staticmethod
+    def _geen_bron_invoer(
+        sleutel: str, review_type: str
+    ) -> tuple[dict[str, Any] | None, list[str]]:
+        """Invoer voor 'geen passende bron': zoektermen, geraadpleegde bronnen,
+        conclusie en motivering. Geeft (payload zonder algemene velden,
+        ontbrekende invoer)."""
+        onvolledig: list[str] = []
+        queries = st.text_area(
+            "Zoektermen (één per regel)", key=f"{sleutel}_queries", height=80
+        )
+        consulted = st.text_area(
+            "Geraadpleegde bronnen/registers (één per regel)",
+            key=f"{sleutel}_consulted",
+            height=80,
+        )
+        conclusie = st.text_input(
+            "Conclusie van het zoeken", key=f"{sleutel}_conclusie"
+        )
+        rationale = st.text_area("Motivering (verplicht)", key=f"{sleutel}_motivering")
+        q = [r.strip() for r in (queries or "").splitlines() if r.strip()]
+        c = [r.strip() for r in (consulted or "").splitlines() if r.strip()]
+        if not q:
+            onvolledig.append("zoektermen")
+        if not c:
+            onvolledig.append("geraadpleegde bronnen")
+        if not (conclusie or "").strip():
+            onvolledig.append("conclusie")
+        if not (rationale or "").strip():
+            onvolledig.append("motivering")
+        payload = {
+            "type": review_type,
+            "rationale": (rationale or "").strip(),
+            "search": {
+                "queries": q,
+                "consulted": c,
+                "conclusion": (conclusie or "").strip(),
+            },
+        }
+        return payload, onvolledig
+
+    def _verwijzing_invoer(
+        self, sleutel: str, canoniek: Any, review_type: str
+    ) -> tuple[dict[str, Any] | None, list[str]]:
+        """Invoer voor de verwijzingsuitzondering: bron (stabiel id uit de
+        opgeslagen bronset zonder hyperlink), vindplaats uit de bron of van de
+        deskundige, motivering. Geeft (payload of None, ontbrekende invoer)."""
+        onvolledig: list[str] = []
+        kandidaten = [b for b in canoniek if not b.url]
+        if not kandidaten:
+            st.warning(
+                "Geen opgeslagen bron zonder hyperlink: de verwijzingsuitzondering is "
+                "niet van toepassing (een bron mét bruikbare link heeft geen uitzondering nodig)."
+            )
+        keuze = st.selectbox(
+            "Bron (stabiel id uit de opgeslagen bronset)",
+            options=[b.source_id for b in kandidaten],
+            format_func=lambda sid: next(
+                (
+                    f"{b.source_id} · {b.title or '(zonder titel)'} · "
+                    f"vindplaats {b.locator or 'onbekend'} · versie {b.version or 'onbekend'}"
+                    for b in kandidaten
+                    if b.source_id == sid
+                ),
+                sid,
+            ),
+            key=f"{sleutel}_bron",
+        )
+        gekozen = next((b for b in kandidaten if b.source_id == keuze), None)
+        locator = self._vindplaats_invoer(sleutel, gekozen)
+        rationale = st.text_area(
+            "Motivering (verplicht)", key=f"{sleutel}_motivering_ref"
+        )
+        if gekozen is None:
+            onvolledig.append("bron")
+        if not (locator or "").strip():
+            onvolledig.append("exacte vindplaats")
+        if not (rationale or "").strip():
+            onvolledig.append("motivering")
+        if gekozen is None:
+            return None, onvolledig
+        payload = {
+            "type": review_type,
+            "rationale": (rationale or "").strip(),
+            "source_id": gekozen.source_id,
+            "content_hash": gekozen.content_hash,
+            "source_version": gekozen.version,
+            "locator": (locator or "").strip(),
+        }
+        return payload, onvolledig
+
+    def _bronreview_vastleggen(
+        self,
+        definitie: DefinitieRecord,
+        sleutel: str,
+        actor: str | None,
+        payload: dict[str, Any] | None,
+        onvolledig: list[str],
+        vingerafdruk: str,
+    ) -> bool:
+        """Expliciete acceptatie + vastlegknop. True = de weergave stopt hier
+        (vastleggen geweigerd wegens ontbrekende identiteit/record/payload)."""
+        accepted = st.checkbox(
+            "Ik accepteer deze uitzondering uitdrukkelijk als deskundige",
+            key=f"{sleutel}_accepted",
+        )
+        hulp = None
+        if onvolledig:
+            hulp = "Vul in: " + ", ".join(onvolledig)
+        elif not accepted:
+            hulp = "Expliciete acceptatie is vereist"
+        elif not actor:
+            hulp = "Vul eerst de reviewer naam in (onder de reviewbeslissing)"
+        if st.button(
+            "📝 Leg beoordeling vast",
+            key=f"{sleutel}_vastleggen",
+            disabled=hulp is not None or payload is None,
+            help=hulp,
+        ):
+            if not actor or definitie.id is None or payload is None:
+                st.error(
+                    "❌ Vastleggen vereist een reviewer naam en een opgeslagen definitie"
+                )
+                return True
+            self._leg_bronreview_vast(
+                definitie,
+                {
+                    **payload,
+                    "accepted": True,
+                    "actor": actor,
+                    "version_number": definitie.version_number,
+                    "fingerprint": vingerafdruk,
+                    "reviewed_at": datetime.now().isoformat(),
+                },
+                actor,
+            )
+        return False
+
+    def _verwijderknop_bronreview(
+        self, definitie: DefinitieRecord, sleutel: str, actor: str | None, review: Any
+    ) -> None:
+        """Verwijderknop voor een vastgelegde uitzondering (alleen met actor)."""
+        if (
+            isinstance(review, dict)
+            and review
+            and st.button(
+                "🗑️ Verwijder vastgelegde uitzondering",
+                key=f"{sleutel}_verwijderen",
+                disabled=not actor,
+            )
+        ):
+            if actor and definitie.id is not None:
+                self._leg_bronreview_vast(definitie, None, actor)
+
+    @staticmethod
+    def _vindplaats_invoer(sleutel: str, gekozen: Any) -> str:
+        """De exacte vindplaats van de gekozen bron.
+
+        Draagt de bewaarde bron een vindplaats, dan is dát de vindplaats
+        (getoond, niet invulbaar — een aanroeper-vindplaats vervangt nooit
+        bronbewijs). Alleen zonder bronvindplaats vult de deskundige haar in;
+        het invoerveld is per bron-id gesleuteld, zodat een eerder gekozen
+        bron geen oude waarde achterlaat.
+        """
+        if gekozen is not None and gekozen.locator:
+            st.caption(f"Exacte vindplaats (uit de bewaarde bron): {gekozen.locator}")
+            return str(gekozen.locator)
+        sid = getattr(gekozen, "source_id", "geen") if gekozen is not None else "geen"
+        return str(
+            st.text_input(
+                "Exacte vindplaats",
+                key=f"{sleutel}_locator_{sid}",
+                help="De bron draagt geen vindplaats; geef de exacte vindplaats op.",
+            )
+            or ""
+        )
+
+    _ONDERDEELLABEL = {
+        "source_authority": "Brongezag/toepasselijkheid",
+        "semantic_support": "Betekenissteun",
+        "reference_quality": "Verwijskwaliteit",
+    }
+    _CORRECTIESTATUS = {
+        "pass": "voldoet",
+        "fail": "voldoet niet",
+        "review_required": "nog te beoordelen (bewijs ontbreekt; motiveer)",
+    }
+
+    def _correctie_invoer(
+        self,
+        sleutel: str,
+        uitkomst: Any,
+        canoniek: Any,
+        onderdelen: tuple[str, ...],
+    ) -> tuple[dict[str, Any] | None, list[str]]:
+        """Invoer voor `part_correction` (C §6b): één onderdeel, één oordeel, één
+        gebonden bewijsclaim (id/hash/versie uit de bewaarde bron; citaat en
+        vindplaats van de deskundige). Toont het oorspronkelijke AI-oordeel
+        apart. Geeft (payload zonder algemene velden, ontbrekende invoer)."""
+        onvolledig: list[str] = []
+        onderdeel = st.selectbox(
+            "Onderdeel",
+            options=list(onderdelen),
+            format_func=lambda o: self._ONDERDEELLABEL.get(o, o),
+            key=f"{sleutel}_corr_onderdeel",
+        )
+        origineel = next((p for p in uitkomst.parts if p.id == onderdeel), None)
+        if origineel is not None:
+            st.info(
+                f"Oorspronkelijk oordeel over {self._ONDERDEELLABEL.get(onderdeel, onderdeel)}"
+                f" ({'AI' if origineel.field == 'source_assessment' else origineel.field or 'geen basis'}):"
+                f" {self._CORRECTIESTATUS.get(origineel.status, origineel.status)} — "
+                f"{origineel.reason}"
+            )
+        status = st.selectbox(
+            "Deskundig oordeel over dit onderdeel",
+            options=list(self._CORRECTIESTATUS),
+            format_func=lambda o: self._CORRECTIESTATUS[o],
+            key=f"{sleutel}_corr_status",
+        )
+        bronnen = list(canoniek)
+        if not bronnen:
+            st.warning(
+                "Geen opgeslagen bronnen: een correctie met bewijs is niet mogelijk; "
+                "alleen 'nog te beoordelen' met motivering."
+            )
+        keuze = st.selectbox(
+            "Bron van het bewijs (stabiel id uit de opgeslagen bronset)",
+            options=[b.source_id for b in bronnen],
+            format_func=lambda sid: next(
+                (
+                    f"{b.source_id} · {b.title or '(zonder titel)'} · versie "
+                    f"{b.version or 'onbekend'} · vindplaats {b.locator or 'onbekend'}"
+                    for b in bronnen
+                    if b.source_id == sid
+                ),
+                sid,
+            ),
+            key=f"{sleutel}_corr_bron",
+        )
+        gekozen = next((b for b in bronnen if b.source_id == keuze), None)
+        citaat = st.text_area(
+            "Letterlijk citaat uit de bewaarde passage (bewijs)",
+            key=f"{sleutel}_corr_citaat",
+            height=80,
+            help="Moet letterlijk in de bewaarde passage van de gekozen bron staan.",
+        )
+        locator = self._vindplaats_invoer(f"{sleutel}_corr", gekozen)
+        rationale = st.text_area(
+            "Motivering (verplicht)", key=f"{sleutel}_corr_motivering"
+        )
+        if not (rationale or "").strip():
+            onvolledig.append("motivering")
+        bewijs: list[dict[str, Any]] = []
+        if (citaat or "").strip():
+            if gekozen is None:
+                onvolledig.append("bron")
+            else:
+                bewijs.append(
+                    {
+                        "source_id": gekozen.source_id,
+                        "content_hash": gekozen.content_hash,
+                        "source_version": gekozen.version,
+                        "quote": (citaat or "").strip(),
+                        "locator": (locator or "").strip() or None,
+                    }
+                )
+        if status in ("pass", "fail") and not bewijs:
+            onvolledig.append("citaat (bewijs is verplicht bij voldoet/voldoet niet)")
+        if status in ("pass", "fail") and onderdeel == "reference_quality" and bewijs:
+            if not bewijs[0].get("locator"):
+                onvolledig.append("exacte vindplaats")
+        return (
+            {
+                "type": "part_correction",
+                "part_id": onderdeel,
+                "status": status,
+                "evidence": bewijs,
+                "rationale": (rationale or "").strip(),
+            },
+            onvolledig,
+        )
+
+    def _leg_bronreview_vast(
+        self, definitie: DefinitieRecord, review: dict[str, Any] | None, actor: str
+    ) -> None:
+        """Schrijf de uitzondering via D tegen de getoonde versie; herlaad daarna.
+
+        `False` betekent: versieconflict of vingerafdruk die niet bij het
+        opgeslagen record hoort — nooit een stil succes. Een payloadfout
+        (ValueError uit D/C) wordt als fout getoond.
+        """
+        definitie_id = cast(int, definitie.id)
+        try:
+            opgeslagen = self.repository.set_source_review(
+                definitie_id,
+                review,
+                updated_by=actor,
+                expected_version=definitie.version_number,
+            )
+        except ValueError as e:
+            st.error(f"❌ Beoordeling geweigerd: {e}")
+            return
+        vers = self.repository.get_definitie(definitie_id)
+        if vers is not None:
+            SessionStateManager.set_value("selected_review_definition", vers)
+        if opgeslagen:
+            st.success(
+                "✅ Uitzondering verwijderd"
+                if review is None
+                else "✅ Uitzondering vastgelegd"
+            )
+        elif vers is not None and vers.version_number != definitie.version_number:
+            st.warning(
+                "⚠️ Niet vastgelegd: de definitie is intussen gewijzigd; "
+                "beoordeel de actuele versie opnieuw"
+            )
+        else:
+            st.error(
+                "❌ Niet vastgelegd: de beoordeling hoort niet bij het opgeslagen "
+                "record (vingerafdruk) of is onvolledig"
+            )
+        st.rerun()
 
     def _leg_beoordeling_vast(
         self, definitie: DefinitieRecord, nieuwe_review: dict[str, Any], actor: str
@@ -1184,7 +1684,7 @@ class ExpertReviewTab:
         de vastgelegde CON-01-beoordeling is geen violation en blijft buiten
         de lijst.
         """
-        from database.models import CONTEXT_REVIEW_CODE
+        from database.models import CONTEXT_REVIEW_CODE, SOURCE_REVIEW_CODE
 
         issues = (
             definitie.get_validation_issues_list()
@@ -1200,7 +1700,8 @@ class ExpertReviewTab:
             score = None
         mapped = []
         for it in issues:
-            if it.get("code") == CONTEXT_REVIEW_CODE:
+            # De CON-01- en CON-02-beoordelingsmarkers zijn geen violations.
+            if it.get("code") in (CONTEXT_REVIEW_CODE, SOURCE_REVIEW_CODE):
                 continue
             try:
                 mapped.append(
@@ -1493,9 +1994,7 @@ class ExpertReviewTab:
                 parts.append(f"Juridisch: {jur}")
             if wet:
                 parts.append(f"Wettelijk: {wet}")
-            st.caption(
-                f"Context: {' | '.join(parts) if parts else '—'} | Score: {definitie.validation_score:.2f if definitie.validation_score else 'N/A'}"
-            )
+            st.caption(f"Context: {' | '.join(parts) if parts else '—'}")
 
     def _apply_filters(
         self,
@@ -1545,8 +2044,6 @@ class ExpertReviewTab:
             filtered.sort(key=lambda x: x.created_at or datetime.min, reverse=False)
         elif sort_by == "Begrip A-Z":
             filtered.sort(key=lambda x: x.begrip.lower())
-        elif sort_by == "Score":
-            filtered.sort(key=lambda x: x.validation_score or 0, reverse=True)
 
         return filtered
 

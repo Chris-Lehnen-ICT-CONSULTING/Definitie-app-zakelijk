@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     from services.synonym_orchestrator import SynonymOrchestrator
     from services.synonym_suggester import SynonymSuggester
     from services.validation.interfaces import ValidationOrchestratorInterface
+    from services.validation.source_assessment_service import SourceAssessmentService
     from services.web_lookup.synonym_service import JuridischeSynoniemService
 
 logger = logging.getLogger(__name__)
@@ -287,6 +288,26 @@ class ServiceContainer:
             )
         return cast("AIServiceV2", self._instances["ai_service"])
 
+    def source_assessment_service(self) -> "SourceAssessmentService":
+        """De AI-bronbeoordeling voor CON-02 (DEF-743), singleton.
+
+        Op de gedeelde, model-onafhankelijke AIServiceV2 en de ModelRouter
+        (taak `validation`); dezelfde instantie gaat naar de orchestrator en
+        daarmee naar de ValidationOrchestratorV2, zodat editor en generatie
+        één beoordelingsdienst (en één interne cache) delen.
+        """
+        if "source_assessment_service" not in self._instances:
+            from services.validation.source_assessment_service import (
+                SourceAssessmentService,
+            )
+
+            self._instances["source_assessment_service"] = SourceAssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "SourceAssessmentService", self._instances["source_assessment_service"]
+        )
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -352,6 +373,8 @@ class ServiceContainer:
                 synonym_orchestrator=synonym_orch,
                 # DEF-271: RAG context retrieval service
                 rag_service=self.rag_service,
+                # DEF-743: gedeelde AI-bronbeoordeling (CON-02)
+                source_assessment_service=self.source_assessment_service(),
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 

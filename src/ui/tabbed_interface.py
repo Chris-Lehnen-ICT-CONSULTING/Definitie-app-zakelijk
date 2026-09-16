@@ -97,17 +97,28 @@ class TabbedInterface:
                 async def generate_definition(
                     self, begrip: str, context_dict: dict[str, Any], **kwargs: Any
                 ) -> dict[str, Any]:
-                    # Uniform V2 response vorm; UI kan hiermee omgaan
+                    # Uniform V2 response vorm; UI kan hiermee omgaan.
+                    # DEF-743: geen verzonnen totalen (0.0) — er is niets
+                    # getoetst; de UI herkent `validation_unknown` fail-closed.
+                    from services.validation.interfaces import (
+                        UNKNOWN_REASON_RULESET_INCOMPLETE,
+                        VALIDATION_STATUS_UNKNOWN,
+                    )
+
                     return {
                         "success": False,
                         "definitie_origineel": "",
                         "definitie_gecorrigeerd": "",
-                        "final_score": 0.0,
+                        "final_score": None,
                         "validation_details": {
-                            "overall_score": 0.0,
+                            "validation_status": VALIDATION_STATUS_UNKNOWN,
+                            "unknown_reason": UNKNOWN_REASON_RULESET_INCOMPLETE,
+                            "overall_score": None,
                             "is_acceptable": False,
                             "violations": [],
                             "passed_rules": [],
+                            "rule_statuses": {},
+                            "rule_results": {},
                         },
                         "voorbeelden": {},
                         "metadata": {"error": "Definition service unavailable"},

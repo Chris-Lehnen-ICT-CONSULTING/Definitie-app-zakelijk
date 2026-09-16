@@ -1,0 +1,10 @@
+# DEF-743 CON-02 skill-alignment — SHA-256 manifest (worktree, branch feature/DEF-743-con02-skills @ 7ab73dc, 2026-09-15T16:13:29Z)
+c1e33b08902a3f015f9edf7d1d880b893bd27a06e6b3487a144667ef8c17e1d7  skills/definitie-toetsregels/SKILL.md
+88d52a8ab930838753b0f348da8098881c3580ff5b9d371329c4222a4cd6d976  skills/definitie-toetsregels/reference.md
+266942072034b2c83aef7f349cb391ed465395370483fd785c7538c676873fa3  skills/definitie-toetsregels/references/con02-bronbasis.md
+e3ed700b4677853691f5e688ce6c0cf28af827d6795a6b55306feac322c64447  skills/definitie-juridisch-nederland/SKILL.md
+a4ff34768435cc2d612fca0b99222f21a4b1103b1c076da0ed555518620ca364  skills/definitie-juridisch-nederland/reference.md
+65d043c3f4ef6180b26eef415d3500233f6c11a0bc1f36b4bc07267980ec935e  skills/definitie-nederlandse-definities/SKILL.md
+65f1e11d54887bbdc5ff01f9781658c8945432df208f6ed1b1b3720391ab1cac  cowork-exports/definitie-toetsregels.zip
+5b16bff0f48e559e8b10a3553dbdb4f13d94fb5600b9312d4ea0244f5b3cdbca  cowork-exports/definitie-juridisch-nederland.zip
+9a4bb2dc9787ee9eebd391f20c37552149d95b5a61b5ab6abbbd544eef423c07  cowork-exports/definitie-nederlandse-definities.zip

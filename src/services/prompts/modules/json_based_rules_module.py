@@ -26,6 +26,21 @@ from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
 logger = logging.getLogger(__name__)
 
+# DEF-743: de con_rules-module is altijd actief omdat de bronbasisnorm (CON-02)
+# ongeacht context geldt. Alle overige CON-regels (CON-01 contextcontract
+# DEF-622, CON-CIRC-001, toekomstige) zijn contextgebonden en worden alleen
+# getoond als `has_any_context()` waar is — smal: een no-context-prompt krijgt
+# precies de bronregel erbij en niets anders; met context is de set ongewijzigd.
+_CONTEXTGEBONDEN_PREFIX = "CON-"
+_CONTEXTVRIJE_REGELS: frozenset[str] = frozenset({"CON-02"})
+
+
+def _is_contextgebonden(regel_key: str) -> bool:
+    return (
+        regel_key.startswith(_CONTEXTGEBONDEN_PREFIX)
+        and regel_key not in _CONTEXTVRIJE_REGELS
+    )
+
 
 class JSONBasedRulesModule(BasePromptModule):
     """
@@ -116,12 +131,14 @@ class JSONBasedRulesModule(BasePromptModule):
         Genereer validatieregels sectie voor specifieke prefix.
 
         Args:
-            context: Module context (niet gebruikt door deze module)
+            context: Module context; alleen `enriched_context.has_any_context()`
+                wordt gelezen, voor de contextgebonden regels (DEF-743).
 
         Returns:
             ModuleOutput met:
             - content: Markdown sectie met header + formatted rules
-            - metadata: rules_count, include_examples, rule_prefix
+            - metadata: rules_count (getoond), rules_skipped (contextgebonden,
+              niet getoond), include_examples, rule_prefix
         """
         try:
             sections = []
@@ -140,8 +157,17 @@ class JSONBasedRulesModule(BasePromptModule):
                 k: v for k, v in all_rules.items() if k.startswith(self.rule_prefix)
             }
 
+            # DEF-743: contextgebonden regels alleen tonen als er context is.
+            has_context = self._has_any_context(context)
+            rules_skipped = sorted(
+                k for k in filtered_rules if not has_context and _is_contextgebonden(k)
+            )
+            shown_rules = {
+                k: v for k, v in filtered_rules.items() if k not in rules_skipped
+            }
+
             # Sorteer regels alfabetisch
-            sorted_rules = sorted(filtered_rules.items())
+            sorted_rules = sorted(shown_rules.items())
 
             # Format elke regel
             for regel_key, regel_data in sorted_rules:
@@ -153,7 +179,8 @@ class JSONBasedRulesModule(BasePromptModule):
             return ModuleOutput(
                 content=content,
                 metadata={
-                    "rules_count": len(filtered_rules),
+                    "rules_count": len(shown_rules),
+                    "rules_skipped": rules_skipped,
                     "include_examples": self.include_examples,
                     "rule_prefix": self.rule_prefix,
                 },
@@ -179,6 +206,23 @@ class JSONBasedRulesModule(BasePromptModule):
             Lege lijst
         """
         return []
+
+    @staticmethod
+    def _has_any_context(context: ModuleContext) -> bool:
+        """DEF-743: leest alleen het contextpredicaat; faalt gesloten naar False.
+
+        Zonder (of met een onvolledige) enriched_context wordt een
+        contextgebonden regel niet getoond — dezelfde keuze als de
+        orchestrator maakt voor `context_awareness`.
+        """
+        enriched = getattr(context, "enriched_context", None)
+        predicate = getattr(enriched, "has_any_context", None)
+        if not callable(predicate):
+            return False
+        try:
+            return bool(predicate())
+        except (AttributeError, TypeError):
+            return False
 
     def _format_rule(self, regel_key: str, regel_data: dict) -> list[str]:
         """
@@ -298,7 +342,15 @@ class JSONBasedRulesModule(BasePromptModule):
                 "mag alleen voorkomen als die inhoudelijk noodzakelijk is om het "
                 "begrip af te bakenen of te identificeren"
             ),
-            "CON-02": "Baseer de definitie op een authentieke bron (wetgeving, officiële documenten, standaarden)",
+            # DEF-743: één bronbasisnorm voor genereren en toetsen (G). Dezelfde
+            # norm als CON-02.json; hier de generatiekant in één instructie. De
+            # uitleg erboven noemt al de bronsoorten en de peildatum; de
+            # BRONNEN INSTRUCTIE geeft de XML-legenda en de datanorm.
+            "CON-02": (
+                "Gebruik alleen aangeleverde, passende bronpassages met hun beperkingen "
+                "en uitzonderingen; route of zoekscore is geen bewijs van gezag; verzin "
+                "geen bron; een bronvermelding in de zin is niet verplicht"
+            ),
             # SAM rules (Samenstelling)
             "SAM-01": "Zorg dat kwalificaties niet leiden tot een betekenis die afwijkt van het algemeen aanvaarde begrip",
             "SAM-02": "Vermijd herhaling uit de definitie van het hoofdbegrip bij het kwalificeren van begrippen",

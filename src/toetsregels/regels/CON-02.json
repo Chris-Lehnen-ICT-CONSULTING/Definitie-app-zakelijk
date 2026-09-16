@@ -1,25 +1,14 @@
 {
   "id": "CON_02",
   "naam": "Baseren op authentieke bron",
-  "uitleg": "Gebruik een gezaghebbende of officiële bron als basis voor de definitie.",
-  "toelichting": "Een definitie moet gebaseerd zijn op een erkende bron (bijv. wetgeving, officiële beleidsdocumenten, standaarden). Dit waarborgt de betrouwbaarheid en maakt discussie over interpretatie minder waarschijnlijk.",
-  "toetsvraag": "Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?",
-  "herkenbaar_patronen": [
-    "\\bvolgens (de|het)\\b",
-    "\\bzoals beschreven in\\b",
-    "\\bzoals bepaald in\\b",
-    "\\bzoals bedoeld in\\b",
-    "\\bconform (de|het)\\b",
-    "\\bovereenkomstig (de|het)\\b",
-    "\\bingevolge (de|het)\\b",
-    "\\bop grond van\\b",
-    "\\buit (de|het)?\\s*(Wetboek|Besluit|Regeling|Beleidsregel|Standaard|Verordening|Richtlijn)\\b"
-  ],
+  "uitleg": "Baseer de definitie zoveel mogelijk op passende authentieke of gezaghebbende bronnen voor de gekozen betekenis, context en peildatum; verzin geen bron of bewijs.",
+  "toelichting": "De regel beoordeelt drie onderdelen afzonderlijk: (1) brongezag en toepasselijkheid — is de bron passend en gezaghebbend voor dit begrip, deze betekenis, context en peildatum (profielen: wet-/regelgeving en verdragen; beleid; convenanten/overeenkomsten; normen/standaarden; vakpublicaties/begrippenregisters; overige/onbekende bronnen); (2) betekenissteun — ondersteunen de passages de bepalende kenmerken, beperkingen en uitzonderingen van de definitie; (3) verwijskwaliteit — is de bron precies en beknopt terugvindbaar via een gerichte verwijzing. Code controleert technische feiten en of een citaat werkelijk in de aangeleverde passage staat; de AI beoordeelt gezag, toepasselijkheid en betekenissteun met bewijsplaatsen en onzekerheden; citaatbestaan bewijst de interpretatie niet. Upload, RAG, wiki en web zijn aanvoerroutes, geen gezag. Eén norm voor genereren en toetsen: een correcte inline citatie in de definitiezin is bewijs en geen zelfstandige afkeurgrond; een apart registratieveld is geen normdoel. Voldoet vereist positieve, onderbouwde toepasselijke controles; Voldoet niet vereist een aantoonbare tekortkoming met citaat; Nog te beoordelen behoudt ontbrekend bewijs of oordeel. Geen bron aangeleverd of gevonden is open, geen gebrek; een mislukte fetch of beoordeling is een technische fout en apart herkenbaar. Een deskundige kan twee uitzonderingen vastleggen: het onderbouwd ontbreken van een passende bron na gedocumenteerd zoeken, en een bestaande bron zonder bruikbare hyperlink (met bewaarde bronversie, stabiele bron-ID en exacte vindplaats); beide blijven zichtbaar een uitzondering en worden nooit een gewoon Voldoet. De regel geeft geen cijfer; er is geen automatisch herstel, een verbetervoorstel kan apart worden aangevraagd. Definitievaststelling blijft deskundig en handmatig.",
+  "toetsvraag": "Is de definitie gebaseerd op een passende, gezaghebbende bron die de betekeniskenmerken en uitzonderingen aantoonbaar ondersteunt en precies terugvindbaar is — beoordeeld per onderdeel, met bewijsplaats en zonder verzonnen bewijs?",
   "goede_voorbeelden": [
-    "gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG"
+    "bestuursorgaan: orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld, of een ander persoon of college met enig openbaar gezag bekleed (volgt Awb art. 1:1 lid 1)"
   ],
   "foute_voorbeelden": [
-    "gegevensverwerking: handeling met gegevens (geen bron vermeld)"
+    "bestuursorgaan: persoon of college met enig openbaar gezag bekleed (de categorie 'orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld' uit Awb art. 1:1 lid 1 ontbreekt)"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",
@@ -28,29 +17,6 @@
   "type": "herkomst en bronvermelding",
   "thema": "context en legitimiteit",
   "brondocument": "ASTRA",
-  "bronpatronen_specifiek": [
-    "\\bart\\.?\\s*\\d+",
-    "\\blid\\s*\\d+",
-    "\\bparagraaf\\s*\\d+",
-    "\\bhoofdstuk\\s*\\d+",
-    "\\btitel\\s*\\d+",
-    "\\bafdeling\\s*\\d+",
-    "\\b§\\s*\\d+",
-    "\\bartikel\\s*\\d+\\w*\\s+(van|uit)\\s+\\w+"
-  ],
-  "bronpatronen_algemeen": [
-    "\\bwet\\b",
-    "\\bbesluit\\b",
-    "\\bregeling\\b",
-    "\\brichtlijn\\b",
-    "\\bverordening\\b",
-    "\\bAVG\\b",
-    "\\bAwb\\b",
-    "\\bWvSr\\b",
-    "\\bWvSv\\b",
-    "\\bbeleidsregel\\b",
-    "\\bstandaard\\b"
-  ],
   "relatie": [
     {
       "fulltext": "Baseren op authentieke bron",
@@ -58,13 +24,16 @@
     }
   ],
   "runtime_contract": {
-    "evaluator": "positive_indicator",
+    "evaluator": "source_evidence",
     "required_inputs": [
-      "definition_text"
+      "definition_text",
+      "term"
     ],
-    "executability": "deterministic",
+    "executability": "judgment",
     "automation_status": "automated",
-    "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "score_policy": "no_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "Of een definitie voldoet hangt af van de aangeleverde bronpassages en de AI-/deskundigenbeoordeling van gezag, betekenissteun en verwijzing — niet van woorden in de zin. Zonder bronset en beoordeling is het paar geen deterministische regressiecase; de voorbeelden illustreren de norm.",
+    "example_pair_issue": "DEF-743"
   }
 }

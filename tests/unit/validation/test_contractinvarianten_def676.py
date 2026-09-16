@@ -40,11 +40,12 @@ _ECHTE_REGELS_DIR = (
     Path(__file__).resolve().parents[3] / "src" / "toetsregels" / "regels"
 )
 
-# CON-02 is een gewone declaratieve regel: deterministic, automated, scored,
+# ESS-03 is een gewone declaratieve regel: deterministic, automated, scored,
 # met een goed/fout-paar en een normatieve policy. Daarmee zit hij precies
 # aan de goede kant van alle zeven invarianten, zodat elke mutatie hieronder
-# er exact één schendt.
-PROEFREGEL = "CON-02"
+# er exact één schendt. (Tot DEF-743 was CON-02 de proefregel; die is nu
+# judgment/no_score/review_policy en dus geen bruikbaar anker meer.)
+PROEFREGEL = "ESS-03"
 
 
 @pytest.fixture
@@ -70,12 +71,13 @@ def test_ongemuteerd_basisrecord_bouwt_zonder_fout(basisrecord):
 
 
 def test_proefregel_voldoet_nog_aan_alle_precondities(basisrecord):
-    """Drift in CON-02 moet luid falen, niet de suite stil uithollen.
+    """Drift in de proefregel moet luid falen, niet de suite stil uithollen.
 
     Elke mutatie hieronder gaat ervan uit dat het basisrecord aan de goede
-    kant van alle zeven invarianten zit. Verschuift CON-02 later — bv. naar
-    `review_required` — dan wordt mutatie 3 de begintoestand en bewijst zijn
-    `pytest.raises` niets meer. Deze test wijst die drift aan bij de bron.
+    kant van alle zeven invarianten zit. Verschuift de proefregel later — bv.
+    naar `review_required` — dan wordt mutatie 3 de begintoestand en bewijst
+    zijn `pytest.raises` niets meer. Deze test wijst die drift aan bij de bron
+    (precies wat bij CON-02 gebeurde in DEF-743).
     """
     record = _bouw(basisrecord)
 

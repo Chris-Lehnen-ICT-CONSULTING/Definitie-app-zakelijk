@@ -37,7 +37,13 @@ from services.interfaces import Definition
 # zolang een regel met score_policy no_score in de geevalueerde set zit
 # (productbesluit: geen noemer zonder CON-01). Bestaande consumers moeten
 # None aankunnen; geen enkel veld is verdwenen.
-CONTRACT_VERSION = "1.3.0"
+#
+# 1.4.0 (DEF-743): additief uitgebreid met source_assessment — de volledige
+# AI-bronbeoordeling (CON-02) die de async wrapper voor exact deze validatie
+# heeft verkregen, of null wanneer er geen AI-beoordeling was (geen bronnen).
+# Zo kan een aanroeper haar bewaren zonder tweede modelaanroep. SemVer-minor:
+# geen veld is verdwenen of van betekenis veranderd.
+CONTRACT_VERSION = "1.4.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -94,6 +100,11 @@ class ValidationResult(TypedDict, total=False):
 
     # DEF-622: gestructureerde uitkomst per regel zonder cijfer (CON-01).
     rule_results: NotRequired[dict[str, "RuleResult"]]
+
+    # DEF-743: de volledige AI-bronbeoordeling (CON-02) die de wrapper voor
+    # deze validatie heeft verkregen (store-ready, zie
+    # domain.sources.contract), of None zonder AI-beoordeling.
+    source_assessment: NotRequired[dict[str, Any] | None]
 
     # DEF-621: bij validation_unknown is er niet geevalueerd.
     # overall_score en is_acceptable blijven aanwezig voor
