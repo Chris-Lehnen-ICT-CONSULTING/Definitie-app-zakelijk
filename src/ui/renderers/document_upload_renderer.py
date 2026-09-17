@@ -14,7 +14,10 @@ from typing import Any
 import streamlit as st
 
 from document_processing.document_extractor import supported_file_types
-from document_processing.document_processor import get_document_processor
+from document_processing.document_processor import (
+    BronmetadataOpslagError,
+    get_document_processor,
+)
 from services.rag.constants import RECHTSGEBIEDEN
 from ui.session_state import SessionStateManager
 
@@ -215,6 +218,11 @@ class DocumentUploadRenderer:
                 )
             except (ValueError, KeyError) as e:
                 st.error(f"❌ Bronmetadata niet vastgelegd: {e}")
+                return
+            except BronmetadataOpslagError as e:
+                # Schrijffout op het metadata-bestand: de opgave is teruggerold
+                # en niet opgeslagen — geen succesmelding (Codex-review 1, P2).
+                st.error(f"❌ Bronmetadata niet opgeslagen: {e}")
                 return
             st.success(
                 f"✅ Bronmetadata vastgelegd bij {doc.filename} als opgegeven metadata "

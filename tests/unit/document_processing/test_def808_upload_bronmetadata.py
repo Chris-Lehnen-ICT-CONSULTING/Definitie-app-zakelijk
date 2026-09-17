@@ -123,6 +123,82 @@ def test_tweede_opgave_vult_aan_en_vervangt_de_herkomst(tmp_path):
     assert opgave["declared_by"] == "B"
 
 
+def _schrijffout_op_metadatabestand(tmp_path):
+    """Echte schrijffout: `open(..., "w")` op het metadata-bestand faalt; lezen
+    en alle andere bestanden blijven normaal werken (patroon
+    test_document_processor_exceptions)."""
+    import builtins
+
+    metadata_pad = str(tmp_path / "docs" / "documents_metadata.json")
+    origineel = builtins.open
+
+    def _open(bestand, *args, **kwargs):
+        modus = args[0] if args else kwargs.get("mode", "r")
+        if str(bestand) == metadata_pad and "w" in str(modus):
+            raise PermissionError(13, "Permission denied", metadata_pad)
+        return origineel(bestand, *args, **kwargs)
+
+    return patch("builtins.open", side_effect=_open)
+
+
+def test_mislukte_opslag_wordt_gemeld_en_laat_geheugen_en_schijf_ongewijzigd(tmp_path):
+    """Codex-review 1 (P2): een schrijffout mag geen stil succes zijn en geen
+    opgave in het geheugen achterlaten die bij herstart ontbreekt."""
+    from document_processing.document_processor import BronmetadataOpslagError
+
+    processor = _processor(tmp_path)
+    doc = _upload(processor)
+    processor.set_source_metadata(
+        doc.id, url=P01_URL, source_version=None, locator=None, declared_by="A"
+    )
+    eerder = dict(processor.get_document_by_id(doc.id).source_metadata)
+    schijf_voor = (tmp_path / "docs" / "documents_metadata.json").read_text()
+
+    with (
+        _schrijffout_op_metadatabestand(tmp_path),
+        pytest.raises(BronmetadataOpslagError, match="niet opgeslagen"),
+    ):
+        processor.set_source_metadata(
+            doc.id,
+            url=None,
+            source_version=P01_VERSIE,
+            locator=P01_VINDPLAATS,
+            declared_by="B",
+        )
+    # Geheugen teruggerold naar de eerdere opgave; schijf onaangeroerd; de
+    # persistentievlag signaleert het opslagprobleem (bestaand contract).
+    assert processor.get_document_by_id(doc.id).source_metadata == eerder
+    assert (tmp_path / "docs" / "documents_metadata.json").read_text() == schijf_voor
+    assert processor._persistence_failed is True
+    herladen = _processor(tmp_path).get_document_by_id(doc.id)
+    assert herladen.source_metadata == eerder
+    assert herladen.source_metadata["source_version"] is None
+
+
+def test_mislukte_eerste_opslag_laat_geen_opgave_achter(tmp_path):
+    from document_processing.document_processor import BronmetadataOpslagError
+
+    processor = _processor(tmp_path)
+    doc = _upload(processor)
+    with (
+        _schrijffout_op_metadatabestand(tmp_path),
+        pytest.raises(BronmetadataOpslagError),
+    ):
+        processor.set_source_metadata(
+            doc.id, url=P01_URL, source_version=None, locator=None
+        )
+    assert processor.get_document_by_id(doc.id).source_metadata is None
+    assert _processor(tmp_path).get_document_by_id(doc.id).source_metadata is None
+    # Een volgende geslaagde opslag werkt gewoon en herstelt de vlag.
+    processor.set_source_metadata(
+        doc.id, url=P01_URL, source_version=None, locator=None
+    )
+    assert processor._persistence_failed is False
+    assert _processor(tmp_path).get_document_by_id(doc.id).source_metadata["url"] == (
+        P01_URL
+    )
+
+
 def test_bestaand_metadatabestand_zonder_sleutel_laadt_ongewijzigd(tmp_path):
     processor = _processor(tmp_path)
     doc = _upload(processor)

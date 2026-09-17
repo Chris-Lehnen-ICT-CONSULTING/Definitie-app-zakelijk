@@ -458,3 +458,41 @@ def test_uploadformulier_wijst_ongeldige_link_af(tmp_path, sessie):
     assert processor.get_document_by_id(doc.id).source_metadata is None
     assert "hyperlink" in _teksten(m).lower()
     assert m.error.called
+
+
+def test_uploadformulier_meldt_mislukte_opslag_en_geen_succes(tmp_path, sessie):
+    """Codex-review 1 (P2): een echte schrijffout op het metadata-bestand geeft
+    een zichtbare afwijzing, geen succesmelding en geen aangenomen opgave."""
+    import builtins
+
+    from ui.renderers.document_upload_renderer import DocumentUploadRenderer
+
+    processor, doc = _upload(tmp_path)
+    SessionStateManager.set_value("user", ACTOR)
+    k = f"docmeta_{doc.id}"
+    SessionStateManager.set_value(f"{k}_url", P01_URL)
+    metadata_pad = str(tmp_path / "docs" / "documents_metadata.json")
+    origineel = builtins.open
+
+    def _open(bestand, *args, **kwargs):
+        modus = args[0] if args else kwargs.get("mode", "r")
+        if str(bestand) == metadata_pad and "w" in str(modus):
+            raise PermissionError(13, "Permission denied", metadata_pad)
+        return origineel(bestand, *args, **kwargs)
+
+    m = _mock_st(**{f"{k}_vastleggen": True})
+    with (
+        patch("ui.renderers.document_upload_renderer.st", m),
+        patch("builtins.open", side_effect=_open),
+    ):
+        DocumentUploadRenderer()._render_bronmetadata_invoer(processor, doc)
+    assert not m.success.called
+    assert m.error.called
+    assert "niet opgeslagen" in _teksten(m).lower()
+    assert processor.get_document_by_id(doc.id).source_metadata is None
+    assert (
+        DocumentProcessor(storage_dir=str(tmp_path / "docs"))
+        .get_document_by_id(doc.id)
+        .source_metadata
+        is None
+    )

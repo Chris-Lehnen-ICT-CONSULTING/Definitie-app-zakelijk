@@ -22,6 +22,12 @@ from .document_extractor import (  # Importeer tekst extractie functionaliteit
 logger = logging.getLogger(__name__)  # Logger instantie voor document processing module
 
 
+class BronmetadataOpslagError(OSError):
+    """De opgegeven bronmetadata kon niet naar het metadata-bestand worden
+    geschreven (DEF-808). De opgave is teruggerold en NIET vastgelegd; een
+    aanroeper mag dus geen succes melden of de opgave als opgeslagen aannemen."""
+
+
 @dataclass
 class ProcessedDocument:
     """Gegevens van een verwerkt document."""
@@ -240,7 +246,12 @@ class DocumentProcessor:
         eerdere opgave wordt aangevuld, niet gewist). Ongeldige invoer is een
         `ValueError` met de zichtbare reden en laat het document onaangeroerd;
         een onbekend document een `KeyError`. Geldige invoer wordt direct naar
-        het metadata-bestand geschreven.
+        het metadata-bestand geschreven. Mislukt dat schrijven (bestaand
+        contract: `_save_metadata` logt en zet `_persistence_failed`), dan wordt
+        de opgave in het geheugen teruggerold naar de vorige waarde — geheugen
+        en schijf blijven gelijk — en is het resultaat een
+        `BronmetadataOpslagError`: nooit een stil succes met een opgave die bij
+        herstart ontbreekt (Codex-review 1, P2).
         """
         from domain.sources.bronmetadata import valideer_bronmetadata
 
@@ -257,9 +268,20 @@ class DocumentProcessor:
         )
         if metadata is None:
             raise ValueError("; ".join(fouten))
+        vorige = doc.source_metadata
         doc.source_metadata = metadata.als_dict()
         self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
         self._save_metadata()
+        if self._persistence_failed:
+            # Terugrollen: de vorige (wél opgeslagen) opgave blijft gelden; de
+            # vlag blijft staan als signaal van het opslagprobleem (DEF-229).
+            doc.source_metadata = vorige
+            msg = (
+                f"bronmetadata voor {doc.filename} niet opgeslagen: het metadata-"
+                f"bestand {self.metadata_file} kon niet worden geschreven; de "
+                "eerdere opgave blijft gelden"
+            )
+            raise BronmetadataOpslagError(msg)
         logger.info(f"Bronmetadata opgegeven voor document {doc_id}")
         return doc
 
