@@ -463,7 +463,8 @@ class CategoryRenderer:
         saved_record = generation_result.get("saved_record")
 
         # DEF-751 B2: de generator-tab kent geen identiteit; de keuze wordt
-        # als handmatig maar ongeattribueerd vastgelegd (geen "web_user").
+        # als handmatig maar ongeattribueerd vastgelegd (geen "web_user"). De
+        # versie van het getoonde record reist mee als optimistic lock.
         result = self.workflow_service.execute_category_change_workflow(
             definition_id=saved_record.id if saved_record else None,
             old_category=old_category,
@@ -472,6 +473,9 @@ class CategoryRenderer:
             begrip=begrip,
             user=None,
             reason="Handmatige aanpassing via UI",
+            expected_version=(
+                getattr(saved_record, "version_number", None) if saved_record else None
+            ),
         )
 
         if result.success:

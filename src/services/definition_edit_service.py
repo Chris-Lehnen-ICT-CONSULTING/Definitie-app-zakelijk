@@ -249,6 +249,8 @@ class DefinitionEditService:
         user: str = "system",
         reason: str | None = None,
         validate: bool = True,
+        *,
+        categoriekeuze: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Sla definitie wijzigingen op.
@@ -259,6 +261,12 @@ class DefinitionEditService:
             user: Gebruiker die opslaat
             reason: Reden voor wijziging
             validate: Of validatie uitgevoerd moet worden
+            categoriekeuze: DEF-751 B2 — de expliciete menselijke
+                categoriekeuze van déze opslaan-actie
+                (`{"herkomst": "editor", "actor", "actor_source"}`). Alleen
+                via deze parameter — nooit via `updates`/metadata — ontstaat
+                een keuze-event; vereist `updates["version_number"]` (de
+                versie van de getoonde kandidaat) tot de uiteindelijke UPDATE.
 
         Returns:
             Result dictionary met success status
@@ -268,6 +276,19 @@ class DefinitionEditService:
             current = self.repository.get(definitie_id)
             if not current:
                 return {"success": False, "error": "Definitie niet gevonden"}
+            if "category_choice_input" in updates or "category_choice" in updates:
+                return {
+                    "success": False,
+                    "error": (
+                        "Een categoriekeuze reist niet via updates; gebruik de "
+                        "parameter categoriekeuze"
+                    ),
+                }
+            if categoriekeuze is not None and "version_number" not in updates:
+                return {
+                    "success": False,
+                    "error": "Categoriekeuze vereist de versie van de getoonde kandidaat",
+                }
 
             # Check version conflict
             if "version_number" in updates:
@@ -295,9 +316,12 @@ class DefinitionEditService:
                         validation_results.get("issues", [])
                     )
 
-            # Save with history
+            # Save with history (DEF-751: mét keuze via het expliciete commando)
             saved_id = self.repository.save_with_history(
-                updated_definition, wijziging_reden=reason, gewijzigd_door=user
+                updated_definition,
+                wijziging_reden=reason,
+                gewijzigd_door=user,
+                categoriekeuze=categoriekeuze,
             )
 
             # Clear cache
@@ -619,9 +643,6 @@ class DefinitionEditService:
             "wettelijke_basis",
             "validation_score",
             "version_number",
-            # DEF-751 B2: de categoriekeuze van deze opslaan-actie reist via
-            # de metadata naar de repository (`_definition_to_updates`).
-            "category_choice_input",
         ]
         # DEF-439: metadata is dict|None (dataclass); narrow vóór indexed writes.
         if updated.metadata is None:

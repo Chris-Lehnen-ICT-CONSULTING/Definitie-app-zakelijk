@@ -52,11 +52,19 @@ class GlobalContextRenderer:
 
     @staticmethod
     def _wis_classificatie(sm: Any) -> None:
+        """Wis voorstel, override én de widgetstaat van "Aanpassen?".
+
+        Reviewbevinding 4: de selectbox `manual_category_override` behoudt
+        haar waarde over reruns en zette de oude override anders direct
+        terug. Wordt uitsluitend vóór het renderen van die widget aangeroepen
+        (begripinvoer / contextbasis), zodat Streamlit de reset toestaat.
+        """
         for stale_key in (
             "determined_category",
             "category_reasoning",
             "category_scores",
             "manual_ontological_category",
+            "manual_category_override",
             "classification_basis",
         ):
             sm.clear_value(stale_key)

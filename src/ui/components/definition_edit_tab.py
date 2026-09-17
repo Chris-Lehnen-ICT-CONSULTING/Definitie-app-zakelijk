@@ -1713,11 +1713,14 @@ class DefinitionEditTab:
             # keuze ongeattribueerd; er wordt geen actor verzonnen.
             actor = self._handelende_gebruiker()
             geladen_categorie = getattr(editing_definition, "categorie", None)
+            categoriekeuze = None
             if updates["categorie"] is not None and updates["categorie"] != (
                 geladen_categorie or None
             ):
-                updates["category_choice_input"] = {
-                    "origin": HERKOMST_EDITOR,
+                # Expliciet commando (reviewbevinding 2): nooit via updates/
+                # metadata; met de versie van de getoonde kandidaat (bevinding 3).
+                categoriekeuze = {
+                    "herkomst": HERKOMST_EDITOR,
                     "actor": actor,
                     "actor_source": self._actorbron() if actor else None,
                 }
@@ -1729,6 +1732,7 @@ class DefinitionEditTab:
                 user=actor or SessionStateManager.get_value("user") or "system",
                 reason=SessionStateManager.get_value(k("save_reason")),
                 validate=True,
+                categoriekeuze=categoriekeuze,
             )
 
             if result["success"]:

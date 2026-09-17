@@ -89,7 +89,8 @@ _STATUSTEKST: dict[str, str] = {
     "invalid": "Herkomst categorie: keuze-event onleesbaar.",
     "manual_confirmed": "Herkomst categorie: handmatig gekozen",
     "manual_unattributed": (
-        "Herkomst categorie: handmatig gekozen, beoordelaar niet opgegeven."
+        "Herkomst categorie: handmatige keuze volgens de aanvraag, door niemand "
+        "bevestigd."
     ),
     "model_suggestion": "Herkomst categorie: voorstel van het model, niet bevestigd.",
     "imported": "Herkomst categorie: overgenomen uit import.",
@@ -107,7 +108,9 @@ def beschrijf_keuzestatus(status: Any, keuze: Any) -> str:
         onderliggend = _STATUSTEKST.get(str(status.get("underlying")), "")
         return (
             "Herkomst categorie: verouderd — "
-            f"{status.get('reason')}. Eerder: {onderliggend.removeprefix('Herkomst categorie: ')}"
+            f"{status.get('reason')}. Eerder: "
+            f"{onderliggend.removeprefix('Herkomst categorie: ')} "
+            "Alleen een nieuwe keuze maakt de categorie weer bevestigd."
         )
     tekst = _STATUSTEKST.get(str(code), _STATUSTEKST["unknown_origin"])
     if code == "manual_confirmed" and isinstance(keuze, dict):
@@ -116,5 +119,13 @@ def beschrijf_keuzestatus(status: Any, keuze: Any) -> str:
             f"op {keuze.get('recorded_at')}."
         )
     if status.get("text_unchanged") is False:
-        tekst += " De tekst is sindsdien gewijzigd; de keuze gold voor de gegenereerde tekst."
+        # Reviewbevinding 5: de beperkte binding (term/context, niet de
+        # gewijzigde tekst) expliciet — geen herbevestiging van de nieuwe tekst.
+        versie = status.get("text_changed_on_version")
+        tekst += (
+            " Let op: de tekst is sindsdien gewijzigd"
+            + (f" (versie {versie})" if versie is not None else "")
+            + "; de keuze gold voor de tekst van toen en bevestigt de huidige "
+            "tekst niet."
+        )
     return tekst

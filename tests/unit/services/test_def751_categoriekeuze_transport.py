@@ -9,8 +9,10 @@
 * Bewezen default: valt `Definition.categorie` terug op de repositorydefault
   "proces", dan staat dát als `default`-event geregistreerd — geen
   verzonnen handmatige keuze.
-* Bestaand record (`update`): `metadata["category_choice_input"]` reist als
-  structurele sleutel naar `update_definitie` (editorroute).
+* Bestaand record: een menselijke keuze loopt uitsluitend via het commando
+  `save_met_categoriekeuze` → `record_category_choice`, met de versie van de
+  getoonde kandidaat als optimistic lock; een gewone `update` draagt de
+  geladen versie eveneens tot de uiteindelijke UPDATE (reviewbevinding 3).
 * Readback (`_record_to_definition`): event, status en historie in metadata.
 * Orchestrator `_create_definition_object`: bouwt de invoer uit
   `request.options["category_choice"]` (grens: `lees_keuze_invoer`).
@@ -22,6 +24,7 @@ import pytest
 
 from database.definitie_repository import DefinitieRepository
 from services.definition_repository import DefinitionRepository
+from services.exceptions import RepositoryError
 from services.interfaces import Definition, GenerationRequest
 from services.orchestrators.definition_orchestrator_v2 import (
     DefinitionOrchestratorV2,
@@ -151,30 +154,70 @@ def test_zonder_invoer_geen_event_dus_unknown_origin(db_path):
     )
 
 
-def test_update_transporteert_de_editorkeuze_naar_de_db_laag(db_path):
+def test_save_met_categoriekeuze_is_het_commando_voor_de_editorroute(db_path):
     repo = DefinitionRepository(db_path)
     did = repo.save(_definition())
     geladen = DefinitionRepository(db_path).get(did)
     geladen.categorie = "proces"
-    geladen.metadata["category_choice_input"] = {
-        "origin": "editor",
-        "actor": "Reviewer Rood",
-        "actor_source": "typed_name",
-    }
-    geladen.metadata["updated_by"] = "Reviewer Rood"
-    assert repo.update(did, geladen) is True
+    geladen.toelichting = "nieuwe toelichting"
+    assert (
+        repo.save_met_categoriekeuze(
+            geladen,
+            herkomst="editor",
+            actor="Reviewer Rood",
+            actor_source="typed_name",
+            updated_by="Reviewer Rood",
+        )
+        == did
+    )
 
     opnieuw = DefinitionRepository(db_path).get(did)
-    assert opnieuw.categorie == "proces"
+    assert opnieuw.categorie == "proces" and opnieuw.toelichting == "nieuwe toelichting"
     assert opnieuw.metadata["category_choice"]["actor"] == "Reviewer Rood"
     assert opnieuw.metadata["category_choice_status"]["status"] == "manual_confirmed"
-    # Het teruggelezen event reist bij een volgende save NIET opnieuw als
-    # invoer mee: geen dubbele events door openen/opslaan.
+    assert opnieuw.metadata["version_number"] == 2
+    # Een gewone update (geen keuze) maakt geen tweede event; een
+    # tekstwijziging wordt wél blijvend zichtbaar.
     opnieuw.definitie = "Andere tekst."
     assert repo.update(did, opnieuw) is True
     laatste = DefinitionRepository(db_path).get(did)
     assert laatste.metadata["category_choice_history"] == []
-    assert laatste.metadata["category_choice_status"]["status"] == "manual_confirmed"
+    status = laatste.metadata["category_choice_status"]
+    assert status["status"] == "manual_confirmed" and status["text_unchanged"] is False
+
+
+def test_save_met_categoriekeuze_eist_de_versie_en_weigert_een_verouderd_object(
+    db_path,
+):
+    repo = DefinitionRepository(db_path)
+    did = repo.save(_definition())
+    geladen = DefinitionRepository(db_path).get(did)
+    # Tussentijdse wijziging door een ander.
+    DefinitieRepository(db_path).update_definitie(did, {"begrip": "vergunning"}, "x")
+    geladen.categorie = "proces"
+    with pytest.raises(RepositoryError):
+        repo.save_met_categoriekeuze(
+            geladen, herkomst="editor", actor=None, actor_source=None, updated_by=None
+        )
+    na = DefinitieRepository(db_path).get_definitie(did)
+    assert na.begrip == "vergunning" and na.categorie == "type"
+    assert na.get_category_choice() is None
+
+    geladen.metadata.pop("version_number")
+    with pytest.raises(RepositoryError, match="version_number"):
+        repo.save_met_categoriekeuze(
+            geladen, herkomst="editor", actor=None, actor_source=None, updated_by=None
+        )
+
+
+def test_gewone_update_draagt_de_geladen_versie_als_optimistic_lock(db_path):
+    repo = DefinitionRepository(db_path)
+    did = repo.save(_definition())
+    geladen = DefinitionRepository(db_path).get(did)
+    DefinitieRepository(db_path).update_definitie(did, {"begrip": "vergunning"}, "x")
+    geladen.definitie = "Nieuwe tekst."
+    assert repo.update(did, geladen) is False
+    assert DefinitieRepository(db_path).get_definitie(did).begrip == "vergunning"
 
 
 def test_orchestrator_bouwt_generatiegebonden_keuze_invoer_uit_de_request():

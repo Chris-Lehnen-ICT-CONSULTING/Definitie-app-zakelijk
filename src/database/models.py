@@ -64,6 +64,18 @@ SOURCE_EVIDENCE_SCHEMA = "def743-bronbewijs/2"
 #: `domain.categorie_herkomst`.
 CATEGORY_CHOICE_KEY = "category_choice"
 CATEGORY_CHOICE_HISTORY_KEY = "category_choice_history"
+#: Persistente toepassingsstaat van het actuele event (reviewbevinding 1/5).
+CATEGORY_CHOICE_STATE_KEY = "category_choice_state"
+#: Een via import/ruwe JSON aangeleverd keuze-event: bewaard als onbevestigde
+#: invoer, nooit als keuze gelezen (reviewbevinding 2).
+CATEGORY_CHOICE_IMPORTED_KEY = "category_choice_imported"
+#: De sleutels in `generation_prompt_data` die de persistentielaag zelf beheert.
+CATEGORY_CHOICE_OWNED_KEYS: tuple[str, ...] = (
+    CATEGORY_CHOICE_KEY,
+    CATEGORY_CHOICE_HISTORY_KEY,
+    CATEGORY_CHOICE_STATE_KEY,
+    CATEGORY_CHOICE_IMPORTED_KEY,
+)
 
 #: De drie contextvelden zoals het bewijs ze vastlegt (zelfde namen als het record).
 _CONTEXTVELDEN: tuple[str, ...] = (
@@ -543,12 +555,19 @@ class DefinitieRecord:
             return []
         return [deepcopy(h) for h in historie if isinstance(h, dict)]
 
+    def get_category_choice_state(self) -> dict[str, Any] | None:
+        """De persistente toepassingsstaat van het actuele event, of None."""
+        registratie = self.get_generatieregistratie() or {}
+        staat = registratie.get(CATEGORY_CHOICE_STATE_KEY)
+        return deepcopy(staat) if isinstance(staat, dict) else None
+
     def get_category_choice_status(self) -> dict[str, Any]:
         """Status van de keuze tegenover dít record (`domain.categorie_herkomst`).
 
-        Afgeleid bij lezen uit event + actuele term/context/categorie/tekst;
-        er wordt niets herschreven. Geen event mét kolomwaarde =
-        `unknown_origin` (historisch bewijs ontbreekt), zonder = `absent`.
+        Afgeleid bij lezen uit event + persistente staat + actuele term/
+        context/categorie/tekst; er wordt niets herschreven. Geen event mét
+        kolomwaarde = `unknown_origin` (historisch bewijs ontbreekt), zonder
+        = `absent`. Een aangeleverd (geïmporteerd) event telt nooit mee.
         """
         registratie = self.get_generatieregistratie() or {}
         ruw = registratie.get(CATEGORY_CHOICE_KEY)
@@ -559,6 +578,7 @@ class DefinitieRecord:
             begrip=self.begrip,
             contexten=self.get_contextlijsten(),
             definitie_tekst=self.get_definitie_tekst(),
+            staat=registratie.get(CATEGORY_CHOICE_STATE_KEY),
         )
 
     def get_source_review_history(self) -> list[dict[str, Any]]:

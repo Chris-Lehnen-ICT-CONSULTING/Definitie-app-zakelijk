@@ -431,6 +431,8 @@ class WorkflowService:
         begrip: str,
         user: str | None = None,
         reason: str = "Handmatige aanpassing via UI",
+        *,
+        expected_version: int | None = None,
     ) -> CategoryChangeResult:
         """
         Orchestreer complete category change workflow volgens SA architectuur.
@@ -455,6 +457,8 @@ class WorkflowService:
                 (DEF-751 B2: geen verzonnen "web_user"; de keuze blijft dan
                 ongeattribueerd)
             reason: Reden voor wijziging
+            expected_version: Recordversie van de getoonde kandidaat; verplicht
+                zodra `definition_id` is gezet (DEF-751 B2, reviewbevinding 3)
 
         Returns:
             CategoryChangeResult met instructies voor UI
@@ -483,8 +487,27 @@ class WorkflowService:
                 repo = get_definitie_repository()
                 category_service = CategoryService(repo)
 
+                if not isinstance(expected_version, int) or isinstance(
+                    expected_version, bool
+                ):
+                    return CategoryChangeResult(
+                        success=False,
+                        message=(
+                            "Categoriewijziging vereist de versie van de getoonde "
+                            "definitie"
+                        ),
+                        action=WorkflowAction.SHOW_ERROR,
+                        old_category=old_category,
+                        new_category=new_category,
+                        requires_regeneration=False,
+                        error="expected_version ontbreekt",
+                    )
                 update_result = category_service.update_category_v2(
-                    definition_id, new_category, user=user, reason=reason
+                    definition_id,
+                    new_category,
+                    user=user,
+                    reason=reason,
+                    expected_version=expected_version,
                 )
 
                 if not update_result.success:

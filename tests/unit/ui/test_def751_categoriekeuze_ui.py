@@ -239,14 +239,22 @@ def test_toepassen_actie_legt_manual_event_vast_zonder_web_user(tmp_path):
             metadata={"status": "draft"},
         )
     )
-    resultaat = CategoryService(db).update_category_v2(did, "proces", user=None)
+    resultaat = CategoryService(db).update_category_v2(
+        did, "proces", user=None, expected_version=1
+    )
     assert resultaat.success, resultaat.message
     record = DefinitieRepository(db.db_path).get_definitie(did)
-    assert record.categorie == "proces"
+    assert record.categorie == "proces" and record.version_number == 2
     keuze = record.get_category_choice()
     assert keuze["origin"] == "manual" and keuze["actor"] is None
     assert record.updated_by != "web_user"
     assert record.get_category_choice_status()["status"] == "manual_unattributed"
+    # Een verouderde kandidaatversie is een conflict, geen stille keuze.
+    verouderd = CategoryService(db).update_category_v2(
+        did, "type", user=None, expected_version=1
+    )
+    assert verouderd.success is False and "versieconflict" in verouderd.message
+    assert DefinitieRepository(db.db_path).get_definitie(did).categorie == "proces"
 
 
 # ------------------------------------------------------------ override-state

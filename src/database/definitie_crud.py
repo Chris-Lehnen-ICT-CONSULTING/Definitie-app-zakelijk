@@ -15,7 +15,10 @@ from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
 from database.models import (
     CATEGORY_CHOICE_HISTORY_KEY,
+    CATEGORY_CHOICE_IMPORTED_KEY,
     CATEGORY_CHOICE_KEY,
+    CATEGORY_CHOICE_OWNED_KEYS,
+    CATEGORY_CHOICE_STATE_KEY,
     SOURCE_EVIDENCE_HISTORY_KEY,
     SOURCE_EVIDENCE_KEY,
     SOURCE_PROPOSALS_KEY,
@@ -39,9 +42,12 @@ from domain.categorie_herkomst import (
     HERKOMST_EDITOR,
     HERKOMST_HANDMATIG,
     bouw_categoriekeuze,
+    bouw_keuzestaat,
+    markeer_keuze_vervallen,
+    markeer_tekst_gewijzigd,
 )
 from domain.context.contract import is_versienummer
-from domain.context.normalisatie import lees_contextwaarden
+from domain.context.normalisatie import contextsleutel, lees_contextwaarden
 
 logger = logging.getLogger(__name__)
 
@@ -279,6 +285,8 @@ class DefinitieCrudRepository:
         record: DefinitieRecord,
         allow_duplicate: bool = False,
         duplicate_reason: str | None = None,
+        *,
+        categoriekeuze: Mapping[str, Any] | None = None,
     ) -> int:
         """Maak nieuwe definitie aan.
 
@@ -288,7 +296,17 @@ class DefinitieCrudRepository:
         wordt niet aangeraakt. `allow_duplicate=True` zonder reden wordt
         geweigerd zodra er werkelijk een duplicaat is — zonder duplicaat is
         er niets te verantwoorden.
+
+        DEF-751 B2: ``categoriekeuze`` (`{"origin": manual|model|import|
+        default, "reasoning", "scores", "generation_id"}`) is de herkomst
+        van de categorie volgens de aanroepende route; de persistentielaag
+        bouwt het event zelf en kent er nooit een actor aan toe. Een event in
+        `record.generation_prompt_data` wordt niet overgenomen maar als
+        onbevestigde invoer bewaard (`registratie_voor_nieuw_record`).
         """
+        record.generation_prompt_data = self.registratie_voor_nieuw_record(
+            record, categoriekeuze
+        )
         # DEF-198: Clean architecture - import from utils/, callback registered by UI
         from utils.progress_callback import operation_progress
 
@@ -1070,84 +1088,216 @@ class DefinitieCrudRepository:
 
     # ------------------------------------ categoriekeuze (DEF-751, pakket B2)
 
-    @staticmethod
-    def _geldige_keuze_invoer(
-        invoer: Any, updates: Mapping[str, Any], updated_by: str | None
-    ) -> dict[str, Any]:
-        """Controleer de `category_choice`-invoer vóór mutatie; geeft de basis.
+    def record_category_choice(
+        self,
+        definitie_id: int,
+        updates: Mapping[str, Any],
+        *,
+        waarde: str | None,
+        herkomst: str,
+        actor: str | None,
+        actor_source: str | None,
+        updated_by: str | None,
+        expected_version: int,
+    ) -> bool:
+        """Het expliciete commando voor een menselijke categoriekeuze
+        (editor-opslaan of toepassen). Reviewbevinding 2/3.
 
-        Weigert (ValueError): geen dict; herkomst buiten editor/manual (model,
-        import en default ontstaan alleen in hun eigen route); geen
-        `categorie`-kolom in dezelfde update (een keuze zonder waarde in het
-        record is geen keuze); een actor die afwijkt van de handelende
-        gebruiker (`updated_by`) — een aangeleverde naam kan geen andere
-        persoon bevestigen; een actor zonder bekende lokale actorbron. Een
-        ongeldige categoriewaarde wordt door `bouw_categoriekeuze` geweigerd,
-        niet omgezet. Zonder actor blijft de keuze ongeattribueerd.
+        Dit is de énige route waarlangs een keuze-event met menselijke
+        herkomst (`editor`/`manual`) ontstaat; generieke `updates`-dicts,
+        `Definition.metadata`, import en ruwe `generation_prompt_data` kunnen
+        dat niet (zie `update_definitie`/`create_definitie`). Zonder actor
+        blijft de keuze ongeattribueerd; een actor moet de handelende
+        gebruiker zijn (`updated_by`) met een bekende lokale actorbron — een
+        opgegeven naam, geen authenticatie.
+
+        ``expected_version`` is verplicht: de recordversie die de kiezer
+        vóór zich had. Ónder de schrijflock moet het record nog precies die
+        versie dragen (SQL-guard `WHERE version_number = ?`), anders wordt
+        niets geschreven (``False``) — geen keuze op een ongeziene term, geen
+        terugschrijven van verouderde velden. De overige `updates` (bv. de
+        editorvelden) landen in dezelfde UPDATE als de categorie en het event.
         """
-        if not isinstance(invoer, Mapping):
-            msg = "category_choice moet een dict zijn"
-            raise ValueError(msg)
-        herkomst = invoer.get("origin")
+        expected_version = self._eis_versienummer(expected_version, "expected_version")
         if herkomst not in _KEUZEHERKOMSTEN_VIA_UPDATE:
             msg = (
-                f"herkomst {herkomst!r} kan niet via een update worden vastgelegd; "
-                f"alleen {sorted(_KEUZEHERKOMSTEN_VIA_UPDATE)} komen uit de editor-"
-                "of toepassen-actie"
+                f"herkomst {herkomst!r} is geen menselijke keuze; alleen "
+                f"{sorted(_KEUZEHERKOMSTEN_VIA_UPDATE)} via dit commando"
             )
             raise ValueError(msg)
-        if "categorie" not in updates:
-            msg = "category_choice vereist de categorie-kolom in dezelfde update"
-            raise ValueError(msg)
-        actor = _tekst(invoer.get("actor")) or None
+        actor_tekst = _tekst(actor) or None
         handelend = _tekst(updated_by)
-        if actor is not None and actor != handelend:
+        if actor_tekst is not None and actor_tekst != handelend:
             msg = (
-                f"actor in de categoriekeuze ({actor!r}) wijkt af van de "
+                f"actor in de categoriekeuze ({actor_tekst!r}) wijkt af van de "
                 f"handelende gebruiker ({handelend!r}); geweigerd vóór opslag"
             )
             raise ValueError(msg)
-        actor_source = invoer.get("actor_source") if actor is not None else None
-        if actor is not None and actor_source not in ACTORBRONNEN:
+        bron = actor_source if actor_tekst is not None else None
+        if actor_tekst is not None and bron not in ACTORBRONNEN:
             msg = (
-                f"actor_source {actor_source!r} is geen bekende lokale actorbron; "
+                f"actor_source {bron!r} is geen bekende lokale actorbron; "
                 "een opgegeven naam is geen authenticatie"
             )
             raise ValueError(msg)
-        # Vroege waardecontrole (zelfde regel als het event zelf), zodat een
-        # ongeldige waarde vóór de transactie wordt geweigerd.
+        # Vroege waardecontrole (zelfde regel als het event zelf): een
+        # ongeldige waarde wordt vóór de transactie geweigerd, niet omgezet.
         bouw_categoriekeuze(
-            waarde=updates.get("categorie"),
+            waarde=waarde,
             herkomst=herkomst,
             begrip="",
             contexten=None,
-            actor=actor,
-            actor_source=actor_source,
+            actor=actor_tekst,
+            actor_source=bron,
         )
-        return {"origin": herkomst, "actor": actor, "actor_source": actor_source}
+        keuze = {"origin": herkomst, "actor": actor_tekst, "actor_source": bron}
+        alle_updates = {
+            **{k: v for k, v in updates.items() if k != "category_choice"},
+            "categorie": waarde,
+            "version_number": expected_version,
+        }
+        return self.update_definitie(
+            definitie_id, alle_updates, updated_by, _categoriekeuze=keuze
+        )
+
+    @staticmethod
+    def _registratie_basis(
+        actueel: DefinitieRecord, velden: Mapping[str, Any]
+    ) -> tuple[dict[str, Any] | None, bool]:
+        """(registratie waarop deze update voortbouwt, of None; hersteld?).
+
+        Een ruwe `generation_prompt_data`-schrijfactie (interne routes,
+        bewijsinvoer) mag de door de persistentielaag beheerde keuzesleutels
+        niet vervangen (reviewbevinding 2): die komen altijd uit het
+        opgeslagen record. Een ruw aangeleverd event blijft als onbevestigde
+        invoer bewaard onder `category_choice_imported`. Een ruwe waarde die
+        geen JSON-object is blijft ongemoeid (None); een ruw object zonder
+        beheerde sleutels wordt niet opnieuw geserialiseerd (hersteld=False).
+        """
+        basis_json = velden.get("generation_prompt_data")
+        opgeslagen = actueel.get_generatieregistratie() or {}
+        if "generation_prompt_data" not in velden:
+            return dict(opgeslagen), False
+        if not isinstance(basis_json, str):
+            return None, False
+        registratie = lees_generatieregistratie(basis_json)
+        if registratie is None:
+            return None, False
+        aangeleverd = registratie.get(CATEGORY_CHOICE_KEY)
+        beheerd_aanwezig = any(
+            s in registratie or s in opgeslagen for s in CATEGORY_CHOICE_OWNED_KEYS
+        )
+        if not beheerd_aanwezig:
+            return registratie, False
+        for sleutel in CATEGORY_CHOICE_OWNED_KEYS:
+            if sleutel in opgeslagen:
+                registratie[sleutel] = deepcopy(opgeslagen[sleutel])
+            else:
+                registratie.pop(sleutel, None)
+        if aangeleverd is not None and aangeleverd != opgeslagen.get(
+            CATEGORY_CHOICE_KEY
+        ):
+            registratie[CATEGORY_CHOICE_IMPORTED_KEY] = deepcopy(aangeleverd)
+        return registratie, True
+
+    def _verwerk_keuzestaat(
+        self,
+        actueel: DefinitieRecord,
+        updates: Mapping[str, Any],
+        velden: dict[str, Any],
+        keuze: Mapping[str, Any] | None,
+    ) -> None:
+        """Keuze-event/-staat in dezelfde UPDATE als de wijziging die haar raakt.
+
+        - Nieuw commando (`keuze`): nieuw event + verse staat; het vorige
+          event gaat onveranderd naar de historie.
+        - Anders, bij een actueel event: schrijft de update term, context of
+          categorie, dan vervalt de keuze blijvend (reviewbevinding 1);
+          schrijft zij de tekst, dan wordt dat blijvend vastgelegd
+          (reviewbevinding 5). Terugzetten herstelt niets.
+        """
+        registratie, geraakt = self._registratie_basis(actueel, velden)
+        if registratie is None:
+            if keuze is not None:
+                msg = "categoriekeuze kan niet samen met een ruwe niet-JSON registratie"
+                raise ValueError(msg)
+            return
+        if keuze is not None:
+            registratie = self._registratie_met_keuze(
+                actueel, updates, registratie, keuze
+            )
+            geraakt = True
+        elif registratie.get(CATEGORY_CHOICE_KEY) is not None:
+            staat = registratie.get(CATEGORY_CHOICE_STATE_KEY)
+            nu = _nu()
+            identiteit = self._werkelijk_gewijzigd(
+                actueel, velden, (*_IDENTITEITSVELDEN, "categorie")
+            )
+            if identiteit:
+                registratie[CATEGORY_CHOICE_STATE_KEY] = markeer_keuze_vervallen(
+                    staat,
+                    reden=f"{', '.join(identiteit)} gewijzigd na de keuze",
+                    version=actueel.version_number + 1,
+                    at=nu,
+                )
+                geraakt = True
+            if self._werkelijk_gewijzigd(actueel, velden, ("definitie",)):
+                registratie[CATEGORY_CHOICE_STATE_KEY] = markeer_tekst_gewijzigd(
+                    registratie.get(CATEGORY_CHOICE_STATE_KEY, staat),
+                    version=actueel.version_number + 1,
+                    at=nu,
+                )
+                geraakt = True
+        if geraakt:
+            velden["generation_prompt_data"] = serialiseer_generatieregistratie(
+                registratie
+            )
+
+    @staticmethod
+    def _werkelijk_gewijzigd(
+        actueel: DefinitieRecord, velden: Mapping[str, Any], namen: tuple[str, ...]
+    ) -> list[str]:
+        """De velden uit `namen` die deze UPDATE écht van waarde laat veranderen.
+
+        Een editor-opslaan schrijft alle velden opnieuw; alleen een andere
+        waarde raakt de keuze. Contexten vergelijken genormaliseerd
+        (`contextsleutel`), term/tekst getrimd, categorie exact.
+        """
+        gewijzigd: list[str] = []
+        for naam in namen:
+            if naam not in velden:
+                continue
+            nieuw, oud = velden[naam], getattr(actueel, naam, None)
+            if naam in (
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
+            ):
+                anders = contextsleutel(lees_contextwaarden(nieuw)) != contextsleutel(
+                    lees_contextwaarden(oud)
+                )
+            elif naam == "categorie":
+                anders = (nieuw or None) != (oud or None)
+            else:
+                anders = _tekst(nieuw) != _tekst(oud)
+            if anders:
+                gewijzigd.append(naam)
+        return gewijzigd
 
     @staticmethod
     def _registratie_met_keuze(
         actueel: DefinitieRecord,
         updates: Mapping[str, Any],
-        velden: Mapping[str, Any],
-        basis: Mapping[str, Any],
-    ) -> str:
-        """De generatieregistratie-JSON met het nieuwe keuze-event actueel en
-        het vorige event onveranderd in de historie.
+        registratie: dict[str, Any],
+        keuze: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """De generatieregistratie met het nieuwe keuze-event, een verse staat
+        en het vorige event (met zijn staat) onveranderd in de historie.
 
-        Kandidaatbasis = de resulterende term en contexten van dít record
-        (updates boven de opgeslagen waarden). Bouwt voort op een eventueel
-        al in `velden` gezette registratie (bewijsinvoer in dezelfde update),
-        zodat geen andere sleutel — bronbewijs, CON-02-historie, prompt,
-        vreemde sleutels — verloren gaat.
+        Kandidaatbasis = de resulterende term, contexten en tekst van dít
+        record (updates boven de opgeslagen waarden). Bronbewijs, CON-02-
+        historie, prompt en vreemde sleutels blijven staan.
         """
-        basis_json = velden.get("generation_prompt_data")
-        registratie = (
-            lees_generatieregistratie(basis_json)
-            if isinstance(basis_json, str)
-            else actueel.get_generatieregistratie()
-        ) or {}
         vorige = registratie.get(CATEGORY_CHOICE_KEY)
         historie = registratie.get(CATEGORY_CHOICE_HISTORY_KEY)
         historie = list(historie) if isinstance(historie, list) else []
@@ -1155,6 +1305,7 @@ class DefinitieCrudRepository:
             historie.append(
                 {
                     "event": deepcopy(vorige),
+                    "state": deepcopy(registratie.get(CATEGORY_CHOICE_STATE_KEY)),
                     "superseded_at": _nu(),
                     "superseded_on_version": actueel.version_number,
                 }
@@ -1166,16 +1317,69 @@ class DefinitieCrudRepository:
         contexten["wettelijke_basis"] = lees_contextwaarden(
             updates.get("wettelijke_basis", actueel.wettelijke_basis)
         )
+        tekst = updates.get("definitie", actueel.definitie)
         registratie[CATEGORY_CHOICE_KEY] = bouw_categoriekeuze(
             waarde=updates.get("categorie"),
-            herkomst=basis["origin"],
+            herkomst=keuze["origin"],
             begrip=str(updates.get("begrip", actueel.begrip) or ""),
             contexten=contexten,
-            actor=basis["actor"],
-            actor_source=basis["actor_source"],
+            actor=keuze["actor"],
+            actor_source=keuze["actor_source"],
             record_version=actueel.version_number,
+            definitie_tekst=splits_definitietekst(str(tekst or ""))[0],
+        )
+        registratie[CATEGORY_CHOICE_STATE_KEY] = bouw_keuzestaat(
+            actueel.version_number + 1
         )
         registratie[CATEGORY_CHOICE_HISTORY_KEY] = historie
+        return registratie
+
+    @staticmethod
+    def registratie_voor_nieuw_record(
+        record: DefinitieRecord, categoriekeuze: Mapping[str, Any] | None
+    ) -> str | None:
+        """De `generation_prompt_data` van een nieuw record met het door de
+        persistentielaag gebouwde keuze-event (reviewbevinding 2).
+
+        Een event dat in de aangeleverde JSON zit (import, ruwe payload) wordt
+        nooit als keuze overgenomen: het blijft onder
+        `category_choice_imported` als onbevestigde invoer bewaard, de
+        beheerde sleutels worden opnieuw opgebouwd. ``categoriekeuze`` komt
+        uitsluitend van de aanroepende route zelf (generatie: manual/model,
+        default; import: import) en kent nooit een actor — een nieuw record
+        heeft geen handelende mens die een keuze kan bevestigen.
+        """
+        registratie = lees_generatieregistratie(record.generation_prompt_data) or {}
+        aangeleverd = registratie.get(CATEGORY_CHOICE_KEY)
+        for sleutel in CATEGORY_CHOICE_OWNED_KEYS:
+            registratie.pop(sleutel, None)
+        if aangeleverd is not None:
+            registratie[CATEGORY_CHOICE_IMPORTED_KEY] = deepcopy(aangeleverd)
+        if categoriekeuze is not None:
+            herkomst = categoriekeuze.get("origin")
+            if (
+                herkomst in _KEUZEHERKOMSTEN_VIA_UPDATE
+                and herkomst != HERKOMST_HANDMATIG
+            ):
+                msg = f"herkomst {herkomst!r} kan alleen via record_category_choice"
+                raise ValueError(msg)
+            registratie[CATEGORY_CHOICE_KEY] = bouw_categoriekeuze(
+                waarde=record.categorie or None,
+                herkomst=str(herkomst),
+                begrip=record.begrip,
+                contexten=record.get_contextlijsten(),
+                record_version=record.version_number,
+                definitie_tekst=splits_definitietekst(record.definitie or "")[0],
+                generation_id=categoriekeuze.get("generation_id"),
+                reasoning=categoriekeuze.get("reasoning"),
+                scores=categoriekeuze.get("scores"),
+            )
+            registratie[CATEGORY_CHOICE_STATE_KEY] = bouw_keuzestaat(
+                record.version_number
+            )
+            registratie[CATEGORY_CHOICE_HISTORY_KEY] = []
+        if not registratie:
+            return None
         return serialiseer_generatieregistratie(registratie)
 
     def set_source_assessment(
@@ -1861,8 +2065,13 @@ class DefinitieCrudRepository:
         _skip_audit: bool = False,
         _behoud_beoordeling: bool = False,
         _bronbinding_ongewijzigd: bool = False,
+        _categoriekeuze: Mapping[str, Any] | None = None,
     ) -> bool:
         """Update bestaande definitie.
+
+        ``_categoriekeuze`` is voorbehouden aan `record_category_choice` (het
+        expliciete commando voor een menselijke keuze, DEF-751 B2); het is
+        geen onderdeel van het publieke `updates`-contract.
 
         ``_behoud_beoordeling`` is voorbehouden aan de atomaire vaststelactie
         (`change_status(..., ESTABLISHED)`): alleen dáár groeit een geldig
@@ -1885,16 +2094,15 @@ class DefinitieCrudRepository:
 
         updates = dict(updates)
         bewijsinvoer = updates.pop("source_evidence", None)
-        # DEF-751 B2: de structurele sleutel `category_choice` (geen kolom)
-        # draagt de categoriekeuze van de editor-/toepassen-actie. Vóór
-        # mutatie gecontroleerd; ónder de lock als onveranderlijk event in de
-        # generatieregistratie gezet, met de vorige keuze in de historie.
-        keuze_invoer = updates.pop("category_choice", None)
-        keuze_basis = (
-            None
-            if keuze_invoer is None
-            else self._geldige_keuze_invoer(keuze_invoer, updates, updated_by)
-        )
+        # DEF-751 B2 (reviewbevinding 2): een generiek `updates`-dict kan geen
+        # menselijke keuze vastleggen; dat kan alleen het expliciete commando
+        # `record_category_choice` (dat `_categoriekeuze` zet).
+        if "category_choice" in updates:
+            msg = (
+                "category_choice hoort niet in updates; gebruik "
+                "record_category_choice voor een menselijke categoriekeuze"
+            )
+            raise ValueError(msg)
 
         allowed_fields = {
             "begrip",
@@ -1974,12 +2182,10 @@ class DefinitieCrudRepository:
             if niets_te_schrijven:
                 return False
 
-            # DEF-751 B2: keuze-event in dezelfde UPDATE als de kolom; de
-            # kandidaatbasis is de resulterende term/context van dít record.
-            if keuze_basis is not None:
-                velden["generation_prompt_data"] = self._registratie_met_keuze(
-                    actueel, updates, velden, keuze_basis
-                )
+            # DEF-751 B2: keuze-event/-staat in dezelfde UPDATE als de kolom
+            # of als de wijziging die de keuze raakt; de beheerde sleutels
+            # komen nooit uit een ruwe schrijfactie.
+            self._verwerk_keuzestaat(actueel, updates, velden, _categoriekeuze)
 
             # DEF-622 (deltareview V2c): uitsluitend de atomaire vaststelactie
             # neemt de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar

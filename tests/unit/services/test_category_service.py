@@ -39,35 +39,36 @@ class TestCategoryService:
         """Test succesvolle categorie update."""
         # Arrange
         mock_repository.get_definitie.return_value = sample_definition
-        mock_repository.update_definitie.return_value = True
+        mock_repository.record_category_choice.return_value = True
 
         # Act
-        success, error = category_service.update_category(1, "REL")
+        success, error = category_service.update_category(1, "REL", expected_version=3)
 
         # Assert
         assert success is True
         assert error is None
         mock_repository.get_definitie.assert_called_once_with(1)
-        # DEF-751 B2: de legacy-route kent geen identiteit — de keuze wordt
-        # als handmatig maar ongeattribueerd vastgelegd, geen verzonnen
-        # "web_user" meer als actor.
-        mock_repository.update_definitie.assert_called_once_with(
-            definitie_id=1,
-            updates={
-                "categorie": "REL",
-                "category_choice": {
-                    "origin": "manual",
-                    "actor": None,
-                    "actor_source": None,
-                },
-            },
+        # DEF-751 B2: de toepassen-route loopt via het expliciete commando met
+        # de versie van de getoonde kandidaat; zonder identiteit blijft de
+        # keuze ongeattribueerd — geen verzonnen "web_user" meer als actor.
+        mock_repository.record_category_choice.assert_called_once_with(
+            1,
+            {},
+            waarde="REL",
+            herkomst="manual",
+            actor=None,
+            actor_source=None,
             updated_by=None,
+            expected_version=3,
         )
+        mock_repository.update_definitie.assert_not_called()
 
     def test_update_category_invalid_category(self, category_service):
         """Test update met ongeldige categorie."""
         # Act
-        success, error = category_service.update_category(1, "INVALID")
+        success, error = category_service.update_category(
+            1, "INVALID", expected_version=1
+        )
 
         # Assert
         assert success is False
@@ -81,26 +82,28 @@ class TestCategoryService:
         mock_repository.get_definitie.return_value = None
 
         # Act
-        success, error = category_service.update_category(999, "REL")
+        success, error = category_service.update_category(
+            999, "REL", expected_version=1
+        )
 
         # Assert
         assert success is False
         assert error == "Definitie met ID 999 niet gevonden"
 
-    def test_update_category_database_error(
+    def test_update_category_version_conflict(
         self, category_service, mock_repository, sample_definition
     ):
-        """Test update met database fout."""
+        """Test update bij een tussentijdse wijziging (versieguard → False)."""
         # Arrange
         mock_repository.get_definitie.return_value = sample_definition
-        mock_repository.update_definitie.return_value = False
+        mock_repository.record_category_choice.return_value = False
 
         # Act
-        success, error = category_service.update_category(1, "REL")
+        success, error = category_service.update_category(1, "REL", expected_version=1)
 
         # Assert
         assert success is False
-        assert error == "Database update mislukt"
+        assert "versieconflict" in error
 
     def test_update_category_exception(self, category_service, mock_repository):
         """Test update met exception."""
@@ -110,7 +113,7 @@ class TestCategoryService:
         )
 
         # Act
-        success, error = category_service.update_category(1, "REL")
+        success, error = category_service.update_category(1, "REL", expected_version=1)
 
         # Assert
         assert success is False
@@ -163,10 +166,12 @@ class TestCategoryService:
         # Arrange
         valid_categories = ["ENT", "REL", "ACT", "ATT", "AUT", "STA", "OTH"]
         mock_repository.get_definitie.return_value = sample_definition
-        mock_repository.update_definitie.return_value = True
+        mock_repository.record_category_choice.return_value = True
 
         # Act & Assert
         for category in valid_categories:
-            success, error = category_service.update_category(1, category)
+            success, error = category_service.update_category(
+                1, category, expected_version=1
+            )
             assert success is True
             assert error is None

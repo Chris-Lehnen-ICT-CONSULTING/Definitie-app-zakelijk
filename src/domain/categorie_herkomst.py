@@ -159,7 +159,7 @@ def bouw_categoriekeuze(
         msg = "record_version moet een geheel getal zijn"
         raise ValueError(msg)
     begrip_tekst = (begrip or "").strip()
-    generatiegebonden = definitie_tekst is not None or generation_id is not None
+    generatiegebonden = generation_id is not None
     event: dict[str, Any] = {
         "schema": CATEGORY_CHOICE_SCHEMA,
         "value": waarde,
@@ -168,7 +168,8 @@ def bouw_categoriekeuze(
         "actor_source": actor_source if actor_tekst else None,
         "recorded_at": recorded_at or datetime.now(UTC).isoformat(),
         # Informatief: de recordversie op het moment van schrijven. Wordt
-        # nooit bijgewerkt; de binding loopt via de vingerafdrukken.
+        # nooit bijgewerkt; de binding loopt via de vingerafdrukken en de
+        # persistente keuzestaat (`bouw_keuzestaat`).
         "record_version_at_write": record_version,
         "candidate": {
             "begrip": begrip_tekst,
@@ -179,13 +180,78 @@ def bouw_categoriekeuze(
             BINDING_GENERATIEKANDIDAAT if generatiegebonden else BINDING_TERM_CONTEXT
         ),
         "generation_id": generation_id,
+        # Tekstbasis voor álle keuzes (reviewbevinding 5): de tekst waarvoor
+        # de keuze gold, ook bij een editor-/toepassen-keuze.
         "text_fingerprint": (
-            bereken_tekstvingerafdruk(definitie_tekst) if generatiegebonden else None
+            bereken_tekstvingerafdruk(definitie_tekst)
+            if definitie_tekst is not None
+            else None
         ),
         "reasoning": reasoning if isinstance(reasoning, str) and reasoning else None,
         "scores": dict(scores) if isinstance(scores, Mapping) and scores else None,
     }
     return event
+
+
+KEUZESTAAT_SCHEMA = "def751-keuzestaat/1"
+
+
+def bouw_keuzestaat(record_version: int | None) -> dict[str, Any]:
+    """De persistente toepassingsstaat van het actuele keuze-event.
+
+    Het event zelf is onveranderlijk; deze staat legt blijvend vast of de
+    keuze nog geldt (`current`) en of de tekst sindsdien is gewijzigd. Zij
+    wordt in dezelfde transactie bijgewerkt als de wijziging die haar raakt
+    (reviewbevinding 1) en alleen door een nieuwe bewuste keuze vervangen:
+    term, context of categorie terugzetten maakt een vervallen keuze nooit
+    opnieuw actueel.
+    """
+    return {
+        "schema": KEUZESTAAT_SCHEMA,
+        "current": True,
+        "recorded_on_version": record_version,
+        "invalidated_at": None,
+        "invalidated_on_version": None,
+        "invalidation_reason": None,
+        "text_changed": False,
+        "text_changed_at": None,
+        "text_changed_on_version": None,
+    }
+
+
+def markeer_keuze_vervallen(
+    staat: Mapping[str, Any] | None, *, reden: str, version: int, at: str
+) -> dict[str, Any]:
+    """Nieuwe staat waarin de keuze blijvend vervallen is (eerste reden wint)."""
+    basis = dict(staat) if isinstance(staat, Mapping) else bouw_keuzestaat(None)
+    if not basis.get("current", True):
+        return basis
+    basis.update(
+        {
+            "current": False,
+            "invalidated_at": at,
+            "invalidated_on_version": version,
+            "invalidation_reason": reden,
+        }
+    )
+    return basis
+
+
+def markeer_tekst_gewijzigd(
+    staat: Mapping[str, Any] | None, *, version: int, at: str
+) -> dict[str, Any]:
+    """Nieuwe staat waarin vastligt dat de tekst na de keuze is gewijzigd."""
+    basis = dict(staat) if isinstance(staat, Mapping) else bouw_keuzestaat(None)
+    if basis.get("text_changed"):
+        return basis
+    basis.update(
+        {
+            "text_changed": True,
+            "text_changed_at": at,
+            "text_changed_on_version": version,
+        }
+    )
+    return basis
 
 
 def lees_keuze_invoer(invoer: Any) -> dict[str, Any] | None:
@@ -242,6 +308,18 @@ def _basisstatus(event: Mapping[str, Any]) -> str:
     return "default"
 
 
+def _leeg_resultaat(status: str, reden: str) -> dict[str, Any]:
+    return {
+        "status": status,
+        "binding": None,
+        "text_unchanged": None,
+        "text_changed_on_version": None,
+        "invalidated_on_version": None,
+        "underlying": None,
+        "reason": reden,
+    }
+
+
 def bepaal_keuzestatus(
     event: Any,
     *,
@@ -249,54 +327,52 @@ def bepaal_keuzestatus(
     begrip: str,
     contexten: Mapping[str, Any] | None,
     definitie_tekst: str | None = None,
+    staat: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Status van de opgeslagen keuze tegenover de actuele recordstaat.
 
-    Geeft `status`, `binding`, `text_unchanged` (alleen betekenisvol bij een
-    generatiegebonden keuze), `underlying` (de basisstatus achter `stale`) en
-    een leesbare `reason`. Niets wordt herschreven; verouderd blijft verouderd.
+    Leidend is de persistente keuzestaat (`staat`, reviewbevinding 1): een
+    vervallen keuze blijft `stale`, ook als term, context of categorie
+    later worden teruggezet. De vingerafdrukvergelijkingen blijven als
+    vangnet (bv. een record dat buiten de schrijfroute om is gewijzigd).
+    `text_unchanged` (reviewbevinding 5) is False zodra de tekst na de keuze
+    is gewijzigd — blijvend, ook na terugzetten. Niets wordt herschreven.
     """
     if event is None:
         if categorie is None:
-            return {
-                "status": "absent",
-                "binding": None,
-                "text_unchanged": None,
-                "underlying": None,
-                "reason": "geen categorie en geen keuze-event",
-            }
-        return {
-            "status": "unknown_origin",
-            "binding": None,
-            "text_unchanged": None,
-            "underlying": None,
-            "reason": (
-                f"categorie {categorie!r} zonder keuze-event: herkomst onbekend "
-                "(bestaand record)"
-            ),
-        }
+            return _leeg_resultaat("absent", "geen categorie en geen keuze-event")
+        return _leeg_resultaat(
+            "unknown_origin",
+            f"categorie {categorie!r} zonder keuze-event: herkomst onbekend "
+            "(bestaand record)",
+        )
     if not is_categoriekeuze(event):
-        return {
-            "status": "invalid",
-            "binding": None,
-            "text_unchanged": None,
-            "underlying": None,
-            "reason": "keuze-event heeft niet de verwachte vorm",
-        }
+        return _leeg_resultaat("invalid", "keuze-event heeft niet de verwachte vorm")
     basis = _basisstatus(event)
     binding = event.get("binding")
+    staat = staat if isinstance(staat, Mapping) else None
+
     tekst_ongewijzigd: bool | None = None
-    if binding == BINDING_GENERATIEKANDIDAAT and isinstance(
-        event.get("text_fingerprint"), str
-    ):
+    tekst_versie = staat.get("text_changed_on_version") if staat else None
+    if staat and staat.get("text_changed"):
+        tekst_ongewijzigd = False
+    elif isinstance(event.get("text_fingerprint"), str):
         tekst_ongewijzigd = event["text_fingerprint"] == bereken_tekstvingerafdruk(
             definitie_tekst
         )
+
     redenen: list[str] = []
+    vervallen_versie = None
+    if staat and not staat.get("current", True):
+        vervallen_versie = staat.get("invalidated_on_version")
+        redenen.append(
+            f"{staat.get('invalidation_reason') or 'keuze vervallen'} "
+            f"(versie {vervallen_versie}); alleen een nieuwe keuze herstelt dit"
+        )
     if event["candidate"]["fingerprint"] != bereken_kandidaatvingerafdruk(
         begrip, contexten
     ):
-        redenen.append("term of context is gewijzigd sinds de keuze")
+        redenen.append("term of context wijkt af van de keuze")
     if event.get("value") != categorie:
         redenen.append(
             f"opgeslagen categorie {categorie!r} wijkt af van de keuze "
@@ -307,6 +383,8 @@ def bepaal_keuzestatus(
             "status": "stale",
             "binding": binding,
             "text_unchanged": tekst_ongewijzigd,
+            "text_changed_on_version": tekst_versie,
+            "invalidated_on_version": vervallen_versie,
             "underlying": basis,
             "reason": "; ".join(redenen),
         }
@@ -315,7 +393,9 @@ def bepaal_keuzestatus(
             f"handmatig gekozen door {event.get('actor')!r} (opgegeven naam, "
             "niet geverifieerd)"
         ),
-        "manual_unattributed": "handmatig gekozen; beoordelaar niet opgegeven",
+        "manual_unattributed": (
+            "handmatige keuze volgens de aanvraag; door niemand bevestigd"
+        ),
         "model_suggestion": "voorstel van het classificatiemodel, niet bevestigd",
         "imported": "overgenomen uit importbron",
         "imported_missing": "importbron had geen categorie",
@@ -323,12 +403,16 @@ def bepaal_keuzestatus(
     }[basis]
     if tekst_ongewijzigd is False:
         reden += (
-            "; de tekst is sindsdien gewijzigd (keuze gold voor de gegenereerde tekst)"
+            "; de tekst is sindsdien gewijzigd"
+            + (f" (versie {tekst_versie})" if tekst_versie is not None else "")
+            + " — de keuze gold voor de tekst van toen"
         )
     return {
         "status": basis,
         "binding": binding,
         "text_unchanged": tekst_ongewijzigd,
+        "text_changed_on_version": tekst_versie,
+        "invalidated_on_version": None,
         "underlying": None,
         "reason": reden,
     }
