@@ -1,0 +1,32 @@
+{
+  "source_log": "/private/tmp/DEF-806-uitvoering-20260917/claude-poort-v1.jsonl",
+  "source_sha256": "a2032018ba1efad29d568f21866a02f9d596986f9b1eee900c1c82114f047824",
+  "runs": [
+    {
+      "command": "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def806_verwijzing_hyperlink.py -q --tb=short",
+      "result": {
+        "type": "tool_result",
+        "content": "Exit code 1\n.............F.F.....F.......F..................                         [100%]\n=================================== FAILURES ===================================\n____ TestBruikbareHyperlink.test_uitzondering_geldt_ook_bij_ongeldige_poort ____\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:547: in test_uitzondering_geldt_ook_bij_ongeldige_poort\n    assert uitkomst.review[\"accepted_exception\"] == \"reference\"\nE   AssertionError: assert None == 'reference'\n_ TestBruikbareHyperlink.test_menselijke_correctie_volgt_dezelfde_definitie_van_bruikbaar[https://intern.example:ongeldig/awb] _\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:578: in test_menselijke_correctie_volgt_dezelfde_definitie_van_bruikbaar\n    assert uitkomst.review[\"applied\"] is False\nE   assert True is False\n_ TestBruikbareHyperlink.test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:ongeldig/awb] _\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:494: in test_onbruikbare_tekst_geldt_niet_als_hyperlink\n    assert is_bruikbare_hyperlink(url) is False\nE   AssertionError: assert True is False\nE    +  where True = <function is_bruikbare_hyperlink at 0x10a8d6f20>('https://intern.example:ongeldig/awb')\n_ TestBruikbareHyperlink.test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:99999/awb] _\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:494: in test_onbruikbare_tekst_geldt_niet_als_hyperlink\n    assert is_bruikbare_hyperlink(url) is False\nE   AssertionError: assert True is False\nE    +  where True = <function is_bruikbare_hyperlink at 0x10a8d6f20>('https://intern.example:99999/awb')\n=========================== short test summary info ============================\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_uitzondering_geldt_ook_bij_ongeldige_poort\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_menselijke_correctie_volgt_dezelfde_definitie_van_bruikbaar[https://intern.example:ongeldig/awb]\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:ongeldig/awb]\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:99999/awb]",
+        "is_error": true,
+        "tool_use_id": "toolu_01B4LczTz3QHsgSJFSJwMy4t"
+      },
+      "native_tool_result": "Error: Exit code 1\n.............F.F.....F.......F..................                         [100%]\n=================================== FAILURES ===================================\n____ TestBruikbareHyperlink.test_uitzondering_geldt_ook_bij_ongeldige_poort ____\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:547: in test_uitzondering_geldt_ook_bij_ongeldige_poort\n    assert uitkomst.review[\"accepted_exception\"] == \"reference\"\nE   AssertionError: assert None == 'reference'\n_ TestBruikbareHyperlink.test_menselijke_correctie_volgt_dezelfde_definitie_van_bruikbaar[https://intern.example:ongeldig/awb] _\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:578: in test_menselijke_correctie_volgt_dezelfde_definitie_van_bruikbaar\n    assert uitkomst.review[\"applied\"] is False\nE   assert True is False\n_ TestBruikbareHyperlink.test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:ongeldig/awb] _\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:494: in test_onbruikbare_tekst_geldt_niet_als_hyperlink\n    assert is_bruikbare_hyperlink(url) is False\nE   AssertionError: assert True is False\nE    +  where True = <function is_bruikbare_hyperlink at 0x10a8d6f20>('https://intern.example:ongeldig/awb')\n_ TestBruikbareHyperlink.test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:99999/awb] _\ntests/unit/domain/test_def806_verwijzing_hyperlink.py:494: in test_onbruikbare_tekst_geldt_niet_als_hyperlink\n    assert is_bruikbare_hyperlink(url) is False\nE   AssertionError: assert True is False\nE    +  where True = <function is_bruikbare_hyperlink at 0x10a8d6f20>('https://intern.example:99999/awb')\n=========================== short test summary info ============================\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_uitzondering_geldt_ook_bij_ongeldige_poort\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_menselijke_correctie_volgt_dezelfde_definitie_van_bruikbaar[https://intern.example:ongeldig/awb]\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:ongeldig/awb]\nFAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBruikbareHyperlink::test_onbruikbare_tekst_geldt_niet_als_hyperlink[https://intern.example:99999/awb]"
+    },
+    {
+      "command": "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def806_verwijzing_hyperlink.py -q --tb=short",
+      "result": {
+        "tool_use_id": "toolu_01Lm3mWSM1MKMxdt5y2Kahn4",
+        "type": "tool_result",
+        "content": "................................................                         [100%]",
+        "is_error": false
+      },
+      "native_tool_result": {
+        "stdout": "................................................                         [100%]",
+        "stderr": "",
+        "interrupted": false,
+        "isImage": false,
+        "noOutputExpected": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "input_file": "/private/tmp/DEF-806-uitvoering-20260917/nieuwe-generatie-record5-v1.json",
+  "input_sha256": "b98bff8c973e41df2fb22061ab27b6639fa8a7b3cdf3c8d0e540d9066bcaa013",
+  "record_id": 5,
+  "begrip": "besluit",
+  "contract_version": "con02/1",
+  "stored_prompt_version": "con02-assess/2",
+  "stored_fingerprint": "172522872d2dd6d710e9c2b30d443f53a697ef3e6dced4500ab424641afb2c7f",
+  "computed_fingerprint": "172522872d2dd6d710e9c2b30d443f53a697ef3e6dced4500ab424641afb2c7f",
+  "fingerprint_match": true,
+  "source_urls": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "status": "review_required",
+  "parts": [
+    {
+      "id": "source_authority",
+      "status": "pass",
+      "field": "source_assessment",
+      "action": "Geen actie nodig.",
+      "reason": "AI-beoordeling van brongezag/toepasselijkheid (claude-opus-4-8): De aangewezen bron betreft de tekst van de Algemene wet bestuursrecht, artikel 1:3, wat de authentieke wettelijke bron is voor het begrip 'besluit' in het bestuursrecht en aansluit bij de opgegeven wettelijke basis. Onzekerheid: Peildatum is niet opgegeven; de bestandsnaam suggereert versie 20260815, maar de bron bevat geen expliciete inwerkingtredings- of geldigheidsdatum in de passages. Bewijs: bron doc:01e121c20018eed2#7118848e: “Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.”."
+    },
+    {
+      "id": "semantic_support",
+      "status": "review_required",
+      "field": "source_assessment",
+      "action": "Laat een deskundige het onderdeel beoordelen of lever aanvullend bronbewijs aan.",
+      "reason": "AI-beoordeling van betekenissteun (claude-opus-4-8): De bepalende kenmerken van de definitie (schriftelijke beslissing, bestuursorgaan, publiekrechtelijke rechtshandeling) komen letterlijk overeen met de brontekst van artikel 1:3 lid 1 Awb. De toegevoegde formulering 'resultaat van een besluitvormingsproces' is een parafrase die de kern niet wijzigt. Het oordeel 'voldoet' wordt niet gedragen door de eigen onderbouwing: 1 kenmerk(en) zijn niet (aantoonbaar) gesteund: resultaat van een besluitvormingsproces. Het onderdeel blijft open; de gestructureerde bevindingen blijven zichtbaar. Onzekerheid: De toevoeging 'resultaat van een besluitvormingsproces' staat niet letterlijk in de bron, maar wijkt inhoudelijk niet af van de wettelijke kenmerken. Bewijs: bron doc:01e121c20018eed2#7118848e: “Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.”."
+    },
+    {
+      "id": "reference_quality",
+      "status": "review_required",
+      "field": "source_assessment",
+      "action": "Lever voor deze bron een bruikbare (ook interne) hyperlink aan, of laat een deskundige de verwijzingsuitzondering vastleggen (bewaarde bronversie, stabiele documentidentificatie, exacte vindplaats, gemotiveerd en geaccepteerd). De definitie hoeft hiervoor niet te worden aangepast.",
+      "reason": "AI-beoordeling van verwijskwaliteit (claude-opus-4-8): De vindplaats is exact aanwijsbaar (Algemene wet bestuursrecht, Artikel 1:3 lid 1), maar er is geen hyperlink (url-attribuut) bij de bron aanwezig. Zonder bruikbare hyperlink is 'pass' uitgesloten. Onzekerheid: Er ontbreekt een url; een exacte vindplaats vervangt de hyperlink niet. Alleen een deskundige kan een verwijzingsuitzondering vastleggen. Bewijs: bron doc:01e121c20018eed2#7118848e: “Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan:”."
+    }
+  ],
+  "review": {
+    "applied": false,
+    "actor": null,
+    "fingerprint": null,
+    "type": null,
+    "accepted_exception": null,
+    "applied_correction": null,
+    "reason": "geen deskundige beoordeling aangeleverd",
+    "assessment": {
+      "applied": true,
+      "status": "assessed",
+      "reason": null,
+      "model": "claude-opus-4-8",
+      "provider": "anthropic",
+      "prompt_version": "con02-assess/2",
+      "rejected": 1
+    }
+  },
+  "definitie_voor": "Resultaat van een besluitvormingsproces van een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+  "definitie_na": "Resultaat van een besluitvormingsproces van een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+  "definitie_ongewijzigd": true
+}

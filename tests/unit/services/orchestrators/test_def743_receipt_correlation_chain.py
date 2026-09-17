@@ -53,6 +53,7 @@ DOC_A = {
     "doc_id": "doc1",
     "filename": "register.txt",
     "citation_label": "§ 1",
+    "url": "https://intern.example/register#p1",  # DEF-806
     "snippet": "Eerste passage doc1: een archiefkaart beschrijft één verzameling.",
     "score": 1.0,
 }

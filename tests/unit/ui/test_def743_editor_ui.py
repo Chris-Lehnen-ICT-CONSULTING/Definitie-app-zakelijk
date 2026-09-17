@@ -464,11 +464,14 @@ def test_verwijzingsuitzondering_neemt_bewaarde_bronversie_en_wordt_stale_na_tek
 ):
     from domain.sources.normalisatie import canoniseer_bronnen
 
-    rec = _record_in_review(repo, scenario="pass")
+    # DEF-806: de verwijzingsuitzondering geldt alleen voor een bron zónder
+    # hyperlink; de gedeelde fixture draagt er een, dus hier zonder.
+    bronnen = [{**BRONNEN[0], "url": None}, deepcopy(BRONNEN[1])]
+    rec = _record_in_review(repo, scenario="pass", bronnen=bronnen)
     SessionStateManager.set_value("selected_review_definition", rec)
     SessionStateManager.set_value("user", ACTOR)
     s = f"con02_{rec.id}"
-    awb = next(b for b in canoniseer_bronnen(BRONNEN) if b.source_id.startswith("rag:"))
+    awb = next(b for b in canoniseer_bronnen(bronnen) if b.source_id.startswith("rag:"))
     m = _mock_st(
         **{
             f"{s}_soort": "reference_exception",

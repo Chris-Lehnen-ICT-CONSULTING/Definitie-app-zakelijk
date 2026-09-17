@@ -1,0 +1,10 @@
+{
+  "command": "make test",
+  "exit_code": 0,
+  "result": "6073 passed, 75 skipped, 722 deselected, 1 xfailed, 2720 warnings, 21 subtests passed in 228.86s (0:03:48)",
+  "source_manifest": "review-diff-identiteit-v4.json",
+  "subsequent_comment_only_change": "review-testbinding-commentcorrectie.json",
+  "raw_log": "/private/tmp/DEF-806-uitvoering-20260917/33-make-test-final.log",
+  "raw_log_sha256": "f0e982f9ead92efe0f5adecd3c79d4a5d596a8641bc72fd93995763ff7aef0cd",
+  "note": "Canonieke unitgate, geen volledige integration-suite; bestaande skips/xfail/warnings blijven zichtbaar."
+}

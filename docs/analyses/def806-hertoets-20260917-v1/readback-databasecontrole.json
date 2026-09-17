@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "id": 4,
+      "definition_unchanged": true,
+      "stored_source_data_unchanged": true
+    },
+    {
+      "id": 5,
+      "definition_unchanged": true,
+      "stored_source_data_unchanged": true
+    }
+  ],
+  "runtime_stopped": true,
+  "note": "Tijdens recordwissel logde autosave een RepositoryError. Er is geen inhoudelijke bewerking opgeslagen; de hoofdrecords en brondata zijn exact behouden. Autosave is geen onderdeel van deze DEF-806-fix."
+}

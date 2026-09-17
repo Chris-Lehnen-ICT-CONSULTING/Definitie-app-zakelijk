@@ -49,7 +49,8 @@ BRONNEN: list[dict[str, Any]] = [
         "chunk_index": 4,
         "created_at": "2026-09-14T10:00:00Z",
         "title": "Awb artikel 1:1",
-        "url": None,
+        # DEF-806: interne link — zonder url is geen verwijzings-pass mogelijk.
+        "url": "https://intern.example/awb#art-1-1",
         "snippet": PASSAGE_AWB,
         "score": 0.83,
         "used_in_prompt": True,

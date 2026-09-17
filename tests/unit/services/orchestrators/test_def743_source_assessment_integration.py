@@ -51,6 +51,7 @@ DOCUMENT = {
     "doc_id": "upload-01",
     "filename": "register.txt",
     "citation_label": "§ 2",
+    "url": "https://intern.example/register#p2",  # DEF-806
     "snippet": PASSAGE,
     "score": 1.0,
     "selection_basis": "term_match",
