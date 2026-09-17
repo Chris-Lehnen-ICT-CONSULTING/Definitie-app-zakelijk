@@ -27,6 +27,7 @@ from services.interfaces import DefinitionResponseV2
 from services.service_factory import ServiceAdapter
 from ui.handlers.definition_generation_handler import DefinitionGenerationHandler
 from ui.helpers.betekenisconflict import (
+    KEY_AFWIJZING,
     KEY_OPEN,
     KEY_VERZONDEN,
     invoer_vingerafdruk,
@@ -338,3 +339,81 @@ def test_vingerafdruk_dekt_alle_relevante_invoer_en_is_stabiel():
     assert _vingerafdruk(document_ids=["b", "a"]) == _vingerafdruk(
         document_ids=["a", "b"]
     )
+
+
+# ------------------------------------------- reviewcorrectie 1: herstelroute
+
+
+def _geweigerd_ui(error_type: str) -> dict[str, Any]:
+    return ServiceAdapter.to_ui_response(
+        ServiceAdapter.__new__(ServiceAdapter),
+        DefinitionResponseV2(
+            success=False,
+            error="De verduidelijking is te lang (maximaal 4000 tekens).",
+            metadata={"generation_id": "gen-x", "error_type": error_type},
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    "error_type",
+    ["verduidelijking_te_lang", "verduidelijking_niet_in_prompt", "prompt_te_lang"],
+)
+def test_weigering_voor_het_model_bewaart_antwoord_en_open_conflict(error_type):
+    """Het verzonden antwoord gaat niet verloren: conflict blijft open, antwoord
+    blijft verzonden, afwijzing staat klaar voor het antwoordveld, het vorige
+    (conflict)resultaat blijft zichtbaar en er is een bruikbare herstelactie."""
+    service = FakeService(_geweigerd_ui(error_type))
+    handler, repo = _handler(service)
+    sm = FakeSM(determined_category="proces", category_reasoning="r")
+    _met_verzonden(sm, vingerafdruk=_vingerafdruk())
+    sm.data["last_generation_result"] = {
+        "agent_result": {"betekenisconflict": {"vraag": VRAAG}}
+    }
+    open_voor = dict(sm.data[KEY_OPEN])
+    verzonden_voor = dict(sm.data[KEY_VERZONDEN])
+    st = MagicMock()
+    _run(handler, sm, st)
+
+    assert service.aanroepen[0]["betekenisverduidelijking"] == "Bedoeld is de handeling"
+    assert sm.data[KEY_OPEN] == open_voor
+    assert sm.data[KEY_VERZONDEN] == verzonden_voor
+    assert "te lang" in sm.data[KEY_AFWIJZING]
+    resultaat = sm.data["last_generation_result"]["agent_result"]
+    assert resultaat["betekenisconflict"]["vraag"] == VRAAG
+    assert st.error.called and "antwoord" in str(st.error.call_args).lower()
+    assert not st.success.called
+    assert "editing_definition_id" not in sm.data
+    assert not repo.record_category_choice.called
+    assert not sm.data["generation_options"].get("force_generate")
+
+
+def test_gewone_mislukking_met_verduidelijking_laat_antwoord_wel_vervallen():
+    service = FakeService(
+        {"success": False, "error_message": "Generation failed: boem"}
+    )
+    handler, _ = _handler(service)
+    sm = FakeSM(determined_category="proces", category_reasoning="r")
+    _met_verzonden(sm, vingerafdruk=_vingerafdruk())
+    _run(handler, sm, MagicMock())
+    assert KEY_VERZONDEN not in sm.data
+    assert KEY_AFWIJZING not in sm.data
+    assert KEY_OPEN not in sm.data
+
+
+def test_succes_na_eerdere_afwijzing_wist_de_afwijzing():
+    service = FakeService(succes_ui())
+    handler, _ = _handler(service)
+    sm = FakeSM(determined_category="proces", category_reasoning="r")
+    _met_verzonden(sm, vingerafdruk=_vingerafdruk())
+    sm.data[KEY_AFWIJZING] = "eerder geweigerd"
+    _run(handler, sm, MagicMock())
+    assert KEY_AFWIJZING not in sm.data
+    assert KEY_VERZONDEN not in sm.data and KEY_OPEN not in sm.data
+
+
+def test_adapter_geeft_error_type_door_op_het_faalpad():
+    ui = _geweigerd_ui("verduidelijking_te_lang")
+    assert ui["error_type"] == "verduidelijking_te_lang"
+    assert "betekenisconflict" not in ui
+    assert "error_type" not in succes_ui()

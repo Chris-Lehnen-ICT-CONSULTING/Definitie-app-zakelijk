@@ -650,6 +650,7 @@ class DefinitionGeneratorTab:
         toe. Het widget-veld wordt door de code nooit gezet of gewist.
         """
         from ui.helpers.betekenisconflict import (
+            KEY_AFWIJZING,
             KEY_INVOER,
             KEY_OPEN,
             KEY_VERZONDEN,
@@ -689,11 +690,21 @@ class DefinitionGeneratorTab:
             return
 
         verzonden = SessionStateManager.get_value(KEY_VERZONDEN)
+        afwijzing = SessionStateManager.get_value(KEY_AFWIJZING)
         if isinstance(verzonden, dict) and verzonden.get("generation_id") == getoond_id:
-            st.info(
-                "Verzonden verduidelijking (klaar voor hergeneratie met de "
-                f"hoofdknop 'Genereer Definitie'): {verzonden.get('tekst', '')}"
-            )
+            if afwijzing:
+                # Reviewcorrectie 1: de generatie weigerde dit antwoord vóór
+                # het model; het is niet verloren — aanpassen en opnieuw
+                # verzenden.
+                st.error(
+                    f"❌ Je verzonden verduidelijking is geweigerd: {afwijzing} "
+                    "Pas het antwoord hieronder aan en verzend het opnieuw."
+                )
+            else:
+                st.info(
+                    "Verzonden verduidelijking (klaar voor hergeneratie met de "
+                    f"hoofdknop 'Genereer Definitie'): {verzonden.get('tekst', '')}"
+                )
 
         st.caption(
             f"Vraag gesteld voor begrip '{open_conflict.get('begrip', '')}' met de "

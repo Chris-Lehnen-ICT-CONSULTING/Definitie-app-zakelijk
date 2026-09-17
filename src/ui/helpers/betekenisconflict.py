@@ -29,6 +29,8 @@ from collections.abc import Iterable
 from typing import Any
 
 __all__ = [
+    "HERSTELBARE_VERDUIDELIJKINGSFOUTEN",
+    "KEY_AFWIJZING",
     "KEY_INVOER",
     "KEY_OPEN",
     "KEY_VERZONDEN",
@@ -41,6 +43,17 @@ __all__ = [
 KEY_OPEN = "betekenisconflict_open"
 KEY_INVOER = "betekenisverduidelijking_invoer"
 KEY_VERZONDEN = "betekenisverduidelijking_verzonden"
+#: De melding waarmee de generatie een verzonden antwoord weigerde
+#: (reviewcorrectie 1): het conflict blijft open, het antwoord blijft
+#: verzonden, de gebruiker past het aan en verzendt opnieuw.
+KEY_AFWIJZING = "betekenisverduidelijking_afwijzing"
+
+#: Orchestrator-`error_type`s waarbij een verzonden antwoord níét vervalt: de
+#: generatie is vóór het model geweigerd om het antwoord zelf of het
+#: promptbudget, en de gebruiker moet het antwoord kunnen aanpassen.
+HERSTELBARE_VERDUIDELIJKINGSFOUTEN = frozenset(
+    {"verduidelijking_te_lang", "verduidelijking_niet_in_prompt", "prompt_te_lang"}
+)
 
 
 def _lijst(waarden: Iterable[Any] | None) -> list[str]:
@@ -113,6 +126,8 @@ def verzend_verduidelijking(
             "tekst": antwoord,
         },
     )
+    # Een nieuw verzonden antwoord vervangt een eerdere afwijzing.
+    sm.clear_value(KEY_AFWIJZING)
     return None
 
 

@@ -132,6 +132,10 @@ class UIResponseDict(TypedDict):
     # NotRequired zodat ze niet verplicht zijn op elke variant (bv. failure-pad).
     saved_definition_id: NotRequired[int]  # Alleen na succesvolle opslag
     error_message: NotRequired[str]  # Alleen op het failure-pad
+    # DEF-751 stap 2: de `error_type` van de orchestrator op het failure-pad
+    # (bv. "betekenisconflict", "verduidelijking_te_lang", "prompt_te_lang"),
+    # zodat de UI een gerichte herstelactie kan bieden.
+    error_type: NotRequired[str]
     final_definitie: NotRequired[str]  # Legacy alias voor definitie_gecorrigeerd
     marker: NotRequired[str]  # Legacy kwaliteits-marker
     validation_score: NotRequired[float]  # Legacy alias voor final_score

@@ -27,6 +27,23 @@ from .modules import (  # ErrorPreventionModule,  # DEF-169: Disabled - redundan
 
 logger = logging.getLogger(__name__)
 
+
+class PromptTeLangError(ValueError):
+    """De gebouwde prompt overschrijdt de harde kap (DEF-751 stap 2).
+
+    Vroeger werd de prompt stil afgekapt op `max_prompt_length`; dat knipte
+    de staart (eindinstructie, conflictcontract) weg. Nu is te lang een
+    expliciete weigering vóór de modelaanroep; de aanroeper meldt het.
+    """
+
+    def __init__(self, lengte: int, maximum: int) -> None:
+        self.lengte = lengte
+        self.maximum = maximum
+        super().__init__(
+            f"prompt te lang: {lengte} tekens, maximum {maximum}; niet afgekapt"
+        )
+
+
 # Singleton orchestrator cache
 _global_orchestrator: PromptOrchestrator | None = None
 _orchestrator_lock = threading.Lock()
@@ -303,13 +320,13 @@ class ModularPromptAdapter:
             if self.component_config.compact_mode:
                 prompt = self._apply_compact_mode(prompt)
 
-            # Apply max length indien geconfigureerd
+            # Harde kap: expliciet weigeren, niet stil afkappen (DEF-751 stap 2,
+            # reviewcorrectie 2). Afkappen knipt de staart — eindinstructie en
+            # conflictcontract — weg en levert een prompt zonder uitvoernorm.
             if self.component_config.max_prompt_length < len(prompt):
-                logger.warning(
-                    f"Prompt te lang ({len(prompt)} chars), "
-                    f"truncating to {self.component_config.max_prompt_length}"
+                raise PromptTeLangError(
+                    len(prompt), self.component_config.max_prompt_length
                 )
-                prompt = prompt[: self.component_config.max_prompt_length]
 
             return prompt
 

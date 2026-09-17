@@ -749,6 +749,14 @@ class ServiceAdapter:
         zodat het render-pad nooit op een KeyError stukloopt bij gefaalde generatie
         (voorheen ontbraken o.a. validation_details en final_score).
         """
+        # DEF-751 stap 2: de error_type uit de orchestrator-metadata reist mee
+        # (alleen een string; geen andere metadata), voor gerichte UI-herstelacties.
+        response_metadata = getattr(response, "metadata", None)
+        error_type = (
+            response_metadata.get("error_type")
+            if isinstance(response_metadata, dict)
+            else None
+        )
         return cast(
             "UIResponseDict",
             {
@@ -757,6 +765,7 @@ class ServiceAdapter:
                 "error_message": getattr(response, "message", None)
                 or getattr(response, "error", None)
                 or "Generatie mislukt",
+                **({"error_type": str(error_type)} if error_type else {}),
                 "definitie_origineel": "",
                 "definitie_gecorrigeerd": "Generatie mislukt",
                 "final_score": 0.0,

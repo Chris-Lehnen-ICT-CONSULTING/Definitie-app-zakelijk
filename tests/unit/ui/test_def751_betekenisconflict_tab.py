@@ -240,6 +240,44 @@ def test_eerder_verzonden_antwoord_wordt_getoond(render):
     assert "Genereer" in _tekst(st)
 
 
+def test_afgewezen_antwoord_toont_afwijzing_en_biedt_opnieuw_verzenden(render):
+    """Reviewcorrectie 1: een vóór het model geweigerd antwoord is niet weg —
+    de afwijzing staat bij het veld, het veld en de knop blijven; opnieuw
+    verzenden vervangt de afwijzing."""
+    from ui.helpers.betekenisconflict import (
+        KEY_AFWIJZING,
+        KEY_INVOER,
+        KEY_OPEN,
+        KEY_VERZONDEN,
+    )
+
+    verzonden = {"generation_id": "gen-1", "vingerafdruk": "vf-1", "tekst": "x"}
+    st, _ = render(
+        conflict_resultaat(),
+        {
+            KEY_OPEN: open_conflict(),
+            KEY_VERZONDEN: verzonden,
+            KEY_AFWIJZING: "De verduidelijking is te lang (maximaal 4000 tekens).",
+        },
+    )
+    assert st.error.called and "te lang" in _tekst(st)
+    assert "klaar voor hergeneratie" not in _tekst(st)
+    assert st.text_area.called and st.button.called
+
+    st, _ = render(
+        conflict_resultaat(),
+        {
+            KEY_OPEN: open_conflict(),
+            KEY_VERZONDEN: verzonden,
+            KEY_AFWIJZING: "te lang",
+            KEY_INVOER: "korter antwoord",
+        },
+        knop=True,
+    )
+    assert FakeSM.data[KEY_VERZONDEN]["tekst"] == "korter antwoord"
+    assert KEY_AFWIJZING not in FakeSM.data
+
+
 def test_gewone_mislukking_rendert_geen_resultaatsecties(render):
     resultaat = conflict_resultaat()
     resultaat["agent_result"].pop("betekenisconflict")

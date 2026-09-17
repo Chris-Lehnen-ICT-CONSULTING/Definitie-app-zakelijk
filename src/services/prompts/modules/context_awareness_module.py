@@ -17,6 +17,7 @@ from typing import Any
 from services.definition_generator_context import ContextSource, EnrichedContext
 from services.prompts.sanitization import (
     TAG_CONTEXT,
+    VeiligeTekst,
     datablok,
     sanitize_prompt_blok,
 )
@@ -36,32 +37,102 @@ _MAX_CONTEXT_BLOK_LEN = 20_000
 #: instructie in `DefinitionTaskModule` en de data hier naar hetzelfde wijzen.
 VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenislaag door de gebruiker"
 
+#: Antwoordbudget voor de verduidelijking, gemeten ná escaping
+#: (reviewcorrectie 1/2). Een antwoord dat hier niet in past wordt vóór de
+#: modelaanroep zichtbaar geweigerd (orchestrator) — nooit stil afgekapt.
+MAX_VERDUIDELIJKING_LEN = 4_000
 
-def _verduidelijkingsregels(context: ModuleContext) -> list[str]:
-    """De gebruikersverduidelijking als DATA-regels voor het contextblok, of [].
 
-    Zelfde behandeling als alle andere user-data: binnen het bestaande
-    `context`-datablok, gesaniteerd door `_veilig_datablok`. Bewust géén
-    `ContextSource` — die zou als "ADDITIONELE BRON" onder CON-02 vallen en
-    een gebruikersbedoeling tot bron maken. Zonder verduidelijking blijft de
-    prompt byte-identiek.
+def verduidelijking_datalijn(waarde: str) -> str:
+    """De exacte DATA-regel (ná sanitisatie/escaping) die in het contextblok komt.
+
+    Eén functie voor module én orchestrator: de orchestrator toetst vóór de
+    modelaanroep dat precies deze regel volledig in de gebouwde prompt staat
+    (postconditie "gebruikt = werkelijk aanwezig").
+    """
+    tekst = " ".join(waarde.split())
+    # `max_len` ≥ lengte: hier nooit afkappen — het budget wordt apart getoetst.
+    return f"{VERDUIDELIJKING_KOP}: {sanitize_prompt_blok(tekst, len(tekst) + 1)}"
+
+
+def verduidelijking_te_lang(waarde: str) -> bool:
+    """Of het antwoord ná escaping boven `MAX_VERDUIDELIJKING_LEN` uitkomt."""
+    lijn = verduidelijking_datalijn(waarde)
+    return len(lijn) - len(VERDUIDELIJKING_KOP) - 2 > MAX_VERDUIDELIJKING_LEN
+
+
+def _verduidelijking_uit(context: ModuleContext) -> str | None:
+    """De gebruikersverduidelijking uit de metadata, of None.
+
+    Bewust géén `ContextSource` — die zou als "ADDITIONELE BRON" onder CON-02
+    vallen en een gebruikersbedoeling tot bron maken. Zonder verduidelijking
+    blijft de prompt byte-identiek.
     """
     waarde = (context.enriched_context.metadata or {}).get("betekenisverduidelijking")
     if not isinstance(waarde, str) or not waarde.strip():
-        return []
-    return ["", f"{VERDUIDELIJKING_KOP}: {waarde.strip()}"]
+        return None
+    return waarde.strip()
 
 
-def _veilig_datablok(regels: list[str]) -> str:
+def _sanitize_binnen_budget(tekst: str, budget: int) -> VeiligeTekst:
+    """`sanitize_prompt_blok`, maar met het budget gemeten ná escaping.
+
+    De gedeelde sanitizer kapt vóór het escapen af (DEF-590: geen entity
+    middendoor). Escaping kan de tekst tot 5× laten groeien (`&` → `&amp;`),
+    dus hier wordt eerst een rauwe grens gezocht waarvan het geëscapete
+    resultaat binnen `budget` past; de sanitisatie is de laatste stap.
+    """
+    voorstuk = _rauwe_grens_binnen_budget(tekst, budget)
+    return sanitize_prompt_blok(voorstuk, len(voorstuk) + 1)
+
+
+def _veilig_datablok(regels: list[str], context: ModuleContext | None = None) -> str:
     """Sanitiseer de regels en omhul ze in één `context`-datablok.
 
     Alle drie de contextsecties (rich/moderate/minimal) lopen hierlangs. Dat is
     de enige plek waar user-data de definitie-prompt in gaat, dus de enige plek
     die het hoeft te weten. `datablok()` faalt luid als hier ooit iets
     ongesaniteerds doorheen glipt.
+
+    Budget (reviewcorrectie 1/2): het blok blijft ≤ `_MAX_CONTEXT_BLOK_LEN`
+    gemeten ná escaping. Een gebruikersverduidelijking krijgt voorrang als
+    laatste DATA-regel — volledig, nooit afgekapt; de overige regels
+    (documentinhoud enz.) krijgen het restant.
     """
-    tekst = sanitize_prompt_blok("\n".join(regels), _MAX_CONTEXT_BLOK_LEN)
-    return datablok(TAG_CONTEXT, tekst)
+    rest_rauw = "\n".join(regels)
+    verduidelijking = _verduidelijking_uit(context) if context is not None else None
+    if verduidelijking is None:
+        return datablok(
+            TAG_CONTEXT, _sanitize_binnen_budget(rest_rauw, _MAX_CONTEXT_BLOK_LEN)
+        )
+
+    staart_rauw = f"{VERDUIDELIJKING_KOP}: {verduidelijking}"
+    staart_len = len(verduidelijking_datalijn(verduidelijking))
+    if staart_len >= _MAX_CONTEXT_BLOK_LEN:
+        # Laatste vangnet; de orchestrator weigert dit al vóór de modelaanroep.
+        return datablok(
+            TAG_CONTEXT, _sanitize_binnen_budget(staart_rauw, _MAX_CONTEXT_BLOK_LEN)
+        )
+    # Rauwe grens voor de rest zó dat rest (ná escaping) + newline + staart
+    # binnen het blokbudget blijft; daarna één sanitisatie van de samengestelde
+    # rauwe tekst als laatste stap (DEF-590-contract), zonder afkap: de
+    # `max_len` is precies de lengte, dus de staart blijft volledig.
+    rest_budget = _MAX_CONTEXT_BLOK_LEN - staart_len - 1
+    rest_grens = len(_rauwe_grens_binnen_budget(rest_rauw, rest_budget))
+    samengesteld = (
+        f"{rest_rauw[:rest_grens]}\n{staart_rauw}" if rest_grens > 0 else staart_rauw
+    )
+    return datablok(TAG_CONTEXT, sanitize_prompt_blok(samengesteld, len(samengesteld)))
+
+
+def _rauwe_grens_binnen_budget(tekst: str, budget: int) -> str:
+    """Het rauwe voorstuk van `tekst` waarvan de gesaniteerde vorm ≤ `budget` is."""
+    rauw = min(len(tekst), max(budget, 0))
+    while rauw > 0 and len(sanitize_prompt_blok(tekst, rauw)) > budget:
+        rauw = min(
+            rauw - 1, int(rauw * budget / len(sanitize_prompt_blok(tekst, rauw)))
+        )
+    return tekst[: max(rauw, 0)]
 
 
 class ContextAwarenessModule(BasePromptModule):
@@ -307,10 +378,9 @@ Refereer context-specifieke verbanden.
                 self._format_abbreviations_detailed(enriched_context.expanded_terms)
             )
 
-        # DEF-751 stap 2: gebruikersverduidelijking als laatste DATA-regels.
-        blok_regels.extend(_verduidelijkingsregels(context))
-
-        sections.append(_veilig_datablok(blok_regels))
+        # DEF-751 stap 2: een gebruikersverduidelijking komt als laatste
+        # DATA-regel binnen het blok, met voorrang op het budget.
+        sections.append(_veilig_datablok(blok_regels, context))
 
         # DEF-188: Add implicit context mechanisms
         sections.append("")
@@ -357,12 +427,11 @@ Refereer context-specifieke verbanden.
             blok_regels.extend(
                 self._format_abbreviations_simple(enriched_context.expanded_terms)
             )
-        # DEF-751 stap 2: gebruikersverduidelijking als laatste DATA-regels.
-        blok_regels.extend(_verduidelijkingsregels(context))
-
-        if blok_regels:
+        # DEF-751 stap 2: een gebruikersverduidelijking komt als laatste
+        # DATA-regel binnen het blok, met voorrang op het budget.
+        if blok_regels or _verduidelijking_uit(context):
             sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
-            sections.append(_veilig_datablok(blok_regels))
+            sections.append(_veilig_datablok(blok_regels, context))
         else:
             sections.append("Geen specifieke context beschikbaar.")
 
@@ -390,10 +459,10 @@ Refereer context-specifieke verbanden.
         mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
         if context_text:
-            # DEF-751 stap 2: gebruikersverduidelijking als laatste DATA-regels.
-            blok_regels = [context_text, *_verduidelijkingsregels(context)]
+            # DEF-751 stap 2: een gebruikersverduidelijking komt als laatste
+            # DATA-regel binnen het blok, met voorrang op het budget.
             base = (
-                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok(blok_regels)}\n"
+                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text], context)}\n"
                 "⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande "
                 "organisatorische, juridische en wettelijke context. "
                 + self.CONTEXTNAAM_NORM

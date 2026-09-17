@@ -216,10 +216,15 @@ def test_onverifieerbare_grond_is_een_reden_tot_ongeldigheid(
     if conflict is None:  # lege bron valt al structureel af
         assert bron == ""
         return
-    reden = verifieer_gronden(
+    uitkomst = verifieer_gronden(
         conflict, bron_nrs=bron_nrs, contextwaarden=contextwaarden
     )
-    assert reden is not None and "aangeleverd" in reden
+    assert uitkomst is not None
+    code, reden = uitkomst
+    assert code == "grond_niet_aangeleverd" and "aangeleverd" in reden
+    # Reviewcorrectie 3: de opgegeven (vrije) bronwaarde komt nooit in de reden.
+    if bron in ("handboek.txt", "context: OM"):
+        assert bron not in reden
 
 
 def test_bronnummers_uit_de_kwitantie_en_contextwaarden_uit_het_request():

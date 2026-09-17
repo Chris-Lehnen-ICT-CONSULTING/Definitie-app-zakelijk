@@ -23,14 +23,17 @@ from domain.categorie_herkomst import HERKOMST_HANDMATIG, HERKOMST_MODEL
 from domain.ontological_categories import OntologischeCategorie
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from ui.helpers.betekenisconflict import (
+    HERSTELBARE_VERDUIDELIJKINGSFOUTEN,
+    KEY_AFWIJZING,
     KEY_OPEN,
+    KEY_VERZONDEN,
     invoer_vingerafdruk,
     open_conflict_uit,
     verzonden_verduidelijking_voor,
 )
 from ui.helpers.categorie_weergave import generatiecategorie_van
 from ui.session_state import SessionStateManager as _DefaultSM
-from utils.type_helpers import ensure_dict
+from utils.type_helpers import ensure_dict, ensure_string
 
 # Hybrid context imports - optionele module voor hybride context verrijking
 
@@ -374,6 +377,9 @@ class DefinitionGenerationHandler:
                     document_ids=selected_doc_ids,
                     rag_collection_ids=rag_collection_ids,
                 )
+                # Kopie van het verzonden antwoord: wordt teruggezet als de
+                # generatie het antwoord zelf weigert (reviewcorrectie 1).
+                verzonden_kopie = SessionStateManager.get_value(KEY_VERZONDEN)
                 verduidelijking, afwijsreden = verzonden_verduidelijking_voor(
                     SessionStateManager, vingerafdruk
                 )
@@ -437,6 +443,36 @@ class DefinitionGenerationHandler:
                 # DEF-451: serialiseer het getypeerde response naar de canonieke UI-dict
                 service_result = self.definition_service.to_ui_response(_response)
 
+                # DEF-751 stap 2 (reviewcorrectie 1): weigerde de generatie
+                # vóór het model om het verzonden antwoord of het prompt-
+                # budget, dan gaat dat antwoord niet verloren: het conflict
+                # blijft open, het antwoord blijft verzonden, de afwijzing
+                # staat bij het antwoordveld en het vorige resultaat (het
+                # conflict) blijft zichtbaar. De gebruiker past aan en verzendt
+                # opnieuw.
+                if (
+                    verduidelijking
+                    and isinstance(service_result, dict)
+                    and service_result.get("error_type")
+                    in HERSTELBARE_VERDUIDELIJKINGSFOUTEN
+                ):
+                    melding = ensure_string(
+                        service_result.get("error_message") or "Generatie geweigerd"
+                    )
+                    if isinstance(verzonden_kopie, dict):
+                        SessionStateManager.set_value(KEY_VERZONDEN, verzonden_kopie)
+                    SessionStateManager.set_value(KEY_AFWIJZING, melding)
+                    st.error(
+                        f"❌ Generatie niet uitgevoerd: {melding} Je antwoord "
+                        "staat nog in de 'Definitie Generatie' tab."
+                    )
+                    logger.warning(
+                        "Generatie geweigerd vóór het model (%s); verzonden "
+                        "verduidelijking behouden",
+                        service_result.get("error_type"),
+                    )
+                    return
+
                 # Converteer naar checker formaat voor UI compatibility
                 # DEF-439: aparte naam — deze post-generatie tak heeft geen check-result
                 check_result_ui = None
@@ -446,8 +482,10 @@ class DefinitionGenerationHandler:
                 # is geen definitie — niets opgeslagen, geen editrecord, geen
                 # keuze-event. Het open conflict (gebonden aan deze invoer)
                 # gaat de sessie in voor het antwoordveld in de tab; elke
-                # andere uitkomst sluit een eerder open conflict.
+                # andere uitkomst sluit een eerder open conflict en een
+                # eerdere afwijzing.
                 open_conflict = open_conflict_uit(service_result, vingerafdruk)
+                SessionStateManager.clear_value(KEY_AFWIJZING)
                 if open_conflict is not None:
                     SessionStateManager.set_value(KEY_OPEN, open_conflict)
                 else:

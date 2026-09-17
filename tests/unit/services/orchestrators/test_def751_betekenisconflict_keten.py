@@ -27,6 +27,7 @@ from services.interfaces import (
 )
 from services.modelantwoord import CONFLICT_SENTINEL
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from services.prompts.modules.context_awareness_module import verduidelijking_datalijn
 
 pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
 
@@ -76,24 +77,35 @@ class Keten:
             unified_voorbeelden, "genereer_alle_voorbeelden_async", self.voorbeelden
         )
         self.prompt = AsyncMock()
-        self.prompt.build_generation_prompt.return_value = PromptResult(
-            text="Offline prompt",
-            token_count=1,
-            components_used=(),
-            feedback_integrated=False,
-            optimization_applied=False,
-            metadata={
-                "source_receipt": {
-                    "status": "used" if bron_nrs else "none",
-                    "sources": [
-                        {"nr": nr, "source_type": "document"} for nr in bron_nrs
-                    ],
-                    "omitted": [],
-                    "errors": [],
-                    "channels": {},
-                }
-            },
-        )
+
+        async def _bouw(request, **kwargs) -> PromptResult:
+            # Zoals de echte promptservice: een verduidelijking staat als
+            # volledige datalijn in de prompt (postconditie, reviewcorrectie 1).
+            tekst = "Offline prompt"
+            if request.betekenisverduidelijking:
+                tekst += "\n" + verduidelijking_datalijn(
+                    request.betekenisverduidelijking
+                )
+            return PromptResult(
+                text=tekst,
+                token_count=1,
+                components_used=(),
+                feedback_integrated=False,
+                optimization_applied=False,
+                metadata={
+                    "source_receipt": {
+                        "status": "used" if bron_nrs else "none",
+                        "sources": [
+                            {"nr": nr, "source_type": "document"} for nr in bron_nrs
+                        ],
+                        "omitted": [],
+                        "errors": [],
+                        "channels": {},
+                    }
+                },
+            )
+
+        self.prompt.build_generation_prompt.side_effect = _bouw
         self.ai = AsyncMock()
         self.ai.generate_definition.return_value = AIGenerationResult(
             text=modeltekst, model="offline", tokens_used=7, generation_time=0.0

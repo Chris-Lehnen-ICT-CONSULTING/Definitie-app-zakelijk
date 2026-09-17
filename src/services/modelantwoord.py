@@ -19,7 +19,8 @@ Wat hier wél en niet gebeurt:
   bestaande pad, ook met een oude ``Ontologische categorie:``-regel.
 * Alles wat afwijkt — definitie én melding, tekst na de payload, dubbele
   melding, ontbrekende/lege/onbekende velden, twee gelijke lezingen — is
-  ``ongeldig``: veilig falen, nooit een kandidaat.
+  ``ongeldig``: veilig falen, nooit een kandidaat. De reden is altijd een
+  vaste foutcode met vaste omschrijving (`FOUTCODES`), nooit modeltekst.
 * `verifieer_gronden` toetst technisch (niet inhoudelijk) dat elke lezing
   naar een werkelijk aangeleverde bron (nummer uit de bronkwitantie) of een
   letterlijk opgegeven contextwaarde verwijst. Verzonnen bewijs of
@@ -39,6 +40,7 @@ from typing import Any
 
 __all__ = [
     "CONFLICT_SENTINEL",
+    "FOUTCODES",
     "SOORT_CONFLICT",
     "SOORT_DEFINITIE",
     "SOORT_ONGELDIG",
@@ -93,24 +95,60 @@ class Conflictmelding:
         }
 
 
+#: Vaste foutcodes → vaste technische omschrijvingen (reviewcorrectie 3).
+#: Een reden is altijd exact een van deze teksten: nooit een sleutelnaam,
+#: bronwaarde of ander fragment uit de modelpayload, zodat een afgewezen
+#: melding geen modelinhoud verspreidt via response, log of UI. Veldnamen
+#: die hieronder staan zijn ons eigen contractvocabulaire.
+FOUTCODES: dict[str, str] = {
+    "dubbele_melding": "dubbele conflictmelding in één antwoord",
+    "sentinel_niet_eerst": (
+        "conflictmelding staat niet op de eerste regel (vermengd met andere tekst)"
+    ),
+    "payload_ontbreekt": "conflictmelding zonder JSON-payload",
+    "payload_geen_json": "conflictpayload is geen geldige JSON",
+    "tekst_na_payload": "tekst na de conflictpayload (vermengd antwoord)",
+    "payload_geen_object": "conflictpayload is geen JSON-object",
+    "vraag_ontbreekt": "veld 'vraag' ontbreekt of is leeg",
+    "lezingen_ontbreken": "veld 'lezingen' ontbreekt",
+    "onbekende_sleutel": "conflictpayload bevat een onbekende sleutel",
+    "lezingen_geen_lijst": "veld 'lezingen' is geen lijst",
+    "te_weinig_lezingen": "minstens twee lezingen vereist",
+    "lezing_geen_object": "een lezing is geen JSON-object",
+    "lezing_onbekende_sleutel": "een lezing bevat een onbekende sleutel",
+    "lezing_veld_lezing_ontbreekt": "een lezing mist het veld 'lezing' of het is leeg",
+    "lezing_veld_bron_ontbreekt": "een lezing mist het veld 'bron' of het is leeg",
+    "lezing_veld_grond_ontbreekt": "een lezing mist het veld 'grond' of het is leeg",
+    "lezingen_gelijk": "lezingen moeten van elkaar verschillen",
+    "grond_niet_aangeleverd": (
+        "een lezing verwijst niet naar een aangeleverde bron (bron <nr> uit het "
+        "bronnenblok) of opgegeven contextwaarde (context: <waarde>)"
+    ),
+}
+
+
 @dataclass(frozen=True)
 class Modelantwoord:
     """Uitkomst van het lezen van het ruwe modelantwoord.
 
     `tekst` is altijd het ongewijzigde ruwe antwoord (identiteit), zodat het
     definitiepad byte-identiek blijft. `conflict` is alleen gevuld bij
-    `SOORT_CONFLICT`; `reden` alleen bij `SOORT_ONGELDIG` (technisch, zonder
-    modeltekst — geschikt voor logs en de UI).
+    `SOORT_CONFLICT`; `code` en `reden` alleen bij `SOORT_ONGELDIG` — een
+    vaste foutcode uit `FOUTCODES` met haar vaste omschrijving, zonder
+    modeltekst (geschikt voor logs, response en UI).
     """
 
     soort: str
     tekst: str
     conflict: Conflictmelding | None = None
+    code: str | None = None
     reden: str | None = None
 
 
-def _ongeldig(raw: str, reden: str) -> Modelantwoord:
-    return Modelantwoord(soort=SOORT_ONGELDIG, tekst=raw, reden=reden)
+def _ongeldig(raw: str, code: str) -> Modelantwoord:
+    return Modelantwoord(
+        soort=SOORT_ONGELDIG, tekst=raw, code=code, reden=FOUTCODES[code]
+    )
 
 
 def _payload_na_sentinel(raw: str) -> str:
@@ -130,22 +168,22 @@ def _niet_lege_tekst(waarde: Any) -> str | None:
     return tekst or None
 
 
-def _lees_lezing(index: int, item: Any) -> Lezing | str:
-    """Eén lezing lezen; geeft de `Lezing` of een technische reden terug."""
+def _lees_lezing(item: Any) -> Lezing | str:
+    """Eén lezing lezen; geeft de `Lezing` of een vaste foutcode terug.
+
+    Onbekende sleutels worden niet benoemd (dat zou modeltekst zijn); welk
+    verplicht veld ontbreekt wel — dat is ons eigen contractvocabulaire.
+    """
     if not isinstance(item, dict):
-        return f"lezing {index} is geen object"
+        return "lezing_geen_object"
     sleutels = set(item)
-    ontbrekend = _VERPLICHTE_LEZINGSSLEUTELS - sleutels
-    if ontbrekend:
-        return f"lezing {index} mist sleutel(s) {sorted(ontbrekend)}"
-    onbekend = sleutels - _VERPLICHTE_LEZINGSSLEUTELS
-    if onbekend:
-        return f"lezing {index} bevat onbekende sleutel(s) {sorted(onbekend)}"
+    if sleutels - _VERPLICHTE_LEZINGSSLEUTELS:
+        return "lezing_onbekende_sleutel"
     waarden: dict[str, str] = {}
     for sleutel in ("lezing", "bron", "grond"):
-        tekst = _niet_lege_tekst(item[sleutel])
+        tekst = _niet_lege_tekst(item.get(sleutel))
         if tekst is None:
-            return f"lezing {index}: veld '{sleutel}' ontbreekt of is leeg"
+            return f"lezing_veld_{sleutel}_ontbreekt"
         waarden[sleutel] = tekst
     return Lezing(**waarden)
 
@@ -162,56 +200,46 @@ def lees_modelantwoord(raw: str) -> Modelantwoord:
     if aantal == 0:
         return Modelantwoord(soort=SOORT_DEFINITIE, tekst=raw)
     if aantal > 1:
-        return _ongeldig(raw, "dubbele conflictmelding in één antwoord")
+        return _ongeldig(raw, "dubbele_melding")
 
     regels = [r for r in tekst.splitlines() if r.strip()]
     eerste = regels[0].strip().lstrip("-*• ").strip() if regels else ""
     if not eerste.lower().startswith(CONFLICT_SENTINEL.lower()):
-        return _ongeldig(
-            raw,
-            "conflictmelding staat niet op de eerste regel "
-            "(vermengd met andere tekst)",
-        )
+        return _ongeldig(raw, "sentinel_niet_eerst")
 
     payload = _payload_na_sentinel(tekst)
     if not payload:
-        return _ongeldig(raw, "conflictmelding zonder JSON-payload")
+        return _ongeldig(raw, "payload_ontbreekt")
     try:
         obj, einde = json.JSONDecoder().raw_decode(payload)
     except ValueError:
-        return _ongeldig(raw, "conflictpayload is geen geldige JSON")
+        return _ongeldig(raw, "payload_geen_json")
     if payload[einde:].strip():
-        return _ongeldig(raw, "tekst na de conflictpayload (vermengd antwoord)")
+        return _ongeldig(raw, "tekst_na_payload")
     if not isinstance(obj, dict):
-        return _ongeldig(raw, "conflictpayload is geen JSON-object")
+        return _ongeldig(raw, "payload_geen_object")
 
     sleutels = set(obj)
-    ontbrekend = _VERPLICHTE_MELDINGSSLEUTELS - sleutels
-    if ontbrekend:
-        return _ongeldig(raw, f"conflictpayload mist sleutel(s) {sorted(ontbrekend)}")
-    onbekend = sleutels - _VERPLICHTE_MELDINGSSLEUTELS
-    if onbekend:
-        return _ongeldig(
-            raw, f"conflictpayload bevat onbekende sleutel(s) {sorted(onbekend)}"
-        )
-    vraag = _niet_lege_tekst(obj["vraag"])
+    if sleutels - _VERPLICHTE_MELDINGSSLEUTELS:
+        return _ongeldig(raw, "onbekende_sleutel")
+    vraag = _niet_lege_tekst(obj.get("vraag"))
     if vraag is None:
-        return _ongeldig(raw, "veld 'vraag' ontbreekt of is leeg")
+        return _ongeldig(raw, "vraag_ontbreekt")
+    if "lezingen" not in obj:
+        return _ongeldig(raw, "lezingen_ontbreken")
     ruwe_lezingen = obj["lezingen"]
     if not isinstance(ruwe_lezingen, list):
-        return _ongeldig(raw, "veld 'lezingen' is geen lijst")
+        return _ongeldig(raw, "lezingen_geen_lijst")
     if len(ruwe_lezingen) < _MIN_LEZINGEN:
-        return _ongeldig(
-            raw, f"minstens twee lezingen vereist, {len(ruwe_lezingen)} gegeven"
-        )
+        return _ongeldig(raw, "te_weinig_lezingen")
     lezingen: list[Lezing] = []
-    for index, item in enumerate(ruwe_lezingen, start=1):
-        gelezen = _lees_lezing(index, item)
+    for item in ruwe_lezingen:
+        gelezen = _lees_lezing(item)
         if isinstance(gelezen, str):
             return _ongeldig(raw, gelezen)
         lezingen.append(gelezen)
     if len({lz.lezing.casefold() for lz in lezingen}) < len(lezingen):
-        return _ongeldig(raw, "lezingen moeten van elkaar verschillen")
+        return _ongeldig(raw, "lezingen_gelijk")
 
     return Modelantwoord(
         soort=SOORT_CONFLICT,
@@ -225,16 +253,17 @@ def verifieer_gronden(
     *,
     bron_nrs: Collection[int],
     contextwaarden: Collection[str],
-) -> str | None:
+) -> tuple[str, str] | None:
     """Technische toets: elke `bron` wijst een aangeleverde bron of contextwaarde aan.
 
     Geen semantische jury: alleen "bron <nr>" met een nummer uit de kwitantie
     of "context: <waarde>" met een letterlijk opgegeven contextwaarde
-    (kastongevoelig) is verifieerbaar. Geeft de reden terug, of None.
+    (kastongevoelig) is verifieerbaar. Geeft `(code, vaste omschrijving)`
+    terug — nooit de opgegeven bronwaarde zelf — of None.
     """
     nummers = {int(nr) for nr in bron_nrs}
     waarden = {w.strip().casefold() for w in contextwaarden if w and w.strip()}
-    for index, lezing in enumerate(conflict.lezingen, start=1):
+    for lezing in conflict.lezingen:
         verwijzing = lezing.bron.strip()
         nr = _BRON_NR.match(verwijzing)
         if nr and int(nr.group(1)) in nummers:
@@ -242,11 +271,7 @@ def verifieer_gronden(
         ctx = _CONTEXTWAARDE.match(verwijzing)
         if ctx and ctx.group(1).strip().casefold() in waarden:
             continue
-        return (
-            f"lezing {index} verwijst naar '{verwijzing}', maar dat is geen "
-            "aangeleverde bron (bron <nr> uit het bronnenblok) of opgegeven "
-            "contextwaarde (context: <waarde>)"
-        )
+        return "grond_niet_aangeleverd", FOUTCODES["grond_niet_aangeleverd"]
     return None
 
 
