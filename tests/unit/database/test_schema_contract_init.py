@@ -63,7 +63,7 @@ def _contractfout(pad: Path):
 
 
 class TestVerseDatabase:
-    def test_verse_init_levert_het_canonieke_versie_3_schema(self, tmp_path):
+    def test_verse_init_levert_het_canonieke_versie_4_schema(self, tmp_path):
         from database.schema_contract import (
             CANONICAL_VERSION,
             canonical_contract,
@@ -76,8 +76,8 @@ class TestVerseDatabase:
 
         conn = db.get_connection()
         assert contract_problems(read_contract(conn), canonical_contract()) == []
-        assert schema_versies(pad) == [1, 2, 3]
-        assert CANONICAL_VERSION == 3
+        assert schema_versies(pad) == [1, 2, 3, 4]
+        assert CANONICAL_VERSION == 4
         assert [tuple(r) for r in conn.execute("PRAGMA integrity_check")] == [("ok",)]
         assert conn.execute("PRAGMA foreign_key_check").fetchall() == []
 
@@ -111,7 +111,7 @@ class TestVerseDatabase:
         voor = _objecten(pad)
         _init(pad)
         assert _objecten(pad) == voor
-        assert schema_versies(pad) == [1, 2, 3]
+        assert schema_versies(pad) == [1, 2, 3, 4]
 
 
 class TestInitFaaltGesloten:
@@ -279,7 +279,11 @@ class TestInitFaaltGesloten:
 
 
 class TestVersieprofielen:
-    @pytest.mark.parametrize("versie", [None, 1, 2], ids=["pre-v5", "v1", "v2"])
+    # DEF-751 (v8): canoniek is versie 4; ook een v3-database (v7) is nu
+    # verouderd en moet expliciet via v8 worden bijgewerkt.
+    @pytest.mark.parametrize(
+        "versie", [None, 1, 2, 3], ids=["pre-v5", "v1", "v2", "v3"]
+    )
     def test_lagere_versie_wordt_geweigerd_als_startupschema(self, tmp_path, versie):
         pad = bouw_profiel(tmp_path / "oud.db", versie)
         voor = _objecten(pad)
@@ -287,19 +291,20 @@ class TestVersieprofielen:
         fout = _contractfout(pad)
 
         assert fout.reason == "schema_version_outdated"
-        assert "3" in " ".join(fout.details)
+        assert "4" in " ".join(fout.details)
+        assert "v8" in " ".join(fout.details)
         assert _objecten(pad) == voor, "startup mag een oude database niet migreren"
 
     def test_hogere_versie_wordt_geweigerd(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "toekomst.db", 3)
-        _sql(pad, "INSERT INTO schema_version (version, description) VALUES (4, 'x');")
+        pad = bouw_profiel(tmp_path / "toekomst.db", 4)
+        _sql(pad, "INSERT INTO schema_version (version, description) VALUES (5, 'x');")
 
         fout = _contractfout(pad)
 
         assert fout.reason == "schema_version_unsupported"
 
-    def test_versie_3_profiel_start(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+    def test_versie_4_profiel_start(self, tmp_path):
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _init(pad)
 
 
@@ -308,7 +313,9 @@ class TestDoelcontractPerVersie:
     met onafhankelijk opgebouwde profieldatabases (geen spiegel: de fixture
     heeft haar eigen DDL)."""
 
-    @pytest.mark.parametrize(("profiel", "versie"), [(None, 0), (1, 1), (2, 2), (3, 3)])
+    @pytest.mark.parametrize(
+        ("profiel", "versie"), [(None, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+    )
     def test_profiel_haalt_zijn_eigen_doelcontract(self, tmp_path, profiel, versie):
         from database.schema_contract import (
             SUPPORTED_VERSIONS,
@@ -352,7 +359,7 @@ class TestDoelcontractPerVersie:
         from database.schema_contract import SchemaContractError, target_contract
 
         with pytest.raises(SchemaContractError) as excinfo:
-            target_contract(4)
+            target_contract(5)
         assert excinfo.value.reason == "schema_version_unsupported"
 
 
@@ -360,7 +367,7 @@ class TestCanoniekeVolledigheid:
     """Naam-aanwezigheid alleen is niet genoeg: de definitie moet kloppen."""
 
     def test_ontbrekende_trigger_is_incompleet(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(pad, "DROP TRIGGER log_definitie_changes;")
 
         fout = _contractfout(pad)
@@ -369,7 +376,7 @@ class TestCanoniekeVolledigheid:
         assert any("log_definitie_changes" in d for d in fout.details)
 
     def test_ontbrekende_kolom_is_incompleet(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(pad, "ALTER TABLE definities DROP COLUMN toelichting_proces;")
 
         fout = _contractfout(pad)
@@ -378,7 +385,7 @@ class TestCanoniekeVolledigheid:
         assert any("toelichting_proces" in d for d in fout.details)
 
     def test_ontbrekende_index_is_incompleet(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(pad, "DROP INDEX idx_chunks_bron_type;")
 
         fout = _contractfout(pad)
@@ -387,7 +394,7 @@ class TestCanoniekeVolledigheid:
         assert any("idx_chunks_bron_type" in d for d in fout.details)
 
     def test_index_met_juiste_naam_maar_verkeerde_definitie_is_drift(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(
             pad,
             "DROP INDEX idx_definities_begrip_nocase_actief;"
@@ -400,7 +407,7 @@ class TestCanoniekeVolledigheid:
         assert any("idx_definities_begrip_nocase_actief" in d for d in fout.details)
 
     def test_trigger_met_juiste_naam_maar_verkeerde_body_is_drift(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(
             pad,
             "DROP TRIGGER log_definitie_changes;"
@@ -414,7 +421,7 @@ class TestCanoniekeVolledigheid:
         assert any("log_definitie_changes" in d for d in fout.details)
 
     def test_view_met_juiste_naam_maar_verkeerde_definitie_is_drift(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(
             pad,
             "DROP VIEW actieve_definities;"
@@ -427,7 +434,7 @@ class TestCanoniekeVolledigheid:
         assert any("actieve_definities" in d for d in fout.details)
 
     def test_ontbrekende_foreign_key_is_drift(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(
             pad,
             """
@@ -452,7 +459,7 @@ class TestCanoniekeVolledigheid:
         assert any("definitie_tags" in d and "definities" in d for d in fout.details)
 
     def test_kolom_met_verkeerde_affiniteit_is_drift(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(
             pad,
             """
@@ -1052,7 +1059,7 @@ class TestFunctioneleDefinitiesWordenBewaakt:
 
 class TestBestaandeExtraObjectenBlijvenToegestaan:
     def test_extra_gebruikersobjecten_en_kolommen_passeren(self, tmp_path):
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         _sql(
             pad,
             """

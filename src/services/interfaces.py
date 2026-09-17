@@ -132,11 +132,19 @@ class UIResponseDict(TypedDict):
     # NotRequired zodat ze niet verplicht zijn op elke variant (bv. failure-pad).
     saved_definition_id: NotRequired[int]  # Alleen na succesvolle opslag
     error_message: NotRequired[str]  # Alleen op het failure-pad
+    # DEF-751 stap 2: de `error_type` van de orchestrator op het failure-pad
+    # (bv. "betekenisconflict", "verduidelijking_te_lang", "prompt_te_lang"),
+    # zodat de UI een gerichte herstelactie kan bieden.
+    error_type: NotRequired[str]
     final_definitie: NotRequired[str]  # Legacy alias voor definitie_gecorrigeerd
     marker: NotRequired[str]  # Legacy kwaliteits-marker
     validation_score: NotRequired[float]  # Legacy alias voor final_score
     prompt_text: NotRequired[str]  # Debug: gebruikte prompt-tekst
     prompt_template: NotRequired[str]  # Debug: gebruikte prompt-template
+    # DEF-751 stap 2: alleen bij een door het model gemeld betekenisconflict
+    # (orchestrator `error_type == "betekenisconflict"`): vraag + lezingen met
+    # gronden. Geen definitie, geen oordeel; `success` is dan False.
+    betekenisconflict: NotRequired[dict[str, Any]]
 
 
 # GenerationResult compatibility class for tests (EPIC-010 FASE 1 shim)
@@ -231,6 +239,12 @@ class GenerationRequest:
     rag_collection_id: int | None = None
     # RAG multi-collection (DEF-366): zoek in meerdere collections tegelijk
     rag_collection_ids: list[int] | None = None
+    # DEF-751 stap 2: het expliciet verzonden antwoord van de gebruiker op een
+    # door het model gemeld betekenisconflict. Gebruikersbedoeling (keuze van
+    # de bedoelde betekenislaag), geen bronfeit en geen ESS-02-oordeel; reist
+    # als DATA in het contextblok van de prompt. Eigen typed veld, bewust niet
+    # via `options` of `extra_instructies`, zodat de actie herkenbaar blijft.
+    betekenisverduidelijking: str | None = None
 
 
 @dataclass

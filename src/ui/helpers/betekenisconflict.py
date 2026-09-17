@@ -1,0 +1,206 @@
+"""Sessiehulp voor een door het model gemeld betekenisconflict (DEF-751 stap 2).
+
+Drie sessiesleutels, allemaal via `SessionStateManager`:
+
+* `KEY_OPEN` — het open conflict van de laatste generatie: generation_id,
+  vraag, lezingen én de vingerafdruk van de invoer waarvoor het gold.
+* `KEY_INVOER` — het widget-veld (key-only `st.text_area`) waarin de gebruiker
+  antwoordt. Wordt door de code nooit gewist of gezet (Streamlit-veilig).
+* `KEY_VERZONDEN` — het expliciet verzonden antwoord, gebonden aan het
+  conflict (generation_id) én aan de invoer (vingerafdruk). Eenmalig: de
+  handler wist het bij de eerstvolgende generatie, toegepast of niet.
+
+De vingerafdruk dekt alles wat de generatie stuurt: begrip, de drie
+contextlijsten, de categorie-invoer (override of voorstel, of géén), de
+documentselectie (document-id's zijn inhoudshashes, dus ook de inhoud) en de
+RAG-collectieselectie (als collectienamen; geen selectie ≡ de standaard-
+collectie die de orchestrator zelf doorzoekt, zie
+`rag_selectie_voor_vingerafdruk`). Wijzigt één daarvan, dan hoort een eerder
+antwoord niet meer bij de actuele invoer en vervalt het met een melding. Geen
+nieuwe opslag: alles is sessiestaat.
+
+Een verduidelijking is gebruikersbedoeling — een keuze van de bedoelde
+betekenislaag — geen bewezen bronfeit en geen ESS-02-oordeel.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from collections.abc import Iterable
+from typing import Any
+
+__all__ = [
+    "HERSTELBARE_VERDUIDELIJKINGSFOUTEN",
+    "KEY_AFWIJZING",
+    "KEY_INVOER",
+    "KEY_OPEN",
+    "KEY_RAG_NAMEN",
+    "KEY_VERZONDEN",
+    "RAG_STANDAARDCOLLECTIE",
+    "invoer_vingerafdruk",
+    "open_conflict_uit",
+    "rag_selectie_voor_vingerafdruk",
+    "verzend_verduidelijking",
+    "verzonden_verduidelijking_voor",
+]
+
+KEY_OPEN = "betekenisconflict_open"
+KEY_INVOER = "betekenisverduidelijking_invoer"
+KEY_VERZONDEN = "betekenisverduidelijking_verzonden"
+#: Door de RAG-collectieselector gezet: {collectie-id: collectienaam} van de
+#: op dat moment getoonde collecties. De vingerafdruk bindt de RAG-selectie
+#: aan stabiele collectienamen (UNIQUE in `rag_collections`), niet aan de
+#: toevallige id's of aan "alles geselecteerd".
+KEY_RAG_NAMEN = "rag_collection_names"
+#: De collectie die de orchestrator zonder selectie zelf aanmaakt en doorzoekt
+#: (`DefinitionOrchestratorV2.create_definition`: `_ensure_collection(...)`).
+#: Browserbevinding 17-09-2026: de eerste generatie maakt haar aan, waarna de
+#: selector bij de volgende rerun verschijnt en haar als selectie wegschrijft
+#: (None → [id]). Dat is de enige bewezen automatische initialisatie: zonder
+#: selectie is de zoekscope precies deze collectie, dus geen wijziging.
+RAG_STANDAARDCOLLECTIE = "user_documents"
+#: De melding waarmee de generatie een verzonden antwoord weigerde
+#: (reviewcorrectie 1): het conflict blijft open, het antwoord blijft
+#: verzonden, de gebruiker past het aan en verzendt opnieuw.
+KEY_AFWIJZING = "betekenisverduidelijking_afwijzing"
+
+#: Orchestrator-`error_type`s waarbij een verzonden antwoord níét vervalt: de
+#: generatie is vóór het model geweigerd om het antwoord zelf of het
+#: promptbudget, en de gebruiker moet het antwoord kunnen aanpassen.
+HERSTELBARE_VERDUIDELIJKINGSFOUTEN = frozenset(
+    {"verduidelijking_te_lang", "verduidelijking_niet_in_prompt", "prompt_te_lang"}
+)
+
+
+def _lijst(waarden: Iterable[Any] | None) -> list[str]:
+    return sorted({str(w).strip() for w in (waarden or []) if str(w).strip()})
+
+
+def invoer_vingerafdruk(
+    *,
+    begrip: str,
+    organisatorische_context: Iterable[Any] | None,
+    juridische_context: Iterable[Any] | None,
+    wettelijke_basis: Iterable[Any] | None,
+    categorie: str | None,
+    document_ids: Iterable[Any] | None,
+    rag_collection_ids: Iterable[Any] | None,
+) -> str:
+    """Stabiele hash van de volledige generatie-invoer (volgorde-onafhankelijk)."""
+    canoniek = {
+        "begrip": " ".join(str(begrip).split()).casefold(),
+        "org": _lijst(organisatorische_context),
+        "jur": _lijst(juridische_context),
+        "wet": _lijst(wettelijke_basis),
+        "categorie": (str(categorie).strip().lower() or None) if categorie else None,
+        "documenten": _lijst(document_ids),
+        "rag": _lijst(rag_collection_ids) if rag_collection_ids else [],
+    }
+    return hashlib.sha256(
+        json.dumps(canoniek, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
+def rag_selectie_voor_vingerafdruk(sm: Any) -> list[str] | None:
+    """De effectieve RAG-zoekscope als stabiele collectienamen, voor de vingerafdruk.
+
+    Geen selectie (geen selector getoond, of niets geselecteerd) betekent dat
+    de generatie de standaardcollectie aanmaakt en doorzoekt; een selectie met
+    uitsluitend die collectie is dezelfde scope en levert daarom ook None.
+    Elke andere selectie telt concreet, per naam: een werkelijke uitbreiding
+    of deselectie wijzigt de scope, een nieuw beschikbare maar niet
+    geselecteerde collectie niet. Alleen de vingerafdruk leest dit; wat de
+    generatie werkelijk doorzoekt (`rag_selected_collection_ids`) verandert
+    hier niet.
+    """
+    ids = sm.get_value("rag_selected_collection_ids", None) or []
+    if not ids:
+        return None
+    namen = sm.get_value(KEY_RAG_NAMEN, None) or {}
+    scope = [str(namen.get(i) or namen.get(str(i)) or i) for i in ids]
+    if scope == [RAG_STANDAARDCOLLECTIE]:
+        return None
+    return scope
+
+
+def open_conflict_uit(agent_result: Any, vingerafdruk: str) -> dict[str, Any] | None:
+    """Het open conflict voor de sessie uit een UI-resultaat, of None."""
+    if not isinstance(agent_result, dict):
+        return None
+    conflict = agent_result.get("betekenisconflict")
+    if not isinstance(conflict, dict) or not conflict.get("vraag"):
+        return None
+    generation_id = conflict.get("generation_id") or (
+        agent_result.get("metadata") or {}
+    ).get("generation_id")
+    if not generation_id:
+        return None
+    return {
+        "generation_id": str(generation_id),
+        "vingerafdruk": vingerafdruk,
+        "vraag": str(conflict["vraag"]),
+        "lezingen": [dict(lz) for lz in conflict.get("lezingen") or []],
+        "begrip": str(conflict.get("begrip") or ""),
+    }
+
+
+def verzend_verduidelijking(
+    sm: Any, open_conflict: dict[str, Any] | None, tekst: Any
+) -> str | None:
+    """Leg een expliciet verzonden antwoord vast; geeft de afwijsreden of None.
+
+    Leeg is geen antwoord; zonder open conflict is er niets om aan te binden.
+    """
+    if not isinstance(open_conflict, dict) or not open_conflict.get("generation_id"):
+        return "Er is geen open betekenisconflict om te beantwoorden; genereer opnieuw."
+    antwoord = " ".join(str(tekst or "").split())
+    if not antwoord:
+        return "Een leeg antwoord is geen verduidelijking."
+    sm.set_value(
+        KEY_VERZONDEN,
+        {
+            "generation_id": str(open_conflict["generation_id"]),
+            "vingerafdruk": str(open_conflict.get("vingerafdruk") or ""),
+            "tekst": antwoord,
+        },
+    )
+    # Een nieuw verzonden antwoord vervangt een eerdere afwijzing.
+    sm.clear_value(KEY_AFWIJZING)
+    return None
+
+
+def verzonden_verduidelijking_voor(
+    sm: Any, vingerafdruk: str
+) -> tuple[str | None, str | None]:
+    """Het toe te passen antwoord voor déze generatie: (tekst, afwijsreden).
+
+    Wist het verzonden antwoord altijd (eenmalig). Toepassen alleen als het
+    bij het open conflict hoort (generation_id) én bij de actuele invoer
+    (vingerafdruk). (None, None) als er niets verzonden was.
+    """
+    verzonden = sm.get_value(KEY_VERZONDEN)
+    if not verzonden:
+        return None, None
+    sm.clear_value(KEY_VERZONDEN)
+    if not isinstance(verzonden, dict):
+        return None, "Verduidelijking niet toegepast: onbruikbare sessiestaat."
+    open_conflict = sm.get_value(KEY_OPEN)
+    open_id = (
+        open_conflict.get("generation_id") if isinstance(open_conflict, dict) else None
+    )
+    if not open_id or verzonden.get("generation_id") != open_id:
+        return None, (
+            "Verduidelijking niet toegepast: zij hoorde bij een eerder "
+            "betekenisconflict, niet bij het huidige."
+        )
+    if verzonden.get("vingerafdruk") != vingerafdruk:
+        return None, (
+            "Verduidelijking niet toegepast: begrip, context, categorie, "
+            "documentselectie of RAG-selectie is gewijzigd sinds de vraag. "
+            "Beantwoord de vraag opnieuw als het model haar opnieuw stelt."
+        )
+    tekst = " ".join(str(verzonden.get("tekst") or "").split())
+    if not tekst:
+        return None, "Verduidelijking niet toegepast: het antwoord was leeg."
+    return tekst, None

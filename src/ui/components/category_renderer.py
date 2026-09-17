@@ -462,28 +462,48 @@ class CategoryRenderer:
         begrip = ensure_string(safe_dict_get(generation_result, "begrip", ""))
         saved_record = generation_result.get("saved_record")
 
+        # DEF-751 B2: de generator-tab kent geen identiteit; de keuze wordt
+        # als handmatig maar ongeattribueerd vastgelegd (geen "web_user"). De
+        # versie van het getoonde record reist mee als optimistic lock.
         result = self.workflow_service.execute_category_change_workflow(
             definition_id=saved_record.id if saved_record else None,
             old_category=old_category,
             new_category=new_category,
             current_definition=current_definition,
             begrip=begrip,
-            user="web_user",
+            user=None,
             reason="Handmatige aanpassing via UI",
+            expected_version=(
+                getattr(saved_record, "version_number", None) if saved_record else None
+            ),
         )
 
-        if result.success:
-            CategoryStateManager.update_generation_result_category(
-                generation_result, new_category
-            )
-            SessionStateManager.set_value("manual_ontological_category", new_category)
-            logger.info(f"Handmatige categorie override gezet: {new_category}")
-
-        if result.success:
-            st.success(result.message)
-        else:
+        # Herreview 3: sessiestaat en succeslabel pas na bevestigde opslag —
+        # bij een conflict of zonder opgeslagen record blijft alles zoals het was.
+        if not result.success:
             st.error(result.message)
             return
+
+        CategoryStateManager.update_generation_result_category(
+            generation_result, new_category
+        )
+        # Het getoonde record is na Toepassen een versie verder: herlaad het
+        # zodat een volgende Toepassen niet op een verouderde versie werkt.
+        # Zonder opgeslagen record (definition_id=None) is er niets te herladen.
+        if saved_record is not None:
+            try:
+                from database.definitie_repository import get_definitie_repository
+
+                generation_result["saved_record"] = (
+                    get_definitie_repository().get_definitie(saved_record.id)
+                )
+            except Exception as e:  # pragma: no cover - defensieve grens
+                logger.warning(
+                    "Kon opgeslagen record niet herladen na Toepassen: %s", e
+                )
+        SessionStateManager.set_value("manual_ontological_category", new_category)
+        logger.info(f"Handmatige categorie override gezet: {new_category}")
+        st.success(result.message)
 
         if result.action == WorkflowAction.SHOW_REGENERATION_PREVIEW:
             # DEF-439: preview_data is bij deze action altijd gezet (zelfde

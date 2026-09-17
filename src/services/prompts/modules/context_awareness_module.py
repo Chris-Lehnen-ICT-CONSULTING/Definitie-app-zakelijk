@@ -17,7 +17,9 @@ from typing import Any
 from services.definition_generator_context import ContextSource, EnrichedContext
 from services.prompts.sanitization import (
     TAG_CONTEXT,
+    VeiligeTekst,
     datablok,
+    normaliseer_prompt_tekst,
     sanitize_prompt_blok,
 )
 
@@ -31,16 +33,137 @@ logger = logging.getLogger(__name__)
 _MAX_CONTEXT_BLOK_LEN = 20_000
 
 
-def _veilig_datablok(regels: list[str]) -> str:
+#: DEF-751 stap 2: het kopje waaronder het gebruikersantwoord op een gemeld
+#: betekenisconflict in het `context`-datablok staat. Eén constante, zodat de
+#: instructie in `DefinitionTaskModule` en de data hier naar hetzelfde wijzen.
+VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenislaag door de gebruiker"
+
+#: Antwoordbudget voor de verduidelijking, gemeten ná escaping
+#: (reviewcorrectie 1/2). Een antwoord dat hier niet in past wordt vóór de
+#: modelaanroep zichtbaar geweigerd (orchestrator) — nooit stil afgekapt.
+MAX_VERDUIDELIJKING_LEN = 4_000
+
+
+def _volledig_gesaniteerd(tekst: str) -> VeiligeTekst:
+    """`sanitize_prompt_blok` zonder afkap: `max_len` op de genormaliseerde lengte.
+
+    De sanitizer kapt af op de NFKC-genormaliseerde tekst; die kan langer zijn
+    dan de invoer (ligatuur `ﬁ` → `fi`, `ﷺ` → 18 tekens). Een `max_len` op de
+    lengte vóór normalisatie kapte daarom stil af (Unicode-correctie op
+    reviewbevinding 1). De whitespace-normalisatie van de sanitizer maakt de
+    tekst hoogstens korter, dus de genormaliseerde lengte + 1 is altijd ruim.
+    """
+    return sanitize_prompt_blok(tekst, len(normaliseer_prompt_tekst(tekst)) + 1)
+
+
+def verduidelijking_datalijn(waarde: str) -> str:
+    """De exacte DATA-regel (ná normalisatie/sanitisatie/escaping) in het contextblok.
+
+    Eén functie voor module én orchestrator: de orchestrator toetst vóór de
+    modelaanroep dat precies deze regel volledig in de gebouwde prompt staat
+    (postconditie "gebruikt = werkelijk aanwezig"). Nooit afgekapt — het
+    budget wordt apart getoetst (`verduidelijking_te_lang`).
+    """
+    tekst = " ".join(waarde.split())
+    return f"{VERDUIDELIJKING_KOP}: {_volledig_gesaniteerd(tekst)}"
+
+
+def verduidelijking_te_lang(waarde: str) -> bool:
+    """Of het antwoord ná escaping boven `MAX_VERDUIDELIJKING_LEN` uitkomt."""
+    lijn = verduidelijking_datalijn(waarde)
+    return len(lijn) - len(VERDUIDELIJKING_KOP) - 2 > MAX_VERDUIDELIJKING_LEN
+
+
+def _verduidelijking_uit(context: ModuleContext) -> str | None:
+    """De gebruikersverduidelijking uit de metadata, of None.
+
+    Bewust géén `ContextSource` — die zou als "ADDITIONELE BRON" onder CON-02
+    vallen en een gebruikersbedoeling tot bron maken. Zonder verduidelijking
+    blijft de prompt byte-identiek.
+    """
+    waarde = (context.enriched_context.metadata or {}).get("betekenisverduidelijking")
+    if not isinstance(waarde, str) or not waarde.strip():
+        return None
+    return waarde.strip()
+
+
+def _sanitize_binnen_budget(tekst: str, budget: int) -> VeiligeTekst:
+    """`sanitize_prompt_blok`, maar met het budget gemeten ná escaping.
+
+    De gedeelde sanitizer kapt vóór het escapen af (DEF-590: geen entity
+    middendoor). Escaping kan de tekst tot 5× laten groeien (`&` → `&amp;`),
+    dus hier wordt eerst een rauwe grens gezocht waarvan het geëscapete
+    resultaat binnen `budget` past; de sanitisatie is de laatste stap.
+    """
+    voorstuk = _rauwe_grens_binnen_budget(tekst, budget)
+    return _volledig_gesaniteerd(voorstuk)
+
+
+def _veilig_datablok(regels: list[str], context: ModuleContext | None = None) -> str:
     """Sanitiseer de regels en omhul ze in één `context`-datablok.
 
     Alle drie de contextsecties (rich/moderate/minimal) lopen hierlangs. Dat is
     de enige plek waar user-data de definitie-prompt in gaat, dus de enige plek
     die het hoeft te weten. `datablok()` faalt luid als hier ooit iets
     ongesaniteerds doorheen glipt.
+
+    Budget (reviewcorrectie 1/2): het blok blijft ≤ `_MAX_CONTEXT_BLOK_LEN`
+    gemeten ná escaping. Een gebruikersverduidelijking krijgt voorrang als
+    laatste DATA-regel — volledig, nooit afgekapt; de overige regels
+    (documentinhoud enz.) krijgen het restant.
     """
-    tekst = sanitize_prompt_blok("\n".join(regels), _MAX_CONTEXT_BLOK_LEN)
-    return datablok(TAG_CONTEXT, tekst)
+    rest_rauw = "\n".join(regels)
+    verduidelijking = _verduidelijking_uit(context) if context is not None else None
+    if verduidelijking is None:
+        return datablok(
+            TAG_CONTEXT, _sanitize_binnen_budget(rest_rauw, _MAX_CONTEXT_BLOK_LEN)
+        )
+
+    # Dezelfde whitespace-samenvoeging als `verduidelijking_datalijn`, zodat
+    # de staart van het blok letterlijk die controletekst is.
+    staart_rauw = f"{VERDUIDELIJKING_KOP}: {' '.join(verduidelijking.split())}"
+    lijn = verduidelijking_datalijn(verduidelijking)
+    if len(lijn) >= _MAX_CONTEXT_BLOK_LEN:
+        # Laatste vangnet; de orchestrator weigert dit al vóór de modelaanroep.
+        return datablok(
+            TAG_CONTEXT, _sanitize_binnen_budget(staart_rauw, _MAX_CONTEXT_BLOK_LEN)
+        )
+    # Grens voor de rest (in het genormaliseerde domein) zó dat rest (ná
+    # escaping) + newline + staart binnen het blokbudget blijft; daarna één
+    # sanitisatie van de samengestelde tekst als laatste stap (DEF-590-
+    # contract), zonder afkap (`_volledig_gesaniteerd`). Het resultaat wordt
+    # geverifieerd — budget én volledige staart — en anders met een kleinere
+    # rest opnieuw opgebouwd; met een lege rest is het resultaat de staart zelf.
+    rest_budget = _MAX_CONTEXT_BLOK_LEN - len(lijn) - 1
+    while True:
+        rest_deel = _rauwe_grens_binnen_budget(rest_rauw, rest_budget)
+        samengesteld = f"{rest_deel}\n{staart_rauw}" if rest_deel else staart_rauw
+        veilig = _volledig_gesaniteerd(samengesteld)
+        if len(veilig) <= _MAX_CONTEXT_BLOK_LEN and veilig.endswith(lijn):
+            return datablok(TAG_CONTEXT, veilig)
+        if not rest_deel:
+            # Kan alleen als de staart zelf niet past; hierboven al afgevangen.
+            return datablok(TAG_CONTEXT, veilig)
+        rest_budget = min(rest_budget - 1, len(rest_deel) // 2)
+
+
+def _rauwe_grens_binnen_budget(tekst: str, budget: int) -> str:
+    """Het (NFKC-genormaliseerde) voorstuk van `tekst` waarvan de gesaniteerde
+    vorm ≤ `budget` is.
+
+    Zoekt en snijdt op de genormaliseerde tekst. NFKC is idempotent, dus een
+    voorstuk daarvan expandeert niet meer bij de latere sanitisatie, en de
+    whitespace-normalisatie maakt het hoogstens korter. De gemeten lengte is
+    daarmee een bovengrens voor het werkelijke resultaat.
+    """
+    genormaliseerd = normaliseer_prompt_tekst(tekst)
+    grens = min(len(genormaliseerd), max(budget, 0))
+    while grens > 0 and len(sanitize_prompt_blok(genormaliseerd, grens)) > budget:
+        grens = min(
+            grens - 1,
+            int(grens * budget / len(sanitize_prompt_blok(genormaliseerd, grens))),
+        )
+    return genormaliseerd[: max(grens, 0)]
 
 
 class ContextAwarenessModule(BasePromptModule):
@@ -286,7 +409,9 @@ Refereer context-specifieke verbanden.
                 self._format_abbreviations_detailed(enriched_context.expanded_terms)
             )
 
-        sections.append(_veilig_datablok(blok_regels))
+        # DEF-751 stap 2: een gebruikersverduidelijking komt als laatste
+        # DATA-regel binnen het blok, met voorrang op het budget.
+        sections.append(_veilig_datablok(blok_regels, context))
 
         # DEF-188: Add implicit context mechanisms
         sections.append("")
@@ -333,10 +458,11 @@ Refereer context-specifieke verbanden.
             blok_regels.extend(
                 self._format_abbreviations_simple(enriched_context.expanded_terms)
             )
-
-        if blok_regels:
+        # DEF-751 stap 2: een gebruikersverduidelijking komt als laatste
+        # DATA-regel binnen het blok, met voorrang op het budget.
+        if blok_regels or _verduidelijking_uit(context):
             sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
-            sections.append(_veilig_datablok(blok_regels))
+            sections.append(_veilig_datablok(blok_regels, context))
         else:
             sections.append("Geen specifieke context beschikbaar.")
 
@@ -364,8 +490,10 @@ Refereer context-specifieke verbanden.
         mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
         if context_text:
+            # DEF-751 stap 2: een gebruikersverduidelijking komt als laatste
+            # DATA-regel binnen het blok, met voorrang op het budget.
             base = (
-                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text])}\n"
+                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text], context)}\n"
                 "⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande "
                 "organisatorische, juridische en wettelijke context. "
                 + self.CONTEXTNAAM_NORM

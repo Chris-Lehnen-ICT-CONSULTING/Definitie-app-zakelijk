@@ -162,7 +162,7 @@ Deze definitie heeft specifieke lengte-eisen:
 - Minimum: {min_chars} karakters
 - Maximum: {max_chars} karakters
 - Streef naar een balans tussen volledigheid en beknoptheid
-- Tel alleen de definitie zelf, niet de ontologische marker"""
+- Tel alleen de definitie zelf (de definitiekern); er is geen kopregel of categorielabel in de uitvoer"""
 
     def _build_format_guidelines(self) -> str:
         """Bouw extra format richtlijnen."""
