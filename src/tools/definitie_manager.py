@@ -71,7 +71,10 @@ class DefinitieManagerCLI:
         # Display results
         for i, definitie in enumerate(definities, 1):
             logger.info(f"\n{i}. {definitie.begrip} (ID: {definitie.id})")
-            logger.info(f"   Categorie: {definitie.categorie.upper()}")
+            # DEF-751 B2: categorie is optioneel (schemaversie 4).
+            logger.info(
+                f"   Categorie: {definitie.categorie.upper() if definitie.categorie else '—'}"
+            )
             logger.info(f"   Context: {definitie.organisatorische_context}")
             logger.info(f"   Status: {definitie.status}")
             logger.info(

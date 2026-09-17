@@ -489,14 +489,18 @@ class CategoryRenderer:
         )
         # Het getoonde record is na Toepassen een versie verder: herlaad het
         # zodat een volgende Toepassen niet op een verouderde versie werkt.
-        try:
-            from database.definitie_repository import get_definitie_repository
+        # Zonder opgeslagen record (definition_id=None) is er niets te herladen.
+        if saved_record is not None:
+            try:
+                from database.definitie_repository import get_definitie_repository
 
-            generation_result["saved_record"] = (
-                get_definitie_repository().get_definitie(saved_record.id)
-            )
-        except Exception as e:  # pragma: no cover - defensieve grens
-            logger.warning("Kon opgeslagen record niet herladen na Toepassen: %s", e)
+                generation_result["saved_record"] = (
+                    get_definitie_repository().get_definitie(saved_record.id)
+                )
+            except Exception as e:  # pragma: no cover - defensieve grens
+                logger.warning(
+                    "Kon opgeslagen record niet herladen na Toepassen: %s", e
+                )
         SessionStateManager.set_value("manual_ontological_category", new_category)
         logger.info(f"Handmatige categorie override gezet: {new_category}")
         st.success(result.message)

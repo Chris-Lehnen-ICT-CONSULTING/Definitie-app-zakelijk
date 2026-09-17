@@ -408,6 +408,22 @@ class PromptServiceV2:
             self._aug_cfg = {}
             self._rag_injection_cfg = {}
 
+    @staticmethod
+    def _neem_verduidelijking_op(
+        request: GenerationRequest, enriched_context: EnrichedContext
+    ) -> None:
+        """DEF-751 stap 2: zet een verzonden verduidelijking in de metadata.
+
+        Alleen uit het typed requestveld; `getattr` omdat oudere
+        request-doubles het veld niet dragen. De ContextAwarenessModule
+        rendert haar als DATA in het contextblok.
+        """
+        verduidelijking = getattr(request, "betekenisverduidelijking", None)
+        if isinstance(verduidelijking, str) and verduidelijking.strip():
+            enriched_context.metadata["betekenisverduidelijking"] = (
+                verduidelijking.strip()
+            )
+
     async def build_generation_prompt(
         self,
         request: GenerationRequest,
@@ -439,14 +455,8 @@ class PromptServiceV2:
                         enriched_context.metadata[key] = value
 
             # DEF-751 stap 2: het expliciet verzonden gebruikersantwoord op een
-            # gemeld betekenisconflict reist als DATA mee naar het contextblok
-            # (ContextAwarenessModule). Alleen uit het typed requestveld;
-            # `getattr` omdat oudere request-doubles het veld niet dragen.
-            verduidelijking = getattr(request, "betekenisverduidelijking", None)
-            if isinstance(verduidelijking, str) and verduidelijking.strip():
-                enriched_context.metadata["betekenisverduidelijking"] = (
-                    verduidelijking.strip()
-                )
+            # gemeld betekenisconflict reist als DATA mee naar het contextblok.
+            self._neem_verduidelijking_op(request, enriched_context)
 
             # US-179: Ensure ontological category is present in prompt metadata
             # so SemanticCategorisationModule and TemplateModule can apply

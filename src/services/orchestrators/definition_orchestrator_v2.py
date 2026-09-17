@@ -914,54 +914,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             if geweigerd is not None:
                 return geweigerd
 
-            # Lokale imports: de promptketen blijft lazy (DEF-66).
-            from services.prompts.modular_prompt_adapter import PromptTeLangError
-            from services.prompts.modules.context_awareness_module import (
-                verduidelijking_datalijn,
+            # Promptbouw met de weigeringen vóór het model (prompt_te_lang,
+            # verduidelijking_niet_in_prompt); zie `_bouw_prompt_of_weiger`.
+            prompt_result, geweigerd = await self._bouw_prompt_of_weiger(
+                sanitized_request, feedback_history, context, generation_id, start_time
             )
-
-            try:
-                prompt_result = await self.prompt_service.build_generation_prompt(
-                    sanitized_request,
-                    feedback_history=feedback_history,
-                    context=context,
-                )
-            except PromptTeLangError as e:
-                # Reviewcorrectie 2: boven de harde kap wordt niet afgekapt
-                # maar geweigerd, vóór de modelaanroep.
-                return await self._weiger_voor_model(
-                    generation_id,
-                    start_time,
-                    error_type="prompt_te_lang",
-                    melding=(
-                        "De samengestelde prompt is te lang "
-                        f"({e.lengte} tekens, maximum {e.maximum}); beperk de "
-                        "context, documentselectie of het antwoord en genereer "
-                        "opnieuw."
-                    ),
-                    extra={"lengte": e.lengte, "maximum": e.maximum},
-                )
+            if geweigerd is not None:
+                return geweigerd
             logger.info(
                 f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
                 f"ontological_category={sanitized_request.ontologische_categorie})"
             )
-
-            # Postconditie (reviewcorrectie 1): "gebruikt" betekent werkelijk
-            # en volledig in de prompt aanwezig; anders geen modelaanroep.
-            verduidelijking = sanitized_request.betekenisverduidelijking
-            if verduidelijking and (
-                verduidelijking_datalijn(verduidelijking) not in prompt_result.text
-            ):
-                return await self._weiger_voor_model(
-                    generation_id,
-                    start_time,
-                    error_type="verduidelijking_niet_in_prompt",
-                    melding=(
-                        "De verduidelijking kon niet volledig in de prompt worden "
-                        "opgenomen; er is niet gegenereerd. Kort het antwoord in "
-                        "of beperk de context en genereer opnieuw."
-                    ),
-                )
 
             # DEF-743: de kwitantie van de promptservice zegt welke bronnen
             # wérkelijk (en met welke exacte, gesanitiseerde/afgekapte inhoud)
@@ -1770,6 +1733,61 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             ),
             extra={"max_lengte": MAX_VERDUIDELIJKING_LEN},
         )
+
+    async def _bouw_prompt_of_weiger(
+        self,
+        request: GenerationRequest,
+        feedback_history: Any,
+        context: dict[str, Any] | None,
+        generation_id: str,
+        start_time: float,
+    ) -> tuple[Any, DefinitionResponseV2 | None]:
+        """Fase 3: bouw de prompt, of weiger vóór het model (DEF-751 stap 2).
+
+        Reviewcorrectie 2: boven de harde kap wordt niet afgekapt maar
+        geweigerd (`prompt_te_lang`). Reviewcorrectie 1 (postconditie):
+        "gebruikt" betekent werkelijk en volledig in de prompt aanwezig;
+        anders `verduidelijking_niet_in_prompt` en geen modelaanroep.
+        Geeft (prompt_result, None) of (None, weigering) terug.
+        """
+        # Lokale imports: de promptketen blijft lazy (DEF-66).
+        from services.prompts.modular_prompt_adapter import PromptTeLangError
+        from services.prompts.modules.context_awareness_module import (
+            verduidelijking_datalijn,
+        )
+
+        try:
+            prompt_result = await self.prompt_service.build_generation_prompt(
+                request, feedback_history=feedback_history, context=context
+            )
+        except PromptTeLangError as e:
+            return None, await self._weiger_voor_model(
+                generation_id,
+                start_time,
+                error_type="prompt_te_lang",
+                melding=(
+                    "De samengestelde prompt is te lang "
+                    f"({e.lengte} tekens, maximum {e.maximum}); beperk de "
+                    "context, documentselectie of het antwoord en genereer "
+                    "opnieuw."
+                ),
+                extra={"lengte": e.lengte, "maximum": e.maximum},
+            )
+        verduidelijking = request.betekenisverduidelijking
+        if verduidelijking and (
+            verduidelijking_datalijn(verduidelijking) not in prompt_result.text
+        ):
+            return None, await self._weiger_voor_model(
+                generation_id,
+                start_time,
+                error_type="verduidelijking_niet_in_prompt",
+                melding=(
+                    "De verduidelijking kon niet volledig in de prompt worden "
+                    "opgenomen; er is niet gegenereerd. Kort het antwoord in "
+                    "of beperk de context en genereer opnieuw."
+                ),
+            )
+        return prompt_result, None
 
     @staticmethod
     def _kwitantie_uit(prompt_result: Any) -> dict[str, Any] | None:
