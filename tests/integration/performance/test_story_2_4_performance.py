@@ -47,6 +47,8 @@ class TestStory24PerformanceBaseline:
         service.validate_definition = AsyncMock(
             return_value={
                 "version": "1.0.0",
+                # DEF-624: het dubbel staat voor een uitgevoerde run.
+                "validation_status": "validated",
                 "overall_score": 0.85,
                 "is_acceptable": True,
                 "violations": [],

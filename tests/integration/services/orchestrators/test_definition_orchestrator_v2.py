@@ -53,6 +53,9 @@ from services.interfaces import (
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 from services.validation.interfaces import (
     CONTRACT_VERSION,
+    UNKNOWN_REASON_CONTRACT_STATUS_MISSING,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
     ValidationContext,
     ValidationOrchestratorInterface,
     ValidationResult,
@@ -90,11 +93,15 @@ def validatieresultaat(
     """Bouw een schema-conform resultaat volgens het actieve TypedDict-contract.
 
     ``version`` en ``system.correlation_id`` staan er bewust in: met die twee
-    sleutels laat ``ensure_schema_compliance`` het object ongewijzigd door, dus
-    is het object in de response hetzelfde object dat de validatiedienst gaf.
+    sleutels laat ``ensure_schema_compliance`` de inhoud ongewijzigd door, dus
+    draagt de response hetzelfde resultaat dat de validatiedienst gaf.
+    DEF-624: het dubbel staat voor een uitgevoerde run en zegt dat expliciet
+    (``validation_status``); zonder die status is het geen runbewijs en maakt
+    de orchestrator het fail-closed ``validation_unknown``.
     """
     resultaat: ValidationResult = {
         "version": CONTRACT_VERSION,
+        "validation_status": VALIDATION_STATUS_VALIDATED,
         "overall_score": overall_score,
         "is_acceptable": is_acceptable,
         "violations": [dict(v) for v in violations],
@@ -399,6 +406,43 @@ class TestDefinitionOrchestratorV2:
         assert response.definition.valid is False
         assert response.definition.validation_violations == [STRUCTUURVIOLATIE]
         mock_services["enhancement_service"].enhance_definition.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_validatieresultaat_zonder_runstatus_is_geen_oordeel(
+        self, maak_orchestrator, mock_services, sample_request
+    ):
+        """DEF-624: een validatiedubbel zonder `validation_status` is geen run.
+
+        Ondanks ``is_acceptable=True`` en score 0.91 behandelt de orchestrator
+        het resultaat fail-closed: de definitie is niet valid, de monitoring
+        meldt geen succes en de feedbacklus krijgt het genormaliseerde,
+        expliciet onbekende resultaat (contract_status_missing) — niet het
+        groene oordeel uit het dubbel.
+        """
+        zonder_status = dict(validatieresultaat(is_acceptable=True, overall_score=0.91))
+        zonder_status.pop("validation_status")
+        mock_services["validation_service"].validate_definition.return_value = (
+            zonder_status
+        )
+        orchestrator = maak_orchestrator(OrchestratorConfig(enable_enhancement=False))
+
+        response = await orchestrator.create_definition(sample_request)
+
+        assert response.success is True
+        assert response.definition.valid is False
+        monitoring = mock_services["monitoring"].complete_generation.call_args.kwargs
+        assert monitoring["success"] is False
+        feedback = mock_services[
+            "feedback_engine"
+        ].process_validation_feedback.call_args.kwargs
+        genormaliseerd = feedback["validation_result"]
+        assert genormaliseerd["validation_status"] == VALIDATION_STATUS_UNKNOWN
+        assert (
+            genormaliseerd["unknown_reason"] == UNKNOWN_REASON_CONTRACT_STATUS_MISSING
+        )
+        assert genormaliseerd["is_acceptable"] is False
+        # Het dubbel zelf is niet gemuteerd: de normalisatie werkt op een kopie.
+        assert "validation_status" not in zonder_status
 
     @pytest.mark.asyncio
     async def test_security_service_integration(
