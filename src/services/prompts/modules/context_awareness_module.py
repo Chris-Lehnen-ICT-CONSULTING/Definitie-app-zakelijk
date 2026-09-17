@@ -151,7 +151,7 @@ def _rauwe_grens_binnen_budget(tekst: str, budget: int) -> str:
     """Het (NFKC-genormaliseerde) voorstuk van `tekst` waarvan de gesaniteerde
     vorm ≤ `budget` is.
 
-    Zoekt en snijdt in het genormaliseerde domein: NFKC is idempotent, dus een
+    Zoekt en snijdt op de genormaliseerde tekst. NFKC is idempotent, dus een
     voorstuk daarvan expandeert niet meer bij de latere sanitisatie, en de
     whitespace-normalisatie maakt het hoogstens korter. De gemeten lengte is
     daarmee een bovengrens voor het werkelijke resultaat.

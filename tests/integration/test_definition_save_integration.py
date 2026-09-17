@@ -69,8 +69,14 @@ class TestDefinitionSaveIntegration:
         assert retrieved.categorie is not None  # DEF-53: Verify constraint satisfied
         assert retrieved.categorie == "ENT"
 
-    def test_save_without_categorie_uses_fallback(self, repository):
-        """Test: DEF-53 fix - repository fallback provides default when both fields None."""
+    def test_save_without_categorie_stores_null_without_fallback(self, repository):
+        """DEF-751 B2 (schemaversie 4): zonder label geen fictief "proces".
+
+        De oude DEF-53-fallback naar "proces" is bewust vervallen: een
+        definitie zonder categorielabel wordt als NULL opgeslagen en bij
+        readback als None teruggegeven, met keuzestatus "absent" (geen
+        keuze-event). Hetzelfde contract als tests/unit/test_def751_labelvrij.py.
+        """
         # Arrange
         definition_without_categorie = Definition(
             begrip="test_no_category",
@@ -81,13 +87,14 @@ class TestDefinitionSaveIntegration:
             created_at=datetime.now(UTC),
         )
 
-        # Act - Should succeed with fallback to "proces"
+        # Act - opslag slaagt, zonder verzonnen label
         definition_id = repository.save(definition_without_categorie)
 
         # Assert
         assert definition_id is not None
         retrieved = repository.get(definition_id)
-        assert retrieved.categorie == "proces"  # Fallback value
+        assert retrieved.categorie is None
+        assert retrieved.metadata["category_choice_status"]["status"] == "absent"
 
     def test_save_with_ontologische_categorie_fallback(self, repository):
         """Test: DEF-53 fix - repository should fallback to ontologische_categorie."""

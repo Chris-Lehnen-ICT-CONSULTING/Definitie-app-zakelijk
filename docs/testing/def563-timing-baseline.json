@@ -8,7 +8,7 @@
         "verstreken < 60"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-750 (bestandshash verschoven door promptverwachtingsasserties in TestDefinitionOrchestratorV2Integration::test_ontological_category_end_to_end); deze timingvergelijking en functie zijn AST-gelijk aan basis bceb6ab80. Status en eigenaar ongewijzigd. Merge-integratie DEF-751 (17-09-2026): bestandshash opnieuw verschoven door samenvoeging met de DEF-624-fixturemigratie (48b6ad754); comparisons ongewijzigd."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/conftest.py::benchmark_timer::Timer::assert_under": {
       "source_sha256": "89a09026c53a4e5a7fbdcf09a19e82da48754a782ec7690fdd5bfe2651193325",
@@ -16,7 +16,7 @@
         "self.elapsed < seconds"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-750 (bestandshash verschoven door promptverwachtingsasserties in TestDefinitionOrchestratorV2Integration::test_ontological_category_end_to_end); deze timingvergelijking en functie zijn AST-gelijk aan basis bceb6ab80. Status en eigenaar ongewijzigd. Merge-integratie DEF-751 (17-09-2026): bestandshash opnieuw verschoven door samenvoeging met de DEF-624-fixturemigratie (48b6ad754); comparisons ongewijzigd."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/functionality/test_bulk_with_delay.py::test_bulk_generation_with_delay": {
       "source_sha256": "92ae86c3966940a9648f0480d870b472434d57e5f8a9af12fb7ae11835246ff0",
@@ -533,7 +533,7 @@
         "afronding.kwargs['duration'] >= 0.0"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-750 (bestandshash verschoven door promptverwachtingsasserties in TestDefinitionOrchestratorV2Integration::test_ontological_category_end_to_end); deze timingvergelijking en functie zijn AST-gelijk aan basis bceb6ab80. Status en eigenaar ongewijzigd. Merge-integratie DEF-751 (17-09-2026): bestandshash opnieuw verschoven door samenvoeging met de DEF-624-fixturemigratie (48b6ad754); comparisons ongewijzigd."
     },
     "tests/integration/services/orchestrators/test_definition_orchestrator_v2.py::TestDefinitionOrchestratorV2Integration::test_performance_benchmarks": {
       "source_sha256": "82747dee47a681a661811a0e89b92ccae7f210d7e94fb969021c7b7c496ecdf6",
@@ -541,7 +541,7 @@
         "duur < 5.0"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-750 (bestandshash verschoven door promptverwachtingsasserties in TestDefinitionOrchestratorV2Integration::test_ontological_category_end_to_end); deze timingvergelijking en functie zijn AST-gelijk aan basis bceb6ab80. Status en eigenaar ongewijzigd. Merge-integratie DEF-751 (17-09-2026): bestandshash opnieuw verschoven door samenvoeging met de DEF-624-fixturemigratie (48b6ad754); comparisons ongewijzigd."
     },
     "tests/integration/services/test_batch_validation.py::test_batch_validate_performance_benefit": {
       "source_sha256": "b24e0b19be157800f2b70ab4aba9fbfc0c975fdb755f655703834ef8fd62724f",
