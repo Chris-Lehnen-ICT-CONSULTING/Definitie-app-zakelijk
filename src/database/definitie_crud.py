@@ -2212,6 +2212,12 @@ class DefinitieCrudRepository:
             # Verse lezing ónder de lock: `current` van vóór de transactie kan
             # door een gelijktijdige vaststelling verouderd zijn.
             actueel = self.get_definitie(definitie_id) or current
+            # DEF-751 (einddelta P1): dezelfde weigering nogmaals op het vers
+            # gelezen record ónder de lock — beheerde keuzegegevens die een
+            # ander tussen de voorcontrole en deze transactie schreef, mogen
+            # evenmin door een niet-JSON-object worden gewist. Een ValueError
+            # hier rolt de (nog lege) transactie terug: niets geschreven.
+            self._weiger_wissende_registratie(actueel, velden)
             self._bewaak_vaststelinvariant(definitie_id, actueel, updates)
 
             # DEF-743: bronbewijs samenvoegen ónder de lock — gelijk bewijs is
