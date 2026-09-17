@@ -33,9 +33,11 @@ __all__ = [
     "KEY_AFWIJZING",
     "KEY_INVOER",
     "KEY_OPEN",
+    "KEY_RAG_STANDAARD",
     "KEY_VERZONDEN",
     "invoer_vingerafdruk",
     "open_conflict_uit",
+    "rag_selectie_voor_vingerafdruk",
     "verzend_verduidelijking",
     "verzonden_verduidelijking_voor",
 ]
@@ -43,6 +45,13 @@ __all__ = [
 KEY_OPEN = "betekenisconflict_open"
 KEY_INVOER = "betekenisverduidelijking_invoer"
 KEY_VERZONDEN = "betekenisverduidelijking_verzonden"
+#: Door de RAG-collectieselector gezet: True als de getoonde selectie zijn
+#: standaard is (alle collecties), False bij een eigen keuze van de gebruiker.
+#: Browserbevinding 17-09-2026: de eerste generatie maakt de collectie
+#: `user_documents` aan, waarna de selector bij de volgende rerun verschijnt
+#: en zijn standaard als selectie in de sessie schrijft (None → [id]). Dat is
+#: geen gebruikershandeling en mag een verzonden antwoord niet laten vervallen.
+KEY_RAG_STANDAARD = "rag_selection_is_default"
 #: De melding waarmee de generatie een verzonden antwoord weigerde
 #: (reviewcorrectie 1): het conflict blijft open, het antwoord blijft
 #: verzonden, de gebruiker past het aan en verzendt opnieuw.
@@ -83,6 +92,19 @@ def invoer_vingerafdruk(
     return hashlib.sha256(
         json.dumps(canoniek, ensure_ascii=False, sort_keys=True).encode("utf-8")
     ).hexdigest()
+
+
+def rag_selectie_voor_vingerafdruk(sm: Any) -> list[Any] | None:
+    """De RAG-selectie zoals de gebruiker haar bedoelde, voor de vingerafdruk.
+
+    None = standaard (geen selector getoond, of de selector op zijn standaard
+    "alle collecties"); een lijst = eigen keuze. Alleen de vingerafdruk leest
+    dit; wat de generatie werkelijk doorzoekt (`rag_selected_collection_ids`)
+    verandert hier niet.
+    """
+    if sm.get_value(KEY_RAG_STANDAARD, False):
+        return None
+    return sm.get_value("rag_selected_collection_ids", None)
 
 
 def open_conflict_uit(agent_result: Any, vingerafdruk: str) -> dict[str, Any] | None:

@@ -29,6 +29,7 @@ from ui.helpers.betekenisconflict import (
     KEY_VERZONDEN,
     invoer_vingerafdruk,
     open_conflict_uit,
+    rag_selectie_voor_vingerafdruk,
     verzonden_verduidelijking_voor,
 )
 from ui.helpers.categorie_weergave import generatiecategorie_van
@@ -367,7 +368,9 @@ class DefinitionGenerationHandler:
                 # wordt alleen toegepast als het bij het open conflict én bij
                 # precies deze invoer hoort; anders vervalt het met een
                 # melding. Toepassen is eenmalig; het reist via het typed
-                # veld, nooit via `options`.
+                # veld, nooit via `options`. De RAG-selectie telt als de
+                # gebruikerskeuze (standaard = None), niet als de lijst die de
+                # selector bij het verschijnen zelf wegschrijft.
                 vingerafdruk = invoer_vingerafdruk(
                     begrip=begrip,
                     organisatorische_context=org_context,
@@ -375,7 +378,9 @@ class DefinitionGenerationHandler:
                     wettelijke_basis=wet_context,
                     categorie=auto_categorie.value if auto_categorie else None,
                     document_ids=selected_doc_ids,
-                    rag_collection_ids=rag_collection_ids,
+                    rag_collection_ids=rag_selectie_voor_vingerafdruk(
+                        SessionStateManager
+                    ),
                 )
                 # Kopie van het verzonden antwoord: wordt teruggezet als de
                 # generatie het antwoord zelf weigert (reviewcorrectie 1).

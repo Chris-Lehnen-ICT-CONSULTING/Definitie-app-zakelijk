@@ -252,3 +252,84 @@ def test_bronwissel_na_verzenden_laat_antwoord_vervallen_en_meldt_dat(
     # met een nieuwe generation_id, en nog steeds niets opgeslagen.
     assert sm.data[KEY_OPEN]["generation_id"] != open_conflict["generation_id"]
     assert _aantal_records(db_path) == basis
+
+
+def _render_rag_selector(sm, collecties: list[dict], keuze: list[int]) -> None:
+    """De echte RAG-collectieselector van de tab (`_render_rag_collection_selector`)
+    met een gemockte `st`: de multiselect levert `keuze`; `collecties` is wat
+    `_load_rag_collections()` op dit moment ziet."""
+    import types
+
+    from ui import tabbed_interface
+
+    st = MagicMock()
+    st.expander.return_value.__enter__ = lambda *a: None
+    st.expander.return_value.__exit__ = lambda *a: None
+    st.multiselect.return_value = keuze
+    tab = types.SimpleNamespace(_load_rag_collections=lambda: collecties)
+    with (
+        patch.object(tabbed_interface, "st", st),
+        patch.object(tabbed_interface, "SessionStateManager", sm),
+    ):
+        tabbed_interface.TabbedInterface._render_rag_collection_selector(tab)
+
+
+def _collectie(cid: int) -> dict:
+    return {"id": cid, "type_icon": "📁", "name": f"c{cid}", "chunk_count": 0}
+
+
+def test_pure_rerun_na_antwoord_past_verduidelijking_toe_ook_als_rag_selector_verschijnt(
+    tmp_path, monkeypatch
+):
+    """Browserbevinding 17-09-2026 (echte UI, port 8512): pure rerun na het
+    antwoord gaf 'Verduidelijking niet toegepast: … RAG-selectie is
+    gewijzigd'. Oorzaak: de eerste generatie maakt via de orchestrator de
+    RAG-collectie `user_documents` aan; bij de volgende rerun verschijnt
+    daardoor de RAG-selector, die zijn standaard (alle collecties) als
+    selectie in de sessie schrijft (None → [1]). De gebruiker koos niets;
+    de standaard is geen wijziging van de RAG-selectie."""
+    db_path = str(tmp_path / "keten3.db")
+    handler, model = _keten(db_path, monkeypatch)
+    sm = FakeSM(determined_category="proces", category_reasoning="r")
+    basis = _aantal_records(db_path)
+
+    # 1. Eerste generatie: nog geen collecties, dus geen selector gerenderd.
+    _render_rag_selector(sm, [], [])
+    assert "rag_selected_collection_ids" not in sm.data
+    _genereer(handler, sm)
+    open_conflict = sm.data[KEY_OPEN]
+    assert verzend_verduidelijking(sm, open_conflict, VERDUIDELIJKING) is None
+
+    # 2. Rerun: de collectie bestaat nu; de selector rendert met zijn
+    #    standaard (alle collecties) — geen gebruikershandeling.
+    _render_rag_selector(sm, [_collectie(1)], [1])
+    assert sm.data["rag_selected_collection_ids"] == [1]
+
+    # 3. Opnieuw genereren met ongewijzigde invoer: het antwoord hoort erbij.
+    st = MagicMock()
+    _genereer(handler, sm, st)
+    assert len(model.prompts) == 2
+    assert VERDUIDELIJKING in model.prompts[1]
+    assert not st.info.called, str(st.info.call_args)
+    assert st.success.called
+    assert _aantal_records(db_path) == basis + 1
+
+
+def test_werkelijke_rag_deselectie_laat_antwoord_wel_vervallen(tmp_path, monkeypatch):
+    """Tegenproef: kiest de gebruiker wél een andere RAG-selectie dan de
+    standaard, dan hoort het antwoord niet meer bij de invoer."""
+    db_path = str(tmp_path / "keten4.db")
+    handler, model = _keten(db_path, monkeypatch)
+    sm = FakeSM(determined_category="proces", category_reasoning="r")
+    twee = [_collectie(1), _collectie(2)]
+    _render_rag_selector(sm, twee, [1, 2])  # standaard: alle
+    _genereer(handler, sm)
+    assert verzend_verduidelijking(sm, sm.data[KEY_OPEN], VERDUIDELIJKING) is None
+
+    _render_rag_selector(sm, twee, [1])  # gebruiker deselecteert collectie 2
+    st = MagicMock()
+    _genereer(handler, sm, st)
+    assert len(model.prompts) == 2
+    assert VERDUIDELIJKING not in model.prompts[1]
+    assert st.info.called and "RAG-selectie" in str(st.info.call_args)
+    assert KEY_VERZONDEN not in sm.data
