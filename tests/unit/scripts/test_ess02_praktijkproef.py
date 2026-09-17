@@ -85,6 +85,104 @@ async def test_budget_is_hard_en_stopt_buiten_de_retrylus():
     assert client.aanroepen[0].max_tokens == 500
 
 
+def _transport_met_herhaalbare_fouten(fouten: int, succes: dict) -> tuple[list, object]:
+    """MockTransport: eerst `fouten` × HTTP 500 (retrybaar), daarna succes."""
+    import httpx
+
+    pogingen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        pogingen.append(request.url.path)
+        if len(pogingen) <= fouten:
+            return httpx.Response(
+                500,
+                json={"type": "error", "error": {"type": "api_error", "message": "x"}},
+            )
+        return httpx.Response(200, json=succes)
+
+    return pogingen, httpx.MockTransport(handler)
+
+
+def _mock_sdk(monkeypatch, module, attribuut: str, transport) -> None:
+    """Laat de echte SDK-client op de mocktransport lopen; max_retries blijft
+    wat de app-client meegeeft, dus de retry-logica van de SDK is echt."""
+    import httpx
+
+    basis = getattr(module, attribuut)
+
+    class _MetTransport(basis):  # type: ignore[misc,valid-type]
+        def __init__(self, **kwargs):
+            kwargs["http_client"] = httpx.AsyncClient(transport=transport)
+            super().__init__(**kwargs)
+
+    monkeypatch.setattr(module, attribuut, _MetTransport)
+
+
+ANTHROPIC_OK = {
+    "id": "msg_1",
+    "type": "message",
+    "role": "assistant",
+    "model": "m",
+    "content": [{"type": "text", "text": "ok"}],
+    "stop_reason": "end_turn",
+    "stop_sequence": None,
+    "usage": {"input_tokens": 1, "output_tokens": 1},
+}
+OPENAI_OK = {
+    "id": "c1",
+    "object": "chat.completion",
+    "created": 0,
+    "model": "m",
+    "choices": [
+        {
+            "index": 0,
+            "finish_reason": "stop",
+            "message": {"role": "assistant", "content": "ok"},
+        }
+    ],
+    "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+}
+
+
+@pytest.mark.parametrize(
+    ("provider", "module_pad", "sdk_attr", "succes"),
+    [
+        ("anthropic", "services.ai.anthropic_client", "AsyncAnthropic", ANTHROPIC_OK),
+        ("openai", "services.ai.openai_client", "AsyncOpenAI", OPENAI_OK),
+    ],
+)
+async def test_budget_1_is_een_enkele_transportpoging_ook_bij_retrybare_fout(
+    monkeypatch, provider, module_pad, sdk_attr, succes
+):
+    """Codex-review P2: SDK-interne retries vielen buiten het budget
+    (budget 1 → 3 transportpogingen). De proefclient zet ze uit; één
+    geregistreerde aanroep is precies één poging op het netwerk."""
+    import importlib
+
+    module = importlib.import_module(module_pad)
+    pogingen, transport = _transport_met_herhaalbare_fouten(2, succes)
+    _mock_sdk(monkeypatch, module, sdk_attr, transport)
+    monkeypatch.delenv("AI_SDK_MAX_RETRIES", raising=False)
+
+    client = proef.maak_proefclient(provider, "dummy-key", budget=1)
+    bericht = [ChatMessage(role="user", content="p")]
+    try:
+        await client.chat_completion(bericht, model="m", max_tokens=5)
+        geslaagd = True
+    except AIClientError:
+        geslaagd = False
+    assert len(client.aanroepen) == 1
+    assert (
+        len(pogingen) == 1
+    ), f"budget=1 recorded_calls={len(client.aanroepen)} transport_attempts={len(pogingen)}"
+    # Zonder retry is de eerste 500 de uitkomst: geregistreerd als fout.
+    assert not geslaagd and client.aanroepen[0].fout
+    with pytest.raises(proef.LiveBudgetOverschredenError):
+        await client.chat_completion(bericht, model="m", max_tokens=5)
+    assert len(pogingen) == 1
+    await client.close()
+
+
 def test_afgekapt_is_onbekend_zonder_sdk_metadata():
     aanroep = proef.ModelAanroep(
         volgnummer=1,

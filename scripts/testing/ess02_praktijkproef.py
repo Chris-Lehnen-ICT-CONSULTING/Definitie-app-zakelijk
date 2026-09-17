@@ -411,6 +411,7 @@ class RegistrerendeClient:
         self._echt = echt
         self._budget = budget
         self.aanroepen: list[ModelAanroep] = []
+        self.sdk_max_retries: int | None = None
         self._koppel_sdk_registratie()
 
     @property
@@ -686,6 +687,34 @@ def _schakel_voorbeelden_uit() -> None:
     unified_voorbeelden.genereer_alle_voorbeelden_async = _geen  # type: ignore[assignment]
 
 
+def maak_proefclient(provider: str, api_key: str, budget: int) -> RegistrerendeClient:
+    """De echte app-client (via `create_ai_client`) achter de registrerende proxy,
+    met SDK-interne retries uit.
+
+    Codex-review P2 (17-09-2026): de proxy telt `chat_completion`-aanroepen,
+    maar de SDK deed daarbinnen standaard nog twee eigen retries (budget 1 →
+    drie transportpogingen). Voor deze opt-in proef gaat de bestaande
+    factory-knop `AI_SDK_MAX_RETRIES` (DEF-566, alleen dit proces) op 0 en
+    wordt dat fail-closed op de SDK-client geverifieerd; het productbeleid
+    (default 2) blijft ongewijzigd. Eén geregistreerde aanroep is zo precies
+    één poging op het netwerk.
+    """
+    from services.ai import create_ai_client
+
+    os.environ["AI_SDK_MAX_RETRIES"] = "0"
+    echt = create_ai_client(provider=provider, api_key=api_key)
+    sdk_max_retries = getattr(getattr(echt, "_client", None), "max_retries", None)
+    if sdk_max_retries != 0:
+        msg = (
+            f"SDK-retries niet uitgeschakeld voor provider {provider!r} "
+            f"(max_retries={sdk_max_retries!r}); proef niet gestart"
+        )
+        raise SystemExit(msg)
+    client = RegistrerendeClient(echt, budget)
+    client.sdk_max_retries = sdk_max_retries
+    return client
+
+
 def bouw_ai_service(live: bool, budget: int) -> tuple[Any, Any, dict[str, Any]]:
     """Echte, geconfigureerde ModelRouter/AIServiceV2 (cache uit) — één keer per
     run, zodat het budget over alle casussen geldt.
@@ -693,7 +722,6 @@ def bouw_ai_service(live: bool, budget: int) -> tuple[Any, Any, dict[str, Any]]:
     Geeft (ai_service, registrerende client of None, modelinfo) terug.
     """
     from config.config_manager import get_config_manager
-    from services.ai import create_ai_client
     from services.ai.model_router import ModelRouter
     from services.ai_service_v2 import AIServiceV2
     from toetsregels.rule_cache import get_rule_cache
@@ -727,10 +755,9 @@ def bouw_ai_service(live: bool, budget: int) -> tuple[Any, Any, dict[str, Any]]:
                 "runtime-loader; geef --dotenv of zet de omgevingsvariabele"
             )
             raise SystemExit(msg)
-        client = RegistrerendeClient(
-            create_ai_client(provider=config.api.ai_provider, api_key=key), budget
-        )
+        client = maak_proefclient(config.api.ai_provider, key, budget)
         del key
+        modelinfo["sdk_max_retries"] = client.sdk_max_retries
         ai_service: Any = AIServiceV2(
             use_cache=False, ai_client=client, model_router=router
         )
