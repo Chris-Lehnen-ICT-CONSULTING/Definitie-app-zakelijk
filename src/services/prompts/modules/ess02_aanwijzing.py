@@ -41,6 +41,12 @@ geen ESS-02-oordeel — ESS-02 blijft binnen de bestaande expertbeoordeling
 te beoordelen (DEF-624). Wat géén conflict is (overlap tussen richtingen,
 eigen onzekerheid, ontbrekend label) blijft de gewone voorlopige generatie
 van DEF-750.
+
+Praktijkproef 17-09-2026 (live, echte conflictbronnen): na de verduidelijking
+meldde het model dezelfde tegenspraak opnieuw. De aanwijzing zegt sindsdien
+expliciet dat de door de verduidelijking besliste tegenspraak niet opnieuw
+wordt gemeld; het volledige contract (verduidelijking is nooit een bron of
+contextwaarde van een lezing) staat in `DefinitionTaskModule`.
 """
 
 from __future__ import annotations
@@ -67,5 +73,5 @@ GEDEELDE_ESS02_AANWIJZING = (
     "modelvoorstel geldt niet als bevestiging. Een expliciete verduidelijking "
     "van de gebruiker in het contextblok is diens bedoeling (keuze van de "
     "betekenislaag), geen bronfeit: definieer die lezing zonder de bronnen te "
-    "herschrijven."
+    "herschrijven; de daarmee besliste tegenspraak wordt niet opnieuw gemeld."
 )

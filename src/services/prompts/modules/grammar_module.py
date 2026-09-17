@@ -199,14 +199,35 @@ class GrammarModule(BasePromptModule):
                 rules.append("")
 
         elif word_type == "deverbaal":
+            # DEF-751 praktijkproef: de woordvorm schrijft geen betekenislaag
+            # voor. "Focus op het resultaat" / "vermijd procesbeschrijvingen"
+            # botste met ESS-02 (bedoeling en context zijn leidend) en met een
+            # opgegeven categorie proces voor hetzelfde begrip.
             rules.append("🔸 **Deverbaal-specifieke regels**")
-            rules.append("- Focus op het resultaat of de staat")
-            rules.append("- Vermijd procesbeschrijvingen")
+            rules.append(
+                "- Een deverbaal (zoals registratie of controle) kan de activiteit, "
+                "haar uitkomst of één bepaald voorval aanduiden; de woordvorm "
+                "bepaalt dat niet"
+            )
+            rules.append(
+                "- Volg de bedoelde betekenislaag uit context, bronnen, categorie "
+                "en een eventuele verduidelijking (ESS-02); zet niet twee lagen "
+                "als alternatief in één kern"
+            )
 
             if self.include_examples:
-                rules.append("  ✅ registratie: vastgelegde gegevens...")
-                rules.append("  ✅ controle: uitgevoerde verificatie...")
-                rules.append("  ❌ registratie: het proces van registreren...")
+                rules.append(
+                    "  ✅ registratie (activiteit bedoeld): activiteit waarbij "
+                    "meetwaarden in een register worden vastgelegd"
+                )
+                rules.append(
+                    "  ✅ registratie (uitkomst bedoeld): resultaat van het "
+                    "vastleggen van meetwaarden in een register"
+                )
+                rules.append(
+                    "  ❌ registratie: activiteit of resultaat van het vastleggen "
+                    "van meetwaarden (lagen vermengd)"
+                )
                 rules.append("")
 
         return rules

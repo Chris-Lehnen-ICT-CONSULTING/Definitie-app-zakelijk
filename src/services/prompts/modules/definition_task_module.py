@@ -338,7 +338,12 @@ Formuleer nu de definitie van het begrip in dit datablok:
         DEF-750) en hoe een eerder gegeven gebruikersverduidelijking geldt:
         als diens keuze van de bedoelde betekenislaag — geen bronfeit, geen
         ESS-02-oordeel, geen herschrijving van bronnen; een nieuwe, andere
-        tegenspraak wordt opnieuw gemeld.
+        tegenspraak wordt opnieuw gemeld. Praktijkproef 17-09-2026 (live,
+        echte conflictbronnen): het model stelde na de verduidelijking dezelfde
+        vraag opnieuw en voerde de verduidelijking als `context: …`-bron op;
+        het contract sluit nu expliciet uit dat de besliste tegenspraak
+        opnieuw wordt gemeld of dat de verduidelijking als bron/contextwaarde
+        van een lezing geldt.
         """
         return (
             "🛑 **Betekenisconflict (ESS-02), enige uitzondering op de "
@@ -356,8 +361,11 @@ Formuleer nu de definitie van het begrip in dit datablok:
             f"'{VERDUIDELIJKING_KOP}' in het contextblok is de keuze van de "
             "bedoelde betekenislaag door de gebruiker: definieer die lezing, "
             "herschrijf de bronnen niet (een bedoeling, geen bronfeit en geen "
-            "ESS-02-oordeel); blijft een werkelijke, ándere tegenspraak over, "
-            "meld die opnieuw."
+            "ESS-02-oordeel). De tegenspraak die deze keuze beslist (bijv. "
+            "activiteit of uitkomst) is daarmee opgelost, ook al blijven de "
+            "bronnen het oneens: meld haar niet opnieuw en voer de "
+            "verduidelijking nooit op als bron of contextwaarde van een lezing; "
+            "blijft een werkelijke, ándere tegenspraak over, meld die opnieuw."
         )
 
     def _build_final_instruction(self, begrip: str) -> str:
