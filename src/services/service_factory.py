@@ -516,7 +516,17 @@ class ServiceAdapter:
         # hebben success/definition) — matcht het oude generate_definition-gedrag en
         # maskeert geen type-fouten (review-MEDIUM #283).
         if not response.success or not response.definition:
-            return self._create_failure_response(response)
+            failure = self._create_failure_response(response)
+            # DEF-751 stap 2: een door het model gemeld betekenisconflict is een
+            # specifieke non-success: geen definitie ("" i.p.v. de generieke
+            # placeholder), geen oordeel, de melding onder één additieve sleutel.
+            # Alleen uit de orchestrator-metadata, nooit uit vrije kwargs.
+            conflict = self._betekenisconflict_uit(response)
+            if conflict is not None:
+                failure["betekenisconflict"] = conflict
+                failure["definitie_origineel"] = ""
+                failure["definitie_gecorrigeerd"] = ""
+            return failure
 
         # Extract definition text
         definitie_text = ""
@@ -657,6 +667,12 @@ class ServiceAdapter:
                 safe_dict_get(kwargs, "document_context", "")
             ).strip()
 
+            # DEF-751 stap 2: het expliciet verzonden antwoord op een gemeld
+            # betekenisconflict — eigen typed veld, geen options-sleutel.
+            verduidelijking = ensure_string(
+                safe_dict_get(kwargs, "betekenisverduidelijking", "")
+            ).strip()
+
             request = GenerationRequest(
                 id=str(uuid.uuid4()),  # Generate unique ID for tracking
                 begrip=begrip,
@@ -682,6 +698,7 @@ class ServiceAdapter:
                 document_context=(doc_context or None),
                 # DEF-366: Multi-collection RAG support
                 rag_collection_ids=safe_dict_get(kwargs, "rag_collection_ids", None),
+                betekenisverduidelijking=(verduidelijking or None),
             )
 
             # Compose additional context (documents/web lookup augmentation, etc.)
@@ -705,6 +722,25 @@ class ServiceAdapter:
             return await self.orchestrator.create_definition(
                 request, context=extra_context or None
             )
+
+    @staticmethod
+    def _betekenisconflict_uit(response: Any) -> dict[str, Any] | None:
+        """De conflictmelding uit de orchestrator-metadata (DEF-751 stap 2), of None.
+
+        Vereist `error_type == "betekenisconflict"` én een dict met vraag en
+        lezingen; iets anders (of een gewone fout) levert None.
+        """
+        metadata = getattr(response, "metadata", None)
+        if not isinstance(metadata, dict):
+            return None
+        if metadata.get("error_type") != "betekenisconflict":
+            return None
+        conflict = metadata.get("betekenisconflict")
+        if not isinstance(conflict, dict):
+            return None
+        if not conflict.get("vraag") or not isinstance(conflict.get("lezingen"), list):
+            return None
+        return dict(conflict)
 
     def _create_failure_response(self, response: Any) -> "UIResponseDict":
         """Create a standardized failure response.

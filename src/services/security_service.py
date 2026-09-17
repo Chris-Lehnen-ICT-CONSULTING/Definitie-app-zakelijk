@@ -100,6 +100,11 @@ class SecurityService(SecurityServiceInterface):
             begrip=sanitized_begrip,
             context=self._sanitize_text(request.context),
             extra_instructies=self._sanitize_text(request.extra_instructies),
+            # DEF-751 stap 2: gebruikersantwoord op een betekenisconflict is
+            # vrije tekst en krijgt dezelfde behandeling.
+            betekenisverduidelijking=self._sanitize_text(
+                request.betekenisverduidelijking
+            ),
             document_context=self._sanitize_text(request.document_context),
             juridische_context=self._sanitize_list(request.juridische_context),
             wettelijke_basis=self._sanitize_list(request.wettelijke_basis),

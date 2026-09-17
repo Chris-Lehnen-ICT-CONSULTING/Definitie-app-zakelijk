@@ -32,9 +32,15 @@ class PromptComponentConfig:
     compact_mode: bool = False  # Voor kortere prompts (experimenteel)
 
     # Advanced configuratie
-    max_prompt_length: int = (
-        35000  # Hard limit voor prompt lengte (verhoogd van 20K naar 35K)
-    )
+    # Hard limit voor prompt lengte (20K → 35K; DEF-751 stap 2: → 60K). De
+    # afkap knipt de staart van de prompt weg — daar staan de eindinstructie
+    # ("in één enkele zin") en het conflictcontract. Gemeten op 17-09-2026:
+    # de rijke prompt (drie contexttypen, categorie type) zat vóór stap 2 al
+    # op ~34,8K zónder document- of RAG-inhoud in het contextblok; het
+    # bronnenblok wordt pas ná deze kap toegevoegd. 60K houdt de staart heel
+    # bij een vol contextblok (DEF-590: max 20K) en blijft ver onder elk
+    # modelvenster (~15K tokens).
+    max_prompt_length: int = 60000
     enable_component_metadata: bool = True
 
 

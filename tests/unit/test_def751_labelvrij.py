@@ -78,7 +78,11 @@ def test_handler_genereert_zonder_label_als_er_geen_keuze_en_geen_voorstel_is():
     handler = DefinitionGenerationHandler(
         checker=MagicMock(), definition_service=MagicMock(), repository=MagicMock()
     )
-    handler.definition_service.to_ui_response.return_value = {"success": False}
+    # Een geslaagd resultaat: de test borgt de *gate* (geen blokkade vóór de
+    # generatie). Sinds DEF-751 stap 2 meldt de handler een niet-geslaagde
+    # generatie eerlijk via st.error, dus een fake `success: False` zou hier
+    # ten onrechte als blokkade lezen.
+    handler.definition_service.to_ui_response.return_value = {"success": True}
     handler.checker.check_before_generation.return_value = MagicMock(action="PROCEED")
     sessie = {"generation_options": {"model": "x"}}
     sm = MagicMock()

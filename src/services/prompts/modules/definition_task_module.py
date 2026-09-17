@@ -11,6 +11,7 @@ Deze module is verantwoordelijk voor:
 import logging
 from typing import Any
 
+from services.modelantwoord import CONFLICT_SENTINEL
 from services.prompts.sanitization import (
     DATABLOK_AFSPRAAK,
     TAG_BEGRIP,
@@ -20,6 +21,7 @@ from services.prompts.sanitization import (
 )
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
+from .context_awareness_module import VERDUIDELIJKING_KOP
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +138,10 @@ class DefinitionTaskModule(BasePromptModule):
             # DEF-750: geen aparte markerregel in de uitvoer; de categorie is
             # metadata bij de opdracht, geen eerste uitvoerregel.
             sections.append(self._build_categorie_metadata_afspraak())
+
+            # DEF-751 stap 2: de enige uitzondering op de definitie-only-
+            # uitvoer — het strikt parseerbare conflictcontract.
+            sections.append(self._build_conflictcontract())
 
             # Finale definitie opdracht
             sections.append(self._build_final_instruction(begrip))
@@ -319,6 +325,40 @@ Formuleer nu de definitie van het begrip in dit datablok:
         return """---
 
 📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
+
+    def _build_conflictcontract(self) -> str:
+        """DEF-751 stap 2: het additieve modelconflictcontract (ESS-02, C3).
+
+        Sluit de open contractgrens uit DEF-750: bij werkelijke tegenspraak
+        tussen aangeleverde bronnen of contextwaarden over de betekenislaag
+        levert het model géén definitie maar één strikt parseerbare melding
+        (sentinel + JSON; zie `services.modelantwoord`). Het contract
+        benoemt expliciet wat géén conflict is (overlap tussen richtingen,
+        eigen onzekerheid, ontbrekend label → gewone voorlopige definitie,
+        DEF-750) en hoe een eerder gegeven gebruikersverduidelijking geldt:
+        als diens keuze van de bedoelde betekenislaag — geen bronfeit, geen
+        ESS-02-oordeel, geen herschrijving van bronnen; een nieuwe, andere
+        tegenspraak wordt opnieuw gemeld.
+        """
+        return (
+            "🛑 **Betekenisconflict (ESS-02), enige uitzondering op de "
+            "definitie-uitvoer:** alléén als aangeleverde bronnen of "
+            "contextwaarden elkaar werkelijk tegenspreken over de betekenislaag: "
+            f"géén definitie, maar één melding. Eerste regel `{CONFLICT_SENTINEL}` "
+            'plus één JSON-object {"vraag": "één gerichte vraag", "lezingen": '
+            '[{"lezing": "…", "bron": "bron NUMMER" of "context: CONTEXTWAARDE", '
+            '"grond": "wat die bron of contextwaarde zegt"}, …]}, minstens twee '
+            "lezingen. Alleen bronnummers uit het bronnenblok of letterlijke "
+            "contextwaarden; verzin geen bron of grond. Nooit een definitie én "
+            "deze melding samen. Overlap tussen richtingen (bijv. type/proces), "
+            "eigen onzekerheid of een ontbrekende categorie is géén conflict: dan "
+            "gewoon één voorlopige definitiezin. Een "
+            f"'{VERDUIDELIJKING_KOP}' in het contextblok is de keuze van de "
+            "bedoelde betekenislaag door de gebruiker: definieer die lezing, "
+            "herschrijf de bronnen niet (een bedoeling, geen bronfeit en geen "
+            "ESS-02-oordeel); blijft een werkelijke, ándere tegenspraak over, "
+            "meld die opnieuw."
+        )
 
     def _build_final_instruction(self, begrip: str) -> str:
         """Bouw finale definitie instructie."""

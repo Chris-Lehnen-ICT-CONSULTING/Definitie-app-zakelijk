@@ -22,6 +22,12 @@ from document_processing.document_processor import get_document_processor
 from domain.categorie_herkomst import HERKOMST_HANDMATIG, HERKOMST_MODEL
 from domain.ontological_categories import OntologischeCategorie
 from integration.definitie_checker import CheckAction, DefinitieChecker
+from ui.helpers.betekenisconflict import (
+    KEY_OPEN,
+    invoer_vingerafdruk,
+    open_conflict_uit,
+    verzonden_verduidelijking_voor,
+)
 from ui.helpers.categorie_weergave import generatiecategorie_van
 from ui.session_state import SessionStateManager as _DefaultSM
 from utils.type_helpers import ensure_dict
@@ -353,6 +359,28 @@ class DefinitionGenerationHandler:
                     "rag_selected_collection_ids", None
                 )
 
+                # DEF-751 stap 2: de vingerafdruk van de volledige invoer.
+                # Een eerder verzonden antwoord op een betekenisconflict
+                # wordt alleen toegepast als het bij het open conflict én bij
+                # precies deze invoer hoort; anders vervalt het met een
+                # melding. Toepassen is eenmalig; het reist via het typed
+                # veld, nooit via `options`.
+                vingerafdruk = invoer_vingerafdruk(
+                    begrip=begrip,
+                    organisatorische_context=org_context,
+                    juridische_context=jur_context,
+                    wettelijke_basis=wet_context,
+                    categorie=auto_categorie.value if auto_categorie else None,
+                    document_ids=selected_doc_ids,
+                    rag_collection_ids=rag_collection_ids,
+                )
+                verduidelijking, afwijsreden = verzonden_verduidelijking_voor(
+                    SessionStateManager, vingerafdruk
+                )
+                if afwijsreden:
+                    st.info(f"ℹ️ {afwijsreden}")
+                    logger.info("Betekenisverduidelijking vervallen: %s", afwijsreden)
+
                 _response = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
@@ -398,6 +426,11 @@ class DefinitionGenerationHandler:
                         document_context=doc_summary,
                         document_snippets=doc_snippets,
                         rag_collection_ids=rag_collection_ids,
+                        **(
+                            {"betekenisverduidelijking": verduidelijking}
+                            if verduidelijking
+                            else {}
+                        ),
                     ),
                     timeout=120,
                 )
@@ -408,6 +441,17 @@ class DefinitionGenerationHandler:
                 # DEF-439: aparte naam — deze post-generatie tak heeft geen check-result
                 check_result_ui = None
                 agent_result = service_result
+
+                # DEF-751 stap 2: een door het model gemeld betekenisconflict
+                # is geen definitie — niets opgeslagen, geen editrecord, geen
+                # keuze-event. Het open conflict (gebonden aan deze invoer)
+                # gaat de sessie in voor het antwoordveld in de tab; elke
+                # andere uitkomst sluit een eerder open conflict.
+                open_conflict = open_conflict_uit(service_result, vingerafdruk)
+                if open_conflict is not None:
+                    SessionStateManager.set_value(KEY_OPEN, open_conflict)
+                else:
+                    SessionStateManager.clear_value(KEY_OPEN)
 
                 # Voor auto-load in Bewerk-tab en voor Toepassen (herreview 3:
                 # het werkelijk opgeslagen record met id én versie).
@@ -567,8 +611,28 @@ class DefinitionGenerationHandler:
                         len(validation_details.get("passed_rules", [])),
                     )
 
-                # Toon document context info als gebruikt
-                if document_context and document_context.get("document_count", 0) > 0:
+                # DEF-751 stap 2: geen onvoorwaardelijk succes. Een gemeld
+                # betekenisconflict is een vraag aan de gebruiker; een andere
+                # non-success is een fout. Alleen een echt resultaat is succes.
+                geslaagd = isinstance(service_result, dict) and bool(
+                    service_result.get("success")
+                )
+                if open_conflict is not None:
+                    st.warning(
+                        "⚠️ Verduidelijking nodig: het model meldt een "
+                        "betekenisconflict en heeft geen definitie geleverd. "
+                        "Beantwoord de vraag in de 'Definitie Generatie' tab en "
+                        "genereer daarna opnieuw."
+                    )
+                elif not geslaagd:
+                    reden = (
+                        service_result.get("error_message")
+                        if isinstance(service_result, dict)
+                        else None
+                    ) or "onbekende fout"
+                    st.error(f"❌ Generatie mislukt: {reden}")
+                elif document_context and document_context.get("document_count", 0) > 0:
+                    # Toon document context info als gebruikt
                     st.success(
                         "✅ Definitie gegenereerd met context van "
                         f"{document_context['document_count']} document(en)! "

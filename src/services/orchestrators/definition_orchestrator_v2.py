@@ -1002,6 +1002,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             )
             logger.info(f"Generation {generation_id}: AI generation complete")
 
+            # DEF-751 stap 2: aftakking vóór voorbeelden, opschoning, validatie
+            # en opslag. Een door het model gemeld betekenisconflict (of een
+            # ongeldige melding) is geen kandidaat en krijgt geen oordeel.
+            afgetakt = await self._verwerk_modelantwoord(
+                generation_result,
+                sanitized_request,
+                source_receipt,
+                generation_id,
+                start_time,
+            )
+            if afgetakt is not None:
+                return afgetakt
+
             # =====================================
             # PHASE 5: Generate Voorbeelden (Examples)
             # =====================================
@@ -1338,6 +1351,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "tekst_na_generatie_aangepast": (
                         definitie_kern_geextraheerd != cleaned_text
                     ),
+                    # DEF-751 stap 2: het gebruikersantwoord op een eerder
+                    # gemeld betekenisconflict, herleidbaar op het record als
+                    # gebruikersbedoeling — geen bronfeit, geen oordeel.
+                    "betekenisverduidelijking": (
+                        sanitized_request.betekenisverduidelijking or None
+                    ),
                     # Doorgeven van force_duplicate voor downstream repository
                     "force_duplicate": (
                         bool(
@@ -1443,6 +1462,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
+                    # DEF-751 stap 2: of deze generatie een gebruikers-
+                    # verduidelijking droeg (zichtbaar in de UI; geen oordeel).
+                    "betekenisverduidelijking_gebruikt": bool(
+                        sanitized_request.betekenisverduidelijking
+                    ),
                     # Web lookup status for transparency
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
@@ -1508,6 +1532,120 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     # =====================================
     # PRIVATE HELPER METHODS
     # =====================================
+
+    async def _verwerk_modelantwoord(
+        self,
+        generation_result: Any,
+        request: GenerationRequest,
+        source_receipt: dict[str, Any] | None,
+        generation_id: str,
+        start_time: float,
+    ) -> DefinitionResponseV2 | None:
+        """DEF-751 stap 2: lees het ruwe modelantwoord vóór elke verdere fase.
+
+        Geeft None terug voor een gewoon definitieantwoord (het bestaande pad
+        loopt dan byte-identiek door). Bij een structureel geldige
+        conflictmelding waarvan elke grond naar een werkelijk aangeleverde
+        bron of contextwaarde verwijst: een specifieke non-success met de
+        melding in de metadata (`error_type="betekenisconflict"`), zonder
+        definitie, oordeel of categoriebevestiging. Bij een ongeldige of
+        vermengde melding, of een onverifieerbare grond: veilig falen
+        (`error_type="modelantwoord_ongeldig"`) zonder de ruwe modeltekst in
+        response of log. In beide gevallen wordt de monitoring afgerond en
+        wordt niets opgeslagen of gevalideerd.
+        """
+        from services.modelantwoord import (
+            SOORT_CONFLICT,
+            SOORT_DEFINITIE,
+            bron_nrs_uit_kwitantie,
+            contextwaarden_uit,
+            lees_modelantwoord,
+            verifieer_gronden,
+        )
+
+        raw = (
+            generation_result.text
+            if hasattr(generation_result, "text")
+            else str(generation_result)
+        )
+        antwoord = lees_modelantwoord(raw)
+        if antwoord.soort == SOORT_DEFINITIE:
+            return None
+
+        reden = antwoord.reden
+        conflict = antwoord.conflict
+        if antwoord.soort == SOORT_CONFLICT and conflict is not None:
+            reden = verifieer_gronden(
+                conflict,
+                bron_nrs=bron_nrs_uit_kwitantie(source_receipt),
+                contextwaarden=contextwaarden_uit(request),
+            )
+
+        basis_metadata: dict[str, Any] = {
+            "generation_id": generation_id,
+            "duration": time.time() - start_time,
+            "orchestrator_version": "v2.0",
+            "phases_completed": 4,
+        }
+        if conflict is None or reden is not None:
+            # Alleen de technische reden; nooit de modeltekst (geen kandidaat,
+            # geen persoonsdata in logs).
+            logger.warning(
+                "Generation %s: ongeldige conflictmelding van het model (%s)",
+                generation_id,
+                reden,
+            )
+            response = DefinitionResponseV2(
+                success=False,
+                error=(
+                    "Het model gaf geen bruikbare definitie en geen geldige "
+                    "conflictmelding; genereer opnieuw."
+                ),
+                metadata={
+                    **basis_metadata,
+                    "error_type": "modelantwoord_ongeldig",
+                    "reden": reden or "onbekend",
+                },
+            )
+        else:
+            logger.info(
+                "Generation %s: model meldt een betekenisconflict (%d lezingen); "
+                "geen definitie, geen opslag",
+                generation_id,
+                len(conflict.lezingen),
+            )
+            response = DefinitionResponseV2(
+                success=False,
+                error=conflict.vraag,
+                metadata={
+                    **basis_metadata,
+                    "error_type": "betekenisconflict",
+                    "betekenisconflict": {
+                        **conflict.to_dict(),
+                        "gemeld_door": "model",
+                        "begrip": request.begrip,
+                        "ontologische_categorie": request.ontologische_categorie,
+                        "organisatorische_context": list(
+                            request.organisatorische_context or []
+                        ),
+                        "juridische_context": list(request.juridische_context or []),
+                        "wettelijke_basis": list(request.wettelijke_basis or []),
+                        "generation_id": generation_id,
+                    },
+                },
+            )
+
+        if self.monitoring:
+            token_count = getattr(generation_result, "tokens_used", None)
+            await self.monitoring.complete_generation(
+                generation_id=generation_id,
+                success=False,
+                duration=time.time() - start_time,
+                token_count=int(token_count) if token_count is not None else None,
+                components_used=[],
+                had_feedback=False,
+            )
+        return response
 
     @staticmethod
     def _kwitantie_uit(prompt_result: Any) -> dict[str, Any] | None:

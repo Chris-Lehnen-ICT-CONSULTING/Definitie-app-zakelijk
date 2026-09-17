@@ -31,6 +31,27 @@ logger = logging.getLogger(__name__)
 _MAX_CONTEXT_BLOK_LEN = 20_000
 
 
+#: DEF-751 stap 2: het kopje waaronder het gebruikersantwoord op een gemeld
+#: betekenisconflict in het `context`-datablok staat. Eén constante, zodat de
+#: instructie in `DefinitionTaskModule` en de data hier naar hetzelfde wijzen.
+VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenislaag door de gebruiker"
+
+
+def _verduidelijkingsregels(context: ModuleContext) -> list[str]:
+    """De gebruikersverduidelijking als DATA-regels voor het contextblok, of [].
+
+    Zelfde behandeling als alle andere user-data: binnen het bestaande
+    `context`-datablok, gesaniteerd door `_veilig_datablok`. Bewust géén
+    `ContextSource` — die zou als "ADDITIONELE BRON" onder CON-02 vallen en
+    een gebruikersbedoeling tot bron maken. Zonder verduidelijking blijft de
+    prompt byte-identiek.
+    """
+    waarde = (context.enriched_context.metadata or {}).get("betekenisverduidelijking")
+    if not isinstance(waarde, str) or not waarde.strip():
+        return []
+    return ["", f"{VERDUIDELIJKING_KOP}: {waarde.strip()}"]
+
+
 def _veilig_datablok(regels: list[str]) -> str:
     """Sanitiseer de regels en omhul ze in één `context`-datablok.
 
@@ -286,6 +307,9 @@ Refereer context-specifieke verbanden.
                 self._format_abbreviations_detailed(enriched_context.expanded_terms)
             )
 
+        # DEF-751 stap 2: gebruikersverduidelijking als laatste DATA-regels.
+        blok_regels.extend(_verduidelijkingsregels(context))
+
         sections.append(_veilig_datablok(blok_regels))
 
         # DEF-188: Add implicit context mechanisms
@@ -333,6 +357,8 @@ Refereer context-specifieke verbanden.
             blok_regels.extend(
                 self._format_abbreviations_simple(enriched_context.expanded_terms)
             )
+        # DEF-751 stap 2: gebruikersverduidelijking als laatste DATA-regels.
+        blok_regels.extend(_verduidelijkingsregels(context))
 
         if blok_regels:
             sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
@@ -364,8 +390,10 @@ Refereer context-specifieke verbanden.
         mechanisms = f"\n\n{self.IMPLICIT_CONTEXT_MECHANISMS.strip()}"
 
         if context_text:
+            # DEF-751 stap 2: gebruikersverduidelijking als laatste DATA-regels.
+            blok_regels = [context_text, *_verduidelijkingsregels(context)]
             base = (
-                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok([context_text])}\n"
+                f"📍 VERPLICHTE CONTEXT:\n{_veilig_datablok(blok_regels)}\n"
                 "⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande "
                 "organisatorische, juridische en wettelijke context. "
                 + self.CONTEXTNAAM_NORM

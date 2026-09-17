@@ -22,13 +22,25 @@ contract botsen. Twee gevallen blijven onderscheiden:
   betekenislaag: besluit C3 — eerst verduidelijken; niet stil kiezen; een
   opgegeven categorie, standaardwaarde of modelvoorstel is geen bevestiging.
 
-Open contractgrens (DEF-750, A): het enkelvoudige uitvoercontract kent geen
-actieve verduidelijkings- of afbreekroute, en de generieke ESS-02-uitkomst
+Contractgrens (DEF-750, A — historie): het enkelvoudige uitvoercontract kende
+geen actieve verduidelijkings- of afbreekroute, en de generieke ESS-02-uitkomst
 `review_required` registreert géén specifiek ontbrekende keuze of
-bronconflict (het reviewitem is met en zonder conflictbronnen gelijk). Deze
-instructie is dus normatief, geen werkende verduidelijking; de route hoort
-bij de bron-/contexttegenspraak-als-verduidelijkingsvraag van DEF-751 (B)
-en het gedeelde resultaat-/beoordelingscontract van DEF-624.
+bronconflict (het reviewitem is met en zonder conflictbronnen gelijk). De
+instructie was dus normatief, geen werkende verduidelijking.
+
+Gesloten in DEF-751 stap 2: het additieve modelconflictcontract
+(`services.modelantwoord`, instructie in `DefinitionTaskModule`) geeft het
+model één strikt parseerbare uitzondering — bij werkelijke tegenspraak géén
+definitie maar een melding met gerichte vraag en minstens twee lezingen met
+aangeleverde grond. De orchestrator takt die melding af vóór voorbeelden,
+opschoning, validatie en opslag; de UI toont haar als melding van het model
+en vraagt een expliciete verduidelijking, die als DATA in het contextblok
+naar een nieuwe generatie reist. Die verduidelijking is de keuze van de
+bedoelde betekenislaag door de gebruiker: een bedoeling, geen bronfeit en
+geen ESS-02-oordeel — ESS-02 blijft binnen de bestaande expertbeoordeling
+te beoordelen (DEF-624). Wat géén conflict is (overlap tussen richtingen,
+eigen onzekerheid, ontbrekend label) blijft de gewone voorlopige generatie
+van DEF-750.
 """
 
 from __future__ import annotations
@@ -52,5 +64,8 @@ GEDEELDE_ESS02_AANWIJZING = (
     "Bij werkelijke tegenspraak tussen bronnen of context over de bedoelde "
     "betekenislaag: kies niet stil tussen de lezingen; de betekenis moet eerst "
     "worden verduidelijkt en een opgegeven categorie, standaardwaarde of "
-    "modelvoorstel geldt niet als bevestiging."
+    "modelvoorstel geldt niet als bevestiging. Een expliciete verduidelijking "
+    "van de gebruiker in het contextblok is diens bedoeling (keuze van de "
+    "betekenislaag), geen bronfeit: definieer die lezing zonder de bronnen te "
+    "herschrijven."
 )

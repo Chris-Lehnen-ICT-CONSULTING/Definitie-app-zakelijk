@@ -952,6 +952,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     "tekst_na_generatie_aangepast": metadata.get(
                         "tekst_na_generatie_aangepast"
                     ),
+                    # DEF-751 stap 2: het gebruikersantwoord op een gemeld
+                    # betekenisconflict, herleidbaar als bedoeling (geen
+                    # bronfeit, geen oordeel); alleen als het er was.
+                    "betekenisverduidelijking": metadata.get(
+                        "betekenisverduidelijking"
+                    ),
                 }
                 # Only store non-None values
                 prompt_data = {k: v for k, v in prompt_data.items() if v is not None}

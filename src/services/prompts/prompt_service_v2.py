@@ -438,6 +438,16 @@ class PromptServiceV2:
                     if key not in enriched_context.metadata:
                         enriched_context.metadata[key] = value
 
+            # DEF-751 stap 2: het expliciet verzonden gebruikersantwoord op een
+            # gemeld betekenisconflict reist als DATA mee naar het contextblok
+            # (ContextAwarenessModule). Alleen uit het typed requestveld;
+            # `getattr` omdat oudere request-doubles het veld niet dragen.
+            verduidelijking = getattr(request, "betekenisverduidelijking", None)
+            if isinstance(verduidelijking, str) and verduidelijking.strip():
+                enriched_context.metadata["betekenisverduidelijking"] = (
+                    verduidelijking.strip()
+                )
+
             # US-179: Ensure ontological category is present in prompt metadata
             # so SemanticCategorisationModule and TemplateModule can apply
             # category-specific guidance and templates.
