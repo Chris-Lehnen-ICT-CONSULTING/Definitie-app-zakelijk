@@ -1,0 +1,45 @@
+{
+  "datum": "2026-09-17T10:40:54.381962+00:00",
+  "commit": "d17ea9c30915452914e450be315620e314c03468",
+  "app_url": "http://127.0.0.1:8517",
+  "omgeving": "geïsoleerde git-archive in /tmp/DEF-743-praktijk-20260917-v1/app, eigen database; geen echte projectdatabase",
+  "uitvoerder": "Codex hoofdsessie via CUA/Playwright",
+  "casussen": [
+    "C02-P01",
+    "C02-P02"
+  ],
+  "volledige_casusuitvoering": false,
+  "menselijke_acceptatie": "pending",
+  "waarnemingen": [
+    {
+      "stap": "Awb-fixture uploaden en selecteren",
+      "waargenomen": "1 document(en) verwerkt!; awb-1-3-20260815.txt: 708 karakters geëxtraheerd",
+      "scope": "upload/extractie, geen modelontvangst bewezen"
+    },
+    {
+      "stap": "P01/P02 CSV-import zonder categorie",
+      "waargenomen": "0 geïmporteerd; 2 fouten: CHECK constraint failed: categorie IN (...)",
+      "classificatie": "testinvoer/preconditie mist technische categorie"
+    },
+    {
+      "stap": "CSV v2 met categorie OTH; skip duplicaten uit",
+      "waargenomen": "1 geïmporteerd; Rij 2: Definitie voor 'besluit' bestaat al in deze context",
+      "classificatie": "P01 geïmporteerd; P02 vereist aparte fixtureomgeving of opeenvolgende recordversie"
+    },
+    {
+      "stap": "P01 bewerken na import",
+      "waargenomen": "Er is een fout opgetreden in tab '✏️ Bewerk'; Error type: ValueError Error message: 'OTH' is not in list",
+      "classificatie": "concrete appfout, OTH toegestaan bij import/schema maar niet in editor; geen CON02-inhoudelijk oordeel"
+    },
+    {
+      "stap": "Tijdelijke draftrecords via Bulk Acties naar review; reviewlijst openen",
+      "waargenomen": "Kon review queue niet laden: can't compare offset-naive and offset-aware datetimes",
+      "classificatie": "concrete appfout bij standaard datumsortering"
+    },
+    {
+      "stap": "Review sorteren op Begrip A-Z en filter besluit",
+      "waargenomen": "1 definities wachten op review; besluit (OTH); Bronbasis: geen bronnen",
+      "classificatie": "reviewlijst bereikbaar; uploadselectie niet gelijk aan bronbinding aan CSV-record; P01-bronpreconditie nog niet vervuld"
+    }
+  ]
+}

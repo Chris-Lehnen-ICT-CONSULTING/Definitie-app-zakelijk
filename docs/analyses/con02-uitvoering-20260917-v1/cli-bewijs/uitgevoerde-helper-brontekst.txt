@@ -1,0 +1,126 @@
+"""CON-02-praktijkuitvoering DEF-743 (helper, geen productiecode). Leest plan.json, roept de bestaande
+appservices aan (DocumentProcessor, snippetselectie van de generatiehandler, ValidationOrchestratorV2.validate_text,
+domain.sources.contract.beoordeel_bronbasis) en schrijft per casus resultaten/<id>.json plus runmatrix.json."""
+import asyncio, hashlib, json, logging, os, sys
+from copy import deepcopy
+from pathlib import Path
+
+HIER = Path(__file__).resolve().parent
+APP = Path("/tmp/DEF-743-praktijk-20260917-v1/app")
+PAKKET = Path("/Users/chrislehnen/.codex/worktrees/8b34/Definitie-app/docs/analyses/con02-acceptatie-20260916-v1")
+WERK, UIT, MAX_CALLS = HIER / "werkdir", HIER / "resultaten", 6
+os.chdir(WERK)  # cwd-relatieve app-paden (cache/, data/uploaded_documents) landen hier, nooit in de app-map
+if not os.environ.get("ANTHROPIC_API_KEY"):  # uitsluitend deze sleutel uit de project-.env; wordt nergens gelogd
+    for regel in Path("/Users/chrislehnen/Projecten/Definitie-app/.env").read_text().splitlines():
+        if regel.startswith("ANTHROPIC_API_KEY="): os.environ["ANTHROPIC_API_KEY"] = regel.split("=", 1)[1].strip().strip('"').strip("'")
+sys.path.insert(0, str(APP / "src"))
+logging.basicConfig(filename=UIT / "run.log", level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+from document_processing.document_processor import get_document_processor
+from domain.sources.contract import beoordeel_bronbasis, bereken_bronvingerafdruk
+from domain.sources.normalisatie import canoniseer_bronnen
+from services.container import ServiceContainer
+from services.interfaces import AIServiceError
+from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
+from services.validation.config import ValidationConfig
+from services.validation.interfaces import ValidationContext
+from services.validation.modular_validation_service import ModularValidationService
+from toetsregels.cached_manager import get_cached_toetsregel_manager
+from ui.handlers.definition_generation_handler import DefinitionGenerationHandler
+
+REG, PLAN = json.load(open(PAKKET / "acceptatie-register.json")), json.load(open(HIER / "plan.json"))
+MAN = {f["id"]: f for f in json.load(open(PAKKET / "bronmanifest-sha256.json"))["fixtures"]}
+CASES, calls, assessments = {c["id"]: c for c in REG["cases"]}, [], {}
+
+
+def passage(fid, loc): return next(p["passage"] for p in MAN[fid]["passages"] if p["locator"] == loc)  # letterlijke manifestpassage
+
+
+def fixbytes(fid): return (PAKKET / MAN[fid]["pakketpad"]).read_bytes()  # byte-identieke fixture uit het pakket
+
+
+def hash_ok(h):  # hash-recept gth-20260914-v1 r.72: sha256(json.dumps({title,input,given,source_ids}, sort_keys, ensure_ascii=False))
+    sub = {k: h[k] for k in ("title", "input", "given", "source_ids")}
+    return hashlib.sha256(json.dumps(sub, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == h["scenario_input_sha256"]
+
+
+def upload(begrip, fids):  # echte aanvoerroute: DocumentProcessor → snippetselectie van de generatiehandler (zonder Streamlit-UI)
+    proc = get_document_processor()
+    docs = [proc.process_uploaded_file(fixbytes(f), Path(MAN[f]["pakketpad"]).name) for f in fids]
+    snippets = DefinitionGenerationHandler.__new__(DefinitionGenerationHandler)._build_document_snippets(begrip, [d.id for d in docs])
+    return snippets, [{"fixture": f, "doc_id": d.id, "filename": d.filename, "mime": d.mime_type, "status": d.processing_status,
+                       "text_length": d.text_length, "sha256_bytes": hashlib.sha256(fixbytes(f)).hexdigest()} for d, f in zip(docs, fids)]
+
+
+def rag(specs):  # bronobject exact in de vorm van DefinitionOrchestratorV2 fase 2.7 (RAG-chunk → provenance_source)
+    return [{"provider": "rag", "chunk_id": cid, "document_id": fid, "filename": Path(MAN[fid]["pakketpad"]).name, "wet_regeling": wet,
+             "artikel_lid": loc, "title": wet, "url": None, "snippet": passage(fid, loc), "score": score, "used_in_prompt": True,
+             "source_label": f"RAG: {wet}", "is_authoritative": False, "legal": {"citation_text": f"{wet} · {loc}"}}
+            for fid, loc, cid, score, wet in specs]
+
+
+def contract(specs, inp):  # vastgezet testrecord: manifestcoördinaten, casusinput (citation_display/source_hyperlink) gaat vóór
+    out = []
+    for s in specs:
+        m = MAN[s["fixture"]]
+        bron = {"provider": s.get("provider", "acceptatietest"), "title": s["title"], "source_version": s.get("source_version", m["source_version"]),
+                "url": inp["source_hyperlink"] if "source_hyperlink" in inp else s.get("url", m["origin"]),
+                "citation_label": inp.get("citation_display", s["locator"]), "snippet": passage(s["fixture"], s["locator"]), "used_in_prompt": True}
+        if s.get("provider") == "documents":
+            bron["doc_id"] = get_document_processor().process_uploaded_file(fixbytes(s["fixture"]), Path(m["pakketpad"]).name).id
+        if s.get("chunk_id"):
+            bron |= {"chunk_id": s["chunk_id"], "document_id": s["fixture"]}
+        out.append(bron)
+    return out
+
+
+async def valideer(vo, begrip, tekst, ctx):
+    r = await vo.validate_text(begrip, tekst, None, ValidationContext(metadata=ctx))
+    return {k: r.get(k) for k in ("validation_status", "overall_score", "is_acceptable", "evaluation_coverage", "review_required", "source_assessment")} | {
+        "rule_results_CON": {k: v for k, v in (r.get("rule_results") or {}).items() if "CON" in k},
+        "rule_statuses_CON": {k: v for k, v in (r.get("rule_statuses") or {}).items() if "CON" in k},
+        "violations_CON": [v for v in (r.get("violations") or []) if "CON" in str(v.get("rule_id") or v.get("code"))]}
+
+
+async def run_case(vo, grens, cid, p):
+    c = CASES[cid]; h = c["historisch_ongewijzigd"]; inp = h["input"]; begrip, tekst = inp["begrip"], inp["definitie"]
+    res = {"id": cid, "mode": p["mode"], "route": p["route"], "title": h["title"], "input_exact": inp, "scenario_input_sha256": h["scenario_input_sha256"],
+           "hash_gereproduceerd": hash_ok(h), "context_mapping": "juridische_context=[input.context]; organisatorische_context/wettelijke_basis leeg; peildatum niet opgegeven",
+           "toelichting": p.get("toelichting"), "niet_uitgevoerd": p.get("niet_uitgevoerd"), "blokkade": p.get("blokkade"), "bronnen_ruw": [], "documenten": []}
+    if "upload" in p: res["bronnen_ruw"], res["documenten"] = upload(begrip, p["upload"])
+    if "transport_upload" in p: res["transport_upload"] = dict(zip(("snippets", "documenten"), upload(begrip, p["transport_upload"])))
+    if "rag" in p: res["bronnen_ruw"], res["retrieval_recept"] = rag(p["rag"]), c["retrieval_recept"]
+    if "contract" in p: res["bronnen_ruw"] = contract(p["contract"], inp)
+    ctx = {"organisatorische_context": [], "juridische_context": [inp["context"]], "wettelijke_basis": [], "provenance_sources": deepcopy(res["bronnen_ruw"])}
+    if "review" in p: ctx["source_review"] = deepcopy(p["review"])
+    res["bronnen_canoniek"] = [b.als_dict() | {"passage": b.passage} for b in canoniseer_bronnen(res["bronnen_ruw"])]
+    res["fingerprint"] = bereken_bronvingerafdruk(begrip, tekst, ctx, res["bronnen_ruw"])
+    if p["mode"] in ("ai", "cached", "validate"):
+        n0 = len(calls); res["validatie"] = await valideer(vo, begrip, tekst, ctx); res["nieuwe_modelaanroepen"] = len(calls) - n0
+        sa = res["validatie"].get("source_assessment") or {}
+        if sa.get("status") == "assessed": assessments[cid] = sa
+    if "replay_from" in p:
+        u = beoordeel_bronbasis(begrip, tekst, ctx, res["bronnen_ruw"], assessment=assessments.get(p["replay_from"]), review=p.get("review"), max_passage_chars=grens)
+        res["replay"] = {"assessment_van": p["replay_from"], "uitkomst": u.als_dict()}
+    json.dump(res, open(UIT / f"{cid}.json", "w"), ensure_ascii=False, indent=1, default=str)
+    return res
+
+
+async def main():
+    container = ServiceContainer(config={"db_path": str(WERK / "data" / "con02-cli-eigen.db")})
+    # Wiring gespiegeld uit DefinitionOrchestratorV2.validation_service (zelfde klassen, zelfde argumenten). Niet via
+    # container.validation_orchestrator(): die bouwt eager de RAG-embeddingdienst (eist OPENAI_API_KEY, hier ongebruikt)
+    # en leest validation_rules.yaml cwd-relatief; beide zijn in het rapport als bevinding vastgelegd.
+    mvs = ModularValidationService(get_cached_toetsregel_manager(), None, ValidationConfig.from_yaml(str(APP / "src/config/validation_rules.yaml")), repository=container.repository())
+    vo = ValidationOrchestratorV2(validation_service=mvs, cleaning_service=container.cleaning_service(), source_assessment_service=container.source_assessment_service())
+    ai = container.ai_service(); orig = ai.generate_definition
+    async def bewaakt(*a, **k):  # budgetbewaking: onder het budget de echte aanroep, erboven een technische fout (nooit een pass)
+        if len(calls) >= MAX_CALLS: raise AIServiceError(f"modelbudget van {MAX_CALLS} bereikt; aanroep niet gedaan")
+        calls.append(k.get("task_type")); return await orig(*a, **k)
+    ai.generate_definition = bewaakt
+    grens = container.source_assessment_service().max_passage_chars
+    matrix = [await run_case(vo, grens, cid, PLAN["cases"][cid]) for cid in PLAN["volgorde"]]
+    json.dump({"commit": Path("/tmp/DEF-743-praktijk-20260917-v1/codecommit.txt").read_text().strip(), "modelaanroepen_totaal": len(calls), "cases": matrix},
+              open(UIT / "runmatrix-ruw.json", "w"), ensure_ascii=False, indent=1, default=str)
+    print(f"klaar: {len(matrix)} casussen, {len(calls)} modelaanroepen")
+
+asyncio.run(main())
