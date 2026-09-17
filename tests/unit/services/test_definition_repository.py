@@ -557,7 +557,9 @@ class TestDefinitionRepository:
         # Verify defaults
         assert record.begrip == "Test"
         assert record.definitie == "Test definitie"
-        assert record.categorie == "proces"  # Default
+        # DEF-751 B2 (schemaversie 4): geen label is NULL — de vroegere
+        # DEF-53-default "proces" is vervallen, niets wordt verzonnen.
+        assert record.categorie is None
         assert record.status == DefinitieStatus.DRAFT.value  # Default
         assert record.organisatorische_context == "[]"
 

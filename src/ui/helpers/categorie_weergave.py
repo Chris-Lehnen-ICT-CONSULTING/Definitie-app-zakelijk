@@ -87,6 +87,10 @@ _STATUSTEKST: dict[str, str] = {
         "Herkomst categorie: herkomst onbekend (bestaand record zonder keuze-event)."
     ),
     "invalid": "Herkomst categorie: keuze-event onleesbaar.",
+    "unconfirmed_claim": (
+        "Herkomst categorie: volgens de aanvraag opgegeven, maar geen keuzeactie "
+        "vastgelegd — niet bevestigd."
+    ),
     "manual_confirmed": "Herkomst categorie: handmatig gekozen",
     "manual_unattributed": (
         "Herkomst categorie: handmatige keuze volgens de aanvraag, door niemand "

@@ -6,9 +6,9 @@
   actor wordt genegeerd (nooit een gefabriceerde bevestiging), een herkomst
   die alleen in een eigen route mag ontstaan wordt geweigerd (niets
   opgeslagen). Generatiegebonden: `generation_id` + tekstvingerafdruk.
-* Bewezen default: valt `Definition.categorie` terug op de repositorydefault
-  "proces", dan staat dát als `default`-event geregistreerd — geen
-  verzonnen handmatige keuze.
+* Geen label (commit 2, schemaversie 4): `Definition.categorie=None` wordt
+  NULL zonder event (`absent`); de vroegere repositorydefault "proces" bestaat
+  niet meer. (`default` blijft als herkomst bestaan voor historische events.)
 * Bestaand record: een menselijke keuze loopt uitsluitend via het commando
   `save_met_categoriekeuze` → `record_category_choice`, met de versie van de
   getoonde kandidaat als optimistic lock; een gewone `update` draagt de
@@ -56,7 +56,9 @@ def _definition(**over) -> Definition:
     return Definition(**basis)
 
 
-def test_generatiekeuze_wordt_zonder_actor_en_generatiegebonden_opgeslagen(db_path):
+def test_generieke_manual_invoer_wordt_claim_geen_event(db_path):
+    """Herreview 2: `category_choice_input` met `manual` uit generieke
+    metadata is aanvraaginformatie — geen event, geen actor, geen tijd."""
     repo = DefinitionRepository(db_path)
     definition = _definition(
         metadata={
@@ -74,20 +76,36 @@ def test_generatiekeuze_wordt_zonder_actor_en_generatiegebonden_opgeslagen(db_pa
     did = repo.save(definition)
 
     record = DefinitieRepository(db_path).get_definitie(did)
-    keuze = record.get_category_choice()
-    assert keuze["origin"] == "manual" and keuze["value"] == "type"
-    assert keuze["actor"] is None and keuze["actor_source"] is None
-    assert keuze["recorded_at"] != "2000-01-01T00:00:00+00:00"
-    assert keuze["binding"] == "generation_candidate"
-    assert keuze["generation_id"] == "gen-42"
-    assert record.get_category_choice_status()["status"] == "manual_unattributed"
+    assert record.categorie == "type"
+    assert record.get_category_choice() is None
+    assert record.get_category_choice_status()["status"] == "unconfirmed_claim"
+    claim = record.get_generatieregistratie()["category_choice_claim"]
+    assert claim["origin"] == "manual" and "actor" not in claim
 
     # Readback in de servicelaag, via een nieuwe repository-instantie.
     opnieuw = DefinitionRepository(db_path).get(did)
-    assert opnieuw.metadata["category_choice"]["origin"] == "manual"
-    assert opnieuw.metadata["category_choice_status"]["status"] == "manual_unattributed"
-    assert opnieuw.metadata["category_choice_status"]["text_unchanged"] is True
+    assert opnieuw.metadata["category_choice"] is None
+    assert opnieuw.metadata["category_choice_status"]["status"] == "unconfirmed_claim"
     assert opnieuw.metadata["category_choice_history"] == []
+
+
+def test_modelvoorstel_is_generatiegebonden(db_path):
+    repo = DefinitionRepository(db_path)
+    did = repo.save(
+        _definition(
+            metadata={
+                "status": "draft",
+                "generation_id": "gen-42",
+                "category_choice_input": {"origin": "model"},
+            }
+        )
+    )
+    keuze = DefinitieRepository(db_path).get_definitie(did).get_category_choice()
+    assert keuze["origin"] == "model" and keuze["value"] == "type"
+    assert keuze["binding"] == "generation_candidate"
+    assert keuze["generation_id"] == "gen-42"
+    status = DefinitionRepository(db_path).get(did).metadata["category_choice_status"]
+    assert status["status"] == "model_suggestion" and status["text_unchanged"] is True
 
 
 def test_modelvoorstel_neemt_reasoning_en_scores_mee(db_path):
@@ -132,14 +150,15 @@ def test_niet_aanleverbare_herkomst_wordt_geweigerd_en_niets_opgeslagen(
     assert DefinitieRepository(db_path).search_definities(query="keurmerk") == []
 
 
-def test_repositorydefault_wordt_als_bewezen_default_geregistreerd(db_path):
+def test_zonder_label_geen_repositorydefault_meer(db_path):
+    """DEF-751 B2 (schemaversie 4): de vroegere DEF-53-default "proces" is
+    vervallen — geen label is NULL met status `absent`, geen event."""
     repo = DefinitionRepository(db_path)
     did = repo.save(_definition(categorie=None))
     record = DefinitieRepository(db_path).get_definitie(did)
-    assert record.categorie == "proces"
-    keuze = record.get_category_choice()
-    assert keuze["origin"] == "default" and keuze["value"] == "proces"
-    assert record.get_category_choice_status()["status"] == "default"
+    assert record.categorie is None
+    assert record.get_category_choice() is None
+    assert record.get_category_choice_status()["status"] == "absent"
 
 
 def test_zonder_invoer_geen_event_dus_unknown_origin(db_path):

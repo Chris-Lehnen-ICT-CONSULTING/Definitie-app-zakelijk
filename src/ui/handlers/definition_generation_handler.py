@@ -169,43 +169,48 @@ class DefinitionGenerationHandler:
                         f"Gebruik handmatige categorie override: {manual_category}"
                     )
                 else:
-                    # Gebruik pre-geclassificeerde categorie (REQUIRED)
+                    # Gebruik het pre-geclassificeerde voorstel, als dat er is
                     determined_category = SessionStateManager.get_value(
                         "determined_category"
                     )
 
                     if not determined_category:
-                        # GEEN FALLBACK: Pre-classificatie is VERPLICHT
-                        st.error(
-                            "❌ Ontologische categorie is niet bepaald. "
-                            "Scroll naar boven om de categorie te "
-                            "zien/aanpassen voordat je genereert."
+                        # DEF-751 B2 (schemaversie 4): geen keuze en geen
+                        # voorstel — bv. uitsluitend wettelijke basis als
+                        # context, waarop de classifier niet draait — is geen
+                        # blokkade en geen verzonnen PROCES: de generatie loopt
+                        # labelvrij door (categorie None); de bestaande CON-01-
+                        # contextguard hierboven blijft de inhoudelijke grens.
+                        # Een werkelijk betekenisconflict is stap 2 (ESS-02).
+                        auto_categorie = None
+                        category_reasoning = ""
+                        category_scores = {}
+                        logger.info(
+                            "Generatie zonder categorielabel voor %r: geen keuze "
+                            "en geen voorstel",
+                            begrip,
                         )
-                        logger.error(
-                            "Generatie geblokkeerd: geen pre-classificatie beschikbaar. "
-                            "Gebruiker moet categorie preview zien voordat generatie."
+                    else:
+                        # DEF-138: kastongevoelig; DEF-751: geen PROCES-fallback
+                        auto_categorie = generatiecategorie_van(determined_category)
+                        if auto_categorie is None:
+                            self._weiger_categorie(
+                                determined_category,
+                                "voorgestelde categorie",
+                                _st=st,
+                                _sm=SessionStateManager,
+                            )
+                            return
+                        category_reasoning = SessionStateManager.get_value(
+                            "category_reasoning", ""
                         )
-                        return
-
-                    # DEF-138: kastongevoelig; DEF-751: geen PROCES-fallback
-                    auto_categorie = generatiecategorie_van(determined_category)
-                    if auto_categorie is None:
-                        self._weiger_categorie(
+                        category_scores = SessionStateManager.get_value(
+                            "category_scores", {}
+                        )
+                        logger.info(
+                            "Gebruik pre-geclassificeerde categorie: %s",
                             determined_category,
-                            "voorgestelde categorie",
-                            _st=st,
-                            _sm=SessionStateManager,
                         )
-                        return
-                    category_reasoning = SessionStateManager.get_value(
-                        "category_reasoning", ""
-                    )
-                    category_scores = SessionStateManager.get_value(
-                        "category_scores", {}
-                    )
-                    logger.info(
-                        f"Gebruik pre-geclassificeerde categorie: {determined_category}"
-                    )
 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context(_st=st, _sm=_sm)
@@ -372,13 +377,22 @@ class DefinitionGenerationHandler:
                                     "force_duplicate_reason",
                                 )
                             },
-                            # DEF-751 B2: de herkomst van de keuze uit déze
-                            # UI-actie (handmatige override of modelvoorstel).
-                            # Geen actor: de generator-tab kent geen
-                            # identiteit; de service leest alleen herkomst,
-                            # reasoning en scores (`lees_keuze_invoer`).
-                            "category_choice": self._keuze_invoer(
-                                manual_category, category_reasoning, category_scores
+                            # DEF-751 B2: alleen het modelvoorstel reist als
+                            # herkomst mee in de aanvraag (`model` +
+                            # reasoning/scores). Een handmatige override is
+                            # een keuzeactie en wordt ná de opslag via het
+                            # expliciete commando vastgelegd
+                            # (`_leg_handmatige_keuze_vast`) — nooit als
+                            # generieke aanvraagclaim (herreview 2). Labelvrij
+                            # (geen keuze, geen voorstel): geen herkomst.
+                            **(
+                                {
+                                    "category_choice": self._keuze_invoer(
+                                        category_reasoning, category_scores
+                                    )
+                                }
+                                if auto_categorie is not None and not manual_category
+                                else {}
                             ),
                         },
                         document_context=doc_summary,
@@ -395,11 +409,17 @@ class DefinitionGenerationHandler:
                 check_result_ui = None
                 agent_result = service_result
 
-                # Voor auto-load in Bewerk-tab
+                # Voor auto-load in Bewerk-tab en voor Toepassen (herreview 3:
+                # het werkelijk opgeslagen record met id én versie).
                 saved_record = None
                 saved_definition_id = None
                 if isinstance(service_result, dict) and service_result.get("success"):
                     saved_definition_id = service_result.get("saved_definition_id")
+                    saved_record = self._leg_handmatige_keuze_vast(
+                        saved_definition_id,
+                        auto_categorie if manual_category else None,
+                        _st=st,
+                    )
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
@@ -464,7 +484,9 @@ class DefinitionGenerationHandler:
                         "agent_result": agent_result,
                         "saved_record": saved_record,
                         "saved_definition_id": saved_definition_id,
-                        "determined_category": auto_categorie.value,
+                        "determined_category": (
+                            auto_categorie.value if auto_categorie else None
+                        ),
                         "category_reasoning": category_reasoning,
                         "category_scores": category_scores,
                         "document_context": document_context,
@@ -595,23 +617,62 @@ class DefinitionGenerationHandler:
             _sm.set_value("generation_options", opties)
 
     @staticmethod
-    def _keuze_invoer(
-        manual_category: Any, reasoning: Any, scores: Any
-    ) -> dict[str, Any]:
-        """De onbevestigde keuze-invoer voor de service (DEF-751 B2).
-
-        Handmatige override → herkomst `manual`; anders het modelvoorstel
-        (`model`) met zijn reasoning/scores. Nooit een actor of status: dat
-        zou een bevestiging fabriceren die deze tab niet kan geven.
-        """
-        if manual_category:
-            return {"origin": HERKOMST_HANDMATIG}
+    def _keuze_invoer(reasoning: Any, scores: Any) -> dict[str, Any]:
+        """De herkomst van het modelvoorstel voor de service (DEF-751 B2):
+        `model` met reasoning/scores. Nooit een actor of status."""
         invoer: dict[str, Any] = {"origin": HERKOMST_MODEL}
         if isinstance(reasoning, str) and reasoning:
             invoer["reasoning"] = reasoning
         if isinstance(scores, dict) and scores:
             invoer["scores"] = dict(scores)
         return invoer
+
+    def _leg_handmatige_keuze_vast(
+        self, saved_definition_id: Any, override: Any, *, _st: Any
+    ) -> Any:
+        """Het opgeslagen record ophalen en — bij een handmatige override — de
+        keuze via het expliciete commando vastleggen (DEF-751 B2, herreview 2).
+
+        De override is de keuzeactie van deze generatieklik; zij wordt, net
+        als de editor-/Toepassen-actie, als `manual`-event met de versie van
+        het zojuist opgeslagen record geschreven (geen actor: deze tab kent
+        geen identiteit). Geeft het record ná de opslag terug (id én versie),
+        zodat Toepassen op de werkelijk getoonde versie werkt (herreview 3).
+        Mislukt het commando, dan blijft het concept zonder keuze-event en
+        wordt dat gemeld — niets wordt verzonnen.
+        """
+        if not saved_definition_id:
+            return None
+        try:
+            record = self.repository.get_definitie(int(saved_definition_id))
+        except Exception as e:  # pragma: no cover - defensieve grens
+            logger.warning(
+                "Opgeslagen record %s niet leesbaar: %s", saved_definition_id, e
+            )
+            return None
+        if record is None or override is None:
+            return record
+        try:
+            ok = self.repository.record_category_choice(
+                int(saved_definition_id),
+                {},
+                waarde=override.value,
+                herkomst=HERKOMST_HANDMATIG,
+                actor=None,
+                actor_source=None,
+                updated_by=None,
+                expected_version=record.version_number,
+            )
+        except ValueError as e:
+            ok = False
+            logger.warning("Handmatige categoriekeuze geweigerd: %s", e)
+        if not ok:
+            _st.warning(
+                "De handmatige categoriekeuze kon niet bij het concept worden "
+                "vastgelegd; kies zo nodig opnieuw in de Bewerk-tab."
+            )
+            return record
+        return self.repository.get_definitie(int(saved_definition_id))
 
     def _weiger_categorie(
         self, waarde: Any, herkomst: str, *, _st: Any, _sm: Any

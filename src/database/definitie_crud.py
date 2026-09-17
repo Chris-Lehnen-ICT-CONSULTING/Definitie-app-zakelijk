@@ -14,6 +14,7 @@ from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
 from database.models import (
+    CATEGORY_CHOICE_CLAIM_KEY,
     CATEGORY_CHOICE_HISTORY_KEY,
     CATEGORY_CHOICE_IMPORTED_KEY,
     CATEGORY_CHOICE_KEY,
@@ -1161,6 +1162,26 @@ class DefinitieCrudRepository:
         )
 
     @staticmethod
+    def _weiger_wissende_registratie(
+        actueel: DefinitieRecord, velden: Mapping[str, Any]
+    ) -> None:
+        """Weiger een ruwe niet-object-`generation_prompt_data` als het record
+        beheerde keuzegegevens draagt (ValueError, vóór mutatie)."""
+        if "generation_prompt_data" not in velden:
+            return
+        ruw = velden["generation_prompt_data"]
+        if isinstance(ruw, str) and lees_generatieregistratie(ruw) is not None:
+            return  # JSON-object: de beheerde sleutels worden hersteld
+        opgeslagen = actueel.get_generatieregistratie() or {}
+        if any(sleutel in opgeslagen for sleutel in CATEGORY_CHOICE_OWNED_KEYS):
+            msg = (
+                "generation_prompt_data kan niet door een niet-JSON-object worden "
+                f"vervangen ({ruw!r}): dat zou de beheerde categoriekeuze "
+                "(event, staat, historie) en de overige registratie wissen"
+            )
+            raise ValueError(msg)
+
+    @staticmethod
     def _registratie_basis(
         actueel: DefinitieRecord, velden: Mapping[str, Any]
     ) -> tuple[dict[str, Any] | None, bool]:
@@ -1357,12 +1378,24 @@ class DefinitieCrudRepository:
             registratie[CATEGORY_CHOICE_IMPORTED_KEY] = deepcopy(aangeleverd)
         if categoriekeuze is not None:
             herkomst = categoriekeuze.get("origin")
-            if (
-                herkomst in _KEUZEHERKOMSTEN_VIA_UPDATE
-                and herkomst != HERKOMST_HANDMATIG
-            ):
-                msg = f"herkomst {herkomst!r} kan alleen via record_category_choice"
-                raise ValueError(msg)
+            if herkomst in _KEUZEHERKOMSTEN_VIA_UPDATE:
+                # Herreview 2: een menselijke herkomst in aangeleverde invoer
+                # (aanvraagopties/metadata) is een claim zonder keuzeactie —
+                # bewaard als onbevestigde aanvraaginformatie, nooit als
+                # event. Het echte handmatige event komt uitsluitend via
+                # `record_category_choice` (editor-opslaan, Toepassen, of de
+                # generatiehandler ná de opslag van het concept).
+                registratie[CATEGORY_CHOICE_CLAIM_KEY] = {
+                    "origin": str(herkomst),
+                    "claimed_at": _nu(),
+                    "reasoning": categoriekeuze.get("reasoning"),
+                    "scores": (
+                        dict(categoriekeuze["scores"])
+                        if isinstance(categoriekeuze.get("scores"), Mapping)
+                        else None
+                    ),
+                }
+                return serialiseer_generatieregistratie(registratie)
             registratie[CATEGORY_CHOICE_KEY] = bouw_categoriekeuze(
                 waarde=record.categorie or None,
                 herkomst=str(herkomst),
@@ -2151,6 +2184,14 @@ class DefinitieCrudRepository:
 
         if not velden and bewijsinvoer is None:
             return False
+
+        # DEF-751 (herreview, aanvullend): een ruwe `generation_prompt_data`
+        # die geen JSON-object is (None, tekst, `null`, `[]`) zou de beheerde
+        # keuzegegevens — event, staat, historie, claim — én de overige
+        # beheerde sleutels (bronbewijs, CON-02-historie, prompt) wissen.
+        # Zolang die bestaan wordt zo'n vervanging vóór de transactie
+        # geweigerd; niets wordt geschreven.
+        self._weiger_wissende_registratie(current, velden)
 
         expected_version = updates.get("version_number")
 

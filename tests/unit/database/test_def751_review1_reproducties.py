@@ -273,7 +273,10 @@ def test_metadata_en_updates_kunnen_geen_toegeschreven_keuze_maken(db_path):
     )
     record = _repo(db_path).get_definitie(did)
     _geen_bevestiging(record)
-    assert record.get_category_choice_status()["status"] == "manual_unattributed"
+    # Herreview 2: een generieke manual-claim is geen event, alleen
+    # onbevestigde aanvraaginformatie.
+    assert record.get_category_choice() is None
+    assert record.get_category_choice_status()["status"] == "unconfirmed_claim"
 
     geladen = DefinitionRepository(db_path).get(did)
     geladen.categorie = "proces"

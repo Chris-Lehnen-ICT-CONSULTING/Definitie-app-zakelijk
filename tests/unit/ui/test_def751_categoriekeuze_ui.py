@@ -1,9 +1,10 @@
 """DEF-751 B2 — de UI brengt de categoriekeuze over; alleen echte acties tellen.
 
-* Generatiehandler: een handmatige override reist als
-  `options["category_choice"] = {"origin": "manual"}` naar de service, een
-  modelvoorstel als `origin model` mét reasoning/scores — nooit een actor
-  (de generator-tab kent geen identiteit).
+* Generatiehandler: alleen een modelvoorstel reist als
+  `options["category_choice"] = {"origin": "model", …}` naar de service;
+  een handmatige override is een keuzeactie en wordt ná de opslag via het
+  expliciete commando vastgelegd (herreview 2) — nooit als aanvraagclaim en
+  nooit met actor (de generator-tab kent geen identiteit).
 * Editor-opslaan met gewijzigde categorie: `category_choice_input` met
   herkomst `editor` en de bestaande lokale actorbron (`_handelende_gebruiker`);
   readback via nieuwe repository na sluiten; zonder categoriewijziging geen
@@ -73,41 +74,53 @@ def _generatie_options(handler: DefinitionGenerationHandler) -> dict[str, Any]:
     return aanroep.kwargs["options"]
 
 
-@pytest.mark.parametrize(
-    ("sessiewaarden", "verwacht"),
-    [
-        (
-            {"manual_ontological_category": "TYPE", "determined_category": "proces"},
-            {"origin": "manual"},
-        ),
-        (
-            {
-                "determined_category": "proces",
-                "category_reasoning": "werkwoordvorm",
-                "category_scores": {"proces": 0.7},
-            },
-            {
-                "origin": "model",
-                "reasoning": "werkwoordvorm",
-                "scores": {"proces": 0.7},
-            },
-        ),
-    ],
-    ids=["handmatige-override", "modelvoorstel"],
-)
-def test_handler_geeft_de_herkomst_van_de_keuze_door_zonder_actor(
-    sessiewaarden, verwacht
-):
+def test_handler_geeft_alleen_het_modelvoorstel_als_herkomst_door():
     handler = _handler()
     handler.definition_service.to_ui_response.return_value = {"success": False}
     with patch("ui.helpers.async_bridge.run_async", lambda coro, **kw: coro):
         handler.handle_definition_generation(
-            "keurmerk", CONTEXT, _st=MagicMock(), _sm=_sm(**sessiewaarden)
+            "keurmerk",
+            CONTEXT,
+            _st=MagicMock(),
+            _sm=_sm(
+                determined_category="proces",
+                category_reasoning="werkwoordvorm",
+                category_scores={"proces": 0.7},
+            ),
         )
     options = _generatie_options(handler)
-    assert options["category_choice"] == verwacht
+    assert options["category_choice"] == {
+        "origin": "model",
+        "reasoning": "werkwoordvorm",
+        "scores": {"proces": 0.7},
+    }
     assert "actor" not in options["category_choice"]
     assert options["force_generate"] is True
+
+
+def test_handler_stuurt_een_override_niet_als_aanvraagclaim_mee():
+    """Herreview 2: de handmatige override is een keuzeactie en wordt ná de
+    opslag via het commando vastgelegd (zie test_def751_review2_reproducties),
+    niet als generieke `manual`-claim in de aanvraagopties."""
+    handler = _handler()
+    handler.definition_service.to_ui_response.return_value = {"success": False}
+    with patch("ui.helpers.async_bridge.run_async", lambda coro, **kw: coro):
+        handler.handle_definition_generation(
+            "keurmerk",
+            CONTEXT,
+            _st=MagicMock(),
+            _sm=_sm(manual_ontological_category="TYPE", determined_category="proces"),
+        )
+    options = _generatie_options(handler)
+    assert "category_choice" not in options
+    assert (
+        handler.definition_service.generate_definition.call_args.kwargs[
+            "categorie"
+        ].value
+        == "type"
+    )
+    # Zonder opgeslagen concept (success False) geen commando en geen claim.
+    handler.repository.record_category_choice.assert_not_called()
 
 
 # ------------------------------------------------------------ editor

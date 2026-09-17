@@ -137,6 +137,19 @@ DEFINITIES_KOLOMMEN: tuple[str, ...] = tuple(
     re.findall(r"^\s{4}(\w+)\s", DEFINITIES_TABLE_SQL, flags=re.MULTILINE)
 )
 
+# DEF-751 B2 (schemaversie 4, migratie v8): `categorie` is optioneel — NULL
+# betekent "geen label", nooit een verzonnen proces. De waardenlijst van de
+# CHECK is ongewijzigd (NULL passeert een CHECK in SQLite). Eén bron: de
+# v3-DDL hierboven met precies dit ene verschil; een afwijkende tekst is een
+# programmeerfout en faalt hier hard.
+_CATEGORIE_V3 = "categorie VARCHAR(50) NOT NULL CHECK ("
+_CATEGORIE_V4 = "categorie VARCHAR(50) CHECK ("
+if DEFINITIES_TABLE_SQL.count(_CATEGORIE_V3) != 1:
+    raise RuntimeError("DEFINITIES_TABLE_SQL: categorie-definitie niet gevonden")
+DEFINITIES_TABLE_SQL_V4 = DEFINITIES_TABLE_SQL.replace(_CATEGORIE_V3, _CATEGORIE_V4)
+#: Vanaf deze schemaversie is `categorie` optioneel.
+CATEGORIE_OPTIONEEL_VANAF = 4
+
 
 DEFINITIE_VOORBEELDEN_KOLOMMEN: tuple[str, ...] = tuple(
     re.findall(r"^\s{4}(\w+)\s", DEFINITIE_VOORBEELDEN_TABLE_SQL, flags=re.MULTILINE)
@@ -182,14 +195,27 @@ def _ensure_definitie_voorbeelden_indexes(conn: sqlite3.Connection) -> None:
         """)
 
 
+def _definities_table_sql(conn: sqlite3.Connection) -> str:
+    """De DDL van `definities` die bij het schemaprofiel van ``conn`` hoort.
+
+    DEF-751: vanaf schemaversie 4 is `categorie` optioneel. De legacy-route
+    verandert de versie niet (profiel 3 → v3-DDL); de v8-migratie zet eerst
+    de versiemarker en herbouwt dan met de v4-DDL.
+    """
+    profiel = schema_version(conn) or 0
+    if profiel >= CATEGORIE_OPTIONEEL_VANAF:
+        return DEFINITIES_TABLE_SQL_V4
+    return DEFINITIES_TABLE_SQL
+
+
 def _create_definities_table(
     conn: sqlite3.Connection, table_name: str = "definities"
 ) -> None:
-    """(Re)create the definities table with the canonical schema."""
+    """(Re)create the definities table with the canonical schema of its profile."""
 
     # DEF-672: `execute`, niet `executescript` — zie
     # `_create_definitie_voorbeelden_table` voor de reden.
-    conn.execute(DEFINITIES_TABLE_SQL.format(table_name=table_name))
+    conn.execute(_definities_table_sql(conn).format(table_name=table_name))
 
 
 def _bewaar_afhankelijke_objecten(conn: sqlite3.Connection, tabel: str) -> list[str]:
@@ -323,11 +349,15 @@ def _rebuild_tabel_atomair(
     kolommen: tuple[str, ...],
     zorg_voor_indexen: Callable[[sqlite3.Connection], None],
     verwijderd: frozenset[str] = frozenset(),
+    versoepeld: frozenset[str] = frozenset(),
 ) -> None:
     """Bouw één tabel opnieuw op in één transactie (DEF-672).
 
     ``verwijderd`` zijn de kolommen die de rebuild bewust laat vervallen;
     alle andere niet-canonieke kolommen worden behouden (DEF-664).
+    ``versoepeld`` (DEF-751) zijn de kolommen waarvan de rebuild bewust de
+    NOT NULL-semantiek laat vervallen — alleen met deze expliciete opgave;
+    elk ander verlies van NOT NULL/DEFAULT/affiniteit blijft een harde fout.
 
     Alles of niets. Faalt een stap — het aanmaken van de nieuwe tabel, de
     datakopie, de `DROP`, of het herstel van indexen en triggers — dan gaat de
@@ -355,7 +385,9 @@ def _rebuild_tabel_atomair(
         # Codex-review 3 (P1): bronkolomeigenschappen óók op canonieke
         # kolommen vergelijken; sterkere NOT NULL/DEFAULT-semantiek van de
         # bron mag niet stil door de zwakkere canonieke DDL worden vervangen.
-        _controleer_kolomsemantiek(conn, tabel, tijdelijke_naam, kolommen, verwijderd)
+        _controleer_kolomsemantiek(
+            conn, tabel, tijdelijke_naam, kolommen, verwijderd, versoepeld
+        )
         for kolom, declaratie in extra:
             conn.execute(f"ALTER TABLE {tabel} ADD COLUMN {kolom} {declaratie}")
             logger.info(f"✅ Extra kolom '{tabel}.{kolom}' behouden ({declaratie})")
@@ -460,10 +492,12 @@ def _controleer_kolomsemantiek(
     oude_tabel: str,
     kolommen: tuple[str, ...],
     verwijderd: frozenset[str],
+    versoepeld: frozenset[str] = frozenset(),
 ) -> None:
     """Weiger als een canonieke kolom in de bron sterkere of andere
     NOT NULL-/DEFAULT-semantiek of een andere affiniteit heeft dan de nieuwe
-    canonieke definitie.
+    canonieke definitie. ``versoepeld`` (DEF-751): kolommen waarvan het
+    vervallen van NOT NULL het uitdrukkelijke doel van de migratie is.
 
     Rootprobe (probe-canonical-column-affinity): een BLOB-bronkolom bewaart
     ``7`` als integer; de ``INSERT … SELECT`` naar een TEXT-kolom maakt daar
@@ -494,6 +528,7 @@ def _controleer_kolomsemantiek(
     oud = _eigenschappen(oude_tabel)
     nieuw = _eigenschappen(tabel)
     weg = {fold_identifier(k) for k in verwijderd}
+    bewust_nullable = {fold_identifier(k) for k in versoepeld}
     verloren: list[str] = []
     for kolom in (fold_identifier(k) for k in kolommen):
         if kolom in weg or kolom not in oud or kolom not in nieuw:
@@ -510,7 +545,7 @@ def _controleer_kolomsemantiek(
                 f"{tabel}.{kolom}: sleutelsemantiek (rowid-alias, autoincrement) "
                 f"{oud_sleutel} -> {nieuw_sleutel}"
             )
-        if oud_notnull and not nieuw_notnull:
+        if oud_notnull and not nieuw_notnull and kolom not in bewust_nullable:
             verloren.append(f"{tabel}.{kolom}: NOT NULL")
         if oud_default and oud_default != nieuw_default:
             verloren.append(f"{tabel}.{kolom}: DEFAULT {oud_default}")
@@ -1095,6 +1130,9 @@ def _herbouw_tabellen_indien_nodig(conn: sqlite3.Connection) -> None:
     # 2) definities: drop voorkeursterm_is_begrip if present
     if _kolom_bestaat(conn, "definities", "voorkeursterm_is_begrip"):
         logger.info("🔧 Rebuild 'definities' zonder kolom 'voorkeursterm_is_begrip'")
+        # DEF-751: de DDL volgt het profiel van de bron (deze route bumpt de
+        # versie niet); anders zou een v4-database hier `categorie NOT NULL`
+        # terugkrijgen of een v3-database het v4-contract niet halen.
         _rebuild_tabel_atomair(
             conn,
             tabel="definities",

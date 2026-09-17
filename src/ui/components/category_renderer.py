@@ -478,18 +478,28 @@ class CategoryRenderer:
             ),
         )
 
-        if result.success:
-            CategoryStateManager.update_generation_result_category(
-                generation_result, new_category
-            )
-            SessionStateManager.set_value("manual_ontological_category", new_category)
-            logger.info(f"Handmatige categorie override gezet: {new_category}")
-
-        if result.success:
-            st.success(result.message)
-        else:
+        # Herreview 3: sessiestaat en succeslabel pas na bevestigde opslag —
+        # bij een conflict of zonder opgeslagen record blijft alles zoals het was.
+        if not result.success:
             st.error(result.message)
             return
+
+        CategoryStateManager.update_generation_result_category(
+            generation_result, new_category
+        )
+        # Het getoonde record is na Toepassen een versie verder: herlaad het
+        # zodat een volgende Toepassen niet op een verouderde versie werkt.
+        try:
+            from database.definitie_repository import get_definitie_repository
+
+            generation_result["saved_record"] = (
+                get_definitie_repository().get_definitie(saved_record.id)
+            )
+        except Exception as e:  # pragma: no cover - defensieve grens
+            logger.warning("Kon opgeslagen record niet herladen na Toepassen: %s", e)
+        SessionStateManager.set_value("manual_ontological_category", new_category)
+        logger.info(f"Handmatige categorie override gezet: {new_category}")
+        st.success(result.message)
 
         if result.action == WorkflowAction.SHOW_REGENERATION_PREVIEW:
             # DEF-439: preview_data is bij deze action altijd gezet (zelfde

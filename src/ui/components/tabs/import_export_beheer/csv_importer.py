@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Protocol
 import pandas as pd
 import streamlit as st
 
+from domain.categorie_herkomst import HERKOMST_IMPORT
 from ui.helpers.categorie_weergave import STANDAARD_CATEGORIEEN, is_opslagcategorie
 
 if TYPE_CHECKING:
@@ -48,25 +49,24 @@ _MAX_FIELD_LENGTH = 10_000
 
 logger = logging.getLogger(__name__)
 
-# DEF-751: de opslag (CHECK op `definities.categorie`) kent geen "geen
-# categorie" en geen vrije tekst. Een rij zonder of met een niet-opslagbare
-# categorie wordt daarom gemeld en overgeslagen — als technische grens van
-# het huidige schema, niet als inhoudelijk oordeel over de definitie. Er
-# wordt niets verzonnen (vóór B1 kreeg zo'n rij stil "Type" mee, wat op de
-# CHECK strandde met een cryptische melding). Labelvrij opslaan mét herkomst
-# is een openstaande schemavraag (DEF-751 B2).
+# DEF-751 B2 (schemaversie 4): een rij zonder categorie wordt labelvrij
+# bewaard (NULL, herkomst `import`, status `imported_missing`) — geen
+# verzonnen "type"/"proces". Een waarde die geen opslagwaarde is (de CHECK is
+# hoofdlettergevoelig en kent geen vrije tekst) wordt gemeld en overgeslagen:
+# een technische grens van het schema, geen inhoudelijk oordeel.
 _CATEGORIE_TECHNISCHE_GRENS = (
     "de definitie zelf is niet inhoudelijk beoordeeld of afgekeurd, maar de "
-    "opslag kan een definitie zonder geldige categorie nog niet bewaren. "
+    "opslag kent deze categoriewaarde niet. "
     f"Geldige waarden: {', '.join(STANDAARD_CATEGORIEEN)} "
-    "(of een bestaande opslagcode zoals ENT/ACT/REL/ATT/AUT/STA/OTH)."
+    "(of een bestaande opslagcode zoals ENT/ACT/REL/ATT/AUT/STA/OTH); laat het "
+    "veld leeg om zonder label te bewaren."
 )
 
 
 def _categorie_probleem(categorie: str) -> str | None:
     """Reden waarom deze categoriewaarde niet opgeslagen kan worden, of None."""
     if not categorie:
-        return f"categorie ontbreekt; {_CATEGORIE_TECHNISCHE_GRENS}"
+        return None  # labelvrij: NULL, geen default
     if not is_opslagcategorie(categorie):
         return (
             f"categorie '{categorie}' is geen opslagwaarde (hoofdlettergevoelig); "
@@ -251,18 +251,22 @@ class CSVImporter:
                         skipped += 1
                         continue
 
-                # Maak record
+                # Maak record (DEF-751: leeg = NULL, geen label)
                 record = DefinitieRecord(
                     begrip=begrip,
                     definitie=definitie,
-                    categorie=categorie,
+                    categorie=categorie or None,
                     organisatorische_context=context,
                     status=_STATUS_DRAFT,
                     validation_score=0.0,
                 )
 
-                # Save (DEF-439: DB-laag heet create_definitie, niet save)
-                self.repository.create_definitie(record)
+                # Save (DEF-439: DB-laag heet create_definitie, niet save).
+                # DEF-751 B2: herkomst `import` — de persistentielaag bouwt
+                # het keuze-event (nooit met actor).
+                self.repository.create_definitie(
+                    record, categoriekeuze={"origin": HERKOMST_IMPORT}
+                )
                 imported += 1
 
                 # Auto validatie indien gewenst

@@ -86,14 +86,13 @@ class TestSinglePathClassification:
         # Verify classification was called
         assert mock_classify.called or mock_session_state.set_value.called
 
-    def test_generation_blocks_without_classification(
+    def test_generation_proceeds_without_label_when_no_classification(
         self, mock_interface, mock_session_state
     ):
-        """Test that generation blocks when no classification exists."""
-        # Setup: no determined category, no manual override. DEF-622: de
-        # contextgrens gaat vóór de classificatiecontrole; deze proef isoleert
-        # de classificatie en geeft daarom inhoudelijke context mee (state én
-        # handler-argument).
+        """DEF-751 B2 (schemaversie 4): zonder keuze en zonder voorstel blokkeert
+        de generatie niet meer (DEF-39 was de technische labelplicht) en valt
+        zij evenmin terug op een verzonnen PROCES — zij loopt labelvrij door
+        met categorie None; single path blijft: geen fallback-classificatie."""
         context = {
             "organisatorische_context": ["Justitie"],
             "juridische_context": ["Strafrecht"],
@@ -102,13 +101,22 @@ class TestSinglePathClassification:
         mock_session_state.get_value.side_effect = lambda key, default=None: {
             "begrip": "test",
             "global_context": context,
-            "generation_options": {},
+            "generation_options": {"force_generate": True},
             "selected_documents": [],
             "determined_category": None,  # NO CLASSIFICATION
             "manual_ontological_category": None,
         }.get(key, default)
 
-        with patch("ui.tabbed_interface.st") as mock_st:
+        service = MagicMock()
+        service.to_ui_response.return_value = {"success": False}
+        mock_interface.generation_handler.definition_service = service
+        with (
+            patch("ui.tabbed_interface.st") as mock_st,
+            patch.object(
+                mock_interface, "_determine_ontological_category"
+            ) as mock_classify,
+            patch("ui.helpers.async_bridge.run_async", lambda coro, **kw: coro),
+        ):
             mock_st.spinner = MagicMock()
             mock_st.spinner.return_value.__enter__ = Mock()
             mock_st.spinner.return_value.__exit__ = Mock()
@@ -117,11 +125,13 @@ class TestSinglePathClassification:
             # Call generation
             mock_interface._handle_definition_generation("test", context)
 
-            # Verify error was shown
-            mock_st.error.assert_called_once()
-            error_msg = mock_st.error.call_args[0][0]
-            assert "Ontologische categorie is niet bepaald" in error_msg
-            assert "Scroll naar boven" in error_msg
+            assert not mock_classify.called, "geen fallback-classificatie"
+            fouten = [str(c.args[0]) for c in mock_st.error.call_args_list]
+            assert not any(
+                "Ontologische categorie is niet bepaald" in f for f in fouten
+            )
+            aanroep = service.generate_definition.call_args
+            assert aanroep is not None and aanroep.kwargs["categorie"] is None
 
     def test_generation_succeeds_with_manual_override(
         self, mock_interface, mock_session_state
@@ -420,12 +430,13 @@ class TestClassificationFlow:
             # Verify success
             assert mock_st.success.called
 
-    def test_flow_without_classification_blocks(self, interface_with_mocks):
-        """Test that generation without classification is blocked."""
+    def test_flow_without_classification_proceeds_without_label(
+        self, interface_with_mocks
+    ):
+        """DEF-751 B2: zonder classificatie geen blokkade en geen verzonnen
+        categorie — de generatie loopt labelvrij door (categorie None)."""
         interface, mock_session = interface_with_mocks
 
-        # Setup: no classification. DEF-622: inhoudelijke context, zodat de
-        # blokkade uit de classificatiecontrole komt en niet uit de contextgrens.
         state = {
             "begrip": "test",
             "global_context": {
@@ -433,24 +444,29 @@ class TestClassificationFlow:
                 "juridische_context": ["Strafrecht"],
                 "wettelijke_basis": [],
             },
-            "generation_options": {},
+            "generation_options": {"force_generate": True},
             "selected_documents": [],
             "determined_category": None,  # NO CLASSIFICATION
             "manual_ontological_category": None,
         }
 
         mock_session.get_value.side_effect = lambda k, d=None: state.get(k, d)
+        service = MagicMock()
+        service.to_ui_response.return_value = {"success": False}
+        interface.generation_handler.definition_service = service
 
-        with patch("ui.tabbed_interface.st") as mock_st:
+        with (
+            patch("ui.tabbed_interface.st") as mock_st,
+            patch("ui.helpers.async_bridge.run_async", lambda coro, **kw: coro),
+        ):
             mock_st.spinner = MagicMock()
             mock_st.spinner.return_value.__enter__ = Mock()
             mock_st.spinner.return_value.__exit__ = Mock()
             mock_st.error = Mock()
 
-            # Try to generate - should be blocked
             interface._handle_definition_generation("test", state["global_context"])
 
-            # Verify error shown
-            assert mock_st.error.called
-            error_msg = mock_st.error.call_args[0][0]
-            assert "niet bepaald" in error_msg.lower()
+            fouten = [str(c.args[0]) for c in mock_st.error.call_args_list]
+            assert not any("niet bepaald" in f.lower() for f in fouten)
+            aanroep = service.generate_definition.call_args
+            assert aanroep is not None and aanroep.kwargs["categorie"] is None

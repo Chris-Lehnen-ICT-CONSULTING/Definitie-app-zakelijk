@@ -37,7 +37,6 @@ from database.models import (
     splits_definitietekst,
 )
 from domain.categorie_herkomst import (
-    HERKOMST_DEFAULT,
     lees_keuze_invoer,
 )
 from domain.context.normalisatie import (
@@ -256,16 +255,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
             # DEF-751 B2: de herkomst van de categorie volgens deze route;
             # de persistentielaag bouwt het event (nooit met actor).
-            default_toegepast = not (
-                definition.categorie
-                or getattr(definition, "ontologische_categorie", None)
-            )
             result_id = self.legacy_repo.create_definitie(
                 record,
                 allow_duplicate=allow_duplicate,
                 duplicate_reason=duplicate_reason,
                 categoriekeuze=self._categoriekeuze_voor_nieuw_record(
-                    definition.metadata or {}, default_toegepast
+                    definition.metadata or {}
                 ),
             )
 
@@ -832,14 +827,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 f"source_type extraction failed for '{definition.begrip}': {e}"
             )
 
-        # CRITICAL FIX DEF-53: Ensure categorie has a value
-        # Try ontologische_categorie first, then categorie, fallback to "proces"
-        opgegeven_categorie = definition.categorie or getattr(
-            definition, "ontologische_categorie", None
+        # DEF-751 B2 (schemaversie 4): geen label = NULL. De vroegere
+        # DEF-53-default "proces" is vervallen; niets wordt verzonnen.
+        category_value = (
+            definition.categorie
+            or getattr(definition, "ontologische_categorie", None)
+            or None
         )
-        # DEF-751 B2: een toegepaste default is een bewezen default; `save`
-        # geeft dat als herkomst `default` aan de persistentielaag door.
-        category_value = opgegeven_categorie or "proces"
         logger.debug(
             f"Category mapping: categorie={definition.categorie}, "
             f"ontologische_categorie={getattr(definition, 'ontologische_categorie', None)}, "
@@ -1014,24 +1008,22 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     @staticmethod
     def _categoriekeuze_voor_nieuw_record(
-        metadata: dict[str, Any], default_toegepast: bool
+        metadata: dict[str, Any],
     ) -> dict[str, Any] | None:
         """De herkomst van de categorie voor `create_definitie`, of None.
 
         De invoer (`category_choice_input`) is onbevestigd: alleen herkomst
         manual/model + reasoning/scores worden gelezen (`lees_keuze_invoer`),
-        nooit een actor. Een toegepaste repositorydefault → `default`; zonder
-        invoer en zonder default géén event (herkomst onbekend, niets
-        verzonnen). Het event zelf bouwt de persistentielaag.
+        nooit een actor. Zonder invoer géén event (herkomst onbekend, of
+        `absent` bij een label-loos record; niets verzonnen). Het event zelf
+        bouwt de persistentielaag.
         """
         invoer = lees_keuze_invoer(metadata.get(CATEGORY_CHOICE_INPUT_KEY))
-        if invoer is None and not default_toegepast:
+        if invoer is None:
             return None
-        keuze: dict[str, Any] = (
-            {"origin": HERKOMST_DEFAULT} if invoer is None else dict(invoer)
-        )
+        keuze: dict[str, Any] = dict(invoer)
         generation_id = metadata.get("generation_id")
-        if invoer is not None and generation_id:
+        if generation_id:
             keuze["generation_id"] = str(generation_id)
         return keuze
 

@@ -186,6 +186,13 @@ class DefinitionGeneratorTab:
             self.category_renderer.render_ontological_category_section(
                 determined_category, generation_result, saved_record
             )
+        else:
+            # DEF-751 B2: labelvrij gegenereerd (geen keuze, geen voorstel) —
+            # zichtbaar, geen verzonnen categorie.
+            st.info(
+                "Geen ontologische categorie vastgelegd voor dit concept (geen "
+                "keuze en geen voorstel). Kies er zo nodig een in de Bewerk-tab."
+            )
 
         # UFO-categorie selector - delegated to CategoryRenderer
         try:

@@ -321,10 +321,27 @@ class TestVolledigDoelcontract:
         assert schema_versies(v2_db) == [1, 2]
 
     def test_geslaagde_migratie_haalt_het_startupcontract(self, v2_db: Path):
-        from database.schema_contract import assert_startup_contract
+        """DEF-751: v7 is niet langer de laatste stap — na v7 (versie 3) weigert
+        startup fail-closed met de v8-hint; na v8 haalt de database het
+        startupcontract (versie 4)."""
+        import database.migrations.v8_migration as v8
+        from database.schema_contract import (
+            SchemaContractError,
+            assert_startup_contract,
+        )
 
         assert v7.run_migration(v2_db) is True
 
+        conn = sqlite3.connect(str(v2_db))
+        try:
+            with pytest.raises(SchemaContractError) as excinfo:
+                assert_startup_contract(conn)
+        finally:
+            conn.close()
+        assert excinfo.value.reason == "schema_version_outdated"
+        assert any("v8" in d for d in excinfo.value.details)
+
+        assert v8.run_migration(v2_db) is True
         conn = sqlite3.connect(str(v2_db))
         try:
             assert_startup_contract(conn)

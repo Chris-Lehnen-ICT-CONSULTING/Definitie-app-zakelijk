@@ -328,6 +328,7 @@ def bepaal_keuzestatus(
     contexten: Mapping[str, Any] | None,
     definitie_tekst: str | None = None,
     staat: Mapping[str, Any] | None = None,
+    claim: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Status van de opgeslagen keuze tegenover de actuele recordstaat.
 
@@ -339,6 +340,15 @@ def bepaal_keuzestatus(
     is gewijzigd — blijvend, ook na terugzetten. Niets wordt herschreven.
     """
     if event is None:
+        if isinstance(claim, Mapping) and claim.get("origin"):
+            # Herreview 2: een aangeleverde handmatige claim zonder keuzeactie
+            # is aanvraaginformatie, geen bevestiging en geen event.
+            return _leeg_resultaat(
+                "unconfirmed_claim",
+                f"categorie {categorie!r} volgens de aanvraag als "
+                f"{claim.get('origin')!r} opgegeven; geen keuzeactie vastgelegd, "
+                "niet bevestigd",
+            )
         if categorie is None:
             return _leeg_resultaat("absent", "geen categorie en geen keuze-event")
         return _leeg_resultaat(

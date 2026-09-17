@@ -69,12 +69,16 @@ CATEGORY_CHOICE_STATE_KEY = "category_choice_state"
 #: Een via import/ruwe JSON aangeleverd keuze-event: bewaard als onbevestigde
 #: invoer, nooit als keuze gelezen (reviewbevinding 2).
 CATEGORY_CHOICE_IMPORTED_KEY = "category_choice_imported"
+#: Een generieke `manual`-claim uit aanvraagopties/metadata (geen UI-actie):
+#: onbevestigde aanvraaginformatie, nooit een keuze-event (herreview 2).
+CATEGORY_CHOICE_CLAIM_KEY = "category_choice_claim"
 #: De sleutels in `generation_prompt_data` die de persistentielaag zelf beheert.
 CATEGORY_CHOICE_OWNED_KEYS: tuple[str, ...] = (
     CATEGORY_CHOICE_KEY,
     CATEGORY_CHOICE_HISTORY_KEY,
     CATEGORY_CHOICE_STATE_KEY,
     CATEGORY_CHOICE_IMPORTED_KEY,
+    CATEGORY_CHOICE_CLAIM_KEY,
 )
 
 #: De drie contextvelden zoals het bewijs ze vastlegt (zelfde namen als het record).
@@ -325,7 +329,8 @@ class DefinitieRecord:
     id: int | None = None
     begrip: str = ""
     definitie: str = ""
-    categorie: str = ""
+    # DEF-751 (v8): optioneel — None = geen label, nooit een verzonnen proces.
+    categorie: str | None = None
     organisatorische_context: str = ""
     juridische_context: str | None = ""
     wettelijke_basis: str | None = None
@@ -579,6 +584,7 @@ class DefinitieRecord:
             contexten=self.get_contextlijsten(),
             definitie_tekst=self.get_definitie_tekst(),
             staat=registratie.get(CATEGORY_CHOICE_STATE_KEY),
+            claim=registratie.get(CATEGORY_CHOICE_CLAIM_KEY),
         )
 
     def get_source_review_history(self) -> list[dict[str, Any]]:

@@ -476,8 +476,23 @@ class WorkflowService:
                     error="Geen wijziging",
                 )
 
-            # Stap 2: Update database indien nodig
+            # Stap 2: Update database. DEF-751 B2 (herreview 3): zonder
+            # opgeslagen record is er niets om op toe te passen — geen
+            # succeslabel zonder bevestigde opslag.
             actual_old_category = old_category
+            if not definition_id:
+                return CategoryChangeResult(
+                    success=False,
+                    message=(
+                        "De definitie is nog niet opgeslagen; de categorie kan pas "
+                        "na opslag worden toegepast"
+                    ),
+                    action=WorkflowAction.SHOW_ERROR,
+                    old_category=old_category,
+                    new_category=new_category,
+                    requires_regeneration=False,
+                    error="definition_id ontbreekt",
+                )
             if definition_id:
                 # Delegeer naar CategoryService voor database update
                 # Dit is waar we normaal dependency injection zouden gebruiken

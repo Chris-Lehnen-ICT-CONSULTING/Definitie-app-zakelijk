@@ -91,22 +91,26 @@ def test_ontbrekende_en_ongeldige_categorie_worden_gemeld_en_geldige_rijen_bewaa
         ],
     )
 
-    # Geldige waarden exact bewaard; niets verzonnen voor de andere rijen.
-    assert toegevoegd == {"entiteitcode": "ENT", "resultaat": "resultaat"}
+    # Geldige waarden exact bewaard; ontbrekend = labelvrij (NULL, DEF-751 B2
+    # schemaversie 4) — niets verzonnen voor de andere rijen.
+    assert toegevoegd == {
+        "zonder": None,
+        "entiteitcode": "ENT",
+        "resultaat": "resultaat",
+    }
 
     fouten = _fouten(m)
-    assert len(fouten) == 3
+    assert len(fouten) == 2
     assert all("CHECK constraint" not in f for f in fouten)
-    assert fouten[0].startswith("Rij 1") and "categorie ontbreekt" in fouten[0]
-    assert fouten[1].startswith("Rij 2") and "'Type'" in fouten[1]
-    assert fouten[2].startswith("Rij 3") and "'entiteit'" in fouten[2]
+    assert fouten[0].startswith("Rij 2") and "'Type'" in fouten[0]
+    assert fouten[1].startswith("Rij 3") and "'entiteit'" in fouten[1]
     for f in fouten:
         # Technische opslagbeperking, geen inhoudelijke afkeur van de kern.
-        assert "niet inhoudelijk" in f and "nog niet bewaren" in f
+        assert "niet inhoudelijk" in f and "kent deze categoriewaarde niet" in f
         assert "type, proces, resultaat, exemplaar" in f
     # Telling en fouten zichtbaar: geen verborgen rijverlies.
-    assert "2 geïmporteerd" in str(m.success.call_args[0][0])
-    assert "3 fouten" in str(m.expander.call_args[0][0])
+    assert "3 geïmporteerd" in str(m.success.call_args[0][0])
+    assert "2 fouten" in str(m.expander.call_args[0][0])
 
 
 @pytest.mark.parametrize(
