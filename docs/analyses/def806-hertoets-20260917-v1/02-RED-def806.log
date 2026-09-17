@@ -1,0 +1,52 @@
+.FF..FF..F.FFF.                                                          [100%]
+=================================== FAILURES ===================================
+E   AssertionError: hyperlink
+    assert 'hyperlink' in ' — is de bron precies en beknopt terugvindbaar (artikel, lid, paragraaf, vindplaats)? een correcte inline verwijzing in de definitie is bewijs, geen gebrek; een apart registratieveld is geen normdoel.'
+     +  where ' — is de bron precies en beknopt terugvindbaar (artikel, lid, paragraaf, vindplaats)? een correcte inline verwijzing in de definitie is bewijs, geen gebrek; een apart registratieveld is geen normdoel.' = <built-in method casefold of str object at 0x1094be470>()
+     +    where <built-in method casefold of str object at 0x1094be470> = ' — is de bron precies en beknopt terugvindbaar (artikel, lid, paragraaf, vindplaats)? Een correcte inline verwijzing in de definitie is bewijs, geen gebrek; een apart registratieveld is geen normdoel.'.casefold
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:366: AssertionError: hyperlink
+E   AssertionError: assert 'con02-assess/1' == 'con02-assess/2'
+      
+      - con02-assess/2
+      ?              ^
+      + con02-assess/1
+      ?              ^
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:349: AssertionError: assert 'con02-assess/1' == 'con02-assess/2'
+E   assert True is False
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:331: assert True is False
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:181: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:242: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:226: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:252: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'con02-assess/1' == 'con02-assess/2'
+      
+      - con02-assess/2
+      ?              ^
+      + con02-assess/1
+      ?              ^
+/private/tmp/DEF-806-hyperlink-20260917/tests/unit/domain/test_def806_verwijzing_hyperlink.py:401: AssertionError: assert 'con02-assess/1' == 'con02-assess/2'
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBeoordelingsprompt::test_systeemprompt_noemt_hyperlink_en_uitzonderingsvoorwaarden
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestBeoordelingsprompt::test_promptversie_is_opgehoogd
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestDeskundigeRoutesBlijvenGelden::test_deskundige_correctie_naar_pass_vereist_ook_een_hyperlink
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestVerwijzingZonderHyperlink::test_record4_zonder_url_krijgt_geen_gewone_verwijzings_pass
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestVerwijzingZonderHyperlink::test_readback_van_een_eerder_opgeslagen_pass_gaat_niet_om_de_controle_heen
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestVerwijzingZonderHyperlink::test_hyperlink_van_een_andere_bron_draagt_het_oordeel_niet
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestVerwijzingZonderHyperlink::test_afwijzing_is_herkenbaar_als_hyperlinkgebrek
+FAILED tests/unit/domain/test_def806_verwijzing_hyperlink.py::TestServiceZonderHyperlink::test_dienst_levert_geen_verwijzings_pass_zonder_url
