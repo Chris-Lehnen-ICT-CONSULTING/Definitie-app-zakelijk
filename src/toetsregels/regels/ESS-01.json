@@ -44,7 +44,7 @@
     "automation_status": "review_required",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "Het primaire ASTRA-paar (revisie 8543) vraagt inhoudelijke beoordeling van vervolggebruik; geen patroontreffer is geen bewijs van voldoen. De functiegrens is expliciet projectbeleid (DEF-746/625).",
-    "example_pair_issue": "DEF-624"
+    "example_pair_reason": "Het primaire ASTRA-paar (revisie 8543) vraagt inhoudelijke beoordeling van vervolggebruik; geen patroontreffer is geen bewijs van voldoen. De functiegrens is expliciet projectbeleid (DEF-746/625). Inhoudelijke eigenaar van dit paar: DEF-745; het gedeelde contract en de dekking van goed/fout-paren blijven bij DEF-624.",
+    "example_pair_issue": "DEF-745"
   }
 }
