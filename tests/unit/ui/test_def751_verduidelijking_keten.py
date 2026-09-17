@@ -41,6 +41,7 @@ from ui.handlers.definition_generation_handler import DefinitionGenerationHandle
 from ui.helpers.betekenisconflict import (
     KEY_OPEN,
     KEY_VERZONDEN,
+    RAG_STANDAARDCOLLECTIE,
     verzend_verduidelijking,
 )
 
@@ -275,7 +276,21 @@ def _render_rag_selector(sm, collecties: list[dict], keuze: list[int]) -> None:
 
 
 def _collectie(cid: int) -> dict:
-    return {"id": cid, "type_icon": "📁", "name": f"c{cid}", "chunk_count": 0}
+    """Collectie 1 is de door de orchestrator automatisch aangemaakte
+    standaardcollectie `user_documents`; andere collecties heten `c<id>`."""
+    naam = RAG_STANDAARDCOLLECTIE if cid == 1 else f"c{cid}"
+    return {"id": cid, "type_icon": "📁", "name": naam, "chunk_count": 0}
+
+
+def _na_conflict_en_antwoord(tmp_path, monkeypatch, naam: str, collecties, keuze):
+    """Conflict → verzonden antwoord, met de selector in de opgegeven stand."""
+    db_path = str(tmp_path / f"{naam}.db")
+    handler, model = _keten(db_path, monkeypatch)
+    sm = FakeSM(determined_category="proces", category_reasoning="r")
+    _render_rag_selector(sm, collecties, keuze)
+    _genereer(handler, sm)
+    assert verzend_verduidelijking(sm, sm.data[KEY_OPEN], VERDUIDELIJKING) is None
+    return handler, model, sm
 
 
 def test_pure_rerun_na_antwoord_past_verduidelijking_toe_ook_als_rag_selector_verschijnt(
@@ -285,9 +300,9 @@ def test_pure_rerun_na_antwoord_past_verduidelijking_toe_ook_als_rag_selector_ve
     antwoord gaf 'Verduidelijking niet toegepast: … RAG-selectie is
     gewijzigd'. Oorzaak: de eerste generatie maakt via de orchestrator de
     RAG-collectie `user_documents` aan; bij de volgende rerun verschijnt
-    daardoor de RAG-selector, die zijn standaard (alle collecties) als
-    selectie in de sessie schrijft (None → [1]). De gebruiker koos niets;
-    de standaard is geen wijziging van de RAG-selectie."""
+    daardoor de RAG-selector, die zijn standaard als selectie in de sessie
+    schrijft (None → [1]). Zonder selectie zoekt de generatie precies die
+    standaardcollectie, dus de zoekscope is ongewijzigd."""
     db_path = str(tmp_path / "keten3.db")
     handler, model = _keten(db_path, monkeypatch)
     sm = FakeSM(determined_category="proces", category_reasoning="r")
@@ -333,3 +348,56 @@ def test_werkelijke_rag_deselectie_laat_antwoord_wel_vervallen(tmp_path, monkeyp
     assert VERDUIDELIJKING not in model.prompts[1]
     assert st.info.called and "RAG-selectie" in str(st.info.call_args)
     assert KEY_VERZONDEN not in sm.data
+
+
+def test_uitbreiding_van_de_selectie_met_nieuwe_collectie_laat_antwoord_vervallen(
+    tmp_path, monkeypatch
+):
+    """Codex-review op 028ebc7b8, tegenproef 1: eerst collectie [1] met
+    selectie [1]; daarna verschijnt collectie 2 en wordt de selectie [1, 2].
+    De zoekscope is werkelijk uitgebreid — het antwoord hoort er niet meer
+    bij, ook al is [1, 2] toevallig weer 'alles'."""
+    handler, model, sm = _na_conflict_en_antwoord(
+        tmp_path, monkeypatch, "keten5", [_collectie(1)], [1]
+    )
+    _render_rag_selector(sm, [_collectie(1), _collectie(2)], [1, 2])
+    st = MagicMock()
+    _genereer(handler, sm, st)
+    assert len(model.prompts) == 2
+    assert VERDUIDELIJKING not in model.prompts[1]
+    assert st.info.called and "RAG-selectie" in str(st.info.call_args)
+
+
+def test_nieuwe_optie_zonder_selectiewijziging_houdt_antwoord_geldig(
+    tmp_path, monkeypatch
+):
+    """Codex-review op 028ebc7b8, tegenproef 2: eerst collectie [1] met
+    selectie [1]; daarna verschijnt collectie 2 maar de selectie blijft [1].
+    Alleen een nieuwe optie is geen wijziging van de selectie."""
+    handler, model, sm = _na_conflict_en_antwoord(
+        tmp_path, monkeypatch, "keten6", [_collectie(1)], [1]
+    )
+    _render_rag_selector(sm, [_collectie(1), _collectie(2)], [1])
+    st = MagicMock()
+    _genereer(handler, sm, st)
+    assert len(model.prompts) == 2
+    assert VERDUIDELIJKING in model.prompts[1]
+    assert not st.info.called, str(st.info.call_args)
+    assert st.success.called
+
+
+def test_standaardcollectie_van_de_vingerafdruk_is_die_van_de_orchestrator():
+    """De gelijkstelling 'geen selectie' ≡ standaardcollectie is alleen juist
+    zolang de orchestrator zonder selectie precies die collectie aanmaakt en
+    doorzoekt."""
+    import inspect
+    import re
+
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
+
+    bron = inspect.getsource(DefinitionOrchestratorV2.create_definition)
+    assert re.search(
+        rf'_ensure_collection\(\s*"{RAG_STANDAARDCOLLECTIE}"\s*\)', bron
+    ), "orchestratorstandaard afwijkend van RAG_STANDAARDCOLLECTIE"

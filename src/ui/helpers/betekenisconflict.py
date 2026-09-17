@@ -13,9 +13,11 @@ Drie sessiesleutels, allemaal via `SessionStateManager`:
 De vingerafdruk dekt alles wat de generatie stuurt: begrip, de drie
 contextlijsten, de categorie-invoer (override of voorstel, of géén), de
 documentselectie (document-id's zijn inhoudshashes, dus ook de inhoud) en de
-RAG-collectieselectie. Wijzigt één daarvan, dan hoort een eerder antwoord niet
-meer bij de actuele invoer en vervalt het met een melding. Geen nieuwe opslag:
-alles is sessiestaat.
+RAG-collectieselectie (als collectienamen; geen selectie ≡ de standaard-
+collectie die de orchestrator zelf doorzoekt, zie
+`rag_selectie_voor_vingerafdruk`). Wijzigt één daarvan, dan hoort een eerder
+antwoord niet meer bij de actuele invoer en vervalt het met een melding. Geen
+nieuwe opslag: alles is sessiestaat.
 
 Een verduidelijking is gebruikersbedoeling — een keuze van de bedoelde
 betekenislaag — geen bewezen bronfeit en geen ESS-02-oordeel.
@@ -33,8 +35,9 @@ __all__ = [
     "KEY_AFWIJZING",
     "KEY_INVOER",
     "KEY_OPEN",
-    "KEY_RAG_STANDAARD",
+    "KEY_RAG_NAMEN",
     "KEY_VERZONDEN",
+    "RAG_STANDAARDCOLLECTIE",
     "invoer_vingerafdruk",
     "open_conflict_uit",
     "rag_selectie_voor_vingerafdruk",
@@ -45,13 +48,18 @@ __all__ = [
 KEY_OPEN = "betekenisconflict_open"
 KEY_INVOER = "betekenisverduidelijking_invoer"
 KEY_VERZONDEN = "betekenisverduidelijking_verzonden"
-#: Door de RAG-collectieselector gezet: True als de getoonde selectie zijn
-#: standaard is (alle collecties), False bij een eigen keuze van de gebruiker.
-#: Browserbevinding 17-09-2026: de eerste generatie maakt de collectie
-#: `user_documents` aan, waarna de selector bij de volgende rerun verschijnt
-#: en zijn standaard als selectie in de sessie schrijft (None → [id]). Dat is
-#: geen gebruikershandeling en mag een verzonden antwoord niet laten vervallen.
-KEY_RAG_STANDAARD = "rag_selection_is_default"
+#: Door de RAG-collectieselector gezet: {collectie-id: collectienaam} van de
+#: op dat moment getoonde collecties. De vingerafdruk bindt de RAG-selectie
+#: aan stabiele collectienamen (UNIQUE in `rag_collections`), niet aan de
+#: toevallige id's of aan "alles geselecteerd".
+KEY_RAG_NAMEN = "rag_collection_names"
+#: De collectie die de orchestrator zonder selectie zelf aanmaakt en doorzoekt
+#: (`DefinitionOrchestratorV2.create_definition`: `_ensure_collection(...)`).
+#: Browserbevinding 17-09-2026: de eerste generatie maakt haar aan, waarna de
+#: selector bij de volgende rerun verschijnt en haar als selectie wegschrijft
+#: (None → [id]). Dat is de enige bewezen automatische initialisatie: zonder
+#: selectie is de zoekscope precies deze collectie, dus geen wijziging.
+RAG_STANDAARDCOLLECTIE = "user_documents"
 #: De melding waarmee de generatie een verzonden antwoord weigerde
 #: (reviewcorrectie 1): het conflict blijft open, het antwoord blijft
 #: verzonden, de gebruiker past het aan en verzendt opnieuw.
@@ -94,17 +102,26 @@ def invoer_vingerafdruk(
     ).hexdigest()
 
 
-def rag_selectie_voor_vingerafdruk(sm: Any) -> list[Any] | None:
-    """De RAG-selectie zoals de gebruiker haar bedoelde, voor de vingerafdruk.
+def rag_selectie_voor_vingerafdruk(sm: Any) -> list[str] | None:
+    """De effectieve RAG-zoekscope als stabiele collectienamen, voor de vingerafdruk.
 
-    None = standaard (geen selector getoond, of de selector op zijn standaard
-    "alle collecties"); een lijst = eigen keuze. Alleen de vingerafdruk leest
-    dit; wat de generatie werkelijk doorzoekt (`rag_selected_collection_ids`)
-    verandert hier niet.
+    Geen selectie (geen selector getoond, of niets geselecteerd) betekent dat
+    de generatie de standaardcollectie aanmaakt en doorzoekt; een selectie met
+    uitsluitend die collectie is dezelfde scope en levert daarom ook None.
+    Elke andere selectie telt concreet, per naam: een werkelijke uitbreiding
+    of deselectie wijzigt de scope, een nieuw beschikbare maar niet
+    geselecteerde collectie niet. Alleen de vingerafdruk leest dit; wat de
+    generatie werkelijk doorzoekt (`rag_selected_collection_ids`) verandert
+    hier niet.
     """
-    if sm.get_value(KEY_RAG_STANDAARD, False):
+    ids = sm.get_value("rag_selected_collection_ids", None) or []
+    if not ids:
         return None
-    return sm.get_value("rag_selected_collection_ids", None)
+    namen = sm.get_value(KEY_RAG_NAMEN, None) or {}
+    scope = [str(namen.get(i) or namen.get(str(i)) or i) for i in ids]
+    if scope == [RAG_STANDAARDCOLLECTIE]:
+        return None
+    return scope
 
 
 def open_conflict_uit(agent_result: Any, vingerafdruk: str) -> dict[str, Any] | None:

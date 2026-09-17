@@ -44,7 +44,7 @@ from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 
 # DEF-141: Extracted handlers and renderers
 from ui.handlers.definition_generation_handler import DefinitionGenerationHandler
-from ui.helpers.betekenisconflict import KEY_RAG_STANDAARD
+from ui.helpers.betekenisconflict import KEY_RAG_NAMEN
 from ui.renderers.document_upload_renderer import DocumentUploadRenderer
 from ui.renderers.global_context_renderer import GlobalContextRenderer
 
@@ -440,11 +440,11 @@ class TabbedInterface:
                 SessionStateManager.set_value(
                     "rag_selected_collection_ids", selected or None
                 )
-                # DEF-751: de standaard (alle collecties) is geen keuze van de
-                # gebruiker; de conflictvingerafdruk leest deze vlag, de
-                # generatie zelf blijft `rag_selected_collection_ids` gebruiken.
+                # DEF-751: de conflictvingerafdruk bindt de selectie aan
+                # stabiele collectienamen (zie `rag_selectie_voor_vingerafdruk`);
+                # de generatie zelf blijft `rag_selected_collection_ids` gebruiken.
                 SessionStateManager.set_value(
-                    KEY_RAG_STANDAARD, bool(selected) and set(selected) == set(all_ids)
+                    KEY_RAG_NAMEN, {c["id"]: c["name"] for c in collections}
                 )
         except (ImportError, sqlite3.Error) as e:
             logger.warning("RAG collection selector niet beschikbaar: %s", e)
