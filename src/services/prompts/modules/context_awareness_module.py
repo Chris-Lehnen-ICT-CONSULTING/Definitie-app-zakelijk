@@ -19,6 +19,7 @@ from services.prompts.sanitization import (
     TAG_CONTEXT,
     VeiligeTekst,
     datablok,
+    normaliseer_prompt_tekst,
     sanitize_prompt_blok,
 )
 
@@ -43,16 +44,28 @@ VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenislaag door de geb
 MAX_VERDUIDELIJKING_LEN = 4_000
 
 
+def _volledig_gesaniteerd(tekst: str) -> VeiligeTekst:
+    """`sanitize_prompt_blok` zonder afkap: `max_len` op de genormaliseerde lengte.
+
+    De sanitizer kapt af op de NFKC-genormaliseerde tekst; die kan langer zijn
+    dan de invoer (ligatuur `ﬁ` → `fi`, `ﷺ` → 18 tekens). Een `max_len` op de
+    lengte vóór normalisatie kapte daarom stil af (Unicode-correctie op
+    reviewbevinding 1). De whitespace-normalisatie van de sanitizer maakt de
+    tekst hoogstens korter, dus de genormaliseerde lengte + 1 is altijd ruim.
+    """
+    return sanitize_prompt_blok(tekst, len(normaliseer_prompt_tekst(tekst)) + 1)
+
+
 def verduidelijking_datalijn(waarde: str) -> str:
-    """De exacte DATA-regel (ná sanitisatie/escaping) die in het contextblok komt.
+    """De exacte DATA-regel (ná normalisatie/sanitisatie/escaping) in het contextblok.
 
     Eén functie voor module én orchestrator: de orchestrator toetst vóór de
     modelaanroep dat precies deze regel volledig in de gebouwde prompt staat
-    (postconditie "gebruikt = werkelijk aanwezig").
+    (postconditie "gebruikt = werkelijk aanwezig"). Nooit afgekapt — het
+    budget wordt apart getoetst (`verduidelijking_te_lang`).
     """
     tekst = " ".join(waarde.split())
-    # `max_len` ≥ lengte: hier nooit afkappen — het budget wordt apart getoetst.
-    return f"{VERDUIDELIJKING_KOP}: {sanitize_prompt_blok(tekst, len(tekst) + 1)}"
+    return f"{VERDUIDELIJKING_KOP}: {_volledig_gesaniteerd(tekst)}"
 
 
 def verduidelijking_te_lang(waarde: str) -> bool:
@@ -83,7 +96,7 @@ def _sanitize_binnen_budget(tekst: str, budget: int) -> VeiligeTekst:
     resultaat binnen `budget` past; de sanitisatie is de laatste stap.
     """
     voorstuk = _rauwe_grens_binnen_budget(tekst, budget)
-    return sanitize_prompt_blok(voorstuk, len(voorstuk) + 1)
+    return _volledig_gesaniteerd(voorstuk)
 
 
 def _veilig_datablok(regels: list[str], context: ModuleContext | None = None) -> str:
@@ -106,33 +119,51 @@ def _veilig_datablok(regels: list[str], context: ModuleContext | None = None) ->
             TAG_CONTEXT, _sanitize_binnen_budget(rest_rauw, _MAX_CONTEXT_BLOK_LEN)
         )
 
-    staart_rauw = f"{VERDUIDELIJKING_KOP}: {verduidelijking}"
-    staart_len = len(verduidelijking_datalijn(verduidelijking))
-    if staart_len >= _MAX_CONTEXT_BLOK_LEN:
+    # Dezelfde whitespace-samenvoeging als `verduidelijking_datalijn`, zodat
+    # de staart van het blok letterlijk die controletekst is.
+    staart_rauw = f"{VERDUIDELIJKING_KOP}: {' '.join(verduidelijking.split())}"
+    lijn = verduidelijking_datalijn(verduidelijking)
+    if len(lijn) >= _MAX_CONTEXT_BLOK_LEN:
         # Laatste vangnet; de orchestrator weigert dit al vóór de modelaanroep.
         return datablok(
             TAG_CONTEXT, _sanitize_binnen_budget(staart_rauw, _MAX_CONTEXT_BLOK_LEN)
         )
-    # Rauwe grens voor de rest zó dat rest (ná escaping) + newline + staart
-    # binnen het blokbudget blijft; daarna één sanitisatie van de samengestelde
-    # rauwe tekst als laatste stap (DEF-590-contract), zonder afkap: de
-    # `max_len` is precies de lengte, dus de staart blijft volledig.
-    rest_budget = _MAX_CONTEXT_BLOK_LEN - staart_len - 1
-    rest_grens = len(_rauwe_grens_binnen_budget(rest_rauw, rest_budget))
-    samengesteld = (
-        f"{rest_rauw[:rest_grens]}\n{staart_rauw}" if rest_grens > 0 else staart_rauw
-    )
-    return datablok(TAG_CONTEXT, sanitize_prompt_blok(samengesteld, len(samengesteld)))
+    # Grens voor de rest (in het genormaliseerde domein) zó dat rest (ná
+    # escaping) + newline + staart binnen het blokbudget blijft; daarna één
+    # sanitisatie van de samengestelde tekst als laatste stap (DEF-590-
+    # contract), zonder afkap (`_volledig_gesaniteerd`). Het resultaat wordt
+    # geverifieerd — budget én volledige staart — en anders met een kleinere
+    # rest opnieuw opgebouwd; met een lege rest is het resultaat de staart zelf.
+    rest_budget = _MAX_CONTEXT_BLOK_LEN - len(lijn) - 1
+    while True:
+        rest_deel = _rauwe_grens_binnen_budget(rest_rauw, rest_budget)
+        samengesteld = f"{rest_deel}\n{staart_rauw}" if rest_deel else staart_rauw
+        veilig = _volledig_gesaniteerd(samengesteld)
+        if len(veilig) <= _MAX_CONTEXT_BLOK_LEN and veilig.endswith(lijn):
+            return datablok(TAG_CONTEXT, veilig)
+        if not rest_deel:
+            # Kan alleen als de staart zelf niet past; hierboven al afgevangen.
+            return datablok(TAG_CONTEXT, veilig)
+        rest_budget = min(rest_budget - 1, len(rest_deel) // 2)
 
 
 def _rauwe_grens_binnen_budget(tekst: str, budget: int) -> str:
-    """Het rauwe voorstuk van `tekst` waarvan de gesaniteerde vorm ≤ `budget` is."""
-    rauw = min(len(tekst), max(budget, 0))
-    while rauw > 0 and len(sanitize_prompt_blok(tekst, rauw)) > budget:
-        rauw = min(
-            rauw - 1, int(rauw * budget / len(sanitize_prompt_blok(tekst, rauw)))
+    """Het (NFKC-genormaliseerde) voorstuk van `tekst` waarvan de gesaniteerde
+    vorm ≤ `budget` is.
+
+    Zoekt en snijdt in het genormaliseerde domein: NFKC is idempotent, dus een
+    voorstuk daarvan expandeert niet meer bij de latere sanitisatie, en de
+    whitespace-normalisatie maakt het hoogstens korter. De gemeten lengte is
+    daarmee een bovengrens voor het werkelijke resultaat.
+    """
+    genormaliseerd = normaliseer_prompt_tekst(tekst)
+    grens = min(len(genormaliseerd), max(budget, 0))
+    while grens > 0 and len(sanitize_prompt_blok(genormaliseerd, grens)) > budget:
+        grens = min(
+            grens - 1,
+            int(grens * budget / len(sanitize_prompt_blok(genormaliseerd, grens))),
         )
-    return tekst[: max(rauw, 0)]
+    return genormaliseerd[: max(grens, 0)]
 
 
 class ContextAwarenessModule(BasePromptModule):
