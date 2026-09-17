@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "source_commit": "ae9e22988a3944f0bed4b8c9bf20415053d27a47",
+  "source_commit": "7c39df85ec83cf969ce6d097fa8b502d62c2bb96",
   "entries": {
     "tests/ci/test_offline_gate_bootstrap.py::test_runner_kapt_af_op_het_procesbudget": {
       "source_sha256": "82f4107a3c04cd30d82c025e232b8f174925d655567fce2f88be826bfadf3843",
@@ -600,12 +600,12 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/test_prompt_security_and_edge_cases.py::TestPromptPerformance::test_prompt_generation_speed": {
-      "source_sha256": "199b05998e6e3353b35f13002ff54d9c4d342b94a9dfb1b5b1ba57611b6f39c0",
+      "source_sha256": "d25897da9d37704472aea0d46bb84ef1322b7dbfd99531342805b20019a5d590",
       "comparisons": [
         "avg_time < 0.05"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Bronhash bijgewerkt in DEF-751 (merge-integratie 17-09-2026): de module-hash verschoof door de herschreven niet-timingtest TestPromptEdgeCases::test_circular_context_references in hetzelfde bestand; deze timingvergelijking en functie zijn ongewijzigd. Status en eigenaar ongewijzigd."
     },
     "tests/smoke/test_web_lookup_timeout_smoke.py::test_web_lookup_timeout_budget_respected": {
       "source_sha256": "695d4754d271f7417befb9c60cbb6b54460682865d3d7a7a67959f24652b310f",
