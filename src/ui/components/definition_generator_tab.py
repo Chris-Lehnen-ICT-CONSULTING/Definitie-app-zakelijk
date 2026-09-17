@@ -163,8 +163,23 @@ class DefinitionGeneratorTab:
         if not agent_result:
             return
 
+        # DEF-751 stap 2: een door het model gemeld betekenisconflict is geen
+        # resultaat maar een vraag — eigen blok, geen definitie-, categorie-,
+        # validatie- of voorbeeldensectie, geen Toepassen, geen succes.
+        if isinstance(agent_result, dict) and isinstance(
+            agent_result.get("betekenisconflict"), dict
+        ):
+            self._render_betekenisconflict(agent_result)
+            return
+
         # Show success/warning indicator
         self._render_generation_status(agent_result)
+
+        # DEF-751 stap 2: een mislukte generatie (bv. een ongeldige model-
+        # melding) heeft geen definitie, record of oordeel; de resultaat-
+        # secties zouden alleen placeholders en een stale Toepassen tonen.
+        if isinstance(agent_result, dict) and not agent_result.get("success"):
+            return
 
         # DEF-215: Check for degraded validation mode
         validation_metadata = safe_dict_get(agent_result, "validation_metadata", {})
@@ -185,6 +200,13 @@ class DefinitionGeneratorTab:
         if determined_category:
             self.category_renderer.render_ontological_category_section(
                 determined_category, generation_result, saved_record
+            )
+        else:
+            # DEF-751 B2: labelvrij gegenereerd (geen keuze, geen voorstel) —
+            # zichtbaar, geen verzonnen categorie.
+            st.info(
+                "Geen ontologische categorie vastgelegd voor dit concept (geen "
+                "keuze en geen voorstel). Kies er zo nodig een in de Bewerk-tab."
             )
 
         # UFO-categorie selector - delegated to CategoryRenderer
@@ -615,6 +637,104 @@ class DefinitionGeneratorTab:
                 )
         else:
             logger.debug(f"Agent result type: {type(agent_result).__name__}")
+
+    def _render_betekenisconflict(self, agent_result: dict[str, Any]) -> None:
+        """DEF-751 stap 2: toon het gemelde betekenisconflict en vraag een antwoord.
+
+        Het conflict wordt getoond als melding van het model (vraag, lezingen,
+        gronden) — geen vastgesteld feit en geen ESS-02-oordeel. Het antwoord
+        gaat via een key-only tekstveld en een expliciete verzendknop: leeg is
+        geen antwoord; verzenden bindt het antwoord aan het open conflict en
+        de invoer waarvoor het gold. Hergenereren gebeurt met de bestaande
+        hoofdknop; de handler past het antwoord alleen bij ongewijzigde invoer
+        toe. Het widget-veld wordt door de code nooit gezet of gewist.
+        """
+        from ui.helpers.betekenisconflict import (
+            KEY_AFWIJZING,
+            KEY_INVOER,
+            KEY_OPEN,
+            KEY_VERZONDEN,
+            verzend_verduidelijking,
+        )
+
+        conflict = agent_result["betekenisconflict"]
+        st.warning(
+            "⚠️ Verduidelijking nodig — het model meldt een betekenisconflict "
+            "en heeft geen definitie geleverd. Dit is een melding van het model, "
+            "geen vastgesteld feit: controleer de gronden zelf."
+        )
+        st.markdown(f"**Vraag van het model:** {conflict.get('vraag', '')}")
+        lezingen = conflict.get("lezingen") or []
+        if lezingen:
+            st.markdown("**Gemelde lezingen en opgegeven gronden:**")
+            for nr, lezing in enumerate(lezingen, start=1):
+                if not isinstance(lezing, dict):
+                    continue
+                st.markdown(
+                    f"{nr}. **{lezing.get('lezing', '')}** — "
+                    f"{lezing.get('grond', '')} _(verwijzing: {lezing.get('bron', '')})_"
+                )
+
+        open_conflict = SessionStateManager.get_value(KEY_OPEN)
+        getoond_id = str(conflict.get("generation_id") or "")
+        hoort_bij_open = (
+            isinstance(open_conflict, dict)
+            and getoond_id
+            and str(open_conflict.get("generation_id")) == getoond_id
+        )
+        if not hoort_bij_open:
+            st.info(
+                "Deze vraag hoort bij een eerdere generatie. Genereer opnieuw; "
+                "meldt het model het conflict opnieuw, dan kun je hier antwoorden."
+            )
+            return
+
+        verzonden = SessionStateManager.get_value(KEY_VERZONDEN)
+        afwijzing = SessionStateManager.get_value(KEY_AFWIJZING)
+        if isinstance(verzonden, dict) and verzonden.get("generation_id") == getoond_id:
+            if afwijzing:
+                # Reviewcorrectie 1: de generatie weigerde dit antwoord vóór
+                # het model; het is niet verloren — aanpassen en opnieuw
+                # verzenden.
+                st.error(
+                    f"❌ Je verzonden verduidelijking is geweigerd: {afwijzing} "
+                    "Pas het antwoord hieronder aan en verzend het opnieuw."
+                )
+            else:
+                st.info(
+                    "Verzonden verduidelijking (klaar voor hergeneratie met de "
+                    f"hoofdknop 'Genereer Definitie'): {verzonden.get('tekst', '')}"
+                )
+
+        st.caption(
+            f"Vraag gesteld voor begrip '{open_conflict.get('begrip', '')}' met de "
+            "toen ingevulde context, categorie en bronselectie. Je antwoord is "
+            "jouw keuze van de bedoelde betekenislaag — geen bewijs over wat de "
+            "bronnen zeggen. Wijzig je de invoer, dan vervalt het antwoord."
+        )
+        st.text_area(
+            "Jouw verduidelijking van de bedoelde betekenis",
+            key=KEY_INVOER,
+            help=(
+                "Beschrijf welke lezing bedoeld is. Leeg is geen antwoord; "
+                "verzenden is expliciet."
+            ),
+        )
+        if st.button(
+            "📨 Verduidelijking vastleggen", key="btn_betekenisverduidelijking"
+        ):
+            afwijsreden = verzend_verduidelijking(
+                SessionStateManager,
+                open_conflict,
+                SessionStateManager.get_value(KEY_INVOER),
+            )
+            if afwijsreden:
+                st.warning(f"⚠️ {afwijsreden}")
+            else:
+                st.success(
+                    "✅ Verduidelijking vastgelegd. Klik op 'Genereer Definitie' "
+                    "om met dit antwoord opnieuw te genereren."
+                )
 
     def _render_generation_status(self, agent_result: Any) -> None:
         """Render the success/warning status of generation."""

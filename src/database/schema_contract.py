@@ -53,17 +53,28 @@ from database.sqlite_backup import (
 
 logger = logging.getLogger(__name__)
 
-CANONICAL_VERSION = 3
+CANONICAL_VERSION = 4
 """Schemaversie die ``schema.sql`` beschrijft en die startup vereist."""
 
-SUPPORTED_VERSIONS: tuple[int, ...] = (0, 1, 2, 3)
-"""Expliciete profielen: 0 = pre-v5 (geen schema_version), 1 = v5, 2 = v6, 3 = v7."""
+SUPPORTED_VERSIONS: tuple[int, ...] = (0, 1, 2, 3, 4)
+"""Expliciete profielen: 0 = pre-v5 (geen schema_version), 1 = v5, 2 = v6,
+3 = v7, 4 = v8 (DEF-751: `definities.categorie` optioneel)."""
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
 # Declaratieve afleiding van de lagere profielen uit het canonieke schema:
-# precies de wijzigingen van v7, v6 en v5 teruggedraaid. Zo heeft elke
+# precies de wijzigingen van v8, v7, v6 en v5 teruggedraaid. Zo heeft elke
 # migratieroute een volledig, versiespecifiek doelcontract.
+#
+# v8 (DEF-751) versoepelde alleen `categorie NOT NULL`; SQLite kan een
+# NOT NULL niet declaratief terugzetten, dus profiel 3 wordt afgeleid door
+# die ene kolomdefinitie in de schematekst terug te zetten vóór opbouw —
+# fail-closed als de tekst niet precies één keer voorkomt.
+_CATEGORIE_PROFIEL_4 = "categorie VARCHAR(50) CHECK (categorie IN ("
+_CATEGORIE_PROFIEL_3 = "categorie VARCHAR(50) NOT NULL CHECK (categorie IN ("
+_NAAR_PROFIEL_3 = """
+DELETE FROM schema_version WHERE version = 4;
+"""
 _NAAR_PROFIEL_2 = """
 ALTER TABLE rag_collections ADD COLUMN document_count INTEGER DEFAULT 0;
 ALTER TABLE rag_collections ADD COLUMN chunk_count INTEGER DEFAULT 0;
@@ -718,6 +729,22 @@ def read_contract(conn: sqlite3.Connection) -> SchemaContract:
 
 
 @cache
+def schema_tekst_voor_profiel(schema_sql: str, version: int) -> str:
+    """De canonieke schematekst, voor profielen < 4 met `categorie NOT NULL`.
+
+    DEF-751: de enige v8-wijziging in de tabeldefinitie zelf. Fail-closed:
+    de kolomdefinitie moet precies één keer voorkomen.
+    """
+    if version >= 4:
+        return schema_sql
+    if schema_sql.count(_CATEGORIE_PROFIEL_4) != 1:
+        raise SchemaContractError(
+            "canonical_schema_unreadable",
+            ("categorie-definitie niet (eenduidig) gevonden in schema.sql",),
+        )
+    return schema_sql.replace(_CATEGORIE_PROFIEL_4, _CATEGORIE_PROFIEL_3)
+
+
 def _target_contract_for(schema_path: Path, version: int) -> SchemaContract:
     try:
         schema_sql = schema_path.read_text(encoding="utf-8")
@@ -728,11 +755,13 @@ def _target_contract_for(schema_path: Path, version: int) -> SchemaContract:
     conn = sqlite3.connect(":memory:")
     try:
         try:
-            conn.executescript(schema_sql)
+            conn.executescript(schema_tekst_voor_profiel(schema_sql, version))
         except sqlite3.Error as exc:
             raise SchemaContractError(
                 "canonical_schema_unreadable", (type(exc).__name__,)
             ) from exc
+        if version < 4:
+            conn.executescript(_NAAR_PROFIEL_3)
         if version < 3:
             conn.executescript(_NAAR_PROFIEL_2)
         if version < 2:
@@ -888,7 +917,7 @@ def problems_to_error(problemen: list[ContractProblem]) -> SchemaContractError:
 
 
 def assert_startup_contract(conn: sqlite3.Connection) -> None:
-    """Weiger fail-closed elke bestaande database die niet canoniek versie 3 is.
+    """Weiger fail-closed elke bestaande database die niet canoniek versie 4 is.
 
     Volgorde: een database zonder de kerntabellen is een onbekend deelschema
     (``schema_incomplete``), geen "oudere versie"; pas met de kern aanwezig is
@@ -911,7 +940,7 @@ def assert_startup_contract(conn: sqlite3.Connection) -> None:
             (
                 (
                     f"gevonden schemaversie {gevonden}, vereist {CANONICAL_VERSION}; "
-                    "startup migreert niet, draai de migraties v5/v6/v7 expliciet"
+                    "startup migreert niet, draai de migraties v5/v6/v7/v8 expliciet"
                 ),
             ),
         )

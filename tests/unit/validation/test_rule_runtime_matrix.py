@@ -537,8 +537,11 @@ class TestAfgeleideTelling:
         # `automated`. De duplicaatcontrole draaide al — maar in CON-01, waar
         # zij contractueel niet hoort. Zij heeft nu haar eigen evaluator op de
         # regel die "Bestaat deze definitie nog niet in de database?" toetst.
-        "automated": 37,
-        "review_required": 12,
+        # DEF-750: ESS-02 ging van `automated` (marker-/categoriehitroute)
+        # naar `review_required`: betekenisniveau en aard zijn een menselijk
+        # oordeel; 37/12/4 → 36/13/4.
+        "automated": 36,
+        "review_required": 13,
         "not_evaluated": 4,
     }
 

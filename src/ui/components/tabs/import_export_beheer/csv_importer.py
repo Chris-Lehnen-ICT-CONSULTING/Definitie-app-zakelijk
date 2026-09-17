@@ -15,6 +15,9 @@ from typing import TYPE_CHECKING, Protocol
 import pandas as pd
 import streamlit as st
 
+from domain.categorie_herkomst import HERKOMST_IMPORT
+from ui.helpers.categorie_weergave import STANDAARD_CATEGORIEEN, is_opslagcategorie
+
 if TYPE_CHECKING:
     from database.definitie_repository import DefinitieRepository
 
@@ -45,6 +48,31 @@ _MAX_FILE_SIZE_BYTES = _MAX_FILE_SIZE_MB * 1024 * 1024
 _MAX_FIELD_LENGTH = 10_000
 
 logger = logging.getLogger(__name__)
+
+# DEF-751 B2 (schemaversie 4): een rij zonder categorie wordt labelvrij
+# bewaard (NULL, herkomst `import`, status `imported_missing`) — geen
+# verzonnen "type"/"proces". Een waarde die geen opslagwaarde is (de CHECK is
+# hoofdlettergevoelig en kent geen vrije tekst) wordt gemeld en overgeslagen:
+# een technische grens van het schema, geen inhoudelijk oordeel.
+_CATEGORIE_TECHNISCHE_GRENS = (
+    "de definitie zelf is niet inhoudelijk beoordeeld of afgekeurd, maar de "
+    "opslag kent deze categoriewaarde niet. "
+    f"Geldige waarden: {', '.join(STANDAARD_CATEGORIEEN)} "
+    "(of een bestaande opslagcode zoals ENT/ACT/REL/ATT/AUT/STA/OTH); laat het "
+    "veld leeg om zonder label te bewaren."
+)
+
+
+def _categorie_probleem(categorie: str) -> str | None:
+    """Reden waarom deze categoriewaarde niet opgeslagen kan worden, of None."""
+    if not categorie:
+        return None  # labelvrij: NULL, geen default
+    if not is_opslagcategorie(categorie):
+        return (
+            f"categorie '{categorie}' is geen opslagwaarde (hoofdlettergevoelig); "
+            f"{_CATEGORIE_TECHNISCHE_GRENS}"
+        )
+    return None
 
 
 def _cell_str(value: object) -> str:
@@ -205,7 +233,14 @@ class CSVImporter:
                 definitie = definitie[:_MAX_FIELD_LENGTH]
 
                 context = _cell_str(row.get("context", "")) or "Algemeen"
-                categorie = _cell_str(row.get("categorie", "")) or "Type"
+                # DEF-751: geen default en geen omzetting; melden en overslaan.
+                categorie = _cell_str(row.get("categorie", ""))
+                categorie_probleem = _categorie_probleem(categorie)
+                if categorie_probleem:
+                    errors.append(
+                        f"Rij {idx + 1}: niet opgeslagen — {categorie_probleem}"
+                    )
+                    continue
 
                 # Check duplicaat
                 if skip_duplicates:
@@ -216,18 +251,22 @@ class CSVImporter:
                         skipped += 1
                         continue
 
-                # Maak record
+                # Maak record (DEF-751: leeg = NULL, geen label)
                 record = DefinitieRecord(
                     begrip=begrip,
                     definitie=definitie,
-                    categorie=categorie,
+                    categorie=categorie or None,
                     organisatorische_context=context,
                     status=_STATUS_DRAFT,
                     validation_score=0.0,
                 )
 
-                # Save (DEF-439: DB-laag heet create_definitie, niet save)
-                self.repository.create_definitie(record)
+                # Save (DEF-439: DB-laag heet create_definitie, niet save).
+                # DEF-751 B2: herkomst `import` — de persistentielaag bouwt
+                # het keuze-event (nooit met actor).
+                self.repository.create_definitie(
+                    record, categoriekeuze={"origin": HERKOMST_IMPORT}
+                )
                 imported += 1
 
                 # Auto validatie indien gewenst

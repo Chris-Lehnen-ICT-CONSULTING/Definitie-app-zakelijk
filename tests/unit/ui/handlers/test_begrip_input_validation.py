@@ -131,14 +131,20 @@ class TestHandlerWeigertOngeldigBegrip:
         mock_st.spinner.assert_not_called()
 
     def test_geldig_begrip_passeert_de_invoervalidatie(self) -> None:
-        """Geldig begrip komt vóórbij de invoer-gate (strandt daarna pas
-        op de klassieke classificatie-gate — bewijst dat de nieuwe check
-        geldige invoer niet blokkeert)."""
+        """Geldig begrip komt vóórbij de invoer-gate: de handler bereikt de
+        duplicaatvoorcontrole (DEF-751 B2: zonder classificatie labelvrij,
+        categorie None — er is geen classificatiegate meer) — bewijst dat
+        de invoercheck geldige invoer niet blokkeert."""
         handler = self._handler()
         mock_st = MagicMock()
         mock_st.error = Mock()
+        mock_st.button = Mock(return_value=False)
+        mock_st.columns.side_effect = lambda spec, **kw: [MagicMock(), MagicMock()]
         mock_sm = MagicMock()
         mock_sm.get_value = Mock(return_value=None)  # geen classificatie
+        handler.checker.check_before_generation.return_value = MagicMock(
+            action="SHOW_EXISTING", existing_definitie=None
+        )
 
         handler.handle_definition_generation(
             "overeenkomst",
@@ -147,5 +153,9 @@ class TestHandlerWeigertOngeldigBegrip:
             _sm=mock_sm,
         )
 
-        melding = mock_st.error.call_args[0][0]
-        assert "Ontologische categorie" in melding  # de oude gate, niet de nieuwe
+        mock_st.error.assert_not_called()  # niet de invoer-gate, geen andere gate
+        handler.checker.check_before_generation.assert_called_once()
+        assert (
+            handler.checker.check_before_generation.call_args.kwargs["categorie"]
+            is None
+        )

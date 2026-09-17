@@ -76,6 +76,18 @@ def _normaliseer(value: str) -> str:
     return unicodedata.normalize("NFKC", value)
 
 
+def normaliseer_prompt_tekst(value: str) -> str:
+    """De NFKC-genormaliseerde tekst waarop de sanitize-functies hun `max_len`
+    toepassen — géén sanitisatie (niet geëscaped, geen `VeiligeTekst`).
+
+    Voor aanroepers die een budget of controletekst moeten bepalen: NFKC kan
+    tekst langer maken (ligatuur `ﬁ` → `fi`, `ﷺ` → 18 tekens), dus een lengte
+    vóór normalisatie als `max_len` kapt stil af. Meet en snij daarom op deze
+    genormaliseerde vorm (DEF-751 stap 2, Unicode-correctie).
+    """
+    return _normaliseer(value)
+
+
 def _escape(text: str) -> str:
     """Escape `&`, `<` en `>` — in die volgorde.
 

@@ -62,7 +62,9 @@ def test_definition_task_module_validate_and_execute():
     # De checklist-sectie heet sinds de module-herstructurering "CONSTRUCTIE GUIDE"
     # (zie DefinitionTaskModule._build_checklist); voorheen "CHECKLIST" (verouderde assertie, DEF-413).
     assert "CONSTRUCTIE GUIDE" in content
-    assert "Ontologische marker" in content
+    # DEF-750: geen aparte markerregel meer in een uitvoer die alleen de
+    # definitiekern mag bevatten; de categorie is metadata, geen uitvoer.
+    assert "Ontologische marker" not in content
     assert "Promptmetadata" in content
     assert "authenticatie" in content
     assert out.metadata.get("begrip") == "authenticatie"
@@ -102,5 +104,6 @@ def test_semantic_categorisation_sets_shared_and_guidance():
     # shared state set
     assert ctx.get_shared("ontological_category") == "proces"
     # guidance hints appear
-    assert "PROCES CATEGORIE" in out.content
+    # DEF-750: richtinggevende hint zonder exclusieve categorieclaim.
+    assert "PROCES — activiteit als kern" in out.content
     assert out.metadata.get("ontological_category") == "proces"

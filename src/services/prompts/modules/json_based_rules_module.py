@@ -23,6 +23,7 @@ import logging
 from typing import Any
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
+from .ess02_aanwijzing import GEDEELDE_ESS02_AANWIJZING
 
 logger = logging.getLogger(__name__)
 
@@ -323,7 +324,9 @@ class JSONBasedRulesModule(BasePromptModule):
                 "Een bevestigde overtreding blijft voldoet niet, ook bij een gezaghebbende "
                 "bron; het oordeel start geen automatische wijziging of regeneratie."
             ),
-            "ESS-02": "Maak de ontologische categorie expliciet: kies duidelijk tussen proces, type, resultaat of exemplaar",
+            # DEF-750: dezelfde aanwijzing als de betekenislaagsectie; geen
+            # "kies tussen vier" en geen markerplicht.
+            "ESS-02": GEDEELDE_ESS02_AANWIJZING,
             "ESS-03": "Noem criteria voor unieke identificatie van instanties (zoals serienummer, kenteken, ID, registratienummer)",
             "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
             "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",

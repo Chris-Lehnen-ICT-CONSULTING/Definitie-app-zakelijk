@@ -8,6 +8,7 @@ definition edit interface, including version history and optimistic locking.
 import json
 import logging
 import sqlite3
+from collections.abc import Mapping
 from datetime import datetime
 from typing import Any, cast
 
@@ -100,6 +101,8 @@ class DefinitionEditRepository(DefinitionRepository):
         definition: Definition,
         wijziging_reden: str | None = None,
         gewijzigd_door: str = "system",
+        *,
+        categoriekeuze: Mapping[str, Any] | None = None,
     ) -> int:
         """
         Sla definitie op met automatische history logging.
@@ -108,6 +111,9 @@ class DefinitionEditRepository(DefinitionRepository):
             definition: De op te slaan definitie
             wijziging_reden: Optionele reden voor wijziging
             gewijzigd_door: Gebruiker die wijziging maakt
+            categoriekeuze: DEF-751 B2 — menselijke categoriekeuze van deze
+                actie; dan loopt de opslag via het expliciete commando
+                (`save_met_categoriekeuze`), in één UPDATE met versieguard.
 
         Returns:
             ID van de opgeslagen definitie
@@ -124,7 +130,16 @@ class DefinitionEditRepository(DefinitionRepository):
             definition.metadata["updated_by"] = gewijzigd_door
 
             # Save using parent method
-            definition_id = self.save(definition)
+            if categoriekeuze is not None:
+                definition_id = self.save_met_categoriekeuze(
+                    definition,
+                    herkomst=str(categoriekeuze.get("herkomst", "editor")),
+                    actor=categoriekeuze.get("actor"),
+                    actor_source=categoriekeuze.get("actor_source"),
+                    updated_by=gewijzigd_door,
+                )
+            else:
+                definition_id = self.save(definition)
 
             # Manual history entry if needed (trigger handles most cases)
             if wijziging_reden and definition_id:

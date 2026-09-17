@@ -25,22 +25,15 @@
     {
       "rule": "context-str",
       "path": "src/services/interfaces.py",
-      "line": 205,
+      "line": 213,
       "text": "    context: str | None = None  # Contextuele informatie (legacy)",
       "count": 1
     },
     {
       "rule": "context-str",
       "path": "src/services/interfaces.py",
-      "line": 229,
+      "line": 237,
       "text": "    document_context: str | None = None",
-      "count": 1
-    },
-    {
-      "rule": "context-str",
-      "path": "src/services/interfaces.py",
-      "line": 698,
-      "text": "    context: str | None = None",
       "count": 1
     },
     {
@@ -53,7 +46,14 @@
     {
       "rule": "context-str",
       "path": "src/services/interfaces.py",
-      "line": 724,
+      "line": 726,
+      "text": "    context: str | None = None",
+      "count": 1
+    },
+    {
+      "rule": "context-str",
+      "path": "src/services/interfaces.py",
+      "line": 738,
       "text": "    context: str",
       "count": 1
     },
@@ -74,7 +74,7 @@
     {
       "rule": "context-str",
       "path": "src/services/service_factory.py",
-      "line": 857,
+      "line": 902,
       "text": "        self, begrip: str, context: str | dict | None = None, **kwargs: Any",
       "count": 1
     }

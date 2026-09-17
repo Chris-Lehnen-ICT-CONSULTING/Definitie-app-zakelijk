@@ -32,9 +32,15 @@ class PromptComponentConfig:
     compact_mode: bool = False  # Voor kortere prompts (experimenteel)
 
     # Advanced configuratie
-    max_prompt_length: int = (
-        35000  # Hard limit voor prompt lengte (verhoogd van 20K naar 35K)
-    )
+    # Harde kap op de promptlengte (20K → 35K; DEF-751 stap 2: → 60K). Sinds
+    # reviewcorrectie 2 wordt boven de kap niet meer stil afgekapt (dat
+    # knipte eindinstructie en conflictcontract weg) maar expliciet geweigerd
+    # (`PromptTeLangError`, vóór de modelaanroep). Gemeten 17-09-2026: de
+    # rijke prompt (drie contexttypen, categorie type) is ~35,6K zonder
+    # contextblokinhoud; het contextblok is ná escaping ≤ 20K
+    # (`ContextAwarenessModule`), dus een correcte prompt blijft ≤ ~56K. Het
+    # bronnenblok wordt pas ná deze kap toegevoegd.
+    max_prompt_length: int = 60000
     enable_component_metadata: bool = True
 
 

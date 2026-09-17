@@ -7,6 +7,7 @@ ge-re-exporteerd voor backward compatibility.
 
 import logging
 import sqlite3
+from collections.abc import Mapping
 from contextlib import AbstractContextManager
 from pathlib import Path
 from typing import Any
@@ -124,8 +125,36 @@ class DefinitieRepository:
         record: DefinitieRecord,
         allow_duplicate: bool = False,
         duplicate_reason: str | None = None,
+        *,
+        categoriekeuze: Mapping[str, Any] | None = None,
     ) -> int:
-        return self._crud.create_definitie(record, allow_duplicate, duplicate_reason)
+        return self._crud.create_definitie(
+            record, allow_duplicate, duplicate_reason, categoriekeuze=categoriekeuze
+        )
+
+    def record_category_choice(
+        self,
+        definitie_id: int,
+        updates: Mapping[str, Any],
+        *,
+        waarde: str | None,
+        herkomst: str,
+        actor: str | None,
+        actor_source: str | None,
+        updated_by: str | None,
+        expected_version: int,
+    ) -> bool:
+        """Expliciet commando voor een menselijke categoriekeuze (DEF-751 B2)."""
+        return self._crud.record_category_choice(
+            definitie_id,
+            updates,
+            waarde=waarde,
+            herkomst=herkomst,
+            actor=actor,
+            actor_source=actor_source,
+            updated_by=updated_by,
+            expected_version=expected_version,
+        )
 
     def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         return self._crud.get_definitie(definitie_id)
@@ -385,10 +414,14 @@ class DefinitieRepository:
     def import_from_json(
         self, file_path: str, import_by: str | None = None
     ) -> tuple[int, int, list[str]]:
+        # DEF-751 B2: een geïmporteerd record krijgt herkomst `import`; een
+        # keuze-event in het bestand wordt niet als keuze overgenomen.
         return self._import_export.import_from_json(
             file_path,
             import_by,
-            create_fn=self.create_definitie,
+            create_fn=lambda record: self.create_definitie(
+                record, categoriekeuze={"origin": "import"}
+            ),
         )
 
     # === Audit helpers (backward compat) ===

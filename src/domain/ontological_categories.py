@@ -15,3 +15,18 @@ class OntologischeCategorie(Enum):
     PROCES = "proces"
     RESULTAAT = "resultaat"
     EXEMPLAAR = "exemplaar"
+
+
+# DEF-751: de elf waarden die de CHECK-constraint op `definities.categorie`
+# toestaat (schema.sql) — de vier generatiecategorieën plus de zeven
+# opslagcodes uit eerdere imports. Hoofdlettergevoelig, zoals de CHECK.
+OPSLAGCATEGORIEEN: tuple[str, ...] = (
+    *(categorie.value for categorie in OntologischeCategorie),
+    "ENT",
+    "ACT",
+    "REL",
+    "ATT",
+    "AUT",
+    "STA",
+    "OTH",
+)
