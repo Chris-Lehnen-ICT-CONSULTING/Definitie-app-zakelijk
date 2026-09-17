@@ -497,6 +497,7 @@ class TabbedInterface:
             "determined_category",
             "category_reasoning",
             "category_scores",
+            "classification_basis",  # DEF-751 B2: basis van voorstel/override
         ]
 
         for field in fields_to_clear:

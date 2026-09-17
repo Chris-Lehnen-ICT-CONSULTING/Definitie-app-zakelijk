@@ -12,6 +12,7 @@ from typing import Any, cast
 
 import streamlit as _default_st
 
+from domain.context.normalisatie import canoniseer_contextlijst
 from ui.session_state import SessionStateManager as _DefaultSM
 
 logger = logging.getLogger(__name__)
@@ -42,15 +43,23 @@ class GlobalContextRenderer:
         # render_category_preview en de auto-generatie-trigger lezen die key.
         # Bij een gewijzigde term is de gecachte classificatie niet langer
         # geldig — anders genereert de handler met de categorie van de vorige term.
+        # DEF-751 B2: ook de handmatige override hoort bij de vorige term;
+        # een andere term erft geen verborgen handmatige bedoeling.
         if value != previous:
-            for stale_key in (
-                "determined_category",
-                "category_reasoning",
-                "category_scores",
-            ):
-                _DefaultSM.clear_value(stale_key)
+            self._wis_classificatie(_DefaultSM)
         _DefaultSM.set_value("begrip", value)
         return value
+
+    @staticmethod
+    def _wis_classificatie(sm: Any) -> None:
+        for stale_key in (
+            "determined_category",
+            "category_reasoning",
+            "category_scores",
+            "manual_ontological_category",
+            "classification_basis",
+        ):
+            sm.clear_value(stale_key)
 
     def render_context_selector(self) -> dict[str, Any]:
         """Render context selector met fallback.
@@ -276,6 +285,16 @@ class GlobalContextRenderer:
 
         begrip = sm.get_value("begrip", "")
         if begrip.strip():
+            # DEF-751 B2: voorstel én override horen bij één term + context.
+            # Verandert de context (of de term buiten het invoerveld om), dan
+            # vervallen beide; de classificatie loopt hieronder opnieuw.
+            context_data = sm.get_value("global_context", {}) or {}
+            basis = f"{begrip.strip().casefold()}|{self._contextbasis(context_data)}"
+            vorige_basis = sm.get_value("classification_basis")
+            if vorige_basis is not None and vorige_basis != basis:
+                self._wis_classificatie(sm)
+            sm.set_value("classification_basis", basis)
+
             determined_category = sm.get_value("determined_category")
 
             if not determined_category:
@@ -336,3 +355,20 @@ class GlobalContextRenderer:
             if manual_override:
                 sm.set_value("manual_ontological_category", manual_override)
                 st.success(f"✓ Gebruik {manual_override}")
+            else:
+                # DEF-751 B2: terug naar het voorstel trekt een eerdere
+                # handmatige override expliciet in.
+                sm.clear_value("manual_ontological_category")
+
+    @staticmethod
+    def _contextbasis(context_data: Any) -> str:
+        """Genormaliseerde weergave van de drie contextlijsten voor de basisvergelijking."""
+        delen = []
+        for veld in (
+            "organisatorische_context",
+            "juridische_context",
+            "wettelijke_basis",
+        ):
+            waarden = context_data.get(veld) if isinstance(context_data, dict) else None
+            delen.append(repr(canoniseer_contextlijst(waarden)))
+        return "|".join(delen)

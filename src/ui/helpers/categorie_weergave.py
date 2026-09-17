@@ -18,6 +18,8 @@ Herkomst (handmatig/model/default) wordt hier niet vastgelegd; dat is B2.
 
 from __future__ import annotations
 
+from typing import Any
+
 from domain.ontological_categories import OntologischeCategorie
 from ui.components.formatters.definition_formatter_utils import (
     CATEGORY_DISPLAY_NAMES,
@@ -76,3 +78,43 @@ def generatiecategorie_van(waarde: str | None) -> OntologischeCategorie | None:
         return OntologischeCategorie(waarde.lower())
     except ValueError:
         return None
+
+
+# DEF-751 B2: leesbare weergave van de keuzestatus (`domain.categorie_herkomst`).
+_STATUSTEKST: dict[str, str] = {
+    "absent": "Herkomst categorie: geen categorie en geen keuze vastgelegd.",
+    "unknown_origin": (
+        "Herkomst categorie: herkomst onbekend (bestaand record zonder keuze-event)."
+    ),
+    "invalid": "Herkomst categorie: keuze-event onleesbaar.",
+    "manual_confirmed": "Herkomst categorie: handmatig gekozen",
+    "manual_unattributed": (
+        "Herkomst categorie: handmatig gekozen, beoordelaar niet opgegeven."
+    ),
+    "model_suggestion": "Herkomst categorie: voorstel van het model, niet bevestigd.",
+    "imported": "Herkomst categorie: overgenomen uit import.",
+    "imported_missing": "Herkomst categorie: importbron had geen categorie.",
+    "default": "Herkomst categorie: door de code toegepaste default, geen keuze.",
+}
+
+
+def beschrijf_keuzestatus(status: Any, keuze: Any) -> str:
+    """Eén regel over de herkomst van de opgeslagen categorie; geen oordeel."""
+    if not isinstance(status, dict):
+        return _STATUSTEKST["unknown_origin"]
+    code = status.get("status")
+    if code == "stale":
+        onderliggend = _STATUSTEKST.get(str(status.get("underlying")), "")
+        return (
+            "Herkomst categorie: verouderd — "
+            f"{status.get('reason')}. Eerder: {onderliggend.removeprefix('Herkomst categorie: ')}"
+        )
+    tekst = _STATUSTEKST.get(str(code), _STATUSTEKST["unknown_origin"])
+    if code == "manual_confirmed" and isinstance(keuze, dict):
+        tekst += (
+            f" door {keuze.get('actor')} (opgegeven naam, niet geverifieerd) "
+            f"op {keuze.get('recorded_at')}."
+        )
+    if status.get("text_unchanged") is False:
+        tekst += " De tekst is sindsdien gewijzigd; de keuze gold voor de gegenereerde tekst."
+    return tekst

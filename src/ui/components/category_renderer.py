@@ -462,13 +462,15 @@ class CategoryRenderer:
         begrip = ensure_string(safe_dict_get(generation_result, "begrip", ""))
         saved_record = generation_result.get("saved_record")
 
+        # DEF-751 B2: de generator-tab kent geen identiteit; de keuze wordt
+        # als handmatig maar ongeattribueerd vastgelegd (geen "web_user").
         result = self.workflow_service.execute_category_change_workflow(
             definition_id=saved_record.id if saved_record else None,
             old_category=old_category,
             new_category=new_category,
             current_definition=current_definition,
             begrip=begrip,
-            user="web_user",
+            user=None,
             reason="Handmatige aanpassing via UI",
         )
 

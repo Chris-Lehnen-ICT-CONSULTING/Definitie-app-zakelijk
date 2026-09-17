@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, cast
 
+from domain.categorie_herkomst import bepaal_keuzestatus, is_categoriekeuze
 from domain.context.normalisatie import contextsleutel, lees_contextwaarden
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,13 @@ SOURCE_EVIDENCE_HISTORY_KEY = "source_evidence_history"
 SOURCE_PROPOSALS_KEY = "source_proposals"
 SOURCE_REVIEW_HISTORY_KEY = "source_review_history"
 SOURCE_EVIDENCE_SCHEMA = "def743-bronbewijs/2"
+
+#: Sleutels in `generation_prompt_data` (DEF-751 B2): het actuele
+#: categoriekeuze-event en de append-only historie van vervangen events.
+#: Geen validatie-issue en geen inhoudelijk oordeel; contract in
+#: `domain.categorie_herkomst`.
+CATEGORY_CHOICE_KEY = "category_choice"
+CATEGORY_CHOICE_HISTORY_KEY = "category_choice_history"
 
 #: De drie contextvelden zoals het bewijs ze vastlegt (zelfde namen als het record).
 _CONTEXTVELDEN: tuple[str, ...] = (
@@ -514,6 +522,44 @@ class DefinitieRecord:
         if not isinstance(historie, list):
             return []
         return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    # ------------------------------------ categoriekeuze (DEF-751 B2)
+
+    def get_category_choice(self) -> dict[str, Any] | None:
+        """Het actuele categoriekeuze-event, of None (afwezig of misvormd).
+
+        Bewaard onder `category_choice` in de generatieregistratie. Een
+        misvormd blok is fail-closed géén keuze; de status meldt `invalid`.
+        """
+        registratie = self.get_generatieregistratie() or {}
+        event = registratie.get(CATEGORY_CHOICE_KEY)
+        return deepcopy(event) if is_categoriekeuze(event) else None
+
+    def get_category_choice_history(self) -> list[dict[str, Any]]:
+        """Append-only historie van vervangen keuze-events (oud → nieuw)."""
+        registratie = self.get_generatieregistratie() or {}
+        historie = registratie.get(CATEGORY_CHOICE_HISTORY_KEY)
+        if not isinstance(historie, list):
+            return []
+        return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    def get_category_choice_status(self) -> dict[str, Any]:
+        """Status van de keuze tegenover dít record (`domain.categorie_herkomst`).
+
+        Afgeleid bij lezen uit event + actuele term/context/categorie/tekst;
+        er wordt niets herschreven. Geen event mét kolomwaarde =
+        `unknown_origin` (historisch bewijs ontbreekt), zonder = `absent`.
+        """
+        registratie = self.get_generatieregistratie() or {}
+        ruw = registratie.get(CATEGORY_CHOICE_KEY)
+        event: Any = ruw if ruw is not None else None
+        return bepaal_keuzestatus(
+            event,
+            categorie=self.categorie or None,
+            begrip=self.begrip,
+            contexten=self.get_contextlijsten(),
+            definitie_tekst=self.get_definitie_tekst(),
+        )
 
     def get_source_review_history(self) -> list[dict[str, Any]]:
         """Append-only historie van vervangen/verwijderde CON-02-reviews.

@@ -19,6 +19,7 @@ from typing import Any, cast
 import streamlit as _default_st
 
 from document_processing.document_processor import get_document_processor
+from domain.categorie_herkomst import HERKOMST_HANDMATIG, HERKOMST_MODEL
 from domain.ontological_categories import OntologischeCategorie
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from ui.helpers.categorie_weergave import generatiecategorie_van
@@ -361,14 +362,24 @@ class DefinitionGenerationHandler:
                             SessionStateManager.get_value("ufo_categorie") or None
                         ),
                         options={
-                            k: v
-                            for k, v in options.items()
-                            if k
-                            in (
-                                "force_generate",
-                                "force_duplicate",
-                                "force_duplicate_reason",
-                            )
+                            **{
+                                k: v
+                                for k, v in options.items()
+                                if k
+                                in (
+                                    "force_generate",
+                                    "force_duplicate",
+                                    "force_duplicate_reason",
+                                )
+                            },
+                            # DEF-751 B2: de herkomst van de keuze uit déze
+                            # UI-actie (handmatige override of modelvoorstel).
+                            # Geen actor: de generator-tab kent geen
+                            # identiteit; de service leest alleen herkomst,
+                            # reasoning en scores (`lees_keuze_invoer`).
+                            "category_choice": self._keuze_invoer(
+                                manual_category, category_reasoning, category_scores
+                            ),
                         },
                         document_context=doc_summary,
                         document_snippets=doc_snippets,
@@ -582,6 +593,25 @@ class DefinitionGenerationHandler:
                 gewist = True
         if gewist:
             _sm.set_value("generation_options", opties)
+
+    @staticmethod
+    def _keuze_invoer(
+        manual_category: Any, reasoning: Any, scores: Any
+    ) -> dict[str, Any]:
+        """De onbevestigde keuze-invoer voor de service (DEF-751 B2).
+
+        Handmatige override → herkomst `manual`; anders het modelvoorstel
+        (`model`) met zijn reasoning/scores. Nooit een actor of status: dat
+        zou een bevestiging fabriceren die deze tab niet kan geven.
+        """
+        if manual_category:
+            return {"origin": HERKOMST_HANDMATIG}
+        invoer: dict[str, Any] = {"origin": HERKOMST_MODEL}
+        if isinstance(reasoning, str) and reasoning:
+            invoer["reasoning"] = reasoning
+        if isinstance(scores, dict) and scores:
+            invoer["scores"] = dict(scores)
+        return invoer
 
     def _weiger_categorie(
         self, waarde: Any, herkomst: str, *, _st: Any, _sm: Any

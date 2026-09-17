@@ -27,6 +27,8 @@ from database.definitie_repository import (
     Voorsteltoepassing,
 )
 from database.models import (
+    CATEGORY_CHOICE_HISTORY_KEY,
+    CATEGORY_CHOICE_KEY,
     KANDIDAATSTADIA,
     SOURCE_EVIDENCE_HISTORY_KEY,
     SOURCE_EVIDENCE_KEY,
@@ -35,6 +37,11 @@ from database.models import (
     bouw_bronbewijs,
     serialiseer_generatieregistratie,
     splits_definitietekst,
+)
+from domain.categorie_herkomst import (
+    HERKOMST_DEFAULT,
+    bouw_categoriekeuze,
+    lees_keuze_invoer,
 )
 from domain.context.normalisatie import (
     canoniseer_contextlijst,
@@ -133,6 +140,28 @@ def _voeg_bewijsinvoer_toe(
     bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
     if bewijsinvoer is not None:
         updates["source_evidence"] = bewijsinvoer
+
+
+#: DEF-751 B2: de invoersleutel voor een categoriekeuze in `Definition.metadata`.
+#: Bewust een andere sleutel dan het teruggelezen event (`category_choice`):
+#: openen + opslaan mag nooit het bestaande event opnieuw als invoer aanbieden.
+CATEGORY_CHOICE_INPUT_KEY = "category_choice_input"
+
+
+def _voeg_keuze_invoer_toe(
+    updates: dict[str, Any], metadata: dict[str, Any] | None
+) -> None:
+    """Zet de `category_choice`-invoer van de editorroute in `updates`.
+
+    De editor levert herkomst `editor` (of `manual` bij toepassen) mét de
+    actor die zij zelf kent; de DB-laag eist dat die actor de handelende
+    gebruiker is (`_geldige_keuze_invoer`).
+    """
+    if not metadata:
+        return
+    invoer = metadata.get(CATEGORY_CHOICE_INPUT_KEY)
+    if isinstance(invoer, dict):
+        updates["category_choice"] = deepcopy(invoer)
 
 
 class DefinitionRepository(DefinitionRepositoryInterface):
@@ -764,11 +793,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
         # CRITICAL FIX DEF-53: Ensure categorie has a value
         # Try ontologische_categorie first, then categorie, fallback to "proces"
-        category_value = (
-            definition.categorie
-            or getattr(definition, "ontologische_categorie", None)
-            or "proces"
+        opgegeven_categorie = definition.categorie or getattr(
+            definition, "ontologische_categorie", None
         )
+        category_value = opgegeven_categorie or "proces"
+        # DEF-751 B2: een toegepaste default is een bewezen default — dat
+        # staat als `default`-event in de registratie, nooit als keuze.
+        default_toegepast = opgegeven_categorie is None
         logger.debug(
             f"Category mapping: categorie={definition.categorie}, "
             f"ontologische_categorie={getattr(definition, 'ontologische_categorie', None)}, "
@@ -843,11 +874,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         exc,
                     )
 
-            # DEF-151 + DEF-743: promptregistratie en bronbewijs in dezelfde
-            # generatieregistratie (helper; geen gedragswijziging).
-            record.generation_prompt_data = self._generatieregistratie_voor_record(
-                definition.metadata, definition.begrip, record
-            )
+        # DEF-151 + DEF-743 + DEF-751: promptregistratie, bronbewijs en
+        # categoriekeuze in dezelfde generatieregistratie (helper; het
+        # default-event ook zónder verdere metadata).
+        record.generation_prompt_data = self._generatieregistratie_voor_record(
+            definition.metadata or {},
+            definition.begrip,
+            record,
+            default_toegepast=default_toegepast,
+        )
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
@@ -902,7 +937,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         return prompt_data
 
     def _generatieregistratie_voor_record(
-        self, metadata: dict[str, Any], begrip: str, record: DefinitieRecord
+        self,
+        metadata: dict[str, Any],
+        begrip: str,
+        record: DefinitieRecord,
+        *,
+        default_toegepast: bool = False,
     ) -> str | None:
         """De `generation_prompt_data`-JSON voor een nieuw record, of None.
 
@@ -911,8 +951,20 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         ook zónder promptregistratie. Anders dan de promptdata is dit
         bewijs: een serialisatiefout laat de opslag falen (ValueError →
         RepositoryError), er wordt nooit stil bronbewijs weggelaten.
+
+        DEF-751 B2: de categoriekeuze van de generatie. De invoer
+        (`category_choice_input`) is onbevestigd: alleen herkomst manual/
+        model + reasoning/scores worden gelezen (`lees_keuze_invoer`), nooit
+        een actor — een nieuw record heeft geen handelende mens die de
+        keuze kan bevestigen. Een toegepaste repositorydefault wordt als
+        `default`-event vastgelegd; zonder invoer en zonder default komt er
+        géén event (herkomst onbekend, niets verzonnen).
         """
         prompt_data = self._promptregistratie(metadata, begrip)
+        keuze = self._keuze_event_voor_nieuw_record(metadata, record, default_toegepast)
+        if keuze is not None:
+            prompt_data[CATEGORY_CHOICE_KEY] = keuze
+            prompt_data[CATEGORY_CHOICE_HISTORY_KEY] = []
         bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
         if bewijsinvoer is not None:
             prompt_data[SOURCE_EVIDENCE_KEY] = bouw_bronbewijs(
@@ -935,6 +987,33 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         if not prompt_data:
             return None
         return serialiseer_generatieregistratie(prompt_data)
+
+    @staticmethod
+    def _keuze_event_voor_nieuw_record(
+        metadata: dict[str, Any], record: DefinitieRecord, default_toegepast: bool
+    ) -> dict[str, Any] | None:
+        """Het keuze-event voor een nieuw record, of None (geen invoer, geen default)."""
+        invoer = lees_keuze_invoer(metadata.get(CATEGORY_CHOICE_INPUT_KEY))
+        if invoer is None and not default_toegepast:
+            return None
+        herkomst = HERKOMST_DEFAULT if invoer is None else invoer["origin"]
+        generation_id = metadata.get("generation_id")
+        return bouw_categoriekeuze(
+            waarde=record.categorie or None,
+            herkomst=herkomst,
+            begrip=record.begrip,
+            contexten=record.get_contextlijsten(),
+            record_version=record.version_number,
+            # Generatiegebonden: de gegenereerde tekst is de kandidaat.
+            definitie_tekst=(
+                splits_definitietekst(record.definitie or "")[0]
+                if invoer is not None
+                else None
+            ),
+            generation_id=str(generation_id) if generation_id else None,
+            reasoning=None if invoer is None else invoer.get("reasoning"),
+            scores=None if invoer is None else invoer.get("scores"),
+        )
 
     def get_generation_prompt_data(self, definition_id: int) -> dict | None:
         """
@@ -1050,6 +1129,17 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # Zonder bewijs ontbreken de bronsleutels: niets wordt verzonnen, en
         # de statusvelden maken "alleen korte verwijzing" of "afwezig" expliciet.
         self._herstel_bronbewijs(record, definition.metadata)
+
+        # DEF-751 B2: de categoriekeuze (event, afgeleide status, historie)
+        # onder eigen leessleutels — nooit onder de invoersleutel, zodat
+        # openen + opslaan geen tweede event maakt.
+        definition.metadata["category_choice"] = record.get_category_choice()
+        definition.metadata["category_choice_status"] = (
+            record.get_category_choice_status()
+        )
+        definition.metadata["category_choice_history"] = (
+            record.get_category_choice_history()
+        )
 
         # DEF-156: Load voorbeelden from database and populate metadata
         # This ensures voorbeelden persist when loading definitions in Bewerk tab
@@ -1496,4 +1586,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # afwezig = bewijs onaangeraakt. Conflicterende aliassen: ValueError
         # (→ RepositoryError), niets geschreven.
         _voeg_bewijsinvoer_toe(updates, definition.metadata)
+        # DEF-751 B2: de categoriekeuze van de editor-/toepassen-actie reist
+        # als structurele sleutel mee; de DB-laag bindt haar aan de
+        # handelende gebruiker en het resulterende record.
+        _voeg_keuze_invoer_toe(updates, definition.metadata)
         return updates

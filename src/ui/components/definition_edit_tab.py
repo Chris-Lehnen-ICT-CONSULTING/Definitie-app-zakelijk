@@ -12,10 +12,15 @@ from typing import Any, cast
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
+from domain.categorie_herkomst import HERKOMST_EDITOR
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import AutoSaveResult, DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
-from ui.helpers.categorie_weergave import bouw_categorie_opties, categorie_label
+from ui.helpers.categorie_weergave import (
+    beschrijf_keuzestatus,
+    bouw_categorie_opties,
+    categorie_label,
+)
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -618,6 +623,15 @@ class DefinitionEditTab:
                 disabled=disabled,
                 help="Ontologische categorie van het begrip",
             )
+            # DEF-751 B2: herkomst van de opgeslagen keuze — voorstel,
+            # handmatig (opgegeven naam), import, default, onbekend of
+            # verouderd — zichtbaar naast de keuze; geen oordeel.
+            st.caption(
+                beschrijf_keuzestatus(
+                    (definition.metadata or {}).get("category_choice_status"),
+                    (definition.metadata or {}).get("category_choice"),
+                )
+            )
 
             # UFO-categorie selectie (onder ontologische categorie)
             ufo_opties = [
@@ -1051,6 +1065,17 @@ class DefinitionEditTab:
             if isinstance(waarde, str) and waarde.strip():
                 return waarde.strip()
         return None
+
+    @staticmethod
+    def _actorbron() -> str:
+        """Waar de identiteit van `_handelende_gebruiker` vandaan komt (DEF-751):
+        sessiegebruiker of getypte naam — beide zonder authenticatie."""
+        waarde = SessionStateManager.get_value("user")
+        return (
+            "session_user"
+            if isinstance(waarde, str) and waarde.strip()
+            else "typed_name"
+        )
 
     def _proposal_service(self) -> Any | None:
         """`SourceProposalService` uit de gecachte container (AI-service + router)."""
@@ -1681,11 +1706,27 @@ class DefinitionEditTab:
                     "version_number", 1
                 )
 
+            # DEF-751 B2: alleen een werkelijk gewijzigde categorie is een
+            # keuze van deze opslaan-actie; zij reist als `editor`-event mee
+            # met de bestaande lokale identiteit (opgegeven naam of sessie-
+            # gebruiker — geen authenticatie). Zonder identiteit blijft de
+            # keuze ongeattribueerd; er wordt geen actor verzonnen.
+            actor = self._handelende_gebruiker()
+            geladen_categorie = getattr(editing_definition, "categorie", None)
+            if updates["categorie"] is not None and updates["categorie"] != (
+                geladen_categorie or None
+            ):
+                updates["category_choice_input"] = {
+                    "origin": HERKOMST_EDITOR,
+                    "actor": actor,
+                    "actor_source": self._actorbron() if actor else None,
+                }
+
             # Save
             result = self.edit_service.save_definition(
                 definition_id,
                 updates,
-                user=SessionStateManager.get_value("user") or "system",
+                user=actor or SessionStateManager.get_value("user") or "system",
                 reason=SessionStateManager.get_value(k("save_reason")),
                 validate=True,
             )

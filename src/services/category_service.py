@@ -3,6 +3,7 @@
 import logging
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from domain.categorie_herkomst import HERKOMST_HANDMATIG
 from models.category_models import CategoryChangeResult
 
 logger = logging.getLogger(__name__)
@@ -23,14 +24,16 @@ class CategoryService:
         self, definition_id: int, new_category: str, update_session_data: bool = True
     ) -> tuple[bool, str | None]:
         """Legacy method - gebruik update_category_v2 voor nieuwe code."""
-        result = self.update_category_v2(definition_id, new_category, "web_user")
+        # DEF-751 B2: geen verzonnen "web_user" meer; zonder identiteit blijft
+        # de keuze ongeattribueerd.
+        result = self.update_category_v2(definition_id, new_category, None)
         return result.success, None if result.success else result.message
 
     def update_category_v2(
         self,
         definition_id: int,
         new_category: str,
-        user: str,
+        user: str | None,
         reason: str | None = None,
     ) -> CategoryChangeResult:
         """Update de categorie van een definitie met volledige audit trail.
@@ -85,11 +88,22 @@ class CategoryService:
             # Bewaar oude categorie
             old_category = definition.categorie
 
-            # Sla op in database met updates dictionary
+            # Sla op in database met updates dictionary. DEF-751 B2: de
+            # toepassen-actie is een handmatige keuze; `user` is de bestaande
+            # lokale identiteit of None (dan ongeattribueerd) — nooit een
+            # verzonnen "web_user".
+            actor = user.strip() if isinstance(user, str) and user.strip() else None
             success = self.repository.update_definitie(
                 definitie_id=definition_id,
-                updates={"categorie": new_category},
-                updated_by=user,
+                updates={
+                    "categorie": new_category,
+                    "category_choice": {
+                        "origin": HERKOMST_HANDMATIG,
+                        "actor": actor,
+                        "actor_source": "typed_name" if actor else None,
+                    },
+                },
+                updated_by=actor,
             )
 
             if success:

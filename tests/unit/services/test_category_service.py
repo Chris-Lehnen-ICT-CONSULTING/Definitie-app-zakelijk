@@ -48,8 +48,20 @@ class TestCategoryService:
         assert success is True
         assert error is None
         mock_repository.get_definitie.assert_called_once_with(1)
+        # DEF-751 B2: de legacy-route kent geen identiteit — de keuze wordt
+        # als handmatig maar ongeattribueerd vastgelegd, geen verzonnen
+        # "web_user" meer als actor.
         mock_repository.update_definitie.assert_called_once_with(
-            definitie_id=1, updates={"categorie": "REL"}, updated_by="web_user"
+            definitie_id=1,
+            updates={
+                "categorie": "REL",
+                "category_choice": {
+                    "origin": "manual",
+                    "actor": None,
+                    "actor_source": None,
+                },
+            },
+            updated_by=None,
         )
 
     def test_update_category_invalid_category(self, category_service):

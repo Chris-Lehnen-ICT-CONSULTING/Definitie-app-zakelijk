@@ -606,7 +606,10 @@ class DefinitionEditService:
             ),
             created_at=definition.created_at,
             updated_at=datetime.now(),
-            metadata=definition.metadata or {},
+            # DEF-751 B2: eigen kopie — de invoersleutel van déze actie mag
+            # niet in het geladen (sessie)object achterblijven en bij een
+            # volgende opslag opnieuw als keuze meereizen.
+            metadata=dict(definition.metadata or {}),
         )
 
         # Update metadata fields
@@ -616,6 +619,9 @@ class DefinitionEditService:
             "wettelijke_basis",
             "validation_score",
             "version_number",
+            # DEF-751 B2: de categoriekeuze van deze opslaan-actie reist via
+            # de metadata naar de repository (`_definition_to_updates`).
+            "category_choice_input",
         ]
         # DEF-439: metadata is dict|None (dataclass); narrow vóór indexed writes.
         if updated.metadata is None:

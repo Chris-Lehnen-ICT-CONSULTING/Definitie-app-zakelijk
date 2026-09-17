@@ -21,6 +21,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional, cast
 
+from domain.categorie_herkomst import lees_keuze_invoer
 from domain.rechtsgebieden import normaliseer_rechtsgebied
 from services.exceptions import (
     DatabaseConnectionError,
@@ -1655,6 +1656,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         generation_metadata: dict[str, Any],
     ) -> Definition:
         """Create definition object with all metadata."""
+        metadata = dict(generation_metadata)
+        # DEF-751 B2: de categoriekeuze van deze generatie als onbevestigde
+        # invoer voor de repository. `lees_keuze_invoer` is de grens: alleen
+        # herkomst manual/model (+ reasoning/scores) uit de UI-actie; een
+        # meegestuurde actor/status wordt genegeerd, een herkomst die alleen
+        # in een eigen route mag ontstaan (editor/import/default) faalt
+        # fail-closed vóór opslag.
+        keuze_invoer = lees_keuze_invoer(
+            ensure_dict(request.options or {}).get("category_choice")
+        )
+        if keuze_invoer is not None:
+            metadata["category_choice_input"] = keuze_invoer
         return Definition(
             begrip=request.begrip,
             definitie=text,
@@ -1669,7 +1682,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             validation_violations=ensure_list(
                 safe_dict_get(validation_result, "violations", [])
             ),
-            metadata=generation_metadata,
+            metadata=metadata,
             created_by=request.actor,
             created_at=datetime.now(UTC),
         )

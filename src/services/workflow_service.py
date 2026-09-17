@@ -429,7 +429,7 @@ class WorkflowService:
         new_category: str,
         current_definition: str,
         begrip: str,
-        user: str = "web_user",
+        user: str | None = None,
         reason: str = "Handmatige aanpassing via UI",
     ) -> CategoryChangeResult:
         """
@@ -451,7 +451,9 @@ class WorkflowService:
             new_category: Nieuwe categorie
             current_definition: Huidige definitie tekst
             begrip: Het begrip
-            user: Gebruiker die wijziging uitvoert
+            user: Bestaande lokale identiteit van de gebruiker, of None
+                (DEF-751 B2: geen verzonnen "web_user"; de keuze blijft dan
+                ongeattribueerd)
             reason: Reden voor wijziging
 
         Returns:
