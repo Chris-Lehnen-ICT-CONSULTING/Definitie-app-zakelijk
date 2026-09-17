@@ -248,10 +248,10 @@ class DocumentProcessor:
         een onbekend document een `KeyError`. Geldige invoer wordt direct naar
         het metadata-bestand geschreven. Mislukt dat schrijven (bestaand
         contract: `_save_metadata` logt en zet `_persistence_failed`), dan wordt
-        de opgave in het geheugen teruggerold naar de vorige waarde — geheugen
-        en schijf blijven gelijk — en is het resultaat een
-        `BronmetadataOpslagError`: nooit een stil succes met een opgave die bij
-        herstart ontbreekt (Codex-review 1, P2).
+        de opgave in het geheugen teruggerold naar de vorige waarde (over de
+        toestand van het bestand op schijf wordt niets beloofd) en is het
+        resultaat een `BronmetadataOpslagError`: nooit een stil succes met een
+        opgave die bij herstart ontbreekt (Codex-review 1, P2).
         """
         from domain.sources.bronmetadata import valideer_bronmetadata
 
@@ -273,13 +273,17 @@ class DocumentProcessor:
         self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
         self._save_metadata()
         if self._persistence_failed:
-            # Terugrollen: de vorige (wél opgeslagen) opgave blijft gelden; de
-            # vlag blijft staan als signaal van het opslagprobleem (DEF-229).
+            # Terugrollen in het geheugen naar de vorige opgave; de vlag blijft
+            # staan als signaal van het opslagprobleem (DEF-229). Over de schijf
+            # wordt niets beloofd: de bestaande niet-atomaire schrijver kan het
+            # bestand bij een fout tijdens het schrijven (bv. volle schijf)
+            # hebben afgekapt (Codex-deltareview, LOW).
             doc.source_metadata = vorige
             msg = (
                 f"bronmetadata voor {doc.filename} niet opgeslagen: het metadata-"
                 f"bestand {self.metadata_file} kon niet worden geschreven; de "
-                "eerdere opgave blijft gelden"
+                "nieuwe opgave is in het geheugen teruggedraaid (de eerdere opgave "
+                "blijft in deze sessie gelden), controleer het metadata-bestand"
             )
             raise BronmetadataOpslagError(msg)
         logger.info(f"Bronmetadata opgegeven voor document {doc_id}")
