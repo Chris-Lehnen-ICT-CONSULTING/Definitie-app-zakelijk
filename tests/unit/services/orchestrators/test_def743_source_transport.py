@@ -308,3 +308,39 @@ async def test_selected_short_source_reaches_existing_prompt_collector(
     assert source["selection_basis"] == "selected_short_document"
     assert source["score"] == 0.0
     assert result.context["documents"]["selected_ids"] == [doc.id]
+
+
+async def test_declared_source_metadata_survives_generation_as_declared(generate):
+    """DEF-808: opgegeven hyperlink/bronversie/vindplaats van een geüpload
+    document reizen mee naar de opgeslagen bronset — herkenbaar als opgegeven
+    (herkomstblok), niet als gezag. Zonder opgave verschijnt er niets."""
+    opgave = {
+        "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0#Artikel1:3",
+        "source_version": "2026-08-15",
+        "locator": "artikel 1:3 lid 1 Awb",
+        "declared_by": "Chris",
+        "declared_at": "2026-09-17T22:00:00+00:00",
+    }
+    verrijkt = {
+        **DOCUMENT,
+        "url": opgave["url"],
+        "source_version": opgave["source_version"],
+        "locator": opgave["locator"],
+        "declared_metadata": opgave,
+    }
+    result = await generate({"snippets": [verrijkt, DOCUMENT]})
+    met, zonder = (
+        s
+        for s in result.response.definition.metadata["sources"]
+        if s["provider"] == "documents"
+    )
+    assert met["url"] == opgave["url"]
+    assert met["source_version"] == "2026-08-15"
+    assert met["locator"] == "artikel 1:3 lid 1 Awb"
+    assert met["declared_metadata"] == opgave
+    assert met["source_label"] == "Geüpload document"  # route, geen gezag
+    assert zonder["url"] is None
+    for key in ("source_version", "locator", "declared_metadata"):
+        assert key not in zonder
+    # Ook de promptzijde ziet dezelfde velden (één bronset).
+    assert result.context["documents"]["snippets"][0]["declared_metadata"] == opgave

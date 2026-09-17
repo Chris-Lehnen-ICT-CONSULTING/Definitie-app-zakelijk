@@ -39,6 +39,10 @@ class ProcessedDocument:
     context_hints: list[str]  # Context hints voor definitie generatie
     processing_status: str  # Status van verwerking
     error_message: str | None = None  # Error bericht indien van toepassing
+    # DEF-808: door de gebruiker opgegeven hyperlink/bronversie/vindplaats
+    # (`domain.sources.bronmetadata.Bronmetadata.als_dict()`), of None. Geen
+    # authenticiteitsbewijs; reist als opgegeven metadata mee op elke passage.
+    source_metadata: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Converteer ProcessedDocument naar dictionary voor JSON opslag."""
@@ -219,6 +223,44 @@ class DocumentProcessor:
         doc = self._documents_cache.get(doc_id)
         if doc is not None:
             self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
+        return doc
+
+    def set_source_metadata(
+        self,
+        doc_id: str,
+        *,
+        url: Any,
+        source_version: Any,
+        locator: Any,
+        declared_by: str | None = None,
+    ) -> ProcessedDocument:
+        """Leg de opgegeven bronmetadata van een geüpload document vast (DEF-808).
+
+        Validatie via de gedeelde domeinlaag (DEF-806-hyperlinkregel; een
+        eerdere opgave wordt aangevuld, niet gewist). Ongeldige invoer is een
+        `ValueError` met de zichtbare reden en laat het document onaangeroerd;
+        een onbekend document een `KeyError`. Geldige invoer wordt direct naar
+        het metadata-bestand geschreven.
+        """
+        from domain.sources.bronmetadata import valideer_bronmetadata
+
+        doc = self._documents_cache.get(doc_id)
+        if doc is None:
+            msg = f"document {doc_id!r} is niet (meer) beschikbaar"
+            raise KeyError(msg)
+        metadata, fouten = valideer_bronmetadata(
+            url,
+            source_version,
+            locator,
+            declared_by=declared_by,
+            bestaand=doc.source_metadata,
+        )
+        if metadata is None:
+            raise ValueError("; ".join(fouten))
+        doc.source_metadata = metadata.als_dict()
+        self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
+        self._save_metadata()
+        logger.info(f"Bronmetadata opgegeven voor document {doc_id}")
         return doc
 
     def remove_document(self, doc_id: str) -> bool:

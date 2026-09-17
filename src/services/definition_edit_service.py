@@ -67,6 +67,54 @@ def bouw_validatiecontext(
     return ctx
 
 
+def bindingsafwijzing_beoordeling(
+    assessment: Any,
+    definition: Definition,
+    geladen_metadata: Mapping[str, Any] | None,
+) -> str | None:
+    """Waarom een sessiebeoordeling níet bij de op te slaan kandidaat hoort, of None.
+
+    DEF-809: "Valideren" levert een AI-bronbeoordeling voor exact de bewerkte
+    tekst, term en drie contextlijsten met de bronset en peildatum van het
+    geladen record. Zij mag alleen als actueel bewijs worden opgeslagen als zij
+    is uitgevoerd (`assessed`) en haar vingerafdruk exact die van de kandidaat
+    is die nú wordt opgeslagen — dezelfde kernberekening als de wrapper en de
+    replay. Anders (verder bewerkt, andere context, technische fout, geen
+    bronset) blijft het opgeslagen bewijs staan en wordt de reden benoemd:
+    nooit een oude of vreemde beoordeling als kortere weg naar een positief oordeel.
+    """
+    from domain.sources.contract import bereken_bronvingerafdruk
+
+    if not isinstance(assessment, Mapping):
+        return "beoordeling is geen object"
+    if assessment.get("status") != "assessed":
+        return f"bronbeoordeling niet uitgevoerd (status {assessment.get('status')!r})"
+    meta: Mapping[str, Any] = geladen_metadata or {}
+    bronnen = meta.get("provenance_sources")
+    if bronnen is None:
+        bronnen = meta.get("sources")
+    if not isinstance(bronnen, list):
+        return "het opgeslagen record draagt geen bronset om aan te binden"
+    vingerafdruk = bereken_bronvingerafdruk(
+        definition.begrip or "",
+        definition.definitie or "",
+        {
+            "organisatorische_context": list(definition.organisatorische_context or []),
+            "juridische_context": list(definition.juridische_context or []),
+            "wettelijke_basis": list(definition.wettelijke_basis or []),
+        },
+        bronnen,
+        peildatum=meta.get("peildatum"),
+    )
+    if assessment.get("fingerprint") != vingerafdruk:
+        return (
+            "beoordeling hoort niet bij de op te slaan kandidaat (tekst, context, "
+            "term, peildatum of bronnen zijn sinds de toetsing gewijzigd); valideer "
+            "opnieuw na opslaan"
+        )
+    return None
+
+
 def _als_mapping(waarde: Any) -> Mapping[str, Any]:
     """Typegetrouwe vernauwing: een mapping, anders een lege mapping."""
     return waarde if isinstance(waarde, Mapping) else {}
@@ -249,6 +297,7 @@ class DefinitionEditService:
         user: str = "system",
         reason: str | None = None,
         validate: bool = True,
+        source_assessment: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Sla definitie wijzigingen op.
@@ -259,9 +308,18 @@ class DefinitionEditService:
             user: Gebruiker die opslaat
             reason: Reden voor wijziging
             validate: Of validatie uitgevoerd moet worden
+            source_assessment: DEF-809: de AI-bronbeoordeling uit de laatste
+                toetsing in de sessie. Alleen als zij exact aan de op te slaan
+                kandidaat bindt (`bindingsafwijzing_beoordeling`) gaat zij als
+                actueel bewijs mee; de DB-laag legt haar dan — gebonden aan de
+                tekst/context van deze opslag — vast met historie
+                (`origin: revalidation`). Anders blijft het opgeslagen bewijs
+                staan en meldt het resultaat waarom.
 
         Returns:
-            Result dictionary met success status
+            Result dictionary met success status; `source_assessment_persisted`
+            en `source_assessment_reason` zeggen wat er met de beoordeling is
+            gebeurd (nooit stil verlies).
         """
         try:
             # Get current definition
@@ -282,6 +340,22 @@ class DefinitionEditService:
 
             # Apply updates
             updated_definition = self._apply_updates(current, updates)
+
+            # DEF-809: de sessiebeoordeling als actueel bewijs, uitsluitend bij
+            # exacte binding aan de kandidaat die nu wordt opgeslagen.
+            beoordeling_reden: str | None = None
+            beoordeling_bewaard = False
+            if source_assessment is not None:
+                beoordeling_reden = bindingsafwijzing_beoordeling(
+                    source_assessment, updated_definition, current.metadata
+                )
+                if beoordeling_reden is None:
+                    if updated_definition.metadata is None:
+                        updated_definition.metadata = {}
+                    updated_definition.metadata["source_assessment"] = deepcopy(
+                        dict(source_assessment)
+                    )
+                    beoordeling_bewaard = True
 
             # Validate if requested
             validation_results = None
@@ -308,6 +382,8 @@ class DefinitionEditService:
                 "definition_id": saved_id,
                 "validation": validation_results,
                 "timestamp": datetime.now().isoformat(),
+                "source_assessment_persisted": beoordeling_bewaard,
+                "source_assessment_reason": beoordeling_reden,
             }
 
         except Exception as e:
@@ -819,6 +895,91 @@ class DefinitionEditService:
         basis["assessment"] = assessment
         basis["bron"] = bron
         return basis
+
+    # ===== DEF-808: opgegeven bronmetadata aanvullen op een opgeslagen record =====
+
+    def vul_bronmetadata_aan(
+        self,
+        definitie_id: int,
+        *,
+        doc_id: str,
+        url: Any,
+        source_version: Any,
+        locator: Any,
+        actor: str,
+        expected_version: int | None = None,
+    ) -> dict[str, Any]:
+        """Zet de opgegeven hyperlink/bronversie/vindplaats op de documentbronnen
+        van het OPGESLAGEN record, zodat een bestaand record kan worden hertoetst.
+
+        Volgorde: reviewer-identiteit → record → getoonde versie/bewerkbaarheid
+        (F3) → validatie via de gedeelde domeinlaag (DEF-806-hyperlinkregel;
+        ongeldig = zichtbaar afgewezen, niets geschreven) → D schrijft onder de
+        versieguard. De opgave blijft herkenbaar als opgegeven metadata; de
+        eerdere AI-beoordeling geldt daarna niet meer (vingerafdruk) en wordt
+        bij de volgende toetsing opnieuw verkregen — er wordt niets goedgekeurd.
+        """
+        from domain.sources.bronmetadata import valideer_bronmetadata
+
+        voorbereid = self._actievoorbereiding(definitie_id, actor, expected_version)
+        if isinstance(voorbereid, dict):
+            return voorbereid
+        record = voorbereid
+        bewijs = record.get_source_evidence()
+        if bewijs is None:
+            return {
+                "status": "no_evidence",
+                "message": "Geen opgeslagen bronbewijs bij dit record; er is niets aan te vullen.",
+            }
+        documenten = [
+            b
+            for b in bewijs.get("sources") or []
+            if isinstance(b, Mapping)
+            and str(b.get("provider") or "").casefold() in ("documents", "document")
+            and str(b.get("doc_id") or "") == str(doc_id or "")
+        ]
+        if not documenten:
+            return {
+                "status": "no_matching_source",
+                "message": f"Geen documentbron met id {doc_id!r} in het opgeslagen bewijs.",
+            }
+        metadata, fouten = valideer_bronmetadata(
+            url,
+            source_version,
+            locator,
+            declared_by=actor,
+            bestaand=documenten[0].get("declared_metadata"),
+        )
+        if metadata is None:
+            return {
+                "status": "invalid",
+                "errors": fouten,
+                "message": "Bronmetadata niet vastgelegd: " + "; ".join(fouten),
+            }
+        try:
+            toepassing = self.repository.vul_bronmetadata_aan(
+                definitie_id,
+                str(doc_id),
+                metadata.als_dict(),
+                actor,
+                expected_version=record.version_number,
+            )
+        except ValueError as e:
+            return {"status": "invalid", "errors": [str(e)], "message": str(e)}
+        self._clear_cache(definitie_id)
+        return {
+            "status": toepassing.status,
+            "version_number": toepassing.version_number,
+            "aantal_bronnen": toepassing.aantal_bronnen,
+            "message": toepassing.reason
+            or (
+                f"Bronmetadata vastgelegd op {toepassing.aantal_bronnen} passage(s) van "
+                "dit document als opgegeven metadata. Een eerdere bronbeoordeling geldt "
+                "niet meer: valideer opnieuw."
+                if toepassing.ok
+                else toepassing.status
+            ),
+        }
 
     @staticmethod
     def _canonieke_bronnen_met_passage(

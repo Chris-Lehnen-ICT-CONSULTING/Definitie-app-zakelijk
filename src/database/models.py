@@ -266,6 +266,26 @@ class Voorsteltoepassing:
         return self.status == "applied"
 
 
+@dataclass(frozen=True)
+class Bronmetadatatoepassing:
+    """Uitkomst van `vul_bronmetadata_aan` (DEF-808).
+
+    `status`: `applied` | `version_conflict` | `not_found` | `no_evidence` |
+    `no_matching_source`. Alleen bij `applied` is er geschreven;
+    `version_number` is dan de nieuwe recordversie en `aantal_bronnen` het
+    aantal documentpassages dat de opgave kreeg.
+    """
+
+    status: str
+    version_number: int | None = None
+    reason: str | None = None
+    aantal_bronnen: int = 0
+
+    @property
+    def ok(self) -> bool:
+        return self.status == "applied"
+
+
 # Scheiding waarmee de servicelaag een toelichting in de kolom `definitie`
 # inbedt; de enige plek waar die conventie is vastgelegd.
 TOELICHTING_SCHEIDING = "\n\nToelichting:"

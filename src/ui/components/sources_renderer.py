@@ -820,6 +820,18 @@ class SourcesRenderer:
                 f" · vindplaats: {getattr(identiteit, 'locator', None) or 'onbekend'}"
                 f" · profiel (gedeclareerd): {getattr(identiteit, 'declared_profile', None) or 'onbekend'}"
             )
+            # DEF-808: door de gebruiker opgegeven coördinaten blijven herkenbaar
+            # als opgave (door/op) — geen authenticiteitsbewijs, geen gezag.
+            opgave = src.get("declared_metadata")
+            if isinstance(opgave, Mapping) and opgave:
+                st.caption(
+                    "Opgegeven bronmetadata (geen authenticiteitsbewijs): "
+                    f"url: {opgave.get('url') or 'geen'} · versie: "
+                    f"{opgave.get('source_version') or 'onbekend'} · vindplaats: "
+                    f"{opgave.get('locator') or 'onbekend'} — opgegeven door "
+                    f"{opgave.get('declared_by') or 'onbekend'} op "
+                    f"{opgave.get('declared_at') or 'onbekend tijdstip'}."
+                )
             # F6/C5: drie rollen, elk onder eigen label, niets overschreven:
             # (1) de aangeleverde/generatiepassage (fragment hierboven);
             # (2) de canonieke opgeslagen passage (kernregel: `prompt_content`

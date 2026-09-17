@@ -20,6 +20,7 @@ import streamlit as _default_st
 
 from document_processing.document_processor import get_document_processor
 from domain.ontological_categories import OntologischeCategorie
+from domain.sources.bronmetadata import Bronmetadata, pas_bronmetadata_toe
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from ui.session_state import SessionStateManager as _DefaultSM
 from utils.type_helpers import ensure_dict
@@ -772,6 +773,10 @@ class DefinitionGenerationHandler:
                 if not doc or not getattr(doc, "extracted_text", None):
                     continue
 
+                # DEF-808: de bij het document opgegeven hyperlink/bronversie/
+                # vindplaats reist als opgegeven metadata mee op elke passage;
+                # zonder opgave verandert er niets aan de passagevorm.
+                opgave = Bronmetadata.uit_dict(getattr(doc, "source_metadata", None))
                 text = doc.extracted_text
                 haystack = text.lower()
                 # Zoek meerdere matches (max per_doc_max)
@@ -824,6 +829,8 @@ class DefinitionGenerationHandler:
                             "used_in_prompt": True,
                             "citation_label": citation_label,
                         }
+                        if opgave is not None:
+                            snippet = pas_bronmetadata_toe(snippet, opgave)
                         snippets.append(snippet)
                         count_for_doc += 1
                         if len(snippets) >= max_snippets_total:
