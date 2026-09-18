@@ -1,0 +1,8 @@
+{
+  "cases": 31,
+  "literal_fragments_verified": 111,
+  "file": "cowork/deskundigenformulier-c02p-v2.json",
+  "sha256": "5ed54b674bc7beb99520b4281c7722077030e9a834fde0e690368a6f93053ebf",
+  "status": "PASS",
+  "claim": "Bronbytes en citaatfragmenten; geen deskundige acceptatie of appuitvoering"
+}

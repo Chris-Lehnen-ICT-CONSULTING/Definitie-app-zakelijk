@@ -1,0 +1,21 @@
+ZELFTEST — ongewijzigd pakket: GROEN
+  ROOD           formulier: P01-definitie vervangen door P02-definitie (tekst komt elders voor)
+                     [formulier] C02-P01 input.definitie niet exact in eigen sectie
+  ROOD           formulier: definities P01 en P02 onderling verwisseld
+                     [formulier] C02-P01 input.definitie niet exact in eigen sectie
+                     [formulier] C02-P02 input.definitie niet exact in eigen sectie
+  ROOD           formulier: passage lid 1 uit P31-sectie verwijderd (staat nog in P01)
+                     [formulier] C02-P31 passage S-AWB13/artikel 1:3 lid 1 niet in eigen sectie
+  ROOD           register: P01 input.definitie vervormd
+                     [input] C02-P01.input wijkt af van basis
+                     [formulier] C02-P01 input.definitie niet exact in eigen sectie
+  ROOD           fixture: awb-3-2 één byte toegevoegd
+                     [fixtures] S-AWB32 hash/bytes wijken af van basis/bronmanifest-v3
+  ROOD           register: actor ingevuld bij P02
+                     [oordeel] niet leeg: C02-P02
+  ROOD           formulier: acceptatievakje P03 aangevinkt
+                     [formulier-oordeel] C02-P03: acceptatievakje niet leeg
+                     [formulier-oordeel] aangevinkt vakje aanwezig
+  ROOD           basis: snapshot v6 gewijzigd
+                     [basis] snapshot gewijzigd: basis/casusregister-geintegreerd-v6.json
+ZELFTEST GESLAAGD: alle mutanten rood, ongewijzigd groen.

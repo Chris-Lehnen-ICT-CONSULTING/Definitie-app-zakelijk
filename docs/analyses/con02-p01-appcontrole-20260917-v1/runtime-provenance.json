@@ -1,0 +1,5 @@
+{
+  "commit": "29d8176b32e2fe11c62fbb58d5fe087d0b229e62",
+  "database_copy_from": "/private/tmp/DEF-806-runtime-20260917/data/definities.db",
+  "purpose": "Isolated P01 UI acceptance check"
+}

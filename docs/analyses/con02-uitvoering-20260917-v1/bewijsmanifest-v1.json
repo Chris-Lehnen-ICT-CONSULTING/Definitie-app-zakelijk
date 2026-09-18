@@ -1,0 +1,100 @@
+{
+  "app_commit": "d17ea9c30915452914e450be315620e314c03468",
+  "files": [
+    {
+      "path": "START-HIER.md",
+      "sha256": "4a392dcc20ccce84fb1eabd66ac23c80319844e1fb10448ff99fab75c05f224e",
+      "bytes": 4950
+    },
+    {
+      "path": "appuitkomsten-en-reviewgrenzen-v1.md",
+      "sha256": "999c49db894c9ef385c0badce63864dad05e5173c0c0094597484306506cab8e",
+      "bytes": 1794
+    },
+    {
+      "path": "browser-bronloos-record-v1.json",
+      "sha256": "8b799323e3a70b44102f13ce15a6a87f888a5d746e6513cbfe07d238d2e2ef14",
+      "bytes": 1032
+    },
+    {
+      "path": "browser-bulkexport-basis-v1.csv",
+      "sha256": "e9c3783d96dc2b9395fd00697a43f20559b0ca67caee2fd02088dfad14b7cb49",
+      "bytes": 6106
+    },
+    {
+      "path": "browser-export-waarneming-v1.md",
+      "sha256": "b23b3c958770552b1cffb8553714933369f445a3be69f46648a17b5827273929",
+      "bytes": 1105
+    },
+    {
+      "path": "browser-generatie-readback-v1.md",
+      "sha256": "b4bf53c1150ecdae7e9f32c63799002943875538d21d5c47644de2f2d20e5f83",
+      "bytes": 2596
+    },
+    {
+      "path": "browser-waarnemingen-v1.json",
+      "sha256": "a8b160b6f8375219630d1a1cc1e2c9255cb622c21425ca93a3b9f648c4d8c6f5",
+      "bytes": 2137
+    },
+    {
+      "path": "casusbatch-v1.md",
+      "sha256": "ca2e533d76ce2417688436fcc2e8d3d214515119adeebaf4a3479d4837960595",
+      "bytes": 2375
+    },
+    {
+      "path": "claude-lintresultaat-v1.md",
+      "sha256": "d01e4c7e87f07022b3cbbcf8b1ce62866cdc76553a8c5b41fec00cbedece4a41",
+      "bytes": 1109
+    },
+    {
+      "path": "cli-bewijs/plan.json",
+      "sha256": "8d938babc7b11d24288c0c4ff8d14fa5a9da5079c8a57efae7a50e316d72f574",
+      "bytes": 10556
+    },
+    {
+      "path": "cli-bewijs/run-stdout.txt",
+      "sha256": "a4d59d4a0de18d078784190f2b271027193e85e4fa1dbb4e4379519d6b9d289d",
+      "bytes": 44
+    },
+    {
+      "path": "cli-bewijs/run_con02.py",
+      "sha256": "6bdeca078b3a9088b156f074d2ff77c5c40a243ba350c573afb33c40c3e611d8",
+      "bytes": 11524
+    },
+    {
+      "path": "cli-bewijs/runmatrix-ruw.json",
+      "sha256": "1fef34fa50a94435eafb84fedea2f19d949383ec5c42e00faeb378fac0c3dee0",
+      "bytes": 303158
+    },
+    {
+      "path": "cli-bewijs/uitgevoerde-helper-brontekst.txt",
+      "sha256": "68643bb3b69c06e2ec60ba9dc4733b3d01a61262652038048742087fedcb015e",
+      "bytes": 9618
+    },
+    {
+      "path": "codex-bewijsreview-v1.md",
+      "sha256": "c24413b95dbba6242bf6add8e94304c69e081d820914dd8146957e0a865e73b4",
+      "bytes": 4990
+    },
+    {
+      "path": "codex-lintreview-v1.md",
+      "sha256": "72df4dac1810354635366a9395c2d3cc3f6df6ee43ec8824495da976ed29f26b",
+      "bytes": 618
+    },
+    {
+      "path": "codex-runreview-v1.md",
+      "sha256": "0c67af2273fd253da7ec59bdba68c022d5c94e958d6a4e4d1dabb4bef3dcd833",
+      "bytes": 5614
+    },
+    {
+      "path": "deelchecks-en-scorebeleid-v1.md",
+      "sha256": "4d899f93c10aff51905508354b23e8c15daa64c1d015b6cb09c4fece190f2124",
+      "bytes": 3993
+    },
+    {
+      "path": "generatie-record4-v1.json",
+      "sha256": "6f164beb1f53d7b0a8ffda8b20b99e5cdacffd0161aba3c0231cad70cc42d44a",
+      "bytes": 52843
+    }
+  ]
+}

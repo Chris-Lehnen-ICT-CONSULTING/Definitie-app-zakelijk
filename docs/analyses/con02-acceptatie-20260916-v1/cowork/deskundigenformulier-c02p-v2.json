@@ -1,0 +1,3420 @@
+{
+  "schema_version": "deskundigenformulier-c02p-v2",
+  "vorige_versie": {
+    "bestand": "deskundigenformulier-c02p-v1.json",
+    "sha256": "2a9afc03b0f075b8db8e76f6693872f87e042fe87773219f66d3c3c0bc49309e",
+    "status": "ongewijzigd bewaard"
+  },
+  "aangemaakt": "2026-09-16",
+  "opsteller": "Cowork (Claude), onafhankelijk",
+  "aard": "AI-voorbeoordeling. Geen deskundige goldset, geen uitgevoerde app-test, geen gemeten regeluitkomst.",
+  "wijzigingen_t_o_v_v1": [
+    "P31: verwijzingsuitzondering mag niet worden gebruikt om een beschikbare gerichte link over te slaan; de link moet worden geregistreerd. Oordeel blijft 'voldoet niet'; de onjuiste suggestie dat dit naar gewone 'voldoet' kan worden omgezet is verwijderd, evenals de verouderde onzekerheidsregel over P01.",
+    "P04/P24: ontbrekende herkomst van een aangeleverd bestand is niet 'geen geschikte bron gevonden'; de uitzonderingsroute met zoekbewijs is daar niet aan de orde. P05 is de expliciete herkomstkoppeling.",
+    "P04/P07: niet langer gesteld dat elke wettelijke locator ontbreekt; de kop voert 'Artikel 3:2 Algemene wet bestuursrecht'. Wat ontbreekt is bronversie, URL en herkomstverificatie.",
+    "Alle bronpassages zijn fragment voor fragment letterlijk tegen de fixturebytes geverifieerd en gelabeld als 'letterlijk' of 'samengesteld_citaat'; genormaliseerde streepjes en ellipsen zijn verwijderd.",
+    "invoer_historisch_ongewijzigd bevat nu alle oorspronkelijke inputvelden, inclusief citation_display en source_hyperlink bij P29-P31.",
+    "P29/P30: motivering gebaseerd op de nu meegenomen invoervelden.",
+    "Redactioneel: de claim dat P15 de enige casus is met drie keer 'voldoet' is verwijderd.",
+    "Per casus toegevoegd: 'bewijslaag', die de vastgestelde bronmanifest-/fixturebeoordeling scheidt van de niet-gemeten appdoorgifte.",
+    "Menselijk besluit uitgebreid met 'zichtbare_markering' en 'bron_heeft_geen_bruikbare_hyperlink'; alle velden blijven leeg."
+  ],
+  "grondslag": {
+    "casusregister": "casusregister-geintegreerd-v6.json (31 C02-P-rijen, invoer volledig en ongewijzigd overgenomen)",
+    "bronmanifest": "bronmanifest-v3.json",
+    "retrievalfixtures": "retrieval-fixtures-v1.json (synthetic_ranking = true, live_retrieval_executed = false)",
+    "norm": "fixtures/astra-actueel-20260914.md",
+    "code_commit_feitenbasis": "d68a98a909630e15db6e1cb9c9c8171f957bff9d"
+  },
+  "besluiten_als_projectie": {
+    "besluit_1_drie_oordelen": "Bronbasis, betekenissteun en herleidbaarheid worden onafhankelijk beoordeeld. 'Geen geschikte bron' alleen als expliciet deskundig geaccepteerde uitzondering met zoekbewijs; die route geldt niet voor een aangeleverde bron met onbevestigde herkomst. Een bron zonder bruikbare hyperlink kan worden aanvaard met bewaarde versie, stabiele ID, exacte locator en expliciete actor, motivering en acceptatie; de uitkomst is dan een herkenbaar gelabelde verwijzingsuitzondering, geen gewone positieve beoordeling. Bestaat er wel een bruikbare gerichte link, dan moet die worden geregistreerd.",
+    "besluit_2_herstel": "Herstel uitsluitend op expliciet verzoek, duurzaam maximaal een poging per oorspronkelijke generatie, diagnose vooraf, apart voorstel, menselijk toepassen en volledig hertoetsen. Dit formulier bevat geen herstelvoorstellen.",
+    "besluit_3_geen_totaalscore": "Geen numerieke kwaliteitstotaalscore en geen vervangende gedeeltelijke totaalscore; zichtbaar zijn de afzonderlijke regeluitkomsten en de dekking.",
+    "toepassing": "Projectie op bestaande casussen; historische invoer ongewijzigd."
+  },
+  "oordeelwaarden": [
+    "voldoet",
+    "voldoet niet",
+    "nog te beoordelen"
+  ],
+  "markeringen": [
+    "verwijzingsuitzondering (alleen bij een bron zonder bruikbare hyperlink)"
+  ],
+  "aantal_casussen": 31,
+  "representatieve_startset": [
+    "C02-P01",
+    "C02-P15",
+    "C02-P03",
+    "C02-P20",
+    "C02-P12",
+    "C02-P31"
+  ],
+  "casussen": [
+    {
+      "case_id": "C02-P01",
+      "titel": "Volledige Awb-bron, inhoudelijk passende definitie",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "S-AWB13 is een primaire wetstranscriptie (wetten.overheid.nl, versie 2026-08-15) en lid 1 definieert precies het begrip 'besluit'."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Alle drie kenmerken staan letterlijk in lid 1: 'schriftelijke beslissing', 'van een bestuursorgaan', 'inhoudende een publiekrechtelijke rechtshandeling'. Geen kenmerk toegevoegd of weggelaten."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 1:3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P02",
+      "titel": "Bron aanwezig maar publiekrechtelijke beperking ontbreekt",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "beslissing van een bestuursorgaan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Zelfde bron en lid als P01; de bron is geschikt en gezaghebbend voor dit begrip."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De definitie laat twee constitutieve kenmerken uit lid 1 weg: 'schriftelijke' en 'inhoudende een publiekrechtelijke rechtshandeling'. Daardoor omvat zij ook mondelinge en privaatrechtelijke beslissingen; de extensie is ruimer dan de bron."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 1:3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P03",
+      "titel": "Gezaghebbende upload gaat over een ander begrip",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Goederen zijn alle zaken en alle vermogensrechten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Goederen zijn alle zaken en alle vermogensrechten."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Dieren zijn geen zaken.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Dieren zijn geen zaken."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet niet",
+          "motivering": "De enige aangeleverde bron (BW Boek 3, art. 1/2/2a) gaat over goederen, zaken en dieren. Zij bevat geen enkele bepaling over het begrip 'besluit'. Er is dus geen geschikte authentieke bron voor deze definitie aangeleverd."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "Geen enkel kenmerk van de definitie (schriftelijk, bestuursorgaan, publiekrechtelijke rechtshandeling) komt in het fragment voor; er is geen betekenissteun, ook geen gedeeltelijke."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "De verwijzing naar S-BW3 is formeel volledig (ID, versie 2025-07-01, locators, artikelgerichte hyperlink), maar zij leidt naar een passage die de definitie niet draagt. Een nauwkeurige verwijzing naar een niet-steunende bron levert geen bruikbare herleiding; de deskundige stelt vast of dit deeloordeel nog zelfstandig betekenis heeft zodra de bronbasis is afgekeurd."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Koppeling deeloordelen: als bronbasis wordt afgekeurd, is de vraag of herleidbaarheid nog zelfstandig betekenis heeft. Dat is een openstaande formuliervraag, geen bronfeit.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P04",
+      "titel": "Bestaand meegegeven tekstbestand zonder eigen herkomst",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht van het bestuursorgaan om bij besluitvoorbereiding de nodige kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-UPLOAD32",
+          "bestand": "fixtures/meegegeven-awb-artikel-3-2.txt",
+          "sha256": "73a64ab39bd2c2120adf13d323481153deed88b0a5f38b9e99d494ad0e5b9be0",
+          "bytes": 203,
+          "soort": "existing_local_upload",
+          "herkomst": "/Users/chrislehnen/Projecten/Wetsanalyse/test-data/awb-artikel-3-2.txt",
+          "bronversie": "ONTBREKEND",
+          "locator": "wetszin onder beschrijvende kop",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "Artikel 3:2 Algemene wet bestuursrecht - Zorgvuldigheidsbeginsel\n\nBij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van meegegeven-awb-artikel-3-2.txt"
+            }
+          ],
+          "toelichting_bij_citaat": "Volledige bestandsinhoud, inclusief de redactionele kop.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "Het aangeleverde bestand bevat aantoonbaar de letterlijke wetszin van art. 3:2 Awb en voert in de kop de wettelijke aanduiding 'Artikel 3:2 Algemene wet bestuursrecht'. Dit is dus GEEN geval van 'geen geschikte bron gevonden'; de uitzonderingsroute met zoekbewijs uit besluit (1) is hier niet aan de orde. Wat ontbreekt is herkomstverificatie: het bestand draagt geen bronversie en geen URL, en de vergelijking met S-AWB32 is buiten de app gedaan. Open tot de herkomst is vastgesteld. C02-P05 is precies de casus waarin die herkomstkoppeling wel expliciet is gelegd."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De omschrijving is volledig afleidbaar uit de normzin: 'bij de voorbereiding van een besluit' -> besluitvoorbereiding; 'vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen' -> alle elementen behouden."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "De kop voert een wettelijke locator ('Artikel 3:2 Algemene wet bestuursrecht'), dus niet elke vindplaatsaanduiding ontbreekt. Wat ontbreekt is de bronversie, een gerichte hyperlink en een geverifieerde herkomst; een bestandsnaam en een redactionele kop vervangen die niet."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "ONTBREKEND: source_version van S-UPLOAD32.",
+        "ONTBREKEND: canonieke URL/herkomstverificatie van S-UPLOAD32 (het manifest noteert een lokaal pad, geen bron).",
+        "De inhoudelijke gelijkheid met S-AWB32 is buiten de app vastgesteld; binnen de app niet aangetoond.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P05",
+      "titel": "Meegegeven bestand gekoppeld aan gecontroleerde wetspassage",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht van het bestuursorgaan om bij besluitvoorbereiding de nodige kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-UPLOAD32",
+          "bestand": "fixtures/meegegeven-awb-artikel-3-2.txt",
+          "sha256": "73a64ab39bd2c2120adf13d323481153deed88b0a5f38b9e99d494ad0e5b9be0",
+          "bytes": 203,
+          "soort": "existing_local_upload",
+          "herkomst": "/Users/chrislehnen/Projecten/Wetsanalyse/test-data/awb-artikel-3-2.txt",
+          "bronversie": "ONTBREKEND",
+          "locator": "wetszin onder beschrijvende kop",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "Artikel 3:2 Algemene wet bestuursrecht - Zorgvuldigheidsbeginsel\n\nBij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van meegegeven-awb-artikel-3-2.txt"
+            }
+          ],
+          "toelichting_bij_citaat": "Volledige bestandsinhoud, inclusief de redactionele kop.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "S-AWB32",
+          "bestand": "fixtures/awb-3-2-20260815.txt",
+          "sha256": "ad520ff75fb2732204b93c2307e0b1806a400eedfd427cd4c19425e41bbdef97",
+          "bytes": 178,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/jci1.3:c:BWBR0005537&hoofdstuk=3&afdeling=3.2&artikel=3:2&z=2026-08-15&g=2026-08-15",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 3:2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Bij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-3-2-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "Bij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Dit is de expliciete herkomstkoppeling bij hetzelfde bestand als P04: S-AWB32 is aangeleverd als primaire wetstranscriptie met bronversie 2026-08-15, locator artikel 3:2 en artikelgerichte hyperlink. Daarmee is de herkomst die in P04 ontbrak hier wel vastgesteld."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De wetszinnen zijn woordelijk identiek; de definitie behoudt alle normelementen (kennisvergaring, relevante feiten, af te wegen belangen, bestuursorgaan, besluitvoorbereiding). De kop 'Zorgvuldigheidsbeginsel' is redactioneel toegevoegd en voegt geen normelement toe."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (jci-link artikel 3:2). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "De begripsnaam 'zorgvuldigheidsbeginsel' staat niet in de wetszin; de verwijzing moet als afgeleid worden vastgelegd (zie ook P12).",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P06",
+      "titel": "Hernoemen maakt dezelfde bron niet onafhankelijk",
+      "route": "upload",
+      "prioriteit": "P2",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        },
+        {
+          "source_id": "S-RENAME",
+          "bestand": "fixtures/hernoemd/awb-1-3-andere-naam.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "identical_bytes_renamed",
+          "herkomst": "S-AWB13",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 (identieke bytes, andere bestandsnaam)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Eén geschikte authentieke bron. De sha256 van S-RENAME is identiek aan die van S-AWB13 (7be6c298...3ec8); het zijn twee bestandsrecords van dezelfde bron, geen twee bronnen."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Betekenissteun gelijk aan P01: alle kenmerken staan letterlijk in lid 1."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "Versie, locator en artikelgerichte hyperlink zijn aanwezig, maar de bronidentiteit wordt in de keten naamafhankelijk vastgehouden terwijl de sha256 van beide bestanden gelijk is. De deskundige moet vaststellen of het record een semantische bron toont in plaats van twee."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Hernoemen mag niet als tweede, onafhankelijke bron tellen; of de keten dat ook zo vastlegt is niet uitgevoerd/gemeten.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P07",
+      "titel": "Dezelfde bestandsnaam met gewijzigde wetszin",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht om alleen relevante feiten te onderzoeken",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-UPLOAD32",
+          "bestand": "fixtures/meegegeven-awb-artikel-3-2.txt",
+          "sha256": "73a64ab39bd2c2120adf13d323481153deed88b0a5f38b9e99d494ad0e5b9be0",
+          "bytes": 203,
+          "soort": "existing_local_upload",
+          "herkomst": "/Users/chrislehnen/Projecten/Wetsanalyse/test-data/awb-artikel-3-2.txt",
+          "bronversie": "ONTBREKEND",
+          "locator": "wetszin onder beschrijvende kop (origineel)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "Artikel 3:2 Algemene wet bestuursrecht - Zorgvuldigheidsbeginsel\n\nBij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van meegegeven-awb-artikel-3-2.txt"
+            }
+          ],
+          "toelichting_bij_citaat": "Volledige bestandsinhoud, inclusief de redactionele kop.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "M-UPLOAD",
+          "bestand": "fixtures/mutanten/meegegeven-awb-artikel-3-2.txt",
+          "sha256": "2a12e4a4b9fab6efe364f59e4547e2bb41034395410fe66e23ec30031f3b34e4",
+          "bytes": 177,
+          "soort": "intentional_test_mutation",
+          "herkomst": "S-UPLOAD32",
+          "bronversie": "TEST-MUTATIE, geen wetswijziging",
+          "locator": "zelfde bestandsnaam, gewijzigde inhoud (TESTMUTATIE)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "Artikel 3:2 Algemene wet bestuursrecht - Zorgvuldigheidsbeginsel\n\nBij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten .",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/meegegeven-awb-artikel-3-2.txt"
+            }
+          ],
+          "toelichting_bij_citaat": "Volledige bestandsinhoud van de geregistreerde testmutatie.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet niet",
+          "motivering": "Twee bestanden met dezelfde basename en verschillende sha256 (73a64ab3...9be0 tegenover 2a12e4a4...b34e4); geen van beide draagt een eigen bronversie. De bronidentiteit van het beoordeelde exemplaar is niet vast te stellen."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De definitie 'plicht om alleen relevante feiten te onderzoeken' beperkt de cumulatieve norm onterecht: 'de af te wegen belangen' valt weg en het toegevoegde 'alleen' sluit ze zelfs uit. De mutant mist diezelfde zinsnede; de authentieke wetszin (S-AWB32) bevat haar wel."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "Beide exemplaren voeren dezelfde kop met wettelijke aanduiding, maar geen bronversie, geen hash-binding en geen hyperlink. Naamgelijkheid is geen inhoudsgelijkheid; welk exemplaar is beoordeeld, is niet herleidbaar."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "M-UPLOAD is geregistreerd als opzettelijke testmutatie, geen wetswijziging.",
+        "ONTBREKEND: bronversie bij beide uploadexemplaren.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P08",
+      "titel": "RAG haalt het juiste beleidsregellid op",
+      "route": "RAG",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "beleidsregel",
+        "definitie": "bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, over belangenafweging, feitenvaststelling of uitleg van wettelijke voorschriften bij het gebruik van een bestuursbevoegdheid",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 4 (via recept R-BELEID, top_k=5, score 0.88)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, omtrent de afweging van belangen, de vaststelling van feiten of de uitleg van wettelijke voorschriften bij het gebruik van een bevoegdheid van een bestuursorgaan.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, omtrent de afweging van belangen, de vaststelling van feiten of de uitleg van wettelijke voorschriften bij het gebruik van een bevoegdheid van een bestuursorgaan."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Het recept levert exact de chunk AWB13-L4 uit de primaire wetsbron; dat is de bepaling die 'beleidsregel' definieert."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De parafrase is inhoudelijk equivalent aan lid 4: 'bij besluit vastgestelde algemene regel' (letterlijk), 'niet zijnde een algemeen verbindend voorschrift' (letterlijk), 'belangenafweging, feitenvaststelling of uitleg van wettelijke voorschriften' (= afweging van belangen, vaststelling van feiten, uitleg van wettelijke voorschriften), 'bestuursbevoegdheid' (= bevoegdheid van een bestuursorgaan)."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "De rangschikking is een synthetische stub (synthetic_ranking = true, live_retrieval_executed = false). Document-/chunk-ID's van een echte index zijn niet gebonden; bronversie/hash zijn geen aangetoond ingestcontract."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Retrievalvolgorde is gefixeerd, niet gemeten.",
+        "ONTBREKEND: echte document-ID en chunk-ID uit een uitgevoerde indexrun.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P09",
+      "titel": "Hoge RAG-score met verkeerd lid",
+      "route": "RAG",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "beleidsregel",
+        "definitie": "algemeen verbindend voorschrift van een bestuursorgaan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 (via recept R-VERKEERD-LID, score 0.99)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        },
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 4 (aanwezig in corpus, niet opgehaald)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, omtrent de afweging van belangen, de vaststelling van feiten of de uitleg van wettelijke voorschriften bij het gebruik van een bevoegdheid van een bestuursorgaan.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, omtrent de afweging van belangen, de vaststelling van feiten of de uitleg van wettelijke voorschriften bij het gebruik van een bevoegdheid van een bestuursorgaan."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet niet",
+          "motivering": "De opgehaalde passage is authentiek maar gaat over 'besluit' (lid 1), niet over 'beleidsregel'. Voor het te definieren begrip is dus geen geschikte bronpassage geselecteerd, ondanks score 0.99."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De definitie 'algemeen verbindend voorschrift van een bestuursorgaan' wordt door de wel beschikbare bepaling (lid 4) uitdrukkelijk tegengesproken: een beleidsregel is juist 'niet zijnde een algemeen verbindend voorschrift'."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "Een hoge retrievalscore is geen passagebewijs. Welke passage feitelijk in de prompt is gebruikt, is niet gemeten; de stub legt alleen de verwachte teruggave vast."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Synthetische ranking; geen uitgevoerde retrieval.",
+        "Besluit (3): er is geen totaalscore meer, dus een hoge score kan dit niet compenseren.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P10",
+      "titel": "Dierenuitzondering aanwezig in corpus maar buiten top vijf",
+      "route": "RAG",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zaak",
+        "definitie": "voor menselijke beheersing vatbaar stoffelijk object, waaronder een dier",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2 (rang 1, 0.99)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 1 (rang 6, 0.74 - BUITEN top_k=5)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Dieren zijn geen zaken.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Dieren zijn geen zaken."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 2 (rang 7, 0.73 - BUITEN top_k=5)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "2. Bepalingen met betrekking tot zaken zijn op dieren van toepassing, met in achtneming van de op wettelijke voorschriften en regels van ongeschreven recht gegronde beperkingen, verplichtingen en rechtsbeginselen, alsmede de openbare orde en de goede zeden.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "2. Bepalingen met betrekking tot zaken zijn op dieren van toepassing, met in achtneming van de op wettelijke voorschriften en regels van ongeschreven recht gegronde beperkingen, verplichtingen en rechtsbeginselen, alsmede de openbare orde en de goede zeden."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Voor het begrip 'zaak' is art. 2 BW3 een geschikte authentieke bron en die is ook opgehaald."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De toevoeging 'waaronder een dier' wordt niet gedragen door de opgehaalde set en wordt door de wél in het corpus aanwezige bepaling art. 2a lid 1 ('Dieren zijn geen zaken') rechtstreeks tegengesproken. De bronset die de app zou zien is bovendien ontoereikend om de toevoeging te toetsen."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "De verwijzing naar art. 2 BW3 is op zichzelf volledig, maar de beslissende bepaling art. 2a lid 1 staat op rang 6 en valt buiten top_k=5. Of de keten die dekkingsbeperking zichtbaar maakt in de bronverantwoording is niet gemeten."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Kernrisico: een onvolledige bronset ziet eruit als een volledige.",
+        "Synthetische ranking; geen uitgevoerde retrieval.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P11",
+      "titel": "Zelfde dierencasus met volledige relevante retrieval",
+      "route": "RAG",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zaak",
+        "definitie": "voor menselijke beheersing vatbaar stoffelijk object, waaronder een dier",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Dieren zijn geen zaken.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Dieren zijn geen zaken."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "2. Bepalingen met betrekking tot zaken zijn op dieren van toepassing, met in achtneming van de op wettelijke voorschriften en regels van ongeschreven recht gegronde beperkingen, verplichtingen en rechtsbeginselen, alsmede de openbare orde en de goede zeden.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "2. Bepalingen met betrekking tot zaken zijn op dieren van toepassing, met in achtneming van de op wettelijke voorschriften en regels van ongeschreven recht gegronde beperkingen, verplichtingen en rechtsbeginselen, alsmede de openbare orde en de goede zeden."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Volledige relevante retrieval: art. 2 plus beide leden van 2a uit de primaire bron."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "Met de volledige set is de toevoeging 'waaronder een dier' aantoonbaar onjuist: lid 1 sluit dieren uit de kwalificatie 'zaak' uit. Lid 2 verklaart zakenbepalingen op dieren van toepassing 'met inachtneming van ... beperkingen', wat de toepasselijkheid van bepalingen regelt, niet de kwalificatie."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 2 Boek 3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Onderscheid kwalificatie versus toepasselijke bepalingen is de kern; deskundige bevestigt of verwerpt.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P12",
+      "titel": "Begripsnaam staat niet letterlijk in de ondersteunende wetszin",
+      "route": "upload",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht van het bestuursorgaan om bij besluitvoorbereiding kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB32",
+          "bestand": "fixtures/awb-3-2-20260815.txt",
+          "sha256": "ad520ff75fb2732204b93c2307e0b1806a400eedfd427cd4c19425e41bbdef97",
+          "bytes": 178,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/jci1.3:c:BWBR0005537&hoofdstuk=3&afdeling=3.2&artikel=3:2&z=2026-08-15&g=2026-08-15",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 3:2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Bij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-3-2-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "Bij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "S-AWB32 is een primaire wetstranscriptie met versie 2026-08-15 en exacte locator artikel 3:2."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De omschrijving is een getrouwe afleiding van de normzin, met alle elementen behouden. Dat het woord 'zorgvuldigheidsbeginsel' niet letterlijk in de bron staat, raakt de vindbaarheid van de term, niet de betekenissteun voor de inhoud."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (jci-link artikel 3:2). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Grensgeval: letterlijke term-afwezigheid mag niet als ontbrekende bronbasis worden gelezen.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P13",
+      "titel": "Artikel/lid en chunk-ID door normalisatie en opslag",
+      "route": "RAG",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "aanvraag",
+        "definitie": "verzoek van een belanghebbende om een besluit te nemen",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 3 (geindexeerde passage)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Lid 3 definieert 'aanvraag' en is afkomstig uit de primaire wetsbron."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De definitie 'verzoek van een belanghebbende om een besluit te nemen' dekt lid 3 exact: verzoek, belanghebbende, besluit nemen."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "Kern van deze casus. Document-ID, chunk-ID en lidmetadata zijn in de ruwe retrieval aanwezig maar gaan verloren in de provenanceprojectie. Bronversie en hash zijn geen aangetoond ingestcontract: ze moeten eerst aantoonbaar worden aangeleverd voordat transportverlies uberhaupt toetsbaar is. Opslag- en exportstappen zijn niet getest."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "ONTBREKEND: aangetoond ingestcontract voor bronversie/hash.",
+        "Verlies in de provenanceprojectie is een historische codebevinding, geen hier gemeten uitkomst.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P14",
+      "titel": "Alleen een reviewed/high-wikipagina",
+      "route": "LLM-WIKI",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-WIKI",
+          "bestand": "fixtures/wiki/LLM-wiki.md",
+          "sha256": "4704009b44d40c13904afd8018c4f35e9c1257c3f05c11291b8e157af764d966",
+          "bytes": 1898,
+          "soort": "derived_wiki",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/begrippen/LLM-wiki.md",
+          "bronversie": "last_updated 2026-08-03",
+          "locator": "frontmatter + kop Definitie",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "sources: [2026-07-08-karpathy-llm-wiki-gist, 2026-07-08-praneybehl-llm-wiki-plugin-readme]",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "last_reviewed: 2026-08-03",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "confidence: high",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "lifecycle: reviewed",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Definitieregel plus vier afzonderlijke frontmatterregels uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet niet",
+          "motivering": "S-WIKI is een afgeleide wikipagina, geen authentieke bron. De twee in de frontmatter genoemde sources zijn bij deze upload niet meegeleverd en dus niet gelezen. Er is geen authentieke bron aangeleverd; besluit (1) staat dat alleen toe als expliciet geaccepteerde uitzondering met zoekbewijs, dat hier ontbreekt."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De aangeboden 'steun' is de definitiezin van de pagina zelf. Dat is circulair: het document dat beoordeeld wordt, is het document dat zou moeten steunen. Zelfstandige betekenissteun ontbreekt."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "De verwijzing leidt naar een afgeleide pagina. De genoemde bron-identifiers in de frontmatter zijn geen bereikbare vindplaats en geen gelezen document; een gerichte hyperlink naar een primaire bron ontbreekt."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "ONTBREKEND: onderliggende bronnen 2026-07-08-karpathy-llm-wiki-gist en 2026-07-08-praneybehl-llm-wiki-plugin-readme bij deze casus.",
+        "'lifecycle: reviewed / confidence: high' in de frontmatter is geen actuele deskundige acceptatie.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P15",
+      "titel": "Wiki met navolgbare raw-steun voor afgebakende definitieclaim",
+      "route": "LLM-WIKI",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-RAW",
+          "bestand": "fixtures/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "sha256": "dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401",
+          "bytes": 11985,
+          "soort": "historical_primary_capture",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "bronversie": "capture 2026-07-08",
+          "locator": "Architecture - Raw sources",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "**Raw sources** — your curated collection of source documents. Articles, papers, images, data files. These are immutable — the LLM reads from them but never modifies them. This is your source of truth.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            }
+          ],
+          "exacte_bronpassage": "**Raw sources** — your curated collection of source documents. Articles, papers, images, data files. These are immutable — the LLM reads from them but never modifies them. This is your source of truth."
+        },
+        {
+          "source_id": "S-RAW",
+          "bestand": "fixtures/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "sha256": "dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401",
+          "bytes": 11985,
+          "soort": "historical_primary_capture",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "bronversie": "capture 2026-07-08",
+          "locator": "The core idea",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "The idea here is different. Instead of just retrieving from raw documents at query time, the LLM **incrementally builds and maintains a persistent wiki** — a structured, interlinked collection of markdown files that sits between you and the raw sources. When you add a new source, the LLM doesn't just index it for later retrieval. It reads it, extracts the key information, and integrates it into the existing wiki — updating entity pages, revising topic summaries, noting where new data contradicts old claims, strengthening or challenging the evolving synthesis. The knowledge is compiled once and then *kept current*, not re-derived on every query.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            },
+            {
+              "tekst": "You never (or rarely) write the wiki yourself — the LLM writes and maintains all of it. You're in charge of sourcing, exploration, and asking the right questions. The LLM does all the grunt work — the summarizing, cross-referencing, filing, and bookkeeping that makes a knowledge base actually useful over time. In practice, I have the LLM agent open on one side and Obsidian open on the other. The LLM makes edits based on our conversation, and I browse the results in real time — following links, checking the graph view, reading the updated pages. Obsidian is the IDE; the LLM is the programmer; the wiki is the codebase.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Twee volledige, niet-aaneengesloten alinea's (regel 11 en regel 15) uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "S-RAWREGISTER",
+          "bestand": "fixtures/raw/register-uittreksel.md",
+          "sha256": "e7500aa7bad7c12ec056f8c6bb356e14bb85d9946bc91dde10224144e3fd0f33",
+          "bytes": 486,
+          "soort": "local_register_excerpt",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/BRONNEN.md",
+          "bronversie": "ONTBREKEND",
+          "locator": "registerrij met canonieke URL en sha256",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "| 2026-07-08-karpathy-llm-wiki-gist.md | https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f | 2026-07-08 | dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401 |",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/register-uittreksel.md"
+            }
+          ],
+          "exacte_bronpassage": "| 2026-07-08-karpathy-llm-wiki-gist.md | https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f | 2026-07-08 | dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401 |"
+        },
+        {
+          "source_id": "S-WIKISOURCE",
+          "bestand": "fixtures/wiki/karpathy-llm-wiki-gist.md",
+          "sha256": "b918678627ab4c9027fbcd9869f7db6dfe3c7d567c8340a0c08bdfff682a7253",
+          "bytes": 4434,
+          "soort": "derived_source_page",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/sources/karpathy-llm-wiki-gist.md",
+          "bronversie": "gedeclareerd last_updated 2026-08-03",
+          "locator": "Kernclaims - bronpositie",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "- **bronpositie** — Drie lagen: [[Raw-laag]] (immutable, source of truth), [[Wiki-laag]] (volledig model-eigendom),",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/karpathy-llm-wiki-gist.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Eén bulletregel uit een afgeleide bronpagina, geen primaire bron.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "S-RAW is een historische primaire capture (2026-07-08) van de gist; het register-uittreksel bindt bestand, canonieke URL en sha256 (dc3efe98...7401) en die hash komt overeen met het aangeleverde exemplaar."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Alle vier kenmerken zijn in de raw terug te vinden: 'interlinked collection of markdown files' (onderling gelinkte markdown-pagina's), 'the LLM writes and maintains all of it' (geschreven en onderhouden door een taalmodel), 'persistent wiki' / 'persistent, compounding artifact' (kennisbank), en 'These are immutable' (onveranderlijke bronnen). De definitie blijft afgebakend tot het patroon."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde capture met datum, exacte locator (Architecture / The core idea) en een canonieke hyperlink naar de gist in het register-uittreksel. Hiermee is de verwijzing nauwkeurig, beknopt en bereikbaar."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "De tweede bron (praneybehl-plugin) is niet geverifieerd; claims die daarop steunen vallen buiten dit oordeel.",
+        "Het register-uittreksel is een lokale kopie zonder upstream-hercontrole (gekopieerd 2026-09-14).",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P16",
+      "titel": "Wiki wijzigt betekenis maar behoudt reviewed-label",
+      "route": "LLM-WIKI",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling bronnen die het taalmodel tijdens onderhoud herschrijft",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "bronpassages": [
+        {
+          "source_id": "M-WIKI",
+          "bestand": "fixtures/mutanten/LLM-wiki-onjuist.md",
+          "sha256": "05b9d41bdfb27160c30724616e0ba44370973343f4fbcfd14af45fcad7e471dd",
+          "bytes": 1930,
+          "soort": "intentional_test_mutation",
+          "herkomst": "S-WIKI",
+          "bronversie": "TEST-MUTATIE, geen echte wiki-revisie",
+          "locator": "kop Definitie (TESTMUTATIE)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling bronnen die het taalmodel tijdens onderhoud herschrijft",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/LLM-wiki-onjuist.md"
+            },
+            {
+              "tekst": "sources: [2026-07-08-karpathy-llm-wiki-gist, 2026-07-08-praneybehl-llm-wiki-plugin-readme]",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/LLM-wiki-onjuist.md"
+            },
+            {
+              "tekst": "last_reviewed: 2026-08-03",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/LLM-wiki-onjuist.md"
+            },
+            {
+              "tekst": "confidence: high",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/LLM-wiki-onjuist.md"
+            },
+            {
+              "tekst": "lifecycle: reviewed",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/LLM-wiki-onjuist.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Gemuteerde definitieregel plus de ongewijzigd meegekopieerde frontmatterregels.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "S-RAW",
+          "bestand": "fixtures/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "sha256": "dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401",
+          "bytes": 11985,
+          "soort": "historical_primary_capture",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "bronversie": "capture 2026-07-08",
+          "locator": "Architecture - Raw sources",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "**Raw sources** — your curated collection of source documents. Articles, papers, images, data files. These are immutable — the LLM reads from them but never modifies them. This is your source of truth.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            }
+          ],
+          "exacte_bronpassage": "**Raw sources** — your curated collection of source documents. Articles, papers, images, data files. These are immutable — the LLM reads from them but never modifies them. This is your source of truth."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "S-RAW is als authentieke primaire capture aanwezig en geschikt voor dit begrip."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "Het kenmerk is omgekeerd. De raw zegt over de bronlaag 'These are immutable - the LLM reads from them but never modifies them'; de beoordeelde definitie zegt dat het taalmodel die bronnen tijdens onderhoud herschrijft. Dat is niet een nuanceverschil maar het tegenovergestelde van de bronclaim."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "De mutant behoudt ongewijzigd 'last_reviewed: 2026-08-03 / confidence: high / lifecycle: reviewed' terwijl de inhoud is gewijzigd. Oude frontmatter is geen actuele review en bindt niet aan de gewijzigde tekst."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "M-WIKI is geregistreerd als opzettelijke testmutatie.",
+        "Kern: een reviewlabel moet aan bytes en definitieversie gebonden zijn, niet aan een bestandsnaam.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P17",
+      "titel": "Raw-bestand gewijzigd zonder registerhash te actualiseren",
+      "route": "LLM-WIKI",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "bronpassages": [
+        {
+          "source_id": "M-RAW",
+          "bestand": "fixtures/mutanten/karpathy-raw-gewijzigd.md",
+          "sha256": "addb6e3a4034d12ab178044bef2bec643b0d8f17a2a5487fafdbede31355e3df",
+          "bytes": 11983,
+          "soort": "intentional_test_mutation",
+          "herkomst": "S-RAW",
+          "bronversie": "TEST-MUTATIE, geen auteursrevisie",
+          "locator": "Architecture - Raw sources (TESTMUTATIE immutable->mutable)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "**Raw sources** — your curated collection of source documents. Articles, papers, images, data files. These are mutable — the LLM reads from them but never modifies them. This is your source of truth.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/karpathy-raw-gewijzigd.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Geregistreerde testmutatie: 'immutable' is in dit exemplaar 'mutable'.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "S-RAWREGISTER",
+          "bestand": "fixtures/raw/register-uittreksel.md",
+          "sha256": "e7500aa7bad7c12ec056f8c6bb356e14bb85d9946bc91dde10224144e3fd0f33",
+          "bytes": 486,
+          "soort": "local_register_excerpt",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/BRONNEN.md",
+          "bronversie": "ONTBREKEND",
+          "locator": "verwachte registerhash dc3efe98...7401",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "| 2026-07-08-karpathy-llm-wiki-gist.md | https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f | 2026-07-08 | dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401 |",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/register-uittreksel.md"
+            }
+          ],
+          "exacte_bronpassage": "| 2026-07-08-karpathy-llm-wiki-gist.md | https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f | 2026-07-08 | dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401 |"
+        },
+        {
+          "source_id": "S-WIKI",
+          "bestand": "fixtures/wiki/LLM-wiki.md",
+          "sha256": "4704009b44d40c13904afd8018c4f35e9c1257c3f05c11291b8e157af764d966",
+          "bytes": 1898,
+          "soort": "derived_wiki",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/begrippen/LLM-wiki.md",
+          "bronversie": "last_updated 2026-08-03",
+          "locator": "kop Definitie",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "sources: [2026-07-08-karpathy-llm-wiki-gist, 2026-07-08-praneybehl-llm-wiki-plugin-readme]",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "last_reviewed: 2026-08-03",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "confidence: high",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "lifecycle: reviewed",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Definitieregel plus vier afzonderlijke frontmatterregels uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet niet",
+          "motivering": "Het beoordeelde bronexemplaar (M-RAW, sha256 addb6e3a...5e3df) komt niet overeen met de in het register vastgelegde hash van S-RAW (dc3efe98...7401). Het exemplaar kan niet aan het register worden gebonden en telt dus niet als de geregistreerde authentieke bron."
+        },
+        "betekenissteun": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "De definitie ('onveranderlijke bronnen') komt overeen met de oorspronkelijke raw, maar juist op dat kenmerk is het aangeboden exemplaar gewijzigd. Op dit exemplaar is de steun niet vast te stellen; op het originele exemplaar wel (zie P15)."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "Aantoonbare hashafwijking tussen beoordeeld bestand en register. Welk exemplaar is beoordeeld, is daarmee niet herleidbaar tot de geregistreerde bron."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "M-RAW is geregistreerd als opzettelijke testmutatie, geen upstream-wijziging.",
+        "Openstaande vraag voor de deskundige: mag met de originele bytes worden hertoetst, of moet het record worden afgekeurd?",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P18",
+      "titel": "Niet-aangeleverde wiki-bron niet als gelezen registreren",
+      "route": "LLM-WIKI",
+      "prioriteit": "P2",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-WIKI",
+          "bestand": "fixtures/wiki/LLM-wiki.md",
+          "sha256": "4704009b44d40c13904afd8018c4f35e9c1257c3f05c11291b8e157af764d966",
+          "bytes": 1898,
+          "soort": "derived_wiki",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/begrippen/LLM-wiki.md",
+          "bronversie": "last_updated 2026-08-03",
+          "locator": "frontmatter sources + Voorbeelden",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "sources: [2026-07-08-karpathy-llm-wiki-gist, 2026-07-08-praneybehl-llm-wiki-plugin-readme]",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "last_reviewed: 2026-08-03",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "confidence: high",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "lifecycle: reviewed",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Definitieregel plus vier afzonderlijke frontmatterregels uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "S-RAW",
+          "bestand": "fixtures/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "sha256": "dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401",
+          "bytes": 11985,
+          "soort": "historical_primary_capture",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "bronversie": "capture 2026-07-08",
+          "locator": "Architecture / The core idea",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "The idea here is different. Instead of just retrieving from raw documents at query time, the LLM **incrementally builds and maintains a persistent wiki** — a structured, interlinked collection of markdown files that sits between you and the raw sources. When you add a new source, the LLM doesn't just index it for later retrieval. It reads it, extracts the key information, and integrates it into the existing wiki — updating entity pages, revising topic summaries, noting where new data contradicts old claims, strengthening or challenging the evolving synthesis. The knowledge is compiled once and then *kept current*, not re-derived on every query.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            },
+            {
+              "tekst": "You never (or rarely) write the wiki yourself — the LLM writes and maintains all of it. You're in charge of sourcing, exploration, and asking the right questions. The LLM does all the grunt work — the summarizing, cross-referencing, filing, and bookkeeping that makes a knowledge base actually useful over time. In practice, I have the LLM agent open on one side and Obsidian open on the other. The LLM makes edits based on our conversation, and I browse the results in real time — following links, checking the graph view, reading the updated pages. Obsidian is the IDE; the LLM is the programmer; the wiki is the codebase.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Twee volledige, niet-aaneengesloten alinea's (regel 11 en regel 15) uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Voor de definitiekenmerken is S-RAW als authentieke bron aanwezig en toereikend."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De vier definitiekenmerken worden door de Karpathy-raw gedragen (zie P15). De claim over '~100 artikelen / ~400K woorden' steunt op de niet-aangeleverde praneybehl-bron en valt buiten deze onderbouwde definitie."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "Het record noemt twee sources terwijl er één is aangeleverd en gelezen. Een identifier in frontmatter is geen gelezen document; de bronregistratie is daarmee onnauwkeurig en deels niet bereikbaar."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "ONTBREKEND: 2026-07-08-praneybehl-llm-wiki-plugin-readme is niet aangeleverd.",
+        "Grensgeval: de definitie is wel gedragen, de bronlijst niet. De drie deeloordelen moeten hier uiteenlopen.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P19",
+      "titel": "Beschikking omvat ook afwijzing",
+      "route": "wettekst",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "beschikking",
+        "definitie": "besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron; lid 2 definieert 'beschikking'."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De definitie volgt lid 2 woordelijk, inclusief de expliciete inclusie 'met inbegrip van de afwijzing van een aanvraag daarvan'. Geen ononderzochte praktijkuitzonderingen toegevoegd."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 1:3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P20",
+      "titel": "Aanvraag zonder belanghebbende-eis",
+      "route": "wettekst",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "aanvraag",
+        "definitie": "verzoek van een willekeurige persoon om een besluit te nemen",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 3",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron; lid 3 definieert 'aanvraag'."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "Lid 3 spreekt van 'een verzoek van een belanghebbende'. De definitie vervangt dat door 'een willekeurige persoon' en laat daarmee de belanghebbende-eis vallen; de extensie wordt ruimer dan de bron toestaat."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 1:3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P21",
+      "titel": "Goed is ruimer dan alleen stoffelijk object",
+      "route": "wettekst",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "goed",
+        "definitie": "voor menselijke beheersing vatbaar stoffelijk object",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Goederen zijn alle zaken en alle vermogensrechten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Goederen zijn alle zaken en alle vermogensrechten."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Beide relevante artikelen uit de primaire bron zijn aangeleverd."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De definitie geeft de omschrijving van 'zaak' (art. 2) aan het begrip 'goed'. Art. 1 bepaalt dat goederen 'alle zaken en alle vermogensrechten' zijn; vermogensrechten vallen dus weg. De extensie is te beperkt."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 2 Boek 3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P22",
+      "titel": "Geen zaken betekent niet dat zakenbepalingen nooit gelden",
+      "route": "wettekst",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "dier",
+        "definitie": "levend wezen waarop geen bepalingen met betrekking tot zaken van toepassing zijn",
+        "context": "BW Boek 3 / Nederlands vermogensrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Dieren zijn geen zaken.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Dieren zijn geen zaken."
+        },
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 2a lid 2",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "2. Bepalingen met betrekking tot zaken zijn op dieren van toepassing, met in achtneming van de op wettelijke voorschriften en regels van ongeschreven recht gegronde beperkingen, verplichtingen en rechtsbeginselen, alsmede de openbare orde en de goede zeden.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "2. Bepalingen met betrekking tot zaken zijn op dieren van toepassing, met in achtneming van de op wettelijke voorschriften en regels van ongeschreven recht gegronde beperkingen, verplichtingen en rechtsbeginselen, alsmede de openbare orde en de goede zeden."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Beide leden van art. 2a zijn aangeleverd uit de primaire bron."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De toevoeging 'waarop geen bepalingen met betrekking tot zaken van toepassing zijn' wordt door lid 2 tegengesproken: zakenbepalingen zijn juist wél van toepassing, met inachtneming van beperkingen. De definitie verwart juridische kwalificatie (lid 1) met toepasselijkheid van bepalingen (lid 2)."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 2 Boek 3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Beoordeling beperkt tot de juridische toevoeging aan de definitie, niet tot de biologische omschrijving 'levend wezen'.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P23",
+      "titel": "Dezelfde bron via upload, RAG en wiki telt niet driemaal",
+      "route": "keten",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "LLM-wiki",
+        "definitie": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+        "context": "Karpathy LLM-wiki-patroon"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-RAW",
+          "bestand": "fixtures/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "sha256": "dc3efe98ae62f23dd08acad13aba2e95287beb20b6bec2f4af0423557fe37401",
+          "bytes": 11985,
+          "soort": "historical_primary_capture",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/raw/2026-07-08-karpathy-llm-wiki-gist.md",
+          "bronversie": "capture 2026-07-08",
+          "locator": "Architecture / The core idea",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "The idea here is different. Instead of just retrieving from raw documents at query time, the LLM **incrementally builds and maintains a persistent wiki** — a structured, interlinked collection of markdown files that sits between you and the raw sources. When you add a new source, the LLM doesn't just index it for later retrieval. It reads it, extracts the key information, and integrates it into the existing wiki — updating entity pages, revising topic summaries, noting where new data contradicts old claims, strengthening or challenging the evolving synthesis. The knowledge is compiled once and then *kept current*, not re-derived on every query.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            },
+            {
+              "tekst": "You never (or rarely) write the wiki yourself — the LLM writes and maintains all of it. You're in charge of sourcing, exploration, and asking the right questions. The LLM does all the grunt work — the summarizing, cross-referencing, filing, and bookkeeping that makes a knowledge base actually useful over time. In practice, I have the LLM agent open on one side and Obsidian open on the other. The LLM makes edits based on our conversation, and I browse the results in real time — following links, checking the graph view, reading the updated pages. Obsidian is the IDE; the LLM is the programmer; the wiki is the codebase.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van raw/2026-07-08-karpathy-llm-wiki-gist.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Twee volledige, niet-aaneengesloten alinea's (regel 11 en regel 15) uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "S-WIKI",
+          "bestand": "fixtures/wiki/LLM-wiki.md",
+          "sha256": "4704009b44d40c13904afd8018c4f35e9c1257c3f05c11291b8e157af764d966",
+          "bytes": 1898,
+          "soort": "derived_wiki",
+          "herkomst": "/Users/chrislehnen/Documents/Claude/Projects/Wiki Karpaty style/llm-wiki-kennis/wiki/begrippen/LLM-wiki.md",
+          "bronversie": "last_updated 2026-08-03",
+          "locator": "kop Definitie (citeert dezelfde raw-capture)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "kennisbank van onderling gelinkte markdown-pagina's die door een taalmodel wordt geschreven en onderhouden op basis van een verzameling onveranderlijke bronnen",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "sources: [2026-07-08-karpathy-llm-wiki-gist, 2026-07-08-praneybehl-llm-wiki-plugin-readme]",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "last_reviewed: 2026-08-03",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "confidence: high",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            },
+            {
+              "tekst": "lifecycle: reviewed",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van wiki/LLM-wiki.md"
+            }
+          ],
+          "toelichting_bij_citaat": "Definitieregel plus vier afzonderlijke frontmatterregels uit hetzelfde bestand.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Er is één geschikte authentieke bron: S-RAW. Upload, RAG en de wikipagina leiden alle terug naar dezelfde oorspronkelijke tekst, gekoppeld op hash en canonieke URL. Als één bron voldoet dit; als drie onafhankelijke bronnen niet."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "De definitiekenmerken worden door de raw gedragen (zie P15)."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Hash en canonieke URL maken de identiteit van de bron over alle drie routes herleidbaar; juist die herleidbaarheid toont aan dat het één bron is."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Kernrisico: brononafhankelijkheid mag niet geteld worden maar moet inhoudelijk worden onderbouwd. Of de app dat zichtbaar maakt is niet gemeten.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P24",
+      "titel": "Bron wijzigt na deskundige beoordeling",
+      "route": "keten",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "zorgvuldigheidsbeginsel",
+        "definitie": "plicht om de nodige kennis over relevante feiten en af te wegen belangen te vergaren",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-UPLOAD32",
+          "bestand": "fixtures/meegegeven-awb-artikel-3-2.txt",
+          "sha256": "73a64ab39bd2c2120adf13d323481153deed88b0a5f38b9e99d494ad0e5b9be0",
+          "bytes": 203,
+          "soort": "existing_local_upload",
+          "herkomst": "/Users/chrislehnen/Projecten/Wetsanalyse/test-data/awb-artikel-3-2.txt",
+          "bronversie": "ONTBREKEND",
+          "locator": "wetszin onder beschrijvende kop (origineel)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "Artikel 3:2 Algemene wet bestuursrecht - Zorgvuldigheidsbeginsel\n\nBij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten en de af te wegen belangen.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van meegegeven-awb-artikel-3-2.txt"
+            }
+          ],
+          "toelichting_bij_citaat": "Volledige bestandsinhoud, inclusief de redactionele kop.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        },
+        {
+          "source_id": "M-UPLOAD",
+          "bestand": "fixtures/mutanten/meegegeven-awb-artikel-3-2.txt",
+          "sha256": "2a12e4a4b9fab6efe364f59e4547e2bb41034395410fe66e23ec30031f3b34e4",
+          "bytes": 177,
+          "soort": "intentional_test_mutation",
+          "herkomst": "S-UPLOAD32",
+          "bronversie": "TEST-MUTATIE, geen wetswijziging",
+          "locator": "zelfde basename, gewijzigde bytes (TESTMUTATIE)",
+          "citaat_type": "samengesteld_citaat",
+          "citaatfragmenten": [
+            {
+              "tekst": "Artikel 3:2 Algemene wet bestuursrecht - Zorgvuldigheidsbeginsel\n\nBij de voorbereiding van een besluit vergaart het bestuursorgaan de nodige kennis omtrent de relevante feiten .",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van mutanten/meegegeven-awb-artikel-3-2.txt"
+            }
+          ],
+          "toelichting_bij_citaat": "Volledige bestandsinhoud van de geregistreerde testmutatie.",
+          "waarschuwing": "Geen aaneengesloten passage: de fragmenten staan elk letterlijk in het bestand maar zijn hier samengevoegd. Niet citeren als een doorlopend citaat."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "Dezelfde herkomstvraag als P04: het uploadexemplaar draagt geen bronversie en geen geverifieerde herkomst. Dat is geen 'geen geschikte bron gevonden' maar een onbevestigde herkomst. Daar komt hier bij dat een gemuteerde kopie met dezelfde basename bestaat, waardoor niet vaststaat welk exemplaar is beoordeeld."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Tegen de oorspronkelijke bytes van S-UPLOAD32 is de definitie volledig gedekt: nodige kennis, relevante feiten én af te wegen belangen. Tegen de mutant zou zij niet gedekt zijn; dat is precies het risico dat deze casus toont."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "Een eerdere review bindt aan eerdere bytes. Zonder bronversie, hash-binding en een zichtbare koppeling review-bron-definitieversie kan niet worden herleid wat is beoordeeld."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Er is nu geen review aanwezig; de casus veronderstelt er een bij uitvoering.",
+        "ONTBREKEND: bronversie en hash-binding bij het uploadexemplaar.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P25",
+      "titel": "Definitie wijzigt na deskundige beoordeling",
+      "route": "keten",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "beslissing van een bestuursorgaan",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron, geschikt voor het begrip."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "De beoordeelde definitietekst is de P02-vorm: 'schriftelijke' en 'inhoudende een publiekrechtelijke rechtshandeling' ontbreken ten opzichte van lid 1. Een eerdere acceptatie van de P01-tekst dekt deze tekst niet."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 1:3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Kern: acceptatie moet aan definitieversie én bronversie gebonden zijn.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P26",
+      "titel": "Boolean reviewed=true is geen beoordelaarsbewijs",
+      "route": "keten",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron; inhoudelijk gelijk aan P01."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Betekenissteun gelijk aan P01: alle kenmerken staan letterlijk in lid 1."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet",
+          "motivering": "Stabiele bron-ID, bewaarde bronversie en exacte locator zijn aanwezig, en het bronmanifest legt een artikelgerichte hyperlink naar wetten.overheid.nl vast (anker Artikel 1:3). Daarmee is de verwijzing nauwkeurig, beknopt en gericht bereikbaar; de uitzonderingsroute voor een ontbrekende hyperlink uit besluit (1) is hier niet nodig."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "ONTBREKEND: reviewer-identiteit, bevoegdheid, beoordeelde passage en datum.",
+        "Geen fictieve identiteit gebruiken; het veld blijft leeg tot een echte beoordelaar invult.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst.",
+        "De gerichte hyperlink is vastgelegd in het bronmanifest van dit onderzoekspakket; dat het bronverwijzingsveld van het app-record dezelfde link draagt, is niet gemeten. De link wijst naar het artikel, het lid volgt uit de locator."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P27",
+      "titel": "Bewijspakket blijft inspecteerbaar na opslaan/herladen/export",
+      "route": "keten",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron; inhoudelijk gelijk aan P01."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Betekenissteun gelijk aan P01."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "De verwijzing is in het pakket compleet: vindplaats art. 1:3 lid 1, bronversie 2026-08-15 en artikelgerichte hyperlink. Of dit bewijspakket opslaan, herladen en export overleeft is niet getest; reconstructie door een tweede beoordelaar uitsluitend uit een export is niet aangetoond."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "ONTBREKEND: uitgevoerde opslag-/herlaad-/exporttest.",
+        "Zonder volledig beoordeeld record blijft dit een gelabelde draft.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P28",
+      "titel": "Hoge totaalscore heft ontbrekend bronbewijs niet op",
+      "route": "keten",
+      "prioriteit": "P1",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-BW3",
+          "bestand": "fixtures/bw3-1-2-2a-20250701.txt",
+          "sha256": "cc46ab1cc9b667db076e9003a114b092a16a566c65aa62e256012165378d32ba",
+          "bytes": 467,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005291/2025-07-01/0?g=2026-09-14&z=2026-09-14#Boek3_Titeldeel1_Afdeling1_Artikel2",
+          "bronversie": "2025-07-01",
+          "locator": "artikel 1 / 2 / 2a (niet-passende bron)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van bw3-1-2-2a-20250701.txt"
+            }
+          ],
+          "exacte_bronpassage": "Zaken zijn de voor menselijke beheersing vatbare stoffelijke objecten."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet niet",
+          "motivering": "Zelfde bronprobleem als P03: het BW3-fragment bevat geen bepaling over 'besluit'. De gecontroleerde testscore 0.99 is een ranking, geen passagebewijs."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet niet",
+          "motivering": "Geen kenmerk van de definitie is in het fragment terug te vinden."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "Er is geen vindplaats die de definitie draagt; een score kan een ontbrekende bronpassage niet vervangen."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Besluit (3): er is geen numerieke kwaliteitstotaalscore en geen vervangende gedeeltelijke totaalscore, dus 'hoge score heft bewijs op' kan per constructie niet meer optreden. Zichtbaar blijven de regeluitkomsten en de dekking.",
+        "ONTBREKEND: actuele evidence en review.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P29",
+      "titel": "Juiste betekenis, maar verwijzing slechts naar wetten-startpagina",
+      "route": "bronverwijzing",
+      "prioriteit": "P2",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht",
+        "citation_display": "Awb",
+        "source_hyperlink": "https://wetten.overheid.nl/"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 (passage juist; bronlabel alleen 'Awb', hyperlink naar startpagina)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "De onderliggende bronpassage is dezelfde primaire wetsbron als in P01 en ondersteunt het begrip."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Betekenissteun gelijk aan P01; de definitie is inhoudelijk juist."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "De invoervelden tonen citation_display 'Awb' en source_hyperlink 'https://wetten.overheid.nl/'. Het label noemt geen artikel en lid, en de link leidt naar de startpagina in plaats van naar de bepaling. De vindplaats is daarmee niet nauwkeurig en niet gericht bereikbaar; er is wel een bruikbare gerichte link beschikbaar."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Dit is het zuivere verwijskwaliteitsgeval: fout op één deeloordeel, goed op de andere twee. Dat is alleen zichtbaar doordat de drie oordelen onafhankelijk zijn (besluit 1).",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P30",
+      "titel": "Precieze bron met onnodig lange citeervorm",
+      "route": "bronverwijzing",
+      "prioriteit": "P2",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht",
+        "citation_display": "artikel 1:3 lid 1 van de Algemene wet bestuursrecht",
+        "source_hyperlink": "https://wetten.overheid.nl/jci1.3:c:BWBR0005537&hoofdstuk=1&titeldeel=1.1&artikel=1:3&z=2026-08-15&g=2026-08-15"
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 (artikel/lid/versie correct, artikelhyperlink aanwezig, lange wetsnaam in label)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron, correct geidentificeerd."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Betekenissteun gelijk aan P01; de redactie van het bronlabel verandert de broninhoud niet."
+        },
+        "herleidbaarheid": {
+          "voorstel": "nog te beoordelen",
+          "motivering": "De invoervelden tonen een correcte artikelgerichte hyperlink (jci-link artikel 1:3, versie 2026-08-15) en een citation_display die artikel, lid en wet volledig benoemt. Vindplaats en bereikbaarheid voldoen; alleen de citeervorm is uitgeschreven in plaats van de compacte wetsafkorting. De actuele toelichting onderscheidt beide maar stelt geen hard afkeuringscriterium; dit is een redactionele keuze die de deskundige vaststelt."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Grensgeval: 'beknopt' is een kwalitatieve norm zonder gemeten drempel.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    },
+    {
+      "case_id": "C02-P31",
+      "titel": "Vindplaats compleet, beschikbare hyperlink ontbreekt",
+      "route": "bronverwijzing",
+      "prioriteit": "P2",
+      "invoer_historisch_ongewijzigd": {
+        "begrip": "besluit",
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+        "context": "Awb / Nederlands bestuursrecht",
+        "citation_display": "art. 1:3 lid 1 Awb",
+        "source_hyperlink": null
+      },
+      "bronpassages": [
+        {
+          "source_id": "S-AWB13",
+          "bestand": "fixtures/awb-1-3-20260815.txt",
+          "sha256": "7be6c298370590a6ca51e82d9f6e9f066274e86adc3051037748beb2078e3ec8",
+          "bytes": 708,
+          "soort": "primary_law_transcription",
+          "herkomst": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "bronversie": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 (kort label en vaste bronversie aanwezig, hyperlinkveld leeg)",
+          "citaat_type": "letterlijk",
+          "citaatfragmenten": [
+            {
+              "tekst": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "verificatie": "letterlijk aangetroffen in de fixturebytes van awb-1-3-20260815.txt"
+            }
+          ],
+          "exacte_bronpassage": "1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling."
+        }
+      ],
+      "bewijslaag": {
+        "beoordeeld_op": "bronmanifest-v3.json plus de letterlijke fixturebytes",
+        "niet_gemeten": "of het app-record dezelfde bronverwijzing, bronversie en hyperlink daadwerkelijk doorgeeft, opslaat en exporteert"
+      },
+      "ai_voorbeoordeling": {
+        "status": "ai_voorstel_niet_geaccepteerd",
+        "bronbasis": {
+          "voorstel": "voldoet",
+          "motivering": "Primaire wetsbron; bron en bronversie zijn aanwezig en vastgelegd."
+        },
+        "betekenissteun": {
+          "voorstel": "voldoet",
+          "motivering": "Betekenissteun gelijk aan P01."
+        },
+        "herleidbaarheid": {
+          "voorstel": "voldoet niet",
+          "motivering": "citation_display 'art. 1:3 lid 1 Awb' is nauwkeurig en beknopt en de bronversie is vastgelegd, maar het veld source_hyperlink is leeg terwijl er een bruikbare gerichte hyperlink bestaat: wetten.overheid.nl, artikel 1:3, in bronmanifest-v3 vastgelegd als herkomst van S-AWB13. Die link hoort geregistreerd te worden. De verwijzingsuitzondering uit besluit (1) geldt uitsluitend voor een bron ZONDER bruikbare hyperlink en levert dan een herkenbaar gelabelde verwijzingsuitzondering op — geen gewone positieve beoordeling. Zij mag niet worden gebruikt om registratie van een wel beschikbare link over te slaan."
+        }
+      },
+      "onzekerheid_en_ontbrekende_gegevens": [
+        "Richting van herstel is registratie van de beschikbare gerichte link. Conform besluit (2) doet dit formulier geen herstelvoorstel en past niets toe.",
+        "Geen app-uitvoering: dit is AI-voorbeoordeling op de fixtures, geen gemeten regeluitkomst."
+      ],
+      "menselijk_besluit": {
+        "beoordelaar": null,
+        "bevoegdheid": null,
+        "beoordeeld_op": null,
+        "beoordeelde_bronhashes": null,
+        "beoordeelde_definitieversie": null,
+        "bronbasis": {
+          "besluit": null,
+          "motivering": null
+        },
+        "betekenissteun": {
+          "besluit": null,
+          "motivering": null
+        },
+        "herleidbaarheid": {
+          "besluit": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "uitzondering_geen_geschikte_bron": {
+          "ingeroepen": null,
+          "zoekbewijs": null,
+          "actor": null,
+          "motivering": null
+        },
+        "uitzondering_ontbrekende_hyperlink": {
+          "ingeroepen": null,
+          "bron_heeft_geen_bruikbare_hyperlink": null,
+          "bewaarde_versie": null,
+          "stabiele_id": null,
+          "exacte_locator": null,
+          "actor": null,
+          "motivering": null,
+          "zichtbare_markering": null
+        },
+        "eindoordeel": null,
+        "opmerkingen": null
+      }
+    }
+  ]
+}
