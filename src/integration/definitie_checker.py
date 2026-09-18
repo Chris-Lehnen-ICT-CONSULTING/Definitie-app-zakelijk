@@ -137,11 +137,15 @@ class DefinitieChecker:
         begrip: str,
         organisatorische_context: str,
         juridische_context: str = "",
-        categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
+        categorie: OntologischeCategorie | None = OntologischeCategorie.TYPE,
         wettelijke_basis: list[str] | None = None,
     ) -> DefinitieCheckResult:
         """
         Check voor bestaande definities voordat generatie start.
+
+        DEF-751 B2: `categorie=None` is de labelvrije generatie (geen keuze en
+        geen voorstel); de zoekopdrachten hieronder verwerken None al als
+        "geen categorie in de sleutel". Alleen de signatuur is verruimd.
 
         Args:
             begrip: Het begrip om te checken

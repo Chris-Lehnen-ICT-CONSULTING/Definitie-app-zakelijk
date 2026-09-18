@@ -21,6 +21,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Optional, cast
 
+from domain.categorie_herkomst import lees_keuze_invoer
 from domain.rechtsgebieden import normaliseer_rechtsgebied
 from services.exceptions import (
     DatabaseConnectionError,
@@ -910,11 +911,22 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
             # =====================================
-            prompt_result = await self.prompt_service.build_generation_prompt(
-                sanitized_request,
-                feedback_history=feedback_history,
-                context=context,
+            # DEF-751 stap 2 (reviewcorrectie 1): een te lang antwoord op een
+            # betekenisconflict wordt hier zichtbaar geweigerd — nooit stil
+            # afgekapt en toch als toegepast geregistreerd.
+            geweigerd = await self._weiger_te_lange_verduidelijking(
+                sanitized_request, generation_id, start_time
             )
+            if geweigerd is not None:
+                return geweigerd
+
+            # Promptbouw met de weigeringen vóór het model (prompt_te_lang,
+            # verduidelijking_niet_in_prompt); zie `_bouw_prompt_of_weiger`.
+            prompt_result, geweigerd = await self._bouw_prompt_of_weiger(
+                sanitized_request, feedback_history, context, generation_id, start_time
+            )
+            if geweigerd is not None:
+                return geweigerd
             logger.info(
                 f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
                 f"ontological_category={sanitized_request.ontologische_categorie})"
@@ -1006,6 +1018,19 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 ),
             )
             logger.info(f"Generation {generation_id}: AI generation complete")
+
+            # DEF-751 stap 2: aftakking vóór voorbeelden, opschoning, validatie
+            # en opslag. Een door het model gemeld betekenisconflict (of een
+            # ongeldige melding) is geen kandidaat en krijgt geen oordeel.
+            afgetakt = await self._verwerk_modelantwoord(
+                generation_result,
+                sanitized_request,
+                source_receipt,
+                generation_id,
+                start_time,
+            )
+            if afgetakt is not None:
+                return afgetakt
 
             # =====================================
             # PHASE 5: Generate Voorbeelden (Examples)
@@ -1343,6 +1368,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "tekst_na_generatie_aangepast": (
                         definitie_kern_geextraheerd != cleaned_text
                     ),
+                    # DEF-751 stap 2: het gebruikersantwoord op een eerder
+                    # gemeld betekenisconflict, herleidbaar op het record als
+                    # gebruikersbedoeling — geen bronfeit, geen oordeel.
+                    "betekenisverduidelijking": (
+                        sanitized_request.betekenisverduidelijking or None
+                    ),
                     # Doorgeven van force_duplicate voor downstream repository
                     "force_duplicate": (
                         bool(
@@ -1448,6 +1479,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
+                    # DEF-751 stap 2: of deze generatie een gebruikers-
+                    # verduidelijking droeg (zichtbaar in de UI; geen oordeel).
+                    "betekenisverduidelijking_gebruikt": bool(
+                        sanitized_request.betekenisverduidelijking
+                    ),
                     # Web lookup status for transparency
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
@@ -1513,6 +1549,251 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     # =====================================
     # PRIVATE HELPER METHODS
     # =====================================
+
+    async def _verwerk_modelantwoord(
+        self,
+        generation_result: Any,
+        request: GenerationRequest,
+        source_receipt: dict[str, Any] | None,
+        generation_id: str,
+        start_time: float,
+    ) -> DefinitionResponseV2 | None:
+        """DEF-751 stap 2: lees het ruwe modelantwoord vóór elke verdere fase.
+
+        Geeft None terug voor een gewoon definitieantwoord (het bestaande pad
+        loopt dan byte-identiek door). Bij een structureel geldige
+        conflictmelding waarvan elke grond naar een werkelijk aangeleverde
+        bron of contextwaarde verwijst: een specifieke non-success met de
+        melding in de metadata (`error_type="betekenisconflict"`), zonder
+        definitie, oordeel of categoriebevestiging. Bij een ongeldige of
+        vermengde melding, of een onverifieerbare grond: veilig falen
+        (`error_type="modelantwoord_ongeldig"`) zonder de ruwe modeltekst in
+        response of log. In beide gevallen wordt de monitoring afgerond en
+        wordt niets opgeslagen of gevalideerd.
+        """
+        from services.modelantwoord import (
+            SOORT_CONFLICT,
+            SOORT_DEFINITIE,
+            bron_nrs_uit_kwitantie,
+            contextwaarden_uit,
+            lees_modelantwoord,
+            verifieer_gronden,
+        )
+
+        raw = (
+            generation_result.text
+            if hasattr(generation_result, "text")
+            else str(generation_result)
+        )
+        antwoord = lees_modelantwoord(raw)
+        if antwoord.soort == SOORT_DEFINITIE:
+            return None
+
+        # Reviewcorrectie 3: uitsluitend een vaste foutcode en haar vaste
+        # omschrijving (`FOUTCODES`) — nooit een sleutel, bronwaarde of ander
+        # fragment uit de modelpayload — in log en response.
+        fout: tuple[str, str] | None = (
+            (antwoord.code, antwoord.reden)
+            if antwoord.code and antwoord.reden
+            else None
+        )
+        conflict = antwoord.conflict
+        if antwoord.soort == SOORT_CONFLICT and conflict is not None:
+            fout = verifieer_gronden(
+                conflict,
+                bron_nrs=bron_nrs_uit_kwitantie(source_receipt),
+                contextwaarden=contextwaarden_uit(request),
+            )
+
+        basis_metadata: dict[str, Any] = {
+            "generation_id": generation_id,
+            "duration": time.time() - start_time,
+            "orchestrator_version": "v2.0",
+            "phases_completed": 4,
+        }
+        if conflict is None or fout is not None:
+            code, reden = fout or ("onbekend", "onbekende afwijzingsreden")
+            logger.warning(
+                "Generation %s: ongeldige conflictmelding van het model "
+                "(code=%s: %s)",
+                generation_id,
+                code,
+                reden,
+            )
+            response = DefinitionResponseV2(
+                success=False,
+                error=(
+                    "Het model gaf geen bruikbare definitie en geen geldige "
+                    "conflictmelding; genereer opnieuw."
+                ),
+                metadata={
+                    **basis_metadata,
+                    "error_type": "modelantwoord_ongeldig",
+                    "code": code,
+                    "reden": reden,
+                },
+            )
+        else:
+            logger.info(
+                "Generation %s: model meldt een betekenisconflict (%d lezingen); "
+                "geen definitie, geen opslag",
+                generation_id,
+                len(conflict.lezingen),
+            )
+            response = DefinitionResponseV2(
+                success=False,
+                error=conflict.vraag,
+                metadata={
+                    **basis_metadata,
+                    "error_type": "betekenisconflict",
+                    "betekenisconflict": {
+                        **conflict.to_dict(),
+                        "gemeld_door": "model",
+                        "begrip": request.begrip,
+                        "ontologische_categorie": request.ontologische_categorie,
+                        "organisatorische_context": list(
+                            request.organisatorische_context or []
+                        ),
+                        "juridische_context": list(request.juridische_context or []),
+                        "wettelijke_basis": list(request.wettelijke_basis or []),
+                        "generation_id": generation_id,
+                    },
+                },
+            )
+
+        if self.monitoring:
+            token_count = getattr(generation_result, "tokens_used", None)
+            await self.monitoring.complete_generation(
+                generation_id=generation_id,
+                success=False,
+                duration=time.time() - start_time,
+                token_count=int(token_count) if token_count is not None else None,
+                components_used=[],
+                had_feedback=False,
+            )
+        return response
+
+    async def _weiger_voor_model(
+        self,
+        generation_id: str,
+        start_time: float,
+        *,
+        error_type: str,
+        melding: str,
+        extra: dict[str, Any] | None = None,
+    ) -> DefinitionResponseV2:
+        """Expliciete weigering vóór de modelaanroep (DEF-751 stap 2).
+
+        Geen definitie, geen oordeel, niets opgeslagen; de monitoring wordt
+        afgerond als niet-geslaagde generatie. De melding bevat alleen vaste
+        tekst en getallen — nooit het antwoord of andere gebruikersdata.
+        """
+        logger.warning(
+            "Generation %s: geweigerd vóór de modelaanroep (%s)",
+            generation_id,
+            error_type,
+        )
+        if self.monitoring:
+            await self.monitoring.complete_generation(
+                generation_id=generation_id,
+                success=False,
+                duration=time.time() - start_time,
+                token_count=None,
+                components_used=[],
+                had_feedback=False,
+            )
+        return DefinitionResponseV2(
+            success=False,
+            error=melding,
+            metadata={
+                "generation_id": generation_id,
+                "duration": time.time() - start_time,
+                "orchestrator_version": "v2.0",
+                "phases_completed": 2,
+                "error_type": error_type,
+                **(extra or {}),
+            },
+        )
+
+    async def _weiger_te_lange_verduidelijking(
+        self, request: GenerationRequest, generation_id: str, start_time: float
+    ) -> DefinitionResponseV2 | None:
+        """Reviewcorrectie 1: antwoord boven het antwoordbudget (ná escaping)
+        wordt zichtbaar geweigerd; het antwoord blijft bij de gebruiker."""
+        from services.prompts.modules.context_awareness_module import (
+            MAX_VERDUIDELIJKING_LEN,
+            verduidelijking_te_lang,
+        )
+
+        verduidelijking = request.betekenisverduidelijking
+        if not verduidelijking or not verduidelijking_te_lang(verduidelijking):
+            return None
+        return await self._weiger_voor_model(
+            generation_id,
+            start_time,
+            error_type="verduidelijking_te_lang",
+            melding=(
+                "De verduidelijking is te lang voor de prompt (maximaal "
+                f"{MAX_VERDUIDELIJKING_LEN} tekens na technische escaping); er is "
+                "niet gegenereerd. Kort het antwoord in en verzend het opnieuw."
+            ),
+            extra={"max_lengte": MAX_VERDUIDELIJKING_LEN},
+        )
+
+    async def _bouw_prompt_of_weiger(
+        self,
+        request: GenerationRequest,
+        feedback_history: Any,
+        context: dict[str, Any] | None,
+        generation_id: str,
+        start_time: float,
+    ) -> tuple[Any, DefinitionResponseV2 | None]:
+        """Fase 3: bouw de prompt, of weiger vóór het model (DEF-751 stap 2).
+
+        Reviewcorrectie 2: boven de harde kap wordt niet afgekapt maar
+        geweigerd (`prompt_te_lang`). Reviewcorrectie 1 (postconditie):
+        "gebruikt" betekent werkelijk en volledig in de prompt aanwezig;
+        anders `verduidelijking_niet_in_prompt` en geen modelaanroep.
+        Geeft (prompt_result, None) of (None, weigering) terug.
+        """
+        # Lokale imports: de promptketen blijft lazy (DEF-66).
+        from services.prompts.modular_prompt_adapter import PromptTeLangError
+        from services.prompts.modules.context_awareness_module import (
+            verduidelijking_datalijn,
+        )
+
+        try:
+            prompt_result = await self.prompt_service.build_generation_prompt(
+                request, feedback_history=feedback_history, context=context
+            )
+        except PromptTeLangError as e:
+            return None, await self._weiger_voor_model(
+                generation_id,
+                start_time,
+                error_type="prompt_te_lang",
+                melding=(
+                    "De samengestelde prompt is te lang "
+                    f"({e.lengte} tekens, maximum {e.maximum}); beperk de "
+                    "context, documentselectie of het antwoord en genereer "
+                    "opnieuw."
+                ),
+                extra={"lengte": e.lengte, "maximum": e.maximum},
+            )
+        verduidelijking = request.betekenisverduidelijking
+        if verduidelijking and (
+            verduidelijking_datalijn(verduidelijking) not in prompt_result.text
+        ):
+            return None, await self._weiger_voor_model(
+                generation_id,
+                start_time,
+                error_type="verduidelijking_niet_in_prompt",
+                melding=(
+                    "De verduidelijking kon niet volledig in de prompt worden "
+                    "opgenomen; er is niet gegenereerd. Kort het antwoord in "
+                    "of beperk de context en genereer opnieuw."
+                ),
+            )
+        return prompt_result, None
 
     @staticmethod
     def _kwitantie_uit(prompt_result: Any) -> dict[str, Any] | None:
@@ -1661,6 +1942,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         generation_metadata: dict[str, Any],
     ) -> Definition:
         """Create definition object with all metadata."""
+        metadata = dict(generation_metadata)
+        # DEF-751 B2: de categoriekeuze van deze generatie als onbevestigde
+        # invoer voor de repository. `lees_keuze_invoer` is de grens: alleen
+        # herkomst manual/model (+ reasoning/scores) uit de UI-actie; een
+        # meegestuurde actor/status wordt genegeerd, een herkomst die alleen
+        # in een eigen route mag ontstaan (editor/import/default) faalt
+        # fail-closed vóór opslag.
+        keuze_invoer = lees_keuze_invoer(
+            ensure_dict(request.options or {}).get("category_choice")
+        )
+        if keuze_invoer is not None:
+            metadata["category_choice_input"] = keuze_invoer
         return Definition(
             begrip=request.begrip,
             definitie=text,
@@ -1675,7 +1968,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             validation_violations=ensure_list(
                 safe_dict_get(validation_result, "violations", [])
             ),
-            metadata=generation_metadata,
+            metadata=metadata,
             created_by=request.actor,
             created_at=datetime.now(UTC),
         )

@@ -18,6 +18,7 @@ from typing import Any
 
 import pandas as pd
 
+from domain.ontological_categories import OPSLAGCATEGORIEEN
 from services.exceptions import RepositoryError
 from services.interfaces import Definition
 from services.validation.interfaces import ValidationResult
@@ -370,41 +371,20 @@ class DefinitionImportService:
             )
             return allowed_map.get(_key(v))
 
-        # Normaliseer categorie naar toegestane waarden
-        def _normalize_categorie(val: str | None) -> str:
-            """Normaliseer categorie naar toegestane database waarden."""
-            if not val:
-                return "type"  # Default categorie
-
-            v = str(val).strip().lower()
-
-            # Mapping van veel voorkomende varianten naar toegestane waarden
-            categorie_mapping = {
-                # Legacy mappings
-                "type": "type",
-                "proces": "proces",
-                "resultaat": "resultaat",
-                "exemplaar": "exemplaar",
-                # Common variations
-                "object": "type",  # object -> type
-                "entiteit": "ENT",
-                "activiteit": "ACT",
-                "relatie": "REL",
-                "attribuut": "ATT",
-                "autorisatie": "AUT",
-                "status": "STA",
-                "overig": "OTH",
-                # Abbreviations
-                "ent": "ENT",
-                "act": "ACT",
-                "rel": "REL",
-                "att": "ATT",
-                "aut": "AUT",
-                "sta": "STA",
-                "oth": "OTH",
-            }
-
-            return categorie_mapping.get(v, "type")  # Default to "type" if not found
+        # DEF-751 B2: geen stille default "type" en geen synoniemmapping meer.
+        # Ontbrekend = geen label (NULL); een waarde die geen exacte
+        # opslagwaarde is wordt zichtbaar geweigerd, niet omgezet.
+        def _normalize_categorie(val: str | None) -> str | None:
+            if val is None or not str(val).strip():
+                return None
+            v = str(val).strip()
+            if v not in OPSLAGCATEGORIEEN:
+                msg = (
+                    f"categorie {v!r} is geen opslagwaarde (hoofdlettergevoelig); "
+                    f"geldig: {', '.join(OPSLAGCATEGORIEEN)} of leeg voor geen label"
+                )
+                raise ValueError(msg)
+            return v
 
         # Normaliseer categorie
         categorie_normalized = _normalize_categorie(categorie)

@@ -164,6 +164,9 @@ class TemplateModule(BasePromptModule):
             "Toestand": "[Status/situatie] waarin [object/actor] zich bevindt wanneer [voorwaarde/kenmerk]",
             "Gebeurtenis": "[Voorval/incident] dat optreedt wanneer [trigger/voorwaarde] en resulteert in [uitkomst]",
             "Maatregel": "[Interventie/actie] met [onderbouwde kenmerkende inhoud en toepassingsvoorwaarden]; een doel volgt alleen uit gegeven begripsafbakening volgens ESS-01",
+            # DEF-750: RESULTAAT is een uitkomst en niet standaard een
+            # maatregel; eigen template met de ontstaansrelatie als kenmerk.
+            "Resultaat": "[Uitkomst/product] van [handeling of proces] met [onderscheidende inhoud]; een uitkomst is niet noodzakelijk een maatregel — behoud de ontstaansrelatie zonder de activiteit tot hoofdbetekenis te maken",
             "Informatie": "[Gegevens/data] over [onderwerp] met [onderscheidende inhoud of herkomst]",
             "Regel": "[Voorschrift/norm] dat bepaalt [wat] onder [welke voorwaarden]",
             "Recht": "[Bevoegdheid/aanspraak] van [rechthebbende] om [wat te doen/krijgen]",
@@ -241,6 +244,11 @@ class TemplateModule(BasePromptModule):
                 "  ✅ sanctie: corrigerende actie opgelegd bij geconstateerde overtreding",
                 "  ✅ waarschuwing: formele kennisgeving van ongewenst gedrag met dreiging van consequenties",
                 "  Grensgeval — gegeven afbakening: interventie is een gerichte ingreep in een bestaand proces ter verandering daarvan. Kandidaat: gerichte ingreep in een bestaand proces om de gang daarvan te veranderen. De doelfunctie is alleen toelaatbaar bij deze bevestigde grond volgens ESS-01; zonder grond blijft dit open.",
+            ],
+            "Resultaat": [
+                "  ✅ registratie: resultaat van het vastleggen van meetwaarden in een register",
+                "  ✅ verslag: schriftelijke weergave van wat tijdens een bijeenkomst is besproken en besloten",
+                "  Grensgeval — beoordeling: uitkomst van een beoordelingsproces waarbij criteria worden toegepast. Benoem de uitkomst als kern en houd de activiteit als ontstaansrelatie (ESS-02); een doel of functie alleen met begripsbepalende grond (ESS-01).",
             ],
             "Regel": [
                 "  ✅ voorschrift: bindende bepaling die aangeeft wat verplicht of verboden is",

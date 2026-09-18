@@ -44,6 +44,7 @@ from toetsregels.runtime_contract import (
     RequiredInput,
     ResultStatus,
     RuleContractError,
+    build_rule_record,
     build_rule_records,
 )
 
@@ -55,6 +56,32 @@ RECORDS = build_rule_records(
         pad.stem: json.loads(pad.read_text(encoding="utf-8"))
         for pad in REGELS_DIR.glob("*.json")
     }
+)
+
+# DEF-750: ESS-02 wijst de categorie-evaluator niet meer aan (menselijk
+# oordeel, `judgment_review`). De violation-vorm van `ontological_category`
+# blijft contract en wordt daarom op een synthetisch record met de oude
+# categorievelden beproefd — verplicht+hoog, zodat de DEF-669-afleiding naar
+# "critical" nog steeds meetbaar is.
+_SYN_OC_ID = "SYN-OC"
+RECORDS[_SYN_OC_ID] = build_rule_record(
+    _SYN_OC_ID,
+    {
+        "id": _SYN_OC_ID,
+        "naam": "Synthetische categorieregel",
+        "uitleg": "Alleen voor de violation-vormtest van ontological_category.",
+        "prioriteit": "hoog",
+        "aanbeveling": "verplicht",
+        "herkenbaar_patronen_type": [r"\b(categorie|soort|klasse)\b"],
+        "herkenbaar_patronen_proces": [r"\b(proces|activiteit|handeling)\b"],
+        "runtime_contract": {
+            "evaluator": "ontological_category",
+            "required_inputs": ["definition_text"],
+            "executability": "deterministic",
+            "automation_status": "automated",
+            "score_policy": "scored",
+        },
+    },
 )
 
 
@@ -221,7 +248,7 @@ FAALGEVALLEN = [
         id="qualification",
     ),
     pytest.param(
-        "ESS-02",
+        _SYN_OC_ID,
         OntologicalCategoryEvaluator(),
         "besluit",
         "besluit: iets waarvan de aard niet wordt benoemd",
@@ -303,11 +330,13 @@ class TestViolationVormIsEen:
         assert uitkomst.violation["severity"] == "stub-severity", rule_id
         assert uitkomst.violation["severity_level"] == "stub-level", rule_id
 
-    def test_ess02_hardcodeert_geen_niveau_meer(self):
-        # Het concrete geval uit de review: ESS-02 is verplicht+hoog en droeg
-        # toch het hardgecodeerde "high" in plaats van "critical".
+    def test_categorie_evaluator_hardcodeert_geen_niveau_meer(self):
+        # Het concrete geval uit de review: de categorie-evaluator droeg voor
+        # een verplicht+hoog record het hardgecodeerde "high" in plaats van
+        # "critical". Sinds DEF-750 draait ESS-02 zelf niet meer via deze
+        # evaluator; het synthetische record houdt de afleiding meetbaar.
         violation = _violation_van(
-            "ESS-02",
+            _SYN_OC_ID,
             OntologicalCategoryEvaluator(),
             "besluit",
             "besluit: iets waarvan de aard niet wordt benoemd",

@@ -41,14 +41,15 @@ class TestCategoryServiceV2:
         """Test succesvolle categorie update met v2."""
         # Arrange
         mock_repository.get_definitie.return_value = sample_definition
-        mock_repository.update_definitie.return_value = True
+        mock_repository.record_category_choice.return_value = True
 
-        # Act
+        # Act (DEF-751 B2: commando met de versie van de getoonde kandidaat)
         result = category_service.update_category_v2(
             definition_id=1,
             new_category="REL",
             user="test_user",
             reason="Test wijziging",
+            expected_version=1,
         )
 
         # Assert
@@ -70,7 +71,7 @@ class TestCategoryServiceV2:
 
         # Act
         result = category_service.update_category_v2(
-            definition_id=1, new_category="REL", user="test_user"
+            definition_id=1, new_category="REL", user="test_user", expected_version=1
         )
 
         # Assert
@@ -83,10 +84,10 @@ class TestCategoryServiceV2:
         """Test dat legacy method nog werkt."""
         # Arrange
         mock_repository.get_definitie.return_value = sample_definition
-        mock_repository.update_definitie.return_value = True
+        mock_repository.record_category_choice.return_value = True
 
         # Act
-        success, error = category_service.update_category(1, "REL")
+        success, error = category_service.update_category(1, "REL", expected_version=1)
 
         # Assert
         assert success is True

@@ -352,3 +352,63 @@ def test_beoordeling_met_andere_context_bindt_niet(tmp_path):
     )
     assert uit["source_assessment_persisted"] is False
     assert _facade(repo).get_definitie(did).get_source_evidence_history() == []
+
+
+# ------------------------------------- samenloop met DEF-751 B2 (categoriekeuze)
+
+
+def test_categoriekeuze_en_nieuwe_beoordeling_landen_samen_in_een_opslag(tmp_path):
+    """Integratie main (DEF-751 B2) × DEF-809: één editor-opslag met een
+    gewijzigde categorie (expliciet keuzecommando, één UPDATE met versieguard)
+    én de verse sessiebeoordeling — beide landen, geen van beide verdringt de
+    ander in `generation_prompt_data`; de keuze is aan de handelende
+    gebruiker geattribueerd."""
+    repo = _repo(tmp_path)
+    service, did = _p01_opgeslagen(repo)
+    geladen = _herladen(repo, did)
+    assert geladen.categorie == "resultaat"
+    nieuw = bouw_documentbeoordeling(
+        P01_TEKST,
+        geladen.metadata["provenance_sources"],
+        assessed_at=NIEUWE_BEOORDELING_TIJD,
+    )
+    uit = service.save_definition(
+        did,
+        _editor_updates(geladen, categorie="type", status="review"),
+        user=GEBRUIKER,
+        source_assessment=nieuw,
+        categoriekeuze={
+            "herkomst": "editor",
+            "actor": GEBRUIKER,
+            "actor_source": "typed_name",
+        },
+    )
+    assert uit["success"] is True, uit
+    assert uit["source_assessment_persisted"] is True
+
+    record = _facade(repo).get_definitie(did)
+    assert record.status == "review"
+    assert record.categorie == "type"
+    assert record.version_number == geladen.metadata["version_number"] + 1
+    # DEF-751: het keuze-event met menselijke herkomst en actor.
+    keuze = record.get_category_choice()
+    assert keuze is not None
+    assert keuze["origin"] == "editor" and keuze["value"] == "type"
+    assert keuze["actor"] == GEBRUIKER and keuze["actor_source"] == "typed_name"
+    assert record.get_category_choice_status()["status"] == "manual_confirmed"
+    # DEF-809: de verse beoordeling en de actuele kandidaat in hetzelfde record.
+    bewijs = record.get_source_evidence()
+    assert bewijs["source_assessment"] == nieuw
+    assert bewijs["candidate"]["definitie"] == P01_TEKST
+    assert bewijs["origin"] == "revalidation"
+    assert len(record.get_source_evidence_history()) == 1
+    assert _replay(record)["review"]["assessment"]["applied"] is True
+    # Een tweede opslag zonder keuze en zonder sessiebeoordeling laat beide staan.
+    geladen = _herladen(repo, did)
+    assert service.save_definition(did, _editor_updates(geladen), user=GEBRUIKER)[
+        "success"
+    ]
+    na = _facade(repo).get_definitie(did)
+    assert na.get_category_choice()["value"] == "type"
+    assert na.get_source_evidence()["source_assessment"] == nieuw
+    assert len(na.get_source_evidence_history()) == 1

@@ -67,20 +67,16 @@ VER-03:
     verwacht: geen_violation
 
 ESS-02:
-  required_fields: []
-  negatief:
-    begrip: waarde
-    tekst: "waarde zonder nadere duiding"
-    verwacht_in_melding: "ontologische marker"
-  positief:
-    # Precies één categorie-hit (type: "klasse").
-    begrip: waarde
-    tekst: "klasse van waarderingsvormen"
-  grens:
-    # Twee categorieën (type "soort" + proces "handeling") -> ambigu.
+  required_fields: [herkenbaar_patronen]
+  issue: DEF-624
+  reden: >
+    betekenisniveau en aard zijn een inhoudelijk oordeel (DEF-750); een
+    markerwoord, precies één categoriehit of meerdere categoriewoorden
+    bewijzen niets over de bedoelde betekenis. De probe is de oude
+    'ambigue' grens: twee categoriewoorden in een heldere kern.
+  probe:
     begrip: waarde
     tekst: "soort handeling binnen toezicht"
-    verwacht: violation
 
 SAM-06:
   issue: DEF-623
@@ -280,11 +276,14 @@ DUP_01:
 
 ESS-01:
   required_fields: [herkenbaar_patronen]
-  issue: DEF-624
+  issue: DEF-745
   reden: >
-    essentie versus doel is een inhoudelijk oordeel; het om-te-patroon
-    herkent de gesplitste constructie in het eigen foute voorbeeld
-    niet.
+    essentie versus doel is een inhoudelijk oordeel; het eigen goed/fout-paar
+    (requirement: behoefte of eis, versus dezelfde kern met een brug naar
+    systeemontwerp) bevat geen doelmarker. Vervolggebruik vereist menselijk
+    oordeel en het uitblijven van een patroonhit bewijst geen voldoen.
+    Inhoudelijke eigenaar: DEF-745; het gedeelde contract en de dekking van
+    deze matrix blijven bij DEF-624.
   probe:
     begrip: subsidie
     tekst: "subsidie: bijdrage om te stimuleren"

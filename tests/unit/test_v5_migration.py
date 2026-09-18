@@ -23,11 +23,11 @@ from database.migrations.v5_migration import (
     verify_migration,
 )
 from tests.fixtures.schema_profiles import (
-    SCHEMA_SQL_PATH,
     V5_TABELLEN,
     bouw_profiel,
     kolommen,
     lees_sentinels,
+    schema_tekst_voor_profiel,
     schema_versies,
     zaai_sentinels,
 )
@@ -46,7 +46,9 @@ def _create_existing_tables(conn: sqlite3.Connection) -> None:
     volledige versie-1-doelcontract, dus de kern moet echt canoniek zijn. De
     extra tabellen blijven om te bewijzen dat zij behouden worden.
     """
-    conn.executescript(SCHEMA_SQL_PATH.read_text(encoding="utf-8"))
+    # DEF-751: een pre-v5-database had `categorie NOT NULL`; de canonieke
+    # schematekst is inmiddels versie 4, dus neem de profielvorm.
+    conn.executescript(schema_tekst_voor_profiel(None))
     for tabel in V5_TABELLEN:
         conn.execute(f"DROP TABLE {tabel}")
     conn.executescript("""\

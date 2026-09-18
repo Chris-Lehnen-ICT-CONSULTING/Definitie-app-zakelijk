@@ -82,15 +82,25 @@ class TestDefinitionTaskTransformation:
 
         The word might still appear in metadata or specific validation contexts,
         but should not be in the main instructional content.
+
+        DEF-746 zette de ESS-01-functiegrens bewust als "Controleer afbakening en
+        rol van functie/doel volgens ESS-01" in de KWALITEITSCONTROLE-sectie: dat
+        is per definitie een controlestap en geen constructie-instructie. Die
+        ESS-01-instructie wordt hier niet aangepast om deze oude assertie groen
+        te krijgen; de assertie meet nu wat zij bedoelde — de constructieve
+        secties (opdracht en constructiegids) vóór de kwaliteitscontrole.
         """
         result = self.module.execute(self.context)
 
         # Split content into main and metadata sections
         main_content = result.content.split("METADATA voor traceerbaarheid")[0]
+        constructief = main_content.split("KWALITEITSCONTROLE")[0]
+        assert "Definitieopdracht" in constructief
+        assert "CONSTRUCTIE GUIDE" in constructief
 
-        # "Controleer" should not be in main instructional content
+        # "Controleer" should not be in constructive instructional content
         assert (
-            "Controleer" not in main_content
+            "Controleer" not in constructief
         ), "Validation language 'Controleer' should be removed from main instructions"
 
     def test_constructive_language_in_guide(self):
@@ -155,12 +165,14 @@ class TestDefinitionTaskTransformation:
         result = self.module.execute(self.context)
 
         if "KWALITEITSCONTROLE" in result.content:
+            # DEF-750: alleen de kwaliteitscontrolesectie zelf meten, niet een
+            # vast venster van 500 tekens dat in latere secties doorloopt —
+            # dat venster ving het woord "onderbouwing" uit het categorie-
+            # metadatablok als "bouw" en liet deze xfail onbedoeld slagen.
             quality_section = result.content[
-                result.content.find("KWALITEITSCONTROLE") : result.content.find(
-                    "KWALITEITSCONTROLE"
-                )
-                + 500
+                result.content.find("KWALITEITSCONTROLE") :
             ]
+            quality_section = quality_section.split("\n\n", 1)[0]
 
             # Should use positive framing
             positive_indicators = [
@@ -233,24 +245,20 @@ class TestDefinitionTaskTransformation:
             "Should focus on positive construction instructions instead"
         )
 
-    def test_ontological_marker_instructions_are_constructive(self):
+    def test_ontological_category_is_metadata_not_output(self):
         """
-        Test that ontological marker instructions are framed constructively.
+        DEF-750: er is geen aparte markerregel meer in de uitvoer. De categorie
+        is metadata bij de opdracht (een te controleren betekenisclaim), geen
+        eerste uitvoerregel en geen validatiebewijs. De oude conditionele
+        assertie ("als de marker er is, dan constructief") was vacuüm; deze
+        meet het contract zelf.
         """
         result = self.module.execute(self.context)
 
-        if "Ontologische marker" in result.content:
-            marker_section = result.content[
-                result.content.find("Ontologische marker") : result.content.find(
-                    "Ontologische marker"
-                )
-                + 200
-            ]
-
-            # Should instruct to "provide" or "specify" rather than "check"
-            assert (
-                "controleer" not in marker_section.lower()
-            ), "Ontological marker should not use validation language"
+        assert "Ontologische marker" not in result.content
+        assert "lever als eerste regel" not in result.content
+        assert "categorie" in result.content.lower()
+        assert "metadata" in result.content.lower()
 
     def test_final_instruction_emphasizes_creation(self):
         """
@@ -296,10 +304,11 @@ class TestDefinitionTaskTransformation:
     @pytest.mark.parametrize(
         ("ontological_category", "expected_hint"),
         [
-            ("proces", "activiteit/handeling"),
-            ("type", "soort/categorie"),
-            ("resultaat", "uitkomst/gevolg"),
-            ("exemplaar", "specifiek geval"),
+            # DEF-750: hints benoemen niveau en aard; geen "soort/categorie".
+            ("proces", "activiteit als kern"),
+            ("type", "algemeen begrip; benoem een passend genus"),
+            ("resultaat", "uitkomst als kern"),
+            ("exemplaar", "één bepaald ding of voorval"),
         ],
     )
     def test_ontological_hints_use_constructive_language(

@@ -50,6 +50,10 @@ CON01 = (
     "Context impliciet verwerkt: de registratiecontext niet in de zin",
 )
 EEN_ZIN = "in één enkele zin, zonder toelichting"
+#: DEF-750: de aparte markerregel is uit het uitvoercontract verdwenen — de
+#: uitvoer bevat alleen de definitiekern. Het CON-02-uitvoercontract blijft
+#: "één enkele zin"; deze constante bewaakt dat de oude markerplicht niet
+#: terugkomt.
 MARKER = "Ontologische marker (lever als eerste regel)"
 
 
@@ -201,9 +205,9 @@ async def test_eindprompt_zonder_context_bevat_con02_en_blijft_een_zin():
     # Smal: zonder context geen CON-01-kaart en geen contextmodule.
     assert "🔹 **CON-01" not in prompt
     assert "hoort bij het record, niet in de definitiezin" not in prompt
-    # Uitvoercontract onaangetast.
+    # Uitvoercontract: één zin, zonder aparte markerregel (DEF-750).
     assert EEN_ZIN in prompt
-    assert MARKER in prompt
+    assert MARKER not in prompt
     assert result.metadata["source_receipt"]["status"] == "none"
 
 
@@ -230,7 +234,7 @@ async def test_eindprompt_met_context_behoudt_con01_en_krijgt_con02(context):
     for oud in OUDE_NORM:
         assert oud not in prompt, oud
     assert EEN_ZIN in prompt
-    assert MARKER in prompt
+    assert MARKER not in prompt
     # CON-02 staat één keer als regelkaart (geen tweede, oude norm ernaast).
     assert prompt.count("🔹 **CON-02") == 1
 

@@ -764,15 +764,22 @@ class TestDefinitionOrchestratorV2Integration:
         procesprompt = await prompt_voor("proces")
         typeprompt = await prompt_voor("type")
 
-        # Categoriespecifieke sturing staat werkelijk in de prompt.
-        assert "🎯 Focus: Dit is een **proces** (activiteit/handeling)" in procesprompt
+        # Categoriespecifieke sturing staat werkelijk in de prompt (DEF-750:
+        # als opgegeven, te controleren betekenisclaim — geen exclusieve klasse).
+        assert (
+            "🎯 Focus: opgegeven categorie **proces** (activiteit als kern)"
+            in procesprompt
+        )
         assert "**Voorbeelden uit categorie Proces:**" in procesprompt
-        assert "🎯 Focus: Dit is een **type** (soort/categorie)" in typeprompt
+        assert (
+            "🎯 Focus: opgegeven categorie **type** (algemeen begrip; benoem een "
+            "passend genus)" in typeprompt
+        )
         # De ESS-mapping type → Object bepaalt het voorbeeldenblok.
         assert "**Voorbeelden uit categorie Object:**" in typeprompt
 
         # Discriminator: de twee prompts zijn niet dezelfde tekst, en geen van
         # beide draagt de sturing van de andere categorie.
         assert procesprompt != typeprompt
-        assert "🎯 Focus: Dit is een **type**" not in procesprompt
-        assert "🎯 Focus: Dit is een **proces**" not in typeprompt
+        assert "🎯 Focus: opgegeven categorie **type**" not in procesprompt
+        assert "🎯 Focus: opgegeven categorie **proces**" not in typeprompt

@@ -12,9 +12,15 @@ from typing import Any, cast
 import streamlit as st
 
 from config.config_manager import ConfigSection, get_config
+from domain.categorie_herkomst import HERKOMST_EDITOR
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import AutoSaveResult, DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
+from ui.helpers.categorie_weergave import (
+    beschrijf_keuzestatus,
+    bouw_categorie_opties,
+    categorie_label,
+)
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -604,15 +610,30 @@ class DefinitionEditTab:
             ] + org_custom_values
             SessionStateManager.set_value(k("organisatorische_context"), org_resolved)
 
-            # Category
+            # Category — DEF-751: de geladen waarde komt exact terug (ook een
+            # schemawaarde buiten de vier keuzes of een lege), zonder
+            # ValueError en zonder stille omzetting naar proces; alleen-lezen
+            # volgt hetzelfde beleid als de overige velden.
+            categorie_opties, categorie_index = bouw_categorie_opties(
+                definition.categorie
+            )
             categorie = st.selectbox(
                 "Categorie",
-                ["type", "proces", "resultaat", "exemplaar"],
-                index=["type", "proces", "resultaat", "exemplaar"].index(
-                    definition.categorie or "proces"
-                ),
+                options=categorie_opties,
+                index=categorie_index,
+                format_func=categorie_label,
                 key=k("categorie"),
+                disabled=disabled,
                 help="Ontologische categorie van het begrip",
+            )
+            # DEF-751 B2: herkomst van de opgeslagen keuze — voorstel,
+            # handmatig (opgegeven naam), import, default, onbekend of
+            # verouderd — zichtbaar naast de keuze; geen oordeel.
+            st.caption(
+                beschrijf_keuzestatus(
+                    (definition.metadata or {}).get("category_choice_status"),
+                    (definition.metadata or {}).get("category_choice"),
+                )
             )
 
             # UFO-categorie selectie (onder ontologische categorie)
@@ -1068,6 +1089,18 @@ class DefinitionEditTab:
         if isinstance(waarde, str) and waarde.strip():
             return waarde.strip()
         return None
+
+    @staticmethod
+    def _actorbron() -> str:
+        """Waar de identiteit van `_handelende_gebruiker` vandaan komt (DEF-751):
+        sessiegebruiker of getypte naam (voorstel-, expert- of bronmetadata-
+        naamveld) — beide zonder authenticatie."""
+        waarde = SessionStateManager.get_value("user")
+        return (
+            "session_user"
+            if isinstance(waarde, str) and waarde.strip()
+            else "typed_name"
+        )
 
     @staticmethod
     def _sessiebeoordeling() -> dict[str, Any] | None:
@@ -1881,7 +1914,10 @@ class DefinitionEditTab:
                 "organisatorische_context": org_list,
                 "juridische_context": jur_list,
                 "wettelijke_basis": wet_list,
-                "categorie": SessionStateManager.get_value(k("categorie")),
+                # DEF-751: een lege keuze (record zonder categorie) wordt geen
+                # kolomwaarde; `_definition_to_updates` slaat None over, zodat
+                # opslaan zonder categorieactie niets herclassificeert.
+                "categorie": SessionStateManager.get_value(k("categorie")) or None,
                 "ufo_categorie": (
                     SessionStateManager.get_value(k("ufo_categorie")) or None
                 ),
@@ -1901,14 +1937,34 @@ class DefinitionEditTab:
             # slaan kandidaat bindt en benoemt anders waarom niet.
             sessiebeoordeling = self._sessiebeoordeling()
 
+            # DEF-751 B2: alleen een werkelijk gewijzigde categorie is een
+            # keuze van deze opslaan-actie; zij reist als `editor`-event mee
+            # met de bestaande lokale identiteit (opgegeven naam of sessie-
+            # gebruiker — geen authenticatie). Zonder identiteit blijft de
+            # keuze ongeattribueerd; er wordt geen actor verzonnen.
+            actor = self._handelende_gebruiker()
+            geladen_categorie = getattr(editing_definition, "categorie", None)
+            categoriekeuze = None
+            if updates["categorie"] is not None and updates["categorie"] != (
+                geladen_categorie or None
+            ):
+                # Expliciet commando (reviewbevinding 2): nooit via updates/
+                # metadata; met de versie van de getoonde kandidaat (bevinding 3).
+                categoriekeuze = {
+                    "herkomst": HERKOMST_EDITOR,
+                    "actor": actor,
+                    "actor_source": self._actorbron() if actor else None,
+                }
+
             # Save
             result = self.edit_service.save_definition(
                 definition_id,
                 updates,
-                user=SessionStateManager.get_value("user") or "system",
+                user=actor or SessionStateManager.get_value("user") or "system",
                 reason=SessionStateManager.get_value(k("save_reason")),
                 validate=True,
                 source_assessment=sessiebeoordeling,
+                categoriekeuze=categoriekeuze,
             )
 
             if result["success"]:
@@ -2006,7 +2062,10 @@ class DefinitionEditTab:
                 or [],
                 wettelijke_basis=SessionStateManager.get_value(k("wettelijke_basis"))
                 or [],
-                categorie=SessionStateManager.get_value(k("categorie"), "proces"),
+                # DEF-751: zonder widgetwaarde geldt de geladen categorie, geen
+                # verzonnen proces.
+                categorie=SessionStateManager.get_value(k("categorie"))
+                or getattr(geladen, "categorie", None),
                 toelichting=SessionStateManager.get_value(k("toelichting"), ""),
                 metadata={
                     "status": SessionStateManager.get_value(k("status"), "draft")

@@ -1,12 +1,14 @@
 -- Database schema voor Definitie Management Systeem
 -- Supports SQLite and PostgreSQL
 --
--- DEF-664: dit bestand is de canonieke schemaversie 3 (v5 + v6 + v7 al
--- verwerkt) en zaait de drie schema_version-rijen zelf. Een verse database
--- start hiermee direct op versie 3; bestaande databases op een lagere versie
+-- DEF-664: dit bestand is de canonieke schemaversie 4 (v5 + v6 + v7 + v8 al
+-- verwerkt) en zaait de vier schema_version-rijen zelf. Een verse database
+-- start hiermee direct op versie 4; bestaande databases op een lagere versie
 -- worden bij startup geweigerd en moeten expliciet via de migraties
--- database.migrations.v5/v6/v7 worden bijgewerkt. `database/schema_contract.py`
+-- database.migrations.v5/v6/v7/v8 worden bijgewerkt. `database/schema_contract.py`
 -- toetst elke database structureel tegen dit bestand.
+-- DEF-751 (v8): `definities.categorie` is optioneel — NULL betekent "geen
+-- label" (nooit een verzonnen proces); de waardenlijst is ongewijzigd.
 
 -- ========================================
 -- CORE TABLES
@@ -19,7 +21,8 @@ CREATE TABLE definities (
     -- Kern informatie
     begrip VARCHAR(255) NOT NULL,
     definitie TEXT NOT NULL,
-    categorie VARCHAR(50) NOT NULL CHECK (categorie IN (
+    -- DEF-751 (v8): optioneel; NULL = geen label (geen verzonnen default)
+    categorie VARCHAR(50) CHECK (categorie IN (
         -- Basis categorieën (legacy support)
         'type', 'proces', 'resultaat', 'exemplaar',
         -- Uitgebreide ontologische categorieën
@@ -432,13 +435,14 @@ CREATE TABLE IF NOT EXISTS schema_version (
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- DEF-664: een verse database staat direct op de canonieke versie 3. De
--- beschrijvingen zijn die van de migraties v5 (1), v6 (2) en v7 (3), zodat
--- een verse en een gemigreerde database dezelfde versiegeschiedenis dragen.
+-- DEF-664: een verse database staat direct op de canonieke versie 4. De
+-- beschrijvingen zijn die van de migraties v5 (1), v6 (2), v7 (3) en v8 (4),
+-- zodat een verse en een gemigreerde database dezelfde versiegeschiedenis dragen.
 INSERT INTO schema_version (version, description) VALUES
     (1, 'Initial v5 migration'),
     (2, 'Hybrid schema: bron_type + JSONB metadata on rag_chunks'),
-    (3, 'Drop stale document_count/chunk_count from rag_collections');
+    (3, 'Drop stale document_count/chunk_count from rag_collections'),
+    (4, 'definities.categorie optioneel: NULL = geen label (DEF-751)');
 
 -- ========================================
 -- RAG SYSTEM (Phase 1)

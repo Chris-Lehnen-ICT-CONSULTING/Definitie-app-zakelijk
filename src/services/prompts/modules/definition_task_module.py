@@ -11,6 +11,7 @@ Deze module is verantwoordelijk voor:
 import logging
 from typing import Any
 
+from services.modelantwoord import CONFLICT_SENTINEL
 from services.prompts.sanitization import (
     DATABLOK_AFSPRAAK,
     TAG_BEGRIP,
@@ -20,6 +21,7 @@ from services.prompts.sanitization import (
 )
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
+from .context_awareness_module import VERDUIDELIJKING_KOP
 
 logger = logging.getLogger(__name__)
 
@@ -133,8 +135,13 @@ class DefinitionTaskModule(BasePromptModule):
                     self._build_metadata(begrip, word_type, org_contexts, has_context)
                 )
 
-            # Ontologische marker instructie
-            sections.append(self._build_ontological_marker())
+            # DEF-750: geen aparte markerregel in de uitvoer; de categorie is
+            # metadata bij de opdracht, geen eerste uitvoerregel.
+            sections.append(self._build_categorie_metadata_afspraak())
+
+            # DEF-751 stap 2: de enige uitzondering op de definitie-only-
+            # uitvoer — het strikt parseerbare conflictcontract.
+            sections.append(self._build_conflictcontract())
 
             # Finale definitie opdracht
             sections.append(self._build_final_instruction(begrip))
@@ -242,21 +249,27 @@ Formuleer nu de definitie van het begrip in dit datablok:
         """
         ont_cat = ""
         if ontological_category:
+            # DEF-750: dezelfde vier richtingen als de ESS-02-sectie — niveau
+            # en aard, geen woordplicht. 'type' is niet "soort/categorie".
             category_hints = {
-                "proces": "activiteit/handeling",
-                "type": "soort/categorie",
-                "resultaat": "uitkomst/gevolg",
-                "exemplaar": "specifiek geval",
+                "proces": "activiteit als kern",
+                "type": "algemeen begrip; benoem een passend genus",
+                "resultaat": "uitkomst als kern",
+                "exemplaar": "één bepaald ding of voorval",
             }
             # Normaliseer case zodat de focus-regel consistent is met de guidance
             # in SemanticCategorisationModule (die ook .lower() gebruikt). DEF-447.
             normalized = ontological_category.lower()
             if normalized in category_hints:
-                ont_cat = f"\n🎯 Focus: Dit is een **{normalized}** ({category_hints[normalized]})"
+                ont_cat = (
+                    f"\n🎯 Focus: opgegeven categorie **{normalized}** "
+                    f"({category_hints[normalized]}) — een te controleren "
+                    "betekenisclaim, geen verplicht woord"
+                )
 
-        # Zinsvorm, eindpunt/haakjes, verboden woorden en de ontologische
-        # categorie staan al in de OUTPUT FORMAT-, STR-, ARAI- en ESS-02-secties
-        # en in de marker hieronder; hier alleen de focus en het contextcontract.
+        # Zinsvorm, eindpunt/haakjes, verboden woorden en de betekenislaag
+        # staan al in de OUTPUT FORMAT-, STR-, ARAI- en ESS-02-secties; hier
+        # alleen de focus en het contextcontract.
         return f"""📋 **CONSTRUCTIE GUIDE - Bouw je definitie op:**{ont_cat}
 → Context impliciet verwerkt: de registratiecontext niet in de zin; een naam uit de context alleen als die inhoudelijk noodzakelijk is"""
 
@@ -299,12 +312,61 @@ Formuleer nu de definitie van het begrip in dit datablok:
         # Promptmetadata onderaan; hier alleen wat daar niet staat.
         return """#### 📊 METADATA voor traceerbaarheid: Builder versie Modular Architecture v2.0"""
 
-    def _build_ontological_marker(self) -> str:
-        """Bouw ontologische marker instructie."""
+    def _build_categorie_metadata_afspraak(self) -> str:
+        """DEF-750: de categorie is metadata, geen uitvoerregel.
+
+        Vóór DEF-750 vroeg dit blok een aparte eerste regel
+        "Ontologische categorie: soort | exemplaar | proces | resultaat". Die
+        markerregel reisde nooit naar de validatie en bewees niets over de
+        kern; de uitvoer is uitsluitend de definitiekern. De parser
+        (`opschoning_enhanced.extract_definition_from_gpt_response`) blijft
+        tolerant voor een eventuele oude markerregel.
+        """
         return """---
 
-📋 **Ontologische marker (lever als eerste regel):**
-- Ontologische categorie: soort | exemplaar | proces | resultaat"""
+📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
+
+    def _build_conflictcontract(self) -> str:
+        """DEF-751 stap 2: het additieve modelconflictcontract (ESS-02, C3).
+
+        Sluit de open contractgrens uit DEF-750: bij werkelijke tegenspraak
+        tussen aangeleverde bronnen of contextwaarden over de betekenislaag
+        levert het model géén definitie maar één strikt parseerbare melding
+        (sentinel + JSON; zie `services.modelantwoord`). Het contract
+        benoemt expliciet wat géén conflict is (overlap tussen richtingen,
+        eigen onzekerheid, ontbrekend label → gewone voorlopige definitie,
+        DEF-750) en hoe een eerder gegeven gebruikersverduidelijking geldt:
+        als diens keuze van de bedoelde betekenislaag — geen bronfeit, geen
+        ESS-02-oordeel, geen herschrijving van bronnen; een nieuwe, andere
+        tegenspraak wordt opnieuw gemeld. Praktijkproef 17-09-2026 (live,
+        echte conflictbronnen): het model stelde na de verduidelijking dezelfde
+        vraag opnieuw en voerde de verduidelijking als `context: …`-bron op;
+        het contract sluit nu expliciet uit dat de besliste tegenspraak
+        opnieuw wordt gemeld of dat de verduidelijking als bron/contextwaarde
+        van een lezing geldt.
+        """
+        return (
+            "🛑 **Betekenisconflict (ESS-02), enige uitzondering op de "
+            "definitie-uitvoer:** alléén als aangeleverde bronnen of "
+            "contextwaarden elkaar werkelijk tegenspreken over de betekenislaag: "
+            f"géén definitie, maar één melding. Eerste regel `{CONFLICT_SENTINEL}` "
+            'plus één JSON-object {"vraag": "één gerichte vraag", "lezingen": '
+            '[{"lezing": "…", "bron": "bron NUMMER" of "context: CONTEXTWAARDE", '
+            '"grond": "wat die bron of contextwaarde zegt"}, …]}, minstens twee '
+            "lezingen. Alleen bronnummers uit het bronnenblok of letterlijke "
+            "contextwaarden; verzin geen bron of grond. Nooit een definitie én "
+            "deze melding samen. Overlap tussen richtingen (bijv. type/proces), "
+            "eigen onzekerheid of een ontbrekende categorie is géén conflict: dan "
+            "gewoon één voorlopige definitiezin. Een "
+            f"'{VERDUIDELIJKING_KOP}' in het contextblok is de keuze van de "
+            "bedoelde betekenislaag door de gebruiker: definieer die lezing, "
+            "herschrijf de bronnen niet (een bedoeling, geen bronfeit en geen "
+            "ESS-02-oordeel). De tegenspraak die deze keuze beslist (bijv. "
+            "activiteit of uitkomst) is daarmee opgelost, ook al blijven de "
+            "bronnen het oneens: meld haar niet opnieuw en voer de "
+            "verduidelijking nooit op als bron of contextwaarde van een lezing; "
+            "blijft een werkelijke, ándere tegenspraak over, meld die opnieuw."
+        )
 
     def _build_final_instruction(self, begrip: str) -> str:
         """Bouw finale definitie instructie."""

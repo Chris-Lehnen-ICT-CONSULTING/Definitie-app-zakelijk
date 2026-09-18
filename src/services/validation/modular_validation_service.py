@@ -1955,8 +1955,11 @@ class ModularValidationService:
                 "definitiezin; alleen een naam die nodig is om het begrip af te "
                 "bakenen mag blijven staan."
             )
-        if c == "ESS-02":
-            return "Maak de ontologische categorie expliciet (type/particulier/proces/resultaat)."
+        # DEF-750: de ESS-02-suggestie "maak de ontologische categorie
+        # expliciet (type/particulier/proces/resultaat)" is vervallen — ESS-02
+        # levert geen violation meer maar een reviewreden met passages
+        # (`JudgmentReviewEvaluator._ess02_reden`); een markerwoord was nooit
+        # een herstel.
 
         return "Herschrijf de definitie conform de regelcriteria; maak specifieker."
 

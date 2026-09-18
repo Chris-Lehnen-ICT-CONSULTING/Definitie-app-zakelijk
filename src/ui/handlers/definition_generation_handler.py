@@ -19,11 +19,23 @@ from typing import Any, cast
 import streamlit as _default_st
 
 from document_processing.document_processor import get_document_processor
+from domain.categorie_herkomst import HERKOMST_HANDMATIG, HERKOMST_MODEL
 from domain.ontological_categories import OntologischeCategorie
 from domain.sources.bronmetadata import Bronmetadata, pas_bronmetadata_toe
 from integration.definitie_checker import CheckAction, DefinitieChecker
+from ui.helpers.betekenisconflict import (
+    HERSTELBARE_VERDUIDELIJKINGSFOUTEN,
+    KEY_AFWIJZING,
+    KEY_OPEN,
+    KEY_VERZONDEN,
+    invoer_vingerafdruk,
+    open_conflict_uit,
+    rag_selectie_voor_vingerafdruk,
+    verzonden_verduidelijking_voor,
+)
+from ui.helpers.categorie_weergave import generatiecategorie_van
 from ui.session_state import SessionStateManager as _DefaultSM
-from utils.type_helpers import ensure_dict
+from utils.type_helpers import ensure_dict, ensure_string
 
 # Hybrid context imports - optionele module voor hybride context verrijking
 
@@ -143,17 +155,23 @@ class DefinitionGenerationHandler:
                     "manual_ontological_category"
                 )
 
+                # DEF-751: een keuze of voorstel buiten de vier generatie-
+                # categorieën viel hier stil terug op PROCES — en reisde zo
+                # ook de duplicaatvoorcontrole en het model in. Nu stopt de
+                # handler vóór checker en model met een begrijpelijke melding;
+                # de echte waarde reist exact door. Herkomst (handmatig vs.
+                # model) blijft alleen sessie-informatie, geen bevestiging.
                 if manual_category:
                     # Gebruik handmatige override
-                    category_map = {
-                        "type": OntologischeCategorie.TYPE,
-                        "proces": OntologischeCategorie.PROCES,
-                        "resultaat": OntologischeCategorie.RESULTAAT,
-                        "exemplaar": OntologischeCategorie.EXEMPLAAR,
-                    }
-                    auto_categorie = category_map.get(
-                        manual_category.lower(), OntologischeCategorie.PROCES
-                    )
+                    auto_categorie = generatiecategorie_van(manual_category)
+                    if auto_categorie is None:
+                        self._weiger_categorie(
+                            manual_category,
+                            "handmatige keuze",
+                            _st=st,
+                            _sm=SessionStateManager,
+                        )
+                        return
                     category_reasoning = (
                         f"Handmatig gekozen door gebruiker: {manual_category}"
                     )
@@ -162,49 +180,48 @@ class DefinitionGenerationHandler:
                         f"Gebruik handmatige categorie override: {manual_category}"
                     )
                 else:
-                    # Gebruik pre-geclassificeerde categorie (REQUIRED)
+                    # Gebruik het pre-geclassificeerde voorstel, als dat er is
                     determined_category = SessionStateManager.get_value(
                         "determined_category"
                     )
 
                     if not determined_category:
-                        # GEEN FALLBACK: Pre-classificatie is VERPLICHT
-                        st.error(
-                            "❌ Ontologische categorie is niet bepaald. "
-                            "Scroll naar boven om de categorie te "
-                            "zien/aanpassen voordat je genereert."
+                        # DEF-751 B2 (schemaversie 4): geen keuze en geen
+                        # voorstel — bv. uitsluitend wettelijke basis als
+                        # context, waarop de classifier niet draait — is geen
+                        # blokkade en geen verzonnen PROCES: de generatie loopt
+                        # labelvrij door (categorie None); de bestaande CON-01-
+                        # contextguard hierboven blijft de inhoudelijke grens.
+                        # Een werkelijk betekenisconflict is stap 2 (ESS-02).
+                        auto_categorie = None
+                        category_reasoning = ""
+                        category_scores = {}
+                        logger.info(
+                            "Generatie zonder categorielabel voor %r: geen keuze "
+                            "en geen voorstel",
+                            begrip,
                         )
-                        logger.error(
-                            "Generatie geblokkeerd: geen pre-classificatie beschikbaar. "
-                            "Gebruiker moet categorie preview zien voordat generatie."
+                    else:
+                        # DEF-138: kastongevoelig; DEF-751: geen PROCES-fallback
+                        auto_categorie = generatiecategorie_van(determined_category)
+                        if auto_categorie is None:
+                            self._weiger_categorie(
+                                determined_category,
+                                "voorgestelde categorie",
+                                _st=st,
+                                _sm=SessionStateManager,
+                            )
+                            return
+                        category_reasoning = SessionStateManager.get_value(
+                            "category_reasoning", ""
                         )
-                        return
-
-                    # Converteer string naar OntologischeCategorie enum
-                    category_map = {
-                        "TYPE": OntologischeCategorie.TYPE,
-                        "PROCES": OntologischeCategorie.PROCES,
-                        "RESULTAAT": OntologischeCategorie.RESULTAAT,
-                        "EXEMPLAAR": OntologischeCategorie.EXEMPLAAR,
-                    }
-                    # DEF-138 FIX: uppercase determined_category voor case-insensitive match
-                    auto_categorie = category_map.get(
-                        (
-                            determined_category.upper()
-                            if determined_category
-                            else "PROCES"
-                        ),
-                        OntologischeCategorie.PROCES,
-                    )
-                    category_reasoning = SessionStateManager.get_value(
-                        "category_reasoning", ""
-                    )
-                    category_scores = SessionStateManager.get_value(
-                        "category_scores", {}
-                    )
-                    logger.info(
-                        f"Gebruik pre-geclassificeerde categorie: {determined_category}"
-                    )
+                        category_scores = SessionStateManager.get_value(
+                            "category_scores", {}
+                        )
+                        logger.info(
+                            "Gebruik pre-geclassificeerde categorie: %s",
+                            determined_category,
+                        )
 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context(_st=st, _sm=_sm)
@@ -347,6 +364,35 @@ class DefinitionGenerationHandler:
                     "rag_selected_collection_ids", None
                 )
 
+                # DEF-751 stap 2: de vingerafdruk van de volledige invoer.
+                # Een eerder verzonden antwoord op een betekenisconflict
+                # wordt alleen toegepast als het bij het open conflict én bij
+                # precies deze invoer hoort; anders vervalt het met een
+                # melding. Toepassen is eenmalig; het reist via het typed
+                # veld, nooit via `options`. De RAG-selectie telt als de
+                # gebruikerskeuze (standaard = None), niet als de lijst die de
+                # selector bij het verschijnen zelf wegschrijft.
+                vingerafdruk = invoer_vingerafdruk(
+                    begrip=begrip,
+                    organisatorische_context=org_context,
+                    juridische_context=jur_context,
+                    wettelijke_basis=wet_context,
+                    categorie=auto_categorie.value if auto_categorie else None,
+                    document_ids=selected_doc_ids,
+                    rag_collection_ids=rag_selectie_voor_vingerafdruk(
+                        SessionStateManager
+                    ),
+                )
+                # Kopie van het verzonden antwoord: wordt teruggezet als de
+                # generatie het antwoord zelf weigert (reviewcorrectie 1).
+                verzonden_kopie = SessionStateManager.get_value(KEY_VERZONDEN)
+                verduidelijking, afwijsreden = verzonden_verduidelijking_voor(
+                    SessionStateManager, vingerafdruk
+                )
+                if afwijsreden:
+                    st.info(f"ℹ️ {afwijsreden}")
+                    logger.info("Betekenisverduidelijking vervallen: %s", afwijsreden)
+
                 _response = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
@@ -361,34 +407,107 @@ class DefinitionGenerationHandler:
                             SessionStateManager.get_value("ufo_categorie") or None
                         ),
                         options={
-                            k: v
-                            for k, v in options.items()
-                            if k
-                            in (
-                                "force_generate",
-                                "force_duplicate",
-                                "force_duplicate_reason",
-                            )
+                            **{
+                                k: v
+                                for k, v in options.items()
+                                if k
+                                in (
+                                    "force_generate",
+                                    "force_duplicate",
+                                    "force_duplicate_reason",
+                                )
+                            },
+                            # DEF-751 B2: alleen het modelvoorstel reist als
+                            # herkomst mee in de aanvraag (`model` +
+                            # reasoning/scores). Een handmatige override is
+                            # een keuzeactie en wordt ná de opslag via het
+                            # expliciete commando vastgelegd
+                            # (`_leg_handmatige_keuze_vast`) — nooit als
+                            # generieke aanvraagclaim (herreview 2). Labelvrij
+                            # (geen keuze, geen voorstel): geen herkomst.
+                            **(
+                                {
+                                    "category_choice": self._keuze_invoer(
+                                        category_reasoning, category_scores
+                                    )
+                                }
+                                if auto_categorie is not None and not manual_category
+                                else {}
+                            ),
                         },
                         document_context=doc_summary,
                         document_snippets=doc_snippets,
                         rag_collection_ids=rag_collection_ids,
+                        **(
+                            {"betekenisverduidelijking": verduidelijking}
+                            if verduidelijking
+                            else {}
+                        ),
                     ),
                     timeout=120,
                 )
                 # DEF-451: serialiseer het getypeerde response naar de canonieke UI-dict
                 service_result = self.definition_service.to_ui_response(_response)
 
+                # DEF-751 stap 2 (reviewcorrectie 1): weigerde de generatie
+                # vóór het model om het verzonden antwoord of het prompt-
+                # budget, dan gaat dat antwoord niet verloren: het conflict
+                # blijft open, het antwoord blijft verzonden, de afwijzing
+                # staat bij het antwoordveld en het vorige resultaat (het
+                # conflict) blijft zichtbaar. De gebruiker past aan en verzendt
+                # opnieuw.
+                if (
+                    verduidelijking
+                    and isinstance(service_result, dict)
+                    and service_result.get("error_type")
+                    in HERSTELBARE_VERDUIDELIJKINGSFOUTEN
+                ):
+                    melding = ensure_string(
+                        service_result.get("error_message") or "Generatie geweigerd"
+                    )
+                    if isinstance(verzonden_kopie, dict):
+                        SessionStateManager.set_value(KEY_VERZONDEN, verzonden_kopie)
+                    SessionStateManager.set_value(KEY_AFWIJZING, melding)
+                    st.error(
+                        f"❌ Generatie niet uitgevoerd: {melding} Je antwoord "
+                        "staat nog in de 'Definitie Generatie' tab."
+                    )
+                    logger.warning(
+                        "Generatie geweigerd vóór het model (%s); verzonden "
+                        "verduidelijking behouden",
+                        service_result.get("error_type"),
+                    )
+                    return
+
                 # Converteer naar checker formaat voor UI compatibility
                 # DEF-439: aparte naam — deze post-generatie tak heeft geen check-result
                 check_result_ui = None
                 agent_result = service_result
 
-                # Voor auto-load in Bewerk-tab
+                # DEF-751 stap 2: een door het model gemeld betekenisconflict
+                # is geen definitie — niets opgeslagen, geen editrecord, geen
+                # keuze-event. Het open conflict (gebonden aan deze invoer)
+                # gaat de sessie in voor het antwoordveld in de tab; elke
+                # andere uitkomst sluit een eerder open conflict en een
+                # eerdere afwijzing.
+                open_conflict = open_conflict_uit(service_result, vingerafdruk)
+                SessionStateManager.clear_value(KEY_AFWIJZING)
+                if open_conflict is not None:
+                    SessionStateManager.set_value(KEY_OPEN, open_conflict)
+                else:
+                    SessionStateManager.clear_value(KEY_OPEN)
+
+                # Voor auto-load in Bewerk-tab en voor Toepassen (herreview 3:
+                # het werkelijk opgeslagen record met id én versie).
                 saved_record = None
                 saved_definition_id = None
                 if isinstance(service_result, dict) and service_result.get("success"):
                     saved_definition_id = service_result.get("saved_definition_id")
+                    saved_record = self._leg_handmatige_keuze_vast(
+                        saved_definition_id,
+                        auto_categorie if manual_category else None,
+                        _st=st,
+                    )
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
@@ -453,7 +572,9 @@ class DefinitionGenerationHandler:
                         "agent_result": agent_result,
                         "saved_record": saved_record,
                         "saved_definition_id": saved_definition_id,
-                        "determined_category": auto_categorie.value,
+                        "determined_category": (
+                            auto_categorie.value if auto_categorie else None
+                        ),
                         "category_reasoning": category_reasoning,
                         "category_scores": category_scores,
                         "document_context": document_context,
@@ -534,8 +655,28 @@ class DefinitionGenerationHandler:
                         len(validation_details.get("passed_rules", [])),
                     )
 
-                # Toon document context info als gebruikt
-                if document_context and document_context.get("document_count", 0) > 0:
+                # DEF-751 stap 2: geen onvoorwaardelijk succes. Een gemeld
+                # betekenisconflict is een vraag aan de gebruiker; een andere
+                # non-success is een fout. Alleen een echt resultaat is succes.
+                geslaagd = isinstance(service_result, dict) and bool(
+                    service_result.get("success")
+                )
+                if open_conflict is not None:
+                    st.warning(
+                        "⚠️ Verduidelijking nodig: het model meldt een "
+                        "betekenisconflict en heeft geen definitie geleverd. "
+                        "Beantwoord de vraag in de 'Definitie Generatie' tab en "
+                        "genereer daarna opnieuw."
+                    )
+                elif not geslaagd:
+                    reden = (
+                        service_result.get("error_message")
+                        if isinstance(service_result, dict)
+                        else None
+                    ) or "onbekende fout"
+                    st.error(f"❌ Generatie mislukt: {reden}")
+                elif document_context and document_context.get("document_count", 0) > 0:
+                    # Toon document context info als gebruikt
                     st.success(
                         "✅ Definitie gegenereerd met context van "
                         f"{document_context['document_count']} document(en)! "
@@ -582,6 +723,83 @@ class DefinitionGenerationHandler:
                 gewist = True
         if gewist:
             _sm.set_value("generation_options", opties)
+
+    @staticmethod
+    def _keuze_invoer(reasoning: Any, scores: Any) -> dict[str, Any]:
+        """De herkomst van het modelvoorstel voor de service (DEF-751 B2):
+        `model` met reasoning/scores. Nooit een actor of status."""
+        invoer: dict[str, Any] = {"origin": HERKOMST_MODEL}
+        if isinstance(reasoning, str) and reasoning:
+            invoer["reasoning"] = reasoning
+        if isinstance(scores, dict) and scores:
+            invoer["scores"] = dict(scores)
+        return invoer
+
+    def _leg_handmatige_keuze_vast(
+        self, saved_definition_id: Any, override: Any, *, _st: Any
+    ) -> Any:
+        """Het opgeslagen record ophalen en — bij een handmatige override — de
+        keuze via het expliciete commando vastleggen (DEF-751 B2, herreview 2).
+
+        De override is de keuzeactie van deze generatieklik; zij wordt, net
+        als de editor-/Toepassen-actie, als `manual`-event met de versie van
+        het zojuist opgeslagen record geschreven (geen actor: deze tab kent
+        geen identiteit). Geeft het record ná de opslag terug (id én versie),
+        zodat Toepassen op de werkelijk getoonde versie werkt (herreview 3).
+        Mislukt het commando, dan blijft het concept zonder keuze-event en
+        wordt dat gemeld — niets wordt verzonnen.
+        """
+        if not saved_definition_id:
+            return None
+        try:
+            record = self.repository.get_definitie(int(saved_definition_id))
+        except Exception as e:  # pragma: no cover - defensieve grens
+            logger.warning(
+                "Opgeslagen record %s niet leesbaar: %s", saved_definition_id, e
+            )
+            return None
+        if record is None or override is None:
+            return record
+        try:
+            ok = self.repository.record_category_choice(
+                int(saved_definition_id),
+                {},
+                waarde=override.value,
+                herkomst=HERKOMST_HANDMATIG,
+                actor=None,
+                actor_source=None,
+                updated_by=None,
+                expected_version=record.version_number,
+            )
+        except ValueError as e:
+            ok = False
+            logger.warning("Handmatige categoriekeuze geweigerd: %s", e)
+        if not ok:
+            _st.warning(
+                "De handmatige categoriekeuze kon niet bij het concept worden "
+                "vastgelegd; kies zo nodig opnieuw in de Bewerk-tab."
+            )
+            return record
+        return self.repository.get_definitie(int(saved_definition_id))
+
+    def _weiger_categorie(
+        self, waarde: Any, herkomst: str, *, _st: Any, _sm: Any
+    ) -> None:
+        """DEF-751: een keuze/voorstel buiten de vier generatiecategorieën
+        stopt de generatie vóór duplicaatvoorcontrole en model — geen stille
+        PROCES. De afgewezen aanvraag verbruikt de eenmalige force-opties
+        (zelfde regel als de begrip- en contextgate)."""
+        _st.error(
+            f"❌ Generatie niet gestart: de {herkomst} '{waarde}' is geen "
+            "categorie waarmee gegenereerd kan worden "
+            "(type, proces, resultaat, exemplaar). Kies hierboven opnieuw."
+        )
+        logger.warning(
+            "Generatie niet gestart: %s %r is geen generatiecategorie",
+            herkomst,
+            waarde,
+        )
+        self._wis_force_opties(_sm=_sm)
 
     def handle_duplicate_check(
         self,
