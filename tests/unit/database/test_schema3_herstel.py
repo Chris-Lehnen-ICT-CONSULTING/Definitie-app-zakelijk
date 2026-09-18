@@ -843,9 +843,13 @@ class TestRapportpadVeiligheid:
         assert excinfo.value.reason == "herstel_rapport_mislukt"
         assert not doel.exists() and _extra_bestanden(doel) == []
 
-    def test_mislukte_doelpublicatie_laat_geen_rapport_achter(
+    def test_mislukte_doelpublicatie_behoudt_het_eigen_rapport_en_meldt_dat(
         self, legacy_bron: Path, doel: Path, tmp_path: Path
     ):
+        """Delta-review 13da3e813: nooit blind het rapportpad verwijderen — een
+        padnaam bewijst geen eigenaarschap. Het rapport blijft als eigen
+        bewijsartefact staan (het bewijst een gecontroleerde momentopname, geen
+        publicatie) en de fout meldt dat ondubbelzinnig."""
         rapport = tmp_path / "rapport.json"
 
         def _weiger(_staging: Path, _doel: Path) -> None:
@@ -857,7 +861,10 @@ class TestRapportpadVeiligheid:
         ):
             herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
         assert excinfo.value.reason == "herstel_publicatie_mislukt"
-        assert not rapport.exists() and not doel.exists()
+        assert excinfo.value.details == ("destination_exists", "rapport_behouden")
+        assert rapport.is_file() and not doel.exists()
+        inhoud = json.loads(rapport.read_text())
+        assert inhoud["publicatie_bevestigd"] is False
 
     def test_geslaagd_rapport_is_gewoon_bestand_zonder_symlink(
         self, legacy_bron: Path, doel: Path, tmp_path: Path
@@ -966,3 +973,192 @@ class TestOnbekendeKolomsemantiekWordtGeweigerd:
         assert "dubbel" in [
             rij[1] for rij in _rijen(doel, "PRAGMA table_xinfo(synonym_groups)")
         ]
+
+
+# ---------------------------------------------------------------------------
+# Codex-deltareview 13da3e813 (2026-09-18): opruimrace, OSError bij publicatie,
+# tabelopties achter de sluitende haak
+# ---------------------------------------------------------------------------
+_LEGACY_BODY = {
+    "definitie_geschiedenis": (
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, definitie_id INTEGER NOT NULL, "
+        "begrip TEXT NOT NULL, definitie_oude_waarde TEXT, definitie_nieuwe_waarde TEXT, "
+        "wijziging_type TEXT NOT NULL, wijziging_reden TEXT, gewijzigd_door TEXT, "
+        "gewijzigd_op TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, context_snapshot TEXT"
+    ),
+    "definitie_tags": (
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, definitie_id INTEGER NOT NULL, "
+        "tag_naam TEXT NOT NULL, tag_waarde TEXT, toegevoegd_door TEXT, "
+        "toegevoegd_op TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+        "UNIQUE(definitie_id, tag_naam)"
+    ),
+    "import_export_logs": (
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, operatie_type TEXT NOT NULL, "
+        "bron_bestemming TEXT NOT NULL, aantal_verwerkt INTEGER NOT NULL DEFAULT 0, "
+        "aantal_succesvol INTEGER NOT NULL DEFAULT 0, aantal_gefaald INTEGER NOT NULL "
+        "DEFAULT 0, bestand_pad TEXT, formaat TEXT, fouten_details TEXT, "
+        "gestart_op TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, voltooid_op TEXT, "
+        "gestart_door TEXT, status TEXT NOT NULL DEFAULT 'running'"
+    ),
+}
+
+
+def _vervang_tabel(pad: Path, tabel: str, opties: str) -> None:
+    """Zet de legacy-tabel opnieuw neer met dezelfde body en ``opties`` erachter."""
+    _sql(
+        pad,
+        f"CREATE TABLE g ({_LEGACY_BODY[tabel]}) {opties};"
+        f"INSERT INTO g SELECT * FROM {tabel};"
+        f"DROP TABLE {tabel};"
+        f"ALTER TABLE g RENAME TO {tabel};",
+    )
+
+
+class TestTabeloptiesWordenNietStilVerloren:
+    @pytest.mark.parametrize(
+        "tabel", ["definitie_geschiedenis", "definitie_tags", "import_export_logs"]
+    )
+    def test_strict_tabel_wordt_geweigerd(
+        self, legacy_bron: Path, doel: Path, tabel: str
+    ):
+        """Repro delta-review: bron `strict=1`, doel na herbouw `strict=0` terwijl
+        de route succes meldde. Alles achter de sluitende haak telt mee."""
+        _vervang_tabel(legacy_bron, tabel, "STRICT")
+        assert _rijen(
+            legacy_bron, f"SELECT strict FROM pragma_table_list('{tabel}')"
+        ) == [(1,)]
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert excinfo.value.reason == "herstel_onbekende_variant"
+        assert not doel.exists() and _extra_bestanden(doel) == []
+
+    def test_legacy_tabel_zonder_opties_blijft_bekend(
+        self, legacy_bron: Path, doel: Path
+    ):
+        """Dezelfde herbouw zonder opties (ook na een RENAME, met gequote naam)
+        is en blijft de bekende legacy-vorm."""
+        _vervang_tabel(legacy_bron, "definitie_geschiedenis", "")
+        rapport = herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert "definitie_geschiedenis" in rapport.herbouwde_tabellen
+        assert _rijen(
+            doel, "SELECT strict FROM pragma_table_list('definitie_geschiedenis')"
+        ) == [(0,)]
+
+
+class TestPublicatiefoutenRakenGeenAndereBestanden:
+    def test_vervangen_rapport_wordt_niet_verwijderd_bij_mislukte_publicatie(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        """Opruimrace uit de delta-review: tijdens de doelpublicatie is het eigen
+        rapport door een ander bestand vervangen en de publicatie faalt. Dat
+        andere bestand mag niet verdwijnen."""
+        rapport = tmp_path / "rapport.json"
+
+        def _vervang_en_weiger(_staging: Path, _doel: Path) -> None:
+            rapport.unlink()
+            rapport.write_text("ander bestand van iemand anders")
+            raise BackupError("destination_exists")
+
+        with (
+            patch.object(herstel, "publish_staged_file", _vervang_en_weiger),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_publicatie_mislukt"
+        assert rapport.read_text() == "ander bestand van iemand anders"
+        assert not doel.exists()
+
+    @pytest.mark.parametrize(
+        "fout",
+        [PermissionError("geen rechten"), OSError("schijf vol")],
+        ids=["permission", "oserror"],
+    )
+    def test_oserror_bij_doelpublicatie_geeft_dezelfde_foutsemantiek(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path, fout: OSError
+    ):
+        """LOW uit de delta-review: een PermissionError uit `os.link` liet een
+        rauwe fout achter. Nu dezelfde reden als elke andere publicatiefout,
+        met het rapport bewust behouden en dat expliciet gemeld."""
+        rapport = tmp_path / "rapport.json"
+        voor = _bestandshash(legacy_bron)
+
+        def _faal(_staging: Path, _doel: Path) -> None:
+            raise fout
+
+        with (
+            patch.object(herstel, "publish_staged_file", _faal),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_publicatie_mislukt"
+        assert excinfo.value.details == (type(fout).__name__, "rapport_behouden")
+        assert rapport.is_file() and not doel.exists()
+        assert _bestandshash(legacy_bron) == voor
+        assert _extra_bestanden(doel) == []
+        # Een tweede poging met een nieuw rapportpad slaagt gewoon.
+        herstel.herstel_naar_nieuw_doel(
+            legacy_bron, doel, rapport_pad=tmp_path / "rapport-2.json"
+        )
+        assert _is_sqlite(doel)
+
+    def test_schrijffout_na_exclusieve_aanmaak_verwijdert_niets(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        """Zelfde principe in `_publiceer_rapport`: faalt het schrijven ná de
+        exclusieve aanmaak, dan wordt het pad niet blind verwijderd (het kan
+        intussen door iets anders vervangen zijn); geen doel, bron intact."""
+        rapport = tmp_path / "rapport.json"
+        voor = _bestandshash(legacy_bron)
+        echte_fdopen = herstel.os.fdopen
+
+        def _fdopen_met_vervanging(fd: int, *args, **kwargs):
+            herstel.os.close(fd)
+            rapport.unlink()
+            rapport.write_text("ander bestand")
+            raise OSError("schijf vol")
+
+        with (
+            patch.object(herstel.os, "fdopen", _fdopen_met_vervanging),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_rapport_mislukt"
+        assert excinfo.value.details == ("OSError", "rapport_behouden")
+        assert rapport.read_text() == "ander bestand"
+        assert not doel.exists() and _bestandshash(legacy_bron) == voor
+        assert echte_fdopen is not None
+
+    def test_oserror_zonder_rapport_meldt_alleen_de_foutklasse(
+        self, legacy_bron: Path, doel: Path
+    ):
+        def _faal(_staging: Path, _doel: Path) -> None:
+            raise PermissionError("pad in tekst")
+
+        with (
+            patch.object(herstel, "publish_staged_file", _faal),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert excinfo.value.details == ("PermissionError",)
+        assert "pad in tekst" not in str(excinfo.value)
+        assert not doel.exists() and _extra_bestanden(doel) == []
+
+    def test_cli_meldt_publicatiefout_met_behouden_rapport(
+        self,
+        legacy_bron: Path,
+        doel: Path,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+    ):
+        rapport = tmp_path / "rapport.json"
+
+        def _faal(_staging: Path, _doel: Path) -> None:
+            raise PermissionError("x")
+
+        with (
+            patch.object(herstel, "publish_staged_file", _faal),
+            pytest.raises(SystemExit) as excinfo,
+        ):
+            herstel.main([str(legacy_bron), str(doel), "--rapport", str(rapport)])
+        assert excinfo.value.code == 1
+        assert "rapport_behouden" in capsys.readouterr().err

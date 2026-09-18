@@ -32,9 +32,23 @@ fail-closed zijn; bij elke fout bestaat `DOEL` niet en is `BRON` onaangeroerd.
    exclusief (`O_CREAT|O_EXCL|O_NOFOLLOW`: nieuw bestand, nooit overschrijven,
    nooit een symlink volgen, modus 0600); faalt dat, dan bestaat er ook geen
    doel. Daarna het doel atomisch (`publish_staged_file`; weigert een bestaand
-   doel); faalt dát, dan wordt het zojuist aangemaakte rapport weer verwijderd.
-   Vervolgens wordt de tijdelijke map opgeruimd. Het doel is een zelfstandig
-   bestand (journal `DELETE`, bestandsmodus 0600 zoals elke backup van de helper).
+   doel). Faalt dát — om welke reden ook, ook `PermissionError`/`OSError` —
+   dan meldt de route `herstel_publicatie_mislukt` en **blijft het rapport
+   bewust staan** (detail `rapport_behouden`): de route verwijdert nooit iets
+   op een pad buiten haar eigen werkmap, want een padnaam bewijst geen
+   eigenaarschap. Vervolgens wordt de tijdelijke map opgeruimd. Het doel is
+   een zelfstandig bestand (journal `DELETE`, bestandsmodus 0600 zoals elke
+   backup van de helper).
+
+**Wat het rapport betekent.** Het rapport bewijst uitsluitend een
+*gecontroleerde momentopname*: alle controles (contract v3 → v8 → contract v4,
+integrity, FK, volledige inhoudsvergelijking) zijn op de kopie geslaagd. Het
+bewijst **niet** dat er een doel gepubliceerd of geactiveerd is: het veld
+`publicatie_bevestigd` is altijd `false`, omdat het rapport vóór de
+doelpublicatie wordt aangemaakt. Publicatie blijkt alleen uit exit 0 (of de
+teruggegeven waarde) én het bestaan van het doelbestand. Een rapport zonder
+doel is het eigen bewijsartefact van een mislukte poging; een nieuwe poging
+vraagt een **nieuw rapportpad** (het oude wordt als bestaand geweigerd).
 
 Wat de route **niet** doet: in-place migreren, een bestaand doel of rapport
 overschrijven, waarden aanpassen of weggooien, ontbrekende definities
@@ -44,28 +58,34 @@ ongeldige enumwaarden, verweesde tags (`herstel_ongeldige_waarden`) en
 tijdstempels die door de affiniteitswissel van waarde zouden veranderen
 (`herstel_waarden_gewijzigd`).
 
-**Bekende legacy-vorm = letterlijke DDL.** Een herstel-tabel wordt alleen
-herbouwd als haar volledige `CREATE TABLE` (genormaliseerd, per onderdeel)
-gelijk is aan de gemeten legacy-vorm in `LEGACY_DDL` én `PRAGMA table_xinfo`
-geen verborgen kolommen toont. Een extra of `GENERATED`-kolom, een
-`COLLATE`, een ander declaratietype, een andere `DEFAULT`, een kolom-`CHECK`
-of een `REFERENCES` maakt de tabel onbekend en de route weigert vóór de
-herbouw — de PRAGMA-metagegevens van het contract zien generated kolommen en
-collaties namelijk niet (Codex-review 1544296bc). Tabellen die de route niet
-herbouwt komen ongewijzigd via de kopie mee; hun generated kolommen tellen
-in de inhoudsvergelijking mee.
+**Bekende legacy-vorm = letterlijke, volledige DDL.** Een herstel-tabel wordt
+alleen herbouwd als haar volledige `CREATE TABLE` — kop (gewone `CREATE
+TABLE` met de tabelnaam), alle onderdelen (genormaliseerd, volgorde-
+onafhankelijk) én alles ná de sluitende haak — gelijk is aan de gemeten
+legacy-vorm in `LEGACY_DDL`, `PRAGMA table_xinfo` geen verborgen kolommen
+toont en `pragma_table_list` een gewone rowid-tabel zonder `STRICT` meldt.
+Een extra of `GENERATED`-kolom, een `COLLATE`, een ander declaratietype, een
+andere `DEFAULT`, een kolom-`CHECK`, een `REFERENCES` of een tabeloptie
+(`STRICT`, `WITHOUT ROWID`) maakt de tabel onbekend en de route weigert vóór
+de herbouw — de PRAGMA-metagegevens van het contract zien generated
+kolommen, collaties en tabelopties namelijk niet (Codex-reviews 1544296bc en
+13da3e813: een `STRICT`-bron werd stil een niet-strict doel). Tabellen die de
+route niet herbouwt komen ongewijzigd via de kopie mee; hun generated
+kolommen tellen in de inhoudsvergelijking mee.
 
 **Grenzen van de twee publicaties (eerlijk).** Rapport en doel zijn twee
 bestanden op twee paden; ze verschijnen niet in één atomaire stap. De route
-garandeert: nooit een rapport zonder doel (bij een mislukte doelpublicatie
-wordt het eigen rapport verwijderd), nooit een doel zonder rapport als er een
-rapport gevraagd is, en nooit overschrijven van wat op een van beide paden
-staat of intussen verschijnt (eindcomponent door de kernel gegarandeerd nieuw
-en geen symlink). Niet gedekt: een symlink die in een *bovenliggende map* van
-het rapport- of doelpad verschijnt tussen de laatste padcontrole en de
-`open`/`link` (venster van microseconden), en een derde die het zojuist
-aangemaakte rapport vervangt vóór de opruiming na een mislukte doelpublicatie.
-Gebruik daarom paden in een map die alleen de beheerder kan schrijven.
+garandeert: nooit een doel zonder rapport als er een rapport gevraagd is;
+nooit overschrijven van wat op een van beide paden staat of intussen
+verschijnt (eindcomponent door de kernel gegarandeerd nieuw en geen symlink);
+en nooit verwijderen van iets buiten de eigen werkmap. De keerzijde is
+bewust: bij een mislukte doelpublicatie (of een schrijffout ná de exclusieve
+aanmaak) blijft het rapportbestand — eventueel onvolledig — staan als eigen
+bewijsartefact; het claimt nooit publicatie (`publicatie_bevestigd: false`).
+Niet gedekt: een symlink die in een *bovenliggende map* van het rapport- of
+doelpad verschijnt tussen de laatste padcontrole en de `open`/`link` (venster
+van microseconden). Gebruik daarom paden in een map die alleen de beheerder
+kan schrijven.
 
 ## Uitvoeren
 
@@ -187,7 +207,7 @@ geschiedenisrijen botsen nooit met bewaarde.
 |------------------------------------------|--------------------------------------------------------|
 | `herstel_doel_ongeldig`                  | doel bestaat, symlink in het pad, bron = doel, map ontbreekt |
 | `herstel_rapport_ongeldig`               | het `--rapport`-pad bestaat al, is geen veilig nieuw pad, of is een alias van doel (`report_is_destination`) of bron (`report_is_source`) |
-| `herstel_rapport_mislukt`                | bij de exclusieve aanmaak verscheen er intussen iets op het rapportpad (bestand/symlink), de map verdween of schrijven faalde; er is dan geen doel gepubliceerd |
+| `herstel_rapport_mislukt`                | bij de exclusieve aanmaak verscheen er intussen iets op het rapportpad (bestand/symlink) of de map verdween (niets aangemaakt), óf het schrijven faalde ná de aanmaak (detail `rapport_behouden`: het onvolledige bestand blijft staan); er is dan geen doel gepubliceerd |
 | `herstel_kopie_geweigerd`                | de DEF-663-kopie weigerde (bron ontbreekt, symlink, integriteit, timeout) |
 | `herstel_precondition_failed`            | bron niet op versie 3, of resttabellen (`*_old`, bewaartabel) aanwezig |
 | `herstel_onbekende_variant`              | een herstel-tabel is noch canoniek, noch letterlijk de bekende legacy-vorm (extra/generated kolom, collatie, ander type, andere DEFAULT, kolom-CHECK, FK) |
@@ -197,6 +217,6 @@ geschiedenisrijen botsen nooit met bewaarde.
 | `migration_target_contract_failed`       | contract v3 (na herstel) of v4 (eindcontrole) niet gehaald |
 | `herstel_v8_mislukt`                     | de bestaande v8-route weigerde (zie v8-log)            |
 | `herstel_gegevensvergelijking_mislukt`   | bron en doel zijn niet inhoudelijk gelijk              |
-| `herstel_publicatie_mislukt`             | doel verscheen intussen of werd een symlink            |
+| `herstel_publicatie_mislukt`             | doelpublicatie faalde: doel verscheen intussen, werd een symlink, of de `link` gaf een `PermissionError`/`OSError` (alleen de foutklasse wordt gemeld). Detail `rapport_behouden` als er een rapport was: dat blijft staan, geen doel |
 
 Tests: `tests/unit/database/test_schema3_herstel.py`.

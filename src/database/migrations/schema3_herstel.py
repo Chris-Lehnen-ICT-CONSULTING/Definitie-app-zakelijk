@@ -35,13 +35,17 @@ route ernaartoe. Zij:
    integrity/foreign_key_check groen;
 5. publiceert eerst het optionele rapport exclusief (nieuw bestand, geen
    overschrijven, geen symlink volgen) en daarna het doel atomisch
-   (``publish_staged_file``; weigert een bestaand doel); faalt het doel, dan
-   wordt het eigen rapport weer verwijderd. Daarna wordt de eigen tijdelijke
-   map opgeruimd.
+   (``publish_staged_file``; weigert een bestaand doel). Het rapport bewijst
+   een gecontroleerde momentopname, nooit een gepubliceerd doel
+   (``publicatie_bevestigd`` is altijd false); faalt de doelpublicatie, dan
+   blijft het rapport bewust staan (``rapport_behouden``) — de route
+   verwijdert nooit iets buiten haar eigen werkmap. Daarna wordt die
+   werkmap opgeruimd.
 
 Fail-closed: elke onbekende variant (extra of generated kolom, collatie,
-andere declaratie of constraint, waarde die door de affiniteitswissel zou
-veranderen, ongeldige enumwaarde, verweesde tag) wordt geweigerd; er wordt
+andere declaratie of constraint, tabeloptie zoals STRICT/WITHOUT ROWID,
+waarde die door de affiniteitswissel zou veranderen, ongeldige enumwaarde,
+verweesde tag) wordt geweigerd; er wordt
 nooit een waarde aangepast of weggegooid en nooit een ontbrekende definitie
 verzonnen. Bron, doel en rapport mogen geen alias van elkaar zijn. Bij elke
 fout bestaat het doel niet. Logging en het rapport bevatten alleen codes,
@@ -58,7 +62,6 @@ CLI: ``python -m database.migrations.schema3_herstel BRON DOEL [--rapport PAD]``
 from __future__ import annotations
 
 import argparse
-import contextlib
 import hashlib
 import json
 import logging
@@ -83,6 +86,7 @@ from database.schema_contract import (
     SCHEMA_PATH,
     SchemaContract,
     SchemaContractError,
+    fold_identifier,
     migration_transaction,
     normalize_sql,
     read_contract,
@@ -218,6 +222,12 @@ class HerstelRapport:
     integrity_check: str = ""
     foreign_key_check_schendingen: int = -1
     contract_problemen: list[str] = field(default_factory=list)
+    publicatie_bevestigd: bool = False
+    """Altijd False in het geschreven JSON: het rapport wordt vóór de
+    doelpublicatie aangemaakt en bewijst uitsluitend een gecontroleerde
+    momentopname (alle controles geslaagd). Of het doel werkelijk gepubliceerd
+    is, blijkt alleen uit exit 0 / de teruggegeven waarde en het bestaan van
+    het doelbestand — nooit uit het rapport."""
 
     def als_dict(self) -> dict:
         uit = asdict(self)
@@ -350,32 +360,60 @@ def _tabelstructuur(contract: SchemaContract, tabel: str) -> tuple:
     )
 
 
-def _ddl_delen(table_sql: str | None) -> frozenset[str]:
-    """De genormaliseerde top-level onderdelen (kolomdefinities en
-    tabelconstraints) van een ``CREATE TABLE``, volgorde-onafhankelijk."""
+_CREATE_TABLE_KOP = re.compile(r'^create table (?:"((?:[^"]|"")+)"|([^\s(]+))\s*\(')
+
+
+def _ddl_structuur(table_sql: str | None) -> tuple[str, frozenset[str], str]:
+    """De volledige structuur van een ``CREATE TABLE``, genormaliseerd:
+    (gevouwen tabelnaam uit de kop, top-level onderdelen volgorde-onafhankelijk,
+    alles ná de sluitende haak — tabelopties zoals ``STRICT``/``WITHOUT ROWID``).
+
+    Codex-deltareview 13da3e813: alleen de onderdelen vergelijken liet een
+    ``STRICT``-suffix stil verdwijnen (bron ``strict=1`` → doel ``strict=0``).
+    Kop en staart tellen nu mee; een kop die geen gewone ``CREATE TABLE`` is
+    (``TEMP``, ``VIRTUAL``) geeft een lege naam en is dus nooit bekend.
+    """
     genormaliseerd = normalize_sql(table_sql)
     begin, einde = genormaliseerd.find("("), genormaliseerd.rfind(")")
     if begin < 0 or einde <= begin:
-        return frozenset()
-    return frozenset(split_top_level(genormaliseerd[begin + 1 : einde]))
+        return "", frozenset(), ""
+    kop = _CREATE_TABLE_KOP.match(genormaliseerd[: begin + 1])
+    naam = "" if kop is None else (kop.group(1) or kop.group(2) or "")
+    return (
+        fold_identifier(naam.replace('""', '"')),
+        frozenset(split_top_level(genormaliseerd[begin + 1 : einde])),
+        genormaliseerd[einde + 1 :].strip(),
+    )
 
 
 def _is_bekende_legacy_vorm(conn: sqlite3.Connection, tabel: str) -> bool:
-    """Strikt: de volledige tabel-DDL is, genormaliseerd en per onderdeel,
-    gelijk aan ``LEGACY_DDL`` en er zijn geen verborgen (generated) kolommen.
+    """Strikt: de volledige tabel-DDL (kop, onderdelen én tabelopties) is,
+    genormaliseerd, gelijk aan ``LEGACY_DDL``; er zijn geen verborgen
+    (generated) kolommen; en ``pragma_table_list`` bevestigt een gewone
+    rowid-tabel zonder STRICT.
 
     Codex-review 1544296bc: de PRAGMA-metagegevens van het contract zien
     generated kolommen en kolomcollaties niet; een ``GENERATED … VIRTUAL``-
     kolom of ``COLLATE NOCASE`` verdween daardoor stil uit de herbouwde en
     de bewaarde historie terwijl de route succes meldde. Alleen de letterlijke
     (genormaliseerde) declaratie telt nu als bekend; elke andere semantiek —
-    generated, collatie, ander type, andere DEFAULT, kolom-CHECK, FK — is
-    onbekend en wordt vóór de herbouw geweigerd.
+    generated, collatie, ander type, andere DEFAULT, kolom-CHECK, FK,
+    tabeloptie — is onbekend en wordt vóór de herbouw geweigerd.
     """
     rij = conn.execute(
         "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", (tabel,)
     ).fetchone()
-    if rij is None or _ddl_delen(rij[0]) != _ddl_delen(LEGACY_DDL[tabel]):
+    if rij is None:
+        return False
+    naam, delen, opties = _ddl_structuur(rij[0])
+    verwacht_naam, verwacht_delen, verwacht_opties = _ddl_structuur(LEGACY_DDL[tabel])
+    if (naam, delen, opties) != (
+        fold_identifier(tabel),
+        verwacht_delen,
+        verwacht_opties,
+    ):
+        return False
+    if naam != verwacht_naam:
         return False
     verborgen = [
         naam
@@ -384,7 +422,13 @@ def _is_bekende_legacy_vorm(conn: sqlite3.Connection, tabel: str) -> bool:
         )
         if hidden
     ]
-    return not verborgen
+    if verborgen:
+        return False
+    # Belt en bretels: de metagegevens van SQLite zelf (type, WITHOUT ROWID, STRICT).
+    eigenschappen = conn.execute(
+        "SELECT type, wr, strict FROM pragma_table_list(?)", (tabel,)
+    ).fetchall()
+    return eigenschappen == [("table", 0, 0)]
 
 
 def classificeer_tabel(
@@ -895,6 +939,12 @@ def _publiceer_rapport(rapport_pad: Path, rapport: HerstelRapport) -> None:
     Grens: een symlink die op een *bovenliggende map* verschijnt tussen de
     controle hier en de ``open`` blijft een venster van enkele microseconden;
     de eindcomponent zelf is door de kernel gegarandeerd nieuw en geen link.
+
+    Faalt het schrijven ná de exclusieve aanmaak (bijv. schijf vol), dan
+    blijft het (onvolledige) rapportbestand staan: de route verwijdert nooit
+    iets op een pad buiten haar eigen werkmap, want een padnaam bewijst geen
+    eigenaarschap (Codex-deltareview 13da3e813). Een nieuwe poging vraagt een
+    nieuw rapportpad.
     """
     try:
         validate_new_destination(rapport_pad)
@@ -913,10 +963,8 @@ def _publiceer_rapport(rapport_pad: Path, rapport: HerstelRapport) -> None:
         with os.fdopen(fd, "w", encoding="utf-8") as bestand:
             bestand.write(inhoud)
     except OSError as exc:
-        with contextlib.suppress(OSError):
-            os.unlink(rapport_pad)
         raise SchemaContractError(
-            "herstel_rapport_mislukt", (exc.__class__.__name__,)
+            "herstel_rapport_mislukt", (exc.__class__.__name__, "rapport_behouden")
         ) from None
 
 
@@ -983,19 +1031,25 @@ def herstel_naar_nieuw_doel(
         _eindcontrole(werk, bron, rapport)
         # Twee afzonderlijke publicaties, in deze volgorde: eerst het rapport
         # (exclusief; faalt dat, dan bestaat er ook geen doel), dan het doel.
-        # Faalt het doel, dan wordt het zojuist aangemaakte rapport weer
-        # verwijderd — zodat een rapport nooit succes claimt zonder doel.
+        # Faalt het doel, dan blijft het rapport bewust staan: het bewijst een
+        # gecontroleerde momentopname (`publicatie_bevestigd` is altijd
+        # false), nooit een gepubliceerd doel. Codex-deltareview 13da3e813:
+        # een blinde `unlink` van het rapportpad verwijderde een bestand dat
+        # intussen door iets anders was vervangen — een padnaam bewijst geen
+        # eigenaarschap, dus de route verwijdert niets buiten de eigen werkmap.
+        # Een nieuwe poging vraagt een nieuw rapportpad.
         if rapport_pad is not None:
             _publiceer_rapport(rapport_pad, rapport)
         try:
             publish_staged_file(werk, doel)
-        except BackupError as exc:
-            if rapport_pad is not None:
-                with contextlib.suppress(OSError):
-                    os.unlink(rapport_pad)
-            raise SchemaContractError(
-                "herstel_publicatie_mislukt", (exc.reason,)
-            ) from None
+        except (BackupError, OSError) as exc:
+            # Ook PermissionError/OSError uit de `link` zelf: dezelfde reden,
+            # alleen de classificatie (een OSError-tekst kan het pad bevatten).
+            reden = exc.reason if isinstance(exc, BackupError) else type(exc).__name__
+            details = (
+                (reden, "rapport_behouden") if rapport_pad is not None else (reden,)
+            )
+            raise SchemaContractError("herstel_publicatie_mislukt", details) from None
     except SchemaContractError as exc:
         logger.error("herstel geweigerd of mislukt: %s", exc.reason)
         raise
