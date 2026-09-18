@@ -33,15 +33,24 @@ route ernaartoe. Zij:
    exact gesplitst in gekoppeld + bewaard, ``schema_version`` behouden plus
    4, autoincrement-tellers niet teruggezet, contract v4 en
    integrity/foreign_key_check groen;
-5. publiceert het doel atomisch (``publish_staged_file``; weigert een
-   bestaand doel) en ruimt de eigen tijdelijke map op.
+5. publiceert eerst het optionele rapport exclusief (nieuw bestand, geen
+   overschrijven, geen symlink volgen) en daarna het doel atomisch
+   (``publish_staged_file``; weigert een bestaand doel); faalt het doel, dan
+   wordt het eigen rapport weer verwijderd. Daarna wordt de eigen tijdelijke
+   map opgeruimd.
 
-Fail-closed: elke onbekende variant (extra kolom, andere constraint, waarde
-die door de affiniteitswissel zou veranderen, ongeldige enumwaarde, verweesde
-tag) wordt geweigerd; er wordt nooit een waarde aangepast of weggegooid en
-nooit een ontbrekende definitie verzonnen. Bij elke fout bestaat het doel
-niet. Logging en het rapport bevatten alleen codes, namen, aantallen en
-hashes — nooit rijinhoud.
+Fail-closed: elke onbekende variant (extra of generated kolom, collatie,
+andere declaratie of constraint, waarde die door de affiniteitswissel zou
+veranderen, ongeldige enumwaarde, verweesde tag) wordt geweigerd; er wordt
+nooit een waarde aangepast of weggegooid en nooit een ontbrekende definitie
+verzonnen. Bron, doel en rapport mogen geen alias van elkaar zijn. Bij elke
+fout bestaat het doel niet. Logging en het rapport bevatten alleen codes,
+namen, aantallen en hashes — nooit rijinhoud.
+
+De kopie is een momentopname: schrijvers op de bron moeten vóór de
+definitieve kopie gestopt zijn en gestopt blijven tot de nieuwe database
+actief is (zie de beheerinstructie); de route zelf kan latere schrijfacties
+niet zien.
 
 CLI: ``python -m database.migrations.schema3_herstel BRON DOEL [--rapport PAD]``.
 """
@@ -49,6 +58,7 @@ CLI: ``python -m database.migrations.schema3_herstel BRON DOEL [--rapport PAD]``
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import logging
@@ -74,9 +84,11 @@ from database.schema_contract import (
     SchemaContract,
     SchemaContractError,
     migration_transaction,
+    normalize_sql,
     read_contract,
     schema_objects,
     schema_version,
+    split_top_level,
     strict_versions,
     target_contract,
     verify_target_contract,
@@ -222,7 +234,9 @@ def _q(naam: str) -> str:
 
 
 def _kolomnamen(conn: sqlite3.Connection, tabel: str) -> tuple[str, ...]:
-    return tuple(rij[1] for rij in conn.execute(f"PRAGMA table_info({_q(tabel)})"))
+    """Alle kolommen, óók verborgen generated kolommen (``table_xinfo``):
+    een kolom die ``table_info`` niet toont mag niet stil verdwijnen."""
+    return tuple(rij[1] for rij in conn.execute(f"PRAGMA table_xinfo({_q(tabel)})"))
 
 
 def _rijhash(rij: tuple) -> bytes:
@@ -336,19 +350,65 @@ def _tabelstructuur(contract: SchemaContract, tabel: str) -> tuple:
     )
 
 
+def _ddl_delen(table_sql: str | None) -> frozenset[str]:
+    """De genormaliseerde top-level onderdelen (kolomdefinities en
+    tabelconstraints) van een ``CREATE TABLE``, volgorde-onafhankelijk."""
+    genormaliseerd = normalize_sql(table_sql)
+    begin, einde = genormaliseerd.find("("), genormaliseerd.rfind(")")
+    if begin < 0 or einde <= begin:
+        return frozenset()
+    return frozenset(split_top_level(genormaliseerd[begin + 1 : einde]))
+
+
+def _is_bekende_legacy_vorm(conn: sqlite3.Connection, tabel: str) -> bool:
+    """Strikt: de volledige tabel-DDL is, genormaliseerd en per onderdeel,
+    gelijk aan ``LEGACY_DDL`` en er zijn geen verborgen (generated) kolommen.
+
+    Codex-review 1544296bc: de PRAGMA-metagegevens van het contract zien
+    generated kolommen en kolomcollaties niet; een ``GENERATED … VIRTUAL``-
+    kolom of ``COLLATE NOCASE`` verdween daardoor stil uit de herbouwde en
+    de bewaarde historie terwijl de route succes meldde. Alleen de letterlijke
+    (genormaliseerde) declaratie telt nu als bekend; elke andere semantiek —
+    generated, collatie, ander type, andere DEFAULT, kolom-CHECK, FK — is
+    onbekend en wordt vóór de herbouw geweigerd.
+    """
+    rij = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?", (tabel,)
+    ).fetchone()
+    if rij is None or _ddl_delen(rij[0]) != _ddl_delen(LEGACY_DDL[tabel]):
+        return False
+    verborgen = [
+        naam
+        for _cid, naam, *_rest, hidden in conn.execute(
+            f"PRAGMA table_xinfo({_q(tabel)})"
+        )
+        if hidden
+    ]
+    return not verborgen
+
+
 def classificeer_tabel(
+    conn: sqlite3.Connection,
     waargenomen: SchemaContract,
     tabel: str,
     canoniek: SchemaContract,
     legacy: SchemaContract,
 ) -> str:
-    """``canoniek`` (niets te doen), ``legacy`` (herbouwen) of ``onbekend``."""
+    """``canoniek`` (niets te doen), ``legacy`` (herbouwen) of ``onbekend``.
+
+    Canoniek = contractstructuur gelijk aan ``schema.sql`` (de tabel wordt
+    dan niet herbouwd, dus extra semantiek gaat niet verloren). Legacy =
+    contractstructuur gelijk aan de legacy-vorm én de letterlijke DDL gelijk
+    (``_is_bekende_legacy_vorm``). Al het andere is onbekend.
+    """
     if waargenomen.columns.get(tabel) is None:
         return "onbekend"
     structuur = _tabelstructuur(waargenomen, tabel)
     if structuur == _tabelstructuur(canoniek, tabel):
         return "canoniek"
-    if structuur == _tabelstructuur(legacy, tabel):
+    if structuur == _tabelstructuur(legacy, tabel) and _is_bekende_legacy_vorm(
+        conn, tabel
+    ):
         return "legacy"
     return "onbekend"
 
@@ -541,7 +601,7 @@ def _herstelplan(conn: sqlite3.Connection) -> list[str]:
     canoniek, legacy = target_contract(DOELVERSIE), _legacy_contract()
     waargenomen = read_contract(conn)
     plan = {
-        tabel: classificeer_tabel(waargenomen, tabel, canoniek, legacy)
+        tabel: classificeer_tabel(conn, waargenomen, tabel, canoniek, legacy)
         for tabel in HERSTEL_TABELLEN
     }
     onbekend = [
@@ -780,27 +840,83 @@ def _vergelijk_sqlite_sequence(
 # ---------------------------------------------------------------------------
 # Route: read-only bron → nieuw doel
 # ---------------------------------------------------------------------------
+def _zelfde_pad(a: Path, b: Path) -> bool:
+    """Padalias: gelijk na normalisatie (``.``, ``..``) óf na realpath."""
+    return os.path.abspath(a) == os.path.abspath(b) or os.path.realpath(
+        a
+    ) == os.path.realpath(b)
+
+
 def _valideer_paden(bron: Path, doel: Path, rapport_pad: Path | None) -> None:
-    """Doel én rapport zijn nieuwe bestanden; bron ≠ doel. Vóór enig werk."""
+    """Doel én rapport zijn nieuwe, onderling verschillende bestanden die geen
+    alias van de bron of van elkaar zijn. Vóór enig werk.
+
+    Codex-review 1544296bc: ``--rapport`` gelijk aan het doel verving de
+    gepubliceerde database door JSON. Aliassen worden nu vooraf geweigerd;
+    de exclusieve aanmaak in ``_publiceer_rapport`` dekt wat ná deze controle
+    op het pad verschijnt.
+    """
     try:
         validate_new_destination(doel)
     except BackupError as exc:
         raise SchemaContractError("herstel_doel_ongeldig", (exc.reason,)) from None
-    if rapport_pad is not None:
+    try:
+        if bron.exists() and _zelfde_pad(bron, doel):
+            raise SchemaContractError(
+                "herstel_doel_ongeldig", ("source_is_destination",)
+            )
+        if rapport_pad is None:
+            return
         try:
             validate_new_destination(rapport_pad)
         except BackupError as exc:
             raise SchemaContractError(
                 "herstel_rapport_ongeldig", (exc.reason,)
             ) from None
-    try:
-        if bron.exists() and os.path.realpath(bron) == os.path.realpath(doel):
+        if _zelfde_pad(rapport_pad, doel):
             raise SchemaContractError(
-                "herstel_doel_ongeldig", ("source_is_destination",)
+                "herstel_rapport_ongeldig", ("report_is_destination",)
             )
+        if bron.exists() and _zelfde_pad(rapport_pad, bron):
+            raise SchemaContractError("herstel_rapport_ongeldig", ("report_is_source",))
     except OSError:
         raise SchemaContractError(
             "herstel_doel_ongeldig", ("path_unreadable",)
+        ) from None
+
+
+def _publiceer_rapport(rapport_pad: Path, rapport: HerstelRapport) -> None:
+    """Schrijf het rapport exclusief: nieuw bestand, nooit overschrijven, nooit
+    een symlink volgen (``O_CREAT|O_EXCL|O_NOFOLLOW``), modus 0600.
+
+    Codex-review 1544296bc: een symlink die ná de padvalidatie op het
+    rapportpad verscheen werd gevolgd en overschreef de bron. Een pad dat
+    intussen bestaat (bestand of symlink) geeft nu ``herstel_rapport_mislukt``.
+    Grens: een symlink die op een *bovenliggende map* verschijnt tussen de
+    controle hier en de ``open`` blijft een venster van enkele microseconden;
+    de eindcomponent zelf is door de kernel gegarandeerd nieuw en geen link.
+    """
+    try:
+        validate_new_destination(rapport_pad)
+    except BackupError as exc:
+        raise SchemaContractError("herstel_rapport_mislukt", (exc.reason,)) from None
+    vlaggen = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
+    inhoud = json.dumps(rapport.als_dict(), indent=2, ensure_ascii=False) + "\n"
+    try:
+        fd = os.open(rapport_pad, vlaggen, 0o600)
+    except OSError as exc:
+        # Alleen de errno-naam: de fouttekst bevat het pad.
+        raise SchemaContractError(
+            "herstel_rapport_mislukt", (exc.__class__.__name__,)
+        ) from None
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as bestand:
+            bestand.write(inhoud)
+    except OSError as exc:
+        with contextlib.suppress(OSError):
+            os.unlink(rapport_pad)
+        raise SchemaContractError(
+            "herstel_rapport_mislukt", (exc.__class__.__name__,)
         ) from None
 
 
@@ -865,9 +981,18 @@ def herstel_naar_nieuw_doel(
         if not v8_run_migration(werk):
             raise SchemaContractError("herstel_v8_mislukt", ("zie v8-log",))
         _eindcontrole(werk, bron, rapport)
+        # Twee afzonderlijke publicaties, in deze volgorde: eerst het rapport
+        # (exclusief; faalt dat, dan bestaat er ook geen doel), dan het doel.
+        # Faalt het doel, dan wordt het zojuist aangemaakte rapport weer
+        # verwijderd — zodat een rapport nooit succes claimt zonder doel.
+        if rapport_pad is not None:
+            _publiceer_rapport(rapport_pad, rapport)
         try:
             publish_staged_file(werk, doel)
         except BackupError as exc:
+            if rapport_pad is not None:
+                with contextlib.suppress(OSError):
+                    os.unlink(rapport_pad)
             raise SchemaContractError(
                 "herstel_publicatie_mislukt", (exc.reason,)
             ) from None
@@ -878,11 +1003,6 @@ def herstel_naar_nieuw_doel(
         # Uitsluitend de eigen werkmap (kopie, v8-backup, journals); nooit iets
         # daarbuiten. Na publicatie is `werk` een tweede link naar het doel.
         shutil.rmtree(werkmap, ignore_errors=True)
-    if rapport_pad is not None:
-        Path(rapport_pad).write_text(
-            json.dumps(rapport.als_dict(), indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
     logger.info(
         "herstel gepubliceerd: geschiedenis gekoppeld=%d, bewaard=%d, tabellen=%d",
         rapport.geschiedenis_gekoppeld,

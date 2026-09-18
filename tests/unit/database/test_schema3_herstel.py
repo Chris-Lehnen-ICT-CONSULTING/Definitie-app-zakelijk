@@ -739,3 +739,230 @@ class TestHerhaalgebruik:
             herstel.herstel_naar_nieuw_doel(doel, doel.with_name("derde.db"))
         assert excinfo.value.reason == "herstel_precondition_failed"
         assert not doel.with_name("derde.db").exists()
+
+
+# ---------------------------------------------------------------------------
+# Codex-review 1544296bc (2026-09-18): rapportpad en kolomsemantiek
+# ---------------------------------------------------------------------------
+def _is_sqlite(pad: Path) -> bool:
+    return pad.is_file() and pad.read_bytes()[:16] == b"SQLite format 3\x00"
+
+
+class TestRapportpadVeiligheid:
+    """Bevinding 1: het rapport mag nooit het doel of de bron overschrijven."""
+
+    def test_rapport_gelijk_aan_doel_wordt_vooraf_geweigerd(
+        self, legacy_bron: Path, doel: Path
+    ):
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=doel)
+        assert excinfo.value.reason == "herstel_rapport_ongeldig"
+        assert not doel.exists() and _extra_bestanden(doel) == []
+
+    def test_rapport_als_alias_van_het_doel_wordt_geweigerd(
+        self, legacy_bron: Path, doel: Path
+    ):
+        alias = doel.parent / "." / doel.name
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=alias)
+        assert excinfo.value.reason == "herstel_rapport_ongeldig"
+        assert not doel.exists()
+
+    def test_rapport_gelijk_aan_bron_wordt_geweigerd_en_bron_blijft(
+        self, legacy_bron: Path, doel: Path
+    ):
+        voor = _bestandshash(legacy_bron)
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=legacy_bron)
+        assert excinfo.value.reason == "herstel_rapport_ongeldig"
+        assert _bestandshash(legacy_bron) == voor and not doel.exists()
+
+    def test_tussentijdse_rapportsymlink_naar_de_bron_wordt_niet_gevolgd(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        """Race uit de review: het rapportpad wordt ná de padvalidatie een
+        symlink naar de bron. Het rapport mag die niet volgen; de bron blijft
+        exact, en er verschijnt geen half resultaat."""
+        rapport = tmp_path / "rapport.json"
+        voor = _bestandshash(legacy_bron)
+        echte_v8 = herstel.v8_run_migration
+
+        def _v8_met_race(werk: Path) -> bool:
+            rapport.symlink_to(legacy_bron)
+            return echte_v8(werk)
+
+        with (
+            patch.object(herstel, "v8_run_migration", _v8_met_race),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_rapport_mislukt"
+        assert _bestandshash(legacy_bron) == voor
+        assert _is_sqlite(legacy_bron)
+        assert rapport.is_symlink() and not doel.exists()
+        assert _extra_bestanden(doel) == []
+
+    def test_tussentijds_verschenen_rapportbestand_wordt_niet_overschreven(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        rapport = tmp_path / "rapport.json"
+        echte_v8 = herstel.v8_run_migration
+
+        def _v8_met_race(werk: Path) -> bool:
+            rapport.write_text("bestaand")
+            return echte_v8(werk)
+
+        with (
+            patch.object(herstel, "v8_run_migration", _v8_met_race),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_rapport_mislukt"
+        assert rapport.read_text() == "bestaand"
+        assert not doel.exists() and _extra_bestanden(doel) == []
+
+    def test_onschrijfbaar_rapport_publiceert_geen_doel(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        """Foutsemantiek rond het publicatiepunt: faalt het rapport, dan
+        bestaat er ook geen doel — geen half resultaat."""
+        rapportmap = tmp_path / "rapportmap"
+        rapportmap.mkdir()
+        rapport = rapportmap / "rapport.json"
+        echte_v8 = herstel.v8_run_migration
+
+        def _v8_met_race(werk: Path) -> bool:
+            rapportmap.rmdir()
+            return echte_v8(werk)
+
+        with (
+            patch.object(herstel, "v8_run_migration", _v8_met_race),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_rapport_mislukt"
+        assert not doel.exists() and _extra_bestanden(doel) == []
+
+    def test_mislukte_doelpublicatie_laat_geen_rapport_achter(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        rapport = tmp_path / "rapport.json"
+
+        def _weiger(_staging: Path, _doel: Path) -> None:
+            raise BackupError("destination_exists")
+
+        with (
+            patch.object(herstel, "publish_staged_file", _weiger),
+            pytest.raises(SchemaContractError) as excinfo,
+        ):
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert excinfo.value.reason == "herstel_publicatie_mislukt"
+        assert not rapport.exists() and not doel.exists()
+
+    def test_geslaagd_rapport_is_gewoon_bestand_zonder_symlink(
+        self, legacy_bron: Path, doel: Path, tmp_path: Path
+    ):
+        rapport = tmp_path / "rapport.json"
+        herstel.herstel_naar_nieuw_doel(legacy_bron, doel, rapport_pad=rapport)
+        assert rapport.is_file() and not rapport.is_symlink()
+        assert json.loads(rapport.read_text())["doelversie"] == 4
+        assert _is_sqlite(doel)
+
+
+class TestOnbekendeKolomsemantiekWordtGeweigerd:
+    """Bevinding 2: generated kolommen en collaties zag de classificatie niet."""
+
+    def test_generated_kolom_in_geschiedenis_wordt_geweigerd(
+        self, legacy_bron: Path, doel: Path
+    ):
+        _sql(
+            legacy_bron,
+            "ALTER TABLE definitie_geschiedenis ADD COLUMN extra TEXT "
+            "GENERATED ALWAYS AS (begrip || wijziging_type) VIRTUAL;",
+        )
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert excinfo.value.reason == "herstel_onbekende_variant"
+        assert not doel.exists() and _extra_bestanden(doel) == []
+
+    @pytest.mark.parametrize(
+        "tabel",
+        ["definitie_geschiedenis", "definitie_tags", "import_export_logs"],
+    )
+    def test_generated_kolom_in_elke_hersteltabel_wordt_geweigerd(
+        self, legacy_bron: Path, doel: Path, tabel: str
+    ):
+        _sql(
+            legacy_bron,
+            f"ALTER TABLE {tabel} ADD COLUMN extra INTEGER "
+            "GENERATED ALWAYS AS (id * 2) VIRTUAL;",
+        )
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert excinfo.value.reason == "herstel_onbekende_variant"
+        assert not doel.exists()
+
+    def test_collatie_op_kolom_wordt_geweigerd(self, legacy_bron: Path, doel: Path):
+        """`begrip COLLATE NOCASE`: dezelfde zoekopdracht gaf vóór herstel twee
+        treffers en erna nul (review-probe). Zulke semantiek gaat niet stil
+        verloren: weigeren."""
+        _sql(
+            legacy_bron,
+            "CREATE TABLE g (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "definitie_id INTEGER NOT NULL, begrip TEXT NOT NULL COLLATE NOCASE, "
+            "definitie_oude_waarde TEXT, definitie_nieuwe_waarde TEXT, "
+            "wijziging_type TEXT NOT NULL, wijziging_reden TEXT, gewijzigd_door TEXT, "
+            "gewijzigd_op TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, context_snapshot TEXT);"
+            "INSERT INTO g SELECT * FROM definitie_geschiedenis;"
+            "DROP TABLE definitie_geschiedenis;"
+            "ALTER TABLE g RENAME TO definitie_geschiedenis;",
+        )
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert excinfo.value.reason == "herstel_onbekende_variant"
+        assert not doel.exists()
+
+    @pytest.mark.parametrize(
+        "kolomdefinitie",
+        [
+            "wijziging_reden TEXT DEFAULT 'x'",  # andere DEFAULT
+            "wijziging_reden TEXT CHECK (wijziging_reden <> '')",  # kolom-CHECK
+            "wijziging_reden TEXT REFERENCES definities(id)",  # FK
+            "wijziging_reden VARCHAR(10)",  # ander declaratietype
+        ],
+        ids=["default", "check", "references", "type"],
+    )
+    def test_elke_andere_kolomdeclaratie_is_onbekend(
+        self, legacy_bron: Path, doel: Path, kolomdefinitie: str
+    ):
+        _sql(
+            legacy_bron,
+            "CREATE TABLE g (id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "definitie_id INTEGER NOT NULL, begrip TEXT NOT NULL, "
+            "definitie_oude_waarde TEXT, definitie_nieuwe_waarde TEXT, "
+            f"wijziging_type TEXT NOT NULL, {kolomdefinitie}, gewijzigd_door TEXT, "
+            "gewijzigd_op TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, context_snapshot TEXT);"
+            "INSERT INTO g SELECT * FROM definitie_geschiedenis;"
+            "DROP TABLE definitie_geschiedenis;"
+            "ALTER TABLE g RENAME TO definitie_geschiedenis;",
+        )
+        with pytest.raises(SchemaContractError) as excinfo:
+            herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert excinfo.value.reason == "herstel_onbekende_variant"
+        assert not doel.exists()
+
+    def test_generated_kolom_op_niet_herbouwde_tabel_blijft_en_telt_mee(
+        self, legacy_bron: Path, doel: Path
+    ):
+        """Buiten de herstel-tabellen wordt niets herbouwd: een generated
+        kolom komt via de kopie mee en wordt in de vergelijking meegenomen."""
+        _sql(
+            legacy_bron,
+            "ALTER TABLE synonym_groups ADD COLUMN dubbel TEXT "
+            "GENERATED ALWAYS AS (canonical_term || canonical_term) VIRTUAL;",
+        )
+        rapport = herstel.herstel_naar_nieuw_doel(legacy_bron, doel)
+        assert rapport.tabellen["synonym_groups"].gelijk
+        assert "dubbel" in [
+            rij[1] for rij in _rijen(doel, "PRAGMA table_xinfo(synonym_groups)")
+        ]
