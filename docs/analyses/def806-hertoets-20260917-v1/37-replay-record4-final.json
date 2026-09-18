@@ -1,0 +1,62 @@
+{
+  "input_file": "/Users/chrislehnen/.codex/worktrees/8b34/Definitie-app/docs/analyses/con02-uitvoering-20260917-v1/generatie-record4-v1.json",
+  "input_sha256": "6f164beb1f53d7b0a8ffda8b20b99e5cdacffd0161aba3c0231cad70cc42d44a",
+  "record_id": 4,
+  "begrip": "besluit",
+  "contract_version": "con02/1",
+  "stored_prompt_version": "con02-assess/1",
+  "stored_fingerprint": "dd8121f5dd4c5b27aa048a1cea9a825f0779fb1f33cbe0054fe3d1db5ed1479a",
+  "computed_fingerprint": "dd8121f5dd4c5b27aa048a1cea9a825f0779fb1f33cbe0054fe3d1db5ed1479a",
+  "fingerprint_match": true,
+  "source_urls": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "status": "review_required",
+  "parts": [
+    {
+      "id": "source_authority",
+      "status": "pass",
+      "field": "source_assessment",
+      "action": "Geen actie nodig.",
+      "reason": "AI-beoordeling van brongezag/toepasselijkheid (claude-opus-4-8): De bron is de Algemene wet bestuursrecht, artikel 1:3, een wettelijke regeling die het begrip 'besluit' zelf definieert. Dit sluit aan bij de juridische context (bestuursrecht) en de wettelijke basis (Awb). Onzekerheid: Peildatum is niet opgegeven; de bestandsnaam suggereert een versie (20260815) maar de vaststelling/geldigheid op enige peildatum is niet vast te stellen. Bewijs: bron doc:01e121c20018eed2#7118848e: “Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.”."
+    },
+    {
+      "id": "semantic_support",
+      "status": "pass",
+      "field": "source_assessment",
+      "action": "Geen actie nodig.",
+      "reason": "AI-beoordeling van betekenissteun (claude-opus-4-8): De bron ondersteunt letterlijk alle bepalende kenmerken van de definitie: schriftelijke beslissing, bestuursorgaan, en publiekrechtelijke rechtshandeling. De definitietekst is een parafrase die inhoudelijk overeenstemt met de wettelijke tekst. Bewijs: bron doc:01e121c20018eed2#7118848e: “Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.”."
+    },
+    {
+      "id": "reference_quality",
+      "status": "review_required",
+      "field": "source_assessment",
+      "action": "Lever voor deze bron een bruikbare (ook interne) hyperlink aan, of laat een deskundige de verwijzingsuitzondering vastleggen (bewaarde bronversie, stabiele documentidentificatie, exacte vindplaats, gemotiveerd en geaccepteerd). De definitie hoeft hiervoor niet te worden aangepast.",
+      "reason": "AI-beoordeling van verwijskwaliteit (claude-opus-4-8): De bron is precies terugvindbaar: de regeling (Algemene wet bestuursrecht) en het exacte artikel en lid (Artikel 1:3 lid 1) worden in de passage genoemd. Geen 'voldoet': de bron heeft geen bruikbare hyperlink (doc:01e121c20018eed2#7118848e). Een exacte vindplaats vervangt de hyperlink niet; zonder hyperlink is alleen een zichtbare deskundige verwijzingsuitzondering mogelijk. Onzekerheid: De exacte versiedatum/geldigheid op een peildatum is niet uit de passage af te leiden (alleen bestandsnaam), maar de vindplaats zelf is exact. Bewijs: bron doc:01e121c20018eed2#7118848e: “Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan:”."
+    }
+  ],
+  "review": {
+    "applied": false,
+    "actor": null,
+    "fingerprint": null,
+    "type": null,
+    "accepted_exception": null,
+    "applied_correction": null,
+    "reason": "geen deskundige beoordeling aangeleverd",
+    "assessment": {
+      "applied": true,
+      "status": "assessed",
+      "reason": null,
+      "model": "claude-opus-4-8",
+      "provider": "anthropic",
+      "prompt_version": "con02-assess/1",
+      "rejected": 1
+    }
+  },
+  "definitie_voor": "Resultaat van besluitvorming door een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+  "definitie_na": "Resultaat van besluitvorming door een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+  "definitie_ongewijzigd": true
+}

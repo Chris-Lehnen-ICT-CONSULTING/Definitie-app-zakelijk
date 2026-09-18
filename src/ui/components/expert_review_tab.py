@@ -934,8 +934,12 @@ class ExpertReviewTab:
         """Invoer voor de verwijzingsuitzondering: bron (stabiel id uit de
         opgeslagen bronset zonder hyperlink), vindplaats uit de bron of van de
         deskundige, motivering. Geeft (payload of None, ontbrekende invoer)."""
+        from domain.sources.contract import is_bruikbare_hyperlink
+
         onvolledig: list[str] = []
-        kandidaten = [b for b in canoniek if not b.url]
+        # Dezelfde bruikbaarheidsdefinitie als de contractkern (DEF-806): een
+        # bron met onbruikbare url-tekst is een bron zónder bruikbare hyperlink.
+        kandidaten = [b for b in canoniek if not is_bruikbare_hyperlink(b.url)]
         if not kandidaten:
             st.warning(
                 "Geen opgeslagen bron zonder hyperlink: de verwijzingsuitzondering is "

@@ -1,0 +1,5 @@
+{
+  "src/domain/sources/contract.py": "2827b24fe9b6fa8776f922f8218de80a1a10fb0d6e1682b719a3f054dae93958",
+  "src/services/validation/source_assessment_service.py": "51026cc7387041b57b6a20531659688e71621e39488afe4ea75989b696be833b",
+  "src/ui/components/expert_review_tab.py": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31"
+}

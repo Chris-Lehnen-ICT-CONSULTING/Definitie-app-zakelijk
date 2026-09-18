@@ -54,6 +54,7 @@ BRON_WET = {
     "filename": "synthetische-bestuurswet.txt",
     "citation_label": "art. 5:11",
     "bron_type": "wet",
+    "url": "https://intern.example/bestuurswet#art-5-11",  # DEF-806
     "snippet": PASSAGE_WET,
     "score": 1.0,
 }

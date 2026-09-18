@@ -1,0 +1,35 @@
+{
+  "generation_id": "d96266b8-5a44-4578-89b2-f54258f51c7c",
+  "prompt_version": "con02-assess/2",
+  "source_receipt_checks": [
+    {
+      "source_id": "01e121c20018eed2",
+      "receipt_nr": 1,
+      "hash_match": true,
+      "present_in_prompt": true,
+      "correlation": "verified"
+    },
+    {
+      "source_id": "01e121c20018eed2",
+      "receipt_nr": 2,
+      "hash_match": true,
+      "present_in_prompt": true,
+      "correlation": "verified"
+    },
+    {
+      "source_id": "01e121c20018eed2",
+      "receipt_nr": 3,
+      "hash_match": true,
+      "present_in_prompt": true,
+      "correlation": "verified"
+    },
+    {
+      "source_id": "01e121c20018eed2",
+      "receipt_nr": 4,
+      "hash_match": true,
+      "present_in_prompt": true,
+      "correlation": "verified"
+    }
+  ],
+  "assessment_receipt_hashes_match": true
+}
