@@ -852,6 +852,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                             "filename",
                                             "citation_label",
                                             "selection_basis",
+                                            # DEF-808: opgegeven bronversie,
+                                            # vindplaats en herkomstblok reizen
+                                            # mee (url staat hieronder al).
+                                            "source_version",
+                                            "locator",
+                                            "declared_metadata",
                                         )
                                         if safe_dict_get(s, key) is not None
                                     },

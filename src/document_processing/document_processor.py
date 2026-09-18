@@ -22,6 +22,12 @@ from .document_extractor import (  # Importeer tekst extractie functionaliteit
 logger = logging.getLogger(__name__)  # Logger instantie voor document processing module
 
 
+class BronmetadataOpslagError(OSError):
+    """De opgegeven bronmetadata kon niet naar het metadata-bestand worden
+    geschreven (DEF-808). De opgave is teruggerold en NIET vastgelegd; een
+    aanroeper mag dus geen succes melden of de opgave als opgeslagen aannemen."""
+
+
 @dataclass
 class ProcessedDocument:
     """Gegevens van een verwerkt document."""
@@ -39,6 +45,10 @@ class ProcessedDocument:
     context_hints: list[str]  # Context hints voor definitie generatie
     processing_status: str  # Status van verwerking
     error_message: str | None = None  # Error bericht indien van toepassing
+    # DEF-808: door de gebruiker opgegeven hyperlink/bronversie/vindplaats
+    # (`domain.sources.bronmetadata.Bronmetadata.als_dict()`), of None. Geen
+    # authenticiteitsbewijs; reist als opgegeven metadata mee op elke passage.
+    source_metadata: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Converteer ProcessedDocument naar dictionary voor JSON opslag."""
@@ -219,6 +229,64 @@ class DocumentProcessor:
         doc = self._documents_cache.get(doc_id)
         if doc is not None:
             self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
+        return doc
+
+    def set_source_metadata(
+        self,
+        doc_id: str,
+        *,
+        url: Any,
+        source_version: Any,
+        locator: Any,
+        declared_by: str | None = None,
+    ) -> ProcessedDocument:
+        """Leg de opgegeven bronmetadata van een geüpload document vast (DEF-808).
+
+        Validatie via de gedeelde domeinlaag (DEF-806-hyperlinkregel; een
+        eerdere opgave wordt aangevuld, niet gewist). Ongeldige invoer is een
+        `ValueError` met de zichtbare reden en laat het document onaangeroerd;
+        een onbekend document een `KeyError`. Geldige invoer wordt direct naar
+        het metadata-bestand geschreven. Mislukt dat schrijven (bestaand
+        contract: `_save_metadata` logt en zet `_persistence_failed`), dan wordt
+        de opgave in het geheugen teruggerold naar de vorige waarde (over de
+        toestand van het bestand op schijf wordt niets beloofd) en is het
+        resultaat een `BronmetadataOpslagError`: nooit een stil succes met een
+        opgave die bij herstart ontbreekt (Codex-review 1, P2).
+        """
+        from domain.sources.bronmetadata import valideer_bronmetadata
+
+        doc = self._documents_cache.get(doc_id)
+        if doc is None:
+            msg = f"document {doc_id!r} is niet (meer) beschikbaar"
+            raise KeyError(msg)
+        metadata, fouten = valideer_bronmetadata(
+            url,
+            source_version,
+            locator,
+            declared_by=declared_by,
+            bestaand=doc.source_metadata,
+        )
+        if metadata is None:
+            raise ValueError("; ".join(fouten))
+        vorige = doc.source_metadata
+        doc.source_metadata = metadata.als_dict()
+        self._documents_cache.move_to_end(doc_id)  # DEF-514: LRU-touch
+        self._save_metadata()
+        if self._persistence_failed:
+            # Terugrollen in het geheugen naar de vorige opgave; de vlag blijft
+            # staan als signaal van het opslagprobleem (DEF-229). Over de schijf
+            # wordt niets beloofd: de bestaande niet-atomaire schrijver kan het
+            # bestand bij een fout tijdens het schrijven (bv. volle schijf)
+            # hebben afgekapt (Codex-deltareview, LOW).
+            doc.source_metadata = vorige
+            msg = (
+                f"bronmetadata voor {doc.filename} niet opgeslagen: het metadata-"
+                f"bestand {self.metadata_file} kon niet worden geschreven; de "
+                "nieuwe opgave is in het geheugen teruggedraaid (de eerdere opgave "
+                "blijft in deze sessie gelden), controleer het metadata-bestand"
+            )
+            raise BronmetadataOpslagError(msg)
+        logger.info(f"Bronmetadata opgegeven voor document {doc_id}")
         return doc
 
     def remove_document(self, doc_id: str) -> bool:

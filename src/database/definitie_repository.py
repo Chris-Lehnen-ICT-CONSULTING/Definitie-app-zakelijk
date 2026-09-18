@@ -27,6 +27,7 @@ from database.definitie_duplicates import (
 from database.definitie_import_export import DefinitieImportExportRepository
 from database.definitie_search import DefinitieSearchRepository
 from database.models import (
+    Bronmetadatatoepassing,
     DefinitieRecord,
     DefinitieStatus,
     DuplicateMatch,
@@ -43,6 +44,7 @@ from domain.ontological_categories import OntologischeCategorie
 __all__ = [
     "UNSET",
     "Bronhelpers",
+    "Bronmetadatatoepassing",
     "DefinitieRecord",
     "DefinitieRepository",
     "DefinitieStatus",
@@ -264,6 +266,24 @@ class DefinitieRepository:
         """Vervang de AI-bronbeoordeling in het actuele bewijs (herbeoordeling)."""
         return self._crud.set_source_assessment(
             definitie_id, assessment, updated_by, expected_version=expected_version
+        )
+
+    def vul_bronmetadata_aan(
+        self,
+        definitie_id: int,
+        doc_id: str,
+        metadata: dict[str, Any],
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> Bronmetadatatoepassing:
+        """Zet opgegeven bronmetadata op de documentpassages van het bewijs (DEF-808)."""
+        return self._crud.vul_bronmetadata_aan(
+            definitie_id,
+            doc_id,
+            metadata,
+            updated_by,
+            expected_version=expected_version,
         )
 
     def reserve_source_proposal(

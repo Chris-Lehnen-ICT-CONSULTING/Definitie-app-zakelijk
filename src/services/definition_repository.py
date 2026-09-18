@@ -18,6 +18,7 @@ from typing import Any, cast
 from database.definitie_repository import (
     UNSET,
     Bronhelpers,
+    Bronmetadatatoepassing,
     DefinitieRecord,
     DefinitieRepository as LegacyRepository,
     DefinitieStatus,
@@ -67,6 +68,7 @@ MELDING_DATABASEFOUT = "Databasefout tijdens opslaan; de wijziging is niet beves
 
 __all__ = [
     "Bronhelpers",
+    "Bronmetadatatoepassing",
     "DefinitionRepository",
     "Voorstelreservering",
     "Voorsteltoepassing",
@@ -1239,6 +1241,24 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         """Vervang de AI-bronbeoordeling in het actuele bewijs (herbeoordeling)."""
         return self.legacy_repo.set_source_assessment(
             definitie_id, assessment, updated_by, expected_version=expected_version
+        )
+
+    def vul_bronmetadata_aan(
+        self,
+        definitie_id: int,
+        doc_id: str,
+        metadata: dict[str, Any],
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> Bronmetadatatoepassing:
+        """Zet opgegeven bronmetadata op de documentpassages van het bewijs (DEF-808)."""
+        return self.legacy_repo.vul_bronmetadata_aan(
+            definitie_id,
+            doc_id,
+            metadata,
+            updated_by,
+            expected_version=expected_version,
         )
 
     def reserve_source_proposal(

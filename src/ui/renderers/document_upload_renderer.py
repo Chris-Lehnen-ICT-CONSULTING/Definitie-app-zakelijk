@@ -14,7 +14,10 @@ from typing import Any
 import streamlit as st
 
 from document_processing.document_extractor import supported_file_types
-from document_processing.document_processor import get_document_processor
+from document_processing.document_processor import (
+    BronmetadataOpslagError,
+    get_document_processor,
+)
 from services.rag.constants import RECHTSGEBIEDEN
 from ui.session_state import SessionStateManager
 
@@ -163,6 +166,70 @@ class DocumentUploadRenderer:
             # Update session state
             SessionStateManager.set_value("documents_updated", True)
 
+    @staticmethod
+    def _render_bronmetadata_invoer(processor: Any, doc: Any) -> None:
+        """Formulier voor de opgegeven bronmetadata van één geüpload document (DEF-808).
+
+        Key-only widgets met de huidige opgave als startwaarde; vastleggen
+        gaat via `DocumentProcessor.set_source_metadata` (gedeelde validatie,
+        DEF-806-hyperlinkregel). Ongeldige invoer wordt zichtbaar afgewezen en
+        laat het document onaangeroerd.
+        """
+        k = f"docmeta_{doc.id}"
+        opgave = getattr(doc, "source_metadata", None) or {}
+        st.markdown(f"**{doc.filename}**")
+        if opgave:
+            st.caption(
+                f"Huidige opgave: url: {opgave.get('url') or 'geen'} · versie: "
+                f"{opgave.get('source_version') or 'onbekend'} · vindplaats: "
+                f"{opgave.get('locator') or 'onbekend'} (opgegeven door "
+                f"{opgave.get('declared_by') or 'onbekend'} op "
+                f"{opgave.get('declared_at') or 'onbekend tijdstip'})"
+            )
+        else:
+            st.caption("Nog geen hyperlink, bronversie of vindplaats opgegeven.")
+        SessionStateManager.initialize_session_state(
+            {
+                f"{k}_url": opgave.get("url") or "",
+                f"{k}_versie": opgave.get("source_version") or "",
+                f"{k}_vindplaats": opgave.get("locator") or "",
+            }
+        )
+        url = st.text_input(
+            "Hyperlink (http(s); een interne link volstaat)", key=f"{k}_url"
+        )
+        versie = st.text_input(
+            "Bronversie (bv. geldigheidsdatum 2026-08-15 of editie)", key=f"{k}_versie"
+        )
+        vindplaats = st.text_input(
+            "Exacte vindplaats (bv. artikel 1:3 lid 1 Awb)", key=f"{k}_vindplaats"
+        )
+        if st.button(
+            "🔗 Bronmetadata vastleggen (als opgegeven)", key=f"{k}_vastleggen"
+        ):
+            gebruiker = SessionStateManager.get_value("user")
+            try:
+                processor.set_source_metadata(
+                    doc.id,
+                    url=url,
+                    source_version=versie,
+                    locator=vindplaats,
+                    declared_by=gebruiker if isinstance(gebruiker, str) else None,
+                )
+            except (ValueError, KeyError) as e:
+                st.error(f"❌ Bronmetadata niet vastgelegd: {e}")
+                return
+            except BronmetadataOpslagError as e:
+                # Schrijffout op het metadata-bestand: de opgave is teruggerold
+                # en niet opgeslagen — geen succesmelding (Codex-review 1, P2).
+                st.error(f"❌ Bronmetadata niet opgeslagen: {e}")
+                return
+            st.success(
+                f"✅ Bronmetadata vastgelegd bij {doc.filename} als opgegeven metadata "
+                "(geen authenticiteitsbewijs)."
+            )
+            SessionStateManager.set_value("documents_updated", True)
+
     def render_uploaded_documents_list(self) -> None:
         """Render lijst van geüploade documenten."""
         processor = get_document_processor()
@@ -262,6 +329,21 @@ class DocumentUploadRenderer:
                 if aggregated["aggregated_legal_refs"]:
                     st.markdown("**Juridische Verwijzingen:**")
                     st.write(", ".join(aggregated["aggregated_legal_refs"][:5]))
+
+                # DEF-808: opgegeven hyperlink/bronversie/vindplaats per
+                # geselecteerd document — reist als opgegeven metadata mee op
+                # elke passage die dit document aan de generatie levert.
+                st.markdown(
+                    "#### 🔗 Bronmetadata (opgegeven) per geselecteerd document"
+                )
+                st.caption(
+                    "Opgegeven metadata is geen authenticiteitsbewijs en geen "
+                    "goedkeuring; de hyperlink wordt alleen op vorm gecontroleerd "
+                    "(http(s), een interne link volstaat), niet op bereikbaarheid."
+                )
+                for doc in documents:
+                    if doc.id in selected_docs and doc.processing_status == "success":
+                        self._render_bronmetadata_invoer(processor, doc)
 
             # DEF-271: RAG ingest knop voor geselecteerde documenten
             if selected_docs:

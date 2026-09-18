@@ -227,6 +227,9 @@ class DefinitionEditTab:
                     # DEF-743: bronbasis (CON-02) van het opgeslagen record en
                     # het handmatige verbetervoorstel — uitsluitend op verzoek.
                     self._render_bronbasis_section(definition)
+                    # DEF-808: opgegeven bronmetadata aanvullen op de
+                    # documentbronnen van het opgeslagen record.
+                    self._render_bronmetadata_section(definition)
                     self._render_voorstel_section(definition)
 
         with col2:
@@ -1057,25 +1060,64 @@ class DefinitionEditTab:
     # DEF-743: bronbasis (CON-02) en handmatig verbetervoorstel op verzoek
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _handelende_gebruiker() -> str | None:
-        """Bestaande gebruikersidentiteit (sessie-`user`, reviewer naam); nooit verzonnen."""
-        for sleutel in ("user", "edit_reviewer_name_input", "reviewer_name_input"):
+    #: Bestaande identiteitsbronnen buiten het eigen naamveld van de
+    #: bronmetadata-sectie: de ingelogde gebruiker en de reviewer naam uit de
+    #: voorstel- en expertsectie.
+    _BEKENDE_IDENTITEITSSLEUTELS: tuple[str, ...] = (
+        "user",
+        "edit_reviewer_name_input",
+        "reviewer_name_input",
+    )
+
+    @classmethod
+    def _bekende_gebruiker(cls) -> str | None:
+        """Bestaande gebruikersidentiteit zónder het eigen naamveld van de
+        bronmetadata-sectie; nooit verzonnen."""
+        for sleutel in cls._BEKENDE_IDENTITEITSSLEUTELS:
             waarde = SessionStateManager.get_value(sleutel)
             if isinstance(waarde, str) and waarde.strip():
                 return waarde.strip()
         return None
 
+    @classmethod
+    def _handelende_gebruiker(cls) -> str | None:
+        """Bestaande gebruikersidentiteit (sessie-`user`, reviewer naam); nooit verzonnen."""
+        bekend = cls._bekende_gebruiker()
+        if bekend is not None:
+            return bekend
+        waarde = SessionStateManager.get_value("edit_bronmeta_reviewer_name_input")
+        if isinstance(waarde, str) and waarde.strip():
+            return waarde.strip()
+        return None
+
     @staticmethod
     def _actorbron() -> str:
         """Waar de identiteit van `_handelende_gebruiker` vandaan komt (DEF-751):
-        sessiegebruiker of getypte naam — beide zonder authenticatie."""
+        sessiegebruiker of getypte naam (voorstel-, expert- of bronmetadata-
+        naamveld) — beide zonder authenticatie."""
         waarde = SessionStateManager.get_value("user")
         return (
             "session_user"
             if isinstance(waarde, str) and waarde.strip()
             else "typed_name"
         )
+
+    @staticmethod
+    def _sessiebeoordeling() -> dict[str, Any] | None:
+        """De AI-bronbeoordeling uit de laatste toetsing in deze sessie, of None.
+
+        DEF-809: `edit_last_validation` is het genormaliseerde resultaat van
+        "Valideren" (`normaliseer_validatieresultaat`); de beoordeling staat
+        daarin onder `source_assessment` (en ruw onder `raw_v2`). Alleen een
+        object wordt doorgegeven; binding en status beoordeelt de servicelaag.
+        """
+        laatste = SessionStateManager.get_value("edit_last_validation")
+        if not isinstance(laatste, dict):
+            return None
+        beoordeling = laatste.get("source_assessment")
+        if beoordeling is None:
+            beoordeling = _als_dict(laatste.get("raw_v2")).get("source_assessment")
+        return beoordeling if isinstance(beoordeling, dict) else None
 
     def _proposal_service(self) -> Any | None:
         """`SourceProposalService` uit de gecachte container (AI-service + router)."""
@@ -1147,6 +1189,212 @@ class DefinitionEditTab:
                 )
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             logger.warning("Bronbasis-sectie kon niet worden getoond: %s", e)
+
+    # ------------------------------------------------------------------
+    # DEF-808: opgegeven bronmetadata aanvullen op het opgeslagen record
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _documentbronnen_per_id(bronnen: Any) -> dict[str, dict[str, Any]]:
+        """De documentbronnen uit het bewijs, gegroepeerd per `doc_id`, met de
+        huidige (eventueel eerder opgegeven) coördinaten van het document."""
+        documenten: dict[str, dict[str, Any]] = {}
+        for bron in bronnen if isinstance(bronnen, list) else []:
+            if not isinstance(bron, dict):
+                continue
+            if str(bron.get("provider") or "").casefold() not in (
+                "documents",
+                "document",
+            ):
+                continue
+            doc_id = str(bron.get("doc_id") or "").strip()
+            if not doc_id:
+                continue
+            item = documenten.setdefault(
+                doc_id,
+                {
+                    "filename": bron.get("filename") or bron.get("title") or doc_id,
+                    "aantal": 0,
+                    "url": bron.get("url"),
+                    "source_version": bron.get("source_version"),
+                    "locator": bron.get("locator"),
+                    "declared": _als_dict(bron.get("declared_metadata")),
+                },
+            )
+            item["aantal"] += 1
+        return documenten
+
+    @staticmethod
+    def _toon_bronmetadata_resultaat(resultaat: dict[str, Any]) -> None:
+        status = str(resultaat.get("status") or "")
+        bericht = str(resultaat.get("message") or status)
+        if status == "applied":
+            st.success(f"✅ {bericht}")
+        elif status == "invalid":
+            st.error(f"❌ {bericht}")
+        elif status in ("version_conflict", "not_editable", "not_found", "no_actor"):
+            st.warning(f"🔄 {bericht}")
+        else:
+            st.error(f"❌ {bericht}")
+
+    @classmethod
+    def _bronmetadata_actor(cls) -> str | None:
+        """De handelende gebruiker voor de bronmetadata-sectie.
+
+        Het naamveld hangt af van de ándere identiteitsbronnen, nooit van zijn
+        eigen waarde: een widget dat verdwijnt zodra zijn waarde is gevonden,
+        wordt door Streamlit bij de eerstvolgende rerun opgeruimd (naam weg,
+        knop weer uit — browserbevinding 18-09-2026). Zolang er geen bestaande
+        identiteit is, blijft het veld dus staan.
+        """
+        actor = cls._bekende_gebruiker()
+        if actor is not None:
+            return actor
+        ingevoerd = st.text_input(
+            "Reviewer naam (vereist voor vastleggen)",
+            key="edit_bronmeta_reviewer_name_input",
+        )
+        if isinstance(ingevoerd, str) and ingevoerd.strip():
+            return ingevoerd.strip()
+        return None
+
+    @staticmethod
+    def _toon_huidige_opgave(gekozen: dict[str, Any] | None) -> None:
+        """De huidige (eerder opgegeven) coördinaten van het gekozen document."""
+        if gekozen is None:
+            return
+        opgave = gekozen["declared"]
+        herkomst = (
+            f" (opgegeven door {opgave.get('declared_by') or 'onbekend'} op "
+            f"{opgave.get('declared_at') or 'onbekend tijdstip'})"
+            if opgave
+            else " (nog niets opgegeven)"
+        )
+        st.caption(
+            f"Huidige opgave bij {gekozen['filename']}: "
+            f"url: {gekozen['url'] or 'geen'} · versie: "
+            f"{gekozen['source_version'] or 'onbekend'} · vindplaats: "
+            f"{gekozen['locator'] or 'onbekend'}{herkomst}"
+        )
+
+    @staticmethod
+    def _bronmetadata_hulp(
+        *, alleen_lezen: bool, actor: str | None, gekozen: Any, ingevuld: bool
+    ) -> str | None:
+        """Waarom de vastlegknop uit staat (help-tekst), of None als hij aan mag."""
+        if alleen_lezen:
+            return "Alleen-lezen status: geen aanvulling mogelijk"
+        if not actor:
+            return "Vul eerst een reviewer naam in"
+        if gekozen is None:
+            return "Kies een document"
+        if not ingevuld:
+            return "Geef minstens een hyperlink, bronversie of vindplaats op"
+        return None
+
+    def _render_bronmetadata_section(self, definition: Any) -> None:
+        """Opgegeven hyperlink, bronversie en exacte vindplaats aanvullen op de
+        documentbronnen van het OPGESLAGEN record (DEF-808), zodat een bestaand
+        record kan worden hertoetst. De opgave blijft herkenbaar als opgegeven
+        metadata; zij bewijst geen authenticiteit en keurt niets goed. Validatie
+        en opslag lopen via de servicelaag (DEF-806-hyperlinkregel, versieguard)."""
+        def_id = getattr(definition, "id", None)
+        if def_id is None:
+            return
+        meta = dict(getattr(definition, "metadata", None) or {})
+        bronnen = meta.get("provenance_sources")
+        if bronnen is None:
+            bronnen = meta.get("sources")
+        documenten = self._documentbronnen_per_id(bronnen)
+        k = f"edit_{def_id}_bronmeta"
+        with st.expander(
+            "🔗 Bronmetadata aanvullen (hyperlink, bronversie, vindplaats — opgegeven)",
+            expanded=False,
+        ):
+            st.caption(
+                "Opgegeven metadata is geen authenticiteitsbewijs en geen goedkeuring: "
+                "brongezag, betekenissteun en verwijskwaliteit worden onverminderd "
+                "beoordeeld. Een eerdere AI-bronbeoordeling geldt na aanvullen niet "
+                "meer — valideer opnieuw en sla op. Er wordt geen netwerkcontrole "
+                "uitgevoerd en de definitietekst wordt niet gewijzigd."
+            )
+            resultaat = SessionStateManager.get_value(f"{k}_resultaat")
+            if isinstance(resultaat, dict):
+                self._toon_bronmetadata_resultaat(resultaat)
+            if not documenten:
+                st.info(
+                    "Geen documentbronnen in het opgeslagen bewijs: er is geen "
+                    "geüpload document om metadata bij op te geven."
+                )
+                return
+            actor = self._bronmetadata_actor()
+            doc_ids = list(documenten)
+            keuze = st.selectbox(
+                "Document uit de opgeslagen bronset",
+                options=doc_ids,
+                format_func=lambda d: (
+                    f"{documenten[d]['filename']} · {documenten[d]['aantal']} passage(s) "
+                    f"· doc {d}"
+                ),
+                key=f"{k}_doc",
+            )
+            gekozen = documenten.get(str(keuze)) if keuze else None
+            self._toon_huidige_opgave(gekozen)
+            url = st.text_input(
+                "Hyperlink (http(s); een interne link volstaat)", key=f"{k}_url"
+            )
+            versie = st.text_input(
+                "Bronversie (bv. geldigheidsdatum 2026-08-15 of editie)",
+                key=f"{k}_versie",
+            )
+            vindplaats = st.text_input(
+                "Exacte vindplaats (bv. artikel 1:3 lid 1 Awb)", key=f"{k}_vindplaats"
+            )
+            hulp = self._bronmetadata_hulp(
+                alleen_lezen=meta.get("status") in ("established", "archived"),
+                actor=actor,
+                gekozen=gekozen,
+                ingevuld=any(str(v or "").strip() for v in (url, versie, vindplaats)),
+            )
+            if st.button(
+                "🔗 Bronmetadata vastleggen (als opgegeven)",
+                key=f"{k}_vastleggen",
+                disabled=hulp is not None,
+                help=hulp,
+            ):
+                if hulp is not None or not actor or keuze is None:
+                    return
+                self._leg_bronmetadata_vast(
+                    int(def_id), str(keuze), url, versie, vindplaats, str(actor)
+                )
+
+    def _leg_bronmetadata_vast(
+        self,
+        def_id: int,
+        doc_id: str,
+        url: Any,
+        versie: Any,
+        vindplaats: Any,
+        actor: str,
+    ) -> None:
+        """Eén expliciete vastlegging via de servicelaag; resultaat blijft zichtbaar."""
+        try:
+            resultaat = self.edit_service.vul_bronmetadata_aan(
+                def_id,
+                doc_id=doc_id,
+                url=url,
+                source_version=versie,
+                locator=vindplaats,
+                actor=actor,
+                expected_version=self._getoonde_versie(def_id),
+            )
+        except Exception as e:
+            logger.error("Bronmetadata vastleggen mislukt: %s", e, exc_info=True)
+            resultaat = {"status": "error", "message": f"{type(e).__name__}: {e}"}
+        SessionStateManager.set_value(f"edit_{def_id}_bronmeta_resultaat", resultaat)
+        self._toon_bronmetadata_resultaat(resultaat)
+        if resultaat.get("status") == "applied":
+            self._refresh_current_definition()
 
     def _render_voorstel_section(self, definition: Any) -> None:
         """Handmatig verbetervoorstel (DEF-743, besluit 2): uitsluitend na een
@@ -1657,6 +1905,24 @@ class DefinitionEditTab:
                 f"Probeer de pagina te verversen."
             )
 
+    @staticmethod
+    def _meld_bronbeoordeling_bij_opslaan(
+        result: dict[str, Any], sessiebeoordeling: dict[str, Any] | None
+    ) -> None:
+        """DEF-809: wat er bij Opslaan met de sessiebeoordeling is gebeurd —
+        opgeslagen als actueel bewijs, of benoemd waarom niet (nooit stil)."""
+        if result.get("source_assessment_persisted"):
+            st.success(
+                "✅ Bronbeoordeling van de laatste toetsing opgeslagen bij de "
+                "actuele tekst en context (herkenbaar als AI-beoordeling; "
+                "geen vaststelling)."
+            )
+        elif sessiebeoordeling is not None and result.get("source_assessment_reason"):
+            st.warning(
+                "⚠️ Bronbeoordeling van de laatste toetsing niet opgeslagen: "
+                f"{result['source_assessment_reason']}."
+            )
+
     def _save_definition(self) -> None:
         """Save the edited definition."""
         try:
@@ -1706,6 +1972,11 @@ class DefinitionEditTab:
                     "version_number", 1
                 )
 
+            # DEF-809: de bronbeoordeling van de laatste "Valideren" reist mee;
+            # de servicelaag legt haar alleen vast als zij exact aan de op te
+            # slaan kandidaat bindt en benoemt anders waarom niet.
+            sessiebeoordeling = self._sessiebeoordeling()
+
             # DEF-751 B2: alleen een werkelijk gewijzigde categorie is een
             # keuze van deze opslaan-actie; zij reist als `editor`-event mee
             # met de bestaande lokale identiteit (opgegeven naam of sessie-
@@ -1732,11 +2003,13 @@ class DefinitionEditTab:
                 user=actor or SessionStateManager.get_value("user") or "system",
                 reason=SessionStateManager.get_value(k("save_reason")),
                 validate=True,
+                source_assessment=sessiebeoordeling,
                 categoriekeuze=categoriekeuze,
             )
 
             if result["success"]:
                 st.success("✅ Definitie opgeslagen!")
+                self._meld_bronbeoordeling_bij_opslaan(result, sessiebeoordeling)
 
                 # Show validation results if available
                 if result.get("validation"):

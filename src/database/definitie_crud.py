@@ -26,6 +26,7 @@ from database.models import (
     SOURCE_REVIEW_CODE,
     SOURCE_REVIEW_HISTORY_KEY,
     TOELICHTING_SCHEIDING,
+    Bronmetadatatoepassing,
     DefinitieRecord,
     DefinitieStatus,
     VaststelconflictError,
@@ -1481,6 +1482,83 @@ class DefinitieCrudRepository:
                 },
                 updated_by,
                 _bronbinding_ongewijzigd=True,
+            )
+
+    def vul_bronmetadata_aan(
+        self,
+        definitie_id: int,
+        doc_id: str,
+        metadata: Mapping[str, Any],
+        updated_by: str | None = None,
+        *,
+        expected_version: int,
+    ) -> Bronmetadatatoepassing:
+        """Zet opgegeven bronmetadata op de documentpassages van het actuele bewijs (DEF-808).
+
+        `metadata` is de gevalideerde opgave (`Bronmetadata.als_dict()`); de
+        validatie zelf hoort bij de domeinlaag. Ónder de schrijflock en de
+        versieguard krijgt elke documentpassage met dit `doc_id` de opgave;
+        het vorige bewijsdocument gaat naar de historie (`origin:
+        correction`), kwitantie, AI-beoordeling, peildatum en generatie-
+        identiteit blijven — de beoordeling geldt daarna niet meer via haar
+        vingerafdruk (bronnen gewijzigd) en wordt nooit stil gepromoveerd.
+        """
+        from domain.sources.bronmetadata import Bronmetadata, vul_documentbronnen_aan
+
+        expected_version = self._eis_versienummer(expected_version, "expected_version")
+        opgave = Bronmetadata.uit_dict(metadata)
+        if opgave is None:
+            msg = "bronmetadata moet minstens één van url/source_version/locator dragen"
+            raise ValueError(msg)
+        with self._db.transaction():
+            current = self.get_definitie(definitie_id)
+            if not current:
+                return Bronmetadatatoepassing("not_found", reason="definitie onbekend")
+            if current.version_number != expected_version:
+                return Bronmetadatatoepassing(
+                    "version_conflict",
+                    version_number=current.version_number,
+                    reason=(
+                        f"record is versie {current.version_number}, verwacht "
+                        f"{expected_version}"
+                    ),
+                )
+            huidig = current.get_source_evidence()
+            if huidig is None:
+                return Bronmetadatatoepassing(
+                    "no_evidence",
+                    version_number=current.version_number,
+                    reason="geen opgeslagen bronbewijs bij dit record",
+                )
+            bronnen, aantal = vul_documentbronnen_aan(huidig["sources"], doc_id, opgave)
+            if aantal == 0:
+                return Bronmetadatatoepassing(
+                    "no_matching_source",
+                    version_number=current.version_number,
+                    reason=f"geen documentbron met doc_id {doc_id!r} in het bewijs",
+                )
+            geschreven = self.update_definitie(
+                definitie_id,
+                {
+                    "source_evidence": {
+                        "sources": bronnen,
+                        "source_receipt": huidig.get("source_receipt"),
+                        "source_assessment": huidig.get("source_assessment"),
+                        "peildatum": huidig.get("peildatum"),
+                        "generation_id": huidig.get("generation_id"),
+                    },
+                    "version_number": expected_version,
+                },
+                updated_by,
+            )
+            if not geschreven:
+                return Bronmetadatatoepassing(
+                    "version_conflict",
+                    version_number=current.version_number,
+                    reason="record is intussen gewijzigd; niets geschreven",
+                )
+            return Bronmetadatatoepassing(
+                "applied", version_number=expected_version + 1, aantal_bronnen=aantal
             )
 
     # ------------------------------------- handmatig voorstel (DEF-743, F)
