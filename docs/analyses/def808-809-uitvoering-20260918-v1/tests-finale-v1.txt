@@ -1,0 +1,7 @@
+Commit: 503bbe04d0804e774748784166a93f82c21c873c
+Command: make PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python test
+
+XFAIL ../../../../../../../tmp/DEF-808-809-p01-20260917/tests/unit/scripts/test_silent_except_ratchet.py::TestClassify::test_raise_in_geneste_functie_telt_niet_als_hergooien - DEF-609: ast.walk pakt geneste scopes mee, dus dit telt nu als C
+6143 passed, 75 skipped, 722 deselected, 1 xfailed, 2732 warnings, 21 subtests passed in 279.56s (0:04:39)
+
+[run_profile] status=ok exitcode=0 profiel=unit pytest-aanroepen=1 pytest-exitcode=0 verzameld=6214 uitgevoerd=6164 overgeslagen=70 collectie-overgeslagen=5 xfail=1 xpassed=0 sessieroot=/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-runner-bnmy8_no

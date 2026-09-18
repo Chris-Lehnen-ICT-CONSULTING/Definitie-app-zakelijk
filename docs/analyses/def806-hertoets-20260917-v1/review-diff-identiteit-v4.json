@@ -1,0 +1,13 @@
+{
+  "src/domain/sources/contract.py": "768ad7fb8bd6ee43488bd935ea19511226f975d5114b5baf109f6f6b9df87ded",
+  "src/services/validation/source_assessment_service.py": "51026cc7387041b57b6a20531659688e71621e39488afe4ea75989b696be833b",
+  "src/ui/components/expert_review_tab.py": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31",
+  "tests/fixtures/def743_fakes.py": "b6d097905fa10719f683683a291154cee7ca6661295b113a00e7e7c600eb49f4",
+  "tests/unit/domain/test_def743_broncontract.py": "5a8db657b3a1f65dcd6479f0f2c4827a42c96c39ae33989c0a84970189c66569",
+  "tests/unit/services/orchestrators/test_def743_receipt_correlation_chain.py": "30c3deecdc61bec8a29d2bc33063040d1012e15456526b2d367dc1d452b99d48",
+  "tests/unit/services/orchestrators/test_def743_source_assessment_integration.py": "7ea42c09e8c0d2b2f8abdb0f49640439fb6a8cb656f388e35a84dd63f1ac19c0",
+  "tests/unit/ui/test_def743_editor_ui.py": "9f4d70eaae43209043c1e6db7ecd9fe6d744bfa5960cc5434f5c969ad123eab5",
+  "tests/unit/validation/test_def743_source_assessment_service.py": "29677c2a5a84e1c29f8c965b78397d7cfef4fb27b076136cea67f60edbd3a206",
+  "tests/unit/validation/test_def743_source_evidence_evaluator.py": "c8dc9df7eef0b1a63a47bba4bb1b89b7d68cea98c4d7b283f7feb28e00b59344",
+  "tests/unit/domain/test_def806_verwijzing_hyperlink.py": "7a7feee262f2d1d5b6fc72a39ef8af76f9f33dbf648a814174a991dba47e6e22"
+}

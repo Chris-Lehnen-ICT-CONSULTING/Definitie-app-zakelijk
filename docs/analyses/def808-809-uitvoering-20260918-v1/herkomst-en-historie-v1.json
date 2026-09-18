@@ -1,0 +1,39 @@
+{
+  "head": "503bbe04d0804e774748784166a93f82c21c873c",
+  "compared_tracked_src_config_files": 497,
+  "mismatches": [],
+  "source_evidence_history": [
+    {
+      "origin": "generation",
+      "version_number": 1,
+      "assessed_at": "2026-09-17T14:43:02.496597+00:00",
+      "candidate": {
+        "definitie": "Resultaat van een besluitvormingsproces van een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+        "definitie_origineel": "Resultaat van een besluitvormingsproces van een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+        "definitie_kern_geextraheerd": "resultaat van een besluitvormingsproces van een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt",
+        "definitie_eindtekst": "Resultaat van een besluitvormingsproces van een bestuursorgaan in de vorm van een schriftelijke beslissing die een publiekrechtelijke rechtshandeling inhoudt.",
+        "tekst_na_generatie_aangepast": true
+      },
+      "urls": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "origin": "correction",
+      "version_number": 4,
+      "assessed_at": "2026-09-17T14:43:02.496597+00:00",
+      "candidate": {
+        "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling"
+      },
+      "urls": [
+        "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3"
+      ]
+    }
+  ]
+}

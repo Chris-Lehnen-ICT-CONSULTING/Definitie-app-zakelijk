@@ -195,8 +195,14 @@ def _locator(bron: Mapping[str, Any]) -> str | None:
         if waarde and waarde not in delen:
             delen.append(waarde)
     delen.extend(_metadata_locatordelen(bron.get("metadata")))
+    # DEF-808: een expliciet opgegeven vindplaats (`locator`) telt altijd mee —
+    # ook naast een positie binnen het document (pagina/alinea) — en verdwijnt
+    # niet stil achter die positie. Zonder andere delen is zij de vindplaats.
+    opgegeven = _tekst(bron.get("locator"))
+    if opgegeven and opgegeven not in delen:
+        delen.append(opgegeven)
     if not delen:
-        return _tekst(bron.get("locator"))
+        return None
     return " · ".join(delen)
 
 

@@ -276,11 +276,14 @@ DUP_01:
 
 ESS-01:
   required_fields: [herkenbaar_patronen]
-  issue: DEF-624
+  issue: DEF-745
   reden: >
-    essentie versus doel is een inhoudelijk oordeel; het om-te-patroon
-    herkent de gesplitste constructie in het eigen foute voorbeeld
-    niet.
+    essentie versus doel is een inhoudelijk oordeel; het eigen goed/fout-paar
+    (requirement: behoefte of eis, versus dezelfde kern met een brug naar
+    systeemontwerp) bevat geen doelmarker. Vervolggebruik vereist menselijk
+    oordeel en het uitblijven van een patroonhit bewijst geen voldoen.
+    Inhoudelijke eigenaar: DEF-745; het gedeelde contract en de dekking van
+    deze matrix blijven bij DEF-624.
   probe:
     begrip: subsidie
     tekst: "subsidie: bijdrage om te stimuleren"

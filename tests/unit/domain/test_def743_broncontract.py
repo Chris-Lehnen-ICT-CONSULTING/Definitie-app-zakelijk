@@ -78,6 +78,11 @@ BRON_BELEID = {
     "score": 0.8,
 }
 BRONNEN = [BRON_WET, BRON_BELEID]
+# DEF-806: een gewoon 'voldoet' op de verwijskwaliteit vereist een bruikbare
+# (ook interne) hyperlink; de bronset zonder url blijft de basis voor de
+# verwijzingsuitzondering.
+BRON_WET_MET_LINK = {**BRON_WET, "url": "https://intern.example/wet#art-1-1"}
+BRONNEN_MET_LINK = [BRON_WET_MET_LINK, BRON_BELEID]
 
 
 def _fp(**overrides):
@@ -107,13 +112,21 @@ def _deel(status, *, evidence=(), reason="synthetische reden", **extra):
 
 
 def _assessment(
-    *, status="assessed", parts=None, fingerprint=None, model="fake-model", error=None
+    *,
+    status="assessed",
+    parts=None,
+    fingerprint=None,
+    model="fake-model",
+    error=None,
+    bronnen=BRONNEN,
 ):
-    canoniek = canoniseer_bronnen(BRONNEN)
+    canoniek = canoniseer_bronnen(bronnen)
     return {
         "contract_version": CONTRACTVERSIE,
         "prompt_version": "con02-assess/1",
-        "fingerprint": fingerprint if fingerprint is not None else _fp(),
+        "fingerprint": (
+            fingerprint if fingerprint is not None else _fp(bronnen=bronnen)
+        ),
         "status": status,
         "error": error,
         "assessed_at": "2026-09-15T12:00:00+00:00",
@@ -307,7 +320,10 @@ class TestReplayZonderBeoordeling:
 
 class TestReplayMetBeoordeling:
     def test_gegronde_beoordeling_is_pass_met_geverifieerd_citaat(self):
-        uitkomst = _beoordeel(assessment=_assessment(parts=_gegrond()))
+        uitkomst = _beoordeel(
+            assessment=_assessment(parts=_gegrond(), bronnen=BRONNEN_MET_LINK),
+            bronnen=BRONNEN_MET_LINK,
+        )
         assert uitkomst.status == STATUS_PASS
         gezag = _part(uitkomst, ONDERDEEL_GEZAG)
         assert gezag.status == STATUS_PASS
@@ -327,6 +343,16 @@ class TestReplayMetBeoordeling:
             "rejected": 0,
         }
         assert uitkomst.als_dict()["score"] is None
+
+    def test_gegronde_beoordeling_zonder_hyperlink_is_geen_verwijzings_pass(self):
+        """DEF-806: locatable + geldig citaat zonder url is geen gewoon 'voldoet'."""
+        uitkomst = _beoordeel(assessment=_assessment(parts=_gegrond()))
+        assert uitkomst.status == STATUS_OPEN
+        verwijzing = _part(uitkomst, ONDERDEEL_VERWIJZING)
+        assert verwijzing.status == STATUS_OPEN
+        assert "hyperlink" in verwijzing.reason.casefold()
+        assert _part(uitkomst, ONDERDEEL_GEZAG).status == STATUS_PASS
+        assert _part(uitkomst, ONDERDEEL_STEUN).status == STATUS_PASS
 
     def test_pass_zonder_bewijs_wordt_open_met_bewaarde_modelreden(self):
         parts = _gegrond()
@@ -697,20 +723,26 @@ class TestDeelcorrectie:
         basis.update(overrides)
         return basis
 
-    def _assessment_open_steun(self):
+    def _assessment_open_steun(self, bronnen=BRONNEN):
         parts = _gegrond()
         parts[ONDERDEEL_STEUN] = _deel(
             STATUS_OPEN, reason="Model twijfelt over het gezagscriterium."
         )
-        return _assessment(parts=parts)
+        return _assessment(parts=parts, bronnen=bronnen)
 
     def test_correctie_vervangt_alleen_het_gekozen_onderdeel_met_bewijs_en_attributie(
         self,
     ):
-        origineel = self._assessment_open_steun()
-        review = self._review()
+        # Bronset mét hyperlink (DEF-806), zodat de samenstelling tot 'pass' kan komen.
+        origineel = self._assessment_open_steun(bronnen=BRONNEN_MET_LINK)
+        review = self._review(fingerprint=_fp(bronnen=BRONNEN_MET_LINK))
         momentopname = (deepcopy(origineel), deepcopy(review))
-        uitkomst = _beoordeel(assessment=origineel, review=review, definitie_versie=3)
+        uitkomst = _beoordeel(
+            assessment=origineel,
+            review=review,
+            definitie_versie=3,
+            bronnen=BRONNEN_MET_LINK,
+        )
         assert (origineel, review) == momentopname  # invoer niet gemuteerd
         steun = _part(uitkomst, ONDERDEEL_STEUN)
         assert steun.status == STATUS_PASS
@@ -741,7 +773,12 @@ class TestDeelcorrectie:
                 "status": STATUS_OPEN,
                 "field": BASIS_ASSESSMENT,
                 "reason": _part(
-                    _beoordeel(assessment=self._assessment_open_steun()),
+                    _beoordeel(
+                        assessment=self._assessment_open_steun(
+                            bronnen=BRONNEN_MET_LINK
+                        ),
+                        bronnen=BRONNEN_MET_LINK,
+                    ),
                     ONDERDEEL_STEUN,
                 ).reason,
                 "evidence": None,
@@ -825,7 +862,8 @@ class TestDeelcorrectie:
         assert _part(uitkomst, ONDERDEEL_STEUN).status == STATUS_OPEN
 
     def test_verwijzingscorrectie_vereist_een_vindplaats(self):
-        zonder_locator = [{**BRON_WET, "citation_label": None}, BRON_BELEID]
+        # Mét hyperlink (DEF-806): hier wordt alleen de vindplaats-eis getoetst.
+        zonder_locator = [{**BRON_WET_MET_LINK, "citation_label": None}, BRON_BELEID]
         fp = _fp(bronnen=zonder_locator)
         review = self._review(
             fingerprint=fp,

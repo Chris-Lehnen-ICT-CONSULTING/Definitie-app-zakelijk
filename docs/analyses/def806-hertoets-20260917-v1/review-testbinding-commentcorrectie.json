@@ -1,0 +1,11 @@
+{
+  "reviewed_manifest": "review-diff-identiteit-v4.json",
+  "final_manifest": "finale-code-identiteit.json",
+  "only_changed_file": [
+    "src/domain/sources/contract.py"
+  ],
+  "ast_equal": true,
+  "change": "Uitsluitend ongebruikte noqa-comment verwijderd door dezelfde Claude-sessie na RUF100; executable AST ongewijzigd.",
+  "full_unit_run": "33-make-test-final.log",
+  "full_unit_exit": 0
+}

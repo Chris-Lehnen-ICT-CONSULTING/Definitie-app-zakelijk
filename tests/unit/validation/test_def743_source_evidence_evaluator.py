@@ -58,6 +58,7 @@ BRON = {
     "filename": "synthetische-bestuurswet.txt",
     "citation_label": "art. 5:11",
     "bron_type": "wet",
+    "url": "https://intern.example/bestuurswet#art-5-11",  # DEF-806
     "snippet": PASSAGE,
     "score": 1.0,
 }
@@ -325,13 +326,16 @@ async def test_vervalste_positieve_beoordeling_zonder_bewijs_geeft_geen_pass(val
 
 
 async def test_verwijzingsuitzondering_blijft_zichtbaar_open(validator):
+    # DEF-806: de uitzondering geldt alleen voor een bron zónder hyperlink.
+    zonder_link = {**BRON, "url": None}
+    fp = _fp(bronnen=(zonder_link,))
     review = {
         "type": REVIEW_TYPE_VERWIJZING,
         "accepted": True,
         "actor": "synthetische-deskundige",
         "rationale": "Intern beschikbaar, geen hyperlink.",
         "version_number": 2,
-        "fingerprint": _fp(),
+        "fingerprint": fp,
         "reviewed_at": None,
         "source_id": "doc:wet-11",
         "content_hash": bereken_inhoudshash(PASSAGE),
@@ -341,8 +345,10 @@ async def test_verwijzingsuitzondering_blijft_zichtbaar_open(validator):
     result = await _valideer(
         validator,
         context={
-            "provenance_sources": [BRON],
-            "source_assessment": _assessment(verwijzing="review_required"),
+            "provenance_sources": [zonder_link],
+            "source_assessment": _assessment(
+                fingerprint=fp, verwijzing="review_required"
+            ),
             "source_review": review,
             "definition_version": 2,
         },
@@ -358,8 +364,10 @@ async def test_verwijzingsuitzondering_blijft_zichtbaar_open(validator):
     result2 = await _valideer(
         validator,
         context={
-            "provenance_sources": [BRON],
-            "source_assessment": _assessment(verwijzing="review_required"),
+            "provenance_sources": [zonder_link],
+            "source_assessment": _assessment(
+                fingerprint=fp, verwijzing="review_required"
+            ),
             "source_review": review,
             "definition_version": 3,
         },

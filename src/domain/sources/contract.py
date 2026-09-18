@@ -16,15 +16,19 @@ Wat de regel toetst — drie onafhankelijke onderdelen, elk met eigen status:
 - **betekenissteun** (`semantic_support`): dekt de bron de bepalende
   kenmerken, beperkingen en uitzonderingen van de definitie?
 - **verwijskwaliteit** (`reference_quality`): is de bron precies en beknopt
-  terugvindbaar via een gerichte verwijzing? Een correcte inline citatie is
-  geen zelfstandige afkeurgrond.
+  terugvindbaar via een gerichte verwijzing én bereikbaar via een bruikbare
+  hyperlink (`url`; een interne link volstaat)? Een correcte inline citatie is
+  geen zelfstandige afkeurgrond. Zonder hyperlink is 'voldoet' niet mogelijk
+  (DEF-806): dan blijft het onderdeel open, tenzij een deskundige de
+  verwijzingsuitzondering vastlegt.
 
-Rolverdeling: **code** controleert technische feiten en citaatbestaan (is het
-citaat werkelijk aanwezig in dié aangeleverde passage?); de **AI** beoordeelt
-gezag, toepasselijkheid en betekenissteun met bewijsplaatsen en onzekerheden;
-de **deskundige** kan twee uitzonderingen vastleggen (geen passende bron na
-gedocumenteerd zoeken; bestaande bron zonder bruikbare hyperlink). Een
-uitzondering blijft zichtbaar een uitzondering — nooit een gewoon 'Voldoet'.
+Rolverdeling: **code** controleert technische feiten, citaatbestaan (is het
+citaat werkelijk aanwezig in dié aangeleverde passage?) en het bestaan van de
+hyperlink; de **AI** beoordeelt gezag, toepasselijkheid en betekenissteun met
+bewijsplaatsen en onzekerheden; de **deskundige** kan twee uitzonderingen
+vastleggen (geen passende bron na gedocumenteerd zoeken; bestaande bron zonder
+bruikbare hyperlink). Een uitzondering blijft zichtbaar een uitzondering —
+nooit een gewoon 'Voldoet'.
 
 Uitkomsten: *Voldoet* vereist positieve, onderbouwde toepasselijke controles;
 *Voldoet niet* vereist een aantoonbare tekortkoming (met citaat); *Nog te
@@ -48,6 +52,7 @@ from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from typing import Any
+from urllib.parse import urlsplit
 
 from domain.context.contract import CONTEXT_VELDEN, Deeluitkomst, is_versienummer
 from domain.context.normalisatie import contextsleutel
@@ -83,6 +88,7 @@ __all__ = [
     "beoordeling_niet_beschikbaar",
     "beoordeling_technische_fout",
     "bereken_bronvingerafdruk",
+    "is_bruikbare_hyperlink",
     "valideer_beoordeling",
     "valideer_bronreview",
     "valideer_onderdelen",
@@ -157,6 +163,12 @@ _ACTIE_FAIL = (
     "Een verbetervoorstel kan apart worden aangevraagd; er is geen automatisch herstel."
 )
 _ACTIE_PASS = "Geen actie nodig."
+_ACTIE_HYPERLINK = (
+    "Lever voor deze bron een bruikbare (ook interne) hyperlink aan, of laat een "
+    "deskundige de verwijzingsuitzondering vastleggen (bewaarde bronversie, stabiele "
+    "documentidentificatie, exacte vindplaats, gemotiveerd en geaccepteerd). De "
+    "definitie hoeft hiervoor niet te worden aangepast."
+)
 _ACTIE_UITZONDERING = (
     "Geen verdere actie voor dit onderdeel; de uitzondering blijft zichtbaar en "
     "vaststelling blijft een deskundig besluit (DEF-630)."
@@ -576,6 +588,29 @@ def _valideer_deel(
                 bewijs,
                 extra,
             )
+        zonder_link = _dragende_bronnen_zonder_hyperlink(
+            onderdeel, bewijs, extra, bronnen
+        )
+        if zonder_link:
+            rejected.append(
+                {
+                    "part": onderdeel,
+                    "reason": "verwijzing zonder bruikbare hyperlink",
+                    "detail": ", ".join(zonder_link)[:120],
+                }
+            )
+            return GevalideerdDeel(
+                STATUS_OPEN,
+                (f"{reden} " if reden else "")
+                + "Geen 'voldoet': de bron heeft geen bruikbare hyperlink ("
+                + ", ".join(zonder_link)
+                + "). Een exacte vindplaats vervangt de hyperlink niet; zonder "
+                "hyperlink is alleen een zichtbare deskundige verwijzingsuitzondering "
+                "mogelijk.",
+                onzekerheid,
+                bewijs,
+                extra,
+            )
     return GevalideerdDeel(
         status, reden or "Geen toelichting van het model.", onzekerheid, bewijs, extra
     )
@@ -697,6 +732,74 @@ def _positieve_onderbouwing_ontbreekt(
     return _verwijzing_onderbouwing_ontbreekt(
         bewijsbronnen, list(extra.get("sources", []))
     )
+
+
+def _dragende_bronnen_zonder_hyperlink(
+    onderdeel: str,
+    bewijs: tuple[dict[str, Any], ...],
+    extra: Mapping[str, Any],
+    bronnen: tuple[Bronidentiteit, ...],
+) -> list[str]:
+    """Verwijskwaliteit (DEF-806): de dragende bronnen zonder bruikbare hyperlink.
+
+    Dragend is een bron die als terugvindbaar is aangemerkt én waaruit
+    geverifieerd bewijs komt. Elke dragende bron wordt afzonderlijk getoetst:
+    een gelinkte bron heft het gebrek van een andere dragende bron niet op.
+    Is de lijst leeg, dan is er niets aan de hand. Anders is een gewoon
+    'voldoet' uitgesloten — een exacte vindplaats vervangt de hyperlink niet —
+    en blijft alleen de zichtbare deskundige verwijzingsuitzondering over.
+    Alleen voor `reference_quality`; brongezag en betekenissteun worden hier
+    niet geraakt.
+    """
+    if onderdeel != ONDERDEEL_VERWIJZING:
+        return []
+    bewijsbronnen = {item["source_id"] for item in bewijs}
+    dragend = {
+        s["source_id"]
+        for s in extra.get("sources", [])
+        if s.get("locatable") is True and s["source_id"] in bewijsbronnen
+    }
+    return sorted(
+        source_id for source_id in dragend if not _heeft_hyperlink(bronnen, source_id)
+    )
+
+
+def _heeft_hyperlink(bronnen: tuple[Bronidentiteit, ...], source_id: str) -> bool:
+    bron = bron_op_id(bronnen, source_id)
+    return bron is not None and is_bruikbare_hyperlink(bron.url)
+
+
+_TOEGESTANE_SCHEMAS = frozenset({"http", "https"})
+
+
+def is_bruikbare_hyperlink(url: Any) -> bool:
+    """Is dit een bruikbare hyperlink (besluit 1, 15-09-2026)? Eén definitie voor
+    AI-oordeel, deskundige correctie en verwijzingsuitzondering.
+
+    Minimale syntaxis- en typecontrole, geen netwerkcontrole: een tekst met
+    schema `http` of `https` (hoofdletterongevoelig), een niet-lege host en —
+    indien aanwezig — een geldige poort (0–65535), zonder whitespace of
+    stuurtekens. Interne (intranet-)links met die
+    schema's volstaan; publieke bereikbaarheid is geen eis. Wat geen tekst is,
+    leeg is, alleen uit een schema bestaat (`https://`), geen schema heeft
+    (`intern.example/awb`, `//host/pad`) of een ander schema draagt
+    (`javascript:`, `data:`, `file:`, `mailto:`, `ftp:`) is géén bruikbare
+    hyperlink.
+    """
+    if (
+        not isinstance(url, str)
+        or not url
+        or any(c.isspace() or ord(c) < 32 or ord(c) == 127 for c in url)
+    ):
+        return False
+    try:
+        delen = urlsplit(url)
+        # `.port` parseert lui en werpt pas hier ValueError bij een niet-numerieke
+        # of buiten-bereik poort (`:ongeldig`, `:99999`); `None` = geen poort.
+        delen.port
+    except ValueError:
+        return False
+    return delen.scheme.lower() in _TOEGESTANE_SCHEMAS and bool(delen.hostname)
 
 
 def valideer_onderdelen(
@@ -1041,7 +1144,7 @@ def _valideer_verwijzing(
                 f"vindplaats {locator!r} wijkt af van de bronvindplaats {bron.locator!r}",
             ),
             (
-                bool(bron.url),
+                is_bruikbare_hyperlink(bron.url),
                 "bron heeft een bruikbare hyperlink; de verwijzingsuitzondering is niet van toepassing",
             ),
         )
@@ -1119,9 +1222,19 @@ def _correctievorm(onderdeel: Any, status: Any, ruw: Any) -> str | None:
 
 
 def _correctiebewijseis(
-    onderdeel: Any, status: Any, bewijs: list[dict[str, Any]]
+    onderdeel: Any,
+    status: Any,
+    bewijs: list[dict[str, Any]],
+    bronnen: tuple[Bronidentiteit, ...],
 ) -> str | None:
-    """Bewijseis bij een positief of negatief oordeel; open mag zonder bewijs."""
+    """Bewijseis bij een positief of negatief oordeel; open mag zonder bewijs.
+
+    Een deskundig 'voldoet' op de verwijskwaliteit is een gewone positieve
+    verwijzingsbeoordeling en vraagt daarom óók per bewijsbron een bruikbare
+    hyperlink (DEF-806, dezelfde definitie als voor het AI-oordeel); een
+    gelinkte bron heft het gebrek van een andere bewijsbron niet op. Zonder
+    hyperlink is de verwijzingsuitzondering de route.
+    """
     if status not in (STATUS_PASS, STATUS_FAIL):
         return None
     if not bewijs:
@@ -1136,6 +1249,20 @@ def _correctiebewijseis(
             "verwijskwaliteit vereist per bewijsclaim een exacte vindplaats "
             "(vindplaats ontbreekt)"
         )
+    if onderdeel == ONDERDEEL_VERWIJZING and status == STATUS_PASS:
+        zonder_link = sorted(
+            {
+                item["source_id"]
+                for item in bewijs
+                if not _heeft_hyperlink(bronnen, item["source_id"])
+            }
+        )
+        if zonder_link:
+            return (
+                "verwijskwaliteit 'pass' vereist per bewijsbron een bruikbare "
+                "hyperlink; zonder hyperlink: " + ", ".join(zonder_link) + " — dan is "
+                "alleen de verwijzingsuitzondering mogelijk"
+            )
     return None
 
 
@@ -1161,7 +1288,7 @@ def _valideer_correctie(
         if reden is not None:
             return reden, []
         bewijs.append(genormaliseerd or {})
-    bewijsfout = _correctiebewijseis(onderdeel, status, bewijs)
+    bewijsfout = _correctiebewijseis(onderdeel, status, bewijs, bronnen)
     if bewijsfout is not None:
         return bewijsfout, []
     return None, bewijs
@@ -1377,7 +1504,10 @@ def _bewijstekst(bewijs: tuple[dict[str, Any], ...]) -> str:
 
 
 def _ai_deel(
-    onderdeel: str, deel: GevalideerdDeel, samenvatting: Mapping[str, Any]
+    onderdeel: str,
+    deel: GevalideerdDeel,
+    samenvatting: Mapping[str, Any],
+    bronnen: tuple[Bronidentiteit, ...],
 ) -> Deeluitkomst:
     naam = _ONDERDEELNAAM[onderdeel]
     model = samenvatting.get("model") or "onbekend model"
@@ -1391,6 +1521,13 @@ def _ai_deel(
         actie = _ACTIE_PASS
     elif deel.status == STATUS_FAIL:
         actie = _ACTIE_FAIL
+    elif onderdeel == ONDERDEEL_VERWIJZING and not any(
+        is_bruikbare_hyperlink(b.url) for b in bronnen
+    ):
+        # Zonder enige bruikbare hyperlink in de bronset kan de verwijzing nooit
+        # 'voldoet' worden: de gerichte actie is een link of de deskundige
+        # uitzondering.
+        actie = _ACTIE_HYPERLINK
     else:
         actie = _ACTIE_OPEN
     return Deeluitkomst(
@@ -1444,7 +1581,7 @@ def _ai_onderdelen(
             )
             for o in AI_ONDERDELEN
         ]
-    return [_ai_deel(o, gevalideerd[o], samenvatting) for o in AI_ONDERDELEN]
+    return [_ai_deel(o, gevalideerd[o], samenvatting, bronnen) for o in AI_ONDERDELEN]
 
 
 def _pas_correctie_toe(

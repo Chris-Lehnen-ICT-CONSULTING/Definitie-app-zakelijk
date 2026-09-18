@@ -1,0 +1,206 @@
+{
+  "claude_session": "ee7ba796-2443-4800-af5c-d5bde77f8197",
+  "codex_session": "01a0aefc-3e11-7862-9ba6-bdbab5499215",
+  "logs": [
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/00-baseline-aanpalend.log",
+      "sha256": "63883a6551b64ac13a43a96c393674af84dd1bfb9e560a4c586ad2fc8261d345",
+      "bytes": 2941
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/00-baseline-basiscontrole.log",
+      "sha256": "4edf006692f62927f3aa8e2a31c1239ed815752bf6dc92368cb85d7793b96339",
+      "bytes": 240
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/01-replay-record4-VOOR-fix.log",
+      "sha256": "c2eab0211c7160b458eeb36acb5ef2b79aa1eaedddd2d01341e590c8aaba1598",
+      "bytes": 297
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/02-RED-def806.log",
+      "sha256": "f6bfae8a541162b5aa5c9b57bf6dc21b1d06abf5b9999c50fff3bc2866748176",
+      "bytes": 4162
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/03-GREEN-def806.log",
+      "sha256": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+      "bytes": 80
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/04-def743-na-fix-voor-fixtures.log",
+      "sha256": "193b343de69eced5ad6161788aaa18780792590b4597b6ac111cc5ee012d0f7c",
+      "bytes": 10769
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/05-def743-def806-na-fixtures.log",
+      "sha256": "90d8a53e2704eefe85ab21ae956a9d2012a4ff104485fc78074325257fb48ddf",
+      "bytes": 7556
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/06-GREEN-def743-def806.log",
+      "sha256": "d90935b342254cbba76961fcb936dc99735379a4628a16a5ed5be651b30d8a3e",
+      "bytes": 1271
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/07-replay-record4-NA-fix.log",
+      "sha256": "f8a1fb80787cc9555897f9b86b4b7604fde55c6bb7a56f82f652eadad2d0fd39",
+      "bytes": 583
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/08-lint-gericht.log",
+      "sha256": "788bd07e14a153992d3b417518f082bdb0036a9b387e0bd2b99f1b1c74c8d4f4",
+      "bytes": 542
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/09-make-lint.log",
+      "sha256": "933157edffd59c01cfd98b2240fe848ff39d6299abf4f0c642c282704fb209be",
+      "bytes": 154
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/10-make-test.log",
+      "sha256": "e7912db31b13565062aac0be3a0a7f799c60bc43e467e39d7ca07d7f68f31fb9",
+      "bytes": 1498969
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/11-make-test-herhaald.log",
+      "sha256": "b5a16acb0fee0817e9464644708d4a1c6ea8bb5cc0471b32416bd0c92bbc0248",
+      "bytes": 1492686
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/20-gerichte-tests-final.log",
+      "sha256": "986dbc9a5d6b6525242d1315dd44f9f5e97162596004680091f1927df955e4ea",
+      "bytes": 80
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/21-ruff-final.log",
+      "sha256": "a006034221bcf735a544f494721dd1e20602052f271187e17abb9d7f8c30d198",
+      "bytes": 1294
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/22-black-final.log",
+      "sha256": "de32cd1c7bf46614ad59cd3e4795d6754fbbbb1533cb33241561fec6a769ba24",
+      "bytes": 201
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/23-make-test-final.log",
+      "sha256": "27540cf8967d5964aca13af208e91efe057f335145e99750c1b6982c0b93f4dc",
+      "bytes": 1484282
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/24-make-lint-final.log",
+      "sha256": "933157edffd59c01cfd98b2240fe848ff39d6299abf4f0c642c282704fb209be",
+      "bytes": 154
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/25-black-final.log",
+      "sha256": "2086e52d894c8a9e346b7e54cf4e6aa5bfc4894eadf08c9c1fefbf7390e718f1",
+      "bytes": 57
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/26-ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/33-make-test-final.log",
+      "sha256": "f0e982f9ead92efe0f5adecd3c79d4a5d596a8641bc72fd93995763ff7aef0cd",
+      "bytes": 1499515
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/34-make-lint-final.log",
+      "sha256": "fae152767698cca74303f8b5fe2a3a2b953eb53b882cb3c587d21274f8080438",
+      "bytes": 605
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/35-black-final.log",
+      "sha256": "2086e52d894c8a9e346b7e54cf4e6aa5bfc4894eadf08c9c1fefbf7390e718f1",
+      "bytes": 57
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/36-ruff-final.log",
+      "sha256": "013b95345aa510f72b2b29ca79b2d6203d64eb16573faac9aa187b1601d443eb",
+      "bytes": 542
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/39-make-lint-final.log",
+      "sha256": "933157edffd59c01cfd98b2240fe848ff39d6299abf4f0c642c282704fb209be",
+      "bytes": 154
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/40-ruff-final.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/41-tests-final.log",
+      "sha256": "6dd786dc72d45e02d32f9a2c96fbee7f0ea69261b610e86a41d1a671dd0186ef",
+      "bytes": 80
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-format-v1.jsonl",
+      "sha256": "263f6d4eee52b263cca175951bc465f24e482d21e99a238e6cabeef9d2a338a8",
+      "bytes": 117183
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-format-v2.jsonl",
+      "sha256": "fdf1411ac0f159f88e5f3a3fe5df2b8ef571c537f1cbe136327c541aa7ce38c3",
+      "bytes": 23914
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-hervatting1.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-hervatting2.jsonl",
+      "sha256": "4aa7494298021fdccad533e80680b3645853a0c72215bc59f09976a23953be0f",
+      "bytes": 313969
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-implementatie.jsonl",
+      "sha256": "6b2e7620fadddf1b5e255fc7812938ba77ecb7f065975a0689311d442252ddbe",
+      "bytes": 1550160
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-noqa-v1.jsonl",
+      "sha256": "192561eded4e5322d2b4c67d6fe9d50bb2b214b137b839db35674016ec377d5f",
+      "bytes": 86593
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-poort-v1.jsonl",
+      "sha256": "a2032018ba1efad29d568f21866a02f9d596986f9b1eee900c1c82114f047824",
+      "bytes": 258804
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-reviewcorrecties-v1.jsonl",
+      "sha256": "3ad36be61a2527f87cf06b6cb6236775891d878ff4cf7d7c9aa5122b4b4fcbc4",
+      "bytes": 203485
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-reviewcorrecties-v2.jsonl",
+      "sha256": "950de4be4beb9b6b468e3effedfb6e99c8c6a5335ffc306d11b33a20297710b5",
+      "bytes": 352308
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/claude-reviewcorrecties-v3.jsonl",
+      "sha256": "1bd6c70ada18ed5a3a3d2a13f77bf8d2db76837ecbb3f6513abd5a05f0b4346c",
+      "bytes": 373358
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/codex-review-v1.jsonl",
+      "sha256": "5db5e36d0bd5d2f8625c0f7d6090929af62b9872b1bf5bf507bd8a21cccbf7fc",
+      "bytes": 183702
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/codex-review-v2.jsonl",
+      "sha256": "e737a9aacba1115cbd3e72abd64152fa5e10e36b7b6546993e240575541ef9d8",
+      "bytes": 73641
+    },
+    {
+      "file": "/private/tmp/DEF-806-uitvoering-20260917/codex-review-v3.jsonl",
+      "sha256": "532fe3735eff70aaa3d8f5f338bb06102301bc32a288ad91a9b2ff10eb6443c2",
+      "bytes": 22825
+    }
+  ]
+}

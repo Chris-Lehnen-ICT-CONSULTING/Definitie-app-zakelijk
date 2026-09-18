@@ -1,0 +1,133 @@
+{
+  "gate_actief": true,
+  "stappen": {
+    "render": {
+      "exceptions": [],
+      "naamveld_aanwezig": true,
+      "naam_widget": "",
+      "naam_sessie": "",
+      "url_widget": "",
+      "versie_widget": "",
+      "vindplaats_widget": "",
+      "knop_aanwezig": true,
+      "knop_disabled": true,
+      "knop_help": "Vul eerst een reviewer naam in",
+      "tekst": "## Editor — bronmetadata aanvullen\n## Upload — bronmetadata per document\n**awb-1-3-20260815.txt**\nOpgegeven metadata is geen authenticiteitsbewijs en geen goedkeuring: brongezag, betekenissteun en verwijskwaliteit worden onverminderd beoordeeld. Een eerdere AI-bronbeoordeling geldt na aanvullen niet meer — valideer opnieuw en sla op. Er wordt geen netwerkcontrole uitgevoerd en de definitietekst wordt niet gewijzigd.\nHuidige opgave bij awb-1-3-20260815.txt: url: geen · versie: onbekend · vindplaats: onbekend (nog niets opgegeven)\nNog geen hyperlink, bronversie of vindplaats opgegeven."
+    },
+    "na_naam": {
+      "exceptions": [],
+      "naamveld_aanwezig": true,
+      "naam_widget": "Reviewer Rood",
+      "naam_sessie": "Reviewer Rood",
+      "url_widget": "",
+      "versie_widget": "",
+      "vindplaats_widget": "",
+      "knop_aanwezig": true,
+      "knop_disabled": true,
+      "knop_help": "Geef minstens een hyperlink, bronversie of vindplaats op"
+    },
+    "na_url": {
+      "exceptions": [],
+      "naamveld_aanwezig": true,
+      "naam_widget": "Reviewer Rood",
+      "naam_sessie": "Reviewer Rood",
+      "url_widget": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+      "versie_widget": "",
+      "vindplaats_widget": "",
+      "knop_aanwezig": true,
+      "knop_disabled": false,
+      "knop_help": ""
+    },
+    "na_alles": {
+      "exceptions": [],
+      "naamveld_aanwezig": true,
+      "naam_widget": "Reviewer Rood",
+      "naam_sessie": "Reviewer Rood",
+      "url_widget": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+      "versie_widget": "2026-08-15",
+      "vindplaats_widget": "artikel 1:3 lid 1 Awb",
+      "knop_aanwezig": true,
+      "knop_disabled": false,
+      "knop_help": ""
+    },
+    "vastgelegd": {
+      "exceptions": [],
+      "naamveld_aanwezig": true,
+      "naam_widget": "Reviewer Rood",
+      "naam_sessie": "Reviewer Rood",
+      "url_widget": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+      "versie_widget": "2026-08-15",
+      "vindplaats_widget": "artikel 1:3 lid 1 Awb",
+      "knop_aanwezig": true,
+      "knop_disabled": false,
+      "knop_help": "",
+      "resultaat": {
+        "status": "applied",
+        "version_number": 2,
+        "aantal_bronnen": 2,
+        "message": "Bronmetadata vastgelegd op 2 passage(s) van dit document als opgegeven metadata. Een eerdere bronbeoordeling geldt niet meer: valideer opnieuw."
+      },
+      "versie_db": 2,
+      "urls": [
+        "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3"
+      ],
+      "versies": [
+        "2026-08-15",
+        "2026-08-15"
+      ],
+      "vindplaatsen": [
+        "artikel 1:3 lid 1 Awb",
+        "artikel 1:3 lid 1 Awb"
+      ],
+      "declared_by": [
+        "Reviewer Rood",
+        "Reviewer Rood"
+      ],
+      "historie": 1,
+      "tekst": "## Editor — bronmetadata aanvullen\n## Upload — bronmetadata per document\n**awb-1-3-20260815.txt**\nOpgegeven metadata is geen authenticiteitsbewijs en geen goedkeuring: brongezag, betekenissteun en verwijskwaliteit worden onverminderd beoordeeld. Een eerdere AI-bronbeoordeling geldt na aanvullen niet meer — valideer opnieuw en sla op. Er wordt geen netwerkcontrole uitgevoerd en de definitietekst wordt niet gewijzigd.\nHuidige opgave bij awb-1-3-20260815.txt: url: https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3 · versie: 2026-08-15 · vindplaats: artikel 1:3 lid 1 Awb (opgegeven door Reviewer Rood op 2026-09-17T22:40:12.998968+00:00)\nNog geen hyperlink, bronversie of vindplaats opgegeven.\nBronmetadata vastgelegd op 2 passage(s) van dit document als opgegeven metadata. Een eerdere bronbeoordeling geldt niet meer: valideer opnieuw."
+    },
+    "ingelogd": {
+      "exceptions": [],
+      "naamveld_aanwezig": false,
+      "naam_widget": null,
+      "naam_sessie": null,
+      "url_widget": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+      "versie_widget": "",
+      "vindplaats_widget": "",
+      "knop_aanwezig": true,
+      "knop_disabled": false,
+      "knop_help": ""
+    },
+    "ingelogd_vastgelegd": {
+      "exceptions": [],
+      "declared_by": [
+        "Ingelogde Gebruiker"
+      ],
+      "updated_by": "Ingelogde Gebruiker"
+    },
+    "upload_na_velden": {
+      "exceptions": [],
+      "url_widget": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+      "versie_widget": "2026-08-15",
+      "vindplaats_widget": "artikel 1:3 lid 1 Awb",
+      "knop_aanwezig": true
+    },
+    "upload_vastgelegd": {
+      "exceptions": [],
+      "opgave_op_schijf": {
+        "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "source_version": "2026-08-15",
+        "locator": "artikel 1:3 lid 1 Awb",
+        "declared_by": "Ingelogde Gebruiker",
+        "declared_at": "2026-09-17T22:40:13.438419+00:00"
+      },
+      "success": [
+        "Bronmetadata vastgelegd op 2 passage(s) van dit document als opgegeven metadata. Een eerdere bronbeoordeling geldt niet meer: valideer opnieuw.",
+        "Bronmetadata vastgelegd bij awb-1-3-20260815.txt als opgegeven metadata (geen authenticiteitsbewijs)."
+      ],
+      "errors": [],
+      "url_widget": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3"
+    }
+  }
+}

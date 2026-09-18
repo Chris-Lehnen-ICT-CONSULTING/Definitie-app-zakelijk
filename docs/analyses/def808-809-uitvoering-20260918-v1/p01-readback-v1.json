@@ -1,0 +1,525 @@
+{
+  "id": 5,
+  "begrip": "besluit",
+  "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling",
+  "status": "review",
+  "version_number": 5,
+  "juridische_context": "[\"Bestuursrecht\"]",
+  "wettelijke_basis": "[\"Algemene wet bestuursrecht\"]",
+  "updated_at": "2026-09-18T05:43:31.441193+00:00",
+  "validation_date": null,
+  "source_evidence": {
+    "schema": "def743-bronbewijs/2",
+    "origin": "revalidation",
+    "generation_identity": "generation_id:d96266b8-5a44-4578-89b2-f54258f51c7c",
+    "version_number": 5,
+    "recorded_at": "2026-09-18T05:43:31.440275+00:00",
+    "recorded_by": "system",
+    "begrip": "besluit",
+    "peildatum": null,
+    "candidate": {
+      "definitie": "schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling"
+    },
+    "context": {
+      "organisatorische_context": [],
+      "juridische_context": [
+        "Bestuursrecht"
+      ],
+      "wettelijke_basis": [
+        "Algemene wet bestuursrecht"
+      ]
+    },
+    "sources": [
+      {
+        "provider": "documents",
+        "filename": "awb-1-3-20260815.txt",
+        "selection_basis": "term_match",
+        "title": "awb-1-3-20260815.txt",
+        "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "snippet": "Algemene wet bestuursrecht Artikel 1:3  1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.  2. Onder beschikki",
+        "score": 1.0,
+        "used_in_prompt": true,
+        "doc_id": "01e121c20018eed2",
+        "source_label": "Geüpload document",
+        "receipt_correlation": "verified",
+        "prompt_content": "Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikki",
+        "prompt_content_hash": "9ed78d17d3578ebfed1907c79ba50ba7d9c1eead0f425519c17b37e8d9b2ba46",
+        "receipt_nr": 1,
+        "sanitized": true,
+        "truncated": false,
+        "input_index": 0,
+        "original_content_hash": "sha256:e7df793518b5d377a6da01fe5d21d8c09d65e953a07b9b4086ac617f2c45efec",
+        "source_version": "2026-08-15",
+        "locator": "artikel 1:3 lid 1 Awb",
+        "declared_metadata": {
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "source_version": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "declared_by": "Codex — P01-uitvoeringscontrole",
+          "declared_at": "2026-09-18T05:41:55.486466+00:00"
+        }
+      },
+      {
+        "provider": "documents",
+        "filename": "awb-1-3-20260815.txt",
+        "selection_basis": "term_match",
+        "title": "awb-1-3-20260815.txt",
+        "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "snippet": "hriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.  2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan.  3. Onder aanvraag wordt verstaan: een verzoek",
+        "score": 1.0,
+        "used_in_prompt": true,
+        "doc_id": "01e121c20018eed2",
+        "source_label": "Geüpload document",
+        "receipt_correlation": "verified",
+        "prompt_content": "hriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek",
+        "prompt_content_hash": "69c13eb2aab08e30a504a581c75ab760ddb4997dec54e87ef2395736f5ea02e7",
+        "receipt_nr": 2,
+        "sanitized": true,
+        "truncated": false,
+        "input_index": 1,
+        "original_content_hash": "sha256:52c2fdfc5e1035c75fd2baa0acd6e178fd7312c4e9958539336a060137eab2d5",
+        "source_version": "2026-08-15",
+        "locator": "artikel 1:3 lid 1 Awb",
+        "declared_metadata": {
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "source_version": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "declared_by": "Codex — P01-uitvoeringscontrole",
+          "declared_at": "2026-09-18T05:41:55.486466+00:00"
+        }
+      },
+      {
+        "provider": "documents",
+        "filename": "awb-1-3-20260815.txt",
+        "selection_basis": "term_match",
+        "title": "awb-1-3-20260815.txt",
+        "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "snippet": "king is, met inbegrip van de afwijzing van een aanvraag daarvan.  3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen.  4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschri",
+        "score": 1.0,
+        "used_in_prompt": true,
+        "doc_id": "01e121c20018eed2",
+        "source_label": "Geüpload document",
+        "receipt_correlation": "verified",
+        "prompt_content": "king is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen. 4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschri",
+        "prompt_content_hash": "01b081d14b786aa6cdf4daadcd0362829f128122f8e54b7795588c02b790263e",
+        "receipt_nr": 3,
+        "sanitized": true,
+        "truncated": false,
+        "input_index": 2,
+        "original_content_hash": "sha256:a2fc2093a388569264a287905c97c347bfc32d57ec830ba803165708f5317a2c",
+        "source_version": "2026-08-15",
+        "locator": "artikel 1:3 lid 1 Awb",
+        "declared_metadata": {
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "source_version": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "declared_by": "Codex — P01-uitvoeringscontrole",
+          "declared_at": "2026-09-18T05:41:55.486466+00:00"
+        }
+      },
+      {
+        "provider": "documents",
+        "filename": "awb-1-3-20260815.txt",
+        "selection_basis": "term_match",
+        "title": "awb-1-3-20260815.txt",
+        "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+        "snippet": "3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen.  4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschrift, omtrent de afweging van belangen, de vaststelling van feiten",
+        "score": 1.0,
+        "used_in_prompt": true,
+        "doc_id": "01e121c20018eed2",
+        "source_label": "Geüpload document",
+        "receipt_correlation": "verified",
+        "prompt_content": "3. Onder aanvraag wordt verstaan: een",
+        "prompt_content_hash": "7680155a53e13eb8845d20ef0cf5b2bdf5cf0833cb58f58be6ae98a12b5cbd1e",
+        "receipt_nr": 4,
+        "sanitized": true,
+        "truncated": true,
+        "input_index": 3,
+        "original_content_hash": "sha256:6e03039a20e008e0c29aee2e5402e2bd6e30bf6375918672c4afb8b16cd29c65",
+        "source_version": "2026-08-15",
+        "locator": "artikel 1:3 lid 1 Awb",
+        "declared_metadata": {
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "source_version": "2026-08-15",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "declared_by": "Codex — P01-uitvoeringscontrole",
+          "declared_at": "2026-09-18T05:41:55.486466+00:00"
+        }
+      }
+    ],
+    "source_receipt": {
+      "version": "2",
+      "status": "used",
+      "sources": [
+        {
+          "nr": 1,
+          "source_type": "document",
+          "source_id": "01e121c20018eed2",
+          "input_index": 0,
+          "original_content_hash": "sha256:e7df793518b5d377a6da01fe5d21d8c09d65e953a07b9b4086ac617f2c45efec",
+          "identity": {
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt",
+            "title": "awb-1-3-20260815.txt",
+            "selection_basis": "term_match"
+          },
+          "retrieval_score": 1.0,
+          "content": "Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikki",
+          "content_hash": "sha256:9ed78d17d3578ebfed1907c79ba50ba7d9c1eead0f425519c17b37e8d9b2ba46",
+          "sanitized": true,
+          "truncated": false,
+          "xml": "  <bron nr=\"1\" type=\"document\" titel=\"awb-1-3-20260815.txt\" selectie=\"term_match\">\n    Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikki\n  </bron>",
+          "used_in_prompt": true
+        },
+        {
+          "nr": 2,
+          "source_type": "document",
+          "source_id": "01e121c20018eed2",
+          "input_index": 1,
+          "original_content_hash": "sha256:52c2fdfc5e1035c75fd2baa0acd6e178fd7312c4e9958539336a060137eab2d5",
+          "identity": {
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt",
+            "title": "awb-1-3-20260815.txt",
+            "selection_basis": "term_match"
+          },
+          "retrieval_score": 1.0,
+          "content": "hriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek",
+          "content_hash": "sha256:69c13eb2aab08e30a504a581c75ab760ddb4997dec54e87ef2395736f5ea02e7",
+          "sanitized": true,
+          "truncated": false,
+          "xml": "  <bron nr=\"2\" type=\"document\" titel=\"awb-1-3-20260815.txt\" selectie=\"term_match\">\n    hriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek\n  </bron>",
+          "used_in_prompt": true
+        },
+        {
+          "nr": 3,
+          "source_type": "document",
+          "source_id": "01e121c20018eed2",
+          "input_index": 2,
+          "original_content_hash": "sha256:a2fc2093a388569264a287905c97c347bfc32d57ec830ba803165708f5317a2c",
+          "identity": {
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt",
+            "title": "awb-1-3-20260815.txt",
+            "selection_basis": "term_match"
+          },
+          "retrieval_score": 1.0,
+          "content": "king is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen. 4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschri",
+          "content_hash": "sha256:01b081d14b786aa6cdf4daadcd0362829f128122f8e54b7795588c02b790263e",
+          "sanitized": true,
+          "truncated": false,
+          "xml": "  <bron nr=\"3\" type=\"document\" titel=\"awb-1-3-20260815.txt\" selectie=\"term_match\">\n    king is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen. 4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschri\n  </bron>",
+          "used_in_prompt": true
+        },
+        {
+          "nr": 4,
+          "source_type": "document",
+          "source_id": "01e121c20018eed2",
+          "input_index": 3,
+          "original_content_hash": "sha256:6e03039a20e008e0c29aee2e5402e2bd6e30bf6375918672c4afb8b16cd29c65",
+          "identity": {
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt",
+            "title": "awb-1-3-20260815.txt",
+            "selection_basis": "term_match"
+          },
+          "retrieval_score": 1.0,
+          "content": "3. Onder aanvraag wordt verstaan: een",
+          "content_hash": "sha256:7680155a53e13eb8845d20ef0cf5b2bdf5cf0833cb58f58be6ae98a12b5cbd1e",
+          "sanitized": true,
+          "truncated": true,
+          "xml": "  <bron nr=\"4\" type=\"document\" titel=\"awb-1-3-20260815.txt\" selectie=\"term_match\">\n    3. Onder aanvraag wordt verstaan: een\n  </bron>",
+          "used_in_prompt": true
+        }
+      ],
+      "omitted": [],
+      "errors": [],
+      "channels": {
+        "rag": {
+          "enabled": true,
+          "supplied": 0,
+          "used": 0
+        },
+        "web": {
+          "enabled": true,
+          "supplied": 0,
+          "used": 0
+        },
+        "document": {
+          "enabled": true,
+          "supplied": 4,
+          "used": 4
+        }
+      }
+    },
+    "source_assessment": {
+      "contract_version": "con02/1",
+      "prompt_version": "con02-assess/2",
+      "fingerprint": "b1da2b1c2e50917ea7e22227c71966268042d6ffae372fe71f945804fbb8726d",
+      "status": "assessed",
+      "error": null,
+      "assessed_at": "2026-09-18T05:42:50.557664+00:00",
+      "attribution": {
+        "provider": "anthropic",
+        "model": "claude-opus-4-8",
+        "task_type": "validation",
+        "cached": false,
+        "tokens_used": 2449
+      },
+      "peildatum": null,
+      "sources": [
+        {
+          "source_id": "doc:01e121c20018eed2#41952f35",
+          "provider": "documents",
+          "title": "awb-1-3-20260815.txt",
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "version": "2026-08-15",
+          "content_hash": "69c13eb2aab08e30a504a581c75ab760ddb4997dec54e87ef2395736f5ea02e7",
+          "declared_profile": null,
+          "identity": {
+            "declared_metadata": {
+              "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+              "source_version": "2026-08-15",
+              "locator": "artikel 1:3 lid 1 Awb",
+              "declared_by": "Codex — P01-uitvoeringscontrole",
+              "declared_at": "2026-09-18T05:41:55.486466+00:00"
+            },
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt"
+          },
+          "used_in_prompt": true
+        },
+        {
+          "source_id": "doc:01e121c20018eed2#4c9fcab0",
+          "provider": "documents",
+          "title": "awb-1-3-20260815.txt",
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "version": "2026-08-15",
+          "content_hash": "01b081d14b786aa6cdf4daadcd0362829f128122f8e54b7795588c02b790263e",
+          "declared_profile": null,
+          "identity": {
+            "declared_metadata": {
+              "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+              "source_version": "2026-08-15",
+              "locator": "artikel 1:3 lid 1 Awb",
+              "declared_by": "Codex — P01-uitvoeringscontrole",
+              "declared_at": "2026-09-18T05:41:55.486466+00:00"
+            },
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt"
+          },
+          "used_in_prompt": true
+        },
+        {
+          "source_id": "doc:01e121c20018eed2#87875909",
+          "provider": "documents",
+          "title": "awb-1-3-20260815.txt",
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "version": "2026-08-15",
+          "content_hash": "7680155a53e13eb8845d20ef0cf5b2bdf5cf0833cb58f58be6ae98a12b5cbd1e",
+          "declared_profile": null,
+          "identity": {
+            "declared_metadata": {
+              "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+              "source_version": "2026-08-15",
+              "locator": "artikel 1:3 lid 1 Awb",
+              "declared_by": "Codex — P01-uitvoeringscontrole",
+              "declared_at": "2026-09-18T05:41:55.486466+00:00"
+            },
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt"
+          },
+          "used_in_prompt": true
+        },
+        {
+          "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+          "provider": "documents",
+          "title": "awb-1-3-20260815.txt",
+          "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+          "locator": "artikel 1:3 lid 1 Awb",
+          "version": "2026-08-15",
+          "content_hash": "9ed78d17d3578ebfed1907c79ba50ba7d9c1eead0f425519c17b37e8d9b2ba46",
+          "declared_profile": null,
+          "identity": {
+            "declared_metadata": {
+              "url": "https://wetten.overheid.nl/BWBR0005537/2026-08-15/0?g=2026-09-14&z=2026-09-14#Hoofdstuk1_Titeldeel1.1_Artikel1:3",
+              "source_version": "2026-08-15",
+              "locator": "artikel 1:3 lid 1 Awb",
+              "declared_by": "Codex — P01-uitvoeringscontrole",
+              "declared_at": "2026-09-18T05:41:55.486466+00:00"
+            },
+            "doc_id": "01e121c20018eed2",
+            "filename": "awb-1-3-20260815.txt"
+          },
+          "used_in_prompt": true
+        }
+      ],
+      "parts": {
+        "source_authority": {
+          "status": "pass",
+          "reason": "De bron is de Algemene wet bestuursrecht, artikel 1:3 lid 1, een wet in formele zin — het gezaghebbende en authentieke normstelsel voor het begrip 'besluit' in de bestuursrechtelijke context, precies overeenkomend met de opgegeven wettelijke basis.",
+          "uncertainty": "Peildatum is niet opgegeven; de bronversie is 2026-08-15, waardoor niet toetsbaar is of dit met de bedoelde peildatum overeenkomt.",
+          "evidence": [
+            {
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+              "quote": "Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "locator": "artikel 1:3 lid 1 Awb"
+            }
+          ],
+          "sources": [
+            {
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+              "reason": "Bevat de wettelijke definitie in artikel 1:3 lid 1 Awb, exact het begrip 'besluit'.",
+              "profile": "wet_regelgeving",
+              "applicable": true
+            },
+            {
+              "source_id": "doc:01e121c20018eed2#41952f35",
+              "reason": "Toont de definitietekst van besluit en aangrenzende definities (beschikking, aanvraag) uit artikel 1:3 Awb.",
+              "profile": "wet_regelgeving",
+              "applicable": true
+            },
+            {
+              "source_id": "doc:01e121c20018eed2#4c9fcab0",
+              "reason": "Betreft aanvraag en beleidsregel, niet het begrip besluit zelf.",
+              "profile": "wet_regelgeving",
+              "applicable": false
+            },
+            {
+              "source_id": "doc:01e121c20018eed2#87875909",
+              "reason": "Fragment over aanvraag, niet over besluit.",
+              "profile": "wet_regelgeving",
+              "applicable": false
+            }
+          ]
+        },
+        "semantic_support": {
+          "status": "pass",
+          "reason": "De bronpassage bevat woordelijk dezelfde bepalende kenmerken als de definitie: schriftelijke beslissing, bestuursorgaan en publiekrechtelijke rechtshandeling.",
+          "uncertainty": null,
+          "evidence": [
+            {
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+              "quote": "Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling.",
+              "locator": "artikel 1:3 lid 1 Awb"
+            }
+          ],
+          "claims": [
+            {
+              "aspect": "kenmerk",
+              "text": "schriftelijke beslissing",
+              "supported": true,
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba"
+            },
+            {
+              "aspect": "kenmerk",
+              "text": "van een bestuursorgaan",
+              "supported": true,
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba"
+            },
+            {
+              "aspect": "kenmerk",
+              "text": "inhoudende een publiekrechtelijke rechtshandeling",
+              "supported": true,
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba"
+            }
+          ]
+        },
+        "reference_quality": {
+          "status": "pass",
+          "reason": "De bron is precies vindbaar via vindplaats 'artikel 1:3 lid 1 Awb' en bereikbaar via een bruikbare hyperlink naar wetten.overheid.nl met deeplink naar artikel 1:3.",
+          "uncertainty": "De url bevat versiedatum 2026-08-15 zonder opgegeven peildatum, zodat aansluiting op een beoogde peildatum niet verifieerbaar is.",
+          "evidence": [
+            {
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+              "quote": "Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan:",
+              "locator": "artikel 1:3 lid 1 Awb"
+            }
+          ],
+          "sources": [
+            {
+              "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+              "reason": "Exacte vindplaats artikel 1:3 lid 1 Awb met werkende hyperlink naar het betreffende artikel.",
+              "locatable": true
+            }
+          ]
+        }
+      },
+      "rejected": [],
+      "raw_response_sha256": "54c3512aa235397e9a53a30cda46e75d66536e3ca974c003895a7be85bfe0383",
+      "assessment_receipt": {
+        "version": "1",
+        "max_passage_chars": 4000,
+        "hash_algorithm": "sha256-utf8-hex",
+        "sources": [
+          {
+            "source_id": "doc:01e121c20018eed2#41952f35",
+            "original_content_hash": "69c13eb2aab08e30a504a581c75ab760ddb4997dec54e87ef2395736f5ea02e7",
+            "content": "hriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikking wordt verstaan: een besluit dat niet van algemene strekking is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek",
+            "content_hash": "69c13eb2aab08e30a504a581c75ab760ddb4997dec54e87ef2395736f5ea02e7",
+            "truncated": false,
+            "source_version": "2026-08-15"
+          },
+          {
+            "source_id": "doc:01e121c20018eed2#4c9fcab0",
+            "original_content_hash": "01b081d14b786aa6cdf4daadcd0362829f128122f8e54b7795588c02b790263e",
+            "content": "king is, met inbegrip van de afwijzing van een aanvraag daarvan. 3. Onder aanvraag wordt verstaan: een verzoek van een belanghebbende, een besluit te nemen. 4. Onder beleidsregel wordt verstaan: een bij besluit vastgestelde algemene regel, niet zijnde een algemeen verbindend voorschri",
+            "content_hash": "01b081d14b786aa6cdf4daadcd0362829f128122f8e54b7795588c02b790263e",
+            "truncated": false,
+            "source_version": "2026-08-15"
+          },
+          {
+            "source_id": "doc:01e121c20018eed2#87875909",
+            "original_content_hash": "7680155a53e13eb8845d20ef0cf5b2bdf5cf0833cb58f58be6ae98a12b5cbd1e",
+            "content": "3. Onder aanvraag wordt verstaan: een",
+            "content_hash": "7680155a53e13eb8845d20ef0cf5b2bdf5cf0833cb58f58be6ae98a12b5cbd1e",
+            "truncated": false,
+            "source_version": "2026-08-15"
+          },
+          {
+            "source_id": "doc:01e121c20018eed2#e6f1f8ba",
+            "original_content_hash": "9ed78d17d3578ebfed1907c79ba50ba7d9c1eead0f425519c17b37e8d9b2ba46",
+            "content": "Algemene wet bestuursrecht Artikel 1:3 1. Onder besluit wordt verstaan: een schriftelijke beslissing van een bestuursorgaan, inhoudende een publiekrechtelijke rechtshandeling. 2. Onder beschikki",
+            "content_hash": "9ed78d17d3578ebfed1907c79ba50ba7d9c1eead0f425519c17b37e8d9b2ba46",
+            "truncated": false,
+            "source_version": "2026-08-15"
+          }
+        ]
+      }
+    },
+    "generation_id": "d96266b8-5a44-4578-89b2-f54258f51c7c"
+  },
+  "metadata_keys": [
+    "prompt",
+    "model",
+    "temperature",
+    "tokens_used",
+    "created_at",
+    "definitie_kern_geextraheerd",
+    "definitie_eindtekst",
+    "tekst_na_generatie_aangepast",
+    "source_evidence",
+    "source_evidence_history",
+    "source_proposals"
+  ],
+  "assessment_outcome": {
+    "source_authority": "pass",
+    "semantic_support": "pass",
+    "reference_quality": "pass"
+  },
+  "reviewed_code": "503bbe04d0804e774748784166a93f82c21c873c",
+  "runtime": "/private/tmp/DEF-808-809-runtime-20260918-v2",
+  "browser_readback": {
+    "separate_tab": "6",
+    "assessment_time": "2026-09-18T05:42:50.557664+00:00",
+    "CON-02": "Voldoet",
+    "authority": "voldoet",
+    "semantic_support": "voldoet",
+    "reference_quality": "voldoet",
+    "receipt_bound": true,
+    "sort_workaround": "Begrip A-Z (DEF-805)"
+  }
+}
