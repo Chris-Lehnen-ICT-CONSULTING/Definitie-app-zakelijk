@@ -115,6 +115,28 @@ def bindingsafwijzing_beoordeling(
     return None
 
 
+def _neem_sessiebeoordeling_op(
+    assessment: Mapping[str, Any] | None,
+    definition: Definition,
+    geladen_metadata: Mapping[str, Any] | None,
+) -> tuple[bool, str | None]:
+    """Zet een bindende sessiebeoordeling als actueel bewijs op de kandidaat.
+
+    Geeft (opgenomen, reden-waarom-niet). Zonder beoordeling: (False, None).
+    Bindt zij niet (`bindingsafwijzing_beoordeling`), dan blijft de metadata
+    onaangeroerd en is de reden de melding voor de UI.
+    """
+    if assessment is None:
+        return False, None
+    reden = bindingsafwijzing_beoordeling(assessment, definition, geladen_metadata)
+    if reden is not None:
+        return False, reden
+    if definition.metadata is None:
+        definition.metadata = {}
+    definition.metadata["source_assessment"] = deepcopy(dict(assessment))
+    return True, None
+
+
 def _als_mapping(waarde: Any) -> Mapping[str, Any]:
     """Typegetrouwe vernauwing: een mapping, anders een lege mapping."""
     return waarde if isinstance(waarde, Mapping) else {}
@@ -364,19 +386,9 @@ class DefinitionEditService:
 
             # DEF-809: de sessiebeoordeling als actueel bewijs, uitsluitend bij
             # exacte binding aan de kandidaat die nu wordt opgeslagen.
-            beoordeling_reden: str | None = None
-            beoordeling_bewaard = False
-            if source_assessment is not None:
-                beoordeling_reden = bindingsafwijzing_beoordeling(
-                    source_assessment, updated_definition, current.metadata
-                )
-                if beoordeling_reden is None:
-                    if updated_definition.metadata is None:
-                        updated_definition.metadata = {}
-                    updated_definition.metadata["source_assessment"] = deepcopy(
-                        dict(source_assessment)
-                    )
-                    beoordeling_bewaard = True
+            beoordeling_bewaard, beoordeling_reden = _neem_sessiebeoordeling_op(
+                source_assessment, updated_definition, current.metadata
+            )
 
             # Validate if requested
             validation_results = None

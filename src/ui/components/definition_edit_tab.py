@@ -1237,6 +1237,61 @@ class DefinitionEditTab:
         else:
             st.error(f"❌ {bericht}")
 
+    @classmethod
+    def _bronmetadata_actor(cls) -> str | None:
+        """De handelende gebruiker voor de bronmetadata-sectie.
+
+        Het naamveld hangt af van de ándere identiteitsbronnen, nooit van zijn
+        eigen waarde: een widget dat verdwijnt zodra zijn waarde is gevonden,
+        wordt door Streamlit bij de eerstvolgende rerun opgeruimd (naam weg,
+        knop weer uit — browserbevinding 18-09-2026). Zolang er geen bestaande
+        identiteit is, blijft het veld dus staan.
+        """
+        actor = cls._bekende_gebruiker()
+        if actor is not None:
+            return actor
+        ingevoerd = st.text_input(
+            "Reviewer naam (vereist voor vastleggen)",
+            key="edit_bronmeta_reviewer_name_input",
+        )
+        if isinstance(ingevoerd, str) and ingevoerd.strip():
+            return ingevoerd.strip()
+        return None
+
+    @staticmethod
+    def _toon_huidige_opgave(gekozen: dict[str, Any] | None) -> None:
+        """De huidige (eerder opgegeven) coördinaten van het gekozen document."""
+        if gekozen is None:
+            return
+        opgave = gekozen["declared"]
+        herkomst = (
+            f" (opgegeven door {opgave.get('declared_by') or 'onbekend'} op "
+            f"{opgave.get('declared_at') or 'onbekend tijdstip'})"
+            if opgave
+            else " (nog niets opgegeven)"
+        )
+        st.caption(
+            f"Huidige opgave bij {gekozen['filename']}: "
+            f"url: {gekozen['url'] or 'geen'} · versie: "
+            f"{gekozen['source_version'] or 'onbekend'} · vindplaats: "
+            f"{gekozen['locator'] or 'onbekend'}{herkomst}"
+        )
+
+    @staticmethod
+    def _bronmetadata_hulp(
+        *, alleen_lezen: bool, actor: str | None, gekozen: Any, ingevuld: bool
+    ) -> str | None:
+        """Waarom de vastlegknop uit staat (help-tekst), of None als hij aan mag."""
+        if alleen_lezen:
+            return "Alleen-lezen status: geen aanvulling mogelijk"
+        if not actor:
+            return "Vul eerst een reviewer naam in"
+        if gekozen is None:
+            return "Kies een document"
+        if not ingevuld:
+            return "Geef minstens een hyperlink, bronversie of vindplaats op"
+        return None
+
     def _render_bronmetadata_section(self, definition: Any) -> None:
         """Opgegeven hyperlink, bronversie en exacte vindplaats aanvullen op de
         documentbronnen van het OPGESLAGEN record (DEF-808), zodat een bestaand
@@ -1272,22 +1327,7 @@ class DefinitionEditTab:
                     "geüpload document om metadata bij op te geven."
                 )
                 return
-            # Het naamveld hangt af van de ándere identiteitsbronnen, nooit van
-            # zijn eigen waarde: een widget dat verdwijnt zodra zijn waarde is
-            # gevonden, wordt door Streamlit bij de eerstvolgende rerun
-            # opgeruimd (naam weg, knop weer uit — browserbevinding 18-09-2026).
-            # Zolang er geen bestaande identiteit is, blijft het veld dus staan.
-            actor = self._bekende_gebruiker()
-            if actor is None:
-                ingevoerd = st.text_input(
-                    "Reviewer naam (vereist voor vastleggen)",
-                    key="edit_bronmeta_reviewer_name_input",
-                )
-                actor = (
-                    ingevoerd.strip()
-                    if isinstance(ingevoerd, str) and ingevoerd.strip()
-                    else None
-                )
+            actor = self._bronmetadata_actor()
             doc_ids = list(documenten)
             keuze = st.selectbox(
                 "Document uit de opgeslagen bronset",
@@ -1299,20 +1339,7 @@ class DefinitionEditTab:
                 key=f"{k}_doc",
             )
             gekozen = documenten.get(str(keuze)) if keuze else None
-            if gekozen is not None:
-                opgave = gekozen["declared"]
-                herkomst = (
-                    f" (opgegeven door {opgave.get('declared_by') or 'onbekend'} op "
-                    f"{opgave.get('declared_at') or 'onbekend tijdstip'})"
-                    if opgave
-                    else " (nog niets opgegeven)"
-                )
-                st.caption(
-                    f"Huidige opgave bij {gekozen['filename']}: "
-                    f"url: {gekozen['url'] or 'geen'} · versie: "
-                    f"{gekozen['source_version'] or 'onbekend'} · vindplaats: "
-                    f"{gekozen['locator'] or 'onbekend'}{herkomst}"
-                )
+            self._toon_huidige_opgave(gekozen)
             url = st.text_input(
                 "Hyperlink (http(s); een interne link volstaat)", key=f"{k}_url"
             )
@@ -1323,17 +1350,12 @@ class DefinitionEditTab:
             vindplaats = st.text_input(
                 "Exacte vindplaats (bv. artikel 1:3 lid 1 Awb)", key=f"{k}_vindplaats"
             )
-            ingevuld = any(str(v or "").strip() for v in (url, versie, vindplaats))
-            alleen_lezen = meta.get("status") in ("established", "archived")
-            hulp = None
-            if alleen_lezen:
-                hulp = "Alleen-lezen status: geen aanvulling mogelijk"
-            elif not actor:
-                hulp = "Vul eerst een reviewer naam in"
-            elif gekozen is None:
-                hulp = "Kies een document"
-            elif not ingevuld:
-                hulp = "Geef minstens een hyperlink, bronversie of vindplaats op"
+            hulp = self._bronmetadata_hulp(
+                alleen_lezen=meta.get("status") in ("established", "archived"),
+                actor=actor,
+                gekozen=gekozen,
+                ingevuld=any(str(v or "").strip() for v in (url, versie, vindplaats)),
+            )
             if st.button(
                 "🔗 Bronmetadata vastleggen (als opgegeven)",
                 key=f"{k}_vastleggen",
@@ -1883,6 +1905,24 @@ class DefinitionEditTab:
                 f"Probeer de pagina te verversen."
             )
 
+    @staticmethod
+    def _meld_bronbeoordeling_bij_opslaan(
+        result: dict[str, Any], sessiebeoordeling: dict[str, Any] | None
+    ) -> None:
+        """DEF-809: wat er bij Opslaan met de sessiebeoordeling is gebeurd —
+        opgeslagen als actueel bewijs, of benoemd waarom niet (nooit stil)."""
+        if result.get("source_assessment_persisted"):
+            st.success(
+                "✅ Bronbeoordeling van de laatste toetsing opgeslagen bij de "
+                "actuele tekst en context (herkenbaar als AI-beoordeling; "
+                "geen vaststelling)."
+            )
+        elif sessiebeoordeling is not None and result.get("source_assessment_reason"):
+            st.warning(
+                "⚠️ Bronbeoordeling van de laatste toetsing niet opgeslagen: "
+                f"{result['source_assessment_reason']}."
+            )
+
     def _save_definition(self) -> None:
         """Save the edited definition."""
         try:
@@ -1969,19 +2009,7 @@ class DefinitionEditTab:
 
             if result["success"]:
                 st.success("✅ Definitie opgeslagen!")
-                if result.get("source_assessment_persisted"):
-                    st.success(
-                        "✅ Bronbeoordeling van de laatste toetsing opgeslagen bij de "
-                        "actuele tekst en context (herkenbaar als AI-beoordeling; "
-                        "geen vaststelling)."
-                    )
-                elif sessiebeoordeling is not None and result.get(
-                    "source_assessment_reason"
-                ):
-                    st.warning(
-                        "⚠️ Bronbeoordeling van de laatste toetsing niet opgeslagen: "
-                        f"{result['source_assessment_reason']}."
-                    )
+                self._meld_bronbeoordeling_bij_opslaan(result, sessiebeoordeling)
 
                 # Show validation results if available
                 if result.get("validation"):
