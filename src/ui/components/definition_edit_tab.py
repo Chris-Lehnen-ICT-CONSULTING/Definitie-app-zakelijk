@@ -1039,18 +1039,34 @@ class DefinitionEditTab:
     # DEF-743: bronbasis (CON-02) en handmatig verbetervoorstel op verzoek
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _handelende_gebruiker() -> str | None:
-        """Bestaande gebruikersidentiteit (sessie-`user`, reviewer naam); nooit verzonnen."""
-        for sleutel in (
-            "user",
-            "edit_reviewer_name_input",
-            "edit_bronmeta_reviewer_name_input",
-            "reviewer_name_input",
-        ):
+    #: Bestaande identiteitsbronnen buiten het eigen naamveld van de
+    #: bronmetadata-sectie: de ingelogde gebruiker en de reviewer naam uit de
+    #: voorstel- en expertsectie.
+    _BEKENDE_IDENTITEITSSLEUTELS: tuple[str, ...] = (
+        "user",
+        "edit_reviewer_name_input",
+        "reviewer_name_input",
+    )
+
+    @classmethod
+    def _bekende_gebruiker(cls) -> str | None:
+        """Bestaande gebruikersidentiteit zónder het eigen naamveld van de
+        bronmetadata-sectie; nooit verzonnen."""
+        for sleutel in cls._BEKENDE_IDENTITEITSSLEUTELS:
             waarde = SessionStateManager.get_value(sleutel)
             if isinstance(waarde, str) and waarde.strip():
                 return waarde.strip()
+        return None
+
+    @classmethod
+    def _handelende_gebruiker(cls) -> str | None:
+        """Bestaande gebruikersidentiteit (sessie-`user`, reviewer naam); nooit verzonnen."""
+        bekend = cls._bekende_gebruiker()
+        if bekend is not None:
+            return bekend
+        waarde = SessionStateManager.get_value("edit_bronmeta_reviewer_name_input")
+        if isinstance(waarde, str) and waarde.strip():
+            return waarde.strip()
         return None
 
     @staticmethod
@@ -1223,13 +1239,22 @@ class DefinitionEditTab:
                     "geüpload document om metadata bij op te geven."
                 )
                 return
-            actor = self._handelende_gebruiker()
-            if not actor:
-                st.text_input(
+            # Het naamveld hangt af van de ándere identiteitsbronnen, nooit van
+            # zijn eigen waarde: een widget dat verdwijnt zodra zijn waarde is
+            # gevonden, wordt door Streamlit bij de eerstvolgende rerun
+            # opgeruimd (naam weg, knop weer uit — browserbevinding 18-09-2026).
+            # Zolang er geen bestaande identiteit is, blijft het veld dus staan.
+            actor = self._bekende_gebruiker()
+            if actor is None:
+                ingevoerd = st.text_input(
                     "Reviewer naam (vereist voor vastleggen)",
                     key="edit_bronmeta_reviewer_name_input",
                 )
-                actor = self._handelende_gebruiker()
+                actor = (
+                    ingevoerd.strip()
+                    if isinstance(ingevoerd, str) and ingevoerd.strip()
+                    else None
+                )
             doc_ids = list(documenten)
             keuze = st.selectbox(
                 "Document uit de opgeslagen bronset",
