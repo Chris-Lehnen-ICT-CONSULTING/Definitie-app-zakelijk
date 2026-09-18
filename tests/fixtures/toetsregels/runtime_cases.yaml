@@ -289,18 +289,18 @@ ESS-01:
     tekst: "subsidie: bijdrage om te stimuleren"
 
 ESS-03:
-  required_fields: []
-  negatief:
-    begrip: registratie
-    tekst: "vastlegging van feiten over personen"
-    verwacht_in_melding: "uniek identificatiecriterium"
-  positief:
+  required_fields: [herkenbaar_patronen]
+  issue: DEF-766
+  reden: >
+    eenheid en identiteit zijn een inhoudelijk oordeel (DEF-766); de oude
+    woordindicator liet "Object met een nummer", een ontkende uniciteitsclaim
+    en een ISBN-exemplaar slagen en keurde een natuurlijke grens, een
+    stoflezing en "registratienummer" af. De probe is de oude positieve case:
+    een uniek volgnummer zonder scope of referentsoort — vroeger een pass,
+    nu een te beoordelen claim.
+  probe:
     begrip: registratie
     tekst: "vastlegging met een uniek volgnummer per geval"
-  grens:
-    begrip: registratie
-    tekst: "vastlegging met uniekheid"
-    verwacht: violation
 
 ESS-04:
   required_fields: [herkenbaar_patronen]

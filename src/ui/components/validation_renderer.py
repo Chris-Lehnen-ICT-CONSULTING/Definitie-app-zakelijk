@@ -348,9 +348,11 @@ class ValidationRenderer:
             # DEF-750: ESS-02 is reviewplichtig en komt nooit meer als
             # geslaagde regel binnen; de oude pass-verklaring "eenduidige
             # ontologische marker aanwezig" was geen inhoudelijke grond.
+            # DEF-766: idem ESS-03 — "vereist element herkend" was een
+            # woordtreffer, geen bewijs dat instanties te onderscheiden zijn.
             if rid == "CON-01":
                 return "Context niet letterlijk benoemd; geen duplicaat gedetecteerd."
-            if rid in {"ESS-03", "ESS-04", "ESS-05"}:
+            if rid in {"ESS-04", "ESS-05"}:
                 return "Vereist element herkend (heuristiek)."
         except (KeyError, TypeError, re.error) as e:
             # DEF-246: Log pass reason computation failure

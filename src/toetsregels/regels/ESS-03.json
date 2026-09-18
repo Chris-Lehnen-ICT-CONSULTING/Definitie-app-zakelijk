@@ -1,22 +1,22 @@
 {
   "id": "ESS_03",
   "naam": "Instanties uniek onderscheidbaar (telbaarheid)",
-  "uitleg": "Een definitie moet criterium(en) bevatten waarmee afzonderlijke instanties uniek herkenbaar en telbaar zijn (singulariteit of pluraliteit).",
-  "toelichting": "Bij telbare zelfstandige naamwoorden moet de definitie unieke kenmerken of identificatoren noemen (zoals serienummer, kenteken, VIN, ISBN, document-ID, inventarisnummer), zodat verschillende deskundigen in elke situatie tot exact dezelfde telling komen.",
-  "toetsvraag": "Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?",
+  "uitleg": "Wanneer een begrip in de bedoelde betekenis afzonderlijke instanties aanduidt, maakt de definitiekern voldoende duidelijk wat als één instantie geldt en waardoor verschillende instanties van elkaar worden onderscheiden. Dit kan blijken uit het bovenbegrip en begripsbepalende kenmerken; een administratieve identifier is niet verplicht.",
+  "toelichting": "De definitie moet onafhankelijke materiedeskundigen bij dezelfde bedoelde betekenis, relevante informatie en context een eenduidige telling mogelijk maken. Beoordeel de bedoelde eenheid en de relevante grenzen in de vastgelegde context. Waar identiteit of voortbestaan afhangt van een domeinconventie, moeten de noodzakelijke voorwaarden kenbaar en onderbouwd zijn. Vraag alleen de tijd-, scope-, bron- of geheel/deelinformatie die daarvoor nodig is. Een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Een identifier is uitsluitend bruikbaar voor de referentsoort, naamruimte en geldigheidsvoorwaarden waarvoor zijn identificerende werking is onderbouwd. ASTRA noemt substanties (zoals zand en cocaïne) en verschijnselen (zoals regen, onweer en recidive) als voorbeelden waarvoor de niet-telbare lezing is uitgezonderd. Een niet-telbare lezing verplicht niet tot het invoeren van monsters, porties of registraties. Een expliciet afgebakende hoeveelheid of gebeurtenis kan wel telbaar zijn; een categorielabel bepaalt de toepasselijkheid niet. Uiteenlopende tellingen kunnen ook door homonymie, polysemie of contextverschil ontstaan; onderzoek de oorzaak vóór een negatief inhoudelijk oordeel. Ontbrekende gegevens, een onbeslist inhoudelijk oordeel en een technische fout zijn geen bewezen overtreding. Voorbeelden en toelichting ondersteunen het oordeel, maar vervangen geen noodzakelijke begripsafbakening in de kern. Normherkomst en lokale uitwerking gescheiden: het interbeoordelaarsdoel, de niet-telbare uitzondering, de betekenisdivergentie en de contextrelatie komen uit de gelezen ASTRA-pagina (18 september 2026, aangeboden revisie 8546); de proportionaliteit, bewijsvoorwaarden en continuïteitsuitwerking zijn het lokale operationaliseringsvoorstel uit het ESS-03-onderzoek (DEF-766).",
+  "toetsvraag": "Is bij deze betekenis duidelijk wat als één, dezelfde of een andere instantie geldt, met voldoende grond voor de relevante eenheidsgrens en eventuele continuïteitsconventie?",
   "herkenbaar_patronen": [
     "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b",
     "\\buniek(e)?\\b"
   ],
   "goede_voorbeelden": [
-    "Een auto is een vierwielig motorvoertuig met een uniek chassisnummer (VIN) en kenteken."
+    "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven."
   ],
   "foute_voorbeelden": [
-    "Een auto is een vervoermiddel op vier wielen met een motor."
+    "Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke exemplaren wordt onderscheiden."
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",
-  "geldigheid": "telbare zelfstandige naamwoorden",
+  "geldigheid": "Betekenissen waarbij afzonderlijke instanties worden onderscheiden; toepasselijkheid op grond van bedoelde eenheid, niet op een woord, categorielabel of verplichte code.",
   "status": "definitief",
   "type": "essentie",
   "thema": "telbaarheid en onderscheidbaarheid",
@@ -25,16 +25,23 @@
     {
       "fulltext": "Instanties uniek onderscheidbaar",
       "fullurl": "https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar"
+    },
+    {
+      "fulltext": "Eigen definitie voor elke context",
+      "fullurl": "https://www.astraonline.nl/index.php/Eigen_definitie_voor_elke_context"
     }
   ],
   "runtime_contract": {
-    "evaluator": "positive_indicator",
+    "evaluator": "judgment_review",
     "required_inputs": [
-      "definition_text"
+      "definition_text",
+      "term"
     ],
-    "executability": "deterministic",
-    "automation_status": "automated",
-    "score_policy": "scored",
-    "example_pair_policy": "normative"
+    "executability": "judgment",
+    "automation_status": "review_required",
+    "score_policy": "no_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "Telbaarheid en individuatie vragen inhoudelijk oordeel; de vervangen woordindicator miste genoemde samenstellingen en accepteerde losse woorden zonder voldoende identiteitsbewijs. Het paar is synthetisch en onderdeelgericht (N05: natuurlijke grens zonder code; N04/P05: een ISBN bindt titel, editie en vorm, niet het fysieke exemplaar), geen deskundig gevalideerde goldset.",
+    "example_pair_issue": "DEF-766"
   }
 }

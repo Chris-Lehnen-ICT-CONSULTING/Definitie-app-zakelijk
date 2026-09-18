@@ -1931,10 +1931,13 @@ class ModularValidationService:
         # DEF-743: de CON-02-suggestie "voeg 'volgens'/'conform' toe" is
         # vervallen — een bronwoord is geen bron. CON-02 bouwt zijn eigen,
         # oorzaakafhankelijke suggestie in de source_evidence-evaluator.
-        if reason == "unique_id" and c == "ESS-03":
-            return (
-                "Voeg een uniek identificatiecriterium toe (nummer/code/registratie)."
-            )
+        # DEF-766: de ESS-03-suggestie "voeg een uniek identificatiecriterium
+        # toe (nummer/code/registratie)" is vervallen — een nummer is geen
+        # bewijs van individuatie en kan een natuurlijke grens juist
+        # vernauwen (casus N23). ESS-03 levert geen violation meer maar een
+        # reviewreden (`JudgmentReviewEvaluator._ess03_reden`); herstel volgt
+        # alleen op verzoek na oorzaakbepaling, nooit als automatische
+        # codeopdracht.
         if reason == "testable" and c == "ESS-04":
             return "Maak een objectief toetsbaar element expliciet (bijv. termijn of meetbare grens)."
         if reason == "distinguishing" and c == "ESS-05":
