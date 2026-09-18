@@ -37,6 +37,7 @@ def test_csv_import_uses_db_repository_contract():
                 "begrip": "Testbegrip",
                 "definitie": "Een testdefinitie",
                 "context": "Algemeen",
+                "categorie": "type",
             }
         ]
     )

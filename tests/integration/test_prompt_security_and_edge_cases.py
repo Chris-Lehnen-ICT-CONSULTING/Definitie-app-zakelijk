@@ -206,25 +206,63 @@ class TestPromptEdgeCases:
         assert all(p == prompts[0] for p in prompts)
 
     def test_circular_context_references(self):
-        """Test handling of circular references in context."""
-        # Create context with self-referential data
-        context = EnrichedContext(
-            base_context={
-                "organisatorisch": ["DJI", "Verwijst naar DJI"],
-                "domein": ["Rechtspraak binnen DJI context"],
-            },
-            sources=[],
-            expanded_terms={"DJI": "Dienst Justitiële Inrichtingen van DJI"},
-            confidence_scores={},
-            metadata={"ontologische_categorie": "proces"},
-        )
+        """Zelfverwijzende context wordt begrensd en niet herhaald uitgebreid.
 
-        builder = ModularPromptBuilder()
-        prompt = builder.build_prompt("test", context, UnifiedGeneratorConfig())
+        De oude assertie `len(prompt) < 25000` was geen begrenzingsbewijs maar
+        een absolute maat die met de gereviewde promptgroei (ESS-01/ESS-02/
+        CON-02/C3-instructies, ~26,4K zónder de circulaire delen) verouderde.
+        Hier wordt de werkelijke eigenschap getoetst: de circulaire invoer
+        komt een begrensd aantal keren letterlijk terug (contextblok +
+        promptmetadata), de afkorting wordt niet recursief uitgebreid, de bouw
+        is deterministisch en de groei ten opzichte van dezelfde context
+        zonder de circulaire delen is hoogstens de letterlijke tekst plus
+        opmaak. Het productiebudget (`PromptComponentConfig.max_prompt_length`)
+        blijft de enige absolute grens.
+        """
+        zelfverwijzend = {
+            "org": "Verwijst naar DJI",
+            "domein": "Rechtspraak binnen DJI context",
+            "afkorting": "Dienst Justitiële Inrichtingen van DJI",
+        }
 
-        # Should handle without infinite loops
+        def bouw(circulair: bool) -> str:
+            context = EnrichedContext(
+                base_context={
+                    "organisatorisch": (
+                        ["DJI", zelfverwijzend["org"]] if circulair else ["DJI"]
+                    ),
+                    **({"domein": [zelfverwijzend["domein"]]} if circulair else {}),
+                },
+                sources=[],
+                expanded_terms=(
+                    {"DJI": zelfverwijzend["afkorting"]} if circulair else {}
+                ),
+                confidence_scores={},
+                metadata={"ontologische_categorie": "proces"},
+            )
+            return ModularPromptBuilder().build_prompt(
+                "test", context, UnifiedGeneratorConfig()
+            )
+
+        prompt = bouw(circulair=True)
         assert prompt is not None
-        assert len(prompt) < 25000  # Reasonable size
+        # Deterministisch: een tweede bouw groeit niet.
+        assert bouw(circulair=True) == prompt
+        # Begrensd: elk zelfverwijzend deel hoogstens tweemaal letterlijk
+        # (contextblok en promptmetadata), de afkorting precies één keer en
+        # nooit recursief op zichzelf toegepast.
+        assert 1 <= prompt.count(zelfverwijzend["org"]) <= 2
+        assert prompt.count(zelfverwijzend["domein"]) == 1
+        assert prompt.count(zelfverwijzend["afkorting"]) == 1
+        assert "Inrichtingen van Dienst Justitiële" not in prompt
+        # Groei t.o.v. dezelfde context zonder circulaire delen: hoogstens de
+        # letterlijke tekst (twee voorkomens) plus opmaak; één extra herhaling
+        # van de set zou deze grens al overschrijden.
+        basis = bouw(circulair=False)
+        toegevoegd = sum(len(v) for v in zelfverwijzend.values())
+        assert 0 < len(prompt) - len(basis) <= 2 * toegevoegd + 100
+        # Het geldende productiebudget is de absolute grens, geen losse maat.
+        assert len(prompt) <= PromptComponentConfig().max_prompt_length
 
 
 class TestPromptPerformance:

@@ -429,8 +429,10 @@ class WorkflowService:
         new_category: str,
         current_definition: str,
         begrip: str,
-        user: str = "web_user",
+        user: str | None = None,
         reason: str = "Handmatige aanpassing via UI",
+        *,
+        expected_version: int | None = None,
     ) -> CategoryChangeResult:
         """
         Orchestreer complete category change workflow volgens SA architectuur.
@@ -451,8 +453,12 @@ class WorkflowService:
             new_category: Nieuwe categorie
             current_definition: Huidige definitie tekst
             begrip: Het begrip
-            user: Gebruiker die wijziging uitvoert
+            user: Bestaande lokale identiteit van de gebruiker, of None
+                (DEF-751 B2: geen verzonnen "web_user"; de keuze blijft dan
+                ongeattribueerd)
             reason: Reden voor wijziging
+            expected_version: Recordversie van de getoonde kandidaat; verplicht
+                zodra `definition_id` is gezet (DEF-751 B2, reviewbevinding 3)
 
         Returns:
             CategoryChangeResult met instructies voor UI
@@ -470,8 +476,23 @@ class WorkflowService:
                     error="Geen wijziging",
                 )
 
-            # Stap 2: Update database indien nodig
+            # Stap 2: Update database. DEF-751 B2 (herreview 3): zonder
+            # opgeslagen record is er niets om op toe te passen — geen
+            # succeslabel zonder bevestigde opslag.
             actual_old_category = old_category
+            if not definition_id:
+                return CategoryChangeResult(
+                    success=False,
+                    message=(
+                        "De definitie is nog niet opgeslagen; de categorie kan pas "
+                        "na opslag worden toegepast"
+                    ),
+                    action=WorkflowAction.SHOW_ERROR,
+                    old_category=old_category,
+                    new_category=new_category,
+                    requires_regeneration=False,
+                    error="definition_id ontbreekt",
+                )
             if definition_id:
                 # Delegeer naar CategoryService voor database update
                 # Dit is waar we normaal dependency injection zouden gebruiken
@@ -481,8 +502,27 @@ class WorkflowService:
                 repo = get_definitie_repository()
                 category_service = CategoryService(repo)
 
+                if not isinstance(expected_version, int) or isinstance(
+                    expected_version, bool
+                ):
+                    return CategoryChangeResult(
+                        success=False,
+                        message=(
+                            "Categoriewijziging vereist de versie van de getoonde "
+                            "definitie"
+                        ),
+                        action=WorkflowAction.SHOW_ERROR,
+                        old_category=old_category,
+                        new_category=new_category,
+                        requires_regeneration=False,
+                        error="expected_version ontbreekt",
+                    )
                 update_result = category_service.update_category_v2(
-                    definition_id, new_category, user=user, reason=reason
+                    definition_id,
+                    new_category,
+                    user=user,
+                    reason=reason,
+                    expected_version=expected_version,
                 )
 
                 if not update_result.success:

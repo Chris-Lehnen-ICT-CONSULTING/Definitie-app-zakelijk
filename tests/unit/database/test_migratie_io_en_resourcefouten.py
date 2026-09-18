@@ -435,7 +435,9 @@ class TestOnleesbaarCanoniekSchema:
     def test_bestaande_database_geeft_typed_fout(self, tmp_path, monkeypatch):
         from database import schema_contract
 
-        pad = bouw_profiel(tmp_path / "v3.db", 3)
+        # DEF-751: canoniek is versie 4; een lagere versie strandt eerder op
+        # `schema_version_outdated` en zou dit pad niet bereiken.
+        pad = bouw_profiel(tmp_path / "v4.db", 4)
         monkeypatch.setattr(
             schema_contract, "SCHEMA_PATH", tmp_path / "canoniek-bestaat-niet.sql"
         )

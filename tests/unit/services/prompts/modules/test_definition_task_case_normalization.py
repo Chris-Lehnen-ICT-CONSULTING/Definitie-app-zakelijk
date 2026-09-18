@@ -24,20 +24,25 @@ class TestCategoryCaseNormalization:
         # Alle case-varianten produceren identieke checklist-output.
         assert upper == lower
         assert mixed == lower
-        # En de focus-regel verschijnt canoniek lowercase.
-        assert "🎯 Focus: Dit is een **proces** (activiteit/handeling)" in lower
+        # En de focus-regel verschijnt canoniek lowercase. DEF-750: de
+        # opgegeven categorie is een te controleren betekenisclaim, geen
+        # exclusieve klasse ("Dit is een ...") en geen woordplicht.
+        assert "🎯 Focus: opgegeven categorie **proces** (activiteit als kern)" in lower
 
     def test_each_known_category_gets_focus_line(self):
         module = DefinitionTaskModule()
         hints = {
-            "proces": "activiteit/handeling",
-            "type": "soort/categorie",
-            "resultaat": "uitkomst/gevolg",
-            "exemplaar": "specifiek geval",
+            "proces": "activiteit als kern",
+            "type": "algemeen begrip; benoem een passend genus",
+            "resultaat": "uitkomst als kern",
+            "exemplaar": "één bepaald ding of voorval",
         }
         for categorie, hint in hints.items():
             checklist = module._build_checklist(categorie.upper())
-            assert f"🎯 Focus: Dit is een **{categorie}** ({hint})" in checklist
+            assert (
+                f"🎯 Focus: opgegeven categorie **{categorie}** ({hint})" in checklist
+            )
+            assert "te controleren betekenisclaim" in checklist
 
     def test_unknown_category_has_no_focus_line(self):
         module = DefinitionTaskModule()

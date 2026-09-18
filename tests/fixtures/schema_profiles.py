@@ -39,6 +39,15 @@ SENTINEL_PROMPT = '{"prompt": "sentinel-DEF-664", "model": "test", "tokens_used"
 SENTINEL_CONTEXT = '["DJI", "OM"]'
 SENTINEL_WETTELIJK = '["Awb", "Sv"]'
 
+# DEF-751 (v8): profiel 3 heeft `categorie NOT NULL`; SQLite kan dat niet
+# declaratief terugzetten, dus de fixture zet die ene kolomdefinitie in de
+# schematekst terug (eigen tekst, geen import uit het contract: geen spiegel).
+_CATEGORIE_V4 = "categorie VARCHAR(50) CHECK (categorie IN ("
+_CATEGORIE_V3 = "categorie VARCHAR(50) NOT NULL CHECK (categorie IN ("
+_NAAR_VERSIE_3 = """
+DELETE FROM schema_version WHERE version = 4;
+"""
+
 _NAAR_VERSIE_2 = """
 ALTER TABLE rag_collections ADD COLUMN document_count INTEGER DEFAULT 0;
 ALTER TABLE rag_collections ADD COLUMN chunk_count INTEGER DEFAULT 0;
@@ -181,13 +190,24 @@ HERLEES_QUERIES: dict[str, str] = {
 }
 
 
+def schema_tekst_voor_profiel(versie: int | None) -> str:
+    """De schematekst in de vorm van profiel ``versie`` (< 4: `categorie NOT NULL`)."""
+    schema_sql = SCHEMA_SQL_PATH.read_text(encoding="utf-8")
+    if versie is not None and versie >= 4:
+        return schema_sql
+    assert schema_sql.count(_CATEGORIE_V4) == 1, "schema.sql: categorie-definitie"
+    return schema_sql.replace(_CATEGORIE_V4, _CATEGORIE_V3)
+
+
 def bouw_profiel(pad: Path, versie: int | None) -> Path:
     """Bouw op ``pad`` een database in de vorm van schemaversie ``versie``."""
-    if versie is not None and versie not in (1, 2, 3):
+    if versie is not None and versie not in (1, 2, 3, 4):
         raise ValueError(f"onbekend profiel: {versie!r}")
     conn = sqlite3.connect(str(pad))
     try:
-        conn.executescript(SCHEMA_SQL_PATH.read_text(encoding="utf-8"))
+        conn.executescript(schema_tekst_voor_profiel(versie))
+        if versie is None or versie < 4:
+            conn.executescript(_NAAR_VERSIE_3)
         if versie is None or versie < 3:
             conn.executescript(_NAAR_VERSIE_2)
         if versie is None or versie < 2:

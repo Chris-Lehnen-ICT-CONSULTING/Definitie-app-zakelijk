@@ -85,13 +85,24 @@ def test_process_import_skips_rows_with_empty_required_values():
     importer, repo = _make_importer()
     df = pd.DataFrame(
         [
-            {"begrip": "", "definitie": "Heeft definitie", "context": "Algemeen"},
+            {
+                "begrip": "",
+                "definitie": "Heeft definitie",
+                "context": "Algemeen",
+                "categorie": "type",
+            },
             {
                 "begrip": "Geldig",
                 "definitie": "Geldige definitie",
                 "context": "Algemeen",
+                "categorie": "type",
             },
-            {"begrip": "Mist definitie", "definitie": "", "context": "Algemeen"},
+            {
+                "begrip": "Mist definitie",
+                "definitie": "",
+                "context": "Algemeen",
+                "categorie": "type",
+            },
         ]
     )
 
@@ -107,8 +118,18 @@ def test_process_import_handles_nan_required_values():
     importer, repo = _make_importer()
     df = pd.DataFrame(
         [
-            {"begrip": None, "definitie": "x", "context": "Algemeen"},
-            {"begrip": "Geldig", "definitie": "y", "context": "Algemeen"},
+            {
+                "begrip": None,
+                "definitie": "x",
+                "context": "Algemeen",
+                "categorie": "type",
+            },
+            {
+                "begrip": "Geldig",
+                "definitie": "y",
+                "context": "Algemeen",
+                "categorie": "type",
+            },
         ]
     )
 
@@ -124,8 +145,18 @@ def test_process_import_continues_after_row_error():
     repo.create_definitie.side_effect = [RuntimeError("db kapot"), 2]
     df = pd.DataFrame(
         [
-            {"begrip": "Rij1", "definitie": "def1", "context": "Algemeen"},
-            {"begrip": "Rij2", "definitie": "def2", "context": "Algemeen"},
+            {
+                "begrip": "Rij1",
+                "definitie": "def1",
+                "context": "Algemeen",
+                "categorie": "type",
+            },
+            {
+                "begrip": "Rij2",
+                "definitie": "def2",
+                "context": "Algemeen",
+                "categorie": "type",
+            },
         ]
     )
 
@@ -189,6 +220,7 @@ def test_process_import_caps_field_length():
                 "begrip": "b" * (_MAX_FIELD_LENGTH + 100),
                 "definitie": "d" * (_MAX_FIELD_LENGTH + 100),
                 "context": "Algemeen",
+                "categorie": "type",
             }
         ]
     )

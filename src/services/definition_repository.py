@@ -36,6 +36,9 @@ from database.models import (
     serialiseer_generatieregistratie,
     splits_definitietekst,
 )
+from domain.categorie_herkomst import (
+    lees_keuze_invoer,
+)
 from domain.context.normalisatie import (
     canoniseer_contextlijst,
     contextsleutel,
@@ -133,6 +136,14 @@ def _voeg_bewijsinvoer_toe(
     bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
     if bewijsinvoer is not None:
         updates["source_evidence"] = bewijsinvoer
+
+
+#: DEF-751 B2: de invoersleutel voor de herkomst van een categorie bij een
+#: NIEUW record (`Definition.metadata`, generatieroute): alleen herkomst
+#: manual/model + reasoning/scores, nooit een actor. Voor een bestaand record
+#: is er geen metadata-transport: een menselijke keuze loopt uitsluitend via
+#: `DefinitionRepository.save_met_categoriekeuze` → `record_category_choice`.
+CATEGORY_CHOICE_INPUT_KEY = "category_choice_input"
 
 
 class DefinitionRepository(DefinitionRepositoryInterface):
@@ -242,10 +253,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 )
                 allow_duplicate = False
 
+            # DEF-751 B2: de herkomst van de categorie volgens deze route;
+            # de persistentielaag bouwt het event (nooit met actor).
             result_id = self.legacy_repo.create_definitie(
                 record,
                 allow_duplicate=allow_duplicate,
                 duplicate_reason=duplicate_reason,
+                categoriekeuze=self._categoriekeuze_voor_nieuw_record(
+                    definition.metadata or {}
+                ),
             )
 
             if not result_id or result_id <= 0:
@@ -387,6 +403,55 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # gevonden" onderscheiden en zou een duplicaat ongemerkt passeren.
             # Re-raise als typed RepositoryError zodat de aanroeper fail-closed kan.
             raise RepositoryError("search", query) from e
+
+    def save_met_categoriekeuze(
+        self,
+        definition: Definition,
+        *,
+        herkomst: str,
+        actor: str | None,
+        actor_source: str | None,
+        updated_by: str | None,
+    ) -> int:
+        """Sla een bestaand record op mét een menselijke categoriekeuze
+        (editor-opslaan/toepassen) — het expliciete commando (DEF-751 B2).
+
+        Alle veldwijzigingen, de categorie en het keuze-event landen in één
+        UPDATE met de versie van de getoonde kandidaat
+        (`metadata["version_number"]`) als optimistic lock. Zonder die versie
+        of bij een tussentijdse wijziging: `RepositoryError`, niets geschreven.
+        """
+        if not definition.id:
+            msg = "save_met_categoriekeuze vereist een bestaand record (id)"
+            raise RepositoryError("save_choice", definition.begrip, msg)
+        versie = (definition.metadata or {}).get("version_number")
+        if not isinstance(versie, int) or isinstance(versie, bool):
+            msg = (
+                "save_met_categoriekeuze vereist de recordversie van de getoonde "
+                "kandidaat (metadata.version_number)"
+            )
+            raise RepositoryError("save_choice", definition.begrip, msg)
+        updates = self._definition_to_updates(definition)
+        updates.pop("version_number", None)
+        updates.pop("categorie", None)
+        try:
+            ok = self.legacy_repo.record_category_choice(
+                definition.id,
+                updates,
+                waarde=definition.categorie or None,
+                herkomst=herkomst,
+                actor=actor,
+                actor_source=actor_source,
+                updated_by=updated_by,
+                expected_version=versie,
+            )
+        except ValueError as e:
+            raise RepositoryError("save_choice", definition.begrip, str(e)) from e
+        if not ok:
+            raise RepositoryError(
+                "save_choice", definition.begrip, MELDING_NIET_BEVESTIGD
+            )
+        return cast(int, definition.id)
 
     def update(self, definition_id: int, definition: Definition) -> bool:
         """
@@ -762,12 +827,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 f"source_type extraction failed for '{definition.begrip}': {e}"
             )
 
-        # CRITICAL FIX DEF-53: Ensure categorie has a value
-        # Try ontologische_categorie first, then categorie, fallback to "proces"
+        # DEF-751 B2 (schemaversie 4): geen label = NULL. De vroegere
+        # DEF-53-default "proces" is vervallen; niets wordt verzonnen.
         category_value = (
             definition.categorie
             or getattr(definition, "ontologische_categorie", None)
-            or "proces"
+            or None
         )
         logger.debug(
             f"Category mapping: categorie={definition.categorie}, "
@@ -843,11 +908,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         exc,
                     )
 
-            # DEF-151 + DEF-743: promptregistratie en bronbewijs in dezelfde
-            # generatieregistratie (helper; geen gedragswijziging).
-            record.generation_prompt_data = self._generatieregistratie_voor_record(
-                definition.metadata, definition.begrip, record
-            )
+        # DEF-151 + DEF-743: promptregistratie en bronbewijs in dezelfde
+        # generatieregistratie (helper; geen gedragswijziging). DEF-751: de
+        # categoriekeuze voegt de persistentielaag toe (`create_definitie`).
+        record.generation_prompt_data = self._generatieregistratie_voor_record(
+            definition.metadata or {}, definition.begrip, record
+        )
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
@@ -886,6 +952,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                     "tekst_na_generatie_aangepast": metadata.get(
                         "tekst_na_generatie_aangepast"
                     ),
+                    # DEF-751 stap 2: het gebruikersantwoord op een gemeld
+                    # betekenisconflict, herleidbaar als bedoeling (geen
+                    # bronfeit, geen oordeel); alleen als het er was.
+                    "betekenisverduidelijking": metadata.get(
+                        "betekenisverduidelijking"
+                    ),
                 }
                 # Only store non-None values
                 prompt_data = {k: v for k, v in prompt_data.items() if v is not None}
@@ -911,6 +983,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         ook zónder promptregistratie. Anders dan de promptdata is dit
         bewijs: een serialisatiefout laat de opslag falen (ValueError →
         RepositoryError), er wordt nooit stil bronbewijs weggelaten.
+
+        DEF-751 B2: de categoriekeuze zelf wordt hier niet gebouwd — dat doet
+        de persistentielaag op basis van `categoriekeuze` (zie `save`), zodat
+        een event in aangeleverde metadata/JSON nooit als keuze meereist.
         """
         prompt_data = self._promptregistratie(metadata, begrip)
         bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
@@ -935,6 +1011,27 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         if not prompt_data:
             return None
         return serialiseer_generatieregistratie(prompt_data)
+
+    @staticmethod
+    def _categoriekeuze_voor_nieuw_record(
+        metadata: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """De herkomst van de categorie voor `create_definitie`, of None.
+
+        De invoer (`category_choice_input`) is onbevestigd: alleen herkomst
+        manual/model + reasoning/scores worden gelezen (`lees_keuze_invoer`),
+        nooit een actor. Zonder invoer géén event (herkomst onbekend, of
+        `absent` bij een label-loos record; niets verzonnen). Het event zelf
+        bouwt de persistentielaag.
+        """
+        invoer = lees_keuze_invoer(metadata.get(CATEGORY_CHOICE_INPUT_KEY))
+        if invoer is None:
+            return None
+        keuze: dict[str, Any] = dict(invoer)
+        generation_id = metadata.get("generation_id")
+        if generation_id:
+            keuze["generation_id"] = str(generation_id)
+        return keuze
 
     def get_generation_prompt_data(self, definition_id: int) -> dict | None:
         """
@@ -1050,6 +1147,17 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # Zonder bewijs ontbreken de bronsleutels: niets wordt verzonnen, en
         # de statusvelden maken "alleen korte verwijzing" of "afwezig" expliciet.
         self._herstel_bronbewijs(record, definition.metadata)
+
+        # DEF-751 B2: de categoriekeuze (event, afgeleide status, historie)
+        # onder eigen leessleutels — nooit onder de invoersleutel, zodat
+        # openen + opslaan geen tweede event maakt.
+        definition.metadata["category_choice"] = record.get_category_choice()
+        definition.metadata["category_choice_status"] = (
+            record.get_category_choice_status()
+        )
+        definition.metadata["category_choice_history"] = (
+            record.get_category_choice_history()
+        )
 
         # DEF-156: Load voorbeelden from database and populate metadata
         # This ensures voorbeelden persist when loading definitions in Bewerk tab
@@ -1496,4 +1604,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # afwezig = bewijs onaangeraakt. Conflicterende aliassen: ValueError
         # (→ RepositoryError), niets geschreven.
         _voeg_bewijsinvoer_toe(updates, definition.metadata)
+        # DEF-751 B2 (reviewbevinding 3): de versie die de aanroeper vóór
+        # zich had (`metadata["version_number"]`, gezet bij laden en door de
+        # editor) reist mee tot de uiteindelijke UPDATE als optimistic lock:
+        # een tussentijdse wijziging is dan een conflict, geen terugschrijven
+        # van verouderde velden. Een generiek metadata-blok kan géén
+        # categoriekeuze meedragen; dat kan alleen `record_category_choice`.
+        versie = (definition.metadata or {}).get("version_number")
+        if isinstance(versie, int) and not isinstance(versie, bool):
+            updates["version_number"] = versie
         return updates

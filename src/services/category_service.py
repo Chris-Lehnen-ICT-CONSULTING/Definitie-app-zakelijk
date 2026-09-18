@@ -3,6 +3,7 @@
 import logging
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from domain.categorie_herkomst import HERKOMST_HANDMATIG
 from models.category_models import CategoryChangeResult
 
 logger = logging.getLogger(__name__)
@@ -20,26 +21,44 @@ class CategoryService:
         self.repository = repository
 
     def update_category(
-        self, definition_id: int, new_category: str, update_session_data: bool = True
+        self,
+        definition_id: int,
+        new_category: str,
+        update_session_data: bool = True,
+        *,
+        expected_version: int,
     ) -> tuple[bool, str | None]:
         """Legacy method - gebruik update_category_v2 voor nieuwe code."""
-        result = self.update_category_v2(definition_id, new_category, "web_user")
+        # DEF-751 B2: geen verzonnen "web_user" meer; zonder identiteit blijft
+        # de keuze ongeattribueerd. De versie van de getoonde kandidaat is
+        # verplicht (reviewbevinding 3).
+        result = self.update_category_v2(
+            definition_id, new_category, None, expected_version=expected_version
+        )
         return result.success, None if result.success else result.message
 
     def update_category_v2(
         self,
         definition_id: int,
         new_category: str,
-        user: str,
+        user: str | None,
         reason: str | None = None,
+        *,
+        expected_version: int,
     ) -> CategoryChangeResult:
         """Update de categorie van een definitie met volledige audit trail.
+
+        DEF-751 B2: de toepassen-actie is een menselijke keuze en loopt via
+        het expliciete commando `record_category_choice`; ``expected_version``
+        is de recordversie van de getoonde kandidaat — een tussentijdse
+        wijziging is een conflict (reviewbevinding 3).
 
         Args:
             definition_id: ID van de definitie
             new_category: Nieuwe categorie code
-            user: Gebruiker die wijziging doet
+            user: Bestaande lokale identiteit of None (ongeattribueerd)
             reason: Optionele reden voor wijziging
+            expected_version: Recordversie die de kiezer vóór zich had
 
         Returns:
             CategoryChangeResult met status en details
@@ -85,11 +104,19 @@ class CategoryService:
             # Bewaar oude categorie
             old_category = definition.categorie
 
-            # Sla op in database met updates dictionary
-            success = self.repository.update_definitie(
-                definitie_id=definition_id,
-                updates={"categorie": new_category},
-                updated_by=user,
+            # Het expliciete commando (DEF-751 B2): `user` is de bestaande
+            # lokale identiteit of None (dan ongeattribueerd) — nooit een
+            # verzonnen "web_user"; de versieguard weigert een gewijzigd record.
+            actor = user.strip() if isinstance(user, str) and user.strip() else None
+            success = self.repository.record_category_choice(
+                definition_id,
+                {},
+                waarde=new_category,
+                herkomst=HERKOMST_HANDMATIG,
+                actor=actor,
+                actor_source="typed_name" if actor else None,
+                updated_by=actor,
+                expected_version=expected_version,
             )
 
             if success:
@@ -108,7 +135,11 @@ class CategoryService:
                 )
 
             return CategoryChangeResult(
-                success=False, message="Database update mislukt"
+                success=False,
+                message=(
+                    "Definitie is intussen gewijzigd (versieconflict); ververs en "
+                    "kies opnieuw"
+                ),
             )
 
         except Exception as e:
