@@ -68,7 +68,7 @@ Onafhankelijke diffreview: **Codex CLI**, sessie `01a0b147-0028-75a3-b3f3-179205
 - `p01-readback-v1.json`: onafhankelijke SQLite-readback met kandidaat, bronnen, AI-beoordeling en kwitantie.
 - `upload-readback-v1.json`: metadata uit het daadwerkelijke uploadbestand.
 - `herkomst-en-historie-v1.json`: runtimevergelijking en bewaarde bronbewijshistorie.
-- `tests-finale-v1.txt`, `final-lint.log`: testuitkomst en lint.
+- `tests-finale-v1.txt`, `lint-finale-v1.txt`: testuitkomst en lint.
 - `codex-review1.md`, `codex-reviewdelta1.md` t/m `codex-reviewdelta3.md`: eerste oordeel en sluiting van concrete bevindingen.
 - `apptest-red-c18a7ec3-waarnemingen.json`, `apptest-green-waarnemingen.json`: echte rerunobservaties.
 
