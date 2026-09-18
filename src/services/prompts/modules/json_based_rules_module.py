@@ -327,7 +327,38 @@ class JSONBasedRulesModule(BasePromptModule):
             # DEF-750: dezelfde aanwijzing als de betekenislaagsectie; geen
             # "kies tussen vier" en geen markerplicht.
             "ESS-02": GEDEELDE_ESS02_AANWIJZING,
-            "ESS-03": "Noem criteria voor unieke identificatie van instanties (zoals serienummer, kenteken, ID, registratienummer)",
+            # DEF-766: één norm voor genereren en toetsen (G). De oude
+            # instructie "noem criteria voor unieke identificatie (zoals
+            # serienummer, kenteken, ID, registratienummer)" is vervallen: een
+            # nummer is geen bewijs van individuatie en de opdracht liet een
+            # model identifiers, bronnen en telconventies verzinnen of een stof
+            # tot monster maken. De gerichte verduidelijkingsvraag uit de
+            # onderzoekstekst loopt binnen het bestaande uitvoercontract (één
+            # zin, alleen de definitiekern) via de ESS-03-beoordeling; de
+            # conflictmelding van DEF-751 blijft beperkt tot de ESS-02-
+            # betekenislaag en wordt hier niet stil verbreed.
+            "ESS-03": (
+                "Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat "
+                "als één instantie geldt. Maak een noodzakelijke eenheidsgrens "
+                "duidelijk met een passend bovenbegrip en begripsbepalende kenmerken. "
+                "Gebruik een identifier alleen als zijn referentsoort, scope en "
+                "relevante geldigheid zijn onderbouwd; verzin geen nummer, bron of "
+                "telconventie. Laat niet-telbare stoffen of kwaliteiten niet stil "
+                "veranderen in telbare monsters, porties of registraties. Bij een "
+                "noodzakelijke maar onbesliste eenheidsgrens of continuïteitsvraag "
+                "waarover bronnen en context elkaar niet werkelijk tegenspreken: "
+                "verzin geen grens of conventie en lever één voorlopige kandidaat "
+                "binnen de beschikbare grond, zonder melding of toelichting in de "
+                "zin; de gerichte verduidelijkingsvraag blijft bij de "
+                "ESS-03-beoordeling (nog te beoordelen). Spreken bronnen of context "
+                "elkaar werkelijk tegen over de teleenheid, maak dan geen stille "
+                "keuze en leg geen betwiste telconventie in de kern vast. Een naam "
+                "of het woord ‘uniek’ is geen bewijs. "
+                "Houd registratiecontext en bronadministratie buiten de kern, maar "
+                "behoud inhoudelijk noodzakelijke namen en voorwaarden. Geef uitleg "
+                "en synthetische voorbeelden afzonderlijk; ze vervangen geen "
+                "ontbrekende kernafgrenzing."
+            ),
             "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
             "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
             # STR rules (Structuur)

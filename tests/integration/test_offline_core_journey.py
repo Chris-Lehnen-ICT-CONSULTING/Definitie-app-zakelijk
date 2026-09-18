@@ -121,15 +121,19 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: DEF-750: ESS-02 is een menselijk betekenisoordeel; de marker-/categoriehit-
 #: pass is vervallen, dus ESS-02 is open (`review_required`) i.p.v. `pass` —
 #: één regel minder geslaagd, één meer open.
+#: DEF-766: ESS-03 is een menselijk oordeel over eenheid en identiteit; de
+#: woordindicator-fail (geen 'uniek'/'nummer'/'code' in de zin) is vervallen,
+#: dus ESS-03 is open (`review_required`) i.p.v. `fail` — één regel minder
+#: gefaald, één meer open; 34/29/5/15 → 33/29/4/16.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 34,
+    "evaluated": 33,
     "passed": 29,
-    "failed": 5,
-    "review_required": 15,
+    "failed": 4,
+    "review_required": 16,
     "not_evaluated": 4,
     "error": 0,
     "total": 53,
-    "coverage_ratio": 0.6415,
+    "coverage_ratio": 0.6226,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -166,7 +170,6 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "VER-02",
 ]
 VERWACHTE_GEFAALDE_REGELS = [
-    "ESS-03",
     "ESS-05",
     "INT-01",
     "VER-01",

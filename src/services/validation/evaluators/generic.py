@@ -83,9 +83,10 @@ def verzamel_generieke_bevindingen(
     """Draai de declaratieve pijplijn over één regelrecord.
 
     `patronen_zijn_positief` schakelt de verboden-patroonmelding uit voor
-    regels waar een treffer juist een gewenst signaal is (CON-02, ESS-03,
-    ESS-04, ESS-05). De treffers worden dan nog wél geteld, omdat ze de
-    scoreberekening beïnvloeden — precies zoals in de huidige evaluator.
+    regels waar een treffer juist een gewenst signaal is (vandaag alleen
+    ESS-05; CON-02, ESS-03 en ESS-04 zijn naar oordeelroutes verplaatst). De
+    treffers worden dan nog wél geteld, omdat ze de scoreberekening
+    beïnvloeden — precies zoals in de huidige evaluator.
     """
     code = record.rule_id.upper()
     text = ctx.cleaned_text or ""

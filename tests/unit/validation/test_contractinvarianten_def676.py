@@ -40,12 +40,14 @@ _ECHTE_REGELS_DIR = (
     Path(__file__).resolve().parents[3] / "src" / "toetsregels" / "regels"
 )
 
-# ESS-03 is een gewone declaratieve regel: deterministic, automated, scored,
+# INT-10 is een gewone declaratieve regel: deterministic, automated, scored,
 # met een goed/fout-paar en een normatieve policy. Daarmee zit hij precies
 # aan de goede kant van alle zeven invarianten, zodat elke mutatie hieronder
-# er exact één schendt. (Tot DEF-743 was CON-02 de proefregel; die is nu
-# judgment/no_score/review_policy en dus geen bruikbaar anker meer.)
-PROEFREGEL = "ESS-03"
+# er exact één schendt. (Tot DEF-743 was CON-02 de proefregel, tot DEF-766
+# ESS-03; beide zijn nu judgment/no_score/review_policy en dus geen bruikbaar
+# anker meer — precies de drift die `test_proefregel_voldoet_nog_aan_alle_
+# precondities` hieronder aanwijst.)
+PROEFREGEL = "INT-10"
 
 
 @pytest.fixture

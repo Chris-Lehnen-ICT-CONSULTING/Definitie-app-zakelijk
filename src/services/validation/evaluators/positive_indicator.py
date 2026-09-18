@@ -1,9 +1,9 @@
 """Regels waarbij een signaal juist aanwézig moet zijn (DEF-606).
 
-ESS-03 en ESS-05 gebruiken hun patronen als positief signaal: een treffer is
-gewenst, het ontbreken van het kenmerk is de violation. Het gedrag is
-één-op-één overgenomen uit `ModularValidationService._evaluate_json_rule`
-(de `_has_*`-helpers), zodat het invoeren van het evaluatorcontract geen
+ESS-05 gebruikt zijn patronen als positief signaal: een treffer is gewenst,
+het ontbreken van het kenmerk is de violation. Het gedrag is één-op-één
+overgenomen uit `ModularValidationService._evaluate_json_rule` (de
+`_has_*`-helpers), zodat het invoeren van het evaluatorcontract geen
 regelbetekenis verschuift.
 
 ESS-04 stond hier eerder ook. Die regel is bij de reparatiepas op DEF-624a
@@ -17,8 +17,17 @@ bewees geen bron en het ontbreken ervan was geen gebrek. De regel loopt nu
 via `source_evidence` (broninhoudelijke beoordeling op de aangeleverde
 bronnen); de indicator is verwijderd.
 
-Bekende beperking, belegd bij DEF-624: deze helpers gebruiken eigen
-hardgecodeerde patronen in plaats van de `herkenbaar_patronen` uit het
+ESS-03 stond hier tot DEF-766. De woordindicator (`uniek`, `nummer`,
+`code`, `id`, `isbn`, …) liet "Object met een nummer", een ontkende
+uniciteitsclaim ("de code is niet uniek") en een ISBN-boekexemplaar slagen
+en keurde een natuurlijke grens, een stoflezing en "registratienummer" af —
+een woordtreffer bewijst geen individuatie en het ontbreken ervan is geen
+gebrek (servicemeting 13×2 in het ESS-03-onderzoek van 18 september 2026).
+De regel loopt nu via `judgment_review` met `no_score`; de indicator is
+verwijderd, ook hier: geen alternatief levend pad.
+
+Bekende beperking, belegd bij DEF-624: deze helper gebruikt een eigen
+hardgecodeerd patroon in plaats van de `herkenbaar_patronen` uit het
 record zelf. Daardoor keurt ESS-05 zijn eigen goede voorbeeld af.
 """
 
@@ -40,21 +49,12 @@ from toetsregels.runtime_contract import EvaluatorType, RuleRecord
 
 __all__ = ["PositiveIndicatorEvaluator"]
 
-_UNIEKE_IDENTIFICATIE = re.compile(
-    r"\b(uniek|specifiek|identificeer|registratie|nummer|code|id|vin|isbn|kenteken)\b",
-    re.IGNORECASE,
-)
 _ONDERSCHEIDEND_KENMERK = re.compile(
     r"\b(onderscheidt|specifiek|bijzonder|kenmerk|eigenschap)\b", re.IGNORECASE
 )
 
 # rule-ID -> (patroon dat aanwezig moet zijn, melding, suggestiereden)
 _INDICATOREN: dict[str, tuple[re.Pattern[str], str, str]] = {
-    "ESS-03": (
-        _UNIEKE_IDENTIFICATIE,
-        "Ontbreekt uniek identificatiecriterium",
-        "unique_id",
-    ),
     "ESS-05": (
         _ONDERSCHEIDEND_KENMERK,
         "Ontbreekt onderscheidend kenmerk",

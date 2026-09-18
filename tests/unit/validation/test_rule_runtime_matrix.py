@@ -540,8 +540,11 @@ class TestAfgeleideTelling:
         # DEF-750: ESS-02 ging van `automated` (marker-/categoriehitroute)
         # naar `review_required`: betekenisniveau en aard zijn een menselijk
         # oordeel; 37/12/4 → 36/13/4.
-        "automated": 36,
-        "review_required": 13,
+        # DEF-766: ESS-03 ging van `automated` (woordindicator) naar
+        # `review_required`: eenheid en identiteit zijn een menselijk oordeel;
+        # 36/13/4 → 35/14/4.
+        "automated": 35,
+        "review_required": 14,
         "not_evaluated": 4,
     }
 
