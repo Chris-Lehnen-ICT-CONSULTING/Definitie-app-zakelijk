@@ -350,9 +350,13 @@ class ValidationRenderer:
             # ontologische marker aanwezig" was geen inhoudelijke grond.
             # DEF-766: idem ESS-03 — "vereist element herkend" was een
             # woordtreffer, geen bewijs dat instanties te onderscheiden zijn.
+            # DEF-767: idem ESS-04 — een herkend getal, termijn of signaalwoord
+            # bewijst geen toetsbaarheid; ESS-04 komt nooit als geslaagde regel
+            # binnen en een menselijk 'voldoet' krijgt hier geen woord- of
+            # getalsverklaring.
             if rid == "CON-01":
                 return "Context niet letterlijk benoemd; geen duplicaat gedetecteerd."
-            if rid in {"ESS-04", "ESS-05"}:
+            if rid == "ESS-05":
                 return "Vereist element herkend (heuristiek)."
         except (KeyError, TypeError, re.error) as e:
             # DEF-246: Log pass reason computation failure

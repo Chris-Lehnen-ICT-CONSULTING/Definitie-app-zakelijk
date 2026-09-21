@@ -13,7 +13,11 @@ Veertien regels hebben geen betrouwbare automatische toets:
 - DEF-766: ESS-03 (instanties uniek onderscheidbaar, telbaarheid). Een
   naam, nummer, code of het woord 'uniek' bewijst geen individuatie en het
   ontbreken ervan is geen gebrek; de regel draagt `score_policy: no_score`
-  en vereist naast de tekst ook de term.
+  en vereist naast de tekst ook de term;
+- DEF-767: ESS-04 (toetsbaarheid) draagt sinds besluit N2 een eigen
+  passagehulp: een getal, termijn of signaalwoord bewijst geen toetsbaarheid
+  en het ontbreken ervan is geen gebrek — kwalitatieve criteria kunnen
+  volstaan. De regel was al reviewplichtig (`excluded_from_score`).
 
 Hun patronen blijven bruikbaar als *signaal* — ze wijzen de reviewer waar
 te kijken — maar ze zijn geen *bewijs*: bij alle veertien vuren de eigen
@@ -78,6 +82,8 @@ class JudgmentReviewEvaluator:
             reden = self._ess02_reden(ctx, signalen)
         elif code == "ESS-03":
             reden = self._ess03_reden(ctx, signalen)
+        elif code == "ESS-04":
+            reden = self._ess04_reden(record, ctx, signalen)
         return EvaluationOutcome.review_required(reden, signals=signalen)
 
     @classmethod
@@ -163,6 +169,30 @@ class JudgmentReviewEvaluator:
             "en geldigheid? Aanwezigheid van het woord bewijst niets.",
         )
 
+    @classmethod
+    def _ess04_reden(
+        cls, record: RuleRecord, ctx: EvaluationContext, signalen: tuple[str, ...]
+    ) -> str:
+        """DEF-767 (T2-5a): toetsbaarheid is een menselijk oordeel (N2).
+
+        De patronen wijzen hooguit een criteriumpassage aan (een termijn,
+        een percentage, een signaalwoord); per passage staat de neutrale
+        vraag hoe dat criterium op een geval wordt toegepast. Een treffer is
+        geen 'voldoet niet', geen treffer is geen 'voldoet': kwalitatieve
+        criteria kunnen volstaan. Zonder treffer draagt de reden de
+        toetsvraag uit het record, zodat de reviewvraag altijd zichtbaar is.
+        Toetsen verandert de tekst niet en start geen herstel.
+        """
+        toetsvraag = str(record.get("toetsvraag") or "").strip()
+        return cls._reden_met_passages(
+            "ESS-04 — Toetsbaarheid.",
+            ctx,
+            signalen,
+            vraag="Nog te beoordelen. Leg vast hoe het criterium '{passage}' op een "
+            "geval wordt toegepast.",
+            zonder_signaal=f"Nog te beoordelen. {toetsvraag}".strip(),
+        )
+
     @staticmethod
     def _opgegeven_categorie(ctx: EvaluationContext) -> str | None:
         """Het label uit de aanroepmetadata, als leesbare registratie (geen bewijs)."""
@@ -175,12 +205,22 @@ class JudgmentReviewEvaluator:
 
     @staticmethod
     def _reden_met_passages(
-        kop: str, ctx: EvaluationContext, signalen: tuple[str, ...], *, vraag: str
+        kop: str,
+        ctx: EvaluationContext,
+        signalen: tuple[str, ...],
+        *,
+        vraag: str,
+        zonder_signaal: str = (
+            "Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+        ),
     ) -> str:
         """Leesbare reden: de kop plus de letterlijk geciteerde passages.
 
         De regexpatronen zelf reizen als `signals` mee voor diagnostiek; de
-        eindgebruiker krijgt uitsluitend de getroffen tekstfragmenten.
+        eindgebruiker krijgt uitsluitend de getroffen tekstfragmenten. In
+        `vraag` wordt een letterlijke `{passage}` vervangen door het fragment
+        (DEF-767); `zonder_signaal` is de tekst na de kop als geen patroon
+        vuurt.
         """
         treffers = sorted(
             (hit.start(), hit.group())
@@ -189,15 +229,13 @@ class JudgmentReviewEvaluator:
         )
         passages = dict.fromkeys(fragment for _, fragment in treffers)
         if not passages:
-            return (
-                kop
-                + " Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
-            )
+            return f"{kop} {zonder_signaal}"
         return (
             kop
             + " "
             + " ".join(
-                f"Te beoordelen passage: {fragment}. {vraag} Dit signaal geeft nog geen "
+                f"Te beoordelen passage: {fragment}. "
+                f"{vraag.replace('{passage}', fragment)} Dit signaal geeft nog geen "
                 "inhoudelijk oordeel."
                 for fragment in passages
             )
