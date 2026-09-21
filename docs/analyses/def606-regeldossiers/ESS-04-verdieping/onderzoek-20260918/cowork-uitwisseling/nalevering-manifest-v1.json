@@ -1,0 +1,17 @@
+{
+  "commit": "4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb",
+  "files": [
+    {
+      "path": "src/services/definition_import_service.py",
+      "sha256": "dc603a3c018108159523eefaf4cab2401b8c775744c83e0f15d9a1ae27cf59c1"
+    },
+    {
+      "path": "src/database/definitie_import_export.py",
+      "sha256": "52a19a0bde8acadaa90700f500e1b84b8d8822056890e71a315a23b373d4b391"
+    },
+    {
+      "path": "src/services/validation/result_contract.py",
+      "sha256": "88490821672719fc966956a2e6956da79cf8457c86608bd6f132ebebf7d94e9f"
+    }
+  ]
+}

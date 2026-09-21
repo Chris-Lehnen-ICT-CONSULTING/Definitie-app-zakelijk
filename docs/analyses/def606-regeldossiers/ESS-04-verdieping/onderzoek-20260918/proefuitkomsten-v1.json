@@ -1,0 +1,31 @@
+{
+  "commit": "50d0770ded6f4e8337738126d6bc2aa8f169e3de",
+  "runtime": "Python 3.13.15",
+  "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python docs/analyses/def606-regeldossiers/ESS-04-verdieping/onderzoek-20260918/proef-v2.py",
+  "exit_code": 0,
+  "time_utc_from_output": "2026-09-18T13:26:40.325987+00:00",
+  "record_sha256": "78537a76b454e1c652a1601b1804abdf3b28092f88547de3fea9c410d91a389c",
+  "recording": "Claimrelevante velden uit de daadwerkelijk ontvangen tooluitvoer overgenomen; geen tweede uitvoering.",
+  "P01": {
+    "input": "Document dat objectief toetsbaar is.",
+    "metadata_variants": [{}, {"rule_statuses": {"ESS-04": "pass"}, "reviewer": "synthetic", "reviewed": true}],
+    "both_statuses": "review_required", "both_scores": null,
+    "both_signals": ["\\btoetsbaar\\b"],
+    "human_review_executed": false
+  },
+  "P02": {
+    "legacy_input": {"overall_score": 0.9, "is_acceptable": true, "violations": [], "passed_rules": [], "detailed_scores": {}, "rule_statuses": {"ESS-04": "review_required"}, "review_required": [{"rule_id": "ESS-04", "reason": "menselijk oordeel ontbreekt"}], "evaluation_coverage": {"review_required": 1}},
+    "legacy_output": {"version": "2.0.0", "overall_score": 0.9, "is_acceptable": true, "violations": [], "passed_rules": ["BASIC-001", "BASIC-002", "BASIC-003"], "detailed_scores": {"taal": 0.9, "juridisch": 0.9, "structuur": 0.9, "samenhang": 0.9}, "system": {"correlation_id": "a292a39d-a68e-4f01-8c16-d74850e0ef87", "timestamp": "2026-09-18T13:26:40.325987+00:00"}},
+    "modern_input_additions": {"version": "1.1.0", "system": {"correlation_id": "00000000-0000-0000-0000-000000000004"}},
+    "modern_output_equals_modern_input": true,
+    "ui_route_executed": false
+  },
+  "P03": {"instruction": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)", "full_prompt_tested": false},
+  "P04": {
+    "raw": "Ontologische categorie: type\nPartij waarvan minimaal 80% van de op 18 september 2026 ontvangen exemplaren onbeschadigd is.",
+    "extracted": "Partij waarvan minimaal 80% van de op 18 september 2026 ontvangen exemplaren onbeschadigd is.",
+    "cleaned": "Partij waarvan minimaal 80% van de op 18 september 2026 ontvangen exemplaren onbeschadigd is.",
+    "applied_rules": ["extracted_ontology_type"],
+    "stored": null, "storage_tested": false
+  }
+}

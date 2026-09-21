@@ -1,0 +1,154 @@
+{
+  "verified_at": "2026-09-18T13:43:32.600654+00:00",
+  "checks": {
+    "source_copies": 36,
+    "werkboom_files": 35,
+    "werkboom-4cdb8ea43_files": 33,
+    "archive_hash_ok": true,
+    "json_files_parsed": 145,
+    "retained_P01_P04_verified": true,
+    "executed_no_new_probe": true,
+    "new_scenarios": 23,
+    "local_links": [
+      {
+        "from": "codex-onderzoek-v1.md",
+        "target": "bron-bewijsregister-v1.md",
+        "exists": true
+      },
+      {
+        "from": "codex-onderzoek-v1.md",
+        "target": "casusregister-v1.md",
+        "exists": true
+      },
+      {
+        "from": "codex-onderzoek-v1.md",
+        "target": "instructievoorstellen-v1.md",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "codebasis-actueel-v1.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "codebasis-4cdb8ea43.tar",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "feitenbasis/historisch/docs/analyses/def606-regeldossiers/ESS-04-v1.md",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "feitenbasis/historisch/docs/analyses/def606-regeldossiers/ESS-04-bewijs-v1/uitkomsten.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "feitenbasis/historisch/docs/analyses/def606-regeldossiers/ESS-04-bewijs-v1/claude-review.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "feitenbasis/historisch/docs/plans/2026-09-11-def606-analyseplan-v4.md",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "feitenbasis/historisch/docs/analyses/2026-09-15-DEF-606-besluit-geen-totaalscore-v1.md",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-767-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-606-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-622-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-743-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-745-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/comments-DEF-745-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/besluiten-ESS02-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-749-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-624-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-630-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "bronnen/linear-DEF-638-20260918.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "feitenbasis/bestanden-v1.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "proefverwachtingen-v1.md",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "proefverwachtingen-actueel-v1.md",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "proefuitkomsten-v1.json",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "proef-actueel-uitvoer-v1.log",
+        "exists": true
+      },
+      {
+        "from": "bron-bewijsregister-v1.md",
+        "target": "proef-actueel-v1.py",
+        "exists": true
+      }
+    ],
+    "tracked_diff": [],
+    "untracked_outside_research": [],
+    "failures": []
+  },
+  "scope": "Document-/bronintegriteit en bewaard proefbewijs; geen volledige appvalidatie of Cowork-review."
+}

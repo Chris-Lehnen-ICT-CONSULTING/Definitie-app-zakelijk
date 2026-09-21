@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Ik zal dit verzoek beantwoorden op basis van algemene kennis over definitietoetsbaarheid en normontwerp, zonder externe bronnen op te zoeken (conform uw ESS-04 instructie).\n\n---\n\n## Analyse: Wat mist dit voorstel?\n\nUw raamwerk is methodologisch solide. De kern—objectief vaststelbare criteria met context/evidence/bron per kenmerk—adresseert de klassieke valkuil van schijnprecisie (\"80% zonder noemer\"). Twee lacunes:\n\n**1. Temporele stabiliteit**\nCriteria kunnen toetsbaar zijn op *meetmoment* maar instabiel over tijd. \"Binnen 3 dagen\" is objectief, maar zonder referentiekader (werkdagen? kalenderdagen? tijdzone?) ontstaat interpretatievariatie. Het voorstel mist expliciete eis voor *temporele ankers*.\n\n**2. Interbeoordelaarsbetrouwbaarheid**\n\"Menselijke review\" zonder kalibratiemechanisme riskeert subjectieve drift. Het voorstel specificeert *dat* menselijke review nodig is, maar niet *hoe* consistentie tussen beoordelaars wordt geborgd.\n\n---\n\n## Grensgevallen\n\n**Grensgeval A:** Norm stelt \"substantiële bijdrage.\" Beoordelaar 1 hanteert kwantitatief criterium (>20% van output); Beoordelaar 2 hanteert kwalitatief criterium (kritieke innovatie ongeacht omvang). Beide verdedigbaar, geen beslisregel aanwezig.\n\n**Grensgeval B:** \"Binnen 3 dagen\" bij tijdzone-overschrijdende teams—incident gemeld vrijdag 17:00 UTC+9, afgehandeld maandag 09:00 UTC-5. Objectief 65 uur, subjectief \"volgende werkdag.\" Meetprocedure ontbreekt.\n\n\n💰 **Geschatte kosten:** $0.0146"
+    }
+  ],
+  "isError": false
+}

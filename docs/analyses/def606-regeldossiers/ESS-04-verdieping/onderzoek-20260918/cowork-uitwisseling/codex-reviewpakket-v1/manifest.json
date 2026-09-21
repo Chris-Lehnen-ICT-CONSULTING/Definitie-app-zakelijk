@@ -1,0 +1,78 @@
+[
+  {
+    "path": "codex-onderzoek-v1.md",
+    "sha256": "c50a3fedc180de8bc2fbc0912dfa621a48b4becfe2e0bc1979ef29ab55fffbfc"
+  },
+  {
+    "path": "bron-bewijsregister-v1.md",
+    "sha256": "ba4019c2c4fee2711da9252e304c23eacc462f52d98ba4273bc560d4581ac546"
+  },
+  {
+    "path": "casusregister-v1.md",
+    "sha256": "f014f47f53ce2cd565d027de4f725f84f0de475fcbc75be5797b3cbd9980fdce"
+  },
+  {
+    "path": "instructievoorstellen-v1.md",
+    "sha256": "9974ef7ae7c9b70fcfd5afc995c47eb78ab4bbbb3888d3286b9ed2c20fbd3bac"
+  },
+  {
+    "path": "codex-astra-addendum-v1.md",
+    "sha256": "371483501014ac2e63dd0aff2e41c342d14add15e476c7ae6fd3288df49af424"
+  },
+  {
+    "path": "codex-codeaanvulling-v1.md",
+    "sha256": "d4ccb94de3500c926a3d6a6a02bfef658cfafe82fab16bccfce240ef045cab59"
+  },
+  {
+    "path": "astra-bronobservatie-v2.md",
+    "sha256": "53f877563051a1404d5cf58780686c3b7b1385d8f0215888c3012c18794f4e86"
+  },
+  {
+    "path": "proefverwachtingen-v1.md",
+    "sha256": "ea982c40ecb48915239c7029693e2025bf24409fab9e86ded1df5f74bf8979c9"
+  },
+  {
+    "path": "proefverwachtingen-actueel-v1.md",
+    "sha256": "b43ff4e16a530109cee9e127792fc0efabe015cdc9510766dc81f55d5c0f6d5d"
+  },
+  {
+    "path": "proef-v1.py",
+    "sha256": "df1f4670805d955ca38122a4353dd378c413bb0178cd44bde71d0a94001bf50b"
+  },
+  {
+    "path": "proef-v2.py",
+    "sha256": "6f39114f127d231da7c7be463790bb381efeb58af00b040e8739a0ac18637722"
+  },
+  {
+    "path": "proef-actueel-v1.py",
+    "sha256": "a124fda7ece1c3fd90fe513baeeb72b23bbc486888bf32b196101996cce56851"
+  },
+  {
+    "path": "proef-poging1-v1.log",
+    "sha256": "a0d3f1704586d09d8128d8b1f240e045c03585068763370c996d94635336f900"
+  },
+  {
+    "path": "proefuitkomsten-v1.json",
+    "sha256": "e7eb46f837ff10f394d4bf12ebb6707951ccbf261f5f54551268f5e0cedfc346"
+  },
+  {
+    "path": "proef-actueel-uitvoer-v1.log",
+    "sha256": "81e3d6fa94c98d834666876ea48d48fc774c8953bc9b207dadaa757974272bba"
+  },
+  {
+    "path": "codebasis-actueel-v1.json",
+    "sha256": "abec6219e6c0527c92b91240762f5d86c5ec69a6f13af7b8f86b637128634549"
+  },
+  {
+    "path": "codex-eerste-bijdrage-manifest-v1.json",
+    "sha256": "2070da23c750d03f7cc877b9ceb01982ebe601b4a67bdc4f9eea69ec3e026282"
+  },
+  {
+    "path": "codex-astra-addendum-manifest-v1.json",
+    "sha256": "69aae1fafe4631567349fc2f9fe733f33dd29e0d586c425966dcff7e40bdf688"
+  },
+  {
+    "path": "verificatie-v1.json",
+    "sha256": "848927b5481f79d24d9bad391e9e26aa98fd208705b7d4f379c305165bb4c7db"
+  }
+]

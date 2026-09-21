@@ -1,0 +1,14 @@
+[
+  {
+    "path": "cowork-uitwisseling/cowork-bewijs-v1/gevallen-v1.json",
+    "sha256": "782a950c9b4878472f21776ccedd5b10453e63e3c7664fffe85c03ee4ac2fb61"
+  },
+  {
+    "path": "cowork-uitwisseling/cowork-bewijs-v1/uitkomsten-v1.json",
+    "sha256": "a2412cb0e2bd282e0f0c6b5ded6157a45fb8deed9df87e454280e169b2ff80da"
+  },
+  {
+    "path": "cowork-uitwisseling/cowork-bewijs-v1/proef-ess04-v1.py",
+    "sha256": "466346240ef2a1e5186ff1b286ed6b6e1c48fd849037b25286921d27ae02dabd"
+  }
+]

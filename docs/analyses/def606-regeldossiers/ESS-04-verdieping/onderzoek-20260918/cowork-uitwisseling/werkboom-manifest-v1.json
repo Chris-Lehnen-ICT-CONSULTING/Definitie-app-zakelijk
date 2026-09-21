@@ -1,0 +1,184 @@
+{
+  "commit": "50d0770ded6f4e8337738126d6bc2aa8f169e3de",
+  "files": [
+    {
+      "path": "config/toetsregels/toetsregels_config.yaml",
+      "available": true,
+      "sha256": "900f77bcab4483a4f261416ec246fe5ecd3d46a00168b6444f491daafdb7a3cd"
+    },
+    {
+      "path": "src/toetsregels/manager.py",
+      "available": true,
+      "sha256": "8c8807bc7cd565c6a1f7d3632f4a256e8d5f7419a91ac3adbee6150b8032d3d6"
+    },
+    {
+      "path": "src/toetsregels/rule_cache.py",
+      "available": true,
+      "sha256": "233745898248826d584b1d10cda9791545c042b3f184a7b99600b39c8f48eeae"
+    },
+    {
+      "path": "src/toetsregels/cached_manager.py",
+      "available": true,
+      "sha256": "6ff2a795f270570a739d8343318bd55d5fec3e25fa7ae89505138b4d1a6bd3c4"
+    },
+    {
+      "path": "src/toetsregels/runtime_contract.py",
+      "available": true,
+      "sha256": "ae306b92eb10e1f922b0da0c3c15204bebe2f3ebce38980e53e62a80caf06824"
+    },
+    {
+      "path": "src/services/validation/evaluators/judgment_review.py",
+      "available": true,
+      "sha256": "7a38ca293da10060f4e537159cb7028c94ca3cb56e4a877ae4eca1c1ea3ebaa3"
+    },
+    {
+      "path": "src/services/validation/evaluators/base.py",
+      "available": true,
+      "sha256": "638481fd50eea860d8b493a4e40ca5156944641ed7e1cb9e891303098331817d"
+    },
+    {
+      "path": "src/services/validation/modular_validation_service.py",
+      "available": true,
+      "sha256": "aa5e5aa3cf2ed346d3f136a7f4d515869c1b8041a64a9ac9c9b023db3a415df1"
+    },
+    {
+      "path": "src/services/validation/types.py",
+      "available": true,
+      "sha256": "29d43d60a2bc4dbbf126f661a078e39b14372cdc93a878ee487447479c9c9835"
+    },
+    {
+      "path": "src/services/validation/mappers.py",
+      "available": true,
+      "sha256": "5031e1d3d1f987f809521cae30a9412d727492ceb9d6c27d633eef03a4512f76"
+    },
+    {
+      "path": "src/services/validation/interfaces.py",
+      "available": true,
+      "sha256": "318eaaf385138ca626923aad871b80748c10c41e055e64a3612ec822a5ba86df"
+    },
+    {
+      "path": "src/services/orchestrators/validation_orchestrator_v2.py",
+      "available": true,
+      "sha256": "a5b0d9d89338ecf2edcc576532bc929d73cb70aa84c2058dde08487d6753ca7e"
+    },
+    {
+      "path": "src/services/orchestrators/definition_orchestrator_v2.py",
+      "available": true,
+      "sha256": "d85a5ba172d318806010232053637547c280ac00b4a02ca8a9401c02ec199d88"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "available": true,
+      "sha256": "e8b8a935a27f77e1615d632f47f536a78f09fa9af79bf9222d7fe7880aabbc02"
+    },
+    {
+      "path": "src/services/cleaning_service.py",
+      "available": true,
+      "sha256": "b543f964e7dab496cd664b38ca5e6a485796302fa89ef3ab1052cb15f4cb8005"
+    },
+    {
+      "path": "src/opschoning/opschoning.py",
+      "available": true,
+      "sha256": "32531752deb8de51344835469d2931ea30828610d5946338efc48040fbd29fd0"
+    },
+    {
+      "path": "src/opschoning/opschoning_enhanced.py",
+      "available": true,
+      "sha256": "9579fcafc875a4b8600a3d4de16c8526b8b099ca6eba61c0e2e76de897207acc"
+    },
+    {
+      "path": "src/ui/components/expert_review_tab.py",
+      "available": true,
+      "sha256": "7123bdfc5ab2a86eb3bc4bd823b2575c0e97f109b89409bae2b03f42b54de4f5"
+    },
+    {
+      "path": "src/ui/components/validation_renderer.py",
+      "available": true,
+      "sha256": "f71ac29ece3196b410151f799b1ee21d75d5d205121b222a1262aa5ffaba5f0c"
+    },
+    {
+      "path": "src/ui/components/validation_view.py",
+      "available": true,
+      "sha256": "21a649bd7fa073d1b21df4db0d446da036df1889d121c2afdf1c1cba71ea06c8"
+    },
+    {
+      "path": "src/services/definition_workflow_service.py",
+      "available": true,
+      "sha256": "dd2bbb7827060b1f037257fba16d3aa65fec1e478598cf87fb3bbd6fd3591147"
+    },
+    {
+      "path": "src/services/export_service.py",
+      "available": true,
+      "sha256": "58874058e090f3ae2c57bf0fc0b4cde02eab99c39877b63eb468705889625dee"
+    },
+    {
+      "path": "src/services/import_service.py",
+      "available": false
+    },
+    {
+      "path": "src/database/schema.sql",
+      "available": true,
+      "sha256": "63bf1a39570dd16d8e4b995d6b0f0a16c409582c5d491e2eee7745fe78ea6c25"
+    },
+    {
+      "path": "src/services/definition_repository.py",
+      "available": true,
+      "sha256": "b31dd7169b59668811da852213b021827ff0c019cb0b5fd7c73c71aee2e6daf0"
+    },
+    {
+      "path": "src/ui/components/definition_edit_tab.py",
+      "available": true,
+      "sha256": "b71824bb08dcadd0b48e06e09959224ca0f32d292a21ff4bac8baf45dc78095d"
+    },
+    {
+      "path": "tests/unit/validation/test_v2_golden_ess_more.py",
+      "available": true,
+      "sha256": "414003a7697966cb7d1ef0572f2ec43c716019082b1fb534570b9704633916d3"
+    },
+    {
+      "path": ".claude/rules/patterns.md",
+      "available": true,
+      "sha256": "aadad98574fade55a6a4ee93b7385f78090bed8ff0f754f96bb975569b3821b5"
+    },
+    {
+      "path": "src/toetsregels/regels/ESS-04.json",
+      "available": true,
+      "sha256": "78537a76b454e1c652a1601b1804abdf3b28092f88547de3fea9c410d91a389c"
+    },
+    {
+      "path": "src/toetsregels/regels/ESS-01.json",
+      "available": true,
+      "sha256": "172174c2e1809a5f6c606d6af55948e2e57dc882feb97b5a78a62432c232ce9e"
+    },
+    {
+      "path": "src/toetsregels/regels/ESS-02.json",
+      "available": true,
+      "sha256": "32697ee83ee385b425444e674cca54136a9071a9bb92ac10918a46c5ecb3cf25"
+    },
+    {
+      "path": "src/toetsregels/regels/ESS-03.json",
+      "available": true,
+      "sha256": "a5a177dea23b6348ace90ab1be914680b7394235ca9e6cc8d5ab1af01f61643a"
+    },
+    {
+      "path": "src/toetsregels/regels/ESS-05.json",
+      "available": true,
+      "sha256": "5f50bbcfe7f8908100133878e8b7f7e37269c7730e0cd0166807356e3e91ef81"
+    },
+    {
+      "path": "src/toetsregels/regels/ARAI-03.json",
+      "available": true,
+      "sha256": "86ae6c76610b35bfcb337d036533a3f21c799ff2ba1ddd89f873fc1c44099a5f"
+    },
+    {
+      "path": "src/toetsregels/regels/CON-01.json",
+      "available": true,
+      "sha256": "128bb2d869ac36b728716015217cde6679004ca9a8722aace4745dc56c983c73"
+    },
+    {
+      "path": "src/toetsregels/regels/CON-02.json",
+      "available": true,
+      "sha256": "0aed1ca3a6dccc9ca475f1389575d28b1f27ea39b86b2a109edcaa2a65fc8b9f"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "regel": "ESS-04",
+  "commit": "4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb",
+  "record_sha256": "78537a76b454e1c652a1601b1804abdf3b28092f88547de3fea9c410d91a389c",
+  "offline": true,
+  "modelcall": false,
+  "replica": true,
+  "additional_patterns_meegenomen": false,
+  "python": "3.10.12",
+  "uitgevoerd": "2026-09-18T14:47:42",
+  "resultaten": [
+    {
+      "id": "ESS04-C01",
+      "histlabel": "good_fragment",
+      "tekst": "…binnen 3 dagen nadat het verzoek is ingediend…",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": true,
+      "signalen": [
+        "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+      ],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "ASTRA-voorbeeld GOED; patroon binnen \\d+ dagen"
+    },
+    {
+      "id": "ESS04-C02",
+      "histlabel": "bad_fragment",
+      "tekst": "…zo snel mogelijk na ontvangst…",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": false,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "ASTRA-voorbeeld FOUT; geen patroon voor onbepaaldheid"
+    },
+    {
+      "id": "ESS04-C03",
+      "histlabel": "non_numeric",
+      "tekst": "Veelhoek waarvan alle zijden even lang zijn.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": false,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "toetsbaar zonder meting; patronen zijn numeriek/trefwoord"
+    },
+    {
+      "id": "ESS04-C04",
+      "histlabel": "unfounded_number",
+      "tekst": "Belangrijke aanvraag die binnen 3 dagen relevant wordt.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": true,
+      "signalen": [
+        "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+      ],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "patroon vuurt op de termijn; 'belangrijke'/'relevant' blijven onbeoordeelbaar"
+    },
+    {
+      "id": "ESS04-C05",
+      "histlabel": "ambiguous_measure",
+      "tekst": "Object dat minimaal 80% voldoet.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": false,
+      "grond": "record bevat patroon \\bminimaal\\s+\\d+%\\b"
+    },
+    {
+      "id": "ESS04-C06",
+      "histlabel": "observable",
+      "tekst": "Document waarop de afzender een handtekening heeft geplaatst.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": false,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "geen patroonwoord aanwezig"
+    },
+    {
+      "id": "ESS04-C07",
+      "histlabel": "empty",
+      "tekst": "",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": false,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "geen tekst om te beoordelen"
+    },
+    {
+      "id": "ESS04-C08",
+      "histlabel": null,
+      "tekst": "Regeling die tenminste 80% van de gevallen dekt.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": false,
+      "grond": "record bevat patroon \\btenminste\\s+\\d+%\\b"
+    },
+    {
+      "id": "ESS04-C09",
+      "histlabel": null,
+      "tekst": "Besluit dat de gronden van de afwijzing bevat.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": true,
+      "signalen": [
+        "\\bbevat\\b"
+      ],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "record bevat patroon \\bbevat\\b"
+    },
+    {
+      "id": "ESS04-C10",
+      "histlabel": null,
+      "tekst": "Melding die zo snel mogelijk wordt gedaan en het dossiernummer bevat.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": true,
+      "signalen": [
+        "\\bbevat\\b"
+      ],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "'bevat' vuurt; de onbepaaldheid 'zo snel mogelijk' wordt niet gesignaleerd"
+    },
+    {
+      "id": "ESS04-C11",
+      "histlabel": null,
+      "tekst": "Verzoek dat uiterlijk na 1 week is afgehandeld.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": false,
+      "grond": "record bevat patroon \\buiterlijk\\s+na\\s+\\d+\\s+(dagen?|weken?)\\b"
+    },
+    {
+      "id": "ESS04-C12",
+      "histlabel": null,
+      "tekst": "Beslissing die binnen drie dagen wordt genomen.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": false,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "patronen eisen \\d+; 'drie' wordt gemist — inhoudelijk gelijkwaardig aan C01"
+    },
+    {
+      "id": "ESS04-C13",
+      "histlabel": null,
+      "tekst": "Aanvraag die binnen 3 werkdagen na ontvangst wordt behandeld.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": false,
+      "werkelijk_signaal": false,
+      "signalen": [],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "patroon eist 'dagen'; 'werkdagen' valt buiten \\bdagen?\\b"
+    },
+    {
+      "id": "ESS04-C14",
+      "histlabel": null,
+      "tekst": "Kandidaat die minimaal 80%voldoet.",
+      "verwacht_status": "review_required",
+      "werkelijke_status": "review_required",
+      "verwacht_signaal": true,
+      "werkelijk_signaal": true,
+      "signalen": [
+        "\\bminimaal\\s+\\d+%\\b"
+      ],
+      "reden_aan_gebruiker": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+      "verwachting_uitgekomen": true,
+      "grond": "alleen hier levert \\bminimaal\\s+\\d+%\\b een woordgrens op"
+    }
+  ],
+  "afwijkingen": 3
+}

@@ -1,0 +1,22 @@
+{
+  "frozen_at": "2026-09-18T13:43:32.600654+00:00",
+  "before_reading_new_cowork_conclusions": true,
+  "files": [
+    {
+      "path": "codex-onderzoek-v1.md",
+      "sha256": "c50a3fedc180de8bc2fbc0912dfa621a48b4becfe2e0bc1979ef29ab55fffbfc"
+    },
+    {
+      "path": "bron-bewijsregister-v1.md",
+      "sha256": "ba4019c2c4fee2711da9252e304c23eacc462f52d98ba4273bc560d4581ac546"
+    },
+    {
+      "path": "casusregister-v1.md",
+      "sha256": "f014f47f53ce2cd565d027de4f725f84f0de475fcbc75be5797b3cbd9980fdce"
+    },
+    {
+      "path": "instructievoorstellen-v1.md",
+      "sha256": "9974ef7ae7c9b70fcfd5afc995c47eb78ab4bbbb3888d3286b9ed2c20fbd3bac"
+    }
+  ]
+}

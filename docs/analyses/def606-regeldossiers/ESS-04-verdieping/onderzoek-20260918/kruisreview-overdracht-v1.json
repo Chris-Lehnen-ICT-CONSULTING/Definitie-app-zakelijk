@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-18T15:32:25.510266+00:00",
+  "both_first_contributions_saved_before_exchange": true,
+  "codex_first_unchanged": true,
+  "cowork_first": [
+    {
+      "path": "cowork-uitwisseling/cowork-onderzoek-v1.md",
+      "sha256": "7f9138d152d1bd617c4df340bf52ce4c00b3cc1b4cec2bd8d55d9a4a07062708"
+    },
+    {
+      "path": "cowork-uitwisseling/cowork-toegang-v1.md",
+      "sha256": "32219d913a48203528134eee58e73fcfd62a3e742860dbb0a1073730a0747a74"
+    },
+    {
+      "path": "cowork-uitwisseling/cowork-toegang-v1-aanvulling-v1.md",
+      "sha256": "c6cb0c4ffbea113cc6a99e6e35ecf43f01aa0eafa0b3ab5c2cf0c228cafdfb2e"
+    }
+  ]
+}

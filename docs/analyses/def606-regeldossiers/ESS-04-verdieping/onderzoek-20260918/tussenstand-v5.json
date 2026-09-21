@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-09-18T14:48:12.142438+00:00",
+  "session": "https://claude.ai/cowork/cse_01NHNJgYx3pSN8LUPUYHuEPe",
+  "authorization": "complete: session, folder access, task exchange and Anthropic processing explicitly approved",
+  "state": "Cowork first research started; access file received; full first research not yet received",
+  "ui_issue": "Native AX stalled at Used52 tools / 6m9s; input retained despite Send/Return; screenshot older state; refresh and control reset did not restore updates. Browser alternative timed out Accessibility.enable. Actual remote research process status uncertain.",
+  "pending_user_help": "Check whether Mac and Claude respond and whether ESS-04 task still runs. No additional permission needed.",
+  "access_file_exists": true,
+  "first_research_exists": false,
+  "not_received": [
+    "cowork first full research",
+    "both cross-reviews",
+    "both review processings",
+    "joint synthesis",
+    "Cowork synthesis check"
+  ],
+  "source_supplement": "nalevering-4cdb8ea43 plus ASTRA observation v2 exists; UI follow-up delivery unconfirmed; draft stays in composer",
+  "next": "Restore UI; inspect same existing Cowork session. Do not create duplicate. Once full v1 saved, hash before reading and exchange frozen Codex contribution plus ASTRA/code addenda and proof attachments for reviews."
+}

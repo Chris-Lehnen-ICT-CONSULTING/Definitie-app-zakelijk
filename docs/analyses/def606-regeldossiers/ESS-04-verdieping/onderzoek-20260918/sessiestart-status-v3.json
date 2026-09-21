@@ -1,0 +1,13 @@
+{
+  "status": "sessiestart wacht op expliciete Anthropic-verwerkingstoestemming",
+  "folder": "/Users/chrislehnen/.codex/worktrees/6ff5/Definitie-app/docs/analyses/def606-regeldossiers/ESS-04-verdieping/onderzoek-20260918/cowork-uitwisseling",
+  "file_count": 135,
+  "env_or_database_files": [],
+  "source_copies_unchanged": true,
+  "ess03_thread_status": "completed/idle rechtstreeks via wait_threads geverifieerd",
+  "permission_checkbox_dont_ask_again": false,
+  "dialog": "Allow this Cowork session to access this folder? Files Claude uses leave device and are processed on Anthropic servers.",
+  "auto_review_rejection": "Eerdere toestemming dekte maptoegang en taakgerichte uitwisseling, niet duidelijk concrete gevoelige payload naar Anthropic.",
+  "pending_question": "Onderzoekskopieën broncode/config, Linear-issues/reacties, dossiers en skillteksten naar Anthropic voor ESS-04?",
+  "astra": "huidige pagina gelezen; bronobservatie v2 + onafhankelijk Codex-addendum v1; geen nieuwe Cowork-conclusies gelezen"
+}

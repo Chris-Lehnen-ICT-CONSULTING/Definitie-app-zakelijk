@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python ../reviewproef-v1.py",
+  "cwd": "/Users/chrislehnen/.codex/worktrees/6ff5/Definitie-app/docs/analyses/def606-regeldossiers/ESS-04-verdieping/onderzoek-20260918/codebasis-4cdb8ea43",
+  "files": {
+    "reviewproef-stderr-v1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewproef-verwachting-v1.md": "9a5dd1465737bd6a837e5c46d34fb4f4f4774853f65b23c003a69f6f3485046b",
+    "reviewproef-v1.py": "a005c68ca0cf83ea97aa1db8b57818e863ffc71f5ce3b9924eb76b7f16f2b825",
+    "reviewproef-uitvoer-v1.json": "242c5d86787723e430ee617f4ce17a8377e2aa78926c3b4b8736e551c820f930"
+  }
+}

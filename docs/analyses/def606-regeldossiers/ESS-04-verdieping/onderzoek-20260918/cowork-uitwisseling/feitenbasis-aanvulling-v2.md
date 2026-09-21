@@ -1,0 +1,9 @@
+# Nieuwe bronversie vóór zelfstandige conclusies
+
+Bij aanvang was eigen werk-HEAD 50d0770 (21 augustus). Tijdens broncontrole is de lokaal beschikbare origin/main-ref veranderd van ae554bd0 naar `4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb` (18 september 2026 15:27:24 +0200, PR464). Gebruik voor actuele codeclaims de nu bevroren kopieën in `werkboom-4cdb8ea43/`; hashes staan in werkboom-4cdb8ea43-manifest-v1.json. De oudere `werkboom/` is alleen vergelijkingsbasis. De hoofdwerkboom en oorspronkelijke projectmap zijn niet gewijzigd. Dit is een bronactualisatie, geen nieuw Codex-oordeel.
+
+Lees ook de toegevoegde comments-DEF-750/751/752/754/745 in bronnen/. DEF-751-comment van 17 september registreert merge PR461 met aanvullende grenzen; eerdere comments over alleen concept-PRs zijn historie. De beschikbare recente code is apart te onderzoeken, een issuecomment bewijst niet ieder codepad. DEF-752-comment legt de eerste gedeelde beoordelingsopslag als uitvoering vast; een specificatie is geen oplevering. DEF-745 is als Done geretourneerd, maar zijn nieuwste comment zegt dat restcriteria open blijven. Bewaar dat bronverschil; heropen geen normbesluiten.
+
+Primaire leesaanwijzingen voor de open normvraag (geen conclusie): ASTRA Toetsbaarheid, https://www.astraonline.nl/index.php/Toetsbaarheid (twee webpogingen hier niet toegankelijk); NL-SBB vastgestelde versie 10 oktober 2024, §2.4.1.1 en §2.4.1.2, https://docs.geostandaarden.nl/nl-sbb/nl-sbb/ ; JCGM VIM3 §1.30 nominal property, https://jcgm.bipm.org/vim/en/1.30.html en §2.1 measurement, https://jcgm.bipm.org/vim/en/2.1.html (beide bereikbaar). Lees relevante passages zelf; formuleer onafhankelijke conclusies.
+
+De huidige researchmap bevat geen nieuwe Codex-conclusies. Start na toegang direct de volledige eerste beantwoording. Nieuwe codebestanden die je nodig hebt kunnen gericht worden aangeleverd uit dezelfde bevroren commit.
