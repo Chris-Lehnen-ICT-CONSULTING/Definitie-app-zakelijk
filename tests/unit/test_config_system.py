@@ -89,7 +89,7 @@ class TestConfigManager:
             from config.config_manager import get_default_model
 
             # Default-provider = anthropic → hoogste Opus voor alle vragen.
-            assert get_default_model() == "claude-opus-4-8"
+            assert get_default_model() == "claude-opus-5"
 
     def test_default_temperature_no_config_drift(self):
         """DEF-460: de gecommitte config.yaml mag niet driften van de

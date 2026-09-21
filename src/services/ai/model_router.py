@@ -30,8 +30,8 @@ class ModelRouter:
                 critical: "gpt-5.2"
                 standard: "gpt-5-mini"
             anthropic:
-                critical: "claude-opus-4-8"
-                standard: "claude-opus-4-8"
+                critical: "claude-opus-5"
+                standard: "claude-opus-5"
         pricing:  # per-token input/output cost, keyed by model name
             "gpt-5.2": {input: 0.00003, output: 0.00006}
             ...
@@ -41,8 +41,9 @@ class ModelRouter:
     _DEFAULT_PRICING: dict[str, float] = {"input": 0.00003, "output": 0.00006}
 
     _DEFAULT_CONFIG: dict[str, Any] = {
-        # Default provider = Anthropic; het hoogste Opus-model (claude-opus-4-8)
-        # bedient elke tier, zodat alle AI-vragen van de app op Opus 4.8 draaien.
+        # Default provider = Anthropic; het hoogste Opus-model (claude-opus-5)
+        # bedient elke tier, zodat alle AI-vragen van de app op Opus 5 draaien
+        # (wissel van Opus 4.8 naar Opus 5 op 21-09-2026, opdracht Chris; DEF-766).
         "active_provider": "anthropic",
         "task_tiers": {
             "critical": [
@@ -56,15 +57,17 @@ class ModelRouter:
         "providers": {
             "openai": {"critical": "gpt-5.2", "standard": "gpt-5-mini"},
             "anthropic": {
-                "critical": "claude-opus-4-8",
-                "standard": "claude-opus-4-8",
+                "critical": "claude-opus-5",
+                "standard": "claude-opus-5",
             },
         },
         # DEF-458: canonical pricing — single source for CostCalculator.
-        # Anthropic-tarieven per token: Opus 4.8 = $5/$25 per 1M tokens.
+        # Anthropic-tarieven per token: Opus 5 = $5/$25 per 1M tokens
+        # (platform.claude.com/docs/en/models/overview, geraadpleegd 2026-09-21).
         "pricing": {
             "gpt-5.2": {"input": 0.00003, "output": 0.00006},
             "gpt-5-mini": {"input": 0.0000015, "output": 0.000006},
+            "claude-opus-5": {"input": 0.000005, "output": 0.000025},
             "claude-opus-4-8": {"input": 0.000005, "output": 0.000025},
             # Alternatieve Anthropic-modellen (niet default) — pricing behouden
             # zodat een handmatige modelwissel correct wordt doorgerekend.
