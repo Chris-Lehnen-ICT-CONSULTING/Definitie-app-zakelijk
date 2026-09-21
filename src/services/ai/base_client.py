@@ -95,6 +95,12 @@ class ChatResponse:
     tokens_used: int  # Total tokens (prompt + completion), 0 if unavailable
     model: str
     metadata: dict[str, Any] = field(default_factory=dict)
+    # DEF-766 (correctieronde 3, F1): waarom de provider stopte, in de
+    # providereigen benaming (Anthropic: "end_turn", "max_tokens", ...).
+    # Additief en optioneel: None als de provider het niet meldt. "max_tokens"
+    # betekent een afgekapt antwoord — een consument die het antwoord
+    # valideert kan dat zo van een werkelijk misvormd antwoord onderscheiden.
+    stop_reason: str | None = None
 
 
 # ---------------------------------------------------------------------------

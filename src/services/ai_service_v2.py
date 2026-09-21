@@ -33,6 +33,7 @@ from services.ai.base_client import (
     AIConnectionClientError,
     AIRateLimitClientError,
     AsyncAIClient,
+    ChatResponse,
 )
 from services.ai.model_router import ModelRouter
 from services.interfaces import (
@@ -233,7 +234,9 @@ class AIServiceV2(AIServiceInterface):
 
             # Make actual API call with timeout. De opt-ins (DEF-766) reizen
             # alleen mee wanneer ze gezet zijn, zodat het bestaande gedrag van
-            # andere routes ongewijzigd blijft.
+            # andere routes ongewijzigd blijft. `transport` vangt additieve
+            # metadata van de providerrespons (stop_reason; correctieronde 3, F1).
+            transport: dict[str, Any] = {}
             result = await asyncio.wait_for(
                 self._get_client().chat_completion(
                     prompt=prompt,
@@ -242,6 +245,9 @@ class AIServiceV2(AIServiceInterface):
                     max_tokens=max_tokens,
                     system_prompt=system_prompt,
                     use_cache=False,  # We handle caching at this level
+                    response_hook=lambda r: transport.update(
+                        self._transportmetadata(r)
+                    ),
                     **self._clientopties(max_attempts, max_retries),
                 ),
                 timeout=timeout_seconds,
@@ -278,7 +284,7 @@ class AIServiceV2(AIServiceInterface):
                 generation_time=generation_time,
                 cached=False,
                 retry_count=0,
-                metadata=self._tokenmetadata(heuristisch),
+                metadata={**self._tokenmetadata(heuristisch), **transport},
             )
 
         except TimeoutError as e:
@@ -427,6 +433,16 @@ class AIServiceV2(AIServiceInterface):
         return (
             {"tokens_estimated": True} if heuristisch or not TIKTOKEN_AVAILABLE else {}
         )
+
+    @staticmethod
+    def _transportmetadata(response: ChatResponse) -> dict[str, Any]:
+        """Additieve metadata uit de providerrespons (DEF-766, correctieronde 3, F1).
+
+        Alleen `stop_reason`, en alleen wanneer de provider het meldt; de
+        retourvorm van `generate_definition` blijft verder ongewijzigd.
+        """
+        stop_reason = getattr(response, "stop_reason", None)
+        return {"stop_reason": stop_reason} if isinstance(stop_reason, str) else {}
 
     async def batch_generate(
         self, requests: list[AIBatchRequest]

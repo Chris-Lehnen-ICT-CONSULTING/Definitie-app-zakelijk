@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 
 import anthropic
 from anthropic import AsyncAnthropic
-from anthropic.types import MessageParam
+from anthropic.types import MessageParam, ThinkingConfigParam
 
 from services.ai.base_client import (
     AIAuthenticationClientError,
@@ -39,6 +39,15 @@ logger = logging.getLogger(__name__)
 # altijd een 400 geeft. Deze client kent alleen `temperature` (top_p/top_k zitten
 # niet in de signature). Onbekend, ontbrekend of malformed beleid -> parameter
 # weglaten (fail-safe voor model-bumps).
+#
+# DEF-766 (correctieronde 3, F1): `thinking` volgt hetzelfde patroon via
+# `model_routing.capabilities.<provider>.thinking_default_on.model_families`.
+# Op die families (Opus 5, Sonnet 5) staat adaptief denken standaard aan en
+# tellen denktokens mee in `max_tokens`; de client stuurt daar expliciet
+# `thinking={"type": "disabled"}` mee. Elk ander model: parameter weglaten,
+# zodat de aanroep voor Opus 4.8 e.d. byte-identiek blijft. Geen effort.
+
+_THINKING_DISABLED: ThinkingConfigParam = {"type": "disabled"}
 
 
 class AnthropicClient:
@@ -157,21 +166,14 @@ class AnthropicClient:
                     "Expected 'system', 'user', or 'assistant'."
                 )
 
-        temperature_param: float | anthropic.Omit = anthropic.omit
-        if self._router.accepts_temperature(model, provider=self.provider_name):
-            temperature_param = temperature
-        else:
-            logger.debug(
-                "temperature weggelaten voor model %s "
-                "(niet in model_routing.capabilities.<provider>.temperature, DEF-441/DEF-731)",
-                model,
-            )
+        temperature_param, thinking_param = self._verzendbeleid(model, temperature)
 
         try:
             response = await sdk.messages.create(
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature_param,
+                thinking=thinking_param,
                 system=system_text,
                 messages=api_messages,
                 timeout=timeout or self._timeout,
@@ -207,7 +209,68 @@ class AnthropicClient:
             tokens_used=tokens_used,
             model=response.model,
             metadata={"provider": "anthropic"},
+            stop_reason=_stopreden(response, model, max_tokens, tokens_used),
         )
+
+    def _verzendbeleid(
+        self, model: str, temperature: float
+    ) -> tuple[float | anthropic.Omit, ThinkingConfigParam | anthropic.Omit]:
+        """(temperature, thinking) voor de SDK-aanroep volgens de config-policy.
+
+        Beide volgen `model_routing.capabilities.<provider>`: `temperature`
+        alleen voor families in `temperature` (DEF-441/DEF-731); `thinking`
+        expliciet uit voor families in `thinking_default_on` (DEF-766, F1).
+        Alles daarbuiten wordt weggelaten (`anthropic.omit`).
+        """
+        router = self._router
+        temperature_param: float | anthropic.Omit = anthropic.omit
+        if router.accepts_temperature(model, provider=self.provider_name):
+            temperature_param = temperature
+        else:
+            logger.debug(
+                "temperature weggelaten voor model %s "
+                "(niet in model_routing.capabilities.<provider>.temperature, DEF-441/DEF-731)",
+                model,
+            )
+
+        thinking_param: ThinkingConfigParam | anthropic.Omit = anthropic.omit
+        if router.thinking_default_on(model, provider=self.provider_name):
+            thinking_param = _THINKING_DISABLED
+            logger.debug(
+                "thinking expliciet uitgezet voor model %s "
+                "(model_routing.capabilities.<provider>.thinking_default_on, DEF-766)",
+                model,
+            )
+        else:
+            logger.debug(
+                "thinking weggelaten voor model %s "
+                "(niet in model_routing.capabilities.<provider>.thinking_default_on, DEF-766)",
+                model,
+            )
+        return temperature_param, thinking_param
 
     async def close(self) -> None:
         await self._client.close()
+
+
+def _stopreden(
+    response: Any, model: str, max_tokens: int, tokens_used: int
+) -> str | None:
+    """De door de API gemelde `stop_reason`, of None (DEF-766, correctieronde 3, F1).
+
+    "max_tokens" is een afgekapt antwoord; dat wordt gemeld — zonder sleutel of
+    promptinhoud — en reist mee in `ChatResponse.stop_reason`, zodat een
+    validerende consument afkapping van een misvormd antwoord kan onderscheiden.
+    """
+    stop_reason = getattr(response, "stop_reason", None)
+    if not isinstance(stop_reason, str):
+        return None
+    if stop_reason == "max_tokens":
+        logger.warning(
+            "Anthropic-antwoord afgekapt (stop_reason=max_tokens) voor model %s "
+            "bij max_tokens=%s; tokens_used=%s",
+            model,
+            max_tokens,
+            tokens_used,
+        )
+    return stop_reason

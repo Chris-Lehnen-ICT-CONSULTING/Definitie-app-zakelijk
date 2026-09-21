@@ -25,7 +25,11 @@ verbindingsfout of misvormd antwoord is een beoordeling met `status: error`,
 zodat de evaluator die als technische fout kan tonen (nooit als pass of als
 inhoudelijke afkeur). Een te lange bronpassage is vóór de aanroep de
 technische fout `input_truncated` (R7): er wordt niets stil afgekapt en geen
-onbegrensde actuele pass gegeven.
+onbegrensde actuele pass gegeven. Een door de provider op het tokenbudget
+afgekapt antwoord (`stop_reason == "max_tokens"`, via
+`AIGenerationResult.metadata`) is de technische fout `truncated_response`
+(correctieronde 3, F1): onderscheidbaar van `malformed_response`, nooit een
+oordeel, nooit gecachet.
 
 Duur en herhalingen (R6): de gehele operatie valt onder één deadline
 (`asyncio.timeout`). Die is afdwingbaar op elk await-punt: het transport
@@ -552,10 +556,10 @@ class Ess03AssessmentService:
                         offload_postprocessing=True,
                     )
         except Exception as exc:
-            soort = _foutsoort(exc)
+            foutsoort = _foutsoort(exc)
             logger.warning(
                 "ESS-03: telbaarheidsbeoordeling mislukt (%s): %s: %s",
-                soort,
+                foutsoort,
                 type(exc).__name__,
                 exc,
                 extra={
@@ -565,7 +569,7 @@ class Ess03AssessmentService:
             )
             document = beoordeling_technische_fout(
                 fingerprint,
-                soort,
+                foutsoort,
                 f"{type(exc).__name__}: {exc}",
                 prompt_version=self.PROMPT_VERSION,
                 norm_sha256=self._norm_sha256,
@@ -577,6 +581,7 @@ class Ess03AssessmentService:
 
         verstreken = time.perf_counter() - start
         ruwe_tekst = getattr(resultaat, "text", None)
+        stop_reason = _stop_reason(resultaat)
         attributie = {
             **attributie_basis,
             "model": (getattr(resultaat, "model", None) or attributie_basis["model"])
@@ -584,6 +589,7 @@ class Ess03AssessmentService:
             "cached": bool(getattr(resultaat, "cached", False)),
             "tokens_used": getattr(resultaat, "tokens_used", None),
             **teller.attributie(),
+            **({"stop_reason": stop_reason} if stop_reason is not None else {}),
         }
         raw_hash = (
             hashlib.sha256(ruwe_tekst.encode("utf-8")).hexdigest()
@@ -591,7 +597,7 @@ class Ess03AssessmentService:
             else None
         )
         oordeel, soort, melding, rejected = self._beoordeel_antwoord(
-            ruwe_tekst, materiaal, verstreken
+            ruwe_tekst, materiaal, verstreken, stop_reason=stop_reason
         )
         if oordeel is None:
             return self._technische_fout(
@@ -624,13 +630,19 @@ class Ess03AssessmentService:
         return Ess03Assessment(document)
 
     def _beoordeel_antwoord(
-        self, ruwe_tekst: Any, materiaal: Mapping[str, str], verstreken: float
+        self,
+        ruwe_tekst: Any,
+        materiaal: Mapping[str, str],
+        verstreken: float,
+        *,
+        stop_reason: str | None = None,
     ) -> tuple[GevalideerdOordeel | None, str | None, str | None, list[dict[str, Any]]]:
         """Nabewerking van het modelantwoord: (oordeel, foutsoort, melding, rejected).
 
-        Deadline (R6) → kaal JSON (R2) → gesloten structuur (R2) → bewijs
-        letterlijk in het verzonden materiaal (R3). Bij een fout is het oordeel
-        None en benoemen soort en melding waarom; er wordt niets gerepareerd.
+        Deadline (R6) → afkapping (F1) → kaal JSON (R2) → gesloten structuur
+        (R2) → bewijs letterlijk in het verzonden materiaal (R3). Bij een fout
+        is het oordeel None en benoemen soort en melding waarom; er wordt
+        niets gerepareerd.
         """
         if verstreken > self._timeout_seconds:
             # Vangnet: de aanroep kwam terug, maar de totale operatie overschreed
@@ -643,6 +655,22 @@ class Ess03AssessmentService:
                 (
                     f"totale duur {verstreken:.3f} s overschrijdt de deadline van "
                     f"{self._timeout_seconds} s (aanroep kwam te laat terug)"
+                ),
+                [],
+            )
+        if stop_reason == "max_tokens":
+            # Correctieronde 3 (F1): de provider meldt dat het antwoord op het
+            # tokenbudget is afgekapt. Een onvolledig antwoord telt nooit als
+            # oordeel — ook niet als de afgekapte tekst toevallig nog
+            # parseerbaar is — en is onderscheidbaar van een misvormd antwoord.
+            return (
+                None,
+                "truncated_response",
+                (
+                    "modelantwoord is afgekapt op het tokenbudget "
+                    f"(stop_reason=max_tokens bij max_tokens={self._max_tokens}); "
+                    "het antwoord is onvolledig en er is geen inhoudelijk oordeel "
+                    "gegeven"
                 ),
                 [],
             )
@@ -784,6 +812,16 @@ def _foutsoort(exc: BaseException) -> str:
     if isinstance(exc, AIServiceError):
         return "connection"
     return "unknown"
+
+
+def _stop_reason(resultaat: Any) -> str | None:
+    """De door de provider gemelde stopreden uit `AIGenerationResult.metadata`
+    (correctieronde 3, F1); None wanneer de AI-laag er geen meldt."""
+    metadata = getattr(resultaat, "metadata", None)
+    if not isinstance(metadata, Mapping):
+        return None
+    waarde = metadata.get("stop_reason")
+    return waarde if isinstance(waarde, str) and waarde else None
 
 
 def _ontsnap_citaten(geparsed: dict[str, Any]) -> dict[str, Any]:

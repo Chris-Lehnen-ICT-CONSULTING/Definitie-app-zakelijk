@@ -1321,6 +1321,10 @@ class DefinitionEditTab:
         )
         verduidelijking = self._sessieverduidelijking(def_id)
         if verduidelijking is not None:
+            # metadata is hierboven altijd als dict geconstrueerd; de guard
+            # maakt dat expliciet voor het `dict | None`-veldtype (mypy).
+            if kandidaat.metadata is None:
+                kandidaat.metadata = {}
             kandidaat.metadata["ess03_verduidelijking"] = verduidelijking
         return kandidaat
 
