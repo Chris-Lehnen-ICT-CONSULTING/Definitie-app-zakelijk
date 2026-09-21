@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     from services.rag.rag_service import RAGService
     from services.synonym_orchestrator import SynonymOrchestrator
     from services.synonym_suggester import SynonymSuggester
+    from services.validation.ess03_assessment_service import Ess03AssessmentService
     from services.validation.interfaces import ValidationOrchestratorInterface
     from services.validation.source_assessment_service import SourceAssessmentService
     from services.web_lookup.synonym_service import JuridischeSynoniemService
@@ -308,6 +309,25 @@ class ServiceContainer:
             "SourceAssessmentService", self._instances["source_assessment_service"]
         )
 
+    def ess03_assessment_service(self) -> "Ess03AssessmentService":
+        """De AI-telbaarheidsbeoordeling voor ESS-03 (DEF-766), singleton.
+
+        Zelfde opzet als de bronbeoordeling: op de gedeelde AIServiceV2 en de
+        ModelRouter (taak `validation`); één instantie (en één interne cache)
+        voor editor en generatie.
+        """
+        if "ess03_assessment_service" not in self._instances:
+            from services.validation.ess03_assessment_service import (
+                Ess03AssessmentService,
+            )
+
+            self._instances["ess03_assessment_service"] = Ess03AssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "Ess03AssessmentService", self._instances["ess03_assessment_service"]
+        )
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -375,6 +395,8 @@ class ServiceContainer:
                 rag_service=self.rag_service,
                 # DEF-743: gedeelde AI-bronbeoordeling (CON-02)
                 source_assessment_service=self.source_assessment_service(),
+                # DEF-766: gedeelde AI-telbaarheidsbeoordeling (ESS-03)
+                ess03_assessment_service=self.ess03_assessment_service(),
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 

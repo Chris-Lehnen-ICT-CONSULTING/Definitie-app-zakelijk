@@ -155,6 +155,9 @@ _DEKKING_VOLGORDE: tuple[tuple[str, str], ...] = (
     ("review_required", "🟠 {n} nog te beoordelen"),
     ("error", "⚙️ {n} technisch probleem"),
     ("not_evaluated", "⏸️ {n} niet beoordeeld"),
+    # DEF-766: een afgeronde niet-toepasselijkheid (ESS-03) — geen pass, geen
+    # open punt; alleen getoond wanneer zij voorkomt.
+    ("not_applicable", "➖ {n} niet van toepassing"),
 )
 
 
@@ -179,6 +182,8 @@ def bereken_beoordelingsdekking(
             "review_required": int(dekking.get("review_required") or 0),
             "error": int(dekking.get("error") or 0),
             "not_evaluated": int(dekking.get("not_evaluated") or 0),
+            # 2.1.0-veld; een ouder resultaat zonder telling heeft er nul.
+            "not_applicable": int(dekking.get("not_applicable") or 0),
         }
         return {"total": int(dekking["total"]), **telling}
 
@@ -203,6 +208,7 @@ def bereken_beoordelingsdekking(
         "review_required": 0,
         "error": 0,
         "not_evaluated": 0,
+        "not_applicable": 0,
     }
 
 
@@ -245,6 +251,7 @@ def _statuslijst_regels(
         ("review_required", "🟠 Nog te beoordelen"),
         ("error", "⚙️ Technisch probleem"),
         ("not_evaluated", "⏸️ Niet beoordeeld"),
+        ("not_applicable", "➖ Niet van toepassing"),
     ):
         codes = sorted(
             (str(code) for code, s in statussen.items() if str(s) == status),
@@ -314,14 +321,18 @@ _UITKOMSTLABEL: dict[str, str] = {
     "review_required": "🟠 Nog te beoordelen",
     "error": "⚙️ Technisch probleem",
     "not_evaluated": "⏸️ Niet beoordeeld",
+    # DEF-766: afgeronde niet-toepasselijkheid (ESS-03) — geen 'Voldoet'.
+    "not_applicable": "➖ Niet van toepassing",
 }
 
 
-#: Herkomst van een deeloordeel (DEF-743): het `field` van een CON-02-onderdeel
-#: zegt wáár het oordeel vandaan komt. Een AI-oordeel is herkenbaar als AI; een
-#: deskundige uitzondering is herkenbaar als uitzondering, nooit als gewone pass.
+#: Herkomst van een deeloordeel (DEF-743/DEF-766): het `field` van een
+#: onderdeel zegt wáár het oordeel vandaan komt. Een AI-oordeel is herkenbaar
+#: als AI; een deskundige uitzondering is herkenbaar als uitzondering, nooit
+#: als gewone pass.
 _HERKOMSTLABEL: dict[str, str] = {
     "source_assessment": "AI-beoordeling",
+    "ess03_assessment": "AI-beoordeling",
     "source_review": "deskundige uitzondering",
 }
 
@@ -364,22 +375,33 @@ def _correctieregel(review: dict[str, Any], correctie: dict[str, Any]) -> str:
     )
 
 
+def _beoordelingsnaam(beoordeling: dict[str, Any]) -> str:
+    """'AI-bronbeoordeling' (CON-02) of 'AI-beoordeling' (ESS-03, DEF-766).
+
+    Een ESS-03-samenvatting draagt een `verdict`-sleutel (ook als die None
+    is); de CON-02-samenvatting niet. Zo blijven de bestaande CON-02-teksten
+    ongewijzigd en heet de telbaarheidsbeoordeling niet ten onrechte 'bron'.
+    """
+    return "AI-beoordeling" if "verdict" in beoordeling else "AI-bronbeoordeling"
+
+
 def _beoordelingsstatusregel(
     status: str, beoordeling: dict[str, Any], attributie: str
 ) -> str | None:
     """Een niet-uitgevoerde AI-beoordeling: technisch mislukt, geen bronnen,
     geen dienst. None als de status daar niet over gaat."""
+    naam = _beoordelingsnaam(beoordeling)
     if status == "error":
         return (
-            "⚙️ AI-bronbeoordeling technisch mislukt"
+            f"⚙️ {naam} technisch mislukt"
             f"{attributie}: {beoordeling.get('reason') or 'geen details'}"
         )
     if status == "no_sources":
         return "ℹ️ Geen bronnen aangeleverd: geen AI-bronbeoordeling uitgevoerd."
     if status == "unavailable":
         return (
-            "⚙️ Geen bronbeoordelingsdienst beschikbaar: "
-            f"{beoordeling.get('reason') or 'AI-beoordeling niet uitgevoerd'}"
+            "⚙️ Geen beoordelingsdienst beschikbaar: "
+            f"{beoordeling.get('reason') or f'{naam} niet uitgevoerd'}"
         )
     return None
 
@@ -388,6 +410,7 @@ def _beoordelingsregel(beoordeling: dict[str, Any]) -> str | None:
     """Het `assessment`-blok: status van de AI-beoordeling, of en waarom die
     niet is toegepast (stale/historisch, technische fout) en de attributie."""
     status = str(beoordeling.get("status") or "")
+    naam = _beoordelingsnaam(beoordeling)
     model = beoordeling.get("model")
     provider = beoordeling.get("provider")
     attributie = f" ({provider or 'onbekende provider'} · {model})" if model else ""
@@ -396,17 +419,17 @@ def _beoordelingsregel(beoordeling: dict[str, Any]) -> str | None:
         return statusregel
     if beoordeling.get("applied") is False and status == "assessed":
         return (
-            "⏳ AI-bronbeoordeling is verouderd/historisch en niet toegepast: "
+            f"⏳ {naam} is verouderd/historisch en niet toegepast: "
             f"{beoordeling.get('reason') or 'hoort niet bij deze tekst, context of bronset'}"
         )
     if beoordeling.get("applied") is False:
         return (
-            "ℹ️ AI-bronbeoordeling niet uitgevoerd: "
+            f"ℹ️ {naam} niet uitgevoerd: "
             f"{beoordeling.get('reason') or 'geen beoordeling beschikbaar'}"
         )
     if beoordeling.get("applied"):
         afgewezen = beoordeling.get("rejected") or 0
-        return f"🤖 AI-bronbeoordeling toegepast{attributie}" + (
+        return f"🤖 {naam} toegepast{attributie}" + (
             f"; {afgewezen} modelclaim(s) afgewezen (onbewezen of verzonnen)"
             if afgewezen
             else ""
@@ -473,21 +496,46 @@ def render_rule_results(rule_results: dict[str, Any]) -> None:
         if not isinstance(detail, dict):
             continue
         status = str(detail.get("status") or "")
-        label = _UITKOMSTLABEL.get(status, status or "onbekend")
+        inhoudelijk = _inhoudelijk_label(detail)
+        label = inhoudelijk or _UITKOMSTLABEL.get(status, status or "onbekend")
         st.markdown(f"**{code}** · {label} — zonder cijfer (uitkomst met motivering)")
         for part in detail.get("parts") or []:
             if isinstance(part, dict):
-                _render_deeluitkomst(part)
+                _render_deeluitkomst(part, label_override=inhoudelijk)
         review = detail.get("review")
         if isinstance(review, dict):
             for regel in _review_regels(review):
                 st.markdown(f"_{regel}_")
 
 
-def _render_deeluitkomst(part: dict[str, Any]) -> None:
+#: DEF-766 (R9): een uitgevoerde AI-uitkomst 'onvoldoende informatie' is een
+#: inhoudelijke uitkomst met precies één vraag — geen generiek open punt.
+_LABEL_ONVOLDOENDE_INFORMATIE = "❓ Onvoldoende informatie"
+
+
+def _inhoudelijk_label(detail: dict[str, Any]) -> str | None:
+    """Het inhoudelijke label van een toegepaste AI-uitkomst die technisch een
+    open status draagt (`review_required`): 'Onvoldoende informatie'. None
+    voor alle andere gevallen — dan geldt het statuslabel (een niet-toegepaste,
+    historische of niet-beschikbare beoordeling blijft 'Nog te beoordelen')."""
+    beoordeling = _als_dict(_als_dict(detail.get("review")).get("assessment"))
+    if (
+        detail.get("status") == "review_required"
+        and beoordeling.get("applied") is True
+        and beoordeling.get("verdict") == "insufficient_information"
+    ):
+        return _LABEL_ONVOLDOENDE_INFORMATIE
+    return None
+
+
+def _render_deeluitkomst(
+    part: dict[str, Any], *, label_override: str | None = None
+) -> None:
     """Eén onderdeel: kop (label + herkomst + aanleiding + positie), reden en vervolgstap."""
     deelstatus = str(part.get("status") or "")
     kop = _UITKOMSTLABEL.get(deelstatus, deelstatus)
+    if label_override and deelstatus == "review_required":
+        kop = label_override
     herkomst = _HERKOMSTLABEL.get(str(part.get("field") or ""))
     if herkomst:
         kop += f" · {herkomst}"
@@ -506,9 +554,12 @@ def _render_deeluitkomst(part: dict[str, Any]) -> None:
         return
     tekst = f"{kop}\n\n{reden}\n\n**Vervolgstap:** {part.get('action') or ''}"
     # Een technische fout en een open onderdeel zijn geen 'Voldoet niet'
-    # (B-06/B-08): waarschuwing, geen fout.
+    # (B-06/B-08): waarschuwing, geen fout. Een afgeronde niet-toepasselijkheid
+    # (DEF-766) is noch een gebrek noch een open punt: informatief.
     if deelstatus == "fail":
         st.error(tekst)
+    elif deelstatus == "not_applicable":
+        st.info(tekst)
     else:
         st.warning(tekst)
 
@@ -727,16 +778,18 @@ def render_validation_detailed_list(
     # niet achter de toggle, want zonder totaalscore zijn dit dé uitkomsten.
     render_rule_results(validation_result.get("rule_results") or {})
 
-    # DEF-746/DEF-750/DEF-766: de open reden van ESS-01, ESS-02 en ESS-03 is
-    # ook bij ingeklapte details zichtbaar. Passages zijn gebruikersinvoer:
-    # toon ze letterlijk, niet als Markdown of HTML. Dit is de leesbare
+    # DEF-746/DEF-750: de open reden van ESS-01 en ESS-02 is ook bij
+    # ingeklapte details zichtbaar. Passages zijn gebruikersinvoer: toon ze
+    # letterlijk, niet als Markdown of HTML. Dit is de leesbare
     # signaalweergave (A); de menselijke beoordeling zelf en haar opslag
-    # volgen in C/D (DEF-624/626/627).
+    # volgen in C/D (DEF-624/626/627). ESS-03 staat hier sinds DEF-766 niet
+    # meer bij: zijn uitkomst (vier oordelen, vraag, fout) komt gestructureerd
+    # uit `rule_results` hierboven en zou hier dubbel verschijnen.
     for review_item in validation_result.get("review_required") or []:
         if not isinstance(review_item, dict):
             continue
         rule_id = review_item.get("rule_id")
-        if rule_id in ("ESS-01", "ESS-02", "ESS-03"):
+        if rule_id in ("ESS-01", "ESS-02"):
             st.text(str(review_item.get("reason") or f"{rule_id} — Nog te beoordelen"))
 
     # Toggle + details

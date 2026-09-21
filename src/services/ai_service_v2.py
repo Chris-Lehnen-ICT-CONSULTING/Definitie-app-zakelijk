@@ -159,6 +159,12 @@ class AIServiceV2(AIServiceInterface):
         system_prompt: str | None = None,
         timeout_seconds: int = 30,
         task_type: str | None = None,
+        *,
+        use_cache: bool | None = None,
+        max_attempts: int | None = None,
+        max_retries: int | None = None,
+        token_estimate: str = "auto",
+        offload_postprocessing: bool = False,
     ) -> AIGenerationResult:
         """
         Generate a definition using AI based on the given prompt.
@@ -171,6 +177,21 @@ class AIServiceV2(AIServiceInterface):
             system_prompt: Optional system prompt for context
             timeout_seconds: Timeout for the AI call
             task_type: DEF-314: Task type for ModelRouter lookup (e.g. 'definition_core')
+            use_cache: DEF-766 opt-in per aanroep: False omzeilt de ruwe
+                antwoordcache van deze (gedeelde) service voor routes die het
+                antwoord zelf valideren; None = de instelling van de service.
+            max_attempts: DEF-766 opt-in: aantal pogingen van de eigen
+                retrylus (`AsyncGPTClient`); None = bestaande configuratie.
+            max_retries: DEF-766 opt-in: SDK-retries per aanroep bij de
+                providerclient; None = clientdefault.
+            token_estimate: "auto" (bestaand: tiktoken indien beschikbaar) of
+                "heuristic" (DEF-766: geen blokkerende encoder-initialisatie).
+            offload_postprocessing: DEF-766 opt-in (R6): de nabewerking ná het
+                providerantwoord (tokenraming, cache-write) draait in een
+                werkthread, zodat zij voor de aanroeper een await-punt is dat
+                een deadline (`asyncio.timeout`) daadwerkelijk kan
+                onderbreken; een onderbroken raming schrijft niets in de
+                cache. False = bestaand inline gedrag.
 
         Returns:
             AIGenerationResult with generated text and metadata
@@ -179,6 +200,8 @@ class AIServiceV2(AIServiceInterface):
             AIServiceError: On AI service errors (rate limits, timeouts, etc.)
         """
         start_time = time.time()
+        gebruik_cache = self.use_cache if use_cache is None else bool(use_cache)
+        heuristisch = token_estimate == "heuristic"
         # DEF-314: model param takes precedence; then task_type via ModelRouter; then default
         if model is not None:
             model_to_use = model
@@ -198,39 +221,19 @@ class AIServiceV2(AIServiceInterface):
             )
 
             # Check cache first
-            cached = False
-            if self.use_cache:
-                from utils.cache import _cache
+            treffer = (
+                await self._cachetreffer(
+                    cache_key, prompt, model_to_use, heuristisch, start_time
+                )
+                if gebruik_cache
+                else None
+            )
+            if treffer is not None:
+                return treffer
 
-                cached_result = _cache.get(cache_key)
-                if cached_result is not None:
-                    logger.debug(f"Cache hit for prompt: {prompt[:50]}...")
-                    generation_time = time.time() - start_time
-                    tokens_used = self._estimate_tokens(
-                        prompt, cached_result, model_to_use
-                    )
-                    # Record cache hit for accurate metrics
-                    await self._record_api_call(
-                        function_name="generate_definition",
-                        duration=generation_time,
-                        success=True,
-                        tokens_used=0,  # No actual tokens used on cache hit
-                        model=model_to_use,
-                        cache_hit=True,
-                    )
-                    return AIGenerationResult(
-                        text=cached_result,
-                        model=model_to_use,
-                        tokens_used=tokens_used,
-                        generation_time=generation_time,
-                        cached=True,
-                        retry_count=0,
-                        metadata=(
-                            {"tokens_estimated": True} if not TIKTOKEN_AVAILABLE else {}
-                        ),
-                    )
-
-            # Make actual API call with timeout
+            # Make actual API call with timeout. De opt-ins (DEF-766) reizen
+            # alleen mee wanneer ze gezet zijn, zodat het bestaande gedrag van
+            # andere routes ongewijzigd blijft.
             result = await asyncio.wait_for(
                 self._get_client().chat_completion(
                     prompt=prompt,
@@ -239,18 +242,22 @@ class AIServiceV2(AIServiceInterface):
                     max_tokens=max_tokens,
                     system_prompt=system_prompt,
                     use_cache=False,  # We handle caching at this level
+                    **self._clientopties(max_attempts, max_retries),
                 ),
                 timeout=timeout_seconds,
             )
 
-            # Cache the result
-            if self.use_cache:
-                from utils.cache import _cache
-
-                _cache.set(cache_key, result, ttl=3600)
-
-            # Estimate token usage for the actual model used
-            tokens_used = self._estimate_tokens(prompt, result, model_to_use)
+            # Nabewerking: cache-write en tokenraming (inline, of met de
+            # DEF-766-opt-in onderbreekbaar in een werkthread).
+            tokens_used = await self._nabewerking(
+                result,
+                prompt,
+                model_to_use,
+                heuristisch=heuristisch,
+                gebruik_cache=gebruik_cache,
+                cache_key=cache_key,
+                offload=offload_postprocessing,
+            )
 
             generation_time = time.time() - start_time
 
@@ -269,9 +276,9 @@ class AIServiceV2(AIServiceInterface):
                 model=model_to_use,
                 tokens_used=tokens_used,
                 generation_time=generation_time,
-                cached=cached,
+                cached=False,
                 retry_count=0,
-                metadata={"tokens_estimated": True} if not TIKTOKEN_AVAILABLE else {},
+                metadata=self._tokenmetadata(heuristisch),
             )
 
         except TimeoutError as e:
@@ -328,6 +335,98 @@ class AIServiceV2(AIServiceInterface):
             # Catch any other unexpected errors
             unexpected_error_msg = f"Unexpected error in AI generation: {e!s}"
             raise AIServiceError(unexpected_error_msg) from e
+
+    async def _cachetreffer(
+        self,
+        cache_key: str,
+        prompt: str,
+        model_to_use: str,
+        heuristisch: bool,
+        start_time: float,
+    ) -> AIGenerationResult | None:
+        """Het gecachete antwoord als resultaat (met metriek), of None."""
+        from utils.cache import _cache
+
+        cached_result = _cache.get(cache_key)
+        if cached_result is None:
+            return None
+        logger.debug(f"Cache hit for prompt: {prompt[:50]}...")
+        generation_time = time.time() - start_time
+        tokens_used = self._estimate_tokens(
+            prompt, cached_result, model_to_use, heuristic=heuristisch
+        )
+        # Record cache hit for accurate metrics
+        await self._record_api_call(
+            function_name="generate_definition",
+            duration=generation_time,
+            success=True,
+            tokens_used=0,  # No actual tokens used on cache hit
+            model=model_to_use,
+            cache_hit=True,
+        )
+        return AIGenerationResult(
+            text=cached_result,
+            model=model_to_use,
+            tokens_used=tokens_used,
+            generation_time=generation_time,
+            cached=True,
+            retry_count=0,
+            metadata=self._tokenmetadata(heuristisch),
+        )
+
+    async def _nabewerking(
+        self,
+        result: str,
+        prompt: str,
+        model_to_use: str,
+        *,
+        heuristisch: bool,
+        gebruik_cache: bool,
+        cache_key: str,
+        offload: bool,
+    ) -> int:
+        """Cache-write en tokenraming ná het providerantwoord.
+
+        Zonder opt-in exact het bestaande gedrag: eerst de cache-write, dan de
+        raming, beide inline in de eventloop-thread. Met `offload` (DEF-766,
+        R6) draaien beide via `asyncio.to_thread`: de aanroeper kan er met
+        `asyncio.timeout` op onderbreken (de werkthread loopt dan uit, maar
+        het resultaat wordt niet meer gebruikt). De raming gaat vóór de
+        cache-write, zodat een onderbreking tijdens de raming níets cachet.
+        """
+        from utils.cache import _cache
+
+        if not offload:
+            if gebruik_cache:
+                _cache.set(cache_key, result, ttl=3600)
+            return self._estimate_tokens(
+                prompt, result, model_to_use, heuristic=heuristisch
+            )
+        tokens_used = await asyncio.to_thread(
+            self._estimate_tokens, prompt, result, model_to_use, heuristic=heuristisch
+        )
+        if gebruik_cache:
+            await asyncio.to_thread(_cache.set, cache_key, result, ttl=3600)
+        return int(tokens_used)
+
+    @staticmethod
+    def _clientopties(
+        max_attempts: int | None, max_retries: int | None
+    ) -> dict[str, int]:
+        """DEF-766 opt-ins voor de client; alleen aanwezig wanneer gezet."""
+        opties: dict[str, int] = {}
+        if max_attempts is not None:
+            opties["max_attempts"] = int(max_attempts)
+        if max_retries is not None:
+            opties["max_retries"] = int(max_retries)
+        return opties
+
+    @staticmethod
+    def _tokenmetadata(heuristisch: bool) -> dict[str, Any]:
+        """Markeert dat het tokenaantal geraamd is (heuristiek of geen tiktoken)."""
+        return (
+            {"tokens_estimated": True} if heuristisch or not TIKTOKEN_AVAILABLE else {}
+        )
 
     async def batch_generate(
         self, requests: list[AIBatchRequest]
@@ -411,7 +510,9 @@ class AIServiceV2(AIServiceInterface):
 
         return self._token_encoders[model]
 
-    def _estimate_tokens(self, prompt: str, response: str, model: str) -> int:
+    def _estimate_tokens(
+        self, prompt: str, response: str, model: str, *, heuristic: bool = False
+    ) -> int:
         """
         Estimate token count with ≥90% accuracy using tiktoken or heuristics.
 
@@ -419,14 +520,16 @@ class AIServiceV2(AIServiceInterface):
             prompt: Input prompt
             response: Generated response
             model: Model name for accurate encoding
+            heuristic: DEF-766 opt-in — sla de tiktoken-encoder over (die kan
+                bij eerste gebruik blokkerend initialiseren) en raam heuristisch.
 
         Returns:
             Estimated token count
         """
         full_text = prompt + response
 
-        # Get encoder for specific model
-        encoder = self._get_or_create_encoder(model)
+        # Get encoder for specific model (niet bij een heuristische raming)
+        encoder = None if heuristic else self._get_or_create_encoder(model)
 
         # Use tiktoken if available
         if encoder:

@@ -26,6 +26,8 @@ from services.ai.base_client import (
     AIRateLimitClientError,
     ChatMessage,
     ChatResponse,
+    Eventloopwacht,
+    foutketen,
     sanitize_error,
 )
 
@@ -36,18 +38,39 @@ class OpenAIClient:
     """AsyncAIClient implementation backed by the OpenAI SDK."""
 
     def __init__(
-        self, api_key: str, timeout: float = 30.0, max_retries: int = 2
+        self,
+        api_key: str,
+        timeout: float = 30.0,
+        max_retries: int = 2,
+        rebind_on_new_loop: bool = True,
     ) -> None:
         # DEF-566: max_retries gaat 1-op-1 naar de SDK (default 2 = SDK-default);
         # CI-testruns zetten 0 via create_ai_client om retry-stapeling te stoppen.
         self._timeout = timeout
-        self._client = AsyncOpenAI(
-            api_key=api_key, timeout=timeout, max_retries=max_retries
-        )
+        self._sdk_opties: dict[str, Any] = {
+            "api_key": api_key,
+            "timeout": timeout,
+            "max_retries": max_retries,
+        }
+        self._client = AsyncOpenAI(**self._sdk_opties)
+        # DEF-766 (correctieronde 2, C): zie AnthropicClient._sdk_voor_deze_loop.
+        self._rebind_on_new_loop = rebind_on_new_loop
+        self._loopwacht = Eventloopwacht()
 
     @property
     def provider_name(self) -> str:
         return "openai"
+
+    def _sdk_voor_deze_loop(self) -> AsyncOpenAI:
+        """Verse SDK-client (nieuw verbindingspool) zodra een andere eventloop
+        draait dan bij het vorige gebruik; anders dezelfde client."""
+        if self._rebind_on_new_loop and self._loopwacht.gewisseld():
+            logger.info(
+                "OpenAI-client: andere eventloop dan bij het vorige gebruik; "
+                "verse SDK-client (verbindingspool) aangemaakt"
+            )
+            self._client = AsyncOpenAI(**self._sdk_opties)
+        return self._client
 
     async def chat_completion(
         self,
@@ -56,6 +79,7 @@ class OpenAIClient:
         temperature: float = 0.7,
         max_tokens: int = 300,
         timeout: float | None = None,
+        max_retries: int | None = None,
     ) -> ChatResponse:
         if not messages:
             raise AIClientError("messages must not be empty")
@@ -63,6 +87,13 @@ class OpenAIClient:
         sdk_messages: list[ChatCompletionMessageParam] = [
             {"role": m.role, "content": m.content} for m in messages  # type: ignore[misc]
         ]
+        # DEF-766 (opt-in): SDK-retries per aanroep; zonder argument de clientdefault.
+        basis = self._sdk_voor_deze_loop()
+        sdk = (
+            basis.with_options(max_retries=int(max_retries))
+            if max_retries is not None
+            else basis
+        )
         try:
             # Newer models (gpt-5+, o1+, o3+) require max_completion_tokens
             # instead of max_tokens. Detect and use the correct parameter.
@@ -74,7 +105,7 @@ class OpenAIClient:
                 if uses_new_param
                 else {"max_tokens": max_tokens}
             )
-            response = await self._client.chat.completions.create(
+            response = await sdk.chat.completions.create(
                 model=model,
                 messages=sdk_messages,
                 temperature=temperature,
@@ -89,7 +120,7 @@ class OpenAIClient:
             logger.error("OpenAI authentication error: %s", sanitize_error(str(exc)))
             raise AIAuthenticationClientError(sanitize_error(str(exc))) from exc
         except APIConnectionError as exc:
-            logger.error("OpenAI connection error: %s", sanitize_error(str(exc)))
+            logger.error("OpenAI connection error: %s", foutketen(exc))
             raise AIConnectionClientError(sanitize_error(str(exc))) from exc
         except OpenAIError as exc:
             logger.error("OpenAI API error: %s", sanitize_error(str(exc)))

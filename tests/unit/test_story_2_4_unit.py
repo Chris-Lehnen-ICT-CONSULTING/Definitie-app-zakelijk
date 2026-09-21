@@ -114,12 +114,16 @@ class TestValidationOrchestratorV2Unit:
         result = await orchestrator.validate_text("begrip", "text")
 
         # DEF-747: toetsing en CON-01-binding gebruiken dezelfde oorspronkelijke tekst.
-        mock_validation_service.validate_definition.assert_called_once_with(
-            begrip="begrip",
-            text="text",
-            ontologische_categorie=None,
-            context={"record_text": "text"},
-        )
+        # DEF-766: zonder geïnjecteerde ESS-03-dienst reist een expliciet
+        # `unavailable`-document mee (nooit stil een pass).
+        mock_validation_service.validate_definition.assert_called_once()
+        kwargs = mock_validation_service.validate_definition.call_args.kwargs
+        assert kwargs["begrip"] == "begrip"
+        assert kwargs["text"] == "text"
+        assert kwargs["ontologische_categorie"] is None
+        context = dict(kwargs["context"])
+        assert context.pop("ess03_assessment")["status"] == "unavailable"
+        assert context == {"record_text": "text"}
 
         # Verify result structure
         assert isinstance(result, dict)

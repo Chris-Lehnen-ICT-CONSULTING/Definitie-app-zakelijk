@@ -270,6 +270,8 @@ def test_bereken_beoordelingsdekking_valt_terug_zonder_nul_of_pass_te_verzinnen(
         "review_required": 0,
         "error": 1,
         "not_evaluated": 0,
+        # DEF-766: afgeronde niet-toepasselijkheid telt apart (hier nul).
+        "not_applicable": 0,
     }
     legacy = bereken_beoordelingsdekking(
         {"violations": [{"rule_id": "X"}], "passed_rules": ["Y"]}

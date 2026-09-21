@@ -688,6 +688,7 @@ class ModularValidationService:
                 "review_required": 0,
                 "not_evaluated": snapshot.rules_expected_count,
                 "error": 0,
+                "not_applicable": 0,
                 "total": snapshot.rules_expected_count,
                 "coverage_ratio": 0.0,
             },
@@ -1625,6 +1626,13 @@ class ModularValidationService:
             )
             return
 
+        if outcome.status is ResultStatus.NOT_APPLICABLE:
+            # DEF-766: een afgeronde, gemotiveerde niet-toepasselijkheid. Geen
+            # score, geen violation, geen reviewpunt en géén passed_rule: zij
+            # is zichtbaar via `rule_statuses`, de dekking en — voor een regel
+            # zonder cijfer — het gestructureerde `rule_results`-blok.
+            return
+
         if outcome.status is ResultStatus.ERROR:
             logger.warning(
                 "Regel %s leverde een evaluatorfout: %s",
@@ -1780,6 +1788,9 @@ class ModularValidationService:
             "review_required": telling[ResultStatus.REVIEW_REQUIRED.value],
             "not_evaluated": telling[ResultStatus.NOT_EVALUATED.value],
             "error": telling[ResultStatus.ERROR.value],
+            # DEF-766: afgeronde niet-toepasselijkheid telt apart — niet als
+            # geëvalueerd (pass/fail), niet als open en niet als niet-uitgevoerd.
+            "not_applicable": telling[ResultStatus.NOT_APPLICABLE.value],
             "total": totaal,
             "coverage_ratio": round(geevalueerd / totaal, 4) if totaal else 0.0,
         }

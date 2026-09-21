@@ -176,13 +176,32 @@ def _basisresultaat(**overrides: Any) -> dict[str, Any]:
     return resultaat
 
 
-def test_contractversie_is_verhoogd_naar_2_0_0() -> None:
+def test_contractversie_is_verhoogd_naar_2_1_0() -> None:
     # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
     # rule_results toe en maakt overall_score nullable; 1.4.0 (DEF-743) voegt
     # source_assessment toe (de volledige AI-bronbeoordeling van CON-02).
     # 2.0.0 (DEF-624): validation_status verplicht en zonder default; een
     # afwezige status betekent niet langer "validated" (SemVer-major).
-    assert CONTRACT_VERSION == "2.0.0"
+    # 2.1.0 (DEF-766, additief): resultaatstatus not_applicable en
+    # ess03_assessment (de AI-telbaarheidsbeoordeling van ESS-03).
+    assert CONTRACT_VERSION == "2.1.0"
+    statussen = _schema()["properties"]["rule_statuses"]["additionalProperties"]
+    assert "not_applicable" in statussen["enum"]
+    assert (
+        "not_applicable" in _schema()["properties"]["evaluation_coverage"]["properties"]
+    )
+    # Additief: oudere resultaten zonder de telling blijven geldig.
+    assert (
+        "not_applicable"
+        not in _schema()["properties"]["evaluation_coverage"]["required"]
+    )
+    telbaarheid = _schema()["properties"]["ess03_assessment"]
+    assert telbaarheid["type"] == ["object", "null"]
+    assert set(telbaarheid["properties"]["status"]["enum"]) == {
+        "assessed",
+        "error",
+        "unavailable",
+    }
     assert _schema()["properties"]["validation_status"]["enum"] == [
         VALIDATION_STATUS_VALIDATED,
         VALIDATION_STATUS_UNKNOWN,
