@@ -185,7 +185,7 @@ class JudgmentReviewEvaluator:
         """
         toetsvraag = str(record.get("toetsvraag") or "").strip()
         return cls._reden_met_passages(
-            "ESS-04 — Toetsbaarheid.",
+            "ESS-04 — Toetsbaarheid:",
             ctx,
             signalen,
             vraag="Nog te beoordelen. Leg vast hoe het criterium '{passage}' op een "

@@ -251,15 +251,21 @@ def svc(request) -> ModularValidationService:
 
 
 class TestGeenAutomatischOordeel:
-    """Het goede noch het foute recordvoorbeeld krijgt een automatische pass/fail."""
+    """Het goede noch de foute recordvoorbeelden krijgen een automatische pass/fail.
 
-    @pytest.mark.parametrize(
-        ("casus", "begrip", "tekst"),
-        [
-            ("ESS04-C05 fout voorbeeld", "object", FOUTE_VOORBEELDEN[0]),
-            ("ESS04-C03 goed voorbeeld", "veelhoek", GOED_VOORBEELD),
-        ],
-    )
+    R-04: C04 vuurt wél een patroon ('binnen 3 dagen') en C05 niet; lege
+    tekst (C07) heeft geen toetsobject. In geen van de gevallen mag ESS-04
+    slagen, falen of een cijfer krijgen.
+    """
+
+    CASUSSEN = [
+        ("ESS04-C05 fout voorbeeld zonder treffer", "object", FOUTE_VOORBEELDEN[0]),
+        ("ESS04-C04 fout voorbeeld met treffer", "aanvraag", FOUTE_VOORBEELDEN[1]),
+        ("ESS04-C03 goed voorbeeld", "veelhoek", GOED_VOORBEELD),
+        ("ESS04-C07 lege tekst", "object", ""),
+    ]
+
+    @pytest.mark.parametrize(("casus", "begrip", "tekst"), CASUSSEN)
     def test_evaluator_blijft_review_required_zonder_score(self, casus, begrip, tekst):
         uitkomst = JudgmentReviewEvaluator().evaluate(
             ESS04, _ctx(begrip, tekst), _deps()
@@ -268,13 +274,7 @@ class TestGeenAutomatischOordeel:
         assert uitkomst.score is None
         assert uitkomst.violation is None
 
-    @pytest.mark.parametrize(
-        ("casus", "begrip", "tekst"),
-        [
-            ("ESS04-C05 fout voorbeeld", "object", FOUTE_VOORBEELDEN[0]),
-            ("ESS04-C03 goed voorbeeld", "veelhoek", GOED_VOORBEELD),
-        ],
-    )
+    @pytest.mark.parametrize(("casus", "begrip", "tekst"), CASUSSEN)
     async def test_volledige_set_geeft_nooit_automatisch_ess04_oordeel(
         self, svc, casus, begrip, tekst
     ):

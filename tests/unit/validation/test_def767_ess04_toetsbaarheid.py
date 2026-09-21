@@ -56,7 +56,8 @@ ESS04 = build_rule_record("ESS-04", _ruw("ESS-04"))
 #: Regex-artefacten die nooit als eindgebruikersverklaring mogen verschijnen.
 REGEX_ARTEFACTEN = ("\\b", "\\s", "\\w", "(?", "^\\")
 
-NORMKOP = "ESS-04 — Toetsbaarheid"
+#: R-01: de normkop eindigt op een dubbele punt als scheidingsteken.
+NORMKOP = "ESS-04 — Toetsbaarheid:"
 
 #: ESS04-C04: één patroontreffer ('binnen 3 dagen'); het getal bewijst niets.
 MET_TREFFER = ("aanvraag", "Belangrijke aanvraag die binnen 3 dagen relevant wordt.")
@@ -109,8 +110,7 @@ class TestEvaluatorPassagehulp:
         assert uitkomst.score is None
         assert uitkomst.violation is None
         reden = uitkomst.reason or ""
-        assert reden.startswith(NORMKOP)
-        assert "Te beoordelen passage: binnen 3 dagen." in reden
+        assert reden.startswith(f"{NORMKOP} Te beoordelen passage: binnen 3 dagen. ")
         assert (
             "Nog te beoordelen. Leg vast hoe het criterium 'binnen 3 dagen' op een "
             "geval wordt toegepast." in reden
@@ -129,7 +129,7 @@ class TestEvaluatorPassagehulp:
         assert not uitkomst.metadata.get("signals")
         toetsvraag = str(ESS04.get("toetsvraag"))
         assert "betekenisgrond" in toetsvraag
-        assert uitkomst.reason == f"{NORMKOP}. Nog te beoordelen. {toetsvraag}"
+        assert uitkomst.reason == f"{NORMKOP} Nog te beoordelen. {toetsvraag}"
         # De oude toetsvraag ('objectief kunt vaststellen') is weg.
         assert "objectief" not in uitkomst.reason
 
