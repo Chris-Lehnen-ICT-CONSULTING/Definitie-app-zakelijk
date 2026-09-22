@@ -1,0 +1,1990 @@
+{
+  "schema": "def766-ess03-proefrun/2",
+  "gestart": "2026-09-21T17:54:24.681227+00:00",
+  "totale_duur_s": 201.844,
+  "total_deadline_s": 1200.0,
+  "modelconfig": {
+    "provider": "anthropic",
+    "model": "claude-opus-5",
+    "task_type": "validation",
+    "temperature_requested": 0.0,
+    "temperature_sent": null,
+    "max_tokens": 1200,
+    "timeout_seconds": 60,
+    "ai_service_cache": false,
+    "dienst_cache_size": 0,
+    "dienst_optins": {
+      "use_cache": false,
+      "max_attempts": 1,
+      "max_retries": 0,
+      "token_estimate": "heuristic"
+    },
+    "sdk_max_retries_env": "0"
+  },
+  "prompt_version": "ess03-assess/2",
+  "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+  "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+  "aantal": 20,
+  "aanroepen_gestart": 20,
+  "transportpogingen_waargenomen": 20,
+  "correct": 19,
+  "per_klasse": {
+    "pass": {
+      "totaal": 5,
+      "correct": 5
+    },
+    "fail": {
+      "totaal": 5,
+      "correct": 4
+    },
+    "not_applicable": {
+      "totaal": 5,
+      "correct": 5
+    },
+    "insufficient_information": {
+      "totaal": 5,
+      "correct": 5
+    }
+  },
+  "resultaten": [
+    {
+      "id": "HT01",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 9.746,
+      "elapsed_seconds_dienst": 9.746,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 9.745,
+        "fout": null,
+        "ruwe_tekst": "{\"verdict\": \"pass\", \"applicability\": \"applicable\", \"unit\": \"één los, aaneengesloten stuk gesteente op één waarnemingsmoment\", \"reason\": \"De bedoelde betekenis duidt afzonderlijke fysieke objecten aan, dus telbaarheid is relevant. De kern geeft met 'los' en 'aaneengesloten' plus de buitenzijde die het stuk volledig van de omgeving scheidt een natuurlijke eenheidsgrens: elk afzonderlijk begrensd, niet-verbonden stuk is één instantie, en stukken met ruimte ertussen zijn verschillende instanties. De toelichting fixeert bovendien één waarnemingsmoment, waardoor continuïteit door de tijd (breuk, samensmelting) buiten de telling valt; de context en bron bevestigen dat er geen verkleefde of samengestelde gevallen zijn.\", \"evidence\": [{\"location\": \"definition\", \"quote\": \"Een los, aaneengesloten stuk gesteente waarvan de buitenzijde het stuk volledig van de omgeving scheidt.\"}, {\"location\": \"toelichting\", \"quote\": \"Een afzonderlijk fysiek stuk op één waarnemingsmoment.\"}, {\"location\": \"context\", \"quote\": \"Op een blad liggen losse stukken met ruimte ertussen. Breuk, samensmelting en verandering door de tijd vallen buiten de vraag.\"}, {\"location\": \"source:S-HT01\", \"quote\": \"Er zijn geen verkleefde stukken of samengestelde objecten.\"}], \"missing_information\": null, \"question\": null, \"uncertainty\": \"Voor grensgevallen buiten de vastgelegde context (bijvoorbeeld deels verkleefde stukken of identiteit over meerdere waarnemingsmomenten) geeft de kern geen uitsluitsel; die vallen hier echter uitdrukkelijk buiten de vraag.\"}",
+        "model": "claude-opus-5",
+        "tokens_used": 2049,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "fd6c660a45e555fbb715248acd393ce6ded79ffc1dd17c796885c4a30c2ec954",
+        "kandidaat_sha256": "d183cf69a7d051094de6b1138ace2ecfc4cb0d55e2a4bd858592548b74f21296",
+        "fingerprint": "db273fb981789683b9be9361cd8a6e03f09e0b56a24de6550c179015e2199ff3",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "a950c5d0993218010bb681b81149b8929a3b3a9c2619a7085f2158a51b212e0b"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "db273fb981789683b9be9361cd8a6e03f09e0b56a24de6550c179015e2199ff3",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:51:12.583279+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2049,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Een afzonderlijk fysiek stuk op één waarnemingsmoment.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "d183cf69a7d051094de6b1138ace2ecfc4cb0d55e2a4bd858592548b74f21296",
+            "term": "af54aa63a32a0a45448de45c949ec929c1862e6cc6e698604d6194aebc591ea6",
+            "toelichting": "319a9243c98a63fab58e1aab4cd46ef6bba796888351e530c7c539697c8d4339",
+            "context": "40f3e57d4ecad69dbe5dc6d694d6cf74b3ac970358afd09a3d917f3c9002d61e",
+            "source:S-HT01": "79a075732a976cfd5c65f90576431ede0ffd53cb90acfe0111c73b4644bc8abd"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "02e401e86546fdcb8e9c64f6fbb9c8cca5393513627101384f3e4d69b739e14b",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "één los, aaneengesloten stuk gesteente op één waarnemingsmoment",
+          "reason": "De bedoelde betekenis duidt afzonderlijke fysieke objecten aan, dus telbaarheid is relevant. De kern geeft met 'los' en 'aaneengesloten' plus de buitenzijde die het stuk volledig van de omgeving scheidt een natuurlijke eenheidsgrens: elk afzonderlijk begrensd, niet-verbonden stuk is één instantie, en stukken met ruimte ertussen zijn verschillende instanties. De toelichting fixeert bovendien één waarnemingsmoment, waardoor continuïteit door de tijd (breuk, samensmelting) buiten de telling valt; de context en bron bevestigen dat er geen verkleefde of samengestelde gevallen zijn.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een los, aaneengesloten stuk gesteente waarvan de buitenzijde het stuk volledig van de omgeving scheidt."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Een afzonderlijk fysiek stuk op één waarnemingsmoment."
+            },
+            {
+              "location": "context",
+              "quote": "Op een blad liggen losse stukken met ruimte ertussen. Breuk, samensmelting en verandering door de tijd vallen buiten de vraag."
+            },
+            {
+              "location": "source:S-HT01",
+              "quote": "Er zijn geen verkleefde stukken of samengestelde objecten."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Voor grensgevallen buiten de vastgelegde context (bijvoorbeeld deels verkleefde stukken of identiteit over meerdere waarnemingsmomenten) geeft de kern geen uitsluitsel; die vallen hier echter uitdrukkelijk buiten de vraag."
+        },
+        "rejected": [],
+        "raw_response_sha256": "a950c5d0993218010bb681b81149b8929a3b3a9c2619a7085f2158a51b212e0b",
+        "elapsed_seconds": 9.746
+      }
+    },
+    {
+      "id": "HT02",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 12.062,
+      "elapsed_seconds_dienst": 12.062,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 12.062,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"de volledige hoeveelheid kleurpasta in één afzonderlijk doseervak op het afgesproken afleesmoment\",\n  \"reason\": \"Hoewel kleurpasta als stof niet-telbaar is, bakent de kern een telbare eenheid af: de volledige hoeveelheid binnen één doseervak op een afgesproken afleesmoment. De kern benoemt zelf het onderscheidingsmiddel: verschillende doseervakken leveren verschillende porties, en het afleesmoment fixeert het peilpunt waardoor de telling niet door vervloeiing of verloop in de tijd onbepaald wordt. De aangeleverde bron bevestigt dat de vakken fysiek gescheiden zijn zonder onderlinge verbinding, waardoor de eenheidsgrens per vak feitelijk draagbaar is. Ongelijke vulhoeveelheden doen aan de telling niet af, omdat de portie door het vak en niet door een omvang wordt bepaald.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"De volledige hoeveelheid kleurpasta binnen één afzonderlijk doseervak op het afgesproken afleesmoment, waarbij hoeveelheden in verschillende doseervakken verschillende porties zijn.\"\n    },\n    {\n      \"location\": \"source:S-HT02\",\n      \"quote\": \"De doseerplaat heeft fysiek gescheiden vakken zonder onderlinge verbinding. Voor deze telling vormt de volledige inhoud van ieder gevuld vak op het afleesmoment één portie.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Ieder betrokken doseervak bevat kleurpasta; de hoeveelheid hoeft niet even groot te zijn.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Het \\\"afgesproken afleesmoment\\\" wordt in de kern niet zelf vastgelegd; zolang dat moment per telling eenduidig is afgesproken, blijft de telling bepaald, maar bij meerdere of onduidelijke afleesmomenten kan de identiteit van een portie over de tijd (bijvoorbeeld bij bijvullen of legen) verschillend worden uitgelegd.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2361,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "baab71015e9f64c097b698418ee5bf3fc70c310a702b44aa69955f6d35e5b524",
+        "kandidaat_sha256": "78ab5630bda22845cee7d0efbabeab7e148befb1a80e929108e9643d304f58ea",
+        "fingerprint": "7f334ff73ca2e18de2740bad2f0e8f47c501292c4688787518376264e717b95c",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "a6b61b8688024efd54831e6811ddcd12a7deecdfae30af20e31bbcb6287340af"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "7f334ff73ca2e18de2740bad2f0e8f47c501292c4688787518376264e717b95c",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:51:24.645953+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2361,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Een afgebakende hoeveelheid materiaal.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "78ab5630bda22845cee7d0efbabeab7e148befb1a80e929108e9643d304f58ea",
+            "term": "7a7f2c0bce64d6c389bc65b582c4c1d5a152c8376d3451b6d8464e9432f5ae16",
+            "toelichting": "396e60400e673d0135614b5d5678e9f5a8d56ca123e3a0372acd59ce87d567ba",
+            "context": "69aa0bbf67a5e3fa854718126d88041f1d4917f81cab126edd3e71474e4ed5f8",
+            "source:S-HT02": "105e79f3299d6112fd17e1cbeff91ea48308c1f69464537dcbb47c258305f4be"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "33a2ace764dff5093fcb5d136ef6eaddb26ccb65caed241d709a4bf4639988c0",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "de volledige hoeveelheid kleurpasta in één afzonderlijk doseervak op het afgesproken afleesmoment",
+          "reason": "Hoewel kleurpasta als stof niet-telbaar is, bakent de kern een telbare eenheid af: de volledige hoeveelheid binnen één doseervak op een afgesproken afleesmoment. De kern benoemt zelf het onderscheidingsmiddel: verschillende doseervakken leveren verschillende porties, en het afleesmoment fixeert het peilpunt waardoor de telling niet door vervloeiing of verloop in de tijd onbepaald wordt. De aangeleverde bron bevestigt dat de vakken fysiek gescheiden zijn zonder onderlinge verbinding, waardoor de eenheidsgrens per vak feitelijk draagbaar is. Ongelijke vulhoeveelheden doen aan de telling niet af, omdat de portie door het vak en niet door een omvang wordt bepaald.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "De volledige hoeveelheid kleurpasta binnen één afzonderlijk doseervak op het afgesproken afleesmoment, waarbij hoeveelheden in verschillende doseervakken verschillende porties zijn."
+            },
+            {
+              "location": "source:S-HT02",
+              "quote": "De doseerplaat heeft fysiek gescheiden vakken zonder onderlinge verbinding. Voor deze telling vormt de volledige inhoud van ieder gevuld vak op het afleesmoment één portie."
+            },
+            {
+              "location": "context",
+              "quote": "Ieder betrokken doseervak bevat kleurpasta; de hoeveelheid hoeft niet even groot te zijn."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Het \"afgesproken afleesmoment\" wordt in de kern niet zelf vastgelegd; zolang dat moment per telling eenduidig is afgesproken, blijft de telling bepaald, maar bij meerdere of onduidelijke afleesmomenten kan de identiteit van een portie over de tijd (bijvoorbeeld bij bijvullen of legen) verschillend worden uitgelegd."
+        },
+        "rejected": [],
+        "raw_response_sha256": "a6b61b8688024efd54831e6811ddcd12a7deecdfae30af20e31bbcb6287340af",
+        "elapsed_seconds": 12.062
+      }
+    },
+    {
+      "id": "HT03",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 10.1,
+      "elapsed_seconds_dienst": 10.099,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 10.096,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één ononderbroken aan-periode van één aangewezen lamp, van aangaan tot het daaropvolgende uitgaan\",\n  \"reason\": \"De bedoelde betekenis is een afzonderlijke gebeurtenis per lamp, dus afzonderlijke instanties zijn relevant. De kern legt de eenheidsgrens zelf vast: een maximale ononderbroken aan-periode, begrensd door aangaan en het daaropvolgende uitgaan, waardoor twee pulsen altijd door een uit-toestand gescheiden zijn. De context en bron bevestigen dat de reeks volledig is en met uit begint en eindigt, zodat elke puls een begin en einde binnen de reeks heeft; het onderscheid tussen instanties loopt via lamp en tijdsinterval en vergt geen code of identifier.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een maximale ononderbroken periode waarin de aangewezen lamp aanstaat, begrensd door het aangaan en het daaropvolgende uitgaan.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Eén afzonderlijke gebeurtenis van één lamp.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"De volledige waarnemingsreeks is beschikbaar en begint en eindigt met de lamp uit.\"\n    },\n    {\n      \"location\": \"source:S-HT03\",\n      \"quote\": \"Iedere overgang naar uit beëindigt de puls; ieder daaropvolgend aangaan begint een andere puls.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De kern spreekt van 'de aangewezen lamp' zonder de aanwijzing zelf te regelen; bij gelijktijdige pulsen van meerdere lampen berust het onderscheid op de identiteit van de lamp, wat in het materiaal niet nader is uitgewerkt.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2140,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "cb9e5f56d42775efe6931af950a91471e76da6d003f335a7f1326a4d08ff48fd",
+        "kandidaat_sha256": "fc30c3bf91cddf4a289bbb8e0fc1e1194b5e922978f8018eb2cd271de2c8ba85",
+        "fingerprint": "63f6f448bc5acb4f51d18d265002f2faaaead26bd8a63c81495e84e2f4fcd9e7",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "ba026ce3337d6f022fc00a4e25249eb7bb25a04882769dea26f294ecb7dbe447"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "63f6f448bc5acb4f51d18d265002f2faaaead26bd8a63c81495e84e2f4fcd9e7",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:51:34.746239+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2140,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Eén afzonderlijke gebeurtenis van één lamp.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "fc30c3bf91cddf4a289bbb8e0fc1e1194b5e922978f8018eb2cd271de2c8ba85",
+            "term": "055132362d9895c5f557cb773356d0177e8e5d68dd8b6556cad5274edf7146d1",
+            "toelichting": "a35fa16cbf6b973e7700beda76ee46569c0cc3c4b34ff39915c1c2bc6deedf22",
+            "context": "a61f6ed79cd8002c52a9f80ef70314d5f8a0a34d55a97188937e7d53190feadc",
+            "source:S-HT03": "b28e07a951d7e73f2e69cec2a255922bc3339a7652a7d66a33fa8357eba97385"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "fb20eb3140832c2e32fb7f9be3be74c053f815238c82856a3948f146e5ec1300",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "één ononderbroken aan-periode van één aangewezen lamp, van aangaan tot het daaropvolgende uitgaan",
+          "reason": "De bedoelde betekenis is een afzonderlijke gebeurtenis per lamp, dus afzonderlijke instanties zijn relevant. De kern legt de eenheidsgrens zelf vast: een maximale ononderbroken aan-periode, begrensd door aangaan en het daaropvolgende uitgaan, waardoor twee pulsen altijd door een uit-toestand gescheiden zijn. De context en bron bevestigen dat de reeks volledig is en met uit begint en eindigt, zodat elke puls een begin en einde binnen de reeks heeft; het onderscheid tussen instanties loopt via lamp en tijdsinterval en vergt geen code of identifier.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een maximale ononderbroken periode waarin de aangewezen lamp aanstaat, begrensd door het aangaan en het daaropvolgende uitgaan."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Eén afzonderlijke gebeurtenis van één lamp."
+            },
+            {
+              "location": "context",
+              "quote": "De volledige waarnemingsreeks is beschikbaar en begint en eindigt met de lamp uit."
+            },
+            {
+              "location": "source:S-HT03",
+              "quote": "Iedere overgang naar uit beëindigt de puls; ieder daaropvolgend aangaan begint een andere puls."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De kern spreekt van 'de aangewezen lamp' zonder de aanwijzing zelf te regelen; bij gelijktijdige pulsen van meerdere lampen berust het onderscheid op de identiteit van de lamp, wat in het materiaal niet nader is uitgewerkt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "ba026ce3337d6f022fc00a4e25249eb7bb25a04882769dea26f294ecb7dbe447",
+        "elapsed_seconds": 10.099
+      }
+    },
+    {
+      "id": "HT04",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 9.098,
+      "elapsed_seconds_dienst": 9.097,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 9.097,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één dragend frame met alle daaraan bevestigde speelpanelen, als fysiek samenstel\",\n  \"reason\": \"De kern bepaalt de eenheid via één dragend frame met de daaraan bevestigde panelen, wat een natuurlijke telgrens geeft: per frame één speelgeheel. De aangeleverde conventie bevestigt dat panelen aan precies één frame worden bevestigd, zodat overlap tussen instanties uitblijft. De kern regelt bovendien de continuïteit die in deze context nodig is: bij verplaatsing met ongewijzigde samenstelling blijft het hetzelfde speelgeheel, wat aansluit op de verhuizing van zaal Noord naar zaal Zuid.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een dragend frame met alle daaraan bevestigde speelpanelen als één geheel, dat bij verplaatsing met ongewijzigde samenstelling hetzelfde speelgeheel blijft.\"\n    },\n    {\n      \"location\": \"source:S-HT04\",\n      \"quote\": \"Elk speelgeheel heeft één zelfstandig frame. Panelen worden aan precies één frame bevestigd. Het frame met alle bevestigde panelen telt als één geheel.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Een speelgeheel verhuist van zaal Noord naar zaal Zuid. Frame, panelen en verbindingen veranderen niet.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De kern regelt expliciet alleen het geval van ongewijzigde samenstelling; wat geldt bij toevoeging of verwijdering van panelen blijft in het materiaal onbepaald, maar dat is in deze context niet nodig voor de telling.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2173,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "c32ce31e0cd2d00adf61ab729d93520e5719ac6424250ed731d342149a69d9a8",
+        "kandidaat_sha256": "33fdf25480eed99783a84ce15a4f24a0e3693817b3dd2a2e186c3846cba4fe76",
+        "fingerprint": "c42eda94e08833a3763db92de7263f4ee47cbb889e9cd6935c1c07d59e083b6e",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "e6b435ac44826434f89575c214b767ecff26d11c2f81745c441eff69986ba28b"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "c42eda94e08833a3763db92de7263f4ee47cbb889e9cd6935c1c07d59e083b6e",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:51:43.846204+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2173,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Het complete fysieke samenstel, gevolgd tijdens transport.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "33fdf25480eed99783a84ce15a4f24a0e3693817b3dd2a2e186c3846cba4fe76",
+            "term": "53f33dcca260f66a056020abd2126c2945136e0ab167619ab028727c64293768",
+            "toelichting": "2a92bd0ba6c275828d89fe68a12b86d29c98e9224e97ae6bf71fc73f17bda928",
+            "context": "632de64b0fea21e5cf03583858c344c8273371eec7b5776314389c1dbabcecd6",
+            "source:S-HT04": "8a4acfd7fe4b5187bfb1616446630b15613cfc8adb8360f5ef3e155fbee4789a"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "80af1d7f518601a368afd96ec29b3843f5de9e5bc3a802dc809ed3639a93fa9e",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "één dragend frame met alle daaraan bevestigde speelpanelen, als fysiek samenstel",
+          "reason": "De kern bepaalt de eenheid via één dragend frame met de daaraan bevestigde panelen, wat een natuurlijke telgrens geeft: per frame één speelgeheel. De aangeleverde conventie bevestigt dat panelen aan precies één frame worden bevestigd, zodat overlap tussen instanties uitblijft. De kern regelt bovendien de continuïteit die in deze context nodig is: bij verplaatsing met ongewijzigde samenstelling blijft het hetzelfde speelgeheel, wat aansluit op de verhuizing van zaal Noord naar zaal Zuid.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een dragend frame met alle daaraan bevestigde speelpanelen als één geheel, dat bij verplaatsing met ongewijzigde samenstelling hetzelfde speelgeheel blijft."
+            },
+            {
+              "location": "source:S-HT04",
+              "quote": "Elk speelgeheel heeft één zelfstandig frame. Panelen worden aan precies één frame bevestigd. Het frame met alle bevestigde panelen telt als één geheel."
+            },
+            {
+              "location": "context",
+              "quote": "Een speelgeheel verhuist van zaal Noord naar zaal Zuid. Frame, panelen en verbindingen veranderen niet."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De kern regelt expliciet alleen het geval van ongewijzigde samenstelling; wat geldt bij toevoeging of verwijdering van panelen blijft in het materiaal onbepaald, maar dat is in deze context niet nodig voor de telling."
+        },
+        "rejected": [],
+        "raw_response_sha256": "e6b435ac44826434f89575c214b767ecff26d11c2f81745c441eff69986ba28b",
+        "elapsed_seconds": 9.097
+      }
+    },
+    {
+      "id": "HT05",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 10.585,
+      "elapsed_seconds_dienst": 10.585,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 10.585,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één ononderbroken rolvervulling: de aanstelling van één persoon als begeleider van één kring, van aanvaarding tot beëindiging\",\n  \"reason\": \"De bedoelde betekenis is een afzonderlijke rolvervulling, dus afzonderlijke instanties zijn relevant. De kern bepaalt de eenheid door de combinatie persoon–kring en de tijdsgrens aanvaarding–beëindiging, en benoemt expliciet dat een aanstelling voor een andere kring of na beëindiging een andere instantie is; daarmee is meervoudige en herhaalde aanstelling van dezelfde persoon eenduidig te tellen. De aangeleverde bron bevestigt dezelfde eenheidsgrens en verduidelijkt dat een tijdelijke locatiewijziging de continuïteit niet doorbreekt. Er is geen code of naam nodig om de instanties te onderscheiden.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een maximale ononderbroken aanstelling van één persoon als begeleider van één kring, vanaf aanvaarding tot beëindiging, waarbij een aanstelling voor een andere kring of na beëindiging een andere instantie is.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Een afzonderlijke rolvervulling, niet de persoon of de algemene activiteit.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Dezelfde persoon kan meerdere kringen begeleiden en later opnieuw worden aangesteld.\"\n    },\n    {\n      \"location\": \"source:S-HT05\",\n      \"quote\": \"Een aanstelling geldt voor precies één persoon en één kring. Aanvaarding begint de aanstelling; beëindiging sluit haar af. Hernieuwde aanvaarding na beëindiging begint een nieuwe aanstelling. Een tijdelijke wijziging van vergaderlocatie beëindigt de aanstelling niet.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Het materiaal specificeert niet wanneer een kring als dezelfde of een andere kring geldt (bijvoorbeeld bij samenvoeging of hernoeming van kringen); in randgevallen kan dat de telling beïnvloeden.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2553,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "aedbdc72e4c7e9eaf3ee2168af485777b6f613c8523b3a0ed873c3d680156f91",
+        "kandidaat_sha256": "8add53f36f6233f9b014d4dc9fd83416a272c5cbedf2944cdbbfc73199a75a3a",
+        "fingerprint": "000a9d4235547847df769ebf1a4bea863255a0c1ba9ee5257cbee600f0d5c472",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "ac51831e074dfacedf36f5d709a8281af802cd707f94722141096002385c692d"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "000a9d4235547847df769ebf1a4bea863255a0c1ba9ee5257cbee600f0d5c472",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:51:54.431567+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2553,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Een afzonderlijke rolvervulling, niet de persoon of de algemene activiteit.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "8add53f36f6233f9b014d4dc9fd83416a272c5cbedf2944cdbbfc73199a75a3a",
+            "term": "693cee7bb3db19fa38d231a66414297c34d8ccd37bf04f6c426bf6ff14836249",
+            "toelichting": "b1ab4d98ff16b6c4bcb06e953040f2155869bd832cd4fda7236801d1e7525e3f",
+            "context": "50beeb011bf6d67ba528b3aba90fbfd66a7b48401d2a23bf15b6f627750556b0",
+            "source:S-HT05": "aeb9553dca98decfdd1e748d56a17afc9efcd00e0b5fd6653b22d103483973a6"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "d0a5891f7aff184e335583937257be5f2bf08374f212378b4bba46a87a0118c2",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "één ononderbroken rolvervulling: de aanstelling van één persoon als begeleider van één kring, van aanvaarding tot beëindiging",
+          "reason": "De bedoelde betekenis is een afzonderlijke rolvervulling, dus afzonderlijke instanties zijn relevant. De kern bepaalt de eenheid door de combinatie persoon–kring en de tijdsgrens aanvaarding–beëindiging, en benoemt expliciet dat een aanstelling voor een andere kring of na beëindiging een andere instantie is; daarmee is meervoudige en herhaalde aanstelling van dezelfde persoon eenduidig te tellen. De aangeleverde bron bevestigt dezelfde eenheidsgrens en verduidelijkt dat een tijdelijke locatiewijziging de continuïteit niet doorbreekt. Er is geen code of naam nodig om de instanties te onderscheiden.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een maximale ononderbroken aanstelling van één persoon als begeleider van één kring, vanaf aanvaarding tot beëindiging, waarbij een aanstelling voor een andere kring of na beëindiging een andere instantie is."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Een afzonderlijke rolvervulling, niet de persoon of de algemene activiteit."
+            },
+            {
+              "location": "context",
+              "quote": "Dezelfde persoon kan meerdere kringen begeleiden en later opnieuw worden aangesteld."
+            },
+            {
+              "location": "source:S-HT05",
+              "quote": "Een aanstelling geldt voor precies één persoon en één kring. Aanvaarding begint de aanstelling; beëindiging sluit haar af. Hernieuwde aanvaarding na beëindiging begint een nieuwe aanstelling. Een tijdelijke wijziging van vergaderlocatie beëindigt de aanstelling niet."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Het materiaal specificeert niet wanneer een kring als dezelfde of een andere kring geldt (bijvoorbeeld bij samenvoeging of hernoeming van kringen); in randgevallen kan dat de telling beïnvloeden."
+        },
+        "rejected": [],
+        "raw_response_sha256": "ac51831e074dfacedf36f5d709a8281af802cd707f94722141096002385c692d",
+        "elapsed_seconds": 10.585
+      }
+    },
+    {
+      "id": "HT06",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 9.042,
+      "elapsed_seconds_dienst": 9.041,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 9.041,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een afzonderlijke fysieke kist in het gehele depot (kamers Oost en West)\",\n  \"reason\": \"De bedoelde eenheid is de afzonderlijke fysieke kist in het hele depot, dus telbaarheid is relevant. De kern laat de identiteit uitsluitend door de geschilderde kistcode bepalen en stelt dat kisten met dezelfde code dezelfde kist zijn. De aangeleverde bron toont dat kistcodes slechts binnen één kamer uniek zijn en dat twee verschillende fysieke kisten in Oost en West beide de code Linde dragen, terwijl beide tot de inventarisatie behoren. Het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties daarmee aantoonbaar niet in de vastgelegde scope.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een fysieke kist waarvan de identiteit uitsluitend door de erop geschilderde kistcode wordt bepaald, zodat kisten met dezelfde code dezelfde kist zijn.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Afzonderlijke fysieke kisten in het gehele depot.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Het depot omvat de kamers Oost en West.\"\n    },\n    {\n      \"location\": \"source:S-HT06\",\n      \"quote\": \"Kistcodes zijn uitsluitend binnen één kamer uniek. In kamer Oost staat een kist met code Linde en in kamer West staat een andere fysieke kist met dezelfde code Linde. Beide behoren tot deze inventarisatie.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Het materiaal bevat geen kamer- of plaatsgebonden aanvulling op de code; of binnen één kamer wel een eenduidige telling mogelijk is, blijft daarmee buiten de bedoelde depotbrede scope onbeslist.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2189,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "0ae378aceeef845ef6e7ba346f648cd1bbf157acd210097200813898c5d9c836",
+        "kandidaat_sha256": "2541c441247560b936366dc892325aadc8fda35f0af28e9f1e2543e5b512ed53",
+        "fingerprint": "35b0ca1fa76625544677ba047611b19fee0e64c5891d64c0ef1a72ed59bd5834",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "739373f302bd8d9dfa7905d2a6b5bf49448c8010ec13b9ab66d9c1a296601671"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "35b0ca1fa76625544677ba047611b19fee0e64c5891d64c0ef1a72ed59bd5834",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:52:03.473225+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2189,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke fysieke kisten in het gehele depot.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "2541c441247560b936366dc892325aadc8fda35f0af28e9f1e2543e5b512ed53",
+            "term": "db7a77fb0964c2a7fdf7f9d3c8f64478155733186a3224d15a33cc3908861840",
+            "toelichting": "23a180c84f969bdbe600471ecaae36c15ce3cc5e855ad379d97352ac21e0c697",
+            "context": "1c6f654d095b63089ffed50c55fe0426581e357f52f0ce8664ff78621e1eb5cc",
+            "source:S-HT06": "2c3e4d09387dff1f0b16f9f8a06d9d93e786c7f410cd4b96d2c60fd55df4ed75"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "fb4e33db5eeb71c104c6b25923d24c01cf00af6ae5a3fe4c802d3656fe1bf739",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een afzonderlijke fysieke kist in het gehele depot (kamers Oost en West)",
+          "reason": "De bedoelde eenheid is de afzonderlijke fysieke kist in het hele depot, dus telbaarheid is relevant. De kern laat de identiteit uitsluitend door de geschilderde kistcode bepalen en stelt dat kisten met dezelfde code dezelfde kist zijn. De aangeleverde bron toont dat kistcodes slechts binnen één kamer uniek zijn en dat twee verschillende fysieke kisten in Oost en West beide de code Linde dragen, terwijl beide tot de inventarisatie behoren. Het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties daarmee aantoonbaar niet in de vastgelegde scope.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een fysieke kist waarvan de identiteit uitsluitend door de erop geschilderde kistcode wordt bepaald, zodat kisten met dezelfde code dezelfde kist zijn."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Afzonderlijke fysieke kisten in het gehele depot."
+            },
+            {
+              "location": "context",
+              "quote": "Het depot omvat de kamers Oost en West."
+            },
+            {
+              "location": "source:S-HT06",
+              "quote": "Kistcodes zijn uitsluitend binnen één kamer uniek. In kamer Oost staat een kist met code Linde en in kamer West staat een andere fysieke kist met dezelfde code Linde. Beide behoren tot deze inventarisatie."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Het materiaal bevat geen kamer- of plaatsgebonden aanvulling op de code; of binnen één kamer wel een eenduidige telling mogelijk is, blijft daarmee buiten de bedoelde depotbrede scope onbeslist."
+        },
+        "rejected": [],
+        "raw_response_sha256": "739373f302bd8d9dfa7905d2a6b5bf49448c8010ec13b9ab66d9c1a296601671",
+        "elapsed_seconds": 9.041
+      }
+    },
+    {
+      "id": "HT07",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 8.363,
+      "elapsed_seconds_dienst": 8.362,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 8.362,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één afzonderlijke fysieke badge\",\n  \"reason\": \"De bedoelde eenheid is de afzonderlijke fysieke badge, dus afzonderlijke instanties zijn relevant. De kern laat het onderscheid tussen badges lopen via de technische sleutel per scanregel, waarbij elke scanregel een andere badge zou identificeren. De aangeleverde bron stelt echter dat opeenvolgende scanregels met verschillende sleutels van dezelfde fysieke badge komen en dat de sleutel geen fysieke badges identificeert; het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties dus aantoonbaar niet.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een fysieke badge waarvan elke afzonderlijke scanregel met een eigen technische sleutel een andere badge identificeert.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Afzonderlijke fysieke badges, niet scanregels.\"\n    },\n    {\n      \"location\": \"source:S-HT07\",\n      \"quote\": \"Twee opeenvolgende regels zijn afkomstig van dezelfde fysieke badge. De sleutel onderscheidt scanregels en identificeert geen fysieke badges.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Eén badge wordt herhaaldelijk gescand zonder fysieke verandering.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Welk kenmerk wél als eenheidsgrens tussen fysieke badges zou gelden, blijft in het materiaal open; dat doet aan de aangetoonde tegenspraak niets af.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2030,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "079b314566e589012fb2d6d10e1ff91372e6df3814f4b0e0a190961833800e1f",
+        "kandidaat_sha256": "dc8d4dd535352642496aa87b02ec19fe95169121d190b1284abe1b85b23bd5f3",
+        "fingerprint": "41251c3c812fd8772dcde8fdca61a4a297c8415ac06e173998711e3e30f5e7f7",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "43c0b5c132eaea30956701e12b83f53bd10df401c86606c02893d32f0f5ac784"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "41251c3c812fd8772dcde8fdca61a4a297c8415ac06e173998711e3e30f5e7f7",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:52:11.836452+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2030,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke fysieke badges, niet scanregels.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "dc8d4dd535352642496aa87b02ec19fe95169121d190b1284abe1b85b23bd5f3",
+            "term": "295d67dbea3215bb8d63cabb65f42bbe3ce1233f3f4eaa4ee8e9831c79949869",
+            "toelichting": "5fe71b04411f536b95bb10a792d8fda6cad40c0033ab4b2296ceaeb735927e4b",
+            "context": "772774161ba4939b9d362f5879d1f23a6769c942aa3b72fdb58d722d6591a94a",
+            "source:S-HT07": "abaeecfd1a2ef27332a876ff65467f829adbcff523eacf98cd99f8a8389921d8"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "0264fbf305bbfc90e4bfcfd5def07456eb5e9db26e82044fa998d449f914b807",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "één afzonderlijke fysieke badge",
+          "reason": "De bedoelde eenheid is de afzonderlijke fysieke badge, dus afzonderlijke instanties zijn relevant. De kern laat het onderscheid tussen badges lopen via de technische sleutel per scanregel, waarbij elke scanregel een andere badge zou identificeren. De aangeleverde bron stelt echter dat opeenvolgende scanregels met verschillende sleutels van dezelfde fysieke badge komen en dat de sleutel geen fysieke badges identificeert; het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties dus aantoonbaar niet.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een fysieke badge waarvan elke afzonderlijke scanregel met een eigen technische sleutel een andere badge identificeert."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Afzonderlijke fysieke badges, niet scanregels."
+            },
+            {
+              "location": "source:S-HT07",
+              "quote": "Twee opeenvolgende regels zijn afkomstig van dezelfde fysieke badge. De sleutel onderscheidt scanregels en identificeert geen fysieke badges."
+            },
+            {
+              "location": "context",
+              "quote": "Eén badge wordt herhaaldelijk gescand zonder fysieke verandering."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Welk kenmerk wél als eenheidsgrens tussen fysieke badges zou gelden, blijft in het materiaal open; dat doet aan de aangetoonde tegenspraak niets af."
+        },
+        "rejected": [],
+        "raw_response_sha256": "43c0b5c132eaea30956701e12b83f53bd10df401c86606c02893d32f0f5ac784",
+        "elapsed_seconds": 8.362
+      }
+    },
+    {
+      "id": "HT08",
+      "verwacht": "fail",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": false,
+      "duur_totaal_s": 15.908,
+      "elapsed_seconds_dienst": 15.908,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 15.908,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één signaalepisode: activiteit van één signaalgever, afgebakend per dienst (kandidaat) dan wel per ononderbroken signaalperiode (bron S-HT08)\",\n  \"reason\": \"De bedoelde betekenis onderscheidt wel afzonderlijke instanties ('Afzonderlijke signaalepisodes'), dus de regel is van toepassing. De kandidaatkern legt de eenheidsgrens bij een volledige dienst en negeert onderbrekingen, terwijl de enige aangeleverde conventie de episode juist bij iedere stilte beëindigt; in de geschetste context (signaal, stilte, opnieuw signaal) levert dat één versus twee instanties op. De toelichting verwijst naar 'de lokale episodeconventie' zonder te bepalen welke van beide strijdige afbakeningen geldt. Daarmee ontbreekt de beslisgrond voor de eenheidsgrens; dit is geen intrinsiek aantoonbaar gebrek in de kern zelf.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Alle activiteit van één signaalgever tijdens een volledige dienst als één gebeurtenis, ongeacht onderbrekingen door stilte.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Afzonderlijke signaalepisodes volgens de lokale episodeconventie.\"\n    },\n    {\n      \"location\": \"source:S-HT08\",\n      \"quote\": \"Iedere stilte beëindigt de episode. Na stilte begint bij hervatting een nieuwe episode, ook binnen dezelfde dienst.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Tijdens één dienst klinkt een signaal, volgt stilte en klinkt daarna opnieuw een signaal.\"\n    }\n  ],\n  \"missing_information\": \"Een toepasselijkheidskeuze tussen de twee strijdige episodeafbakeningen: de dienstgebonden afbakening in de kern ('ongeacht onderbrekingen door stilte') tegenover de conventie in S-HT08 ('Iedere stilte beëindigt de episode'); de toelichting benoemt 'de lokale episodeconventie' zonder aan te geven welke conventie dat is en onder welke geldigheidsvoorwaarden zij prevaleert.\",\n  \"question\": \"Welke episodeconventie geldt in deze vastgelegde context als beslissend voor de eenheidsgrens: de dienstgebonden afbakening uit de definitiekern of de bij iedere stilte eindigende afbakening uit bron S-HT08?\",\n  \"uncertainty\": \"Zou blijken dat de kern zelf de bedoelde 'lokale episodeconventie' is, dan is de telling per dienst eenduidig; zou S-HT08 gelden, dan is zij eveneens eenduidig maar levert zij een andere telling voor dezelfde context op. Zolang de keuze ontbreekt, blijft ook onbeslist of hier sprake is van betekenisdivergentie (twee verschillende begrippen 'signaalepisode') in plaats van één onvoldoende afgebakende eenheid.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2886,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "b149c8722ce42d5ba950d3d7c8dce41a9825b37f5ecca5c077faee9c84a097ab",
+        "kandidaat_sha256": "89e40e3771a0360ea145260b0c35456e90bebbd90e2ee8abf9bae834afa1a949",
+        "fingerprint": "422ef7f973acb1f64f6f14b8f4e5cc5f810185d18f3844dd14125f438f1d5198",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "18ea49362e64c6ce44aca64839e76d11a7c786068eedca022ef00006523406ad"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "422ef7f973acb1f64f6f14b8f4e5cc5f810185d18f3844dd14125f438f1d5198",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:52:27.744603+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2886,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke signaalepisodes volgens de lokale episodeconventie.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "89e40e3771a0360ea145260b0c35456e90bebbd90e2ee8abf9bae834afa1a949",
+            "term": "0598e401f448d32a209e9d0299960390ddb02c4940b09bf242aca1cc3231870d",
+            "toelichting": "bb2e86938c899cdbc5d1ddd70280655c0a03319e51f0c99ace055c59eae1b51e",
+            "context": "ca210c5cfb0dc6664b644c677a6f39e03076d151a97ebcd5c5d0c3de6d2b6d3a",
+            "source:S-HT08": "d260805b5ef5d7ed41cbe606f182b16bc2b68999b56dfc210a1569c859aa077e"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "bb2c9ca83634cccf551548f0dc77804bdc6ca523d97ded1e6c8895aef4eb961f",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één signaalepisode: activiteit van één signaalgever, afgebakend per dienst (kandidaat) dan wel per ononderbroken signaalperiode (bron S-HT08)",
+          "reason": "De bedoelde betekenis onderscheidt wel afzonderlijke instanties ('Afzonderlijke signaalepisodes'), dus de regel is van toepassing. De kandidaatkern legt de eenheidsgrens bij een volledige dienst en negeert onderbrekingen, terwijl de enige aangeleverde conventie de episode juist bij iedere stilte beëindigt; in de geschetste context (signaal, stilte, opnieuw signaal) levert dat één versus twee instanties op. De toelichting verwijst naar 'de lokale episodeconventie' zonder te bepalen welke van beide strijdige afbakeningen geldt. Daarmee ontbreekt de beslisgrond voor de eenheidsgrens; dit is geen intrinsiek aantoonbaar gebrek in de kern zelf.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Alle activiteit van één signaalgever tijdens een volledige dienst als één gebeurtenis, ongeacht onderbrekingen door stilte."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Afzonderlijke signaalepisodes volgens de lokale episodeconventie."
+            },
+            {
+              "location": "source:S-HT08",
+              "quote": "Iedere stilte beëindigt de episode. Na stilte begint bij hervatting een nieuwe episode, ook binnen dezelfde dienst."
+            },
+            {
+              "location": "context",
+              "quote": "Tijdens één dienst klinkt een signaal, volgt stilte en klinkt daarna opnieuw een signaal."
+            }
+          ],
+          "missing_information": "Een toepasselijkheidskeuze tussen de twee strijdige episodeafbakeningen: de dienstgebonden afbakening in de kern ('ongeacht onderbrekingen door stilte') tegenover de conventie in S-HT08 ('Iedere stilte beëindigt de episode'); de toelichting benoemt 'de lokale episodeconventie' zonder aan te geven welke conventie dat is en onder welke geldigheidsvoorwaarden zij prevaleert.",
+          "question": "Welke episodeconventie geldt in deze vastgelegde context als beslissend voor de eenheidsgrens: de dienstgebonden afbakening uit de definitiekern of de bij iedere stilte eindigende afbakening uit bron S-HT08?",
+          "uncertainty": "Zou blijken dat de kern zelf de bedoelde 'lokale episodeconventie' is, dan is de telling per dienst eenduidig; zou S-HT08 gelden, dan is zij eveneens eenduidig maar levert zij een andere telling voor dezelfde context op. Zolang de keuze ontbreekt, blijft ook onbeslist of hier sprake is van betekenisdivergentie (twee verschillende begrippen 'signaalepisode') in plaats van één onvoldoende afgebakende eenheid."
+        },
+        "rejected": [],
+        "raw_response_sha256": "18ea49362e64c6ce44aca64839e76d11a7c786068eedca022ef00006523406ad",
+        "elapsed_seconds": 15.908
+      }
+    },
+    {
+      "id": "HT09",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 10.489,
+      "elapsed_seconds_dienst": 10.488,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 10.488,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een verbonden geheel van ten minste twee onderling verbonden panelen\",\n  \"reason\": \"De bedoelde betekenis onderscheidt wel afzonderlijke instanties (complete verbonden gehelen), maar de definitiekern zelf laat elke verzameling van ten minste twee onderling verbonden panelen als paneelgeheel gelden, zonder maximaliteitseis. In de vastgelegde context (A-B-C) tellen daardoor volgens de kern zowel {A,B}, {B,C} als {A,B,C} als paneelgeheel, terwijl de toelichting en de bron slechts één geheel bedoelen. De kern sluit daarmee zelfstandig een eenduidige telling uit: het aantal instanties hangt af van de niet in de kern opgenomen maximaliteitsconventie.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een verzameling van ten minste twee panelen die via verbindingen tussen panelen uit die verzameling met elkaar verbonden zijn.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Complete verbonden gehelen, niet willekeurige verbonden deelverzamelingen.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Paneel A is verbonden met B; B is verbonden met C. Verder zijn er geen panelen of verbindingen.\"\n    },\n    {\n      \"location\": \"source:S-HT09\",\n      \"quote\": \"Een verbonden deelverzameling binnen zo’n geheel telt niet als een afzonderlijk paneelgeheel.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De maximaliteitsconventie is buiten de kern wel kenbaar en onderbouwd (toelichting en S-HT09); het gebrek betreft uitsluitend de definitiekern, die deze noodzakelijke eenheidsgrens niet bevat.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2179,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "03359b834515ebd7fb99c9f18bdf1d1c51abea4f83c4336a09cc253fbf948098",
+        "kandidaat_sha256": "a3989128c611f13aed306b713c80191d3b51f924c1caf24497ecfa357c21ab0f",
+        "fingerprint": "9896c88c45de1777a7ce7d6728b9a7435eefe74f7c24eef3367ec6acda5cc066",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "f5824c7d86107c3878da55e431dee2ed78744015778603905d40933ab6d8eaf3"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "9896c88c45de1777a7ce7d6728b9a7435eefe74f7c24eef3367ec6acda5cc066",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:52:38.233621+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2179,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Complete verbonden gehelen, niet willekeurige verbonden deelverzamelingen.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "a3989128c611f13aed306b713c80191d3b51f924c1caf24497ecfa357c21ab0f",
+            "term": "897fbb350bc4582892e5c6086b1270c42683ca71a6c83284b307e8edb9279cfb",
+            "toelichting": "39725318966e91fb6a38318fca52ad9321a97417d0bbc7ddf4841930c6262906",
+            "context": "1767f2ebd54fdafe5f5400463c9cb5ae893500871be3b2f54e923ff7dd5808d8",
+            "source:S-HT09": "0f9a2b06d437276f1cbec709bcdb7848cd970d63976b59bada5c657ea274542c"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "56a546f242d684dd3b582e36772ff67bfdd03977ba836ef3eefe2d04256d7467",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een verbonden geheel van ten minste twee onderling verbonden panelen",
+          "reason": "De bedoelde betekenis onderscheidt wel afzonderlijke instanties (complete verbonden gehelen), maar de definitiekern zelf laat elke verzameling van ten minste twee onderling verbonden panelen als paneelgeheel gelden, zonder maximaliteitseis. In de vastgelegde context (A-B-C) tellen daardoor volgens de kern zowel {A,B}, {B,C} als {A,B,C} als paneelgeheel, terwijl de toelichting en de bron slechts één geheel bedoelen. De kern sluit daarmee zelfstandig een eenduidige telling uit: het aantal instanties hangt af van de niet in de kern opgenomen maximaliteitsconventie.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een verzameling van ten minste twee panelen die via verbindingen tussen panelen uit die verzameling met elkaar verbonden zijn."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Complete verbonden gehelen, niet willekeurige verbonden deelverzamelingen."
+            },
+            {
+              "location": "context",
+              "quote": "Paneel A is verbonden met B; B is verbonden met C. Verder zijn er geen panelen of verbindingen."
+            },
+            {
+              "location": "source:S-HT09",
+              "quote": "Een verbonden deelverzameling binnen zo’n geheel telt niet als een afzonderlijk paneelgeheel."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De maximaliteitsconventie is buiten de kern wel kenbaar en onderbouwd (toelichting en S-HT09); het gebrek betreft uitsluitend de definitiekern, die deze noodzakelijke eenheidsgrens niet bevat."
+        },
+        "rejected": [],
+        "raw_response_sha256": "f5824c7d86107c3878da55e431dee2ed78744015778603905d40933ab6d8eaf3",
+        "elapsed_seconds": 10.488
+      }
+    },
+    {
+      "id": "HT10",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 10.851,
+      "elapsed_seconds_dienst": 10.85,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 10.85,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een rolinstantie tafelhouderschap: de houderrol van een persoon ten aanzien van een tafel\",\n  \"reason\": \"De bedoelde betekenis telt volgens de toelichting per toewijzing aan een specifieke tafel, en de bron bevestigt dat gelijktijdige toewijzingen voor verschillende tafels verschillende rolinstanties blijven. De definitiekern bundelt echter uitdrukkelijk alle gelijktijdige toewijzingen aan één persoon tot één tafelhouderschap, waardoor de kern in het contextgeval (Noor met tafel Berk en tafel Es) één instantie telt waar de bedoelde betekenis er twee telt. Het in de kern gestelde onderscheidingsmiddel (de persoon met het label tafelhouder) onderscheidt de bedoelde instanties dus aantoonbaar niet; bovendien is het label volgens de bron een categorielabel dat alle betrokken personen dragen. Dit gebrek blijkt rechtstreeks uit het aangeleverde materiaal.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"waarbij alle gelijktijdige toewijzingen aan die persoon samen één tafelhouderschap vormen\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Afzonderlijke toewijzingen als houder van een specifieke tafel.\"\n    },\n    {\n      \"location\": \"source:S-HT10\",\n      \"quote\": \"Gelijktijdige toewijzingen voor verschillende tafels blijven verschillende rolinstanties.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Noor heeft gelijktijdig een toewijzing voor tafel Berk en een voor tafel Es.\"\n    },\n    {\n      \"location\": \"source:S-HT10\",\n      \"quote\": \"Alle betrokken personen dragen hetzelfde categorielabel tafelhouder.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Niet-gelijktijdige (opeenvolgende) toewijzingen aan dezelfde persoon en tafel blijven in de kern onbesproken; dit is een aanvullend open punt dat het vastgestelde gebrek niet wegneemt.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2409,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "21cfd9dc0ba6212da01b502bac4b016ebe491e2434bc183ca85b93c412150cf9",
+        "kandidaat_sha256": "9df73d78a2927d5775379596869a44b815187a5cf873e1fb2d8e2bb7b9bddeac",
+        "fingerprint": "796d4c6ef20fe26543dd07685f7a8a08b2ccee556b03c568391bb5cb2b3d2f90",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "73345b6a68ae1aaf011a9d595cd00d70bbc9e853e3505b9123cabb79ad38af2e"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "796d4c6ef20fe26543dd07685f7a8a08b2ccee556b03c568391bb5cb2b3d2f90",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:52:49.084592+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2409,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke toewijzingen als houder van een specifieke tafel.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "9df73d78a2927d5775379596869a44b815187a5cf873e1fb2d8e2bb7b9bddeac",
+            "term": "2d0d78a99a209356f2693fd712f1e2bb745bf8a12626e1e5c39cc8f86af2897c",
+            "toelichting": "4fecf114b2484efbc2e5ebbde4fd96bbfce99d41225cfbe4c28cff8c5e7518de",
+            "context": "8e7ec1a64f2b8995f1376c6263489905b425eed5013ab58628b553d326725cf9",
+            "source:S-HT10": "abfb7ee91685d3ebf6b35b0e513d507e07488edb81cd63707c245148d8572516"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "918ee809944feba2dd587bc45c85c694214d0b1ab19fa4ba5378c2a4c22e270b",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een rolinstantie tafelhouderschap: de houderrol van een persoon ten aanzien van een tafel",
+          "reason": "De bedoelde betekenis telt volgens de toelichting per toewijzing aan een specifieke tafel, en de bron bevestigt dat gelijktijdige toewijzingen voor verschillende tafels verschillende rolinstanties blijven. De definitiekern bundelt echter uitdrukkelijk alle gelijktijdige toewijzingen aan één persoon tot één tafelhouderschap, waardoor de kern in het contextgeval (Noor met tafel Berk en tafel Es) één instantie telt waar de bedoelde betekenis er twee telt. Het in de kern gestelde onderscheidingsmiddel (de persoon met het label tafelhouder) onderscheidt de bedoelde instanties dus aantoonbaar niet; bovendien is het label volgens de bron een categorielabel dat alle betrokken personen dragen. Dit gebrek blijkt rechtstreeks uit het aangeleverde materiaal.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "waarbij alle gelijktijdige toewijzingen aan die persoon samen één tafelhouderschap vormen"
+            },
+            {
+              "location": "toelichting",
+              "quote": "Afzonderlijke toewijzingen als houder van een specifieke tafel."
+            },
+            {
+              "location": "source:S-HT10",
+              "quote": "Gelijktijdige toewijzingen voor verschillende tafels blijven verschillende rolinstanties."
+            },
+            {
+              "location": "context",
+              "quote": "Noor heeft gelijktijdig een toewijzing voor tafel Berk en een voor tafel Es."
+            },
+            {
+              "location": "source:S-HT10",
+              "quote": "Alle betrokken personen dragen hetzelfde categorielabel tafelhouder."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Niet-gelijktijdige (opeenvolgende) toewijzingen aan dezelfde persoon en tafel blijven in de kern onbesproken; dit is een aanvullend open punt dat het vastgestelde gebrek niet wegneemt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "73345b6a68ae1aaf011a9d595cd00d70bbc9e853e3505b9123cabb79ad38af2e",
+        "elapsed_seconds": 10.85
+      }
+    },
+    {
+      "id": "HT11",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 7.609,
+      "elapsed_seconds_dienst": 7.609,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 7.609,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": \"geen telbare eenheid; kleurpasta als stof/materiaal\",\n  \"reason\": \"De bedoelde betekenis is een stoflezing: het materiaal zelf, zonder gekozen porties of objectinstanties. De definitiekern beschrijft een smeerbaar materiaal met een functie, niet een afgebakende hoeveelheid of gebeurtenis. Ook de context en de bron sluiten verpakkingen, hoeveelheden en registraties uitdrukkelijk uit als instanties. ESS-03 is bij deze betekenis dus niet van toepassing.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een smeerbaar materiaal dat wordt gebruikt om een oppervlak kleur te geven.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Het materiaal als stof, zonder gekozen porties of objectinstanties.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Een materiaalbeschrijving; verpakkingen en doseervakken maken geen deel uit van deze betekenis.\"\n    },\n    {\n      \"location\": \"source:S-HT11\",\n      \"quote\": \"Hoeveelheden, verpakkingen en registraties zijn geen instanties van het beschreven begrip.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou in een ander gebruik een afgebakende hoeveelheid (bijvoorbeeld een batch of portie) wél als telbare eenheid worden bedoeld, dan is ESS-03 opnieuw te beoordelen.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 1896,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "e7079567a8f972bb2110bf0440169f2dad8fabafd5da9d4fbd8f52b582c9759d",
+        "kandidaat_sha256": "5faac9edd254ee75dfa6995378f71862602a0c7b02d69b3f7fe978f90af8100d",
+        "fingerprint": "ee47287f4c3ec5229da057f6ff33a06ae4d35575d1f6a7f400c7394cd0e1d1fc",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "d8466b1f75e47b72569b217af32604711885929cd954b6872a1f7432505b479a"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "ee47287f4c3ec5229da057f6ff33a06ae4d35575d1f6a7f400c7394cd0e1d1fc",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:52:56.693782+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 1896,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Het materiaal als stof, zonder gekozen porties of objectinstanties.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "5faac9edd254ee75dfa6995378f71862602a0c7b02d69b3f7fe978f90af8100d",
+            "term": "a6b9f44a901a2412ffabf225b43e0770529d66b0bdd0a8036924c867e36e77f4",
+            "toelichting": "b28e2b8b79967adf35be9707043d8a0f69d4997d2eb4acfafca8cd8d3a4d4297",
+            "context": "3ea9a5072f1360d45f8a98f96ce6a780c525815220bc2675735689c8415959c3",
+            "source:S-HT11": "98e36718102244990ab961ec8f649ea58b62bb2371edbfac2100c17c1b4ee379"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "c57c899c1ea459f466e59ac1d891454c935553b7e9424c019166612cf1f9b250",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": "geen telbare eenheid; kleurpasta als stof/materiaal",
+          "reason": "De bedoelde betekenis is een stoflezing: het materiaal zelf, zonder gekozen porties of objectinstanties. De definitiekern beschrijft een smeerbaar materiaal met een functie, niet een afgebakende hoeveelheid of gebeurtenis. Ook de context en de bron sluiten verpakkingen, hoeveelheden en registraties uitdrukkelijk uit als instanties. ESS-03 is bij deze betekenis dus niet van toepassing.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een smeerbaar materiaal dat wordt gebruikt om een oppervlak kleur te geven."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Het materiaal als stof, zonder gekozen porties of objectinstanties."
+            },
+            {
+              "location": "context",
+              "quote": "Een materiaalbeschrijving; verpakkingen en doseervakken maken geen deel uit van deze betekenis."
+            },
+            {
+              "location": "source:S-HT11",
+              "quote": "Hoeveelheden, verpakkingen en registraties zijn geen instanties van het beschreven begrip."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou in een ander gebruik een afgebakende hoeveelheid (bijvoorbeeld een batch of portie) wél als telbare eenheid worden bedoeld, dan is ESS-03 opnieuw te beoordelen."
+        },
+        "rejected": [],
+        "raw_response_sha256": "d8466b1f75e47b72569b217af32604711885929cd954b6872a1f7432505b479a",
+        "elapsed_seconds": 7.609
+      }
+    },
+    {
+      "id": "HT12",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 7.356,
+      "elapsed_seconds_dienst": 7.355,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 7.352,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is de activiteit als zodanig, uitdrukkelijk in niet-telbare zin, zonder dat sessies, interventies of rolvervullingen als eenheid zijn gekozen. De definitiekern beschrijft een ondersteuningsactiviteit zonder afbakening van een afzonderlijke, telbare hoeveelheid of gebeurtenis. ESS-03 geldt alleen voor betekenissen waarbij afzonderlijke instanties worden onderscheiden; dat is hier niet aan de orde.\",\n  \"evidence\": [\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"De activiteit in algemene, niet-telbare zin.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Een beschrijving van het soort ondersteuning, zonder sessies, aanstellingen of afzonderlijke handelingen te onderscheiden.\"\n    },\n    {\n      \"location\": \"source:S-HT12\",\n      \"quote\": \"De tekst kiest geen begeleidingssessies, afzonderlijke interventies of rolvervullingen als eenheden.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou in een andere context wél een telbare lezing (bijvoorbeeld een afgebakend begeleidingstraject of -sessie) worden bedoeld, dan is een hernieuwde ESS-03-toets nodig.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 1801,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "0a6f72b42723dd7048cc592745fa51294720a047ad6886d39fc496cef1f4a368",
+        "kandidaat_sha256": "99a6c5381d043bb050002b1d13909ba41937852c24250ae9cc774cc25d011818",
+        "fingerprint": "1acd9689ef9256e449315f1f1223d53e774b864d81d28c479cc73ae4442f715a",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "9bf55c306facb51e49f42a05900e31aca341c1d11ed2227b3721ef0f092ff376"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "1acd9689ef9256e449315f1f1223d53e774b864d81d28c479cc73ae4442f715a",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:53:04.049683+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 1801,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "De activiteit in algemene, niet-telbare zin.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "99a6c5381d043bb050002b1d13909ba41937852c24250ae9cc774cc25d011818",
+            "term": "cb4cf3532d008767ce55a128b34b556b0c3a3aad45fb6be751de3dec33803847",
+            "toelichting": "02a08fe3cfb25746c94897cbdb28ffee633c1306d0e9921f174ae9cf043b41b6",
+            "context": "70f85882d931e9cdd19053b65a4ad1127e16e3cfbd59a5d0c04235c5d69065f4",
+            "source:S-HT12": "5ba1d6ad85946518834d8c572cf4844db788db44ded3ff940d58ddce470012e8"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "4190e960a3aed4b1e511d1630f5d83f4fc572ce49c47cd779b60a51cf4ae350c",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is de activiteit als zodanig, uitdrukkelijk in niet-telbare zin, zonder dat sessies, interventies of rolvervullingen als eenheid zijn gekozen. De definitiekern beschrijft een ondersteuningsactiviteit zonder afbakening van een afzonderlijke, telbare hoeveelheid of gebeurtenis. ESS-03 geldt alleen voor betekenissen waarbij afzonderlijke instanties worden onderscheiden; dat is hier niet aan de orde.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "De activiteit in algemene, niet-telbare zin."
+            },
+            {
+              "location": "context",
+              "quote": "Een beschrijving van het soort ondersteuning, zonder sessies, aanstellingen of afzonderlijke handelingen te onderscheiden."
+            },
+            {
+              "location": "source:S-HT12",
+              "quote": "De tekst kiest geen begeleidingssessies, afzonderlijke interventies of rolvervullingen als eenheden."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou in een andere context wél een telbare lezing (bijvoorbeeld een afgebakend begeleidingstraject of -sessie) worden bedoeld, dan is een hernieuwde ESS-03-toets nodig."
+        },
+        "rejected": [],
+        "raw_response_sha256": "9bf55c306facb51e49f42a05900e31aca341c1d11ed2227b3721ef0f092ff376",
+        "elapsed_seconds": 7.355
+      }
+    },
+    {
+      "id": "HT13",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 7.257,
+      "elapsed_seconds_dienst": 7.256,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 7.256,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is licht als verschijnsel, zonder afzonderlijke lichtperioden of andere telbare eenheid. De kern beschrijft een hoedanigheid van licht dat een oppervlak zichtbaar maakt, niet een afgebakende hoeveelheid of gebeurtenis. De bron bevestigt dat lampen, pulsen en perioden hiermee niet als afzonderlijke instanties worden aangeduid. ESS-03 is daarom niet van toepassing.\",\n  \"evidence\": [\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Licht als niet-telbaar verschijnsel, zonder afzonderlijke lichtperioden.\"\n    },\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Zacht licht dat een oppervlak zichtbaar maakt.\"\n    },\n    {\n      \"location\": \"source:S-HT13\",\n      \"quote\": \"Lampen, pulsen en perioden worden met dit begrip niet als afzonderlijke instanties aangeduid.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou in een ander gebruik een uitdrukkelijk afgebakende lichtperiode of -hoeveelheid worden bedoeld, dan kan de telbare lezing wel relevant worden; die lezing is hier niet vastgelegd.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 1695,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "e53cd89c2d7be8a7f94025a3e1f1e0e5bf5cef80ca439329f32b3e101b260c23",
+        "kandidaat_sha256": "b2f2bec4b7fd29a91e8a653b006b588f74dafd97f9f8befc272f79d726943b1c",
+        "fingerprint": "1cdb7dda721ff7bbc62f96a5efcf5db381b5d8833f0a0227750a9d5e07c23aab",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "d6ee8d97d6bcea74a635c77088eeb49f39709b7876e817a949c6a0070e313325"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "1cdb7dda721ff7bbc62f96a5efcf5db381b5d8833f0a0227750a9d5e07c23aab",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:53:11.307875+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 1695,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Licht als niet-telbaar verschijnsel, zonder afzonderlijke lichtperioden.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "b2f2bec4b7fd29a91e8a653b006b588f74dafd97f9f8befc272f79d726943b1c",
+            "term": "56724bb6740852709ad0add2ab86175815f64c77f4b6ec6072308dd2baa3b3f9",
+            "toelichting": "f0e29de91d6f8040cdf5c53ce26bd177f53644c137a400a620e96ba451443b32",
+            "context": "beaacb244862e03d4f047f6c00e9f48f47aad506317180df8f98374287f87dce",
+            "source:S-HT13": "6a16507c997446b6328b92c27328d1ad2580b0b1ea403439c1ba587a7b4937c6"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "c9071b2bcf4756e7d5cc7c11923cb0cfc0e0621b3cc5117c9ba560909dbb0077",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is licht als verschijnsel, zonder afzonderlijke lichtperioden of andere telbare eenheid. De kern beschrijft een hoedanigheid van licht dat een oppervlak zichtbaar maakt, niet een afgebakende hoeveelheid of gebeurtenis. De bron bevestigt dat lampen, pulsen en perioden hiermee niet als afzonderlijke instanties worden aangeduid. ESS-03 is daarom niet van toepassing.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Licht als niet-telbaar verschijnsel, zonder afzonderlijke lichtperioden."
+            },
+            {
+              "location": "definition",
+              "quote": "Zacht licht dat een oppervlak zichtbaar maakt."
+            },
+            {
+              "location": "source:S-HT13",
+              "quote": "Lampen, pulsen en perioden worden met dit begrip niet als afzonderlijke instanties aangeduid."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou in een ander gebruik een uitdrukkelijk afgebakende lichtperiode of -hoeveelheid worden bedoeld, dan kan de telbare lezing wel relevant worden; die lezing is hier niet vastgelegd."
+        },
+        "rejected": [],
+        "raw_response_sha256": "d6ee8d97d6bcea74a635c77088eeb49f39709b7876e817a949c6a0070e313325",
+        "elapsed_seconds": 7.256
+      }
+    },
+    {
+      "id": "HT14",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 6.289,
+      "elapsed_seconds_dienst": 6.289,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 6.289,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is een eigenschap (de onderlinge verbondenheid van onderdelen), niet een soort afzonderlijk telbare instanties. De toelichting sluit uitdrukkelijk uit dat het om afzonderlijke verbindingen of gehelen gaat, en de bron bevestigt dat onder dit begrip niets wordt geteld. ESS-03 is daarom niet van toepassing, omdat geen telbare eenheid is bedoeld.\",\n  \"evidence\": [\n    {\"location\": \"toelichting\", \"quote\": \"Een eigenschap, niet afzonderlijke verbindingen of gehelen.\"},\n    {\"location\": \"definition\", \"quote\": \"De onderlinge verbondenheid van de onderdelen van een geheel.\"},\n    {\"location\": \"source:S-HT14\", \"quote\": \"Verbindingen, onderdelen en collages worden onder dit begrip niet geteld.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou in een andere context een afgebakende mate of instantie van samenhang wél telbaar worden bedoeld, dan zou de toepasselijkheid opnieuw moeten worden beoordeeld.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 1603,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "0830c5c7c38c5901b99265ba50d645f532a8ef825b693a63d3d3e5bc067c80d0",
+        "kandidaat_sha256": "df44a0fd8936d932ce7048b095817ad701019da27f8a7fd150655e111296fe10",
+        "fingerprint": "94148838ae5f34bd4285fc6d9a8ff4009c4ae80a621e7b1d4173efff063bb79a",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "ee88a1cf0abaf129c19f329f2181fddad029485975ed424064dc6373fb437dc6"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "94148838ae5f34bd4285fc6d9a8ff4009c4ae80a621e7b1d4173efff063bb79a",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:53:17.597001+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 1603,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Een eigenschap, niet afzonderlijke verbindingen of gehelen.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "df44a0fd8936d932ce7048b095817ad701019da27f8a7fd150655e111296fe10",
+            "term": "0b708aa55565f7e2aa90b08456d8a21f88e1e61a87a1ecfa3f7ae8b13dcc1af0",
+            "toelichting": "ec17564f344c5dfd0e5880d27f4402909093e916968f467633c5b14e67b3059c",
+            "context": "76343c2087a718cbbd292d7f2a5ecdf17f307898ab07d05602de36a0d5a94bd0",
+            "source:S-HT14": "5edb4fa8012df2adbad08db8cdddbf3d967cfbdbb3c06c21a376fb1d5c553892"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "af21a95394147645d8b344f5c79903efcc020e10b4f9cabaee5b4413db12fc84",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is een eigenschap (de onderlinge verbondenheid van onderdelen), niet een soort afzonderlijk telbare instanties. De toelichting sluit uitdrukkelijk uit dat het om afzonderlijke verbindingen of gehelen gaat, en de bron bevestigt dat onder dit begrip niets wordt geteld. ESS-03 is daarom niet van toepassing, omdat geen telbare eenheid is bedoeld.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Een eigenschap, niet afzonderlijke verbindingen of gehelen."
+            },
+            {
+              "location": "definition",
+              "quote": "De onderlinge verbondenheid van de onderdelen van een geheel."
+            },
+            {
+              "location": "source:S-HT14",
+              "quote": "Verbindingen, onderdelen en collages worden onder dit begrip niet geteld."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou in een andere context een afgebakende mate of instantie van samenhang wél telbaar worden bedoeld, dan zou de toepasselijkheid opnieuw moeten worden beoordeeld."
+        },
+        "rejected": [],
+        "raw_response_sha256": "ee88a1cf0abaf129c19f329f2181fddad029485975ed424064dc6373fb437dc6",
+        "elapsed_seconds": 6.289
+      }
+    },
+    {
+      "id": "HT15",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 7.126,
+      "elapsed_seconds_dienst": 7.125,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 7.125,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is een verschijnsel- of activiteitslezing: het algemene plaatsvinden van plaatsverandering, zonder dat afzonderlijke ritten of trajecten als eenheid zijn gekozen. De bron bevestigt dat vertrek, aankomst of traject hier geen gekozen teleenheid vormen. Er worden dus geen afzonderlijke instanties onderscheiden, waardoor ESS-03 niet van toepassing is.\",\n  \"evidence\": [\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Het algemene plaatsvinden van plaatsverandering, zonder afzonderlijke ritten of trajecten.\"\n    },\n    {\n      \"location\": \"source:S-HT15\",\n      \"quote\": \"Een vertrek, aankomst of uitgevoerd traject vormt in deze beschrijving geen gekozen teleenheid.\"\n    },\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Het veranderen van plaats van voorwerpen.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou in een andere context wél een afgebakende verplaatsing (bijvoorbeeld één rit of traject) als telbare eenheid worden bedoeld, dan is een hernieuwde toetsing aan ESS-03 nodig.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 1731,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "3332f33e73d3d4b1c21f39531d33b5a3f8cd1e1462ee0405dc4e0485b0a11f35",
+        "kandidaat_sha256": "1f8a38f11ec77dc66a7baa27c90774ea1e18ce5790613220cb0b61306162bdb3",
+        "fingerprint": "d3b544928f9c5235919c1ac4542496a48e2c9eb4a34069ba2bbad0eb997a3c05",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "af419928f054b53c88fa264bc67abd82e43cca36fb79abccfea1e5eb4b722c16"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "d3b544928f9c5235919c1ac4542496a48e2c9eb4a34069ba2bbad0eb997a3c05",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:53:24.722729+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 1731,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Het algemene plaatsvinden van plaatsverandering, zonder afzonderlijke ritten of trajecten.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "1f8a38f11ec77dc66a7baa27c90774ea1e18ce5790613220cb0b61306162bdb3",
+            "term": "19a6c0b671d3431b2e75ade3ad764e17b9d3a39251d372af15c1f203f4bbe770",
+            "toelichting": "5d816a79b78092deb65059326774f21135c8e016f003e2dc0f9ea6949094a874",
+            "context": "996ef353d8f2d8ad4d8b21cf9649f064e4f4d321760fef412242921f25affb9a",
+            "source:S-HT15": "e7bb106e95aee2c5409c25d5ed9968c03e3bcb7d525a9136b6e88004763aafd0"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "926b5cca8bb3c0e0c3b01a9edf69ed0774bc514c5a23e4c94b578673b53e2c0d",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is een verschijnsel- of activiteitslezing: het algemene plaatsvinden van plaatsverandering, zonder dat afzonderlijke ritten of trajecten als eenheid zijn gekozen. De bron bevestigt dat vertrek, aankomst of traject hier geen gekozen teleenheid vormen. Er worden dus geen afzonderlijke instanties onderscheiden, waardoor ESS-03 niet van toepassing is.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Het algemene plaatsvinden van plaatsverandering, zonder afzonderlijke ritten of trajecten."
+            },
+            {
+              "location": "source:S-HT15",
+              "quote": "Een vertrek, aankomst of uitgevoerd traject vormt in deze beschrijving geen gekozen teleenheid."
+            },
+            {
+              "location": "definition",
+              "quote": "Het veranderen van plaats van voorwerpen."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou in een andere context wél een afgebakende verplaatsing (bijvoorbeeld één rit of traject) als telbare eenheid worden bedoeld, dan is een hernieuwde toetsing aan ESS-03 nodig."
+        },
+        "rejected": [],
+        "raw_response_sha256": "af419928f054b53c88fa264bc67abd82e43cca36fb79abccfea1e5eb4b722c16",
+        "elapsed_seconds": 7.125
+      }
+    },
+    {
+      "id": "HT16",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": true,
+      "duur_totaal_s": 11.613,
+      "elapsed_seconds_dienst": 11.612,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 11.612,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"de volledige hoeveelheid kleurpasta afgegeven binnen één doseercyclus\",\n  \"reason\": \"De kern bedoelt duidelijk telbare instanties: per doseercyclus afgegeven hoeveelheden kleurpasta, waarvan begin en einde door het doseerprofiel worden bepaald. De eenheidsgrens hangt dus volledig af van het geldende doseerprofiel, dat bepaalt of iedere puls een eigen cyclus is of meerdere pulsen samen één cyclus vormen. Dat profiel is voor deze taak niet aangeleverd en de pulsregistratie bepaalt het profiel niet, zodat de beslisgrond voor de telling ontbreekt. Dit is ontbrekende informatie, geen aantoonbaar gebrek in de kern.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"De volledige hoeveelheid kleurpasta die wordt afgegeven binnen één doseercyclus, waarvan begin en einde door het geldende doseerprofiel worden bepaald.\"\n    },\n    {\n      \"location\": \"source:S-HT16\",\n      \"quote\": \"Afhankelijk van het profiel vormt iedere afgiftepuls een eigen cyclus of behoren meerdere opeenvolgende pulsen tot één cyclus. De pulsregistratie bepaalt het profiel niet. Het profiel voor deze taak is niet meegeleverd.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"De geregistreerde afgifte bestaat uit meerdere pulsen. De taak vermeldt geen geldend doseerprofiel.\"\n    }\n  ],\n  \"missing_information\": \"Het geldende doseerprofiel dat vastlegt wanneer een doseercyclus begint en eindigt, en daarmee of opeenvolgende pulsen tot één of tot verschillende gieteenheden behoren.\",\n  \"question\": \"Welk doseerprofiel geldt in deze context en hoe bepaalt dat profiel begin en einde van een doseercyclus bij een afgifte die uit meerdere pulsen bestaat?\",\n  \"uncertainty\": \"Als het profiel alsnog wordt aangeleverd, kan de kern via bovenbegrip en cyclusgrens een eenduidige telling dragen; zonder dat profiel blijft onbeslist of de grens in de praktijk eenduidig is.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2454,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "aa16e1ea93f639f59d6ebc1e4835261bc943da002adce6e2547518d6b0e50a77",
+        "kandidaat_sha256": "ca06a68489d38b5aba6403756c596ea4643d6e07308767abe351091c55a3cd4e",
+        "fingerprint": "4487abf1984d95523dfc96097c04e3bb1940fcd1d79c7c53900d31e8b6289334",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "9ecae20b55039c9837d4c30f2d44f681df70f330071d154b68fbd9384aeef6a5"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "4487abf1984d95523dfc96097c04e3bb1940fcd1d79c7c53900d31e8b6289334",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:53:36.335608+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2454,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke afgegeven hoeveelheden, gegroepeerd per doseercyclus.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "ca06a68489d38b5aba6403756c596ea4643d6e07308767abe351091c55a3cd4e",
+            "term": "87f6d7323840bd35baf27879e8d40ab530d80f387dfbfc3a901e59bc7b9f8a00",
+            "toelichting": "a40526a1ced7a1ff13f239ab3294db216a8fd1a0195a22f886caf64b09f79bad",
+            "context": "7bb2f1f53cd1f97e4356f4f5dd98c5d1bd45f9fffbf91390cc1eb10497600ae5",
+            "source:S-HT16": "bc35a26620d19018eb25699bed871382542d8060d23c59430350958192045750"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "29db9d7d3e719c8cb4c165b7b7a3361e4434bb77cec8ce5647935d34a8bea676",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "de volledige hoeveelheid kleurpasta afgegeven binnen één doseercyclus",
+          "reason": "De kern bedoelt duidelijk telbare instanties: per doseercyclus afgegeven hoeveelheden kleurpasta, waarvan begin en einde door het doseerprofiel worden bepaald. De eenheidsgrens hangt dus volledig af van het geldende doseerprofiel, dat bepaalt of iedere puls een eigen cyclus is of meerdere pulsen samen één cyclus vormen. Dat profiel is voor deze taak niet aangeleverd en de pulsregistratie bepaalt het profiel niet, zodat de beslisgrond voor de telling ontbreekt. Dit is ontbrekende informatie, geen aantoonbaar gebrek in de kern.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "De volledige hoeveelheid kleurpasta die wordt afgegeven binnen één doseercyclus, waarvan begin en einde door het geldende doseerprofiel worden bepaald."
+            },
+            {
+              "location": "source:S-HT16",
+              "quote": "Afhankelijk van het profiel vormt iedere afgiftepuls een eigen cyclus of behoren meerdere opeenvolgende pulsen tot één cyclus. De pulsregistratie bepaalt het profiel niet. Het profiel voor deze taak is niet meegeleverd."
+            },
+            {
+              "location": "context",
+              "quote": "De geregistreerde afgifte bestaat uit meerdere pulsen. De taak vermeldt geen geldend doseerprofiel."
+            }
+          ],
+          "missing_information": "Het geldende doseerprofiel dat vastlegt wanneer een doseercyclus begint en eindigt, en daarmee of opeenvolgende pulsen tot één of tot verschillende gieteenheden behoren.",
+          "question": "Welk doseerprofiel geldt in deze context en hoe bepaalt dat profiel begin en einde van een doseercyclus bij een afgifte die uit meerdere pulsen bestaat?",
+          "uncertainty": "Als het profiel alsnog wordt aangeleverd, kan de kern via bovenbegrip en cyclusgrens een eenduidige telling dragen; zonder dat profiel blijft onbeslist of de grens in de praktijk eenduidig is."
+        },
+        "rejected": [],
+        "raw_response_sha256": "9ecae20b55039c9837d4c30f2d44f681df70f330071d154b68fbd9384aeef6a5",
+        "elapsed_seconds": 11.612
+      }
+    },
+    {
+      "id": "HT17",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": true,
+      "duur_totaal_s": 11.667,
+      "elapsed_seconds_dienst": 11.667,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 11.667,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één fysiek samenstel van verwisselbare bouwdelen, gevolgd door opeenvolgende vervangingen heen\",\n  \"reason\": \"De bedoelde betekenis is telbaar: een afzonderlijk fysiek samenstel dat over tijd wordt gevolgd, en de telling hangt hier juist af van identiteit vóór en na volledige vervanging. De kern verwijst voor die eenheidsgrens expliciet naar een externe regel ('zolang de geldende continuïteitsconventie dat bepaalt'), maar de inhoud daarvan is niet aangeleverd. De enige bron bevestigt dat de conventie ontbreekt, zodat de beslisgrond voor de hoofdvraag ontbreekt; dit is ontbrekende informatie en geen aangetoond gebrek.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"zolang de geldende continuïteitsconventie dat bepaalt\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Alle bouwdelen worden na elkaar vervangen. De vraag betreft identiteit vóór en na deze reeks.\"\n    },\n    {\n      \"location\": \"source:S-HT17\",\n      \"quote\": \"Of geleidelijke vervanging van alle delen de identiteit behoudt, wordt uitsluitend in een afzonderlijke continuïteitsconventie vastgelegd. Die conventie ontbreekt in het aangeleverde materiaal.\"\n    }\n  ],\n  \"missing_information\": \"De inhoud van de geldende continuïteitsconventie: onder welke voorwaarden (welke mate, volgorde of kern van vervangingen) het samenstel na vervanging van alle bouwdelen nog als dezelfde constructie geldt, en voor welke populatie en geldigheidsperiode die conventie is vastgesteld.\",\n  \"question\": \"Welke continuïteitsconventie geldt hier, dat wil zeggen onder welke vastgestelde voorwaarden blijft een samenstel na opeenvolgende vervanging van alle bouwdelen dezelfde wisselconstructie?\",\n  \"uncertainty\": \"De eenheidsgrens op één moment (één samenstel van bouwdelen) lijkt uit bovenbegrip en kenmerken afleidbaar; onbeslist blijft uitsluitend de identiteit over de tijd, waarvan de telling in deze context wel afhangt.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2532,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "24387b52be0c9f0dfb2b536213f6414d8b271a698e42fe02b1a280929f7e73a0",
+        "kandidaat_sha256": "cf3e8d02d23d7eeed1f13a0a7cc47eacdc86beeafbfa213dff781c8b06d8e0dd",
+        "fingerprint": "ad598f4021bca27e9acfde78ef10f020e7d6963798af05b8fa3a0c02a8fbc51a",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "a96fe71eb7d814e15b7ae0607546b071fd9e5f61b4d01370d060700f2eb715ff"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "ad598f4021bca27e9acfde78ef10f020e7d6963798af05b8fa3a0c02a8fbc51a",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:53:48.002993+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2532,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Een fysiek samenstel dat door opeenvolgende vervangingen heen wordt gevolgd.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "cf3e8d02d23d7eeed1f13a0a7cc47eacdc86beeafbfa213dff781c8b06d8e0dd",
+            "term": "4b3cf0ec3f59477a2d8d51a480441a0402ba50952bd9ed00975f3ff242ebeb66",
+            "toelichting": "0dcdc69f3e22439c59253bd3840484cb7cb2ba8121613a97253052c871111605",
+            "context": "4668bc66e3db1d086325e909216ce9d8bf780b79c948df69024d7192a3a89cb1",
+            "source:S-HT17": "51bc445dffc2263282b7df4ca8a359c12634601310c378964160f2632303de51"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "6f4879184500718c5668c7d7cf35ba16d389441b52a41856ef2139e0e5dcadeb",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één fysiek samenstel van verwisselbare bouwdelen, gevolgd door opeenvolgende vervangingen heen",
+          "reason": "De bedoelde betekenis is telbaar: een afzonderlijk fysiek samenstel dat over tijd wordt gevolgd, en de telling hangt hier juist af van identiteit vóór en na volledige vervanging. De kern verwijst voor die eenheidsgrens expliciet naar een externe regel ('zolang de geldende continuïteitsconventie dat bepaalt'), maar de inhoud daarvan is niet aangeleverd. De enige bron bevestigt dat de conventie ontbreekt, zodat de beslisgrond voor de hoofdvraag ontbreekt; dit is ontbrekende informatie en geen aangetoond gebrek.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "zolang de geldende continuïteitsconventie dat bepaalt"
+            },
+            {
+              "location": "context",
+              "quote": "Alle bouwdelen worden na elkaar vervangen. De vraag betreft identiteit vóór en na deze reeks."
+            },
+            {
+              "location": "source:S-HT17",
+              "quote": "Of geleidelijke vervanging van alle delen de identiteit behoudt, wordt uitsluitend in een afzonderlijke continuïteitsconventie vastgelegd. Die conventie ontbreekt in het aangeleverde materiaal."
+            }
+          ],
+          "missing_information": "De inhoud van de geldende continuïteitsconventie: onder welke voorwaarden (welke mate, volgorde of kern van vervangingen) het samenstel na vervanging van alle bouwdelen nog als dezelfde constructie geldt, en voor welke populatie en geldigheidsperiode die conventie is vastgesteld.",
+          "question": "Welke continuïteitsconventie geldt hier, dat wil zeggen onder welke vastgestelde voorwaarden blijft een samenstel na opeenvolgende vervanging van alle bouwdelen dezelfde wisselconstructie?",
+          "uncertainty": "De eenheidsgrens op één moment (één samenstel van bouwdelen) lijkt uit bovenbegrip en kenmerken afleidbaar; onbeslist blijft uitsluitend de identiteit over de tijd, waarvan de telling in deze context wel afhangt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "a96fe71eb7d814e15b7ae0607546b071fd9e5f61b4d01370d060700f2eb715ff",
+        "elapsed_seconds": 11.667
+      }
+    },
+    {
+      "id": "HT18",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": true,
+      "duur_totaal_s": 13.074,
+      "elapsed_seconds_dienst": 13.074,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 13.073,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één speelsessie: een maximale aaneengesloten periode van spelactiviteit aan dezelfde tafel, waarbij onderbrekingen korter dan de pauzenorm binnen dezelfde sessie vallen\",\n  \"reason\": \"De bedoelde eenheid is telbaar: het gaat om \\\"Afzonderlijke speelsessies aan dezelfde tafel.\\\" De kern legt de eenheidsgrens bij \\\"onderbrekingen volgens de geldende pauzenorm\\\", zodat de telling volledig afhangt van welke pauzenorm geldt. De twee aangeleverde bronnen geven onverenigbare drempels (vijf respectievelijk vijftien minuten) en verklaren zich beide van toepassing zonder voorrangsregel, terwijl de feitelijke pauze van tien minuten juist tussen beide drempels valt: bij S-HT18-A zijn het twee sessies, bij S-HT18-B één. De beslisgrond voor de eenheidsgrens is daarmee niet aangeleverd, niet weerlegd.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"onderbrekingen volgens de geldende pauzenorm nog tot dezelfde sessie behoren\"},\n    {\"location\": \"toelichting\", \"quote\": \"Afzonderlijke speelsessies aan dezelfde tafel.\"},\n    {\"location\": \"context\", \"quote\": \"Twee perioden van spelactiviteit zijn gescheiden door een pauze van tien minuten. Beide aangeleverde bronnen verklaren zich van toepassing; een voorrangsregel ontbreekt.\"},\n    {\"location\": \"source:S-HT18-A\", \"quote\": \"Een pauze van vijf minuten of langer scheidt sessies.\"},\n    {\"location\": \"source:S-HT18-B\", \"quote\": \"Een pauze korter dan vijftien minuten blijft binnen dezelfde sessie.\"}\n  ],\n  \"missing_information\": \"Welke pauzenorm de \\\"geldende\\\" is voor deze tafel en dag: de twee aangeleverde conventies (drempel van vijf minuten in S-HT18-A en van vijftien minuten in S-HT18-B) zijn strijdig voor een pauze van tien minuten en er is geen toepasselijkheids- of voorrangskeuze aangeleverd.\",\n  \"question\": \"Welke van de twee aangeleverde pauzenormen (de drempel van vijf minuten uit S-HT18-A of die van vijftien minuten uit S-HT18-B) geldt als \\\"de geldende pauzenorm\\\" voor de betrokken tafel en dag?\",\n  \"uncertainty\": \"Zodra één pauzenorm als geldend is aangewezen, lijkt de kern samen met de tafelgebonden scope een eenduidige telling toe te laten; de overige aspecten (tafel en dag als scope) zijn in de bronnen begrensd en vormen geen zelfstandig knelpunt.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2874,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "dcf33f1d008ed777153c069556590ea09db4a710ddad2a6dd080bcfbcba6db56",
+        "kandidaat_sha256": "2e6cb06028d2f2c771749cf09cc3b3ba40de9aa87772a369f70fbd036bf7df17",
+        "fingerprint": "e0ec20ce1b88835bb44d86de105944278e5ef71ff3b3b28d6c78f45f56416846",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "fb9efa4b1e82bb677ac6fcd603d3e503f62d89af677371780668d5f2b88ec6d7"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "e0ec20ce1b88835bb44d86de105944278e5ef71ff3b3b28d6c78f45f56416846",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:54:01.077613+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2874,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke speelsessies aan dezelfde tafel.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "2e6cb06028d2f2c771749cf09cc3b3ba40de9aa87772a369f70fbd036bf7df17",
+            "term": "855efc50b357f6d08c2446eb71dd33698b19270b18c2f346bd077f13f12a7383",
+            "toelichting": "8ecfea4639e8adf625d8e0b2802692f347ee9d8988cd11d74b0eb265b5976e29",
+            "context": "6258d50b8e2f3fe8cd1463daecffa841f48bf23ea159b77ec65f759d282c6bb4",
+            "source:S-HT18-A": "645a57aae0ffb0c8667717112479615414d4a66b097b4b3164481360bf5213cd",
+            "source:S-HT18-B": "383a3aa096d21bf5a8faa0fe01426bf8df7b657a235390fefa642c36c1e341a9"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "03b386156782b7857afa2c9e858a3eda70bcbf822d0a589cbae40a32c4447bac",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één speelsessie: een maximale aaneengesloten periode van spelactiviteit aan dezelfde tafel, waarbij onderbrekingen korter dan de pauzenorm binnen dezelfde sessie vallen",
+          "reason": "De bedoelde eenheid is telbaar: het gaat om \"Afzonderlijke speelsessies aan dezelfde tafel.\" De kern legt de eenheidsgrens bij \"onderbrekingen volgens de geldende pauzenorm\", zodat de telling volledig afhangt van welke pauzenorm geldt. De twee aangeleverde bronnen geven onverenigbare drempels (vijf respectievelijk vijftien minuten) en verklaren zich beide van toepassing zonder voorrangsregel, terwijl de feitelijke pauze van tien minuten juist tussen beide drempels valt: bij S-HT18-A zijn het twee sessies, bij S-HT18-B één. De beslisgrond voor de eenheidsgrens is daarmee niet aangeleverd, niet weerlegd.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "onderbrekingen volgens de geldende pauzenorm nog tot dezelfde sessie behoren"
+            },
+            {
+              "location": "toelichting",
+              "quote": "Afzonderlijke speelsessies aan dezelfde tafel."
+            },
+            {
+              "location": "context",
+              "quote": "Twee perioden van spelactiviteit zijn gescheiden door een pauze van tien minuten. Beide aangeleverde bronnen verklaren zich van toepassing; een voorrangsregel ontbreekt."
+            },
+            {
+              "location": "source:S-HT18-A",
+              "quote": "Een pauze van vijf minuten of langer scheidt sessies."
+            },
+            {
+              "location": "source:S-HT18-B",
+              "quote": "Een pauze korter dan vijftien minuten blijft binnen dezelfde sessie."
+            }
+          ],
+          "missing_information": "Welke pauzenorm de \"geldende\" is voor deze tafel en dag: de twee aangeleverde conventies (drempel van vijf minuten in S-HT18-A en van vijftien minuten in S-HT18-B) zijn strijdig voor een pauze van tien minuten en er is geen toepasselijkheids- of voorrangskeuze aangeleverd.",
+          "question": "Welke van de twee aangeleverde pauzenormen (de drempel van vijf minuten uit S-HT18-A of die van vijftien minuten uit S-HT18-B) geldt als \"de geldende pauzenorm\" voor de betrokken tafel en dag?",
+          "uncertainty": "Zodra één pauzenorm als geldend is aangewezen, lijkt de kern samen met de tafelgebonden scope een eenduidige telling toe te laten; de overige aspecten (tafel en dag als scope) zijn in de bronnen begrensd en vormen geen zelfstandig knelpunt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "fb9efa4b1e82bb677ac6fcd603d3e503f62d89af677371780668d5f2b88ec6d7",
+        "elapsed_seconds": 13.074
+      }
+    },
+    {
+      "id": "HT19",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": true,
+      "duur_totaal_s": 11.732,
+      "elapsed_seconds_dienst": 11.73,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 11.729,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één afzonderlijk fysiek fiche\",\n  \"reason\": \"De bedoelde betekenis betreft telbare, afzonderlijke exemplaren ('Afzonderlijke fysieke fiches'), dus de regel is van toepassing. Het onderscheid tussen instanties wordt in de kern volledig gedragen door de archiefcode, maar het materiaal onderbouwt nergens wat die code identificeert, binnen welke populatie of naamruimte zij uniek is en of zij hergebruikt wordt. Dat is ontbrekende informatie over de conventie, geen aangetoond gebrek: de bron stelt uitdrukkelijk dat dit niet beschreven is.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een fysiek fiche dat van andere fysieke fiches wordt onderscheiden door zijn archiefcode.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Afzonderlijke fysieke fiches.\"\n    },\n    {\n      \"location\": \"source:S-HT19\",\n      \"quote\": \"De aangeleverde documentatie beschrijft niet wat de code identificeert, binnen welke verzameling zij uniek is of of zij opnieuw wordt uitgegeven.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"Een registratie bevat archiefcodes, maar geen informatie over de referentsoort, uniciteitsruimte of hergebruikregels.\"\n    }\n  ],\n  \"missing_information\": \"De conventie achter de archiefcode: welke referentsoort zij aanduidt (het fysieke exemplaar of bijvoorbeeld de inhoud/reeks), binnen welke populatie of naamruimte zij uniek is, hoe zij wordt toegekend en of zij na afvoer opnieuw wordt uitgegeven.\",\n  \"question\": \"Welke conventie legt vast wat de archiefcode identificeert, binnen welke populatie of naamruimte zij uniek is en of zij kan worden hergebruikt?\",\n  \"uncertainty\": \"Zonder die conventie blijft ook open of het bovenbegrip 'fysiek fiche' op zichzelf al een voldoende natuurlijke exemplaargrens draagt, aangezien de kern het onderscheid uitdrukkelijk aan de code ophangt.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2360,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "3da3cbad402ca3e68185417480af8c004605bc88a0bdc7bf472360baec6bab4f",
+        "kandidaat_sha256": "d261626a40cb170f217c4fdec5574ea23739d5d1895a80ca0b3543ad1b95c9ec",
+        "fingerprint": "3735faa3cb80063bd9ac1ad1b7db77ab24c51dc9182e581689183f9a07e0f0a2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "272e2c017eafb356e12581625b9aba00621fd9008ae135a7ab1f131e72a83cc4"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "3735faa3cb80063bd9ac1ad1b7db77ab24c51dc9182e581689183f9a07e0f0a2",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:54:12.809818+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2360,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke fysieke fiches.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "d261626a40cb170f217c4fdec5574ea23739d5d1895a80ca0b3543ad1b95c9ec",
+            "term": "8663aa82dd12849454ed3bd7841fce1c8c51981c4b734c4b2e8a731f5f970a76",
+            "toelichting": "4d401d8c5bd8e2ec6bdd9b5547ea7586cb38e4777ba1591349d74a0c9b67eb93",
+            "context": "1d109bb32dad91c9ebe86fca13f0dbeaaac7203a6cbb0de2ecae8efce44cbaf3",
+            "source:S-HT19": "57d83b0ad8f67ba0e0e55de576a02464f3d9fa8f727d392651d3d721eb0bded6"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "3763dcb05923a342189156c6cbf953d8e6a743ff2d3322ca4d82c3d6676b471d",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één afzonderlijk fysiek fiche",
+          "reason": "De bedoelde betekenis betreft telbare, afzonderlijke exemplaren ('Afzonderlijke fysieke fiches'), dus de regel is van toepassing. Het onderscheid tussen instanties wordt in de kern volledig gedragen door de archiefcode, maar het materiaal onderbouwt nergens wat die code identificeert, binnen welke populatie of naamruimte zij uniek is en of zij hergebruikt wordt. Dat is ontbrekende informatie over de conventie, geen aangetoond gebrek: de bron stelt uitdrukkelijk dat dit niet beschreven is.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een fysiek fiche dat van andere fysieke fiches wordt onderscheiden door zijn archiefcode."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Afzonderlijke fysieke fiches."
+            },
+            {
+              "location": "source:S-HT19",
+              "quote": "De aangeleverde documentatie beschrijft niet wat de code identificeert, binnen welke verzameling zij uniek is of of zij opnieuw wordt uitgegeven."
+            },
+            {
+              "location": "context",
+              "quote": "Een registratie bevat archiefcodes, maar geen informatie over de referentsoort, uniciteitsruimte of hergebruikregels."
+            }
+          ],
+          "missing_information": "De conventie achter de archiefcode: welke referentsoort zij aanduidt (het fysieke exemplaar of bijvoorbeeld de inhoud/reeks), binnen welke populatie of naamruimte zij uniek is, hoe zij wordt toegekend en of zij na afvoer opnieuw wordt uitgegeven.",
+          "question": "Welke conventie legt vast wat de archiefcode identificeert, binnen welke populatie of naamruimte zij uniek is en of zij kan worden hergebruikt?",
+          "uncertainty": "Zonder die conventie blijft ook open of het bovenbegrip 'fysiek fiche' op zichzelf al een voldoende natuurlijke exemplaargrens draagt, aangezien de kern het onderscheid uitdrukkelijk aan de code ophangt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "272e2c017eafb356e12581625b9aba00621fd9008ae135a7ab1f131e72a83cc4",
+        "elapsed_seconds": 11.73
+      }
+    },
+    {
+      "id": "HT20",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": true,
+      "duur_totaal_s": 11.871,
+      "elapsed_seconds_dienst": 11.87,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 11.87,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één maximale verzameling onderling (via verbindingen binnen het werkgebied) verbonden knopen — een verbonden geheel binnen het gekozen werkgebied\",\n  \"reason\": \"De kern beschrijft een telbare eenheid: maximale verzamelingen onderling verbonden knopen, waarbij de eenheidsgrens (maximaliteit en verbondenheid) intrinsiek helder is. De telling hangt echter volledig af van het 'gekozen werkgebied', en juist die selectie ontbreekt in het materiaal: de bron noemt twee toegestane selecties die tot verschillende aantallen leiden (met brugknoop één geheel, zonder brugknoop twee gehelen) en vermeldt niet welke geldt. Daarmee ontbreekt de beslisgrond voor de scope zonder dat er een aantoonbaar gebrek in de kern zelf is.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Een maximale verzameling knopen binnen het gekozen werkgebied die via verbindingen binnen datzelfde werkgebied met elkaar verbonden zijn.\"\n    },\n    {\n      \"location\": \"source:S-HT20\",\n      \"quote\": \"Een toegestane selectie bevat beide groepen zonder de brugknoop; een andere bevat beide groepen met de brugknoop. Welke selectie voor deze taak geldt, is niet vermeld.\"\n    },\n    {\n      \"location\": \"context\",\n      \"quote\": \"De telling betreft een kaart waarvan de selectie van het werkgebied niet is meegeleverd.\"\n    }\n  ],\n  \"missing_information\": \"De vastlegging welke werkgebiedselectie voor deze taak geldt (in het bijzonder of de brugknoop tot het werkgebied behoort), waarvan het aantal verbindingseenheden afhangt.\",\n  \"question\": \"Welke werkgebiedselectie geldt voor deze telling, dat wil zeggen behoort de brugknoop wel of niet tot het gekozen werkgebied?\",\n  \"uncertainty\": \"De eenheidsgrens zelf (maximaliteit plus verbondenheid via verbindingen binnen het werkgebied) lijkt intrinsiek eenduidig; onduidelijk blijft alleen de scopekeuze, waardoor het aantal instanties nu niet vaststaat.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2505,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "d7efc4805c812ed90de11f2cf58df8a2cac35eca56348abe802c22cfd18fb5a2",
+        "kandidaat_sha256": "6b82393621b230afa9cf5a7d0a0b3e79b16cdd7be5fb2821623e60f9f6c1e4da",
+        "fingerprint": "587ad6a2b4af995d39f32d3f3af2449a6c85a2b5247cccea3bac2016d581ca96",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "b348c9e7fcf6121ee501995dd7ce7d810091298dfe08acb2725d56cb33d70e14"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "587ad6a2b4af995d39f32d3f3af2449a6c85a2b5247cccea3bac2016d581ca96",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T17:54:24.681087+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2505,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Afzonderlijke verbonden gehelen binnen een geselecteerd werkgebied.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "6b82393621b230afa9cf5a7d0a0b3e79b16cdd7be5fb2821623e60f9f6c1e4da",
+            "term": "94e30d4c5edce40025605e3cbbf38d003ddb8b4d05453cc91f01bd59ced0aa85",
+            "toelichting": "66e77894bf3cf0e39db1c7eefab1609be44b1b436717daa44a0fa605ee40d433",
+            "context": "712c51a5970a0625ac0bdb34e7abcd31afabd539610411e796c37f686c8a4d33",
+            "source:S-HT20": "ab8e88516e51e6e22c3f78c38db14cde9aa6daca851e50e982b1378c78ccf6d2"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "84bfb7c9dd803fd1cab37351690e917e8fdf62d6ed4164b968af35b1f049a84f",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één maximale verzameling onderling (via verbindingen binnen het werkgebied) verbonden knopen — een verbonden geheel binnen het gekozen werkgebied",
+          "reason": "De kern beschrijft een telbare eenheid: maximale verzamelingen onderling verbonden knopen, waarbij de eenheidsgrens (maximaliteit en verbondenheid) intrinsiek helder is. De telling hangt echter volledig af van het 'gekozen werkgebied', en juist die selectie ontbreekt in het materiaal: de bron noemt twee toegestane selecties die tot verschillende aantallen leiden (met brugknoop één geheel, zonder brugknoop twee gehelen) en vermeldt niet welke geldt. Daarmee ontbreekt de beslisgrond voor de scope zonder dat er een aantoonbaar gebrek in de kern zelf is.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Een maximale verzameling knopen binnen het gekozen werkgebied die via verbindingen binnen datzelfde werkgebied met elkaar verbonden zijn."
+            },
+            {
+              "location": "source:S-HT20",
+              "quote": "Een toegestane selectie bevat beide groepen zonder de brugknoop; een andere bevat beide groepen met de brugknoop. Welke selectie voor deze taak geldt, is niet vermeld."
+            },
+            {
+              "location": "context",
+              "quote": "De telling betreft een kaart waarvan de selectie van het werkgebied niet is meegeleverd."
+            }
+          ],
+          "missing_information": "De vastlegging welke werkgebiedselectie voor deze taak geldt (in het bijzonder of de brugknoop tot het werkgebied behoort), waarvan het aantal verbindingseenheden afhangt.",
+          "question": "Welke werkgebiedselectie geldt voor deze telling, dat wil zeggen behoort de brugknoop wel of niet tot het gekozen werkgebied?",
+          "uncertainty": "De eenheidsgrens zelf (maximaliteit plus verbondenheid via verbindingen binnen het werkgebied) lijkt intrinsiek eenduidig; onduidelijk blijft alleen de scopekeuze, waardoor het aantal instanties nu niet vaststaat."
+        },
+        "rejected": [],
+        "raw_response_sha256": "b348c9e7fcf6121ee501995dd7ce7d810091298dfe08acb2725d56cb33d70e14",
+        "elapsed_seconds": 11.87
+      }
+    }
+  ],
+  "gevallenbestand": {
+    "pad": "/tmp/def766-ai-20260921/heldout/heldout-gevallen-basis-v1.json",
+    "sha256": "b9d03ae3c43c95737d29aa868ae48086413f1fa545a6c672a3ac20728f9f9cf7",
+    "schema": "def766-ess03-ontwikkelgevallen/1",
+    "status": "onafhankelijke eindset HT01–HT20 (20 basisgevallen; 5 per uitkomst)"
+  }
+}

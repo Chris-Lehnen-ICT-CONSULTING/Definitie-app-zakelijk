@@ -1,0 +1,32 @@
+{
+  "definitie-toetsregels": {
+    "source_members": 10,
+    "zip_members": 10,
+    "equal": true,
+    "errors": []
+  },
+  "definitie-nederlandse-definities": {
+    "source_members": 10,
+    "zip_members": 10,
+    "equal": true,
+    "errors": []
+  },
+  "definitie-ufo-ontologie": {
+    "source_members": 7,
+    "zip_members": 7,
+    "equal": true,
+    "errors": []
+  },
+  "definitie-ontologisch-modelleren": {
+    "source_members": 6,
+    "zip_members": 6,
+    "equal": true,
+    "errors": []
+  },
+  "definitie-voorbeelden-generatie": {
+    "source_members": 6,
+    "zip_members": 6,
+    "equal": true,
+    "errors": []
+  }
+}

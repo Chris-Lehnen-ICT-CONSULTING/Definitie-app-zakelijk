@@ -1,0 +1,213 @@
+"""Offline controle (geen API) van de heldout-gevallen vóór de run.
+
+1. Transcriptietrouw: parse heldout-cases-v1.md en vergelijk term, kandidaat,
+   bedoelde betekenis, context, bron-id's en passages letterlijk met de JSON.
+2. Promptopbouw met de productiecode: afscherming (verwacht/grond/doel/titel/
+   basis/id nooit in de prompt), hashbinding tegen de verzegeling, M4 == HT18,
+   -R == basis, injectietekst aanwezig in I1/I2, M2-vervanging.
+3. Eerste gebouwde prompt (HT01) volledig afdrukken.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path("/Users/chrislehnen/.codex/worktrees/2075/Definitie-app")
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from domain.sources.normalisatie import canoniseer_bronnen  # noqa: E402
+from services.validation.ess03_assessment_service import (  # noqa: E402
+    Ess03AssessmentService,
+    bouw_beoordelingsprompt,
+    laad_ess03_norm,
+)
+from domain.ess03.contract import Intentie  # noqa: E402
+
+MAP = Path("/tmp/def766-ai-20260921/heldout")
+
+
+class _Tee:
+    def __init__(self, *streams):
+        self._streams = streams
+
+    def write(self, s):
+        for st in self._streams:
+            st.write(s)
+
+    def flush(self):
+        for st in self._streams:
+            st.flush()
+
+
+_LOG = open(MAP / "offline-controle-v1.log", "w", encoding="utf-8")  # noqa: SIM115
+sys.stdout = _Tee(sys.__stdout__, _LOG)
+MD = (MAP / "heldout-cases-v1.md").read_text(encoding="utf-8")
+ALLE = json.loads((MAP / "heldout-gevallen-v1.json").read_text(encoding="utf-8"))["gevallen"]
+OP_ID = {g["id"]: g for g in ALLE}
+
+ZEGEL = {
+    "prompt_version": "ess03-assess/2",
+    "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+    "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+}
+LABEL = {
+    "voldoet": "pass",
+    "voldoet niet": "fail",
+    "niet van toepassing": "not_applicable",
+    "onvoldoende informatie": "insufficient_information",
+}
+
+
+def sha(t: str) -> str:
+    return hashlib.sha256(t.encode("utf-8")).hexdigest()
+
+
+fouten: list[str] = []
+
+# --- 1. transcriptietrouw -------------------------------------------------------------
+blokken = re.split(r"^### (HT\d\d) — ", MD, flags=re.M)[1:]
+assert len(blokken) == 40, len(blokken)
+md_gevallen = {}
+for i in range(0, 40, 2):
+    hid, body = blokken[i], blokken[i + 1]
+    body = body.split("\n## ")[0]
+    term = re.search(r"\*\*Exacte term:\*\* `([^`]+)`", body).group(1)
+    kand = re.search(r"\*\*Exacte kandidaat:\*\* “(.+?)”\n", body, re.S).group(1)
+    bet = re.search(r"\*\*Bedoelde betekenis:\*\* (.+)", body).group(1).strip()
+    ctx = re.search(r"\*\*Context:\*\* (.+)", body).group(1).strip()
+    bronnen = re.findall(r"\*\*Bron-id en passage:\*\* `([^`]+)` — “(.+?)”", body)
+    label = re.search(r"\*\*Verwacht label:\*\* \*\*(.+?)\*\*", body).group(1)
+    md_gevallen[hid] = dict(term=term, kand=kand, bet=bet, ctx=ctx, bronnen=bronnen, label=LABEL[label])
+
+for hid, m in md_gevallen.items():
+    g = OP_ID[hid]
+    checks = {
+        "begrip": g["begrip"] == m["term"],
+        "tekst": g["tekst"] == m["kand"],
+        "toelichting": g["toelichting"] == m["bet"],
+        "context": g["context"]["organisatorische_context"] == [m["ctx"]]
+        and g["context"]["juridische_context"] == []
+        and g["context"]["wettelijke_basis"] == [],
+        "bronnen": [(b["source_id"], b["snippet"]) for b in g["bronnen"]] == m["bronnen"],
+        "verwacht": g["verwacht"] == m["label"],
+        "categorie": g["categorie"] is None,
+    }
+    for k, ok in checks.items():
+        if not ok:
+            fouten.append(f"{hid}: veld {k} wijkt af van de markdown")
+print(f"[1] transcriptie: {20 - len({f.split(':')[0] for f in fouten})}/20 basisgevallen letterlijk gelijk aan de markdown")
+labels = [OP_ID[f'HT{i:02d}']['verwacht'] for i in range(1, 21)]
+print("    labels per 5:", labels[0:5], labels[5:10], labels[10:15], labels[15:20])
+
+# M1/M3 kandidaat, M2 passage, I1 kandidaat, I2 passage: letterlijk uit de markdown
+m1 = re.search(r"### M1.*?\*\*Vervang uitsluitend de kandidaat door:\*\* “(.+?)”", MD, re.S).group(1)
+m3 = re.search(r"### M3.*?\*\*Vervang uitsluitend de kandidaat door:\*\* “(.+?)”", MD, re.S).group(1)
+i1 = re.search(r"### I1.*?\n  > (.+?)\n", MD, re.S).group(1)
+i2 = re.search(r"### I2.*?\n  > (.+?)\n", MD, re.S).group(1)
+if OP_ID["HT01-M"]["tekst"] != m1:
+    fouten.append("HT01-M: kandidaat wijkt af van M1")
+if OP_ID["HT12-M"]["tekst"] != m3:
+    fouten.append("HT12-M: kandidaat wijkt af van M3")
+if OP_ID["HT07-I"]["tekst"] != i1:
+    fouten.append("HT07-I: kandidaat wijkt af van I1")
+verwacht_i2 = OP_ID["HT06"]["bronnen"][0]["snippet"] + " " + i2
+if OP_ID["HT06-I"]["bronnen"][0]["snippet"] != verwacht_i2:
+    fouten.append("HT06-I: passage wijkt af van S-HT06 + I2-tekst")
+verwacht_m2 = OP_ID["HT06"]["bronnen"][0]["snippet"].replace("code Linde", "code QX")
+if OP_ID["HT06-M"]["bronnen"][0]["snippet"] != verwacht_m2 or "Linde" in OP_ID["HT06-M"]["bronnen"][0]["snippet"]:
+    fouten.append("HT06-M: M2-vervanging onjuist")
+if [b["source_id"] for b in OP_ID["HT18-M"]["bronnen"]] != ["S-HT18-B", "S-HT18-A"]:
+    fouten.append("HT18-M: bronvolgorde niet omgekeerd")
+for hid in ("HT01", "HT06", "HT12", "HT18"):
+    b, r = OP_ID[hid], OP_ID[f"{hid}-R"]
+    for veld in ("begrip", "tekst", "toelichting", "categorie", "context", "bronnen", "verwacht"):
+        if b[veld] != r[veld]:
+            fouten.append(f"{hid}-R: veld {veld} niet identiek aan {hid}")
+print("[1b] varianten: M1/M3/I1/I2-teksten letterlijk uit de markdown; M2-vervanging; M4-volgorde; -R identiek —",
+      "OK" if not [f for f in fouten if "-M" in f or "-I" in f or "-R" in f] else "FOUT")
+
+# --- 2. promptopbouw + afscherming --------------------------------------------------------
+norm = laad_ess03_norm()
+AFGESCHERMD = ("verwacht", "grond", "doel", "titel", "basis")
+prompts: dict[str, tuple[str, str]] = {}
+for g in ALLE:
+    intentie = Intentie(
+        toelichting=g.get("toelichting"),
+        categorie=g.get("categorie"),
+        betekenisverduidelijking=g.get("betekenisverduidelijking"),
+        verduidelijking=g.get("verduidelijking"),
+    )
+    sp, up = bouw_beoordelingsprompt(
+        g["begrip"], g["tekst"], g.get("context") or {}, canoniseer_bronnen(g.get("bronnen") or []),
+        intentie=intentie, norm=norm,
+    )
+    prompts[g["id"]] = (sp, up)
+    # afscherming: prompt zonder afgeschermde velden is tekenidentiek (zoals de runner)
+    kaal = {k: v for k, v in g.items() if k not in AFGESCHERMD}
+    sp2, up2 = bouw_beoordelingsprompt(
+        kaal["begrip"], kaal["tekst"], kaal.get("context") or {}, canoniseer_bronnen(kaal.get("bronnen") or []),
+        intentie=intentie, norm=norm,
+    )
+    if (sp2, up2) != (sp, up):
+        fouten.append(f"{g['id']}: prompt hangt af van afgeschermde velden")
+    for veld in ("grond", "doel", "titel"):
+        if g.get(veld) and g[veld] in up:
+            fouten.append(f"{g['id']}: {veld} letterlijk in prompt")
+    # test-id's en labelwoorden uit de set mogen niet in de gebruikersprompt staan
+    # Het bron-id `S-HTnn` is door de set voorgeschreven en hoort in de prompt;
+    # een los test-id (HTnn, HTnn-M/-I/-R) mag er niet in staan.
+    if re.search(r"(?<!S-)\bHT\d\d(-[MIR])?\b", up):
+        fouten.append(f"{g['id']}: test-id in prompt")
+    for woord in ("Verwacht label", "Beslissende reden", "Aanvaardbare onderbouwing", "Vangt deze fout"):
+        if woord in up:
+            fouten.append(f"{g['id']}: '{woord}' in prompt")
+    if sha(sp) != ZEGEL["system_prompt_sha256"]:
+        fouten.append(f"{g['id']}: system_prompt_sha256 wijkt af van de verzegeling")
+    # alle passages letterlijk (ge-escaped is hier niet nodig: geen &<> in de set) in de prompt
+    for b in g["bronnen"]:
+        if b["snippet"] not in up or f'id="{b["source_id"]}"' not in up:
+            fouten.append(f"{g['id']}: bron {b['source_id']} niet letterlijk in prompt")
+    if g["tekst"] not in up or g["toelichting"] not in up or g["context"]["organisatorische_context"][0] not in up:
+        fouten.append(f"{g['id']}: kandidaat/betekenis/context niet letterlijk in prompt")
+
+dienst_norm_sha = Ess03AssessmentService(object(), norm=norm).norm_sha256
+print(f"[2] prompt_version={Ess03AssessmentService.PROMPT_VERSION} "
+      f"({'OK' if Ess03AssessmentService.PROMPT_VERSION == ZEGEL['prompt_version'] else 'AFWIJKEND'})")
+print(f"    system_prompt_sha256={sha(prompts['HT01'][0])} "
+      f"({'OK' if sha(prompts['HT01'][0]) == ZEGEL['system_prompt_sha256'] else 'AFWIJKEND'})")
+print(f"    norm_sha256={dienst_norm_sha} ({'OK' if dienst_norm_sha == ZEGEL['norm_sha256'] else 'AFWIJKEND'})")
+print(f"    M4 (HT18-M) user-prompt == HT18 user-prompt: {prompts['HT18-M'][1] == prompts['HT18'][1]}")
+for hid in ("HT01", "HT06", "HT12", "HT18"):
+    print(f"    {hid}-R user-prompt == {hid}: {prompts[f'{hid}-R'][1] == prompts[hid][1]}")
+print(f"    HT01-M != HT01: {prompts['HT01-M'][1] != prompts['HT01'][1]}; HT06-M != HT06: {prompts['HT06-M'][1] != prompts['HT06'][1]}; "
+      f"HT12-M != HT12: {prompts['HT12-M'][1] != prompts['HT12'][1]}")
+print(f"    I1-tekst in HT07-I prompt: {'BEOORDELAARSINSTRUCTIE' in prompts['HT07-I'][1]}; "
+      f"I2-tekst in HT06-I prompt: {'SYSTEEMOVERRIDE' in prompts['HT06-I'][1]}")
+print(f"    max passage-lengte: {max(len(b['snippet']) for g in ALLE for b in g['bronnen'])} tekens (grens 8000)")
+print(f"    unieke user-prompts: {len({up for _, up in prompts.values()})} van 30 "
+      f"(verwacht 25: 30 − 4 herhalingen − M4)")
+
+print("\n[3] EERSTE GEBOUWDE GEBRUIKERSPROMPT (HT01) — letterlijk:")
+print("-" * 78)
+print(prompts["HT01"][1])
+print("-" * 78)
+print("\n[3b] GEBRUIKERSPROMPT HT18 (twee bronnen) — letterlijk:")
+print("-" * 78)
+print(prompts["HT18"][1])
+print("-" * 78)
+
+(MAP / "heldout-prompt-hashes-v1.json").write_text(
+    json.dumps({hid: {"system_prompt_sha256": sha(sp), "user_prompt_sha256": sha(up)} for hid, (sp, up) in prompts.items()},
+               ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+print()
+if fouten:
+    print("FOUTEN:")
+    for f in fouten:
+        print(" -", f)
+    sys.exit(1)
+print("GEEN FOUTEN — gevallenbestand is gereed voor de run.")

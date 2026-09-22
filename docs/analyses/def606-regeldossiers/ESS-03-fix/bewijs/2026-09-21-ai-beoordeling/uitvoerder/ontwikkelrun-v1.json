@@ -1,0 +1,1015 @@
+{
+  "schema": "def766-ess03-proefrun/1",
+  "gestart": "2026-09-21T08:18:34.003260+00:00",
+  "modelconfig": {
+    "provider": "anthropic",
+    "model": "claude-opus-4-8",
+    "task_type": "validation",
+    "temperature": 0.0,
+    "max_tokens": 1200,
+    "timeout_seconds": 60,
+    "ai_service_cache": false,
+    "dienst_cache_size": 0,
+    "sdk_max_retries": "0"
+  },
+  "prompt_version": "ess03-assess/1",
+  "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+  "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+  "aantal": 12,
+  "correct": 9,
+  "per_klasse": {
+    "pass": {
+      "totaal": 4,
+      "correct": 3
+    },
+    "fail": {
+      "totaal": 3,
+      "correct": 3
+    },
+    "not_applicable": {
+      "totaal": 2,
+      "correct": 2
+    },
+    "insufficient_information": {
+      "totaal": 3,
+      "correct": 1
+    }
+  },
+  "resultaten": [
+    {
+      "id": "D01-natuurlijke-grens",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 163.125,
+      "aanroep": {
+        "duur_s": 163.124,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een afzonderlijk aaneengesloten, volledig door water omgeven landoppervlak op peilmoment P\",\n  \"reason\": \"De bedoelde eenheid is telbaar: elk gescheiden aaneengesloten vlak geldt als één eiland. De kern draagt de eenheidsgrens zelf ('afzonderlijk aaneengesloten landoppervlak dat volledig door water is omgeven') en het peilmoment P levert de tijdgebonden onderscheidingsgrond. Twee gescheiden vlakken zijn expliciet twee eilanden, waarmee onderscheid tussen instanties eenduidig is.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven.\"},\n    {\"location\": \"toelichting\", \"quote\": \"elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Het peilmoment P is als conventie benoemd maar niet met een concrete waarde ingevuld; voor daadwerkelijke telling in een specifiek geval zou P vastgelegd moeten zijn, wat de eenheidsgrens zelf echter niet ondermijnt.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 538,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "4718337cfee626c2f4465ef410401ac2756f8a286c70fb1b23c44e189a74d614",
+        "kandidaat_sha256": "5612e7d50439c61d53a8bb9926bdf986c05c3be2491ec7522f156e0688a73c54",
+        "fingerprint": "46227586e4e6891f735b2c61c69aaadf2617ad2271be4fcfb4edbff0a6dbf2fd",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "758a550101ea7a71a57c7e56f049bec4e0b91489b8510e8d7fb3ff85f4efc954"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "46227586e4e6891f735b2c61c69aaadf2617ad2271be4fcfb4edbff0a6dbf2fd",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:12.972158+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 538
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Synthetische conventie voor deze proef: elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "5612e7d50439c61d53a8bb9926bdf986c05c3be2491ec7522f156e0688a73c54",
+            "term": "6c97d8d14ed69bf0a471305281ae9b8692979b2a83e37b87473e3417ed451697",
+            "toelichting": "5c31516d2e864f12ce0bdd5bad67d624155c30ce9d31373fe69b710c48cc7bf6",
+            "context": "4961e067cfbcf8989d2ffd54e4fc3a91c8ffe606742481c18f0dacee27793827"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "1689209ea873ebff54f0bb69a5e85fd1530801d4b56f5d6e9c25e610a2ff2423"
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "een afzonderlijk aaneengesloten, volledig door water omgeven landoppervlak op peilmoment P",
+          "reason": "De bedoelde eenheid is telbaar: elk gescheiden aaneengesloten vlak geldt als één eiland. De kern draagt de eenheidsgrens zelf ('afzonderlijk aaneengesloten landoppervlak dat volledig door water is omgeven') en het peilmoment P levert de tijdgebonden onderscheidingsgrond. Twee gescheiden vlakken zijn expliciet twee eilanden, waarmee onderscheid tussen instanties eenduidig is.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven."
+            },
+            {
+              "location": "toelichting",
+              "quote": "elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden"
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Het peilmoment P is als conventie benoemd maar niet met een concrete waarde ingevuld; voor daadwerkelijke telling in een specifiek geval zou P vastgelegd moeten zijn, wat de eenheidsgrens zelf echter niet ondermijnt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "758a550101ea7a71a57c7e56f049bec4e0b91489b8510e8d7fb3ff85f4efc954"
+      }
+    },
+    {
+      "id": "D02-isbn-exemplaar",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 6.368,
+      "aanroep": {
+        "duur_s": 6.367,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"het afzonderlijke fysieke boekexemplaar in de collectie\",\n  \"reason\": \"De bedoelde eenheid is het afzonderlijke fysieke exemplaar, dus afzonderlijke instanties zijn relevant. De kern stelt echter dat het exemplaar 'uitsluitend door zijn ISBN' van andere fysieke exemplaren wordt onderscheiden, terwijl de aangeleverde bron bevestigt dat meerdere fysieke exemplaren van dezelfde uitgave hetzelfde ISBN dragen. Het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties dus aantoonbaar niet.\",\n  \"evidence\": [\n    {\"location\": \"toelichting\", \"quote\": \"Bedoeld: het afzonderlijke fysieke exemplaar in de collectie, niet de uitgave.\"},\n    {\"location\": \"definition\", \"quote\": \"Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke exemplaren wordt onderscheiden.\"},\n    {\"location\": \"source:doc:synth-reglement-1\", \"quote\": \"Meerdere fysieke exemplaren van dezelfde uitgave dragen hetzelfde ISBN.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De kern noemt geen alternatief onderscheidend kenmerk (zoals een exemplaarnummer); dit blijft open, maar wijzigt het geconstateerde gebrek niet.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 567,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "13d216595b7056b52624dd23bcfcb0873f29ded87457de52695b0c2e3929ce64",
+        "kandidaat_sha256": "fb8245dab47b5e3df5d9fd3fdadf2d8f28606bff94775cba603c8b4d24458337",
+        "fingerprint": "21ce12e319f2f9d94844e1cb217af68b1fba98d584c775ce21469299fb19b52c",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "ed2158c9a8daca934c42b7cce2e0dbebc327484abbb47de93acdce64a51dd5e0"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "21ce12e319f2f9d94844e1cb217af68b1fba98d584c775ce21469299fb19b52c",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:19.340094+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 567
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld: het afzonderlijke fysieke exemplaar in de collectie, niet de uitgave.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "fb8245dab47b5e3df5d9fd3fdadf2d8f28606bff94775cba603c8b4d24458337",
+            "term": "f08a83213f872d469356b434731e92b051ee37b81d2fc14513d2839cbf189b1a",
+            "toelichting": "1de07475302dc3db4c97825b0bb82cee2328ebd9cf32176675a83b4c101aa0b3",
+            "context": "38f1a3d3f8b7b52aa7c8d9f057287615983a414c310801d4c45e3d5b8fd70783",
+            "source:doc:synth-reglement-1": "e135b5715c5cce38819ce0002e672da2af4eefad8562e150bd1edf5c92ba9555"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "d6974361a624c8e23247c6289edc8bf421108dde8cf5705d4ec895002da79a78"
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "het afzonderlijke fysieke boekexemplaar in de collectie",
+          "reason": "De bedoelde eenheid is het afzonderlijke fysieke exemplaar, dus afzonderlijke instanties zijn relevant. De kern stelt echter dat het exemplaar 'uitsluitend door zijn ISBN' van andere fysieke exemplaren wordt onderscheiden, terwijl de aangeleverde bron bevestigt dat meerdere fysieke exemplaren van dezelfde uitgave hetzelfde ISBN dragen. Het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties dus aantoonbaar niet.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld: het afzonderlijke fysieke exemplaar in de collectie, niet de uitgave."
+            },
+            {
+              "location": "definition",
+              "quote": "Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke exemplaren wordt onderscheiden."
+            },
+            {
+              "location": "source:doc:synth-reglement-1",
+              "quote": "Meerdere fysieke exemplaren van dezelfde uitgave dragen hetzelfde ISBN."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De kern noemt geen alternatief onderscheidend kenmerk (zoals een exemplaarnummer); dit blijft open, maar wijzigt het geconstateerde gebrek niet."
+        },
+        "rejected": [],
+        "raw_response_sha256": "ed2158c9a8daca934c42b7cce2e0dbebc327484abbb47de93acdce64a51dd5e0"
+      }
+    },
+    {
+      "id": "D03-stof",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 4.974,
+      "aanroep": {
+        "duur_s": 4.974,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is de stof als zodanig, niet een afgebakende telbare eenheid. Volgens ESS-03 is de niet-telbare (stof)lezing uitgezonderd; substanties zoals zand worden expliciet genoemd. Er worden geen afzonderlijke instanties onderscheiden, dus de eenheidsvraag is niet van toepassing.\",\n  \"evidence\": [\n    {\"location\": \"toelichting\", \"quote\": \"Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid.\"},\n    {\"location\": \"definition\", \"quote\": \"Vloeistof bestaande uit H2O.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De categorieclaim 'type' is niet doorslaggevend; wanneer elders toch een afgebakende hoeveelheid water bedoeld zou zijn, zou telbaarheid opnieuw beoordeeld moeten worden.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 428,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "d28acab80a5ad35e0399152435bc359beb0f1e48d8ab2a1e86ad21da97ed9350",
+        "kandidaat_sha256": "58267b253ccf2a4430849c661e96b5866e83b9c13d6147f15b0e28e7d4775d74",
+        "fingerprint": "07f34fe6f63a4b051531c17120585b23190da856c89d99602e89b6b6c5c216e3",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "2adee400d5b2a0212b2b5dfccf1bbe63021f949a33360307a2b3832cb656ac2d"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "07f34fe6f63a4b051531c17120585b23190da856c89d99602e89b6b6c5c216e3",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:24.314016+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 428
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid.",
+            "categorie": "type",
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "58267b253ccf2a4430849c661e96b5866e83b9c13d6147f15b0e28e7d4775d74",
+            "term": "0f4168490e38b8447e11ba4bd656aa11b925bd22af30bac464bc153fdb608501",
+            "toelichting": "696984ddd8b58df6745d91f9ab6e0f8b3d202159afcc2ff5596501db44ad16cf",
+            "context": "639f12191ec903d7c2445cfb60933bc2bcd9ed1b198cfe24c51b007df6636c73"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "ed53d2e530d94cc0924337e5385c7c08fb17ff8edc82d9a96e7b5dae01c83486"
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is de stof als zodanig, niet een afgebakende telbare eenheid. Volgens ESS-03 is de niet-telbare (stof)lezing uitgezonderd; substanties zoals zand worden expliciet genoemd. Er worden geen afzonderlijke instanties onderscheiden, dus de eenheidsvraag is niet van toepassing.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid."
+            },
+            {
+              "location": "definition",
+              "quote": "Vloeistof bestaande uit H2O."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De categorieclaim 'type' is niet doorslaggevend; wanneer elders toch een afgebakende hoeveelheid water bedoeld zou zijn, zou telbaarheid opnieuw beoordeeld moeten worden."
+        },
+        "rejected": [],
+        "raw_response_sha256": "2adee400d5b2a0212b2b5dfccf1bbe63021f949a33360307a2b3832cb656ac2d"
+      }
+    },
+    {
+      "id": "D04-code-zonder-scope",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": false,
+      "duur_totaal_s": 7.045,
+      "aanroep": {
+        "duur_s": 7.045,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een afzonderlijk meetobject\",\n  \"reason\": \"De kern noemt alleen een bovenbegrip ('meetobject') en verwijst voor het onderscheid uitsluitend naar een 'registratienummer'. Een genoemd nummer bewijst op zichzelf geen identiteit: er is geen begripsbepalend kenmerk dat aangeeft wat als één meetobject geldt en waardoor twee meetobjecten van elkaar verschillen. Zonder onderbouwing van de referentsoort, naamruimte en geldigheid van het registratienummer draagt dat middel de eenheidsgrens niet.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Meetobject herkenbaar aan zijn registratienummer.\"},\n    {\"location\": \"term\", \"quote\": \"meetobject\"}\n  ],\n  \"missing_information\": \"Een begripsbepalend kenmerk dat de eenheidsgrens van een meetobject draagt, en/of een onderbouwing van de identificerende werking van het registratienummer (referentsoort, naamruimte, geldigheid).\",\n  \"question\": null,\n  \"uncertainty\": \"Zou een aangeleverde onderbouwing van het registratienummer (uitgevende instantie, naamruimte, toewijzingsregel) het oordeel kunnen wijzigen, maar het gebrek zit reeds in de kern zelf.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 481,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "be2a80f6f884f531772d9bfc2c75b15850f401ffe380aa132e5354c960f86a76",
+        "kandidaat_sha256": "9f13253bab551bcfafe7c2113bb5298daa03f99a2d935d0d48d616c364f00266",
+        "fingerprint": "bb3f167f532644376ccfd7ebec0b45c19396da6db36b91e9b314ddc1e69d686c",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "8406bd0d62fc232f825581e89cef3e97b760e23d8b0be4667d78daa9a78fb209"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "bb3f167f532644376ccfd7ebec0b45c19396da6db36b91e9b314ddc1e69d686c",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:31.359650+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 481
+        },
+        "input": {
+          "intentie": {
+            "toelichting": null,
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "9f13253bab551bcfafe7c2113bb5298daa03f99a2d935d0d48d616c364f00266",
+            "term": "147bc0816fe653c143b0c99c32224eb5abda793792291a45f6fdf48b3b8788a0",
+            "context": "16ee04d3c80983f603c672520bcf0f0b1a625c6607e81aa2219faaeef1da237e"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "9d8ff9c270dac35033588c22eebb225703f4532613c1fdcfbc414173cb4f5745"
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een afzonderlijk meetobject",
+          "reason": "De kern noemt alleen een bovenbegrip ('meetobject') en verwijst voor het onderscheid uitsluitend naar een 'registratienummer'. Een genoemd nummer bewijst op zichzelf geen identiteit: er is geen begripsbepalend kenmerk dat aangeeft wat als één meetobject geldt en waardoor twee meetobjecten van elkaar verschillen. Zonder onderbouwing van de referentsoort, naamruimte en geldigheid van het registratienummer draagt dat middel de eenheidsgrens niet.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Meetobject herkenbaar aan zijn registratienummer."
+            },
+            {
+              "location": "term",
+              "quote": "meetobject"
+            }
+          ],
+          "missing_information": "Een begripsbepalend kenmerk dat de eenheidsgrens van een meetobject draagt, en/of een onderbouwing van de identificerende werking van het registratienummer (referentsoort, naamruimte, geldigheid).",
+          "question": null,
+          "uncertainty": "Zou een aangeleverde onderbouwing van het registratienummer (uitgevende instantie, naamruimte, toewijzingsregel) het oordeel kunnen wijzigen, maar het gebrek zit reeds in de kern zelf."
+        },
+        "rejected": [],
+        "raw_response_sha256": "8406bd0d62fc232f825581e89cef3e97b760e23d8b0be4667d78daa9a78fb209"
+      }
+    },
+    {
+      "id": "D05-ontkende-uniciteit",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 7.167,
+      "aanroep": {
+        "duur_s": 7.166,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"afzonderlijk fysiek object\",\n  \"reason\": \"De bedoelde eenheid is een afzonderlijk fysiek object, dus afzonderlijke instanties zijn relevant. De kern voert echter alleen de code op als identificatie, terwijl die code volgens de kern zelf 'niet uniek' is en 'naar meerdere objecten verwijst'. Daarmee onderscheidt het enige aangeboden onderscheidingsmiddel de bedoelde objecten juist níet, en de kern noemt geen ander begripsbepalend kenmerk dat één object van een ander afgrenst.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Object waarvan de code niet uniek is en naar meerdere objecten verwijst.\"},\n    {\"location\": \"toelichting\", \"quote\": \"Bedoeld: afzonderlijke fysieke objecten; alleen de code is als identificatie bedoeld.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Er kan een impliciet fysiek onderscheidingskenmerk bestaan, maar dat is in de kern niet benoemd; het oordeel berust op het feit dat het enige aangeboden middel (de niet-unieke code) de instanties aantoonbaar niet onderscheidt.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 480,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "d3708ced3990722098dbcbe65e96bcb765cac5e29894e41c388e821a430a7b46",
+        "kandidaat_sha256": "46c13d4251880a1e26559abbfbb47ca05948232022ba8f35e5403ce1ed49137e",
+        "fingerprint": "4c1ae5e83d1f006989af03d0300b9d2dfbc7fd42fcc2e201cf1aeea1df0e54b2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "9a6c40d461d4188ca983efc86a5e4b059f0464a6592aa40a39bf40fbb13c9ffd"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "4c1ae5e83d1f006989af03d0300b9d2dfbc7fd42fcc2e201cf1aeea1df0e54b2",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:38.526007+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 480
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld: afzonderlijke fysieke objecten; alleen de code is als identificatie bedoeld.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "46c13d4251880a1e26559abbfbb47ca05948232022ba8f35e5403ce1ed49137e",
+            "term": "2958d416d08aa5a472d7b509036cb7eafd542add84527e66a145ea64cb4cdc75",
+            "toelichting": "4c0d91e3c4194f1d980524fac9d4a918a12ceda5d318b1afdfac73d1c6068c0d",
+            "context": "9327255b219a99c965ba9501fec3c8a6a6e808ec44e029ec396ca24db7f36972"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "897af5c02aa08f282f52cef764632bf6907350704122cbc3afa831b08049a048"
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "afzonderlijk fysiek object",
+          "reason": "De bedoelde eenheid is een afzonderlijk fysiek object, dus afzonderlijke instanties zijn relevant. De kern voert echter alleen de code op als identificatie, terwijl die code volgens de kern zelf 'niet uniek' is en 'naar meerdere objecten verwijst'. Daarmee onderscheidt het enige aangeboden onderscheidingsmiddel de bedoelde objecten juist níet, en de kern noemt geen ander begripsbepalend kenmerk dat één object van een ander afgrenst.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Object waarvan de code niet uniek is en naar meerdere objecten verwijst."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld: afzonderlijke fysieke objecten; alleen de code is als identificatie bedoeld."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Er kan een impliciet fysiek onderscheidingskenmerk bestaan, maar dat is in de kern niet benoemd; het oordeel berust op het feit dat het enige aangeboden middel (de niet-unieke code) de instanties aantoonbaar niet onderscheidt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "9a6c40d461d4188ca983efc86a5e4b059f0464a6592aa40a39bf40fbb13c9ffd"
+      }
+    },
+    {
+      "id": "D06-register-met-conventie",
+      "verwacht": "pass",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": false,
+      "duur_totaal_s": 8.847,
+      "aanroep": {
+        "duur_s": 8.847,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een meetobject in register R\",\n  \"reason\": \"De kern definieert 'meetobject' via zichzelf ('Meetobject dat...') en levert geen bovenbegrip of begripsbepalende kenmerken die zeggen wat als één meetobject geldt of waardoor twee meetobjecten inhoudelijk verschillen. Het nummer identificeert weliswaar binnen R, maar de bron kent het nummer toe aan een reeds bestaand meetobject en verklaart niet wat dat meetobject afbakent; de identiteit van de referent zelf blijft dus ongedefinieerd. Een nummer of het woord 'uniek' bewijst op zichzelf geen identiteit.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Meetobject dat binnen register R door een blijvend uniek nummer wordt onderscheiden.\"},\n    {\"location\": \"source:doc:synth-register-r\", \"quote\": \"Register R kent aan ieder meetobject bij opname precies één nummer toe.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De bron waarborgt continuïteit en uniciteit van het nummer binnen R, maar dat repareert het ontbreken van een inhoudelijke eenheidsgrens voor het meetobject niet.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 543,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "0b8d37c4c3a242015c919d9027c60ac57563389de1a1054cb37003074029c455",
+        "kandidaat_sha256": "b4c559a4f8e545043821789ec56c8478f51e23663d175ece32a649ace551883e",
+        "fingerprint": "77043c8132a07246aa364d91935ca3ce6fa7c6127d291b89df948349ffdb83ef",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "6e8a513c971e1ce3ec488c2258663564970291b4f0e75a04c3a7c3c6b21e03f8"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "77043c8132a07246aa364d91935ca3ce6fa7c6127d291b89df948349ffdb83ef",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:47.376955+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 543
+        },
+        "input": {
+          "intentie": {
+            "toelichting": null,
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "b4c559a4f8e545043821789ec56c8478f51e23663d175ece32a649ace551883e",
+            "term": "147bc0816fe653c143b0c99c32224eb5abda793792291a45f6fdf48b3b8788a0",
+            "context": "16ee04d3c80983f603c672520bcf0f0b1a625c6607e81aa2219faaeef1da237e",
+            "source:doc:synth-register-r": "34d9458702d6c0e6ea1e1cdd3d8901a9ba5ac7fa0bd7976d8a01d6c888eb250a"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "bdfb47ba7d8b048886144f8f587202afb4702a5f9087aeb8b6a713897bffd93b"
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een meetobject in register R",
+          "reason": "De kern definieert 'meetobject' via zichzelf ('Meetobject dat...') en levert geen bovenbegrip of begripsbepalende kenmerken die zeggen wat als één meetobject geldt of waardoor twee meetobjecten inhoudelijk verschillen. Het nummer identificeert weliswaar binnen R, maar de bron kent het nummer toe aan een reeds bestaand meetobject en verklaart niet wat dat meetobject afbakent; de identiteit van de referent zelf blijft dus ongedefinieerd. Een nummer of het woord 'uniek' bewijst op zichzelf geen identiteit.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Meetobject dat binnen register R door een blijvend uniek nummer wordt onderscheiden."
+            },
+            {
+              "location": "source:doc:synth-register-r",
+              "quote": "Register R kent aan ieder meetobject bij opname precies één nummer toe."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De bron waarborgt continuïteit en uniciteit van het nummer binnen R, maar dat repareert het ontbreken van een inhoudelijke eenheidsgrens voor het meetobject niet."
+        },
+        "rejected": [],
+        "raw_response_sha256": "6e8a513c971e1ce3ec488c2258663564970291b4f0e75a04c3a7c3c6b21e03f8"
+      }
+    },
+    {
+      "id": "D07-register-zonder-conventie",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": false,
+      "duur_totaal_s": 7.485,
+      "aanroep": {
+        "duur_s": 7.484,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een meetobject dat binnen register R wordt onderscheiden\",\n  \"reason\": \"De definitiekern is circulair: het definiendum 'meetobject' wordt met zichzelf als bovenbegrip verklaard, zonder begripsbepalende kenmerken die aangeven wat inhoudelijk als één meetobject geldt. Het onderscheid steunt volledig op een 'blijvend uniek nummer' binnen register R, maar een nummer en het woord 'uniek' bewijzen op zichzelf geen identiteit; de referentsoort, naamruimte en geldigheidsvoorwaarden van dat nummer zijn niet onderbouwd. Daardoor is de eenheidsgrens niet inhoudelijk gedragen.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Meetobject dat binnen register R door een blijvend uniek nummer wordt onderscheiden.\"}\n  ],\n  \"missing_information\": \"Een inhoudelijk bovenbegrip met begripsbepalende kenmerken voor wat één meetobject is; en onderbouwing van referentsoort, naamruimte en geldigheid van het nummer in register R.\",\n  \"question\": null,\n  \"uncertainty\": \"Of register R buiten de kern een inhoudelijke eenheidsdefinitie levert is niet aangeleverd, maar de kern zelf toont het gebrek reeds.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 469,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "8efe1738c65caeaa253ebdae42e392401d4d35bee3a541718a7128e7a5a052f3",
+        "kandidaat_sha256": "b4c559a4f8e545043821789ec56c8478f51e23663d175ece32a649ace551883e",
+        "fingerprint": "c2af9b321140841bbe55675a794a9c91073b83f5c4a3046d2e52e97304a22ded",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "ec86789cc226b12333802b88a8e36a194a2dcff7d9d88d4381f0f416a545649e"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "c2af9b321140841bbe55675a794a9c91073b83f5c4a3046d2e52e97304a22ded",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:17:54.861939+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 469
+        },
+        "input": {
+          "intentie": {
+            "toelichting": null,
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "b4c559a4f8e545043821789ec56c8478f51e23663d175ece32a649ace551883e",
+            "term": "147bc0816fe653c143b0c99c32224eb5abda793792291a45f6fdf48b3b8788a0",
+            "context": "16ee04d3c80983f603c672520bcf0f0b1a625c6607e81aa2219faaeef1da237e"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "b3d603d0da990be6fbaedc2f922a560b3d70d9b99af427533203d37f95be309c"
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een meetobject dat binnen register R wordt onderscheiden",
+          "reason": "De definitiekern is circulair: het definiendum 'meetobject' wordt met zichzelf als bovenbegrip verklaard, zonder begripsbepalende kenmerken die aangeven wat inhoudelijk als één meetobject geldt. Het onderscheid steunt volledig op een 'blijvend uniek nummer' binnen register R, maar een nummer en het woord 'uniek' bewijzen op zichzelf geen identiteit; de referentsoort, naamruimte en geldigheidsvoorwaarden van dat nummer zijn niet onderbouwd. Daardoor is de eenheidsgrens niet inhoudelijk gedragen.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Meetobject dat binnen register R door een blijvend uniek nummer wordt onderscheiden."
+            }
+          ],
+          "missing_information": "Een inhoudelijk bovenbegrip met begripsbepalende kenmerken voor wat één meetobject is; en onderbouwing van referentsoort, naamruimte en geldigheid van het nummer in register R.",
+          "question": null,
+          "uncertainty": "Of register R buiten de kern een inhoudelijke eenheidsdefinitie levert is niet aangeleverd, maar de kern zelf toont het gebrek reeds."
+        },
+        "rejected": [],
+        "raw_response_sha256": "ec86789cc226b12333802b88a8e36a194a2dcff7d9d88d4381f0f416a545649e"
+      }
+    },
+    {
+      "id": "D08-monster",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 7.439,
+      "aanroep": {
+        "duur_s": 7.439,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één watermonster: de bij één monsterneming afgebakende hoeveelheid water in één monsterfles\",\n  \"reason\": \"De definitiekern koppelt één instantie aan één monsterneming en één opvangfles, waardoor telbaar is wat als één monster geldt. De toelichting bevestigt de eenheidsgrens en regelt de continuïteit: overhevelen naar een andere fles levert geen nieuw monster op. Daarmee zijn zowel de eenheidsgrens als de identiteit bij overheveling voldoende afgebakend zonder externe code.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Bij één monsterneming afgebakende hoeveelheid water die in één monsterfles is opgevangen.\"},\n    {\"location\": \"toelichting\", \"quote\": \"één monsterneming levert één monster; overhevelen naar een andere fles maakt geen nieuw monster.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Het onderscheid tussen twee monsters uit dezelfde monsterneming (bijv. verdeeld over meerdere flessen) volgt uit de koppeling 'één fles', maar wordt niet expliciet geïllustreerd; dit doet niet af aan de eenheidsgrens.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 509,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "f7bd4e413e94d94de86da6f60ad4c7660188ee6dd34f2339c0cb819f2cd08dbb",
+        "kandidaat_sha256": "a3f5ab3ca6d2d6b44cbc0177d8cca37ca8b2070d01c417de6a5767c57c3e9254",
+        "fingerprint": "b73b78b736a4d050d568d6372b928caa500e01efd524b83f15213f28691437cd",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "9ba037e3ed6576040345e92b2db47b017232d87a5a5cfaee9df9eacbd09ce696"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "b73b78b736a4d050d568d6372b928caa500e01efd524b83f15213f28691437cd",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:18:02.301416+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 509
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Synthetisch monsterprotocol: één monsterneming levert één monster; overhevelen naar een andere fles maakt geen nieuw monster.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "a3f5ab3ca6d2d6b44cbc0177d8cca37ca8b2070d01c417de6a5767c57c3e9254",
+            "term": "91811a5c33b78f6a84c480ba081d74a596e5cb4c558f0117d12a29ad095ba9e9",
+            "toelichting": "ceecf81091724f20a5bbe6a84b4c22a9688a5f21b8b0f66e8e758777f42e91d0",
+            "context": "639f12191ec903d7c2445cfb60933bc2bcd9ed1b198cfe24c51b007df6636c73"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "9eaab9dfd6fead7ec0df218363c9d68dece3229e48f174affb15205ee2b47f01"
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "één watermonster: de bij één monsterneming afgebakende hoeveelheid water in één monsterfles",
+          "reason": "De definitiekern koppelt één instantie aan één monsterneming en één opvangfles, waardoor telbaar is wat als één monster geldt. De toelichting bevestigt de eenheidsgrens en regelt de continuïteit: overhevelen naar een andere fles levert geen nieuw monster op. Daarmee zijn zowel de eenheidsgrens als de identiteit bij overheveling voldoende afgebakend zonder externe code.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Bij één monsterneming afgebakende hoeveelheid water die in één monsterfles is opgevangen."
+            },
+            {
+              "location": "toelichting",
+              "quote": "één monsterneming levert één monster; overhevelen naar een andere fles maakt geen nieuw monster."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Het onderscheid tussen twee monsters uit dezelfde monsterneming (bijv. verdeeld over meerdere flessen) volgt uit de koppeling 'één fles', maar wordt niet expliciet geïllustreerd; dit doet niet af aan de eenheidsgrens."
+        },
+        "rejected": [],
+        "raw_response_sha256": "9ba037e3ed6576040345e92b2db47b017232d87a5a5cfaee9df9eacbd09ce696"
+      }
+    },
+    {
+      "id": "D09-tegenstrijdige-bronnen",
+      "verwacht": "insufficient_information",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": true,
+      "duur_totaal_s": 9.372,
+      "aanroep": {
+        "duur_s": 9.371,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één aaneengesloten uitvoering van een meetprotocol door één meetploeg\",\n  \"reason\": \"De kern duidt een telbare gebeurtenis aan met bovenbegrip 'uitvoering van een meetprotocol' en de begrenzende kenmerken 'aaneengesloten' en 'door één meetploeg'. De continuïteit bij onderbreking is echter beslissend voor de telling, en het aangeleverde materiaal bevat twee tegenstrijdige conventies zonder aanwijzing welke van toepassing is. Daardoor ontbreekt de beslisgrond voor de eenheidsgrens bij onderbreking en hervatting.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Aaneengesloten uitvoering van een meetprotocol door één meetploeg.\"},\n    {\"location\": \"source:doc:synth-protocol-a\", \"quote\": \"een onderbroken en daarna hervatte meting geldt als dezelfde meetuitvoering.\"},\n    {\"location\": \"source:doc:synth-protocol-b\", \"quote\": \"bij een onderbreking eindigt de meetuitvoering; na hervatting begint een nieuwe meetuitvoering.\"}\n  ],\n  \"missing_information\": \"Welke van de twee tegenstrijdige continuïteitsconventies (protocol A of protocol B) geldt voor het begrip 'meetuitvoering' in deze context, zodat vaststaat of een onderbroken-en-hervatte meting als dezelfde dan wel een nieuwe instantie telt.\",\n  \"question\": \"Welk protocol (A of B) bepaalt de continuïteit bij onderbreking voor het begrip 'meetuitvoering' in de context van de Synthetische Meetdienst?\",\n  \"uncertainty\": \"Zonder onderbreking dragen de kenmerken 'aaneengesloten' en 'één meetploeg' de eenheidsgrens vermoedelijk voldoende; de onzekerheid betreft uitsluitend het onderbrekings-/hervattingsgeval.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 731,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "1093e1135a3ff3743745fb6fc97c1196fc306f96cd0907e49d117c1e1ff6bde6",
+        "kandidaat_sha256": "f328098191c7105a53f47b6f2cf449e348129a634e1b03cf6f32aa5f44502c35",
+        "fingerprint": "8e45421a33e36f8d170974b57e150689ea536bdf39d36964bc7fc1cd04cd6d30",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "3fdecac7e7c6ad7265e672c89d7df916b463ac1c844f6c46f85ddd8271b12c18"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "8e45421a33e36f8d170974b57e150689ea536bdf39d36964bc7fc1cd04cd6d30",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:18:11.673865+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 731
+        },
+        "input": {
+          "intentie": {
+            "toelichting": null,
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "f328098191c7105a53f47b6f2cf449e348129a634e1b03cf6f32aa5f44502c35",
+            "term": "edba476c3ffa53d7429682433bd084995fa9dbb53c3689314980e3c0b9987470",
+            "context": "16ee04d3c80983f603c672520bcf0f0b1a625c6607e81aa2219faaeef1da237e",
+            "source:doc:synth-protocol-a": "53bcb537537b7021050f1efba639702ea485e70f0e31407e1000293c0335e392",
+            "source:doc:synth-protocol-b": "ce762bf5a4b0bbc8a3f2c77b34974680d13d8553fba3e57f52bdb28ba8ab210d"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "6a9468b1cdf365a37b5de17417b132a84b005550868be7d84b53fe7d4e30a57e"
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één aaneengesloten uitvoering van een meetprotocol door één meetploeg",
+          "reason": "De kern duidt een telbare gebeurtenis aan met bovenbegrip 'uitvoering van een meetprotocol' en de begrenzende kenmerken 'aaneengesloten' en 'door één meetploeg'. De continuïteit bij onderbreking is echter beslissend voor de telling, en het aangeleverde materiaal bevat twee tegenstrijdige conventies zonder aanwijzing welke van toepassing is. Daardoor ontbreekt de beslisgrond voor de eenheidsgrens bij onderbreking en hervatting.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Aaneengesloten uitvoering van een meetprotocol door één meetploeg."
+            },
+            {
+              "location": "source:doc:synth-protocol-a",
+              "quote": "een onderbroken en daarna hervatte meting geldt als dezelfde meetuitvoering."
+            },
+            {
+              "location": "source:doc:synth-protocol-b",
+              "quote": "bij een onderbreking eindigt de meetuitvoering; na hervatting begint een nieuwe meetuitvoering."
+            }
+          ],
+          "missing_information": "Welke van de twee tegenstrijdige continuïteitsconventies (protocol A of protocol B) geldt voor het begrip 'meetuitvoering' in deze context, zodat vaststaat of een onderbroken-en-hervatte meting als dezelfde dan wel een nieuwe instantie telt.",
+          "question": "Welk protocol (A of B) bepaalt de continuïteit bij onderbreking voor het begrip 'meetuitvoering' in de context van de Synthetische Meetdienst?",
+          "uncertainty": "Zonder onderbreking dragen de kenmerken 'aaneengesloten' en 'één meetploeg' de eenheidsgrens vermoedelijk voldoende; de onzekerheid betreft uitsluitend het onderbrekings-/hervattingsgeval."
+        },
+        "rejected": [],
+        "raw_response_sha256": "3fdecac7e7c6ad7265e672c89d7df916b463ac1c844f6c46f85ddd8271b12c18"
+      }
+    },
+    {
+      "id": "D10-recidive-verschijnsel",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 6.404,
+      "aanroep": {
+        "duur_s": 6.404,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is uitdrukkelijk het verschijnsel recidive als algemene term, niet een afzonderlijke telbare recidivegebeurtenis of -registratie. ASTRA zondert de niet-telbare verschijnsellezing (zoals recidive) uit van ESS-03. Er is dus geen gekozen telbare eenheid waarvoor de eenheidsgrens moet worden aangetoond.\",\n  \"evidence\": [\n    {\"location\": \"toelichting\", \"quote\": \"Bedoeld als verschijnsel (algemene term), niet als afzonderlijke recidivegebeurtenis of -registratie.\"},\n    {\"location\": \"definition\", \"quote\": \"Het opnieuw plegen van een strafbaar feit door een persoon die eerder voor een strafbaar feit is veroordeeld.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou de bedoelde betekenis alsnog naar een afgebakende recidivegebeurtenis verschuiven, dan zou telbaarheid en een eenheidsgrens wél beoordeeld moeten worden.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 498,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "80eb2c51c20b8c7911ed9dca11a15d56ffd75bd12a7cff36fc1a91bac5fc2106",
+        "kandidaat_sha256": "b4e744911cf2e026832ee6590c76d8e6a76ca7e3dbeed08a556465ba99c72846",
+        "fingerprint": "1ac9764ec07f2b57ecbdd66b651d5001f5d564f5ad1193ed9e9256d36d2211f4",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "a5721671d0131c1e2295daa2d8a78a07b4864a5b065baf9820100cfc5f28ddaa"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "1ac9764ec07f2b57ecbdd66b651d5001f5d564f5ad1193ed9e9256d36d2211f4",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:18:18.078262+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 498
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld als verschijnsel (algemene term), niet als afzonderlijke recidivegebeurtenis of -registratie.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "b4e744911cf2e026832ee6590c76d8e6a76ca7e3dbeed08a556465ba99c72846",
+            "term": "622cecad9e4a6db419d92bddfeec93b016544a7cf2c2e22ff9cb4695803c48e6",
+            "toelichting": "460e52a25b9bd1944b621333f9235b7444c6c5fe41a98f1875ff4934da710a0a",
+            "context": "1bdf78b060917b3171b43cb54c09cc1f0471f553058a542da0523226449f37eb"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "64229bad5c13818ad95d048f226b9b5b209ea6b39e072e9ebaf34285bce977de"
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is uitdrukkelijk het verschijnsel recidive als algemene term, niet een afzonderlijke telbare recidivegebeurtenis of -registratie. ASTRA zondert de niet-telbare verschijnsellezing (zoals recidive) uit van ESS-03. Er is dus geen gekozen telbare eenheid waarvoor de eenheidsgrens moet worden aangetoond.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld als verschijnsel (algemene term), niet als afzonderlijke recidivegebeurtenis of -registratie."
+            },
+            {
+              "location": "definition",
+              "quote": "Het opnieuw plegen van een strafbaar feit door een persoon die eerder voor een strafbaar feit is veroordeeld."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou de bedoelde betekenis alsnog naar een afgebakende recidivegebeurtenis verschuiven, dan zou telbaarheid en een eenheidsgrens wél beoordeeld moeten worden."
+        },
+        "rejected": [],
+        "raw_response_sha256": "a5721671d0131c1e2295daa2d8a78a07b4864a5b065baf9820100cfc5f28ddaa"
+      }
+    },
+    {
+      "id": "D11-databaserecord",
+      "verwacht": "fail",
+      "gekregen_verdict": "fail",
+      "gekregen_status": "fail",
+      "correct": true,
+      "duur_totaal_s": 8.07,
+      "aanroep": {
+        "duur_s": 8.069,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"fail\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een meetgebeurtenis in het veld\",\n  \"reason\": \"De bedoelde eenheid is de gebeurtenis in het veld, niet het databaserecord. De kern onderscheidt instanties echter uitsluitend via het rij-ID in de metingentabel, terwijl uit de bron blijkt dat één meetgebeurtenis meerdere rijen met een eigen rij-ID kan krijgen. Het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties dus niet: verschillende rij-ID's kunnen op dezelfde meetgebeurtenis wijzen.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Meetgebeurtenis die door haar rij-ID in de metingentabel van andere meetgebeurtenissen wordt onderscheiden.\"},\n    {\"location\": \"toelichting\", \"quote\": \"Bedoeld: de gebeurtenis in het veld, niet het databaserecord.\"},\n    {\"location\": \"source:doc:synth-tabelbeschrijving\", \"quote\": \"In de metingentabel kan één meetgebeurtenis door herhaalde synchronisatie meerdere rijen met een eigen rij-ID krijgen.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De kern noemt geen begripsbepalende kenmerken van de veldgebeurtenis zelf (bijv. tijd, plaats, meetobject); ook daarmee blijft het onderscheid ongedekt.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 621,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "a50707993296d3d8aa65bbd41da30f91ab550d9f2550997c3a74ef4f0e8b7c20",
+        "kandidaat_sha256": "6a350f27a29ec5e834a129b4becf6a98924fec67cbce5f5ba18e9d0651ae13aa",
+        "fingerprint": "fd459c43de43dc8b09501a5cd01df2f8f5a8f166b161fcef09edf4078d2f13a0",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "4b3cf5291a97d0841d229c620ed74fd0460854fb75fdeda1998f15d29186d5ec"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "fd459c43de43dc8b09501a5cd01df2f8f5a8f166b161fcef09edf4078d2f13a0",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:18:26.148603+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 621
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld: de gebeurtenis in het veld, niet het databaserecord.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "6a350f27a29ec5e834a129b4becf6a98924fec67cbce5f5ba18e9d0651ae13aa",
+            "term": "59f2d1045e7d34b00dd6f5b56207d826c392cc73dd777aae707d06de9dc50694",
+            "toelichting": "6f69a7b13535cd6412d7dd3d8ee8d5b0795a5f2aa787ad16f7570bc8dfc7b554",
+            "context": "16ee04d3c80983f603c672520bcf0f0b1a625c6607e81aa2219faaeef1da237e",
+            "source:doc:synth-tabelbeschrijving": "2134379a060949c94e70c525388bfb20e7b09a5a9916c5b7a8afc14fc926c33f"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "41b94f2b3f3759a8d713b9af6acc1742ac511cb3e9edda342fbfccf76563545c"
+        },
+        "judgment": {
+          "verdict": "fail",
+          "status": "fail",
+          "applicability": "applicable",
+          "unit": "een meetgebeurtenis in het veld",
+          "reason": "De bedoelde eenheid is de gebeurtenis in het veld, niet het databaserecord. De kern onderscheidt instanties echter uitsluitend via het rij-ID in de metingentabel, terwijl uit de bron blijkt dat één meetgebeurtenis meerdere rijen met een eigen rij-ID kan krijgen. Het gestelde onderscheidingsmiddel onderscheidt de bedoelde instanties dus niet: verschillende rij-ID's kunnen op dezelfde meetgebeurtenis wijzen.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Meetgebeurtenis die door haar rij-ID in de metingentabel van andere meetgebeurtenissen wordt onderscheiden."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld: de gebeurtenis in het veld, niet het databaserecord."
+            },
+            {
+              "location": "source:doc:synth-tabelbeschrijving",
+              "quote": "In de metingentabel kan één meetgebeurtenis door herhaalde synchronisatie meerdere rijen met een eigen rij-ID krijgen."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De kern noemt geen begripsbepalende kenmerken van de veldgebeurtenis zelf (bijv. tijd, plaats, meetobject); ook daarmee blijft het onderscheid ongedekt."
+        },
+        "rejected": [],
+        "raw_response_sha256": "4b3cf5291a97d0841d229c620ed74fd0460854fb75fdeda1998f15d29186d5ec"
+      }
+    },
+    {
+      "id": "D12-commissie-geheel",
+      "verwacht": "pass",
+      "gekregen_verdict": "pass",
+      "gekregen_status": "pass",
+      "correct": true,
+      "duur_totaal_s": 7.854,
+      "aanroep": {
+        "duur_s": 7.854,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"pass\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"een door het bestuur ingesteld orgaan (commissie) met eigen instellingsbesluit en taakopdracht\",\n  \"reason\": \"De kern duidt afzonderlijke instanties aan: elk door het bestuur ingesteld orgaan met een vastgestelde taakopdracht geldt als één commissie. Instelling (instellingsbesluit) en intrekking daarvan bepalen het begin en einde, en dus de identiteit en het voortbestaan. De toelichting maakt expliciet dat ledenwisseling de identiteit niet raakt, zodat 'dezelfde' commissie kenbaar afgebakend is.\",\n  \"evidence\": [\n    {\"location\": \"definition\", \"quote\": \"Door het bestuur ingesteld orgaan met een vastgestelde taakopdracht, dat bestaat zolang het instellingsbesluit niet is ingetrokken.\"},\n    {\"location\": \"toelichting\", \"quote\": \"Bedoeld: het orgaan als geheel; wisseling van leden beëindigt de commissie niet.\"}\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"De kern maakt niet expliciet of één instellingsbesluit meerdere commissies kan instellen, maar de eenheidsgrens (orgaan met eigen taakopdracht) blijft daarmee bepaalbaar.\"\n}",
+        "model": "claude-opus-4-8",
+        "tokens_used": 505,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+        "user_prompt_sha256": "284b73812f64000dd0537e4b314acd2ea67c13da197730173e92e2becf1b3a2b",
+        "kandidaat_sha256": "9a0832e70ff7c4190d209fb03c950a6749d06726798f5f6466857b4cc2ed8848",
+        "fingerprint": "9192278c0f3d2f88f3a1924486924586d8c53ef280dae1721be6e76872ffa92f",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "64f320e53116e61f7f66a1ee98bfb6a1e2c59ecff3077057e37c55072d1a2dd2"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/1",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "9192278c0f3d2f88f3a1924486924586d8c53ef280dae1721be6e76872ffa92f",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T08:18:34.002969+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-4-8",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 505
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld: het orgaan als geheel; wisseling van leden beëindigt de commissie niet.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "9a0832e70ff7c4190d209fb03c950a6749d06726798f5f6466857b4cc2ed8848",
+            "term": "342b3cc98e7e38b7160cb6a1e37fd2c67c8cdface6a32c76e0eea063d6533373",
+            "toelichting": "839978f7498dfe467df460a17ad0484cd27b6f6b9b67fab146f81b63fb2ee052",
+            "context": "38a9a1a608ce81ce288a9decdc87b93b33161fb7914c44dd53ba0ba09af4381e"
+          },
+          "afgekapt": [],
+          "max_passage_chars": 4000,
+          "prompt_sha256": "c683c23a6310ae9392ed734dd6082826a9bfb7361e6e69346944caac238c86d4"
+        },
+        "judgment": {
+          "verdict": "pass",
+          "status": "pass",
+          "applicability": "applicable",
+          "unit": "een door het bestuur ingesteld orgaan (commissie) met eigen instellingsbesluit en taakopdracht",
+          "reason": "De kern duidt afzonderlijke instanties aan: elk door het bestuur ingesteld orgaan met een vastgestelde taakopdracht geldt als één commissie. Instelling (instellingsbesluit) en intrekking daarvan bepalen het begin en einde, en dus de identiteit en het voortbestaan. De toelichting maakt expliciet dat ledenwisseling de identiteit niet raakt, zodat 'dezelfde' commissie kenbaar afgebakend is.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Door het bestuur ingesteld orgaan met een vastgestelde taakopdracht, dat bestaat zolang het instellingsbesluit niet is ingetrokken."
+            },
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld: het orgaan als geheel; wisseling van leden beëindigt de commissie niet."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "De kern maakt niet expliciet of één instellingsbesluit meerdere commissies kan instellen, maar de eenheidsgrens (orgaan met eigen taakopdracht) blijft daarmee bepaalbaar."
+        },
+        "rejected": [],
+        "raw_response_sha256": "64f320e53116e61f7f66a1ee98bfb6a1e2c59ecff3077057e37c55072d1a2dd2"
+      }
+    }
+  ],
+  "gevallenbestand": {
+    "pad": "tests/fixtures/ess03/ontwikkelgevallen_v1.json",
+    "sha256": "d33f36061323826fc42c6c06969006dee7d030838ca0896ce56e4b8487edea1c",
+    "schema": "def766-ess03-ontwikkelgevallen/1",
+    "status": "ontwikkeldata; synthetisch; verwachtingen vooraf vastgelegd uit de norm (ESS-03.json / tekstvoorstellen-v3 / casusregister-v4); GEEN deskundig gevalideerde goldset"
+  }
+}

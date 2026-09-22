@@ -1,0 +1,39 @@
+{
+  "opmerking": "Exitcodes van de uitgevoerde commando's in fase 1 (uitvoerder Claude Code CLI). Logs staan naast dit bestand in /tmp/def766-ai-20260921. Alle pytest-runs met de project-venv Python 3.13.15 en -o addopts=\"\" (gerichte runs); make test/lint via PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python.",
+  "tdd": [
+    {"stap": "WP1 contract RED", "log": "wp1-red.log", "exit": 2, "resultaat": "collectiefout: module domain.ess03 bestond niet"},
+    {"stap": "WP1 contract GREEN", "log": "wp1-green.log", "exit": 0, "resultaat": "44 passed"},
+    {"stap": "WP2 dienst RED", "log": "wp2-red.log", "exit": 2, "resultaat": "collectiefout: module ess03_assessment_service bestond niet"},
+    {"stap": "WP2 dienst GREEN", "log": "wp2-green.log", "exit": 0, "resultaat": "26 passed"},
+    {"stap": "WP3 evaluator/keten RED", "log": "wp3a-red.log", "exit": 2, "resultaat": "collectiefout: evaluator/enum bestonden niet"},
+    {"stap": "WP3 evaluator/keten GREEN", "log": "wp3a-green.log", "exit": 0, "resultaat": "30 passed (beide regel-laadpaden)"},
+    {"stap": "WP3 wrappers RED", "log": "wp3b-red.log", "exit": 1, "resultaat": "9 failed"},
+    {"stap": "WP3 wrappers GREEN", "log": "wp3b-green.log", "exit": 0, "resultaat": "9 passed"},
+    {"stap": "WP3 generatie-integratie RED", "log": "wp3c-red.log", "exit": 1, "resultaat": "4 failed (ess03_assessment ontbrak in generatiemetadata)"},
+    {"stap": "WP3 generatie-integratie GREEN", "log": "wp3c-green.log", "exit": 0, "resultaat": "10 passed (incl. CON-02-integratie)"},
+    {"stap": "WP4a UI RED", "log": "wp4a-red.log", "exit": 1, "resultaat": "7 failed, 5 passed"},
+    {"stap": "WP4a UI GREEN", "log": "wp4a-green2.log", "exit": 1, "resultaat": "577 passed, 1 failed (pre-existing dekkingsdict-assertie in test_def743_editor_ui; daarna aangepast → groen)"},
+    {"stap": "WP4b persistentie RED", "log": "wp4b-red.log", "exit": 2, "resultaat": "collectiefout"},
+    {"stap": "WP4b persistentie GREEN", "log": "wp4b-green.log", "exit": 0, "resultaat": "15 passed"},
+    {"stap": "WP4c editor RED", "log": "wp4c-red.log", "exit": 1, "resultaat": "5 failed, 1 passed"},
+    {"stap": "WP4c editor GREEN", "log": "wp4c-green.log", "exit": 0, "resultaat": "6 passed"}
+  ],
+  "regressie": [
+    {"stap": "gerelateerde suites (validation, services/validation, orchestrators, domain, integration/contracts) ronde 1", "log": "wp3-regressie-1.log", "exit": 1, "resultaat": "1 failed (contractversie-assertie) / 469 passed (fail-fast)"},
+    {"stap": "gerelateerde suites ronde 2", "log": "wp3-regressie-2.log", "exit": 1, "resultaat": "11 failed, 2123 passed — oude ESS-03-asserties inhoudelijk vervangen"},
+    {"stap": "gerelateerde suites ronde 3", "log": "wp3-regressie-3.log", "exit": 0, "resultaat": "2134 passed, 2 skipped"},
+    {"stap": "brede regressie services/ui/database/validation/domain/contracts (fail-fast)", "log": "wp4-regressie-1.log", "exit": 0, "resultaat": "geen fouten (exit 0)"},
+    {"stap": "eindrun gerichte ESS-03-tests + aangepaste tests + integration/contracts", "log": "gerichte-tests-eind.log", "exit": 0, "resultaat": "822 passed, 2 skipped"},
+    {"stap": "make test (volledige unitgate) run 1 — vóór de laatste orchestrator-/testwijziging", "log": "make-test.log", "exit": 2, "resultaat": "1 failed, 6759 passed, 75 skipped: test_story_2_4_unit exacte-context-assertie (daarna inhoudelijk aangepast)"},
+    {"stap": "make test (volledige unitgate) run 2 — eindstand van de code", "log": "make-test-2.log", "exit": 0, "resultaat": "6764 passed, 75 skipped, 722 deselected, 1 xfailed in 305.86s; run_profile status=ok"}
+  ],
+  "gates": [
+    {"stap": "make lint (ruff check + black check op src/config)", "log": "make-lint.log", "exit": 0},
+    {"stap": "scripts/testing/check_test_markers.py", "log": "markers-check.log", "exit": 0, "resultaat": "477 testbestanden gemarkeerd"},
+    {"stap": "scripts/ci/check_root_allowlist.sh", "log": "root-allowlist.log", "exit": 0},
+    {"stap": "ruff check op alle nieuwe/gewijzigde testbestanden en scripts/ess03", "exit": 0}
+  ],
+  "modelrun": [
+    {"stap": "scripts/ess03/run_ess03_gevallen.py — 12 echte ontwikkelbeoordelingen (claude-opus-4-8 via ModelRouter taak validation; use_cache=False, dienstcache 0, AI_SDK_MAX_RETRIES=0, timeout 60 s, max_tokens 1200)", "log": "ontwikkelrun-v1.log", "uitvoer": "ontwikkelrun-v1.json", "exit": 0, "resultaat": "12 calls, 12× HTTP 200, 9/12 conform vooraf vastgelegde verwachting, 0 afgewezen citaten"}
+  ]
+}

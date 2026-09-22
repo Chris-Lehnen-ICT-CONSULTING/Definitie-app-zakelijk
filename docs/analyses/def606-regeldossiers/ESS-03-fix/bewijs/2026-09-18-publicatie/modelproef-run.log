@@ -1,0 +1,24 @@
+🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+provider: anthropic | router: {'provider': 'anthropic', 'model': 'claude-opus-4-8'}
+api_key_aanwezig: True | aanroepen: 4
+
+== MP-01-eiland == status=definitie model=claude-opus-4-8 cached=False tijd=2.8s prompt_sha=e9a65c4d82d4 ess03_kaart=1 pii=[]
+   kandidaat: aaneengesloten stuk land dat op het afgesproken peilmoment volledig door water is omgeven
+   signalen: {'identifier_woorden_in_kandidaat': [], 'monster_woorden_in_kandidaat': [], 'verduidelijking_kernwoorden_terug': ['aaneengesloten', 'peilmoment']}
+   toetsing ESS-03: review_required | violation: False | score: None | gefaald: ['ESS-05', 'VER-01', 'VER-03']
+
+== MP-02-water-stof == status=definitie model=claude-opus-4-8 cached=False tijd=2.51s prompt_sha=377965ca19c4 ess03_kaart=1 pii=[]
+   kandidaat: chemische verbinding die bestaat uit moleculen met twee waterstofatomen en één zuurstofatoom en die bij standaarddruk tussen 0 en 100 graden Celsius in vloeibare toestand verkeert
+   signalen: {'identifier_woorden_in_kandidaat': [], 'monster_woorden_in_kandidaat': [], 'verduidelijking_kernwoorden_terug': ['stof']}
+   toetsing ESS-03: review_required | violation: False | score: None | gefaald: ['CON-CIRC-001', 'ESS-05', 'ESS-CONT-001', 'INT-01', 'VER-01']
+
+== MP-03-watermonster == status=definitie model=claude-opus-4-8 cached=False tijd=2.44s prompt_sha=d1ac038df09a ess03_kaart=1 pii=[]
+   kandidaat: hoeveelheid water die bij één bemonstering is afgenomen en als op zichzelf staande eenheid wordt behandeld voor onderzoek
+   signalen: {'identifier_woorden_in_kandidaat': [], 'monster_woorden_in_kandidaat': ['afgenomen', 'bemonstering', 'hoeveelheid'], 'verduidelijking_kernwoorden_terug': ['bemonstering']}
+   toetsing ESS-03: review_required | violation: False | score: None | gefaald: ['ESS-05', 'INT-01', 'VER-01']
+
+== MP-04-boekexemplaar == status=definitie model=claude-opus-4-8 cached=False tijd=3.32s prompt_sha=ce18d55ebdfb ess03_kaart=1 pii=[]
+   kandidaat: fysiek exemplaar van een gedrukte of anderszins vervaardigde uitgave, dat als één afzonderlijk stuk van andere exemplaren van dezelfde uitgave wordt onderscheiden door zijn eigen materiële verschijning en plaatsing
+   signalen: {'identifier_woorden_in_kandidaat': [], 'monster_woorden_in_kandidaat': [], 'verduidelijking_kernwoorden_terug': ['exemplaar']}
+   toetsing ESS-03: review_required | violation: False | score: None | gefaald: ['ESS-05', 'INT-01', 'VER-01']
+exit=0

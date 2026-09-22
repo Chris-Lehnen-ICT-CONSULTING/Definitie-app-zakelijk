@@ -1,0 +1,50 @@
+START_VARIANTEN=2026-09-21T17:54:34Z
+.env geladen uit: /Users/chrislehnen/Projecten/Definitie-app/.env (sleutels worden niet getoond)
+Configuration loaded from /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/config/config.yaml
+Configuration loaded for environment: production
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+Environment: production
+Database path: data/definities.db
+Monitoring enabled: True
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ServiceContainer instance initialized (lazy service loading will occur on first access)
+✅ ServiceContainer initialized and cached (ID: 3a1428a4) - subsequent requests will use cache
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ModelRouter singleton created
+🚨 ALERT: Slow Response Time - 10.329 gt 10.0 (Severity: warning)
+🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+HT01-M: verwacht=pass gekregen=pass (OK) 10.3s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT06-M: verwacht=fail gekregen=fail (OK) 8.6s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT12-M: verwacht=not_applicable gekregen=not_applicable (OK) 7.4s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT18-M: verwacht=insufficient_information gekregen=insufficient_information (OK) 13.6s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT07-I: verwacht=fail gekregen=fail (OK) 8.8s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT06-I: verwacht=fail gekregen=fail (OK) 10.5s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT01-R: verwacht=pass gekregen=pass (OK) 10.3s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT06-R: verwacht=fail gekregen=fail (OK) 9.0s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT12-R: verwacht=not_applicable gekregen=not_applicable (OK) 7.2s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+HT18-R: verwacht=insufficient_information gekregen=insufficient_information (OK) 12.9s pogingen=1
+Klaar: 10/10 correct; 10 aanroepen gestart, 10 transportpogingen waargenomen, 98.7 s totaal; per klasse {"pass": {"totaal": 2, "correct": 2}, "fail": {"totaal": 4, "correct": 4}, "not_applicable": {"totaal": 2, "correct": 2}, "insufficient_information": {"totaal": 2, "correct": 2}}; uitvoer /tmp/def766-ai-20260921/heldout/heldout-run-varianten-v1.json
+EXIT=0
+EINDE_VARIANTEN=2026-09-21T17:56:14Z

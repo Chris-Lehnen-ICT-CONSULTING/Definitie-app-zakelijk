@@ -1,0 +1,24 @@
+.env geladen uit: /Users/chrislehnen/Projecten/Definitie-app/.env (sleutels worden niet getoond)
+Configuration loaded from /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/config/config.yaml
+Configuration loaded for environment: production
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+Environment: production
+Database path: data/definities.db
+Monitoring enabled: True
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ServiceContainer instance initialized (lazy service loading will occur on first access)
+✅ ServiceContainer initialized and cached (ID: 9e82a66f) - subsequent requests will use cache
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+ModelRouter singleton created
+🚨 ALERT: Slow Response Time - 13.602 gt 10.0 (Severity: warning)
+🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+D01-natuurlijke-grens: verwacht=pass gekregen=insufficient_information (AFWIJKEND) 13.6s pogingen=1
+ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+D03-stof: verwacht=not_applicable gekregen=not_applicable (OK) 7.9s pogingen=1
+Klaar: 1/2 correct; 2 aanroepen gestart, 2 transportpogingen waargenomen, 21.6 s totaal; per klasse {"pass": {"totaal": 1, "correct": 0}, "not_applicable": {"totaal": 1, "correct": 1}}; uitvoer /tmp/def766-ai-20260921/rookproef-opus5-v1.json
+EXIT=0

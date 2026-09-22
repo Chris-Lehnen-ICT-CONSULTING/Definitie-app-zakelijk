@@ -1,0 +1,80 @@
+"""Functioneel bewijs DEF-766: de 13 onderzoekscasussen door de echte service.
+
+Zelfde invoer als proefinvoer-v1.json (onderzoek 18-09-2026), beide laadpaden.
+Geen netwerk, geen provider, geen database. Uitvoer: /tmp/def766-cli/proef-na-fix.json
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+import sys
+from pathlib import Path
+
+ROOT = Path("/Users/chrislehnen/.codex/worktrees/2075/Definitie-app")
+os.chdir(ROOT)
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
+
+INVOER = json.loads(
+    Path(
+        "/Users/chrislehnen/.codex/worktrees/6554/Definitie-app/docs/analyses/"
+        "def606-regeldossiers/ESS-03-verdieping/onderzoek-20260918/proefinvoer-v1.json"
+    ).read_text(encoding="utf-8")
+)
+
+
+async def run() -> dict:
+    from services.validation.modular_validation_service import ModularValidationService
+    from toetsregels.cached_manager import get_cached_toetsregel_manager
+    from toetsregels.manager import get_toetsregel_manager
+    from toetsregels.rule_cache import get_rule_cache
+
+    get_rule_cache().clear_cache()
+    paden = {
+        "manager": ModularValidationService(get_toetsregel_manager(), None, None),
+        "cache": ModularValidationService(get_cached_toetsregel_manager(), None, None),
+    }
+    rijen = []
+    for case in INVOER:
+        for pad, svc in paden.items():
+            res = await svc.validate_definition(
+                begrip=case.get("term", ""),
+                text=case.get("text", ""),
+                context=dict(case.get("context") or {}),
+            )
+            item = next(
+                (r for r in res["review_required"] if r["rule_id"] == "ESS-03"), None
+            )
+            rijen.append(
+                {
+                    "id": case["id"],
+                    "pad": pad,
+                    "oud": case["expected_runtime"],
+                    "nieuw": res["rule_statuses"]["ESS-03"],
+                    "ess03_violation": any(
+                        v.get("code") == "ESS-03" for v in res["violations"]
+                    ),
+                    "in_passed": "ESS-03" in res["passed_rules"],
+                    "overall_score": res["overall_score"],
+                    "juridisch": res["detailed_scores"].get("juridisch"),
+                    "signals": (item or {}).get("signals"),
+                    "reden": (item or {}).get("reason"),
+                }
+            )
+    return {"python": sys.version, "rijen": rijen}
+
+
+if __name__ == "__main__":
+    uit = asyncio.run(run())
+    Path("/tmp/def766-cli/proef-na-fix.json").write_text(
+        json.dumps(uit, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    for r in uit["rijen"]:
+        print(
+            f"{r['id']:<22} {r['pad']:<8} oud={r['oud']:<5} nieuw={r['nieuw']:<16} "
+            f"viol={r['ess03_violation']!s:<5} passed={r['in_passed']!s:<5} "
+            f"score={r['overall_score']} juridisch={r['juridisch']} "
+            f"signals={r['signals']}"
+        )

@@ -1,0 +1,28 @@
+diff --git a/skills/definitie-toetsregels/SKILL.md b/skills/definitie-toetsregels/SKILL.md
+index 1fceb1f..b60da33 100644
+--- a/skills/definitie-toetsregels/SKILL.md
++++ b/skills/definitie-toetsregels/SKILL.md
+@@ -36,7 +36,7 @@ Referentie voor de 53 toetsregels (validatieregels) van de DefinitieAgent, verde
+ 
+ ## Overzicht
+ 
+-Het systeem bevat **53 toetsregels** verdeeld over **9 categorieën**. Elke regel heeft een JSON-configuratie en een Python-validator. Regels worden parallel uitgevoerd met gewogen scoring; ESS-01 (inhoudelijke beoordeling), ESS-02 (menselijke betekenisbeoordeling), CON-01 (uitkomst per treffer) en CON-02 (drie afzonderlijke controles) zijn daarvan uitgezonderd en leveren geen cijfer (zie Scoring & Weging). Daarnaast zijn **46 van de 53 regels** getransformeerd naar generatie-instructies die in de LLM-prompts worden opgenomen (DEF-126).
++Het systeem bevat **53 toetsregels** verdeeld over **9 categorieën**. Elke regel heeft een JSON-configuratie en een Python-validator. Regels worden parallel uitgevoerd met gewogen scoring; ESS-01 (inhoudelijke beoordeling), ESS-02 (menselijke betekenisbeoordeling), ESS-03 (menselijke beoordeling van eenheid en identiteit, [`references/ess03-eenheid-identiteit.md`](references/ess03-eenheid-identiteit.md)), CON-01 (uitkomst per treffer) en CON-02 (drie afzonderlijke controles) zijn daarvan uitgezonderd en leveren geen cijfer (zie Scoring & Weging). Daarnaast zijn **46 van de 53 regels** getransformeerd naar generatie-instructies die in de LLM-prompts worden opgenomen (DEF-126).
+ 
+ ### Categorieën op een rij
+ 
+@@ -71,7 +71,7 @@ Lees bij genereren of toetsen het [gedeelde ESS-02-contract](references/ess02-be
+ 
+ ## Scoring & Weging
+ 
+-> **Geen cijfer voor ESS-01, ESS-02 of CON-02; voorlopig geen totaalcijfer.** ESS-01 vraagt inhoudelijke beoordeling en krijgt geen numerieke bijdrage; ook een negatief oordeel veroorzaakt geen nieuwe ESS-01-vaststelblokkade. ESS-02 krijgt evenmin een cijfer of 0/1: het menselijke oordeel is voldoet / voldoet niet / nog te beoordelen, en een negatief of open oordeel vormt geen zelfstandige vaststelblokkade. CON-02 heeft geen gewicht en geen numerieke bijdrage aan totaal- of categoriescore; de prioriteit *hoog* stuurt de aandacht, niet een cijfer. Productbesluit 15 september 2026 (DEF-743/DEF-624): voorlopig geen totaalcijfer en geen vervangende deelscore over alleen cijfergevende regels — toon per regel het oordeel (voldoet / voldoet niet / nog te beoordelen) en welke controles daadwerkelijk zijn uitgevoerd. De gewichten en drempels hieronder zijn de bestaande generieke configuratie van andere regelrecords; ze zijn historisch en gelden niet als CON-02- of kwaliteitsoordeel zolang er geen totaalscore is. Dit herschrijft de app-brede scoregate niet: hoe de app een ontbrekende totaalscore bij vaststellen behandelt, valt onder DEF-630.
++> **Geen cijfer voor ESS-01, ESS-02, ESS-03 of CON-02; voorlopig geen totaalcijfer.** ESS-01 vraagt inhoudelijke beoordeling en krijgt geen numerieke bijdrage; ook een negatief oordeel veroorzaakt geen nieuwe ESS-01-vaststelblokkade. ESS-02 krijgt evenmin een cijfer of 0/1: het menselijke oordeel is voldoet / voldoet niet / nog te beoordelen, en een negatief of open oordeel vormt geen zelfstandige vaststelblokkade. ESS-03 krijgt geen cijfer of 0/1 en kent geen automatische gate: de mens beoordeelt eenheid en identiteit (voldoet / voldoet niet / nog te beoordelen, of bevestigde niet-toepasselijkheid met grond); een naam, nummer of het woord ‘uniek’ geeft geen automatische pass of fail, de prioriteit *hoog* ordent de aandacht, en of een menselijk vastgesteld ernstig telgebrek een vervolghandeling beperkt blijft afzonderlijk open onder DEF-624 — contract: [`references/ess03-eenheid-identiteit.md`](references/ess03-eenheid-identiteit.md). CON-02 heeft geen gewicht en geen numerieke bijdrage aan totaal- of categoriescore; de prioriteit *hoog* stuurt de aandacht, niet een cijfer. Productbesluit 15 september 2026 (DEF-743/DEF-624): voorlopig geen totaalcijfer en geen vervangende deelscore over alleen cijfergevende regels — toon per regel het oordeel (voldoet / voldoet niet / nog te beoordelen) en welke controles daadwerkelijk zijn uitgevoerd. De gewichten en drempels hieronder zijn de bestaande generieke configuratie van andere regelrecords; ze zijn historisch en gelden niet als CON-02- of kwaliteitsoordeel zolang er geen totaalscore is. Dit herschrijft de app-brede scoregate niet: hoe de app een ontbrekende totaalscore bij vaststellen behandelt, valt onder DEF-630.
+ 
+ ### Gewichtsysteem
+ 
+@@ -106,4 +106,4 @@ CON-01 krijgt géén cijfer en géén 0/1: elke treffer op een contextnaam krijg
+ 
+ > **Technische referenties** (JSON-bestanden, Python validators, prompt-modules, config-paths): zie [`reference.md`](reference.md).
+ 
+-*Versie: 0.5 — DEF-754 (ESS-02 betekenisniveau en aard, menselijke beoordeling zonder cijfer); 0.4 — DEF-743 (CON-02 bronbasis G/T/H + geen-cijferbesluit); 0.3 — ALG-329 (progressive disclosure: regeltabellen + detail → reference.md) — DEF-744 (CON-01 contextvermelding: uitkomst per treffer, geen cijfer)*
++*Versie: 0.6 — DEF-766 (ESS-03 eenheid en identiteit: gerichte uitzondering op gewogen scoring, geen cijfer en geen automatische gate); 0.5 — DEF-754 (ESS-02 betekenisniveau en aard, menselijke beoordeling zonder cijfer); 0.4 — DEF-743 (CON-02 bronbasis G/T/H + geen-cijferbesluit); 0.3 — ALG-329 (progressive disclosure: regeltabellen + detail → reference.md) — DEF-744 (CON-01 contextvermelding: uitkomst per treffer, geen cijfer)*

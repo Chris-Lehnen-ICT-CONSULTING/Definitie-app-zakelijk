@@ -1,0 +1,52 @@
+{
+  "opmerking": "Exitcodes van de uitgevoerde commando's in correctieronde 1 (uitvoerder Claude Code CLI). Logs staan naast dit bestand in /tmp/def766-ai-20260921. Gerichte pytest-runs met de project-venv Python 3.13 en -p no:cacheprovider -o addopts=\"\"; make-doelen via PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python. Exitcodes gemeten met `cmd > log 2>&1; echo $?` (niet via een pipe).",
+  "tdd": [
+    {"stap": "R1/R2/R3 contract RED (nieuwe API: Beoordelingsbinding, materiaalhashes, binding=)", "log": "c1-contract-red.log", "exit": 2, "resultaat": "1 error (collectiefout: nieuwe symbolen bestonden nog niet)"},
+    {"stap": "R1/R2/R3/R9 gedragsmatige reproducties RED (alleen fase-1-API)", "log": "c1-reproducties-red.log", "exit": 1, "resultaat": "6 failed, 1 passed — het fase-1-gedrag (downgrade i.p.v. afwijzing, hash-aanwezigheid volstond, twee vragen in één string, generiek label) is gereproduceerd"},
+    {"stap": "R1/R2/R3 contract GREEN", "log": "c1-contract-green.log", "exit": 0, "resultaat": "80 passed"},
+    {"stap": "R6 AI-laag opt-ins RED (echte AIServiceV2/AsyncGPTClient met FakeProvider)", "log": "c1-optins-red.log", "exit": 1, "resultaat": "4 failed, 1 passed — cache/retries/encoder niet stuurbaar per aanroep"},
+    {"stap": "R6 AI-laag opt-ins GREEN", "log": "c1-optins-green.log", "exit": 0, "resultaat": "5 passed"},
+    {"stap": "R2/R3/R6/R7 dienst — tussenstand (retry-telling faalde: filter op parent-logger)", "log": "c1-service-run1.log", "exit": 1, "resultaat": "1 failed, 14 passed"},
+    {"stap": "R2/R3/R6/R7 dienst — tussenstand vóór aanpassing fase-1-asserties op gesloten gedrag", "log": "c1-service-green.log", "exit": 1, "resultaat": "7 failed, 34 passed (fase-1-tests verwachtten het oude downgrade-gedrag; inhoudelijk vervangen)"},
+    {"stap": "R2/R3/R6/R7 dienst — eindstand", "log": "c1-eind-dienst.log", "exit": 0, "resultaat": "41 passed"},
+    {"stap": "R1/R4/R5 persistentie RED (collectie)", "log": "c1-persistentie-red.log", "exit": 2, "resultaat": "1 error"},
+    {"stap": "R4/R5 gedragsmatige reproducties RED", "log": "c1-r4r5-red.log", "exit": 1, "resultaat": "3 failed"},
+    {"stap": "R1/R4/R5 persistentie — tussenstanden", "log": "c1-persistentie-run1.log / c1-persistentie-run2.log", "exit": 1, "resultaat": "2 failed, 25 passed → 6 failed, 36 passed (opgeslagen status-sleutel; tweede _registratie_basis-pass popte ESS-03-sleutels; historical bij gewiste verduidelijking)"},
+    {"stap": "R1/R4/R5 persistentie — eindstand", "log": "c1-eind-persistentie.log", "exit": 0, "resultaat": "43 passed"},
+    {"stap": "Actieproef vaststellen + export — run 1 (TXT-export geeft pad, geen inhoud)", "log": "actieproef-run1.log", "exit": 1, "resultaat": "1 failed, 1 passed"},
+    {"stap": "Actieproef — run 2 (attribuutnaam assessor)", "log": "actieproef-run2.log", "exit": 1, "resultaat": "1 failed, 3 passed"},
+    {"stap": "Actieproef — eindstand", "log": "c1-eind-actieproef.log", "exit": 0, "resultaat": "4 passed"},
+    {"stap": "Regressie (gevonden door make test): categoriekeuze + ESS-03-verduidelijking in één UPDATE verloor de keuze — RED", "log": "c1-keuze-ess03-red.log", "exit": 1, "resultaat": "1 failed (keuze is None)"},
+    {"stap": "Idem GREEN (+ DEF-751/persistentie/database-suites)", "log": "c1-keuze-ess03-green.log", "exit": 0, "resultaat": "730 passed"}
+  ],
+  "eindstand_per_gebied": [
+    {"gebied": "contract (R1/R2/R3 + reproducties)", "log": "c1-eind-contract.log", "exit": 0, "resultaat": "80 passed"},
+    {"gebied": "dienst (R2/R3/R6/R7)", "log": "c1-eind-dienst.log", "exit": 0, "resultaat": "41 passed"},
+    {"gebied": "AI-laag (R6 opt-ins + bestaande AI-tests)", "log": "c1-eind-ai-laag.log", "exit": 0, "resultaat": "80 passed"},
+    {"gebied": "evaluator/wrapper/keten (R1) + golden ESS", "log": "c1-eind-evaluator-keten.log", "exit": 0, "resultaat": "46 passed"},
+    {"gebied": "persistentie (R1/R4/R5 + readbackmatrix)", "log": "c1-eind-persistentie.log", "exit": 0, "resultaat": "43 passed"},
+    {"gebied": "UI (R9 + editor R5)", "log": "c1-eind-ui.log", "exit": 0, "resultaat": "19 passed"},
+    {"gebied": "actieproef vaststellen + export", "log": "c1-eind-actieproef.log", "exit": 0, "resultaat": "4 passed"},
+    {"gebied": "alle DEF-766-suites + golden ESS", "log": "c1-def766-suites-eind3.log", "exit": 0, "resultaat": "296 passed"}
+  ],
+  "regressie": [
+    {"stap": "gerelateerde suites (DEF-743/751/622/624, orchestrator, AI-laag, database, story 2.4, contracten) — vóór aanpassing golden-test op R1", "log": "c1-regressie-eind.log", "exit": 1, "resultaat": "1 failed, 1498 passed — test_v2_golden_ess_more gaf een beoordeling zonder ess03_binding mee; aangepast: zonder binding review_required (R1), met binding fail"},
+    {"stap": "golden ESS na aanpassing", "log": "c1-golden-eind.log", "exit": 0, "resultaat": "3 passed"},
+    {"stap": "crud/repository/edit-service-refactors (complexiteit) + DEF-743/622-persistentie", "log": "c1-refactor-crud.log", "exit": 0, "resultaat": "788 passed"},
+    {"stap": "make test (volledige unitgate) run 1 — vóór de fix van de categoriekeuze-regressie", "log": "c1-make-test-eind.log", "exit": 2, "resultaat": "2 failed, 6850 passed, 75 skipped: test_def751_categoriekeuze_ui (keuze verloren bij ESS-03-verduidelijking in dezelfde UPDATE)"},
+    {"stap": "make test (volledige unitgate) run 2 — eindstand van de code", "log": "c1-make-test-eind2.log", "exit": 0, "resultaat": "6853 passed, 75 skipped, 722 deselected, 1 xfailed in 281.97s; run_profile status=ok"}
+  ],
+  "gates": [
+    {"stap": "make lint (ruff check + black check op src/config) — eindstand", "log": "c1-make-lint-eind2.log", "exit": 0},
+    {"stap": "ruff check + black --check op alle 51 gewijzigde/nieuwe Python-bestanden (eigen bestanden geformatteerd; geen ongewijzigde bestanden geraakt)", "log": "c1-ruff-2.log / c1-black-2.log", "exit": 0},
+    {"stap": "make test-markers-check", "log": "c1-markers-eind.log", "exit": 0, "resultaat": "485 testbestanden gemarkeerd"},
+    {"stap": "scripts/ci/check_root_allowlist.sh", "log": "c1-root-allowlist-eind.log", "exit": 0},
+    {"stap": "make complexity-check (ratchet DEF-418) — eerste meting na correcties", "log": "c1-complexity.log", "exit": 2, "resultaat": "201 → 213 (+12), alle 12 nieuwe bevindingen in eigen DEF-766-code (contract, dienst, ai_service_v2, definitie_crud, definition_repository, definition_edit_service)"},
+    {"stap": "make complexity-check — na gerichte refactors van eigen code (geen baselinewijziging)", "log": "c1-complexity-3.log", "exit": 0, "resultaat": "201 = baseline"},
+    {"stap": "scripts/ci/check-file-size.sh (informatief; pre-existing)", "log": "c1-file-size.log", "exit": 1, "resultaat": "src/services/definition_repository.py 1353 LOC > 1000 — pre-existing god-object (DEF-312/DEF-422-klasse); niet door deze ronde geïntroduceerd, geen brede fix"},
+    {"stap": "scripts/ci/check_no_todo_markers.sh", "log": "c1-todo.log", "exit": 0}
+  ],
+  "modelrun": [
+    {"stap": "scripts/ess03/run_ess03_gevallen.py — 8 echte beoordelingen met prompt ess03-assess/2 (claude-opus-4-8 via ModelRouter taak validation; dienst-opt-ins use_cache=False/max_attempts=1/max_retries=0/token_estimate=heuristic; AI_SDK_MAX_RETRIES=0; dienstcache 0; deadline 60 s per beoordeling, 480 s totaal)", "log": "ontwikkelrun-v2.log", "uitvoer": "ontwikkelrun-v2.json", "exit": 0, "resultaat": "8 aanroepen gestart, 8 transportpogingen waargenomen (attempts_observed=1 per aanroep), 8/8 conform vooraf vastgelegde verwachting, 0 afgewezen citaten, totale duur 59,3 s, langste 9,8 s"}
+  ]
+}

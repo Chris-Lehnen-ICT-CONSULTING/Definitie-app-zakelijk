@@ -1,0 +1,252 @@
+diff --git a/skills/definitie-nederlandse-definities/SKILL.md b/skills/definitie-nederlandse-definities/SKILL.md
+index 31ea166..d0f0ca0 100644
+--- a/skills/definitie-nederlandse-definities/SKILL.md
++++ b/skills/definitie-nederlandse-definities/SKILL.md
+@@ -54,6 +54,10 @@ Lees bij genereren of toetsen het [gedeelde N/G/T/H-contract](references/ess01-f
+ 
+ Lees bij formuleren het [gedeelde ESS-02-contract](references/ess02-betekenisniveau.md) (byte-identieke, versiegebonden kopie van de canonieke bron in skill `definitie-toetsregels`). Laat bovenbegrip en kenmerken duidelijk maken of een algemeen begrip dan wel één bepaald ding of voorval bedoeld is, en waar relevant of de kern een activiteit of haar uitkomst is. De kick-off-voorbeelden per richting zijn hulp en de vier richtingen overlappen (een algemeen activiteitbegrip is TYPE én PROCES): een passend genus buiten de voorbeelden is even goed; "soort", "type", "proces" of "exemplaar" zijn geen verplichte en geen verboden woorden. Een activiteit mag haar uitkomst noemen. Behandel een opgegeven categorie als te controleren betekenisclaim; een bewuste handmatige keuze (actor, tijd, versie) bevestigt de daarin uitgedrukte bedoeling, een default of modelvoorstel niet. Bij werkelijke tegenspraak met bron of context eerst verduidelijken — herschrijf geen broninhoud om een label passend te maken. De inhoudelijke ESS-02-beoordeling is menselijk en cijferloos; tot dan "nog te beoordelen", en een negatief of open oordeel vormt geen zelfstandige vaststelblokkade. Skilladvies is geen opgeslagen menselijke beoordeling; stijl en zinsbouw beoordeel je onder hun eigen regels.
+ 
++## ESS-03 — één instantie onderscheiden
++
++Lees bij formuleren het [gedeelde ESS-03-contract](references/ess03-eenheid-identiteit.md) (byte-identieke, versiegebonden kopie van de canonieke bron in skill `definitie-toetsregels`). Maak bij een telbare lezing een noodzakelijke eenheidsgrens duidelijk met een passend bovenbegrip en kenmerken; een code is niet verplicht. Gebruik alleen onderbouwde scope- en continuïteitsvoorwaarden. Een noodzakelijke naam blijft behouden volgens CON-01. Verander een stof, kwaliteit, type, rol, proces of uitkomst niet om een nummer te kunnen toevoegen. Meld ontbrekende noodzakelijke betekenisgrond afzonderlijk. Voor de gemeenschappelijke beoordeling en herstelgrenzen gelden de ESS-03-instructies van toetsregels; de inhoudelijke beoordeling is menselijk en is geen opgeslagen review door deze skill. Dit blok vervangt geen ESS-02-generatievoorbeelden.
++
+ ## Referenties
+ 
+ ### Standaarden
+@@ -76,4 +80,4 @@ Lees bij formuleren het [gedeelde ESS-02-contract](references/ess02-betekenisniv
+ - Prompt-modules: `src/services/prompts/modules/`
+ - Toetsregels-configuratie: `config/toetsregels/`
+ 
+-*Versie: 0.4 — DEF-754 (ESS-02 betekenisniveau en aard; kick-off-richtingen als hulp); 0.3 — DEF-743 (verwijzing naar gedeeld CON-02 G-contract bij aangeleverde bronnen); 0.2 — ALG-131 — ALG-329 progressive disclosure — DEF-744 contextvermelding (CON-01)*
++*Versie: 0.5 — DEF-766 (ESS-03 één instantie onderscheiden; verwijzing naar gedeeld ESS-03-contract); 0.4 — DEF-754 (ESS-02 betekenisniveau en aard; kick-off-richtingen als hulp); 0.3 — DEF-743 (verwijzing naar gedeeld CON-02 G-contract bij aangeleverde bronnen); 0.2 — ALG-131 — ALG-329 progressive disclosure — DEF-744 contextvermelding (CON-01)*
+diff --git a/skills/definitie-ontologisch-modelleren/reference.md b/skills/definitie-ontologisch-modelleren/reference.md
+index 632d8de..e045415 100644
+--- a/skills/definitie-ontologisch-modelleren/reference.md
++++ b/skills/definitie-ontologisch-modelleren/reference.md
+@@ -78,6 +78,8 @@ Na de basiscategorisatie, verfijn elk TYPE-begrip met het juiste UFO-stereotype:
+ | ...een meetbare eigenschap is | `«quality»` | Leeftijd, Strafmaat |
+ | ...een groep als eenheid is | `«collective»` | Commissie, Meervoudige kamer |
+ 
++**Eenheid en identiteit (ESS-03):** Leg bij een voor ESS-03 relevante eenheidsvraag vast wat wordt geteld: object, roluitoefening, gebeurtenis, hoeveelheid, abstracte entiteit of registratie. Modelleer een identifier met zijn referentsoort en noodzakelijke namespace-/geldigheidsgrond; een technische sleutel vervangt geen domeinidentiteit. Bij deel/geheel, splitsing, samenvoeging of hervatting onderscheid je identiteit van opvolging en samenstelling. Verander een brongebonden conventie niet om een registratie makkelijker uniek te maken. Een modelrelatie ondersteunt de definitie, maar is geen zelfstandig positief regeloordeel. Overige modelleerkeuzes en exclusieve categorieclaims vallen onder ESS-02 (skill `definitie-ufo-ontologie`), niet onder deze ESS-03-tekst; norm, toetsinstructie (T) en herstelgrenzen (H): skill `definitie-toetsregels`, `references/ess03-eenheid-identiteit.md`.
++
+ ### Stap 4: Relaties Modelleren
+ 
+ **Taxonomische relaties (is-een) — de ruggengraat van het model:**
+diff --git a/skills/definitie-toetsregels/SKILL.md b/skills/definitie-toetsregels/SKILL.md
+index 1fceb1f..b60da33 100644
+--- a/skills/definitie-toetsregels/SKILL.md
++++ b/skills/definitie-toetsregels/SKILL.md
+@@ -36,7 +36,7 @@ Referentie voor de 53 toetsregels (validatieregels) van de DefinitieAgent, verde
+ 
+ ## Overzicht
+ 
+-Het systeem bevat **53 toetsregels** verdeeld over **9 categorieën**. Elke regel heeft een JSON-configuratie en een Python-validator. Regels worden parallel uitgevoerd met gewogen scoring; ESS-01 (inhoudelijke beoordeling), ESS-02 (menselijke betekenisbeoordeling), CON-01 (uitkomst per treffer) en CON-02 (drie afzonderlijke controles) zijn daarvan uitgezonderd en leveren geen cijfer (zie Scoring & Weging). Daarnaast zijn **46 van de 53 regels** getransformeerd naar generatie-instructies die in de LLM-prompts worden opgenomen (DEF-126).
++Het systeem bevat **53 toetsregels** verdeeld over **9 categorieën**. Elke regel heeft een JSON-configuratie en een Python-validator. Regels worden parallel uitgevoerd met gewogen scoring; ESS-01 (inhoudelijke beoordeling), ESS-02 (menselijke betekenisbeoordeling), ESS-03 (menselijke beoordeling van eenheid en identiteit, [`references/ess03-eenheid-identiteit.md`](references/ess03-eenheid-identiteit.md)), CON-01 (uitkomst per treffer) en CON-02 (drie afzonderlijke controles) zijn daarvan uitgezonderd en leveren geen cijfer (zie Scoring & Weging). Daarnaast zijn **46 van de 53 regels** getransformeerd naar generatie-instructies die in de LLM-prompts worden opgenomen (DEF-126).
+ 
+ ### Categorieën op een rij
+ 
+@@ -71,7 +71,7 @@ Lees bij genereren of toetsen het [gedeelde ESS-02-contract](references/ess02-be
+ 
+ ## Scoring & Weging
+ 
+-> **Geen cijfer voor ESS-01, ESS-02 of CON-02; voorlopig geen totaalcijfer.** ESS-01 vraagt inhoudelijke beoordeling en krijgt geen numerieke bijdrage; ook een negatief oordeel veroorzaakt geen nieuwe ESS-01-vaststelblokkade. ESS-02 krijgt evenmin een cijfer of 0/1: het menselijke oordeel is voldoet / voldoet niet / nog te beoordelen, en een negatief of open oordeel vormt geen zelfstandige vaststelblokkade. CON-02 heeft geen gewicht en geen numerieke bijdrage aan totaal- of categoriescore; de prioriteit *hoog* stuurt de aandacht, niet een cijfer. Productbesluit 15 september 2026 (DEF-743/DEF-624): voorlopig geen totaalcijfer en geen vervangende deelscore over alleen cijfergevende regels — toon per regel het oordeel (voldoet / voldoet niet / nog te beoordelen) en welke controles daadwerkelijk zijn uitgevoerd. De gewichten en drempels hieronder zijn de bestaande generieke configuratie van andere regelrecords; ze zijn historisch en gelden niet als CON-02- of kwaliteitsoordeel zolang er geen totaalscore is. Dit herschrijft de app-brede scoregate niet: hoe de app een ontbrekende totaalscore bij vaststellen behandelt, valt onder DEF-630.
++> **Geen cijfer voor ESS-01, ESS-02, ESS-03 of CON-02; voorlopig geen totaalcijfer.** ESS-01 vraagt inhoudelijke beoordeling en krijgt geen numerieke bijdrage; ook een negatief oordeel veroorzaakt geen nieuwe ESS-01-vaststelblokkade. ESS-02 krijgt evenmin een cijfer of 0/1: het menselijke oordeel is voldoet / voldoet niet / nog te beoordelen, en een negatief of open oordeel vormt geen zelfstandige vaststelblokkade. ESS-03 krijgt geen cijfer of 0/1 en kent geen automatische gate: de mens beoordeelt eenheid en identiteit (voldoet / voldoet niet / nog te beoordelen, of bevestigde niet-toepasselijkheid met grond); een naam, nummer of het woord ‘uniek’ geeft geen automatische pass of fail, de prioriteit *hoog* ordent de aandacht, en of een menselijk vastgesteld ernstig telgebrek een vervolghandeling beperkt blijft afzonderlijk open onder DEF-624 — contract: [`references/ess03-eenheid-identiteit.md`](references/ess03-eenheid-identiteit.md). CON-02 heeft geen gewicht en geen numerieke bijdrage aan totaal- of categoriescore; de prioriteit *hoog* stuurt de aandacht, niet een cijfer. Productbesluit 15 september 2026 (DEF-743/DEF-624): voorlopig geen totaalcijfer en geen vervangende deelscore over alleen cijfergevende regels — toon per regel het oordeel (voldoet / voldoet niet / nog te beoordelen) en welke controles daadwerkelijk zijn uitgevoerd. De gewichten en drempels hieronder zijn de bestaande generieke configuratie van andere regelrecords; ze zijn historisch en gelden niet als CON-02- of kwaliteitsoordeel zolang er geen totaalscore is. Dit herschrijft de app-brede scoregate niet: hoe de app een ontbrekende totaalscore bij vaststellen behandelt, valt onder DEF-630.
+ 
+ ### Gewichtsysteem
+ 
+@@ -106,4 +106,4 @@ CON-01 krijgt géén cijfer en géén 0/1: elke treffer op een contextnaam krijg
+ 
+ > **Technische referenties** (JSON-bestanden, Python validators, prompt-modules, config-paths): zie [`reference.md`](reference.md).
+ 
+-*Versie: 0.5 — DEF-754 (ESS-02 betekenisniveau en aard, menselijke beoordeling zonder cijfer); 0.4 — DEF-743 (CON-02 bronbasis G/T/H + geen-cijferbesluit); 0.3 — ALG-329 (progressive disclosure: regeltabellen + detail → reference.md) — DEF-744 (CON-01 contextvermelding: uitkomst per treffer, geen cijfer)*
++*Versie: 0.6 — DEF-766 (ESS-03 eenheid en identiteit: gerichte uitzondering op gewogen scoring, geen cijfer en geen automatische gate); 0.5 — DEF-754 (ESS-02 betekenisniveau en aard, menselijke beoordeling zonder cijfer); 0.4 — DEF-743 (CON-02 bronbasis G/T/H + geen-cijferbesluit); 0.3 — ALG-329 (progressive disclosure: regeltabellen + detail → reference.md) — DEF-744 (CON-01 contextvermelding: uitkomst per treffer, geen cijfer)*
+diff --git a/skills/definitie-toetsregels/reference.md b/skills/definitie-toetsregels/reference.md
+index 3572849..73eab96 100644
+--- a/skills/definitie-toetsregels/reference.md
++++ b/skills/definitie-toetsregels/reference.md
+@@ -1,6 +1,6 @@
+ # Toetsregels — Volledige Referentie
+ 
+-> On-demand referentie bij de skill `definitie-toetsregels`. Bevat de volledige 53-regel tabellen, de CON-01-uitwerking (contextvermelding, DEF-744), de scoring-verdelingen, de DEF-126 generatie-instructie-transformatie en technische referenties. ESS-02 (betekenisniveau en aard, DEF-754) staat in [`references/ess02-betekenisniveau.md`](references/ess02-betekenisniveau.md). De `SKILL.md` zelf bevat het overzicht, de categorie-tabel en de kern-drempels — lees dit bestand wanneer je specifieke regels, instructies of file-paths nodig hebt.
++> On-demand referentie bij de skill `definitie-toetsregels`. Bevat de volledige 53-regel tabellen, de CON-01-uitwerking (contextvermelding, DEF-744), de scoring-verdelingen, de DEF-126 generatie-instructie-transformatie en technische referenties. ESS-02 (betekenisniveau en aard, DEF-754) staat in [`references/ess02-betekenisniveau.md`](references/ess02-betekenisniveau.md); ESS-03 (eenheid en identiteit, DEF-766) in [`references/ess03-eenheid-identiteit.md`](references/ess03-eenheid-identiteit.md). De `SKILL.md` zelf bevat het overzicht, de categorie-tabel en de kern-drempels — lees dit bestand wanneer je specifieke regels, instructies of file-paths nodig hebt.
+ 
+ ## Regelcategorieën — Volledig
+ 
+@@ -43,7 +43,7 @@ Regels voor de kern van wat gedefinieerd wordt:
+ |----|------|--------|----------------------|
+ | ESS-01 | Essentie, niet doel | **hoog** | Beoordeel afbakening en functie/doel volgens ESS-01; signalen zijn geen bewijs; behoud de oorspronkelijke invoer. Onderbouwde bepalende functie behouden; overig doel buiten de kern |
+ | ESS-02 | Betekenisniveau en ontologische aard ondubbelzinnig maken ³ | **hoog** ⁴ | Laat bovenbegrip en kenmerken duidelijk maken of een algemeen begrip dan wel één bepaald ding of voorval bedoeld is, en waar relevant of de kern een activiteit of haar uitkomst is; type, exemplaar, proces en resultaat zijn hulprichtingen, geen verplichte markerwoorden — volledige N/G/T-instructie in [`references/ess02-betekenisniveau.md`](references/ess02-betekenisniveau.md) |
+-| ESS-03 | Instanties onderscheidbaar | **hoog** | Noem criteria voor unieke identificatie van instanties (zoals serienummer, kenteken, ID) |
++| ESS-03 | Instanties uniek onderscheidbaar (telbaarheid) | **hoog** | Maak bij een telbare lezing duidelijk wat één, dezelfde en een andere instantie is; gebruik alleen onderbouwde relevante grenzen of conventies. Geen nummerplicht, woordbewijs of automatische semantische goedkeuring. |
+ | ESS-04 | Objectief toetsbaar | **midden** | Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria) |
+ | ESS-05 | Onderscheid van verwante begrippen | **hoog** | Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen |
+ | ESS-CONT-001 | Essentiële inhoud aanwezig | **hoog** | De definitie moet minimaal 6 inhoudelijke woorden bevatten |
+@@ -51,6 +51,8 @@ Regels voor de kern van wat gedefinieerd wordt:
+ ³ Regelnaam volgens het ESS-02-besluit van 16 september 2026 (DEF-754); de app-regelkaart volgt onder DEF-750. De vier appkeuzes zijn overlappende praktische richtingen, geen exclusieve indeling.
+ ⁴ ESS-02 levert geen cijfer en geen 0/1: de mens beoordeelt binnen de bestaande expertbeoordeling (voldoet / voldoet niet / nog te beoordelen); een marker, label of aantal categoriewoorden geeft geen automatische pass of fail, en een negatief of open oordeel vormt geen zelfstandige vaststelblokkade. Zie [`references/ess02-betekenisniveau.md`](references/ess02-betekenisniveau.md).
+ 
++> **ESS-03 — eenheid en identiteit.** Waar de bedoelde betekenis afzonderlijke instanties onderscheidt, maakt de definitiekern voor onafhankelijke materiedeskundigen een eenduidige telling mogelijk: wat is één, dezelfde en een andere instantie? Een passend bovenbegrip en begripsbepalende kenmerken kunnen volstaan; een administratieve identifier is niet verplicht, en een naam, nummer of het woord ‘uniek’ bewijst op zichzelf niets. Een niet-telbare stof- of verschijnsellezing wordt niet in kunstmatige porties of registraties veranderd; toepasselijkheid volgt de bedoelde eenheid, niet een woord, categorielabel of verplichte code. Prioriteit *hoog* blijft en ordent de aandacht; ESS-03 kent geen eigen cijfer, geen regex-PASS/FAIL, geen identifierplicht en geen automatische gate — de inhoudelijke beoordeling is menselijk (voldoet / voldoet niet / nog te beoordelen, of bevestigde niet-toepasselijkheid met grond). Volledige gezamenlijke norm, generatie-instructie (G), toetsinstructie (T), terugkoppelformuleringen en herstelgrenzen (H): [`references/ess03-eenheid-identiteit.md`](references/ess03-eenheid-identiteit.md). Deze richting is op 18 september 2026 door Chris als uitvoeringsopdracht gegeven (DEF-766); de geldende CON-01/02- en ESS-01/02-afspraken blijven behouden. De app-regelkaart, evaluator en weergave volgen afzonderlijk en zijn met deze tekst niet geactiveerd; de technische weergave van een bevestigde niet-toepasselijkheid en een eventuele menselijke ernstige-foutgate zijn open onder DEF-624.
++
+ ### INT — Integriteit (9 regels)
+ 
+ Regels voor leesbaarheid en logische opbouw:
+diff --git a/skills/definitie-ufo-ontologie/reference.md b/skills/definitie-ufo-ontologie/reference.md
+index dff7666..a4fd248 100644
+--- a/skills/definitie-ufo-ontologie/reference.md
++++ b/skills/definitie-ufo-ontologie/reference.md
+@@ -21,9 +21,11 @@ Endurants zijn entiteiten die op elk moment volledig aanwezig zijn (al hun essen
+ | **RoleMixin** | Abstracte rol over meerdere Kinds | Geen eigen identiteit | Bewoonbaar (geldt voor gebouw én schip) |
+ | **Category** | Abstracte rigide eigenschap over Kinds | Geen eigen identiteit | Levend wezen (geldt voor mens én dier) |
+ | **Mixin** | Abstracte semi-rigide eigenschap | Geen eigen identiteit | Geregistreerd object |
+-| **Collective** | Verzameling entiteiten als eenheid | Eigen identiteit via lidmaatschap | Commissie, Raad, Gezin |
++| **Collective** | Verzameling entiteiten als eenheid | Eigen identiteitsprincipe; lidmaatschap en continuïteit volgens de bedoelde geheelsoort en onderbouwde conventie | Commissie, Raad, Gezin |
+ | **Quantity** | Hoeveelheid van materie | Identiteit via hoeveelheid | Geldbedrag, Partij goederen |
+ 
++**ESS-03-toepassing.** Scheid de identiteit van een begrip, een domeininstantie en haar registratierecord. Een geërfd identiteitscriterium kan volstaan; ieder subtype hoeft geen eigen nummer te introduceren. Een categorielabel bepaalt niet hoe instanties worden geteld. Leg bij relevante levensloopvragen vast welke verandering het object behoudt of beëindigt, met bron of expliciete domeinconventie. Bij een geheel is lidmaatschapswijziging niet zonder meer identiteitsverlies; bij een stof moet een gekozen hoeveelheid of monster onderscheiden blijven van de stoflezing. Onbekende conventies blijven open. Deze toepassing herclassificeert commissie, raad of gezin niet; norm, toetsinstructie (T) en herstelgrenzen (H): skill `definitie-toetsregels`, `references/ess03-eenheid-identiteit.md`.
++
+ **Moment-endurants** — afhankelijke, inherente eigenschappen:
+ 
+ | UFO Type | Betekenis | Afhankelijkheid | Voorbeeld |
+diff --git a/skills/definitie-voorbeelden-generatie/reference.md b/skills/definitie-voorbeelden-generatie/reference.md
+index b5e293e..4504258 100644
+--- a/skills/definitie-voorbeelden-generatie/reference.md
++++ b/skills/definitie-voorbeelden-generatie/reference.md
+@@ -159,13 +159,15 @@ Voorbeelden helpen specifiek bij deze toetsregels:
+ 
+ | Toetsregel | Hoe voorbeelden helpen |
+ |------------|----------------------|
+-| **ESS-03** (Instanties onderscheidbaar) | Voorbeelden tonen concrete identificatiecriteria |
++| **ESS-03** (Instanties onderscheidbaar) | Toon onder dezelfde bedoelde lezing één instantie, twee verschillende instanties en waar relevant dezelfde instantie na verandering. Vergelijk codebotsingen, naamruimte, deel/geheel of hervatting alleen wanneer die de telling bepalen; een naam of nummer alleen is geen bewijs. |
+ | **ESS-05** (Onderscheid van verwante) | Tegenvoorbeelden verduidelijken de grenzen met zusterbegrippen |
+ | **STR-02** (Genus-differentia) | Voorbeelden tonen dat het genus correct is gekozen |
+ | **STR-05** (Essentie, niet constructie) | Voorbeelden tonen de essentie in de praktijk |
+ | **SAM-05** (Geen cirkeldefinities) | Voorbeelden doorbreken circulaire referenties door concrete gevallen te tonen |
+ | **INT-06** (Geen toelichting) | Voorbeelden nemen de behoefte aan "bijvoorbeeld" in de definitie weg |
+ 
++Leg per ESS-03-geval de telsoort, relevante context, bron/conventie en verwachte telling met reden vooraf vast. Maak een synthetisch voorbeeld herkenbaar als voorstel; claim geen praktijk- of deskundigenbewijs. Neem bij een stoflezing ook het verschil met een expliciet monster of partij mee. Voorbeelden bewijzen niet dat de kern volledig is en mogen een ontbrekend essentieel criterium niet stil repareren. Bij tegengestelde conventies toon je het verschil en vraag je welke geldt. Een minimumaantal voorbeelden is geen garantie voor ESS-03. Norm, toetsinstructie (T) en herstelgrenzen (H): skill `definitie-toetsregels`, `references/ess03-eenheid-identiteit.md`.
++
+ ## Intensie-Extensie Toetsprotocol
+ 
+ Gebruik dit protocol om te controleren of de definitie klopt met de voorbeelden:
+diff --git a/skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md b/skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md
+new file mode 100644
+index 0000000..a49b3a7
+--- /dev/null
++++ b/skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md
+@@ -0,0 +1,55 @@
++# ESS-03 — eenheid en identiteit (instanties uniek onderscheidbaar, telbaarheid)
++
++Uitvoeringsopdracht van Chris op 18 september 2026 (DEF-766), na het afgeronde gezamenlijke onderzoek van Codex en Cowork (gezamenlijke-besluitnotitie-v2 en tekstvoorstellen-v3, codebasis ae554bd0). Normherkomst: ASTRA [*Instanties uniek onderscheidbaar*](https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar) (gelezen met revisielink oldid=8546, wijzigingstijd 11 februari 2025); ASTRA draagt het interbeoordelaarsdoel, de niet-telbare uitzondering, de mogelijke betekenisdivergentie en de contextrelatie. De proportionaliteit, concrete bewijsvoorwaarden en continuïteitsuitwerking hieronder zijn een lokale operationalisering met OntoUML/MIM-onderbouwing, geen letterlijke ASTRA-transcriptie; de eerdere identifierlijst in de lokale regelkaart staat niet in ASTRA. Deze tekst is de skillzijde van die richting: de app-regelkaart (`ESS-03.json`), evaluator, meldingen en weergave volgen afzonderlijk en zijn met deze tekst niet geactiveerd; er is geen deskundigen-goldset. Open onder DEF-624: de technische weergave van een door een mens bevestigde niet-toepasselijkheid, en of een menselijk vastgesteld ernstig telgebrek een vervolghandeling beperkt. Bestaande CON-01/02- en ESS-01/02-afspraken blijven gelden. Dit advies is geen opgeslagen review of vaststelling. Canonieke bron: `definitie-toetsregels/references/ess03-eenheid-identiteit.md`; `definitie-nederlandse-definities` draagt een byte-identieke, versiegebonden kopie in zijn eigen `references/` zodat dat pakket zelfstandig leesbaar is — wijzig alleen de canonieke bron en kopieer die opnieuw.
++
++## N — gezamenlijke norm
++
++> Bij een begrip waarvoor afzonderlijke instanties in de bedoelde betekenis relevant zijn, maakt de definitie onafhankelijke materiedeskundigen een eenduidige telling mogelijk bij dezelfde betekenis, relevante informatie en context. De kern maakt voldoende duidelijk wat als één instantie geldt en waardoor instanties van elkaar worden onderscheiden. Een passend bovenbegrip en begripsbepalende kenmerken kunnen daarvoor volstaan; een administratieve identifier is niet verplicht.
++>
++> Vraag alleen aanvullende grenzen, tijd-, scope- of continuïteitsvoorwaarden wanneer het onderscheid daarvan afhangt. Een naam, nummer of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Een code kan ondersteunen als haar referentsoort, populatie en relevante toekennings-/geldigheidsvoorwaarden zijn onderbouwd.
++>
++> Een niet-telbare stof- of verschijnsellezing hoeft niet in kunstmatige porties of registraties te worden veranderd. Een uitdrukkelijk gekozen afgebakende hoeveelheid of gebeurtenis kan wel telbaar zijn. Verschillende tellingen kunnen wijzen op een gebrekkige afbakening, maar ook op verschillende betekenissen of contexten; onderzoek die oorzaak vóór een negatief oordeel.
++
++**Brongebonden uitzonderingsduiding.** ASTRA noemt zand/cocaïne en regen/onweer/recidive als voorbeelden bij de uitzondering. Dit is geen vrijstelling voor alle hoeveelheden, processen, abstracta of een UFO-stereotype. Het brugvoorbeeld laat zien dat verschillende beheerperspectieven verschillende eenheden kunnen afbakenen; een universeel juist aantal is niet te voorspellen. Een contextlabel alleen herstelt geen ontbrekende begripsgrens. De ASTRA-relatie *Eigen definitie voor elke context* is de brongebonden oplossing voor niet te harmoniseren betekenisverschillen per context.
++
++**Toepasselijkheid.** Betekenissen waarbij afzonderlijke instanties worden onderscheiden; toepasselijkheid op grond van bedoelde eenheid, niet op een woord, categorielabel of verplichte code. Een ontologische categorie ondersteunt de lezing, maar is geen automatische vrijstelling en geen bewijs.
++
++## Grenzen van het oordeel
++
++- **Prioriteit hoog blijft.** Hoog ordent de aandacht; het is geen zelfstandig nieuw blokkeerbesluit en geen automatische gate. Of een door een mens vastgesteld ernstig telgebrek een vervolghandeling beperkt, is een apart besluit (DEF-624).
++- **Geen ESS-03-cijfer, geen 0/1.** Het resultaat is een gemotiveerd voldoet / voldoet niet / nog te beoordelen, of een door een mens bevestigde niet-toepasselijkheid met grond en versiebinding. Een automatische indicator geeft geen semantische pass/fail en geen regex-PASS/FAIL.
++- **Geen identifierplicht, geen woordbewijs.** Een naam, nummer, code of het woord ‘uniek’ bewijst niets; een identifier is uitsluitend bruikbaar voor de referentsoort, naamruimte en geldigheidsvoorwaarden waarvoor zijn identificerende werking is onderbouwd.
++- **Geen algemene categorie-vrijstelling.** Stof, kwaliteit, proces, abstractum of UFO-stereotype bepaalt de toepasselijkheid niet; de bedoelde eenheid doet dat.
++- **Geen bewezen overtreding** bij ontbrekende gegevens, een onbeslist inhoudelijk oordeel of een technische fout; houd die afzonderlijk herkenbaar.
++- Voorbeelden en toelichting ondersteunen het oordeel, maar vervangen geen noodzakelijke begripsafbakening in de kern.
++
++## G — bij genereren
++
++> Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt. Maak een noodzakelijke eenheidsgrens duidelijk met een passend bovenbegrip en begripsbepalende kenmerken. Gebruik een identifier alleen als zijn referentsoort, scope en relevante geldigheid zijn onderbouwd; verzin geen nummer, bron of telconventie. Laat niet-telbare stoffen of kwaliteiten niet stil veranderen in telbare monsters, porties of registraties. Vraag bij een noodzakelijke onbesliste grens, continuïteitsvraag of bron-/contexttegenspraak om gerichte verduidelijking. Een naam of het woord ‘uniek’ is geen bewijs. Houd registratiecontext en bronadministratie buiten de kern, maar behoud inhoudelijk noodzakelijke namen en voorwaarden. Geef uitleg en synthetische voorbeelden afzonderlijk; ze vervangen geen ontbrekende kernafgrenzing.
++
++Voorwaarden vóór generatie: bedoelde betekenis en context doorgeven; echte bronpassages en scope behouden; een opgegeven categorie als betekenisclaim behandelen volgens ESS-02; een ontbrekende noodzakelijke keuze zichtbaar laten. Een instructietekst bewijst die doorgifte of een foutloze generatie niet.
++
++## T — menselijke toetsinstructie
++
++**Toetsvraag:** is bij deze betekenis duidelijk wat als één, dezelfde of een andere instantie geldt, met voldoende grond voor de relevante eenheidsgrens en eventuele continuïteitsconventie?
++
++> Beoordeel de ongewijzigde definitiekern bij de vastgelegde term, bedoelde betekenis, context en kandidaatversie. Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties relevant zijn. Onderzoek vervolgens wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip kan een herkenbare natuurlijke grens al dragen. Controleer alleen aanvullende scope, tijd, bron of geheel/deelconventie die het oordeel werkelijk bepaalt. Beoordeel bij codes wat zij identificeren en binnen welke populatie en geldigheid; aanwezigheid van een naam, nummer of woord bewijst niets. Geef een gemotiveerd inhoudelijk oordeel alleen na beoordeling van de relevante grond. Houd ontbrekend bewijs, onbesliste toepasselijkheid, niet-toepasselijkheid en technische fouten afzonderlijk herkenbaar. Verander de invoer niet. Een automatisch signaal, gekozen categorie, record-ID of algemene vaststelling is geen inhoudelijke ESS-03-goedkeuring.
++
++Terugkoppelformuleringen per uitkomst (geen nieuwe automatische afkeurregels):
++
++- Open: “Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt?”
++- Ontbrekende scope: “De code is vermeld, maar welke objecten zij binnen welke naamruimte onderscheidt is nog niet onderbouwd.”
++- Bevestigde codefout: “Dit identificatiemiddel onderscheidt de bedoelde instanties niet. De onderbouwing laat zien dat verschillende instanties dezelfde code kunnen hebben.”
++- Niet van toepassing: “Deze betekenis beschrijft een stof of kwaliteit zonder gekozen telbare eenheid. ESS-03 verlangt hier geen afzonderlijke identificatie.”
++- Technisch: “De ESS-03-controle kon niet worden uitgevoerd. Er is geen inhoudelijk oordeel gegeven.”
++
++Noteer passage, betekenisgrond en reden. Het advies uit deze skill is geen opgeslagen menselijke beoordeling en simuleert geen actor of bevoegdheid; actor, tijd, definitie- en normversie worden in de app vastgelegd.
++
++## H — alleen op verzoek
++
++> Stel vóór een herstelvoorstel vast of de oorzaak een inhoudelijke generatieovertreding, tegenstrijdige instructie, invoer-/transportverlies, foutieve evaluatoruitkomst, ontbrekend bewijs, technische fout of schadelijke nabewerking is. Gebruik daarvoor waar relevant de ruwe, geëxtraheerde, opgeschoonde, getoetste en opgeslagen tekst met hun invoer-/bronversies. Alleen een negatieve toetsuitkomst bewijst de oorzaak niet. Uitsluitend toetsen laat de oorspronkelijke tekst intact. Maak op gebruikersverzoek een afzonderlijke kandidaat en verschil, uitsluitend met beschikbare betekenisgrond. Verzin geen identiteit, naamruimte, bron, datum of menselijk oordeel. Stop bij ontbrekende grond, bronconflict, herhaalde fout of betekenisverlies. Toekomstig automatisch herstel blijft begrensd tot het afzonderlijk goedgekeurde DEF-638-beleid: maximaal één poging per generatie; dit advies activeert die mogelijkheid niet. Hertoets de veranderde kandidaat en geraakte regels; bewaar eerdere teksten en oordelen als historie.
++
++Voorbeelden van een eerste terugkoppeling:
++
++- Natuurlijke grens zonder trefwoord (onderzoekscase N05): “De tekst bevat een natuurlijke grens. De negatieve automatische uitkomst berust op het ontbreken van een trefwoord; voeg daarom niet alleen een nummer toe. Laat de afbakening inhoudelijk beoordelen.”
++- Ontkende uniciteitsclaim (onderzoekscase N01): “De gegeven tekst zegt dat de code niet uniek is. Alleen ‘niet’ verwijderen zou de betekenis veranderen; bepaal eerst welk bestaand criterium de instanties wel onderscheidt.”
+diff --git a/skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md b/skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md
+new file mode 100644
+index 0000000..a49b3a7
+--- /dev/null
++++ b/skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md
+@@ -0,0 +1,55 @@
++# ESS-03 — eenheid en identiteit (instanties uniek onderscheidbaar, telbaarheid)
++
++Uitvoeringsopdracht van Chris op 18 september 2026 (DEF-766), na het afgeronde gezamenlijke onderzoek van Codex en Cowork (gezamenlijke-besluitnotitie-v2 en tekstvoorstellen-v3, codebasis ae554bd0). Normherkomst: ASTRA [*Instanties uniek onderscheidbaar*](https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar) (gelezen met revisielink oldid=8546, wijzigingstijd 11 februari 2025); ASTRA draagt het interbeoordelaarsdoel, de niet-telbare uitzondering, de mogelijke betekenisdivergentie en de contextrelatie. De proportionaliteit, concrete bewijsvoorwaarden en continuïteitsuitwerking hieronder zijn een lokale operationalisering met OntoUML/MIM-onderbouwing, geen letterlijke ASTRA-transcriptie; de eerdere identifierlijst in de lokale regelkaart staat niet in ASTRA. Deze tekst is de skillzijde van die richting: de app-regelkaart (`ESS-03.json`), evaluator, meldingen en weergave volgen afzonderlijk en zijn met deze tekst niet geactiveerd; er is geen deskundigen-goldset. Open onder DEF-624: de technische weergave van een door een mens bevestigde niet-toepasselijkheid, en of een menselijk vastgesteld ernstig telgebrek een vervolghandeling beperkt. Bestaande CON-01/02- en ESS-01/02-afspraken blijven gelden. Dit advies is geen opgeslagen review of vaststelling. Canonieke bron: `definitie-toetsregels/references/ess03-eenheid-identiteit.md`; `definitie-nederlandse-definities` draagt een byte-identieke, versiegebonden kopie in zijn eigen `references/` zodat dat pakket zelfstandig leesbaar is — wijzig alleen de canonieke bron en kopieer die opnieuw.
++
++## N — gezamenlijke norm
++
++> Bij een begrip waarvoor afzonderlijke instanties in de bedoelde betekenis relevant zijn, maakt de definitie onafhankelijke materiedeskundigen een eenduidige telling mogelijk bij dezelfde betekenis, relevante informatie en context. De kern maakt voldoende duidelijk wat als één instantie geldt en waardoor instanties van elkaar worden onderscheiden. Een passend bovenbegrip en begripsbepalende kenmerken kunnen daarvoor volstaan; een administratieve identifier is niet verplicht.
++>
++> Vraag alleen aanvullende grenzen, tijd-, scope- of continuïteitsvoorwaarden wanneer het onderscheid daarvan afhangt. Een naam, nummer of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Een code kan ondersteunen als haar referentsoort, populatie en relevante toekennings-/geldigheidsvoorwaarden zijn onderbouwd.
++>
++> Een niet-telbare stof- of verschijnsellezing hoeft niet in kunstmatige porties of registraties te worden veranderd. Een uitdrukkelijk gekozen afgebakende hoeveelheid of gebeurtenis kan wel telbaar zijn. Verschillende tellingen kunnen wijzen op een gebrekkige afbakening, maar ook op verschillende betekenissen of contexten; onderzoek die oorzaak vóór een negatief oordeel.
++
++**Brongebonden uitzonderingsduiding.** ASTRA noemt zand/cocaïne en regen/onweer/recidive als voorbeelden bij de uitzondering. Dit is geen vrijstelling voor alle hoeveelheden, processen, abstracta of een UFO-stereotype. Het brugvoorbeeld laat zien dat verschillende beheerperspectieven verschillende eenheden kunnen afbakenen; een universeel juist aantal is niet te voorspellen. Een contextlabel alleen herstelt geen ontbrekende begripsgrens. De ASTRA-relatie *Eigen definitie voor elke context* is de brongebonden oplossing voor niet te harmoniseren betekenisverschillen per context.
++
++**Toepasselijkheid.** Betekenissen waarbij afzonderlijke instanties worden onderscheiden; toepasselijkheid op grond van bedoelde eenheid, niet op een woord, categorielabel of verplichte code. Een ontologische categorie ondersteunt de lezing, maar is geen automatische vrijstelling en geen bewijs.
++
++## Grenzen van het oordeel
++
++- **Prioriteit hoog blijft.** Hoog ordent de aandacht; het is geen zelfstandig nieuw blokkeerbesluit en geen automatische gate. Of een door een mens vastgesteld ernstig telgebrek een vervolghandeling beperkt, is een apart besluit (DEF-624).
++- **Geen ESS-03-cijfer, geen 0/1.** Het resultaat is een gemotiveerd voldoet / voldoet niet / nog te beoordelen, of een door een mens bevestigde niet-toepasselijkheid met grond en versiebinding. Een automatische indicator geeft geen semantische pass/fail en geen regex-PASS/FAIL.
++- **Geen identifierplicht, geen woordbewijs.** Een naam, nummer, code of het woord ‘uniek’ bewijst niets; een identifier is uitsluitend bruikbaar voor de referentsoort, naamruimte en geldigheidsvoorwaarden waarvoor zijn identificerende werking is onderbouwd.
++- **Geen algemene categorie-vrijstelling.** Stof, kwaliteit, proces, abstractum of UFO-stereotype bepaalt de toepasselijkheid niet; de bedoelde eenheid doet dat.
++- **Geen bewezen overtreding** bij ontbrekende gegevens, een onbeslist inhoudelijk oordeel of een technische fout; houd die afzonderlijk herkenbaar.
++- Voorbeelden en toelichting ondersteunen het oordeel, maar vervangen geen noodzakelijke begripsafbakening in de kern.
++
++## G — bij genereren
++
++> Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt. Maak een noodzakelijke eenheidsgrens duidelijk met een passend bovenbegrip en begripsbepalende kenmerken. Gebruik een identifier alleen als zijn referentsoort, scope en relevante geldigheid zijn onderbouwd; verzin geen nummer, bron of telconventie. Laat niet-telbare stoffen of kwaliteiten niet stil veranderen in telbare monsters, porties of registraties. Vraag bij een noodzakelijke onbesliste grens, continuïteitsvraag of bron-/contexttegenspraak om gerichte verduidelijking. Een naam of het woord ‘uniek’ is geen bewijs. Houd registratiecontext en bronadministratie buiten de kern, maar behoud inhoudelijk noodzakelijke namen en voorwaarden. Geef uitleg en synthetische voorbeelden afzonderlijk; ze vervangen geen ontbrekende kernafgrenzing.
++
++Voorwaarden vóór generatie: bedoelde betekenis en context doorgeven; echte bronpassages en scope behouden; een opgegeven categorie als betekenisclaim behandelen volgens ESS-02; een ontbrekende noodzakelijke keuze zichtbaar laten. Een instructietekst bewijst die doorgifte of een foutloze generatie niet.
++
++## T — menselijke toetsinstructie
++
++**Toetsvraag:** is bij deze betekenis duidelijk wat als één, dezelfde of een andere instantie geldt, met voldoende grond voor de relevante eenheidsgrens en eventuele continuïteitsconventie?
++
++> Beoordeel de ongewijzigde definitiekern bij de vastgelegde term, bedoelde betekenis, context en kandidaatversie. Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties relevant zijn. Onderzoek vervolgens wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip kan een herkenbare natuurlijke grens al dragen. Controleer alleen aanvullende scope, tijd, bron of geheel/deelconventie die het oordeel werkelijk bepaalt. Beoordeel bij codes wat zij identificeren en binnen welke populatie en geldigheid; aanwezigheid van een naam, nummer of woord bewijst niets. Geef een gemotiveerd inhoudelijk oordeel alleen na beoordeling van de relevante grond. Houd ontbrekend bewijs, onbesliste toepasselijkheid, niet-toepasselijkheid en technische fouten afzonderlijk herkenbaar. Verander de invoer niet. Een automatisch signaal, gekozen categorie, record-ID of algemene vaststelling is geen inhoudelijke ESS-03-goedkeuring.
++
++Terugkoppelformuleringen per uitkomst (geen nieuwe automatische afkeurregels):
++
++- Open: “Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt?”
++- Ontbrekende scope: “De code is vermeld, maar welke objecten zij binnen welke naamruimte onderscheidt is nog niet onderbouwd.”
++- Bevestigde codefout: “Dit identificatiemiddel onderscheidt de bedoelde instanties niet. De onderbouwing laat zien dat verschillende instanties dezelfde code kunnen hebben.”
++- Niet van toepassing: “Deze betekenis beschrijft een stof of kwaliteit zonder gekozen telbare eenheid. ESS-03 verlangt hier geen afzonderlijke identificatie.”
++- Technisch: “De ESS-03-controle kon niet worden uitgevoerd. Er is geen inhoudelijk oordeel gegeven.”
++
++Noteer passage, betekenisgrond en reden. Het advies uit deze skill is geen opgeslagen menselijke beoordeling en simuleert geen actor of bevoegdheid; actor, tijd, definitie- en normversie worden in de app vastgelegd.
++
++## H — alleen op verzoek
++
++> Stel vóór een herstelvoorstel vast of de oorzaak een inhoudelijke generatieovertreding, tegenstrijdige instructie, invoer-/transportverlies, foutieve evaluatoruitkomst, ontbrekend bewijs, technische fout of schadelijke nabewerking is. Gebruik daarvoor waar relevant de ruwe, geëxtraheerde, opgeschoonde, getoetste en opgeslagen tekst met hun invoer-/bronversies. Alleen een negatieve toetsuitkomst bewijst de oorzaak niet. Uitsluitend toetsen laat de oorspronkelijke tekst intact. Maak op gebruikersverzoek een afzonderlijke kandidaat en verschil, uitsluitend met beschikbare betekenisgrond. Verzin geen identiteit, naamruimte, bron, datum of menselijk oordeel. Stop bij ontbrekende grond, bronconflict, herhaalde fout of betekenisverlies. Toekomstig automatisch herstel blijft begrensd tot het afzonderlijk goedgekeurde DEF-638-beleid: maximaal één poging per generatie; dit advies activeert die mogelijkheid niet. Hertoets de veranderde kandidaat en geraakte regels; bewaar eerdere teksten en oordelen als historie.
++
++Voorbeelden van een eerste terugkoppeling:
++
++- Natuurlijke grens zonder trefwoord (onderzoekscase N05): “De tekst bevat een natuurlijke grens. De negatieve automatische uitkomst berust op het ontbreken van een trefwoord; voeg daarom niet alleen een nummer toe. Laat de afbakening inhoudelijk beoordelen.”
++- Ontkende uniciteitsclaim (onderzoekscase N01): “De gegeven tekst zegt dat de code niet uniek is. Alleen ‘niet’ verwijderen zou de betekenis veranderen; bepaal eerst welk bestaand criterium de instanties wel onderscheidt.”

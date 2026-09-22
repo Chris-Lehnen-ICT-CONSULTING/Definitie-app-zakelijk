@@ -1,0 +1,201 @@
+"""Manifest correctieronde 1 (DEF-766): hashes van ALLE gewijzigde/nieuwe bron-,
+config-, schema-, script- en testbestanden in de werkboom t.o.v. base, de actuele
+beoordelingsprompt (promptversie, systeemprompt-hash, normhash), de modelconfig en
+uitkomsten van ontwikkelrun v2, en de exitcodes van de correctieronde. Draaien
+vanuit de werkboom; geen sleutels. Schrijft correction-manifest-v1.json (nieuw)."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+WERKBOOM = Path("/Users/chrislehnen/.codex/worktrees/2075/Definitie-app")
+UIT = Path("/tmp/def766-ai-20260921")
+BASE = "2c9a6e3a13afa4ecbe39163cc418e2b0f8c41644"
+sys.path.insert(0, str(WERKBOOM / "src"))
+
+
+def sha(pad: Path) -> str:
+    return hashlib.sha256(pad.read_bytes()).hexdigest()
+
+
+def git(*args: str) -> str:
+    return subprocess.check_output(["git", *args], cwd=WERKBOOM, text=True).strip()
+
+
+def main() -> None:
+    from services.validation.ess03_assessment_service import (
+        Ess03AssessmentService,
+        bouw_beoordelingsprompt,
+        laad_ess03_norm,
+    )
+
+    norm = laad_ess03_norm()
+    system_prompt, _ = bouw_beoordelingsprompt(
+        "x", "y", {}, (), intentie=None, norm=norm
+    )
+    norm_sha = hashlib.sha256(
+        json.dumps(norm, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+    fase1 = json.loads((UIT / "phase1-manifest-v1.json").read_text(encoding="utf-8"))
+    fase1_hashes = {pad: info["sha256"] for pad, info in fase1["bestanden"].items()}
+
+    status = subprocess.check_output(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=WERKBOOM,
+        text=True,
+    )
+    bestanden: dict[str, dict] = {}
+    for regel in status.splitlines():
+        if len(regel) < 4:
+            continue
+        code, pad = regel[:2], regel[3:]
+        if pad.startswith("docs/adr/ADR-002") or pad.startswith("docs/plans/"):
+            continue  # niet van de uitvoerder (menselijke ADR, coördinatorplan)
+        if "__pycache__" in pad:
+            continue
+        p = WERKBOOM / pad
+        if p.is_file():
+            h = sha(p)
+            eerder = fase1_hashes.get(pad)
+            bestanden[pad] = {
+                "git_status": code.strip() or "M",
+                "sha256": h,
+                "t_o_v_fase1": (
+                    "nieuw in correctieronde"
+                    if eerder is None
+                    else ("gewijzigd" if eerder != h else "ongewijzigd")
+                ),
+            }
+
+    run = json.loads((UIT / "ontwikkelrun-v2.json").read_text(encoding="utf-8"))
+    uitkomsten = [
+        {
+            "id": r["id"],
+            "verwacht": r["verwacht"],
+            "gekregen": r["gekregen_verdict"],
+            "correct": r["correct"],
+            "status_deel": r["gekregen_status"],
+            "duur_s": r.get("duur_totaal_s"),
+            "elapsed_seconds_dienst": r.get("elapsed_seconds_dienst"),
+            "attempts_observed": r.get("attempts_observed"),
+            "retries_observed": r.get("retries_observed"),
+            "cached": r.get("cached"),
+            "tokens_used": (r.get("aanroep") or {}).get("tokens_used"),
+            "rejected": len(r["beoordeling"].get("rejected") or []),
+            "raw_response_sha256": r["hashes"]["raw_response_sha256"],
+            "user_prompt_sha256": r["hashes"]["user_prompt_sha256"],
+            "system_prompt_sha256": r["hashes"]["system_prompt_sha256"],
+            "fingerprint": r["hashes"]["fingerprint"],
+            "question": (r["beoordeling"].get("judgment") or {}).get("question"),
+        }
+        for r in run["resultaten"]
+    ]
+    v1 = json.loads((UIT / "ontwikkelrun-v1.json").read_text(encoding="utf-8"))
+    v1_per_id = {r["id"]: r for r in v1["resultaten"]}
+    vergelijking_v1 = {
+        r["id"]: {
+            "v1_gekregen": v1_per_id[r["id"]]["gekregen_verdict"],
+            "v2_gekregen": r["gekregen_verdict"],
+            "user_prompt_identiek_aan_v1": (
+                v1_per_id[r["id"]]["hashes"]["user_prompt_sha256"]
+                == r["hashes"]["user_prompt_sha256"]
+            ),
+        }
+        for r in run["resultaten"]
+        if r["id"] in v1_per_id
+    }
+
+    exitcodes = json.loads(
+        (UIT / "exitcodes-correctie-v1.json").read_text(encoding="utf-8")
+    )
+
+    manifest = {
+        "schema": "def766-correctie-manifest/1",
+        "gemaakt": datetime.now(UTC).isoformat(),
+        "uitvoerder": (
+            "Claude Code CLI (Opus 5, 1M context) — correctieronde 1 op R1–R9; "
+            "geen commits/push/PR/deletes"
+        ),
+        "werkboom": str(WERKBOOM),
+        "branch": git("branch", "--show-current"),
+        "base": BASE,
+        "head_commit_bij_manifest": git("rev-parse", "HEAD"),
+        "opmerking_head": (
+            "geen nieuwe commits door de uitvoerder; alle wijzigingen (fase 1 + "
+            "correctieronde 1) staan ongecommit in de werkboom (zie bestanden)"
+        ),
+        "prompt": {
+            "prompt_version": Ess03AssessmentService.PROMPT_VERSION,
+            "system_prompt_sha256": hashlib.sha256(
+                system_prompt.encode("utf-8")
+            ).hexdigest(),
+            "norm_sha256": norm_sha,
+            "norm_bron": (
+                "src/toetsregels/regels/ESS-03.json (uitleg, toelichting, "
+                "toetsvraag, geldigheid) — ongewijzigd t.o.v. fase 1"
+            ),
+            "prompt_builder": (
+                "src/services/validation/ess03_assessment_service.py::"
+                "bouw_beoordelingsprompt"
+            ),
+            "contract_version": "ess03/1",
+            "fase1_prompt": {
+                "prompt_version": fase1["prompt"]["prompt_version"],
+                "system_prompt_sha256": fase1["prompt"]["system_prompt_sha256"],
+                "norm_sha256": fase1["prompt"]["norm_sha256"],
+            },
+        },
+        "modelconfig": run["modelconfig"],
+        "determinisme": (
+            "geen claim: temperature wordt voor de validation-route (claude-opus-4-8) "
+            "door de client weggelaten (temperature_sent=null, DEF-441/DEF-731)"
+        ),
+        "ontwikkelrun_v2": {
+            "bestand": str(UIT / "ontwikkelrun-v2.json"),
+            "sha256": sha(UIT / "ontwikkelrun-v2.json"),
+            "log": str(UIT / "ontwikkelrun-v2.log"),
+            "gevallenbestand": run["gevallenbestand"],
+            "aantal": run["aantal"],
+            "aanroepen_gestart": run["aanroepen_gestart"],
+            "transportpogingen_waargenomen": run["transportpogingen_waargenomen"],
+            "totale_duur_s": run["totale_duur_s"],
+            "total_deadline_s": run["total_deadline_s"],
+            "correct": run["correct"],
+            "per_klasse": run["per_klasse"],
+            "uitkomsten": uitkomsten,
+            "vergelijking_met_v1": vergelijking_v1,
+        },
+        "budget": {
+            "fase1_calls": 12,
+            "browser_fase1_beoordelingen": 2,
+            "browser_fase1_sdk_retry_waargenomen": 1,
+            "correctieronde_calls": run["aanroepen_gestart"],
+            "correctieronde_transportpogingen": run["transportpogingen_waargenomen"],
+            "totaal_transportpogingen_conservatief": 12 + 2 + 1 + run[
+                "transportpogingen_waargenomen"
+            ],
+            "plafond": 60,
+        },
+        "exitcodes": exitcodes,
+        "bestanden": bestanden,
+    }
+    (UIT / "correction-manifest-v1.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print(
+        json.dumps(
+            {k: manifest[k] for k in ("prompt", "branch", "head_commit_bij_manifest")},
+            indent=2,
+        )
+    )
+    print(len(bestanden), "bestanden in manifest")
+
+
+if __name__ == "__main__":
+    main()

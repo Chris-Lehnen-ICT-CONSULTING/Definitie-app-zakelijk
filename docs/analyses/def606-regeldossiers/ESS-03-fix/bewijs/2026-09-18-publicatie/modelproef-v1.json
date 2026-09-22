@@ -1,0 +1,370 @@
+{
+  "datum": "2026-09-18T17:50:45+0200",
+  "python": "3.13.15",
+  "werkboom": "/Users/chrislehnen/.codex/worktrees/2075/Definitie-app",
+  "env_geladen_uit_project_dotenv": true,
+  "provider_geconfigureerd": "anthropic",
+  "model_router_definition_core": {
+    "provider": "anthropic",
+    "model": "claude-opus-4-8"
+  },
+  "api_key_aanwezig": true,
+  "temperature_definition": 0.1,
+  "max_tokens": 500,
+  "timeout_s": 60,
+  "retries": {
+    "client_lus_max_retries": 1,
+    "AI_SDK_MAX_RETRIES": "0"
+  },
+  "use_cache": false,
+  "aanroepen_gedaan": 4,
+  "cases": [
+    {
+      "id": "MP-01-eiland",
+      "invoer": {
+        "id": "MP-01-eiland",
+        "begrip": "eiland",
+        "ontologische_categorie": "type",
+        "organisatorische_context": [
+          "Synthetische waterbeheerder"
+        ],
+        "betekenisverduidelijking": "Bedoeld is het natuurlijke object: een afzonderlijk aaneengesloten stuk land dat op het afgesproken peilmoment volledig door water is omgeven."
+      },
+      "verwachte_grenzen": [
+        "Kern draagt een natuurlijke eenheidsgrens (aaneengesloten land, door water omgeven, peilmoment) zonder administratieve identifier.",
+        "Geen verzonnen nummer, code, register of registratieplicht.",
+        "Betekenis blijft het natuurlijke object; geen vernauwing tot geregistreerde eilanden."
+      ],
+      "prompt": {
+        "sha256": "e9a65c4d82d4e3925a685c4d24f61ef4bfe8f046f4662551110125d692b9272a",
+        "tekens": 29505,
+        "ess03_kaart_aantal": 1,
+        "ess03_g_kern_aanwezig": true,
+        "oude_nummerinstructie_aanwezig": false,
+        "verduidelijking_in_prompt": true,
+        "pii_treffers": [],
+        "bronnenblok_aanwezig": true,
+        "metadata_source_receipt": {
+          "version": "2",
+          "status": "none",
+          "sources": [],
+          "omitted": [],
+          "errors": [],
+          "channels": {
+            "rag": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            },
+            "web": {
+              "enabled": false,
+              "supplied": 0,
+              "used": 0
+            },
+            "document": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            }
+          }
+        }
+      },
+      "resultaat": {
+        "status": "definitie",
+        "model": "claude-opus-4-8",
+        "cached": false,
+        "tokens_used_geschat": 7248,
+        "tokens_estimated": false,
+        "generation_time_s": 2.8,
+        "retry_count": 0,
+        "raw_text": "aaneengesloten stuk land dat op het afgesproken peilmoment volledig door water is omgeven",
+        "raw_sha256": "af386743862a8523d529ac411c1287ca49ae22bfba06dbc4f571ba0a1348e786",
+        "modelantwoord_soort": "Modelantwoord",
+        "modelantwoord_geldig": null,
+        "kandidaat_geextraheerd": "aaneengesloten stuk land dat op het afgesproken peilmoment volledig door water is omgeven"
+      },
+      "signalen": {
+        "identifier_woorden_in_kandidaat": [],
+        "monster_woorden_in_kandidaat": [],
+        "verduidelijking_kernwoorden_terug": [
+          "aaneengesloten",
+          "peilmoment"
+        ]
+      },
+      "toetsing_kandidaat": {
+        "validation_status": "validated",
+        "ess03_status": "review_required",
+        "ess03_violation": false,
+        "ess03_signals": [],
+        "ess03_reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig.",
+        "overall_score": null,
+        "gefaalde_regels": [
+          "ESS-05",
+          "VER-01",
+          "VER-03"
+        ]
+      }
+    },
+    {
+      "id": "MP-02-water-stof",
+      "invoer": {
+        "id": "MP-02-water-stof",
+        "begrip": "water",
+        "ontologische_categorie": "type",
+        "organisatorische_context": [
+          "Synthetisch laboratorium"
+        ],
+        "betekenisverduidelijking": "Bedoeld is water als stof (de vloeistof zelf), uitdrukkelijk niet een monster, partij of afgemeten hoeveelheid."
+      },
+      "verwachte_grenzen": [
+        "Stoflezing behouden: geen stille verschuiving naar monster, portie, partij, hoeveelheid of registratie om telbaar te worden.",
+        "Geen verzonnen identifier of telconventie.",
+        "Betekenis blijft de stof."
+      ],
+      "prompt": {
+        "sha256": "377965ca19c4e423609e5347e71a8903ccc3e21900f5e93c81d7afa52a523660",
+        "tekens": 29465,
+        "ess03_kaart_aantal": 1,
+        "ess03_g_kern_aanwezig": true,
+        "oude_nummerinstructie_aanwezig": false,
+        "verduidelijking_in_prompt": true,
+        "pii_treffers": [],
+        "bronnenblok_aanwezig": true,
+        "metadata_source_receipt": {
+          "version": "2",
+          "status": "none",
+          "sources": [],
+          "omitted": [],
+          "errors": [],
+          "channels": {
+            "rag": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            },
+            "web": {
+              "enabled": false,
+              "supplied": 0,
+              "used": 0
+            },
+            "document": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            }
+          }
+        }
+      },
+      "resultaat": {
+        "status": "definitie",
+        "model": "claude-opus-4-8",
+        "cached": false,
+        "tokens_used_geschat": 7262,
+        "tokens_estimated": false,
+        "generation_time_s": 2.51,
+        "retry_count": 0,
+        "raw_text": "chemische verbinding die bestaat uit moleculen met twee waterstofatomen en één zuurstofatoom en die bij standaarddruk tussen 0 en 100 graden Celsius in vloeibare toestand verkeert",
+        "raw_sha256": "85069bd5a9e5dcde4e5008bcc11dc11c106ed0cdccab0d0359bc3675247580de",
+        "modelantwoord_soort": "Modelantwoord",
+        "modelantwoord_geldig": null,
+        "kandidaat_geextraheerd": "chemische verbinding die bestaat uit moleculen met twee waterstofatomen en één zuurstofatoom en die bij standaarddruk tussen 0 en 100 graden Celsius in vloeibare toestand verkeert"
+      },
+      "signalen": {
+        "identifier_woorden_in_kandidaat": [],
+        "monster_woorden_in_kandidaat": [],
+        "verduidelijking_kernwoorden_terug": [
+          "stof"
+        ]
+      },
+      "toetsing_kandidaat": {
+        "validation_status": "validated",
+        "ess03_status": "review_required",
+        "ess03_violation": false,
+        "ess03_signals": [],
+        "ess03_reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig.",
+        "overall_score": null,
+        "gefaalde_regels": [
+          "CON-CIRC-001",
+          "ESS-05",
+          "ESS-CONT-001",
+          "INT-01",
+          "VER-01"
+        ]
+      }
+    },
+    {
+      "id": "MP-03-watermonster",
+      "invoer": {
+        "id": "MP-03-watermonster",
+        "begrip": "watermonster",
+        "ontologische_categorie": "type",
+        "organisatorische_context": [
+          "Synthetisch laboratorium"
+        ],
+        "betekenisverduidelijking": "Bedoeld is de afzonderlijk afgenomen hoeveelheid water uit één bemonstering, als op zichzelf staande eenheid."
+      },
+      "verwachte_grenzen": [
+        "Kern maakt de eenheidsgrens duidelijk via de afgenomen hoeveelheid uit één bemonstering (bovenbegrip + kenmerk), niet via een verplicht monsternummer of registratie.",
+        "Geen verzonnen monsternummer, label, bron of conventie.",
+        "Betekenis blijft de afgebakende hoeveelheid; niet terug naar de stof en niet naar de handeling zelf."
+      ],
+      "prompt": {
+        "sha256": "d1ac038df09af80c417ad1cfc304945de720b9220a079aba87fa851c78ba7ce6",
+        "tekens": 29484,
+        "ess03_kaart_aantal": 1,
+        "ess03_g_kern_aanwezig": true,
+        "oude_nummerinstructie_aanwezig": false,
+        "verduidelijking_in_prompt": true,
+        "pii_treffers": [],
+        "bronnenblok_aanwezig": true,
+        "metadata_source_receipt": {
+          "version": "2",
+          "status": "none",
+          "sources": [],
+          "omitted": [],
+          "errors": [],
+          "channels": {
+            "rag": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            },
+            "web": {
+              "enabled": false,
+              "supplied": 0,
+              "used": 0
+            },
+            "document": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            }
+          }
+        }
+      },
+      "resultaat": {
+        "status": "definitie",
+        "model": "claude-opus-4-8",
+        "cached": false,
+        "tokens_used_geschat": 7247,
+        "tokens_estimated": false,
+        "generation_time_s": 2.44,
+        "retry_count": 0,
+        "raw_text": "hoeveelheid water die bij één bemonstering is afgenomen en als op zichzelf staande eenheid wordt behandeld voor onderzoek",
+        "raw_sha256": "728e5074b2b2aa43fdabc45d6f3c1e55527caf4a89a54d7f671e974ca4046480",
+        "modelantwoord_soort": "Modelantwoord",
+        "modelantwoord_geldig": null,
+        "kandidaat_geextraheerd": "hoeveelheid water die bij één bemonstering is afgenomen en als op zichzelf staande eenheid wordt behandeld voor onderzoek"
+      },
+      "signalen": {
+        "identifier_woorden_in_kandidaat": [],
+        "monster_woorden_in_kandidaat": [
+          "afgenomen",
+          "bemonstering",
+          "hoeveelheid"
+        ],
+        "verduidelijking_kernwoorden_terug": [
+          "bemonstering"
+        ]
+      },
+      "toetsing_kandidaat": {
+        "validation_status": "validated",
+        "ess03_status": "review_required",
+        "ess03_violation": false,
+        "ess03_signals": [],
+        "ess03_reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig.",
+        "overall_score": null,
+        "gefaalde_regels": [
+          "ESS-05",
+          "INT-01",
+          "VER-01"
+        ]
+      }
+    },
+    {
+      "id": "MP-04-boekexemplaar",
+      "invoer": {
+        "id": "MP-04-boekexemplaar",
+        "begrip": "boekexemplaar",
+        "ontologische_categorie": "type",
+        "organisatorische_context": [
+          "Synthetische bibliotheek"
+        ],
+        "betekenisverduidelijking": "Bedoeld is het fysieke exemplaar van een boek; het ISBN is gedeeld door alle exemplaren van dezelfde uitgave."
+      },
+      "verwachte_grenzen": [
+        "Kern benoemt het fysieke exemplaar als eenheid en gebruikt het ISBN niet als onderscheidend criterium tussen exemplaren.",
+        "Geen verzonnen exemplaarnummer, barcode of registratieplicht als noodzakelijk kenmerk.",
+        "Betekenis blijft het fysieke exemplaar, niet de titel/uitgave."
+      ],
+      "prompt": {
+        "sha256": "ce18d55ebdfb06468b44369c07bf3f71093476d59191be972d84c6168bd9b721",
+        "tekens": 29487,
+        "ess03_kaart_aantal": 1,
+        "ess03_g_kern_aanwezig": true,
+        "oude_nummerinstructie_aanwezig": false,
+        "verduidelijking_in_prompt": true,
+        "pii_treffers": [],
+        "bronnenblok_aanwezig": true,
+        "metadata_source_receipt": {
+          "version": "2",
+          "status": "none",
+          "sources": [],
+          "omitted": [],
+          "errors": [],
+          "channels": {
+            "rag": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            },
+            "web": {
+              "enabled": false,
+              "supplied": 0,
+              "used": 0
+            },
+            "document": {
+              "enabled": true,
+              "supplied": 0,
+              "used": 0
+            }
+          }
+        }
+      },
+      "resultaat": {
+        "status": "definitie",
+        "model": "claude-opus-4-8",
+        "cached": false,
+        "tokens_used_geschat": 7272,
+        "tokens_estimated": false,
+        "generation_time_s": 3.32,
+        "retry_count": 0,
+        "raw_text": "fysiek exemplaar van een gedrukte of anderszins vervaardigde uitgave, dat als één afzonderlijk stuk van andere exemplaren van dezelfde uitgave wordt onderscheiden door zijn eigen materiële verschijning en plaatsing",
+        "raw_sha256": "4452434b163eb7625e3d89fb1bfbb007c8846594c80d05671f732bcd2bfe5792",
+        "modelantwoord_soort": "Modelantwoord",
+        "modelantwoord_geldig": null,
+        "kandidaat_geextraheerd": "fysiek exemplaar van een gedrukte of anderszins vervaardigde uitgave, dat als één afzonderlijk stuk van andere exemplaren van dezelfde uitgave wordt onderscheiden door zijn eigen materiële verschijning en plaatsing"
+      },
+      "signalen": {
+        "identifier_woorden_in_kandidaat": [],
+        "monster_woorden_in_kandidaat": [],
+        "verduidelijking_kernwoorden_terug": [
+          "exemplaar"
+        ]
+      },
+      "toetsing_kandidaat": {
+        "validation_status": "validated",
+        "ess03_status": "review_required",
+        "ess03_violation": false,
+        "ess03_signals": [],
+        "ess03_reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig.",
+        "overall_score": null,
+        "gefaalde_regels": [
+          "ESS-05",
+          "INT-01",
+          "VER-01"
+        ]
+      }
+    }
+  ]
+}

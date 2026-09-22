@@ -1,0 +1,15 @@
+scripts/ess03/run_ess03_gevallen.py
+tests/unit/domain/test_def766_ess03_correcties_reproducties.py
+tests/unit/services/test_def766_ai_route_optins.py
+tests/unit/services/test_def766_ess03_correcties_reproducties_r4r5.py
+src/domain/ess03/contract.py
+src/services/validation/ess03_assessment_service.py
+tests/unit/services/test_def766_ess03_actieproef.py
+tests/unit/domain/test_def766_ess03_contract.py
+tests/unit/ui/test_def766_ess03_editor.py
+tests/unit/validation/test_v2_golden_ess_more.py
+tests/unit/validation/test_def766_ess03_correcties_service.py
+tests/unit/services/test_def766_ess03_persistentie.py
+tests/unit/services/test_def766_ess03_correcties_persistentie.py
+tests/unit/validation/test_validation_readiness.py
+tests/unit/validation/test_def766_ess03_assessment_service.py

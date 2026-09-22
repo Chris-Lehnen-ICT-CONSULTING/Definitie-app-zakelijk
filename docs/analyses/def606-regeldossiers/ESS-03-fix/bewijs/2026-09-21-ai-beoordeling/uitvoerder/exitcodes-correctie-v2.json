@@ -1,0 +1,150 @@
+{
+  "opmerking": "Exitcodes correctieronde 2 (uitvoerder Claude Code CLI). Logs naast dit bestand in /tmp/def766-ai-20260921 (prefix c2-). Gerichte pytest-runs met de project-venv Python 3.13 en -p no:cacheprovider -o addopts=\"\"; make-doelen via PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python. Exitcodes gemeten met `cmd > log 2>&1; echo $?`. Geen nieuwe echte modelcalls in deze ronde.",
+  "A_r1_r5_normaal_validatieresultaat": [
+    {
+      "stap": "RED — echte state-route (echte wrapper + ModularValidationService + fake ESS-03-dienst → edit_last_validation; verduidelijking wissen zonder opslaan; ander record openen)",
+      "log": "c2-a-red.log",
+      "exit": 1,
+      "resultaat": "2 failed: bovenste blok toont na wissen nog '**ESS-03** · ✅ Voldoet'; oud resultaat blijft bij openen van een ander record"
+    },
+    {
+      "stap": "GREEN — UI-route (wissen zonder opslaan → historisch; terugzetten → weer actueel; tekstwijziging → historisch; wissen+opslaan → historisch; Annuleren wist; heropenen/ander record toont geen oud blok)",
+      "log": "c2-a-green.log",
+      "exit": 0,
+      "resultaat": "2 passed"
+    },
+    {
+      "stap": "GREEN — servicelaag herbind_ess03_in_validatieresultaat (zelfde object bij gelijke binding; consistente herbinding van rule_results/rule_statuses/passed_rules/violations/review_required/dekking; pass↔review_required↔fail heen en terug)",
+      "log": "c2-a-green2.log",
+      "exit": 0,
+      "resultaat": "9 passed (UI + service)"
+    },
+    {
+      "stap": "eindstand A + editor-/UI-regressies (DEF-743/751/808/622 editor, weergave, pariteit)",
+      "log": "c2-a-suites.log",
+      "exit": 0,
+      "resultaat": "126 passed"
+    },
+    {
+      "stap": "eindlog A",
+      "log": "c2-eind-a-herbinding.log",
+      "exit": 0,
+      "resultaat": "9 passed"
+    }
+  ],
+  "B_r6_totale_tijdbegrenzing": [
+    {
+      "stap": "RED — echte AIServiceV2/AsyncGPTClient met fake provider, productie-nabewerking (_estimate_tokens) blokkeert 0,6 s, deadline 0,2 s",
+      "log": "c2-b-red.log",
+      "exit": 1,
+      "resultaat": "2 failed: kwam pas na 0,613 s terug; opt-in offload_postprocessing bestond niet"
+    },
+    {
+      "stap": "GREEN — terugkeer binnen 0,45 s (5× herhaald: 1,10–1,19 s per testbestand incl. 0,5 s uitloopwacht), timeout zonder oordeel, dienst- en AI-cache leeg, volgende aanroep gaat opnieuw naar de provider; zonder opt-in blijft de nabewerking inline; bestaande dienst-/AI-laagtests",
+      "log": "c2-b-green.log",
+      "exit": 0,
+      "resultaat": "123 passed"
+    },
+    {
+      "stap": "eindlog B (dienst + fase-1-diensttests)",
+      "log": "c2-eind-b-deadline.log",
+      "exit": 0,
+      "resultaat": "43 passed"
+    }
+  ],
+  "C_verbindingsfout_eventloop": [
+    {
+      "stap": "Transportproef met de echte SDK/httpx-stack (AsyncAnthropic → httpx-pool) tegen lokale fake /v1/messages op loopback, keep-alive; 3 proeven × 3 opeenvolgende asyncio.run-loops via run_async — buiten de pytest-netwerkgate (blokkeert ook loopback)",
+      "script": "scripts/ess03/proef_eventloop_transport.py",
+      "log": "c2-c-transportproef.log",
+      "uitvoer": "c2-c-transportproef.json",
+      "exit": 0,
+      "resultaat": "alle 3 conform: (1) kale SDK: loop 2 APIConnectionError ← RuntimeError: Event loop is closed, loop 3 ok; (2) keten zonder correctie: aanroep 2 error/connection na 0,002 s; (3) keten met correctie: 3× assessed, attempts_observed 1, 3 requests"
+    },
+    {
+      "stap": "RED — pytest op de SDK-grens (loopgebonden fake SDK achter echte AnthropicClient → AIServiceV2 → Ess03AssessmentService via run_async)",
+      "log": "c2-c-red.log",
+      "exit": 1,
+      "resultaat": "OfflineGateError: loopback-sockets zijn in de unitgate geblokkeerd → tests herschreven op de SDK-grens (zie GREEN)"
+    },
+    {
+      "stap": "GREEN — zonder correctie faalt aanroep 2 (error/connection, 1 poging); met correctie 3× assessed zonder retries, verse SDK-client alleen bij een andere loop met dezelfde opties; oorzaakketen gelogd zonder geheim; Eventloopwacht; OpenAI-client pariteit; bestaande AI-clienttests",
+      "log": "c2-c-green.log",
+      "exit": 0,
+      "resultaat": "80 passed"
+    },
+    {
+      "stap": "eindlog C",
+      "log": "c2-eind-c-eventloop.log",
+      "exit": 0,
+      "resultaat": "6 passed"
+    }
+  ],
+  "regressie": [
+    {
+      "stap": "alle DEF-766-suites + golden ESS — tussenstand",
+      "log": "c2-eind-def766-alle.log (eerste run)",
+      "exit": 1,
+      "resultaat": "1 failed: test_anthropic_client_zet_max_retries_per_aanroep_op_de_sdk construeert de client via __new__ (loopwacht-attribuut ontbrak) → test zet _rebind_on_new_loop=False"
+    },
+    {
+      "stap": "alle DEF-766-suites + golden ESS — eindstand",
+      "log": "c2-eind-def766-alle.log",
+      "exit": 0,
+      "resultaat": "313 passed"
+    },
+    {
+      "stap": "gerelateerde regressies (DEF-743/751/622/624/808 editor, orchestrator, story 2.4, AI-clients/AIServiceV2/routing, classifier, database, async-bridge)",
+      "log": "c2-eind-regressie.log",
+      "exit": 0,
+      "resultaat": "1053 passed"
+    },
+    {
+      "stap": "make test (volledige unitgate) run 1 — gestart vóór de aanpassing van de __new__-test",
+      "log": "c2-make-test.log",
+      "exit": 2,
+      "resultaat": "1 failed (die test), 6869 passed"
+    },
+    {
+      "stap": "make test (volledige unitgate) run 2 — eindcode ronde 2",
+      "log": "c2-make-test-2.log",
+      "exit": 0,
+      "resultaat": "6870 passed, 75 skipped, 722 deselected, 1 xfailed in 292.38s; run_profile status=ok"
+    }
+  ],
+  "gates": [
+    {
+      "stap": "make lint (ruff + black op src/config)",
+      "log": "c2-make-lint.log",
+      "exit": 0
+    },
+    {
+      "stap": "make complexity-check (ratchet DEF-418)",
+      "log": "c2-complexity.log",
+      "exit": 0,
+      "resultaat": "200 < baseline 201 (generate_definition C901 11→≤10 door _nabewerking); baseline niet aangepast"
+    },
+    {
+      "stap": "make test-markers-check",
+      "log": "c2-markers.log",
+      "exit": 0,
+      "resultaat": "488 testbestanden gemarkeerd"
+    },
+    {
+      "stap": "scripts/ci/check_root_allowlist.sh",
+      "log": "c2-root-allowlist.log",
+      "exit": 0
+    },
+    {
+      "stap": "scripts/ci/check_no_todo_markers.sh",
+      "log": "c2-todo.log",
+      "exit": 0
+    },
+    {
+      "stap": "ruff check + black --check op alle 55 gewijzigde/nieuwe Python-bestanden in de werkboom",
+      "log": "c2-ruff-alle.log / c2-black-alle.log",
+      "exit": 0,
+      "resultaat": "All checks passed; 55 files would be left unchanged"
+    }
+  ]
+}

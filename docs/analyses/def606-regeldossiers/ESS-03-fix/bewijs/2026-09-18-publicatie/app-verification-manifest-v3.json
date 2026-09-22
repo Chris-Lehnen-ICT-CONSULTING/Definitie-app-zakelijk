@@ -1,0 +1,22 @@
+{
+  "base": "4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb",
+  "diff_patch": "/tmp/def766-cli/def766-diff-v2.patch",
+  "diff_patch_sha256": "fdf15ff55500128551ba1a983f88eb46286651a2538ebb79b80ddf6b17d93d9c",
+  "files": {
+    "src/services/prompts/modules/json_based_rules_module.py": "1fec90a7e522fd0a0c50ab8d5214699eb08deac542c492d99209a5b4d7a9c5a6",
+    "src/services/validation/evaluators/generic.py": "9979c752e9175479cb918b85dfa6e3661d358bfa3c5e4c85ef811ea119c162a9",
+    "src/services/validation/evaluators/judgment_review.py": "c931f7b37674a1b1e584a744eca1dbaa5152b744fdb783380956d37a62903e4b",
+    "src/services/validation/evaluators/positive_indicator.py": "cf7cf8dbadf23742f0a6ce326426842bb689a355dcb9754e7278a9e674b3f82d",
+    "src/services/validation/modular_validation_service.py": "24c8c03d67538e3ed1d7cec0acb099db60d4c07d50d5302d9ec6c0ba8e4d0c64",
+    "src/toetsregels/regels/ESS-03.json": "487bfd0b9ebca83e854defdd1a0729ae134751a173ff6264a18dd2e914f83ab7",
+    "src/ui/components/validation_renderer.py": "2748fc7e5c05ac5ff6371337f493747e3e2f11e28542b34c046e80aea227288d",
+    "src/ui/components/validation_view.py": "41d7c45f23bfa88d7a5e1c31b12f7d1c64f927cbedc31e481ae7a0b2035a7cfd",
+    "tests/fixtures/toetsregels/runtime_cases.yaml": "5e71220295d28fb762b370dbb279c06587ae589ded9dfa73ef56688d917966ec",
+    "tests/integration/test_offline_core_journey.py": "d278add50c3fc0b3d0633e8b20e7f252aa09b2cf527fd0a34ec2802e95268297",
+    "tests/unit/services/prompts/test_def766_ess03_promptnorm.py": "8169035012a22dd10efeebf8d06291c04fac3bdfcb6c528b238aa724371cf47d",
+    "tests/unit/validation/test_contractinvarianten_def676.py": "817e912c188ffafc92f8411e4800afa015eaa9f60d9477eb49acbd50cf7fc8a6",
+    "tests/unit/validation/test_def766_ess03_telbaarheid.py": "b52cff1078c5ed0e77496b3ef3bc688c87d37b4a2fae6d225923d3e8a53f4383",
+    "tests/unit/validation/test_rule_runtime_matrix.py": "74ed0ab3939d030a7b1cdcd1fd936a194e8927b2a43c391912c43c5254d7fd02",
+    "tests/unit/validation/test_v2_golden_ess_more.py": "2c8c1d5fbd06feff6b7b49faba20493c5b6a1a7a6783f1432b0396281d0ed058"
+  }
+}
