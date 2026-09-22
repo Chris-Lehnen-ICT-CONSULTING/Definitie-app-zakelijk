@@ -141,6 +141,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         rag_service: Any | None = None,
         # DEF-743: AI-bronbeoordeling (CON-02); lazy opgebouwd op ai_service
         source_assessment_service: Any | None = None,
+        # DEF-766: AI-telbaarheidsbeoordeling (ESS-03); idem
+        ess03_assessment_service: Any | None = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -192,6 +194,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         # DEF-743: bronbeoordeling; None → lazy op de gedeelde AI-service
         self._source_assessment_service = source_assessment_service
+        # DEF-766: telbaarheidsbeoordeling; idem
+        self._ess03_assessment_service = ess03_assessment_service
 
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
@@ -245,6 +249,25 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 self.ai_service, model_router=ModelRouter.from_config()
             )
         return self._source_assessment_service
+
+    @property
+    def ess03_assessment_service(self) -> Any:
+        """De AI-telbaarheidsbeoordeling voor ESS-03 (DEF-766), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam. Een
+        aanroeper kan een eigen dienst injecteren (tests: fake-AI-grens).
+        """
+        if self._ess03_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.ess03_assessment_service import (
+                Ess03AssessmentService,
+            )
+
+            self._ess03_assessment_service = Ess03AssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._ess03_assessment_service
 
     @property
     def validation_service(self) -> "ValidationOrchestratorInterface":
@@ -308,6 +331,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 cleaning_service=cleaning_adapter,
                 # DEF-743: de wrapper verkrijgt de bronbeoordeling standaard.
                 source_assessment_service=self.source_assessment_service,
+                # DEF-766: idem voor de telbaarheidsbeoordeling (ESS-03).
+                ess03_assessment_service=self.ess03_assessment_service,
             )
 
             logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")
@@ -1197,6 +1222,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 "source_receipt": deepcopy(source_receipt),
                 "source_review": None,
                 "peildatum": peildatum,
+                # DEF-766 (R4): de door de gebruiker opgegeven bedoeling
+                # (DEF-751) hoort bij de ESS-03-beoordeling van de kandidaat.
+                "betekenisverduidelijking": (
+                    sanitized_request.betekenisverduidelijking or None
+                ),
             }
             validation_context = ValidationContext(
                 correlation_id=corr,
@@ -1307,6 +1337,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "source_receipt_correlation": source_receipt_correlation,
                     "source_assessment": source_assessment,
                     "source_review": None,
+                    # DEF-766: de AI-telbaarheidsbeoordeling (ESS-03) van exact
+                    # de definitieve kandidaat, vóór opslag op het record.
+                    "ess03_assessment": self._beoordeling_uit(
+                        raw_validation, "ess03_assessment"
+                    ),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
                     "web_lookup_status": web_lookup_status,
@@ -1867,14 +1902,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             None,
         )  # pragma: no cover - lus eindigt altijd eerder
 
+    @classmethod
+    def _bronbeoordeling_uit(cls, raw_validation: Any) -> dict[str, Any] | None:
+        """De door de wrapper verkregen bronbeoordeling (contract 1.4.0), of None."""
+        return cls._beoordeling_uit(raw_validation, "source_assessment")
+
     @staticmethod
-    def _bronbeoordeling_uit(raw_validation: Any) -> dict[str, Any] | None:
-        """De door de wrapper verkregen bronbeoordeling (contract 1.4.0), of None.
+    def _beoordeling_uit(raw_validation: Any, sleutel: str) -> dict[str, Any] | None:
+        """Een door de wrapper verkregen beoordeling (`source_assessment`,
+        `ess03_assessment`), of None.
 
         Alleen een echt object telt; een validatiedubbel zonder dit veld
         levert `None` — dan is er geen beoordeling, en wordt er geen verzonnen.
         """
-        beoordeling = safe_dict_get(raw_validation, "source_assessment")
+        beoordeling = safe_dict_get(raw_validation, sleutel)
         return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
 
     @staticmethod

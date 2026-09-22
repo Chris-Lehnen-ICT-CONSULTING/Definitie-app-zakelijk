@@ -30,7 +30,7 @@ def routing_config():
                 "standard": "gpt-5-mini",
             },
             # Arbitraire testwaarden om routing te bewijzen — NIET de app-default
-            # (die is claude-opus-4-8, zie _DEFAULT_CONFIG in model_router.py).
+            # (die is claude-opus-5, zie _DEFAULT_CONFIG in model_router.py).
             "anthropic": {
                 "critical": "claude-opus-4-5-20251101",
                 "standard": "claude-haiku-4-5-20251001",

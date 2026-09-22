@@ -227,6 +227,9 @@ class DefinitionEditTab:
                     # DEF-743: bronbasis (CON-02) van het opgeslagen record en
                     # het handmatige verbetervoorstel — uitsluitend op verzoek.
                     self._render_bronbasis_section(definition)
+                    # DEF-766: telbaarheid (ESS-03) van het opgeslagen record,
+                    # replay op de kandidaat zoals nu bewerkt.
+                    self._render_ess03_section(definition)
                     # DEF-808: opgegeven bronmetadata aanvullen op de
                     # documentbronnen van het opgeslagen record.
                     self._render_bronmetadata_section(definition)
@@ -787,6 +790,33 @@ class DefinitionEditTab:
             help="Extra uitleg of context bij de definitie",
         )
 
+        # DEF-766: het antwoord op de gerichte ESS-03-vraag hoort bij déze
+        # kandidaat en gaat mee bij opnieuw toetsen; het herschrijft de
+        # definitie niet en vervalst geen ESS-02-keuze. Hersteld uit de
+        # opgeslagen beoordeling; leeg als er nog niets is verduidelijkt.
+        SessionStateManager.initialize_session_state(
+            {
+                k("ess03_verduidelijking"): str(
+                    (getattr(definition, "metadata", None) or {}).get(
+                        "ess03_verduidelijking"
+                    )
+                    or ""
+                )
+            }
+        )
+        st.text_area(
+            "ESS-03-verduidelijking bij deze kandidaat (optioneel)",
+            height=80,
+            key=k("ess03_verduidelijking"),
+            disabled=disabled,
+            help=(
+                "Antwoord op de vraag van de ESS-03-beoordeling (telbaarheid): welke "
+                "eenheid, conventie of scope is bedoeld. Wordt bij 'Valideren' "
+                "meegegeven en bij opslaan met de beoordeling vastgelegd; de "
+                "definitietekst zelf wordt niet automatisch aangepast."
+            ),
+        )
+
         if disabled:
             if status_code == "established":
                 st.info(
@@ -1119,6 +1149,53 @@ class DefinitionEditTab:
             beoordeling = _als_dict(laatste.get("raw_v2")).get("source_assessment")
         return beoordeling if isinstance(beoordeling, dict) else None
 
+    @staticmethod
+    def _sessiebeoordeling_ess03() -> dict[str, Any] | None:
+        """De ESS-03-beoordeling uit de laatste toetsing in deze sessie, of None.
+
+        DEF-766: zelfde route als de bronbeoordeling (`ess03_assessment` in
+        het genormaliseerde resultaat, ruw onder `raw_v2`). Alleen een object
+        wordt doorgegeven; binding en status beoordeelt de servicelaag.
+        """
+        laatste = SessionStateManager.get_value("edit_last_validation")
+        if not isinstance(laatste, dict):
+            return None
+        beoordeling = laatste.get("ess03_assessment")
+        if beoordeling is None:
+            beoordeling = _als_dict(laatste.get("raw_v2")).get("ess03_assessment")
+        return beoordeling if isinstance(beoordeling, dict) else None
+
+    @staticmethod
+    def _sessieverduidelijking(def_id: Any) -> str | None:
+        """De ESS-03-verduidelijking zoals nu in de editor staat.
+
+        `None` wanneer het veld in deze sessie niet bestaat (dan geldt de
+        opgeslagen verduidelijking); een lege tekst wanneer de gebruiker het
+        veld heeft gewist — dat is een bewuste keuze en geen ontbrekende waarde.
+        """
+        waarde = SessionStateManager.get_value(f"edit_{def_id}_ess03_verduidelijking")
+        if waarde is None:
+            return None
+        return waarde.strip() if isinstance(waarde, str) else ""
+
+    @staticmethod
+    def _ess03_binding() -> Any | None:
+        """De actuele ESS-03-beoordelingsbinding (R1) uit de gecachte dienst — zonder
+        netwerk (promptversie/norm uit code en regelrecord, provider/model uit de
+        ModelRouter). None wanneer de dienst niet beschikbaar is; de replay
+        benoemt dat dan expliciet en past geen opgeslagen beoordeling toe."""
+        try:
+            from ui.cached_services import get_cached_service_container
+
+            return get_cached_service_container().ess03_assessment_service().binding()
+        except Exception as e:
+            logger.warning(
+                "ESS-03-beoordelingsbinding niet beschikbaar: %s: %s",
+                type(e).__name__,
+                e,
+            )
+            return None
+
     def _proposal_service(self) -> Any | None:
         """`SourceProposalService` uit de gecachte container (AI-service + router)."""
         if self.edit_service.proposal_service is not None:
@@ -1189,6 +1266,110 @@ class DefinitionEditTab:
                 )
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             logger.warning("Bronbasis-sectie kon niet worden getoond: %s", e)
+
+    def _kandidaat_uit_formulier(self, definition: Any) -> Any:
+        """De kandidaat zoals nu in de editor staat (R1/R5): widgetwaarden voor
+        term, tekst, toelichting, drie contextlijsten, categorie en de
+        ESS-03-verduidelijking (ook bewust leeg); ontbreekt een widgetwaarde,
+        dan de geladen waarde. Bronset, generatieregistratie en opgeslagen
+        beoordeling komen uit het geladen record. Hieraan binden zowel de
+        replay van de opgeslagen beoordeling als het normale
+        validatieresultaat van de laatste toetsing."""
+        from services.interfaces import Definition
+
+        def_id = getattr(definition, "id", None)
+
+        def k(name: str) -> str:
+            return f"edit_{def_id}_{name}"
+
+        meta = dict(getattr(definition, "metadata", None) or {})
+        kandidaat = Definition(
+            id=def_id,
+            begrip=SessionStateManager.get_value(k("begrip"), definition.begrip),
+            definitie=SessionStateManager.get_value(
+                k("definitie"), definition.definitie
+            ),
+            toelichting=SessionStateManager.get_value(
+                k("toelichting"), definition.toelichting
+            )
+            or None,
+            organisatorische_context=SessionStateManager.get_value(
+                k("organisatorische_context"),
+                list(definition.organisatorische_context or []),
+            ),
+            juridische_context=SessionStateManager.get_value(
+                k("juridische_context"), list(definition.juridische_context or [])
+            ),
+            wettelijke_basis=SessionStateManager.get_value(
+                k("wettelijke_basis"), list(definition.wettelijke_basis or [])
+            ),
+            categorie=SessionStateManager.get_value(
+                k("categorie"), definition.categorie
+            )
+            or None,
+            metadata={
+                sleutel: meta.get(sleutel)
+                for sleutel in (
+                    "provenance_sources",
+                    "sources",
+                    "generation_prompt_data",
+                    "ess03_assessment",
+                    "ess03_verduidelijking",
+                )
+                if meta.get(sleutel) is not None
+            },
+        )
+        verduidelijking = self._sessieverduidelijking(def_id)
+        if verduidelijking is not None:
+            # metadata is hierboven altijd als dict geconstrueerd; de guard
+            # maakt dat expliciet voor het `dict | None`-veldtype (mypy).
+            if kandidaat.metadata is None:
+                kandidaat.metadata = {}
+            kandidaat.metadata["ess03_verduidelijking"] = verduidelijking
+        return kandidaat
+
+    def _render_ess03_section(self, definition: Any) -> None:
+        """ESS-03 (telbaarheid) van het opgeslagen record: replay van de
+        opgeslagen AI-beoordeling op de kandidaat zoals nu in de editor staat.
+
+        Geen AI-aanroep. Zo ziet de gebruiker de laatste uitkomst (voldoet,
+        voldoet niet, niet van toepassing, onvoldoende informatie met vraag, of
+        technisch probleem) én of zij nog bij de huidige tekst, context,
+        toelichting en verduidelijking hoort; een gewijzigde kandidaat maakt
+        haar zichtbaar verouderd. Toetsen opnieuw ('Valideren') levert een
+        verse beoordeling (DEF-766).
+        """
+        try:
+            from services.definition_edit_service import ess03_uitkomst_van_definition
+            from ui.components.validation_view import render_rule_results
+
+            meta = dict(getattr(definition, "metadata", None) or {})
+            opgeslagen = meta.get("ess03_assessment")
+            kandidaat = self._kandidaat_uit_formulier(definition)
+            with st.expander(
+                "🔢 Telbaarheid (ESS-03) — opgeslagen AI-beoordeling", expanded=False
+            ):
+                if opgeslagen is None:
+                    st.caption(
+                        "Nog geen ESS-03-beoordeling opgeslagen bij dit record. "
+                        "'Valideren' voert de AI-beoordeling uit; 'Opslaan' legt haar "
+                        "vast zolang zij bij de opgeslagen kandidaat hoort."
+                    )
+                    return
+                render_rule_results(
+                    {
+                        "ESS-03": ess03_uitkomst_van_definition(
+                            kandidaat, binding=self._ess03_binding()
+                        )
+                    }
+                )
+                st.caption(
+                    "Herkomst: AI-beoordeling (geen deskundigenoordeel, geen "
+                    "vaststelling). Een negatieve uitkomst blokkeert vaststellen of "
+                    "exporteren niet en wijzigt de tekst niet."
+                )
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning("ESS-03-sectie kon niet worden getoond: %s", e)
 
     # ------------------------------------------------------------------
     # DEF-808: opgegeven bronmetadata aanvullen op het opgeslagen record
@@ -1822,6 +2003,10 @@ class DefinitionEditTab:
                     "editing_definition", session["definition"]
                 )
                 SessionStateManager.set_value("edit_session", session)
+                # R1/R5: een nieuwe bewerksessie begint zonder toetsresultaat
+                # van een vorige sessie; het record toont zijn opgeslagen
+                # beoordeling via de replay-sectie.
+                SessionStateManager.set_value("edit_last_validation", None)
 
                 # DEF-156 Fix 2B: Eager voorbeelden loading to prevent data loss
                 # Explicitly resolve and cache voorbeelden in session state
@@ -1923,6 +2108,24 @@ class DefinitionEditTab:
                 f"{result['source_assessment_reason']}."
             )
 
+    @staticmethod
+    def _meld_ess03_beoordeling_bij_opslaan(
+        result: dict[str, Any], sessiebeoordeling: dict[str, Any] | None
+    ) -> None:
+        """DEF-766: wat er bij Opslaan met de ESS-03-sessiebeoordeling is gebeurd —
+        opgeslagen als actuele beoordeling, of benoemd waarom niet (nooit stil)."""
+        if result.get("ess03_assessment_persisted"):
+            st.success(
+                "✅ ESS-03-beoordeling (telbaarheid) van de laatste toetsing opgeslagen "
+                "bij de actuele kandidaat (herkenbaar als AI-beoordeling; geen "
+                "vaststelling, geen blokkade)."
+            )
+        elif sessiebeoordeling is not None and result.get("ess03_assessment_reason"):
+            st.warning(
+                "⚠️ ESS-03-beoordeling van de laatste toetsing niet opgeslagen: "
+                f"{result['ess03_assessment_reason']}."
+            )
+
     def _save_definition(self) -> None:
         """Save the edited definition."""
         try:
@@ -1976,6 +2179,14 @@ class DefinitionEditTab:
             # de servicelaag legt haar alleen vast als zij exact aan de op te
             # slaan kandidaat bindt en benoemt anders waarom niet.
             sessiebeoordeling = self._sessiebeoordeling()
+            # DEF-766: idem voor de ESS-03-beoordeling van de laatste toetsing.
+            sessiebeoordeling_ess03 = self._sessiebeoordeling_ess03()
+            # R5: de actuele ESS-03-verduidelijking van de kandidaat reist
+            # expliciet mee — ook bewust leeg — en wordt eigen recordwaarde;
+            # zonder veld in deze sessie blijft de opgeslagen waarde staan.
+            verduidelijking = self._sessieverduidelijking(definition_id)
+            if verduidelijking is not None:
+                updates["ess03_verduidelijking"] = verduidelijking
 
             # DEF-751 B2: alleen een werkelijk gewijzigde categorie is een
             # keuze van deze opslaan-actie; zij reist als `editor`-event mee
@@ -2004,12 +2215,17 @@ class DefinitionEditTab:
                 reason=SessionStateManager.get_value(k("save_reason")),
                 validate=True,
                 source_assessment=sessiebeoordeling,
+                ess03_assessment=sessiebeoordeling_ess03,
+                ess03_binding=self._ess03_binding(),
                 categoriekeuze=categoriekeuze,
             )
 
             if result["success"]:
                 st.success("✅ Definitie opgeslagen!")
                 self._meld_bronbeoordeling_bij_opslaan(result, sessiebeoordeling)
+                self._meld_ess03_beoordeling_bij_opslaan(
+                    result, sessiebeoordeling_ess03
+                )
 
                 # Show validation results if available
                 if result.get("validation"):
@@ -2096,7 +2312,16 @@ class DefinitionEditTab:
                 or getattr(geladen, "categorie", None),
                 toelichting=SessionStateManager.get_value(k("toelichting"), ""),
                 metadata={
-                    "status": SessionStateManager.get_value(k("status"), "draft")
+                    "status": SessionStateManager.get_value(k("status"), "draft"),
+                    # DEF-766: de verduidelijking van déze sessie gaat mee in de
+                    # ESS-03-binding (ook bewust leeg); zonder veld geldt die
+                    # van het record. De tekst blijft ongewijzigd.
+                    **(
+                        {"ess03_verduidelijking": verduidelijking}
+                        if (verduidelijking := self._sessieverduidelijking(def_id))
+                        is not None
+                        else {}
+                    ),
                 },
             )
 
@@ -2135,6 +2360,10 @@ class DefinitionEditTab:
                 if isinstance(v, dict):
                     results = normaliseer_validatieresultaat(v)
 
+            if isinstance(results, dict):
+                # R1/R5: het resultaat hoort bij dít record; een ander record
+                # toont het niet (zie `_actueel_sessieresultaat`).
+                results["editing_definition_id"] = def_id
             return results
 
         except (ValueError, TypeError, KeyError, AttributeError) as e:
@@ -2161,15 +2390,52 @@ class DefinitionEditTab:
             return None
 
     def _render_fullwidth_validation_results(self) -> None:
-        """Render opgeslagen validatieresultaten buiten de knoppenkolommen (volle breedte)."""
+        """Render opgeslagen validatieresultaten buiten de knoppenkolommen (volle breedte).
+
+        R1/R5 (correctieronde 2): het resultaat van de laatste toetsing hoort
+        bij één record (`editing_definition_id`) en wordt vóór weergave
+        opnieuw aan de kandidaat gebonden zoals die nú in het formulier staat
+        (`herbind_ess03_in_validatieresultaat`, pure replay — geen
+        modelaanroep). Een eerder 'Voldoet' voor ESS-03 verschijnt dus nooit
+        als actuele pass zodra tekst, term, context, bedoelde betekenis,
+        verduidelijking, bronset of prompt/norm/model niet meer overeenkomen;
+        het blijft zichtbaar als historisch.
+        """
         try:
-            results = SessionStateManager.get_value("edit_last_validation")
+            results = self._actueel_sessieresultaat()
             if results:
                 st.markdown("#### ✅ Kwaliteitstoetsing")
                 self._show_validation_results(results)
         except (KeyError, TypeError, AttributeError):
             # KeyError: missing key, TypeError: wrong type, AttributeError: missing method
             pass
+
+    def _actueel_sessieresultaat(self) -> dict[str, Any] | None:
+        """`edit_last_validation` voor het record dat nu bewerkt wordt, met ESS-03
+        herbonden aan het huidige formulier; None als er niets (meer) te tonen is.
+        Een resultaat van een ander record wordt niet getoond en opgeruimd."""
+        results = SessionStateManager.get_value("edit_last_validation")
+        if not isinstance(results, dict):
+            return None
+        def_id = SessionStateManager.get_value("editing_definition_id")
+        eigenaar = results.get("editing_definition_id")
+        if eigenaar is not None and def_id is not None and eigenaar != def_id:
+            SessionStateManager.set_value("edit_last_validation", None)
+            return None
+        definition = SessionStateManager.get_value("editing_definition")
+        v2 = results.get("raw_v2")
+        if definition is None or not isinstance(v2, dict):
+            return results
+        from services.definition_edit_service import (
+            herbind_ess03_in_validatieresultaat,
+        )
+
+        herbonden = herbind_ess03_in_validatieresultaat(
+            v2, self._kandidaat_uit_formulier(definition), binding=self._ess03_binding()
+        )
+        if herbonden is v2:
+            return results
+        return {**results, "raw_v2": herbonden}
 
     def _show_validation_results(self, results: dict[str, Any]) -> None:
         """Show validation results."""
@@ -2239,8 +2505,15 @@ class DefinitionEditTab:
 
     def _cancel_edit(self) -> None:
         """Cancel the edit session."""
-        # Clear edit state using SessionStateManager
-        for key in ["editing_definition_id", "editing_definition", "edit_session"]:
+        # Clear edit state using SessionStateManager. R1/R5: ook het resultaat
+        # van de laatste toetsing — dat hoort bij de geannuleerde sessie en
+        # mag bij heropenen niet als actueel oordeel terugkomen.
+        for key in [
+            "editing_definition_id",
+            "editing_definition",
+            "edit_session",
+            "edit_last_validation",
+        ]:
             SessionStateManager.set_value(key, None)
 
         st.info("Edit sessie geannuleerd")

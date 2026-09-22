@@ -58,7 +58,15 @@ from services.interfaces import Definition
 # nummer vervangt tevens de niet-canonieke "2.0.0" die services.validation.
 # types eerder los van dit bestand voerde; types importeert de versie nu
 # vanaf hier.
-CONTRACT_VERSION = "2.0.0"
+#
+# 2.1.0 (DEF-766): additief uitgebreid met de resultaatstatus `not_applicable`
+# (rule_statuses, rule_results, evaluation_coverage.not_applicable) — een
+# afgeronde, gemotiveerde niet-toepasselijkheid (ESS-03: geen telbare eenheid
+# bedoeld), geen pass en geen open punt — en met `ess03_assessment`: de
+# volledige AI-telbaarheidsbeoordeling die de async wrapper voor exact deze
+# validatie heeft verkregen (contract domain.ess03.contract), of null. Geen
+# bestaande status of veld is van betekenis veranderd: SemVer-minor.
+CONTRACT_VERSION = "2.1.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -99,8 +107,12 @@ UnknownReason = Literal[
 
 # Uitkomst van één regelevaluatie. Alleen "pass" en "fail" zijn werkelijk
 # uitgevoerde, betrouwbare beoordelingen; uitsluitend die twee beïnvloeden
-# overall_score. Spiegelt toetsregels.runtime_contract.ResultStatus.
-RuleResultStatus = Literal["pass", "fail", "review_required", "not_evaluated", "error"]
+# overall_score. "not_applicable" (DEF-766, contract 2.1.0) is een afgeronde,
+# gemotiveerde niet-toepasselijkheid — geen pass, geen open punt. Spiegelt
+# toetsregels.runtime_contract.ResultStatus.
+RuleResultStatus = Literal[
+    "pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"
+]
 
 
 class ValidationResult(TypedDict, total=False):
@@ -153,6 +165,11 @@ class ValidationResult(TypedDict, total=False):
     # deze validatie heeft verkregen (store-ready, zie
     # domain.sources.contract), of None zonder AI-beoordeling.
     source_assessment: NotRequired[dict[str, Any] | None]
+
+    # DEF-766 (2.1.0): de volledige AI-telbaarheidsbeoordeling (ESS-03) die de
+    # wrapper voor deze validatie heeft verkregen (store-ready, zie
+    # domain.ess03.contract), of None zonder beoordeling (geen term/tekst).
+    ess03_assessment: NotRequired[dict[str, Any] | None]
 
     # DEF-621/DEF-624: verplicht bij validation_unknown; validation_readiness
     # alleen bij unknown_reason ruleset_incomplete (de enige reden waarbij
@@ -207,6 +224,9 @@ class EvaluationCoverage(TypedDict):
     error: int
     total: int
     coverage_ratio: float  # evaluated / total
+    # DEF-766 (2.1.0, additief): afgeronde niet-toepasselijkheid, apart van
+    # pass/fail, open en niet-uitgevoerd. Optioneel voor oudere resultaten.
+    not_applicable: NotRequired[int]
 
 
 class RuleResultPart(TypedDict):
@@ -219,7 +239,7 @@ class RuleResultPart(TypedDict):
     """
 
     id: str
-    status: Literal["pass", "fail", "review_required", "error"]
+    status: Literal["pass", "fail", "review_required", "error", "not_applicable"]
     evidence: str | None
     context_value: str | None
     field: str | None

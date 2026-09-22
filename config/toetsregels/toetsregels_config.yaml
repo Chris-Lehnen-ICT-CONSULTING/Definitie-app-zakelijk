@@ -85,6 +85,12 @@ runtime_contract:
     # citaatbestaan, de AI beoordeelt gezag/betekenissteun, de deskundige
     # legt uitzonderingen vast. Geen cijfer (score_policy no_score).
     - "source_evidence"
+    # DEF-766 (ESS-03): AI-beoordeling van telbaarheid en onderscheidbaarheid
+    # — code toetst binding, gesloten uitkomsten en citaatbestaan; de AI
+    # beoordeelt eenheid, onderscheid en toepasselijkheid op uitsluitend het
+    # aangeleverde materiaal. Geen cijfer (score_policy no_score); een
+    # negatieve uitkomst is geen vaststel-/exportblokkade (besluit 21-09-2026).
+    - "countability_assessment"
 
   required_inputs:
     - "definition_text"
@@ -105,8 +111,12 @@ runtime_contract:
   score_policy: ["scored", "excluded_from_score", "no_score"]
 
   # Uitkomst van één regelevaluatie. Alleen pass en fail zijn werkelijk
-  # uitgevoerde, betrouwbare beoordelingen.
-  result_status: ["pass", "fail", "review_required", "not_evaluated", "error"]
+  # uitgevoerde, betrouwbare beoordelingen. not_applicable (DEF-766): een
+  # afgeronde, gemotiveerde uitkomst dat de regel op deze betekenis niet van
+  # toepassing is — geen ontbrekende invoer, geen eeuwig open review en niet
+  # stil gelijk aan pass.
+  result_status:
+    ["pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"]
 
 
   # De volledige, verwachte regel-ID-set. Dit is de onafhankelijke

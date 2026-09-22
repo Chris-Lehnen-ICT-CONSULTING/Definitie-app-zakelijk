@@ -111,6 +111,9 @@ class EvaluatorType(StrEnum):
     JUDGMENT_REVIEW = "judgment_review"
     # DEF-743: broninhoudelijke beoordeling (AI + code + deskundige), CON-02.
     SOURCE_EVIDENCE = "source_evidence"
+    # DEF-766: AI-beoordeling van telbaarheid en onderscheidbaarheid (code
+    # toetst binding en citaatbestaan), ESS-03.
+    COUNTABILITY_ASSESSMENT = "countability_assessment"
 
 
 class ExamplePairPolicy(StrEnum):
@@ -173,6 +176,12 @@ class ResultStatus(StrEnum):
 
     Alleen `PASS` en `FAIL` zijn werkelijk uitgevoerde, betrouwbare
     beoordelingen; uitsluitend die twee mogen de kwaliteitsscore beïnvloeden.
+
+    `NOT_APPLICABLE` (DEF-766): een afgeronde, gemotiveerde uitkomst dat de
+    regel op deze betekenis niet van toepassing is (ESS-03: geen telbare
+    eenheid bedoeld). Anders dan `NOT_EVALUATED` is er wél beoordeeld; anders
+    dan `PASS` is er niets 'voldaan' — de uitkomst weegt nergens mee en wordt
+    nooit als pass genormaliseerd.
     """
 
     PASS = "pass"
@@ -180,6 +189,7 @@ class ResultStatus(StrEnum):
     REVIEW_REQUIRED = "review_required"
     NOT_EVALUATED = "not_evaluated"
     ERROR = "error"
+    NOT_APPLICABLE = "not_applicable"
 
     @property
     def telt_mee_in_score(self) -> bool:

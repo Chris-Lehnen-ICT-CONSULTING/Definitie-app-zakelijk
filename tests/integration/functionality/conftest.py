@@ -20,6 +20,7 @@ in deze suite meet de lokale code, niet de API-latency.
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 from dataclasses import dataclass, field
@@ -28,6 +29,7 @@ from typing import Any
 
 import pytest
 
+from domain.ess03.contract import LOCATIE_TERM, VERDICT_INSUFFICIENT
 from services.ai.base_client import ChatMessage, ChatResponse
 
 # --------------------------------------------------------------------------
@@ -77,6 +79,57 @@ DEFINITIE_TEKST = (
     "van een bevoegde instantie binnen het strafprocesrecht."
 )
 
+#: DEF-766: de validatie roept sinds ESS-03 de providergrens zelf aan voor de
+#: AI-beoordeling van telbaarheid (`Ess03AssessmentService`). Die prompt is te
+#: herkennen aan de vaste materiaalregel uit `bouw_beoordelingsprompt`, opgebouwd
+#: uit de contractconstante voor de vindplaats van het begrip.
+ESS03_SOORT = "ess03"
+_ESS03_BEGRIPREGEL = re.compile(
+    rf"^Begrip \(vindplaats {re.escape(LOCATIE_TERM)}\): (.*)$", re.MULTILINE
+)
+
+
+def is_ess03_beoordelingsprompt(prompt: str) -> bool:
+    """Is dit de gebruikersprompt van de ESS-03-beoordeling (DEF-766)?"""
+    return _ESS03_BEGRIPREGEL.search(prompt) is not None
+
+
+def ess03_bevroren_antwoord(prompt: str) -> str:
+    """Het bevroren ESS-03-antwoord: gesloten JSON met `insufficient_information`.
+
+    De grens bevriest geen modelkwaliteit en velt geen inhoudelijk oordeel;
+    het antwoord is bewust 'onvoldoende informatie', wat in de dekking als
+    `review_required` telt. De vorm volgt het contract
+    (`domain.ess03.contract.structuurfout_modeluitvoer`): exact acht velden,
+    precies één gerichte vraag en één citaat dat letterlijk in het verzonden
+    materiaal staat — het begrip uit de prompt, vindplaats `term` — zodat de
+    citaatcontrole van de dienst het accepteert. Is het begrip niet leesbaar,
+    dan blijft `evidence` leeg; dat is bij dit verdict toegestaan.
+    """
+    treffer = _ESS03_BEGRIPREGEL.search(prompt)
+    begrip = treffer.group(1).strip() if treffer else ""
+    antwoord: dict[str, Any] = {
+        "verdict": VERDICT_INSUFFICIENT,
+        "applicability": "undetermined",
+        "unit": None,
+        "reason": (
+            "Bevroren proefantwoord: het aangeleverde materiaal bevat geen "
+            "conventie die onderbouwt wat bij dit begrip als één instantie geldt "
+            "en waardoor instanties worden onderscheiden."
+        ),
+        "evidence": [{"location": LOCATIE_TERM, "quote": begrip}] if begrip else [],
+        "missing_information": (
+            "De conventie die de eenheidsgrens en het onderscheid tussen "
+            "instanties onderbouwt."
+        ),
+        "question": (
+            "Welke conventie bepaalt wat bij dit begrip als één, dezelfde of een "
+            "andere instantie geldt?"
+        ),
+        "uncertainty": None,
+    }
+    return json.dumps(antwoord, ensure_ascii=False)
+
 
 def verwachte_termen(soort: str, aantal: int) -> list[str]:
     """De exacte lijst die de parser uit een geldig antwoord moet halen."""
@@ -107,6 +160,8 @@ def verwacht_resultaat(soort: str, aantal: int) -> list[str]:
 
 def _ontleed_prompt(prompt: str) -> tuple[str | None, int]:
     """Bepaal soort en gevraagd aantal uit de prompt van de productiecode."""
+    if is_ess03_beoordelingsprompt(prompt):
+        return ESS03_SOORT, 0
     laag = prompt.lower()
     for soort, markering in _SOORT_MARKERINGEN:
         if markering in laag:
@@ -156,6 +211,10 @@ class BevrorenAIClient:
     ``geldig``   het gevraagde aantal items;
     ``leeg``     een lege respons (de provider levert niets bruikbaars);
     ``tekort``   één item minder dan gevraagd.
+
+    De ESS-03-beoordelingsprompt (DEF-766, soort ``ess03``) krijgt in ``geldig``
+    en ``tekort`` het gesloten antwoord uit `ess03_bevroren_antwoord`; in
+    ``leeg`` een lege respons, die de dienst als technische fout meldt.
     """
 
     def __init__(self, modus: str = "geldig") -> None:
@@ -180,6 +239,9 @@ class BevrorenAIClient:
         temperature: float = 0.7,
         max_tokens: int = 300,
         timeout: float | None = None,
+        # Optioneel keyword uit het `AsyncAIClient`-Protocol (DEF-766, opt-in
+        # SDK-retries per aanroep); de bevroren grens doet er niets mee.
+        max_retries: int | None = None,
     ) -> ChatResponse:
         prompt = messages[-1].content if messages else ""
         soort, gevraagd = _ontleed_prompt(prompt)
@@ -196,6 +258,8 @@ class BevrorenAIClient:
 
         if self.modus == "leeg":
             tekst = ""
+        elif soort == ESS03_SOORT:
+            tekst = ess03_bevroren_antwoord(prompt)
         elif self.modus == "tekort":
             tekst = _antwoordtekst(soort, max(gevraagd - 1, 0)) if soort else ""
         else:

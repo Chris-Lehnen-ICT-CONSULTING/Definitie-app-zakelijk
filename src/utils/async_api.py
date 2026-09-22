@@ -16,7 +16,12 @@ UTC = UTC  # Python 3.10 compatibility
 from functools import wraps
 from typing import Any, cast
 
-from services.ai.base_client import AIClientError, AsyncAIClient, ChatMessage
+from services.ai.base_client import (
+    AIClientError,
+    AsyncAIClient,
+    ChatMessage,
+    ChatResponse,
+)
 from utils.cache import _cache, cache_gpt_call
 
 logger = logging.getLogger(__name__)
@@ -137,6 +142,17 @@ class AsyncGPTClient:
         Raises:
             OpenAIError: If API call fails after retries
         """
+        # DEF-766 opt-ins (alleen wanneer gezet): eigen aantal pogingen en
+        # SDK-retries per aanroep bij de providerclient. Ze zijn geen
+        # providerparameters en gaan daarom niet mee in de cachesleutel.
+        max_attempts = kwargs.pop("max_attempts", None)
+        max_retries = kwargs.pop("max_retries", None)
+        # DEF-766 (correctieronde 3, F1): optionele callback die de volledige
+        # `ChatResponse` van de providerclient ontvangt (o.a. `stop_reason`),
+        # omdat deze methode contractueel alleen de tekst teruggeeft. Geen
+        # providerparameter, niet in de cachesleutel, niet naar de provider.
+        response_hook = kwargs.pop("response_hook", None)
+
         # Check cache first
         if use_cache:
             cache_key = cache_gpt_call(
@@ -178,6 +194,9 @@ class AsyncGPTClient:
                 temperature=temperature,
                 max_tokens=max_tokens,
                 system_prompt=system_prompt,
+                max_attempts=max_attempts,
+                max_retries=max_retries,
+                response_hook=response_hook,
                 **kwargs,
             )
 
@@ -203,12 +222,31 @@ class AsyncGPTClient:
         temperature: float,
         max_tokens: int,
         system_prompt: str | None = None,
+        max_attempts: int | None = None,
+        max_retries: int | None = None,
+        response_hook: Callable[[ChatResponse], None] | None = None,
         **kwargs: Any,
     ) -> str:
-        """Make API request with exponential backoff retries."""
-        last_error = None
+        """Make API request with exponential backoff retries.
 
-        for attempt in range(self.rate_limiter.config.max_retries):
+        DEF-766 (opt-in, alleen wanneer gezet): ``max_attempts`` begrenst deze
+        retrylus tot dat aantal pogingen (1 = geen herhaling); ``max_retries``
+        reist door naar de providerclient als SDK-retries per aanroep;
+        ``response_hook`` ontvangt de volledige ``ChatResponse`` van de
+        geslaagde poging (correctieronde 3, F1). Zonder deze argumenten is
+        het gedrag exact het bestaande.
+        """
+        last_error = None
+        pogingen = (
+            max(1, int(max_attempts))
+            if max_attempts is not None
+            else self.rate_limiter.config.max_retries
+        )
+        clientopties: dict[str, Any] = (
+            {"max_retries": int(max_retries)} if max_retries is not None else {}
+        )
+
+        for attempt in range(pogingen):
             try:
                 messages: list[ChatMessage] = []
                 if system_prompt:
@@ -220,12 +258,15 @@ class AsyncGPTClient:
                     model=model,
                     temperature=temperature,
                     max_tokens=max_tokens,
+                    **clientopties,
                 )
 
                 result = response.text
 
                 if response.tokens_used:
                     self.session_stats["total_tokens"] += response.tokens_used
+                if response_hook is not None:
+                    response_hook(response)
 
                 # ChatResponse.text is contractueel `str`; de cast onderdrukt enkel
                 # de Any die ontstaat doordat AsyncAIClient via de services.ai-import
@@ -234,16 +275,14 @@ class AsyncGPTClient:
 
             except AIClientError as e:
                 last_error = e
-                if attempt < self.rate_limiter.config.max_retries - 1:
+                if attempt < pogingen - 1:
                     wait_time = self.rate_limiter.config.backoff_factor**attempt
                     logger.warning(
                         f"API call failed (attempt {attempt + 1}), retrying in {wait_time}s: {e!s}"
                     )
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.error(
-                        f"API call failed after {self.rate_limiter.config.max_retries} attempts"
-                    )
+                    logger.error(f"API call failed after {pogingen} attempts")
 
         raise last_error or AIClientError("Unknown error after retries")
 

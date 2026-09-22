@@ -32,16 +32,16 @@
     }
   ],
   "runtime_contract": {
-    "evaluator": "judgment_review",
+    "evaluator": "countability_assessment",
     "required_inputs": [
       "definition_text",
       "term"
     ],
     "executability": "judgment",
-    "automation_status": "review_required",
+    "automation_status": "automated",
     "score_policy": "no_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "Telbaarheid en individuatie vragen inhoudelijk oordeel; de vervangen woordindicator miste genoemde samenstellingen en accepteerde losse woorden zonder voldoende identiteitsbewijs. Het paar is synthetisch en onderdeelgericht (N05: natuurlijke grens zonder code; N04/P05: een ISBN bindt titel, editie en vorm, niet het fysieke exemplaar), geen deskundig gevalideerde goldset.",
+    "example_pair_reason": "Telbaarheid en individuatie vragen inhoudelijk oordeel; de vervangen woordindicator miste genoemde samenstellingen en accepteerde losse woorden zonder voldoende identiteitsbewijs. Sinds DEF-766 (AI-beoordeling) geeft de app dat oordeel zelf op de kandidaat, bedoelde betekenis, context en aangeleverde bronnen; het paar is synthetisch en onderdeelgericht (N05: natuurlijke grens zonder code; N04/P05: een ISBN bindt titel, editie en vorm, niet het fysieke exemplaar) en hangt af van de meegeleverde bedoelde betekenis, dus geen deterministische regressiecase en geen deskundig gevalideerde goldset.",
     "example_pair_issue": "DEF-766"
   }
 }

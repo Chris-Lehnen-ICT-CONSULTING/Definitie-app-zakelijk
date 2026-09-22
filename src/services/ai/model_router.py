@@ -30,8 +30,8 @@ class ModelRouter:
                 critical: "gpt-5.2"
                 standard: "gpt-5-mini"
             anthropic:
-                critical: "claude-opus-4-8"
-                standard: "claude-opus-4-8"
+                critical: "claude-opus-5"
+                standard: "claude-opus-5"
         pricing:  # per-token input/output cost, keyed by model name
             "gpt-5.2": {input: 0.00003, output: 0.00006}
             ...
@@ -41,8 +41,9 @@ class ModelRouter:
     _DEFAULT_PRICING: dict[str, float] = {"input": 0.00003, "output": 0.00006}
 
     _DEFAULT_CONFIG: dict[str, Any] = {
-        # Default provider = Anthropic; het hoogste Opus-model (claude-opus-4-8)
-        # bedient elke tier, zodat alle AI-vragen van de app op Opus 4.8 draaien.
+        # Default provider = Anthropic; het hoogste Opus-model (claude-opus-5)
+        # bedient elke tier, zodat alle AI-vragen van de app op Opus 5 draaien
+        # (wissel van Opus 4.8 naar Opus 5 op 21-09-2026, opdracht Chris; DEF-766).
         "active_provider": "anthropic",
         "task_tiers": {
             "critical": [
@@ -56,15 +57,17 @@ class ModelRouter:
         "providers": {
             "openai": {"critical": "gpt-5.2", "standard": "gpt-5-mini"},
             "anthropic": {
-                "critical": "claude-opus-4-8",
-                "standard": "claude-opus-4-8",
+                "critical": "claude-opus-5",
+                "standard": "claude-opus-5",
             },
         },
         # DEF-458: canonical pricing — single source for CostCalculator.
-        # Anthropic-tarieven per token: Opus 4.8 = $5/$25 per 1M tokens.
+        # Anthropic-tarieven per token: Opus 5 = $5/$25 per 1M tokens
+        # (platform.claude.com/docs/en/models/overview, geraadpleegd 2026-09-21).
         "pricing": {
             "gpt-5.2": {"input": 0.00003, "output": 0.00006},
             "gpt-5-mini": {"input": 0.0000015, "output": 0.000006},
+            "claude-opus-5": {"input": 0.000005, "output": 0.000025},
             "claude-opus-4-8": {"input": 0.000005, "output": 0.000025},
             # Alternatieve Anthropic-modellen (niet default) — pricing behouden
             # zodat een handmatige modelwissel correct wordt doorgerekend.
@@ -173,16 +176,16 @@ class ModelRouter:
             for model, prices in self._config.get("pricing", {}).items()
         }
 
-    # --- DEF-731: capability-policy (temperature) --------------------------
-    # De familielijst staat in config.yaml onder
-    # ``model_routing.capabilities.<provider>.temperature.model_families``
-    # en wordt hier alleen gelezen, niet gedupliceerd. Onbekend, ontbrekend of
-    # malformed beleid schakelt de parameter nooit in.
+    # --- DEF-731: capability-policy (temperature, thinking) -----------------
+    # De familielijsten staan in config.yaml onder
+    # ``model_routing.capabilities.<provider>.<capability>.model_families``
+    # en worden hier alleen gelezen, niet gedupliceerd. Onbekend, ontbrekend of
+    # malformed beleid schakelt een parameter nooit in.
 
-    def _temperature_families(self, provider: str) -> tuple[str, ...]:
-        """Geconfigureerde families voor deze provider; fail-safe leeg."""
+    def _capability_families(self, provider: str, capability: str) -> tuple[str, ...]:
+        """Geconfigureerde families voor deze provider/capability; fail-safe leeg."""
         node: Any = self._config.get("capabilities")
-        for key in (provider, "temperature", "model_families"):
+        for key in (provider, capability, "model_families"):
             if not isinstance(node, dict):
                 return ()
             node = node.get(key)
@@ -191,15 +194,16 @@ class ModelRouter:
             return ()
         return tuple(f.lower() for f in node if isinstance(f, str) and f)
 
-    def accepts_temperature(self, model: str, provider: str | None = None) -> bool:
-        """Mag ``temperature`` mee voor dit model bij deze provider?
-
-        Substring-match op familie met numerieke grens: ``opus-4-1`` mag niet
-        matchen binnen ``opus-4-10`` (DEF-441, review #351).
-        """
+    def _model_in_capability(
+        self, model: str, provider: str | None, capability: str
+    ) -> bool:
+        """Substring-match op familie met numerieke grens: ``opus-4-1`` mag niet
+        matchen binnen ``opus-4-10`` (DEF-441, review #351)."""
         if not isinstance(model, str) or not model:
             return False
-        families = self._temperature_families(provider or self.active_provider)
+        families = self._capability_families(
+            provider or self.active_provider, capability
+        )
         model_lc = model.lower()
         for family in families:
             start = model_lc.find(family)
@@ -209,3 +213,17 @@ class ModelRouter:
             if end == len(model_lc) or not model_lc[end].isdigit():
                 return True
         return False
+
+    def accepts_temperature(self, model: str, provider: str | None = None) -> bool:
+        """Mag ``temperature`` mee voor dit model bij deze provider?"""
+        return self._model_in_capability(model, provider, "temperature")
+
+    def thinking_default_on(self, model: str, provider: str | None = None) -> bool:
+        """Staat adaptief denken standaard aan voor dit model bij deze provider?
+
+        DEF-766 (correctieronde 3, F1): voor deze families stuurt de client
+        expliciet ``thinking={"type": "disabled"}`` mee, zodat denktokens het
+        kleine ``max_tokens``-budget niet opeten; voor alle andere modellen
+        wordt de parameter weggelaten.
+        """
+        return self._model_in_capability(model, provider, "thinking_default_on")

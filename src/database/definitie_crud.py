@@ -20,6 +20,10 @@ from database.models import (
     CATEGORY_CHOICE_KEY,
     CATEGORY_CHOICE_OWNED_KEYS,
     CATEGORY_CHOICE_STATE_KEY,
+    ESS03_ASSESSMENT_HISTORY_KEY,
+    ESS03_ASSESSMENT_KEY,
+    ESS03_OWNED_KEYS,
+    ESS03_VERDUIDELIJKING_VELD,
     SOURCE_EVIDENCE_HISTORY_KEY,
     SOURCE_EVIDENCE_KEY,
     SOURCE_PROPOSALS_KEY,
@@ -1174,11 +1178,16 @@ class DefinitieCrudRepository:
         if isinstance(ruw, str) and lees_generatieregistratie(ruw) is not None:
             return  # JSON-object: de beheerde sleutels worden hersteld
         opgeslagen = actueel.get_generatieregistratie() or {}
-        if any(sleutel in opgeslagen for sleutel in CATEGORY_CHOICE_OWNED_KEYS):
+        # DEF-766: ook de ESS-03-beoordeling en haar historie zijn beheerd.
+        if any(
+            sleutel in opgeslagen
+            for sleutel in (*CATEGORY_CHOICE_OWNED_KEYS, *ESS03_OWNED_KEYS)
+        ):
             msg = (
                 "generation_prompt_data kan niet door een niet-JSON-object worden "
                 f"vervangen ({ruw!r}): dat zou de beheerde categoriekeuze "
-                "(event, staat, historie) en de overige registratie wissen"
+                "(event, staat, historie), de ESS-03-beoordeling en de overige "
+                "registratie wissen"
             )
             raise ValueError(msg)
 
@@ -1206,12 +1215,14 @@ class DefinitieCrudRepository:
         if registratie is None:
             return None, False
         aangeleverd = registratie.get(CATEGORY_CHOICE_KEY)
-        beheerd_aanwezig = any(
-            s in registratie or s in opgeslagen for s in CATEGORY_CHOICE_OWNED_KEYS
-        )
+        # DEF-766: de ESS-03-beoordeling en haar historie komen evenmin uit
+        # een ruwe schrijfactie; alleen de structurele sleutel
+        # `ess03_assessment` (onder de lock) mag ze wijzigen.
+        beheerd = (*CATEGORY_CHOICE_OWNED_KEYS, *ESS03_OWNED_KEYS)
+        beheerd_aanwezig = any(s in registratie or s in opgeslagen for s in beheerd)
         if not beheerd_aanwezig:
             return registratie, False
-        for sleutel in CATEGORY_CHOICE_OWNED_KEYS:
+        for sleutel in beheerd:
             if sleutel in opgeslagen:
                 registratie[sleutel] = deepcopy(opgeslagen[sleutel])
             else:
@@ -1274,6 +1285,170 @@ class DefinitieCrudRepository:
             velden["generation_prompt_data"] = serialiseer_generatieregistratie(
                 registratie
             )
+
+    @staticmethod
+    def _geldige_ess03_invoer(invoer: Any) -> dict[str, Any] | None:
+        """De structurele ESS-03-invoer, of None (sleutel afwezig/None).
+
+        Vormcontrole vóór de transactie (DEF-766): een object met een
+        niet-lege vingerafdruk en een bekende technische status. Of het
+        document nog bij het record hoort, beslist de replay van het contract
+        bij het lezen; hier wordt alleen geweigerd wat nooit een beoordeling
+        kan zijn — een ValueError laat de hele update falen, niets geschreven.
+        """
+        if invoer is None:
+            return None
+        if not isinstance(invoer, Mapping) or not _tekst(invoer.get("fingerprint")):
+            msg = "ess03_assessment moet een dict met een niet-lege fingerprint zijn"
+            raise ValueError(msg)
+        if invoer.get("status") not in ("assessed", "error", "unavailable"):
+            msg = (
+                f"ess03_assessment heeft een onbekende status {invoer.get('status')!r}"
+            )
+            raise ValueError(msg)
+        return deepcopy(dict(invoer))
+
+    def _ess03_invoer_uit(
+        self, updates: dict[str, Any]
+    ) -> tuple[dict[str, Any] | None, str | None]:
+        """(beoordeling, verduidelijking) uit de structurele DEF-766-sleutels;
+        beide sleutels worden uit `updates` genomen (geen kolommen). R5: de
+        verduidelijking is tekst ("" = bewust gewist; afwezig/None =
+        onaangeraakt)."""
+        return (
+            self._geldige_ess03_invoer(updates.pop("ess03_assessment", None)),
+            self._geldige_ess03_verduidelijking(
+                updates.pop("ess03_verduidelijking", None)
+            ),
+        )
+
+    @staticmethod
+    def _geldige_ess03_verduidelijking(invoer: Any) -> str | None:
+        """De structurele verduidelijkingsinvoer (tekst, mag leeg), of None (afwezig)."""
+        if invoer is None:
+            return None
+        if not isinstance(invoer, str):
+            msg = "ess03_verduidelijking moet tekst zijn (leeg = bewust gewist)"
+            raise ValueError(msg)
+        return invoer.strip()
+
+    def _verwerk_registraties(
+        self,
+        actueel: DefinitieRecord,
+        updates: dict[str, Any],
+        velden: dict[str, Any],
+        bewijsinvoer: Any,
+        ess03: tuple[dict[str, Any] | None, str | None],
+        updated_by: str | None,
+        categoriekeuze: Mapping[str, Any] | None,
+    ) -> tuple[bool, bool]:
+        """Bronbewijs, keuzestaat en ESS-03 in dezelfde UPDATE: (bronnen_gewijzigd, schrijfbaar).
+
+        DEF-743: bronbewijs samenvoegen ónder de lock — gelijk bewijs is geen
+        wijziging; gewijzigd bewijs gaat met historie mee; een serialisatiefout
+        laat de hele update falen. DEF-751 B2: keuze-event/-staat in dezelfde
+        UPDATE als de kolom of de wijziging die de keuze raakt; de beheerde
+        sleutels komen nooit uit een ruwe schrijfactie. DEF-766: beoordeling en
+        verduidelijking (R5) in dezelfde UPDATE; gelijk = geen wijziging, een
+        nieuwe beoordeling gaat met historie mee. Een wijziging landt in
+        `velden` (generation_prompt_data); blijft `velden` leeg, dan is er
+        niets te schrijven.
+        """
+        ess03_invoer, ess03_verduidelijking = ess03
+        bronnen_gewijzigd, niets_te_schrijven = self._verwerk_bewijsinvoer(
+            actueel, updates, bewijsinvoer, velden, updated_by
+        )
+        if (
+            niets_te_schrijven
+            and ess03_invoer is None
+            and ess03_verduidelijking is None
+        ):
+            return bronnen_gewijzigd, False
+        self._verwerk_keuzestaat(actueel, updates, velden, categoriekeuze)
+        self._verwerk_ess03_registratie(
+            actueel, velden, ess03_invoer, ess03_verduidelijking
+        )
+        return bronnen_gewijzigd, bool(velden)
+
+    @staticmethod
+    def _voortbouwbasis(
+        actueel: DefinitieRecord, velden: Mapping[str, Any]
+    ) -> dict[str, Any] | None:
+        """De registratie waarop een láátste stap in deze UPDATE voortbouwt.
+
+        Staat er al een `generation_prompt_data` in `velden`, dan is dat het
+        resultaat van de eerdere stappen (bewijs, keuzestaat — die een ruwe
+        aanlevering al via `_registratie_basis` hebben gesaneerd): die wordt
+        gelezen zoals zij is. Anders het opgeslagen record. None = een ruwe
+        niet-JSON-waarde (geen object om op voort te bouwen).
+        """
+        if "generation_prompt_data" not in velden:
+            return dict(actueel.get_generatieregistratie() or {})
+        ruw = velden["generation_prompt_data"]
+        return lees_generatieregistratie(ruw) if isinstance(ruw, str) else None
+
+    def _verwerk_ess03_registratie(
+        self,
+        actueel: DefinitieRecord,
+        velden: dict[str, Any],
+        beoordeling: dict[str, Any] | None,
+        verduidelijking: str | None,
+    ) -> bool:
+        """De ESS-03-beoordeling en -verduidelijking in dezelfde UPDATE (DEF-766).
+
+        Ónder de lock, als láátste stap bovenop de registratie die de eerdere
+        stappen van deze UPDATE (bewijs, keuzestaat) al in `velden` zetten —
+        één lezing, één serialisatie. Die registratie is al door
+        `_registratie_basis` (in de keuzestaat-stap) van ruwe beheerde
+        sleutels ontdaan en draagt de zojuist gezette keuze; zij wordt hier
+        dus als voortbouwbasis gelezen en níet nogmaals als ruwe invoer
+        behandeld — anders zou de keuze van dezelfde UPDATE worden
+        weggefilterd (regressie correctieronde 1).
+
+        Beoordeling: gelijk aan het opgeslagen document = geen wijziging;
+        anders gaat het vorige document onveranderd naar de append-only
+        historie (met tijdstip en de versie die het verving). Verduidelijking
+        (R5): eigen recordwaarde; "" wordt bewust vastgelegd als gewist,
+        onderscheiden van nooit ingevuld (geen sleutel). Geeft of er iets is
+        gewijzigd.
+        """
+        if beoordeling is None and verduidelijking is None:
+            return False
+        registratie = self._voortbouwbasis(actueel, velden)
+        if registratie is None:
+            msg = (
+                "ess03_assessment/ess03_verduidelijking kan niet samen met een ruwe "
+                "niet-JSON registratie"
+            )
+            raise ValueError(msg)
+        gewijzigd = False
+        if beoordeling is not None:
+            vorige = registratie.get(ESS03_ASSESSMENT_KEY)
+            if vorige != beoordeling:
+                historie = registratie.get(ESS03_ASSESSMENT_HISTORY_KEY)
+                historie = list(historie) if isinstance(historie, list) else []
+                if isinstance(vorige, dict):
+                    historie.append(
+                        {
+                            "assessment": deepcopy(vorige),
+                            "superseded_at": _nu(),
+                            "superseded_on_version": actueel.version_number,
+                        }
+                    )
+                registratie[ESS03_ASSESSMENT_KEY] = beoordeling
+                registratie[ESS03_ASSESSMENT_HISTORY_KEY] = historie
+                gewijzigd = True
+        if (
+            verduidelijking is not None
+            and registratie.get(ESS03_VERDUIDELIJKING_VELD) != verduidelijking
+        ):
+            registratie[ESS03_VERDUIDELIJKING_VELD] = verduidelijking
+            gewijzigd = True
+        if gewijzigd:
+            velden["generation_prompt_data"] = serialiseer_generatieregistratie(
+                registratie
+            )
+        return gewijzigd
 
     @staticmethod
     def _werkelijk_gewijzigd(
@@ -2205,6 +2380,13 @@ class DefinitieCrudRepository:
 
         updates = dict(updates)
         bewijsinvoer = updates.pop("source_evidence", None)
+        # DEF-766: de ESS-03-beoordeling en -verduidelijking reizen als
+        # structurele sleutels mee (geen kolom) en worden ónder de lock met de
+        # registratie samengevoegd.
+        ess03_invoer, ess03_verduidelijking = self._ess03_invoer_uit(updates)
+        ess03_aangeleverd = (
+            ess03_invoer is not None or ess03_verduidelijking is not None
+        )
         # DEF-751 B2 (reviewbevinding 2): een generiek `updates`-dict kan geen
         # menselijke keuze vastleggen; dat kan alleen het expliciete commando
         # `record_category_choice` (dat `_categoriekeuze` zet).
@@ -2260,7 +2442,7 @@ class DefinitieCrudRepository:
             if hasattr(current, field) and field in allowed_fields
         }
 
-        if not velden and bewijsinvoer is None:
+        if not velden and bewijsinvoer is None and not ess03_aangeleverd:
             return False
 
         # DEF-751 (herreview, aanvullend): een ruwe `generation_prompt_data`
@@ -2298,19 +2480,20 @@ class DefinitieCrudRepository:
             self._weiger_wissende_registratie(actueel, velden)
             self._bewaak_vaststelinvariant(definitie_id, actueel, updates)
 
-            # DEF-743: bronbewijs samenvoegen ónder de lock — gelijk bewijs is
-            # geen wijziging; gewijzigd bewijs gaat met historie in dezelfde
-            # UPDATE. Een serialisatiefout laat de hele update falen.
-            bronnen_gewijzigd, niets_te_schrijven = self._verwerk_bewijsinvoer(
-                actueel, updates, bewijsinvoer, velden, updated_by
+            # DEF-743/DEF-751/DEF-766: bronbewijs, keuzestaat en ESS-03 ónder
+            # de lock in dezelfde UPDATE; levert dat niets te schrijven op, dan
+            # is dit geen update.
+            bronnen_gewijzigd, schrijfbaar = self._verwerk_registraties(
+                actueel,
+                updates,
+                velden,
+                bewijsinvoer,
+                (ess03_invoer, ess03_verduidelijking),
+                updated_by,
+                _categoriekeuze,
             )
-            if niets_te_schrijven:
+            if not schrijfbaar:
                 return False
-
-            # DEF-751 B2: keuze-event/-staat in dezelfde UPDATE als de kolom
-            # of als de wijziging die de keuze raakt; de beheerde sleutels
-            # komen nooit uit een ruwe schrijfactie.
-            self._verwerk_keuzestaat(actueel, updates, velden, _categoriekeuze)
 
             # DEF-622 (deltareview V2c): uitsluitend de atomaire vaststelactie
             # neemt de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar

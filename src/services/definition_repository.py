@@ -28,6 +28,9 @@ from database.definitie_repository import (
     Voorsteltoepassing,
 )
 from database.models import (
+    ESS03_ASSESSMENT_HISTORY_KEY,
+    ESS03_ASSESSMENT_KEY,
+    ESS03_VERDUIDELIJKING_VELD,
     KANDIDAATSTADIA,
     SOURCE_EVIDENCE_HISTORY_KEY,
     SOURCE_EVIDENCE_KEY,
@@ -138,6 +141,49 @@ def _voeg_bewijsinvoer_toe(
     bewijsinvoer = _bewijsinvoer_uit_metadata(metadata)
     if bewijsinvoer is not None:
         updates["source_evidence"] = bewijsinvoer
+
+
+def _ess03_invoer_uit_metadata(
+    metadata: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """De ESS-03-beoordeling uit `Definition.metadata` (DEF-766), of None.
+
+    Alleen een object gaat door; de DB-laag controleert de vorm (vingerafdruk,
+    status) en weigert gesloten. `None` = geen beoordeling aangeleverd: het
+    opgeslagen document blijft onaangeraakt (niets wordt gewist of verzonnen).
+    """
+    if not metadata:
+        return None
+    beoordeling = metadata.get(ESS03_ASSESSMENT_KEY)
+    return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
+
+
+def _ess03_verduidelijking_invoer(metadata: dict[str, Any] | None) -> str | None:
+    """De actuele ESS-03-verduidelijking uit `Definition.metadata` (R5), of None.
+
+    Alleen een tekst gaat door — ook een lege (bewust gewist). Geen sleutel of
+    None = onaangeraakt: de opgeslagen recordwaarde blijft staan. De waarde
+    wordt nooit uit een (oude) beoordeling afgeleid.
+    """
+    if not metadata or ESS03_VERDUIDELIJKING_VELD not in metadata:
+        return None
+    waarde = metadata.get(ESS03_VERDUIDELIJKING_VELD)
+    return waarde.strip() if isinstance(waarde, str) else None
+
+
+def _voeg_ess03_invoer_toe(
+    updates: dict[str, Any], metadata: dict[str, Any] | None
+) -> None:
+    """DEF-766: de ESS-03-beoordeling en de actuele verduidelijking reizen als
+    structurele sleutels mee; de DB-laag voegt ze ónder de lock samen (gelijk =
+    geen wijziging; anders historie + nieuw). Sleutel afwezig = onaangeraakt;
+    de verduidelijking gaat ook bewust leeg mee (R5)."""
+    ess03 = _ess03_invoer_uit_metadata(metadata)
+    if ess03 is not None:
+        updates[ESS03_ASSESSMENT_KEY] = ess03
+    verduidelijking = _ess03_verduidelijking_invoer(metadata)
+    if verduidelijking is not None:
+        updates[ESS03_VERDUIDELIJKING_VELD] = verduidelijking
 
 
 #: DEF-751 B2: de invoersleutel voor de herkomst van een categorie bij een
@@ -1010,6 +1056,18 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             )
             prompt_data[SOURCE_EVIDENCE_HISTORY_KEY] = []
             prompt_data[SOURCE_PROPOSALS_KEY] = []
+        # DEF-766: de ESS-03-beoordeling van de generatie/eerste toetsing,
+        # gebonden aan exact deze kandidaat; de historie start leeg.
+        ess03 = _ess03_invoer_uit_metadata(metadata)
+        if ess03 is not None:
+            if not str(ess03.get("fingerprint") or "").strip():
+                msg = "ess03_assessment zonder vingerafdruk kan niet worden opgeslagen"
+                raise ValueError(msg)
+            prompt_data[ESS03_ASSESSMENT_KEY] = ess03
+            prompt_data[ESS03_ASSESSMENT_HISTORY_KEY] = []
+        verduidelijking = _ess03_verduidelijking_invoer(metadata)
+        if verduidelijking is not None:
+            prompt_data[ESS03_VERDUIDELIJKING_VELD] = verduidelijking
         if not prompt_data:
             return None
         return serialiseer_generatieregistratie(prompt_data)
@@ -1150,6 +1208,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # de statusvelden maken "alleen korte verwijzing" of "afwezig" expliciet.
         self._herstel_bronbewijs(record, definition.metadata)
 
+        # DEF-766: de opgeslagen ESS-03-beoordeling en haar historie onder de
+        # sleutels van het contract; de gebruikte verduidelijking komt terug
+        # zodat de editor haar toont en een hertoetsing dezelfde binding krijgt.
+        # Zonder beoordeling ontbreken de sleutels: niets wordt verzonnen.
+        self._herstel_ess03_beoordeling(record, definition.metadata)
+
         # DEF-751 B2: de categoriekeuze (event, afgeleide status, historie)
         # onder eigen leessleutels — nooit onder de invoersleutel, zodat
         # openen + opslaan geen tweede event maakt.
@@ -1210,6 +1274,23 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         metadata["source_assessment"] = deepcopy(bewijs.get("source_assessment"))
         metadata["peildatum"] = bewijs.get("peildatum")
         metadata["source_evidence"] = bewijs
+
+    @staticmethod
+    def _herstel_ess03_beoordeling(
+        record: DefinitieRecord, metadata: dict[str, Any]
+    ) -> None:
+        """Zet de opgeslagen ESS-03-beoordeling en -verduidelijking terug in
+        `Definition.metadata` (DEF-766). De verduidelijking komt uitsluitend uit
+        de eigen recordwaarde (R5) — nooit uit de beoordeling; "" blijft "".
+        """
+        verduidelijking = record.get_ess03_verduidelijking()
+        if verduidelijking is not None:
+            metadata[ESS03_VERDUIDELIJKING_VELD] = verduidelijking
+        beoordeling = record.get_ess03_assessment()
+        if beoordeling is None:
+            return
+        metadata[ESS03_ASSESSMENT_KEY] = beoordeling
+        metadata[ESS03_ASSESSMENT_HISTORY_KEY] = record.get_ess03_assessment_history()
 
     # ===== Bronbewijs, CON-02-uitzondering en voorstellen (DEF-743) =====
     def set_source_review(
@@ -1624,6 +1705,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # afwezig = bewijs onaangeraakt. Conflicterende aliassen: ValueError
         # (→ RepositoryError), niets geschreven.
         _voeg_bewijsinvoer_toe(updates, definition.metadata)
+        _voeg_ess03_invoer_toe(updates, definition.metadata)
         # DEF-751 B2 (reviewbevinding 3): de versie die de aanroeper vóór
         # zich had (`metadata["version_number"]`, gezet bij laden en door de
         # editor) reist mee tot de uiteindelijke UPDATE als optimistic lock:

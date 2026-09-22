@@ -48,6 +48,10 @@ import pytest
 
 from services.ai.base_client import ChatMessage, ChatResponse
 from services.interfaces import Definition, GenerationRequest
+from tests.integration.functionality.conftest import (
+    ess03_bevroren_antwoord,
+    is_ess03_beoordelingsprompt,
+)
 
 pytestmark = [pytest.mark.integration]
 
@@ -92,9 +96,11 @@ class BevrorenAIClient:
 
     De andere twee zitten in `bevroren_externe_clients`: de web-lookupclients en
     de OpenAI-embeddingclient. Deze stub levert een vast synoniemenantwoord voor
-    synoniemprompts en een vaste definitietekst voor de rest. Registreert elke
-    aanroep, zodat een test kan toetsen dat de keten werkelijk langs deze grens
-    liep.
+    synoniemprompts, het gesloten ESS-03-antwoord 'onvoldoende informatie' voor
+    de AI-beoordeling van telbaarheid (DEF-766; de validatie loopt sindsdien
+    ook langs deze grens) en een vaste definitietekst voor de rest. Registreert
+    elke aanroep, zodat een test kan toetsen dat de keten werkelijk langs deze
+    grens liep.
     """
 
     def __init__(self, *, synoniemen: list[dict] | None = None) -> None:
@@ -129,11 +135,16 @@ class BevrorenAIClient:
         ]
 
     def hoofddefinitieoproepen(self) -> list[str]:
-        """Calls van de definitiegeneratie zelf."""
+        """Calls van de definitiegeneratie zelf.
+
+        De ESS-03-beoordelingsprompt draagt de *gereinigde* definitie en zou
+        anders als hoofddefinitieprompt meetellen; hij wordt apart herkend.
+        """
         return [
             p
             for p in self.prompts
             if not p.startswith(SUGGESTER_PROMPT_MARKER)
+            and not is_ess03_beoordelingsprompt(p)
             and SYNTHETISCHE_DEFINITIE not in p
         ]
 
@@ -144,6 +155,9 @@ class BevrorenAIClient:
         temperature: float = 0.7,
         max_tokens: int = 300,
         timeout: float | None = None,
+        # Optioneel keyword uit het `AsyncAIClient`-Protocol (DEF-766, opt-in
+        # SDK-retries per aanroep); de bevroren grens doet er niets mee.
+        max_retries: int | None = None,
     ) -> ChatResponse:
         prompt = messages[-1].content if messages else ""
         self.prompts.append(prompt)
@@ -157,6 +171,8 @@ class BevrorenAIClient:
                 # bereikt en faalt daarna, dus geen lege respons in vermomming.
                 raise RuntimeError("providerfout (teststub)")
             tekst = json.dumps({"synoniemen": self.synoniemen}, ensure_ascii=False)
+        elif is_ess03_beoordelingsprompt(prompt):
+            tekst = ess03_bevroren_antwoord(prompt)
         else:
             tekst = SYNTHETISCHE_DEFINITIE
 

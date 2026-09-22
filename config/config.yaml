@@ -242,3 +242,22 @@ model_routing:
           - "sonnet-4"
           - "haiku-3"
           - "haiku-4"
+      # DEF-766 (correctieronde 3, F1): modelfamilies waarop adaptief denken
+      # standaard AAN staat wanneer `thinking` wordt weggelaten. Denktokens
+      # tellen mee in `max_tokens`; met de kleine budgetten van de app komt dan
+      # een afgekapt of leeg antwoord terug. Voor deze families stuurt de
+      # Anthropic-client expliciet `thinking: {type: disabled}` mee; voor elk
+      # ander model wordt de parameter weggelaten (byte-identiek gedrag voor
+      # Opus 4.8 e.d.). Geen effort-parameter.
+      #
+      # Fable 5 / Mythos 5 staan hier bewust NIET: daar staat denken altijd aan
+      # en wordt een expliciete `disabled` met een 400 afgewezen (modelreferentie
+      # skill claude-api, tabel Thinking & Effort) — weglaten is de enige
+      # geldige vorm. Toevoegen alleen op basis van een geverifieerde bron.
+      thinking_default_on:
+        source: "https://platform.claude.com/docs/en/build-with-claude/thinking"
+        # ISO-datum waarop de bron is geraadpleegd (door de coordinator, 21 sep 2026).
+        checked_at: "2026-09-21"
+        model_families:
+          - "opus-5"
+          - "sonnet-5"

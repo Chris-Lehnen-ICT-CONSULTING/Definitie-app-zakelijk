@@ -46,6 +46,7 @@ class TestModelRouterPricing:
         for model in (
             "gpt-5.2",
             "gpt-5-mini",
+            "claude-opus-5",
             "claude-opus-4-8",
             "claude-opus-4-5-20251101",
             "claude-haiku-4-5-20251001",
@@ -68,7 +69,7 @@ class TestModelRouterPricing:
         with patch("config.config_manager.get_config_manager", return_value=mock_cfg):
             router = ModelRouter({})
             # Default Anthropic-model = hoogste Opus voor alle tiers.
-            assert router.get_critical_model() == "claude-opus-4-8"
+            assert router.get_critical_model() == "claude-opus-5"
 
     def test_config_override_replaces_pricing(self):
         """config.yaml model_routing kan pricing overschrijven (single source)."""

@@ -38,6 +38,26 @@ Deze pytestfixture ondersteunt xunit2; de canonieke integrationgate draait
 serieel. Onder pytest-xdist is deze meetregistratie niet gegarandeerd. Dat
 verandert de gedragsassertions niet en levert geen nieuwe prestatienorm op.
 
+## DEF-766 — 22 september 2026
+
+De ESS-03-AI-beoordeling (DEF-766) voegde vijf nieuwe kandidaten toe; de
+preflight meldde ze terecht als `nieuw` (exit 1). Elke kandidaat is
+inhoudelijk beoordeeld en met status en reden in de baseline opgenomen; de
+tests zelf zijn niet gewijzigd en er is geen grens opgerekt.
+
+| Locatie | Vergelijking | Status | Kern van de reden |
+| --- | --- | --- | --- |
+| `test_def766_ai_route_optins.py::test_heuristische_tokenraming_slaat_tiktoken_over` | `perf_counter() - start < 0.4` | retain-risk | Redundante klokgrens naast de deterministische teller `encoder == 0` (stub zou 0,5 s slapen); gemeten 0,01 s. Bij valse failure de klokgrens laten vervallen, niet oprekken. |
+| `test_def766_ess03_assessment_service.py::test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model` | `call['timeout_seconds'] <= 60` | non-timing | Configuratiewaarde (kwarg aan de AI-laag), geen klok; alleen door de naamregex gezien. |
+| `test_def766_ess03_correcties_service.py::test_trage_aanroep_wordt_door_de_deadline_afgebroken` | `perf_counter() - start < 1.5` | contract | Deadline 0,1 s bij een AI-laag die 5 s wacht; de foutsoort alleen zou ook via het vangnet na 5 s ontstaan. Marge 15×; gemeten 0,10 s. |
+| `test_def766_ess03_correcties_service.py::test_vangnet_een_te_laat_teruggekeerd_antwoord_is_timeout_zonder_oordeel` | `d['elapsed_seconds'] >= 0.3` | deterministic | Ondergrens per constructie: de meting omvat een synchrone `sleep(0.3)`; belasting verhoogt alleen. Gemeten 0,302–0,306 s. |
+| `test_def766_ess03_correcties_service.py::test_vertraagde_nabewerking_op_de_echte_route_komt_binnen_de_deadline_terug` | `duur < 0.45` | retain-risk | Contractgrens met krappe marge: werkthread blokkeert 0,6 s, deadline 0,2 s, gemeten 0,20 s; 0,25 s speling boven de deadline. Bij valse failure hooguit tot <0,55 s (onder 0,6 s blijven) of een deterministisch signaal. |
+
+De metingen zijn vijf herhalingen op de ontwikkelmachine (22 september 2026)
+en zijn geen runnergarantie. Daarmee staat de inventaris op **151
+kandidaatvergelijkingen op 121 locaties**, waarvan **114 locaties
+onbeoordeeld** (ongewijzigd) en 7 beoordeeld.
+
 ## Actuele inventaris en bronbinding
 
 Na deze vier vervangingen blijven **146 kandidaatvergelijkingen op 116
