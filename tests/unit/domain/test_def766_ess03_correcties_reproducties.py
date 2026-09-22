@@ -201,7 +201,13 @@ def test_r9_onvoldoende_informatie_draagt_een_eigen_label(monkeypatch):
             }
         },
     }
-    shown: dict[str, list[str]] = {"markdown": [], "warning": [], "info": []}
+    # DEF-820: de hulptekst bij 'onvoldoende informatie' komt als caption.
+    shown: dict[str, list[str]] = {
+        "markdown": [],
+        "warning": [],
+        "info": [],
+        "caption": [],
+    }
     for api in shown:
         monkeypatch.setattr(
             validation_view.st,

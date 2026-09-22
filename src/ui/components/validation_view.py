@@ -506,11 +506,24 @@ def render_rule_results(rule_results: dict[str, Any]) -> None:
         if isinstance(review, dict):
             for regel in _review_regels(review):
                 st.markdown(f"_{regel}_")
+        if inhoudelijk == _LABEL_ONVOLDOENDE_INFORMATIE:
+            st.caption(_HULP_ONVOLDOENDE_INFORMATIE)
 
 
 #: DEF-766 (R9): een uitgevoerde AI-uitkomst 'onvoldoende informatie' is een
 #: inhoudelijke uitkomst met precies één vraag — geen generiek open punt.
 _LABEL_ONVOLDOENDE_INFORMATIE = "❓ Onvoldoende informatie"
+
+#: DEF-820 (K2): een verwijzende formulering zonder aangeleverde afspraak
+#: levert vrijwel altijd deze vraag op. De gebruiker hoort te weten dat de
+#: conventie aanleveren de weg is, niet de tekst herschrijven om de vraag te
+#: ontwijken. Staat naast de vervolgstap en herhaalt die niet.
+_HULP_ONVOLDOENDE_INFORMATIE = (
+    "Verwijst de definitie naar een register, een code of een conventie die niet "
+    "is aangeleverd, dan vraagt de beoordeling daar meestal naar. Lever die "
+    "conventie of de bronpassage aan; de definitie herschrijven om de vraag te "
+    "ontlopen neemt de onduidelijkheid niet weg."
+)
 
 
 def _inhoudelijk_label(detail: dict[str, Any]) -> str | None:
