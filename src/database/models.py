@@ -81,6 +81,25 @@ CATEGORY_CHOICE_OWNED_KEYS: tuple[str, ...] = (
     CATEGORY_CHOICE_CLAIM_KEY,
 )
 
+#: Sleutels in `generation_prompt_data` (DEF-766): de actuele AI-telbaarheids-
+#: beoordeling van ESS-03 (store-ready document, contract
+#: `domain.ess03.contract`, gebonden via vingerafdruk aan term, tekst, context,
+#: bedoelde betekenis en bronnen) en de append-only historie van vervangen
+#: beoordelingen. Geen kolom, geen schema; een vervallen binding herleeft nooit.
+ESS03_ASSESSMENT_KEY = "ess03_assessment"
+ESS03_ASSESSMENT_HISTORY_KEY = "ess03_assessment_history"
+#: De actuele ESS-03-verduidelijking van het record (correctieronde 1, R5):
+#: het antwoord van de gebruiker op de gerichte vraag, los van een beoordeling.
+#: Afwezig = nooit ingevuld; "" = bewust gewist. Nooit uit een beoordeling afgeleid.
+#: Naam eindigt bewust niet op _KEY: de secret-scan (DEF-522) leest `..._KEY =
+#: "<waarde met cijfers>"` als een generieke API-sleutel.
+ESS03_VERDUIDELIJKING_VELD = "ess03_verduidelijking"
+ESS03_OWNED_KEYS: tuple[str, ...] = (
+    ESS03_ASSESSMENT_KEY,
+    ESS03_ASSESSMENT_HISTORY_KEY,
+    ESS03_VERDUIDELIJKING_VELD,
+)
+
 #: De drie contextvelden zoals het bewijs ze vastlegt (zelfde namen als het record).
 _CONTEXTVELDEN: tuple[str, ...] = (
     "organisatorische_context",
@@ -559,6 +578,45 @@ class DefinitieRecord:
         if not isinstance(historie, list):
             return []
         return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    # ------------------------------------ ESS-03-beoordeling (DEF-766)
+
+    def get_ess03_assessment(self) -> dict[str, Any] | None:
+        """De actuele AI-telbaarheidsbeoordeling (ESS-03), of None (afwezig/misvormd).
+
+        Bewaard onder `ess03_assessment` in de generatieregistratie: geen
+        schemawijziging. Alleen een object met een vingerafdruk telt; of het
+        document nog bij dít record hoort, bepaalt de replay van het contract
+        (`domain.ess03.contract.beoordeel_telbaarheid`), niet deze lezer.
+        """
+        registratie = self.get_generatieregistratie() or {}
+        beoordeling = registratie.get(ESS03_ASSESSMENT_KEY)
+        if (
+            not isinstance(beoordeling, dict)
+            or not str(beoordeling.get("fingerprint") or "").strip()
+        ):
+            return None
+        return deepcopy(beoordeling)
+
+    def get_ess03_assessment_history(self) -> list[dict[str, Any]]:
+        """De append-only lijst van vervangen ESS-03-beoordelingen (oud → nieuw)."""
+        registratie = self.get_generatieregistratie() or {}
+        historie = registratie.get(ESS03_ASSESSMENT_HISTORY_KEY)
+        if not isinstance(historie, list):
+            return []
+        return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    def get_ess03_verduidelijking(self) -> str | None:
+        """De actuele ESS-03-verduidelijking van dít record (R5).
+
+        None = nooit vastgelegd; "" = bewust gewist. Komt uitsluitend uit de
+        eigen registratiesleutel — nooit uit een (oude) beoordeling.
+        """
+        registratie = self.get_generatieregistratie() or {}
+        if ESS03_VERDUIDELIJKING_VELD not in registratie:
+            return None
+        waarde = registratie.get(ESS03_VERDUIDELIJKING_VELD)
+        return waarde.strip() if isinstance(waarde, str) else None
 
     # ------------------------------------ categoriekeuze (DEF-751 B2)
 

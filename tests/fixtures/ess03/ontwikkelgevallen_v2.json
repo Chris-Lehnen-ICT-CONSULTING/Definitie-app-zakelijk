@@ -1,0 +1,122 @@
+{
+  "schema": "def766-ess03-ontwikkelgevallen/1",
+  "status": "ontwikkeldata correctieronde 1 (R8); synthetisch; verwachtingen vooraf vastgelegd uit de norm (ESS-03.json / tekstvoorstellen-v3 / casusregister-v4) en de bevestigde reviewbevinding R8 (D04 en D07 onterecht afgekeurd); GEEN deskundig gevalideerde goldset",
+  "vastgelegd_op": "2026-09-21",
+  "vastgelegd_door": "Claude Code CLI-uitvoerder (DEF-766, correctieronde 1), vóór de eerste modelaanroep met prompt ess03-assess/2",
+  "basis": "tests/fixtures/ess03/ontwikkelgevallen_v1.json (onaangeroerd); D04 en D07 zijn letterlijk overgenomen; D06a is een nieuwe ondubbelzinnige variant van D06 met expliciete referent- en eenheidscontext in de bedoelde betekenis; D01, D02, D03, D05 en D09 zijn letterlijk overgenomen als regressie voor de vier uitkomsten",
+  "budget": "maximaal 8 echte beoordelingsaanroepen; geen retries, geen cache, harde deadline per aanroep (60 s) en voor de gehele run",
+  "regel": "Bij alle gevallen geldt: het model mag alleen het aangeleverde materiaal gebruiken; externe domeinfeiten (registers, wetten, standaarden) zijn hier bewust synthetisch en staan in de bron- of toelichtingtekst wanneer ze nodig zijn. De velden 'verwacht', 'grond' en 'doel' gaan NOOIT naar het model.",
+  "gevallen": [
+    {
+      "id": "D04-code-zonder-scope",
+      "casusregister": "N03 / N24",
+      "doel": "R8: v1 gaf fail (ontbrekende identificatieconventie als bewezen ondeugdelijkheid); ongewijzigd opnieuw",
+      "begrip": "meetobject",
+      "tekst": "Meetobject herkenbaar aan zijn registratienummer.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetische Meetdienst"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "verwacht": "insufficient_information",
+      "grond": "De code is het enige onderscheidingsmiddel, maar referentsoort, naamruimte/register en geldigheid zijn niet onderbouwd en er is geen conventie of bron aangeleverd. De beslisgrond ontbreekt; precies één gerichte vraag (welk register/populatie/geldigheid). Geen bewezen gebrek in de kern zelf."
+    },
+    {
+      "id": "D07-register-zonder-conventie",
+      "casusregister": "N02 (zonder bewijs)",
+      "doel": "R8: v1 gaf fail met circulariteit als grond; ongewijzigd opnieuw",
+      "begrip": "meetobject",
+      "tekst": "Meetobject dat binnen register R door een blijvend uniek nummer wordt onderscheiden.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetische Meetdienst"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "verwacht": "insufficient_information",
+      "grond": "Dezelfde tekst als D06, maar zonder registercontract: de claim 'blijvend uniek binnen R' is niet onderbouwd (geen toekennings-/hergebruikafspraak aangeleverd). Geen bewezen gebrek; de beslisgrond ontbreekt — één gerichte vraag naar de registerafspraak. Circulariteit of de vorm van het genus is geen ESS-03-afkeurgrond."
+    },
+    {
+      "id": "D06a-register-met-conventie-expliciete-referent",
+      "casusregister": "N02 (met bewijs; ondubbelzinnige variant van D06)",
+      "doel": "R8: D06 bleef ambigu (referent onduidelijk); deze variant maakt referent en eenheid in de bedoelde betekenis expliciet, met dezelfde kandidaattekst en dezelfde registerconventie",
+      "begrip": "meetobject",
+      "tekst": "Meetobject dat binnen register R door een blijvend uniek nummer wordt onderscheiden.",
+      "toelichting": "Bedoeld: de afzonderlijke, vast op één locatie geplaatste meetinstallatie in het veld (de fysieke installatie, niet de meting en niet de registratie). Eenheid: één installatie is één meetobject; twee installaties zijn twee meetobjecten, ook bij hetzelfde type of dezelfde eigenaar. Vervanging van onderdelen beëindigt het meetobject niet zolang de installatie in register R is opgenomen.",
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetische Meetdienst"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [
+        {"provider": "documents", "doc_id": "synth-register-r", "title": "Synthetisch registercontract R", "citation_label": "§3", "url": "https://intern.example/register-r#p3", "snippet": "Register R kent aan iedere meetinstallatie bij opname precies één nummer toe. Een nummer wordt nooit hergebruikt en blijft aan dezelfde installatie gebonden zolang zij in R is opgenomen, ook na vervanging van onderdelen."}
+      ],
+      "verwacht": "pass",
+      "grond": "De bedoelde betekenis benoemt referent (fysieke meetinstallatie) en eenheid (één installatie = één meetobject) met een continuïteitsconventie (onderdelenvervanging), en de aangeleverde registerconventie onderbouwt referentsoort, populatie (register R), toekenning (precies één nummer bij opname) en geldigheid (nooit hergebruikt, blijvend gebonden). Eén, dezelfde en een andere instantie zijn onderscheidbaar; dat het definiendum in de kern als eigen genus terugkeert is geen ESS-03-grond."
+    },
+    {
+      "id": "D01-natuurlijke-grens",
+      "casusregister": "N05 / H-natural_boundary",
+      "doel": "regressie pass zonder code of bron; tevens duurmeting (v1: 163,125 s bij één aanroep, oorzaak niet bewezen)",
+      "begrip": "eiland",
+      "tekst": "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven.",
+      "toelichting": "Synthetische conventie voor deze proef: elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden.",
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetisch Waterschap"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "verwacht": "pass",
+      "grond": "De kern draagt een natuurlijke grens via bovenbegrip (landoppervlak) en begripsbepalende kenmerken (afzonderlijk, aaneengesloten, volledig omgeven, peilmoment); één, dezelfde en een andere instantie zijn onderscheidbaar zonder administratieve code. De aangeleverde conventie bevestigt de telbare eenheid."
+    },
+    {
+      "id": "D02-isbn-exemplaar",
+      "casusregister": "N04 / P05",
+      "doel": "regressie fail op basis van een aangeleverde bron (de strengere fail-definitie in prompt /2 mag een bewezen gebrek niet verliezen)",
+      "begrip": "boekexemplaar",
+      "tekst": "Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke exemplaren wordt onderscheiden.",
+      "toelichting": "Bedoeld: het afzonderlijke fysieke exemplaar in de collectie, niet de uitgave.",
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetische Bibliotheek"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [
+        {"provider": "documents", "doc_id": "synth-reglement-1", "title": "Synthetisch collectiereglement", "citation_label": "art. 2", "url": "https://intern.example/reglement#art-2", "snippet": "Een ISBN identificeert een uitgave (titel, editie, verschijningsvorm). Meerdere fysieke exemplaren van dezelfde uitgave dragen hetzelfde ISBN."}
+      ],
+      "verwacht": "fail",
+      "grond": "Het enige gestelde onderscheidingsmiddel (ISBN) onderscheidt volgens de aangeleverde bron geen fysieke exemplaren: verschillende instanties delen dezelfde code. De kern onderscheidt de bedoelde instanties dus niet."
+    },
+    {
+      "id": "D05-ontkende-uniciteit",
+      "casusregister": "N01",
+      "doel": "regressie fail op een intrinsiek, uit de kandidaat zelf aantoonbaar gebrek",
+      "begrip": "object",
+      "tekst": "Object waarvan de code niet uniek is en naar meerdere objecten verwijst.",
+      "toelichting": "Bedoeld: afzonderlijke fysieke objecten; alleen de code is als identificatie bedoeld.",
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetisch Beheer"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "verwacht": "fail",
+      "grond": "De tekst ontkent zelf het enige gestelde onderscheidingsmiddel ('niet uniek', 'naar meerdere objecten verwijst'): intrinsiek aantoonbaar gebrek, geen externe bron nodig."
+    },
+    {
+      "id": "D03-stof",
+      "casusregister": "H-mass_noun",
+      "doel": "regressie not_applicable (stoflezing)",
+      "begrip": "water",
+      "tekst": "Vloeistof bestaande uit H2O.",
+      "toelichting": "Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid.",
+      "categorie": "type",
+      "context": {"organisatorische_context": ["Synthetisch Laboratorium"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "verwacht": "not_applicable",
+      "grond": "Stoflezing zonder gekozen telbare eenheid (ASTRA-uitzondering: substanties); ESS-03 verlangt hier geen afzonderlijke identificatie. Het categorielabel bepaalt dat niet; de bedoelde betekenis wel."
+    },
+    {
+      "id": "D09-tegenstrijdige-bronnen",
+      "casusregister": "N13 / N19",
+      "doel": "regressie insufficient_information bij strijdige conventies (gesloten antwoordvorm: precies één vraag)",
+      "begrip": "meetuitvoering",
+      "tekst": "Aaneengesloten uitvoering van een meetprotocol door één meetploeg.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {"organisatorische_context": ["Synthetische Meetdienst"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [
+        {"provider": "documents", "doc_id": "synth-protocol-a", "title": "Synthetisch protocol A", "citation_label": "§4", "url": "https://intern.example/protocol-a#p4", "snippet": "Protocol A: een onderbroken en daarna hervatte meting geldt als dezelfde meetuitvoering."},
+        {"provider": "documents", "doc_id": "synth-protocol-b", "title": "Synthetisch protocol B", "citation_label": "§2", "url": "https://intern.example/protocol-b#p2", "snippet": "Protocol B: bij een onderbreking eindigt de meetuitvoering; na hervatting begint een nieuwe meetuitvoering."}
+      ],
+      "verwacht": "insufficient_information",
+      "grond": "De telling hangt af van de continuïteitsconventie bij onderbreking; twee aangeleverde protocollen zeggen het tegengestelde en de context wijst er geen aan. Geen bewezen definitiefout, wel ontbrekende toepasselijkheidsgrond: één gerichte vraag welk protocol in deze context geldt."
+    }
+  ]
+}

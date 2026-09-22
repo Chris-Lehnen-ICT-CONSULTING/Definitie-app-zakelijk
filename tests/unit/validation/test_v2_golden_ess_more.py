@@ -1,6 +1,7 @@
 import pytest
 
 from services.validation.modular_validation_service import ModularValidationService
+from tests.fixtures.def766_fakes import BINDING, bouw_ess03_beoordeling
 from toetsregels.manager import get_toetsregel_manager
 
 pytestmark = [pytest.mark.unit]
@@ -8,35 +9,34 @@ pytestmark = [pytest.mark.unit]
 
 @pytest.mark.asyncio
 async def test_ess03_woordtreffer_geeft_geen_automatische_pass_of_fail():
-    """ESS-03 is sinds DEF-766 een oordeelregel; de signalen moeten wél onderscheiden.
+    """ESS-03 oordeelt sinds DEF-766 op de AI-beoordeling, nooit op woorden.
 
     Vóór DEF-766 was 'VIN: unieke code …' een automatische pass en
     'aanduiding van een ding' een automatische fail — puur op woorden. Nu
-    blijven beide open (`review_required`, geen violation, geen pass), en
-    het verschil zit in de signalen: de uniciteits-/codeclaim wordt als te
-    beoordelen passage aangewezen, de tekst zonder claim krijgt geen
-    signaal. Zonder dat verschil zou deze test invoer-onafhankelijk zijn
-    (DEF-670-les).
+    is ESS-03 zonder voorbereide beoordeling voor béide teksten expliciet
+    niet beoordeeld (`review_required`, geen violation, geen pass, met de
+    reden "niet uitgevoerd"), en verandert alleen een aan de kandidaat
+    gebonden beoordeling de uitkomst — niet de aanwezigheid van een code- of
+    uniciteitswoord. Zonder dat verschil zou deze test invoer-onafhankelijk
+    zijn (DEF-670-les): daarom keurt de gebonden beoordeling de claimtekst
+    juist áf terwijl de tekst zonder claim open blijft.
     """
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
+    tekst_claim = "VIN: unieke code die een voertuig identificeert"
 
     res_claim = await svc.validate_definition(
         begrip="voertuigidentificatie",
-        text="VIN: unieke code die een voertuig identificeert",
+        text=tekst_claim,
         ontologische_categorie=None,
         context={},
     )
-    review_claim = {r["rule_id"]: r for r in res_claim.get("review_required", [])}
-    assert "ESS-03" in review_claim, res_claim
+    assert res_claim["rule_statuses"]["ESS-03"] == "review_required", res_claim
     assert "ESS-03" not in res_claim.get("passed_rules", []), res_claim
     assert not any(
         v.get("code") == "ESS-03" for v in res_claim.get("violations", [])
     ), res_claim
-    assert review_claim["ESS-03"]["signals"], (
-        "een uniciteits-/codeclaim (VIN, unieke) levert geen enkel signaal op — "
-        "de reviewer krijgt dan geen aanwijzing waar te kijken"
-    )
-    assert "Te beoordelen passage:" in review_claim["ESS-03"]["reason"]
+    detail_claim = res_claim["rule_results"]["ESS-03"]
+    assert "niet uitgevoerd" in detail_claim["parts"][0]["reason"].lower()
 
     res_zonder = await svc.validate_definition(
         begrip="identificatie",
@@ -44,19 +44,49 @@ async def test_ess03_woordtreffer_geeft_geen_automatische_pass_of_fail():
         ontologische_categorie=None,
         context={},
     )
-    review_zonder = {r["rule_id"]: r for r in res_zonder.get("review_required", [])}
-    assert "ESS-03" in review_zonder, res_zonder
+    assert res_zonder["rule_statuses"]["ESS-03"] == "review_required", res_zonder
     assert "ESS-03" not in res_zonder.get("passed_rules", []), res_zonder
     assert not any(
         v.get("code") == "ESS-03" for v in res_zonder.get("violations", [])
     ), res_zonder
-    assert not review_zonder["ESS-03"]["signals"], (
-        f"een tekst zonder code-/uniciteitsclaim levert tóch signalen: "
-        f"{review_zonder['ESS-03']['signals']}"
-    )
 
-    # De kern: de twee teksten leveren verschillende uitkomsten op.
-    assert review_claim["ESS-03"]["signals"] != review_zonder["ESS-03"]["signals"]
+    # De kern: alleen een aan exact deze kandidaat gebonden beoordeling
+    # verandert de uitkomst — hier een afkeur van de codeclaim (het woord
+    # 'unieke' bewijst niets), zichtbaar maar niet blokkerend.
+    beoordeling = bouw_ess03_beoordeling(
+        "voertuigidentificatie",
+        tekst_claim,
+        {},
+        None,
+        scenario="fail",
+        reden="De code wordt genoemd, maar populatie en geldigheid zijn niet onderbouwd.",
+    )
+    # Correctieronde 1 (R1): zonder actuele beoordelingsbinding (prompt, norm,
+    # provider, model — door de wrapper meegegeven) geldt een meegegeven
+    # beoordeling niet als actueel: expliciet niet beoordeeld, geen fail.
+    res_zonder_binding = await svc.validate_definition(
+        begrip="voertuigidentificatie",
+        text=tekst_claim,
+        ontologische_categorie=None,
+        context={"ess03_assessment": beoordeling},
+    )
+    assert res_zonder_binding["rule_statuses"]["ESS-03"] == "review_required"
+    assert not any(
+        v.get("code") == "ESS-03" for v in res_zonder_binding.get("violations", [])
+    )
+    res_beoordeeld = await svc.validate_definition(
+        begrip="voertuigidentificatie",
+        text=tekst_claim,
+        ontologische_categorie=None,
+        context={"ess03_assessment": beoordeling, "ess03_binding": BINDING.als_dict()},
+    )
+    assert res_beoordeeld["rule_statuses"]["ESS-03"] == "fail"
+    [violation] = [v for v in res_beoordeeld["violations"] if v.get("code") == "ESS-03"]
+    assert violation["severity"] == "warning"
+    assert (
+        res_beoordeeld["rule_statuses"]["ESS-03"]
+        != res_zonder["rule_statuses"]["ESS-03"]
+    )
 
 
 @pytest.mark.asyncio

@@ -63,7 +63,11 @@ async def test_text_transports_context_metadata_without_mutating_input():
     )
     supplied = service.validate_definition.call_args.kwargs["context"]
     # Alles uit metadata komt aan; daarnaast reist de exacte invoertekst mee.
-    assert service.received == {**metadata, "record_text": "kwaliteitsmerk"}
+    # DEF-766: zonder geïnjecteerde ESS-03-dienst reist ook een expliciet
+    # `unavailable`-document mee (nooit stil een pass).
+    ontvangen = dict(service.received)
+    assert ontvangen.pop("ess03_assessment")["status"] == "unavailable"
+    assert ontvangen == {**metadata, "record_text": "kwaliteitsmerk"}
     # De dubbel heeft `supplied` in de diepte gemuteerd; de aanroeper mag
     # daar niets van merken.
     assert supplied["organisatorische_context"][-1] == "gemuteerd door service"

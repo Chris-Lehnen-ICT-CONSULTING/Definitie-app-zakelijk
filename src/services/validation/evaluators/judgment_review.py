@@ -1,6 +1,6 @@
 """Oordeelregels: expliciet reviewplichtig, nooit stil geslaagd (DEF-624).
 
-Veertien regels hebben geen betrouwbare automatische toets:
+Dertien regels hebben geen betrouwbare automatische toets:
 
 - besluit DEF-624 (acht regels): ARAI-03, ESS-01, ESS-04, INT-02, INT-06,
   STR-03, STR-05 en STR-06;
@@ -10,33 +10,36 @@ Veertien regels hebben geen betrouwbare automatische toets:
 - DEF-750: ESS-02 (betekenisniveau en aard). Een markerwoord, precies één
   categoriehit of meerdere categoriewoorden bewijzen niets over de
   bedoelde betekenis; de regel draagt `score_policy: no_score`;
-- DEF-766: ESS-03 (instanties uniek onderscheidbaar, telbaarheid). Een
-  naam, nummer, code of het woord 'uniek' bewijst geen individuatie en het
-  ontbreken ervan is geen gebrek; de regel draagt `score_policy: no_score`
-  en vereist naast de tekst ook de term;
 - DEF-767: ESS-04 (toetsbaarheid) draagt sinds besluit N2 een eigen
   passagehulp: een getal, termijn of signaalwoord bewijst geen toetsbaarheid
   en het ontbreken ervan is geen gebrek — kwalitatieve criteria kunnen
   volstaan. De regel was al reviewplichtig (`excluded_from_score`).
 
+ESS-03 (telbaarheid) liep hier van 18 tot 21 september 2026 (DEF-766, eerste
+uitvoeringsfase); sinds het besluit van 19/21 september beoordeelt de app die
+regel zelf via de AI-telbaarheidsbeoordeling
+(`services.validation.evaluators.countability_assessment`).
+
 Hun patronen blijven bruikbaar als *signaal* — ze wijzen de reviewer waar
-te kijken — maar ze zijn geen *bewijs*: bij alle veertien vuren de eigen
+te kijken — maar ze zijn geen *bewijs*: bij alle dertien vuren de eigen
 patronen ook op het gedocumenteerde goede voorbeeld, of missen ze het
 gedocumenteerde foute voorbeeld volledig.
 
-Dát het er veertien zijn wordt bewaakt door
+Dát het er dertien zijn wordt bewaakt door
 `tests/unit/validation/test_rule_runtime_matrix.py::TestAfgeleideTelling`:
 die klasse leidt de klasseverdeling uit de records af en faalt zodra het
 aantal `review_required`-regels verschuift. Zij legt alleen die telling
-vast — niet de identiteit van de veertien regels hierboven. Een canonieke,
+vast — niet de identiteit van de dertien regels hierboven. Een canonieke,
 hardgecodeerde lijst en de bijbehorende semantische dekking komen met
 Batch 2 via DEF-623; die tests staan tot dan geparkeerd buiten `main`.
 
 Daarom levert deze evaluator altijd `review_required`. Die uitkomst telt
 niet mee in de kwaliteitsscore en wordt nooit als pass genormaliseerd; hij
-verschijnt apart in de evaluatiedekking. Een gecontroleerde AI-jury is
-bewust níet ingevoerd: dat vraagt een afzonderlijk besluit over prompt- en
-modelversie, goldset, privacy, kosten en foutbeleid (ADR-001).
+verschijnt apart in de evaluatiedekking. Een algemene AI-jury voor deze
+dertien regels is bewust níet ingevoerd: dat vraagt per regel een
+afzonderlijk besluit over prompt- en modelversie, goldset, privacy, kosten
+en foutbeleid (ADR-001) — zoals voor CON-02 (DEF-743) en ESS-03 (DEF-766)
+genomen is.
 """
 
 from __future__ import annotations
@@ -63,16 +66,6 @@ class JudgmentReviewEvaluator:
         self, record: RuleRecord, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> EvaluationOutcome:
         code = record.rule_id.upper()
-        if code == "ESS-03" and not (ctx.cleaned_text or "").strip():
-            # DEF-766 (casus H-empty): zonder toetsobject is er niets te
-            # beoordelen — geen open vraag over een lege kern en geen
-            # inhoudelijke afkeur; de basisfout blijft bij VAL-EMP-001. Bewust
-            # alleen ESS-03: de gedeelde invoerregel (een aangeleverde lege
-            # tekst is nog een tekst) blijft voor de andere regels staan.
-            return EvaluationOutcome.not_evaluated(
-                "vereiste invoer ontbreekt: definition_text (lege definitietekst, "
-                "geen toetsobject voor ESS-03)"
-            )
         signalen = self._signalen(record, ctx, deps)
         toetsvraag = str(record.get("toetsvraag") or record.get("naam") or "").strip()
         reden = toetsvraag or "Deze regel vereist een inhoudelijk oordeel."
@@ -80,8 +73,6 @@ class JudgmentReviewEvaluator:
             reden = self._ess01_reden(ctx, signalen)
         elif code == "ESS-02":
             reden = self._ess02_reden(ctx, signalen)
-        elif code == "ESS-03":
-            reden = self._ess03_reden(ctx, signalen)
         elif code == "ESS-04":
             reden = self._ess04_reden(record, ctx, signalen)
         return EvaluationOutcome.review_required(reden, signals=signalen)
@@ -127,46 +118,6 @@ class JudgmentReviewEvaluator:
             signalen,
             vraag="Wijst deze passage op een niveau-aanduiding of op een keuze "
             "tussen betekenislagen, of benoemt zij slechts een gerelateerde zaak?",
-        )
-
-    @classmethod
-    def _ess03_reden(cls, ctx: EvaluationContext, signalen: tuple[str, ...]) -> str:
-        """DEF-766: eenheid en identiteit zijn een menselijk oordeel (T-tekst).
-
-        De reden draagt de toetsvraag en de beslisgrond uit het ESS-03-
-        onderzoek: eerst de bedoelde eenheid, dan wat één, dezelfde en een
-        andere instantie onderscheidt; een naam, nummer, code of het woord
-        'uniek' bewijst niets; een niet-telbare lezing valt buiten toepassing
-        en wordt als oordeel vastgelegd, niet als ontbrekende invoer. De
-        patronen wijzen hooguit een code- of uniciteitsclaim aan; geen treffer
-        is geen 'voldoet', een treffer is geen 'voldoet niet'. Toetsen
-        verandert de tekst niet en start geen herstel.
-        """
-        kop = (
-            "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één "
-            "instantie geldt? Stel eerst vast welke eenheid bedoeld is en of "
-            "afzonderlijke instanties in deze betekenis relevant zijn; onderzoek "
-            "dan wat één, dezelfde en een andere instantie onderscheidt. Een "
-            "passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke "
-            "grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst "
-            "op zichzelf geen identiteit. Beschrijft de betekenis een stof, "
-            "kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan "
-            "vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. "
-            "Toetsen verandert de tekst niet; herstel alleen op verzoek na "
-            "oorzaakbepaling."
-        )
-        label = cls._opgegeven_categorie(ctx)
-        if label:
-            kop += (
-                f" Registratie: opgegeven categorie '{label}' is een te controleren "
-                "betekenisclaim en bepaalt de toepasselijkheid niet."
-            )
-        return cls._reden_met_passages(
-            kop,
-            ctx,
-            signalen,
-            vraag="Wat identificeert deze code of claim, binnen welke populatie "
-            "en geldigheid? Aanwezigheid van het woord bewijst niets.",
         )
 
     @classmethod

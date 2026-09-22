@@ -289,18 +289,27 @@ ESS-01:
     tekst: "subsidie: bijdrage om te stimuleren"
 
 ESS-03:
-  required_fields: [herkenbaar_patronen]
+  # DEF-766: AI-telbaarheidsbeoordeling (evaluator countability_assessment,
+  # judgment + automated, no_score). Zonder voorbereide beoordeling (geen
+  # dienst) is de uitkomst expliciet open; een code- of uniciteitswoord in de
+  # zin bewijst geen identiteit en het ontbreken ervan is geen gebrek.
+  required_fields: []
   issue: DEF-766
   reden: >
     eenheid en identiteit zijn een inhoudelijk oordeel (DEF-766); de oude
     woordindicator liet "Object met een nummer", een ontkende uniciteitsclaim
     en een ISBN-exemplaar slagen en keurde een natuurlijke grens, een
-    stoflezing en "registratienummer" af. De probe is de oude positieve case:
-    een uniek volgnummer zonder scope of referentsoort — vroeger een pass,
-    nu een te beoordelen claim.
+    stoflezing en "registratienummer" af. Sinds de AI-beoordeling geeft de
+    app dat oordeel zelf op kandidaat, bedoelde betekenis, context en bronnen;
+    het tekstpad van deze matrix levert geen dienst en dan is 'nog te
+    beoordelen' het contractuele antwoord. Het gedrag mét beoordeling staat in
+    test_def766_ess03_evaluator.py.
   probe:
     begrip: registratie
     tekst: "vastlegging met een uniek volgnummer per geval"
+  bronwoord:
+    begrip: object
+    tekst: "Object met een uniek registratienummer en kenteken."
 
 ESS-04:
   required_fields: [herkenbaar_patronen]

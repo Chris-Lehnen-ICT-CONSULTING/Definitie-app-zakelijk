@@ -69,12 +69,15 @@ class TestRootPolicyAansluiting:
     def test_resultaatstatussen_zijn_volledig(self):
         # Het onderscheid pass/fail/review_required/not_evaluated/error is de
         # kern van DEF-624; een ingekorte set zou default-pass terugbrengen.
+        # DEF-766 voegt not_applicable toe: een afgeronde niet-toepasselijkheid
+        # (ESS-03) die noch pass, noch open, noch niet-uitgevoerd is.
         assert set(root_contract_policy().result_status) == {
             "pass",
             "fail",
             "review_required",
             "not_evaluated",
             "error",
+            "not_applicable",
         }
 
     def test_achterhaalde_pythonchecks_zijn_verdwenen(self):

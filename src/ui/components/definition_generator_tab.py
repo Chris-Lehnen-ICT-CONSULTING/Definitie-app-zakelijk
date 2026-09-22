@@ -53,11 +53,16 @@ def _dekkingstegel(agent_result: Any) -> str:
     )
     if not dekking:
         return "Zie toetsresultaten"
-    return (
+    tegel = (
         f"{dekking['pass']} voldoet · {dekking['fail']} niet · "
         f"{dekking['review_required'] + dekking['not_evaluated']} open · "
         f"{dekking['error']} fout"
     )
+    # DEF-766: een afgeronde niet-toepasselijkheid is geen van de vier
+    # bovenstaande; alleen tonen wanneer zij voorkomt.
+    if dekking.get("not_applicable"):
+        tegel += f" · {dekking['not_applicable']} n.v.t."
+    return tegel
 
 
 def _validatie_is_onbepaald(agent_result: Any) -> bool:

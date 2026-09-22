@@ -14,6 +14,7 @@ from collections.abc import Iterable
 from typing import Any
 
 from domain.context.normalisatie import canoniseer_contextlijst
+from domain.ess03 import contract as ess03_contract
 from domain.sources.contract import (
     beoordeling_niet_beschikbaar,
     beoordeling_technische_fout,
@@ -133,6 +134,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         validation_service: ValidationServiceInterface,
         cleaning_service: CleaningServiceInterface | None = None,
         source_assessment_service: Any | None = None,
+        ess03_assessment_service: Any | None = None,
     ) -> None:
         if validation_service is None:
             msg = "validation_service is vereist"
@@ -142,6 +144,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # DEF-743: de AI-bronbeoordeling (CON-02) is standaard onderdeel van
         # elke validatie met bronnen; deze wrapper verkrijgt haar zelf.
         self.source_assessment_service = source_assessment_service
+        # DEF-766: de AI-telbaarheidsbeoordeling (ESS-03) is standaard
+        # onderdeel van elke validatie met term en tekst; idem.
+        self.ess03_assessment_service = ess03_assessment_service
 
     async def validate_text(
         self,
@@ -194,6 +199,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if assessment is not None:
                     context_dict["source_assessment"] = assessment
+                # DEF-766: idem voor de telbaarheidsbeoordeling (ESS-03).
+                telbaarheid = await self._beoordeel_telbaarheid(
+                    begrip, text, context_dict, correlation_id
+                )
+                if telbaarheid is not None:
+                    context_dict["ess03_assessment"] = telbaarheid
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
@@ -204,8 +215,10 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
 
                 # Ensure result is schema-compliant
-                return self._met_bronbeoordeling(
-                    ensure_schema_compliance(result, correlation_id), assessment
+                return self._met_beoordelingen(
+                    ensure_schema_compliance(result, correlation_id),
+                    assessment,
+                    telbaarheid,
                 )
 
             except Exception as e:
@@ -261,6 +274,13 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if assessment is not None:
                     context_dict["source_assessment"] = assessment
+                # DEF-766: de telbaarheidsbeoordeling bindt aan dezelfde
+                # recordtekst, contextlijsten en de toelichting van het record.
+                telbaarheid = await self._beoordeel_telbaarheid(
+                    definition.begrip, recordtekst, context_dict, correlation_id
+                )
+                if telbaarheid is not None:
+                    context_dict["ess03_assessment"] = telbaarheid
 
                 text = definition.definitie
 
@@ -272,8 +292,10 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
 
                 # Ensure result is schema-compliant
-                return self._met_bronbeoordeling(
-                    ensure_schema_compliance(result, correlation_id), assessment
+                return self._met_beoordelingen(
+                    ensure_schema_compliance(result, correlation_id),
+                    assessment,
+                    telbaarheid,
                 )
 
             except Exception as e:
@@ -406,18 +428,104 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 sources=canoniek,
             )
 
-    @staticmethod
-    def _met_bronbeoordeling(
-        result: ValidationResult, assessment: dict[str, Any] | None
-    ) -> ValidationResult:
-        """Geef de verkregen beoordeling volledig terug (contract 1.4.0).
+    async def _beoordeel_telbaarheid(
+        self,
+        begrip: str,
+        tekst: str,
+        context_dict: dict[str, Any],
+        correlation_id: str,
+    ) -> dict[str, Any] | None:
+        """De standaard AI-telbaarheidsbeoordeling voor exact deze validatie (DEF-766).
 
-        Zo kan de aanroeper (generatie, editor, opslag) haar bewaren zonder
-        tweede AI-aanroep. Een kopie: het resultaat mag de context van de
+        Een door de aanroeper meegegeven `ess03_assessment` wordt weggegooid:
+        zij is nooit een kortere weg naar een positief oordeel. Volgorde,
+        fail-closed: (1) zonder term of zonder (niet-lege) tekst geen
+        AI-aanroep en geen beoordeling (`None`: de evaluator meldt
+        `not_evaluated`); (2) zonder geïnjecteerde dienst is de beoordeling
+        expliciet `unavailable`; (3) een fout in de dienst of een dienst die
+        geen document geeft is een technische fout — nooit stil een pass. De
+        bronlijst is dezelfde als voor CON-02 (alias al genormaliseerd door
+        `_beoordeel_bronnen`); de bedoelde betekenis komt uit de context
+        (`intentie_uit_context`). Aanroepermetadata en kandidaat blijven
+        onaangeroerd.
+        """
+        context_dict.pop("ess03_assessment", None)
+        if not str(begrip or "").strip() or not str(tekst or "").strip():
+            return None
+        bronnen = context_dict.get("provenance_sources")
+        if bronnen is None:
+            bronnen = context_dict.get("sources")
+        if not isinstance(bronnen, list):
+            bronnen = []
+        intentie = ess03_contract.intentie_uit_context(context_dict)
+
+        def _vingerafdruk() -> str:
+            return ess03_contract.bereken_ess03_vingerafdruk(
+                begrip, tekst, context_dict, bronnen, intentie=intentie
+            )
+
+        if self.ess03_assessment_service is None:
+            logger.warning(
+                "DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft "
+                "open (correlation_id=%s)",
+                correlation_id,
+            )
+            return ess03_contract.beoordeling_niet_beschikbaar(
+                _vingerafdruk(),
+                "geen ESS-03-beoordelingsdienst beschikbaar; AI-beoordeling niet "
+                "uitgevoerd",
+            )
+        # R1: de actuele beoordelingsbinding (promptversie, norm, provider/
+        # model) gaat mee naar de evaluator, zodat die de verkregen beoordeling
+        # tegen exact deze configuratie legt — zonder netwerk.
+        binding = getattr(self.ess03_assessment_service, "binding", None)
+        if callable(binding):
+            try:
+                context_dict["ess03_binding"] = binding().als_dict()
+            except Exception as exc:  # pragma: no cover - defensief
+                logger.warning("DEF-766: beoordelingsbinding niet bepaald: %s", exc)
+        try:
+            assessment = await self.ess03_assessment_service.assess(
+                begrip,
+                tekst,
+                context_dict,
+                bronnen,
+                intentie=intentie,
+                correlation_id=correlation_id,
+            )
+            document = (
+                assessment.als_dict() if hasattr(assessment, "als_dict") else assessment
+            )
+            if not isinstance(document, dict):
+                msg = f"beoordelingsdienst gaf {type(document).__name__} terug"
+                raise TypeError(msg)
+            return document
+        except Exception as exc:
+            logger.error(
+                "DEF-766: telbaarheidsbeoordeling mislukt (correlation_id=%s): %s: %s",
+                correlation_id,
+                type(exc).__name__,
+                exc,
+            )
+            return ess03_contract.beoordeling_technische_fout(
+                _vingerafdruk(), "unknown", f"{type(exc).__name__}: {exc}"
+            )
+
+    @staticmethod
+    def _met_beoordelingen(
+        result: ValidationResult,
+        assessment: dict[str, Any] | None,
+        telbaarheid: dict[str, Any] | None,
+    ) -> ValidationResult:
+        """Geef de verkregen beoordelingen volledig terug (contract 1.4.0 / 2.1.0).
+
+        Zo kan de aanroeper (generatie, editor, opslag) ze bewaren zonder
+        tweede AI-aanroep. Kopieën: het resultaat mag de context van de
         evaluator niet delen.
         """
         if isinstance(result, dict):
             result["source_assessment"] = copy.deepcopy(assessment)
+            result["ess03_assessment"] = copy.deepcopy(telbaarheid)
         return result
 
     @staticmethod
@@ -493,6 +601,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             "version_number"
         )
         self._verrijk_met_bronvelden(enriched, definition)
+        self._verrijk_met_ess03_velden(enriched, definition)
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:
@@ -516,6 +625,35 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             )
 
         return enriched
+
+    @staticmethod
+    def _verrijk_met_ess03_velden(
+        enriched: dict[str, Any], definition: Definition
+    ) -> None:
+        """De bedoelde betekenis van het record voor ESS-03 (DEF-766, R4/R5).
+
+        `betekenisverduidelijking` (DEF-751) komt uit de generatieregistratie
+        van het record; de actuele ESS-03-verduidelijking uit de eigen
+        recordwaarde (`metadata["ess03_verduidelijking"]`). Beide zijn
+        recordwaarden en vervangen aanroeperwaarden onder dezelfde sleutels;
+        ontbreken ze, dan wordt niets verzonnen.
+        """
+        meta = definition.metadata or {}
+        registratie = meta.get("generation_prompt_data")
+        betekenis = (
+            registratie.get("betekenisverduidelijking")
+            if isinstance(registratie, dict)
+            else None
+        )
+        if isinstance(betekenis, str) and betekenis.strip():
+            enriched["betekenisverduidelijking"] = betekenis.strip()
+        else:
+            enriched.pop("betekenisverduidelijking", None)
+        verduidelijking = meta.get("ess03_verduidelijking")
+        if isinstance(verduidelijking, str) and verduidelijking.strip():
+            enriched["ess03_verduidelijking"] = verduidelijking.strip()
+        else:
+            enriched.pop("ess03_verduidelijking", None)
 
     @staticmethod
     def _verrijk_met_bronvelden(

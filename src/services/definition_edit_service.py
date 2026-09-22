@@ -14,6 +14,7 @@ from enum import Enum
 from typing import Any, cast
 
 from database.models import DefinitieRecord
+from domain.ess03.contract import Beoordelingsbinding, Intentie
 from services.definition_edit_repository import DefinitionEditRepository
 from services.exceptions import RepositoryError
 from services.interfaces import Definition
@@ -64,6 +65,27 @@ def bouw_validatiecontext(
         bronnen = meta.get("sources")
     if isinstance(bronnen, list):
         ctx["provenance_sources"] = deepcopy(bronnen)
+    # DEF-766: de bedoelde betekenis voor ESS-03 komt uit de bewerkte kandidaat
+    # (toelichting, categorie als te controleren claim) en de verduidelijking
+    # van deze sessie — anders die van de opgeslagen beoordeling. Zo bindt de
+    # editor-toetsing aan dezelfde intentie als de replay op het record.
+    ctx["toelichting"] = definition.toelichting or None
+    ctx["categorie"] = definition.categorie or None
+    # R4: de DEF-751-betekenisverduidelijking van het record gaat mee, zoals
+    # in het recordpad en de replay.
+    betekenis = _betekenisverduidelijking_uit(meta)
+    if betekenis is not None:
+        ctx["betekenisverduidelijking"] = betekenis
+    eigen_meta = definition.metadata or {}
+    # De sessie is gezaghebbend zodra zij de sleutel draagt — ook leeg (de
+    # gebruiker heeft de verduidelijking bewust gewist); anders het record.
+    verduidelijking = (
+        eigen_meta.get("ess03_verduidelijking")
+        if "ess03_verduidelijking" in eigen_meta
+        else meta.get("ess03_verduidelijking")
+    )
+    if isinstance(verduidelijking, str) and verduidelijking.strip():
+        ctx["ess03_verduidelijking"] = verduidelijking.strip()
     return ctx
 
 
@@ -134,6 +156,286 @@ def _neem_sessiebeoordeling_op(
     if definition.metadata is None:
         definition.metadata = {}
     definition.metadata["source_assessment"] = deepcopy(dict(assessment))
+    return True, None
+
+
+#: Sentinel: "geen expliciet document meegegeven" (None is een geldige waarde).
+_ONGEZET: Any = object()
+
+
+def _betekenisverduidelijking_uit(meta: Mapping[str, Any]) -> str | None:
+    """De DEF-751-betekenisverduidelijking van het record, uit de generatieregistratie."""
+    registratie = _als_mapping(meta.get("generation_prompt_data"))
+    waarde = registratie.get("betekenisverduidelijking")
+    return waarde.strip() if isinstance(waarde, str) and waarde.strip() else None
+
+
+def ess03_intentie_van_definition(definition: Definition) -> Intentie:
+    """De bedoelde betekenis van een record voor de ESS-03-binding (DEF-766).
+
+    Dezelfde bronnen als de validatiecontext: toelichting en categorie van het
+    record, de betekenisverduidelijking uit de generatieregistratie (DEF-751)
+    en de actuele ESS-03-verduidelijking uit `metadata["ess03_verduidelijking"]`
+    (R5: alleen die sleutel telt; "" of afwezig = geen verduidelijking — er
+    wordt nooit een verduidelijking uit een oude beoordeling hersteld).
+    """
+    meta: Mapping[str, Any] = definition.metadata or {}
+    verduidelijking = meta.get("ess03_verduidelijking")
+    return Intentie(
+        toelichting=definition.toelichting or None,
+        categorie=getattr(definition, "ontologische_categorie", None)
+        or definition.categorie
+        or None,
+        betekenisverduidelijking=_betekenisverduidelijking_uit(meta),
+        verduidelijking=(
+            verduidelijking.strip()
+            if isinstance(verduidelijking, str) and verduidelijking.strip()
+            else None
+        ),
+    )
+
+
+def _record_bronnen(meta: Mapping[str, Any]) -> list[Any]:
+    bronnen = meta.get("provenance_sources")
+    if bronnen is None:
+        bronnen = meta.get("sources")
+    return bronnen if isinstance(bronnen, list) else []
+
+
+def ess03_uitkomst_van_definition(
+    definition: Definition,
+    binding: Beoordelingsbinding | None = None,
+    *,
+    assessment: Any = _ONGEZET,
+) -> dict[str, Any]:
+    """De ESS-03-uitkomst van een (herladen) record: replay van de opgeslagen
+    beoordeling op term, tekst, context, bedoelde betekenis en bronset van het
+    record, tegen de actuele beoordelingsbinding (R1) — geen AI-aanroep. Een
+    stale, historische of ontbrekende beoordeling is open, met de reden.
+
+    `assessment` (optioneel) is een expliciet document — bv. de beoordeling
+    van de laatste sessietoetsing — dat in plaats van het opgeslagen document
+    aan exact deze kandidaat wordt gebonden."""
+    from domain.ess03.contract import beoordeel_telbaarheid
+
+    meta: Mapping[str, Any] = definition.metadata or {}
+    return beoordeel_telbaarheid(
+        definition.begrip or "",
+        definition.definitie or "",
+        {
+            "organisatorische_context": list(definition.organisatorische_context or []),
+            "juridische_context": list(definition.juridische_context or []),
+            "wettelijke_basis": list(definition.wettelijke_basis or []),
+        },
+        _record_bronnen(meta),
+        intentie=ess03_intentie_van_definition(definition),
+        assessment=(
+            meta.get("ess03_assessment") if assessment is _ONGEZET else assessment
+        ),
+        binding=binding,
+    ).als_dict()
+
+
+_ESS03 = "ESS-03"
+#: Regelstatus → teller in `evaluation_coverage` (DEF-624/2.1.0).
+_DEKKINGSTELLER: dict[str, str] = {
+    "pass": "passed",
+    "fail": "failed",
+    "review_required": "review_required",
+    "error": "error",
+    "not_evaluated": "not_evaluated",
+    "not_applicable": "not_applicable",
+}
+
+
+def herbind_ess03_in_validatieresultaat(
+    resultaat: Mapping[str, Any],
+    kandidaat: Definition,
+    *,
+    binding: Beoordelingsbinding | None,
+) -> dict[str, Any]:
+    """Het V2-validatieresultaat van een eerdere toetsing, met ESS-03 opnieuw
+    gebonden aan de kandidaat zoals die nú in de editor staat (R1/R5).
+
+    Pure replay, geen AI-aanroep: de beoordeling van die toetsing
+    (`ess03_assessment` in het resultaat) wordt via het contract tegen de
+    huidige term, tekst, drie contextlijsten, bedoelde betekenis
+    (toelichting, categorie, betekenisverduidelijking, ESS-03-verduidelijking),
+    bronset en de actuele prompt/norm/provider/model gelegd. Klopt de binding
+    nog, dan blijft het resultaat ongewijzigd (zelfde object). Anders is de
+    uitkomst een kopie waarin ESS-03 open/historisch is — in `rule_results`,
+    `rule_statuses`, `passed_rules`, `violations`, `review_required` en de
+    dekking — zodat een eerder 'Voldoet' nooit als actuele pass wordt getoond
+    voor een formulier waarbij het niet meer hoort. Het oorspronkelijke
+    resultaat wordt niet gemuteerd; de beoordeling zelf blijft erin (een
+    teruggezette invoer maakt haar weer actueel).
+    """
+    ongewijzigd = resultaat if isinstance(resultaat, dict) else dict(resultaat)
+    beoordeling = resultaat.get("ess03_assessment")
+    statussen = resultaat.get("rule_statuses")
+    if not isinstance(beoordeling, Mapping) or not isinstance(statussen, Mapping):
+        return ongewijzigd
+    uitkomst = ess03_uitkomst_van_definition(kandidaat, binding, assessment=beoordeling)
+    huidig_detail = _als_mapping((resultaat.get("rule_results") or {}).get(_ESS03))
+    oude_status = statussen.get(_ESS03)
+    if (
+        uitkomst["status"] == oude_status
+        and uitkomst["fingerprint"] == huidig_detail.get("fingerprint")
+        and _als_mapping(uitkomst.get("review")).get("assessment", {}).get("applied")
+        == _als_mapping(huidig_detail.get("review"))
+        .get("assessment", {})
+        .get("applied")
+    ):
+        return ongewijzigd
+
+    herbonden = deepcopy(dict(resultaat))
+    herbonden.setdefault("rule_results", {})[_ESS03] = uitkomst
+    herbonden.setdefault("rule_statuses", {})[_ESS03] = uitkomst["status"]
+    herbonden["passed_rules"] = [
+        code for code in resultaat.get("passed_rules") or [] if code != _ESS03
+    ]
+    herbonden["violations"] = [
+        v
+        for v in resultaat.get("violations") or []
+        if not (isinstance(v, Mapping) and _ESS03 in (v.get("code"), v.get("rule_id")))
+    ]
+    herbonden["review_required"] = [
+        item
+        for item in resultaat.get("review_required") or []
+        if not (isinstance(item, Mapping) and item.get("rule_id") == _ESS03)
+    ]
+    delen = uitkomst.get("parts") or []
+    reden = (delen[0].get("reason") if delen else None) or ""
+    from services.validation.violation_builder import category_for_rule
+
+    if uitkomst["status"] == "review_required":
+        herbonden["review_required"].append(
+            {
+                "rule_id": _ESS03,
+                "category": category_for_rule(_ESS03),
+                "reason": reden,
+                "signals": [],
+            }
+        )
+    elif uitkomst["status"] == "pass":
+        herbonden["passed_rules"].append(_ESS03)
+    elif uitkomst["status"] == "fail":
+        # Zelfde niet-blokkerende vorm als de evaluator (besluit 21-09-2026).
+        herbonden["violations"].append(
+            {
+                "code": _ESS03,
+                "rule_id": _ESS03,
+                "severity": "warning",
+                "message": reden,
+                "description": reden,
+                "category": category_for_rule(_ESS03),
+                "advisory": True,
+            }
+        )
+    dekking = herbonden.get("evaluation_coverage")
+    if isinstance(dekking, dict) and isinstance(oude_status, str):
+        oud, nieuw = _DEKKINGSTELLER.get(oude_status), _DEKKINGSTELLER.get(
+            uitkomst["status"]
+        )
+        if oud and nieuw and oud != nieuw:
+            dekking[oud] = max(0, int(dekking.get(oud) or 0) - 1)
+            dekking[nieuw] = int(dekking.get(nieuw) or 0) + 1
+    herbonden["ess03_rebound"] = {
+        "from_status": oude_status,
+        "to_status": uitkomst["status"],
+        "historical": bool(
+            _als_mapping(uitkomst.get("review")).get("assessment", {}).get("historical")
+        ),
+    }
+    return herbonden
+
+
+def bindingsafwijzing_ess03(
+    assessment: Any,
+    definition: Definition,
+    *,
+    binding: Beoordelingsbinding | None = None,
+) -> str | None:
+    """Waarom een ESS-03-sessiebeoordeling níet bij de op te slaan kandidaat hoort, of None.
+
+    Zelfde regel als DEF-809 voor CON-02: alleen een uitgevoerde (`assessed`)
+    beoordeling waarvan de vingerafdruk exact die van de nu op te slaan
+    kandidaat is (term, tekst, contextlijsten, bedoelde betekenis, bronset)
+    én die bij de actuele beoordelingsbinding hoort (promptversie, norm,
+    provider/model — R1, wanneer bekend) mag als actueel bewijs worden
+    vastgelegd. De verduidelijking is de actuele waarde van de kandidaat (R5).
+    """
+    from domain.ess03.contract import bereken_ess03_vingerafdruk
+
+    if not isinstance(assessment, Mapping):
+        return "beoordeling is geen object"
+    if assessment.get("status") != "assessed":
+        return (
+            f"ESS-03-beoordeling niet uitgevoerd (status {assessment.get('status')!r})"
+        )
+    meta: Mapping[str, Any] = definition.metadata or {}
+    vingerafdruk = bereken_ess03_vingerafdruk(
+        definition.begrip or "",
+        definition.definitie or "",
+        {
+            "organisatorische_context": list(definition.organisatorische_context or []),
+            "juridische_context": list(definition.juridische_context or []),
+            "wettelijke_basis": list(definition.wettelijke_basis or []),
+        },
+        _record_bronnen(meta),
+        intentie=ess03_intentie_van_definition(definition),
+    )
+    if assessment.get("fingerprint") != vingerafdruk:
+        return (
+            "beoordeling hoort niet bij de op te slaan kandidaat (tekst, context, "
+            "term, bedoelde betekenis, verduidelijking of bronnen zijn sinds de "
+            "toetsing gewijzigd); toets opnieuw na opslaan"
+        )
+    return _configuratieafwijzing_ess03(assessment, binding)
+
+
+def _configuratieafwijzing_ess03(
+    assessment: Mapping[str, Any], binding: Beoordelingsbinding | None
+) -> str | None:
+    """R1: promptversie, norm en provider/model tegen de actuele binding (indien bekend)."""
+    if binding is None:
+        return None
+    attributie = _als_mapping(assessment.get("attribution"))
+    if assessment.get("prompt_version") != binding.prompt_version:
+        return (
+            f"beoordeling hoort bij promptversie {assessment.get('prompt_version')!r}; "
+            f"actueel is {binding.prompt_version!r}"
+        )
+    if assessment.get("norm_sha256") != binding.norm_sha256:
+        return "beoordeling hoort bij een eerdere versie van de ESS-03-norm"
+    if (attributie.get("provider") or None) != (binding.provider or None) or (
+        attributie.get("model") != binding.model
+    ):
+        return (
+            f"beoordeling komt van {attributie.get('provider')!r}/"
+            f"{attributie.get('model')!r}; actueel is "
+            f"{binding.provider!r}/{binding.model!r}"
+        )
+    return None
+
+
+def _neem_ess03_beoordeling_op(
+    assessment: Mapping[str, Any] | None,
+    definition: Definition,
+    binding: Beoordelingsbinding | None,
+) -> tuple[bool, str | None]:
+    """Zet een bindende ESS-03-sessiebeoordeling als actueel bewijs op de kandidaat.
+
+    Geeft (opgenomen, reden-waarom-niet). Zonder beoordeling: (False, None).
+    """
+    if assessment is None:
+        return False, None
+    reden = bindingsafwijzing_ess03(assessment, definition, binding=binding)
+    if reden is not None:
+        return False, reden
+    if definition.metadata is None:
+        definition.metadata = {}
+    definition.metadata["ess03_assessment"] = deepcopy(dict(assessment))
     return True, None
 
 
@@ -208,6 +510,8 @@ def normaliseer_validatieresultaat(v: Mapping[str, Any]) -> dict[str, Any]:
         "unknown_reason": ruw.get("unknown_reason"),
         "validation_readiness": deepcopy(ruw.get("validation_readiness")),
         "source_assessment": deepcopy(ruw.get("source_assessment")),
+        # DEF-766 (contract 2.1.0): de ESS-03-beoordeling van deze toetsing.
+        "ess03_assessment": deepcopy(ruw.get("ess03_assessment")),
         "raw_v2": ruw,
     }
 
@@ -321,6 +625,8 @@ class DefinitionEditService:
         validate: bool = True,
         *,
         source_assessment: Mapping[str, Any] | None = None,
+        ess03_assessment: Mapping[str, Any] | None = None,
+        ess03_binding: Beoordelingsbinding | None = None,
         categoriekeuze: Mapping[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
@@ -339,6 +645,17 @@ class DefinitionEditService:
                 tekst/context van deze opslag — vast met historie
                 (`origin: revalidation`). Anders blijft het opgeslagen bewijs
                 staan en meldt het resultaat waarom.
+            ess03_assessment: DEF-766: de AI-telbaarheidsbeoordeling (ESS-03)
+                uit de laatste toetsing in de sessie; zelfde regel
+                (`bindingsafwijzing_ess03`): alleen `assessed` en exact aan de
+                op te slaan kandidaat gebonden wordt zij actueel bewijs, met
+                historie in de DB-laag; anders benoemt het resultaat waarom niet.
+            ess03_binding: R1 — de actuele beoordelingsbinding (promptversie,
+                norm, provider/model) waaraan de sessiebeoordeling moet voldoen
+                om als actueel te gelden; None = niet gecontroleerd op binding.
+                `updates["ess03_verduidelijking"]` (R5) vervoert de actuele
+                verduidelijking van de kandidaat (ook bewust leeg) en wordt als
+                eigen recordwaarde opgeslagen — ook zonder beoordeling.
             categoriekeuze: DEF-751 B2 — de expliciete menselijke
                 categoriekeuze van déze opslaan-actie
                 (`{"herkomst": "editor", "actor", "actor_source"}`). Alleen
@@ -389,6 +706,10 @@ class DefinitionEditService:
             beoordeling_bewaard, beoordeling_reden = _neem_sessiebeoordeling_op(
                 source_assessment, updated_definition, current.metadata
             )
+            # DEF-766: idem voor de ESS-03-beoordeling van de laatste toetsing.
+            ess03_bewaard, ess03_reden = _neem_ess03_beoordeling_op(
+                ess03_assessment, updated_definition, ess03_binding
+            )
 
             # Validate if requested
             validation_results = None
@@ -420,6 +741,8 @@ class DefinitionEditService:
                 "timestamp": datetime.now().isoformat(),
                 "source_assessment_persisted": beoordeling_bewaard,
                 "source_assessment_reason": beoordeling_reden,
+                "ess03_assessment_persisted": ess03_bewaard,
+                "ess03_assessment_reason": ess03_reden,
             }
 
         except Exception as e:
@@ -738,6 +1061,13 @@ class DefinitionEditService:
         for field in metadata_fields:
             if field in updates:
                 updated.metadata[field] = updates[field]
+        # R5: de actuele ESS-03-verduidelijking van deze opslaan-actie (tekst,
+        # ook leeg) wordt de recordwaarde; zonder sleutel blijft de geladen
+        # waarde staan.
+        if isinstance(updates.get("ess03_verduidelijking"), str):
+            updated.metadata["ess03_verduidelijking"] = updates[
+                "ess03_verduidelijking"
+            ].strip()
 
         return updated
 
