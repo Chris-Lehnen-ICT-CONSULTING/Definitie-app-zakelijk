@@ -1,0 +1,80 @@
+{
+  "status": "prepared_only_no_installation",
+  "source_commit": "f9f6e1da1868b0cdfddb81eb67b970132c17c64b",
+  "merge_commit": "5ad373d17085044d73d4e39a8439cbce25931124",
+  "freeze_active": true,
+  "files": [
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-nederlandse-definities/SKILL.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/SKILL.md",
+      "source_sha256": "80acab8136a6d9bbd57b2ecb1766f87f8f3c8f982bbbfb5102e3f66b2691a417",
+      "base_sha256": "9e06b236737a9441d697946846b7ac5cd9247a10aa5eb331ee5c745ef69a19bf",
+      "live_sha256": "9e06b236737a9441d697946846b7ac5cd9247a10aa5eb331ee5c745ef69a19bf",
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md",
+      "source_sha256": "529c7ca6e02901fd4eb4d7fa970b3e8ceadda70c3448a45d7c83a1c526d25c6a",
+      "base_sha256": null,
+      "live_sha256": null,
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-ontologisch-modelleren/reference.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/reference.md",
+      "source_sha256": "bc13c717b74046a8b46a07350a74128b90a32487c06eab8e84fd367899f0b69a",
+      "base_sha256": "4a816e4b5e968fb95736dc7191ba154689b78f41294cf4645e695a7f5894fe29",
+      "live_sha256": "4a816e4b5e968fb95736dc7191ba154689b78f41294cf4645e695a7f5894fe29",
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-toetsregels/SKILL.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/SKILL.md",
+      "source_sha256": "e460a96b01626fb8b2eb151ef7909be87e89565ec800e5def901c6ba9a9de9a6",
+      "base_sha256": "e184527e8d8cd8f555233d707bfa5afff45948c726e8ec3307a8a13239b9973a",
+      "live_sha256": "e184527e8d8cd8f555233d707bfa5afff45948c726e8ec3307a8a13239b9973a",
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-toetsregels/reference.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/reference.md",
+      "source_sha256": "86e2d2dd2051429e03d4b80715bc83af4346707d8e4e36895a176285e5fa4932",
+      "base_sha256": "628a0dc60f78f803ccd222ab5bc7566911b7396abb4341748528b12e598822f8",
+      "live_sha256": "628a0dc60f78f803ccd222ab5bc7566911b7396abb4341748528b12e598822f8",
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md",
+      "source_sha256": "529c7ca6e02901fd4eb4d7fa970b3e8ceadda70c3448a45d7c83a1c526d25c6a",
+      "base_sha256": null,
+      "live_sha256": null,
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-ufo-ontologie/reference.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/reference.md",
+      "source_sha256": "d078ad7e394d7465ab200987edaa871bc7c0886b0b6867e91ad5c1525afd8495",
+      "base_sha256": "b16c258a7dec801983db7b76ca60899054141bfb6ff660cd5ec71456257c3bfd",
+      "live_sha256": "b16c258a7dec801983db7b76ca60899054141bfb6ff660cd5ec71456257c3bfd",
+      "live_matches_base": true,
+      "already_current": false
+    },
+    {
+      "source": "/private/tmp/def766-skills/skills/definitie-voorbeelden-generatie/reference.md",
+      "target": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/reference.md",
+      "source_sha256": "6db84873e8dafe4b878515cec274592c520a8bacc280586f8fb0e63f69cb713b",
+      "base_sha256": "1d3cc1f31d15cdaff52de492d78130fa5564e9c82645158150beac134b1744f5",
+      "live_sha256": "1d3cc1f31d15cdaff52de492d78130fa5564e9c82645158150beac134b1744f5",
+      "live_matches_base": true,
+      "already_current": false
+    }
+  ]
+}

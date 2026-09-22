@@ -1,0 +1,83 @@
+{
+  "schema": "def766-eventloop-transportproef/1",
+  "gestart": "2026-09-21T10:43:14.538352+00:00",
+  "server": "lokale fake /v1/messages op loopback, keep-alive; geen netwerk, geen sleutel",
+  "requests_ontvangen": 9,
+  "proeven": [
+    {
+      "naam": "kale AsyncAnthropic over 3 loops",
+      "aanroepen": [
+        {
+          "ok": true
+        },
+        {
+          "ok": false,
+          "fout": "APIConnectionError: Connection error.",
+          "oorzaak": "RuntimeError: Event loop is closed"
+        },
+        {
+          "ok": true
+        }
+      ],
+      "conform": true
+    },
+    {
+      "naam": "keten zonder correctie (rebind_on_new_loop=False)",
+      "aanroepen": [
+        {
+          "status": "assessed",
+          "error": null,
+          "verdict": "not_applicable",
+          "attempts_observed": 1,
+          "duur_s": 0.017
+        },
+        {
+          "status": "error",
+          "error": {
+            "type": "connection",
+            "message": "AIServiceError: AI API connection error: Connection error."
+          },
+          "verdict": null,
+          "attempts_observed": 1,
+          "duur_s": 0.002
+        },
+        {
+          "status": "assessed",
+          "error": null,
+          "verdict": "not_applicable",
+          "attempts_observed": 1,
+          "duur_s": 0.003
+        }
+      ],
+      "conform": true
+    },
+    {
+      "naam": "keten met correctie (standaard)",
+      "aanroepen": [
+        {
+          "status": "assessed",
+          "error": null,
+          "verdict": "not_applicable",
+          "attempts_observed": 1,
+          "duur_s": 0.003
+        },
+        {
+          "status": "assessed",
+          "error": null,
+          "verdict": "not_applicable",
+          "attempts_observed": 1,
+          "duur_s": 0.008
+        },
+        {
+          "status": "assessed",
+          "error": null,
+          "verdict": "not_applicable",
+          "attempts_observed": 1,
+          "duur_s": 0.013
+        }
+      ],
+      "conform": true
+    }
+  ],
+  "alle_conform": true
+}

@@ -1,0 +1,26 @@
+ast_sha256_before bf77c0d9333b7447166862e9c316a1a8a1f4854a06a4db5ffcd5c62998fefdbf
+ast_sha256_after  bf77c0d9333b7447166862e9c316a1a8a1f4854a06a4db5ffcd5c62998fefdbf
+ast_identiek_zonder_positieattributen: True
+ast_met_posities_verschilt: True
+bronregels_before/after: 543 547
+--- brondiff ---
+--- before
++++ after
+@@ -163,8 +163,12 @@
+         assert goed == [
+-            "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken "
+-            "peilmoment volledig door water is omgeven."
++            (
++                "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken "
++                "peilmoment volledig door water is omgeven."
++            )
+         ]
+         assert fout == [
+-            "Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke "
+-            "exemplaren wordt onderscheiden."
++            (
++                "Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke "
++                "exemplaren wordt onderscheiden."
++            )
+         ]
+

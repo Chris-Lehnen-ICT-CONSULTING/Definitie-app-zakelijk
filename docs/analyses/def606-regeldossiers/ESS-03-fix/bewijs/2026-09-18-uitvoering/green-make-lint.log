@@ -1,0 +1,6 @@
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+397 files would be left unchanged.
+exit=0

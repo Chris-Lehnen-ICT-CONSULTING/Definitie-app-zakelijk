@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Gerichte controle van de DEF-766-correctie in skills/definitie-toetsregels/SKILL.md.
+
+- YAML-frontmatter parst en bevat name/description.
+- Beide entrypointpassages (Overzicht, Scoring & Weging) noemen ESS-03 als uitzondering
+  met lokale contractverwijzing.
+- Sleutelbegrippen uit de dispositie staan in de Scoring-passage.
+- Alle overige bestaande scoreteksten en scopegrenzen zijn behouden.
+- Lokale links in SKILL.md resolven.
+"""
+import re
+import sys
+from pathlib import Path
+
+import yaml
+
+P = Path("/private/tmp/def766-skills/skills/definitie-toetsregels/SKILL.md")
+text = P.read_text(encoding="utf-8")
+lines = text.splitlines()
+rc = 0
+
+
+def check(label, ok):
+    global rc
+    print(("OK   " if ok else "FOUT ") + label)
+    if not ok:
+        rc = 1
+
+
+m = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+check("frontmatter aanwezig", bool(m))
+fm = yaml.safe_load(m.group(1)) if m else {}
+check("frontmatter YAML is dict met name+description",
+      isinstance(fm, dict) and bool(fm.get("name")) and bool(fm.get("description")))
+check("frontmatter keys ongewijzigd (description, evalScore, lastReviewed, name, status, triggerExamples)",
+      sorted(fm) == ["description", "evalScore", "lastReviewed", "name", "status", "triggerExamples"])
+
+ov = next((l for l in lines if l.startswith("Het systeem bevat **53 toetsregels**")), "")
+check("Overzicht-regel gevonden", bool(ov))
+check("Overzicht: ESS-03 in uitzonderingslijst", "ESS-03 (menselijke beoordeling van eenheid en identiteit" in ov)
+check("Overzicht: lokale contractverwijzing", "](references/ess03-eenheid-identiteit.md)" in ov)
+check("Overzicht: ESS-01/02, CON-01/02 nog aanwezig",
+      all(k in ov for k in ["ESS-01 (inhoudelijke beoordeling)", "ESS-02 (menselijke betekenisbeoordeling)",
+                             "CON-01 (uitkomst per treffer)", "CON-02 (drie afzonderlijke controles)"]))
+
+sc = next((l for l in lines if l.startswith("> **Geen cijfer voor ESS-01, ESS-02")), "")
+check("Scoring-blockquote gevonden", bool(sc))
+check("Scoring: kop noemt ESS-03", sc.startswith("> **Geen cijfer voor ESS-01, ESS-02, ESS-03 of CON-02; voorlopig geen totaalcijfer.**"))
+for key in [
+    "ESS-03 krijgt geen cijfer of 0/1",
+    "kent geen automatische gate",
+    "bevestigde niet-toepasselijkheid met grond",
+    "geeft geen automatische pass of fail",
+    "prioriteit *hoog* ordent de aandacht",
+    "blijft afzonderlijk open onder DEF-624",
+    "](references/ess03-eenheid-identiteit.md)",
+]:
+    check(f"Scoring: bevat '{key}'", key in sc)
+for keep in [
+    "ESS-01 vraagt inhoudelijke beoordeling en krijgt geen numerieke bijdrage",
+    "ESS-02 krijgt evenmin een cijfer of 0/1",
+    "CON-02 heeft geen gewicht en geen numerieke bijdrage",
+    "Productbesluit 15 september 2026 (DEF-743/DEF-624): voorlopig geen totaalcijfer",
+    "De gewichten en drempels hieronder zijn de bestaande generieke configuratie",
+    "Dit herschrijft de app-brede scoregate niet",
+    "valt onder DEF-630",
+]:
+    check(f"Scoring: behouden '{keep[:60]}…'", keep in sc)
+
+# Overige scoreteksten en scopegrenzen elders in SKILL.md ongewijzigd aanwezig
+for keep in [
+    "| hoog | 1.0 | Blokkerend bij falen",
+    "| Hard minimum | 0.75 |",
+    "| Soft minimum | 0.65 |",
+    "### Uitzondering: CON-01 (contextvermelding)",
+    "Zolang DEF-624 open is, is de appbrede totaalscore tijdelijk niet beschikbaar",
+]:
+    check(f"elders behouden '{keep[:60]}…'", keep in text)
+
+# Lokale links resolven
+for lm in re.finditer(r"\]\(([^)]+\.md)\)", text):
+    tgt = lm.group(1)
+    if tgt.startswith("http"):
+        continue
+    check(f"link resolvet: {tgt}", (P.parent / tgt).exists())
+
+check("geen ESS-03-H2-blok toegevoegd (buiten dispositie)", "\n## ESS-03" not in text)
+print("resultaat:", "alle checks geslaagd" if rc == 0 else "afwijkingen gevonden")
+sys.exit(rc)

@@ -1,0 +1,364 @@
+FFFFFFFFFFFFFFFFFFFFF.FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF.         [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert 'uniek ident...tiecriterium' not in 'Voeg een un...egistratie).'
+      
+      'uniek identificatiecriterium' is contained here:
+        Voeg een uniek identificatiecriterium toe (nummer/code/registratie).
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:423: AssertionError: assert 'uniek ident...tiecriterium' not in 'Voeg een un...egistratie).'
+E   AssertionError: assert 'Vereist element herkend' not in 'Vereist ele...heuristiek).'
+      
+      'Vereist element herkend' is contained here:
+        Vereist element herkend (heuristiek).
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:442: AssertionError: assert 'Vereist element herkend' not in 'Vereist ele...heuristiek).'
+E   assert not True
+     +  where True = any(<generator object TestGeenAutomatischHerstel.test_geen_ess03_suggestie_in_het_resultaat.<locals>.<genexpr> at 0x109ac79f0>)
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:434: assert not True
+E   AssertionError: assert 'ESS-03' not in {'ESS-03': (re.compile('\\b(uniek|specifiek|identificeer|registratie|nummer|code|id|vin|isbn|kenteken)\\b', re.IGNOREC...idt|specifiek|bijzonder|kenmerk|eigenschap)\\b', re.IGNORECASE), 'Ontbreekt onderscheidend kenmerk', 'distinguishing')}
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:173: AssertionError: assert 'ESS-03' not in {'ESS-03': (re.compile('\\b(uniek|specifiek|identificeer|registratie|nummer|code|id|vin|isbn|kenteken)\\b', re.IGNOREC...idt|specifiek|bijzonder|kenmerk|eigenschap)\\b', re.IGNORECASE), 'Ontbreekt onderscheidend kenmerk', 'distinguishing')}
+E   AssertionError: assert ['Een auto is...en kenteken.'] == ['Afzonderlij... is omgeven.']
+      
+      At index 0 diff: 'Een auto is een vierwielig motorvoertuig met een uniek chassisnummer (VIN) en kenteken.' != 'Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven.'
+      Use -v to get more diff
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:134: AssertionError: assert ['Een auto is...en kenteken.'] == ['Afzonderlij... is omgeven.']
+E   assert False
+     +  where False = any(<generator object TestRegelcontract.test_relatie_behoudt_astra_bron_en_voegt_contextrelatie_toe.<locals>.<genexpr> at 0x109b182b0>)
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:168: assert False
+E   AssertionError: assert 'administratieve identifier is niet verplicht' in 'Een definitie moet criterium(en) bevatten waarmee afzonderlijke instanties uniek herkenbaar en telbaar zijn (singulariteit of pluraliteit).'
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:152: AssertionError: assert 'administratieve identifier is niet verplicht' in 'Een definitie moet criterium(en) bevatten waarmee afzonderlijke instanties uniek herkenbaar en telbaar zijn (singulariteit of pluraliteit).'
+E   AssertionError: assert <ExamplePairPolicy.NORMATIVE: 'normative'> is <ExamplePairPolicy.REVIEW_POLICY: 'review_policy'>
+     +  where <ExamplePairPolicy.NORMATIVE: 'normative'> = RuleRecord(rule_id='ESS-03', evaluator=<EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'>, required_inputs=(<Req...'}}, example_pair_policy=<ExamplePairPolicy.NORMATIVE: 'normative'>, example_pair_reason=None, example_pair_issue=None).example_pair_policy
+     +  and   <ExamplePairPolicy.REVIEW_POLICY: 'review_policy'> = ExamplePairPolicy.REVIEW_POLICY
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:125: AssertionError: assert <ExamplePairPolicy.NORMATIVE: 'normative'> is <ExamplePairPolicy.REVIEW_POLICY: 'review_policy'>
+E   AssertionError: assert <EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'> is <EvaluatorType.JUDGMENT_REVIEW: 'judgment_review'>
+     +  where <EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'> = RuleRecord(rule_id='ESS-03', evaluator=<EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'>, required_inputs=(<Req...'}}, example_pair_policy=<ExamplePairPolicy.NORMATIVE: 'normative'>, example_pair_reason=None, example_pair_issue=None).evaluator
+     +  and   <EvaluatorType.JUDGMENT_REVIEW: 'judgment_review'> = EvaluatorType.JUDGMENT_REVIEW
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:112: AssertionError: assert <EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'> is <EvaluatorType.JUDGMENT_REVIEW: 'judgment_review'>
+E   AssertionError: assert 'Geen patroonsignaal gevonden' in 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:238: AssertionError: assert 'Geen patroonsignaal gevonden' in 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   assert "categorie 'type'" in 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:252: assert "categorie 'type'" in 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'
+E   AssertionError: assert <ResultStatus.REVIEW_REQUIRED: 'review_required'> is <ResultStatus.NOT_EVALUATED: 'not_evaluated'>
+     +  where <ResultStatus.REVIEW_REQUIRED: 'review_required'> = EvaluationOutcome(status=<ResultStatus.REVIEW_REQUIRED: 'review_required'>, score=None, findings=(), pattern_hits=(), ...ijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?', metadata={}).status
+     +  and   <ResultStatus.NOT_EVALUATED: 'not_evaluated'> = ResultStatus.NOT_EVALUATED
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:259: AssertionError: assert <ResultStatus.REVIEW_REQUIRED: 'review_required'> is <ResultStatus.NOT_EVALUATED: 'not_evaluated'>
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x1097e3050>('ESS-03')
+     +    where <built-in method startswith of str object at 0x1097e3050> = 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'.startswith
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:210: AssertionError: assert False
+E   AssertionError: assert 'Te beoordelen passage: registratienummer.' in 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:226: AssertionError: assert 'Te beoordelen passage: registratienummer.' in 'Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?'
+E   StopIteration
+
+The above exception was the direct cause of the following exception:
+E   RuntimeError: coroutine raised StopIteration
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py:726: RuntimeError: coroutine raised StopIteration
+E   AssertionError: ('H-bad', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-bad', 'fail')
+E   AssertionError: assert 'fail' == 'not_evaluated'
+      
+      - not_evaluated
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:329: AssertionError: assert 'fail' == 'not_evaluated'
+E   AssertionError: ('H-good', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-good', 'pass')
+E   AssertionError: assert <ScorePolicy.SCORED: 'scored'> is <ScorePolicy.NO_SCORE: 'no_score'>
+     +  where <ScorePolicy.SCORED: 'scored'> = RuleRecord(rule_id='ESS-03', evaluator=<EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'>, required_inputs=(<Req...'}}, example_pair_policy=<ExamplePairPolicy.NORMATIVE: 'normative'>, example_pair_reason=None, example_pair_issue=None).score_policy
+     +  and   <ScorePolicy.NO_SCORE: 'no_score'> = ScorePolicy.NO_SCORE
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:375: AssertionError: assert <ScorePolicy.SCORED: 'scored'> is <ScorePolicy.NO_SCORE: 'no_score'>
+E   AssertionError: ('H-keyword_specific', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-keyword_specific', 'pass')
+E   AssertionError: ('H-natural_boundary', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-natural_boundary', 'fail')
+E   AssertionError: ('N02-scope', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N02-scope', 'pass')
+E   AssertionError: ('N04-isbn', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N04-isbn', 'pass')
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:360: AssertionError: assert 'pass' == 'error'
+E   AssertionError: ('N01-negated', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N01-negated', 'pass')
+E   AssertionError: ('N05-natural', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N05-natural', 'fail')
+E   AssertionError: ('H-mass_noun', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-mass_noun', 'fail')
+E   AssertionError: ('N03-compound', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N03-compound', 'fail')
+E   AssertionError: ('H-empty_identifier', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-empty_identifier', 'pass')
+E   AssertionError: assert 'pass' == 'not_evaluated'
+      
+      - not_evaluated
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:322: AssertionError: assert 'pass' == 'not_evaluated'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:345: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'not_evaluated'
+      
+      - not_evaluated
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:322: AssertionError: assert 'pass' == 'not_evaluated'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:345: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:360: AssertionError: assert 'pass' == 'error'
+E   AssertionError: ('N04-isbn', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N04-isbn', 'pass')
+E   AssertionError: assert <ScorePolicy.SCORED: 'scored'> is <ScorePolicy.NO_SCORE: 'no_score'>
+     +  where <ScorePolicy.SCORED: 'scored'> = RuleRecord(rule_id='ESS-03', evaluator=<EvaluatorType.POSITIVE_INDICATOR: 'positive_indicator'>, required_inputs=(<Req...'}}, example_pair_policy=<ExamplePairPolicy.NORMATIVE: 'normative'>, example_pair_reason=None, example_pair_issue=None).score_policy
+     +  and   <ScorePolicy.NO_SCORE: 'no_score'> = ScorePolicy.NO_SCORE
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:375: AssertionError: assert <ScorePolicy.SCORED: 'scored'> is <ScorePolicy.NO_SCORE: 'no_score'>
+E   AssertionError: ('N03-compound', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N03-compound', 'fail')
+E   AssertionError: assert 'fail' == 'not_evaluated'
+      
+      - not_evaluated
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:329: AssertionError: assert 'fail' == 'not_evaluated'
+E   AssertionError: ('N01-negated', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N01-negated', 'pass')
+E   AssertionError: ('N05-natural', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N05-natural', 'fail')
+E   AssertionError: ('H-natural_boundary', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-natural_boundary', 'fail')
+E   AssertionError: ('H-keyword_specific', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-keyword_specific', 'pass')
+E   AssertionError: ('H-bad', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-bad', 'fail')
+E   AssertionError: ('H-mass_noun', 'fail')
+    assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-mass_noun', 'fail')
+E   AssertionError: ('N02-scope', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('N02-scope', 'pass')
+E   AssertionError: ('H-empty_identifier', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-empty_identifier', 'pass')
+E   AssertionError: ('H-good', 'pass')
+    assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/validation/test_def766_ess03_telbaarheid.py:305: AssertionError: ('H-good', 'pass')
+E   AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+    assert 0 == 1
+     +  where 0 = <built-in method count of str object at 0x7365ac000>('Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt')
+     +    where <built-in method count of str object at 0x7365ac000> = 'Je bent een expert in het creëren van definities die EENDUIDIG zijn voor alle BELANGHEBBENDEN en aansluiten bij de WE... meetobject\n- Termtype: overig\n- Organisatorische context: DJI\n- Juridische context: geen\n- Wettelijke basis: geen'.count
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/services/prompts/test_def766_ess03_promptnorm.py:121: AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+E   AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+    assert 0 == 1
+     +  where 0 = <built-in method count of str object at 0x7365c8000>('Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt')
+     +    where <built-in method count of str object at 0x7365c8000> = 'Je bent een expert in het creëren van definities die EENDUIDIG zijn voor alle BELANGHEBBENDEN en aansluiten bij de WE... meetobject\n- Termtype: overig\n- Organisatorische context: DJI\n- Juridische context: geen\n- Wettelijke basis: geen'.count
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/services/prompts/test_def766_ess03_promptnorm.py:121: AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+E   AssertionError: assert 'administratieve identifier is niet verplicht' in ' - Instanties uniek onderscheidbaar (telbaarheid)**\n- Een definitie moet criterium(en) bevatten waarmee afzonderlijk...tuig met een uniek chassisnummer (VIN) en kenteken.\n  ❌ Een auto is een vervoermiddel op vier wielen met een motor.\n'
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/services/prompts/test_def766_ess03_promptnorm.py:82: AssertionError: assert 'administratieve identifier is niet verplicht' in ' - Instanties uniek onderscheidbaar (telbaarheid)**\n- Een definitie moet criterium(en) bevatten waarmee afzonderlijk...tuig met een uniek chassisnummer (VIN) en kenteken.\n  ❌ Een auto is een vervoermiddel op vier wielen met een motor.\n'
+E   AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+    assert 0 == 1
+     +  where 0 = <built-in method count of str object at 0x7365c8000>('Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt')
+     +    where <built-in method count of str object at 0x7365c8000> = 'Je bent een expert in het creëren van definities die EENDUIDIG zijn voor alle BELANGHEBBENDEN en aansluiten bij de WE... meetobject\n- Termtype: overig\n- Organisatorische context: DJI\n- Juridische context: geen\n- Wettelijke basis: geen'.count
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/services/prompts/test_def766_ess03_promptnorm.py:121: AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+E   AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+    assert 0 == 1
+     +  where 0 = <built-in method count of str object at 0x7365e4000>('Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt')
+     +    where <built-in method count of str object at 0x7365e4000> = 'Je bent een expert in het creëren van definities die EENDUIDIG zijn voor alle BELANGHEBBENDEN en aansluiten bij de WE... meetobject\n- Termtype: overig\n- Organisatorische context: DJI\n- Juridische context: geen\n- Wettelijke basis: geen'.count
+------------------------------ Captured log call -------------------------------
+WARNING  services.prompts.modules.prompt_orchestrator:prompt_orchestrator.py:249 Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+/Users/chrislehnen/.codex/worktrees/2075/Definitie-app/tests/unit/services/prompts/test_def766_ess03_promptnorm.py:121: AssertionError: Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestGeenAutomatischHerstel::test_suggestieopbouw_geeft_geen_nummeropdracht_meer
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestGeenAutomatischHerstel::test_renderer_verzint_geen_heuristische_passreden_voor_ess03
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestGeenAutomatischHerstel::test_geen_ess03_suggestie_in_het_resultaat
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestRegelcontract::test_positive_indicator_kent_ess03_niet_meer
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestRegelcontract::test_voorbeelden_zijn_het_semantische_paar_uit_tekstvoorstellen_v3
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestRegelcontract::test_relatie_behoudt_astra_bron_en_voegt_contextrelatie_toe
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestRegelcontract::test_regelkaart_stelt_geen_nummerplicht_en_noemt_de_uitzondering
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestRegelcontract::test_voorbeeldpaar_is_reviewpolicy_met_reden_en_eigenaar_def766
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestRegelcontract::test_ess03_is_scoreloos_reviewplichtig_met_term_als_vereiste_invoer
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_natuurlijke_grens_zonder_code_is_geen_afkeur
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[H-bad]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[N02-scope]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[H-empty_identifier]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[N05-natural]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[N01-negated]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_categorielabel_is_registratie_geen_vrijstelling
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_lege_tekst_is_niet_geevalueerd_geen_open_oordeel_over_niets
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[N04-isbn]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[H-natural_boundary]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[H-keyword_specific]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[N03-compound]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[H-good]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_open_oordeel_zonder_cijfer_of_violation[H-mass_noun]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestEvaluatorUitkomst::test_signalen_wijzen_een_code_of_naamclaim_aan_zonder_oordeel
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestWeergave::test_open_reden_wordt_letterlijk_getoond
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-H-bad]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_lege_tekst_met_term_is_niet_geevalueerd[cached_manager (productiepad)]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-H-good]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_beperkte_run_boekt_geen_ess03_score[cached_manager (productiepad)]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-H-keyword_specific]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-H-natural_boundary]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-N02-scope]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-N04-isbn]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_technische_fout_is_error_zonder_cijfer_of_violation[cached_manager (productiepad)]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-N01-negated]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-N05-natural]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-H-mass_noun]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-N03-compound]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[cached_manager (productiepad)-H-empty_identifier]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_zonder_term_is_ess03_niet_geevalueerd_nooit_pass[cached_manager (productiepad)]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_botsende_metadata_geeft_zelfde_open_uitkomst[cached_manager (productiepad)]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_zonder_term_is_ess03_niet_geevalueerd_nooit_pass[toetsregel_manager]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_botsende_metadata_geeft_zelfde_open_uitkomst[toetsregel_manager]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_technische_fout_is_error_zonder_cijfer_of_violation[toetsregel_manager]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-N04-isbn]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_beperkte_run_boekt_geen_ess03_score[toetsregel_manager]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-N03-compound]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_lege_tekst_met_term_is_niet_geevalueerd[toetsregel_manager]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-N01-negated]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-N05-natural]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-H-natural_boundary]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-H-keyword_specific]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-H-bad]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-H-mass_noun]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-N02-scope]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-H-empty_identifier]
+FAILED tests/unit/validation/test_def766_ess03_telbaarheid.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess03_oordeel[toetsregel_manager-H-good]
+FAILED tests/unit/services/prompts/test_def766_ess03_promptnorm.py::test_echte_samengestelde_prompt_volgt_de_ess03_norm[type]
+FAILED tests/unit/services/prompts/test_def766_ess03_promptnorm.py::test_echte_samengestelde_prompt_volgt_de_ess03_norm[exemplaar]
+FAILED tests/unit/services/prompts/test_def766_ess03_promptnorm.py::test_ess03_regelkaart_draagt_de_g_instructie_en_het_semantische_paar
+FAILED tests/unit/services/prompts/test_def766_ess03_promptnorm.py::test_echte_samengestelde_prompt_volgt_de_ess03_norm[proces]
+FAILED tests/unit/services/prompts/test_def766_ess03_promptnorm.py::test_echte_samengestelde_prompt_volgt_de_ess03_norm[None]
+exit=1

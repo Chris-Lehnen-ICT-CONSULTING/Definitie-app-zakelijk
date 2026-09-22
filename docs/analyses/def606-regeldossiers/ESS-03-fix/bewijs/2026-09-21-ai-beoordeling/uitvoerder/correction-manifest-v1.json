@@ -1,0 +1,808 @@
+{
+  "schema": "def766-correctie-manifest/1",
+  "gemaakt": "2026-09-21T10:14:14.573853+00:00",
+  "uitvoerder": "Claude Code CLI (Opus 5, 1M context) — correctieronde 1 op R1–R9; geen commits/push/PR/deletes",
+  "werkboom": "/Users/chrislehnen/.codex/worktrees/2075/Definitie-app",
+  "branch": "feature/DEF-766-ess03-ai-beoordeling",
+  "base": "2c9a6e3a13afa4ecbe39163cc418e2b0f8c41644",
+  "head_commit_bij_manifest": "2c9a6e3a13afa4ecbe39163cc418e2b0f8c41644",
+  "opmerking_head": "geen nieuwe commits door de uitvoerder; alle wijzigingen (fase 1 + correctieronde 1) staan ongecommit in de werkboom (zie bestanden)",
+  "prompt": {
+    "prompt_version": "ess03-assess/2",
+    "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+    "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+    "norm_bron": "src/toetsregels/regels/ESS-03.json (uitleg, toelichting, toetsvraag, geldigheid) — ongewijzigd t.o.v. fase 1",
+    "prompt_builder": "src/services/validation/ess03_assessment_service.py::bouw_beoordelingsprompt",
+    "contract_version": "ess03/1",
+    "fase1_prompt": {
+      "prompt_version": "ess03-assess/1",
+      "system_prompt_sha256": "722e6a2e516acf2574c04095924c6944c21271d37c5cd72e7c6f71ef3f223d6e",
+      "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028"
+    }
+  },
+  "modelconfig": {
+    "provider": "anthropic",
+    "model": "claude-opus-4-8",
+    "task_type": "validation",
+    "temperature_requested": 0.0,
+    "temperature_sent": null,
+    "max_tokens": 1200,
+    "timeout_seconds": 60,
+    "ai_service_cache": false,
+    "dienst_cache_size": 0,
+    "dienst_optins": {
+      "use_cache": false,
+      "max_attempts": 1,
+      "max_retries": 0,
+      "token_estimate": "heuristic"
+    },
+    "sdk_max_retries_env": "0"
+  },
+  "determinisme": "geen claim: temperature wordt voor de validation-route (claude-opus-4-8) door de client weggelaten (temperature_sent=null, DEF-441/DEF-731)",
+  "ontwikkelrun_v2": {
+    "bestand": "/tmp/def766-ai-20260921/ontwikkelrun-v2.json",
+    "sha256": "48b49927b5a63788f9a8c3803077d5274a7c73ff2b9052e9a0a1dbbf132de51c",
+    "log": "/tmp/def766-ai-20260921/ontwikkelrun-v2.log",
+    "gevallenbestand": {
+      "pad": "tests/fixtures/ess03/ontwikkelgevallen_v2.json",
+      "sha256": "a432f602ab7df8c75acbaa4c63e2973b82ef531c98eb79e9172218af9561a599",
+      "schema": "def766-ess03-ontwikkelgevallen/1",
+      "status": "ontwikkeldata correctieronde 1 (R8); synthetisch; verwachtingen vooraf vastgelegd uit de norm (ESS-03.json / tekstvoorstellen-v3 / casusregister-v4) en de bevestigde reviewbevinding R8 (D04 en D07 onterecht afgekeurd); GEEN deskundig gevalideerde goldset"
+    },
+    "aantal": 8,
+    "aanroepen_gestart": 8,
+    "transportpogingen_waargenomen": 8,
+    "totale_duur_s": 59.269,
+    "total_deadline_s": 480.0,
+    "correct": 8,
+    "per_klasse": {
+      "insufficient_information": {
+        "totaal": 3,
+        "correct": 3
+      },
+      "pass": {
+        "totaal": 2,
+        "correct": 2
+      },
+      "fail": {
+        "totaal": 2,
+        "correct": 2
+      },
+      "not_applicable": {
+        "totaal": 1,
+        "correct": 1
+      }
+    },
+    "uitkomsten": [
+      {
+        "id": "D04-code-zonder-scope",
+        "verwacht": "insufficient_information",
+        "gekregen": "insufficient_information",
+        "correct": true,
+        "status_deel": "review_required",
+        "duur_s": 9.242,
+        "elapsed_seconds_dienst": 9.241,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 1582,
+        "rejected": 0,
+        "raw_response_sha256": "207da69cc5871ec9a2962508e05e277d5012b33e2dcc9572bfca9f8ecb3ea714",
+        "user_prompt_sha256": "be2a80f6f884f531772d9bfc2c75b15850f401ffe380aa132e5354c960f86a76",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "bb3f167f532644376ccfd7ebec0b45c19396da6db36b91e9b314ddc1e69d686c",
+        "question": "Volgens welke conventie wordt het registratienummer toegekend (referentsoort, populatie/naamruimte, toekennende instantie en geldigheids-/uniciteitsvoorwaarden)?"
+      },
+      {
+        "id": "D07-register-zonder-conventie",
+        "verwacht": "insufficient_information",
+        "gekregen": "insufficient_information",
+        "correct": true,
+        "status_deel": "review_required",
+        "duur_s": 8.793,
+        "elapsed_seconds_dienst": 8.792,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 1589,
+        "rejected": 0,
+        "raw_response_sha256": "47e77f0221c632aee347402f9d9de01459824d5d24bb269e25abc141a1d5ded8",
+        "user_prompt_sha256": "8efe1738c65caeaa253ebdae42e392401d4d35bee3a541718a7128e7a5a052f3",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "c2af9b321140841bbe55675a794a9c91073b83f5c4a3046d2e52e97304a22ded",
+        "question": "Wat is de onderbouwde conventie van het blijvend uniek nummer in register R, dat wil zeggen voor welke referentsoort en naamruimte/populatie het geldt en hoe toekenning en blijvende geldigheid zijn geregeld?"
+      },
+      {
+        "id": "D06a-register-met-conventie-expliciete-referent",
+        "verwacht": "pass",
+        "gekregen": "pass",
+        "correct": true,
+        "status_deel": "pass",
+        "duur_s": 7.567,
+        "elapsed_seconds_dienst": 7.567,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 2160,
+        "rejected": 0,
+        "raw_response_sha256": "204b6a9a89b0c2500d40741bdcb17404936a5004b20fbe79e49e5dc233f158be",
+        "user_prompt_sha256": "36ee128c4032e3fc4dfa33e3139a7285bdf93f63f090b1e8bf4925cc824860c5",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "4c8e1769ae970819f07c4ca4c9dc1342e37e57615162931c9b5d43f94866a1d4",
+        "question": null
+      },
+      {
+        "id": "D01-natuurlijke-grens",
+        "verwacht": "pass",
+        "gekregen": "pass",
+        "correct": true,
+        "status_deel": "pass",
+        "duur_s": 7.43,
+        "elapsed_seconds_dienst": 7.43,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 1662,
+        "rejected": 0,
+        "raw_response_sha256": "55c4be752378ad6f17d6db22fe21cd133ce3510be66080a3bea4d766a7a6cd23",
+        "user_prompt_sha256": "4718337cfee626c2f4465ef410401ac2756f8a286c70fb1b23c44e189a74d614",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "46227586e4e6891f735b2c61c69aaadf2617ad2271be4fcfb4edbff0a6dbf2fd",
+        "question": null
+      },
+      {
+        "id": "D02-isbn-exemplaar",
+        "verwacht": "fail",
+        "gekregen": "fail",
+        "correct": true,
+        "status_deel": "fail",
+        "duur_s": 5.536,
+        "elapsed_seconds_dienst": 5.536,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 1671,
+        "rejected": 0,
+        "raw_response_sha256": "2bd29d05dee20a850dfce89b01ceb9776a17e83eed3006159153f1e82131c80e",
+        "user_prompt_sha256": "13d216595b7056b52624dd23bcfcb0873f29ded87457de52695b0c2e3929ce64",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "21ce12e319f2f9d94844e1cb217af68b1fba98d584c775ce21469299fb19b52c",
+        "question": null
+      },
+      {
+        "id": "D05-ontkende-uniciteit",
+        "verwacht": "fail",
+        "gekregen": "fail",
+        "correct": true,
+        "status_deel": "fail",
+        "duur_s": 6.427,
+        "elapsed_seconds_dienst": 6.427,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 1433,
+        "rejected": 0,
+        "raw_response_sha256": "068e599a1bb736e9e77095cfc6c201bbf979adea401939e7d0db55b6069935ef",
+        "user_prompt_sha256": "d3708ced3990722098dbcbe65e96bcb765cac5e29894e41c388e821a430a7b46",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "4c1ae5e83d1f006989af03d0300b9d2dfbc7fd42fcc2e201cf1aeea1df0e54b2",
+        "question": null
+      },
+      {
+        "id": "D03-stof",
+        "verwacht": "not_applicable",
+        "gekregen": "not_applicable",
+        "correct": true,
+        "status_deel": "not_applicable",
+        "duur_s": 4.449,
+        "elapsed_seconds_dienst": 4.448,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 1167,
+        "rejected": 0,
+        "raw_response_sha256": "bb035e5887a559c54ec0fb3f08f8bcac1273e886a63120be8f3f4b695b52b9bd",
+        "user_prompt_sha256": "d28acab80a5ad35e0399152435bc359beb0f1e48d8ab2a1e86ad21da97ed9350",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "07f34fe6f63a4b051531c17120585b23190da856c89d99602e89b6b6c5c216e3",
+        "question": null
+      },
+      {
+        "id": "D09-tegenstrijdige-bronnen",
+        "verwacht": "insufficient_information",
+        "gekregen": "insufficient_information",
+        "correct": true,
+        "status_deel": "review_required",
+        "duur_s": 9.823,
+        "elapsed_seconds_dienst": 9.823,
+        "attempts_observed": 1,
+        "retries_observed": 0,
+        "cached": false,
+        "tokens_used": 2196,
+        "rejected": 0,
+        "raw_response_sha256": "1e8a201336b75ba23d3f2a48fe5d92bf300979f59bdfec060430e011e64e2e31",
+        "user_prompt_sha256": "1093e1135a3ff3743745fb6fc97c1196fc306f96cd0907e49d117c1e1ff6bde6",
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "fingerprint": "8e45421a33e36f8d170974b57e150689ea536bdf39d36964bc7fc1cd04cd6d30",
+        "question": "Welk van de twee aangeleverde protocollen (A: hervatting is dezelfde meetuitvoering, of B: hervatting begint een nieuwe meetuitvoering) geldt voor de bedoelde betekenis van 'meetuitvoering'?"
+      }
+    ],
+    "vergelijking_met_v1": {
+      "D04-code-zonder-scope": {
+        "v1_gekregen": "fail",
+        "v2_gekregen": "insufficient_information",
+        "user_prompt_identiek_aan_v1": true
+      },
+      "D07-register-zonder-conventie": {
+        "v1_gekregen": "fail",
+        "v2_gekregen": "insufficient_information",
+        "user_prompt_identiek_aan_v1": true
+      },
+      "D01-natuurlijke-grens": {
+        "v1_gekregen": "pass",
+        "v2_gekregen": "pass",
+        "user_prompt_identiek_aan_v1": true
+      },
+      "D02-isbn-exemplaar": {
+        "v1_gekregen": "fail",
+        "v2_gekregen": "fail",
+        "user_prompt_identiek_aan_v1": true
+      },
+      "D05-ontkende-uniciteit": {
+        "v1_gekregen": "fail",
+        "v2_gekregen": "fail",
+        "user_prompt_identiek_aan_v1": true
+      },
+      "D03-stof": {
+        "v1_gekregen": "not_applicable",
+        "v2_gekregen": "not_applicable",
+        "user_prompt_identiek_aan_v1": true
+      },
+      "D09-tegenstrijdige-bronnen": {
+        "v1_gekregen": "insufficient_information",
+        "v2_gekregen": "insufficient_information",
+        "user_prompt_identiek_aan_v1": true
+      }
+    }
+  },
+  "budget": {
+    "fase1_calls": 12,
+    "browser_fase1_beoordelingen": 2,
+    "browser_fase1_sdk_retry_waargenomen": 1,
+    "correctieronde_calls": 8,
+    "correctieronde_transportpogingen": 8,
+    "totaal_transportpogingen_conservatief": 23,
+    "plafond": 60
+  },
+  "exitcodes": {
+    "opmerking": "Exitcodes van de uitgevoerde commando's in correctieronde 1 (uitvoerder Claude Code CLI). Logs staan naast dit bestand in /tmp/def766-ai-20260921. Gerichte pytest-runs met de project-venv Python 3.13 en -p no:cacheprovider -o addopts=\"\"; make-doelen via PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python. Exitcodes gemeten met `cmd > log 2>&1; echo $?` (niet via een pipe).",
+    "tdd": [
+      {
+        "stap": "R1/R2/R3 contract RED (nieuwe API: Beoordelingsbinding, materiaalhashes, binding=)",
+        "log": "c1-contract-red.log",
+        "exit": 2,
+        "resultaat": "1 error (collectiefout: nieuwe symbolen bestonden nog niet)"
+      },
+      {
+        "stap": "R1/R2/R3/R9 gedragsmatige reproducties RED (alleen fase-1-API)",
+        "log": "c1-reproducties-red.log",
+        "exit": 1,
+        "resultaat": "6 failed, 1 passed — het fase-1-gedrag (downgrade i.p.v. afwijzing, hash-aanwezigheid volstond, twee vragen in één string, generiek label) is gereproduceerd"
+      },
+      {
+        "stap": "R1/R2/R3 contract GREEN",
+        "log": "c1-contract-green.log",
+        "exit": 0,
+        "resultaat": "80 passed"
+      },
+      {
+        "stap": "R6 AI-laag opt-ins RED (echte AIServiceV2/AsyncGPTClient met FakeProvider)",
+        "log": "c1-optins-red.log",
+        "exit": 1,
+        "resultaat": "4 failed, 1 passed — cache/retries/encoder niet stuurbaar per aanroep"
+      },
+      {
+        "stap": "R6 AI-laag opt-ins GREEN",
+        "log": "c1-optins-green.log",
+        "exit": 0,
+        "resultaat": "5 passed"
+      },
+      {
+        "stap": "R2/R3/R6/R7 dienst — tussenstand (retry-telling faalde: filter op parent-logger)",
+        "log": "c1-service-run1.log",
+        "exit": 1,
+        "resultaat": "1 failed, 14 passed"
+      },
+      {
+        "stap": "R2/R3/R6/R7 dienst — tussenstand vóór aanpassing fase-1-asserties op gesloten gedrag",
+        "log": "c1-service-green.log",
+        "exit": 1,
+        "resultaat": "7 failed, 34 passed (fase-1-tests verwachtten het oude downgrade-gedrag; inhoudelijk vervangen)"
+      },
+      {
+        "stap": "R2/R3/R6/R7 dienst — eindstand",
+        "log": "c1-eind-dienst.log",
+        "exit": 0,
+        "resultaat": "41 passed"
+      },
+      {
+        "stap": "R1/R4/R5 persistentie RED (collectie)",
+        "log": "c1-persistentie-red.log",
+        "exit": 2,
+        "resultaat": "1 error"
+      },
+      {
+        "stap": "R4/R5 gedragsmatige reproducties RED",
+        "log": "c1-r4r5-red.log",
+        "exit": 1,
+        "resultaat": "3 failed"
+      },
+      {
+        "stap": "R1/R4/R5 persistentie — tussenstanden",
+        "log": "c1-persistentie-run1.log / c1-persistentie-run2.log",
+        "exit": 1,
+        "resultaat": "2 failed, 25 passed → 6 failed, 36 passed (opgeslagen status-sleutel; tweede _registratie_basis-pass popte ESS-03-sleutels; historical bij gewiste verduidelijking)"
+      },
+      {
+        "stap": "R1/R4/R5 persistentie — eindstand",
+        "log": "c1-eind-persistentie.log",
+        "exit": 0,
+        "resultaat": "43 passed"
+      },
+      {
+        "stap": "Actieproef vaststellen + export — run 1 (TXT-export geeft pad, geen inhoud)",
+        "log": "actieproef-run1.log",
+        "exit": 1,
+        "resultaat": "1 failed, 1 passed"
+      },
+      {
+        "stap": "Actieproef — run 2 (attribuutnaam assessor)",
+        "log": "actieproef-run2.log",
+        "exit": 1,
+        "resultaat": "1 failed, 3 passed"
+      },
+      {
+        "stap": "Actieproef — eindstand",
+        "log": "c1-eind-actieproef.log",
+        "exit": 0,
+        "resultaat": "4 passed"
+      },
+      {
+        "stap": "Regressie (gevonden door make test): categoriekeuze + ESS-03-verduidelijking in één UPDATE verloor de keuze — RED",
+        "log": "c1-keuze-ess03-red.log",
+        "exit": 1,
+        "resultaat": "1 failed (keuze is None)"
+      },
+      {
+        "stap": "Idem GREEN (+ DEF-751/persistentie/database-suites)",
+        "log": "c1-keuze-ess03-green.log",
+        "exit": 0,
+        "resultaat": "730 passed"
+      }
+    ],
+    "eindstand_per_gebied": [
+      {
+        "gebied": "contract (R1/R2/R3 + reproducties)",
+        "log": "c1-eind-contract.log",
+        "exit": 0,
+        "resultaat": "80 passed"
+      },
+      {
+        "gebied": "dienst (R2/R3/R6/R7)",
+        "log": "c1-eind-dienst.log",
+        "exit": 0,
+        "resultaat": "41 passed"
+      },
+      {
+        "gebied": "AI-laag (R6 opt-ins + bestaande AI-tests)",
+        "log": "c1-eind-ai-laag.log",
+        "exit": 0,
+        "resultaat": "80 passed"
+      },
+      {
+        "gebied": "evaluator/wrapper/keten (R1) + golden ESS",
+        "log": "c1-eind-evaluator-keten.log",
+        "exit": 0,
+        "resultaat": "46 passed"
+      },
+      {
+        "gebied": "persistentie (R1/R4/R5 + readbackmatrix)",
+        "log": "c1-eind-persistentie.log",
+        "exit": 0,
+        "resultaat": "43 passed"
+      },
+      {
+        "gebied": "UI (R9 + editor R5)",
+        "log": "c1-eind-ui.log",
+        "exit": 0,
+        "resultaat": "19 passed"
+      },
+      {
+        "gebied": "actieproef vaststellen + export",
+        "log": "c1-eind-actieproef.log",
+        "exit": 0,
+        "resultaat": "4 passed"
+      },
+      {
+        "gebied": "alle DEF-766-suites + golden ESS",
+        "log": "c1-def766-suites-eind3.log",
+        "exit": 0,
+        "resultaat": "296 passed"
+      }
+    ],
+    "regressie": [
+      {
+        "stap": "gerelateerde suites (DEF-743/751/622/624, orchestrator, AI-laag, database, story 2.4, contracten) — vóór aanpassing golden-test op R1",
+        "log": "c1-regressie-eind.log",
+        "exit": 1,
+        "resultaat": "1 failed, 1498 passed — test_v2_golden_ess_more gaf een beoordeling zonder ess03_binding mee; aangepast: zonder binding review_required (R1), met binding fail"
+      },
+      {
+        "stap": "golden ESS na aanpassing",
+        "log": "c1-golden-eind.log",
+        "exit": 0,
+        "resultaat": "3 passed"
+      },
+      {
+        "stap": "crud/repository/edit-service-refactors (complexiteit) + DEF-743/622-persistentie",
+        "log": "c1-refactor-crud.log",
+        "exit": 0,
+        "resultaat": "788 passed"
+      },
+      {
+        "stap": "make test (volledige unitgate) run 1 — vóór de fix van de categoriekeuze-regressie",
+        "log": "c1-make-test-eind.log",
+        "exit": 2,
+        "resultaat": "2 failed, 6850 passed, 75 skipped: test_def751_categoriekeuze_ui (keuze verloren bij ESS-03-verduidelijking in dezelfde UPDATE)"
+      },
+      {
+        "stap": "make test (volledige unitgate) run 2 — eindstand van de code",
+        "log": "c1-make-test-eind2.log",
+        "exit": 0,
+        "resultaat": "6853 passed, 75 skipped, 722 deselected, 1 xfailed in 281.97s; run_profile status=ok"
+      }
+    ],
+    "gates": [
+      {
+        "stap": "make lint (ruff check + black check op src/config) — eindstand",
+        "log": "c1-make-lint-eind2.log",
+        "exit": 0
+      },
+      {
+        "stap": "ruff check + black --check op alle 51 gewijzigde/nieuwe Python-bestanden (eigen bestanden geformatteerd; geen ongewijzigde bestanden geraakt)",
+        "log": "c1-ruff-2.log / c1-black-2.log",
+        "exit": 0
+      },
+      {
+        "stap": "make test-markers-check",
+        "log": "c1-markers-eind.log",
+        "exit": 0,
+        "resultaat": "485 testbestanden gemarkeerd"
+      },
+      {
+        "stap": "scripts/ci/check_root_allowlist.sh",
+        "log": "c1-root-allowlist-eind.log",
+        "exit": 0
+      },
+      {
+        "stap": "make complexity-check (ratchet DEF-418) — eerste meting na correcties",
+        "log": "c1-complexity.log",
+        "exit": 2,
+        "resultaat": "201 → 213 (+12), alle 12 nieuwe bevindingen in eigen DEF-766-code (contract, dienst, ai_service_v2, definitie_crud, definition_repository, definition_edit_service)"
+      },
+      {
+        "stap": "make complexity-check — na gerichte refactors van eigen code (geen baselinewijziging)",
+        "log": "c1-complexity-3.log",
+        "exit": 0,
+        "resultaat": "201 = baseline"
+      },
+      {
+        "stap": "scripts/ci/check-file-size.sh (informatief; pre-existing)",
+        "log": "c1-file-size.log",
+        "exit": 1,
+        "resultaat": "src/services/definition_repository.py 1353 LOC > 1000 — pre-existing god-object (DEF-312/DEF-422-klasse); niet door deze ronde geïntroduceerd, geen brede fix"
+      },
+      {
+        "stap": "scripts/ci/check_no_todo_markers.sh",
+        "log": "c1-todo.log",
+        "exit": 0
+      }
+    ],
+    "modelrun": [
+      {
+        "stap": "scripts/ess03/run_ess03_gevallen.py — 8 echte beoordelingen met prompt ess03-assess/2 (claude-opus-4-8 via ModelRouter taak validation; dienst-opt-ins use_cache=False/max_attempts=1/max_retries=0/token_estimate=heuristic; AI_SDK_MAX_RETRIES=0; dienstcache 0; deadline 60 s per beoordeling, 480 s totaal)",
+        "log": "ontwikkelrun-v2.log",
+        "uitvoer": "ontwikkelrun-v2.json",
+        "exit": 0,
+        "resultaat": "8 aanroepen gestart, 8 transportpogingen waargenomen (attempts_observed=1 per aanroep), 8/8 conform vooraf vastgelegde verwachting, 0 afgewezen citaten, totale duur 59,3 s, langste 9,8 s"
+      }
+    ]
+  },
+  "bestanden": {
+    "config/toetsregels/toetsregels_config.yaml": {
+      "git_status": "M",
+      "sha256": "c9eab346eaed1a584bf139da8c469e883109a87324ba18d3e2cb90237850cbb7",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "docs/architectuur/contracts/schemas/validation_result.schema.json": {
+      "git_status": "M",
+      "sha256": "065e725c1786155e647674c93ad37eaf04da7fdb76518a85c0cb64aeb2030ec5",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/database/definitie_crud.py": {
+      "git_status": "M",
+      "sha256": "84c65a0f7addef171e3c9b046ba870b464293f0d897b5c332cfdf7ba41471937",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/database/models.py": {
+      "git_status": "M",
+      "sha256": "81e0466a18d69e70a438e26f28cd5fedd0ff4c9b143411041ba31729664dcd6e",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/ai/anthropic_client.py": {
+      "git_status": "M",
+      "sha256": "3f2b9a851ac355fe4ef33f51239cd7b1dfedcf090968dd1645270272834ec867",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "src/services/ai/base_client.py": {
+      "git_status": "M",
+      "sha256": "4979e10ad38a72b38fb9eacb5f091396ee87b6b5c856e7a84c66e971c1aae72a",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "src/services/ai/openai_client.py": {
+      "git_status": "M",
+      "sha256": "3b7515c751cc65d90df46ae368d56ec9ecbde01b7aaa1fc305b402d7062a5832",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "src/services/ai_service_v2.py": {
+      "git_status": "M",
+      "sha256": "683b783e3d9faa0dc299bf4b3dfa5e6e9a7429e9dcd3983e5205280c462172c3",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "src/services/container.py": {
+      "git_status": "M",
+      "sha256": "4868577de9a5a8f60855e39db81ed7458b2a7f2632623521624b54b6fae07666",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/services/definition_edit_service.py": {
+      "git_status": "M",
+      "sha256": "7608444005c54193cc9ee6b5aa3337b5cbca10d916d2131f18e75c8b2dc890f8",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/definition_repository.py": {
+      "git_status": "M",
+      "sha256": "9b1ab557a5edfa91aada29cf0cd33a6d3ab28c58391da6f39e9ad2cad58565c3",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/orchestrators/definition_orchestrator_v2.py": {
+      "git_status": "M",
+      "sha256": "2630956caaea0280e42ff8b1ba23ae5eee2e24cf8a672b37696fef526b1d4a3a",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/orchestrators/validation_orchestrator_v2.py": {
+      "git_status": "M",
+      "sha256": "26d214f0bd593eb1bcc32e2e08d74f023fb81268e8483cc451035b34e16b983a",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/validation/evaluators/__init__.py": {
+      "git_status": "M",
+      "sha256": "1b860e864800f01728ad69792ab500cbc96588214916071df4359fe7f8a93a30",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/services/validation/evaluators/judgment_review.py": {
+      "git_status": "M",
+      "sha256": "b85682ac15acdf4ca4ce3768c6e12921e7708ab65423b69089b9ecb71940891b",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/services/validation/interfaces.py": {
+      "git_status": "M",
+      "sha256": "06ea54c753ef714beb4fe9f59318079c1af4b646c624ed9475759254307e1d49",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/services/validation/modular_validation_service.py": {
+      "git_status": "M",
+      "sha256": "35b694844b0531c6a5a7595e5686e41c95bfacd40fdd908279cfc708ee51901b",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/toetsregels/regels/ESS-03.json": {
+      "git_status": "M",
+      "sha256": "34ab9bedecd1af141951ec6754e072ff7a12215fc9760abf9924cf26de22114d",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/toetsregels/runtime_contract.py": {
+      "git_status": "M",
+      "sha256": "cf542ceec73b2573727bb5adf39053b6196efa617a5c78693cc7441a4daecf26",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/ui/components/definition_edit_tab.py": {
+      "git_status": "M",
+      "sha256": "39ce35514f7d36875b008b07f0465330ba002a6f0944647b665f32dcc57eab18",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/ui/components/definition_generator_tab.py": {
+      "git_status": "M",
+      "sha256": "c709abca3a56eac943e33d9ebdfaf1245fff4c7aac4075fa74750ea7ae67cd87",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/ui/components/validation_view.py": {
+      "git_status": "M",
+      "sha256": "e46556742a3b74c51e9ff19934c45a6cf890c840469c9a5b7f34a60bdfb579d1",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/utils/async_api.py": {
+      "git_status": "M",
+      "sha256": "39d2acaca8c442d93526ae0d91c51501583d811cc3cb1884d23da8f28c7bb88f",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/fixtures/toetsregels/runtime_cases.yaml": {
+      "git_status": "M",
+      "sha256": "c9b0ba013e97818837b85c9fbc61d0200bf6b1fa13bb4d8a4d323f31bfd66467",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/services/orchestrators/test_def622_context_transport.py": {
+      "git_status": "M",
+      "sha256": "d2b8c9e9bf1619b3e5f7119356262abcc7eace5e164a4ebc46e6802935d341bb",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py": {
+      "git_status": "M",
+      "sha256": "9f1678cdadcb9f2d58613a1654daee4620c889df41dfce2e39a48ff9336aa2bd",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/services/orchestrators/test_validation_orchestrator_v2.py": {
+      "git_status": "M",
+      "sha256": "b6d5616b5ae9663ebe08fdfe1dfffa9444f854ddab7f829bec7ad553a70910c2",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/test_story_2_4_unit.py": {
+      "git_status": "M",
+      "sha256": "85cab024d631da3b316e0b8478bbab5a3648cc0121462aa8810284d13742d8ee",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/ui/test_def743_editor_ui.py": {
+      "git_status": "M",
+      "sha256": "0fbb405b891847a1233d4540e090bbfdc565db1db3e7259e95207b2514f6f2af",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/validation/test_def766_ess03_telbaarheid.py": {
+      "git_status": "M",
+      "sha256": "97aed3df69e8afef1ac132bc8fa4a750116c1879874301a89c7af05aa4c75108",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/validation/test_root_ssot_contract.py": {
+      "git_status": "M",
+      "sha256": "7b3e4d901c0baf19362c6cd076187c0d694de36e732f3c5f1c8faa18a42de246",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/validation/test_rule_runtime_matrix.py": {
+      "git_status": "M",
+      "sha256": "639c129e337e3ce1aa620c14ab57554d6fcd3c4797cef2b74acac07c08ee4636",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/validation/test_v2_golden_ess_more.py": {
+      "git_status": "M",
+      "sha256": "49d3bdc9f1cac4a5e0e34de7d35f33764f804eae5eb56bc1bb94326a8f977db8",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/unit/validation/test_validation_readiness.py": {
+      "git_status": "M",
+      "sha256": "635bd99c7c0d6eb6c87aca94ee76262a9a8c5cb027cbdf1df5bc1392c2a493f8",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "scripts/ess03/run_ess03_gevallen.py": {
+      "git_status": "??",
+      "sha256": "1bc34f99089fd8aad826af69be9d6ccc990ad49d2b3a1aafb062a16d8edd9cb6",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/domain/ess03/__init__.py": {
+      "git_status": "??",
+      "sha256": "7d6e1aaaf26fa880a447e66f3a27221ec0b9a15fafc5c17bd438dc528c735b65",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "src/domain/ess03/contract.py": {
+      "git_status": "??",
+      "sha256": "9b085612917dc36331b2f69aff19e1513ee3f170a4895d4dd32ff448e329ca45",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/validation/ess03_assessment_service.py": {
+      "git_status": "??",
+      "sha256": "378697365b2113a78ae5ae55a6bb89f388be988eda8f291280ca7a8d139884a9",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "src/services/validation/evaluators/countability_assessment.py": {
+      "git_status": "??",
+      "sha256": "fe2c6d3561db9c33baf062d58c1d502bf4db00986e2302efb549bb80fa30f890",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/fixtures/def766_fakes.py": {
+      "git_status": "??",
+      "sha256": "3fc31229371f623a46b02e4bb957ba0b922ba0073959fb81014c8d24a14c2163",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/fixtures/ess03/ontwikkelgevallen_v1.json": {
+      "git_status": "??",
+      "sha256": "d33f36061323826fc42c6c06969006dee7d030838ca0896ce56e4b8487edea1c",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/fixtures/ess03/ontwikkelgevallen_v2.json": {
+      "git_status": "??",
+      "sha256": "a432f602ab7df8c75acbaa4c63e2973b82ef531c98eb79e9172218af9561a599",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/domain/test_def766_ess03_contract.py": {
+      "git_status": "??",
+      "sha256": "6a4b4bdc90b063ceba679ca8ec3875f29986d4deb26192df74446df98cb69544",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/unit/domain/test_def766_ess03_correcties_contract.py": {
+      "git_status": "??",
+      "sha256": "8af3e69494e323e1e884b20cdfea4727e6a2e3477432279f0df6eb1ce03ac5ed",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/domain/test_def766_ess03_correcties_reproducties.py": {
+      "git_status": "??",
+      "sha256": "48587845c737398d9b87aeb5ca3c6a5be09a4264e90d1d210d2eee9ab2137e6d",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/services/orchestrators/test_def766_ess03_integration.py": {
+      "git_status": "??",
+      "sha256": "f253a2f7eb147f8d0bf51d84413dff122b0c449701a5a10f12e217286324eac0",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/services/orchestrators/test_def766_ess03_wrappers.py": {
+      "git_status": "??",
+      "sha256": "5f5349acf2fd676f649d1cb41735ea9c770b9ac0d4200ccb8f2d0f3435dd15db",
+      "t_o_v_fase1": "ongewijzigd"
+    },
+    "tests/unit/services/test_def766_ai_route_optins.py": {
+      "git_status": "??",
+      "sha256": "5260764f0a7e30376f91d361664ff0ba2a7ebf83adcc511912ffd39e6033f3f5",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/services/test_def766_ess03_actieproef.py": {
+      "git_status": "??",
+      "sha256": "9f654ac96a8f0485d70cbf3dfdec1559bc1c44872fe804cbe5e3fa5b487754ba",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/services/test_def766_ess03_correcties_persistentie.py": {
+      "git_status": "??",
+      "sha256": "17c7e97e341463f0e5eac52d75428de7bc5663c04e61e536d313e6bc7e2d8c7b",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/services/test_def766_ess03_correcties_reproducties_r4r5.py": {
+      "git_status": "??",
+      "sha256": "e2fe43ff6f7360f60d1bbdd51a574f0886a231e9c17e51c00551d29c6ff2177a",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/services/test_def766_ess03_persistentie.py": {
+      "git_status": "??",
+      "sha256": "ca34375160fefedee7af1f2f8a8aed505e4228e2246fa53852376fdb99d405ea",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/unit/ui/test_def766_ess03_editor.py": {
+      "git_status": "??",
+      "sha256": "cc01e8d8db3af09f633ce8604879fe77a2da94491385027e27f9d6a08630dce5",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/unit/ui/test_def766_ess03_weergave.py": {
+      "git_status": "??",
+      "sha256": "43a3546e86e6d3baad6d0773760c30cddef033a8b0c9ade61187fc1850c35fdd",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/unit/validation/test_def766_ess03_assessment_service.py": {
+      "git_status": "??",
+      "sha256": "48c042e1e726eb3a6bdd5e79af48fc0d1c5f68251d2925c1904352b6fffe1831",
+      "t_o_v_fase1": "gewijzigd"
+    },
+    "tests/unit/validation/test_def766_ess03_correcties_service.py": {
+      "git_status": "??",
+      "sha256": "8e156bef954ce7655b207c3a3a93f80030e0e79251d93cf847c3fdf499802939",
+      "t_o_v_fase1": "nieuw in correctieronde"
+    },
+    "tests/unit/validation/test_def766_ess03_evaluator.py": {
+      "git_status": "??",
+      "sha256": "de4f172e75c6abed40ea1d111617a0001b33049d98d3e4cbd0289a388887d24c",
+      "t_o_v_fase1": "gewijzigd"
+    }
+  }
+}

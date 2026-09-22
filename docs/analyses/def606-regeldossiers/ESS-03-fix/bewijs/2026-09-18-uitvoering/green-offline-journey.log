@@ -1,0 +1,35 @@
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10dcf8550>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/typing.py:1031: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10ddeb050>
+    code = compile(_rewrite_star_unpack(arg), '<string>', 'eval')
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/futures.py:306: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x113e1f650>
+    return get_loop()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_offline_kernjourney_van_generatie_tot_export
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/aiohttp/connector.py:315: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10c0a9b50>
+    defaultdict(set)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_offline_kernjourney_van_generatie_tot_export
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/aiohttp/connector.py:315: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x113efca50>
+    defaultdict(set)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 5 warnings in 32.79s
+exit=0

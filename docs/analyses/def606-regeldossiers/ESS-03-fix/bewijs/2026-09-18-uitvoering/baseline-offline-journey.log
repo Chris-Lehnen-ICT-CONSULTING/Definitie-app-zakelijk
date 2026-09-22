@@ -1,0 +1,40 @@
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/integration/test_offline_core_journey.py::test_offline_kernjourney_van_generatie_tot_export
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109d40350>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_offline_kernjourney_van_generatie_tot_export
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/typing.py:1449: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109e06c50>
+    self.__args__ = tuple(... if a is _TypingEllipsis else
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/services/web_lookup/sru_service.py:153: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1080c9b50>
+    async def __aenter__(self) -> "SRUService":
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/services/web_lookup/sru_service.py:153: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10fe6c250>
+    async def __aenter__(self) -> "SRUService":
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/services/synonym_orchestrator.py:425: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10ff36f50>
+    age_seconds = (datetime.now(UTC) - timestamp).total_seconds()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/services/synonym_orchestrator.py:425: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10fe6ef50>
+    age_seconds = (datetime.now(UTC) - timestamp).total_seconds()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit=0

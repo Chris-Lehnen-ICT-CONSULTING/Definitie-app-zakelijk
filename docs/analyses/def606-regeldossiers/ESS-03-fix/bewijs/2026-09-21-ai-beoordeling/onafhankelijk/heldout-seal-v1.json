@@ -1,0 +1,36 @@
+{
+  "created_utc": "2026-09-21T07:07:14.869748+00:00",
+  "base": "2c9a6e3a13afa4ecbe39163cc418e2b0f8c41644",
+  "reviewer_session": "01a0c2c4-07ad-73f1-b1f6-8a11adfb64ea",
+  "cases_sha256": "f96378d2cc5ffefe8f9db67f9d52e8a1f177747377b66726e077761d0f1f523e",
+  "case_ids": [
+    "HT01",
+    "HT02",
+    "HT03",
+    "HT04",
+    "HT05",
+    "HT06",
+    "HT07",
+    "HT08",
+    "HT09",
+    "HT10",
+    "HT11",
+    "HT12",
+    "HT13",
+    "HT14",
+    "HT15",
+    "HT16",
+    "HT17",
+    "HT18",
+    "HT19",
+    "HT20"
+  ],
+  "labels": {
+    "voldoet": 5,
+    "voldoet niet": 5,
+    "niet van toepassing": 5,
+    "onvoldoende informatie": 5
+  },
+  "implementer_not_given_set": true,
+  "human_expert_goldset": false
+}

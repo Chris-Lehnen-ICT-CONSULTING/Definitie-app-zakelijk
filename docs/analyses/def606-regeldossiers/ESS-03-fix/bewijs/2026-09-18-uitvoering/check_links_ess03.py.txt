@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Controleer lokale markdown-links en backtick-referentiepaden in de DEF-766-doelbestanden.
+
+Cross-skill pointers (regel bevat 'skill `definitie-toetsregels`') worden apart
+gerapporteerd als CROSS en gelden niet als dode link.
+"""
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path("/private/tmp/def766-skills")
+FILES = [
+    "skills/definitie-toetsregels/reference.md",
+    "skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md",
+    "skills/definitie-nederlandse-definities/SKILL.md",
+    "skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md",
+    "skills/definitie-ufo-ontologie/reference.md",
+    "skills/definitie-ontologisch-modelleren/reference.md",
+    "skills/definitie-voorbeelden-generatie/reference.md",
+]
+LINK_RE = re.compile(r"\]\(([^)]+)\)")
+BT_RE = re.compile(r"`(references?/[^`]+\.md|reference\.md)`")
+
+
+def main() -> int:
+    rc = 0
+    for rel in FILES:
+        p = ROOT / rel
+        text = p.read_text(encoding="utf-8")
+        lines = text.splitlines()
+        for m in LINK_RE.finditer(text):
+            tgt = m.group(1).split("#")[0]
+            if not tgt or tgt.startswith(("http://", "https://")):
+                continue
+            ok = (p.parent / tgt).exists()
+            print(("OK    " if ok else "DOOD  ") + f"{rel} -> {tgt}")
+            rc |= int(not ok)
+        for m in BT_RE.finditer(text):
+            tgt = m.group(1)
+            lineno = text[: m.start()].count("\n") + 1
+            ok = (p.parent / tgt).exists()
+            ctx = lines[lineno - 1]
+            cross = (not ok) and ("skill `definitie-toetsregels`" in ctx)
+            tag = "OK    " if ok else ("CROSS " if cross else "DOOD  ")
+            print(tag + f"{rel}:{lineno} `{tgt}`")
+            if not ok and not cross:
+                rc = 1
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())

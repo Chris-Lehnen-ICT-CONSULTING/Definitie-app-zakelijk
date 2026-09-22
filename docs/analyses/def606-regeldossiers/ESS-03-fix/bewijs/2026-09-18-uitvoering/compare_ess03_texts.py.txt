@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Vergelijk de ESS-03-voorsteltekst (tekstvoorstellen-v3 §2–§5, besluitnotitie-v2 §1)
+letterlijk met de aangebrachte skillteksten in /private/tmp/def766-skills.
+
+Elke check: haal de tekst uit het brondocument (regelnummer), strip de
+blockquote-markering, en controleer of hij als substring in het doelbestand staat.
+"""
+import sys
+from pathlib import Path
+
+SRC = Path(
+    "/Users/chrislehnen/.codex/worktrees/6554/Definitie-app/docs/analyses/"
+    "def606-regeldossiers/ESS-03-verdieping/onderzoek-20260918"
+)
+DST = Path("/private/tmp/def766-skills/skills")
+
+tv = (SRC / "tekstvoorstellen-v3.md").read_text(encoding="utf-8").splitlines()
+bn = (SRC / "gezamenlijke-besluitnotitie-v2.md").read_text(encoding="utf-8").splitlines()
+
+
+def q(lines, n, strip_prefix="> "):
+    s = lines[n - 1]
+    if s.startswith(strip_prefix):
+        s = s[len(strip_prefix):]
+    return s.strip()
+
+
+def between(s, start, end):
+    i = s.index(start)
+    j = s.index(end, i)
+    return s[i:j + len(end)]
+
+
+ref03 = DST / "definitie-toetsregels/references/ess03-eenheid-identiteit.md"
+checks = [
+    # (label, brontekst, doelbestand)
+    ("toetsregels rij (tv:110)", q(tv, 110), DST / "definitie-toetsregels/reference.md"),
+    ("NL-definities blok (tv:124, zonder vetkop)",
+     q(tv, 124).replace("**ESS-03 — één instantie onderscheiden.** ", ""),
+     DST / "definitie-nederlandse-definities/SKILL.md"),
+    ("UFO ESS-03-toepassing (tv:132)", q(tv, 132).replace("**ESS-03-toepassing.** ", ""),
+     DST / "definitie-ufo-ontologie/reference.md"),
+    ("UFO Collective-cel (tv:134)",
+     between(tv[133], "Eigen identiteitsprincipe", "onderbouwde conventie"),
+     DST / "definitie-ufo-ontologie/reference.md"),
+    ("ontologisch modelleren (tv:140)", q(tv, 140), DST / "definitie-ontologisch-modelleren/reference.md"),
+    ("voorbeelden rij (tv:148)", q(tv, 148), DST / "definitie-voorbeelden-generatie/reference.md"),
+    ("voorbeelden paragraaf (tv:152)", q(tv, 152), DST / "definitie-voorbeelden-generatie/reference.md"),
+    ("norm alinea 1 (bn:11)", q(bn, 11), ref03),
+    ("norm alinea 2 (bn:13)", q(bn, 13), ref03),
+    ("norm alinea 3 (bn:15)", q(bn, 15), ref03),
+    ("uitzonderingsduiding zin 1-2 (bn:19)",
+     between(bn[18], "ASTRA noemt zand/cocaïne", "of een UFO-stereotype."), ref03),
+    ("uitzonderingsduiding brug (bn:19)",
+     between(bn[18], "Het brugvoorbeeld", "kunnen afbakenen"), ref03),
+    ("uitzonderingsduiding contextlabel (bn:19)",
+     between(bn[18], "Een contextlabel alleen", "begripsgrens."), ref03),
+    ("G (tv:76)", q(tv, 76), ref03),
+    ("T (tv:84)", q(tv, 84), ref03),
+    ("H (tv:98)", q(tv, 98), ref03),
+    ("toetsvraag (tv:23, zonder hoofdletter)", q(tv, 23)[1:], ref03),
+    ("geldigheid (tv:27)", q(tv, 27), ref03),
+    ("bericht open (tv:88)", between(tv[87], "“Nog te beoordelen", "geldt?”"), ref03),
+    ("bericht scope (tv:89)", between(tv[88], "“De code is vermeld", "onderbouwd.”"), ref03),
+    ("bericht codefout (tv:90)", between(tv[89], "“Dit identificatiemiddel", "hebben.”"), ref03),
+    ("bericht n.v.t. (tv:91)", between(tv[90], "“Deze betekenis beschrijft", "identificatie.”"), ref03),
+    ("bericht technisch (tv:92)", between(tv[91], "“De ESS-03-controle", "gegeven.”"), ref03),
+    ("H-voorbeeld N05 (tv:100)", between(tv[99], "“De tekst bevat", "beoordelen.”"), ref03),
+    ("H-voorbeeld N01 (tv:100)", between(tv[99], "“De gegeven tekst", "onderscheidt.”"), ref03),
+    ("naam regelkaart (tv:11)", q(tv, 11), DST / "definitie-toetsregels/reference.md"),
+]
+
+# Negatieve checks: oude tekst mag niet meer voorkomen
+negatives = [
+    ("oude ESS-03-rij (serienummer/kenteken)", "zoals serienummer, kenteken, ID", DST / "definitie-toetsregels/reference.md"),
+    ("oude voorbeelden-rij", "Voorbeelden tonen concrete identificatiecriteria", DST / "definitie-voorbeelden-generatie/reference.md"),
+    ("oude Collective-cel", "Eigen identiteit via lidmaatschap", DST / "definitie-ufo-ontologie/reference.md"),
+]
+
+rc = 0
+for label, src, dst in checks:
+    text = dst.read_text(encoding="utf-8")
+    ok = src in text
+    print(("OK   " if ok else "MIS  ") + f"{label} -> {dst.relative_to(DST)}")
+    if not ok:
+        rc = 1
+        print("      bron:", src[:160])
+for label, src, dst in negatives:
+    text = dst.read_text(encoding="utf-8")
+    ok = src not in text
+    print(("OK   " if ok else "NOG  ") + f"{label} afwezig in {dst.relative_to(DST)}")
+    if not ok:
+        rc = 1
+print("resultaat:", "alle checks geslaagd" if rc == 0 else "afwijkingen gevonden")
+sys.exit(rc)

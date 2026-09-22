@@ -1,0 +1,36 @@
+Ruff linting.............................................................Failed
+- hook id: ruff
+- exit code: 1
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> tests/unit/validation/test_def766_ess03_telbaarheid.py:164:13
+    |
+162 |           fout = ESS03.get("foute_voorbeelden") or []
+163 |           assert goed == [
+164 | /             "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken "
+165 | |             "peilmoment volledig door water is omgeven."
+    | |________________________________________________________^
+166 |           ]
+167 |           assert fout == [
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+ISC004 Unparenthesized implicit string concatenation in collection
+   --> tests/unit/validation/test_def766_ess03_telbaarheid.py:168:13
+    |
+166 |           ]
+167 |           assert fout == [
+168 | /             "Boekexemplaar dat uitsluitend door zijn ISBN van andere fysieke "
+169 | |             "exemplaren wordt onderscheiden."
+    | |_____________________________________________^
+170 |           ]
+171 |           # Het oude paar (VIN/kenteken versus vier wielen) is een woordbewijs.
+    |
+help: Did you forget a comma?
+help: Wrap implicitly concatenated strings in parentheses
+
+Found 2 errors.
+No fixes available (2 hidden fixes can be enabled with the `--unsafe-fixes` option).
+
+exit=1

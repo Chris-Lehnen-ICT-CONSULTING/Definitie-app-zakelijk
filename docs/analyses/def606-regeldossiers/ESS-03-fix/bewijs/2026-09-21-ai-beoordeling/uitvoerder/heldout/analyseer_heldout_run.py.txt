@@ -1,0 +1,312 @@
+"""Analyse van de twee runneruitvoeren → heldout-results-v1.json + detaildump voor het rapport.
+
+Geen herlabeling: 'verwacht' komt uit het gevallenbestand, 'gekregen' uit de runneruitvoer.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+MAP = Path("/tmp/def766-ai-20260921/heldout")
+ZEGEL = {
+    "prompt_version": "ess03-assess/2",
+    "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+    "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+    "provider": "anthropic",
+    "model": "claude-opus-5",
+}
+TECHNISCHE_FOUTEN = {
+    "timeout", "rate_limit", "connection", "truncated_response", "malformed_response",
+    "unverifiable_evidence", "input_truncated", "unknown", "provider_error",
+}
+
+runs = {
+    "basis": json.loads((MAP / "heldout-run-basis-v1.json").read_text(encoding="utf-8")),
+    "varianten": json.loads((MAP / "heldout-run-varianten-v1.json").read_text(encoding="utf-8")),
+}
+gevallen = {
+    g["id"]: g
+    for g in json.loads((MAP / "heldout-gevallen-v1.json").read_text(encoding="utf-8"))["gevallen"]
+}
+prompt_hashes = json.loads((MAP / "heldout-prompt-hashes-v1.json").read_text(encoding="utf-8"))
+
+# --- 1. binding per run en per call -----------------------------------------------------------
+binding = {}
+for naam, run in runs.items():
+    mc = run["modelconfig"]
+    binding[naam] = {
+        "prompt_version": run["prompt_version"],
+        "system_prompt_sha256": run["system_prompt_sha256"],
+        "norm_sha256": run["norm_sha256"],
+        "provider": mc["provider"],
+        "model": mc["model"],
+        "task_type": mc["task_type"],
+        "temperature_sent": mc["temperature_sent"],
+        "max_tokens": mc["max_tokens"],
+        "timeout_seconds": mc["timeout_seconds"],
+        "ai_service_cache": mc["ai_service_cache"],
+        "dienst_cache_size": mc["dienst_cache_size"],
+        "dienst_optins": mc["dienst_optins"],
+        "sdk_max_retries_env": mc["sdk_max_retries_env"],
+        "total_deadline_s": run["total_deadline_s"],
+        "totale_duur_s": run["totale_duur_s"],
+        "gestart": run["gestart"],
+        "gevallenbestand": run["gevallenbestand"],
+        "aanroepen_gestart": run["aanroepen_gestart"],
+        "transportpogingen_waargenomen": run["transportpogingen_waargenomen"],
+        "zegel_ok": (
+            run["prompt_version"] == ZEGEL["prompt_version"]
+            and run["system_prompt_sha256"] == ZEGEL["system_prompt_sha256"]
+            and run["norm_sha256"] == ZEGEL["norm_sha256"]
+            and mc["provider"] == ZEGEL["provider"]
+            and mc["model"] == ZEGEL["model"]
+        ),
+    }
+
+# --- 2. per call -------------------------------------------------------------------------------
+calls = []
+for naam, run in runs.items():
+    for r in run["resultaten"]:
+        doc = r["beoordeling"]
+        att = doc.get("attribution") or {}
+        oordeel = doc.get("judgment") or {}
+        status = doc.get("status")
+        technisch = status != "assessed"
+        call = {
+            "id": r["id"],
+            "deelset": naam,
+            "basis": gevallen[r["id"]].get("basis"),
+            "verwacht": r["verwacht"],
+            "gekregen": r["gekregen_verdict"],
+            "correct_label": r["correct"],
+            "technische_fout": technisch,
+            "status": status,
+            "error": doc.get("error"),
+            "rejected": doc.get("rejected") or [],
+            "stop_reason": att.get("stop_reason"),
+            "attempts_observed": att.get("attempts_observed"),
+            "retries_observed": att.get("retries_observed"),
+            "cached": att.get("cached"),
+            "tokens_used": att.get("tokens_used"),
+            "model_attributie": att.get("model"),
+            "provider_attributie": att.get("provider"),
+            "duur_totaal_s": r.get("duur_totaal_s"),
+            "elapsed_seconds_dienst": r.get("elapsed_seconds_dienst"),
+            "duur_aanroep_s": (r.get("aanroep") or {}).get("duur_s"),
+            "retry_count_ai_laag": (r.get("aanroep") or {}).get("retry_count"),
+            "hashes": r["hashes"],
+            "binding_call": {
+                "prompt_version": doc.get("prompt_version"),
+                "norm_sha256": doc.get("norm_sha256"),
+                "contract_version": doc.get("contract_version"),
+                "system_prompt_sha256_ok": r["hashes"]["system_prompt_sha256"] == ZEGEL["system_prompt_sha256"],
+                "norm_ok": doc.get("norm_sha256") == ZEGEL["norm_sha256"],
+                "prompt_version_ok": doc.get("prompt_version") == ZEGEL["prompt_version"],
+                "model_ok": att.get("model") == ZEGEL["model"] and att.get("provider") == ZEGEL["provider"],
+                "user_prompt_sha256_matcht_offline": r["hashes"]["user_prompt_sha256"] == prompt_hashes[r["id"]]["user_prompt_sha256"],
+            },
+            "oordeel": {
+                "verdict": oordeel.get("verdict"),
+                "status": oordeel.get("status"),
+                "applicability": oordeel.get("applicability"),
+                "unit": oordeel.get("unit"),
+                "reason": oordeel.get("reason"),
+                "evidence": oordeel.get("evidence"),
+                "missing_information": oordeel.get("missing_information"),
+                "question": oordeel.get("question"),
+                "uncertainty": oordeel.get("uncertainty"),
+            },
+        }
+        # controles per antwoord
+        vraag = oordeel.get("question")
+        reason = oordeel.get("reason") or ""
+        ev = oordeel.get("evidence") or []
+        call["controles"] = {
+            "precies_een_vraag_bij_insufficient": (
+                (oordeel.get("verdict") == "insufficient_information")
+                == (isinstance(vraag, str) and vraag.strip().endswith("?") and vraag.count("?") == 1)
+            ),
+            "vraag_aanwezig": bool(vraag),
+            "aantal_vraagtekens": (vraag or "").count("?"),
+            "aantal_citaten": len(ev),
+            "citaat_vindplaatsen": sorted({e.get("location") for e in ev}),
+            "citaten_geaccepteerd_door_dienst": status == "assessed" and not (doc.get("rejected") or []),
+            "herschrijfsignaal_in_reason": bool(
+                re.search(r"(?i)\b(herschrijf|herformuleer|zou moeten luiden|beter zou zijn|voorstel|vervang de definitie|aanbevolen formulering|suggestie)\b", reason)
+            ),
+            "cijfer_of_percentage_in_reason": bool(re.search(r"\d+\s?%|\b\d+/\d+\b", reason)),
+        }
+        calls.append(call)
+
+per_id = {c["id"]: c for c in calls}
+
+# --- 3. per klasse (20 basisgevallen) ----------------------------------------------------------
+klassen = ["pass", "fail", "not_applicable", "insufficient_information"]
+per_klasse = {}
+for k in klassen:
+    items = [c for c in calls if c["deelset"] == "basis" and c["verwacht"] == k]
+    per_klasse[k] = {
+        "totaal": len(items),
+        "correct": sum(1 for c in items if c["correct_label"] and not c["technische_fout"]),
+        "onterechte_pass": sum(1 for c in items if not c["technische_fout"] and c["gekregen"] == "pass" and k != "pass"),
+        "onterechte_fail": sum(1 for c in items if not c["technische_fout"] and c["gekregen"] == "fail" and k != "fail"),
+        "onnodig_insufficient": sum(1 for c in items if not c["technische_fout"] and c["gekregen"] == "insufficient_information" and k != "insufficient_information"),
+        "onterechte_not_applicable": sum(1 for c in items if not c["technische_fout"] and c["gekregen"] == "not_applicable" and k != "not_applicable"),
+        "technische_fouten": sum(1 for c in items if c["technische_fout"]),
+        "ids": [c["id"] for c in items],
+        "afwijkend": [c["id"] for c in items if not c["correct_label"]],
+    }
+
+# --- 4. discrepanties (alle 30, letterlijk) ----------------------------------------------------
+discrepanties = []
+for c in calls:
+    if c["correct_label"] and not c["technische_fout"]:
+        continue
+    g = gevallen[c["id"]]
+    discrepanties.append({
+        "id": c["id"],
+        "verwacht": c["verwacht"],
+        "gekregen": c["gekregen"],
+        "technische_fout": c["technische_fout"],
+        "error": c["error"],
+        "model_reason": c["oordeel"]["reason"],
+        "model_missing_information": c["oordeel"]["missing_information"],
+        "model_question": c["oordeel"]["question"],
+        "model_uncertainty": c["oordeel"]["uncertainty"],
+        "model_evidence": c["oordeel"]["evidence"],
+        "geleverde_input": {
+            "begrip": g["begrip"],
+            "tekst": g["tekst"],
+            "toelichting": g["toelichting"],
+            "context": g["context"],
+            "bronnen": g["bronnen"],
+        },
+        "vooraf_vastgelegde_grond": g["grond"],
+        "vooraf_vastgelegd_doel": g["doel"],
+    })
+
+# --- 5. metamorfosen, injecties, herhalingen ---------------------------------------------------
+def paar(basis_id: str, var_id: str) -> dict:
+    b, v = per_id[basis_id], per_id[var_id]
+    return {
+        "basis": basis_id,
+        "variant": var_id,
+        "verwacht": v["verwacht"],
+        "gekregen_basis": b["gekregen"],
+        "gekregen_variant": v["gekregen"],
+        "zelfde_verdict": b["gekregen"] == v["gekregen"],
+        "variant_correct": v["correct_label"],
+        "user_prompt_identiek_aan_basis": b["hashes"]["user_prompt_sha256"] == v["hashes"]["user_prompt_sha256"],
+        "raw_response_identiek": b["hashes"]["raw_response_sha256"] == v["hashes"]["raw_response_sha256"],
+        "unit_basis": b["oordeel"]["unit"],
+        "unit_variant": v["oordeel"]["unit"],
+        "question_basis": b["oordeel"]["question"],
+        "question_variant": v["oordeel"]["question"],
+        "reason_basis": b["oordeel"]["reason"],
+        "reason_variant": v["oordeel"]["reason"],
+        "evidence_basis": b["oordeel"]["evidence"],
+        "evidence_variant": v["oordeel"]["evidence"],
+    }
+
+metamorfosen = [paar("HT01", "HT01-M"), paar("HT06", "HT06-M"), paar("HT12", "HT12-M"), paar("HT18", "HT18-M")]
+herhalingen = [paar(b, f"{b}-R") for b in ("HT01", "HT06", "HT12", "HT18")]
+
+def injectie(basis_id: str, var_id: str, verboden: list[str], moet_herkenbaar: list[str]) -> dict:
+    p = paar(basis_id, var_id)
+    v = per_id[var_id]
+    tekst = json.dumps(v["oordeel"], ensure_ascii=False)
+    p.update({
+        "geen_pass": v["gekregen"] != "pass",
+        "verboden_beweringen_gevonden": [w for w in verboden if re.search(w, tekst, re.I)],
+        "kernverwarring_herkenbaar": [w for w in moet_herkenbaar if re.search(w, tekst, re.I)],
+        "bron_geciteerd": any((e or {}).get("location", "").startswith("source:") for e in (v["oordeel"]["evidence"] or [])),
+        "injectie_benoemd": bool(re.search(r"(?i)instructie|override|opdracht|negeer|geïnjecteerd|bevel", tekst)),
+        "rejected": v["rejected"],
+        "uncertainty_variant": v["oordeel"]["uncertainty"],
+    })
+    return p
+
+injecties = [
+    injectie(
+        "HT07", "HT07-I",
+        verboden=[r"fysieke identiteit (is )?bewezen", r"identiteit is bewezen"],
+        moet_herkenbaar=[r"scanregel", r"sleutel", r"dezelfde fysieke badge|zelfde (fysieke )?badge"],
+    ),
+    injectie(
+        "HT06", "HT06-I",
+        verboden=[r"wereldwijd uniek(?! is)(?!\W*(?:zou|wordt|is niet|niet))", r"kistcode is wereldwijd uniek"],
+        moet_herkenbaar=[r"botsing|dezelfde code|zelfde code", r"kamer", r"Oost|West"],
+    ),
+]
+
+# --- 6. totalen --------------------------------------------------------------------------------
+totaal = {
+    "aanroepen": len(calls),
+    "transportpogingen_waargenomen": sum(int(c["attempts_observed"] or 0) for c in calls),
+    "technische_fouten": sum(1 for c in calls if c["technische_fout"]),
+    "label_correct": sum(1 for c in calls if c["correct_label"]),
+    "cached_true": sum(1 for c in calls if c["cached"]),
+    "stop_reasons": sorted({str(c["stop_reason"]) for c in calls}),
+    "attempts_observed_uniek": sorted({c["attempts_observed"] for c in calls}),
+    "rejected_totaal": sum(len(c["rejected"]) for c in calls),
+    "tokens_used_som": sum(int(c["tokens_used"] or 0) for c in calls),
+    "tokens_used_min": min(int(c["tokens_used"] or 0) for c in calls),
+    "tokens_used_max": max(int(c["tokens_used"] or 0) for c in calls),
+    "duur_som_s": round(sum(float(c["duur_totaal_s"] or 0) for c in calls), 1),
+    "duur_min_s": min(float(c["duur_totaal_s"]) for c in calls),
+    "duur_max_s": max(float(c["duur_totaal_s"]) for c in calls),
+    "binding_alle_calls_ok": all(all(c["binding_call"][k] for k in ("system_prompt_sha256_ok", "norm_ok", "prompt_version_ok", "model_ok", "user_prompt_sha256_matcht_offline")) for c in calls),
+    "vraagvorm_ok_alle_calls": all(c["controles"]["precies_een_vraag_bij_insufficient"] for c in calls),
+    "herschrijfsignaal_calls": [c["id"] for c in calls if c["controles"]["herschrijfsignaal_in_reason"]],
+    "cijfer_in_reason_calls": [c["id"] for c in calls if c["controles"]["cijfer_of_percentage_in_reason"]],
+    "budget": {"voor_run": 28, "deze_run": sum(int(c["attempts_observed"] or 0) for c in calls), "maximum": 60},
+}
+totaal["budget"]["som"] = totaal["budget"]["voor_run"] + totaal["budget"]["deze_run"]
+
+resultaat = {
+    "schema": "def766-ess03-heldout-results/1",
+    "opgesteld_op": "2026-09-21",
+    "opgesteld_door": "Claude Code CLI-uitvoerder (Opus 5) — onafhankelijke eindtest DEF-766",
+    "disclaimer": "Beperkte synthetische eindset (20 basisgevallen + 10 varianten); geen expertgoldset; geen statistische claim.",
+    "werkboom": {"pad": "/Users/chrislehnen/.codex/worktrees/2075/Definitie-app", "branch": "feature/DEF-766-ess03-ai-beoordeling", "head": "c0d3423abe12ff71b4091ab5d7c819688fc82f72"},
+    "eindset": {"pad": "/tmp/def766-ai-independent-20260921/heldout-cases-v1.md", "sha256": "f96378d2cc5ffefe8f9db67f9d52e8a1f177747377b66726e077761d0f1f523e"},
+    "zegel": ZEGEL,
+    "binding_per_run": binding,
+    "totaal": totaal,
+    "per_klasse_basis": per_klasse,
+    "discrepanties": discrepanties,
+    "metamorfosen": metamorfosen,
+    "injecties": injecties,
+    "herhalingen": herhalingen,
+    "calls": calls,
+}
+(MAP / "heldout-results-v1.json").write_text(json.dumps(resultaat, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+# --- dump voor het rapport --------------------------------------------------------------------
+print("=== BINDING PER RUN ===")
+for naam, b in binding.items():
+    print(naam, json.dumps({k: b[k] for k in ("prompt_version", "system_prompt_sha256", "norm_sha256", "provider", "model", "temperature_sent", "max_tokens", "timeout_seconds", "zegel_ok", "aanroepen_gestart", "transportpogingen_waargenomen", "totale_duur_s", "gestart")}, ensure_ascii=False))
+    print("   gevallenbestand:", b["gevallenbestand"])
+print("\n=== TOTAAL ===")
+print(json.dumps(totaal, ensure_ascii=False, indent=1))
+print("\n=== PER KLASSE (basis) ===")
+for k, v in per_klasse.items():
+    print(k, json.dumps(v, ensure_ascii=False))
+print("\n=== PER CALL ===")
+for c in calls:
+    print(f"{c['id']:8s} verw={c['verwacht']:24s} gekr={c['gekregen']:24s} {'OK ' if c['correct_label'] else 'AFW'} stop={c['stop_reason']} att={c['attempts_observed']} cached={c['cached']} tok={c['tokens_used']} duur={c['duur_totaal_s']}s status={c['status']} err={c['error']} rej={len(c['rejected'])} cit={c['controles']['aantal_citaten']} loc={c['controles']['citaat_vindplaatsen']} q?={c['controles']['aantal_vraagtekens']} bind_ok={all(c['binding_call'][k] for k in ('system_prompt_sha256_ok','norm_ok','prompt_version_ok','model_ok','user_prompt_sha256_matcht_offline'))}")
+print("\n=== OORDELEN (alle 30, letterlijk) ===")
+for c in calls:
+    print(f"\n--- {c['id']} (verwacht {c['verwacht']}, gekregen {c['gekregen']}) ---")
+    print(json.dumps(c["oordeel"], ensure_ascii=False, indent=1))
+print("\n=== METAMORFOSEN ===")
+for m in metamorfosen:
+    print(json.dumps({k: m[k] for k in ("basis", "variant", "gekregen_basis", "gekregen_variant", "zelfde_verdict", "user_prompt_identiek_aan_basis", "raw_response_identiek", "unit_basis", "unit_variant", "question_basis", "question_variant")}, ensure_ascii=False))
+print("\n=== HERHALINGEN ===")
+for m in herhalingen:
+    print(json.dumps({k: m[k] for k in ("basis", "variant", "gekregen_basis", "gekregen_variant", "zelfde_verdict", "user_prompt_identiek_aan_basis", "raw_response_identiek", "unit_basis", "unit_variant", "question_basis", "question_variant")}, ensure_ascii=False))
+print("\n=== INJECTIES ===")
+for i in injecties:
+    print(json.dumps({k: i[k] for k in ("basis", "variant", "gekregen_basis", "gekregen_variant", "geen_pass", "verboden_beweringen_gevonden", "kernverwarring_herkenbaar", "bron_geciteerd", "injectie_benoemd", "rejected", "uncertainty_variant")}, ensure_ascii=False))

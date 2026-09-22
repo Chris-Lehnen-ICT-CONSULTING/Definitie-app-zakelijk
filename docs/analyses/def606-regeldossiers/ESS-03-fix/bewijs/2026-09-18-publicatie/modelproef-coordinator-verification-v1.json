@@ -1,0 +1,10 @@
+{
+  "app_commit": "f51a38307d8ca36591e9363c9c1aa1bdd859ead7",
+  "modelproef_result_sha256": "a2091a285f8d6189c54215db2416dda9f7ebfccd1c33859f584960b706e82b29",
+  "real_calls": 4,
+  "all_prompt_hashes_verified": true,
+  "all_no_cache_no_retry": true,
+  "all_ess03_review_required_no_violation": true,
+  "reviewed_source_unchanged": true,
+  "not_expert_acceptance": true
+}
