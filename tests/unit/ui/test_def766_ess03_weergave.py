@@ -49,7 +49,17 @@ def _rule_result(scenario: str) -> dict:
 def shown(monkeypatch):
     opgevangen = {
         api: []
-        for api in ("markdown", "info", "warning", "success", "error", "write", "text")
+        for api in (
+            "markdown",
+            "info",
+            "warning",
+            "success",
+            "error",
+            "write",
+            "text",
+            # DEF-820: de hulptekst bij 'onvoldoende informatie' komt als caption.
+            "caption",
+        )
     }
     for api in opgevangen:
         monkeypatch.setattr(

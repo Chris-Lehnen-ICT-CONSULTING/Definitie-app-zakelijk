@@ -813,7 +813,13 @@ class DefinitionEditTab:
                 "Antwoord op de vraag van de ESS-03-beoordeling (telbaarheid): welke "
                 "eenheid, conventie of scope is bedoeld. Wordt bij 'Valideren' "
                 "meegegeven en bij opslaan met de beoordeling vastgelegd; de "
-                "definitietekst zelf wordt niet automatisch aangepast."
+                "definitietekst zelf wordt niet automatisch aangepast. "
+                # DEF-820 (K2): verwijzende formuleringen zonder aangeleverde
+                # afspraak roepen vrijwel altijd de vraag naar die conventie op.
+                "Verwijst de definitie naar een register, een code of een conventie "
+                "die niet is aangeleverd, dan vraagt de beoordeling daar meestal "
+                "naar: beschrijf die conventie hier of voeg de bronpassage toe. "
+                "Herschrijf de definitie niet alleen om de vraag te ontlopen."
             ),
         )
 
