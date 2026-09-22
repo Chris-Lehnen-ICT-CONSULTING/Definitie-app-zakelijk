@@ -19,6 +19,14 @@ jobs:
         with:
           python-version: "3.13"
 
+      # ALG-399: de instructiepublicaties komen uit instructions/blocks/ en
+      # moeten getrackt in de clone staan. Deze poort draait bewust vóór elke
+      # installatie: hij gebruikt alleen de standaardbibliotheek, dus een falende
+      # dependency-stap mag hem niet maskeren. `-E -S` sluit PYTHONPATH en
+      # site-packages uit, zodat er niets anders meeglipt dan scripts/lib.
+      - name: Instructiepublicaties (getrackt en zonder drift, blokkerend)
+        run: python -B -E -S scripts/check-instruction-publications.py --require-tracked
+
       - name: Install ripgrep
         run: |
           sudo apt-get update

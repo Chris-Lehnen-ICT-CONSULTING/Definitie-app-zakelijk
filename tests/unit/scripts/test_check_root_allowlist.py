@@ -1,9 +1,13 @@
-"""Tests voor de root-allowlist-guard (DEF-685).
+"""Tests voor de root-allowlist-guard (DEF-685, ALG-399).
 
-Borgt dat de guard uit `.claude/rules/project-rules.md` regel 1 machinaal
+Borgt dat de rootregel uit `instructions/blocks/definitie.policy.md` machinaal
 wordt afgedwongen: een getrackt of gestaged rootbestand dat niet op de
-allowlist staat, blokkeert. Untracked bestanden blijven buiten schot, zodat
-de guard het openstaande trackingbesluit uit ALG-399 niet forceert.
+allowlist staat, blokkeert. Untracked bestanden blijven buiten schot: deze
+guard bewaakt wat de repository publiceert, niet de lokale werkmap.
+
+Sinds de ALG-399-trackingmigratie staat de normtekst in het bronblok en zijn
+de native projectregels onder `.claude/rules/` gegenereerde verwijzingen. Deze
+tests toetsen daarom het bronblok, niet de gegenereerde verwijzing.
 
 Elke testcase raakt precies één tak van de guard, zodat een groene suite
 niet per ongeluk op een andere regel steunt dan bedoeld.
@@ -195,10 +199,10 @@ def test_untracked_onbekend_rootbestand_slaagt_in_ci(tmp_path):
     assert result.returncode == 0, _uitvoer(result)
 
 
-# --- AGENTS.md -------------------------------------------------------------
+# --- AGENTS.md: gepubliceerde, getrackte output ----------------------------
 
 
-def test_tracked_agents_md_faalt_met_verwijzing_naar_alg399(tmp_path):
+def test_tracked_agents_md_is_toegestane_publicatie(tmp_path):
     repo = _init_repo(tmp_path)
     _schrijf(repo, "README.md")
     _schrijf(repo, "AGENTS.md")
@@ -206,14 +210,11 @@ def test_tracked_agents_md_faalt_met_verwijzing_naar_alg399(tmp_path):
 
     result = _run(repo, ci=True)
 
-    assert result.returncode == 1
-    uitvoer = _uitvoer(result)
-    assert "AGENTS.md" in uitvoer
-    assert "ALG-399" in uitvoer
+    assert result.returncode == 0, _uitvoer(result)
 
 
-def test_staged_agents_md_faalt_in_precommit(tmp_path):
-    # De footgun uit de review van PR #404: git add -A stageert AGENTS.md.
+def test_staged_agents_md_is_toegestane_publicatie(tmp_path):
+    # ALG-399 publiceert dit bestand nu expliciet; inhoudsdrift heeft een eigen gate.
     repo = _init_repo(tmp_path)
     _schrijf(repo, "README.md")
     _commit(repo, "README.md")
@@ -222,20 +223,23 @@ def test_staged_agents_md_faalt_in_precommit(tmp_path):
 
     result = _run(repo, ci=False)
 
-    assert result.returncode == 1
-    assert "ALG-399" in _uitvoer(result)
+    assert result.returncode == 0, _uitvoer(result)
 
 
-def test_untracked_agents_md_slaagt(tmp_path):
-    # Zolang ALG-399 niet heeft beslist, is de untracked snapshot legitiem.
+@pytest.mark.parametrize("naam", ["AGENTS.md.bak", "AGENTS-oud.md", "AGENTS.txt"])
+def test_werkbestand_naast_agents_md_faalt(tmp_path, naam):
+    # De allowlist-entry uit ALG-399 dekt precies AGENTS.md. Zou hij als glob
+    # (AGENTS*) worden opgeschreven, dan glipt juist de snapshot-rommel erdoor
+    # die de rootregel moet tegenhouden.
     repo = _init_repo(tmp_path)
     _schrijf(repo, "README.md")
-    _commit(repo, "README.md")
-    _schrijf(repo, "AGENTS.md")
+    _schrijf(repo, naam)
+    _commit(repo, "README.md", naam)
 
     result = _run(repo, ci=True)
 
-    assert result.returncode == 0, _uitvoer(result)
+    assert result.returncode == 1
+    assert naam in _uitvoer(result)
 
 
 # --- patronen en scope -----------------------------------------------------
@@ -372,8 +376,9 @@ def test_staged_onbekend_bestand_zonder_commits_faalt(tmp_path):
 def test_ci_melding_wijst_op_git_rm_cached(tmp_path):
     # Bij een reeds gecommit bestand helpt unstagen niet; de tip moet kloppen.
     repo = _init_repo(tmp_path)
-    _schrijf(repo, "AGENTS.md")
-    _commit(repo, "AGENTS.md")
+    _schrijf(repo, "README.md")
+    _schrijf(repo, "syn-result.md")
+    _commit(repo, "README.md", "syn-result.md")
 
     uitvoer = _uitvoer(_run(repo, ci=True))
 
@@ -385,8 +390,8 @@ def test_precommit_melding_wijst_op_restore_staged(tmp_path):
     repo = _init_repo(tmp_path)
     _schrijf(repo, "README.md")
     _commit(repo, "README.md")
-    _schrijf(repo, "AGENTS.md")
-    _stage(repo, "AGENTS.md")
+    _schrijf(repo, "analyse-output.txt")
+    _stage(repo, "analyse-output.txt")
 
     uitvoer = _uitvoer(_run(repo, ci=False))
 
@@ -421,20 +426,25 @@ def test_werkbestand_met_toegestaan_voorvoegsel_faalt(tmp_path, naam):
 # --- norm en allowlist mogen niet uiteenlopen ------------------------------
 
 
-def _regel_een() -> str:
-    tekst = (_REPO_ROOT / ".claude" / "rules" / "project-rules.md").read_text(
-        encoding="utf-8"
-    )
+_BRONBLOK = _REPO_ROOT / "instructions" / "blocks" / "definitie.policy.md"
+
+
+def _rootregel() -> str:
+    """De rootalinea uit het bronblok: sinds ALG-399 de enige normtekst."""
+    tekst = _BRONBLOK.read_text(encoding="utf-8")
     for regel in tekst.splitlines():
-        if regel.startswith("1. **Geen ad-hoc bestanden in project root**"):
+        if regel.startswith(
+            "Geen ad-hoc werk-, analyse-, resultaat- of databaseartefacten"
+        ):
             return regel
-    raise AssertionError("regel 1 niet gevonden in project-rules.md")
+    raise AssertionError(f"rootregel niet gevonden in {_BRONBLOK}")
 
 
 # Norm-token uit regel 1 -> een concreet bestand dat eronder valt.
 _NORM_VOORBEELDEN = {
     "README.md": "README.md",
     "CLAUDE.md": "CLAUDE.md",
+    "AGENTS.md": "AGENTS.md",
     "Makefile": "Makefile",
     "CHANGELOG.md": "CHANGELOG.md",
     "requirements*": "requirements.txt",
@@ -448,7 +458,7 @@ _NORM_VOORBEELDEN = {
 
 def test_normtekst_noemt_nog_elk_toegestaan_rootbestand():
     # Kant 1 van de koppeling: haalt iemand een naam uit regel 1, dan faalt dit.
-    regel = _regel_een()
+    regel = _rootregel()
     ontbreekt = [token for token in _NORM_VOORBEELDEN if token not in regel]
 
     assert not ontbreekt, f"regel 1 noemt deze niet meer: {ontbreekt}"
@@ -469,16 +479,26 @@ def test_guard_accepteert_alles_wat_de_normtekst_noemt(tmp_path):
 
 def test_normtekst_verwijst_naar_de_guard():
     # De wederzijdse verwijzing is een acceptatiecriterium van DEF-685.
-    assert "check_root_allowlist.sh" in _regel_een()
+    assert "check_root_allowlist.sh" in _rootregel()
 
 
-def test_normtekst_houdt_agents_md_ongetrackt():
-    # De AGENTS.md-uitzondering in de guard hangt aan deze zin; verdwijnt zij,
-    # dan moet de guard-tak opnieuw worden afgewogen (ALG-399).
-    regel = _regel_een()
+def test_normtekst_publiceert_agents_md_als_getrackte_output():
+    # Kern van de ALG-399-migratie: de oude "blijft ongetrackt"-uitzondering is
+    # weg en AGENTS.md is een getrackte, gegenereerde publicatie. Blijft de oude
+    # zin staan, dan spreekt de norm de allowlist tegen.
+    regel = _rootregel()
 
     assert "AGENTS.md" in regel
-    assert "ALG-399" in regel
+    assert "getrackte, gegenereerde publicatie" in regel
+    assert "ongetrackt" not in regel.replace("ongetrackte AGENTS-snapshot", "")
+
+
+def test_guard_kent_geen_uitgestelde_trackinguitzondering_meer():
+    # De deferred-tak is verwijderd, niet stilgezet: staat hij er nog, dan
+    # blokkeert de guard opnieuw de eigen publicatie.
+    script = _SCRIPT.read_text(encoding="utf-8")
+
+    assert "DEFERRED_TRACKING_FILE" not in script
 
 
 # --- de guard is ook echt aangesloten --------------------------------------

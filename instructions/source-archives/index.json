@@ -1,0 +1,34 @@
+{
+  "status": "ALG-399-trackingmigratie uitgevoerd; deze bestanden zijn de bewaarde originelen van vóór die migratie en worden door renderer noch checker gelezen",
+  "definitie_base_commit": "1152cfe2b55a6ef8074f951390f8d81fa05ac07c",
+  "setup_source_commit": "b42ac8380fd4b1096215760b8de85753fce3a5fd",
+  "commit_reference_note": "definitie_base_commit is de Definitie-repositorybasis waartegen deze archieven zijn vastgesteld; setup_source_commit is de oorspronkelijke setupbasis van het kandidaatpakket en blijft alleen als herkomstverwijzing staan",
+  "verification": "de vijf op definitie_base_commit getrackte bronnen zijn per sha256 geverifieerd tegen 'git show HEAD:<pad>'; AGENTS.md in de root was daar niet getrackt en is uitsluitend als behouden ongetrackte snapshot opgenomen",
+  "archive_name_scheme": "padloos: '/' wordt '__', een leidende punt wordt 'dot'; 'files' bevat daardoor geen mappen",
+  "files": {
+    "CLAUDE.md": {
+      "sha256": "fe12851e28a4d3e1eb9b6dfc8179585d79bce6f1238fe5a9d85f8f98fa22507a",
+      "archive": "instructions/source-archives/files/CLAUDE.md.source.txt"
+    },
+    "AGENTS.md": {
+      "sha256": "ad923a75fc88802cdc9581a2e6e3a0fe5e3d096c4c439fba9770f68f49bd08a6",
+      "archive": "instructions/source-archives/files/AGENTS.md.source.txt"
+    },
+    ".claude/rules/patterns.md": {
+      "sha256": "aadad98574fade55a6a4ee93b7385f78090bed8ff0f754f96bb975569b3821b5",
+      "archive": "instructions/source-archives/files/dotclaude__rules__patterns.md.source.txt"
+    },
+    ".claude/rules/project-rules.md": {
+      "sha256": "7bf261c6983fdd02774cc54f5b0ed5831cb682afea142ffea5882369082d26d7",
+      "archive": "instructions/source-archives/files/dotclaude__rules__project-rules.md.source.txt"
+    },
+    ".claude/rules/streamlit-patterns.md": {
+      "sha256": "c166fe79ee4460e966e5fca76d876ae572aab4e4badb32b409de66fbfa0d6da4",
+      "archive": "instructions/source-archives/files/dotclaude__rules__streamlit-patterns.md.source.txt"
+    },
+    "docs/guidelines/AGENTS.md": {
+      "sha256": "95c3f02a99d3cca95f74ff885632dfa7698241939fd131794cad6bb95d4e7ccd",
+      "archive": "instructions/source-archives/files/docs__guidelines__AGENTS.md.source.txt"
+    }
+  }
+}
