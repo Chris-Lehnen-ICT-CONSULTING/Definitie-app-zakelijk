@@ -121,10 +121,14 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: DEF-750: ESS-02 is een menselijk betekenisoordeel; de marker-/categoriehit-
 #: pass is vervallen, dus ESS-02 is open (`review_required`) i.p.v. `pass` —
 #: één regel minder geslaagd, één meer open.
-#: DEF-766: ESS-03 is een menselijk oordeel over eenheid en identiteit; de
-#: woordindicator-fail (geen 'uniek'/'nummer'/'code' in de zin) is vervallen,
-#: dus ESS-03 is open (`review_required`) i.p.v. `fail` — één regel minder
-#: gefaald, één meer open; 34/29/5/15 → 33/29/4/16.
+#: DEF-766: ESS-03 is een AI-beoordeling van eenheid en onderscheidbaarheid
+#: via dezelfde bevroren providergrens; de woordindicator-fail (geen
+#: 'uniek'/'nummer'/'code' in de zin) is vervallen. Het bevroren antwoord is
+#: 'onvoldoende informatie' met één gerichte vraag (`ess03_bevroren_antwoord`),
+#: wat als `review_required` telt — dus ESS-03 is open i.p.v. `fail`: één
+#: regel minder gefaald, één meer open; 34/29/5/15 → 33/29/4/16. De dekking
+#: telt sindsdien ook afgeronde niet-toepasselijkheid apart (`not_applicable`,
+#: hier nul).
 VERWACHTE_DEKKING: dict[str, float | int] = {
     "evaluated": 33,
     "passed": 29,
@@ -132,6 +136,7 @@ VERWACHTE_DEKKING: dict[str, float | int] = {
     "review_required": 16,
     "not_evaluated": 4,
     "error": 0,
+    "not_applicable": 0,
     "total": 53,
     "coverage_ratio": 0.6226,
 }

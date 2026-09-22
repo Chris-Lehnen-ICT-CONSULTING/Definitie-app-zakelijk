@@ -673,6 +673,14 @@
       "status": "unreviewed",
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
+    "tests/unit/services/test_def766_ai_route_optins.py::test_heuristische_tokenraming_slaat_tiktoken_over": {
+      "source_sha256": "622c41902186a24c0eebfa6b0fff5cc43c918550260fe4af393b680123add48d",
+      "comparisons": [
+        "time.perf_counter() - start < 0.4"
+      ],
+      "status": "retain-risk",
+      "reason": "DEF-766 (22-09-2026): wall-clock-bovengrens naast een deterministische teller. Het discriminerende bewijs dat de heuristische tokenraming tiktoken overslaat is `geraakt['encoder'] == 0`; de encoder-stub zou 0,5 s slapen. De grens van 0,4 s meet lokaal 0,01 s (in-process fake-provider) maar blijft runnergevoelig en is naast de teller redundant. Behouden; bij een valse failure de klokgrens laten vervallen ten gunste van de teller, niet oprekken."
+    },
     "tests/unit/services/web_lookup/test_sru_circuit_breaker.py::TestCircuitBreaker::test_performance_improvement_with_circuit_breaker": {
       "source_sha256": "d3db7ba7ca762e982f2a1679389f5fc376646b818292f7f5d5b6b8617bfc3733",
       "comparisons": [
@@ -959,6 +967,38 @@
       ],
       "status": "contract",
       "reason": "Begrensde uitvoering: timeout=0.5 bij dummyprovider die 6 seconden wacht, plus TimeoutError en elapsed<1.5. Beschermt tegen providerhang; correcte foutsoort alleen bewijst geen tijdige afbreking. Grens behouden."
+    },
+    "tests/unit/validation/test_def766_ess03_assessment_service.py::test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model": {
+      "source_sha256": "c19e4d11e1bd46a645064e4815e187e99df2f61ddb5c4978a7e3cd524e767d38",
+      "comparisons": [
+        "call['timeout_seconds'] <= 60"
+      ],
+      "status": "non-timing",
+      "reason": "DEF-766 (22-09-2026): vergelijkt de configuratiewaarde `timeout_seconds` die de dienst als kwarg aan de AI-laag doorgeeft met de bovengrens van 60 s; geen klok en geen meting. Alleen door de naamregex (`_seconds`) als kandidaat gezien. Niet runnergevoelig."
+    },
+    "tests/unit/validation/test_def766_ess03_correcties_service.py::test_trage_aanroep_wordt_door_de_deadline_afgebroken": {
+      "source_sha256": "e3f4e2bf853383f971913f455c18a1637af0fdc98773b25afdf8b7714f0eb4fc",
+      "comparisons": [
+        "time.perf_counter() - start < 1.5"
+      ],
+      "status": "contract",
+      "reason": "DEF-766 (22-09-2026, R6): begrensde uitvoering. Deadline 0,1 s (`asyncio.timeout`) bij een AI-laag die 5 s wacht; <1,5 s mét foutsoort `timeout` bewijst de tijdige afbreking. De foutsoort alleen volstaat niet: het vangnet achteraf zou na 5 s dezelfde foutsoort geven. Marge 15x de deadline; gemeten 0,10 s (5 herhalingen). Grens behouden."
+    },
+    "tests/unit/validation/test_def766_ess03_correcties_service.py::test_vangnet_een_te_laat_teruggekeerd_antwoord_is_timeout_zonder_oordeel": {
+      "source_sha256": "e3f4e2bf853383f971913f455c18a1637af0fdc98773b25afdf8b7714f0eb4fc",
+      "comparisons": [
+        "d['elapsed_seconds'] >= 0.3"
+      ],
+      "status": "deterministic",
+      "reason": "DEF-766 (22-09-2026, R6-vangnet): ondergrens, geen bovengrens. De gemeten duur omvat een synchrone `time.sleep(0.3)` van de AI-laag (niet onderbreekbaar door asyncio), dus `elapsed_seconds >= 0.3` geldt per constructie; belasting kan de meting alleen verhogen. Gemeten 0,302-0,306 s (5 herhalingen). Niet runnergevoelig."
+    },
+    "tests/unit/validation/test_def766_ess03_correcties_service.py::test_vertraagde_nabewerking_op_de_echte_route_komt_binnen_de_deadline_terug": {
+      "source_sha256": "e3f4e2bf853383f971913f455c18a1637af0fdc98773b25afdf8b7714f0eb4fc",
+      "comparisons": [
+        "duur < 0.45"
+      ],
+      "status": "retain-risk",
+      "reason": "DEF-766 (22-09-2026, R6 correctieronde 2 punt B): contractgrens met krappe marge. De nabewerking van de echte AIServiceV2-route blokkeert 0,6 s in een werkthread; deadline 0,2 s; de dienst moet vóór 0,45 s terugkeren (zonder de opt-in `offload_postprocessing` pas na 0,6 s). Marge boven de deadline 0,25 s, onder de ongefixte duur 0,15 s; gemeten 0,201-0,202 s (5 herhalingen). Op een zwaar belaste runner kan de wake-up na de deadline de 0,45 s overschrijden. Behouden; bij een valse failure de grens hooguit tot <0,55 s oprekken (moet onder 0,6 s blijven om te discrimineren) of vervangen door een deterministisch signaal uit de werkthread."
     }
   }
 }
