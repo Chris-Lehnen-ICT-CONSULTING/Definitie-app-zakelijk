@@ -1,0 +1,26 @@
+# Delta-check correctieronde 4 (tests + docs) — DEF-766
+
+**Staat:** HEAD `c0d3423ab` + ongecommitte diff van 5 bestanden (+153/−8); `git diff --stat -- src/ config/ scripts/` is leeg — **productiecode, prompt en norm onaangeroerd** (zelf geverifieerd). Read-only, geen modelcalls.
+
+## Controlepunten
+
+| # | Punt | Uitkomst |
+|---|---|---|
+| (a) | Fakes volgen het Protocol, productiecode niet verzwakt | `BevrorenAIClient.chat_completion` in beide bestanden heeft nu `max_retries: int \| None = None` — exact het optionele keyword uit `AsyncAIClient` (`src/services/ai/base_client.py:145-164`), ongebruikt in de fakes. Geen `**kwargs`-vangnet, dus een toekomstig nieuw Protocol-keyword valt weer luid om (gewenst). `src/` heeft geen diff. |
+| (b) | Bevroren ESS-03-antwoord geen stille pass; journey discriminerend | Antwoord = `insufficient_information` met één vraag (één zin, één `?`), `applicability: undetermined`, citaat = het begrip op vindplaats `term` (letterlijk in `beoordelingsmateriaal`), `reason` begint met "Bevroren proefantwoord". Telt als `review_required` (16), nooit pass. De journey vergelijkt het hele dekkingsdict: een frozen `pass` zou `passed` 29→30 geven en falen; een technische fout geeft `error` 1 en faalt (precies de CI-failure). Herkenning via `^Begrip (vindplaats term): ` — die regel komt in `src/` uitsluitend voor in `ess03_assessment_service.py:255`; een promptwijziging maakt de journey rood (ESS-03 → `error`), niet groen. Probe-log `c4-probe-ess03-journey.log`: vals citaat → `error/unverifiable_evidence`, 2 passed. |
+| (c) | Timingdisposities | Alle vijf inhoudelijk juist, tegen de testcode gecontroleerd: `< 0.4` naast de deterministische teller `geraakt["encoder"] == 0` (stub slaapt 0,5 s) → retain-risk correct; `call['timeout_seconds'] <= 60` is een kwarg-vergelijking, geen klok → non-timing; `< 1.5` bij deadline 0,1 s en een AI-laag van 5 s bewijst de afbreking (het vangnet zou na 5 s dezelfde foutsoort geven) → contract; `>= 0.3` met synchrone `time.sleep(0.3)` → deterministic per constructie; `duur < 0.45` bij blokkade 0,6 s/deadline 0,2 s → retain-risk, met de juiste kanttekening dat een oprekking onder 0,6 s moet blijven. Geen grens opgerekt, tests ongewijzigd (`source_sha256` stabiel). |
+| (d) | Gates plausibel | Zelf: journey **3 passed**, timing-ratchet **exit 0** (121 locaties, 0 te beoordelen), preflight **blocking=0**, zelftests ratchet+preflight **45 passed**. Logs gelezen: `make test-integration` 572 passed / run_profile exit 0 (verse sessieroot), `make test-acceptance` 21 uitgevoerd / exit 0, `make test` 6902 passed / exit 0, mypy baseline 0, lint schoon, ratchet-eind exit 0. Diff-stat komt overeen met het rapport (diff-hash kon ik door de shell-hook niet berekenen). |
+
+## Bevindingen
+
+| Id | Ernst | Vindplaats | Bevinding | Dispositie |
+|---|---|---|---|---|
+| **E1** | kan later (pre-existing, niet door deze diff veroorzaakt) | `tests/integration/test_synonym_orchestrator_e2e.py` (`container`-fixture; HEAD-versie heeft evenmin cache-isolatie — geverifieerd) | Bij een **tweede lokale run** binnen de cache-TTL uit dezelfde werkboom faalt `test_definition_generation_with_synonym_enrichment_e2e` op regel 441 (`assert []`, "de definitiegeneratie liep niet langs de providergrens"): de cwd-relatieve, git-ignored `cache/` levert de definitieprompt als cache-hit. **Zelf gereproduceerd** (1 failed, 7 passed; `cache/`-entries van de uitvoerdersrun van 07:59 aanwezig). De gates en CI draaien in een verse sessieroot/checkout en zijn groen (572 passed). | **tracked issue**: cache-map in de `container`-fixture naar `tmp_path` monkeypatchen zoals `bevroren_omgeving` (`functionality/conftest.py:439-444`) doet. Geen blokkade voor commit/push. |
+| E2 | opmerking | `test_offline_core_journey.py:139` | `"not_applicable": 0` toegevoegd aan `VERWACHTE_DEKKING`: additieve sleutel uit contract 2.1.0 (commit `6c71bf128`), tellingen 33/29/4/16/4/0 ongewijzigd; noodzakelijk omdat de journey het hele dict vergelijkt. Tekstueel buiten de opdracht, inhoudelijk correct. | geen actie |
+| E3 | opmerking | `functionality/conftest.py:82-133` | Herkenning hangt aan één promptregel; koppeling aan `LOCATIE_TERM` uit het contract beperkt drift. Fail-loud gedrag bevestigd (zie b). | geen actie |
+
+## Advies
+
+**JA — committen en pushen naar PR #467.** De twee CI-fouten zijn met uitsluitend test-/docwijzigingen opgelost, de fakes volgen het Protocol, de journey blijft discriminerend (geen stille pass), de timingdisposities zijn juist gemotiveerd, en de gates zijn zelf (journey, ratchet, preflight, zelftests) en uit de logs (unit/integration/acceptance/mypy/lint) groen. E1 als tracked issue meenemen; lokale herhaalruns van de synonym-e2e binnen een uur vanuit dezelfde werkboom blijven tot die fix rood, CI niet.
+
+*Bronnen: `git diff` werkboom t.o.v. `c0d3423ab`; `reports/DEF-766-AI-20260921/uitvoerder/correction-report-v4.md`; `/tmp/def766-ai-20260921/{c4-probe-ess03-journey.log,c4-make-test-integration.log,c4-make-test-acceptance.log,c4-make-test.log,c4-make-mypy-check.log,c4-make-lint.log,c4-timing-ratchet-eind.log,c4-synonym-e2e.log,c4-synonym-e2e-logcli.log}`; `src/services/ai/base_client.py`, `src/services/validation/ess03_assessment_service.py:255`, `src/utils/cache.py`; eigen pytest-/ratchet-/preflight-uitvoer hierboven.*

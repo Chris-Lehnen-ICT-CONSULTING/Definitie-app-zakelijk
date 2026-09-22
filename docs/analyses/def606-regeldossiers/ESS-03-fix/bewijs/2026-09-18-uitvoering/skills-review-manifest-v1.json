@@ -1,0 +1,12 @@
+{
+  "base": "9f5ae6f3bb4b990a855bc0969bc4f6067c02c197",
+  "files": {
+    "skills/definitie-nederlandse-definities/SKILL.md": "80acab8136a6d9bbd57b2ecb1766f87f8f3c8f982bbbfb5102e3f66b2691a417",
+    "skills/definitie-nederlandse-definities/references/ess03-eenheid-identiteit.md": "529c7ca6e02901fd4eb4d7fa970b3e8ceadda70c3448a45d7c83a1c526d25c6a",
+    "skills/definitie-ontologisch-modelleren/reference.md": "bc13c717b74046a8b46a07350a74128b90a32487c06eab8e84fd367899f0b69a",
+    "skills/definitie-toetsregels/reference.md": "86e2d2dd2051429e03d4b80715bc83af4346707d8e4e36895a176285e5fa4932",
+    "skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md": "529c7ca6e02901fd4eb4d7fa970b3e8ceadda70c3448a45d7c83a1c526d25c6a",
+    "skills/definitie-ufo-ontologie/reference.md": "d078ad7e394d7465ab200987edaa871bc7c0886b0b6867e91ad5c1525afd8495",
+    "skills/definitie-voorbeelden-generatie/reference.md": "6db84873e8dafe4b878515cec274592c520a8bacc280586f8fb0e63f69cb713b"
+  }
+}

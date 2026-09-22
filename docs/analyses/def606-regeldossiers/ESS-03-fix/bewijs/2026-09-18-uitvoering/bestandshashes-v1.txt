@@ -1,0 +1,3 @@
+fd352e8897f93ddd389e4406a39fc63e46b777e5570569782a5285fe1e534c95  tests/unit/validation/test_def766_ess03_telbaarheid.py
+8169035012a22dd10efeebf8d06291c04fac3bdfcb6c528b238aa724371cf47d  tests/unit/services/prompts/test_def766_ess03_promptnorm.py
+487bfd0b9ebca83e854defdd1a0729ae134751a173ff6264a18dd2e914f83ab7  src/toetsregels/regels/ESS-03.json

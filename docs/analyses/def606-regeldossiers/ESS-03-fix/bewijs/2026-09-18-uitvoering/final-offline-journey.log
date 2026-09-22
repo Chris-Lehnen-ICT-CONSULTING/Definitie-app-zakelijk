@@ -1,0 +1,35 @@
+...                                                                      [100%]
+=============================== warnings summary ===============================
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /Users/chrislehnen/.codex/worktrees/2075/Definitie-app/src/database/schema_contract.py:391: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10a008c50>
+    def lex_segments(tekst: str) -> Iterator[tuple[str, str]]:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/typing.py:1449: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10a086b50>
+    self.__args__ = tuple(... if a is _TypingEllipsis else
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_discriminatoren_bewaken_elke_stap
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:274: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10ff6bc50>
+    parsed = [sys.intern(str(x)) for x in rel.split(sep) if x and x != '.']
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_offline_kernjourney_van_generatie_tot_export
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/aiohttp/client.py:1673: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11002c750>
+    def __init__(self, coro: Coroutine[asyncio.Future[Any], None, _RetType_co]) -> None:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_offline_core_journey.py::test_offline_kernjourney_van_generatie_tot_export
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/aiohttp/client.py:1673: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11002c550>
+    def __init__(self, coro: Coroutine[asyncio.Future[Any], None, _RetType_co]) -> None:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 5 warnings in 32.94s
+exit=0

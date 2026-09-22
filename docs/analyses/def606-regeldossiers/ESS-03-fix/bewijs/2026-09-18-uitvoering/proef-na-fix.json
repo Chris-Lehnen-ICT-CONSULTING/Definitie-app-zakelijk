@@ -1,0 +1,343 @@
+{
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "rijen": [
+    {
+      "id": "H-good",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b",
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel. Te beoordelen passage: VIN. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel. Te beoordelen passage: kenteken. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "H-good",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b",
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel. Te beoordelen passage: VIN. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel. Te beoordelen passage: kenteken. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "H-bad",
+      "pad": "manager",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-bad",
+      "pad": "cache",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-empty_identifier",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-empty_identifier",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-keyword_specific",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-keyword_specific",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-natural_boundary",
+      "pad": "manager",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-natural_boundary",
+      "pad": "cache",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-mass_noun",
+      "pad": "manager",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-mass_noun",
+      "pad": "cache",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "H-empty",
+      "pad": "manager",
+      "oud": "fail",
+      "nieuw": "not_evaluated",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": null,
+      "reden": null
+    },
+    {
+      "id": "H-empty",
+      "pad": "cache",
+      "oud": "fail",
+      "nieuw": "not_evaluated",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": null,
+      "reden": null
+    },
+    {
+      "id": "N01-negated",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N01-negated",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N02-scope",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N02-scope",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N03-compound",
+      "pad": "manager",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: registratienummer. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N03-compound",
+      "pad": "cache",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: registratienummer. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N04-isbn",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: ISBN. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N04-isbn",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: ISBN. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N05-natural",
+      "pad": "manager",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "N05-natural",
+      "pad": "cache",
+      "oud": "fail",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig."
+    },
+    {
+      "id": "N06-metadata",
+      "pad": "manager",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    },
+    {
+      "id": "N06-metadata",
+      "pad": "cache",
+      "oud": "pass",
+      "nieuw": "review_required",
+      "ess03_violation": false,
+      "in_passed": false,
+      "overall_score": null,
+      "juridisch": null,
+      "signals": [
+        "\\buniek(e)?\\b"
+      ],
+      "reden": "ESS-03 — Nog te beoordelen: is voldoende duidelijk wat hier als één instantie geldt? Stel eerst vast welke eenheid bedoeld is en of afzonderlijke instanties in deze betekenis relevant zijn; onderzoek dan wat één, dezelfde en een andere instantie onderscheidt. Een passend bovenbegrip met begripsbepalende kenmerken kan een natuurlijke grens al dragen; een naam, nummer, code of het woord ‘uniek’ bewijst op zichzelf geen identiteit. Beschrijft de betekenis een stof, kwaliteit of verschijnsel zonder gekozen telbare eenheid, leg dan vast dat ESS-03 hier geen afzonderlijke identificatie verlangt. Toetsen verandert de tekst niet; herstel alleen op verzoek na oorzaakbepaling. Te beoordelen passage: uniek. Wat identificeert deze code of claim, binnen welke populatie en geldigheid? Aanwezigheid van het woord bewijst niets. Dit signaal geeft nog geen inhoudelijk oordeel."
+    }
+  ]
+}

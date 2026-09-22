@@ -1,0 +1,14 @@
+{
+  "app-verification-manifest-v2.json": {
+    "files": 15,
+    "mismatches": [],
+    "sha256": "c7fb78168a577b42b8261dbd5a87b42299a8d0f19aff3468989938366961e4d4"
+  },
+  "skills-review-manifest-v2.json": {
+    "files": 8,
+    "mismatches": [],
+    "sha256": "d10531485f649380aabf16eb1d4a10dd4a76c903cbb5fda3742ae9e869582ae2"
+  },
+  "functional_rows": 26,
+  "skills_patch_sha256": "6a410e7b4a3f6a4732bdf76f3911ca0a3f42f8d0f5ce009824c886c30b5cd20d"
+}

@@ -1,0 +1,49 @@
+{
+ "schema": "def766-ess03-ontwikkelgevallen/1",
+ "status": "rookproef opus-5 (2 eerder gebruikte ontwikkelgevallen, geen nieuw label)",
+ "vastgelegd_op": "2026-09-21",
+ "vastgelegd_door": "coördinator (Cowork-Claude), 21-09-2026",
+ "basis": "tests/fixtures/ess03/ontwikkelgevallen_v1.json (onaangeroerd); D04 en D07 zijn letterlijk overgenomen; D06a is een nieuwe ondubbelzinnige variant van D06 met expliciete referent- en eenheidscontext in de bedoelde betekenis; D01, D02, D03, D05 en D09 zijn letterlijk overgenomen als regressie voor de vier uitkomsten",
+ "budget": "maximaal 8 echte beoordelingsaanroepen; geen retries, geen cache, harde deadline per aanroep (60 s) en voor de gehele run",
+ "regel": "Bij alle gevallen geldt: het model mag alleen het aangeleverde materiaal gebruiken; externe domeinfeiten (registers, wetten, standaarden) zijn hier bewust synthetisch en staan in de bron- of toelichtingtekst wanneer ze nodig zijn. De velden 'verwacht', 'grond' en 'doel' gaan NOOIT naar het model.",
+ "gevallen": [
+  {
+   "id": "D01-natuurlijke-grens",
+   "casusregister": "N05 / H-natural_boundary",
+   "doel": "regressie pass zonder code of bron; tevens duurmeting (v1: 163,125 s bij één aanroep, oorzaak niet bewezen)",
+   "begrip": "eiland",
+   "tekst": "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven.",
+   "toelichting": "Synthetische conventie voor deze proef: elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden.",
+   "categorie": null,
+   "context": {
+    "organisatorische_context": [
+     "Synthetisch Waterschap"
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": []
+   },
+   "bronnen": [],
+   "verwacht": "pass",
+   "grond": "De kern draagt een natuurlijke grens via bovenbegrip (landoppervlak) en begripsbepalende kenmerken (afzonderlijk, aaneengesloten, volledig omgeven, peilmoment); één, dezelfde en een andere instantie zijn onderscheidbaar zonder administratieve code. De aangeleverde conventie bevestigt de telbare eenheid."
+  },
+  {
+   "id": "D03-stof",
+   "casusregister": "H-mass_noun",
+   "doel": "regressie not_applicable (stoflezing)",
+   "begrip": "water",
+   "tekst": "Vloeistof bestaande uit H2O.",
+   "toelichting": "Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid.",
+   "categorie": "type",
+   "context": {
+    "organisatorische_context": [
+     "Synthetisch Laboratorium"
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": []
+   },
+   "bronnen": [],
+   "verwacht": "not_applicable",
+   "grond": "Stoflezing zonder gekozen telbare eenheid (ASTRA-uitzondering: substanties); ESS-03 verlangt hier geen afzonderlijke identificatie. Het categorielabel bepaalt dat niet; de bedoelde betekenis wel."
+  }
+ ]
+}

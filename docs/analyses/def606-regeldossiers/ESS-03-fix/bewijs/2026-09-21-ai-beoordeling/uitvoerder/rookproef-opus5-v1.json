@@ -1,0 +1,227 @@
+{
+  "schema": "def766-ess03-proefrun/2",
+  "gestart": "2026-09-21T15:35:48.508379+00:00",
+  "totale_duur_s": 21.558,
+  "total_deadline_s": 120.0,
+  "modelconfig": {
+    "provider": "anthropic",
+    "model": "claude-opus-5",
+    "task_type": "validation",
+    "temperature_requested": 0.0,
+    "temperature_sent": null,
+    "max_tokens": 1200,
+    "timeout_seconds": 60,
+    "ai_service_cache": false,
+    "dienst_cache_size": 0,
+    "dienst_optins": {
+      "use_cache": false,
+      "max_attempts": 1,
+      "max_retries": 0,
+      "token_estimate": "heuristic"
+    },
+    "sdk_max_retries_env": "0"
+  },
+  "prompt_version": "ess03-assess/2",
+  "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+  "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+  "aantal": 2,
+  "aanroepen_gestart": 2,
+  "transportpogingen_waargenomen": 2,
+  "correct": 1,
+  "per_klasse": {
+    "pass": {
+      "totaal": 1,
+      "correct": 0
+    },
+    "not_applicable": {
+      "totaal": 1,
+      "correct": 1
+    }
+  },
+  "resultaten": [
+    {
+      "id": "D01-natuurlijke-grens",
+      "verwacht": "pass",
+      "gekregen_verdict": "insufficient_information",
+      "gekregen_status": "review_required",
+      "correct": false,
+      "duur_totaal_s": 13.609,
+      "elapsed_seconds_dienst": 13.609,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 13.609,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"insufficient_information\",\n  \"applicability\": \"applicable\",\n  \"unit\": \"één afzonderlijk aaneengesloten, volledig door water omgeven landoppervlak op een peilmoment\",\n  \"reason\": \"De bedoelde betekenis is telbaar: de kern noemt een 'Afzonderlijk aaneengesloten landoppervlak' en de toelichting bepaalt dat elk gescheiden aaneengesloten vlak als één eenheid telt, zodat eenheidsgrens en onderscheid tussen instanties in beginsel via aaneengeslotenheid en wateromsluiting lopen. De telling hangt echter uitdrukkelijk af van een tijdvoorwaarde: 'het afgesproken peilmoment'. Welk peilmoment P is afgesproken, wie dat vaststelt en met welke geldigheid, is in kandidaat, toelichting noch context aangeleverd, terwijl juist bij wisselende waterstand het aantal gescheiden vlakken daarvan afhangt. Dat is ontbrekende informatie over de noodzakelijke conventie, geen aantoonbaar gebrek in de kern.\",\n  \"evidence\": [\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven.\"\n    },\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden\"\n    }\n  ],\n  \"missing_information\": \"De conventie die het 'afgesproken peilmoment P' vastlegt: welk waterpeil/tijdstip geldt, door wie het wordt vastgesteld en voor welke geldigheidsduur; zonder die vastlegging is de eenheidsgrens tijdsafhankelijk onbepaald.\",\n  \"question\": \"Welk peilmoment P geldt in deze context, en door wie en met welke geldigheidsduur is dat vastgesteld?\",\n  \"uncertainty\": \"Ook bij een vastgesteld peilmoment blijft onbenoemd of een minimale oppervlakte of een drempel voor 'gescheiden' geldt (bijvoorbeeld bij kunstmatige dammen of smalle verbindingen); dat kan bij randgevallen tot uiteenlopende tellingen leiden.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 2228,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "4718337cfee626c2f4465ef410401ac2756f8a286c70fb1b23c44e189a74d614",
+        "kandidaat_sha256": "5612e7d50439c61d53a8bb9926bdf986c05c3be2491ec7522f156e0688a73c54",
+        "fingerprint": "46227586e4e6891f735b2c61c69aaadf2617ad2271be4fcfb4edbff0a6dbf2fd",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "3944daf45ed5e22712b6859951928ab6be7b8c2529aa6223478d86c4ff9ac47d"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "46227586e4e6891f735b2c61c69aaadf2617ad2271be4fcfb4edbff0a6dbf2fd",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T15:35:40.558963+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 2228,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Synthetische conventie voor deze proef: elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden.",
+            "categorie": null,
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "5612e7d50439c61d53a8bb9926bdf986c05c3be2491ec7522f156e0688a73c54",
+            "term": "6c97d8d14ed69bf0a471305281ae9b8692979b2a83e37b87473e3417ed451697",
+            "toelichting": "5c31516d2e864f12ce0bdd5bad67d624155c30ce9d31373fe69b710c48cc7bf6",
+            "context": "4961e067cfbcf8989d2ffd54e4fc3a91c8ffe606742481c18f0dacee27793827"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "5ba5fbd9c8ccfa035e380efefc19a7ea3aefcfee73517618ae3039a71ebbddd5",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "insufficient_information",
+          "status": "review_required",
+          "applicability": "applicable",
+          "unit": "één afzonderlijk aaneengesloten, volledig door water omgeven landoppervlak op een peilmoment",
+          "reason": "De bedoelde betekenis is telbaar: de kern noemt een 'Afzonderlijk aaneengesloten landoppervlak' en de toelichting bepaalt dat elk gescheiden aaneengesloten vlak als één eenheid telt, zodat eenheidsgrens en onderscheid tussen instanties in beginsel via aaneengeslotenheid en wateromsluiting lopen. De telling hangt echter uitdrukkelijk af van een tijdvoorwaarde: 'het afgesproken peilmoment'. Welk peilmoment P is afgesproken, wie dat vaststelt en met welke geldigheid, is in kandidaat, toelichting noch context aangeleverd, terwijl juist bij wisselende waterstand het aantal gescheiden vlakken daarvan afhangt. Dat is ontbrekende informatie over de noodzakelijke conventie, geen aantoonbaar gebrek in de kern.",
+          "evidence": [
+            {
+              "location": "definition",
+              "quote": "Afzonderlijk aaneengesloten landoppervlak dat op het afgesproken peilmoment volledig door water is omgeven."
+            },
+            {
+              "location": "toelichting",
+              "quote": "elk gescheiden aaneengesloten vlak telt op het afgesproken peilmoment P als één eenheid; twee gescheiden vlakken zijn twee eilanden"
+            }
+          ],
+          "missing_information": "De conventie die het 'afgesproken peilmoment P' vastlegt: welk waterpeil/tijdstip geldt, door wie het wordt vastgesteld en voor welke geldigheidsduur; zonder die vastlegging is de eenheidsgrens tijdsafhankelijk onbepaald.",
+          "question": "Welk peilmoment P geldt in deze context, en door wie en met welke geldigheidsduur is dat vastgesteld?",
+          "uncertainty": "Ook bij een vastgesteld peilmoment blijft onbenoemd of een minimale oppervlakte of een drempel voor 'gescheiden' geldt (bijvoorbeeld bij kunstmatige dammen of smalle verbindingen); dat kan bij randgevallen tot uiteenlopende tellingen leiden."
+        },
+        "rejected": [],
+        "raw_response_sha256": "3944daf45ed5e22712b6859951928ab6be7b8c2529aa6223478d86c4ff9ac47d",
+        "elapsed_seconds": 13.609
+      }
+    },
+    {
+      "id": "D03-stof",
+      "verwacht": "not_applicable",
+      "gekregen_verdict": "not_applicable",
+      "gekregen_status": "not_applicable",
+      "correct": true,
+      "duur_totaal_s": 7.949,
+      "elapsed_seconds_dienst": 7.949,
+      "attempts_observed": 1,
+      "retries_observed": 0,
+      "cached": false,
+      "error": null,
+      "aanroep": {
+        "duur_s": 7.949,
+        "fout": null,
+        "ruwe_tekst": "{\n  \"verdict\": \"not_applicable\",\n  \"applicability\": \"not_applicable\",\n  \"unit\": null,\n  \"reason\": \"De bedoelde betekenis is de stof als zodanig, zonder gekozen telbare eenheid; de kern beschrijft een vloeistofsoort ('Vloeistof bestaande uit H2O') en niet een afgebakende hoeveelheid. De toelichting sluit monster, portie of hoeveelheid uitdrukkelijk uit, zodat afzonderlijke instanties in deze betekenis niet worden onderscheiden. ESS-03 geldt alleen bij betekenissen waarin afzonderlijke instanties worden onderscheiden, dus de regel is hier niet van toepassing. De opgegeven categorie 'type' speelt bij die vaststelling geen rol.\",\n  \"evidence\": [\n    {\n      \"location\": \"toelichting\",\n      \"quote\": \"Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid.\"\n    },\n    {\n      \"location\": \"definition\",\n      \"quote\": \"Vloeistof bestaande uit H2O.\"\n    }\n  ],\n  \"missing_information\": null,\n  \"question\": null,\n  \"uncertainty\": \"Zou in een andere, hier niet vastgelegde gebruikslezing (bijvoorbeeld een afgebakend volume of laboratoriummonster) wél een telbare eenheid bedoeld zijn, dan zou ESS-03 opnieuw beoordeeld moeten worden.\"\n}",
+        "model": "claude-opus-5",
+        "tokens_used": 1518,
+        "cached": false,
+        "retry_count": 0
+      },
+      "hashes": {
+        "system_prompt_sha256": "e51d06cb3c878d78f2a66135c248e5e8d2a4e95cc589a4fed816c411b125c758",
+        "user_prompt_sha256": "d28acab80a5ad35e0399152435bc359beb0f1e48d8ab2a1e86ad21da97ed9350",
+        "kandidaat_sha256": "58267b253ccf2a4430849c661e96b5866e83b9c13d6147f15b0e28e7d4775d74",
+        "fingerprint": "07f34fe6f63a4b051531c17120585b23190da856c89d99602e89b6b6c5c216e3",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "raw_response_sha256": "5c2bef8427960d893dd8a32a954e71efa0a75c982872ca2fd3b85c6077bff796"
+      },
+      "beoordeling": {
+        "contract_version": "ess03/1",
+        "prompt_version": "ess03-assess/2",
+        "norm_sha256": "372bb329fa6630191cc13aaed20c715613043a4790ccb6a5dd9e01949e41e028",
+        "fingerprint": "07f34fe6f63a4b051531c17120585b23190da856c89d99602e89b6b6c5c216e3",
+        "status": "assessed",
+        "error": null,
+        "assessed_at": "2026-09-21T15:35:48.508262+00:00",
+        "attribution": {
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "task_type": "validation",
+          "cached": false,
+          "tokens_used": 1518,
+          "attempts_observed": 1,
+          "retries_observed": 0,
+          "stop_reason": "end_turn"
+        },
+        "input": {
+          "intentie": {
+            "toelichting": "Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid.",
+            "categorie": "type",
+            "betekenisverduidelijking": null,
+            "verduidelijking": null
+          },
+          "materiaal": {
+            "definition": "58267b253ccf2a4430849c661e96b5866e83b9c13d6147f15b0e28e7d4775d74",
+            "term": "0f4168490e38b8447e11ba4bd656aa11b925bd22af30bac464bc153fdb608501",
+            "toelichting": "696984ddd8b58df6745d91f9ab6e0f8b3d202159afcc2ff5596501db44ad16cf",
+            "context": "639f12191ec903d7c2445cfb60933bc2bcd9ed1b198cfe24c51b007df6636c73"
+          },
+          "max_passage_chars": 8000,
+          "prompt_sha256": "f893086aac9ae1029c6ecefbf7b676635a2c62389bad62d100f490b99118836e",
+          "deadline_seconds": 60
+        },
+        "judgment": {
+          "verdict": "not_applicable",
+          "status": "not_applicable",
+          "applicability": "not_applicable",
+          "unit": null,
+          "reason": "De bedoelde betekenis is de stof als zodanig, zonder gekozen telbare eenheid; de kern beschrijft een vloeistofsoort ('Vloeistof bestaande uit H2O') en niet een afgebakende hoeveelheid. De toelichting sluit monster, portie of hoeveelheid uitdrukkelijk uit, zodat afzonderlijke instanties in deze betekenis niet worden onderscheiden. ESS-03 geldt alleen bij betekenissen waarin afzonderlijke instanties worden onderscheiden, dus de regel is hier niet van toepassing. De opgegeven categorie 'type' speelt bij die vaststelling geen rol.",
+          "evidence": [
+            {
+              "location": "toelichting",
+              "quote": "Bedoeld: de stof als zodanig, niet een monster, portie of hoeveelheid."
+            },
+            {
+              "location": "definition",
+              "quote": "Vloeistof bestaande uit H2O."
+            }
+          ],
+          "missing_information": null,
+          "question": null,
+          "uncertainty": "Zou in een andere, hier niet vastgelegde gebruikslezing (bijvoorbeeld een afgebakend volume of laboratoriummonster) wél een telbare eenheid bedoeld zijn, dan zou ESS-03 opnieuw beoordeeld moeten worden."
+        },
+        "rejected": [],
+        "raw_response_sha256": "5c2bef8427960d893dd8a32a954e71efa0a75c982872ca2fd3b85c6077bff796",
+        "elapsed_seconds": 7.949
+      }
+    }
+  ],
+  "gevallenbestand": {
+    "pad": "reports/DEF-766-AI-20260921/uitvoerder/rookproef-opus5-gevallen-v1.json",
+    "sha256": "ce3f1b064135bb3d7834d7b69e9ae4930b4c2313e0d72d29cc52cd55facd4363",
+    "schema": "def766-ess03-ontwikkelgevallen/1",
+    "status": "rookproef opus-5 (2 eerder gebruikte ontwikkelgevallen, geen nieuw label)"
+  }
+}

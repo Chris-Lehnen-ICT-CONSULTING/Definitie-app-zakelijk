@@ -1,0 +1,9 @@
+**Verdict: gerichte correctie nodig. Eén bevestigde bevinding.**
+
+- **P2 — ESS-03 blijft in het entrypoint onder gewogen scoring vallen.** De nieuwe [reference.md:54](/private/tmp/def766-skills/skills/definitie-toetsregels/reference.md:54) schrijft expliciet geen ESS-03-cijfer en geen automatische gate voor. Maar [SKILL.md:39](/private/tmp/def766-skills/skills/definitie-toetsregels/SKILL.md:39) zondert uitsluitend ESS-01/02 en CON-01/02 uit van gewogen scoring; ook [SKILL.md:74](/private/tmp/def766-skills/skills/definitie-toetsregels/SKILL.md:74) mist ESS-03. Daardoor geeft hetzelfde pakket tegenstrijdige instructies voor ESS-03. **Dispositie: fix vóór oplevering** — voeg een gerichte ESS-03-uitzondering en contractverwijzing toe: geen cijfer/0–1, geen automatische gate, menselijke ernstige-foutgate blijft open onder DEF-624. Hiervoor is geen brede scoreopschoning nodig.
+
+Geen overige bevestigde bevindingen binnen de volledige werkdiff en beide nieuwe referenties. Norm en G/T/H stemmen overeen met de aangeleverde voorstellen; ESS-01/02 blijven behouden. De drie aanvullende cross-skillverwijzingen zijn niet pakketlokaal, maar hun toepassingsteksten zijn zelfstandig; de noodzakelijke volledige contracten bij toetsregels en Nederlandse definities zijn lokaal aanwezig en byte-identiek.
+
+Gecontroleerd: base `9f5ae6f3bb4b990a855bc0969bc4f6067c02c197`, opgegeven manifesthash en alle zeven bestandshashes kloppen. Basispariteit met de vijf geïnstalleerde bestanden bevestigd. YAML-parse, gerichte referentie-/descriptioncontroles en 29 tekstvergelijkingen slagen.
+
+Dit is een tekst- en coherentiereview, geen modelgedragsproef of bewijs van appwerking. DEF-624-reviewafronding/NA-mapping en bekende generieke baselineproblemen blijven buiten scope. Geen bestanden gewijzigd of extra sessies gestart.

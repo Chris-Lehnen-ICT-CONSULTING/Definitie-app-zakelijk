@@ -1,0 +1,344 @@
+"""DEF-766 — kleine echte generatieproef (verificatie, geen implementatie).
+
+Vier synthetische cases door de échte PromptServiceV2 (huidige ESS-03-regelkaart
+en G-instructie) en de échte AIServiceV2 met de geconfigureerde provider en
+het definition_core-model uit ModelRouter. Parameters gespiegeld aan
+DefinitionOrchestratorV2 (temperature = get_prompt_temperature("definition"),
+max_tokens = 500, geen modeloverride). Geen cache, geen retries (client-lus
+max_retries=1; SDK via bestaande env-override AI_SDK_MAX_RETRIES=0), timeout
+60 s, geen externe bronnen/web-lookup/RAG, geen opslag. Verwachte grenzen
+staan hieronder vóór de run vast (afgeleid uit tekstvoorstellen-v3 en
+casusregister-v4; geen eigen norm, geen gouden expertlabel).
+
+Uitvoer: /tmp/def766-cli/modelproef-v1.json (+ prompt-<case>.txt per case).
+Er worden nooit API-keys of de volledige omgeving afgedrukt.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import hashlib
+import json
+import os
+import re
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path("/Users/chrislehnen/.codex/worktrees/2075/Definitie-app")
+UIT = Path("/tmp/def766-cli")
+WERKMAP = UIT / "modelproef-werkmap"
+
+# Tijdelijke CWD: cache/api_metrics.json en de regel-FileCache landen hier,
+# niet in de werkboom. config/ en toetsregels resolven absoluut (projectroot).
+WERKMAP.mkdir(exist_ok=True)
+(WERKMAP / "cache").mkdir(exist_ok=True)
+(WERKMAP / "data").mkdir(exist_ok=True)
+os.chdir(WERKMAP)
+sys.path.insert(0, str(ROOT / "src"))
+
+# Bestaande env-overrides (DEF-566): geen SDK-retries, 60 s per call.
+os.environ["AI_SDK_MAX_RETRIES"] = "0"
+os.environ["AI_CLIENT_TIMEOUT"] = "60"
+
+from config.dotenv_loader import load_project_dotenv  # noqa: E402
+
+# De werkboom heeft geen .env; laad de bestaande project-.env (override=False),
+# zonder waarden te lezen of af te drukken.
+_ENV_GELADEN = load_project_dotenv(
+    pad=Path("/Users/chrislehnen/Projecten/Definitie-app/.env")
+)
+
+MAX_CALLS = 4
+MAX_TOKENS = 500  # orchestrator-default; opdrachtplafond ~600
+TIMEOUT_S = 60
+
+# ---------------------------------------------------------------------------
+# Cases en vooraf vastgelegde verwachte grenzen (geen gouden expertlabels)
+# ---------------------------------------------------------------------------
+CASES = [
+    {
+        "id": "MP-01-eiland",
+        "begrip": "eiland",
+        "ontologische_categorie": "type",
+        "organisatorische_context": ["Synthetische waterbeheerder"],
+        "betekenisverduidelijking": (
+            "Bedoeld is het natuurlijke object: een afzonderlijk aaneengesloten "
+            "stuk land dat op het afgesproken peilmoment volledig door water is "
+            "omgeven."
+        ),
+        "verwachte_grenzen": [
+            "Kern draagt een natuurlijke eenheidsgrens (aaneengesloten land, door "
+            "water omgeven, peilmoment) zonder administratieve identifier.",
+            "Geen verzonnen nummer, code, register of registratieplicht.",
+            "Betekenis blijft het natuurlijke object; geen vernauwing tot "
+            "geregistreerde eilanden.",
+        ],
+    },
+    {
+        "id": "MP-02-water-stof",
+        "begrip": "water",
+        "ontologische_categorie": "type",
+        "organisatorische_context": ["Synthetisch laboratorium"],
+        "betekenisverduidelijking": (
+            "Bedoeld is water als stof (de vloeistof zelf), uitdrukkelijk niet een "
+            "monster, partij of afgemeten hoeveelheid."
+        ),
+        "verwachte_grenzen": [
+            "Stoflezing behouden: geen stille verschuiving naar monster, portie, "
+            "partij, hoeveelheid of registratie om telbaar te worden.",
+            "Geen verzonnen identifier of telconventie.",
+            "Betekenis blijft de stof.",
+        ],
+    },
+    {
+        "id": "MP-03-watermonster",
+        "begrip": "watermonster",
+        "ontologische_categorie": "type",
+        "organisatorische_context": ["Synthetisch laboratorium"],
+        "betekenisverduidelijking": (
+            "Bedoeld is de afzonderlijk afgenomen hoeveelheid water uit één "
+            "bemonstering, als op zichzelf staande eenheid."
+        ),
+        "verwachte_grenzen": [
+            "Kern maakt de eenheidsgrens duidelijk via de afgenomen hoeveelheid uit "
+            "één bemonstering (bovenbegrip + kenmerk), niet via een verplicht "
+            "monsternummer of registratie.",
+            "Geen verzonnen monsternummer, label, bron of conventie.",
+            "Betekenis blijft de afgebakende hoeveelheid; niet terug naar de stof en "
+            "niet naar de handeling zelf.",
+        ],
+    },
+    {
+        "id": "MP-04-boekexemplaar",
+        "begrip": "boekexemplaar",
+        "ontologische_categorie": "type",
+        "organisatorische_context": ["Synthetische bibliotheek"],
+        "betekenisverduidelijking": (
+            "Bedoeld is het fysieke exemplaar van een boek; het ISBN is gedeeld "
+            "door alle exemplaren van dezelfde uitgave."
+        ),
+        "verwachte_grenzen": [
+            "Kern benoemt het fysieke exemplaar als eenheid en gebruikt het ISBN "
+            "niet als onderscheidend criterium tussen exemplaren.",
+            "Geen verzonnen exemplaarnummer, barcode of registratieplicht als "
+            "noodzakelijk kenmerk.",
+            "Betekenis blijft het fysieke exemplaar, niet de titel/uitgave.",
+        ],
+    },
+]
+
+# Alleen signaalindicatoren voor de handmatige analyse — geen automatisch oordeel.
+IDENTIFIER_RE = re.compile(
+    r"\b(nummer|code|registratie\w*|identificat\w*|isbn|serienummer|kenteken|"
+    r"barcode|label|uniek\w*|geregistreerd\w*)\b",
+    re.IGNORECASE,
+)
+MONSTER_RE = re.compile(
+    r"\b(monster\w*|portie\w*|partij\w*|hoeveelheid|bemonster\w*|afgenomen)\b",
+    re.IGNORECASE,
+)
+PII_RE = re.compile(
+    r"[\w.+-]+@[\w-]+\.[\w.]+"  # e-mail
+    r"|\b(\+31|0031|06)[\s-]?\d[\d\s-]{7,}\b"  # telefoon
+    r"|\b\d{9}\b"  # BSN-achtig
+    r"|clictconsulting|lehnen",  # gebruikersidentiteit hoort niet in een prompt
+    re.IGNORECASE,
+)
+
+
+def _sha(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+async def run() -> dict:
+    from config.config_manager import get_config_manager, get_prompt_temperature
+    from opschoning.opschoning_enhanced import extract_definition_from_gpt_response
+    from services.ai import create_ai_client
+    from services.ai.model_router import ModelRouter
+    from services.ai_service_v2 import AIServiceV2
+    from services.interfaces import GenerationRequest
+    from services.modelantwoord import CONFLICT_SENTINEL, lees_modelantwoord
+    from services.prompts.prompt_service_v2 import PromptServiceV2
+    from services.validation.modular_validation_service import (
+        ModularValidationService,
+    )
+    from toetsregels.manager import get_toetsregel_manager
+    from toetsregels.rule_cache import get_rule_cache
+    from utils.async_api import RateLimitConfig
+
+    cfg = get_config_manager()
+    provider = cfg.api.ai_provider
+    api_key = (
+        cfg.api.anthropic_api_key if provider == "anthropic" else cfg.api.openai_api_key
+    )
+    router = ModelRouter.from_config()
+    routed_provider, routed_model = router.get_model("definition_core")
+    temperature = get_prompt_temperature("definition")
+
+    verslag: dict = {
+        "datum": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "python": sys.version.split()[0],
+        "werkboom": str(ROOT),
+        "env_geladen_uit_project_dotenv": _ENV_GELADEN,
+        "provider_geconfigureerd": provider,
+        "model_router_definition_core": {"provider": routed_provider, "model": routed_model},
+        "api_key_aanwezig": bool(api_key),
+        "temperature_definition": temperature,
+        "max_tokens": MAX_TOKENS,
+        "timeout_s": TIMEOUT_S,
+        "retries": {"client_lus_max_retries": 1, "AI_SDK_MAX_RETRIES": os.environ["AI_SDK_MAX_RETRIES"]},
+        "use_cache": False,
+        "aanroepen_gedaan": 0,
+        "cases": [],
+    }
+    if not api_key:
+        verslag["fout"] = (
+            f"Geen API-key voor provider {provider!r} beschikbaar via .env/omgeving; "
+            "proef niet uitgevoerd (geen mock ingezet)."
+        )
+        return verslag
+    if routed_provider != provider:
+        verslag["waarschuwing"] = (
+            f"ModelRouter active_provider {routed_provider!r} != config {provider!r}"
+        )
+
+    # Échte keten, gespiegeld aan ServiceContainer.ai_service(): zelfde factory,
+    # zelfde router; alleen cache uit en de retry-lus op één poging.
+    client = create_ai_client(provider=provider, api_key=api_key)
+    ai = AIServiceV2(
+        rate_limit_config=RateLimitConfig(max_retries=1),
+        use_cache=False,
+        ai_client=client,
+        model_router=router,
+    )
+    prompts = PromptServiceV2()
+    get_rule_cache().clear_cache()
+    validator = ModularValidationService(get_toetsregel_manager(), None, None)
+
+    for case in CASES:
+        rij: dict = {"id": case["id"], "invoer": {k: v for k, v in case.items() if k != "verwachte_grenzen"},
+                     "verwachte_grenzen": case["verwachte_grenzen"]}
+        request = GenerationRequest(
+            id=f"def766-modelproef-{case['id']}",
+            begrip=case["begrip"],
+            ontologische_categorie=case["ontologische_categorie"],
+            organisatorische_context=case["organisatorische_context"],
+            betekenisverduidelijking=case["betekenisverduidelijking"],
+            actor="def766-modelproef",
+        )
+        prompt_result = await prompts.build_generation_prompt(request)
+        prompt = prompt_result.text
+        (UIT / f"modelproef-prompt-{case['id']}.txt").write_text(prompt, encoding="utf-8")
+        rij["prompt"] = {
+            "sha256": _sha(prompt),
+            "tekens": len(prompt),
+            "ess03_kaart_aantal": prompt.count("🔹 **ESS-03"),
+            "ess03_g_kern_aanwezig": "verzin geen nummer, bron of telconventie" in prompt,
+            "oude_nummerinstructie_aanwezig": "Noem criteria voor unieke identificatie" in prompt,
+            "verduidelijking_in_prompt": case["betekenisverduidelijking"] in prompt,
+            "pii_treffers": sorted({m.group(0) for m in PII_RE.finditer(prompt)}),
+            "bronnenblok_aanwezig": "<bronnen>" in prompt,
+            "metadata_source_receipt": prompt_result.metadata.get("source_receipt"),
+        }
+        if rij["prompt"]["pii_treffers"]:
+            rij["resultaat"] = {"status": "overgeslagen", "reden": "PII-treffer in uitgaande prompt"}
+            verslag["cases"].append(rij)
+            continue
+        if verslag["aanroepen_gedaan"] >= MAX_CALLS:
+            rij["resultaat"] = {"status": "overgeslagen", "reden": "plafond van 4 aanroepen bereikt"}
+            verslag["cases"].append(rij)
+            continue
+        if os.environ.get("MODELPROEF_DRY") == "1":
+            rij["resultaat"] = {"status": "dry_run", "reden": "alleen promptopbouw, geen modelaanroep"}
+            verslag["cases"].append(rij)
+            continue
+
+        verslag["aanroepen_gedaan"] += 1
+        t0 = time.time()
+        try:
+            res = await ai.generate_definition(
+                prompt=prompt,
+                temperature=temperature,
+                max_tokens=MAX_TOKENS,
+                timeout_seconds=TIMEOUT_S,
+            )
+        except Exception as exc:  # technische fout is een bevinding, geen retry
+            rij["resultaat"] = {
+                "status": "technische_fout",
+                "fouttype": type(exc).__name__,
+                "melding": re.sub(r"sk-[A-Za-z0-9_-]+", "sk-***", str(exc))[:500],
+                "duur_s": round(time.time() - t0, 2),
+            }
+            verslag["cases"].append(rij)
+            continue
+
+        raw = res.text
+        antwoord = lees_modelantwoord(raw)
+        conflict = raw.strip().startswith(CONFLICT_SENTINEL)
+        kandidaat = "" if conflict else extract_definition_from_gpt_response(raw)
+        rij["resultaat"] = {
+            "status": "conflictmelding" if conflict else "definitie",
+            "model": res.model,
+            "cached": res.cached,
+            "tokens_used_geschat": res.tokens_used,
+            "tokens_estimated": bool(res.metadata.get("tokens_estimated")),
+            "generation_time_s": round(res.generation_time, 2),
+            "retry_count": res.retry_count,
+            "raw_text": raw,
+            "raw_sha256": _sha(raw),
+            "modelantwoord_soort": type(antwoord).__name__,
+            "modelantwoord_geldig": getattr(antwoord, "geldig", None),
+            "kandidaat_geextraheerd": kandidaat,
+        }
+        rij["signalen"] = {
+            "identifier_woorden_in_kandidaat": sorted({m.group(0).lower() for m in IDENTIFIER_RE.finditer(kandidaat)}),
+            "monster_woorden_in_kandidaat": sorted({m.group(0).lower() for m in MONSTER_RE.finditer(kandidaat)}),
+            "verduidelijking_kernwoorden_terug": [
+                w for w in ("aaneengesloten", "peilmoment", "stof", "vloeistof", "bemonstering", "exemplaar", "ISBN")
+                if w.lower() in kandidaat.lower()
+            ],
+        }
+        if kandidaat:
+            val = await validator.validate_definition(
+                begrip=case["begrip"],
+                text=kandidaat,
+                ontologische_categorie=case["ontologische_categorie"],
+                context={"organisatorische_context": case["organisatorische_context"]},
+            )
+            item = next((r for r in val["review_required"] if r["rule_id"] == "ESS-03"), None)
+            rij["toetsing_kandidaat"] = {
+                "validation_status": val["validation_status"],
+                "ess03_status": val["rule_statuses"].get("ESS-03"),
+                "ess03_violation": any(v.get("code") == "ESS-03" for v in val["violations"]),
+                "ess03_signals": (item or {}).get("signals"),
+                "ess03_reden": (item or {}).get("reason"),
+                "overall_score": val["overall_score"],
+                "gefaalde_regels": sorted(v["code"] for v in val["violations"]),
+            }
+        verslag["cases"].append(rij)
+
+    return verslag
+
+
+if __name__ == "__main__":
+    uit = asyncio.run(run())
+    pad = UIT / "modelproef-v1.json"
+    pad.write_text(json.dumps(uit, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("provider:", uit["provider_geconfigureerd"], "| router:", uit["model_router_definition_core"])
+    print("api_key_aanwezig:", uit["api_key_aanwezig"], "| aanroepen:", uit["aanroepen_gedaan"])
+    if uit.get("fout"):
+        print("FOUT:", uit["fout"])
+    for c in uit["cases"]:
+        r = c.get("resultaat", {})
+        print(f"\n== {c['id']} == status={r.get('status')} model={r.get('model')} cached={r.get('cached')} "
+              f"tijd={r.get('generation_time_s')}s prompt_sha={c['prompt']['sha256'][:12]} "
+              f"ess03_kaart={c['prompt']['ess03_kaart_aantal']} pii={c['prompt']['pii_treffers']}")
+        if r.get("status") == "technische_fout":
+            print("   fout:", r.get("fouttype"), r.get("melding"))
+        else:
+            print("   kandidaat:", r.get("kandidaat_geextraheerd"))
+            print("   signalen:", c.get("signalen"))
+            t = c.get("toetsing_kandidaat", {})
+            print("   toetsing ESS-03:", t.get("ess03_status"), "| violation:", t.get("ess03_violation"),
+                  "| score:", t.get("overall_score"), "| gefaald:", t.get("gefaalde_regels"))
