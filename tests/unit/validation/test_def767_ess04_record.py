@@ -11,6 +11,9 @@ Wat deze tests bewijzen: het record draagt de geharmoniseerde norm
 laadpaden leveren exact hetzelfde record (AC05), de vijftien signaalpatronen
 zijn onaangeroerd en de automatische evaluatie velt voor het goede noch het
 foute voorbeeld een pass of fail: altijd `review_required`, nooit een cijfer.
+Daarnaast: de normtekst staat in drie handmatige kopieën (record, YAML-fixture,
+testconstante) en die worden hier tegen elkaar gehouden, en de twee foute
+voorbeelden C04 en C05 leveren elk een eigen, herkenbaar signaalbeeld op.
 
 Wat ze niet bewijzen: een opgeslagen menselijk oordeel (DEF-624/626/627).
 """
@@ -18,9 +21,11 @@ Wat ze niet bewijzen: een opgeslagen menselijk oordeel (DEF-624/626/627).
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
+import yaml
 
 from services.validation.evaluators.base import EvaluationDeps
 from services.validation.evaluators.judgment_review import JudgmentReviewEvaluator
@@ -43,6 +48,12 @@ from toetsregels.runtime_contract import (
 pytestmark = [pytest.mark.unit]
 
 REGELS_DIR = Path(__file__).resolve().parents[3] / "src" / "toetsregels" / "regels"
+FIXTURE = (
+    Path(__file__).resolve().parents[2]
+    / "fixtures"
+    / "toetsregels"
+    / "runtime_cases.yaml"
+)
 
 
 def _ruw(rule_id: str) -> dict:
@@ -215,6 +226,64 @@ class TestEenNormversieAC05:
         )
 
 
+def _fixture_reden(rule_id: str = "ESS-04") -> str:
+    """Het `reden`-veld van de runtime-matrixfixture (r. 308-311 voor ESS-04)."""
+    return str(yaml.safe_load(FIXTURE.read_text(encoding="utf-8"))[rule_id]["reden"])
+
+
+def _genormaliseerd(tekst: str) -> str:
+    """Woorden zonder de regeleinden die YAML-folding (`>`) achterlaat."""
+    return " ".join(str(tekst).split())
+
+
+def _eis_gelijke_normtekst(record: dict, fixture_reden: str) -> None:
+    """Faalt zodra record en fixture een andere ESS-04-normtekst dragen.
+
+    Bewust als helper geschreven, zodat de test dezelfde vergelijking op een
+    bewust gewijzigde kopie kan loslaten: een gate die niet aantoonbaar rood
+    kan worden, borgt niets.
+    """
+    uit_record = _genormaliseerd(record["runtime_contract"]["example_pair_reason"])
+    assert _genormaliseerd(fixture_reden) == uit_record, (
+        "drift: src/toetsregels/regels/ESS-04.json (example_pair_reason) en "
+        "tests/fixtures/toetsregels/runtime_cases.yaml (reden) lopen uiteen"
+    )
+
+
+class TestGeenDriftInDeNormtekst:
+    """Record, YAML-fixture en testconstante dragen één normtekst.
+
+    Deze drift is in DEF-767 al één keer echt opgetreden: commit 3ccb5ab68
+    (R-03) bestaat precies om de fixture weer op het record te zetten, en
+    geen enkele test zou dat hebben gevangen — `test_rule_runtime_matrix.py`
+    assert alleen dat `reden` niet leeg is.
+    """
+
+    def test_fixture_en_testconstante_volgen_het_regelrecord(self):
+        record = _ruw("ESS-04")
+        _eis_gelijke_normtekst(record, _fixture_reden())
+        # Derde handmatige kopie: de constante in dit testbestand zelf.
+        assert _genormaliseerd(EXAMPLE_PAIR_REASON_N2) == _genormaliseerd(
+            record["runtime_contract"]["example_pair_reason"]
+        )
+
+        # Negatieve controle, volledig in het geheugen: dezelfde vergelijking
+        # hoort rood te worden zodra de normtekst inhoudelijk verschuift.
+        # Zonder dit bewijs kan een te milde normalisatie de gate stil
+        # ontkrachten; er wordt geen repositorybestand aangeraakt.
+        gedrift = deepcopy(record)
+        contract = gedrift["runtime_contract"]
+        contract["example_pair_reason"] = contract["example_pair_reason"].replace(
+            "geen bewijs", "wel degelijk bewijs"
+        )
+        assert (
+            contract["example_pair_reason"]
+            != record["runtime_contract"]["example_pair_reason"]
+        ), "de mutatie moet de normtekst werkelijk veranderen"
+        with pytest.raises(AssertionError):
+            _eis_gelijke_normtekst(gedrift, _fixture_reden())
+
+
 class _StubSupport:
     def severity_for(self, rule):
         return "error"
@@ -256,6 +325,10 @@ class TestGeenAutomatischOordeel:
     R-04: C04 vuurt wél een patroon ('binnen 3 dagen') en C05 niet; lege
     tekst (C07) heeft geen toetsobject. In geen van de gevallen mag ESS-04
     slagen, falen of een cijfer krijgen.
+
+    Dát C04 en C05 een verschillend signaalbeeld geven wordt hieronder
+    geassert door `TestSignaalcontrastC04C05`; deze klasse kijkt alleen naar
+    status, score en violation.
     """
 
     CASUSSEN = [
@@ -287,3 +360,72 @@ class TestGeenAutomatischOordeel:
         item = next(r for r in result["review_required"] if r["rule_id"] == "ESS-04")
         assert item["reason"]
         assert result["overall_score"] is None
+
+
+#: Casusregister v3: C04 en C05 zijn beide 'fout', maar om een andere reden.
+#: C04 draagt een termijncriterium dat één patroon raakt; C05 draagt een
+#: percentagecriterium dat géén patroon raakt (`\b` na `%` vereist een
+#: woordteken). Per casus: begrip, tekst, verwachte signalen, verwacht
+#: reden-fragment.
+SIGNAALCONTRAST = {
+    "ESS04-C04": (
+        "aanvraag",
+        FOUTE_VOORBEELDEN[1],
+        (r"\bbinnen\s+\d+\s+dagen?\b",),
+        "Te beoordelen passage: binnen 3 dagen.",
+    ),
+    "ESS04-C05": (
+        "object",
+        FOUTE_VOORBEELDEN[0],
+        (),
+        f"Nog te beoordelen. {TOETSVRAAG_N2}",
+    ),
+}
+
+
+def _eis_signaalcontrast(record) -> None:
+    """Faalt zodra C04 en C05 niet meer elk hun eigen signaalbeeld geven.
+
+    Bewust als helper geschreven, zodat de test dezelfde eis op een in het
+    geheugen gekalibreerd record kan loslaten.
+    """
+    waargenomen: dict[str, tuple[tuple[str, ...], str]] = {}
+    for casus, (begrip, tekst, signalen, fragment) in SIGNAALCONTRAST.items():
+        # Verse deps per aanroep: `_signalen` cachet de gecompileerde patronen
+        # per regel-ID, dus een gedeelde cache zou een gewijzigd record maskeren.
+        uitkomst = JudgmentReviewEvaluator().evaluate(
+            record, _ctx(begrip, tekst), _deps()
+        )
+        gevonden = tuple(uitkomst.metadata.get("signals") or ())
+        reden = uitkomst.reason or ""
+        assert gevonden == signalen, f"{casus}: signalen {gevonden!r}"
+        assert fragment in reden, f"{casus}: reden {reden!r}"
+        waargenomen[casus] = (gevonden, reden)
+    c04, c05 = waargenomen["ESS04-C04"], waargenomen["ESS04-C05"]
+    assert c04[0] != c05[0], "C04 en C05 leveren hetzelfde signaalbeeld"
+    assert c04[1] != c05[1], "C04 en C05 leveren dezelfde reden"
+
+
+class TestSignaalcontrastC04C05:
+    """De twee foute voorbeelden zijn niet inwisselbaar.
+
+    Zonder deze assertie is de casusclassificatie decoratief: alle vier
+    casussen in `TestGeenAutomatischOordeel` krijgen identieke asserties en
+    `metadata["signals"]` wordt nergens gecontroleerd. Het contrast zou dan
+    stil verschuiven bij de aangekondigde patroonkalibratie.
+    """
+
+    def test_de_twee_foute_voorbeelden_geven_elk_een_eigen_signaal(self):
+        _eis_signaalcontrast(ESS04)
+
+        # Negatieve controle, volledig in het geheugen: een kalibratie die het
+        # percentagepatroon zonder sluitende `\b` toevoegt, laat C05 meevuren
+        # en heft het contrast op. Dan hoort deze eis rood te worden.
+        ruw = deepcopy(_ruw("ESS-04"))
+        ruw["herkenbaar_patronen"] = [
+            *ruw["herkenbaar_patronen"],
+            r"\bminimaal\s+\d+%",
+        ]
+        gekalibreerd = build_rule_record("ESS-04", ruw)
+        with pytest.raises(AssertionError):
+            _eis_signaalcontrast(gekalibreerd)

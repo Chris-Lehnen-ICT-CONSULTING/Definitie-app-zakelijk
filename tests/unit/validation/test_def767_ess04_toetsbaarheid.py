@@ -8,8 +8,9 @@ Wat deze tests bewijzen:
 
 - B (T2-5a): de evaluator zet ESS-04 op het bestaande passagemechanisme
   (`_reden_met_passages`) met eigen normkop en een neutrale passagevraag;
-  zonder treffer draagt de reden de toetsvraag. Status en score veranderen
-  niet; ESS-01/ESS-02 blijven zichzelf.
+  zonder treffer draagt de reden de toetsvraag, bij twee treffers staan
+  beide passages in tekstvolgorde met elk de vaste slotzin. Status en score
+  veranderen niet; ESS-01/ESS-02 blijven zichzelf.
 - C (T2-5b): de gedeelde UI toont de open ESS-04-reden letterlijk (`st.text`),
   met én zonder treffer; een andere oordeelregel blijft achter de toggle.
 - D (T2-5c): de renderer verzint geen heuristische pass-verklaring
@@ -63,6 +64,20 @@ NORMKOP = "ESS-04 — Toetsbaarheid:"
 MET_TREFFER = ("aanvraag", "Belangrijke aanvraag die binnen 3 dagen relevant wordt.")
 #: ESS04-C03: kwalitatief criterium zonder enig patroonsignaal.
 ZONDER_TREFFER = ("veelhoek", "Veelhoek waarvan alle zijden even lang zijn.")
+#: Twee verschillende patronen in één tekst ('binnen 3 dagen' en 'bevat').
+#: Alleen hier doen de sortering, de dedup en de join van
+#: `_reden_met_passages` werkelijk werk; met één treffer is dat pad blind.
+TWEE_TREFFERS = (
+    "aanvraag",
+    "Aanvraag die binnen 3 dagen wordt afgehandeld en een toelichting bevat.",
+)
+
+#: D: zonder eigen ESS-04-tak valt `_build_pass_reason` terug op zijn
+#: generieke slotregel — positief vast te pinnen, anders laat elke
+#: teruggezette tak met andere woorden de test groen.
+GENERIEKE_PASSVERKLARING = "Geen issues gemeld door validator."
+#: ESS-05 is de enige overgebleven ESS-tak met een heuristische verklaring.
+ESS05_PASSVERKLARING = "Vereist element herkend (heuristiek)."
 
 OUDE_HINT = (
     "Maak een objectief toetsbaar element expliciet (bijv. termijn of meetbare grens)."
@@ -132,6 +147,35 @@ class TestEvaluatorPassagehulp:
         assert uitkomst.reason == f"{NORMKOP} Nog te beoordelen. {toetsvraag}"
         # De oude toetsvraag ('objectief kunt vaststellen') is weg.
         assert "objectief" not in uitkomst.reason
+
+    def test_twee_signalen_leveren_beide_passages_in_tekstvolgorde(self):
+        """Het meervoudige pad: volgorde, join en slotzin per passage.
+
+        Met één treffer doen `sorted`, `dict.fromkeys` en `" ".join` geen
+        werk. Pas bij twee fragmenten is te zien dat de passages op
+        tekstpositie staan — niet alfabetisch, want dan zou 'bevat' vóór
+        'binnen 3 dagen' komen — en dat elk fragment zijn eigen vraag en
+        slotzin krijgt in plaats van één slotzin voor het geheel.
+        """
+        uitkomst = _evalueer(ESS04, *TWEE_TREFFERS)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert uitkomst.violation is None
+        assert len(uitkomst.metadata.get("signals") or ()) == 2
+        reden = uitkomst.reason or ""
+        assert reden == (
+            f"{NORMKOP} "
+            "Te beoordelen passage: binnen 3 dagen. Nog te beoordelen. Leg vast "
+            "hoe het criterium 'binnen 3 dagen' op een geval wordt toegepast. "
+            "Dit signaal geeft nog geen inhoudelijk oordeel. "
+            "Te beoordelen passage: bevat. Nog te beoordelen. Leg vast hoe het "
+            "criterium 'bevat' op een geval wordt toegepast. Dit signaal geeft "
+            "nog geen inhoudelijk oordeel."
+        )
+        assert reden.count("Dit signaal geeft nog geen inhoudelijk oordeel.") == 2
+        assert "voldoet" not in reden.lower()
+        for artefact in REGEX_ARTEFACTEN:
+            assert artefact not in reden, f"regex als verklaring: {reden!r}"
 
     def test_de_reviewvraag_is_altijd_aanwezig(self):
         for begrip, tekst in (MET_TREFFER, ZONDER_TREFFER):
@@ -215,17 +259,27 @@ class TestRenderer:
     """D — T2-5c."""
 
     def test_geen_heuristische_passverklaring_meer_voor_ess04(self):
+        # Positief vastgepind op de generieke slotregel. Alleen de drie
+        # negatieve substrings hieronder lieten elke teruggezette tak met
+        # andere woorden ('Patroon aangetroffen') groen door (review PR #468).
         renderer = ValidationRenderer()
         reden = renderer._build_pass_reason("ESS-04", MET_TREFFER[1], MET_TREFFER[0])
+        assert reden == GENERIEKE_PASSVERKLARING
         assert "Vereist element herkend" not in reden
         assert "heuristiek" not in reden.lower()
         assert "getal" not in reden.lower()
 
     def test_ess05_houdt_zijn_bestaande_heuristiek(self):
+        # Letterlijk: het schrappen van de ESS-04-tak mag de overgebleven
+        # ESS-05-uitleg niet meeslepen of stil herformuleren.
         renderer = ValidationRenderer()
-        assert "Vereist element herkend" in renderer._build_pass_reason(
-            "ESS-05", "eigenschap die een entiteit onderscheidt", "kenmerk"
+        assert (
+            renderer._build_pass_reason(
+                "ESS-05", "eigenschap die een entiteit onderscheidt", "kenmerk"
+            )
+            == ESS05_PASSVERKLARING
         )
+        assert ESS05_PASSVERKLARING != GENERIEKE_PASSVERKLARING
 
 
 class TestHerstelhint:
