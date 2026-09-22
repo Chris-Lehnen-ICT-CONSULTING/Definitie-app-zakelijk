@@ -1,0 +1,27 @@
+{
+  "commit": "cf650a3980aeef30bff219c3ed6a70489331169d",
+  "note": "Normale pre-commit vernieuwde ZIP-containerbytes; alle paden en uitgepakte inhoud exact gelijk aan gereviewde versie.",
+  "archives": [
+    {
+      "skill": "definitie-juridisch-nederland",
+      "sha256": "0df0d547c2e83242dc6e39d09123cae957d3381ab1a97d16d35d4a85e7e4a700",
+      "files": 6,
+      "equals_reviewed_extracted_bytes": true,
+      "equals_current_source": true
+    },
+    {
+      "skill": "definitie-nederlandse-definities",
+      "sha256": "c19664a5af2a2a252f8fae346b9a3289d92aac4d42068142ef2335be5c2e0c72",
+      "files": 6,
+      "equals_reviewed_extracted_bytes": true,
+      "equals_current_source": true
+    },
+    {
+      "skill": "definitie-toetsregels",
+      "sha256": "c1e9d33fb17bfabf0dd9edc5c4df9a8b5d966aedf27790f18ccf48bd14f5cbc3",
+      "files": 7,
+      "equals_reviewed_extracted_bytes": true,
+      "equals_current_source": true
+    }
+  ]
+}

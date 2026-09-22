@@ -1,0 +1,24 @@
+{
+  "datum": "2026-09-17T10:42:33.562141+00:00",
+  "commit": "d17ea9c30915452914e450be315620e314c03468",
+  "record_id": 3,
+  "scope": "UI-deelproef bij geïmporteerde P01-tekst; oorspronkelijke P01-context/bronpreconditie niet vervuld; geen volledige P01-pass",
+  "bronbewijs": null,
+  "weergave": {
+    "bronbasis": "geen bronnen",
+    "bronprofiel_toepasselijkheid": "Nog te beoordelen",
+    "betekenissteun": "Nog te beoordelen",
+    "verwijskwaliteit": "Nog te beoordelen",
+    "score": "zonder cijfer (uitkomst met motivering)",
+    "AI": "AI-bronbeoordeling niet uitgevoerd: AI-beoordeling nog niet uitgevoerd (geen beoordeling aangeleverd)",
+    "vaststellen": "disabled; Gate: blokkade — voldoet niet aan criteria"
+  },
+  "context_werkelijk": {
+    "organisatorisch": "Algemeen",
+    "juridisch": "",
+    "wettelijk": []
+  },
+  "review_opgeslagen": false,
+  "menselijke_acceptatie": "pending",
+  "bewijsbron": "rechtstreeks waargenomen DOM in browser CUA/Playwright; database read-only bevestigt recordcontext en tekst"
+}
