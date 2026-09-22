@@ -8,9 +8,9 @@ Wat deze tests bewijzen:
 
 - B (T2-5a): de evaluator zet ESS-04 op het bestaande passagemechanisme
   (`_reden_met_passages`) met eigen normkop en een neutrale passagevraag;
-  zonder treffer draagt de reden de toetsvraag, bij twee treffers staan
-  beide passages in tekstvolgorde met elk de vaste slotzin. Status en score
-  veranderen niet; ESS-01/ESS-02 blijven zichzelf.
+  zonder treffer draagt de reden de toetsvraag; bij meerdere treffers staan
+  de passages ontdubbeld in tekstvolgorde, elk met de vaste slotzin. Status
+  en score veranderen niet; ESS-01/ESS-02 blijven zichzelf.
 - C (T2-5b): de gedeelde UI toont de open ESS-04-reden letterlijk (`st.text`),
   met én zonder treffer; een andere oordeelregel blijft achter de toggle.
 - D (T2-5c): de renderer verzint geen heuristische pass-verklaring
@@ -64,12 +64,24 @@ NORMKOP = "ESS-04 — Toetsbaarheid:"
 MET_TREFFER = ("aanvraag", "Belangrijke aanvraag die binnen 3 dagen relevant wordt.")
 #: ESS04-C03: kwalitatief criterium zonder enig patroonsignaal.
 ZONDER_TREFFER = ("veelhoek", "Veelhoek waarvan alle zijden even lang zijn.")
-#: Twee verschillende patronen in één tekst ('binnen 3 dagen' en 'bevat').
-#: Alleen hier doen de sortering, de dedup en de join van
-#: `_reden_met_passages` werkelijk werk; met één treffer is dat pad blind.
+#: Twee verschillende patronen in één tekst, zo gekozen dat alle drie de
+#: mechanismen van `_reden_met_passages` werk doen:
+#: - sortering: 'waarneembare' is patroon 14 in het record en 'aan de hand
+#:   van' patroon 7, maar in de tekst staat 'waarneembare' eerst — zonder
+#:   `sorted` draait de volgorde om;
+#: - dedup: 'waarneembare' komt twee keer voor en hoort één passage op te
+#:   leveren;
+#: - join: twee passages achter elkaar, elk met de vaste slotzin.
+#: Patroonkeuze bewust buiten de kalibratiekandidaten: patroonoptie A laat
+#: `bevat`, `omvat` en `toetsbaar` vervallen en optie B herschrijft de zes
+#: termijn- en percentagepatronen (instructievoorstellen-v5.md r. 86 en 88).
+#: 'waarneembare' en 'aan de hand van' raakt geen van beide opties.
 TWEE_TREFFERS = (
-    "aanvraag",
-    "Aanvraag die binnen 3 dagen wordt afgehandeld en een toelichting bevat.",
+    "meting",
+    (
+        "Meting waarvan de waarneembare uitkomst aan de hand van een "
+        "waarneembare grens wordt vastgesteld."
+    ),
 )
 
 #: D: zonder eigen ESS-04-tak valt `_build_pass_reason` terug op zijn
@@ -149,29 +161,41 @@ class TestEvaluatorPassagehulp:
         assert "objectief" not in uitkomst.reason
 
     def test_twee_signalen_leveren_beide_passages_in_tekstvolgorde(self):
-        """Het meervoudige pad: volgorde, join en slotzin per passage.
+        """Het meervoudige pad: sortering, dedup en join doen alle drie werk.
 
-        Met één treffer doen `sorted`, `dict.fromkeys` en `" ".join` geen
-        werk. Pas bij twee fragmenten is te zien dat de passages op
-        tekstpositie staan — niet alfabetisch, want dan zou 'bevat' vóór
-        'binnen 3 dagen' komen — en dat elk fragment zijn eigen vraag en
-        slotzin krijgt in plaats van één slotzin voor het geheel.
+        Met één treffer zijn `sorted`, `dict.fromkeys` en `" ".join` blind.
+        Deze casus maakt ze elk afzonderlijk waarneembaar:
+
+        - `sorted` — de signalen komen in recordvolgorde binnen ('aan de
+          hand van' is patroon 7, 'waarneembare' patroon 14), maar in de
+          tekst staat 'waarneembare' eerst. Zonder sortering op tekstpositie
+          draait de volgorde in de reden om.
+        - `dict.fromkeys` — 'waarneembare' staat twee keer in de tekst en
+          hoort één passage op te leveren.
+        - `" ".join` — twee passages achter elkaar, elk met de eigen vraag en
+          de vaste slotzin, niet één slotzin voor het geheel.
         """
         uitkomst = _evalueer(ESS04, *TWEE_TREFFERS)
         assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
         assert uitkomst.score is None
         assert uitkomst.violation is None
-        assert len(uitkomst.metadata.get("signals") or ()) == 2
+        # De signalen zelf komen in recordvolgorde; de reden hieronder niet.
+        assert tuple(uitkomst.metadata.get("signals") or ()) == (
+            r"\baan de hand van\b",
+            r"\bwaarneembare\b",
+        )
         reden = uitkomst.reason or ""
         assert reden == (
             f"{NORMKOP} "
-            "Te beoordelen passage: binnen 3 dagen. Nog te beoordelen. Leg vast "
-            "hoe het criterium 'binnen 3 dagen' op een geval wordt toegepast. "
+            "Te beoordelen passage: waarneembare. Nog te beoordelen. Leg vast "
+            "hoe het criterium 'waarneembare' op een geval wordt toegepast. "
             "Dit signaal geeft nog geen inhoudelijk oordeel. "
-            "Te beoordelen passage: bevat. Nog te beoordelen. Leg vast hoe het "
-            "criterium 'bevat' op een geval wordt toegepast. Dit signaal geeft "
-            "nog geen inhoudelijk oordeel."
+            "Te beoordelen passage: aan de hand van. Nog te beoordelen. Leg "
+            "vast hoe het criterium 'aan de hand van' op een geval wordt "
+            "toegepast. Dit signaal geeft nog geen inhoudelijk oordeel."
         )
+        # Dedup: het herhaalde fragment levert één passage, niet twee.
+        assert reden.count("Te beoordelen passage: waarneembare.") == 1
         assert reden.count("Dit signaal geeft nog geen inhoudelijk oordeel.") == 2
         assert "voldoet" not in reden.lower()
         for artefact in REGEX_ARTEFACTEN:

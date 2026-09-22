@@ -227,7 +227,7 @@ class TestEenNormversieAC05:
 
 
 def _fixture_reden(rule_id: str = "ESS-04") -> str:
-    """Het `reden`-veld van de runtime-matrixfixture (r. 308-311 voor ESS-04)."""
+    """Het `reden`-veld van de runtime-matrixfixture (r. 317-321 voor ESS-04)."""
     return str(yaml.safe_load(FIXTURE.read_text(encoding="utf-8"))[rule_id]["reden"])
 
 
@@ -367,6 +367,14 @@ class TestGeenAutomatischOordeel:
 #: percentagecriterium dat géén patroon raakt (`\b` na `%` vereist een
 #: woordteken). Per casus: begrip, tekst, verwachte signalen, verwacht
 #: reden-fragment.
+#:
+#: LET OP bij patroonkalibratie (besluit K1-A, nog open): dit is een
+#: momentopname van de huidige set, geen norm. Patroonoptie B repareert juist
+#: de `\b` na `%` naar `(?![\w%])` en schrijft `dagen?` als `(?:dag|dagen)`
+#: (instructievoorstellen-v5.md r. 88). Dan gaat C05 terecht wél vuren en
+#: verandert de patroonstring van C04 — werk deze tabel dan bij in plaats van
+#: de kalibratie terug te draaien. Patroonoptie A (r. 86) laat `bevat`,
+#: `omvat` en `toetsbaar` vervallen; die staan hier bewust niet in.
 SIGNAALCONTRAST = {
     "ESS04-C04": (
         "aanvraag",
@@ -418,14 +426,14 @@ class TestSignaalcontrastC04C05:
     def test_de_twee_foute_voorbeelden_geven_elk_een_eigen_signaal(self):
         _eis_signaalcontrast(ESS04)
 
-        # Negatieve controle, volledig in het geheugen: een kalibratie die het
-        # percentagepatroon zonder sluitende `\b` toevoegt, laat C05 meevuren
-        # en heft het contrast op. Dan hoort deze eis rood te worden.
+        # Negatieve controle, volledig in het geheugen: een extra patroon dat
+        # ook op C05 matcht heft het contrast op, en dan hoort deze eis rood
+        # te worden. Bewust `\bobject\b` — een term-echo die geen enkele
+        # patroonoptie voorstelt. Een percentagevorm zonder sluitende `\b`
+        # zou hier misstaan: dat is juist de reparatie uit patroonoptie B
+        # (instructievoorstellen-v5.md r. 88), geen regressie.
         ruw = deepcopy(_ruw("ESS-04"))
-        ruw["herkenbaar_patronen"] = [
-            *ruw["herkenbaar_patronen"],
-            r"\bminimaal\s+\d+%",
-        ]
+        ruw["herkenbaar_patronen"] = [*ruw["herkenbaar_patronen"], r"\bobject\b"]
         gekalibreerd = build_rule_record("ESS-04", ruw)
         with pytest.raises(AssertionError):
             _eis_signaalcontrast(gekalibreerd)
