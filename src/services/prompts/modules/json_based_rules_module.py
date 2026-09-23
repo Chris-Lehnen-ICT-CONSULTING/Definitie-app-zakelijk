@@ -360,7 +360,26 @@ class JSONBasedRulesModule(BasePromptModule):
                 "en synthetische voorbeelden afzonderlijk; ze vervangen geen "
                 "ontbrekende kernafgrenzing."
             ),
-            "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
+            # DEF-821: exacte G2-tekst (DEF-767 instructievoorstellen-v5). De
+            # "aparte verduidelijkingsuitkomst" is het strikt parseerbare
+            # contract voor ontbrekende betekenisgrond in DefinitionTaskModule
+            # (G2-2); geen cijferplicht meer.
+            "ESS-04": (
+                "Beschrijf begripsbepalende kenmerken die in de bedoelde context "
+                "navolgbaar op gevallen kunnen worden toegepast. Kwalitatieve "
+                "criteria zijn toegestaan; voeg geen getal, percentage, termijn of "
+                "registratienummer toe om toetsbaarheid te suggereren. Neem een "
+                "kwantitatieve grens alleen over als de aangeleverde betekenisgrond "
+                "haar ondersteunt en behoud relevante noemer, populatie, inclusie, "
+                "startmoment en tijdsbasis, waaronder werk- of kalenderdagen wanneer "
+                "dat onderscheidend is. Laat bepalende beperkingen in de "
+                "definitiekern staan; methode, bewijsplaatsen en registratiecontext "
+                "blijven apart. Bij ontbrekende of strijdige noodzakelijke grond: "
+                "lever geen definitieve afbakening en verzin geen gegeven. Benoem "
+                "de ontbrekende grond uitsluitend in een daarvoor bestemde aparte "
+                "toelichting of verduidelijkingsuitkomst; voeg geen foutmelding, "
+                "vraag of onzekere placeholder aan de definitiezin toe."
+            ),
             "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
             # STR rules (Structuur)
             "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",

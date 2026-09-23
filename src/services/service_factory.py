@@ -526,6 +526,12 @@ class ServiceAdapter:
                 failure["betekenisconflict"] = conflict
                 failure["definitie_origineel"] = ""
                 failure["definitie_gecorrigeerd"] = ""
+            # DEF-821: idem voor een gemelde ontbrekende betekenisgrond.
+            grond = self._ontbrekende_grond_uit(response)
+            if grond is not None:
+                failure["betekenisgrond_ontbreekt"] = grond
+                failure["definitie_origineel"] = ""
+                failure["definitie_gecorrigeerd"] = ""
             return failure
 
         # Extract definition text
@@ -741,6 +747,25 @@ class ServiceAdapter:
         if not conflict.get("vraag") or not isinstance(conflict.get("lezingen"), list):
             return None
         return dict(conflict)
+
+    @staticmethod
+    def _ontbrekende_grond_uit(response: Any) -> dict[str, Any] | None:
+        """De melding van ontbrekende betekenisgrond (DEF-821), of None.
+
+        Vereist `error_type == "betekenisgrond_ontbreekt"` én een dict met
+        niet-lege `ontbrekende_grond` en `vraag`; anders None.
+        """
+        metadata = getattr(response, "metadata", None)
+        if not isinstance(metadata, dict):
+            return None
+        if metadata.get("error_type") != "betekenisgrond_ontbreekt":
+            return None
+        melding = metadata.get("betekenisgrond_ontbreekt")
+        if not isinstance(melding, dict):
+            return None
+        if not melding.get("ontbrekende_grond") or not melding.get("vraag"):
+            return None
+        return dict(melding)
 
     def _create_failure_response(self, response: Any) -> "UIResponseDict":
         """Create a standardized failure response.

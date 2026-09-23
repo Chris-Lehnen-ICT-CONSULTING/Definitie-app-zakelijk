@@ -197,10 +197,15 @@ async def test_echte_samengestelde_prompt_volgt_de_ess03_norm(category):
         assert oud not in prompt, oud
     for strijdig in STRIJDIG_MET_UITVOERCONTRACT:
         assert strijdig not in prompt, strijdig
-    # De ESS-02-conflictmelding blijft de enige uitzondering op de uitvoer en
-    # is niet stil naar ESS-03 verbreed.
-    assert prompt.count("enige uitzondering op de definitie-uitvoer") == 1
-    assert "Betekenisconflict (ESS-02)" in prompt
+    # De ESS-02-conflictmelding is niet stil naar ESS-03 verbreed. DEF-821
+    # voegt precies één tweede uitzondering toe (ESS-04, ontbrekende
+    # betekenisgrond); die sluit een onbesliste ESS-03-eenheidsgrens
+    # uitdrukkelijk uit, zodat ESS-03 bij de voorlopige kandidaat blijft.
+    assert "enige uitzondering" not in prompt
+    assert prompt.count("uitzondering op de definitie-uitvoer") == 2
+    assert "Betekenisconflict (ESS-02), eerste uitzondering" in prompt
+    assert "Ontbrekende betekenisgrond (ESS-04), tweede uitzondering" in prompt
+    assert "een onbesliste eenheidsgrens (ESS-03)" in prompt
     # De aangrenzende besluiten blijven staan (ESS-01/ESS-02/CON-02).
     assert "behoefte of eis van een belanghebbende" in prompt
     assert "geen verplicht woordenlijstje" in prompt

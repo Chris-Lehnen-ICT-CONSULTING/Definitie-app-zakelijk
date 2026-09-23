@@ -28,10 +28,12 @@ from ui.helpers.betekenisconflict import (
     KEY_AFWIJZING,
     KEY_OPEN,
     KEY_VERZONDEN,
+    SOORT_ONTBREKENDE_GROND,
+    bereid_verduidelijking_voor,
     invoer_vingerafdruk,
     open_conflict_uit,
     rag_selectie_voor_vingerafdruk,
-    verzonden_verduidelijking_voor,
+    sluit_keten_af,
 )
 from ui.helpers.categorie_weergave import generatiecategorie_van
 from ui.session_state import SessionStateManager as _DefaultSM
@@ -386,12 +388,24 @@ class DefinitionGenerationHandler:
                 # Kopie van het verzonden antwoord: wordt teruggezet als de
                 # generatie het antwoord zelf weigert (reviewcorrectie 1).
                 verzonden_kopie = SessionStateManager.get_value(KEY_VERZONDEN)
-                verduidelijking, afwijsreden = verzonden_verduidelijking_voor(
+                # DEF-821 correctieronde 1: het nieuwe antwoord gaat mee met
+                # alle eerder toegepaste antwoorden van dezelfde invoerketen
+                # (elk met de vraag van het model); bij invoerwijziging
+                # vervalt de keten als geheel.
+                voorbereid = bereid_verduidelijking_voor(
                     SessionStateManager, vingerafdruk
                 )
-                if afwijsreden:
-                    st.info(f"ℹ️ {afwijsreden}")
-                    logger.info("Betekenisverduidelijking vervallen: %s", afwijsreden)
+                for melding in voorbereid.meldingen:
+                    st.info(f"ℹ️ {melding}")
+                    logger.info("Betekenisverduidelijking vervallen: %s", melding)
+                if voorbereid.weigering:
+                    if isinstance(verzonden_kopie, dict):
+                        SessionStateManager.set_value(KEY_VERZONDEN, verzonden_kopie)
+                    SessionStateManager.set_value(KEY_AFWIJZING, voorbereid.weigering)
+                    st.error(f"❌ Generatie niet uitgevoerd: {voorbereid.weigering}")
+                    logger.warning("Verduidelijkingsketen boven het maximum")
+                    return
+                verduidelijking = voorbereid.tekst
 
                 _response = run_async(
                     self.definition_service.generate_definition(
@@ -492,6 +506,12 @@ class DefinitionGenerationHandler:
                 # eerdere afwijzing.
                 open_conflict = open_conflict_uit(service_result, vingerafdruk)
                 SessionStateManager.clear_value(KEY_AFWIJZING)
+                sluit_keten_af(
+                    SessionStateManager,
+                    vingerafdruk,
+                    voorbereid.antwoorden,
+                    nieuw_verzoek=open_conflict is not None,
+                )
                 if open_conflict is not None:
                     SessionStateManager.set_value(KEY_OPEN, open_conflict)
                 else:
@@ -661,7 +681,18 @@ class DefinitionGenerationHandler:
                 geslaagd = isinstance(service_result, dict) and bool(
                     service_result.get("success")
                 )
-                if open_conflict is not None:
+                if (
+                    open_conflict is not None
+                    and open_conflict.get("soort") == SOORT_ONTBREKENDE_GROND
+                ):
+                    # DEF-821: eigen melding, geen betekenisconflict.
+                    st.warning(
+                        "⚠️ Verduidelijking nodig: het model meldt dat "
+                        "noodzakelijke betekenisgrond ontbreekt en heeft geen "
+                        "definitie geleverd. Beantwoord de vraag in de "
+                        "'Definitie Generatie' tab en genereer daarna opnieuw."
+                    )
+                elif open_conflict is not None:
                     st.warning(
                         "⚠️ Verduidelijking nodig: het model meldt een "
                         "betekenisconflict en heeft geen definitie geleverd. "

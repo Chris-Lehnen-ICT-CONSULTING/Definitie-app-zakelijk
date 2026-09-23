@@ -176,6 +176,12 @@ class DefinitionGeneratorTab:
         ):
             self._render_betekenisconflict(agent_result)
             return
+        # DEF-821: idem voor een gemelde ontbrekende betekenisgrond (ESS-04).
+        if isinstance(agent_result, dict) and isinstance(
+            agent_result.get("betekenisgrond_ontbreekt"), dict
+        ):
+            self._render_ontbrekende_grond(agent_result)
+            return
 
         # Show success/warning indicator
         self._render_generation_status(agent_result)
@@ -654,13 +660,7 @@ class DefinitionGeneratorTab:
         hoofdknop; de handler past het antwoord alleen bij ongewijzigde invoer
         toe. Het widget-veld wordt door de code nooit gezet of gewist.
         """
-        from ui.helpers.betekenisconflict import (
-            KEY_AFWIJZING,
-            KEY_INVOER,
-            KEY_OPEN,
-            KEY_VERZONDEN,
-            verzend_verduidelijking,
-        )
+        from ui.helpers.betekenisconflict import SOORT_CONFLICT
 
         conflict = agent_result["betekenisconflict"]
         st.warning(
@@ -679,9 +679,79 @@ class DefinitionGeneratorTab:
                     f"{nr}. **{lezing.get('lezing', '')}** — "
                     f"{lezing.get('grond', '')} _(verwijzing: {lezing.get('bron', '')})_"
                 )
+        self._render_verduidelijkingsantwoord(conflict, SOORT_CONFLICT)
 
+    def _render_ontbrekende_grond(self, agent_result: dict[str, Any]) -> None:
+        """DEF-821: toon de gemelde ontbrekende betekenisgrond en vraag een antwoord.
+
+        Apart van definitie en technische fout: een melding van het model,
+        geen vastgesteld feit en geen ESS-04-oordeel. Modelvelden verschijnen
+        uitsluitend als platte tekst (`st.text`), zodat HTML of Markdown uit
+        de modeluitvoer nooit wordt geïnterpreteerd. Het antwoord loopt via
+        hetzelfde gebonden mechanisme als bij een betekenisconflict.
+        """
+        from ui.helpers.betekenisconflict import SOORT_ONTBREKENDE_GROND
+
+        melding = agent_result["betekenisgrond_ontbreekt"]
+        st.warning(
+            "⚠️ Verduidelijking nodig — het model meldt dat noodzakelijke "
+            "betekenisgrond ontbreekt en heeft geen definitie geleverd. Dit is "
+            "een melding van het model, geen vastgesteld feit en geen "
+            "ESS-04-oordeel."
+        )
+        st.caption("Ontbrekende betekenisgrond volgens het model:")
+        st.text(str(melding.get("ontbrekende_grond") or ""))
+        st.caption("Vraag van het model:")
+        st.text(str(melding.get("vraag") or ""))
+        self._render_verduidelijkingsantwoord(melding, SOORT_ONTBREKENDE_GROND)
+
+    def _render_verduidelijkingsketen(self, open_verzoek: dict[str, Any]) -> None:
+        """DEF-821 correctieronde 1: toon de eerder toegepaste antwoorden van
+        deze invoerketen die bij hergeneratie opnieuw worden meegestuurd.
+
+        Vraag (model) en antwoord (gebruiker) uitsluitend als platte tekst.
+        """
+        from ui.helpers.betekenisconflict import KEY_KETEN, MAX_KETEN_ANTWOORDEN
+
+        keten = SessionStateManager.get_value(KEY_KETEN)
+        if not isinstance(keten, dict) or keten.get("vingerafdruk") != (
+            open_verzoek.get("vingerafdruk")
+        ):
+            return
+        antwoorden = [a for a in keten.get("antwoorden") or [] if isinstance(a, dict)]
+        if not antwoorden:
+            return
+        st.caption(
+            "Eerder gegeven verduidelijkingen die bij hergeneratie opnieuw "
+            "worden meegestuurd, met de vraag van het model (maximaal "
+            f"{MAX_KETEN_ANTWOORDEN}; vervallen bij gewijzigde invoer):"
+        )
+        for nr, paar in enumerate(antwoorden, start=1):
+            st.text(
+                f"({nr}) Vraag van het model: {paar.get('vraag', '')}\n"
+                f"    Jouw antwoord: {paar.get('antwoord', '')}"
+            )
+
+    def _render_verduidelijkingsantwoord(
+        self, melding: dict[str, Any], soort: str
+    ) -> None:
+        """Antwoordveld + expliciete verzendknop, gebonden aan het open verzoek.
+
+        Gedeeld door betekenisconflict (DEF-751) en ontbrekende betekenisgrond
+        (DEF-821); alleen de uitlegteksten verschillen per soort.
+        """
+        from ui.helpers.betekenisconflict import (
+            KEY_AFWIJZING,
+            KEY_INVOER,
+            KEY_OPEN,
+            KEY_VERZONDEN,
+            SOORT_ONTBREKENDE_GROND,
+            verzend_verduidelijking,
+        )
+
+        grond = soort == SOORT_ONTBREKENDE_GROND
         open_conflict = SessionStateManager.get_value(KEY_OPEN)
-        getoond_id = str(conflict.get("generation_id") or "")
+        getoond_id = str(melding.get("generation_id") or "")
         hoort_bij_open = (
             isinstance(open_conflict, dict)
             and getoond_id
@@ -690,10 +760,13 @@ class DefinitionGeneratorTab:
         if not hoort_bij_open:
             st.info(
                 "Deze vraag hoort bij een eerdere generatie. Genereer opnieuw; "
-                "meldt het model het conflict opnieuw, dan kun je hier antwoorden."
+                "meldt het model het "
+                + ("tekort aan betekenisgrond" if grond else "conflict")
+                + " opnieuw, dan kun je hier antwoorden."
             )
             return
 
+        self._render_verduidelijkingsketen(open_conflict)
         verzonden = SessionStateManager.get_value(KEY_VERZONDEN)
         afwijzing = SessionStateManager.get_value(KEY_AFWIJZING)
         if isinstance(verzonden, dict) and verzonden.get("generation_id") == getoond_id:
@@ -705,25 +778,45 @@ class DefinitionGeneratorTab:
                     f"❌ Je verzonden verduidelijking is geweigerd: {afwijzing} "
                     "Pas het antwoord hieronder aan en verzend het opnieuw."
                 )
+            elif grond:
+                st.info(
+                    "Verzonden verduidelijking (klaar voor hergeneratie met de "
+                    "hoofdknop 'Genereer Definitie'):"
+                )
+                st.text(str(verzonden.get("tekst") or ""))
             else:
                 st.info(
                     "Verzonden verduidelijking (klaar voor hergeneratie met de "
                     f"hoofdknop 'Genereer Definitie'): {verzonden.get('tekst', '')}"
                 )
 
+        if grond:
+            uitleg = (
+                "Je antwoord vult de ontbrekende betekenisgrond aan als jouw "
+                "bedoeling — geen bronfeit en geen ESS-04-oordeel."
+            )
+            hulp = (
+                "Geef het ontbrekende gegeven (bijv. noemer, grens of "
+                "dagconventie). Leeg is geen antwoord; verzenden is expliciet."
+            )
+        else:
+            uitleg = (
+                "Je antwoord is jouw keuze van de bedoelde betekenislaag — geen "
+                "bewijs over wat de bronnen zeggen."
+            )
+            hulp = (
+                "Beschrijf welke lezing bedoeld is. Leeg is geen antwoord; "
+                "verzenden is expliciet."
+            )
         st.caption(
             f"Vraag gesteld voor begrip '{open_conflict.get('begrip', '')}' met de "
-            "toen ingevulde context, categorie en bronselectie. Je antwoord is "
-            "jouw keuze van de bedoelde betekenislaag — geen bewijs over wat de "
-            "bronnen zeggen. Wijzig je de invoer, dan vervalt het antwoord."
+            f"toen ingevulde context, categorie en bronselectie. {uitleg} "
+            "Wijzig je de invoer, dan vervalt het antwoord."
         )
         st.text_area(
             "Jouw verduidelijking van de bedoelde betekenis",
             key=KEY_INVOER,
-            help=(
-                "Beschrijf welke lezing bedoeld is. Leeg is geen antwoord; "
-                "verzenden is expliciet."
-            ),
+            help=hulp,
         )
         if st.button(
             "📨 Verduidelijking vastleggen", key="btn_betekenisverduidelijking"

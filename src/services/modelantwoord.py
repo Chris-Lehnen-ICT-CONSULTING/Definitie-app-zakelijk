@@ -28,6 +28,25 @@ Wat hier wél en niet gebeurt:
 * Een gemeld conflict is een melding van het model, geen vastgesteld feit en
   geen ESS-02-oordeel; de verwerking daarvan (niet opslaan, niet valideren,
   verduidelijking vragen) ligt in de orchestrator en de UI.
+
+DEF-821 (ESS-04 G2-2) voegt een tweede, even strikte uitzondering toe: kan
+het model een begripsbepalend criterium niet formuleren zonder een gegeven
+te verzinnen, omdat de noodzakelijke betekenisgrond ontbreekt of strijdig
+is, dan levert het géén definitie maar::
+
+    BETEKENISGROND ONTBREEKT: {"ontbrekende_grond": "...", "vraag": "..."}
+
+Geen lezingen en geen bronverwijzingen: de melding benoemt juist wat níét is
+aangeleverd, dus er valt geen grond te verifiëren en er hoeft geen conflict
+te worden verzonnen. Beide sentinels in één antwoord is ``gemengde_melding``
+(ongeldig); verder gelden dezelfde structuurregels.
+
+Correctieronde 1 (Codex-review): een beschadigde gereserveerde kop aan het
+begin van een regel (zonder of met losse dubbele punt, underscore, opmaak)
+is ``sentinel_beschadigd`` en een meldingspayload zonder kop (de
+gereserveerde sleutels ``"ontbrekende_grond"``/``"lezingen"``) is
+``payload_zonder_sentinel`` — beide ongeldig, nooit een kandidaat. Dezelfde
+woorden midden in een definitiezin blijven gewoon een definitie.
 """
 
 from __future__ import annotations
@@ -41,12 +60,15 @@ from typing import Any
 __all__ = [
     "CONFLICT_SENTINEL",
     "FOUTCODES",
+    "ONTBREKENDE_GROND_SENTINEL",
     "SOORT_CONFLICT",
     "SOORT_DEFINITIE",
     "SOORT_ONGELDIG",
+    "SOORT_ONTBREKENDE_GROND",
     "Conflictmelding",
     "Lezing",
     "Modelantwoord",
+    "OntbrekendeGrondmelding",
     "bron_nrs_uit_kwitantie",
     "contextwaarden_uit",
     "lees_modelantwoord",
@@ -55,18 +77,33 @@ __all__ = [
 
 #: De vaste eerste regel van een conflictmelding (kastongevoelig gelezen).
 CONFLICT_SENTINEL = "VERDUIDELIJKING NODIG:"
+#: DEF-821: de vaste eerste regel van een melding van ontbrekende betekenisgrond.
+ONTBREKENDE_GROND_SENTINEL = "BETEKENISGROND ONTBREEKT:"
 
 SOORT_DEFINITIE = "definitie"
 SOORT_CONFLICT = "conflict"
+SOORT_ONTBREKENDE_GROND = "ontbrekende_grond"
 SOORT_ONGELDIG = "ongeldig"
 
 _VERPLICHTE_MELDINGSSLEUTELS = frozenset({"vraag", "lezingen"})
+_VERPLICHTE_GRONDSLEUTELS = frozenset({"ontbrekende_grond", "vraag"})
 _VERPLICHTE_LEZINGSSLEUTELS = frozenset({"lezing", "bron", "grond"})
 _MIN_LEZINGEN = 2
 
 _BRON_NR = re.compile(r"^bron\s+(\d+)$", re.IGNORECASE)
 _CONTEXTWAARDE = re.compile(r"^context\s*:\s*(.+)$", re.IGNORECASE)
 _MARKDOWN_FENCE = re.compile(r"^```[a-zA-Z0-9_-]*\s*\n(.*?)\n?```\s*$", re.DOTALL)
+#: DEF-821 correctieronde 1: een gereserveerde meldingskop die aan het begin
+#: van een regel staat maar niet exact is (geen of losse dubbele punt,
+#: underscore, opmaak eromheen). Structureel, geen semantische detector:
+#: alleen de twee kopwoordparen, aan het regelbegin, als geheel woord.
+_BESCHADIGDE_KOP = re.compile(
+    r"^(?:<[^>\n]*>|[\s\-*•#>`_])*"
+    r"(?:betekenisgrond[\s_-]+ontbreekt|verduidelijking[\s_-]+nodig)(?!\w)",
+    re.IGNORECASE | re.MULTILINE,
+)
+#: Een meldingspayload zonder kop: de gereserveerde contractsleutels.
+_GERESERVEERDE_SLEUTEL = re.compile(r'"(?:ontbrekende_grond|lezingen)"\s*:')
 
 
 @dataclass(frozen=True)
@@ -95,23 +132,42 @@ class Conflictmelding:
         }
 
 
+@dataclass(frozen=True)
+class OntbrekendeGrondmelding:
+    """DEF-821: welke noodzakelijke betekenisgrond ontbreekt + één gerichte vraag."""
+
+    ontbrekende_grond: str
+    vraag: str
+
+    def to_dict(self) -> dict[str, str]:
+        return {"ontbrekende_grond": self.ontbrekende_grond, "vraag": self.vraag}
+
+
 #: Vaste foutcodes → vaste technische omschrijvingen (reviewcorrectie 3).
 #: Een reden is altijd exact een van deze teksten: nooit een sleutelnaam,
 #: bronwaarde of ander fragment uit de modelpayload, zodat een afgewezen
 #: melding geen modelinhoud verspreidt via response, log of UI. Veldnamen
 #: die hieronder staan zijn ons eigen contractvocabulaire.
 FOUTCODES: dict[str, str] = {
-    "dubbele_melding": "dubbele conflictmelding in één antwoord",
-    "sentinel_niet_eerst": (
-        "conflictmelding staat niet op de eerste regel (vermengd met andere tekst)"
+    "dubbele_melding": "dubbele melding in één antwoord",
+    "gemengde_melding": (
+        "conflictmelding en melding van ontbrekende betekenisgrond in één antwoord"
     ),
-    "payload_ontbreekt": "conflictmelding zonder JSON-payload",
-    "payload_geen_json": "conflictpayload is geen geldige JSON",
-    "tekst_na_payload": "tekst na de conflictpayload (vermengd antwoord)",
-    "payload_geen_object": "conflictpayload is geen JSON-object",
+    "grond_ontbreekt": "veld 'ontbrekende_grond' ontbreekt of is leeg",
+    "sentinel_beschadigd": (
+        "gereserveerde meldingskop niet exact (bijv. zonder dubbele punt)"
+    ),
+    "payload_zonder_sentinel": "meldingspayload zonder gereserveerde meldingskop",
+    "sentinel_niet_eerst": (
+        "melding staat niet op de eerste regel (vermengd met andere tekst)"
+    ),
+    "payload_ontbreekt": "melding zonder JSON-payload",
+    "payload_geen_json": "meldingspayload is geen geldige JSON",
+    "tekst_na_payload": "tekst na de meldingspayload (vermengd antwoord)",
+    "payload_geen_object": "meldingspayload is geen JSON-object",
     "vraag_ontbreekt": "veld 'vraag' ontbreekt of is leeg",
     "lezingen_ontbreken": "veld 'lezingen' ontbreekt",
-    "onbekende_sleutel": "conflictpayload bevat een onbekende sleutel",
+    "onbekende_sleutel": "meldingspayload bevat een onbekende sleutel",
     "lezingen_geen_lijst": "veld 'lezingen' is geen lijst",
     "te_weinig_lezingen": "minstens twee lezingen vereist",
     "lezing_geen_object": "een lezing is geen JSON-object",
@@ -133,9 +189,10 @@ class Modelantwoord:
 
     `tekst` is altijd het ongewijzigde ruwe antwoord (identiteit), zodat het
     definitiepad byte-identiek blijft. `conflict` is alleen gevuld bij
-    `SOORT_CONFLICT`; `code` en `reden` alleen bij `SOORT_ONGELDIG` — een
-    vaste foutcode uit `FOUTCODES` met haar vaste omschrijving, zonder
-    modeltekst (geschikt voor logs, response en UI).
+    `SOORT_CONFLICT`, `ontbrekende_grond` alleen bij `SOORT_ONTBREKENDE_GROND`;
+    `code` en `reden` alleen bij `SOORT_ONGELDIG` — een vaste foutcode uit
+    `FOUTCODES` met haar vaste omschrijving, zonder modeltekst (geschikt voor
+    logs, response en UI).
     """
 
     soort: str
@@ -143,6 +200,7 @@ class Modelantwoord:
     conflict: Conflictmelding | None = None
     code: str | None = None
     reden: str | None = None
+    ontbrekende_grond: OntbrekendeGrondmelding | None = None
 
 
 def _ongeldig(raw: str, code: str) -> Modelantwoord:
@@ -151,10 +209,10 @@ def _ongeldig(raw: str, code: str) -> Modelantwoord:
     )
 
 
-def _payload_na_sentinel(raw: str) -> str:
+def _payload_na_sentinel(raw: str, sentinel: str) -> str:
     """De tekst ná de (enige) sentinel, zonder eventuele markdown-fence."""
-    index = raw.lower().index(CONFLICT_SENTINEL.lower())
-    payload = raw[index + len(CONFLICT_SENTINEL) :].strip()
+    index = raw.lower().index(sentinel.lower())
+    payload = raw[index + len(sentinel) :].strip()
     fence = _MARKDOWN_FENCE.match(payload)
     if fence:
         payload = fence.group(1).strip()
@@ -189,25 +247,38 @@ def _lees_lezing(item: Any) -> Lezing | str:
 
 
 def lees_modelantwoord(raw: str) -> Modelantwoord:
-    """Lees het ruwe modelantwoord structureel: definitie, conflict of ongeldig.
+    """Lees het ruwe modelantwoord structureel.
 
-    Zonder sentinel is het antwoord een definitie (tekst ongewijzigd). Met
-    sentinel moet die op de eerste niet-lege regel staan en gevolgd worden
-    door precies één JSON-object; elke afwijking is veilig ongeldig.
+    Uitkomst: definitie, conflict, ontbrekende grond of ongeldig. Zonder
+    sentinel is het antwoord een definitie (tekst ongewijzigd). Met precies
+    één sentinel moet die op de eerste niet-lege regel staan en gevolgd
+    worden door precies één JSON-object; elke afwijking — ook beide soorten
+    melding in één antwoord — is veilig ongeldig.
     """
     tekst = raw if isinstance(raw, str) else str(raw)
-    aantal = tekst.lower().count(CONFLICT_SENTINEL.lower())
-    if aantal == 0:
+    laag = tekst.lower()
+    aantal_conflict = laag.count(CONFLICT_SENTINEL.lower())
+    aantal_grond = laag.count(ONTBREKENDE_GROND_SENTINEL.lower())
+    if aantal_conflict == 0 and aantal_grond == 0:
+        # Correctieronde 1: een beschadigde kop of kale payload is een
+        # misvormde melding, nooit een kandidaat.
+        if _BESCHADIGDE_KOP.search(tekst):
+            return _ongeldig(raw, "sentinel_beschadigd")
+        if _GERESERVEERDE_SLEUTEL.search(tekst):
+            return _ongeldig(raw, "payload_zonder_sentinel")
         return Modelantwoord(soort=SOORT_DEFINITIE, tekst=raw)
-    if aantal > 1:
+    if aantal_conflict and aantal_grond:
+        return _ongeldig(raw, "gemengde_melding")
+    if aantal_conflict > 1 or aantal_grond > 1:
         return _ongeldig(raw, "dubbele_melding")
+    sentinel = CONFLICT_SENTINEL if aantal_conflict else ONTBREKENDE_GROND_SENTINEL
 
     regels = [r for r in tekst.splitlines() if r.strip()]
     eerste = regels[0].strip().lstrip("-*• ").strip() if regels else ""
-    if not eerste.lower().startswith(CONFLICT_SENTINEL.lower()):
+    if not eerste.lower().startswith(sentinel.lower()):
         return _ongeldig(raw, "sentinel_niet_eerst")
 
-    payload = _payload_na_sentinel(tekst)
+    payload = _payload_na_sentinel(tekst, sentinel)
     if not payload:
         return _ongeldig(raw, "payload_ontbreekt")
     try:
@@ -219,6 +290,30 @@ def lees_modelantwoord(raw: str) -> Modelantwoord:
     if not isinstance(obj, dict):
         return _ongeldig(raw, "payload_geen_object")
 
+    if sentinel == ONTBREKENDE_GROND_SENTINEL:
+        return _lees_grondpayload(raw, obj)
+    return _lees_conflictpayload(raw, obj)
+
+
+def _lees_grondpayload(raw: str, obj: dict[str, Any]) -> Modelantwoord:
+    """DEF-821: precies `ontbrekende_grond` en `vraag`, beide niet-lege tekst."""
+    if set(obj) - _VERPLICHTE_GRONDSLEUTELS:
+        return _ongeldig(raw, "onbekende_sleutel")
+    grond = _niet_lege_tekst(obj.get("ontbrekende_grond"))
+    if grond is None:
+        return _ongeldig(raw, "grond_ontbreekt")
+    vraag = _niet_lege_tekst(obj.get("vraag"))
+    if vraag is None:
+        return _ongeldig(raw, "vraag_ontbreekt")
+    return Modelantwoord(
+        soort=SOORT_ONTBREKENDE_GROND,
+        tekst=raw,
+        ontbrekende_grond=OntbrekendeGrondmelding(ontbrekende_grond=grond, vraag=vraag),
+    )
+
+
+def _lees_conflictpayload(raw: str, obj: dict[str, Any]) -> Modelantwoord:
+    """DEF-751: `vraag` plus minstens twee verschillende lezingen met grond."""
     sleutels = set(obj)
     if sleutels - _VERPLICHTE_MELDINGSSLEUTELS:
         return _ongeldig(raw, "onbekende_sleutel")

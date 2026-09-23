@@ -36,7 +36,11 @@ _MAX_CONTEXT_BLOK_LEN = 20_000
 #: DEF-751 stap 2: het kopje waaronder het gebruikersantwoord op een gemeld
 #: betekenisconflict in het `context`-datablok staat. Eén constante, zodat de
 #: instructie in `DefinitionTaskModule` en de data hier naar hetzelfde wijzen.
-VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenislaag door de gebruiker"
+#: DEF-821: ook het antwoord op een melding van ontbrekende betekenisgrond
+#: reist via deze regel; het kopje is daarom neutraal ("betekenis", niet
+#: alleen "betekenislaag"). Welke rol het antwoord heeft, staat per contract
+#: in de instructies.
+VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenis door de gebruiker"
 
 #: Antwoordbudget voor de verduidelijking, gemeten ná escaping
 #: (reviewcorrectie 1/2). Een antwoord dat hier niet in past wordt vóór de

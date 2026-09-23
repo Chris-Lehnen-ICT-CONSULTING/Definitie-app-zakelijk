@@ -42,6 +42,7 @@ from ui.helpers.betekenisconflict import (
     KEY_OPEN,
     KEY_VERZONDEN,
     RAG_STANDAARDCOLLECTIE,
+    verduidelijking_uit_keten,
     verzend_verduidelijking,
 )
 
@@ -54,9 +55,13 @@ CONTEXT = {
 }
 DEFINITIE = "Een registratie is de handeling waarbij meetwaarden in een register worden vastgelegd"
 VERDUIDELIJKING = "Bedoeld is de handeling van het vastleggen"
+VRAAG = "Is de handeling of het vastgelegde gegeven bedoeld?"
+#: DEF-821 correctieronde 1: wat de handler werkelijk meestuurt — het
+#: antwoord met de vraag van het model als context.
+TOEGEPAST = verduidelijking_uit_keten([{"vraag": VRAAG, "antwoord": VERDUIDELIJKING}])
 MELDING = f"{CONFLICT_SENTINEL} " + json.dumps(
     {
-        "vraag": "Is de handeling of het vastgelegde gegeven bedoeld?",
+        "vraag": VRAAG,
         "lezingen": [
             {
                 "lezing": "de handeling",
@@ -90,9 +95,7 @@ class FakeModel:
         # De instructie noemt het kopje zelf; alleen de DATA-regel (kopje +
         # dubbele punt + antwoord) telt als aanwezige verduidelijking.
         tekst = (
-            DEFINITIE
-            if f"{VERDUIDELIJKING_KOP}: {VERDUIDELIJKING}" in prompt
-            else MELDING
+            DEFINITIE if f"{VERDUIDELIJKING_KOP}: {TOEGEPAST}" in prompt else MELDING
         )
         return AIGenerationResult(
             text=tekst, model="fake", tokens_used=1, generation_time=0.0
@@ -213,7 +216,7 @@ def test_conflict_dan_verduidelijking_dan_opslag_en_readback(tmp_path, monkeypat
     record = DefinitieRepository(db_path).get_definitie(did)
     assert record.definitie == DEFINITIE
     registratie = record.get_generatieregistratie()
-    assert registratie["betekenisverduidelijking"] == VERDUIDELIJKING
+    assert registratie["betekenisverduidelijking"] == TOEGEPAST
     assert VERDUIDELIJKING in registratie["prompt"]
     assert record.categorie == "proces"
     assert record.get_category_choice()["origin"] == "model"

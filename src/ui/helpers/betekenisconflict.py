@@ -21,6 +21,16 @@ nieuwe opslag: alles is sessiestaat.
 
 Een verduidelijking is gebruikersbedoeling — een keuze van de bedoelde
 betekenislaag — geen bewezen bronfeit en geen ESS-02-oordeel.
+
+DEF-821: een door het model gemelde ontbrekende betekenisgrond (ESS-04) is
+een tweede soort open verzoek (`soort`), met `ontbrekende_grond` en `vraag`
+in plaats van lezingen. Het antwoord — de door de gebruiker aangevulde grond
+— loopt via precies hetzelfde gebonden en eenmalige mechanisme.
+
+DEF-821 correctieronde 1: `KEY_KETEN` bewaart de reeds toegepaste antwoorden
+van één invoergebonden verduidelijkingsketen (met de vraag van het model),
+zodat een vervolgvraag eerdere antwoorden niet laat verdwijnen. Zie
+`bereid_verduidelijking_voor` en `sluit_keten_af`.
 """
 
 from __future__ import annotations
@@ -28,19 +38,28 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable
+from dataclasses import dataclass
 from typing import Any
 
 __all__ = [
     "HERSTELBARE_VERDUIDELIJKINGSFOUTEN",
     "KEY_AFWIJZING",
     "KEY_INVOER",
+    "KEY_KETEN",
     "KEY_OPEN",
     "KEY_RAG_NAMEN",
     "KEY_VERZONDEN",
+    "MAX_KETEN_ANTWOORDEN",
     "RAG_STANDAARDCOLLECTIE",
+    "SOORT_CONFLICT",
+    "SOORT_ONTBREKENDE_GROND",
+    "Ketenvoorbereiding",
+    "bereid_verduidelijking_voor",
     "invoer_vingerafdruk",
     "open_conflict_uit",
     "rag_selectie_voor_vingerafdruk",
+    "sluit_keten_af",
+    "verduidelijking_uit_keten",
     "verzend_verduidelijking",
     "verzonden_verduidelijking_voor",
 ]
@@ -71,6 +90,36 @@ KEY_AFWIJZING = "betekenisverduidelijking_afwijzing"
 HERSTELBARE_VERDUIDELIJKINGSFOUTEN = frozenset(
     {"verduidelijking_te_lang", "verduidelijking_niet_in_prompt", "prompt_te_lang"}
 )
+
+#: DEF-821: soort open verzoek — gelijk aan de sleutel in het UI-resultaat.
+SOORT_CONFLICT = "betekenisconflict"
+SOORT_ONTBREKENDE_GROND = "betekenisgrond_ontbreekt"
+
+#: DEF-821 correctieronde 1: de invoergebonden keten van reeds toegepaste
+#: antwoorden: {"vingerafdruk": ..., "antwoorden": [{"vraag", "antwoord"}]}.
+#: Zolang de invoer gelijk blijft en het model om verduidelijking blijft
+#: vragen, gaan alle antwoorden (met de vraag van het model als context)
+#: opnieuw mee; een definitie, een andere uitkomst of een invoerwijziging
+#: beëindigt de keten. Begrensd — geen globale conversatiegeschiedenis.
+KEY_KETEN = "betekenisverduidelijking_keten"
+MAX_KETEN_ANTWOORDEN = 5
+
+
+def verduidelijking_uit_keten(antwoorden: Iterable[dict[str, Any]]) -> str:
+    """Eén regel met alle vraag-antwoordparen, genummerd en in volgorde.
+
+    De vraag is de melding van het model (context, geen bronfeit); het
+    antwoord is de bedoeling van de gebruiker. Geen afkap: het budget wordt
+    ná escaping in de orchestrator bewaakt (`verduidelijking_te_lang`).
+    """
+    delen = []
+    for nr, paar in enumerate(antwoorden, start=1):
+        vraag = " ".join(str(paar.get("vraag") or "").split())
+        antwoord = " ".join(str(paar.get("antwoord") or "").split())
+        delen.append(
+            f"({nr}) Vraag van het model: {vraag} Antwoord van de gebruiker: {antwoord}"
+        )
+    return " ".join(delen)
 
 
 def _lijst(waarden: Iterable[Any] | None) -> list[str]:
@@ -124,25 +173,45 @@ def rag_selectie_voor_vingerafdruk(sm: Any) -> list[str] | None:
     return scope
 
 
+def _open_melding_uit(agent_result: dict[str, Any]) -> tuple[str, dict] | None:
+    """(soort, melding) uit een UI-resultaat; conflict gaat vóór (DEF-821)."""
+    conflict = agent_result.get(SOORT_CONFLICT)
+    if isinstance(conflict, dict) and conflict.get("vraag"):
+        return SOORT_CONFLICT, conflict
+    grond = agent_result.get(SOORT_ONTBREKENDE_GROND)
+    if (
+        isinstance(grond, dict)
+        and grond.get("vraag")
+        and grond.get("ontbrekende_grond")
+    ):
+        return SOORT_ONTBREKENDE_GROND, grond
+    return None
+
+
 def open_conflict_uit(agent_result: Any, vingerafdruk: str) -> dict[str, Any] | None:
-    """Het open conflict voor de sessie uit een UI-resultaat, of None."""
+    """Het open verzoek (conflict of ontbrekende grond) uit een UI-resultaat, of None."""
     if not isinstance(agent_result, dict):
         return None
-    conflict = agent_result.get("betekenisconflict")
-    if not isinstance(conflict, dict) or not conflict.get("vraag"):
+    gevonden = _open_melding_uit(agent_result)
+    if gevonden is None:
         return None
-    generation_id = conflict.get("generation_id") or (
+    soort, melding = gevonden
+    generation_id = melding.get("generation_id") or (
         agent_result.get("metadata") or {}
     ).get("generation_id")
     if not generation_id:
         return None
-    return {
+    open_verzoek: dict[str, Any] = {
         "generation_id": str(generation_id),
         "vingerafdruk": vingerafdruk,
-        "vraag": str(conflict["vraag"]),
-        "lezingen": [dict(lz) for lz in conflict.get("lezingen") or []],
-        "begrip": str(conflict.get("begrip") or ""),
+        "soort": soort,
+        "vraag": str(melding["vraag"]),
+        "lezingen": [dict(lz) for lz in melding.get("lezingen") or []],
+        "begrip": str(melding.get("begrip") or ""),
     }
+    if soort == SOORT_ONTBREKENDE_GROND:
+        open_verzoek["ontbrekende_grond"] = str(melding["ontbrekende_grond"])
+    return open_verzoek
 
 
 def verzend_verduidelijking(
@@ -153,7 +222,10 @@ def verzend_verduidelijking(
     Leeg is geen antwoord; zonder open conflict is er niets om aan te binden.
     """
     if not isinstance(open_conflict, dict) or not open_conflict.get("generation_id"):
-        return "Er is geen open betekenisconflict om te beantwoorden; genereer opnieuw."
+        return (
+            "Er is geen open verduidelijkingsvraag (betekenisconflict of "
+            "ontbrekende betekenisgrond) om te beantwoorden; genereer opnieuw."
+        )
     antwoord = " ".join(str(tekst or "").split())
     if not antwoord:
         return "Een leeg antwoord is geen verduidelijking."
@@ -191,8 +263,8 @@ def verzonden_verduidelijking_voor(
     )
     if not open_id or verzonden.get("generation_id") != open_id:
         return None, (
-            "Verduidelijking niet toegepast: zij hoorde bij een eerder "
-            "betekenisconflict, niet bij het huidige."
+            "Verduidelijking niet toegepast: zij hoorde bij een eerdere "
+            "verduidelijkingsvraag, niet bij de huidige."
         )
     if verzonden.get("vingerafdruk") != vingerafdruk:
         return None, (
@@ -204,3 +276,94 @@ def verzonden_verduidelijking_voor(
     if not tekst:
         return None, "Verduidelijking niet toegepast: het antwoord was leeg."
     return tekst, None
+
+
+@dataclass(frozen=True)
+class Ketenvoorbereiding:
+    """Wat de generatie aan verduidelijking meestuurt (correctieronde 1).
+
+    `tekst` is de volledige ketenregel (of None), `antwoorden` de keten
+    inclusief een nieuw toegepast antwoord, `meldingen` vaste teksten voor
+    de gebruiker, `weigering` een reden om níét te genereren.
+    """
+
+    tekst: str | None
+    antwoorden: tuple[dict[str, str], ...]
+    meldingen: tuple[str, ...] = ()
+    weigering: str | None = None
+
+
+def _geldige_keten(sm: Any, vingerafdruk: str) -> tuple[list[dict[str, str]], bool]:
+    """(antwoorden, vervallen): de keten voor déze invoer; een keten voor
+    andere invoer wordt gewist en telt als vervallen."""
+    keten = sm.get_value(KEY_KETEN)
+    if not isinstance(keten, dict):
+        return [], False
+    antwoorden = [
+        {"vraag": str(a.get("vraag") or ""), "antwoord": str(a.get("antwoord") or "")}
+        for a in keten.get("antwoorden") or []
+        if isinstance(a, dict) and a.get("antwoord")
+    ]
+    if keten.get("vingerafdruk") != vingerafdruk:
+        sm.clear_value(KEY_KETEN)
+        return [], bool(antwoorden)
+    return antwoorden, False
+
+
+def bereid_verduidelijking_voor(sm: Any, vingerafdruk: str) -> Ketenvoorbereiding:
+    """Bepaal de verduidelijking voor déze generatie (DEF-821 correctieronde 1).
+
+    Een expliciet verzonden antwoord wordt, met de vraag van het open verzoek
+    als context, achter de eerder toegepaste antwoorden van dezelfde
+    invoerketen gezet; de hele keten gaat mee. Wijzigt de invoer, dan
+    vervalt de keten als geheel. Boven `MAX_KETEN_ANTWOORDEN` wordt niet
+    gegenereerd (het antwoord blijft verzonden). De keten zelf wordt pas in
+    `sluit_keten_af` bijgewerkt, na de uitkomst van de generatie.
+    """
+    open_verzoek = sm.get_value(KEY_OPEN)
+    vraag = (
+        str(open_verzoek.get("vraag") or "") if isinstance(open_verzoek, dict) else ""
+    )
+    antwoord, afwijsreden = verzonden_verduidelijking_voor(sm, vingerafdruk)
+    antwoorden, vervallen = _geldige_keten(sm, vingerafdruk)
+    meldingen: list[str] = [afwijsreden] if afwijsreden else []
+    if vervallen:
+        meldingen.append(
+            "Eerdere verduidelijkingen niet toegepast: begrip, context, "
+            "categorie, documentselectie of RAG-selectie is gewijzigd."
+        )
+    if antwoord:
+        antwoorden = [*antwoorden, {"vraag": vraag, "antwoord": antwoord}]
+    if len(antwoorden) > MAX_KETEN_ANTWOORDEN:
+        return Ketenvoorbereiding(
+            tekst=None,
+            antwoorden=tuple(antwoorden),
+            meldingen=tuple(meldingen),
+            weigering=(
+                f"Er zijn al {MAX_KETEN_ANTWOORDEN} verduidelijkingen voor deze "
+                "invoer gegeven (maximum); er is niet gegenereerd. Pas begrip, "
+                "context of bronnen aan om opnieuw te beginnen."
+            ),
+        )
+    return Ketenvoorbereiding(
+        tekst=verduidelijking_uit_keten(antwoorden) if antwoorden else None,
+        antwoorden=tuple(antwoorden),
+        meldingen=tuple(meldingen),
+    )
+
+
+def sluit_keten_af(
+    sm: Any,
+    vingerafdruk: str,
+    antwoorden: Iterable[dict[str, str]],
+    *,
+    nieuw_verzoek: bool,
+) -> None:
+    """Keten bijwerken na de generatie: vraagt het model opnieuw om
+    verduidelijking, dan blijft de keten (met het toegepaste antwoord)
+    staan; elke andere uitkomst beëindigt haar."""
+    lijst = [dict(a) for a in antwoorden]
+    if nieuw_verzoek and lijst:
+        sm.set_value(KEY_KETEN, {"vingerafdruk": vingerafdruk, "antwoorden": lijst})
+    else:
+        sm.clear_value(KEY_KETEN)

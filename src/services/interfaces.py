@@ -145,6 +145,10 @@ class UIResponseDict(TypedDict):
     # (orchestrator `error_type == "betekenisconflict"`): vraag + lezingen met
     # gronden. Geen definitie, geen oordeel; `success` is dan False.
     betekenisconflict: NotRequired[dict[str, Any]]
+    # DEF-821: alleen bij een door het model gemelde ontbrekende betekenisgrond
+    # (orchestrator `error_type == "betekenisgrond_ontbreekt"`): ontbrekende
+    # grond + gerichte vraag. Geen definitie, geen oordeel; `success` is False.
+    betekenisgrond_ontbreekt: NotRequired[dict[str, Any]]
 
 
 # GenerationResult compatibility class for tests (EPIC-010 FASE 1 shim)

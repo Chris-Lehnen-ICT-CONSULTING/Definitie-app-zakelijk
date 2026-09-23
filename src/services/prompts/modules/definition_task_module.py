@@ -11,7 +11,7 @@ Deze module is verantwoordelijk voor:
 import logging
 from typing import Any
 
-from services.modelantwoord import CONFLICT_SENTINEL
+from services.modelantwoord import CONFLICT_SENTINEL, ONTBREKENDE_GROND_SENTINEL
 from services.prompts.sanitization import (
     DATABLOK_AFSPRAAK,
     TAG_BEGRIP,
@@ -139,9 +139,11 @@ class DefinitionTaskModule(BasePromptModule):
             # metadata bij de opdracht, geen eerste uitvoerregel.
             sections.append(self._build_categorie_metadata_afspraak())
 
-            # DEF-751 stap 2: de enige uitzondering op de definitie-only-
-            # uitvoer — het strikt parseerbare conflictcontract.
+            # DEF-751 stap 2 + DEF-821: de twee uitzonderingen op de
+            # definitie-only-uitvoer — het strikt parseerbare conflictcontract
+            # (ESS-02) en de melding van ontbrekende betekenisgrond (ESS-04).
             sections.append(self._build_conflictcontract())
+            sections.append(self._build_ontbrekende_grond_contract())
 
             # Finale definitie opdracht
             sections.append(self._build_final_instruction(begrip))
@@ -324,7 +326,7 @@ Formuleer nu de definitie van het begrip in dit datablok:
         """
         return """---
 
-📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
+📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern (of, in een van de twee uitzonderingen hieronder, alleen die ene melding); geen kopregel met de categorie."""
 
     def _build_conflictcontract(self) -> str:
         """DEF-751 stap 2: het additieve modelconflictcontract (ESS-02, C3).
@@ -346,7 +348,7 @@ Formuleer nu de definitie van het begrip in dit datablok:
         van een lezing geldt.
         """
         return (
-            "🛑 **Betekenisconflict (ESS-02), enige uitzondering op de "
+            "🛑 **Betekenisconflict (ESS-02), eerste uitzondering op de "
             "definitie-uitvoer:** alléén als aangeleverde bronnen of "
             "contextwaarden elkaar werkelijk tegenspreken over de betekenislaag: "
             f"géén definitie, maar één melding. Eerste regel `{CONFLICT_SENTINEL}` "
@@ -358,7 +360,8 @@ Formuleer nu de definitie van het begrip in dit datablok:
             "deze melding samen. Overlap tussen richtingen (bijv. type/proces), "
             "eigen onzekerheid of een ontbrekende categorie is géén conflict: dan "
             "gewoon één voorlopige definitiezin. Een "
-            f"'{VERDUIDELIJKING_KOP}' in het contextblok is de keuze van de "
+            f"'{VERDUIDELIJKING_KOP}' in het contextblok die zo'n tegenspraak "
+            "beantwoordt, is de keuze van de "
             "bedoelde betekenislaag door de gebruiker: definieer die lezing, "
             "herschrijf de bronnen niet (een bedoeling, geen bronfeit en geen "
             "ESS-02-oordeel). De tegenspraak die deze keuze beslist (bijv. "
@@ -368,9 +371,61 @@ Formuleer nu de definitie van het begrip in dit datablok:
             "blijft een werkelijke, ándere tegenspraak over, meld die opnieuw."
         )
 
+    def _build_ontbrekende_grond_contract(self) -> str:
+        """DEF-821: de melding van ontbrekende betekenisgrond (ESS-04, G2-2).
+
+        De G2-instructie in de ESS-04-regelkaart vraagt bij ontbrekende of
+        strijdige noodzakelijke grond "geen definitieve afbakening" en een
+        "aparte verduidelijkingsuitkomst"; dit is die uitkomst — de enige
+        plek voor de ontbrekende grond (er is geen apart toelichtingsveld).
+        Strikt parseerbaar (`services.modelantwoord`), zonder lezingen of
+        bronverwijzingen: er hoeft geen conflict verzonnen te worden.
+        Bewust afgebakend (besluit 3 van de specificatie): kwalitatieve
+        betekenis, ontbrekend gevalsbewijs, een ontbrekende categorie,
+        ontbrekende bronsteun (CON-02) en een onbesliste ESS-03-eenheidsgrens
+        blijven een gewone voorlopige definitiezin; tegenspraak over de
+        betekenislaag blijft de ESS-02-conflictmelding.
+        """
+        return (
+            "🛑 **Ontbrekende betekenisgrond (ESS-04), tweede uitzondering op de "
+            "definitie-uitvoer:** alléén als een begripsbepalend criterium (zoals "
+            "een grens, noemer of populatie, inclusie, startmoment of dag- en "
+            "tijdsbasis) nodig is om het begrip af te bakenen en begrip, context, "
+            "bronnen en een eventuele verduidelijking die noodzakelijke betekenis "
+            "niet geven of elkaar daarover tegenspreken, zodat elke definitiezin "
+            "een gegeven moet verzinnen of zelf een bepalende keuze moet maken: "
+            "géén definitie, maar één melding. Eerste regel "
+            f"`{ONTBREKENDE_GROND_SENTINEL}` plus één JSON-object "
+            '{"ontbrekende_grond": "welk noodzakelijk gegeven ontbreekt", '
+            '"vraag": "één gerichte vraag aan de gebruiker"}; geen lezingen, '
+            "bronnen of andere velden, nooit samen met een definitie of met de "
+            "conflictmelding. Dit is de aparte verduidelijkingsuitkomst uit de "
+            "ESS-04-instructie. Géén reden voor deze melding: een kwalitatief "
+            "criterium dat de betekenis al afbakent, ontbrekend bewijs voor één "
+            "concreet geval, een ontbrekende of onzekere categorie, ontbrekende "
+            "bronsteun, een onbesliste eenheidsgrens (ESS-03) of eigen twijfel "
+            "over de formulering — dan gewoon één voorlopige definitiezin. "
+            "Tegenspraak over de betekenislaag blijft de conflictmelding "
+            f"hierboven. Een '{VERDUIDELIJKING_KOP}' in het contextblok die de "
+            "gevraagde grond aanvult, is de bedoeling van de gebruiker, geen "
+            "bronfeit: definieer daarmee en meld die grond niet opnieuw als "
+            "ontbrekend. Zo'n verduidelijking bevat genummerde paren van een "
+            "eerdere vraag van het model en het antwoord van de gebruiker; "
+            "alle antwoorden gelden samen, de vragen zijn alleen context en "
+            "geen gegeven."
+        )
+
     def _build_final_instruction(self, begrip: str) -> str:
-        """Bouw finale definitie instructie."""
-        return f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting."
+        """Bouw finale definitie instructie.
+
+        DEF-821: de slotopdracht noemt de twee uitzonderingen, zodat zij de
+        meldingen niet alsnog verbiedt.
+        """
+        return (
+            f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele "
+            "zin, zonder toelichting — of, uitsluitend in een van de twee "
+            "uitzonderingen hierboven, alleen die ene melding."
+        )
 
     def _build_prompt_metadata(
         self,

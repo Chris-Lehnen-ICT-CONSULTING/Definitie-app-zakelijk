@@ -1605,10 +1605,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         (`error_type="modelantwoord_ongeldig"`) zonder de ruwe modeltekst in
         response of log. In beide gevallen wordt de monitoring afgerond en
         wordt niets opgeslagen of gevalideerd.
+
+        DEF-821: een structureel geldige melding van ontbrekende
+        betekenisgrond wordt op dezelfde plek afgetakt
+        (`error_type="betekenisgrond_ontbreekt"`); zij heeft geen gronden om
+        te verifiëren.
         """
         from services.modelantwoord import (
             SOORT_CONFLICT,
             SOORT_DEFINITIE,
+            SOORT_ONTBREKENDE_GROND,
             bron_nrs_uit_kwitantie,
             contextwaarden_uit,
             lees_modelantwoord,
@@ -1623,6 +1629,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         antwoord = lees_modelantwoord(raw)
         if antwoord.soort == SOORT_DEFINITIE:
             return None
+        if (
+            antwoord.soort == SOORT_ONTBREKENDE_GROND
+            and antwoord.ontbrekende_grond is not None
+        ):
+            return await self._meld_ontbrekende_grond(
+                antwoord.ontbrekende_grond,
+                request,
+                generation_result,
+                generation_id,
+                start_time,
+            )
 
         # Reviewcorrectie 3: uitsluitend een vaste foutcode en haar vaste
         # omschrijving (`FOUTCODES`) — nooit een sleutel, bronwaarde of ander
@@ -1649,8 +1666,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         if conflict is None or fout is not None:
             code, reden = fout or ("onbekend", "onbekende afwijzingsreden")
             logger.warning(
-                "Generation %s: ongeldige conflictmelding van het model "
-                "(code=%s: %s)",
+                "Generation %s: ongeldige melding van het model (code=%s: %s)",
                 generation_id,
                 code,
                 reden,
@@ -1659,7 +1675,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 success=False,
                 error=(
                     "Het model gaf geen bruikbare definitie en geen geldige "
-                    "conflictmelding; genereer opnieuw."
+                    "melding; genereer opnieuw."
                 ),
                 metadata={
                     **basis_metadata,
@@ -1696,6 +1712,58 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 },
             )
 
+        await self._rond_afgetakt_af(generation_result, generation_id, start_time)
+        return response
+
+    async def _meld_ontbrekende_grond(
+        self,
+        melding: Any,
+        request: GenerationRequest,
+        generation_result: Any,
+        generation_id: str,
+        start_time: float,
+    ) -> DefinitionResponseV2:
+        """DEF-821: non-success met de gemelde ontbrekende betekenisgrond.
+
+        Geen definitie, id, oordeel of categoriebevestiging; de melding staat
+        compleet in de metadata, gebonden aan de invoer waarvoor zij gold.
+        Het log draagt alleen het feit van de melding, nooit modeltekst.
+        """
+        logger.info(
+            "Generation %s: model meldt ontbrekende betekenisgrond; "
+            "geen definitie, geen opslag",
+            generation_id,
+        )
+        response = DefinitionResponseV2(
+            success=False,
+            error=melding.vraag,
+            metadata={
+                "generation_id": generation_id,
+                "duration": time.time() - start_time,
+                "orchestrator_version": "v2.0",
+                "phases_completed": 4,
+                "error_type": "betekenisgrond_ontbreekt",
+                "betekenisgrond_ontbreekt": {
+                    **melding.to_dict(),
+                    "gemeld_door": "model",
+                    "begrip": request.begrip,
+                    "ontologische_categorie": request.ontologische_categorie,
+                    "organisatorische_context": list(
+                        request.organisatorische_context or []
+                    ),
+                    "juridische_context": list(request.juridische_context or []),
+                    "wettelijke_basis": list(request.wettelijke_basis or []),
+                    "generation_id": generation_id,
+                },
+            },
+        )
+        await self._rond_afgetakt_af(generation_result, generation_id, start_time)
+        return response
+
+    async def _rond_afgetakt_af(
+        self, generation_result: Any, generation_id: str, start_time: float
+    ) -> None:
+        """Rond de monitoring af voor een afgetakt (niet-geslaagd) modelantwoord."""
         if self.monitoring:
             token_count = getattr(generation_result, "tokens_used", None)
             await self.monitoring.complete_generation(
@@ -1706,7 +1774,6 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 components_used=[],
                 had_feedback=False,
             )
-        return response
 
     async def _weiger_voor_model(
         self,

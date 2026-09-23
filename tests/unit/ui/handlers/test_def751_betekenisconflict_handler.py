@@ -31,6 +31,7 @@ from ui.helpers.betekenisconflict import (
     KEY_OPEN,
     KEY_VERZONDEN,
     invoer_vingerafdruk,
+    verduidelijking_uit_keten,
 )
 
 pytestmark = [pytest.mark.unit]
@@ -41,6 +42,10 @@ CONTEXT = {
     "wettelijke_basis": [],
 }
 VRAAG = "Is de handeling of het vastgelegde gegeven bedoeld?"
+#: Wat de handler meestuurt (DEF-821 correctieronde 1: vraag + antwoord).
+TOEGEPAST = verduidelijking_uit_keten(
+    [{"vraag": VRAAG, "antwoord": "Bedoeld is de handeling"}]
+)
 LEZINGEN = [
     {"lezing": "de handeling", "bron": "bron 1", "grond": "bron 1 zegt activiteit"},
     {
@@ -270,7 +275,8 @@ def test_verzonden_verduidelijking_wordt_bij_dezelfde_invoer_eenmalig_toegepast(
     _run(handler, sm, st)
 
     aanroep = service.aanroepen[0]
-    assert aanroep["betekenisverduidelijking"] == "Bedoeld is de handeling"
+    # DEF-821 correctieronde 1: het antwoord reist met de vraag als context.
+    assert aanroep["betekenisverduidelijking"] == TOEGEPAST
     # Niet via vrije options, alleen via het typed veld.
     assert "betekenisverduidelijking" not in aanroep.get("options", {})
     assert KEY_VERZONDEN not in sm.data, "verduidelijking is eenmalig"
@@ -375,7 +381,7 @@ def test_weigering_voor_het_model_bewaart_antwoord_en_open_conflict(error_type):
     st = MagicMock()
     _run(handler, sm, st)
 
-    assert service.aanroepen[0]["betekenisverduidelijking"] == "Bedoeld is de handeling"
+    assert service.aanroepen[0]["betekenisverduidelijking"] == TOEGEPAST
     assert sm.data[KEY_OPEN] == open_voor
     assert sm.data[KEY_VERZONDEN] == verzonden_voor
     assert "te lang" in sm.data[KEY_AFWIJZING]
