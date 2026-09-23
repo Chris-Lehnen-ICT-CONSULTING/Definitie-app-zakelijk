@@ -1860,6 +1860,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         eigen bronbeoordeling en geeft haar terug in
         `raw_validation["source_assessment"]` — die hoort dus altijd bij
         exact de definitieve tekst.
+
+        DEF-766 (R1): de kandidaat draagt zelf de bedoelde betekenis mee, in
+        dezelfde vorm als het record dat straks wordt opgeslagen.
         """
         kandidaat = tekst
         raw_validation: Any = None
@@ -1872,6 +1875,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 wettelijke_basis=request.wettelijke_basis or [],
                 ontologische_categorie=request.ontologische_categorie,
                 created_by=request.actor,
+                metadata=self._kandidaatregistratie(request),
             )
             raw_validation = await self.validation_service.validate_definition(
                 definition=kopie, context=validation_context
@@ -1901,6 +1905,28 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             raw_validation,
             None,
         )  # pragma: no cover - lus eindigt altijd eerder
+
+    @staticmethod
+    def _kandidaatregistratie(request: GenerationRequest) -> dict[str, Any]:
+        """De generatieregistratie die de te toetsen kandidaat zelf draagt (DEF-766, R1).
+
+        De validatiewrapper leest de bedoelde betekenis van een `Definition`
+        uitsluitend van het record zelf (`metadata["generation_prompt_data"]`)
+        en nooit uit aanroepermetadata: bij een record zónder die sleutel zou
+        een algemene terugval een vreemde of vervallen bedoeling activeren.
+        Het tussentijdse object dat hier wordt getoetst kreeg daardoor geen
+        betekenis mee, terwijl de opslag haar wél vastlegt — waarmee ESS-03
+        zonder de aangeleverde verduidelijking oordeelde en het oordeel bij
+        heropenen meteen historisch was. Daarom draagt de kandidaat exact
+        dezelfde waarde als `generation_prompt_data["betekenisverduidelijking"]`
+        van het record; normalisatie (strip) gebeurt in de wrapper, dus aan
+        beide kanten gelijk. Er komt hier niets bij wat het record niet krijgt.
+        """
+        return {
+            "generation_prompt_data": {
+                "betekenisverduidelijking": request.betekenisverduidelijking or None
+            }
+        }
 
     @classmethod
     def _bronbeoordeling_uit(cls, raw_validation: Any) -> dict[str, Any] | None:

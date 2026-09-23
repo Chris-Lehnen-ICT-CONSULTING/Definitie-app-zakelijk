@@ -109,7 +109,9 @@ class TestValidationOrchestratorV2:
         # Verify service was called with correct args. DEF-622: de exacte
         # invoertekst reist altijd als `record_text` mee (CON-01-binding).
         # DEF-766: zonder geïnjecteerde ESS-03-dienst reist een expliciet
-        # `unavailable`-document mee (nooit stil een pass).
+        # `unavailable`-document mee (nooit stil een pass); en het expliciete
+        # categorieargument reist als betekenisclaim mee in dezelfde context
+        # (R2) — anders bereikt het de beoordeling en de vingerafdruk niet.
         kwargs = _aanroep(mock_validation_service)
         assert kwargs["begrip"] == "test_begrip"
         assert kwargs["text"] == "test text"
@@ -117,6 +119,7 @@ class TestValidationOrchestratorV2:
         assert _zonder_ess03(kwargs["context"]) == {
             "profile": "standard",
             "record_text": "test text",
+            "ontologische_categorie": "PROCES",
         }
         assert kwargs["context"]["ess03_assessment"]["status"] == "unavailable"
 
