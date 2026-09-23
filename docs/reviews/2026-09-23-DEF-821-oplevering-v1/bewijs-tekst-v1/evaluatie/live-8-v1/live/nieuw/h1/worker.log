@@ -1,0 +1,280 @@
+2026-09-23 17:50:38,910 toetsregels.rule_cache INFO RuleCache geïnitialiseerd met monitoring: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/toetsregels/regels
+2026-09-23 17:50:38,910 utils.cache INFO Cache cleared successfully
+2026-09-23 17:50:38,910 toetsregels.rule_cache INFO Rule cache gecleared (global cache cleared)
+2026-09-23 17:50:38,951 config.config_manager INFO Configuration loaded from /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/config/config.yaml
+2026-09-23 17:50:38,951 config.config_manager INFO Directory aangemaakt: exports
+2026-09-23 17:50:38,951 config.config_manager INFO Directory aangemaakt: logs
+2026-09-23 17:50:38,952 config.config_manager INFO Directory aangemaakt: config
+2026-09-23 17:50:38,952 config.config_manager INFO Directory aangemaakt: reports
+2026-09-23 17:50:38,952 config.config_manager INFO Configuration loaded for environment: production
+2026-09-23 17:50:39,272 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:39,386 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:39,386 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/D1.db
+2026-09-23 17:50:39,386 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:39,386 toetsregels.cached_manager INFO ✅ CachedToetsregelManager singleton created
+2026-09-23 17:50:39,398 toetsregels.rule_cache INFO Loading 53 regel files van /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/toetsregels/regels
+2026-09-23 17:50:39,418 toetsregels.rule_cache INFO ✅ 53 regels geladen, gevalideerd en gecached
+2026-09-23 17:50:39,419 utils.safe_serializer INFO Generated new HMAC key for cache integrity
+2026-09-23 17:50:39,422 services.prompts.modular_prompt_adapter INFO 🎯 Creating singleton PromptOrchestrator
+2026-09-23 17:50:39,422 services.prompts.modular_prompt_adapter INFO ✅ PromptOrchestrator cached: 15 modules registered
+2026-09-23 17:50:39,422 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:39,422 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:39,422 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:39,422 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:39,422 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:39,423 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Starting orchestration for 'gelijkzijdige veelhoek' with category 'None'
+2026-09-23 17:50:39,423 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Request sanitized for privacy compliance
+2026-09-23 17:50:39,423 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D1: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:39,423 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'gelijkzijdige veelhoek'
+2026-09-23 17:50:39,423 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:39,424 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:39,424 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'gelijkzijdige veelhoek': 29470 chars in 1.44ms (12/15 modules)
+2026-09-23 17:50:39,425 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'gelijkzijdige veelhoek' (29470 chars)
+2026-09-23 17:50:39,425 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:39,425 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'gelijkzijdige veelhoek': 5341 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:39,425 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: V2 Prompt built (5341 tokens, ontological_category=None)
+2026-09-23 17:50:39,425 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:39,426 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:43,817 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:50:44,257 utils.container_manager INFO 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+2026-09-23 17:50:44,257 utils.container_manager INFO Environment: production
+2026-09-23 17:50:44,257 utils.container_manager INFO Database path: data/definities.db
+2026-09-23 17:50:44,257 utils.container_manager INFO Monitoring enabled: True
+2026-09-23 17:50:44,257 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:44,257 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:44,257 services.container INFO ServiceContainer instance initialized (lazy service loading will occur on first access)
+2026-09-23 17:50:44,257 utils.container_manager INFO ✅ ServiceContainer initialized and cached (ID: a7d64a7f) - subsequent requests will use cache
+2026-09-23 17:50:44,257 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:44,257 services.container INFO ModelRouter singleton created
+2026-09-23 17:50:44,257 monitoring.api_monitor WARNING 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+2026-09-23 17:50:44,257 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: AI generation complete
+2026-09-23 17:50:44,257 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Voorbeelden generated (0 types)
+2026-09-23 17:50:44,259 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Text cleaned with V2 service
+2026-09-23 17:50:44,260 services.orchestrators.validation_orchestrator_v2 WARNING DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=1bf2873b-6cce-4f67-96ca-677971aa1dee)
+2026-09-23 17:50:44,260 services.orchestrators.validation_orchestrator_v2 WARNING DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=1bf2873b-6cce-4f67-96ca-677971aa1dee)
+2026-09-23 17:50:44,261 services.validation.modular_validation_service INFO Starting validation: begrip='gelijkzijdige veelhoek', text_length=44, correlation_id=1bf2873b-6cce-4f67-96ca-677971aa1dee
+2026-09-23 17:50:44,274 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Validation complete (valid: False)
+2026-09-23 17:50:44,274 services.orchestrators.definition_orchestrator_v2 INFO Attempting to save definition: begrip='gelijkzijdige veelhoek', categorie=None, ontologische_categorie=None
+2026-09-23 17:50:44,277 database.definitie_crud INFO Created definitie 3
+2026-09-23 17:50:44,277 services.definition_repository INFO Created definition 'gelijkzijdige veelhoek' (ID: 3, categorie: None)
+2026-09-23 17:50:44,277 services.orchestrators.definition_orchestrator_v2 INFO Successfully saved definition 'gelijkzijdige veelhoek' with ID: 3
+2026-09-23 17:50:44,277 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Definition saved (ID: 3)
+2026-09-23 17:50:44,277 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D1: Stored as saved definition and logged failed attempt for learning
+2026-09-23 17:50:44,277 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D1: Complete in 4.85s, valid=False
+2026-09-23 17:50:44,347 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:44,347 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/D2.db
+2026-09-23 17:50:44,347 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:44,362 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:44,362 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:44,362 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:44,362 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:44,362 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:44,372 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Starting orchestration for 'geselecteerde partij' with category 'None'
+2026-09-23 17:50:44,372 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Request sanitized for privacy compliance
+2026-09-23 17:50:44,372 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D2: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:44,377 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'geselecteerde partij'
+2026-09-23 17:50:44,377 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:44,379 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:44,379 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'geselecteerde partij': 29464 chars in 1.3ms (12/15 modules)
+2026-09-23 17:50:44,379 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'geselecteerde partij' (29464 chars)
+2026-09-23 17:50:44,379 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:44,379 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'geselecteerde partij': 5357 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:44,379 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: V2 Prompt built (5357 tokens, ontological_category=None)
+2026-09-23 17:50:44,379 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:44,380 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:46,496 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:50:46,499 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: AI generation complete
+2026-09-23 17:50:46,499 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Voorbeelden generated (0 types)
+2026-09-23 17:50:46,500 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Text cleaned with V2 service
+2026-09-23 17:50:46,500 services.orchestrators.validation_orchestrator_v2 WARNING DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=d7d215f0-adbb-46ed-abb5-bc2d92058c73)
+2026-09-23 17:50:46,500 services.orchestrators.validation_orchestrator_v2 WARNING DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=d7d215f0-adbb-46ed-abb5-bc2d92058c73)
+2026-09-23 17:50:46,501 services.validation.modular_validation_service INFO Starting validation: begrip='geselecteerde partij', text_length=82, correlation_id=d7d215f0-adbb-46ed-abb5-bc2d92058c73
+2026-09-23 17:50:46,503 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Validation complete (valid: False)
+2026-09-23 17:50:46,504 services.orchestrators.definition_orchestrator_v2 INFO Attempting to save definition: begrip='geselecteerde partij', categorie=None, ontologische_categorie=None
+2026-09-23 17:50:46,505 database.definitie_crud INFO Created definitie 3
+2026-09-23 17:50:46,505 services.definition_repository INFO Created definition 'geselecteerde partij' (ID: 3, categorie: None)
+2026-09-23 17:50:46,505 services.orchestrators.definition_orchestrator_v2 INFO Successfully saved definition 'geselecteerde partij' with ID: 3
+2026-09-23 17:50:46,505 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Definition saved (ID: 3)
+2026-09-23 17:50:46,505 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D2: Stored as saved definition and logged failed attempt for learning
+2026-09-23 17:50:46,505 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D2: Complete in 2.13s, valid=False
+2026-09-23 17:50:46,567 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:46,567 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/D3.db
+2026-09-23 17:50:46,567 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:46,580 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:46,580 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:46,580 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:46,580 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:46,580 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:46,582 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D3: Starting orchestration for 'geselecteerde partij' with category 'None'
+2026-09-23 17:50:46,582 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D3: Request sanitized for privacy compliance
+2026-09-23 17:50:46,582 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D3: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:46,582 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'geselecteerde partij'
+2026-09-23 17:50:46,582 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:46,583 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:46,583 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'geselecteerde partij': 29464 chars in 0.97ms (12/15 modules)
+2026-09-23 17:50:46,583 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'geselecteerde partij' (29464 chars)
+2026-09-23 17:50:46,583 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:46,584 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'geselecteerde partij': 5339 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:46,584 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D3: V2 Prompt built (5339 tokens, ontological_category=None)
+2026-09-23 17:50:46,584 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:46,584 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:50,237 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:50:50,242 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D3: AI generation complete
+2026-09-23 17:50:50,242 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D3: model meldt ontbrekende betekenisgrond; geen definitie, geen opslag
+2026-09-23 17:50:50,276 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:50,276 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/D4.db
+2026-09-23 17:50:50,276 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:50,290 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:50,290 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:50,290 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:50,290 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:50,290 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:50,291 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D4: Starting orchestration for 'tijdige reactie' with category 'None'
+2026-09-23 17:50:50,291 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D4: Request sanitized for privacy compliance
+2026-09-23 17:50:50,291 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D4: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:50,291 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'tijdige reactie'
+2026-09-23 17:50:50,291 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:50,292 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:50,292 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'tijdige reactie': 30081 chars in 1.18ms (12/15 modules)
+2026-09-23 17:50:50,292 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'tijdige reactie' (30081 chars)
+2026-09-23 17:50:50,292 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:50,292 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'tijdige reactie': 5475 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:50,292 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D4: V2 Prompt built (5475 tokens, ontological_category=None)
+2026-09-23 17:50:50,293 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:50,293 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:53,102 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:50:53,105 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D4: AI generation complete
+2026-09-23 17:50:53,105 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D4: model meldt ontbrekende betekenisgrond; geen definitie, geen opslag
+2026-09-23 17:50:53,135 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:53,135 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/D5.db
+2026-09-23 17:50:53,135 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:53,153 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:53,153 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:53,153 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:53,153 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:53,153 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:53,155 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Starting orchestration for 'ondertekend document' with category 'None'
+2026-09-23 17:50:53,155 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Request sanitized for privacy compliance
+2026-09-23 17:50:53,155 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D5: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:53,155 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'ondertekend document'
+2026-09-23 17:50:53,155 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:53,156 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:53,156 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'ondertekend document': 30096 chars in 1.04ms (12/15 modules)
+2026-09-23 17:50:53,156 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'ondertekend document' (30096 chars)
+2026-09-23 17:50:53,156 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:53,156 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'ondertekend document': 5470 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:53,156 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: V2 Prompt built (5470 tokens, ontological_category=None)
+2026-09-23 17:50:53,156 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:53,157 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:50:56,166 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:50:56,170 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: AI generation complete
+2026-09-23 17:50:56,170 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Voorbeelden generated (0 types)
+2026-09-23 17:50:56,172 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Text cleaned with V2 service
+2026-09-23 17:50:56,172 services.orchestrators.validation_orchestrator_v2 WARNING DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=14c5823b-3b94-4af8-b419-19557d4c9378)
+2026-09-23 17:50:56,172 services.orchestrators.validation_orchestrator_v2 WARNING DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=14c5823b-3b94-4af8-b419-19557d4c9378)
+2026-09-23 17:50:56,174 services.validation.modular_validation_service INFO Starting validation: begrip='ondertekend document', text_length=61, correlation_id=14c5823b-3b94-4af8-b419-19557d4c9378
+2026-09-23 17:50:56,176 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Validation complete (valid: False)
+2026-09-23 17:50:56,176 services.orchestrators.definition_orchestrator_v2 INFO Attempting to save definition: begrip='ondertekend document', categorie=None, ontologische_categorie=None
+2026-09-23 17:50:56,178 database.definitie_crud INFO Created definitie 3
+2026-09-23 17:50:56,179 services.definition_repository INFO Created definition 'ondertekend document' (ID: 3, categorie: None)
+2026-09-23 17:50:56,179 services.orchestrators.definition_orchestrator_v2 INFO Successfully saved definition 'ondertekend document' with ID: 3
+2026-09-23 17:50:56,179 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Definition saved (ID: 3)
+2026-09-23 17:50:56,179 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D5: Stored as saved definition and logged failed attempt for learning
+2026-09-23 17:50:56,179 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D5: Complete in 3.02s, valid=False
+2026-09-23 17:50:56,246 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:56,246 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/D6.db
+2026-09-23 17:50:56,246 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:56,260 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:56,260 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:56,260 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:56,260 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:56,260 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:56,262 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Starting orchestration for 'tijdige melding' with category 'None'
+2026-09-23 17:50:56,262 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Request sanitized for privacy compliance
+2026-09-23 17:50:56,262 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D6: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:56,262 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'tijdige melding'
+2026-09-23 17:50:56,262 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:56,263 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:56,263 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'tijdige melding': 30081 chars in 0.95ms (12/15 modules)
+2026-09-23 17:50:56,263 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'tijdige melding' (30081 chars)
+2026-09-23 17:50:56,263 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:56,263 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'tijdige melding': 5475 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:56,263 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: V2 Prompt built (5475 tokens, ontological_category=None)
+2026-09-23 17:50:56,263 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:56,264 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:51:03,375 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:51:03,379 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: AI generation complete
+2026-09-23 17:51:03,379 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Voorbeelden generated (0 types)
+2026-09-23 17:51:03,381 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Text cleaned with V2 service
+2026-09-23 17:51:03,381 services.orchestrators.validation_orchestrator_v2 WARNING DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=cfaffceb-371d-420b-9a66-ca547b8ac2c1)
+2026-09-23 17:51:03,382 services.orchestrators.validation_orchestrator_v2 WARNING DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=cfaffceb-371d-420b-9a66-ca547b8ac2c1)
+2026-09-23 17:51:03,383 services.validation.modular_validation_service INFO Starting validation: begrip='tijdige melding', text_length=122, correlation_id=cfaffceb-371d-420b-9a66-ca547b8ac2c1
+2026-09-23 17:51:03,386 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Validation complete (valid: False)
+2026-09-23 17:51:03,386 services.orchestrators.definition_orchestrator_v2 INFO Attempting to save definition: begrip='tijdige melding', categorie=None, ontologische_categorie=None
+2026-09-23 17:51:03,388 database.definitie_crud INFO Created definitie 3
+2026-09-23 17:51:03,388 services.definition_repository INFO Created definition 'tijdige melding' (ID: 3, categorie: None)
+2026-09-23 17:51:03,388 services.orchestrators.definition_orchestrator_v2 INFO Successfully saved definition 'tijdige melding' with ID: 3
+2026-09-23 17:51:03,388 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Definition saved (ID: 3)
+2026-09-23 17:51:03,388 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-D6: Stored as saved definition and logged failed attempt for learning
+2026-09-23 17:51:03,388 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-D6: Complete in 7.13s, valid=False
+2026-09-23 17:51:03,452 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:51:03,452 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/H1.db
+2026-09-23 17:51:03,452 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:51:03,465 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:51:03,465 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:51:03,465 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:51:03,465 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:51:03,466 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:51:03,468 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H1: Starting orchestration for 'gekwalificeerde partij' with category 'None'
+2026-09-23 17:51:03,468 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H1: Request sanitized for privacy compliance
+2026-09-23 17:51:03,468 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-H1: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:51:03,468 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'gekwalificeerde partij'
+2026-09-23 17:51:03,468 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:51:03,469 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:51:03,469 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'gekwalificeerde partij': 29470 chars in 1.09ms (12/15 modules)
+2026-09-23 17:51:03,469 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'gekwalificeerde partij' (29470 chars)
+2026-09-23 17:51:03,469 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:51:03,470 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'gekwalificeerde partij': 5370 tokens, category=None, components=('base_template',)
+2026-09-23 17:51:03,470 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H1: V2 Prompt built (5370 tokens, ontological_category=None)
+2026-09-23 17:51:03,470 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:51:03,470 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:51:06,936 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:51:06,939 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H1: AI generation complete
+2026-09-23 17:51:06,939 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H1: model meldt ontbrekende betekenisgrond; geen definitie, geen opslag
+2026-09-23 17:51:06,971 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:51:06,971 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/live/nieuw/h1/db/H2.db
+2026-09-23 17:51:06,971 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:51:06,987 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:51:06,987 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:51:06,987 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:51:06,987 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:51:06,987 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:51:06,988 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Starting orchestration for 'bezwaarvrije aanvraag' with category 'None'
+2026-09-23 17:51:06,988 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Request sanitized for privacy compliance
+2026-09-23 17:51:06,988 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-H2: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:51:06,988 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'bezwaarvrije aanvraag'
+2026-09-23 17:51:06,988 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:51:06,989 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:51:06,989 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'bezwaarvrije aanvraag': 29467 chars in 1.27ms (12/15 modules)
+2026-09-23 17:51:06,989 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'bezwaarvrije aanvraag' (29467 chars)
+2026-09-23 17:51:06,989 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:51:06,990 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'bezwaarvrije aanvraag': 5358 tokens, category=None, components=('base_template',)
+2026-09-23 17:51:06,990 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: V2 Prompt built (5358 tokens, ontological_category=None)
+2026-09-23 17:51:06,990 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:51:06,990 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+2026-09-23 17:51:09,355 httpx INFO HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-09-23 17:51:09,359 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: AI generation complete
+2026-09-23 17:51:09,359 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Voorbeelden generated (0 types)
+2026-09-23 17:51:09,360 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Text cleaned with V2 service
+2026-09-23 17:51:09,360 services.orchestrators.validation_orchestrator_v2 WARNING DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=87163cba-9d1d-4fa8-907a-657aa4edb720)
+2026-09-23 17:51:09,360 services.orchestrators.validation_orchestrator_v2 WARNING DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=87163cba-9d1d-4fa8-907a-657aa4edb720)
+2026-09-23 17:51:09,361 services.validation.modular_validation_service INFO Starting validation: begrip='bezwaarvrije aanvraag', text_length=121, correlation_id=87163cba-9d1d-4fa8-907a-657aa4edb720
+2026-09-23 17:51:09,363 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Validation complete (valid: False)
+2026-09-23 17:51:09,363 services.orchestrators.definition_orchestrator_v2 INFO Attempting to save definition: begrip='bezwaarvrije aanvraag', categorie=None, ontologische_categorie=None
+2026-09-23 17:51:09,364 database.definitie_crud INFO Created definitie 3
+2026-09-23 17:51:09,364 services.definition_repository INFO Created definition 'bezwaarvrije aanvraag' (ID: 3, categorie: None)
+2026-09-23 17:51:09,364 services.orchestrators.definition_orchestrator_v2 INFO Successfully saved definition 'bezwaarvrije aanvraag' with ID: 3
+2026-09-23 17:51:09,364 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Definition saved (ID: 3)
+2026-09-23 17:51:09,364 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h1-H2: Stored as saved definition and logged failed attempt for learning
+2026-09-23 17:51:09,364 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h1-H2: Complete in 2.38s, valid=False
+2026-09-23 17:51:09,413 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']

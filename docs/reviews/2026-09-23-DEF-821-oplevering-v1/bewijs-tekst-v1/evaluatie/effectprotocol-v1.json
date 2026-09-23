@@ -1,0 +1,31 @@
+{
+  "frozen_at": "2026-09-23T14:59:26.041527+00:00",
+  "evaluation_version": "DEF821-v1",
+  "norm": "ESS04 N2/G2; begripsbepalende criteria navolgbaar, geen verzonnen grenzen; ontbrekende betekenisgrond is niet hetzelfde als ontbrekend gevalsbewijs",
+  "case_source": "synthetische betekenisafspraken uit vooraf gepubliceerde specificatie; geen juridische/expertgoldset",
+  "scoring": [
+    "correcte uitkomstsoort",
+    "behoud relevante betekenisgrens",
+    "geen verzonnen precisie of bron",
+    "ontbrekende grond concreet benoemd indien van toepassing"
+  ],
+  "forbidden_regressions": [
+    "bekende grens/actor/termijn/noemer weglaten",
+    "kwalitatieve criteria zonder reden blokkeren",
+    "gevalsbewijs als onbepaalde betekenis behandelen",
+    "een verduidelijkingsvraag als definitie opslaan"
+  ],
+  "comparison": "Per case en herhaling oud/nieuw tegen vooraf bepaalde verwachting; improve/same/regress/uncertain. Technische geldigheid apart van inhoudelijke kwaliteit. Geen gebruikerswinstclaim zonder gebruikersproef.",
+  "holdout_sha256": "7c80f1519a91111d3e48e24369cb6f3f676ec1003d9a2c9a7abecc51669615ae",
+  "live_call_cap": 32,
+  "repetitions": 2,
+  "required_run_evidence": [
+    "base and final diff identity",
+    "full prompt per case/variant",
+    "model,provider,settings",
+    "raw model output",
+    "parser/transport outcome",
+    "independent judgment and reason",
+    "fixed expected outcome not injected in model prompt"
+  ]
+}

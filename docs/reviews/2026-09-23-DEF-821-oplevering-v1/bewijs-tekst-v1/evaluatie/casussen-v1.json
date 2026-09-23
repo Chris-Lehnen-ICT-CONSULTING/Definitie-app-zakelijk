@@ -1,0 +1,139 @@
+{
+  "casussen": [
+    {
+      "id": "D1",
+      "begrip": "gelijkzijdige veelhoek",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "d1-afspraak",
+          "filename": "fictieve-afspraak-d1.txt",
+          "snippet": "Fictieve afspraak: een gelijkzijdige veelhoek is een veelhoek waarvan alle zijden even lang zijn."
+        }
+      ],
+      "verwachte_uitkomst": "definitie",
+      "verwachting": "Kwalitatieve kandidaat (veelhoek met alle zijden even lang); geen toegevoegde meettolerantie, getal of eenheid.",
+      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D1 (fictieve betekenisgrond)"
+    },
+    {
+      "id": "D2",
+      "begrip": "geselecteerde partij",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "d2-afspraak",
+          "filename": "fictieve-afspraak-d2.txt",
+          "snippet": "Fictieve afspraak: een partij is geselecteerd wanneer minstens 80% van alle voorwerpen in de partij blauw is; een partij met precies 80% blauwe voorwerpen telt mee."
+        }
+      ],
+      "verwachte_uitkomst": "definitie",
+      "verwachting": "Kandidaat behoudt de grens (80%), de noemer (alle voorwerpen in de partij), het criterium (blauw) en de inclusie (precies 80% telt mee).",
+      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D2 (fictieve betekenisgrond)"
+    },
+    {
+      "id": "D3",
+      "begrip": "geselecteerde partij",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "d3-afspraak",
+          "filename": "fictieve-afspraak-d3.txt",
+          "snippet": "Fictieve afspraak: een partij is geselecteerd wanneer zij voor minimaal 80% voldoet."
+        }
+      ],
+      "verwachte_uitkomst": "ontbrekende_grond",
+      "verwachting": "Aparte ontbrekende-gronduitkomst die benoemt dat niet gegeven is waaraan wordt voldaan en waarvan het percentage wordt berekend, met een gerichte vraag; geen verzonnen noemer of criterium en geen definitiezin.",
+      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D3 (fictieve betekenisgrond)"
+    },
+    {
+      "id": "D4",
+      "begrip": "tijdige reactie",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "d4-afspraak",
+          "filename": "fictieve-afspraak-d4.txt",
+          "snippet": "Fictieve afspraak: een reactie is tijdig wanneer zij binnen drie dagen na ontvangst wordt gegeven. Of dit werkdagen of kalenderdagen zijn, is nog niet besloten; dat onderscheid is bepalend voor de afspraak."
+        }
+      ],
+      "verwachte_uitkomst": "ontbrekende_grond",
+      "verwachting": "Aparte uitkomst met een vraag om de dagconventie (werkdagen of kalenderdagen); het model kiest niet zelf een conventie en levert geen definitiezin.",
+      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D4 (fictieve betekenisgrond)"
+    },
+    {
+      "id": "D5",
+      "begrip": "ondertekend document",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "d5-afspraak",
+          "filename": "fictieve-afspraak-d5.txt",
+          "snippet": "Fictieve afspraak: een ondertekend document is een document waarop de afzender een handtekening heeft geplaatst. Bij document 17 is onbekend of de krabbel onderaan van de afzender is."
+        }
+      ],
+      "verwachte_uitkomst": "definitie",
+      "verwachting": "Kwalitatieve kandidaat (document waarop de afzender een handtekening heeft geplaatst); geen blokkade of ontbrekende-gronduitkomst alleen wegens het ontbrekende gevalsbewijs bij document 17.",
+      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D5 (fictieve betekenisgrond)"
+    },
+    {
+      "id": "D6",
+      "begrip": "tijdige melding",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "d6-afspraak",
+          "filename": "fictieve-afspraak-d6.txt",
+          "snippet": "Fictieve afspraak: een melding is tijdig wanneer zij binnen drie werkdagen na ontvangst wordt gedaan; de dag van ontvangst telt niet mee en een melding op de derde werkdag is nog tijdig."
+        }
+      ],
+      "verwachte_uitkomst": "definitie",
+      "verwachting": "Kandidaat behoudt de betekenis: drie werkdagen (geen kalenderdagen), startmoment na de dag van ontvangst, derde werkdag inbegrepen; de grensbeperking wordt niet weggelaten.",
+      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D6 (fictieve betekenisgrond)"
+    },
+    {
+      "id": "H1",
+      "begrip": "gekwalificeerde partij",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "h1-afspraak",
+          "filename": "fictieve-afspraak-h1.txt",
+          "snippet": "Fictieve proefafspraak. Bron A en bron B zijn beide actueel en toepasselijk op hetzelfde begrip: A stelt minimaal 70% blauwe voorwerpen van alle voorwerpen in de partij, B minimaal 90%. Geen voorrang of keuze is vastgesteld."
+        }
+      ],
+      "verwachting": "Geen eigen grens kiezen, middelen of beide grenzen samenvoegen. Aparte verduidelijkingsuitkomst die de strijdige noodzakelijke grenzen benoemt; geen definitieve kandidaat.",
+      "herkomst": "Vooraf bevroren heldout-cases-v1.json SHA256 7c80f1519a91111d3e48e24369cb6f3f676ec1003d9a2c9a7abecc51669615ae; geen tuning"
+    },
+    {
+      "id": "H2",
+      "begrip": "bezwaarvrije aanvraag",
+      "organisatorische_context": [
+        "Proefdienst"
+      ],
+      "documenten": [
+        {
+          "doc_id": "h2-afspraak",
+          "filename": "fictieve-afspraak-h2.txt",
+          "snippet": "Fictieve proefafspraak. Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager. Er is geen ontologische categorie opgegeven."
+        }
+      ],
+      "verwachting": "Kwalitatieve kandidaat die schriftelijkheid, tijdsgrens en ander dan aanvrager behoudt. Geen getallen toevoegen. Geen verduidelijking alleen omdat categorie ontbreekt.",
+      "herkomst": "Vooraf bevroren heldout-cases-v1.json SHA256 7c80f1519a91111d3e48e24369cb6f3f676ec1003d9a2c9a7abecc51669615ae; geen tuning",
+      "verwachte_uitkomst": "definitie"
+    }
+  ]
+}

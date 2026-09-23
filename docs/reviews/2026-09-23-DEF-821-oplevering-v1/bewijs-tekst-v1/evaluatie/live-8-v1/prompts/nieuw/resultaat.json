@@ -1,0 +1,93 @@
+{
+  "modelinfo": {
+    "provider_geconfigureerd": "anthropic",
+    "provider_router": "anthropic",
+    "model_definition_core": "claude-opus-5",
+    "temperature_definition": 0.1,
+    "max_tokens_orchestrator_default": 500,
+    "timeout_seconds_aiservice_default": 30,
+    "ai_service_cache": false
+  },
+  "prompts": {
+    "D1": {
+      "sha256": "6a8eb606b209484b45f961ab0b5a438604b5f69e0e69a02199913d70f9fd89ab",
+      "lengte": 29691,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "D2": {
+      "sha256": "a729e930e140636b9a29438d5ed7848f61f5368e736b2c2b43078603cef97847",
+      "lengte": 29752,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "D3": {
+      "sha256": "1b2bf07be4c6ac5e1788c7123b312e1ff09c463fc0c60657316d2b23236db6ef",
+      "lengte": 29672,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "D4": {
+      "sha256": "a0e8f77743756de453fa675941f418f3adf9155520fd1425440b8c832594c72a",
+      "lengte": 30411,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "D5": {
+      "sha256": "c9823d03f1dcbe198acdba120b10ce2e20b4255388a14759c216938353af8736",
+      "lengte": 30403,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "D6": {
+      "sha256": "470fd5c32b437e2b56e0282765f52ddf0e4cc554a25078a1d1354a0df1794d7a",
+      "lengte": 30391,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "H1": {
+      "sha256": "7e574ffa6ec86484721c92c0e1132591a4bd5698080b471cc5d96385deae64f7",
+      "lengte": 29818,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    },
+    "H2": {
+      "sha256": "daa177622fd571df106ca4b3b08eb2617c8aef73cd710275d20a3a63b5a4bb22",
+      "lengte": 29781,
+      "verwachting_in_prompt": false,
+      "generate_kwargs": {
+        "temperature": 0.1,
+        "max_tokens": 500,
+        "model": null
+      }
+    }
+  }
+}

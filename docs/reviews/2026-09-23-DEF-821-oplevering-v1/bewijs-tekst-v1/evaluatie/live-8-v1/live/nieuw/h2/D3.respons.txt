@@ -1,0 +1,2 @@
+BETEKENISGROND ONTBREEKT:
+{"ontbrekende_grond": "waaraan en op welke meetbare basis de partij voor minimaal 80% moet voldoen (het beoordelingskader, de noemer of populatie en het meetmoment van de 80%-drempel)", "vraag": "Aan welke vastgestelde eisen en op welke berekeningsgrondslag (noemer, populatie en peilmoment) wordt de 80%-drempel bepaald waardoor een partij als geselecteerd geldt?"}

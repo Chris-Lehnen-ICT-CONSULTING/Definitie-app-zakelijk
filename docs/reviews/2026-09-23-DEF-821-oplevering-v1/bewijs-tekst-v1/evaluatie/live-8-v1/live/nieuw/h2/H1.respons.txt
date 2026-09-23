@@ -1,0 +1,2 @@
+BETEKENISGROND ONTBREEKT:
+{"ontbrekende_grond": "het bepalende minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij; bron A stelt minimaal 70%, bron B minimaal 90%, zonder vastgestelde voorrang", "vraag": "Welk minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij geldt voor de afbakening: minimaal 70% of minimaal 90%?"}

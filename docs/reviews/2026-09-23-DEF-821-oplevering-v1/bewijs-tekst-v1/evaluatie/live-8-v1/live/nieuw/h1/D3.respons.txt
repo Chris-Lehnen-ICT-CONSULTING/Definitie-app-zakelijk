@@ -1,0 +1,2 @@
+BETEKENISGROND ONTBREEKT:
+{"ontbrekende_grond": "waaraan een partij voor minimaal 80% moet voldoen en hoe dat percentage wordt bepaald (beoordelingskader, noemer of populatie, meetmoment)", "vraag": "Aan welke vastgestelde criteria moet een partij voor minimaal 80% voldoen en hoe wordt dat percentage berekend en op welk moment vastgesteld?"}

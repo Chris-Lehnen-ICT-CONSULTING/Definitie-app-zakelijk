@@ -1,0 +1,25 @@
+{
+  "base": "b687c1615d4abd30b5b6d38dd55e64f6a758e187",
+  "files": {
+    "docs/plans/2026-09-23-DEF-821-specificatie-v1.md": "4fd8c3f675ee2a523961bbad2c82358511a0d43b82d51bb33b0d199d2efeba7e",
+    "scripts/testing/def821_effectproef.py": "05f5394d1967bb70b89cea1f86750157b968ab2dd87cd26e045b42f00b98344a",
+    "scripts/testing/def821_ontwikkelcasussen.json": "4a5f7177c1e9f46013b45d4a557b23dc3d16160936ea744fea6b1911d184b0e1",
+    "src/services/interfaces.py": "f7b1b5c34c34ae1a97ecaec061b56fd354db0db6da7bad25a4d10b11528487ff",
+    "src/services/modelantwoord.py": "e30469a58e87c1609eeabf48d4f3bf7ee4ad683dedb1862282ec37e4bf5257b0",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "3b92e426be73605c50389e734649f3188ea005f6ae803264df55c4f60d00babb",
+    "src/services/prompts/modules/context_awareness_module.py": "aa92bdf2aa4e76b300d74f422d28b440b984b7301acaa9279221178a5ce48770",
+    "src/services/prompts/modules/definition_task_module.py": "afde3ce2115436522847fb3dcd45be2a4aaf07df25372c3d060f00753f8ccd2c",
+    "src/services/prompts/modules/json_based_rules_module.py": "7a18926b6ce77d6450715828ceca1b345f644642b1a01ab6270eb9dd5a23099c",
+    "src/services/service_factory.py": "3ce6397af27e871bc09b523838eff822cbb60b9d9e7ff262f24045226c31a087",
+    "src/ui/components/definition_generator_tab.py": "0071b084e1e3411987f0953855db489a2daac9ba8e3392099e748d0562b1ea18",
+    "src/ui/handlers/definition_generation_handler.py": "6e2b895266408709f8ed18d2facfe1966a4006a21315518f3153d2f376651b36",
+    "src/ui/helpers/betekenisconflict.py": "a15315be1e2c57af2435f8f859d28d9beb9d31647c7cb47863b293657761c44e",
+    "tests/unit/scripts/test_def821_effectproef.py": "994a39cd145cff9bb012888849144e15f3409ac52025a958a905a6a4aff7b889",
+    "tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py": "59ce5cdfbf6c4c2f281a65c7e413993d6e879c9752407761bf8a8961936d8545",
+    "tests/unit/services/prompts/test_def766_ess03_promptnorm.py": "2d56943f3b10b8e9ba2f25a3eb990e7c61002e8f139387dff0457a716c7db939",
+    "tests/unit/services/prompts/test_def821_ess04_promptcontract.py": "c0c2da9c9dfc538e1ce6f2c264140b88c7fc61f2c181f5383bd442508411d3fe",
+    "tests/unit/services/test_def821_modelantwoord.py": "879c0084bcd0a6a15074979c41d88ea691bb9d27ae94039016ff27c5a09f24a6",
+    "tests/unit/ui/test_def821_ontbrekende_grond_apptest.py": "8cb3478a9cca260f94c45cb83e40921cd0e340b348928a7791bf10c01e6a1249",
+    "tests/unit/ui/test_def821_ontbrekende_grond_ui.py": "7683e120b46d9cc084d3f5d09a87fdde168445174f2441c4aff2c9ceb901b7a4"
+  }
+}

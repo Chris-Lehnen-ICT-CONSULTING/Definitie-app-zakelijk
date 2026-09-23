@@ -1,0 +1,8 @@
+Auto-merging src/services/orchestrators/definition_orchestrator_v2.py
+Merge made by the 'ort' strategy.
+ .../orchestrators/definition_orchestrator_v2.py    |  26 ++
+ .../orchestrators/validation_orchestrator_v2.py    |  10 +
+ .../test_def766_ess03_invoerbinding.py             | 512 +++++++++++++++++++++
+ .../test_validation_orchestrator_v2.py             |   5 +-
+ 4 files changed, 552 insertions(+), 1 deletion(-)
+ create mode 100644 tests/unit/services/orchestrators/test_def766_ess03_invoerbinding.py

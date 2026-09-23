@@ -1,0 +1,40 @@
+[0;34m🔍 Running pre-commit checks...[0m
+Running standard pre-commit checks...
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...................................................Passed
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409.......................Passed
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...............................(no files to check)Skipped
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409...(no files to check)Skipped
+[feature/DEF-821-ess04-generatie-verduidelijking 4af0dc488] feat(DEF-821): ESS-04 G2-instructie en aparte uitkomst voor ontbrekende betekenisgrond
+ 23 files changed, 3755 insertions(+), 80 deletions(-)
+ create mode 100644 docs/plans/2026-09-23-DEF-821-specificatie-v1.md
+ create mode 100644 scripts/testing/def821_effectproef.py
+ create mode 100644 scripts/testing/def821_ontwikkelcasussen.json
+ create mode 100644 tests/unit/scripts/test_def821_effectproef.py
+ create mode 100644 tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py
+ create mode 100644 tests/unit/services/prompts/test_def821_ess04_promptcontract.py
+ create mode 100644 tests/unit/services/test_def821_modelantwoord.py
+ create mode 100644 tests/unit/ui/test_def821_correctieronde1.py
+ create mode 100644 tests/unit/ui/test_def821_ontbrekende_grond_apptest.py
+ create mode 100644 tests/unit/ui/test_def821_ontbrekende_grond_ui.py

@@ -1,0 +1,36 @@
+
+==================================== ERRORS ====================================
+______ ERROR collecting tests/unit/services/test_def821_modelantwoord.py _______
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/unit/services/test_def821_modelantwoord.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/services/test_def821_modelantwoord.py:19: in <module>
+    from services.modelantwoord import (
+E   ImportError: cannot import name 'ONTBREKENDE_GROND_SENTINEL' from 'services.modelantwoord' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/services/modelantwoord.py)
+_ ERROR collecting tests/unit/services/prompts/test_def821_ess04_promptcontract.py _
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/unit/services/prompts/test_def821_ess04_promptcontract.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/services/prompts/test_def821_ess04_promptcontract.py:28: in <module>
+    from services.modelantwoord import CONFLICT_SENTINEL, ONTBREKENDE_GROND_SENTINEL
+E   ImportError: cannot import name 'ONTBREKENDE_GROND_SENTINEL' from 'services.modelantwoord' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/services/modelantwoord.py)
+_ ERROR collecting tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py _
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py:19: in <module>
+    from services.modelantwoord import CONFLICT_SENTINEL, ONTBREKENDE_GROND_SENTINEL
+E   ImportError: cannot import name 'ONTBREKENDE_GROND_SENTINEL' from 'services.modelantwoord' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/services/modelantwoord.py)
+______ ERROR collecting tests/unit/ui/test_def821_ontbrekende_grond_ui.py ______
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/unit/ui/test_def821_ontbrekende_grond_ui.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py:44: in <module>
+    from services.modelantwoord import ONTBREKENDE_GROND_SENTINEL
+E   ImportError: cannot import name 'ONTBREKENDE_GROND_SENTINEL' from 'services.modelantwoord' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/services/modelantwoord.py)
+=========================== short test summary info ============================
+ERROR tests/unit/services/test_def821_modelantwoord.py
+ERROR tests/unit/services/prompts/test_def821_ess04_promptcontract.py
+ERROR tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py
+ERROR tests/unit/ui/test_def821_ontbrekende_grond_ui.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!

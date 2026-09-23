@@ -1,0 +1,12 @@
+
+==================================== ERRORS ====================================
+________ ERROR collecting tests/unit/ui/test_def821_correctieronde1.py _________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/unit/ui/test_def821_correctieronde1.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/ui/test_def821_correctieronde1.py:47: in <module>
+    from ui.helpers.betekenisconflict import (
+E   ImportError: cannot import name 'KEY_KETEN' from 'ui.helpers.betekenisconflict' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/ui/helpers/betekenisconflict.py)
+=========================== short test summary info ============================
+ERROR tests/unit/ui/test_def821_correctieronde1.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

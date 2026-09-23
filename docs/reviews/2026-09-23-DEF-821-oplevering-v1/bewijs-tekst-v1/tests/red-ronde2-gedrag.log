@@ -1,0 +1,22 @@
+....F....FFF.FFF.FFFFF.FFFFFFFF                                          [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py::test_ontbrekende_grond_is_specifieke_non_success_zonder_downstream
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[met_document-proces]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_ess04_regelkaart_draagt_exact_g2_en_niet_meer_de_cijferinstructie[None]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[zonder_document-type]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[met_document-type]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_een_consistent_uitvoercontract_met_twee_uitzonderingen[proces]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[met_document-resultaat]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_een_consistent_uitvoercontract_met_twee_uitzonderingen[type]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[met_document-exemplaar]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_ess04_regelkaart_draagt_exact_g2_en_niet_meer_de_cijferinstructie[proces]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[zonder_document-proces]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_ess04_regelkaart_draagt_exact_g2_en_niet_meer_de_cijferinstructie[type]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_geen_reden_voor_de_melding_gevalsbewijs_categorie_bronsteun
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_ess04_regelkaart_draagt_exact_g2_en_niet_meer_de_cijferinstructie[resultaat]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_ess04_regelkaart_draagt_exact_g2_en_niet_meer_de_cijferinstructie[exemplaar]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[zonder_document-resultaat]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_rijkste_variant_houdt_beide_contracten_en_staart[zonder_document-exemplaar]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_een_consistent_uitvoercontract_met_twee_uitzonderingen[exemplaar]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_een_consistent_uitvoercontract_met_twee_uitzonderingen[None]
+FAILED tests/unit/services/prompts/test_def821_ess04_promptcontract.py::test_een_consistent_uitvoercontract_met_twee_uitzonderingen[resultaat]

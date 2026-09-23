@@ -1,0 +1,3622 @@
+diff --git a/src/services/interfaces.py b/src/services/interfaces.py
+index bc1e46861..205061ccc 100644
+--- a/src/services/interfaces.py
++++ b/src/services/interfaces.py
+@@ -145,6 +145,10 @@ class UIResponseDict(TypedDict):
+     # (orchestrator `error_type == "betekenisconflict"`): vraag + lezingen met
+     # gronden. Geen definitie, geen oordeel; `success` is dan False.
+     betekenisconflict: NotRequired[dict[str, Any]]
++    # DEF-821: alleen bij een door het model gemelde ontbrekende betekenisgrond
++    # (orchestrator `error_type == "betekenisgrond_ontbreekt"`): ontbrekende
++    # grond + gerichte vraag. Geen definitie, geen oordeel; `success` is False.
++    betekenisgrond_ontbreekt: NotRequired[dict[str, Any]]
+ 
+ 
+ # GenerationResult compatibility class for tests (EPIC-010 FASE 1 shim)
+diff --git a/src/services/modelantwoord.py b/src/services/modelantwoord.py
+index a32a05851..84c5886b2 100644
+--- a/src/services/modelantwoord.py
++++ b/src/services/modelantwoord.py
+@@ -28,6 +28,18 @@ Wat hier wél en niet gebeurt:
+ * Een gemeld conflict is een melding van het model, geen vastgesteld feit en
+   geen ESS-02-oordeel; de verwerking daarvan (niet opslaan, niet valideren,
+   verduidelijking vragen) ligt in de orchestrator en de UI.
++
++DEF-821 (ESS-04 G2-2) voegt een tweede, even strikte uitzondering toe: kan
++het model een begripsbepalend criterium niet formuleren zonder een gegeven
++te verzinnen, omdat de noodzakelijke betekenisgrond ontbreekt of strijdig
++is, dan levert het géén definitie maar::
++
++    BETEKENISGROND ONTBREEKT: {"ontbrekende_grond": "...", "vraag": "..."}
++
++Geen lezingen en geen bronverwijzingen: de melding benoemt juist wat níét is
++aangeleverd, dus er valt geen grond te verifiëren en er hoeft geen conflict
++te worden verzonnen. Beide sentinels in één antwoord is ``gemengde_melding``
++(ongeldig); verder gelden dezelfde structuurregels.
+ """
+ 
+ from __future__ import annotations
+@@ -41,12 +53,15 @@ from typing import Any
+ __all__ = [
+     "CONFLICT_SENTINEL",
+     "FOUTCODES",
++    "ONTBREKENDE_GROND_SENTINEL",
+     "SOORT_CONFLICT",
+     "SOORT_DEFINITIE",
+     "SOORT_ONGELDIG",
++    "SOORT_ONTBREKENDE_GROND",
+     "Conflictmelding",
+     "Lezing",
+     "Modelantwoord",
++    "OntbrekendeGrondmelding",
+     "bron_nrs_uit_kwitantie",
+     "contextwaarden_uit",
+     "lees_modelantwoord",
+@@ -55,12 +70,16 @@ __all__ = [
+ 
+ #: De vaste eerste regel van een conflictmelding (kastongevoelig gelezen).
+ CONFLICT_SENTINEL = "VERDUIDELIJKING NODIG:"
++#: DEF-821: de vaste eerste regel van een melding van ontbrekende betekenisgrond.
++ONTBREKENDE_GROND_SENTINEL = "BETEKENISGROND ONTBREEKT:"
+ 
+ SOORT_DEFINITIE = "definitie"
+ SOORT_CONFLICT = "conflict"
++SOORT_ONTBREKENDE_GROND = "ontbrekende_grond"
+ SOORT_ONGELDIG = "ongeldig"
+ 
+ _VERPLICHTE_MELDINGSSLEUTELS = frozenset({"vraag", "lezingen"})
++_VERPLICHTE_GRONDSLEUTELS = frozenset({"ontbrekende_grond", "vraag"})
+ _VERPLICHTE_LEZINGSSLEUTELS = frozenset({"lezing", "bron", "grond"})
+ _MIN_LEZINGEN = 2
+ 
+@@ -95,23 +114,38 @@ class Conflictmelding:
+         }
+ 
+ 
++@dataclass(frozen=True)
++class OntbrekendeGrondmelding:
++    """DEF-821: welke noodzakelijke betekenisgrond ontbreekt + één gerichte vraag."""
++
++    ontbrekende_grond: str
++    vraag: str
++
++    def to_dict(self) -> dict[str, str]:
++        return {"ontbrekende_grond": self.ontbrekende_grond, "vraag": self.vraag}
++
++
+ #: Vaste foutcodes → vaste technische omschrijvingen (reviewcorrectie 3).
+ #: Een reden is altijd exact een van deze teksten: nooit een sleutelnaam,
+ #: bronwaarde of ander fragment uit de modelpayload, zodat een afgewezen
+ #: melding geen modelinhoud verspreidt via response, log of UI. Veldnamen
+ #: die hieronder staan zijn ons eigen contractvocabulaire.
+ FOUTCODES: dict[str, str] = {
+-    "dubbele_melding": "dubbele conflictmelding in één antwoord",
++    "dubbele_melding": "dubbele melding in één antwoord",
++    "gemengde_melding": (
++        "conflictmelding en melding van ontbrekende betekenisgrond in één antwoord"
++    ),
++    "grond_ontbreekt": "veld 'ontbrekende_grond' ontbreekt of is leeg",
+     "sentinel_niet_eerst": (
+-        "conflictmelding staat niet op de eerste regel (vermengd met andere tekst)"
++        "melding staat niet op de eerste regel (vermengd met andere tekst)"
+     ),
+-    "payload_ontbreekt": "conflictmelding zonder JSON-payload",
+-    "payload_geen_json": "conflictpayload is geen geldige JSON",
+-    "tekst_na_payload": "tekst na de conflictpayload (vermengd antwoord)",
+-    "payload_geen_object": "conflictpayload is geen JSON-object",
++    "payload_ontbreekt": "melding zonder JSON-payload",
++    "payload_geen_json": "meldingspayload is geen geldige JSON",
++    "tekst_na_payload": "tekst na de meldingspayload (vermengd antwoord)",
++    "payload_geen_object": "meldingspayload is geen JSON-object",
+     "vraag_ontbreekt": "veld 'vraag' ontbreekt of is leeg",
+     "lezingen_ontbreken": "veld 'lezingen' ontbreekt",
+-    "onbekende_sleutel": "conflictpayload bevat een onbekende sleutel",
++    "onbekende_sleutel": "meldingspayload bevat een onbekende sleutel",
+     "lezingen_geen_lijst": "veld 'lezingen' is geen lijst",
+     "te_weinig_lezingen": "minstens twee lezingen vereist",
+     "lezing_geen_object": "een lezing is geen JSON-object",
+@@ -133,9 +167,10 @@ class Modelantwoord:
+ 
+     `tekst` is altijd het ongewijzigde ruwe antwoord (identiteit), zodat het
+     definitiepad byte-identiek blijft. `conflict` is alleen gevuld bij
+-    `SOORT_CONFLICT`; `code` en `reden` alleen bij `SOORT_ONGELDIG` — een
+-    vaste foutcode uit `FOUTCODES` met haar vaste omschrijving, zonder
+-    modeltekst (geschikt voor logs, response en UI).
++    `SOORT_CONFLICT`, `ontbrekende_grond` alleen bij `SOORT_ONTBREKENDE_GROND`;
++    `code` en `reden` alleen bij `SOORT_ONGELDIG` — een vaste foutcode uit
++    `FOUTCODES` met haar vaste omschrijving, zonder modeltekst (geschikt voor
++    logs, response en UI).
+     """
+ 
+     soort: str
+@@ -143,6 +178,7 @@ class Modelantwoord:
+     conflict: Conflictmelding | None = None
+     code: str | None = None
+     reden: str | None = None
++    ontbrekende_grond: OntbrekendeGrondmelding | None = None
+ 
+ 
+ def _ongeldig(raw: str, code: str) -> Modelantwoord:
+@@ -151,10 +187,10 @@ def _ongeldig(raw: str, code: str) -> Modelantwoord:
+     )
+ 
+ 
+-def _payload_na_sentinel(raw: str) -> str:
++def _payload_na_sentinel(raw: str, sentinel: str) -> str:
+     """De tekst ná de (enige) sentinel, zonder eventuele markdown-fence."""
+-    index = raw.lower().index(CONFLICT_SENTINEL.lower())
+-    payload = raw[index + len(CONFLICT_SENTINEL) :].strip()
++    index = raw.lower().index(sentinel.lower())
++    payload = raw[index + len(sentinel) :].strip()
+     fence = _MARKDOWN_FENCE.match(payload)
+     if fence:
+         payload = fence.group(1).strip()
+@@ -189,25 +225,32 @@ def _lees_lezing(item: Any) -> Lezing | str:
+ 
+ 
+ def lees_modelantwoord(raw: str) -> Modelantwoord:
+-    """Lees het ruwe modelantwoord structureel: definitie, conflict of ongeldig.
++    """Lees het ruwe modelantwoord structureel.
+ 
+-    Zonder sentinel is het antwoord een definitie (tekst ongewijzigd). Met
+-    sentinel moet die op de eerste niet-lege regel staan en gevolgd worden
+-    door precies één JSON-object; elke afwijking is veilig ongeldig.
++    Uitkomst: definitie, conflict, ontbrekende grond of ongeldig. Zonder
++    sentinel is het antwoord een definitie (tekst ongewijzigd). Met precies
++    één sentinel moet die op de eerste niet-lege regel staan en gevolgd
++    worden door precies één JSON-object; elke afwijking — ook beide soorten
++    melding in één antwoord — is veilig ongeldig.
+     """
+     tekst = raw if isinstance(raw, str) else str(raw)
+-    aantal = tekst.lower().count(CONFLICT_SENTINEL.lower())
+-    if aantal == 0:
++    laag = tekst.lower()
++    aantal_conflict = laag.count(CONFLICT_SENTINEL.lower())
++    aantal_grond = laag.count(ONTBREKENDE_GROND_SENTINEL.lower())
++    if aantal_conflict == 0 and aantal_grond == 0:
+         return Modelantwoord(soort=SOORT_DEFINITIE, tekst=raw)
+-    if aantal > 1:
++    if aantal_conflict and aantal_grond:
++        return _ongeldig(raw, "gemengde_melding")
++    if aantal_conflict > 1 or aantal_grond > 1:
+         return _ongeldig(raw, "dubbele_melding")
++    sentinel = CONFLICT_SENTINEL if aantal_conflict else ONTBREKENDE_GROND_SENTINEL
+ 
+     regels = [r for r in tekst.splitlines() if r.strip()]
+     eerste = regels[0].strip().lstrip("-*• ").strip() if regels else ""
+-    if not eerste.lower().startswith(CONFLICT_SENTINEL.lower()):
++    if not eerste.lower().startswith(sentinel.lower()):
+         return _ongeldig(raw, "sentinel_niet_eerst")
+ 
+-    payload = _payload_na_sentinel(tekst)
++    payload = _payload_na_sentinel(tekst, sentinel)
+     if not payload:
+         return _ongeldig(raw, "payload_ontbreekt")
+     try:
+@@ -219,6 +262,30 @@ def lees_modelantwoord(raw: str) -> Modelantwoord:
+     if not isinstance(obj, dict):
+         return _ongeldig(raw, "payload_geen_object")
+ 
++    if sentinel == ONTBREKENDE_GROND_SENTINEL:
++        return _lees_grondpayload(raw, obj)
++    return _lees_conflictpayload(raw, obj)
++
++
++def _lees_grondpayload(raw: str, obj: dict[str, Any]) -> Modelantwoord:
++    """DEF-821: precies `ontbrekende_grond` en `vraag`, beide niet-lege tekst."""
++    if set(obj) - _VERPLICHTE_GRONDSLEUTELS:
++        return _ongeldig(raw, "onbekende_sleutel")
++    grond = _niet_lege_tekst(obj.get("ontbrekende_grond"))
++    if grond is None:
++        return _ongeldig(raw, "grond_ontbreekt")
++    vraag = _niet_lege_tekst(obj.get("vraag"))
++    if vraag is None:
++        return _ongeldig(raw, "vraag_ontbreekt")
++    return Modelantwoord(
++        soort=SOORT_ONTBREKENDE_GROND,
++        tekst=raw,
++        ontbrekende_grond=OntbrekendeGrondmelding(ontbrekende_grond=grond, vraag=vraag),
++    )
++
++
++def _lees_conflictpayload(raw: str, obj: dict[str, Any]) -> Modelantwoord:
++    """DEF-751: `vraag` plus minstens twee verschillende lezingen met grond."""
+     sleutels = set(obj)
+     if sleutels - _VERPLICHTE_MELDINGSSLEUTELS:
+         return _ongeldig(raw, "onbekende_sleutel")
+diff --git a/src/services/orchestrators/definition_orchestrator_v2.py b/src/services/orchestrators/definition_orchestrator_v2.py
+index a1f58804c..87d2327af 100644
+--- a/src/services/orchestrators/definition_orchestrator_v2.py
++++ b/src/services/orchestrators/definition_orchestrator_v2.py
+@@ -1605,10 +1605,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+         (`error_type="modelantwoord_ongeldig"`) zonder de ruwe modeltekst in
+         response of log. In beide gevallen wordt de monitoring afgerond en
+         wordt niets opgeslagen of gevalideerd.
++
++        DEF-821: een structureel geldige melding van ontbrekende
++        betekenisgrond wordt op dezelfde plek afgetakt
++        (`error_type="betekenisgrond_ontbreekt"`); zij heeft geen gronden om
++        te verifiëren.
+         """
+         from services.modelantwoord import (
+             SOORT_CONFLICT,
+             SOORT_DEFINITIE,
++            SOORT_ONTBREKENDE_GROND,
+             bron_nrs_uit_kwitantie,
+             contextwaarden_uit,
+             lees_modelantwoord,
+@@ -1623,6 +1629,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+         antwoord = lees_modelantwoord(raw)
+         if antwoord.soort == SOORT_DEFINITIE:
+             return None
++        if (
++            antwoord.soort == SOORT_ONTBREKENDE_GROND
++            and antwoord.ontbrekende_grond is not None
++        ):
++            return await self._meld_ontbrekende_grond(
++                antwoord.ontbrekende_grond,
++                request,
++                generation_result,
++                generation_id,
++                start_time,
++            )
+ 
+         # Reviewcorrectie 3: uitsluitend een vaste foutcode en haar vaste
+         # omschrijving (`FOUTCODES`) — nooit een sleutel, bronwaarde of ander
+@@ -1649,8 +1666,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+         if conflict is None or fout is not None:
+             code, reden = fout or ("onbekend", "onbekende afwijzingsreden")
+             logger.warning(
+-                "Generation %s: ongeldige conflictmelding van het model "
+-                "(code=%s: %s)",
++                "Generation %s: ongeldige melding van het model (code=%s: %s)",
+                 generation_id,
+                 code,
+                 reden,
+@@ -1659,7 +1675,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+                 success=False,
+                 error=(
+                     "Het model gaf geen bruikbare definitie en geen geldige "
+-                    "conflictmelding; genereer opnieuw."
++                    "melding; genereer opnieuw."
+                 ),
+                 metadata={
+                     **basis_metadata,
+@@ -1696,6 +1712,58 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+                 },
+             )
+ 
++        await self._rond_afgetakt_af(generation_result, generation_id, start_time)
++        return response
++
++    async def _meld_ontbrekende_grond(
++        self,
++        melding: Any,
++        request: GenerationRequest,
++        generation_result: Any,
++        generation_id: str,
++        start_time: float,
++    ) -> DefinitionResponseV2:
++        """DEF-821: non-success met de gemelde ontbrekende betekenisgrond.
++
++        Geen definitie, id, oordeel of categoriebevestiging; de melding staat
++        compleet in de metadata, gebonden aan de invoer waarvoor zij gold.
++        Het log draagt alleen het feit van de melding, nooit modeltekst.
++        """
++        logger.info(
++            "Generation %s: model meldt ontbrekende betekenisgrond; "
++            "geen definitie, geen opslag",
++            generation_id,
++        )
++        response = DefinitionResponseV2(
++            success=False,
++            error=melding.vraag,
++            metadata={
++                "generation_id": generation_id,
++                "duration": time.time() - start_time,
++                "orchestrator_version": "v2.0",
++                "phases_completed": 4,
++                "error_type": "betekenisgrond_ontbreekt",
++                "betekenisgrond_ontbreekt": {
++                    **melding.to_dict(),
++                    "gemeld_door": "model",
++                    "begrip": request.begrip,
++                    "ontologische_categorie": request.ontologische_categorie,
++                    "organisatorische_context": list(
++                        request.organisatorische_context or []
++                    ),
++                    "juridische_context": list(request.juridische_context or []),
++                    "wettelijke_basis": list(request.wettelijke_basis or []),
++                    "generation_id": generation_id,
++                },
++            },
++        )
++        await self._rond_afgetakt_af(generation_result, generation_id, start_time)
++        return response
++
++    async def _rond_afgetakt_af(
++        self, generation_result: Any, generation_id: str, start_time: float
++    ) -> None:
++        """Rond de monitoring af voor een afgetakt (niet-geslaagd) modelantwoord."""
+         if self.monitoring:
+             token_count = getattr(generation_result, "tokens_used", None)
+             await self.monitoring.complete_generation(
+@@ -1706,7 +1774,6 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+                 components_used=[],
+                 had_feedback=False,
+             )
+-        return response
+ 
+     async def _weiger_voor_model(
+         self,
+diff --git a/src/services/prompts/modules/context_awareness_module.py b/src/services/prompts/modules/context_awareness_module.py
+index 6ef650938..dc466672f 100644
+--- a/src/services/prompts/modules/context_awareness_module.py
++++ b/src/services/prompts/modules/context_awareness_module.py
+@@ -36,7 +36,11 @@ _MAX_CONTEXT_BLOK_LEN = 20_000
+ #: DEF-751 stap 2: het kopje waaronder het gebruikersantwoord op een gemeld
+ #: betekenisconflict in het `context`-datablok staat. Eén constante, zodat de
+ #: instructie in `DefinitionTaskModule` en de data hier naar hetzelfde wijzen.
+-VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenislaag door de gebruiker"
++#: DEF-821: ook het antwoord op een melding van ontbrekende betekenisgrond
++#: reist via deze regel; het kopje is daarom neutraal ("betekenis", niet
++#: alleen "betekenislaag"). Welke rol het antwoord heeft, staat per contract
++#: in de instructies.
++VERDUIDELIJKING_KOP = "Verduidelijking van de bedoelde betekenis door de gebruiker"
+ 
+ #: Antwoordbudget voor de verduidelijking, gemeten ná escaping
+ #: (reviewcorrectie 1/2). Een antwoord dat hier niet in past wordt vóór de
+diff --git a/src/services/prompts/modules/definition_task_module.py b/src/services/prompts/modules/definition_task_module.py
+index c08ba490a..8462724dc 100644
+--- a/src/services/prompts/modules/definition_task_module.py
++++ b/src/services/prompts/modules/definition_task_module.py
+@@ -11,7 +11,7 @@ Deze module is verantwoordelijk voor:
+ import logging
+ from typing import Any
+ 
+-from services.modelantwoord import CONFLICT_SENTINEL
++from services.modelantwoord import CONFLICT_SENTINEL, ONTBREKENDE_GROND_SENTINEL
+ from services.prompts.sanitization import (
+     DATABLOK_AFSPRAAK,
+     TAG_BEGRIP,
+@@ -139,9 +139,11 @@ class DefinitionTaskModule(BasePromptModule):
+             # metadata bij de opdracht, geen eerste uitvoerregel.
+             sections.append(self._build_categorie_metadata_afspraak())
+ 
+-            # DEF-751 stap 2: de enige uitzondering op de definitie-only-
+-            # uitvoer — het strikt parseerbare conflictcontract.
++            # DEF-751 stap 2 + DEF-821: de twee uitzonderingen op de
++            # definitie-only-uitvoer — het strikt parseerbare conflictcontract
++            # (ESS-02) en de melding van ontbrekende betekenisgrond (ESS-04).
+             sections.append(self._build_conflictcontract())
++            sections.append(self._build_ontbrekende_grond_contract())
+ 
+             # Finale definitie opdracht
+             sections.append(self._build_final_instruction(begrip))
+@@ -324,7 +326,7 @@ Formuleer nu de definitie van het begrip in dit datablok:
+         """
+         return """---
+ 
+-📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern; geen kopregel met de categorie."""
++📋 **Categorie is metadata:** het opgegeven label hoort niet in de definitiezin en vervangt geen betekenisonderbouwing. Lever uitsluitend de definitiekern (of, in een van de twee uitzonderingen hieronder, alleen die ene melding); geen kopregel met de categorie."""
+ 
+     def _build_conflictcontract(self) -> str:
+         """DEF-751 stap 2: het additieve modelconflictcontract (ESS-02, C3).
+@@ -346,7 +348,7 @@ Formuleer nu de definitie van het begrip in dit datablok:
+         van een lezing geldt.
+         """
+         return (
+-            "🛑 **Betekenisconflict (ESS-02), enige uitzondering op de "
++            "🛑 **Betekenisconflict (ESS-02), eerste uitzondering op de "
+             "definitie-uitvoer:** alléén als aangeleverde bronnen of "
+             "contextwaarden elkaar werkelijk tegenspreken over de betekenislaag: "
+             f"géén definitie, maar één melding. Eerste regel `{CONFLICT_SENTINEL}` "
+@@ -358,7 +360,8 @@ Formuleer nu de definitie van het begrip in dit datablok:
+             "deze melding samen. Overlap tussen richtingen (bijv. type/proces), "
+             "eigen onzekerheid of een ontbrekende categorie is géén conflict: dan "
+             "gewoon één voorlopige definitiezin. Een "
+-            f"'{VERDUIDELIJKING_KOP}' in het contextblok is de keuze van de "
++            f"'{VERDUIDELIJKING_KOP}' in het contextblok die zo'n tegenspraak "
++            "beantwoordt, is de keuze van de "
+             "bedoelde betekenislaag door de gebruiker: definieer die lezing, "
+             "herschrijf de bronnen niet (een bedoeling, geen bronfeit en geen "
+             "ESS-02-oordeel). De tegenspraak die deze keuze beslist (bijv. "
+@@ -368,9 +371,58 @@ Formuleer nu de definitie van het begrip in dit datablok:
+             "blijft een werkelijke, ándere tegenspraak over, meld die opnieuw."
+         )
+ 
++    def _build_ontbrekende_grond_contract(self) -> str:
++        """DEF-821: de melding van ontbrekende betekenisgrond (ESS-04, G2-2).
++
++        De G2-instructie in de ESS-04-regelkaart vraagt bij ontbrekende of
++        strijdige noodzakelijke grond "geen definitieve afbakening" en een
++        "aparte verduidelijkingsuitkomst"; dit is die uitkomst — de enige
++        plek voor de ontbrekende grond (er is geen apart toelichtingsveld).
++        Strikt parseerbaar (`services.modelantwoord`), zonder lezingen of
++        bronverwijzingen: er hoeft geen conflict verzonnen te worden.
++        Bewust afgebakend (besluit 3 van de specificatie): kwalitatieve
++        betekenis, ontbrekend gevalsbewijs, een ontbrekende categorie,
++        ontbrekende bronsteun (CON-02) en een onbesliste ESS-03-eenheidsgrens
++        blijven een gewone voorlopige definitiezin; tegenspraak over de
++        betekenislaag blijft de ESS-02-conflictmelding.
++        """
++        return (
++            "🛑 **Ontbrekende betekenisgrond (ESS-04), tweede uitzondering op de "
++            "definitie-uitvoer:** alléén als een begripsbepalend criterium (zoals "
++            "een grens, noemer of populatie, inclusie, startmoment of dag- en "
++            "tijdsbasis) nodig is om het begrip af te bakenen en begrip, context, "
++            "bronnen en een eventuele verduidelijking die noodzakelijke betekenis "
++            "niet geven of elkaar daarover tegenspreken, zodat elke definitiezin "
++            "een gegeven moet verzinnen of zelf een bepalende keuze moet maken: "
++            "géén definitie, maar één melding. Eerste regel "
++            f"`{ONTBREKENDE_GROND_SENTINEL}` plus één JSON-object "
++            '{"ontbrekende_grond": "welk noodzakelijk gegeven ontbreekt", '
++            '"vraag": "één gerichte vraag aan de gebruiker"}; geen lezingen, '
++            "bronnen of andere velden, nooit samen met een definitie of met de "
++            "conflictmelding. Dit is de aparte verduidelijkingsuitkomst uit de "
++            "ESS-04-instructie. Géén reden voor deze melding: een kwalitatief "
++            "criterium dat de betekenis al afbakent, ontbrekend bewijs voor één "
++            "concreet geval, een ontbrekende of onzekere categorie, ontbrekende "
++            "bronsteun, een onbesliste eenheidsgrens (ESS-03) of eigen twijfel "
++            "over de formulering — dan gewoon één voorlopige definitiezin. "
++            "Tegenspraak over de betekenislaag blijft de conflictmelding "
++            f"hierboven. Een '{VERDUIDELIJKING_KOP}' in het contextblok die de "
++            "gevraagde grond aanvult, is de bedoeling van de gebruiker, geen "
++            "bronfeit: definieer daarmee en meld die grond niet opnieuw als "
++            "ontbrekend."
++        )
++
+     def _build_final_instruction(self, begrip: str) -> str:
+-        """Bouw finale definitie instructie."""
+-        return f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting."
++        """Bouw finale definitie instructie.
++
++        DEF-821: de slotopdracht noemt de twee uitzonderingen, zodat zij de
++        meldingen niet alsnog verbiedt.
++        """
++        return (
++            f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele "
++            "zin, zonder toelichting — of, uitsluitend in een van de twee "
++            "uitzonderingen hierboven, alleen die ene melding."
++        )
+ 
+     def _build_prompt_metadata(
+         self,
+diff --git a/src/services/prompts/modules/json_based_rules_module.py b/src/services/prompts/modules/json_based_rules_module.py
+index 0ef45e0a8..599e9ee8d 100644
+--- a/src/services/prompts/modules/json_based_rules_module.py
++++ b/src/services/prompts/modules/json_based_rules_module.py
+@@ -360,7 +360,26 @@ class JSONBasedRulesModule(BasePromptModule):
+                 "en synthetische voorbeelden afzonderlijk; ze vervangen geen "
+                 "ontbrekende kernafgrenzing."
+             ),
+-            "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
++            # DEF-821: exacte G2-tekst (DEF-767 instructievoorstellen-v5). De
++            # "aparte verduidelijkingsuitkomst" is het strikt parseerbare
++            # contract voor ontbrekende betekenisgrond in DefinitionTaskModule
++            # (G2-2); geen cijferplicht meer.
++            "ESS-04": (
++                "Beschrijf begripsbepalende kenmerken die in de bedoelde context "
++                "navolgbaar op gevallen kunnen worden toegepast. Kwalitatieve "
++                "criteria zijn toegestaan; voeg geen getal, percentage, termijn of "
++                "registratienummer toe om toetsbaarheid te suggereren. Neem een "
++                "kwantitatieve grens alleen over als de aangeleverde betekenisgrond "
++                "haar ondersteunt en behoud relevante noemer, populatie, inclusie, "
++                "startmoment en tijdsbasis, waaronder werk- of kalenderdagen wanneer "
++                "dat onderscheidend is. Laat bepalende beperkingen in de "
++                "definitiekern staan; methode, bewijsplaatsen en registratiecontext "
++                "blijven apart. Bij ontbrekende of strijdige noodzakelijke grond: "
++                "lever geen definitieve afbakening en verzin geen gegeven. Benoem "
++                "de ontbrekende grond uitsluitend in een daarvoor bestemde aparte "
++                "toelichting of verduidelijkingsuitkomst; voeg geen foutmelding, "
++                "vraag of onzekere placeholder aan de definitiezin toe."
++            ),
+             "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
+             # STR rules (Structuur)
+             "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
+diff --git a/src/services/service_factory.py b/src/services/service_factory.py
+index 60c68de71..172746583 100644
+--- a/src/services/service_factory.py
++++ b/src/services/service_factory.py
+@@ -526,6 +526,12 @@ class ServiceAdapter:
+                 failure["betekenisconflict"] = conflict
+                 failure["definitie_origineel"] = ""
+                 failure["definitie_gecorrigeerd"] = ""
++            # DEF-821: idem voor een gemelde ontbrekende betekenisgrond.
++            grond = self._ontbrekende_grond_uit(response)
++            if grond is not None:
++                failure["betekenisgrond_ontbreekt"] = grond
++                failure["definitie_origineel"] = ""
++                failure["definitie_gecorrigeerd"] = ""
+             return failure
+ 
+         # Extract definition text
+@@ -742,6 +748,25 @@ class ServiceAdapter:
+             return None
+         return dict(conflict)
+ 
++    @staticmethod
++    def _ontbrekende_grond_uit(response: Any) -> dict[str, Any] | None:
++        """De melding van ontbrekende betekenisgrond (DEF-821), of None.
++
++        Vereist `error_type == "betekenisgrond_ontbreekt"` én een dict met
++        niet-lege `ontbrekende_grond` en `vraag`; anders None.
++        """
++        metadata = getattr(response, "metadata", None)
++        if not isinstance(metadata, dict):
++            return None
++        if metadata.get("error_type") != "betekenisgrond_ontbreekt":
++            return None
++        melding = metadata.get("betekenisgrond_ontbreekt")
++        if not isinstance(melding, dict):
++            return None
++        if not melding.get("ontbrekende_grond") or not melding.get("vraag"):
++            return None
++        return dict(melding)
++
+     def _create_failure_response(self, response: Any) -> "UIResponseDict":
+         """Create a standardized failure response.
+ 
+diff --git a/src/ui/components/definition_generator_tab.py b/src/ui/components/definition_generator_tab.py
+index 4e1be3dcd..5f512255f 100644
+--- a/src/ui/components/definition_generator_tab.py
++++ b/src/ui/components/definition_generator_tab.py
+@@ -176,6 +176,12 @@ class DefinitionGeneratorTab:
+         ):
+             self._render_betekenisconflict(agent_result)
+             return
++        # DEF-821: idem voor een gemelde ontbrekende betekenisgrond (ESS-04).
++        if isinstance(agent_result, dict) and isinstance(
++            agent_result.get("betekenisgrond_ontbreekt"), dict
++        ):
++            self._render_ontbrekende_grond(agent_result)
++            return
+ 
+         # Show success/warning indicator
+         self._render_generation_status(agent_result)
+@@ -654,13 +660,7 @@ class DefinitionGeneratorTab:
+         hoofdknop; de handler past het antwoord alleen bij ongewijzigde invoer
+         toe. Het widget-veld wordt door de code nooit gezet of gewist.
+         """
+-        from ui.helpers.betekenisconflict import (
+-            KEY_AFWIJZING,
+-            KEY_INVOER,
+-            KEY_OPEN,
+-            KEY_VERZONDEN,
+-            verzend_verduidelijking,
+-        )
++        from ui.helpers.betekenisconflict import SOORT_CONFLICT
+ 
+         conflict = agent_result["betekenisconflict"]
+         st.warning(
+@@ -679,9 +679,52 @@ class DefinitionGeneratorTab:
+                     f"{nr}. **{lezing.get('lezing', '')}** — "
+                     f"{lezing.get('grond', '')} _(verwijzing: {lezing.get('bron', '')})_"
+                 )
++        self._render_verduidelijkingsantwoord(conflict, SOORT_CONFLICT)
++
++    def _render_ontbrekende_grond(self, agent_result: dict[str, Any]) -> None:
++        """DEF-821: toon de gemelde ontbrekende betekenisgrond en vraag een antwoord.
++
++        Apart van definitie en technische fout: een melding van het model,
++        geen vastgesteld feit en geen ESS-04-oordeel. Modelvelden verschijnen
++        uitsluitend als platte tekst (`st.text`), zodat HTML of Markdown uit
++        de modeluitvoer nooit wordt geïnterpreteerd. Het antwoord loopt via
++        hetzelfde gebonden mechanisme als bij een betekenisconflict.
++        """
++        from ui.helpers.betekenisconflict import SOORT_ONTBREKENDE_GROND
++
++        melding = agent_result["betekenisgrond_ontbreekt"]
++        st.warning(
++            "⚠️ Verduidelijking nodig — het model meldt dat noodzakelijke "
++            "betekenisgrond ontbreekt en heeft geen definitie geleverd. Dit is "
++            "een melding van het model, geen vastgesteld feit en geen "
++            "ESS-04-oordeel."
++        )
++        st.caption("Ontbrekende betekenisgrond volgens het model:")
++        st.text(str(melding.get("ontbrekende_grond") or ""))
++        st.caption("Vraag van het model:")
++        st.text(str(melding.get("vraag") or ""))
++        self._render_verduidelijkingsantwoord(melding, SOORT_ONTBREKENDE_GROND)
++
++    def _render_verduidelijkingsantwoord(
++        self, melding: dict[str, Any], soort: str
++    ) -> None:
++        """Antwoordveld + expliciete verzendknop, gebonden aan het open verzoek.
++
++        Gedeeld door betekenisconflict (DEF-751) en ontbrekende betekenisgrond
++        (DEF-821); alleen de uitlegteksten verschillen per soort.
++        """
++        from ui.helpers.betekenisconflict import (
++            KEY_AFWIJZING,
++            KEY_INVOER,
++            KEY_OPEN,
++            KEY_VERZONDEN,
++            SOORT_ONTBREKENDE_GROND,
++            verzend_verduidelijking,
++        )
+ 
++        grond = soort == SOORT_ONTBREKENDE_GROND
+         open_conflict = SessionStateManager.get_value(KEY_OPEN)
+-        getoond_id = str(conflict.get("generation_id") or "")
++        getoond_id = str(melding.get("generation_id") or "")
+         hoort_bij_open = (
+             isinstance(open_conflict, dict)
+             and getoond_id
+@@ -690,7 +733,9 @@ class DefinitionGeneratorTab:
+         if not hoort_bij_open:
+             st.info(
+                 "Deze vraag hoort bij een eerdere generatie. Genereer opnieuw; "
+-                "meldt het model het conflict opnieuw, dan kun je hier antwoorden."
++                "meldt het model het "
++                + ("tekort aan betekenisgrond" if grond else "conflict")
++                + " opnieuw, dan kun je hier antwoorden."
+             )
+             return
+ 
+@@ -705,25 +750,45 @@ class DefinitionGeneratorTab:
+                     f"❌ Je verzonden verduidelijking is geweigerd: {afwijzing} "
+                     "Pas het antwoord hieronder aan en verzend het opnieuw."
+                 )
++            elif grond:
++                st.info(
++                    "Verzonden verduidelijking (klaar voor hergeneratie met de "
++                    "hoofdknop 'Genereer Definitie'):"
++                )
++                st.text(str(verzonden.get("tekst") or ""))
+             else:
+                 st.info(
+                     "Verzonden verduidelijking (klaar voor hergeneratie met de "
+                     f"hoofdknop 'Genereer Definitie'): {verzonden.get('tekst', '')}"
+                 )
+ 
++        if grond:
++            uitleg = (
++                "Je antwoord vult de ontbrekende betekenisgrond aan als jouw "
++                "bedoeling — geen bronfeit en geen ESS-04-oordeel."
++            )
++            hulp = (
++                "Geef het ontbrekende gegeven (bijv. noemer, grens of "
++                "dagconventie). Leeg is geen antwoord; verzenden is expliciet."
++            )
++        else:
++            uitleg = (
++                "Je antwoord is jouw keuze van de bedoelde betekenislaag — geen "
++                "bewijs over wat de bronnen zeggen."
++            )
++            hulp = (
++                "Beschrijf welke lezing bedoeld is. Leeg is geen antwoord; "
++                "verzenden is expliciet."
++            )
+         st.caption(
+             f"Vraag gesteld voor begrip '{open_conflict.get('begrip', '')}' met de "
+-            "toen ingevulde context, categorie en bronselectie. Je antwoord is "
+-            "jouw keuze van de bedoelde betekenislaag — geen bewijs over wat de "
+-            "bronnen zeggen. Wijzig je de invoer, dan vervalt het antwoord."
++            f"toen ingevulde context, categorie en bronselectie. {uitleg} "
++            "Wijzig je de invoer, dan vervalt het antwoord."
+         )
+         st.text_area(
+             "Jouw verduidelijking van de bedoelde betekenis",
+             key=KEY_INVOER,
+-            help=(
+-                "Beschrijf welke lezing bedoeld is. Leeg is geen antwoord; "
+-                "verzenden is expliciet."
+-            ),
++            help=hulp,
+         )
+         if st.button(
+             "📨 Verduidelijking vastleggen", key="btn_betekenisverduidelijking"
+diff --git a/src/ui/handlers/definition_generation_handler.py b/src/ui/handlers/definition_generation_handler.py
+index d35d3de88..8bb5c036a 100644
+--- a/src/ui/handlers/definition_generation_handler.py
++++ b/src/ui/handlers/definition_generation_handler.py
+@@ -28,6 +28,7 @@ from ui.helpers.betekenisconflict import (
+     KEY_AFWIJZING,
+     KEY_OPEN,
+     KEY_VERZONDEN,
++    SOORT_ONTBREKENDE_GROND,
+     invoer_vingerafdruk,
+     open_conflict_uit,
+     rag_selectie_voor_vingerafdruk,
+@@ -661,7 +662,18 @@ class DefinitionGenerationHandler:
+                 geslaagd = isinstance(service_result, dict) and bool(
+                     service_result.get("success")
+                 )
+-                if open_conflict is not None:
++                if (
++                    open_conflict is not None
++                    and open_conflict.get("soort") == SOORT_ONTBREKENDE_GROND
++                ):
++                    # DEF-821: eigen melding, geen betekenisconflict.
++                    st.warning(
++                        "⚠️ Verduidelijking nodig: het model meldt dat "
++                        "noodzakelijke betekenisgrond ontbreekt en heeft geen "
++                        "definitie geleverd. Beantwoord de vraag in de "
++                        "'Definitie Generatie' tab en genereer daarna opnieuw."
++                    )
++                elif open_conflict is not None:
+                     st.warning(
+                         "⚠️ Verduidelijking nodig: het model meldt een "
+                         "betekenisconflict en heeft geen definitie geleverd. "
+diff --git a/src/ui/helpers/betekenisconflict.py b/src/ui/helpers/betekenisconflict.py
+index 4c1ad2b7c..6304bb8ee 100644
+--- a/src/ui/helpers/betekenisconflict.py
++++ b/src/ui/helpers/betekenisconflict.py
+@@ -21,6 +21,11 @@ nieuwe opslag: alles is sessiestaat.
+ 
+ Een verduidelijking is gebruikersbedoeling — een keuze van de bedoelde
+ betekenislaag — geen bewezen bronfeit en geen ESS-02-oordeel.
++
++DEF-821: een door het model gemelde ontbrekende betekenisgrond (ESS-04) is
++een tweede soort open verzoek (`soort`), met `ontbrekende_grond` en `vraag`
++in plaats van lezingen. Het antwoord — de door de gebruiker aangevulde grond
++— loopt via precies hetzelfde gebonden en eenmalige mechanisme.
+ """
+ 
+ from __future__ import annotations
+@@ -38,6 +43,8 @@ __all__ = [
+     "KEY_RAG_NAMEN",
+     "KEY_VERZONDEN",
+     "RAG_STANDAARDCOLLECTIE",
++    "SOORT_CONFLICT",
++    "SOORT_ONTBREKENDE_GROND",
+     "invoer_vingerafdruk",
+     "open_conflict_uit",
+     "rag_selectie_voor_vingerafdruk",
+@@ -72,6 +79,10 @@ HERSTELBARE_VERDUIDELIJKINGSFOUTEN = frozenset(
+     {"verduidelijking_te_lang", "verduidelijking_niet_in_prompt", "prompt_te_lang"}
+ )
+ 
++#: DEF-821: soort open verzoek — gelijk aan de sleutel in het UI-resultaat.
++SOORT_CONFLICT = "betekenisconflict"
++SOORT_ONTBREKENDE_GROND = "betekenisgrond_ontbreekt"
++
+ 
+ def _lijst(waarden: Iterable[Any] | None) -> list[str]:
+     return sorted({str(w).strip() for w in (waarden or []) if str(w).strip()})
+@@ -124,25 +135,45 @@ def rag_selectie_voor_vingerafdruk(sm: Any) -> list[str] | None:
+     return scope
+ 
+ 
++def _open_melding_uit(agent_result: dict[str, Any]) -> tuple[str, dict] | None:
++    """(soort, melding) uit een UI-resultaat; conflict gaat vóór (DEF-821)."""
++    conflict = agent_result.get(SOORT_CONFLICT)
++    if isinstance(conflict, dict) and conflict.get("vraag"):
++        return SOORT_CONFLICT, conflict
++    grond = agent_result.get(SOORT_ONTBREKENDE_GROND)
++    if (
++        isinstance(grond, dict)
++        and grond.get("vraag")
++        and grond.get("ontbrekende_grond")
++    ):
++        return SOORT_ONTBREKENDE_GROND, grond
++    return None
++
++
+ def open_conflict_uit(agent_result: Any, vingerafdruk: str) -> dict[str, Any] | None:
+-    """Het open conflict voor de sessie uit een UI-resultaat, of None."""
++    """Het open verzoek (conflict of ontbrekende grond) uit een UI-resultaat, of None."""
+     if not isinstance(agent_result, dict):
+         return None
+-    conflict = agent_result.get("betekenisconflict")
+-    if not isinstance(conflict, dict) or not conflict.get("vraag"):
++    gevonden = _open_melding_uit(agent_result)
++    if gevonden is None:
+         return None
+-    generation_id = conflict.get("generation_id") or (
++    soort, melding = gevonden
++    generation_id = melding.get("generation_id") or (
+         agent_result.get("metadata") or {}
+     ).get("generation_id")
+     if not generation_id:
+         return None
+-    return {
++    open_verzoek: dict[str, Any] = {
+         "generation_id": str(generation_id),
+         "vingerafdruk": vingerafdruk,
+-        "vraag": str(conflict["vraag"]),
+-        "lezingen": [dict(lz) for lz in conflict.get("lezingen") or []],
+-        "begrip": str(conflict.get("begrip") or ""),
++        "soort": soort,
++        "vraag": str(melding["vraag"]),
++        "lezingen": [dict(lz) for lz in melding.get("lezingen") or []],
++        "begrip": str(melding.get("begrip") or ""),
+     }
++    if soort == SOORT_ONTBREKENDE_GROND:
++        open_verzoek["ontbrekende_grond"] = str(melding["ontbrekende_grond"])
++    return open_verzoek
+ 
+ 
+ def verzend_verduidelijking(
+@@ -153,7 +184,10 @@ def verzend_verduidelijking(
+     Leeg is geen antwoord; zonder open conflict is er niets om aan te binden.
+     """
+     if not isinstance(open_conflict, dict) or not open_conflict.get("generation_id"):
+-        return "Er is geen open betekenisconflict om te beantwoorden; genereer opnieuw."
++        return (
++            "Er is geen open verduidelijkingsvraag (betekenisconflict of "
++            "ontbrekende betekenisgrond) om te beantwoorden; genereer opnieuw."
++        )
+     antwoord = " ".join(str(tekst or "").split())
+     if not antwoord:
+         return "Een leeg antwoord is geen verduidelijking."
+@@ -191,8 +225,8 @@ def verzonden_verduidelijking_voor(
+     )
+     if not open_id or verzonden.get("generation_id") != open_id:
+         return None, (
+-            "Verduidelijking niet toegepast: zij hoorde bij een eerder "
+-            "betekenisconflict, niet bij het huidige."
++            "Verduidelijking niet toegepast: zij hoorde bij een eerdere "
++            "verduidelijkingsvraag, niet bij de huidige."
+         )
+     if verzonden.get("vingerafdruk") != vingerafdruk:
+         return None, (
+diff --git a/tests/unit/services/prompts/test_def766_ess03_promptnorm.py b/tests/unit/services/prompts/test_def766_ess03_promptnorm.py
+index 3e63a935c..57963eab0 100644
+--- a/tests/unit/services/prompts/test_def766_ess03_promptnorm.py
++++ b/tests/unit/services/prompts/test_def766_ess03_promptnorm.py
+@@ -197,10 +197,15 @@ async def test_echte_samengestelde_prompt_volgt_de_ess03_norm(category):
+         assert oud not in prompt, oud
+     for strijdig in STRIJDIG_MET_UITVOERCONTRACT:
+         assert strijdig not in prompt, strijdig
+-    # De ESS-02-conflictmelding blijft de enige uitzondering op de uitvoer en
+-    # is niet stil naar ESS-03 verbreed.
+-    assert prompt.count("enige uitzondering op de definitie-uitvoer") == 1
+-    assert "Betekenisconflict (ESS-02)" in prompt
++    # De ESS-02-conflictmelding is niet stil naar ESS-03 verbreed. DEF-821
++    # voegt precies één tweede uitzondering toe (ESS-04, ontbrekende
++    # betekenisgrond); die sluit een onbesliste ESS-03-eenheidsgrens
++    # uitdrukkelijk uit, zodat ESS-03 bij de voorlopige kandidaat blijft.
++    assert "enige uitzondering" not in prompt
++    assert prompt.count("uitzondering op de definitie-uitvoer") == 2
++    assert "Betekenisconflict (ESS-02), eerste uitzondering" in prompt
++    assert "Ontbrekende betekenisgrond (ESS-04), tweede uitzondering" in prompt
++    assert "een onbesliste eenheidsgrens (ESS-03)" in prompt
+     # De aangrenzende besluiten blijven staan (ESS-01/ESS-02/CON-02).
+     assert "behoefte of eis van een belanghebbende" in prompt
+     assert "geen verplicht woordenlijstje" in prompt
+diff --git a/docs/plans/2026-09-23-DEF-821-specificatie-v1.md b/docs/plans/2026-09-23-DEF-821-specificatie-v1.md
+new file mode 100644
+index 000000000..26d9f7d4d
+--- /dev/null
++++ b/docs/plans/2026-09-23-DEF-821-specificatie-v1.md
+@@ -0,0 +1,38 @@
++# DEF-821 — ESS-04-generatie en verduidelijkingsroute
++Datum: 23 september 2026. Basis: b687c1615d4abd30b5b6d38dd55e64f6a758e187.
++Opdracht: Chris heeft de aanbevolen combinatie van G2-instructie, G2-2-route en vergelijking vóór/na opgedragen ("doe dit"). Claude Code CLI implementeert; een afzonderlijke Codex CLI-sessie reviewt; coördinator schrijft geen software.
++
++## Besluiten en beantwoorde ontwerpvragen
++1. Alleen prompttekst aanpassen of ook uitvoerroute? Beide samen, conform DEF-767 G2-2 van 21 september 09:11 UTC. Geen definitie mogelijk is een aparte niet-succesuitkomst; nooit een definitiezin.
++2. Vooraf blokkeren of modeluitkomst verwerken? Bestaand modelantwoordcontract uitbreiden: ontbrekende noodzakelijke betekenisgrond moet apart kunnen worden gemeld, zonder fictieve conflictlezingen. Bestaande ESS-02-conflictroute blijft intact.
++3. Is iedere onzekerheid ontbrekende grond? Nee. Kwalitatieve betekenis kan genoeg zijn; een ontbrekend categorie-label of ontbrekend gevalsbewijs is op zichzelf geen tekort aan betekenisgrond. Geen nieuwe automatische ESS-04-jury.
++4. Kwaliteitsbewijs? Vergelijk echte modeluitvoer op dezelfde vooraf vastgelegde synthetische invoer en normverwachtingen, oude/nieuwe volledige appprompt, model/settings gelijk, twee herhalingen. Houd twee casussen buiten implementatie/tuning. Rapporteer verbetering/gelijk/verslechtering/onzeker; AI-beoordeling is geen menselijke gebruikerstest.
++
++## Codebase en patronen
++Bestaand: services/modelantwoord.py strict sentinel/JSON-parser; orchestrators/definition_orchestrator_v2.py split vóór schoonmaak/toetsing/opslag; definition_task_module.py eindcontract; json_based_rules_module.py instructie; services/interfaces.py en adapters transport; ui/helpers/betekenisconflict.py bindt antwoord aan invoer/generatie; handler/tab tonen en hergenereren. Sluit hier zo klein mogelijk op aan. Async AIServiceV2, ModelRouter, SessionStateManager; geen dependencies, schemawijzigingen of logging van model-/persoonsinhoud. Andere werkbomen blijven onaangeraakt.
++
++## Acceptatiecriteria
++- AC1: exacte G2-v5-entry actief samen met G2-2-route. Volledige eindprompt heeft één consistent uitvoercontract; geen resterende exclusiviteit die de nieuwe uitkomst verbiedt. Ondersteunde numerieke grenzen blijven behouden, geen cijferplicht.
++- AC2: strikt herkenbare aparte uitkomst voor ontbrekende noodzakelijke betekenisgrond, met concrete ontbrekende grond en gerichte vraag. Gemengd/misvormd antwoord faalt veilig; geen verzonnen bronconflict nodig.
++- AC3: aparte uitkomst passeert vóór opschonen, validatie, verrijking en opslag; success=false, geen definitie/id/oordeel. Transport naar UI blijft compleet. Reguliere definitie en ESS-02-conflict blijven werken.
++- AC4: UI toont ontbrekende grond en vraag als modelmelding, apart van definitie/technische fout. Antwoord kan expliciet verzonden en bij ongewijzigde invoer gebruikt worden; gewijzigde invoer maakt oud antwoord ongeldig. Geen HTML/Markdown-injectie via modelvelden.
++- AC5: ketenproef met echte repository/tijdelijke database bewijst nul definitie-opslag bij verduidelijking en correcte opslag/readback na een reguliere kandidaat. Test parsing, transport, rendering en hergeneratie, incl. fout- en grensgevallen.
++- AC6: bestaande ESS-04 judgment_review/review_required/excluded_from_score en patronen blijven; norm, generatieprompt en geïnstalleerd skillreferentieblok zijn inhoudelijk consistent. Geen DEF-630/624-reviewworkflow bouwen.
++- AC7: relevante RED/GREEN-tests, make test en make lint, exact gekoppeld aan einddiff; concrete onafhankelijke Codex-review en afhandeling van bevindingen.
++- AC8: echte vóór/na-effectproef met vooraf bevroren cases/verwachtingen, volledige prompts, instellingen, ruwe uitkomsten en tekstversies. Geen mocks als effectbewijs. Ontbrekende live toegang of onbeslist resultaat expliciet rapporteren; geen claim van gebruikerswinst zonder gebruikersproef.
++
++## Effectproef — vooraf vastgelegde ontwikkelcasussen
++Alle hieronder genoemde afspraken zijn fictieve betekenisgrond voor de proef, geen juridische feiten.
++D1 'gelijkzijdige veelhoek': veelhoek met alle zijden even lang. Verwacht kwalitatieve kandidaat, geen extra meettolerantie/getal.
++D2 'geselecteerde partij': minstens 80% van alle voorwerpen in de partij is blauw; exact 80% telt mee. Verwacht grens/noemer/inclusie behouden.
++D3 'geselecteerde partij': minimaal 80% voldoet; niet gegeven waaraan of waarvan percentage wordt berekend. Verwacht aparte ontbrekende-gronduitkomst, geen verzonnen noemer/criterium.
++D4 'tijdige reactie': reactie binnen drie dagen na ontvangst; onderscheid werk-/kalenderdagen is expliciet nog onbeslist maar bepalend. Verwacht vraag om dagconventie, geen eigen keuze.
++D5 'ondertekend document': document waarop de afzender een handtekening heeft geplaatst; bij één concreet document is onbekend of de krabbel van de afzender is. Verwacht kwalitatieve kandidaat, geen blokkade alleen wegens gevalsbewijs.
++D6 'tijdige melding': fictieve afspraak expliciet binnen drie werkdagen na ontvangst, ontvangstdag telt niet mee en derde werkdag telt wel. Verwacht betekenisbehoud, geen kalenderdagen en geen weglaten van grensbeperking.
++Twee extra gevallen worden door de coördinator pas na implementatie bevroren geëvalueerd zonder prompttuning. Maximaal 32 live generatieaanroepen voor de vergelijkingsproef (8 cases × 2 versies × 2 herhalingen), via bestaande provider/modelconfig. Onafhankelijke vergelijking door reviewer, geen expertlabelclaim.
++
++## Uitvoering en grenzen
++Werkboom: .claude/worktrees/DEF-821-ess04-generatie.
++Branch: feature/DEF-821-ess04-generatie-verduidelijking.
++Geen merge zonder oplevering. Geen verwijderen van bestanden; geen beschermde .claude/rules-edits. Gebruik bestaande .venv van hoofdrepo. Evaluatiescripts/testcode schrijft uitsluitend Claude. Bestaande bronbestanden gericht editen is onderdeel van de opdracht; bronherkomst en herstelbaarheid behouden via Git.
++
+diff --git a/scripts/testing/def821_effectproef.py b/scripts/testing/def821_effectproef.py
+new file mode 100644
+index 000000000..f7abf58bf
+--- /dev/null
++++ b/scripts/testing/def821_effectproef.py
+@@ -0,0 +1,1118 @@
++#!/usr/bin/env python3
++"""DEF-821 effectproef: echte voor/na-uitvoer op de volledige appprompts.
++
++Vergelijkt twee bronversies van de app op dezelfde, vooraf vastgelegde
++casussen: ``basis`` (commit ``BASIS_REF``, via ``git archive`` in een
++tijdelijke map; geen branch wordt gewijzigd) en ``nieuw`` (een kopie van de
++huidige werkboom, ``src/`` + ``config/``). Elke versie draait in een eigen
++subprocess met uitsluitend haar eigen ``src`` op ``sys.path`` en een eigen
++lege werkmap als ``cwd`` (schijfcaches zoals ``cache/`` blijven gescheiden).
++
++App-route (per casus, per versie, per herhaling):
++``DefinitionOrchestratorV2.create_definition`` met de echte
++``PromptServiceV2``, ``SecurityService``, ``CleaningService``,
++``ValidationOrchestratorV2``/``ModularValidationService`` en
++``DefinitionRepository`` op een verse SQLite in de uitvoermap, en een echte
++``AIServiceV2(use_cache=False, model_router=ModelRouter.from_config())``
++met de client uit ``services.ai.create_ai_client`` achter een registrerende
++proxy (telt en bewaart elke aanroep; SDK-retries op 0). Bewust vervangen,
++identiek voor beide versies: synoniemverrijking, web lookup, RAG,
++voorbeeldgeneratie en de AI-bronbeoordeling (CON-02) staan uit; documenten
++gaan via ``context["documents"]`` zoals de UI-handler ze aanlevert.
++UI-handler en ``ServiceAdapter`` liggen buiten de lus (die zijn gedekt door
++``tests/unit/ui/test_def821_ontbrekende_grond_ui.py``).
++
++Standaard offline: alleen de volledige prompts van beide versies worden
++gebouwd (de keten stopt vóór het model) en de model-/instellingsinfo wordt
++vergeleken. Alleen met ``--live`` volgen modelaanroepen: sequentieel,
++tegengebalanceerd (h1: basis→nieuw, h2: nieuw→basis), hard begrensd op
++``MAX_LIVE_CALLS`` (32) en vooraf geweigerd als casussen × 2 versies ×
++herhalingen dat overschrijdt. De API-sleutel komt alleen via de
++runtime-loader (``--dotenv``, read-only) in het proces; alle geschreven tekst
++wordt op sleutelpatronen en op de exacte sleutelwaarde gescrubd.
++
++Casusschema (``--cases``; JSON-lijst, JSON-object ``{"casussen": [...]}``
++of JSONL met één casus per regel) — zie ``CASUS_SCHEMA`` of ``--schema``.
++
++Gebruik:
++    PYTHONPATH=src .venv/bin/python scripts/testing/def821_effectproef.py \\
++        --cases scripts/testing/def821_ontwikkelcasussen.json --out /tmp/x
++    ... --live --dotenv /pad/naar/.env
++"""
++
++from __future__ import annotations
++
++import argparse
++import asyncio
++import hashlib
++import io
++import json
++import logging
++import os
++import re
++import shutil
++import subprocess
++import sys
++import tarfile
++import time
++from dataclasses import asdict, dataclass, field
++from datetime import UTC, datetime
++from pathlib import Path
++from typing import Any
++
++ROOT = Path(__file__).resolve().parents[2]
++BASIS_REF = "b687c1615d4abd30b5b6d38dd55e64f6a758e187"
++VERSIES = ("basis", "nieuw")
++#: Harde bovengrens op verse modelaanroepen over de hele proef.
++MAX_LIVE_CALLS = 32
++HERHALINGEN = 2
++#: Volgorde van de live-workers: tegengebalanceerd tegen tijdsdrift.
++LIVE_VOLGORDE: tuple[tuple[int, str], ...] = (
++    (1, "basis"),
++    (1, "nieuw"),
++    (2, "nieuw"),
++    (2, "basis"),
++)
++#: Zelfde patroon als `services.ai.base_client.sanitize_error`.
++_SECRET_RE = re.compile(r"sk-[\w-]{10,}")
++_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
++UITKOMSTEN = ("definitie", "ontbrekende_grond", "conflict", "onbeslist")
++
++CASUS_SCHEMA: dict[str, Any] = {
++    "id": "str, verplicht, uniek; [A-Za-z0-9_.-], max 64 tekens (bestandsnaam)",
++    "begrip": "str, verplicht, niet leeg",
++    "verwachting": (
++        "str, verplicht: vooraf vastgelegde normverwachting; komt nooit in de "
++        "prompt (wordt gecontroleerd)"
++    ),
++    "organisatorische_context": "list[str], optioneel (default [])",
++    "juridische_context": "list[str], optioneel (default [])",
++    "wettelijke_basis": "list[str], optioneel (default [])",
++    "ontologische_categorie": (
++        "str|null, optioneel: type|proces|resultaat|exemplaar of null (labelvrij)"
++    ),
++    "documenten": (
++        "list[object], optioneel: expliciete, synthetische bronpassages; per "
++        "document verplicht 'doc_id' en 'snippet', optioneel 'filename', "
++        "'title'. Gaan als documentbronnen via context['documents'] naar de "
++        "orchestrator (geen netwerk)"
++    ),
++    "betekenisverduidelijking": (
++        "str|null, optioneel: expliciete gebruikersverduidelijking (typed veld)"
++    ),
++    "verwachte_uitkomst": f"optioneel, een van {list(UITKOMSTEN)}",
++    "herkomst": "str, optioneel: waar de casus vandaan komt",
++}
++_CASUS_SLEUTELS = frozenset(CASUS_SCHEMA)
++_DOCUMENT_SLEUTELS = frozenset({"doc_id", "snippet", "filename", "title"})
++_CATEGORIEEN = ("type", "proces", "resultaat", "exemplaar")
++
++logger = logging.getLogger("def821_effectproef")
++
++
++# ---------------------------------------------------------------------------
++# Casussen
++# ---------------------------------------------------------------------------
++
++
++class CasusFoutError(ValueError):
++    """Een casusbestand voldoet niet aan `CASUS_SCHEMA`."""
++
++
++@dataclass(frozen=True)
++class Casus:
++    id: str
++    begrip: str
++    verwachting: str
++    organisatorische_context: tuple[str, ...] = ()
++    juridische_context: tuple[str, ...] = ()
++    wettelijke_basis: tuple[str, ...] = ()
++    ontologische_categorie: str | None = None
++    documenten: tuple[dict[str, str], ...] = ()
++    betekenisverduidelijking: str | None = None
++    verwachte_uitkomst: str | None = None
++    herkomst: str | None = None
++
++
++def _tekstlijst(waarde: Any, veld: str, cid: str) -> tuple[str, ...]:
++    if waarde is None:
++        return ()
++    if not isinstance(waarde, list) or not all(
++        isinstance(w, str) and w.strip() for w in waarde
++    ):
++        msg = f"casus {cid}: '{veld}' moet een lijst niet-lege teksten zijn"
++        raise CasusFoutError(msg)
++    return tuple(w.strip() for w in waarde)
++
++
++def _documenten(waarde: Any, cid: str) -> tuple[dict[str, str], ...]:
++    if waarde is None:
++        return ()
++    if not isinstance(waarde, list):
++        msg = f"casus {cid}: 'documenten' moet een lijst zijn"
++        raise CasusFoutError(msg)
++    uit: list[dict[str, str]] = []
++    for doc in waarde:
++        if not isinstance(doc, dict) or set(doc) - _DOCUMENT_SLEUTELS:
++            msg = f"casus {cid}: document met onbekende sleutel of geen object"
++            raise CasusFoutError(msg)
++        if not all(isinstance(v, str) and v.strip() for v in doc.values()):
++            msg = f"casus {cid}: documentvelden moeten niet-lege teksten zijn"
++            raise CasusFoutError(msg)
++        if "doc_id" not in doc or "snippet" not in doc:
++            msg = f"casus {cid}: document mist 'doc_id' of 'snippet'"
++            raise CasusFoutError(msg)
++        uit.append(dict(doc))
++    return tuple(uit)
++
++
++def casus_uit_dict(data: Any) -> Casus:
++    if not isinstance(data, dict):
++        msg = "een casus moet een JSON-object zijn"
++        raise CasusFoutError(msg)
++    cid = data.get("id")
++    if not isinstance(cid, str) or not _ID_RE.match(cid):
++        msg = f"ongeldige of ontbrekende casus-id: {cid!r}"
++        raise CasusFoutError(msg)
++    onbekend = set(data) - _CASUS_SLEUTELS
++    if onbekend:
++        msg = f"casus {cid}: onbekende sleutel(s) {sorted(onbekend)}"
++        raise CasusFoutError(msg)
++    for veld in ("begrip", "verwachting"):
++        if not isinstance(data.get(veld), str) or not data[veld].strip():
++            msg = f"casus {cid}: '{veld}' is verplicht en niet leeg"
++            raise CasusFoutError(msg)
++    categorie = data.get("ontologische_categorie")
++    if categorie is not None and categorie not in _CATEGORIEEN:
++        msg = f"casus {cid}: ongeldige ontologische_categorie {categorie!r}"
++        raise CasusFoutError(msg)
++    uitkomst = data.get("verwachte_uitkomst")
++    if uitkomst is not None and uitkomst not in UITKOMSTEN:
++        msg = f"casus {cid}: ongeldige verwachte_uitkomst {uitkomst!r}"
++        raise CasusFoutError(msg)
++    verduidelijking = data.get("betekenisverduidelijking")
++    if verduidelijking is not None and not (
++        isinstance(verduidelijking, str) and verduidelijking.strip()
++    ):
++        msg = f"casus {cid}: 'betekenisverduidelijking' moet tekst of null zijn"
++        raise CasusFoutError(msg)
++    herkomst = data.get("herkomst")
++    if herkomst is not None and not isinstance(herkomst, str):
++        msg = f"casus {cid}: 'herkomst' moet tekst zijn"
++        raise CasusFoutError(msg)
++    return Casus(
++        id=cid,
++        begrip=data["begrip"].strip(),
++        verwachting=data["verwachting"].strip(),
++        organisatorische_context=_tekstlijst(
++            data.get("organisatorische_context"), "organisatorische_context", cid
++        ),
++        juridische_context=_tekstlijst(
++            data.get("juridische_context"), "juridische_context", cid
++        ),
++        wettelijke_basis=_tekstlijst(
++            data.get("wettelijke_basis"), "wettelijke_basis", cid
++        ),
++        ontologische_categorie=categorie,
++        documenten=_documenten(data.get("documenten"), cid),
++        betekenisverduidelijking=verduidelijking,
++        verwachte_uitkomst=uitkomst,
++        herkomst=herkomst,
++    )
++
++
++def lees_casussen(pad: Path) -> list[Casus]:
++    """Lees JSON (lijst of ``{"casussen": [...]}``) of JSONL; valideer strikt."""
++    tekst = pad.read_text(encoding="utf-8")
++    ruw: Any
++    if pad.suffix.lower() == ".jsonl":
++        ruw = [json.loads(r) for r in tekst.splitlines() if r.strip()]
++    else:
++        ruw = json.loads(tekst)
++        if isinstance(ruw, dict) and set(ruw) == {"casussen"}:
++            ruw = ruw["casussen"]
++    if not isinstance(ruw, list) or not ruw:
++        msg = "casusbestand bevat geen niet-lege lijst casussen"
++        raise CasusFoutError(msg)
++    casussen = [casus_uit_dict(c) for c in ruw]
++    ids = [c.id for c in casussen]
++    if len(set(ids)) != len(ids):
++        msg = "dubbele casus-id's"
++        raise CasusFoutError(msg)
++    return casussen
++
++
++def controleer_budget(aantal_casussen: int, herhalingen: int, max_calls: int) -> int:
++    """Het benodigde aantal live-aanroepen, of een weigering vóór elke aanroep."""
++    grens = min(int(max_calls), MAX_LIVE_CALLS)
++    nodig = aantal_casussen * len(VERSIES) * herhalingen
++    if nodig > grens:
++        msg = (
++            f"{aantal_casussen} casussen × {len(VERSIES)} versies × "
++            f"{herhalingen} herhalingen = {nodig} aanroepen > grens {grens}"
++        )
++        raise SystemExit(msg)
++    return nodig
++
++
++# ---------------------------------------------------------------------------
++# Scrubbing en I/O
++# ---------------------------------------------------------------------------
++
++
++class Scrubber:
++    """Verwijder sleutelpatronen en (indien bekend) de exacte sleutelwaarde."""
++
++    def __init__(self) -> None:
++        self._geheimen: list[str] = []
++
++    def registreer(self, geheim: str | None) -> None:
++        if geheim and len(geheim) >= 8:
++            self._geheimen.append(geheim)
++
++    def __call__(self, tekst: str) -> str:
++        for geheim in self._geheimen:
++            tekst = tekst.replace(geheim, "[REDACTED]")
++        return _SECRET_RE.sub("[REDACTED]", tekst)
++
++
++SCRUB = Scrubber()
++
++
++class _ScrubFilter(logging.Filter):
++    def filter(self, record: logging.LogRecord) -> bool:
++        record.msg = SCRUB(record.getMessage())
++        record.args = ()
++        return True
++
++
++def schrijf_json(pad: Path, data: Any) -> None:
++    pad.parent.mkdir(parents=True, exist_ok=True)
++    tekst = json.dumps(data, ensure_ascii=False, indent=2, default=str)
++    pad.write_text(SCRUB(tekst), encoding="utf-8")
++
++
++def schrijf_tekst(pad: Path, tekst: str) -> None:
++    pad.parent.mkdir(parents=True, exist_ok=True)
++    pad.write_text(SCRUB(tekst), encoding="utf-8")
++
++
++def sha256(tekst: str) -> str:
++    return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
++
++
++def _git(*args: str) -> str:
++    return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True).strip()
++
++
++def boom_hash(wortel: Path) -> str:
++    """Inhoudshash van ``src/`` + ``config/`` (zonder bytecode)."""
++    h = hashlib.sha256()
++    for deel in ("src", "config"):
++        for pad in sorted((wortel / deel).rglob("*")):
++            if not pad.is_file() or "__pycache__" in pad.parts or pad.suffix == ".pyc":
++                continue
++            h.update(str(pad.relative_to(wortel)).encode("utf-8") + b"\0")
++            h.update(pad.read_bytes() + b"\0")
++    return h.hexdigest()
++
++
++def maak_basis_snapshot(ref: str, doel: Path) -> dict[str, Any]:
++    """``git archive <ref> src config`` → ``doel`` (read-only voor de repo)."""
++    sha = _git("rev-parse", "--verify", f"{ref}^{{commit}}")
++    archief = subprocess.check_output(
++        ["git", "-C", str(ROOT), "archive", "--format=tar", sha, "src", "config"]
++    )
++    doel.mkdir(parents=True)
++    with tarfile.open(fileobj=io.BytesIO(archief)) as tar:
++        tar.extractall(doel, filter="data")
++    return {
++        "bron": "git archive",
++        "ref": ref,
++        "commit": sha,
++        "boom_sha256": boom_hash(doel),
++    }
++
++
++def maak_nieuw_snapshot(doel: Path) -> dict[str, Any]:
++    """Kopie van de huidige werkboom (``src/`` + ``config/``), met herkomst."""
++    negeer = shutil.ignore_patterns("__pycache__", "*.pyc")
++    doel.mkdir(parents=True)
++    for deel in ("src", "config"):
++        shutil.copytree(ROOT / deel, doel / deel, ignore=negeer)
++    diff = _git("diff", "--binary", "HEAD", "--", "src", "config")
++    return {
++        "bron": "kopie werkboom",
++        "werkboom": str(ROOT),
++        "head": _git("rev-parse", "HEAD"),
++        "branch": _git("branch", "--show-current"),
++        "diff_t_o_v_head_sha256": sha256(diff),
++        "ongetrackt_in_src_config": _git(
++            "ls-files", "--others", "--exclude-standard", "--", "src", "config"
++        ).splitlines(),
++        "boom_sha256": boom_hash(doel),
++    }
++
++
++# ---------------------------------------------------------------------------
++# Worker: draait binnen één bronsnapshot
++# ---------------------------------------------------------------------------
++
++
++class LiveBudgetOverschredenError(RuntimeError):
++    """Geen `AIClientError`-subklasse: de retry-lus van de app herhaalt niet."""
++
++
++class OfflineStopError(RuntimeError):
++    """Bewuste stop vóór de modelaanroep (offline: alleen prompts bouwen)."""
++
++
++@dataclass
++class ModelAanroep:
++    volgnummer: int
++    model_gevraagd: str
++    temperature: float
++    max_tokens: int
++    timeout: float | None
++    messages: list[dict[str, str]]
++    prompt_sha256: str
++    gestart_utc: str
++    duur_s: float | None = None
++    respons_tekst: str | None = None
++    respons_model: str | None = None
++    tokens_used: int | None = None
++    sdk: dict[str, Any] = field(default_factory=dict)
++    fout: str | None = None
++
++
++class RegistrerendeClient:
++    """AsyncAIClient-proxy: registreert elke aanroep en bewaakt het budget."""
++
++    def __init__(self, echt: Any, budget: int) -> None:
++        self._echt = echt
++        self._budget = budget
++        self.aanroepen: list[ModelAanroep] = []
++        self._koppel_sdk()
++
++    @property
++    def provider_name(self) -> str:
++        return str(self._echt.provider_name)
++
++    async def chat_completion(
++        self,
++        messages: list[Any],
++        model: str,
++        temperature: float = 0.7,
++        max_tokens: int = 300,
++        timeout: float | None = None,
++    ) -> Any:
++        if len(self.aanroepen) >= self._budget:
++            msg = f"live-budget van {self._budget} modelaanroepen is op"
++            raise LiveBudgetOverschredenError(msg)
++        aanroep = ModelAanroep(
++            volgnummer=len(self.aanroepen) + 1,
++            model_gevraagd=model,
++            temperature=temperature,
++            max_tokens=max_tokens,
++            timeout=timeout,
++            messages=[{"role": m.role, "content": m.content} for m in messages],
++            prompt_sha256=sha256(messages[-1].content),
++            gestart_utc=datetime.now(UTC).isoformat(),
++        )
++        self.aanroepen.append(aanroep)
++        start = time.monotonic()
++        try:
++            respons = await self._echt.chat_completion(
++                messages=messages,
++                model=model,
++                temperature=temperature,
++                max_tokens=max_tokens,
++                timeout=timeout,
++            )
++        except Exception as exc:
++            aanroep.duur_s = time.monotonic() - start
++            aanroep.fout = f"{type(exc).__name__}: {SCRUB(str(exc))}"
++            raise
++        aanroep.duur_s = time.monotonic() - start
++        aanroep.respons_tekst = respons.text
++        aanroep.respons_model = respons.model
++        aanroep.tokens_used = respons.tokens_used
++        return respons
++
++    async def close(self) -> None:
++        await self._echt.close()
++
++    def _koppel_sdk(self) -> None:
++        """Lees stop_reason/usage van de ruwe SDK-respons mee (Anthropic/OpenAI)."""
++        sdk = getattr(self._echt, "_client", None)
++        doel = getattr(sdk, "messages", None) or getattr(
++            getattr(sdk, "chat", None), "completions", None
++        )
++        origineel = getattr(doel, "create", None)
++        if origineel is None:
++            return
++
++        async def _create(*args: Any, **kwargs: Any) -> Any:
++            resp = await origineel(*args, **kwargs)
++            if self.aanroepen:
++                self.aanroepen[-1].sdk = _sdk_metadata(resp)
++            return resp
++
++        doel.create = _create
++
++
++def _sdk_metadata(resp: Any) -> dict[str, Any]:
++    usage = getattr(resp, "usage", None)
++    meta: dict[str, Any] = {
++        "id": getattr(resp, "id", None),
++        "model": getattr(resp, "model", None),
++        "stop_reason": getattr(resp, "stop_reason", None),
++    }
++    keuzes = getattr(resp, "choices", None)
++    if keuzes:
++        meta["finish_reason"] = getattr(keuzes[0], "finish_reason", None)
++    if usage is not None:
++        meta["usage"] = {
++            naam: getattr(usage, naam)
++            for naam in ("input_tokens", "output_tokens", "prompt_tokens")
++            if isinstance(getattr(usage, naam, None), int)
++        }
++    return meta
++
++
++class _OfflineAI:
++    """Offline: de volledige prompt wordt gebouwd; de keten stopt vóór het model."""
++
++    def __init__(self) -> None:
++        self.prompts: list[str] = []
++
++    async def generate_definition(self, prompt: str, **kwargs: Any) -> Any:
++        self.prompts.append(prompt)
++        self.kwargs = dict(kwargs)
++        msg = "offline: geen modelaanroep"
++        raise OfflineStopError(msg)
++
++
++def _bevestig_bron(bron: Path) -> None:
++    """Fail-closed: de app-modules moeten uit het snapshot komen."""
++    import services
++
++    herkomst = Path(services.__file__).resolve()
++    if (bron / "src").resolve() not in herkomst.parents:
++        msg = f"app-modules komen niet uit het snapshot ({herkomst})"
++        raise SystemExit(msg)
++
++
++def _modelinfo(live_client: RegistrerendeClient | None) -> dict[str, Any]:
++    from config.config_manager import get_config_manager, get_prompt_temperature
++    from services.ai.model_router import ModelRouter
++
++    config = get_config_manager()
++    provider, model = ModelRouter.from_config().get_model("definition_core")
++    info: dict[str, Any] = {
++        "provider_geconfigureerd": config.api.ai_provider,
++        "provider_router": provider,
++        "model_definition_core": model,
++        "temperature_definition": get_prompt_temperature("definition"),
++        "max_tokens_orchestrator_default": 500,
++        "timeout_seconds_aiservice_default": 30,
++        "ai_service_cache": False,
++    }
++    if live_client is not None:
++        info["sdk_max_retries"] = getattr(
++            getattr(live_client._echt, "_client", None), "max_retries", None
++        )
++    return info
++
++
++def _bouw_orchestrator(db_pad: Path, ai_service: Any) -> Any:
++    from services.cleaning_service import CleaningConfig, CleaningService
++    from services.definition_repository import DefinitionRepository
++    from services.interfaces import OrchestratorConfig
++    from services.orchestrators.definition_orchestrator_v2 import (
++        DefinitionOrchestratorV2,
++    )
++    from services.orchestrators.validation_orchestrator_v2 import (
++        ValidationOrchestratorV2,
++    )
++    from services.prompts.prompt_service_v2 import PromptServiceV2
++    from services.security_service import SecurityService
++    from services.validation.config import ValidationConfig
++    from services.validation.modular_validation_service import (
++        ModularValidationService,
++    )
++    from toetsregels.cached_manager import get_cached_toetsregel_manager
++
++    if db_pad.exists():
++        msg = f"DB-pad {db_pad} bestaat al; geen bestaand bewijs overschrijven"
++        raise SystemExit(msg)
++    repository = DefinitionRepository(str(db_pad))
++    cleaning = CleaningService(CleaningConfig())
++    src = Path(sys.modules["services"].__file__).resolve().parents[1]
++    validatie = ValidationOrchestratorV2(
++        validation_service=ModularValidationService(
++            get_cached_toetsregel_manager(),
++            None,
++            ValidationConfig.from_yaml(str(src / "config" / "validation_rules.yaml")),
++            repository=repository,
++        ),
++        cleaning_service=cleaning,
++        source_assessment_service=None,
++    )
++    return DefinitionOrchestratorV2(
++        prompt_service=PromptServiceV2(),
++        ai_service=ai_service,
++        validation_service=validatie,
++        cleaning_service=cleaning,
++        repository=repository,
++        security_service=SecurityService(),
++        config=OrchestratorConfig(
++            enable_feedback_loop=False, enable_enhancement=False, enable_caching=False
++        ),
++        web_lookup_service=None,
++        synonym_orchestrator=None,
++        rag_service=None,
++        source_assessment_service=None,
++    )
++
++
++def _request_en_context(casus: Casus, versie: str, herhaling: int) -> tuple[Any, Any]:
++    from services.interfaces import GenerationRequest
++
++    request = GenerationRequest(
++        id=f"def821-{versie}-h{herhaling}-{casus.id}",
++        begrip=casus.begrip,
++        ontologische_categorie=casus.ontologische_categorie,
++        organisatorische_context=list(casus.organisatorische_context),
++        juridische_context=list(casus.juridische_context),
++        wettelijke_basis=list(casus.wettelijke_basis),
++        actor="def821_effectproef",
++        betekenisverduidelijking=casus.betekenisverduidelijking,
++    )
++    context = None
++    if casus.documenten:
++        snippets = [
++            {
++                "provider": "documents",
++                "doc_id": d["doc_id"],
++                "filename": d.get("filename") or f"{d['doc_id']}.txt",
++                "title": d.get("title") or d.get("filename") or d["doc_id"],
++                "snippet": d["snippet"],
++                "score": 1.0,
++                "selection_basis": "term_match",
++            }
++            for d in casus.documenten
++        ]
++        context = {
++            "documents": {
++                "snippets": snippets,
++                "selected_ids": [d["doc_id"] for d in casus.documenten],
++            }
++        }
++    return request, context
++
++
++def _aantal_records(db_pad: Path, begrip: str) -> int:
++    import sqlite3
++
++    with sqlite3.connect(str(db_pad)) as conn:
++        (aantal,) = conn.execute(
++            "SELECT COUNT(*) FROM definities WHERE begrip = ?", (begrip,)
++        ).fetchone()
++    return int(aantal)
++
++
++def _readback(db_pad: Path, definition_id: Any) -> dict[str, Any] | None:
++    if not definition_id:
++        return None
++    from database.definitie_repository import DefinitieRepository
++
++    record = DefinitieRepository(str(db_pad)).get_definitie(int(definition_id))
++    if record is None:
++        return None
++    return {
++        "id": record.id,
++        "definitie": record.definitie,
++        "categorie": record.categorie,
++    }
++
++
++def _app_uitkomst(response: Any) -> dict[str, Any]:
++    meta = dict(response.metadata or {})
++    return {
++        "success": response.success,
++        "error_type": meta.get("error_type"),
++        "error": SCRUB(str(response.error)) if response.error else None,
++        "definitie": getattr(response.definition, "definitie", None),
++        "definition_id": getattr(response.definition, "id", None),
++        "betekenisgrond_ontbreekt": meta.get("betekenisgrond_ontbreekt"),
++        "betekenisconflict": meta.get("betekenisconflict"),
++        "code": meta.get("code"),
++        "reden": meta.get("reden"),
++    }
++
++
++def _schakel_voorbeelden_uit() -> None:
++    from voorbeelden import unified_voorbeelden
++
++    async def _geen(**_: Any) -> dict[str, Any]:
++        return {}
++
++    unified_voorbeelden.genereer_alle_voorbeelden_async = _geen  # type: ignore[assignment]
++
++
++async def _worker_prompts(
++    casussen: list[Casus], versie: str, uitmap: Path
++) -> dict[str, Any]:
++    ai = _OfflineAI()
++    prompts: dict[str, Any] = {}
++    for casus in casussen:
++        orchestrator = _bouw_orchestrator(uitmap / "db" / f"{casus.id}.db", ai)
++        request, context = _request_en_context(casus, versie, 0)
++        response = await orchestrator.create_definition(request, context=context)
++        meta = dict(response.metadata or {})
++        if meta.get("error_type") != OfflineStopError.__name__:
++            msg = f"casus {casus.id}: keten stopte niet bij het model ({meta.get('error_type')})"
++            raise SystemExit(msg)
++        prompt = ai.prompts[-1]
++        schrijf_tekst(uitmap / "prompts" / f"{casus.id}.prompt.txt", prompt)
++        prompts[casus.id] = {
++            "sha256": sha256(prompt),
++            "lengte": len(prompt),
++            "verwachting_in_prompt": casus.verwachting in prompt,
++            "generate_kwargs": {
++                k: v
++                for k, v in ai.kwargs.items()
++                if k in ("temperature", "max_tokens", "model")
++            },
++        }
++    return {"modelinfo": _modelinfo(None), "prompts": prompts}
++
++
++async def _worker_live(
++    casussen: list[Casus],
++    versie: str,
++    herhaling: int,
++    uitmap: Path,
++    budget: int,
++) -> dict[str, Any]:
++    from config.config_manager import get_config_manager
++    from services.ai import create_ai_client
++    from services.ai.model_router import ModelRouter
++    from services.ai_service_v2 import AIServiceV2
++
++    config = get_config_manager()
++    provider = config.api.ai_provider
++    key = (
++        config.api.anthropic_api_key
++        if provider == "anthropic"
++        else config.api.openai_api_key
++    )
++    if not key:
++        msg = f"geen API-key voor provider {provider!r} via de runtime-loader"
++        raise SystemExit(msg)
++    SCRUB.registreer(key)
++    os.environ["AI_SDK_MAX_RETRIES"] = "0"
++    echt = create_ai_client(provider=provider, api_key=key)
++    del key
++    if getattr(getattr(echt, "_client", None), "max_retries", None) != 0:
++        msg = "SDK-retries niet uitgeschakeld; proef niet gestart"
++        raise SystemExit(msg)
++    client = RegistrerendeClient(echt, budget)
++    ai_service = AIServiceV2(
++        use_cache=False, ai_client=client, model_router=ModelRouter.from_config()
++    )
++    verslagen: list[dict[str, Any]] = []
++    try:
++        for casus in casussen:
++            db_pad = uitmap / "db" / f"{casus.id}.db"
++            orchestrator = _bouw_orchestrator(db_pad, ai_service)
++            request, context = _request_en_context(casus, versie, herhaling)
++            voor = _aantal_records(db_pad, casus.begrip)
++            eerder = len(client.aanroepen)
++            start = time.monotonic()
++            response = await orchestrator.create_definition(request, context=context)
++            nieuwe = client.aanroepen[eerder:]
++            uitkomst = _app_uitkomst(response)
++            na = _aantal_records(db_pad, casus.begrip)
++            laatste = nieuwe[-1] if nieuwe else None
++            verslag = {
++                "casus_id": casus.id,
++                "versie": versie,
++                "herhaling": herhaling,
++                "duur_s": round(time.monotonic() - start, 3),
++                "aantal_modelaanroepen": len(nieuwe),
++                "aanroepen": [asdict(a) for a in nieuwe],
++                "prompt_sha256": laatste.prompt_sha256 if laatste else None,
++                "respons_tekst": laatste.respons_tekst if laatste else None,
++                "app": uitkomst,
++                "records_voor": voor,
++                "records_na": na,
++                "readback": _readback(db_pad, uitkomst["definition_id"]),
++                "infrastructuur_geblokkeerd": str(response.error or "").startswith(
++                    "Generation failed:"
++                ),
++            }
++            verslagen.append(verslag)
++            schrijf_json(uitmap / f"{casus.id}.json", verslag)
++            if laatste is not None:
++                schrijf_tekst(
++                    uitmap / f"{casus.id}.prompt.txt", laatste.messages[-1]["content"]
++                )
++                if laatste.respons_tekst is not None:
++                    schrijf_tekst(
++                        uitmap / f"{casus.id}.respons.txt", laatste.respons_tekst
++                    )
++    finally:
++        await client.close()
++    return {
++        "modelinfo": _modelinfo(client),
++        "modelaanroepen": len(client.aanroepen),
++        "verslagen": verslagen,
++    }
++
++
++def _worker_classificeer(uitmap: Path) -> dict[str, Any]:
++    """Classificeer álle ruwe antwoorden met de parser van déze (nieuwe) versie."""
++    from services.modelantwoord import lees_modelantwoord
++
++    uit: dict[str, Any] = {}
++    for pad in sorted(uitmap.glob("live/*/h*/resultaat.json")):
++        for verslag in json.loads(pad.read_text(encoding="utf-8"))["verslagen"]:
++            tekst = verslag.get("respons_tekst")
++            sleutel = (
++                f"{verslag['versie']}/h{verslag['herhaling']}/{verslag['casus_id']}"
++            )
++            if tekst is None:
++                uit[sleutel] = {"soort": None, "code": None}
++                continue
++            antwoord = lees_modelantwoord(tekst)
++            uit[sleutel] = {"soort": antwoord.soort, "code": antwoord.code}
++    return uit
++
++
++def worker_main(args: argparse.Namespace) -> int:
++    bron = Path(args.bron).resolve()
++    uitmap = Path(args.uitmap).resolve()
++    sys.path.insert(0, str(bron / "src"))
++    werkmap = uitmap / "werkmap"
++    werkmap.mkdir(parents=True, exist_ok=True)
++    os.chdir(werkmap)
++    handler = logging.FileHandler(uitmap / "worker.log", encoding="utf-8")
++    handler.addFilter(_ScrubFilter())
++    logging.basicConfig(
++        level=logging.INFO,
++        format="%(asctime)s %(name)s %(levelname)s %(message)s",
++        handlers=[handler],
++    )
++    if args.dotenv:
++        from config.dotenv_loader import load_project_dotenv
++
++        load_project_dotenv(pad=Path(args.dotenv))
++    _bevestig_bron(bron)
++    from toetsregels.rule_cache import get_rule_cache
++
++    get_rule_cache().clear_cache()
++    _schakel_voorbeelden_uit()
++
++    if args.worker == "classificeer":
++        schrijf_json(
++            uitmap / "classificatie.json", _worker_classificeer(Path(args.proefmap))
++        )
++        return 0
++    casussen = [
++        casus_uit_dict(c) for c in json.loads(Path(args.cases_json).read_text("utf-8"))
++    ]
++    if args.worker == "prompts":
++        resultaat = asyncio.run(_worker_prompts(casussen, args.versie, uitmap))
++    else:
++        resultaat = asyncio.run(
++            _worker_live(casussen, args.versie, args.herhaling, uitmap, args.budget)
++        )
++    schrijf_json(uitmap / "resultaat.json", resultaat)
++    return 0
++
++
++# ---------------------------------------------------------------------------
++# Driver
++# ---------------------------------------------------------------------------
++
++
++def _start_worker(bron: Path, uitmap: Path, *extra: str) -> dict[str, Any]:
++    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
++    env["PYTHONDONTWRITEBYTECODE"] = "1"
++    uitmap.mkdir(parents=True, exist_ok=True)
++    proces = subprocess.run(
++        [
++            sys.executable,
++            str(Path(__file__).resolve()),
++            "--bron",
++            str(bron),
++            "--uitmap",
++            str(uitmap),
++            *extra,
++        ],
++        env=env,
++        capture_output=True,
++        text=True,
++        check=False,
++        timeout=3600,
++    )
++    schrijf_tekst(uitmap / "worker.stdout.txt", proces.stdout)
++    schrijf_tekst(uitmap / "worker.stderr.txt", proces.stderr)
++    if proces.returncode != 0:
++        msg = f"worker {extra[:2]} faalde (exit {proces.returncode}); zie {uitmap}"
++        raise SystemExit(msg)
++    pad = uitmap / (
++        "classificatie.json" if "classificeer" in extra else "resultaat.json"
++    )
++    return json.loads(pad.read_text(encoding="utf-8"))
++
++
++def _vergelijk_modelinfo(
++    info: dict[str, dict[str, Any]], prompts: dict[str, dict[str, Any]]
++) -> list[str]:
++    """Verschillen in model/instellingen tussen de versies (leeg = gelijk).
++
++    Naast de configuratie ook de werkelijke parameters waarmee de
++    orchestrator per casus het model zou aanroepen (temperature,
++    max_tokens, model).
++    """
++    basis, nieuw = info["basis"], info["nieuw"]
++    verschil = [k for k in set(basis) | set(nieuw) if basis.get(k) != nieuw.get(k)]
++    for cid, p in prompts["basis"].items():
++        if p.get("generate_kwargs") != prompts["nieuw"].get(cid, {}).get(
++            "generate_kwargs"
++        ):
++            verschil.append(f"generate_kwargs:{cid}")
++    return sorted(verschil)
++
++
++def _samenvatting(manifest: dict[str, Any]) -> str:
++    regels = [
++        f"# DEF-821 effectproef — {manifest['modus']}",
++        "",
++        f"- basis: {manifest['versies']['basis']['commit']}",
++        f"- nieuw: HEAD {manifest['versies']['nieuw']['head']} + diff-sha "
++        f"{manifest['versies']['nieuw']['diff_t_o_v_head_sha256'][:12]}",
++        f"- model/instellingen gelijk: {not manifest['modelinfo_verschillen']}",
++        "",
++        "| casus | versie | promptlengte | prompt-sha (12) |",
++        "|---|---|---|---|",
++    ]
++    for versie in VERSIES:
++        for cid, p in manifest["prompts"][versie].items():
++            regels.append(f"| {cid} | {versie} | {p['lengte']} | {p['sha256'][:12]} |")
++    live = manifest.get("live")
++    if live:
++        regels += [
++            "",
++            "| casus | versie | h | app | error_type | nieuwe parser | aanroepen | opgeslagen |",
++            "|---|---|---|---|---|---|---|---|",
++        ]
++        for rij in live["rijen"]:
++            regels.append(
++                f"| {rij['casus_id']} | {rij['versie']} | {rij['herhaling']} | "
++                f"{rij['success']} | {rij['error_type']} | {rij['classificatie']} | "
++                f"{rij['aanroepen']} | {rij['opgeslagen']} |"
++            )
++        regels.append(f"\nTotaal modelaanroepen: {live['totaal_aanroepen']}")
++    return "\n".join(regels) + "\n"
++
++
++def driver_main(args: argparse.Namespace) -> int:
++    casussen = lees_casussen(Path(args.cases))
++    herhalingen = int(args.herhalingen)
++    if herhalingen not in (1, 2):
++        msg = "herhalingen moet 1 of 2 zijn"
++        raise SystemExit(msg)
++    nodig = controleer_budget(len(casussen), herhalingen, args.max_calls)
++    uitmap = Path(args.out).resolve()
++    if uitmap.exists():
++        msg = f"uitvoermap {uitmap} bestaat al; kies een nieuwe map"
++        raise SystemExit(msg)
++    data = (ROOT / "data").resolve()
++    if uitmap == data or data in uitmap.parents:
++        msg = "uitvoermap mag niet onder de projectdata liggen"
++        raise SystemExit(msg)
++    uitmap.mkdir(parents=True)
++    casusbestand = uitmap / "casussen.json"
++    schrijf_json(casusbestand, [asdict(c) for c in casussen])
++
++    bronnen = {"basis": uitmap / "bron" / "basis", "nieuw": uitmap / "bron" / "nieuw"}
++    manifest: dict[str, Any] = {
++        "gestart_utc": datetime.now(UTC).isoformat(),
++        "modus": "live" if args.live else "offline",
++        "casussen_bron": str(Path(args.cases).resolve()),
++        "casussen_sha256": sha256(Path(args.cases).read_text(encoding="utf-8")),
++        "herhalingen": herhalingen,
++        "max_live_calls": MAX_LIVE_CALLS,
++        "live_aanroepen_gepland": nodig if args.live else 0,
++        "app_route": (
++            "DefinitionOrchestratorV2.create_definition + echte PromptServiceV2, "
++            "SecurityService, CleaningService, ValidationOrchestratorV2/"
++            "ModularValidationService, DefinitionRepository (verse SQLite per "
++            "casus/versie/herhaling), AIServiceV2(use_cache=False, "
++            "ModelRouter.from_config()) met create_ai_client achter een "
++            "registrerende proxy (SDK-retries 0)"
++        ),
++        "seams_vervangen": [
++            "synonym_orchestrator=None",
++            "web_lookup_service=None",
++            "rag_service=None",
++            "voorbeelden.genereer_alle_voorbeelden_async → {}",
++            "source_assessment_service=None (CON-02 AI-bronbeoordeling uit)",
++            "UI-handler/ServiceAdapter buiten de lus (documenten via context['documents'])",
++        ],
++        "versies": {
++            "basis": maak_basis_snapshot(args.basis_ref, bronnen["basis"]),
++            "nieuw": maak_nieuw_snapshot(bronnen["nieuw"]),
++        },
++    }
++    schrijf_json(uitmap / "manifest.json", manifest)
++
++    prompts: dict[str, Any] = {}
++    modelinfo: dict[str, Any] = {}
++    for versie in VERSIES:
++        res = _start_worker(
++            bronnen[versie],
++            uitmap / "prompts" / versie,
++            "--worker",
++            "prompts",
++            "--versie",
++            versie,
++            "--cases-json",
++            str(casusbestand),
++        )
++        prompts[versie] = res["prompts"]
++        modelinfo[versie] = res["modelinfo"]
++    manifest["prompts"] = prompts
++    manifest["modelinfo"] = modelinfo
++    manifest["modelinfo_verschillen"] = _vergelijk_modelinfo(modelinfo, prompts)
++    lekken = [
++        f"{v}/{cid}"
++        for v in VERSIES
++        for cid, p in prompts[v].items()
++        if p["verwachting_in_prompt"]
++    ]
++    if lekken:
++        msg = f"verwachting staat in de prompt: {lekken}"
++        raise SystemExit(msg)
++    if manifest["modelinfo_verschillen"]:
++        schrijf_json(uitmap / "manifest.json", manifest)
++        msg = f"model/instellingen verschillen per versie: {manifest['modelinfo_verschillen']}"
++        raise SystemExit(msg)
++
++    if args.live:
++        manifest["live"] = _voer_live_uit(
++            args, bronnen, uitmap, casusbestand, casussen, prompts
++        )
++    manifest["afgerond_utc"] = datetime.now(UTC).isoformat()
++    schrijf_json(uitmap / "manifest.json", manifest)
++    samenvatting = _samenvatting(manifest)
++    schrijf_tekst(uitmap / "samenvatting.md", samenvatting)
++    sys.stdout.write(samenvatting + f"\nuitvoer: {uitmap}\n")
++    return 0
++
++
++def _voer_live_uit(
++    args: argparse.Namespace,
++    bronnen: dict[str, Path],
++    uitmap: Path,
++    casusbestand: Path,
++    casussen: list[Casus],
++    prompts: dict[str, Any],
++) -> dict[str, Any]:
++    dotenv = ["--dotenv", str(Path(args.dotenv).resolve())] if args.dotenv else []
++    totaal = 0
++    resultaten: list[dict[str, Any]] = []
++    volgorde = [(h, v) for h, v in LIVE_VOLGORDE if h <= int(args.herhalingen)]
++    for herhaling, versie in volgorde:
++        res = _start_worker(
++            bronnen[versie],
++            uitmap / "live" / versie / f"h{herhaling}",
++            "--worker",
++            "live",
++            "--versie",
++            versie,
++            "--herhaling",
++            str(herhaling),
++            "--budget",
++            str(len(casussen)),
++            "--cases-json",
++            str(casusbestand),
++            *dotenv,
++        )
++        totaal += int(res["modelaanroepen"])
++        resultaten.extend(res["verslagen"])
++    if totaal > MAX_LIVE_CALLS:
++        msg = f"{totaal} modelaanroepen > {MAX_LIVE_CALLS}"
++        raise SystemExit(msg)
++    classificatie = _start_worker(
++        bronnen["nieuw"],
++        uitmap / "classificatie",
++        "--worker",
++        "classificeer",
++        "--proefmap",
++        str(uitmap),
++    )
++    rijen = []
++    for v in resultaten:
++        sleutel = f"{v['versie']}/h{v['herhaling']}/{v['casus_id']}"
++        app = v["app"]
++        rijen.append(
++            {
++                "casus_id": v["casus_id"],
++                "versie": v["versie"],
++                "herhaling": v["herhaling"],
++                "success": app["success"],
++                "error_type": app["error_type"],
++                "classificatie": (classificatie.get(sleutel) or {}).get("soort"),
++                "aanroepen": v["aantal_modelaanroepen"],
++                "opgeslagen": v["records_na"] - v["records_voor"],
++                "prompt_gelijk_aan_offline": v["prompt_sha256"]
++                == prompts[v["versie"]][v["casus_id"]]["sha256"],
++            }
++        )
++    return {"totaal_aanroepen": totaal, "rijen": rijen, "classificatie": classificatie}
++
++
++def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
++    parser = argparse.ArgumentParser(description=(__doc__ or "").split("\n", 1)[0])
++    parser.add_argument("--cases", help="casusbestand (JSON of JSONL)")
++    parser.add_argument("--out", help="nieuwe uitvoermap (mag nog niet bestaan)")
++    parser.add_argument("--live", action="store_true", help="echte modelaanroepen")
++    parser.add_argument("--dotenv", default=None, help=".env voor de runtime-loader")
++    parser.add_argument("--basis-ref", default=BASIS_REF)
++    parser.add_argument("--herhalingen", type=int, default=HERHALINGEN)
++    parser.add_argument("--max-calls", type=int, default=MAX_LIVE_CALLS)
++    parser.add_argument("--schema", action="store_true", help="toon casusschema")
++    # Interne workervlaggen.
++    parser.add_argument(
++        "--worker", choices=("prompts", "live", "classificeer"), help=argparse.SUPPRESS
++    )
++    parser.add_argument("--bron", help=argparse.SUPPRESS)
++    parser.add_argument("--uitmap", help=argparse.SUPPRESS)
++    parser.add_argument("--versie", choices=VERSIES, help=argparse.SUPPRESS)
++    parser.add_argument("--herhaling", type=int, default=0, help=argparse.SUPPRESS)
++    parser.add_argument("--budget", type=int, default=0, help=argparse.SUPPRESS)
++    parser.add_argument("--cases-json", help=argparse.SUPPRESS)
++    parser.add_argument("--proefmap", help=argparse.SUPPRESS)
++    return parser.parse_args(argv)
++
++
++def main(argv: list[str] | None = None) -> int:
++    args = parse_args(argv)
++    if args.schema:
++        sys.stdout.write(json.dumps(CASUS_SCHEMA, ensure_ascii=False, indent=2) + "\n")
++        return 0
++    if args.worker:
++        return worker_main(args)
++    if not args.cases or not args.out:
++        msg = "--cases en --out zijn verplicht"
++        raise SystemExit(msg)
++    return driver_main(args)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/scripts/testing/def821_ontwikkelcasussen.json b/scripts/testing/def821_ontwikkelcasussen.json
+new file mode 100644
+index 000000000..4caf3452b
+--- /dev/null
++++ b/scripts/testing/def821_ontwikkelcasussen.json
+@@ -0,0 +1,94 @@
++{
++  "casussen": [
++    {
++      "id": "D1",
++      "begrip": "gelijkzijdige veelhoek",
++      "organisatorische_context": ["Proefdienst"],
++      "documenten": [
++        {
++          "doc_id": "d1-afspraak",
++          "filename": "fictieve-afspraak-d1.txt",
++          "snippet": "Fictieve afspraak: een gelijkzijdige veelhoek is een veelhoek waarvan alle zijden even lang zijn."
++        }
++      ],
++      "verwachte_uitkomst": "definitie",
++      "verwachting": "Kwalitatieve kandidaat (veelhoek met alle zijden even lang); geen toegevoegde meettolerantie, getal of eenheid.",
++      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D1 (fictieve betekenisgrond)"
++    },
++    {
++      "id": "D2",
++      "begrip": "geselecteerde partij",
++      "organisatorische_context": ["Proefdienst"],
++      "documenten": [
++        {
++          "doc_id": "d2-afspraak",
++          "filename": "fictieve-afspraak-d2.txt",
++          "snippet": "Fictieve afspraak: een partij is geselecteerd wanneer minstens 80% van alle voorwerpen in de partij blauw is; een partij met precies 80% blauwe voorwerpen telt mee."
++        }
++      ],
++      "verwachte_uitkomst": "definitie",
++      "verwachting": "Kandidaat behoudt de grens (80%), de noemer (alle voorwerpen in de partij), het criterium (blauw) en de inclusie (precies 80% telt mee).",
++      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D2 (fictieve betekenisgrond)"
++    },
++    {
++      "id": "D3",
++      "begrip": "geselecteerde partij",
++      "organisatorische_context": ["Proefdienst"],
++      "documenten": [
++        {
++          "doc_id": "d3-afspraak",
++          "filename": "fictieve-afspraak-d3.txt",
++          "snippet": "Fictieve afspraak: een partij is geselecteerd wanneer zij voor minimaal 80% voldoet."
++        }
++      ],
++      "verwachte_uitkomst": "ontbrekende_grond",
++      "verwachting": "Aparte ontbrekende-gronduitkomst die benoemt dat niet gegeven is waaraan wordt voldaan en waarvan het percentage wordt berekend, met een gerichte vraag; geen verzonnen noemer of criterium en geen definitiezin.",
++      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D3 (fictieve betekenisgrond)"
++    },
++    {
++      "id": "D4",
++      "begrip": "tijdige reactie",
++      "organisatorische_context": ["Proefdienst"],
++      "documenten": [
++        {
++          "doc_id": "d4-afspraak",
++          "filename": "fictieve-afspraak-d4.txt",
++          "snippet": "Fictieve afspraak: een reactie is tijdig wanneer zij binnen drie dagen na ontvangst wordt gegeven. Of dit werkdagen of kalenderdagen zijn, is nog niet besloten; dat onderscheid is bepalend voor de afspraak."
++        }
++      ],
++      "verwachte_uitkomst": "ontbrekende_grond",
++      "verwachting": "Aparte uitkomst met een vraag om de dagconventie (werkdagen of kalenderdagen); het model kiest niet zelf een conventie en levert geen definitiezin.",
++      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D4 (fictieve betekenisgrond)"
++    },
++    {
++      "id": "D5",
++      "begrip": "ondertekend document",
++      "organisatorische_context": ["Proefdienst"],
++      "documenten": [
++        {
++          "doc_id": "d5-afspraak",
++          "filename": "fictieve-afspraak-d5.txt",
++          "snippet": "Fictieve afspraak: een ondertekend document is een document waarop de afzender een handtekening heeft geplaatst. Bij document 17 is onbekend of de krabbel onderaan van de afzender is."
++        }
++      ],
++      "verwachte_uitkomst": "definitie",
++      "verwachting": "Kwalitatieve kandidaat (document waarop de afzender een handtekening heeft geplaatst); geen blokkade of ontbrekende-gronduitkomst alleen wegens het ontbrekende gevalsbewijs bij document 17.",
++      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D5 (fictieve betekenisgrond)"
++    },
++    {
++      "id": "D6",
++      "begrip": "tijdige melding",
++      "organisatorische_context": ["Proefdienst"],
++      "documenten": [
++        {
++          "doc_id": "d6-afspraak",
++          "filename": "fictieve-afspraak-d6.txt",
++          "snippet": "Fictieve afspraak: een melding is tijdig wanneer zij binnen drie werkdagen na ontvangst wordt gedaan; de dag van ontvangst telt niet mee en een melding op de derde werkdag is nog tijdig."
++        }
++      ],
++      "verwachte_uitkomst": "definitie",
++      "verwachting": "Kandidaat behoudt de betekenis: drie werkdagen (geen kalenderdagen), startmoment na de dag van ontvangst, derde werkdag inbegrepen; de grensbeperking wordt niet weggelaten.",
++      "herkomst": "docs/plans/2026-09-23-DEF-821-specificatie-v1.md D6 (fictieve betekenisgrond)"
++    }
++  ]
++}
+diff --git a/tests/unit/scripts/test_def821_effectproef.py b/tests/unit/scripts/test_def821_effectproef.py
+new file mode 100644
+index 000000000..ef15b58d4
+--- /dev/null
++++ b/tests/unit/scripts/test_def821_effectproef.py
+@@ -0,0 +1,266 @@
++"""Regressietests voor scripts/testing/def821_effectproef.py (DEF-821).
++
++De harness is bewijsvoering: strikt casusschema (JSON/JSONL), hard budget
++(≤ 32 aanroepen, vóór elke aanroep geweigerd), geen secrets op schijf, de
++verwachting nooit in de prompt, en een echte basisversie (``git archive``
++van ``BASIS_REF``) naast de werkboom. Geen modelaanroepen hier: de
++eind-tot-eindtest draait uitsluitend de offline modus (prompts bouwen, keten
++stopt vóór het model).
++"""
++
++from __future__ import annotations
++
++import asyncio
++import json
++import logging
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++
++from services.ai.base_client import ChatMessage, ChatResponse
++
++pytestmark = [pytest.mark.unit]
++
++REPO = Path(__file__).resolve().parents[3]
++sys.path.insert(0, str(REPO / "scripts" / "testing"))
++
++import def821_effectproef as proef
++
++ONTWIKKELCASUSSEN = REPO / "scripts" / "testing" / "def821_ontwikkelcasussen.json"
++G2_BEGIN = "Beschrijf begripsbepalende kenmerken die in de bedoelde context"
++
++
++def _casus(**extra) -> dict:
++    return {"id": "C1", "begrip": "x", "verwachting": "v", **extra}
++
++
++# ------------------------------------------------------------------ schema
++
++
++def test_json_lijst_object_en_jsonl_worden_gelezen(tmp_path):
++    lijst = tmp_path / "a.json"
++    lijst.write_text(json.dumps([_casus()]), encoding="utf-8")
++    obj = tmp_path / "b.json"
++    obj.write_text(json.dumps({"casussen": [_casus(id="C2")]}), encoding="utf-8")
++    jsonl = tmp_path / "c.jsonl"
++    jsonl.write_text(
++        json.dumps(_casus(id="C3")) + "\n\n" + json.dumps(_casus(id="C4")) + "\n",
++        encoding="utf-8",
++    )
++    assert [c.id for c in proef.lees_casussen(lijst)] == ["C1"]
++    assert [c.id for c in proef.lees_casussen(obj)] == ["C2"]
++    assert [c.id for c in proef.lees_casussen(jsonl)] == ["C3", "C4"]
++
++
++def test_volledige_casus_wordt_genormaliseerd():
++    casus = proef.casus_uit_dict(
++        _casus(
++            organisatorische_context=[" Proefdienst "],
++            juridische_context=["bestuursrecht"],
++            wettelijke_basis=["Awb"],
++            ontologische_categorie="proces",
++            documenten=[{"doc_id": "d", "snippet": "s", "filename": "f.txt"}],
++            betekenisverduidelijking="werkdagen",
++            verwachte_uitkomst="ontbrekende_grond",
++            herkomst="h",
++        )
++    )
++    assert casus.organisatorische_context == ("Proefdienst",)
++    assert casus.documenten == ({"doc_id": "d", "snippet": "s", "filename": "f.txt"},)
++    assert casus.verwachte_uitkomst == "ontbrekende_grond"
++
++
++@pytest.mark.parametrize(
++    "fout",
++    [
++        {"id": "C 1"},
++        {"id": ""},
++        {"onbekend": 1},
++        {"verwachting": " "},
++        {"begrip": None},
++        {"ontologische_categorie": "soort"},
++        {"verwachte_uitkomst": "goed"},
++        {"organisatorische_context": "DJI"},
++        {"organisatorische_context": [""]},
++        {"documenten": [{"doc_id": "d"}]},
++        {"documenten": [{"doc_id": "d", "snippet": "s", "url": "http://x"}]},
++        {"betekenisverduidelijking": ""},
++    ],
++)
++def test_ongeldige_casus_wordt_geweigerd(fout):
++    with pytest.raises(proef.CasusFoutError):
++        proef.casus_uit_dict(_casus(**fout))
++
++
++def test_dubbele_id_en_lege_lijst_worden_geweigerd(tmp_path):
++    pad = tmp_path / "x.json"
++    pad.write_text(json.dumps([_casus(), _casus()]), encoding="utf-8")
++    with pytest.raises(proef.CasusFoutError):
++        proef.lees_casussen(pad)
++    pad.write_text("[]", encoding="utf-8")
++    with pytest.raises(proef.CasusFoutError):
++        proef.lees_casussen(pad)
++
++
++def test_ontwikkelcasussen_d1_tot_d6_zijn_geldig_en_bevroren():
++    casussen = proef.lees_casussen(ONTWIKKELCASUSSEN)
++    assert [c.id for c in casussen] == ["D1", "D2", "D3", "D4", "D5", "D6"]
++    verwacht = {c.id: c.verwachte_uitkomst for c in casussen}
++    assert verwacht == {
++        "D1": "definitie",
++        "D2": "definitie",
++        "D3": "ontbrekende_grond",
++        "D4": "ontbrekende_grond",
++        "D5": "definitie",
++        "D6": "definitie",
++    }
++    # Betekenisgrond is expliciet (documentpassage), geen netwerkbron.
++    assert all(len(c.documenten) == 1 for c in casussen)
++
++
++# ------------------------------------------------------------------ budget
++
++
++def test_budget_acht_casussen_twee_versies_twee_herhalingen_is_precies_32():
++    assert proef.controleer_budget(8, 2, 32) == 32
++
++
++@pytest.mark.parametrize(("casussen", "max_calls"), [(9, 32), (6, 20), (5, 19)])
++def test_budget_boven_de_grens_wordt_vooraf_geweigerd(casussen, max_calls):
++    with pytest.raises(SystemExit):
++        proef.controleer_budget(casussen, 2, max_calls)
++
++
++def test_max_calls_kan_de_harde_grens_niet_verhogen():
++    with pytest.raises(SystemExit):
++        proef.controleer_budget(9, 2, 1000)
++
++
++class _FakeClient:
++    provider_name = "fake"
++
++    def __init__(self) -> None:
++        self.aanroepen = 0
++
++    async def chat_completion(
++        self, messages, model, temperature=0.7, max_tokens=300, timeout=None
++    ):
++        self.aanroepen += 1
++        return ChatResponse(text="antwoord", model=model, tokens_used=1)
++
++    async def close(self) -> None:
++        return None
++
++
++def test_proxy_weigert_boven_budget_zonder_de_echte_client_te_raken():
++    echt = _FakeClient()
++    client = proef.RegistrerendeClient(echt, budget=1)
++    berichten = [ChatMessage(role="user", content="prompt")]
++
++    async def _twee() -> None:
++        await client.chat_completion(berichten, model="m", temperature=0.1)
++        with pytest.raises(proef.LiveBudgetOverschredenError):
++            await client.chat_completion(berichten, model="m", temperature=0.1)
++
++    asyncio.run(_twee())
++    assert echt.aanroepen == 1
++    assert len(client.aanroepen) == 1
++    aanroep = client.aanroepen[0]
++    assert aanroep.respons_tekst == "antwoord"
++    assert aanroep.temperature == 0.1 and aanroep.model_gevraagd == "m"
++
++
++# ------------------------------------------------------------------ secrets
++
++
++def test_scrubber_verwijdert_patronen_en_exacte_sleutel(tmp_path, caplog):
++    scrub = proef.Scrubber()
++    scrub.registreer("geheim-zonder-patroon-123")
++    tekst = "a sk-ant-api03-abcdefghijklmnop b geheim-zonder-patroon-123 c"
++    uit = scrub(tekst)
++    assert "sk-ant" not in uit and "geheim-zonder" not in uit
++    assert uit.count("[REDACTED]") == 2
++
++    proef.SCRUB.registreer("nog-een-geheim-456")
++    pad = tmp_path / "x.json"
++    proef.schrijf_json(pad, {"k": "nog-een-geheim-456 sk-abcdefghijklmnop"})
++    assert "geheim" not in pad.read_text(encoding="utf-8")
++    record = logging.LogRecord(
++        "x", logging.INFO, "p", 1, "key=%s", ("nog-een-geheim-456",), None
++    )
++    proef._ScrubFilter().filter(record)
++    assert "geheim" not in record.getMessage()
++
++
++# ------------------------------------------------------------ offline e2e
++
++
++def _basis_beschikbaar() -> bool:
++    return (
++        subprocess.run(
++            ["git", "-C", str(REPO), "cat-file", "-e", f"{proef.BASIS_REF}^{{commit}}"],
++            capture_output=True,
++            check=False,
++        ).returncode
++        == 0
++    )
++
++
++@pytest.mark.slow
++@pytest.mark.skipif(not _basis_beschikbaar(), reason="basiscommit niet in deze clone")
++def test_offline_proef_bouwt_beide_volledige_appprompts_zonder_modelaanroep(tmp_path):
++    casussen = tmp_path / "casussen.jsonl"
++    casussen.write_text(
++        json.dumps(
++            {
++                "id": "T1",
++                "begrip": "tijdige reactie",
++                "organisatorische_context": ["Proefdienst"],
++                "documenten": [
++                    {
++                        "doc_id": "t1",
++                        "snippet": "Reactie binnen drie dagen na ontvangst.",
++                    }
++                ],
++                "verwachting": "VERWACHTING-MAG-NIET-IN-DE-PROMPT",
++            }
++        )
++        + "\n",
++        encoding="utf-8",
++    )
++    uit = tmp_path / "proef"
++    assert proef.main(["--cases", str(casussen), "--out", str(uit)]) == 0
++
++    manifest = json.loads((uit / "manifest.json").read_text(encoding="utf-8"))
++    assert manifest["modus"] == "offline"
++    assert "live" not in manifest
++    assert manifest["versies"]["basis"]["commit"] == proef.BASIS_REF
++    assert manifest["modelinfo_verschillen"] == []
++    assert manifest["modelinfo"]["basis"]["ai_service_cache"] is False
++    basis = (uit / "prompts/basis/prompts/T1.prompt.txt").read_text(encoding="utf-8")
++    nieuw = (uit / "prompts/nieuw/prompts/T1.prompt.txt").read_text(encoding="utf-8")
++    # Echte volledige appprompts: basis zonder, nieuw met de DEF-821-wijziging.
++    for prompt in (basis, nieuw):
++        assert "### 🎯 FINALE INSTRUCTIES:" in prompt
++        assert "Reactie binnen drie dagen na ontvangst." in prompt
++        assert "VERWACHTING-MAG-NIET-IN-DE-PROMPT" not in prompt
++    assert "Gebruik objectief toetsbare elementen" in basis
++    assert G2_BEGIN not in basis and "BETEKENISGROND ONTBREEKT:" not in basis
++    assert G2_BEGIN in nieuw and "BETEKENISGROND ONTBREEKT:" in nieuw
++    # De basisbron is een echte git-archive-kopie, geen werkboom.
++    assert (
++        not (uit / "bron/basis/src/services/modelantwoord.py")
++        .read_text(encoding="utf-8")
++        .count("ONTBREKENDE_GROND_SENTINEL")
++    )
++
++
++def test_bestaande_uitvoermap_wordt_niet_overschreven(tmp_path):
++    casussen = tmp_path / "c.json"
++    casussen.write_text(json.dumps([_casus()]), encoding="utf-8")
++    uit = tmp_path / "bestaat"
++    uit.mkdir()
++    with pytest.raises(SystemExit):
++        proef.main(["--cases", str(casussen), "--out", str(uit)])
+diff --git a/tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py b/tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py
+new file mode 100644
+index 000000000..6a4c210a6
+--- /dev/null
++++ b/tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py
+@@ -0,0 +1,127 @@
++"""DEF-821 — de aftakking 'ontbrekende betekenisgrond' in de echte orchestrator.
++
++Een geldige melding is een specifieke non-success (`success=False`) zonder
++definitie, id of oordeel; voorbeelden, opschoning, validatie, opslag en
++mislukte-poging-registratie draaien niet. De melding staat compleet in de
++metadata voor transport naar de UI. Een gemengde of misvormde melding faalt
++veilig (`modelantwoord_ongeldig`) zonder modeltekst in response of log. Er is
++geen bronverificatie nodig: de melding noemt juist wat níét is aangeleverd.
++
++Offline doubles (zelfde `Keten` als DEF-751); niets hier claimt modelkwaliteit.
++"""
++
++from __future__ import annotations
++
++import json
++
++import pytest
++
++from services.modelantwoord import CONFLICT_SENTINEL, ONTBREKENDE_GROND_SENTINEL
++from tests.unit.services.orchestrators.test_def751_betekenisconflict_keten import (
++    DEFINITIE,
++    LEZINGEN,
++    Keten,
++    _request,
++)
++
++pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
++
++GROND = "de dagconventie: werkdagen of kalenderdagen"
++VRAAG = "Tellen de drie dagen als werkdagen of als kalenderdagen?"
++
++
++def melding(payload: dict | None = None) -> str:
++    data = {"ontbrekende_grond": GROND, "vraag": VRAAG} if payload is None else payload
++    return f"{ONTBREKENDE_GROND_SENTINEL} " + json.dumps(data, ensure_ascii=False)
++
++
++async def test_ontbrekende_grond_is_specifieke_non_success_zonder_downstream(
++    monkeypatch, caplog
++):
++    keten = Keten(monkeypatch, melding(), bron_nrs=())
++    with caplog.at_level("INFO"):
++        response = await keten.run()
++
++    assert response.success is False
++    assert response.definition is None
++    assert response.validation_result is None
++    md = response.metadata
++    assert md["error_type"] == "betekenisgrond_ontbreekt"
++    assert md["phases_completed"] == 4
++    assert "betekenisconflict" not in md
++    melding_md = md["betekenisgrond_ontbreekt"]
++    assert melding_md["ontbrekende_grond"] == GROND
++    assert melding_md["vraag"] == VRAAG
++    assert melding_md["gemeld_door"] == "model"
++    assert melding_md["begrip"] == "registratie"
++    assert melding_md["ontologische_categorie"] == "proces"
++    assert melding_md["organisatorische_context"] == ["DJI"]
++    assert melding_md["juridische_context"] == ["Strafrecht"]
++    assert melding_md["wettelijke_basis"] == []
++    assert melding_md["generation_id"] == "11111111-2222-3333-4444-555555555555"
++    assert VRAAG in (response.error or "")
++    # Geen oordeel, geen categoriebevestiging, geen id.
++    assert "category_choice" not in json.dumps(md)
++    assert "saved_definition_id" not in md
++    keten.geen_downstream()
++    keten.monitoring.complete_generation.assert_awaited_once()
++    assert keten.monitoring.complete_generation.await_args.kwargs["success"] is False
++    # Geen modelinhoud in het log.
++    assert VRAAG not in caplog.text and GROND not in caplog.text
++
++
++@pytest.mark.parametrize(
++    ("modeltekst", "code"),
++    [
++        (DEFINITIE + "\n" + melding(), "sentinel_niet_eerst"),
++        (melding() + "\n" + DEFINITIE, "tekst_na_payload"),
++        (
++            melding()
++            + "\n"
++            + f"{CONFLICT_SENTINEL} "
++            + json.dumps({"vraag": "v", "lezingen": LEZINGEN}),
++            "gemengde_melding",
++        ),
++        (melding({"ontbrekende_grond": GROND}), "vraag_ontbreekt"),
++        (
++            melding({"ontbrekende_grond": GROND, "vraag": VRAAG, "x": 1}),
++            "onbekende_sleutel",
++        ),
++        (f"**{ONTBREKENDE_GROND_SENTINEL}** {{}}", "payload_geen_json"),
++    ],
++)
++async def test_gemengde_of_misvormde_melding_faalt_veilig(
++    monkeypatch, modeltekst, code, caplog
++):
++    keten = Keten(monkeypatch, modeltekst)
++    with caplog.at_level("INFO"):
++        response = await keten.run()
++    assert response.success is False and response.definition is None
++    assert response.metadata["error_type"] == "modelantwoord_ongeldig"
++    assert response.metadata["code"] == code
++    assert "betekenisgrond_ontbreekt" not in response.metadata
++    for tekst in (DEFINITIE, VRAAG, GROND):
++        assert tekst not in json.dumps(response.metadata)
++        assert tekst not in (response.error or "")
++        assert tekst not in caplog.text
++    keten.geen_downstream()
++
++
++async def test_conflictroute_blijft_ongewijzigd_naast_de_nieuwe_uitkomst(monkeypatch):
++    conflict = f"{CONFLICT_SENTINEL} " + json.dumps(
++        {"vraag": "v?", "lezingen": LEZINGEN}, ensure_ascii=False
++    )
++    keten = Keten(monkeypatch, conflict)
++    response = await keten.run()
++    assert response.metadata["error_type"] == "betekenisconflict"
++    assert "betekenisgrond_ontbreekt" not in response.metadata
++    keten.geen_downstream()
++
++
++async def test_gewone_definitie_loopt_ongewijzigd_door(monkeypatch):
++    keten = Keten(monkeypatch, DEFINITIE)
++    response = await keten.run()
++    assert response.success is True
++    assert response.definition is not None and response.definition.id == 42
++    assert keten.cleaning.clean_text.await_args.args[0] == DEFINITIE
++    assert "betekenisgrond_ontbreekt" not in response.metadata
+diff --git a/tests/unit/services/prompts/test_def821_ess04_promptcontract.py b/tests/unit/services/prompts/test_def821_ess04_promptcontract.py
+new file mode 100644
+index 000000000..a012289ea
+--- /dev/null
++++ b/tests/unit/services/prompts/test_def821_ess04_promptcontract.py
+@@ -0,0 +1,202 @@
++"""DEF-821 — de echte eindprompt: exacte G2-v5-instructie plus G2-2-route.
++
++Bewijst de instructies, niet de modelkwaliteit:
++
++* de ESS-04-regelkaart draagt exact de G2-tekst uit
++  `instructievoorstellen-v5.md` (één keer) en niet meer de cijfergerichte
++  oude instructie;
++* het uitvoercontract kent twee strikt herkenbare uitzonderingen op de
++  definitie-uitvoer (ESS-02-betekenisconflict, ESS-04-ontbrekende
++  betekenisgrond); geen enkele formulering noemt nog één van beide de
++  "enige" uitzondering, en de slotopdracht laat de melding toe;
++* ontbrekend gevalsbewijs, een ontbrekende categorie en ontbrekende
++  bronsteun zijn uitdrukkelijk géén reden voor de melding;
++* ESS-02-tellingen (DEF-750/751) en de conflictroute blijven intact;
++* in de rijkste variant overleeft de staart (incl. beide contracten) en
++  blijft de prompt onder de harde kap;
++* ESS-04-regelrecord (runtime_contract, patronen) is ongewijzigd (AC6).
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from services.interfaces import GenerationRequest
++from services.modelantwoord import CONFLICT_SENTINEL, ONTBREKENDE_GROND_SENTINEL
++from services.prompts.modular_prompt_builder import PromptComponentConfig
++from services.prompts.modules.context_awareness_module import VERDUIDELIJKING_KOP
++from services.prompts.prompt_service_v2 import PromptServiceV2
++from toetsregels.rule_cache import get_rule_cache
++
++pytestmark = [pytest.mark.unit]
++
++REPO = Path(__file__).resolve().parents[4]
++
++#: Letterlijk uit docs/analyses/def606-regeldossiers/ESS-04-verdieping/
++#: onderzoek-20260918/instructievoorstellen-v5.md, § G2 (blockquote).
++G2_V5 = (
++    "Beschrijf begripsbepalende kenmerken die in de bedoelde context navolgbaar op "
++    "gevallen kunnen worden toegepast. Kwalitatieve criteria zijn toegestaan; voeg "
++    "geen getal, percentage, termijn of registratienummer toe om toetsbaarheid te "
++    "suggereren. Neem een kwantitatieve grens alleen over als de aangeleverde "
++    "betekenisgrond haar ondersteunt en behoud relevante noemer, populatie, "
++    "inclusie, startmoment en tijdsbasis, waaronder werk- of kalenderdagen wanneer "
++    "dat onderscheidend is. Laat bepalende beperkingen in de definitiekern staan; "
++    "methode, bewijsplaatsen en registratiecontext blijven apart. Bij ontbrekende "
++    "of strijdige noodzakelijke grond: lever geen definitieve afbakening en verzin "
++    "geen gegeven. Benoem de ontbrekende grond uitsluitend in een daarvoor "
++    "bestemde aparte toelichting of verduidelijkingsuitkomst; voeg geen "
++    "foutmelding, vraag of onzekere placeholder aan de definitiezin toe."
++)
++OUDE_ESS04 = "Gebruik objectief toetsbare elementen"
++EINDINSTRUCTIE = "in één enkele zin, zonder toelichting"
++
++
++@pytest.fixture(autouse=True)
++def _verse_regelcache():
++    get_rule_cache().clear_cache()
++
++
++def _request(**extra) -> GenerationRequest:
++    basis = {
++        "id": "def821",
++        "begrip": "geselecteerde partij",
++        "ontologische_categorie": None,
++        "organisatorische_context": ["Proefdienst"],
++        "actor": "test",
++    }
++    return GenerationRequest(**{**basis, **extra})
++
++
++async def _prompt(**extra) -> str:
++    return (await PromptServiceV2().build_generation_prompt(_request(**extra))).text
++
++
++def test_g2_tekst_staat_letterlijk_in_het_voorstelbestand():
++    """Borg dat de test de échte v5-tekst gebruikt (niet een parafrase)."""
++    bron = (
++        REPO
++        / "docs/analyses/def606-regeldossiers/ESS-04-verdieping/onderzoek-20260918"
++        / "instructievoorstellen-v5.md"
++    ).read_text(encoding="utf-8")
++    assert f"> {G2_V5}" in bron
++
++
++@pytest.mark.parametrize(
++    "categorie", ["type", "proces", "resultaat", "exemplaar", None]
++)
++async def test_ess04_regelkaart_draagt_exact_g2_en_niet_meer_de_cijferinstructie(
++    categorie,
++):
++    prompt = await _prompt(ontologische_categorie=categorie)
++    assert prompt.count(G2_V5) == 1
++    kaart = prompt.split("🔹 **ESS-04 - Toetsbaarheid**", 1)[1].split("🔹", 1)[0]
++    assert f"- **Instructie:** {G2_V5}" in kaart
++    assert OUDE_ESS04 not in prompt
++    assert "(deadlines, aantallen, percentages" not in prompt
++
++
++@pytest.mark.parametrize(
++    "categorie", ["type", "proces", "resultaat", "exemplaar", None]
++)
++async def test_een_consistent_uitvoercontract_met_twee_uitzonderingen(categorie):
++    prompt = await _prompt(ontologische_categorie=categorie)
++    # Beide meldingen staan precies één keer beschreven, met hun JSON-vorm.
++    assert prompt.count(CONFLICT_SENTINEL) == 1
++    assert prompt.count(ONTBREKENDE_GROND_SENTINEL) == 1
++    assert '"ontbrekende_grond"' in prompt and '"vraag"' in prompt
++    # Geen resterende exclusiviteit die de nieuwe uitkomst verbiedt.
++    assert "enige uitzondering" not in prompt.lower()
++    # De slotopdracht laat de melding toe, zonder de definitievorm te verliezen.
++    slot = prompt.split("✏️ Geef nu de definitie", 1)[1].split("🆔", 1)[0]
++    assert EINDINSTRUCTIE in slot
++    assert "melding" in slot
++    # "Lever uitsluitend de definitiekern" blijft, maar met de uitzondering.
++    categorieregel = prompt.split("📋 **Categorie is metadata:**", 1)[1].split("\n", 1)[
++        0
++    ]
++    assert "Lever uitsluitend de definitiekern" in categorieregel
++    assert "melding" in categorieregel
++    # Het nieuwe contract: geen lezingen/bronnen eisen, nooit gemengd.
++    contract = prompt.split(ONTBREKENDE_GROND_SENTINEL, 1)[0].rsplit("🛑", 1)[1]
++    contract += prompt.split(ONTBREKENDE_GROND_SENTINEL, 1)[1].split("\n\n", 1)[0]
++    assert "geen lezingen" in contract
++    assert "nooit samen met" in contract.lower() or "nooit samen" in contract
++    assert "géén definitie" in contract
++
++
++async def test_geen_reden_voor_de_melding_gevalsbewijs_categorie_bronsteun():
++    prompt = await _prompt()
++    contract = prompt.split(ONTBREKENDE_GROND_SENTINEL, 1)[1].split("\n\n", 1)[0]
++    for fragment in (
++        "kwalitatief criterium",
++        "ontbrekend bewijs voor één concreet geval",
++        "ontbrekende of onzekere categorie",
++        "ontbrekende bronsteun",
++        "eenheidsgrens (ESS-03)",
++        "één voorlopige definitiezin",
++    ):
++        assert fragment in contract, fragment
++    # Het contract verwijst naar dezelfde verduidelijkingsregel als ESS-02.
++    assert f"'{VERDUIDELIJKING_KOP}'" in contract
++    assert "geen bronfeit" in contract
++
++
++async def test_ess02_conflictroute_en_tellingen_blijven_intact():
++    prompt = await _prompt(ontologische_categorie="proces")
++    # Uit tests/unit/services/prompts/test_def751_conflict_promptnorm.py.
++    assert "Nooit een definitie én deze melding samen" in prompt
++    assert "minstens twee" in prompt
++    assert "bron NUMMER" in prompt and "context: CONTEXTWAARDE" in prompt
++    assert "keuze van de bedoelde betekenislaag door de gebruiker" in prompt
++    assert "meld die opnieuw" in prompt
++    assert prompt.count("kies niet stil") == 2
++    assert prompt.count("eerst worden verduidelijkt") == 2
++    assert len(prompt.split("geef één voorlopige kandidaat")) == 3
++
++
++@pytest.mark.parametrize("categorie", ["type", "proces", "resultaat", "exemplaar"])
++@pytest.mark.parametrize(
++    "documenttekst",
++    [None, "Awb art. 5:11 toezichthouder " * 700],
++    ids=["zonder_document", "met_document"],
++)
++async def test_rijkste_variant_houdt_beide_contracten_en_staart(
++    categorie, documenttekst
++):
++    request = GenerationRequest(
++        id="def821-lengte",
++        begrip="keurmerkregistratieprocedure",
++        ontologische_categorie=categorie,
++        organisatorische_context=["DJI", "Openbaar Ministerie"],
++        juridische_context=["strafrecht", "bestuursrecht"],
++        wettelijke_basis=["Wetboek van Strafvordering"],
++        document_context=documenttekst,
++        betekenisverduidelijking="Bedoeld is de procedure als geheel",
++    )
++    prompt = (await PromptServiceV2().build_generation_prompt(request)).text
++    assert prompt.count(G2_V5) == 1
++    assert prompt.count(CONFLICT_SENTINEL) == 1
++    assert prompt.count(ONTBREKENDE_GROND_SENTINEL) == 1
++    assert EINDINSTRUCTIE in prompt
++    assert prompt.rstrip().endswith("- Wettelijke basis: Wetboek van Strafvordering")
++    assert len(prompt) < PromptComponentConfig().max_prompt_length
++
++
++def test_ess04_regelrecord_runtime_contract_en_patronen_ongewijzigd():
++    record = json.loads(
++        (REPO / "src/toetsregels/regels/ESS-04.json").read_text(encoding="utf-8")
++    )
++    rc = record["runtime_contract"]
++    assert rc["evaluator"] == "judgment_review"
++    assert rc["automation_status"] == "review_required"
++    assert rc["score_policy"] == "excluded_from_score"
++    assert rc["example_pair_policy"] == "review_policy"
++    assert len(record["herkenbaar_patronen"]) == 15
++    # Norm en generatie wijzen dezelfde kant op: kwalitatief mag, geen cijferplicht.
++    assert "Kwalitatieve criteria kunnen volstaan" in record["toelichting"]
++    assert "Kwalitatieve criteria zijn toegestaan" in G2_V5
++    assert "betekenisgrond ontbreken" in record["toetsvraag"]
+diff --git a/tests/unit/services/test_def821_modelantwoord.py b/tests/unit/services/test_def821_modelantwoord.py
+new file mode 100644
+index 000000000..d825ecdc5
+--- /dev/null
++++ b/tests/unit/services/test_def821_modelantwoord.py
+@@ -0,0 +1,166 @@
++"""DEF-821 — de aparte uitkomst 'ontbrekende noodzakelijke betekenisgrond'.
++
++Het modelantwoordcontract (DEF-751) kent naast de definitie en het
++ESS-02-betekenisconflict een tweede, strikt herkenbare niet-succesuitkomst:
++sentinel `BETEKENISGROND ONTBREEKT:` op de eerste regel plus precies één
++JSON-object met `ontbrekende_grond` en `vraag`. Er zijn géén lezingen of
++bronverwijzingen nodig (geen verzonnen conflict). Alles wat afwijkt —
++gemengd met een definitie of met een conflictmelding, onbekende of lege
++velden, markup rond de payload — is veilig ongeldig. Modeltekst in de velden
++blijft letterlijk tekst (geen interpretatie van HTML/Markdown hier).
++"""
++
++from __future__ import annotations
++
++import json
++
++import pytest
++
++from services.modelantwoord import (
++    CONFLICT_SENTINEL,
++    FOUTCODES,
++    ONTBREKENDE_GROND_SENTINEL,
++    SOORT_CONFLICT,
++    SOORT_DEFINITIE,
++    SOORT_ONGELDIG,
++    SOORT_ONTBREKENDE_GROND,
++    lees_modelantwoord,
++)
++
++pytestmark = [pytest.mark.unit]
++
++GROND = "waarvan het percentage wordt berekend en aan welk criterium wordt voldaan"
++VRAAG = "Op welke verzameling en welk criterium slaat de grens van 80% (ten minste)?"
++DEFINITIE = "Partij waarvan ten minste 80% van de voorwerpen blauw is"
++LEZINGEN = [
++    {"lezing": "a", "bron": "bron 1", "grond": "x"},
++    {"lezing": "b", "bron": "bron 2", "grond": "y"},
++]
++CONFLICTPAYLOAD = {"vraag": "v", "lezingen": LEZINGEN}
++GRONDPAYLOAD = {"ontbrekende_grond": GROND, "vraag": VRAAG}
++
++
++def melding(payload: dict | None = None, sentinel: str = ONTBREKENDE_GROND_SENTINEL):
++    data = GRONDPAYLOAD if payload is None else payload
++    return f"{sentinel} " + json.dumps(data, ensure_ascii=False)
++
++
++def test_sentinels_zijn_verschillend_en_geen_deelstring_van_elkaar():
++    assert ONTBREKENDE_GROND_SENTINEL != CONFLICT_SENTINEL
++    assert ONTBREKENDE_GROND_SENTINEL.lower() not in CONFLICT_SENTINEL.lower()
++    assert CONFLICT_SENTINEL.lower() not in ONTBREKENDE_GROND_SENTINEL.lower()
++
++
++def test_geldige_melding_ontbrekende_grond_zonder_lezingen():
++    antwoord = lees_modelantwoord(melding())
++    assert antwoord.soort == SOORT_ONTBREKENDE_GROND
++    assert antwoord.conflict is None
++    assert antwoord.code is None and antwoord.reden is None
++    assert antwoord.ontbrekende_grond is not None
++    assert antwoord.ontbrekende_grond.ontbrekende_grond == GROND
++    assert antwoord.ontbrekende_grond.vraag == VRAAG
++    assert antwoord.ontbrekende_grond.to_dict() == GRONDPAYLOAD
++
++
++@pytest.mark.parametrize(
++    "raw",
++    [
++        # Kastongevoelig, op een eigen regel, met fence en met opsommingsteken.
++        melding().replace(ONTBREKENDE_GROND_SENTINEL, "betekenisgrond ontbreekt:"),
++        f"{ONTBREKENDE_GROND_SENTINEL}\n" + json.dumps(GRONDPAYLOAD),
++        f"\n\n{ONTBREKENDE_GROND_SENTINEL}\n```json\n"
++        + json.dumps(GRONDPAYLOAD)
++        + "\n```",
++        "- " + melding(),
++    ],
++)
++def test_toegestane_vormvarianten(raw):
++    assert lees_modelantwoord(raw).soort == SOORT_ONTBREKENDE_GROND
++
++
++def test_witruimte_in_velden_wordt_samengevoegd():
++    antwoord = lees_modelantwoord(
++        melding({"ontbrekende_grond": "  a \n b ", "vraag": "c\t d?"})
++    )
++    assert antwoord.ontbrekende_grond.ontbrekende_grond == "a b"
++    assert antwoord.ontbrekende_grond.vraag == "c d?"
++
++
++@pytest.mark.parametrize(
++    ("raw", "code"),
++    [
++        # Gemengd met een definitie, vóór of ná de melding.
++        (DEFINITIE + "\n" + melding(), "sentinel_niet_eerst"),
++        (melding() + "\n" + DEFINITIE, "tekst_na_payload"),
++        # Gemengd met een conflictmelding (in beide volgordes) of dubbel.
++        (
++            melding() + "\n" + melding(CONFLICTPAYLOAD, CONFLICT_SENTINEL),
++            "gemengde_melding",
++        ),
++        (
++            melding(CONFLICTPAYLOAD, CONFLICT_SENTINEL) + "\n" + melding(),
++            "gemengde_melding",
++        ),
++        (melding() + "\n" + melding(), "dubbele_melding"),
++        # Misvormd.
++        (f"{ONTBREKENDE_GROND_SENTINEL}", "payload_ontbreekt"),
++        (f"{ONTBREKENDE_GROND_SENTINEL} de noemer ontbreekt", "payload_geen_json"),
++        (f"{ONTBREKENDE_GROND_SENTINEL} [1, 2]", "payload_geen_object"),
++        (f'{ONTBREKENDE_GROND_SENTINEL} {{"vraag": "{VRAAG}"', "payload_geen_json"),
++        (melding({"vraag": VRAAG}), "grond_ontbreekt"),
++        (melding({"ontbrekende_grond": "  ", "vraag": VRAAG}), "grond_ontbreekt"),
++        (melding({"ontbrekende_grond": ["a"], "vraag": VRAAG}), "grond_ontbreekt"),
++        (melding({"ontbrekende_grond": GROND}), "vraag_ontbreekt"),
++        (melding({"ontbrekende_grond": GROND, "vraag": 3}), "vraag_ontbreekt"),
++        # Geen fictieve lezingen, geen extra velden (ook geen definitie-veld).
++        (melding({**GRONDPAYLOAD, "lezingen": LEZINGEN}), "onbekende_sleutel"),
++        (melding({**GRONDPAYLOAD, "definitie": DEFINITIE}), "onbekende_sleutel"),
++        # Markup rond sentinel of payload: niet herkenbaar → veilig ongeldig.
++        (
++            f"**{ONTBREKENDE_GROND_SENTINEL}** " + json.dumps(GRONDPAYLOAD),
++            "payload_geen_json",
++        ),
++        ("```\n" + melding() + "\n```", "sentinel_niet_eerst"),
++        (
++            f"<p>{ONTBREKENDE_GROND_SENTINEL} " + json.dumps(GRONDPAYLOAD) + "</p>",
++            "sentinel_niet_eerst",
++        ),
++    ],
++)
++def test_gemengd_of_misvormd_faalt_veilig_met_vaste_reden(raw, code):
++    antwoord = lees_modelantwoord(raw)
++    assert antwoord.soort == SOORT_ONGELDIG
++    assert antwoord.ontbrekende_grond is None and antwoord.conflict is None
++    assert antwoord.code == code
++    assert antwoord.reden == FOUTCODES[code]
++    # De reden bevat nooit modeltekst.
++    for fragment in (GROND, VRAAG, DEFINITIE):
++        assert fragment not in antwoord.reden
++
++
++def test_markup_in_velden_blijft_letterlijke_tekst():
++    """Het contract leest structuur; weergave als platte tekst is aan de UI."""
++    html = '<img src=x onerror="alert(1)"> [klik](javascript:alert(1)) **vet**'
++    antwoord = lees_modelantwoord(melding({"ontbrekende_grond": html, "vraag": html}))
++    assert antwoord.soort == SOORT_ONTBREKENDE_GROND
++    assert antwoord.ontbrekende_grond.ontbrekende_grond == html
++    assert antwoord.ontbrekende_grond.vraag == html
++
++
++def test_bestaand_conflict_en_definitiepad_blijven_ongewijzigd():
++    conflict = lees_modelantwoord(melding(CONFLICTPAYLOAD, CONFLICT_SENTINEL))
++    assert conflict.soort == SOORT_CONFLICT
++    assert conflict.ontbrekende_grond is None
++    raw = "Ontologische categorie: proces\n" + DEFINITIE
++    definitie = lees_modelantwoord(raw)
++    assert definitie.soort == SOORT_DEFINITIE
++    assert definitie.tekst is raw
++
++
++def test_conflictpayload_met_ontbrekende_grondvelden_blijft_ongeldig():
++    """Geen vermenging van de twee contracten binnen één payload."""
++    antwoord = lees_modelantwoord(
++        melding({**CONFLICTPAYLOAD, "ontbrekende_grond": GROND}, CONFLICT_SENTINEL)
++    )
++    assert antwoord.soort == SOORT_ONGELDIG
++    assert antwoord.code == "onbekende_sleutel"
+diff --git a/tests/unit/ui/test_def821_ontbrekende_grond_apptest.py b/tests/unit/ui/test_def821_ontbrekende_grond_apptest.py
+new file mode 100644
+index 000000000..efc0c248d
+--- /dev/null
++++ b/tests/unit/ui/test_def821_ontbrekende_grond_apptest.py
+@@ -0,0 +1,165 @@
++"""DEF-821 — echte-widgetbewijs voor de melding 'ontbrekende betekenisgrond'.
++
++Streamlit AppTest in een subprocess achter de offline-gate (zelfde opzet als
++`test_def751_betekenisconflict_tab.py`). De tab rendert een melding waarvan
++de modelvelden HTML- en Markdown-injectie bevatten: die verschijnen alleen
++als `st.text`-element, in geen enkel Markdown-, waarschuwings-, succes- of
++foutelement. Daarna wordt een antwoord ingevuld en expliciet verzonden.
++
++Topniveau bewust zonder projectimports: de driver draait dit bestand als
++script en zet `sys.path` pas in `_driver`.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++
++pytestmark = [pytest.mark.unit]
++
++REPO = Path(__file__).resolve().parents[3]
++ANTWOORD = "Werkdagen; de dag van ontvangst telt niet mee"
++
++
++def _app() -> None:
++    # AppTest voert deze functie geïsoleerd uit: alles expliciet importeren.
++    import json
++    from unittest.mock import MagicMock
++
++    import streamlit as st
++
++    from tests.unit.ui.test_def821_ontbrekende_grond_ui import (
++        INJECTIE,
++        open_verzoek,
++        tab_resultaat,
++    )
++    from ui.components.definition_generator_tab import DefinitionGeneratorTab
++    from ui.helpers.betekenisconflict import KEY_OPEN, KEY_VERZONDEN
++    from ui.session_state import SessionStateManager
++
++    SessionStateManager.initialize_session_state(
++        {
++            "last_generation_result": tab_resultaat(grond=INJECTIE),
++            KEY_OPEN: {**open_verzoek(), "ontbrekende_grond": INJECTIE},
++        }
++    )
++    tab = DefinitionGeneratorTab.__new__(DefinitionGeneratorTab)
++    for naam in (
++        "duplicate_renderer",
++        "sources_renderer",
++        "validation_renderer",
++        "category_renderer",
++        "voorbeelden_renderer",
++        "workflow_service",
++        "category_service",
++    ):
++        setattr(tab, naam, MagicMock())
++    tab._render_generation_results(
++        SessionStateManager.get_value("last_generation_result")
++    )
++    st.caption("verzonden=" + json.dumps(SessionStateManager.get_value(KEY_VERZONDEN)))
++
++
++def _waarneming(at) -> dict:
++    captions = [str(c.value) for c in at.caption]
++    return {
++        "exceptions": [str(e.value) for e in at.exception],
++        "warnings": [str(w.value) for w in at.warning],
++        "successes": [str(s.value) for s in at.success],
++        "errors": [str(e.value) for e in at.error],
++        "infos": [str(i.value) for i in at.info],
++        "markdown": [str(m.value) for m in at.markdown],
++        "captions": captions,
++        "text": [str(t.value) for t in at.text],
++        "text_areas": [t.key for t in at.text_area],
++        "buttons": [b.key for b in at.button],
++        "verzonden": next(
++            (c.split("=", 1)[1] for c in captions if c.startswith("verzonden=")),
++            "<geen caption>",
++        ),
++    }
++
++
++def _driver(uit_pad: str) -> None:
++    for pad in (str(REPO), str(REPO / "src")):
++        if pad not in sys.path:
++            sys.path.insert(0, pad)
++    from tests import offline_bootstrap
++
++    offline_bootstrap.install()
++    from streamlit.testing.v1 import AppTest
++
++    from ui.helpers.betekenisconflict import KEY_INVOER
++
++    w: dict = {"gate_actief": offline_bootstrap.gate_is_actief(), "stappen": {}}
++
++    def _schrijf() -> None:
++        Path(uit_pad).write_text(
++            json.dumps(w, ensure_ascii=False, indent=2), encoding="utf-8"
++        )
++
++    at = AppTest.from_function(_app, default_timeout=120)
++    at.run()
++    w["stappen"]["getoond"] = _waarneming(at)
++    _schrijf()
++    at.text_area(key=KEY_INVOER).input(ANTWOORD).run()
++    at.button(key="btn_betekenisverduidelijking").click().run()
++    w["stappen"]["verzonden"] = _waarneming(at)
++    _schrijf()
++
++
++@pytest.fixture(scope="module")
++def w(tmp_path_factory) -> dict:
++    uit = tmp_path_factory.mktemp("def821-apptest") / "waarnemingen.json"
++    proces = subprocess.run(
++        [sys.executable, str(Path(__file__).resolve()), "--driver", str(uit)],
++        cwd=str(REPO),
++        env=dict(os.environ),
++        capture_output=True,
++        text=True,
++        timeout=600,
++        check=False,
++    )
++    deel = uit.read_text(encoding="utf-8") if uit.exists() else "<geen waarnemingen>"
++    assert proces.returncode == 0, proces.stderr[-8000:] + "\n" + deel[-8000:]
++    return json.loads(uit.read_text(encoding="utf-8"))
++
++
++@pytest.mark.slow
++def test_apptest_melding_als_platte_tekst_zonder_excepties(w):
++    from tests.unit.ui.test_def821_ontbrekende_grond_ui import INJECTIE, VRAAG
++
++    assert w["gate_actief"] is True
++    for naam, stap in w["stappen"].items():
++        assert stap["exceptions"] == [], (naam, stap["exceptions"])
++    stap = w["stappen"]["getoond"]
++    assert INJECTIE in stap["text"]
++    assert VRAAG in stap["text"]
++    for veld in ("markdown", "warnings", "successes", "errors", "infos", "captions"):
++        assert not any("onerror" in m for m in stap[veld]), (veld, stap[veld])
++    assert any("betekenisgrond" in x for x in stap["warnings"])
++    assert stap["successes"] == [] and stap["errors"] == []
++    assert stap["text_areas"] == ["betekenisverduidelijking_invoer"]
++    assert stap["buttons"] == ["btn_betekenisverduidelijking"]
++    assert stap["verzonden"] == "null"
++
++
++@pytest.mark.slow
++def test_apptest_expliciet_verzenden_bindt_antwoord(w):
++    verzonden = json.loads(w["stappen"]["verzonden"]["verzonden"])
++    assert verzonden == {
++        "generation_id": "gen-grond-1",
++        "vingerafdruk": "vf-1",
++        "tekst": ANTWOORD,
++    }
++    assert any("Genereer" in s for s in w["stappen"]["verzonden"]["successes"])
++
++
++if __name__ == "__main__":
++    if len(sys.argv) == 3 and sys.argv[1] == "--driver":
++        _driver(sys.argv[2])
+diff --git a/tests/unit/ui/test_def821_ontbrekende_grond_ui.py b/tests/unit/ui/test_def821_ontbrekende_grond_ui.py
+new file mode 100644
+index 000000000..b665a84de
+--- /dev/null
++++ b/tests/unit/ui/test_def821_ontbrekende_grond_ui.py
+@@ -0,0 +1,514 @@
++"""DEF-821 — ontbrekende betekenisgrond: transport, UI en de echte keten.
++
++* Adapter: de orchestrator-non-success wordt een UI-dict zonder definitie,
++  id of oordeel, met de melding compleet onder één additieve sleutel.
++* Sessiehulp: het open verzoek draagt soort, ontbrekende grond en vraag;
++  verzenden en toepassen lopen via hetzelfde gebonden antwoordmechanisme
++  als het ESS-02-conflict (generation_id + invoervingerafdruk, eenmalig).
++* Tab: de melding staat apart van definitie en technische fout; modelvelden
++  worden uitsluitend als platte tekst getoond (geen HTML/Markdown-injectie).
++* Keten: handler → ServiceAdapter → orchestrator → echte PromptServiceV2 →
++  fake model (geen netwerk) → echte DefinitionRepository op een tijdelijke
++  SQLite. Bij de melding wordt niets opgeslagen; na het expliciet verzonden
++  antwoord staat het als DATA in de nieuwe prompt, wordt de kandidaat
++  opgeslagen en is het antwoord op het record terug te lezen. Gewijzigde
++  invoer maakt een verzonden antwoord ongeldig.
++
++Het echte-widgetbewijs (AppTest in een subprocess achter de offline-gate)
++staat in `test_def821_ontbrekende_grond_apptest.py`. Niets hier claimt
++modelkwaliteit.
++"""
++
++from __future__ import annotations
++
++import asyncio
++import json
++import sqlite3
++from typing import Any
++from unittest.mock import AsyncMock, MagicMock, patch
++
++import pytest
++
++from database.definitie_repository import DefinitieRepository
++from integration.definitie_checker import CheckAction
++from services.definition_repository import DefinitionRepository
++from services.interfaces import (
++    AIGenerationResult,
++    CleaningResult,
++    DefinitionResponseV2,
++    OrchestratorConfig,
++)
++from services.modelantwoord import ONTBREKENDE_GROND_SENTINEL
++from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
++from services.prompts.modules.context_awareness_module import verduidelijking_datalijn
++from services.prompts.prompt_service_v2 import PromptServiceV2
++from services.service_factory import ServiceAdapter
++from tests.unit.ui.handlers.test_def751_betekenisconflict_handler import FakeSM
++from toetsregels.rule_cache import get_rule_cache
++from ui.handlers.definition_generation_handler import DefinitionGenerationHandler
++from ui.helpers.betekenisconflict import (
++    KEY_INVOER,
++    KEY_OPEN,
++    KEY_VERZONDEN,
++    SOORT_ONTBREKENDE_GROND,
++    open_conflict_uit,
++    verzend_verduidelijking,
++)
++
++pytestmark = [pytest.mark.unit]
++
++GROND = "de dagconventie: werkdagen of kalenderdagen"
++VRAAG = "Tellen de drie dagen als werkdagen of als kalenderdagen?"
++ANTWOORD = "Werkdagen; de dag van ontvangst telt niet mee"
++DEFINITIE = (
++    "Reactie die uiterlijk op de derde werkdag na de dag van ontvangst wordt gegeven"
++)
++BEGRIP = "tijdige reactie"
++CONTEXT = {
++    "organisatorische_context": ["Proefdienst"],
++    "juridische_context": [],
++    "wettelijke_basis": [],
++}
++INJECTIE = '<img src=x onerror="alert(1)"> [klik](javascript:alert(1)) **vet**'
++
++
++def melding_md(
++    generation_id: str = "gen-grond-1", grond: str = GROND, vraag: str = VRAAG
++) -> dict[str, Any]:
++    return {
++        "generation_id": generation_id,
++        "error_type": "betekenisgrond_ontbreekt",
++        "phases_completed": 4,
++        "betekenisgrond_ontbreekt": {
++            "ontbrekende_grond": grond,
++            "vraag": vraag,
++            "gemeld_door": "model",
++            "begrip": BEGRIP,
++            "ontologische_categorie": None,
++            "organisatorische_context": ["Proefdienst"],
++            "juridische_context": [],
++            "wettelijke_basis": [],
++            "generation_id": generation_id,
++        },
++    }
++
++
++def melding_ui(**kw) -> dict[str, Any]:
++    md = melding_md(**kw)
++    return ServiceAdapter.to_ui_response(
++        ServiceAdapter.__new__(ServiceAdapter),
++        DefinitionResponseV2(
++            success=False, error=md["betekenisgrond_ontbreekt"]["vraag"], metadata=md
++        ),
++    )
++
++
++# ------------------------------------------------------------------ adapter
++
++
++def test_adapter_transporteert_de_melding_compleet_zonder_definitie_of_oordeel():
++    ui = melding_ui()
++    assert ui["success"] is False
++    assert ui["error_type"] == "betekenisgrond_ontbreekt"
++    assert ui["error_message"] == VRAAG
++    melding = ui["betekenisgrond_ontbreekt"]
++    assert melding == melding_md()["betekenisgrond_ontbreekt"]
++    assert "betekenisconflict" not in ui
++    assert ui["definitie_origineel"] == "" and ui["definitie_gecorrigeerd"] == ""
++    assert "saved_definition_id" not in ui
++    assert ui["validation_details"]["violations"] == []
++    assert ui["voorbeelden"] == {}
++
++
++@pytest.mark.parametrize(
++    "kapot",
++    [
++        {"vraag": VRAAG},  # grond ontbreekt
++        {"ontbrekende_grond": GROND},  # vraag ontbreekt
++        "geen dict",
++    ],
++)
++def test_adapter_neemt_een_onvolledige_melding_niet_over(kapot):
++    md = melding_md()
++    md["betekenisgrond_ontbreekt"] = kapot
++    ui = ServiceAdapter.to_ui_response(
++        ServiceAdapter.__new__(ServiceAdapter),
++        DefinitionResponseV2(success=False, error="x", metadata=md),
++    )
++    assert ui["success"] is False
++    assert "betekenisgrond_ontbreekt" not in ui
++
++
++# ------------------------------------------------------------ sessiehulp
++
++
++def test_open_verzoek_draagt_soort_grond_en_vraag():
++    open_verzoek = open_conflict_uit(melding_ui(), "vf-1")
++    assert open_verzoek == {
++        "generation_id": "gen-grond-1",
++        "vingerafdruk": "vf-1",
++        "soort": SOORT_ONTBREKENDE_GROND,
++        "vraag": VRAAG,
++        "ontbrekende_grond": GROND,
++        "lezingen": [],
++        "begrip": BEGRIP,
++    }
++
++
++def test_open_verzoek_bij_ess02_conflict_blijft_gelijk_met_soort():
++    from tests.unit.ui.handlers.test_def751_betekenisconflict_handler import (
++        LEZINGEN,
++        conflict_ui,
++    )
++
++    open_conflict = open_conflict_uit(conflict_ui(), "vf-2")
++    assert open_conflict["soort"] == "betekenisconflict"
++    assert open_conflict["lezingen"] == LEZINGEN
++    assert "ontbrekende_grond" not in open_conflict
++
++
++# ------------------------------------------------------------------- tab
++
++
++def tab_resultaat(generation_id: str = "gen-grond-1", **kw) -> dict[str, Any]:
++    return {
++        "begrip": BEGRIP,
++        "agent_result": melding_ui(generation_id=generation_id, **kw),
++        "saved_record": None,
++        "saved_definition_id": None,
++        "determined_category": None,
++    }
++
++
++def open_verzoek(generation_id: str = "gen-grond-1") -> dict[str, Any]:
++    return {
++        "generation_id": generation_id,
++        "vingerafdruk": "vf-1",
++        "soort": SOORT_ONTBREKENDE_GROND,
++        "vraag": VRAAG,
++        "ontbrekende_grond": GROND,
++        "lezingen": [],
++        "begrip": BEGRIP,
++    }
++
++
++class TabSM:
++    data: dict[str, Any] = {}
++
++    @classmethod
++    def get_value(cls, key, default=None):
++        return cls.data.get(key, default)
++
++    @classmethod
++    def set_value(cls, key, value):
++        cls.data[key] = value
++
++    @classmethod
++    def clear_value(cls, key):
++        cls.data.pop(key, None)
++
++
++def _tab():
++    from ui.components.definition_generator_tab import DefinitionGeneratorTab
++
++    tab = DefinitionGeneratorTab.__new__(DefinitionGeneratorTab)
++    for naam in (
++        "duplicate_renderer",
++        "sources_renderer",
++        "validation_renderer",
++        "category_renderer",
++        "voorbeelden_renderer",
++        "workflow_service",
++        "category_service",
++    ):
++        setattr(tab, naam, MagicMock())
++    return tab
++
++
++@pytest.fixture
++def render():
++    from ui.components import definition_generator_tab as module
++
++    def _render(resultaat: dict[str, Any], sessie: dict[str, Any], knop: bool = False):
++        TabSM.data = dict(sessie)
++        st = MagicMock()
++        st.button.return_value = knop
++        tab = _tab()
++        with (
++            patch.object(module, "st", st),
++            patch.object(module, "SessionStateManager", TabSM),
++            patch.object(tab, "_render_definition_section") as definitie,
++            patch.object(tab, "_render_validation_section") as validatie,
++            patch.object(tab, "_render_voorbeelden_section") as voorbeelden,
++            patch.object(tab, "_render_generation_status") as status,
++        ):
++            tab._render_generation_results(resultaat)
++        return st, {
++            "definitie": definitie,
++            "validatie": validatie,
++            "voorbeelden": voorbeelden,
++            "status": status,
++        }
++
++    return _render
++
++
++_OPGEMAAKT = ("markdown", "warning", "info", "caption", "write", "success", "error")
++
++
++def _args(mock: MagicMock, namen: tuple[str, ...]) -> list[str]:
++    return [
++        str(a)
++        for naam in namen
++        for c in getattr(mock, naam).call_args_list
++        for a in (*c.args, *c.kwargs.values())
++    ]
++
++
++def test_tab_toont_grond_en_vraag_als_modelmelding_apart_van_definitie(render):
++    st, secties = render(tab_resultaat(), {KEY_OPEN: open_verzoek()})
++    platte_tekst = _args(st, ("text",))
++    assert any(GROND in t for t in platte_tekst)
++    assert any(VRAAG in t for t in platte_tekst)
++    opgemaakt = " ".join(_args(st, _OPGEMAAKT))
++    assert "melding van het model" in opgemaakt
++    assert "geen definitie" in opgemaakt
++    assert "betekenisgrond" in opgemaakt.lower()
++    # Geen resultaat-, status-, validatie- of voorbeeldensectie; geen succes.
++    for naam, sectie in secties.items():
++        assert not sectie.called, naam
++    assert not st.success.called
++    assert not st.error.called
++    # Antwoordveld (key-only) en expliciete verzendknop.
++    assert st.text_area.call_args.kwargs["key"] == KEY_INVOER
++    assert "value" not in st.text_area.call_args.kwargs
++    assert st.button.called
++
++
++def test_tab_modelvelden_nooit_als_markdown_of_html(render):
++    st, _ = render(
++        tab_resultaat(grond=INJECTIE, vraag=INJECTIE),
++        {
++            KEY_OPEN: {
++                **open_verzoek(),
++                "ontbrekende_grond": INJECTIE,
++                "vraag": INJECTIE,
++            }
++        },
++    )
++    assert any(INJECTIE in t for t in _args(st, ("text",)))
++    for tekst in _args(st, _OPGEMAAKT):
++        assert "onerror" not in tekst and "javascript:" not in tekst, tekst
++    for c in st.markdown.call_args_list:
++        assert not c.kwargs.get("unsafe_allow_html"), c
++
++
++def test_tab_verzenden_bindt_antwoord_aan_open_verzoek(render):
++    render(
++        tab_resultaat(),
++        {KEY_OPEN: open_verzoek(), KEY_INVOER: f"  {ANTWOORD} "},
++        knop=True,
++    )
++    assert TabSM.data[KEY_VERZONDEN] == {
++        "generation_id": "gen-grond-1",
++        "vingerafdruk": "vf-1",
++        "tekst": ANTWOORD,
++    }
++
++
++def test_tab_verzonden_antwoord_ook_als_platte_tekst(render):
++    st, _ = render(
++        tab_resultaat(),
++        {
++            KEY_OPEN: open_verzoek(),
++            KEY_VERZONDEN: {
++                "generation_id": "gen-grond-1",
++                "vingerafdruk": "vf-1",
++                "tekst": INJECTIE,
++            },
++        },
++    )
++    assert any(INJECTIE in t for t in _args(st, ("text",)))
++    for tekst in _args(st, _OPGEMAAKT):
++        assert "onerror" not in tekst, tekst
++
++
++def test_tab_zonder_passend_open_verzoek_geen_verzendknop(render):
++    for sessie in ({KEY_OPEN: open_verzoek("gen-2")}, {}):
++        st, _ = render(tab_resultaat("gen-grond-1"), sessie, knop=True)
++        assert not st.button.called and not st.text_area.called
++        assert "opnieuw" in " ".join(_args(st, _OPGEMAAKT)).lower()
++
++
++# ------------------------------------------------------------------ keten
++
++
++@pytest.fixture
++def _verse_regelcache():
++    get_rule_cache().clear_cache()
++
++
++class FakeModel:
++    """Meldt ontbrekende grond zolang de prompt het antwoord niet als DATA draagt."""
++
++    def __init__(self) -> None:
++        self.prompts: list[str] = []
++
++    async def generate_definition(self, prompt: str, **kwargs) -> AIGenerationResult:
++        self.prompts.append(prompt)
++        if verduidelijking_datalijn(ANTWOORD) in prompt:
++            tekst = DEFINITIE
++        else:
++            tekst = f"{ONTBREKENDE_GROND_SENTINEL} " + json.dumps(
++                {"ontbrekende_grond": GROND, "vraag": VRAAG}, ensure_ascii=False
++            )
++        return AIGenerationResult(
++            text=tekst, model="fake", tokens_used=1, generation_time=0.0
++        )
++
++
++def _keten(db_path: str, monkeypatch):
++    from voorbeelden import unified_voorbeelden
++
++    monkeypatch.setattr(
++        unified_voorbeelden,
++        "genereer_alle_voorbeelden_async",
++        AsyncMock(return_value={}),
++    )
++    model = FakeModel()
++    cleaning = AsyncMock()
++
++    async def _clean(text: str, term: str) -> CleaningResult:
++        return CleaningResult(original_text=text, cleaned_text=text, was_cleaned=False)
++
++    cleaning.clean_text.side_effect = _clean
++    validation = AsyncMock()
++    validation.validate_definition.return_value = {
++        "version": "1.0.0",
++        "overall_score": 0.8,
++        "is_acceptable": True,
++        "violations": [],
++        "passed_rules": [],
++        "detailed_scores": {},
++        "system": {},
++    }
++    orch = DefinitionOrchestratorV2(
++        prompt_service=PromptServiceV2(),
++        ai_service=model,
++        validation_service=validation,
++        cleaning_service=cleaning,
++        repository=DefinitionRepository(db_path),
++        config=OrchestratorConfig(enable_feedback_loop=False, enable_enhancement=False),
++    )
++    adapter = ServiceAdapter.__new__(ServiceAdapter)
++    adapter.orchestrator = orch
++    checker = MagicMock()
++    checker.check_before_generation.return_value = MagicMock(action=CheckAction.PROCEED)
++    handler = DefinitionGenerationHandler(
++        checker, adapter, DefinitieRepository(db_path)
++    )
++    return handler, model, validation, cleaning
++
++
++def _genereer(handler, sm, st=None, context=CONTEXT) -> None:
++    with patch(
++        "ui.helpers.async_bridge.run_async", lambda coro, **kw: asyncio.run(coro)
++    ):
++        handler.handle_definition_generation(
++            BEGRIP, context, _st=st or MagicMock(), _sm=sm
++        )
++
++
++def _aantal(db_path: str) -> int:
++    with sqlite3.connect(db_path) as conn:
++        (aantal,) = conn.execute(
++            "SELECT COUNT(*) FROM definities WHERE begrip = ?", (BEGRIP,)
++        ).fetchone()
++    return int(aantal)
++
++
++@pytest.mark.usefixtures("_verse_regelcache")
++def test_keten_melding_dan_antwoord_dan_opslag_en_readback(tmp_path, monkeypatch):
++    db_path = str(tmp_path / "def821.db")
++    handler, model, validation, cleaning = _keten(db_path, monkeypatch)
++    sm = FakeSM()
++    assert _aantal(db_path) == 0
++
++    # 1. Melding: niets opgeslagen, niet opgeschoond of gevalideerd, geen succes.
++    st1 = MagicMock()
++    _genereer(handler, sm, st1)
++    agent = sm.data["last_generation_result"]["agent_result"]
++    assert agent["success"] is False
++    assert agent["betekenisgrond_ontbreekt"]["ontbrekende_grond"] == GROND
++    assert agent["betekenisgrond_ontbreekt"]["vraag"] == VRAAG
++    assert "betekenisconflict" not in agent
++    assert sm.data["last_generation_result"]["saved_definition_id"] is None
++    assert _aantal(db_path) == 0
++    assert not validation.validate_definition.called
++    assert not cleaning.clean_text.called
++    assert not st1.success.called and not st1.error.called
++    waarschuwing = " ".join(str(a) for c in st1.warning.call_args_list for a in c.args)
++    assert "betekenisgrond" in waarschuwing.lower() and "geen definitie" in waarschuwing
++    assert "betekenisconflict" not in waarschuwing
++    open_verzoek = sm.data[KEY_OPEN]
++    assert open_verzoek["soort"] == SOORT_ONTBREKENDE_GROND
++    assert (
++        open_verzoek["generation_id"]
++        == agent["betekenisgrond_ontbreekt"]["generation_id"]
++    )
++    assert "editing_definition_id" not in sm.data
++
++    # 2. Expliciet verzenden (zelfde helper als de tab-knop); leeg telt niet.
++    assert verzend_verduidelijking(sm, open_verzoek, "   ") is not None
++    assert KEY_VERZONDEN not in sm.data
++    assert verzend_verduidelijking(sm, open_verzoek, ANTWOORD) is None
++
++    # 3. Hergenereren met ongewijzigde invoer: het antwoord staat als DATA in
++    #    het contextblok van de nieuwe prompt; het model definieert.
++    st2 = MagicMock()
++    _genereer(handler, sm, st2)
++    assert len(model.prompts) == 2
++    eerste, tweede = model.prompts
++    assert verduidelijking_datalijn(ANTWOORD) not in eerste
++    blok = tweede.split("<context>", 1)[1].split("</context>", 1)[0]
++    assert verduidelijking_datalijn(ANTWOORD) in blok
++    assert st2.success.called
++    assert KEY_OPEN not in sm.data and KEY_VERZONDEN not in sm.data
++
++    # 4. Opslag + readback uit de tijdelijke database.
++    did = sm.data["last_generation_result"]["saved_definition_id"]
++    assert did and sm.data["editing_definition_id"] == did
++    assert _aantal(db_path) == 1
++    record = DefinitieRepository(db_path).get_definitie(did)
++    assert record.definitie == DEFINITIE
++    registratie = record.get_generatieregistratie()
++    assert registratie["betekenisverduidelijking"] == ANTWOORD
++    assert verduidelijking_datalijn(ANTWOORD) in registratie["prompt"]
++
++
++@pytest.mark.usefixtures("_verse_regelcache")
++def test_keten_gewijzigde_invoer_maakt_verzonden_antwoord_ongeldig(
++    tmp_path, monkeypatch
++):
++    db_path = str(tmp_path / "def821-wijziging.db")
++    handler, model, _, _ = _keten(db_path, monkeypatch)
++    sm = FakeSM()
++    _genereer(handler, sm)
++    open_verzoek = sm.data[KEY_OPEN]
++    assert verzend_verduidelijking(sm, open_verzoek, ANTWOORD) is None
++
++    # De context wijzigt: het antwoord hoort niet meer bij deze invoer.
++    st = MagicMock()
++    _genereer(
++        handler,
++        sm,
++        st,
++        context={**CONTEXT, "organisatorische_context": ["Andere dienst"]},
++    )
++    assert len(model.prompts) == 2
++    assert ANTWOORD not in model.prompts[1]
++    assert st.info.called and "niet toegepast" in str(st.info.call_args)
++    assert KEY_VERZONDEN not in sm.data
++    # Opnieuw een melding: nieuw open verzoek, niets opgeslagen.
++    assert sm.data[KEY_OPEN]["generation_id"] != open_verzoek["generation_id"]
++    assert _aantal(db_path) == 0

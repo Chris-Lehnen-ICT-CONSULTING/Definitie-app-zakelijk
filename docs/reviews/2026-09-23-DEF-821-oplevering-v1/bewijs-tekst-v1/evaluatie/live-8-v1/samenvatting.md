@@ -1,0 +1,61 @@
+# DEF-821 effectproef — live
+
+- basis: 26f2374d302fc66fc0b12ed29dc34585f7c0a5c3
+- nieuw: HEAD 7d962a1b9d297c45ce27709aedac906f2a80be0a + diff-sha e3b0c44298fc
+- model/instellingen gelijk: True
+
+| casus | versie | promptlengte | prompt-sha (12) |
+|---|---|---|---|
+| D1 | basis | 27053 | e6c76c54047b |
+| D2 | basis | 27114 | 52dae8ad2647 |
+| D3 | basis | 27034 | d615fe613d3b |
+| D4 | basis | 27773 | d770220d3393 |
+| D5 | basis | 27765 | 12c84abb98d9 |
+| D6 | basis | 27753 | 0d475ab2b8fd |
+| H1 | basis | 27180 | 64c6386ed90c |
+| H2 | basis | 27143 | 6aa3899ac2e7 |
+| D1 | nieuw | 29691 | 6a8eb606b209 |
+| D2 | nieuw | 29752 | a729e930e140 |
+| D3 | nieuw | 29672 | 1b2bf07be4c6 |
+| D4 | nieuw | 30411 | a0e8f7774375 |
+| D5 | nieuw | 30403 | c9823d03f1dc |
+| D6 | nieuw | 30391 | 470fd5c32b43 |
+| H1 | nieuw | 29818 | 7e574ffa6ec8 |
+| H2 | nieuw | 29781 | daa177622fd5 |
+
+| casus | versie | h | app | error_type | nieuwe parser | aanroepen | opgeslagen |
+|---|---|---|---|---|---|---|---|
+| D1 | basis | 1 | True | None | definitie | 1 | 1 |
+| D2 | basis | 1 | True | None | definitie | 1 | 1 |
+| D3 | basis | 1 | True | None | definitie | 1 | 1 |
+| D4 | basis | 1 | True | None | definitie | 1 | 1 |
+| D5 | basis | 1 | True | None | definitie | 1 | 1 |
+| D6 | basis | 1 | True | None | definitie | 1 | 1 |
+| H1 | basis | 1 | True | None | definitie | 1 | 1 |
+| H2 | basis | 1 | True | None | definitie | 1 | 1 |
+| D1 | nieuw | 1 | True | None | definitie | 1 | 1 |
+| D2 | nieuw | 1 | True | None | definitie | 1 | 1 |
+| D3 | nieuw | 1 | False | betekenisgrond_ontbreekt | ontbrekende_grond | 1 | 0 |
+| D4 | nieuw | 1 | False | betekenisgrond_ontbreekt | ontbrekende_grond | 1 | 0 |
+| D5 | nieuw | 1 | True | None | definitie | 1 | 1 |
+| D6 | nieuw | 1 | True | None | definitie | 1 | 1 |
+| H1 | nieuw | 1 | False | betekenisgrond_ontbreekt | ontbrekende_grond | 1 | 0 |
+| H2 | nieuw | 1 | True | None | definitie | 1 | 1 |
+| D1 | nieuw | 2 | True | None | definitie | 1 | 1 |
+| D2 | nieuw | 2 | True | None | definitie | 1 | 1 |
+| D3 | nieuw | 2 | False | betekenisgrond_ontbreekt | ontbrekende_grond | 1 | 0 |
+| D4 | nieuw | 2 | False | betekenisgrond_ontbreekt | ontbrekende_grond | 1 | 0 |
+| D5 | nieuw | 2 | True | None | definitie | 1 | 1 |
+| D6 | nieuw | 2 | True | None | definitie | 1 | 1 |
+| H1 | nieuw | 2 | False | betekenisgrond_ontbreekt | ontbrekende_grond | 1 | 0 |
+| H2 | nieuw | 2 | True | None | definitie | 1 | 1 |
+| D1 | basis | 2 | True | None | definitie | 1 | 1 |
+| D2 | basis | 2 | True | None | definitie | 1 | 1 |
+| D3 | basis | 2 | True | None | definitie | 1 | 1 |
+| D4 | basis | 2 | True | None | definitie | 1 | 1 |
+| D5 | basis | 2 | True | None | definitie | 1 | 1 |
+| D6 | basis | 2 | True | None | definitie | 1 | 1 |
+| H1 | basis | 2 | True | None | definitie | 1 | 1 |
+| H2 | basis | 2 | True | None | definitie | 1 | 1 |
+
+Totaal modelaanroepen: 32

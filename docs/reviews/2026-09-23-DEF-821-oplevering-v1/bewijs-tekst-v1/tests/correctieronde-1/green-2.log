@@ -1,0 +1,22 @@
+...........................                                              [100%]/Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/unraisableexception.py:33: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10e6f6850>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+=============================== warnings summary ===============================
+tests/unit/ui/test_def821_correctieronde1.py::test_twee_opeenvolgende_vragen_behouden_beide_antwoorden
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:629: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10e6f5650>
+    return tuple(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_correctieronde1.py::test_twee_opeenvolgende_vragen_behouden_beide_antwoorden
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/definitie_crud.py:373: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+tests/unit/ui/test_def821_correctieronde1.py::test_keten_is_begrensd_op_aantal_antwoorden
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10e6f6a50>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

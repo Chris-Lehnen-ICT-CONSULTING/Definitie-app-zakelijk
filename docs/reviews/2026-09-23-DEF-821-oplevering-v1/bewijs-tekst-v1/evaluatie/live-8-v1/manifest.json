@@ -1,0 +1,710 @@
+{
+  "gestart_utc": "2026-09-23T15:50:10.780520+00:00",
+  "modus": "live",
+  "casussen_bron": "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/casussen-v1.json",
+  "casussen_sha256": "187dafdfdb38260ca9e68513b9ad144732845a4c4a760da134dab30b368cfa56",
+  "herhalingen": 2,
+  "max_live_calls": 32,
+  "live_aanroepen_gepland": 32,
+  "app_route": "DefinitionOrchestratorV2.create_definition + echte PromptServiceV2, SecurityService, CleaningService, ValidationOrchestratorV2/ModularValidationService, DefinitionRepository (verse SQLite per casus/versie/herhaling), AIServiceV2(use_cache=False, ModelRouter.from_config()) met create_ai_client achter een registrerende proxy (SDK-retries 0)",
+  "seams_vervangen": [
+    "synonym_orchestrator=None",
+    "web_lookup_service=None",
+    "rag_service=None",
+    "voorbeelden.genereer_alle_voorbeelden_async → {}",
+    "source_assessment_service=None (CON-02 AI-bronbeoordeling uit)",
+    "UI-handler/ServiceAdapter buiten de lus (documenten via context['documents'])"
+  ],
+  "versies": {
+    "basis": {
+      "bron": "git archive",
+      "ref": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+      "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+      "boom_sha256": "3cddec41bc87b1c83a503c7e80c3c342bf9b55ddce4a9f943a6040c7d8d3fb56"
+    },
+    "nieuw": {
+      "bron": "kopie werkboom",
+      "werkboom": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie",
+      "head": "7d962a1b9d297c45ce27709aedac906f2a80be0a",
+      "branch": "feature/DEF-821-ess04-generatie-verduidelijking",
+      "diff_t_o_v_head_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ongetrackt_in_src_config": [],
+      "boom_sha256": "758191647cea3b015bf9e87cea75b2381a376d839f26887f7d60ed70ab0c3944"
+    }
+  },
+  "prompts": {
+    "basis": {
+      "D1": {
+        "sha256": "e6c76c54047b5fb297f94176ea4667fc06a4d0119cd4ee67a404d7923aeb009a",
+        "lengte": 27053,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D2": {
+        "sha256": "52dae8ad2647b52a56fecd0e655dfaf3721ab3027c4b5b3618f6dba4424f3c19",
+        "lengte": 27114,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D3": {
+        "sha256": "d615fe613d3b85fb3f3d495dd23dd6885e483e27ac7fb34162e2bb6c2b961f3a",
+        "lengte": 27034,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D4": {
+        "sha256": "d770220d3393391a47cdae7e0d8980c9121c5ed4b59b6c38c67ae72734423f7d",
+        "lengte": 27773,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D5": {
+        "sha256": "12c84abb98d9c8b400e1f010e6e1dfbf6f50f0ef80f48db6d96006237e1d6461",
+        "lengte": 27765,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D6": {
+        "sha256": "0d475ab2b8fd64a9d9e9eeca0a4e18cd5145a9321ad3799796cd523b28ad07ff",
+        "lengte": 27753,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "H1": {
+        "sha256": "64c6386ed90c9b329080462b2225583b2d1e2b8222a7996d76bdcf16027a2df2",
+        "lengte": 27180,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "H2": {
+        "sha256": "6aa3899ac2e7e216ab4b9f414145255b73e643b17e51567ca8ba2de242f46415",
+        "lengte": 27143,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      }
+    },
+    "nieuw": {
+      "D1": {
+        "sha256": "6a8eb606b209484b45f961ab0b5a438604b5f69e0e69a02199913d70f9fd89ab",
+        "lengte": 29691,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D2": {
+        "sha256": "a729e930e140636b9a29438d5ed7848f61f5368e736b2c2b43078603cef97847",
+        "lengte": 29752,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D3": {
+        "sha256": "1b2bf07be4c6ac5e1788c7123b312e1ff09c463fc0c60657316d2b23236db6ef",
+        "lengte": 29672,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D4": {
+        "sha256": "a0e8f77743756de453fa675941f418f3adf9155520fd1425440b8c832594c72a",
+        "lengte": 30411,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D5": {
+        "sha256": "c9823d03f1dcbe198acdba120b10ce2e20b4255388a14759c216938353af8736",
+        "lengte": 30403,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "D6": {
+        "sha256": "470fd5c32b437e2b56e0282765f52ddf0e4cc554a25078a1d1354a0df1794d7a",
+        "lengte": 30391,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "H1": {
+        "sha256": "7e574ffa6ec86484721c92c0e1132591a4bd5698080b471cc5d96385deae64f7",
+        "lengte": 29818,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      },
+      "H2": {
+        "sha256": "daa177622fd571df106ca4b3b08eb2617c8aef73cd710275d20a3a63b5a4bb22",
+        "lengte": 29781,
+        "verwachting_in_prompt": false,
+        "generate_kwargs": {
+          "temperature": 0.1,
+          "max_tokens": 500,
+          "model": null
+        }
+      }
+    }
+  },
+  "modelinfo": {
+    "basis": {
+      "provider_geconfigureerd": "anthropic",
+      "provider_router": "anthropic",
+      "model_definition_core": "claude-opus-5",
+      "temperature_definition": 0.1,
+      "max_tokens_orchestrator_default": 500,
+      "timeout_seconds_aiservice_default": 30,
+      "ai_service_cache": false
+    },
+    "nieuw": {
+      "provider_geconfigureerd": "anthropic",
+      "provider_router": "anthropic",
+      "model_definition_core": "claude-opus-5",
+      "temperature_definition": 0.1,
+      "max_tokens_orchestrator_default": 500,
+      "timeout_seconds_aiservice_default": 30,
+      "ai_service_cache": false
+    }
+  },
+  "modelinfo_verschillen": [],
+  "live": {
+    "totaal_aanroepen": 32,
+    "rijen": [
+      {
+        "casus_id": "D1",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D2",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D3",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D4",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D5",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D6",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H1",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H2",
+        "versie": "basis",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D1",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D2",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D3",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": false,
+        "error_type": "betekenisgrond_ontbreekt",
+        "classificatie": "ontbrekende_grond",
+        "aanroepen": 1,
+        "opgeslagen": 0,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D4",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": false,
+        "error_type": "betekenisgrond_ontbreekt",
+        "classificatie": "ontbrekende_grond",
+        "aanroepen": 1,
+        "opgeslagen": 0,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D5",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D6",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H1",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": false,
+        "error_type": "betekenisgrond_ontbreekt",
+        "classificatie": "ontbrekende_grond",
+        "aanroepen": 1,
+        "opgeslagen": 0,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H2",
+        "versie": "nieuw",
+        "herhaling": 1,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D1",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D2",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D3",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": false,
+        "error_type": "betekenisgrond_ontbreekt",
+        "classificatie": "ontbrekende_grond",
+        "aanroepen": 1,
+        "opgeslagen": 0,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D4",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": false,
+        "error_type": "betekenisgrond_ontbreekt",
+        "classificatie": "ontbrekende_grond",
+        "aanroepen": 1,
+        "opgeslagen": 0,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D5",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D6",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H1",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": false,
+        "error_type": "betekenisgrond_ontbreekt",
+        "classificatie": "ontbrekende_grond",
+        "aanroepen": 1,
+        "opgeslagen": 0,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H2",
+        "versie": "nieuw",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D1",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D2",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D3",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D4",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D5",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "D6",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H1",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      },
+      {
+        "casus_id": "H2",
+        "versie": "basis",
+        "herhaling": 2,
+        "success": true,
+        "error_type": null,
+        "classificatie": "definitie",
+        "aanroepen": 1,
+        "opgeslagen": 1,
+        "prompt_gelijk_aan_offline": true
+      }
+    ],
+    "classificatie": {
+      "basis/h1/D1": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/D2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/D3": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/D4": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/D5": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/D6": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/H1": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h1/H2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/D1": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/D2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/D3": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/D4": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/D5": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/D6": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/H1": {
+        "soort": "definitie",
+        "code": null
+      },
+      "basis/h2/H2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h1/D1": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h1/D2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h1/D3": {
+        "soort": "ontbrekende_grond",
+        "code": null
+      },
+      "nieuw/h1/D4": {
+        "soort": "ontbrekende_grond",
+        "code": null
+      },
+      "nieuw/h1/D5": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h1/D6": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h1/H1": {
+        "soort": "ontbrekende_grond",
+        "code": null
+      },
+      "nieuw/h1/H2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h2/D1": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h2/D2": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h2/D3": {
+        "soort": "ontbrekende_grond",
+        "code": null
+      },
+      "nieuw/h2/D4": {
+        "soort": "ontbrekende_grond",
+        "code": null
+      },
+      "nieuw/h2/D5": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h2/D6": {
+        "soort": "definitie",
+        "code": null
+      },
+      "nieuw/h2/H1": {
+        "soort": "ontbrekende_grond",
+        "code": null
+      },
+      "nieuw/h2/H2": {
+        "soort": "definitie",
+        "code": null
+      }
+    }
+  },
+  "afgerond_utc": "2026-09-23T15:52:11.580811+00:00"
+}

@@ -1,0 +1,9 @@
+All checks passed!
+would reformat tests/unit/services/orchestrators/test_def821_ontbrekende_grond_keten.py
+would reformat tests/unit/services/prompts/test_def821_ess04_promptcontract.py
+would reformat tests/unit/scripts/test_def821_effectproef.py
+would reformat tests/unit/ui/test_def821_ontbrekende_grond_ui.py
+would reformat scripts/testing/def821_effectproef.py
+
+Oh no! 💥 💔 💥
+5 files would be reformatted, 3 files would be left unchanged.

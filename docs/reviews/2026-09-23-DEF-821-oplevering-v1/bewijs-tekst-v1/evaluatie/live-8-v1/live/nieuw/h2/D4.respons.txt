@@ -1,0 +1,2 @@
+BETEKENISGROND ONTBREEKT:
+{"ontbrekende_grond": "de dagsoort van de termijn van drie dagen na ontvangst: werkdagen of kalenderdagen, wat bepalend is voor de afbakening van tijdigheid", "vraag": "Worden de drie dagen na ontvangst geteld in werkdagen of in kalenderdagen?"}

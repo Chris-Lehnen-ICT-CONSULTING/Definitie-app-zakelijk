@@ -1,0 +1,76 @@
+........................................................                 [100%]
+=============================== warnings summary ===============================
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee4050>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/toetsregels/runtime_contract.py:535: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee5050>
+    for index, patroon in enumerate(waarde):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_conflict_dan_verduidelijking_dan_opslag_en_readback
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_nieuwe_optie_zonder_selectiewijziging_houdt_antwoord_geldig
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_pure_rerun_na_antwoord_past_verduidelijking_toe_ook_als_rag_selector_verschijnt
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/definitie_crud.py:373: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:629: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109e93b50>
+    return tuple(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:629: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee5f50>
+    return tuple(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_conflict_dan_verduidelijking_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/toetsregels/rule_cache.py:119: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee5150>
+    veld: (list(waarde) if isinstance(waarde, list) else waarde)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_conflict_dan_verduidelijking_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee5b50>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_bronwissel_na_verzenden_laat_antwoord_vervallen_en_meldt_dat
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/offline_bootstrap.py:305: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee4a50>
+    def _autoriseer(actie, arg1, arg2, dbnaam, bron):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_bronwissel_na_verzenden_laat_antwoord_vervallen_en_meldt_dat
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/toetsregels/rule_cache.py:119: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109fdc350>
+    veld: (list(waarde) if isinstance(waarde, list) else waarde)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_werkelijke_rag_deselectie_laat_antwoord_wel_vervallen
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:684: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x109ee7a50>
+    objecten = conn.execute(_USER_OBJECTS_SQL).fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_pure_rerun_na_antwoord_past_verduidelijking_toe_ook_als_rag_selector_verschijnt
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/re/__init__.py:368: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10ea63650>
+    del _cache2[next(iter(_cache2))]
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_uitbreiding_van_de_selectie_met_nieuwe_collectie_laat_antwoord_vervallen
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10ea63a50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

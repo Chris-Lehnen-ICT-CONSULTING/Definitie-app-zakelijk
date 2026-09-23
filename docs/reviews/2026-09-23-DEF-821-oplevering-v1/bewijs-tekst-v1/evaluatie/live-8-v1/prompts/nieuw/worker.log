@@ -1,0 +1,265 @@
+2026-09-23 17:50:13,299 toetsregels.rule_cache INFO RuleCache geïnitialiseerd met monitoring: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/toetsregels/regels
+2026-09-23 17:50:13,300 utils.cache INFO Cache cleared successfully
+2026-09-23 17:50:13,300 toetsregels.rule_cache INFO Rule cache gecleared (global cache cleared)
+2026-09-23 17:50:13,435 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,435 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/D1.db
+2026-09-23 17:50:13,435 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,436 toetsregels.cached_manager INFO ✅ CachedToetsregelManager singleton created
+2026-09-23 17:50:13,447 toetsregels.rule_cache INFO Loading 53 regel files van /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/toetsregels/regels
+2026-09-23 17:50:13,463 toetsregels.rule_cache INFO ✅ 53 regels geladen, gevalideerd en gecached
+2026-09-23 17:50:13,464 utils.safe_serializer INFO Generated new HMAC key for cache integrity
+2026-09-23 17:50:13,467 services.prompts.modular_prompt_adapter INFO 🎯 Creating singleton PromptOrchestrator
+2026-09-23 17:50:13,467 services.prompts.modular_prompt_adapter INFO ✅ PromptOrchestrator cached: 15 modules registered
+2026-09-23 17:50:13,467 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,467 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,467 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,467 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,467 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,467 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D1: Starting orchestration for 'gelijkzijdige veelhoek' with category 'None'
+2026-09-23 17:50:13,468 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D1: Request sanitized for privacy compliance
+2026-09-23 17:50:13,468 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-D1: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,468 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'gelijkzijdige veelhoek'
+2026-09-23 17:50:13,468 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,469 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,469 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'gelijkzijdige veelhoek': 29470 chars in 1.31ms (12/15 modules)
+2026-09-23 17:50:13,469 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'gelijkzijdige veelhoek' (29470 chars)
+2026-09-23 17:50:13,469 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,470 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'gelijkzijdige veelhoek': 5341 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,470 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D1: V2 Prompt built (5341 tokens, ontological_category=None)
+2026-09-23 17:50:13,470 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,477 config.config_manager INFO Configuration loaded from /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/config/config.yaml
+2026-09-23 17:50:13,477 config.config_manager WARNING API key niet geconfigureerd voor provider: anthropic
+2026-09-23 17:50:13,477 config.config_manager INFO Directory aangemaakt: exports
+2026-09-23 17:50:13,477 config.config_manager INFO Directory aangemaakt: logs
+2026-09-23 17:50:13,477 config.config_manager INFO Directory aangemaakt: config
+2026-09-23 17:50:13,477 config.config_manager INFO Directory aangemaakt: reports
+2026-09-23 17:50:13,477 config.config_manager INFO Configuration loaded for environment: production
+2026-09-23 17:50:13,478 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-D1 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,502 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,502 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/D2.db
+2026-09-23 17:50:13,502 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,516 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,516 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,516 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,516 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,516 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,523 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D2: Starting orchestration for 'geselecteerde partij' with category 'None'
+2026-09-23 17:50:13,523 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D2: Request sanitized for privacy compliance
+2026-09-23 17:50:13,523 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-D2: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,523 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'geselecteerde partij'
+2026-09-23 17:50:13,523 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,524 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,525 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'geselecteerde partij': 29464 chars in 1.17ms (12/15 modules)
+2026-09-23 17:50:13,525 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'geselecteerde partij' (29464 chars)
+2026-09-23 17:50:13,525 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,525 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'geselecteerde partij': 5357 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,525 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D2: V2 Prompt built (5357 tokens, ontological_category=None)
+2026-09-23 17:50:13,525 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,525 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-D2 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,548 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,548 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/D3.db
+2026-09-23 17:50:13,548 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,561 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,561 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,561 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,561 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,561 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,562 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D3: Starting orchestration for 'geselecteerde partij' with category 'None'
+2026-09-23 17:50:13,562 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D3: Request sanitized for privacy compliance
+2026-09-23 17:50:13,562 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-D3: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,562 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'geselecteerde partij'
+2026-09-23 17:50:13,562 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,563 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,563 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'geselecteerde partij': 29464 chars in 0.95ms (12/15 modules)
+2026-09-23 17:50:13,563 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'geselecteerde partij' (29464 chars)
+2026-09-23 17:50:13,563 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,563 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'geselecteerde partij': 5339 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,563 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D3: V2 Prompt built (5339 tokens, ontological_category=None)
+2026-09-23 17:50:13,564 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,564 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-D3 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,586 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,586 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/D4.db
+2026-09-23 17:50:13,586 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,600 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,600 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,600 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,600 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,600 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,602 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D4: Starting orchestration for 'tijdige reactie' with category 'None'
+2026-09-23 17:50:13,602 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D4: Request sanitized for privacy compliance
+2026-09-23 17:50:13,602 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-D4: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,602 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'tijdige reactie'
+2026-09-23 17:50:13,602 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,603 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,603 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'tijdige reactie': 30081 chars in 1.15ms (12/15 modules)
+2026-09-23 17:50:13,603 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'tijdige reactie' (30081 chars)
+2026-09-23 17:50:13,603 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,603 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'tijdige reactie': 5475 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,603 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D4: V2 Prompt built (5475 tokens, ontological_category=None)
+2026-09-23 17:50:13,603 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,603 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-D4 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,627 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,627 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/D5.db
+2026-09-23 17:50:13,627 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,640 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,640 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,640 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,640 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,640 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,641 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D5: Starting orchestration for 'ondertekend document' with category 'None'
+2026-09-23 17:50:13,641 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D5: Request sanitized for privacy compliance
+2026-09-23 17:50:13,641 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-D5: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,641 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'ondertekend document'
+2026-09-23 17:50:13,642 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,642 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,643 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'ondertekend document': 30096 chars in 1.07ms (12/15 modules)
+2026-09-23 17:50:13,643 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'ondertekend document' (30096 chars)
+2026-09-23 17:50:13,643 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,643 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'ondertekend document': 5470 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,643 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D5: V2 Prompt built (5470 tokens, ontological_category=None)
+2026-09-23 17:50:13,643 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,643 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-D5 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,666 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,666 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/D6.db
+2026-09-23 17:50:13,666 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,679 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,679 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,679 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,679 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,679 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,680 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D6: Starting orchestration for 'tijdige melding' with category 'None'
+2026-09-23 17:50:13,680 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D6: Request sanitized for privacy compliance
+2026-09-23 17:50:13,681 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-D6: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,681 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'tijdige melding'
+2026-09-23 17:50:13,681 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,681 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,682 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'tijdige melding': 30081 chars in 1.01ms (12/15 modules)
+2026-09-23 17:50:13,682 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'tijdige melding' (30081 chars)
+2026-09-23 17:50:13,682 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,682 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'tijdige melding': 5475 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,682 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-D6: V2 Prompt built (5475 tokens, ontological_category=None)
+2026-09-23 17:50:13,682 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,682 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-D6 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,704 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,704 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/H1.db
+2026-09-23 17:50:13,704 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,718 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,718 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,718 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,718 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,718 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,720 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-H1: Starting orchestration for 'gekwalificeerde partij' with category 'None'
+2026-09-23 17:50:13,720 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-H1: Request sanitized for privacy compliance
+2026-09-23 17:50:13,720 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-H1: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,720 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'gekwalificeerde partij'
+2026-09-23 17:50:13,720 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,721 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,721 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'gekwalificeerde partij': 29470 chars in 0.88ms (12/15 modules)
+2026-09-23 17:50:13,721 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'gekwalificeerde partij' (29470 chars)
+2026-09-23 17:50:13,721 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,721 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'gekwalificeerde partij': 5370 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,721 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-H1: V2 Prompt built (5370 tokens, ontological_category=None)
+2026-09-23 17:50:13,721 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,721 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-H1 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,744 database.db_connection INFO Database schema created successfully (versie 4)
+2026-09-23 17:50:13,744 services.definition_repository INFO DefinitionRepository geïnitialiseerd met database: /Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/prompts/nieuw/db/H2.db
+2026-09-23 17:50:13,744 services.cleaning_service INFO CleaningService geïnitialiseerd
+2026-09-23 17:50:13,757 services.prompts.modular_prompt_adapter INFO ModularPromptAdapter geïnitialiseerd - gebruikt nieuwe modulaire architectuur
+2026-09-23 17:50:13,757 services.definition_generator_prompts INFO ModularPromptBuilder geïnitialiseerd als primaire strategy
+2026-09-23 17:50:13,757 services.definition_generator_prompts INFO UnifiedPromptBuilder geïnitialiseerd met 1 strategies
+2026-09-23 17:50:13,757 services.definition_generator_context INFO HybridContextManager geïnitialiseerd
+2026-09-23 17:50:13,757 services.orchestrators.definition_orchestrator_v2 INFO DefinitionOrchestratorV2 initialized with configuration: feedback_loop=False, enhancement=False, caching=False, synonym_enrichment=disabled, rag_service=disabled
+2026-09-23 17:50:13,759 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-H2: Starting orchestration for 'bezwaarvrije aanvraag' with category 'None'
+2026-09-23 17:50:13,759 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-H2: Request sanitized for privacy compliance
+2026-09-23 17:50:13,759 services.orchestrators.definition_orchestrator_v2 WARNING Generation def821-nieuw-h0-H2: Web lookup service not available - proceeding WITHOUT external context enrichment
+2026-09-23 17:50:13,759 services.definition_generator_context INFO Verrijkte context gebouwd met 0 bronnen voor 'bezwaarvrije aanvraag'
+2026-09-23 17:50:13,759 services.prompts.modules.prompt_orchestrator INFO DEF-123: 12/15 modules active, skipped: ['integrity_rules', 'metrics', 'sam_rules']
+2026-09-23 17:50:13,760 services.prompts.modules.prompt_orchestrator WARNING Module 'template' validation failed: Geen semantische categorie beschikbaar voor templates
+2026-09-23 17:50:13,760 services.prompts.modules.prompt_orchestrator INFO Prompt gebouwd voor 'bezwaarvrije aanvraag': 29467 chars in 0.94ms (12/15 modules)
+2026-09-23 17:50:13,760 services.definition_generator_prompts INFO Prompt gebouwd met strategy 'modular' voor 'bezwaarvrije aanvraag' (29467 chars)
+2026-09-23 17:50:13,760 services.prompts.prompt_service_v2 INFO Prompt augmentation disabled by config; skipping
+2026-09-23 17:50:13,760 services.prompts.prompt_service_v2 INFO V2 Prompt built for 'bezwaarvrije aanvraag': 5358 tokens, category=None, components=('base_template',)
+2026-09-23 17:50:13,761 services.orchestrators.definition_orchestrator_v2 INFO Generation def821-nieuw-h0-H2: V2 Prompt built (5358 tokens, ontological_category=None)
+2026-09-23 17:50:13,761 services.orchestrators.definition_orchestrator_v2 INFO Web lookup summary: sources=1, injected_snippets=0
+2026-09-23 17:50:13,761 services.orchestrators.definition_orchestrator_v2 ERROR Generation def821-nieuw-h0-H2 failed: offline: geen modelaanroep
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/def821-coordinator/live-8-v1/bron/nieuw/src/services/orchestrators/definition_orchestrator_v2.py", line 1031, in create_definition
+    generation_result = await self.ai_service.generate_definition(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/scripts/testing/def821_effectproef.py", line 497, in generate_definition
+    raise OfflineStopError(msg)
+OfflineStopError: offline: geen modelaanroep
+2026-09-23 17:50:13,762 services.ai.model_router INFO ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']

@@ -1,0 +1,19 @@
+{
+  "frozen_at": "2026-09-23T14:56:52.264641+00:00",
+  "cases": [
+    {
+      "id": "H1",
+      "begrip": "gekwalificeerde partij",
+      "meaning": "Fictieve proefafspraak. Bron A en bron B zijn beide actueel en toepasselijk op hetzelfde begrip: A stelt minimaal 70% blauwe voorwerpen van alle voorwerpen in de partij, B minimaal 90%. Geen voorrang of keuze is vastgesteld.",
+      "expectation": "Geen eigen grens kiezen, middelen of beide grenzen samenvoegen. Aparte verduidelijkingsuitkomst die de strijdige noodzakelijke grenzen benoemt; geen definitieve kandidaat.",
+      "kind": "heldout-conflicting-ground"
+    },
+    {
+      "id": "H2",
+      "begrip": "bezwaarvrije aanvraag",
+      "meaning": "Fictieve proefafspraak. Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager. Er is geen ontologische categorie opgegeven.",
+      "expectation": "Kwalitatieve kandidaat die schriftelijkheid, tijdsgrens en ander dan aanvrager behoudt. Geen getallen toevoegen. Geen verduidelijking alleen omdat categorie ontbreekt.",
+      "kind": "heldout-qualitative-boundary"
+    }
+  ]
+}

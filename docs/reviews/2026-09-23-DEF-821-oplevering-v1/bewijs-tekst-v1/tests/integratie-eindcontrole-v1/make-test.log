@@ -1,0 +1,6 @@
+[markers] Checking test marker coverage
+OK: All 502 test files have classification markers.
+[test] Alias van de unitgate — zelfde scope als 'make test-unit'
+[test-unit] Canonieke unitgate: ALLE unittests, inclusief slow
+make[1]: *** [test-unit] Terminated: 15
+make: *** [test] Terminated: 15

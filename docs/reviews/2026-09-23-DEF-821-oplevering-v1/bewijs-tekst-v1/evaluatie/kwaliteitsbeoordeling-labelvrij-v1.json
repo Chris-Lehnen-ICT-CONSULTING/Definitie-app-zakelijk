@@ -1,0 +1,454 @@
+{
+  "status": "bronversielabels verborgen; inhoud kan het nieuwe uitvoercontract verraden, dus geen volledige blindering",
+  "norm": "Toets criteria navolgbaar binnen aangeleverde betekenis, geen cijferplicht/geen verzonnen precisie, geen verlies van begripsbepalende grenzen. Geen menselijk expertoordeel claimen.",
+  "paren": [
+    {
+      "id": "D1-h1",
+      "begrip": "gelijkzijdige veelhoek",
+      "betekenisgrond": [
+        "Fictieve afspraak: een gelijkzijdige veelhoek is een veelhoek waarvan alle zijden even lang zijn."
+      ],
+      "verwachting": "Kwalitatieve kandidaat (veelhoek met alle zijden even lang); geen toegevoegde meettolerantie, getal of eenheid.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "veelhoek waarvan alle zijden even lang zijn",
+          "success": true,
+          "definitiekern": "Veelhoek waarvan alle zijden even lang zijn.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Veelhoek waarvan alle zijden even lang zijn."
+        },
+        "B": {
+          "ruw_modelantwoord": "Veelhoek waarvan alle zijden even lang zijn",
+          "success": true,
+          "definitiekern": "Veelhoek waarvan alle zijden even lang zijn.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Veelhoek waarvan alle zijden even lang zijn."
+        }
+      }
+    },
+    {
+      "id": "D1-h2",
+      "begrip": "gelijkzijdige veelhoek",
+      "betekenisgrond": [
+        "Fictieve afspraak: een gelijkzijdige veelhoek is een veelhoek waarvan alle zijden even lang zijn."
+      ],
+      "verwachting": "Kwalitatieve kandidaat (veelhoek met alle zijden even lang); geen toegevoegde meettolerantie, getal of eenheid.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "veelhoek waarvan alle zijden even lang zijn",
+          "success": true,
+          "definitiekern": "Veelhoek waarvan alle zijden even lang zijn.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Veelhoek waarvan alle zijden even lang zijn."
+        },
+        "B": {
+          "ruw_modelantwoord": "Veelhoek waarvan alle zijden even lang zijn",
+          "success": true,
+          "definitiekern": "Veelhoek waarvan alle zijden even lang zijn.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Veelhoek waarvan alle zijden even lang zijn."
+        }
+      }
+    },
+    {
+      "id": "D2-h1",
+      "begrip": "geselecteerde partij",
+      "betekenisgrond": [
+        "Fictieve afspraak: een partij is geselecteerd wanneer minstens 80% van alle voorwerpen in de partij blauw is; een partij met precies 80% blauwe voorwerpen telt mee."
+      ],
+      "verwachting": "Kandidaat behoudt de grens (80%), de noemer (alle voorwerpen in de partij), het criterium (blauw) en de inclusie (precies 80% telt mee).",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is",
+          "success": true,
+          "definitiekern": "Partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is."
+        },
+        "B": {
+          "ruw_modelantwoord": "partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is",
+          "success": true,
+          "definitiekern": "Partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is."
+        }
+      }
+    },
+    {
+      "id": "D2-h2",
+      "begrip": "geselecteerde partij",
+      "betekenisgrond": [
+        "Fictieve afspraak: een partij is geselecteerd wanneer minstens 80% van alle voorwerpen in de partij blauw is; een partij met precies 80% blauwe voorwerpen telt mee."
+      ],
+      "verwachting": "Kandidaat behoudt de grens (80%), de noemer (alle voorwerpen in de partij), het criterium (blauw) en de inclusie (precies 80% telt mee).",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is",
+          "success": true,
+          "definitiekern": "Partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij voorwerpen waarvan minstens 80% van alle voorwerpen in die partij blauw is."
+        },
+        "B": {
+          "ruw_modelantwoord": "partij voorwerpen waarvan minstens 80% van de voorwerpen blauw is",
+          "success": true,
+          "definitiekern": "Partij voorwerpen waarvan minstens 80% van de voorwerpen blauw is.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij voorwerpen waarvan minstens 80% van de voorwerpen blauw is."
+        }
+      }
+    },
+    {
+      "id": "D3-h1",
+      "begrip": "geselecteerde partij",
+      "betekenisgrond": [
+        "Fictieve afspraak: een partij is geselecteerd wanneer zij voor minimaal 80% voldoet."
+      ],
+      "verwachting": "Aparte ontbrekende-gronduitkomst die benoemt dat niet gegeven is waaraan wordt voldaan en waarvan het percentage wordt berekend, met een gerichte vraag; geen verzonnen noemer of criterium en geen definitiezin.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "BETEKENISGROND ONTBREEKT:\n{\"ontbrekende_grond\": \"waaraan een partij voor minimaal 80% moet voldoen en hoe dat percentage wordt bepaald (beoordelingskader, noemer of populatie, meetmoment)\", \"vraag\": \"Aan welke vastgestelde criteria moet een partij voor minimaal 80% voldoen en hoe wordt dat percentage berekend en op welk moment vastgesteld?\"}",
+          "success": false,
+          "definitiekern": null,
+          "vraag": "Aan welke vastgestelde criteria moet een partij voor minimaal 80% voldoen en hoe wordt dat percentage berekend en op welk moment vastgesteld?",
+          "ontbrekende_grond": "waaraan een partij voor minimaal 80% moet voldoen en hoe dat percentage wordt bepaald (beoordelingskader, noemer of populatie, meetmoment)",
+          "aantal_opgeslagen": 0,
+          "opslag_readback": null
+        },
+        "B": {
+          "ruw_modelantwoord": "Marktpartij die na beoordeling aan minimaal 80% van de gestelde beoordelingscriteria voldoet en op grond daarvan uit de deelnemende partijen is gekozen",
+          "success": true,
+          "definitiekern": "Marktpartij die na beoordeling aan minimaal 80% van de gestelde beoordelingscriteria voldoet en op grond daarvan uit de deelnemende partijen is gekozen.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Marktpartij die na beoordeling aan minimaal 80% van de gestelde beoordelingscriteria voldoet en op grond daarvan uit de deelnemende partijen is gekozen."
+        }
+      }
+    },
+    {
+      "id": "D3-h2",
+      "begrip": "geselecteerde partij",
+      "betekenisgrond": [
+        "Fictieve afspraak: een partij is geselecteerd wanneer zij voor minimaal 80% voldoet."
+      ],
+      "verwachting": "Aparte ontbrekende-gronduitkomst die benoemt dat niet gegeven is waaraan wordt voldaan en waarvan het percentage wordt berekend, met een gerichte vraag; geen verzonnen noemer of criterium en geen definitiezin.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "BETEKENISGROND ONTBREEKT:\n{\"ontbrekende_grond\": \"waaraan en op welke meetbare basis de partij voor minimaal 80% moet voldoen (het beoordelingskader, de noemer of populatie en het meetmoment van de 80%-drempel)\", \"vraag\": \"Aan welke vastgestelde eisen en op welke berekeningsgrondslag (noemer, populatie en peilmoment) wordt de 80%-drempel bepaald waardoor een partij als geselecteerd geldt?\"}",
+          "success": false,
+          "definitiekern": null,
+          "vraag": "Aan welke vastgestelde eisen en op welke berekeningsgrondslag (noemer, populatie en peilmoment) wordt de 80%-drempel bepaald waardoor een partij als geselecteerd geldt?",
+          "ontbrekende_grond": "waaraan en op welke meetbare basis de partij voor minimaal 80% moet voldoen (het beoordelingskader, de noemer of populatie en het meetmoment van de 80%-drempel)",
+          "aantal_opgeslagen": 0,
+          "opslag_readback": null
+        },
+        "B": {
+          "ruw_modelantwoord": "partij die bij de beoordeling een score van minimaal 80% van de gestelde criteria behaalt en daarmee voor gunning in aanmerking komt",
+          "success": true,
+          "definitiekern": "Partij die bij de beoordeling een score van minimaal 80% van de gestelde criteria behaalt en daarmee voor gunning in aanmerking komt.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij die bij de beoordeling een score van minimaal 80% van de gestelde criteria behaalt en daarmee voor gunning in aanmerking komt."
+        }
+      }
+    },
+    {
+      "id": "D4-h1",
+      "begrip": "tijdige reactie",
+      "betekenisgrond": [
+        "Fictieve afspraak: een reactie is tijdig wanneer zij binnen drie dagen na ontvangst wordt gegeven. Of dit werkdagen of kalenderdagen zijn, is nog niet besloten; dat onderscheid is bepalend voor de afspraak."
+      ],
+      "verwachting": "Aparte uitkomst met een vraag om de dagconventie (werkdagen of kalenderdagen); het model kiest niet zelf een conventie en levert geen definitiezin.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "antwoord op een ontvangen bericht dat binnen drie dagen na de ontvangst van dat bericht wordt gegeven",
+          "success": true,
+          "definitiekern": "Antwoord op een ontvangen bericht dat binnen drie dagen na de ontvangst van dat bericht wordt gegeven.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Antwoord op een ontvangen bericht dat binnen drie dagen na de ontvangst van dat bericht wordt gegeven."
+        },
+        "B": {
+          "ruw_modelantwoord": "BETEKENISGROND ONTBREEKT:\n{\"ontbrekende_grond\": \"de dagsoort van de reactietermijn van drie dagen na ontvangst: werkdagen of kalenderdagen\", \"vraag\": \"Wordt de termijn van drie dagen na ontvangst gerekend in werkdagen of in kalenderdagen?\"}",
+          "success": false,
+          "definitiekern": null,
+          "vraag": "Wordt de termijn van drie dagen na ontvangst gerekend in werkdagen of in kalenderdagen?",
+          "ontbrekende_grond": "de dagsoort van de reactietermijn van drie dagen na ontvangst: werkdagen of kalenderdagen",
+          "aantal_opgeslagen": 0,
+          "opslag_readback": null
+        }
+      }
+    },
+    {
+      "id": "D4-h2",
+      "begrip": "tijdige reactie",
+      "betekenisgrond": [
+        "Fictieve afspraak: een reactie is tijdig wanneer zij binnen drie dagen na ontvangst wordt gegeven. Of dit werkdagen of kalenderdagen zijn, is nog niet besloten; dat onderscheid is bepalend voor de afspraak."
+      ],
+      "verwachting": "Aparte uitkomst met een vraag om de dagconventie (werkdagen of kalenderdagen); het model kiest niet zelf een conventie en levert geen definitiezin.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "antwoord dat binnen drie dagen na ontvangst van een bericht wordt gegeven",
+          "success": true,
+          "definitiekern": "Antwoord dat binnen drie dagen na ontvangst van een bericht wordt gegeven.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Antwoord dat binnen drie dagen na ontvangst van een bericht wordt gegeven."
+        },
+        "B": {
+          "ruw_modelantwoord": "BETEKENISGROND ONTBREEKT:\n{\"ontbrekende_grond\": \"de dagsoort van de termijn van drie dagen na ontvangst: werkdagen of kalenderdagen, wat bepalend is voor de afbakening van tijdigheid\", \"vraag\": \"Worden de drie dagen na ontvangst geteld in werkdagen of in kalenderdagen?\"}",
+          "success": false,
+          "definitiekern": null,
+          "vraag": "Worden de drie dagen na ontvangst geteld in werkdagen of in kalenderdagen?",
+          "ontbrekende_grond": "de dagsoort van de termijn van drie dagen na ontvangst: werkdagen of kalenderdagen, wat bepalend is voor de afbakening van tijdigheid",
+          "aantal_opgeslagen": 0,
+          "opslag_readback": null
+        }
+      }
+    },
+    {
+      "id": "D5-h1",
+      "begrip": "ondertekend document",
+      "betekenisgrond": [
+        "Fictieve afspraak: een ondertekend document is een document waarop de afzender een handtekening heeft geplaatst. Bij document 17 is onbekend of de krabbel onderaan van de afzender is."
+      ],
+      "verwachting": "Kwalitatieve kandidaat (document waarop de afzender een handtekening heeft geplaatst); geen blokkade of ontbrekende-gronduitkomst alleen wegens het ontbrekende gevalsbewijs bij document 17.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "Document waarop de afzender een handtekening heeft geplaatst",
+          "success": true,
+          "definitiekern": "Document waarop de afzender een handtekening heeft geplaatst.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Document waarop de afzender een handtekening heeft geplaatst."
+        },
+        "B": {
+          "ruw_modelantwoord": "Document waarop de afzender een handtekening heeft geplaatst",
+          "success": true,
+          "definitiekern": "Document waarop de afzender een handtekening heeft geplaatst.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Document waarop de afzender een handtekening heeft geplaatst."
+        }
+      }
+    },
+    {
+      "id": "D5-h2",
+      "begrip": "ondertekend document",
+      "betekenisgrond": [
+        "Fictieve afspraak: een ondertekend document is een document waarop de afzender een handtekening heeft geplaatst. Bij document 17 is onbekend of de krabbel onderaan van de afzender is."
+      ],
+      "verwachting": "Kwalitatieve kandidaat (document waarop de afzender een handtekening heeft geplaatst); geen blokkade of ontbrekende-gronduitkomst alleen wegens het ontbrekende gevalsbewijs bij document 17.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "Document waarop de afzender een handtekening heeft geplaatst",
+          "success": true,
+          "definitiekern": "Document waarop de afzender een handtekening heeft geplaatst.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Document waarop de afzender een handtekening heeft geplaatst."
+        },
+        "B": {
+          "ruw_modelantwoord": "Document waarop de afzender een handtekening heeft geplaatst",
+          "success": true,
+          "definitiekern": "Document waarop de afzender een handtekening heeft geplaatst.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Document waarop de afzender een handtekening heeft geplaatst."
+        }
+      }
+    },
+    {
+      "id": "D6-h1",
+      "begrip": "tijdige melding",
+      "betekenisgrond": [
+        "Fictieve afspraak: een melding is tijdig wanneer zij binnen drie werkdagen na ontvangst wordt gedaan; de dag van ontvangst telt niet mee en een melding op de derde werkdag is nog tijdig."
+      ],
+      "verwachting": "Kandidaat behoudt de betekenis: drie werkdagen (geen kalenderdagen), startmoment na de dag van ontvangst, derde werkdag inbegrepen; de grensbeperking wordt niet weggelaten.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt",
+          "success": true,
+          "definitiekern": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt."
+        },
+        "B": {
+          "ruw_modelantwoord": "melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt",
+          "success": true,
+          "definitiekern": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt."
+        }
+      }
+    },
+    {
+      "id": "D6-h2",
+      "begrip": "tijdige melding",
+      "betekenisgrond": [
+        "Fictieve afspraak: een melding is tijdig wanneer zij binnen drie werkdagen na ontvangst wordt gedaan; de dag van ontvangst telt niet mee en een melding op de derde werkdag is nog tijdig."
+      ],
+      "verwachting": "Kandidaat behoudt de betekenis: drie werkdagen (geen kalenderdagen), startmoment na de dag van ontvangst, derde werkdag inbegrepen; de grensbeperking wordt niet weggelaten.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt",
+          "success": true,
+          "definitiekern": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt."
+        },
+        "B": {
+          "ruw_modelantwoord": "melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt",
+          "success": true,
+          "definitiekern": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Melding die uiterlijk op de derde werkdag na de dag van ontvangst wordt gedaan, waarbij de dag van ontvangst niet meetelt."
+        }
+      }
+    },
+    {
+      "id": "H1-h1",
+      "begrip": "gekwalificeerde partij",
+      "betekenisgrond": [
+        "Fictieve proefafspraak. Bron A en bron B zijn beide actueel en toepasselijk op hetzelfde begrip: A stelt minimaal 70% blauwe voorwerpen van alle voorwerpen in de partij, B minimaal 90%. Geen voorrang of keuze is vastgesteld."
+      ],
+      "verwachting": "Geen eigen grens kiezen, middelen of beide grenzen samenvoegen. Aparte verduidelijkingsuitkomst die de strijdige noodzakelijke grenzen benoemt; geen definitieve kandidaat.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "partij voorwerpen waarvan een vastgesteld minimumaandeel blauw is",
+          "success": true,
+          "definitiekern": "Partij voorwerpen waarvan een vastgesteld minimumaandeel blauw is.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij voorwerpen waarvan een vastgesteld minimumaandeel blauw is."
+        },
+        "B": {
+          "ruw_modelantwoord": "BETEKENISGROND ONTBREEKT: {\"ontbrekende_grond\": \"het bepalende minimumaandeel blauwe voorwerpen ten opzichte van alle voorwerpen in de partij; de aangeleverde bron noemt zowel minimaal 70% als minimaal 90% zonder vastgestelde voorrang\", \"vraag\": \"Welk minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij geldt als afbakening: minimaal 70% of minimaal 90%?\"}",
+          "success": false,
+          "definitiekern": null,
+          "vraag": "Welk minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij geldt als afbakening: minimaal 70% of minimaal 90%?",
+          "ontbrekende_grond": "het bepalende minimumaandeel blauwe voorwerpen ten opzichte van alle voorwerpen in de partij; de aangeleverde bron noemt zowel minimaal 70% als minimaal 90% zonder vastgestelde voorrang",
+          "aantal_opgeslagen": 0,
+          "opslag_readback": null
+        }
+      }
+    },
+    {
+      "id": "H1-h2",
+      "begrip": "gekwalificeerde partij",
+      "betekenisgrond": [
+        "Fictieve proefafspraak. Bron A en bron B zijn beide actueel en toepasselijk op hetzelfde begrip: A stelt minimaal 70% blauwe voorwerpen van alle voorwerpen in de partij, B minimaal 90%. Geen voorrang of keuze is vastgesteld."
+      ],
+      "verwachting": "Geen eigen grens kiezen, middelen of beide grenzen samenvoegen. Aparte verduidelijkingsuitkomst die de strijdige noodzakelijke grenzen benoemt; geen definitieve kandidaat.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "BETEKENISGROND ONTBREEKT:\n{\"ontbrekende_grond\": \"het bepalende minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij; bron A stelt minimaal 70%, bron B minimaal 90%, zonder vastgestelde voorrang\", \"vraag\": \"Welk minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij geldt voor de afbakening: minimaal 70% of minimaal 90%?\"}",
+          "success": false,
+          "definitiekern": null,
+          "vraag": "Welk minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij geldt voor de afbakening: minimaal 70% of minimaal 90%?",
+          "ontbrekende_grond": "het bepalende minimumaandeel blauwe voorwerpen van alle voorwerpen in de partij; bron A stelt minimaal 70%, bron B minimaal 90%, zonder vastgestelde voorrang",
+          "aantal_opgeslagen": 0,
+          "opslag_readback": null
+        },
+        "B": {
+          "ruw_modelantwoord": "partij voorwerpen waarvan een vastgesteld minimumaandeel van het totale aantal voorwerpen blauw is",
+          "success": true,
+          "definitiekern": "Partij voorwerpen waarvan een vastgesteld minimumaandeel van het totale aantal voorwerpen blauw is.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Partij voorwerpen waarvan een vastgesteld minimumaandeel van het totale aantal voorwerpen blauw is."
+        }
+      }
+    },
+    {
+      "id": "H2-h1",
+      "begrip": "bezwaarvrije aanvraag",
+      "betekenisgrond": [
+        "Fictieve proefafspraak. Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager. Er is geen ontologische categorie opgegeven."
+      ],
+      "verwachting": "Kwalitatieve kandidaat die schriftelijkheid, tijdsgrens en ander dan aanvrager behoudt. Geen getallen toevoegen. Geen verduidelijking alleen omdat categorie ontbreekt.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is ingediend door een ander dan de aanvrager",
+          "success": true,
+          "definitiekern": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is ingediend door een ander dan de aanvrager.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is ingediend door een ander dan de aanvrager."
+        },
+        "B": {
+          "ruw_modelantwoord": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager",
+          "success": true,
+          "definitiekern": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager."
+        }
+      }
+    },
+    {
+      "id": "H2-h2",
+      "begrip": "bezwaarvrije aanvraag",
+      "betekenisgrond": [
+        "Fictieve proefafspraak. Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is gemaakt door een ander dan de aanvrager. Er is geen ontologische categorie opgegeven."
+      ],
+      "verwachting": "Kwalitatieve kandidaat die schriftelijkheid, tijdsgrens en ander dan aanvrager behoudt. Geen getallen toevoegen. Geen verduidelijking alleen omdat categorie ontbreekt.",
+      "varianten": {
+        "A": {
+          "ruw_modelantwoord": "aanvraag waartegen vóór het nemen van de beslissing geen ander dan de aanvrager schriftelijk bezwaar heeft gemaakt",
+          "success": true,
+          "definitiekern": "Aanvraag waartegen vóór het nemen van de beslissing geen ander dan de aanvrager schriftelijk bezwaar heeft gemaakt.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Aanvraag waartegen vóór het nemen van de beslissing geen ander dan de aanvrager schriftelijk bezwaar heeft gemaakt."
+        },
+        "B": {
+          "ruw_modelantwoord": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is ingediend door een ander dan de aanvrager",
+          "success": true,
+          "definitiekern": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is ingediend door een ander dan de aanvrager.",
+          "vraag": null,
+          "ontbrekende_grond": null,
+          "aantal_opgeslagen": 1,
+          "opslag_readback": "Aanvraag waartegen vóór het nemen van de beslissing geen schriftelijk bezwaar is ingediend door een ander dan de aanvrager."
+        }
+      }
+    }
+  ]
+}

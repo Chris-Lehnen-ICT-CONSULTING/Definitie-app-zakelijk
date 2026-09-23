@@ -1,0 +1,327 @@
+........................................................................ [  9%]
+........................................................................ [ 19%]
+........................................................................ [ 28%]
+........................................................................ [ 38%]
+........................................................................ [ 47%]
+........................................................................ [ 57%]
+........................................................................ [ 66%]
+........................................................................ [ 76%]
+........................................................................ [ 86%]
+........................................................................ [ 95%]
+.................................                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/database/test_def751_review2_reproducties.py: 9 warnings
+tests/unit/database/test_def751_race_wissende_registratie.py: 4 warnings
+tests/unit/ui/test_def751_categoriekeuze_ui.py: 4 warnings
+tests/unit/ui/test_def766_ess03_editor.py: 6 warnings
+tests/unit/services/test_def751_categoriekeuze_transport.py: 8 warnings
+tests/unit/database/test_def751_categoriekeuze_opslag.py: 16 warnings
+tests/unit/services/test_def766_ess03_persistentie.py: 13 warnings
+tests/unit/ui/test_def751_toepassen_keten.py: 3 warnings
+tests/unit/database/test_def751_review1_reproducties.py: 11 warnings
+tests/unit/ui/test_def820_ess03_hulptekst.py: 1 warning
+tests/unit/ui/test_def751_verduidelijking_keten.py: 3 warnings
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py: 1 warning
+tests/unit/ui/test_def766_ess03_editor_herbinding.py: 2 warnings
+tests/unit/ui/test_def751_editor_categorie.py: 8 warnings
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py: 1 warning
+tests/unit/ui/test_def751_csv_import_categorie.py: 12 warnings
+tests/unit/services/test_def766_ess03_actieproef.py: 4 warnings
+tests/unit/ui/test_def821_correctieronde1.py: 1 warning
+tests/unit/services/test_def766_ess03_correcties_persistentie.py: 20 warnings
+tests/unit/test_def751_labelvrij.py: 3 warnings
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/definitie_crud.py:373: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+tests/unit/database/test_def751_review2_reproducties.py: 6 warnings
+tests/unit/database/test_def751_race_wissende_registratie.py: 4 warnings
+tests/unit/ui/test_def751_categoriekeuze_ui.py: 4 warnings
+tests/unit/ui/test_def766_ess03_editor.py: 3 warnings
+tests/unit/services/test_def751_categoriekeuze_transport.py: 3 warnings
+tests/unit/database/test_def751_categoriekeuze_opslag.py: 7 warnings
+tests/unit/services/test_def766_ess03_persistentie.py: 8 warnings
+tests/unit/ui/test_def751_toepassen_keten.py: 2 warnings
+tests/unit/database/test_def751_review1_reproducties.py: 10 warnings
+tests/unit/ui/test_def766_ess03_editor_herbinding.py: 1 warning
+tests/unit/ui/test_def751_editor_categorie.py: 4 warnings
+tests/unit/services/test_def766_ess03_actieproef.py: 4 warnings
+tests/unit/services/test_def766_ess03_correcties_persistentie.py: 14 warnings
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/definitie_crud.py:2534: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(query, params + where_params)
+
+tests/unit/ui/test_def751_toepassen_keten.py::test_definitie_object_in_tmp_db_is_echt
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:1227: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x113e0b350>
+    def _execute_mock_call(self, /, *args, **kwargs):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/database/test_def751_review1_reproducties.py::test_json_import_met_manual_confirmed_event_wordt_niet_als_bevestigd_gelezen
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/audit_helpers.py:179: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    conn.execute(
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_bronwissel_na_verzenden_laat_antwoord_vervallen_en_meldt_dat
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e8b50>
+    return io.open(self, mode, buffering, encoding, errors, newline)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_conflict_dan_verduidelijking_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1133eab50>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_conflict_dan_verduidelijking_dan_opslag_en_readback
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/threading.py:122: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f6c50>
+    def RLock(*args, **kwargs):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_conflict_dan_verduidelijking_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:700: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x113e08a50>
+    kolominfo = conn.execute(f"PRAGMA table_info({_quote(naam)})").fetchall()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_uitbreiding_van_de_selectie_met_nieuwe_collectie_laat_antwoord_vervallen
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:629: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f5850>
+    return tuple(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_pure_rerun_na_antwoord_past_verduidelijking_toe_ook_als_rag_selector_verschijnt
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:274: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f6750>
+    parsed = [sys.intern(str(x)) for x in rel.split(sep) if x and x != '.']
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_verduidelijking_keten.py::test_nieuwe_optie_zonder_selectiewijziging_houdt_antwoord_geldig
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/offline_bootstrap.py:305: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f4e50>
+    def _autoriseer(actie, arg1, arg2, dbnaam, bron):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_reviewrepro_sqlite_readback_prompt_bevat_de_keuze
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:239: PytestWarning: The test <Function test_reviewrepro_sqlite_readback_prompt_bevat_de_keuze> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    def test_reviewrepro_sqlite_readback_prompt_bevat_de_keuze(tmp_path, monkeypatch):
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[BEDOELD_IS_PROCES \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[BEDOELD_IS_PROCES \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21 BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21 BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_normaliseer_prompt_tekst_is_nfkc_en_geen_sanitisatie
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:93: PytestWarning: The test <Function test_normaliseer_prompt_tekst_is_nfkc_en_geen_sanitisatie> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    def test_normaliseer_prompt_tekst_is_nfkc_en_geen_sanitisatie():
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_antwoordbudget_geldt_op_de_genormaliseerde_tekst
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:123: PytestWarning: The test <Function test_antwoordbudget_geldt_op_de_genormaliseerde_tekst> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    def test_antwoordbudget_geldt_op_de_genormaliseerde_tekst():
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa midden \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa midden \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[gewoon antwoord zonder expansie BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[gewoon antwoord zonder expansie BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_tab_modelvelden_nooit_als_markdown_of_html
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f7c50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/json/decoder.py:346: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e8150>
+    end = _w(s, end).end()
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:701: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f7950>
+    pk_aantal = sum(1 for rij in kolominfo if rij[5])
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_ontbrekende_grond_ui.py::test_keten_melding_dan_antwoord_dan_opslag_en_readback
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:701: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f7350>
+    pk_aantal = sum(1 for rij in kolominfo if rij[5])
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[exemplaar]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e9150>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[resultaat]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e8550>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[resultaat]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143ea750>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[ENT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143eb450>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[ENT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143eb550>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_ontbrekende_en_ongeldige_categorie_worden_gemeld_en_geldige_rijen_bewaard
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143eb750>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_ontbrekende_en_ongeldige_categorie_worden_gemeld_en_geldige_rijen_bewaard
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143eb650>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[REL]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f6350>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[REL]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f7650>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[proces]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:458: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143eba50>
+    new = type(cls.__name__, bases, {'__doc__': cls.__doc__})
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[proces]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:458: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143ebb50>
+    new = type(cls.__name__, bases, {'__doc__': cls.__doc__})
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[STA]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143ebc50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[STA]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143eb350>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[ACT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143ebd50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[ACT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143ebe50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[ATT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143ea550>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[ATT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463c250>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[AUT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463c050>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[AUT]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463c550>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[OTH]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463c650>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[OTH]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463c750>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[type]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463cb50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def751_csv_import_categorie.py::test_elke_schemawaarde_wordt_exact_bewaard[type]
+  /opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py:2253: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463ca50>
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/services/test_def766_ess03_actieproef.py::TestExporteren::test_export_met_validatiegate_is_voor_negatieve_ess03_gelijk
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/yaml/error.py:6: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x11463cd50>
+    def __init__(self, name, index, line, column, buffer, pointer):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_correctieronde1.py::test_te_lange_keten_wordt_voor_het_model_geweigerd_zonder_verlies
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/offline_bootstrap.py:305: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e9d50>
+    def _autoriseer(actie, arg1, arg2, dbnaam, bron):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/ui/test_def821_correctieronde1.py::test_keten_is_begrensd_op_aantal_antwoorden
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/tests/offline_bootstrap.py:305: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e8750>
+    def _autoriseer(actie, arg1, arg2, dbnaam, bron):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/services/test_def766_ess03_correcties_persistentie.py::TestVerduidelijking::test_verduidelijking_wordt_zonder_beoordeling_bewaard_en_heropend
+  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-821-ess04-generatie/src/database/schema_contract.py:629: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1143e8050>
+    return tuple(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_def751_labelvrij.py::test_handler_genereert_zonder_label_als_er_geen_keuze_en_geen_voorstel_is
+  <frozen os>:717: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x1140f6550>
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
