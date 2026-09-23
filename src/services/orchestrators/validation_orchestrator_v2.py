@@ -191,6 +191,16 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 # een nieuwe tekst (reviewbevinding R3).
                 context_dict = dict(self._context_dict(context) or {})
                 context_dict["record_text"] = text
+                # DEF-766: het afzonderlijke categorieargument is de expliciete
+                # betekenisclaim van deze toetsing en hoort in dezelfde context
+                # als de recordroute die zet. Zonder dit bereikte een gewijzigde
+                # categorie de beoordelaar noch de vingerafdruk, en leverde een
+                # oude beoordeling opnieuw een actuele pass (reviewbevinding R2).
+                # `None` is 'geen claim van de aanroeper' — de bestaande
+                # betekenis blijft dan gelden en een categorie uit de metadata
+                # blijft staan; een expliciete waarde (ook een lege) gaat vóór.
+                if ontologische_categorie is not None:
+                    context_dict["ontologische_categorie"] = ontologische_categorie
 
                 # DEF-743: de bronbeoordeling hoort bij exact deze tekst en
                 # wordt hier standaard verkregen (nooit uit aanroepermetadata).
