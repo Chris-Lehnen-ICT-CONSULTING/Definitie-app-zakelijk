@@ -1,0 +1,138 @@
+{
+  "aantallen": {
+    "gelijk": 10,
+    "verbeterd": 6
+  },
+  "paren": [
+    {
+      "paar": "D1-h1",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Beide behouden het kwalitatieve criterium: alle zijden even lang. Geen verzonnen tolerantie of getal."
+    },
+    {
+      "paar": "D1-h2",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Dezelfde juiste afbakening; verschil in hoofdletter verdwijnt bij opslag en verandert geen betekenis."
+    },
+    {
+      "paar": "D2-h1",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Beide behouden blauw als criterium, alle voorwerpen in de partij als noemer en de inclusieve ondergrens van 80%."
+    },
+    {
+      "paar": "D2-h2",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Ook B bindt “de voorwerpen” via “waarvan” aan de partij. De kortere formulering verandert noemer of grens niet."
+    },
+    {
+      "paar": "D3-h1",
+      "A": "deels",
+      "B": "voldoet niet",
+      "voorkeur": "A",
+      "uitkomst": "verbeterd",
+      "reden": "A benoemt criterium/noemer als lacunes en slaat niets op, maar stelt ook een niet-onderbouwd noodzakelijk meetmoment aan de orde. B verzint marktpartijen, een criteria-noemer en selectie uit deelnemers; die kandidaat wordt opgeslagen."
+    },
+    {
+      "paar": "D3-h2",
+      "A": "deels",
+      "B": "voldoet niet",
+      "voorkeur": "A",
+      "uitkomst": "verbeterd",
+      "reden": "A vraagt terecht naar eisen en berekeningsgrondslag, maar presenteert ook een peilmoment als noodzakelijke ontbrekende grond zonder steun daarvoor. B verzint een criteriascore en gunningscontext en slaat die afbakening op."
+    },
+    {
+      "paar": "D4-h1",
+      "A": "voldoet niet",
+      "B": "voldoet",
+      "voorkeur": "B",
+      "uitkomst": "verbeterd",
+      "reden": "A slaat “drie dagen” op terwijl de bepalende dagconventie onbeslist blijft. B benoemt precies die lacune, vraagt gericht en slaat geen kandidaat op."
+    },
+    {
+      "paar": "D4-h2",
+      "A": "voldoet niet",
+      "B": "voldoet",
+      "voorkeur": "B",
+      "uitkomst": "verbeterd",
+      "reden": "A laat hetzelfde noodzakelijke onderscheid onopgelost in een opgeslagen definitie. B vraagt werkdagen of kalenderdagen zonder zelf te kiezen."
+    },
+    {
+      "paar": "D5-h1",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Beide behouden document, afzender en geplaatste handtekening; onzeker bewijs over document 17 veroorzaakt terecht geen blokkade."
+    },
+    {
+      "paar": "D5-h2",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Beide onderscheiden de heldere betekenis van het ontbrekende gevalsbewijs. Geen extra criteria of bewijsclaim."
+    },
+    {
+      "paar": "D6-h1",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Beide behouden drie **werkdagen**, uitsluiting van de ontvangstdag en inclusie van de derde werkdag via “uiterlijk”."
+    },
+    {
+      "paar": "D6-h2",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Dezelfde volledige termijnbetekenis blijft behouden, ook in readback."
+    },
+    {
+      "paar": "H1-h1",
+      "A": "voldoet niet",
+      "B": "voldoet",
+      "voorkeur": "B",
+      "uitkomst": "verbeterd",
+      "reden": "A vervangt het onbesliste conflict door een oningevuld “vastgesteld minimumaandeel” en slaat dat op. B benoemt 70% tegenover 90%, vraagt welke grens geldt en kiest niets zelf."
+    },
+    {
+      "paar": "H1-h2",
+      "A": "voldoet",
+      "B": "voldoet niet",
+      "voorkeur": "A",
+      "uitkomst": "verbeterd",
+      "reden": "A bewaart beide strijdige grenzen als verduidelijkingsvraag zonder opslag. B behoudt de noemer, maar verhult de onbesliste grens achter een opgeslagen “vastgesteld minimumaandeel”."
+    },
+    {
+      "paar": "H2-h1",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Beide behouden schriftelijkheid, vóór de beslissing en een ander dan de aanvrager. Geen cijfers of categorieblokkade toegevoegd."
+    },
+    {
+      "paar": "H2-h2",
+      "A": "voldoet",
+      "B": "voldoet",
+      "voorkeur": "gelijk",
+      "uitkomst": "gelijk",
+      "reden": "Andere zinsvolgorde verandert actor, schriftelijkheid en tijdsgrens niet; beide kandidaten voldoen aan de afspraak."
+    }
+  ],
+  "beoordelaar": "Codex CLI 01a0ced8-9eb6-7cf2-b267-758d5ca0fd2b",
+  "labelontsluiting_door": "coordinator na onafhankelijk oordeel"
+}
