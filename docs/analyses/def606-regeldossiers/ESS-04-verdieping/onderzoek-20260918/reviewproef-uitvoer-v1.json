@@ -1,0 +1,134 @@
+{
+  "commit": "4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb",
+  "python": "3.13.15",
+  "record_sha256": "78537a76b454e1c652a1601b1804abdf3b28092f88547de3fea9c410d91a389c",
+  "additional_ESS04": [],
+  "additional_ARAI03": [
+    "\\bdoeltreffend\\b",
+    "\\bvoldoende\\b"
+  ],
+  "results": [
+    {
+      "id": "ESS04-C01",
+      "text": "…binnen 3 dagen nadat het verzoek is ingediend…",
+      "status": "review_required",
+      "score": null,
+      "signals": [
+        "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+      ],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C02",
+      "text": "…zo snel mogelijk na ontvangst…",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C03",
+      "text": "Veelhoek waarvan alle zijden even lang zijn.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C04",
+      "text": "Belangrijke aanvraag die binnen 3 dagen relevant wordt.",
+      "status": "review_required",
+      "score": null,
+      "signals": [
+        "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+      ],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C05",
+      "text": "Object dat minimaal 80% voldoet.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C06",
+      "text": "Document waarop de afzender een handtekening heeft geplaatst.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C07",
+      "text": "",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C08",
+      "text": "Regeling die tenminste 80% van de gevallen dekt.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C09",
+      "text": "Besluit dat de gronden van de afwijzing bevat.",
+      "status": "review_required",
+      "score": null,
+      "signals": [
+        "\\bbevat\\b"
+      ],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C10",
+      "text": "Melding die zo snel mogelijk wordt gedaan en het dossiernummer bevat.",
+      "status": "review_required",
+      "score": null,
+      "signals": [
+        "\\bbevat\\b"
+      ],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C11",
+      "text": "Verzoek dat uiterlijk na 1 week is afgehandeld.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C12",
+      "text": "Beslissing die binnen drie dagen wordt genomen.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C13",
+      "text": "Aanvraag die binnen 3 werkdagen na ontvangst wordt behandeld.",
+      "status": "review_required",
+      "score": null,
+      "signals": [],
+      "equal_replica": true
+    },
+    {
+      "id": "ESS04-C14",
+      "text": "Kandidaat die minimaal 80%voldoet.",
+      "status": "review_required",
+      "score": null,
+      "signals": [
+        "\\bminimaal\\s+\\d+%\\b"
+      ],
+      "equal_replica": true
+    }
+  ]
+}

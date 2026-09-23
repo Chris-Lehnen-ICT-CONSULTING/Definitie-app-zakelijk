@@ -1,0 +1,305 @@
+{
+  "verified_at": "2026-09-18T16:04:06.579486+00:00",
+  "checks": {
+    "codex_first_unchanged": true,
+    "cowork_first_unchanged": true,
+    "cowork_first_probe_unchanged": true,
+    "retained_actual_evaluator_14": true,
+    "probe_binding_exit0": true,
+    "unique_cases_37": true,
+    "case_ids_preserved": true,
+    "codex_dispositions_33": true,
+    "cowork_dispositions_14": true,
+    "instruction_case_refs_exist": true,
+    "no_corrupted_case_refs": true,
+    "synthesis_review_present": true,
+    "final_hashes_match": true,
+    "final_local_links_exist": true,
+    "tracked_worktree_unchanged": true
+  },
+  "local_links": [
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "besluitnotitie-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "instructievoorstellen-v5.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "casusregister-v2.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "casusindex-v2.json",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "veldrollen-en-keten-v2.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "bron-bewijsregister-v3.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "eindverificatie-v1.json",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "eindpakket-manifest-v1.json",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "codex-onderzoek-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "codex-astra-addendum-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "codex-codeaanvulling-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "codex-reviewverwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "cowork-uitwisseling/cowork-onderzoek-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "cowork-uitwisseling/cowork-aanvulling-op-eigen-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "cowork-uitwisseling/cowork-reviewverwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "cowork-uitwisseling/codex-review-op-cowork-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "cowork-uitwisseling/cowork-review-op-codex-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "cowork-uitwisseling/cowork-synthesecontrole-v1.md",
+      "exists": true
+    },
+    {
+      "from": "LEES-EERST-eindpakket.md",
+      "target": "synthesecontrole-verwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "instructievoorstellen-v5.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "veldrollen-en-keten-v2.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "casusregister-v2.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "bron-bewijsregister-v3.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "codex-reviewverwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "cowork-uitwisseling/codex-review-op-cowork-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "cowork-uitwisseling/cowork-reviewverwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "cowork-uitwisseling/cowork-synthesecontrole-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "synthesecontrole-verwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "eindverificatie-v1.json",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "codex-onderzoek-v1.md",
+      "exists": true
+    },
+    {
+      "from": "besluitnotitie-v1.md",
+      "target": "codex-reviewverwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "bron-bewijsregister-v1.md",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "astra-bronobservatie-v2.md",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "codex-reviewverwerking-v1.md",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "bronnen/linear-DEF-630-20260918.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "bronnen/linear-DEF-745-20260918.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "bronnen/besluiten-ESS02-20260918.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "feitenbasis/bestanden-v1.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "skillvindplaatsen-verificatie-v1.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "codex-codeaanvulling-v1.md",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "proef-actueel-uitvoer-v1.log",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "proef-actueel-v1.py",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "cowork-uitwisseling/cowork-bewijs-v1/uitkomsten-v1.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "cowork-proefbestanden-ontvangst-v1.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "reviewproef-uitvoer-v1.json",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "reviewproef-verwachting-v1.md",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "reviewproef-v1.py",
+      "exists": true
+    },
+    {
+      "from": "bron-bewijsregister-v3.md",
+      "target": "cowork-uitwisseling/reviewproef/uitvoerbinding-v1.json",
+      "exists": true
+    },
+    {
+      "from": "codex-onderzoek-v1.md",
+      "target": "bron-bewijsregister-v1.md",
+      "exists": true
+    },
+    {
+      "from": "codex-onderzoek-v1.md",
+      "target": "casusregister-v1.md",
+      "exists": true
+    },
+    {
+      "from": "codex-onderzoek-v1.md",
+      "target": "instructievoorstellen-v1.md",
+      "exists": true
+    },
+    {
+      "from": "codex-reviewverwerking-v1.md",
+      "target": "cowork-uitwisseling/cowork-review-op-codex-v1.md",
+      "exists": true
+    },
+    {
+      "from": "synthesecontrole-verwerking-v1.md",
+      "target": "cowork-uitwisseling/cowork-synthesecontrole-v1.md",
+      "exists": true
+    },
+    {
+      "from": "synthesecontrole-verwerking-v1.md",
+      "target": "instructievoorstellen-v5.md",
+      "exists": true
+    },
+    {
+      "from": "synthesecontrole-verwerking-v1.md",
+      "target": "besluitnotitie-v1.md",
+      "exists": true
+    },
+    {
+      "from": "synthesecontrole-verwerking-v1.md",
+      "target": "bron-bewijsregister-v3.md",
+      "exists": true
+    }
+  ],
+  "all_checks_pass": true,
+  "scope": "Documentbinding, behouden proefuitvoer en oorspronkelijke versies; geen inhoudelijke juistheid door hashes bewezen, geen appacceptatie.",
+  "context_administration": "Op developerinstructie gelezen automatische handovers naar archief verplaatst en tijdelijke HANDOVER-sectie uit genegeerde .claude/CLAUDE.md verwijderd. Geen productwijziging."
+}

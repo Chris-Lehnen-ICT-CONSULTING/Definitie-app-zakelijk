@@ -1,0 +1,41 @@
+{
+  "files": [
+    {
+      "name": "synthesevoorstel-v2.md",
+      "sha256": "64849f2580c4ebd52814828abbed7f279cd44a80ba331f727d8a4eb7f5b7527f"
+    },
+    {
+      "name": "instructievoorstellen-v3.md",
+      "sha256": "bfc90f6b702dc51963ee7b52b77fe2a51f744291327468f11617d84abe63d05b"
+    },
+    {
+      "name": "casusregister-v2.md",
+      "sha256": "df31d1f776014d85384d6798ba37410335c91933779f0ad9d16042f3c9da41c1"
+    },
+    {
+      "name": "casusindex-v2.json",
+      "sha256": "b9dc0e40655fa76cf55126707c891f5c2a9c60717728da76b655d9747b91dbbe"
+    },
+    {
+      "name": "veldrollen-en-keten-v2.md",
+      "sha256": "114a5ceac31c762b2e7df492262fe12afd9ea770be1b6e03be487d95c7096bc5"
+    },
+    {
+      "name": "bron-bewijsregister-v2.md",
+      "sha256": "34f733f1976e929308c264f6a5a0010cbdf324438390f33c44e44ecc607ea476"
+    },
+    {
+      "name": "codex-reviewverwerking-v1.md",
+      "sha256": "9419b4e72a688f4ea82c1f57ec3f3baa7614b800bbfd25ccf61241ada62e31c0"
+    },
+    {
+      "name": "skillvindplaatsen-verificatie-v1.json",
+      "sha256": "ad2914fe39137410189d1e047b1b9f3b6bdf1ed5d466a50bd528a4e390bb5f8b"
+    },
+    {
+      "name": "cowork-proefbestanden-ontvangst-v1.json",
+      "sha256": "e41cf1610d40b7063f728ba8e252a54aeba73d29dc5002b88056fad37604841d"
+    }
+  ],
+  "first_versions_unchanged": true
+}

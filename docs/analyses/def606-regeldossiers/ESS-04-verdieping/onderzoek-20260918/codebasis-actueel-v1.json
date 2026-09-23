@@ -1,0 +1,11 @@
+{
+  "commit": "4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb",
+  "ref_when_read": "origin/main",
+  "commit_date": "2026-09-18 15:27:24 +0200",
+  "archive_sha256": "5ede2681ae9f8aa85dcb8a1f90ac1afd7238f881ef19b82063cd7098f2945a23",
+  "source": "git archive in eigen worktree, geen checkout/fetch of oorspronkelijke werkboommutatie",
+  "includes": [
+    "src",
+    "config"
+  ]
+}

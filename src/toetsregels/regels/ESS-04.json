@@ -1,9 +1,9 @@
 {
   "id": "ESS_04",
   "naam": "Toetsbaarheid",
-  "uitleg": "Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).",
-  "toelichting": "Zonder toetsbare criteria kan een lezer niet objectief vaststellen of iets onder de definitie valt. Voorbeelden van *niet*-toetsbaar: ‘zo snel mogelijk’, ‘zo veel mogelijk’. Wél-toetsbaar: ‘binnen 3 dagen’, ‘tenminste 80%’, ‘uiterlijk na 1 week’.",
-  "toetsvraag": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+  "uitleg": "Ieder criterium in de definitie is binnen de bedoelde betekenis en context voldoende bepaald om navolgbaar te beoordelen of een geval eraan voldoet.",
+  "toelichting": "Kwalitatieve criteria kunnen volstaan. Cijfers, percentages en termijnen zijn alleen behulpzaam als duidelijk is waarop zij betrekking hebben en hoe zij moeten worden toegepast. Leg meet- of beoordelingscontext vast wanneer die de uitkomst bepaalt; denk dan aan populatie of noemer, grensinclusie, referentietijd, dagconventie en toepasselijke bronversie. Wat het begrip zelf begrenst hoort in de definitiekern; hoe je het vaststelt — methode, meetprocedure, rekenvoorbeeld — hoort in de toelichting. Verzin geen drempels of bewijs. Een onbekende uitkomst door ontbrekend gevalsbewijs is niet hetzelfde als een ontoetsbaar criterium. Een toepasbaar criterium kan nog steeds inhoudelijk onjuist of onvoldoende onderscheidend zijn; beoordeel die normdoelen afzonderlijk. Signalen en automatische controles vervangen geen inhoudelijke menselijke beoordeling.",
+  "toetsvraag": "Zijn de begripskenmerken in de bedoelde context voldoende bepaald om hun toepasselijkheid op gevallen navolgbaar te beoordelen, en welke criteria of betekenisgrond ontbreken nog om dat te beoordelen?",
   "herkenbaar_patronen": [
     "\\bbinnen\\s+\\d+\\s+dagen?\\b",
     "\\buiterlijk\\s+na\\s+\\d+\\s+(dagen?|weken?)\\b",
@@ -22,22 +22,27 @@
     "\\btoetsbaar\\b"
   ],
   "goede_voorbeelden": [
-    "…binnen 3 dagen nadat het verzoek is ingediend…"
+    "Veelhoek waarvan alle zijden even lang zijn."
   ],
   "foute_voorbeelden": [
-    "…zo snel mogelijk na ontvangst…"
+    "Object dat minimaal 80% voldoet.",
+    "Belangrijke aanvraag die binnen 3 dagen relevant wordt."
   ],
   "prioriteit": "midden",
   "aanbeveling": "verplicht",
   "geldigheid": "alle",
   "status": "definitief",
   "type": "element in de definitie",
-  "thema": "toepasbaarheid",
+  "thema": "essentie van het begrip",
   "brondocument": "ASTRA",
   "relatie": [
     {
       "fulltext": "Toetsbaarheid",
       "fullurl": "https://www.astraonline.nl/index.php/Toetsbaarheid"
+    },
+    {
+      "fulltext": "Instanties uniek onderscheidbaar",
+      "fullurl": "https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar"
     }
   ],
   "runtime_contract": {
@@ -49,7 +54,7 @@
     "automation_status": "review_required",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "toetsbaarheid is een inhoudelijk oordeel; de indicatorpatronen vuren op elk getal of elke tijdsaanduiding en missen het eigen foute voorbeeld.",
+    "example_pair_reason": "Het toepassen van dit criterium vraagt beoordeling van de bedoelde betekenis en de relevante grond. Woorden, getallen en signaalpatronen leveren geen bewijs van voldoen of niet voldoen; ook zonder treffer blijft menselijke beoordeling nodig.",
     "example_pair_issue": "DEF-624"
   }
 }

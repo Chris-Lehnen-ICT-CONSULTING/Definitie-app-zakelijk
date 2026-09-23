@@ -1,0 +1,156 @@
+[
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "628a0dc60f78f803ccd222ab5bc7566911b7396abb4341748528b12e598822f8"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/SKILL.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/SKILL.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "e184527e8d8cd8f555233d707bfa5afff45948c726e8ec3307a8a13239b9973a"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess01-functiegrens.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess01-functiegrens.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "939c97a0c21ede12066953d61d116e04292c5b8162cb20df7f12c24514ab67cf"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/api_reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/api_reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "03a1f667eb14de8c4b639eb5a92f1978044787a8d19cd7fea079b758792ed8db"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/con02-bronbasis.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/con02-bronbasis.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "266942072034b2c83aef7f349cb391ed465395370483fd785c7538c676873fa3"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess02-betekenisniveau.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess02-betekenisniveau.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "9a054ac92729ed9bbcf461fb06917ba38ddd5ee8b3b12e838acd574b89e0460e"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "1cb1163cc621d3f88fa7597840aad68c49640f9696bc06cd8a44e11f4e96d85a"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/SKILL.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/SKILL.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "9e06b236737a9441d697946846b7ac5cd9247a10aa5eb331ee5c745ef69a19bf"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/ess01-functiegrens.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/ess01-functiegrens.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "939c97a0c21ede12066953d61d116e04292c5b8162cb20df7f12c24514ab67cf"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/api_reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/api_reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "10e08e83fa70e742b54bc15545c3fc6fdd7c302ea86bac3d013fa7824a5c497c"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/con02-bronbasis.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/con02-bronbasis.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "266942072034b2c83aef7f349cb391ed465395370483fd785c7538c676873fa3"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/ess02-betekenisniveau.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/references/ess02-betekenisniveau.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "9a054ac92729ed9bbcf461fb06917ba38ddd5ee8b3b12e838acd574b89e0460e"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "b16c258a7dec801983db7b76ca60899054141bfb6ff660cd5ec71456257c3bfd"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/SKILL.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/SKILL.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "20e956004ff49535c619db0ff4e549e125e0a23c974b4a75949cc10fa5ec0e01"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/references/api_reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/references/api_reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "68bf86d9d24189d628da119f1b154b9ee2b6af3cc404274aba6a558c7049da47"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/references/ess02-betekenisniveau.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ufo-ontologie/references/ess02-betekenisniveau.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "9a054ac92729ed9bbcf461fb06917ba38ddd5ee8b3b12e838acd574b89e0460e"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "4a816e4b5e968fb95736dc7191ba154689b78f41294cf4645e695a7f5894fe29"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/SKILL.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/SKILL.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "bc4b6078ae6b72501add3e5f4e2ba07215ce8a92b8064140cb9ddd0452a509cd"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/references/api_reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-ontologisch-modelleren/references/api_reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "d42247a88f5e3523ff50c13d0f078efe2b7e702304469cec958b242260bf6a2a"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "1d3cc1f31d15cdaff52de492d78130fa5564e9c82645158150beac134b1744f5"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/SKILL.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/SKILL.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "cf639d791edc63b635eee49523313bf4427bbccec9cd4c0ec229f20e99b78ade"
+  },
+  {
+    "source": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/references/api_reference.md",
+    "resolved": "/Users/chrislehnen/.agents/skills/definitie-voorbeelden-generatie/references/api_reference.md",
+    "exists": true,
+    "same_as_snapshot": true,
+    "sha256_snapshot": "dc1186f4ac712e64a4876243cadf06503a283b6c15b3278f513dda567669fc1d"
+  }
+]

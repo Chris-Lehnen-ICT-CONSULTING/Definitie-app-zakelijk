@@ -1,0 +1,299 @@
+{
+  "rule": "ESS-04",
+  "commit": "d68a98a909630e15db6e1cb9c9c8171f957bff9d",
+  "source_sha256": "78537a76b454e1c652a1601b1804abdf3b28092f88547de3fea9c410d91a389c",
+  "record": {
+    "id": "ESS_04",
+    "naam": "Toetsbaarheid",
+    "uitleg": "Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).",
+    "toelichting": "Zonder toetsbare criteria kan een lezer niet objectief vaststellen of iets onder de definitie valt. Voorbeelden van *niet*-toetsbaar: ‘zo snel mogelijk’, ‘zo veel mogelijk’. Wél-toetsbaar: ‘binnen 3 dagen’, ‘tenminste 80%’, ‘uiterlijk na 1 week’.",
+    "toetsvraag": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+    "herkenbaar_patronen": [
+      "\\bbinnen\\s+\\d+\\s+dagen?\\b",
+      "\\buiterlijk\\s+na\\s+\\d+\\s+(dagen?|weken?)\\b",
+      "\\btenminste\\s+\\d+%\\b",
+      "\\bminimaal\\s+\\d+%\\b",
+      "\\bmaximaal\\s+\\d+%\\b",
+      "\\b\\d+\\s+%\\b",
+      "\\baan de hand van\\b",
+      "\\bobjectieve criteria\\b",
+      "\\bbevat\\b",
+      "\\bomvat\\b",
+      "\\bheeft als eigenschap\\b",
+      "\\bwordt gekenmerkt door\\b",
+      "\\bcontrole op\\b",
+      "\\bwaarneembare\\b",
+      "\\btoetsbaar\\b"
+    ],
+    "goede_voorbeelden": [
+      "…binnen 3 dagen nadat het verzoek is ingediend…"
+    ],
+    "foute_voorbeelden": [
+      "…zo snel mogelijk na ontvangst…"
+    ],
+    "prioriteit": "midden",
+    "aanbeveling": "verplicht",
+    "geldigheid": "alle",
+    "status": "definitief",
+    "type": "element in de definitie",
+    "thema": "toepasbaarheid",
+    "brondocument": "ASTRA",
+    "relatie": [
+      {
+        "fulltext": "Toetsbaarheid",
+        "fullurl": "https://www.astraonline.nl/index.php/Toetsbaarheid"
+      }
+    ],
+    "runtime_contract": {
+      "evaluator": "judgment_review",
+      "required_inputs": [
+        "definition_text"
+      ],
+      "executability": "judgment",
+      "automation_status": "review_required",
+      "score_policy": "excluded_from_score",
+      "example_pair_policy": "review_policy",
+      "example_pair_reason": "toetsbaarheid is een inhoudelijk oordeel; de indicatorpatronen vuren op elk getal of elke tijdsaanduiding en missen het eigen foute voorbeeld.",
+      "example_pair_issue": "DEF-624"
+    }
+  },
+  "offline": true,
+  "routes": {
+    "manager": [
+      {
+        "input": {
+          "label": "good_fragment",
+          "text": "…binnen 3 dagen nadat het verzoek is ingediend…"
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": [
+              "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "bad_fragment",
+          "text": "…zo snel mogelijk na ontvangst…"
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "non_numeric",
+          "text": "Veelhoek waarvan alle zijden even lang zijn."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "unfounded_number",
+          "text": "Belangrijke aanvraag die binnen 3 dagen relevant wordt."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": [
+              "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "ambiguous_measure",
+          "text": "Object dat minimaal 80% voldoet."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "observable",
+          "text": "Document waarop de afzender een handtekening heeft geplaatst."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "empty",
+          "text": ""
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      }
+    ],
+    "cache": [
+      {
+        "input": {
+          "label": "good_fragment",
+          "text": "…binnen 3 dagen nadat het verzoek is ingediend…"
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": [
+              "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "bad_fragment",
+          "text": "…zo snel mogelijk na ontvangst…"
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "non_numeric",
+          "text": "Veelhoek waarvan alle zijden even lang zijn."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "unfounded_number",
+          "text": "Belangrijke aanvraag die binnen 3 dagen relevant wordt."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": [
+              "\\bbinnen\\s+\\d+\\s+dagen?\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "ambiguous_measure",
+          "text": "Object dat minimaal 80% voldoet."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "observable",
+          "text": "Document waarop de afzender een handtekening heeft geplaatst."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "empty",
+          "text": ""
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "ESS-04",
+            "category": "juridisch",
+            "reason": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+            "signals": []
+          }
+        ]
+      }
+    ]
+  }
+}

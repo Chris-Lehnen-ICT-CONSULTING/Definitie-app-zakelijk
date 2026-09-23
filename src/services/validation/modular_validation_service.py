@@ -1949,8 +1949,19 @@ class ModularValidationService:
         # reviewreden (`JudgmentReviewEvaluator._ess03_reden`); herstel volgt
         # alleen op verzoek na oorzaakbepaling, nooit als automatische
         # codeopdracht.
+        # DEF-767 (H2-2): de cijfergerichte ESS-04-hint (termijn/meetgrens) is
+        # vervangen — een getal bewijst geen toetsbaarheid en een toegevoegde
+        # grens verkrijgt hooguit een patroonsignaal. ESS-04 levert geen
+        # violation maar een reviewreden (`JudgmentReviewEvaluator._ess04_reden`);
+        # deze hint hoort alleen bij het oude aanroeppunt en start geen
+        # automatisch herstel.
         if reason == "testable" and c == "ESS-04":
-            return "Maak een objectief toetsbaar element expliciet (bijv. termijn of meetbare grens)."
+            return (
+                "Benoem welk criterium onvoldoende bepaald is en welke betekenisgrond "
+                "nodig is. Gebruik alleen een onderbouwde kwalitatieve of "
+                "kwantitatieve afbakening; voeg geen termijn of grens toe om een "
+                "signaal te verkrijgen."
+            )
         if reason == "distinguishing" and c == "ESS-05":
             return "Voeg een onderscheidend kenmerk toe dat het begrip afbakent."
         if reason == "singular" and c == "VER-01":

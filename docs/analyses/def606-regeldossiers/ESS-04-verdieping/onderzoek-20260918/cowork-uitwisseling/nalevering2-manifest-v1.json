@@ -1,0 +1,21 @@
+{
+  "commit": "4cdb8ea43aa9b750326cbf8d9c8034db77f6eafb",
+  "files": [
+    {
+      "path": "src/validation/additional_patterns.py",
+      "sha256": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b"
+    },
+    {
+      "path": "src/services/validation/evaluators/registry.py",
+      "sha256": "d13e7554fb6c2a9baf932a9cb4b1428d84b6ff1526132cb3b5136f3055a4a720"
+    },
+    {
+      "path": "src/services/validation/types_internal.py",
+      "sha256": "8e4b6aab5ffc4bdf9069f368e2ad83603283e8e51563da1ca8ede6874373d2ac"
+    },
+    {
+      "path": "src/services/policies/approval_gate_policy.py",
+      "sha256": "d133e23d12d143addcaa73555b4c73ca6454577dfbf8b1813824bdb5a750706f"
+    }
+  ]
+}

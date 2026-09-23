@@ -791,18 +791,20 @@ def render_validation_detailed_list(
     # niet achter de toggle, want zonder totaalscore zijn dit dé uitkomsten.
     render_rule_results(validation_result.get("rule_results") or {})
 
-    # DEF-746/DEF-750: de open reden van ESS-01 en ESS-02 is ook bij
-    # ingeklapte details zichtbaar. Passages zijn gebruikersinvoer: toon ze
-    # letterlijk, niet als Markdown of HTML. Dit is de leesbare
-    # signaalweergave (A); de menselijke beoordeling zelf en haar opslag
-    # volgen in C/D (DEF-624/626/627). ESS-03 staat hier sinds DEF-766 niet
-    # meer bij: zijn uitkomst (vier oordelen, vraag, fout) komt gestructureerd
-    # uit `rule_results` hierboven en zou hier dubbel verschijnen.
+    # DEF-746/DEF-750/DEF-767: de open reden van ESS-01, ESS-02 en ESS-04 is
+    # ook bij ingeklapte details zichtbaar — voor ESS-04 altijd de open
+    # status plus de reviewvraag (passagevraag of toetsvraag), ook zonder
+    # treffer. Passages zijn gebruikersinvoer: toon ze letterlijk, niet als
+    # Markdown of HTML. Dit is de leesbare signaalweergave (A); de menselijke
+    # beoordeling zelf en haar opslag volgen in C/D (DEF-624/626/627). ESS-03
+    # staat hier sinds DEF-766 niet meer bij: zijn uitkomst (vier oordelen,
+    # vraag, fout) komt gestructureerd uit `rule_results` hierboven en zou
+    # hier dubbel verschijnen.
     for review_item in validation_result.get("review_required") or []:
         if not isinstance(review_item, dict):
             continue
         rule_id = review_item.get("rule_id")
-        if rule_id in ("ESS-01", "ESS-02"):
+        if rule_id in ("ESS-01", "ESS-02", "ESS-04"):
             st.text(str(review_item.get("reason") or f"{rule_id} — Nog te beoordelen"))
 
     # Toggle + details

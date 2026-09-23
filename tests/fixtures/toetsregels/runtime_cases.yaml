@@ -315,9 +315,10 @@ ESS-04:
   required_fields: [herkenbaar_patronen]
   issue: DEF-624
   reden: >
-    toetsbaarheid is een inhoudelijk oordeel; de indicatorpatronen vuren
-    op elk getal of elke tijdsaanduiding en missen het eigen foute
-    voorbeeld.
+    Het toepassen van dit criterium vraagt beoordeling van de bedoelde
+    betekenis en de relevante grond. Woorden, getallen en signaalpatronen
+    leveren geen bewijs van voldoen of niet voldoen; ook zonder treffer
+    blijft menselijke beoordeling nodig.
   probe:
     begrip: controle
     tekst: "controle: toets van naleving door de dienst"

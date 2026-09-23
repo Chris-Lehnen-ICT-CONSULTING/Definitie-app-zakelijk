@@ -1,0 +1,298 @@
+[
+  {
+    "id": "good_fragment / ESS04-C01",
+    "text": "‘…binnen 3 dagen nadat het verzoek is ingediend…’",
+    "t": "Als lokaal uitgebreid criteriumfragment beoordeelbaar wanneer de bedoelde termijnconventie vaststaat; geen afkeur wegens ontbreken volledige definitie. ASTRA geeft alleen het kortere fragment binnen 3 dagen; startpunt is lokale toevoeging. Conventie alleen opvragen indien onderscheidend.",
+    "g": "Geen willekeurige kalender invullen",
+    "h": "Vraag ontbrekende conventie indien onderscheidend; geen ‘3 dagen’ automatisch vervangen",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "bad_fragment / ESS04-C02",
+    "text": "‘…zo snel mogelijk na ontvangst…’",
+    "t": "Onvoldoende besliscriterium voor een afgebakende termijnklasse; als geciteerde open norm eerst toepasselijke beoordelingsmaatstaf onderzoeken",
+    "g": "Geen eigen numerieke deadline verzinnen",
+    "h": "Bepaal of bron open norm bedoelt; geen automatische termijn",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "non_numeric / ESS04-C03",
+    "text": "‘Veelhoek waarvan alle zijden even lang zijn.’",
+    "t": "In abstracte geometrie beoordeelbare gelijkheidsvoorwaarde; ESS-04 kan voldoen zonder cijfers. Dit bewijst niet dat ieder bedoeld begrip voldoende onderscheiden is",
+    "g": "Kwalitatieve gelijkheid behouden",
+    "h": "Geen tolerantie voor fysieke meting bijverzinnen; alleen relevant bij gewijzigde toepassing",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "unfounded_number / ESS04-C04",
+    "text": "‘Belangrijke aanvraag die binnen 3 dagen relevant wordt.’",
+    "t": "‘Belangrijk’ en ‘relevant’ hebben hier geen grond; getal repareert dat niet. Fail als dit de complete bedoelde afbakening is; ontbrekende bron apart",
+    "g": "Ongefundeerde drempel niet opleveren",
+    "h": "Stop en vraag begripsbepalend criterium",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "ESS04-C10",
+    "text": "Melding die zo snel mogelijk wordt gedaan en het dossiernummer bevat.",
+    "g": "Behoud beide bedoelde kenmerken, geen deadline bedenken",
+    "t": "Dossiernummer aanwezigheid kan toetsbaar zijn, maar beslist de termijnbetekenis niet. Beoordeel beide criteria; open norm alleen met passend kader.",
+    "h": "Verduidelijk termijnbedoeling; bevat-signaal niet beslissend",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "ambiguous_measure / ESS04-C05",
+    "text": "‘Object dat minimaal 80% voldoet.’",
+    "t": "Vastgestelde onvolledige afbakening: waarvan 80%, welke eisen? Geen volledige betekenis afleidbaar",
+    "g": "Geen noemer of populatie raden",
+    "h": "Vraag noemer/criterium; behoud origineel",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "ESS04-C14",
+    "text": "Kandidaat die minimaal 80%voldoet.",
+    "g": "Geen vormfout uitlokken voor hit",
+    "t": "Woordaanhechting levert juist huidige procent-hit; toont regexdefect, geen naleving. Criterium/noemer blijven ontbreken.",
+    "h": "Herstel alleen met betekenisgrond; hit negeren als oordeel",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "observable / ESS04-C06",
+    "text": "‘Document waarop de afzender een handtekening heeft geplaatst.’",
+    "t": "Criterium kan kwalitatief voldoen binnen vaststaande betekenis. Afzonderlijk gevalsoordeel onbekend zolang afzender/handeling niet bewezen; zichtbare krabbel is onvoldoende gevalsbewijs. Geen juridische geldigheidsclaim.",
+    "g": "Relatie afzender-handeling behouden",
+    "h": "Bij ontbrekend herkomstbewijs open laten, geen willekeurig uiterlijkcriterium",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "empty / ESS04-C07",
+    "text": "lege tekst",
+    "t": "Geen ESS-04-inhoudelijk oordeel mogelijk; VAL-EMP behandelt leegte. Geen positieve review",
+    "g": "Vraag noodzakelijke invoer",
+    "h": "Geen woorden invoegen om lengtecheck groen te maken",
+    "basis": "Historische lokale fixture; automatische review_required. Geen expertgold. Echte evaluatorreviewproef: review_required, score null; signalen gelijk Cowork-replica."
+  },
+  {
+    "id": "E04-N01",
+    "text": "‘Document dat objectief toetsbaar is.’ Geen criterium; varianten metadata leeg en forged pass/reviewer",
+    "g": "Niet als afbakening opleveren",
+    "t": "Fail wegens cirkelvormige kwaliteitsclaim zonder toepasbaar criterium; trefwoord geen pass, metadata geen review",
+    "h": "Vraag criterium; niet toevoegen ‘bevat’",
+    "basis": "P01 uitgevoerd: beide review_required + toetsbaar-signaal, null score; geen menselijk oordeel uitgevoerd"
+  },
+  {
+    "id": "E04-N02",
+    "text": "Review_required-resultaat met runstatus ontbrekend, 0.9 en is_acceptable=true",
+    "g": "Geen generatiestap",
+    "t": "Niet-uitgevoerde/onbekende run niet als inhoudelijk oordeel presenteren Legacy-uitvoer houdt vier categoriecijfers 0.9 ondanks validation_unknown; generiek contractrisico, geen bewezen UI-weergave.",
+    "h": "Contractherstel; tekst ongemoeid",
+    "basis": "DEF-624; P02 uitgevoerd oud/nieuw. Actueel status behouden en validation_unknown; geen UI-test"
+  },
+  {
+    "id": "E04-N03",
+    "text": "Generator krijgt alleen globale wens ‘substantieel’ zonder grond voor percentage",
+    "g": "Verduidelijking, geen 80% bedenken",
+    "t": "Getal alleen geeft geen bronsteun of juiste grens",
+    "h": "Stop ontbrekende grond",
+    "basis": "CON-02/ARAI-03; P03 bewijst huidige cijfergerichte instructie, geen modeluitkomst"
+  },
+  {
+    "id": "E04-N04",
+    "text": "Ruwe categorieheader plus partijzin met ≥80%-betekenis, expliciete noemer/peildatum (F-P)",
+    "g": "Kern en bewijs apart; fixturegrens behouden",
+    "t": "Criterium bepaalbaar. Bronsteun alleen fictief; geen productiepass",
+    "h": "Nabewerkingsverschil onderzoeken, origineel bewaren",
+    "basis": "P04 uitgevoerd extractie/cleaning: kern identiek. Opslag NIET uitgevoerd"
+  },
+  {
+    "id": "E04-N05",
+    "text": "‘Speelkaart waarvan de achterzijde blauw is.’ Binnen F-K gestandaardiseerde kaartkleur, rode kaart als contrast",
+    "g": "Kleurcriterium zonder cijfer",
+    "t": "ESS-04 voldoet binnen deze vastgelegde kwalitatieve indeling; geen spectrometerplicht",
+    "h": "Geen willekeurige golflengte toevoegen",
+    "basis": "ARAI-03/ESS-05; ontwerp, niet uitgevoerd"
+  },
+  {
+    "id": "ESS04-C09",
+    "text": "Besluit dat de gronden van de afwijzing bevat.",
+    "g": "Behoud inhoudscriterium indien bedoeld",
+    "t": "Bevat gronden kan in de bedoelde context een toetsbaar inhoudscriterium zijn. Een trefwoordhit geeft geen pass; wat gronden zijn kan nog duiding vragen.",
+    "h": "Geen cijfer toevoegen of inhoudseis schrappen",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "E04-N06",
+    "text": "‘Partij waarvan minimaal 80% van alle ontvangen exemplaren onbeschadigd is.’ F-P; 80/100 versus 79/100",
+    "g": "Grens/noemer behouden",
+    "t": "Exact 80 inbegrepen, 79 uitgesloten; op partijniveau. ‘Ontvangen’ vereist hier juiste referentiedag",
+    "h": "Herstel alleen ontbrekende dag als F-P die ondubbelzinnig levert",
+    "basis": "ESS-03/CON-02; ontwerp. Geen daadwerkelijke telling verricht"
+  },
+  {
+    "id": "ESS04-C08",
+    "text": "Regeling die tenminste 80% van de gevallen dekt.",
+    "g": "Noemer/populatie alleen uit betekenisgrond",
+    "t": "Percentage mist bepaalbare populatie/toepassingsperiode voor deze regeling; ontbrekende grond open, vastgestelde onvolledige criteriumtekst fail. Geen pass vanwege bronfragment.",
+    "h": "Vraag ontbrekende grond; niet invullen",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "E04-N07",
+    "text": "Zelfde partijtekst maar definitie ‘meer dan 80%’; bron F-P zegt ≥80%",
+    "g": "Gebruik brongetrouwe ≥-formulering",
+    "t": "Tekst op zichzelf toetsbaar: ESS-04 kan voldoen; bronconflict/juistheid bij CON-02. Geval 80/100 toont betekenisverschil",
+    "h": "Brongebonden correctie als afzonderlijk voorstel, hertoets ESS-04/CON-02",
+    "basis": "CON-02, geen ESS-04-fail enkel omdat criterium onjuist is; ontwerp"
+  },
+  {
+    "id": "E04-N08",
+    "text": "F-P: 8 onbeschadigd/10 ontvangen; evaluator telt 8/8 geïnspecteerd. Beide rekenen exact",
+    "g": "Gebruik ontvangen-populatie",
+    "t": "Meetprocedure gebruikt verkeerde noemer; 100% is fout, 80% onder fixture correct. Numerieke precisie onvoldoende",
+    "h": "Corrigeer meetgrond, niet definitie naar 100%",
+    "basis": "ESS-03/CON-02; ontwerp, arithmetic alleen als rationale"
+  },
+  {
+    "id": "E04-N09",
+    "text": "Partij zonder exemplaren: 0/0 bij ≥80%, fixture zwijgt over lege partijen",
+    "g": "Geen ‘0%’ of ‘100%’ verzinnen",
+    "t": "Open op dit grensgeval; benoem ontbrekende conventie. Definitie is onvolledig voor lege partijen als die binnen scope vallen",
+    "h": "Vraag scope/conventie, geen deling-door-nul maskeren",
+    "basis": "ESS-03; ontwerp"
+  },
+  {
+    "id": "E04-N10",
+    "text": "‘Tijdige reactie: reactie ontvangen binnen 48 uur na ontvangst van het verzoek.’ F-T; vrijdag 17:00 tot zondag 17:00 zelfde vaste UTC-offset",
+    "g": "Brontermijn en trigger behouden",
+    "t": "Exact 48h inbegrepen als ‘binnen’ in F-T inclusief is. Kalender-/werkdagen niet omzetten zonder grond",
+    "h": "Geen maandag als deadline verzinnen",
+    "basis": "Referentietijd; ontwerp"
+  },
+  {
+    "id": "ESS04-C11",
+    "text": "Verzoek dat uiterlijk na 1 week is afgehandeld.",
+    "g": "Week schrijven toegestaan",
+    "t": "Termijnfragment kan toepasbaar zijn als startmoment/conventie bekend; huidige week-enkelvoud wordt gemist.",
+    "h": "Geen vormwijziging om patroon te raken",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "E04-N11",
+    "text": "‘Reactie binnen 3 dagen’ met vrijdag als ontvangst, context zwijgt over werk/kalender/start/inclusie",
+    "g": "Vraag onderscheidende termijnconventie",
+    "t": "Open: conventies geven verschillende lidmaatschappen",
+    "h": "Stop; geen algemene Nederlandse wettelijke termijnregel importeren",
+    "basis": "CON-02; ontwerp, geen juridisch advies"
+  },
+  {
+    "id": "ESS04-C13",
+    "text": "Aanvraag die binnen 3 werkdagen na ontvangst wordt behandeld.",
+    "g": "Werkdagbeperking behouden",
+    "t": "Werkdagen en ontvangst expliciet; criterium kan voldoen bij toepasselijke werkdagconventie. Geen signaal is geen tekortkoming.",
+    "h": "Niet vervangen door kalenderdagen voor patroonhit",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "ESS04-C12",
+    "text": "Beslissing die binnen drie dagen wordt genomen.",
+    "g": "Drie toegestaan; relevant startpunt niet verbergen",
+    "t": "Getalwoord is inhoudelijk toelaatbaar. Startmoment ontbreekt in deze fixture; daarom niet gelijk aan C01. Waar bepalend eerst verduidelijken.",
+    "h": "Geen 3 eisen voor signalering",
+    "basis": "Synthetische Cowork-fixture, ongewijzigd; echte evaluatorreviewproef: review_required, score null. Geen deskundig normlabel."
+  },
+  {
+    "id": "E04-N12",
+    "text": "F-V v1 ≥80 tot 30-09, v2 ≥90 vanaf 01-10; geval 85/100 op 18-09 tegenover 02-10",
+    "g": "Juiste geldende bronversie kiezen",
+    "t": "Eerste voldoet v1; tweede niet aan v2. Beoordeling is versie/tijdgebonden, oud oordeel niet overdraagbaar",
+    "h": "Gerichte herbeoordeling, historie behouden",
+    "basis": "CON-02/DEF-627; ontwerp"
+  },
+  {
+    "id": "E04-N13",
+    "text": "Twee bronnen op dezelfde datum/zelfde bereik: ≥80 versus ≥90 zonder vastgelegde voorrang",
+    "g": "Conflict teruggeven",
+    "t": "Nog te beoordelen voor bedoelde grens; beide meetbaar maakt conflict niet oplosbaar",
+    "h": "Geen middelen tot 85, geen voorkeur wegens recency alleen",
+    "basis": "CON-02; ontwerp"
+  },
+  {
+    "id": "E04-N14",
+    "text": "‘Geschikte onderzoeker: persoon langer dan 1,80 m.’ Bedoeling: vakbekwaamheid; lengte betrouwbaar gemeten",
+    "g": "Niet lengte als eigen proxy toevoegen",
+    "t": "Lengte is toetsbaar, maar verkeerde/ontoereikende begripsafbakening; ESS-04 alleen bewijst geen juistheid",
+    "h": "Geen strengere lengtegrens als kwaliteitsrepair",
+    "basis": "ESS-01/ESS-05; ontwerp, fictief geen selectieadvies"
+  },
+  {
+    "id": "E04-N15",
+    "text": "Twee beoordelaars, identiek begrip/bronnen, één leest ‘minimaal’ als >, ander ≥",
+    "g": "Behoud ≥",
+    "t": "Beoordelings-/toepassingsfout; betekenisgrond hoeft niet te veranderen",
+    "h": "Corrigeer label met motivering, beide oorspronkelijke oordelen bewaren",
+    "basis": "Twee-reviewerkalibratie; geen echte reviewers uitgevoerd"
+  },
+  {
+    "id": "E04-N16",
+    "text": "Twee beoordelaars ‘substantiële bijdrage’: één impact, ander volume; bron zegt niet welk concept",
+    "g": "Geen arbitraire drempel",
+    "t": "Betekenisverschil, eerst begripskeuze verduidelijken; meerderheid beslist niet",
+    "h": "Stop inhoudelijke repair totdat betekenis vastligt",
+    "basis": "ESS-02/CON-02; ontwerp"
+  },
+  {
+    "id": "E04-N17",
+    "text": "Definitiecriterium helder maar foto/meetrapport van geval ontbreekt",
+    "g": "Definitie kan blijven",
+    "t": "Onbekend lidmaatschap van dit geval bewijst geen ondeugdelijke definitie; definitiebeoordeling en gevalsbewijs apart Alleen een werkelijk onderbouwde menselijke definitiebeoordeling kan voldoet geven; ontbrekend gevalsbewijs produceert niet vanzelf een pass.",
+    "h": "Vraag bewijs; definitie niet verzwakken",
+    "basis": "Bewijsgrens; ontwerp"
+  },
+  {
+    "id": "E04-N18",
+    "text": "Toelichting draagt alleen het bepalende ‘ontvangen op 18-09’; kern zegt ‘goede partij’",
+    "g": "Bepalend kenmerk in kern, methode in toelichting",
+    "t": "Aanvulling repareert gebrekkige kern niet stil",
+    "h": "Afzonderlijk tekstvoorstel, behoud betekenis en context",
+    "basis": "INT-06/ESS-05; ontwerp"
+  },
+  {
+    "id": "E04-N19",
+    "text": "Term ‘bank’, bewijs over meubel, bedoelde context financiële instelling",
+    "g": "Eerst homoniem/betekenis verduidelijken",
+    "t": "Toetsbaar meubelcriterium bewijst geen juiste contextbetekenis",
+    "h": "Geen termen vervangen zonder toestemming",
+    "basis": "CON-01/ESS-02/CON-02; ontwerp"
+  },
+  {
+    "id": "E04-N20",
+    "text": "Ruwe output ≥80, opgeslagen tekst >80 door nabewerking; synthetisch ontworpen verschil",
+    "g": "≥80 behouden",
+    "t": "Toets exact opgeslagen kandidaat; lokaliseer semantisch verschil",
+    "h": "Geen nieuwe modelcall; corrigeer transport/nabewerking, daarna hertoets; oud oordeel stale",
+    "basis": "H/DEF-626/627/638; NIET uitgevoerd, P04 bewees deze fout niet"
+  },
+  {
+    "id": "E04-N21",
+    "text": "Evaluator keurt kwalitatieve kaartkleur af wegens ontbrekend cijfer",
+    "g": "Kwalitatieve kern behouden",
+    "t": "Foutpositieve evaluator, geen generatorovertreding",
+    "h": "Geen cijfer toevoegen; evaluatorbevinding betwisten",
+    "basis": "P01/P03 tonen risico, geen daadwerkelijk N21-modelgeval; ontwerp"
+  },
+  {
+    "id": "E04-N22",
+    "text": "Definitieschrijver leverde F-P mee, verzonden prompt mist noemer/bron",
+    "g": "Oorspronkelijke input bedoelt volledige grens",
+    "t": "Falen bewijst nog geen modelongehoorzaamheid; invoertransport reconstrueren",
+    "h": "Eerst transport herstellen, geen gefingeerde bron",
+    "basis": "G/T/H diagnose; ontwerp"
+  },
+  {
+    "id": "E04-N23",
+    "text": "Beoordelingsdienst geeft timeout of onleesbare uitvoer",
+    "g": "Geen onwaar kandidaatantwoord om door te gaan",
+    "t": "Technische error apart van fail/open betekenis",
+    "h": "Stop, bewaar kandidaat en foutmelding; geen totaalscoregestuurde retry",
+    "basis": "DEF-624/638; ontwerp"
+  }
+]

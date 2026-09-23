@@ -1,0 +1,41 @@
+{
+  "files": [
+    {
+      "name": "LEES-EERST-eindpakket.md",
+      "sha256": "07f7f6e17d70f66790ce214b3c12f871d516a40611f956e183b09281f59e1c5e"
+    },
+    {
+      "name": "besluitnotitie-v1.md",
+      "sha256": "3ecba8cc2f0d09cf97a0104197d2d805c6d665a145ce917fe5d7aa2a57c70959"
+    },
+    {
+      "name": "instructievoorstellen-v5.md",
+      "sha256": "e101cd2688e715f3a2286cf987be40870ceef209b0c18470ed37c5c8f67c724e"
+    },
+    {
+      "name": "casusregister-v2.md",
+      "sha256": "df31d1f776014d85384d6798ba37410335c91933779f0ad9d16042f3c9da41c1"
+    },
+    {
+      "name": "casusindex-v2.json",
+      "sha256": "b9dc0e40655fa76cf55126707c891f5c2a9c60717728da76b655d9747b91dbbe"
+    },
+    {
+      "name": "veldrollen-en-keten-v2.md",
+      "sha256": "114a5ceac31c762b2e7df492262fe12afd9ea770be1b6e03be487d95c7096bc5"
+    },
+    {
+      "name": "bron-bewijsregister-v3.md",
+      "sha256": "a8ac79247269178b5aede95cf9632c4832450b561f247102b29d570c714d6d62"
+    },
+    {
+      "name": "synthesecontrole-verwerking-v1.md",
+      "sha256": "d44b9a913bd884d97e0e2d227969f59a9c478b9f51a2653a0485fd18881c86e9"
+    },
+    {
+      "name": "eindverificatie-v1.json",
+      "sha256": "b586d8a531aea4b57de84543138d7f3769a888ab1cc683ca9e2e88f93ac44bc5"
+    }
+  ],
+  "note": "Definitieve Codex-onderzoeksbestanden, exacte kopie na verwerking Cowork-synthesecontrole. Lokale links volgen oorspronkelijke OUT-layout; eerdere onderzoeken/reviews staan in gedeelde hoofdmap of Codex-reviewpakket. Geen nieuwe review gevraagd."
+}

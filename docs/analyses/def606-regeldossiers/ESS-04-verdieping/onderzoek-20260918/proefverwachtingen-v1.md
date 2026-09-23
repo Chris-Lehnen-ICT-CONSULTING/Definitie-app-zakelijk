@@ -1,0 +1,12 @@
+# Vooraf vastgelegde proefverwachtingen
+
+18 september 2026, vóór uitvoering. Basis `50d0770ded6f4e8337738126d6bc2aa8f169e3de`; offline synthetische invoer. Geen netwerk, model, database of UI. Geen claim over huidige main.
+
+Historische zeven scenario's × twee laadpaden worden niet opnieuw uitgevoerd. `git diff d68a98a9 HEAD` voor ESS-04.json, judgment_review.py, types.py en validation_orchestrator_v2.py is leeg; dit onderbouwt hergebruik van het smalle historische bewijs, geen gehele-ketengelijkheid.
+
+- P01 / E04-N01: directe evaluator krijgt `Document dat objectief toetsbaar is.` zonder criteria; daarnaast metadata met een verzonnen `ESS-04: pass` en reviewer. Verwacht in beide varianten `review_required`, score null; metadata is hier geen vertrouwde menselijke reviewroute. Grond: judgment_review.py:51–57 leest uitsluitend regelvraag en signalen. Signaal op ‘toetsbaar’ is inhoudelijk onvoldoende. Proef voegt metadata-grens toe aan historisch signaalbewijs.
+- P02 / E04-N02: legacy-dict mét ESS-04-review, status en dekking door normalize_to_unified. Verwacht verlies van die drie velden, omdat de legacyprojectie alleen vaste velden opbouwt. Hetzelfde dict mét version/system gaat langs de schema-route en hoort velden te behouden. Grond: types.py:438 en :643. Geen bewezen actuele UI-route; test uitsluitend de functierand.
+- P03 / E04-N03: roep de echte ESS-04-generatie-instructietransformatie aan. Verwacht bestaande cijfergerichte tekst. Dit bewijst uitgegeven module-instructie, geen volledige eindprompt of modelgedrag.
+- P04 / E04-N04: ruwe synthetische modeltekst `Ontologische categorie: type\nPartij waarvan minimaal 80% van de op 18 september 2026 ontvangen exemplaren onbeschadigd is.`. Inspecteer extractie en CleaningService. Verwachting op grond van betekenisbehoud: 80%, minimaal, noemer, peildatum en onbeschadigd blijven behouden. De technische uitkomst is nog onbekend; mogelijke wijziging moet worden gerapporteerd, niet weggecorrigeerd. Geen opgeslagen tekst beschikbaar in deze geïsoleerde proef; opslag blijft expliciet ongetest.
+
+G/T/H-normverwachtingen: N01 geen automatische inhoudelijke pass of repair op trefwoord; N02 ontbrekend transportbewijs blijft onbekend; N03 genereer geen willekeurige drempel; N04 herstel uitsluitend een bewezen nabewerkingsverlies door terugkeer naar brongebonden kandidaat en hertoetsing. Alle menselijke normoordelen in dit onderzoek zijn voorstellen, niet deskundig geaccepteerde labels.
