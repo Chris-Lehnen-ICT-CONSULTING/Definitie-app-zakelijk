@@ -64,6 +64,12 @@ STRIJDIG_MET_UITVOERCONTRACT = (
     "meld de ontbrekende keuze",
 )
 
+#: DEF-826: de app beoordeelt ESS-03 sinds PR #467 zelf. De uitkomst bij een
+#: ontbrekende beslisgrond heet "onvoldoende informatie" (precies één gerichte
+#: vraag); "nog te beoordelen" was de status van de oude menselijke beoordeling.
+APPUITKOMST = "uitkomst onvoldoende informatie, met één gerichte vraag"
+OUDE_REVIEWSTATUS = "nog te beoordelen"
+
 #: ESS-02-specifieke C3-formuleringen waarvan DEF-750/DEF-751-tests het
 #: aantal op precies twee pinnen. ESS-03 draagt dezelfde scheiding in eigen
 #: woorden, zodat die pins ESS-02-scoped blijven.
@@ -135,6 +141,31 @@ def test_ess03_kandidaat_alleen_zonder_werkelijke_tegenspraak():
     assert "zonder melding of toelichting in de zin" in delen[1]
     assert "maak dan geen stille keuze" in kaart
     assert "leg geen betwiste telconventie in de kern vast" in kaart
+
+
+async def test_ess03_verwijst_naar_de_appuitkomst_niet_naar_de_oude_reviewstatus():
+    """De verduidelijkingsvraag blijft bij de ESS-03-beoordeling (DEF-826).
+
+    Die beoordeling doet de app zelf; de uitkomst heet 'onvoldoende informatie'
+    met precies één gerichte vraag. De oude menselijke reviewstatus 'nog te
+    beoordelen' hoort niet meer in de generatie-instructie.
+    """
+    module = JSONBasedRulesModule("ESS-", "ess_rules", "ESS", "⚖", "ESS", 65)
+    kaart = _ess03_kaart(module.execute(context()).content)
+    assert "de gerichte verduidelijkingsvraag blijft bij de ESS-03-beoordeling" in kaart
+    assert APPUITKOMST in kaart
+    assert OUDE_REVIEWSTATUS not in kaart
+
+    request = GenerationRequest(
+        id="def826-appuitkomst",
+        begrip="meetobject",
+        organisatorische_context=["DJI"],
+        actor="test_user",
+    )
+    prompt = (await PromptServiceV2().build_generation_prompt(request)).text
+    ess03 = _ess03_kaart(prompt)
+    assert ess03.count(APPUITKOMST) == 1
+    assert OUDE_REVIEWSTATUS not in ess03
 
 
 def test_ess01_en_ess02_kaarten_ongewijzigd_naast_ess03():
