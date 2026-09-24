@@ -21,6 +21,10 @@ from typing import Any
 from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
 from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
 from services.validation.evaluators.registry import get_default_registry
+from services.validation.evaluators.sentence_boundary import (
+    REDEN_MEERDERE_ZINNEN,
+    SUGGESTIE_MEERDERE_ZINNEN,
+)
 from services.validation.interfaces import (
     CONTRACT_VERSION,
     UNKNOWN_REASON_RULESET_INCOMPLETE,
@@ -36,6 +40,7 @@ from services.validation.readiness import (
 )
 from toetsregels.runtime_contract import (
     ROOT_CONFIG_PATH,
+    EvaluatorType,
     RequiredInput,
     ResultStatus,
     RootContractPolicy,
@@ -81,6 +86,16 @@ ROOT_SSOT_PAD: Path = ROOT_CONFIG_PATH
 # de duplicaatcontrole van CON-01 naar DUP_01 de handhaving verzwakken, want de
 # oude route blokkeerde via de violation-severity op een gescoorde regel.
 _ACCEPTATIE_BLOKKEERDERS: frozenset[str] = frozenset({"DUP_01"})
+
+# DEF-770: evaluators die een gestructureerde deeluitkomst leveren zonder dat
+# hun regel `no_score` is. INT-01 stelt de zinsstructuur vast en houdt
+# compactheid en begrijpelijkheid open: die uitkomst hoort in `rule_results`
+# (per onderdeel status, passage en reden) en krijgt geen regelcijfer. Anders
+# dan `no_score` maakt zo een regel de totaalscore niet onbeschikbaar; haar
+# scorepolicy blijft `excluded_from_score`, dus geen zelfstandige blokkade.
+_EVALUATORS_MET_DEELUITKOMST: frozenset[EvaluatorType] = frozenset(
+    {EvaluatorType.SENTENCE_BOUNDARY}
+)
 
 
 class ValidationResultWrapper:
@@ -994,6 +1009,12 @@ class ModularValidationService:
             if (regelrecord := state.rule_records.get(code)) is not None
             and regelrecord.score_policy is ScorePolicy.NO_SCORE
         )
+        met_deeluitkomst = {
+            code
+            for code in state.internal_rules
+            if (regelrecord := state.rule_records.get(code)) is not None
+            and regelrecord.evaluator in _EVALUATORS_MET_DEELUITKOMST
+        }
 
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []
@@ -1017,7 +1038,7 @@ class ModularValidationService:
                     rule_statuses=rule_statuses,
                     review_items=review_items,
                     rule_results=rule_results,
-                    geen_cijfer=code in zonder_cijfer,
+                    geen_cijfer=code in zonder_cijfer or code in met_deeluitkomst,
                 )
             # Support both (score, violation) tuple and dict-like outputs (for tests that patch the method)
             elif isinstance(out, tuple):
@@ -1967,11 +1988,13 @@ class ModularValidationService:
         if reason == "singular" and c == "VER-01":
             return "Schrijf het lemma in enkelvoud (tenzij plurale tantum)."
 
+        # DEF-770: het woordvermijdingsadvies (vermijd en/maar/of en
+        # bijzinnen) is vervallen; het stuurde op betekenisverlies. INT-01
+        # levert alleen nog een violation bij een vastgestelde tweede zin.
+        if reason == REDEN_MEERDERE_ZINNEN and c == "INT-01":
+            return SUGGESTIE_MEERDERE_ZINNEN
+
         # Regel-specifieke defaults
-        if c == "INT-01":
-            return (
-                "Herschrijf naar één compacte zin; vermijd 'en/maar/of' en bijzinnen."
-            )
         if c == "CON-01":
             # DEF-622 (B-02): registratiecontext hoort buiten de zin; een
             # inhoudelijk noodzakelijke naam mag blijven staan.

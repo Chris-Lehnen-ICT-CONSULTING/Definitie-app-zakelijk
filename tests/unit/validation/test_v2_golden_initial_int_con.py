@@ -51,7 +51,9 @@ class _FakeRepo:
 async def test_int01_single_sentence_pass_and_multi_sentence_fail():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
 
-    # PASS: één zin, geen INT-01 patterns (geen komma, en, of, maar, die, waarbij, etc.)
+    # Eén zin: geen INT-01-violation. Sinds DEF-770 is dat een deelbevinding
+    # (zinsstructuur vastgesteld; compactheid en begrijpelijkheid open), dus
+    # ook geen geslaagde regel. Komma, en, die en waarbij zijn geen afkeurgrond.
     text_ok = "maatregel: corrigerende actie ter naleving van regels"
     res_ok = await svc.validate_definition(
         begrip="maatregel",
@@ -62,8 +64,9 @@ async def test_int01_single_sentence_pass_and_multi_sentence_fail():
     assert not any(
         v.get("code") == "INT-01" for v in res_ok.get("violations", [])
     ), res_ok
+    assert "INT-01" not in res_ok.get("passed_rules", []), res_ok
 
-    # FAIL: meerzinnigheid en verbindingswoorden → zou INT-01 patterns moeten raken
+    # FAIL: een tweede zin (DEF-770: functionele zinsgrens, geen woordlijst)
     text_bad = (
         "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. "
         "In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften."

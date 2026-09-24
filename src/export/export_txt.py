@@ -2,6 +2,8 @@ import os  # Operating system interface voor bestandsoperaties
 from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timestamps
 from typing import Any
 
+from domain.int01.opslag import exportregels
+
 #: Leesbare namen van de drie CON-02-onderdelen (kerncontract C §2).
 _ONDERDEELNAMEN = {
     "source_authority": "brongezag/toepasselijkheid",
@@ -401,6 +403,15 @@ def _bronsecties(gegevens: dict) -> list[str]:
     return regels
 
 
+def _int01sectie(gegevens: dict) -> list[str]:
+    """De opgeslagen INT-01-deeluitkomst (DEF-770); afwezig = zichtbaar niet beoordeeld."""
+    regels = ["\n\U0001f9ed Zinsgrenzen (INT-01):"]
+    uitkomst = exportregels(gegevens.get("int01_beoordeling"))
+    if not uitkomst:
+        return [*regels, "- geen opgeslagen INT-01-uitkomst: niet beoordeeld"]
+    return [*regels, f"- {uitkomst[0]}", *uitkomst[1:]]
+
+
 def exporteer_naar_txt(gegevens: dict) -> str:
     """Exporteert definitie gegevens naar een geformatteerd TXT bestand."""
     # Haal alle benodigde gegevens op uit de data dictionary
@@ -468,6 +479,7 @@ def exporteer_naar_txt(gegevens: dict) -> str:
     else:
         regels.append("- geen")
 
+    regels += _int01sectie(gegevens)
     regels += _bronsecties(gegevens)
 
     regels.append("\n\U0001f4a1 Toelichting:")

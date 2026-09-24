@@ -352,16 +352,22 @@ ESS-CONT-001:
     verwacht: geen_violation
 
 INT-01:
-  required_fields: [herkenbaar_patronen]
+  # DEF-770: functionele zinsgrenzen (evaluator sentence_boundary). Een
+  # komma of woord is geen overtreding meer; alleen een vastgestelde
+  # tweede zin faalt. Eén zin is een deelbevinding (review_required, met
+  # zinsstructuur pass in rule_results): compactheid en begrijpelijkheid
+  # blijven open. Het gedrag staat in test_def770_int01_zinsgrenzen.py.
+  required_fields: []
   negatief:
-    begrip: dossier
-    tekst: "dossier: map, met stukken"
+    begrip: object
+    tekst: "Wat is dit? Afgebakend object."
+    verwacht_in_melding: "vraagt één zin"
   positief:
     begrip: dossier
-    tekst: "dossier: verzameling stukken per zaak"
+    tekst: "dossier: map, met stukken die bij een zaak horen"
   grens:
-    begrip: dossier
-    tekst: "dossier: verzameling stukken uit onderzoeken"
+    begrip: document
+    tekst: "Document op naam van dr. Smit."
     verwacht: geen_violation
 
 INT-02:

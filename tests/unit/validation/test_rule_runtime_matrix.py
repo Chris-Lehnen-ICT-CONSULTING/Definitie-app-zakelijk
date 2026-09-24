@@ -152,6 +152,14 @@ AUTOMATISCH_BRONBEOORDELING_IDS = sorted(
 )
 NIET_AUTOMATISCHE_IDS = sorted(r for r in RULE_IDS_OP_DISK if not _is_automatisch(r))
 
+# DEF-770: automatische regels waarvan de gemeten uitkomst een deelbevinding
+# is. INT-01 stelt de zinsstructuur automatisch vast, maar compactheid en
+# begrijpelijkheid blijven open; de regel als geheel staat daarom nooit op
+# `pass` en haar meting zit in een onderdeel van `rule_results`.
+DEELBEVINDING_IDS = sorted(
+    r for r in AUTOMATISCHE_IDS if RECORDS[r].evaluator.value == "sentence_boundary"
+)
+
 
 def _tekst_van(case: dict) -> str:
     herhaal = case.get("tekst_herhaal")
@@ -434,6 +442,15 @@ class TestReachability:
         entry = MATRIX[rule_id]
         res = await _resultaat_voor(svc, entry["positief"])
         status = res["rule_statuses"].get(rule_id)
+        if rule_id in DEELBEVINDING_IDS:
+            # De meting zit in een onderdeel; de regel zelf blijft open.
+            delen = res["rule_results"][rule_id]["parts"]
+            gemeten = [d for d in delen if d["status"] in ("pass", "fail")]
+            assert status == "review_required" and gemeten, (
+                f"{rule_id}: deelbevinding zonder gemeten onderdeel: "
+                f"{status!r}, {delen}"
+            )
+            return
         assert status in ("pass", "fail"), (
             f"{rule_id}: heet automatisch maar levert {status!r} op de "
             f"positieve case — die regel wordt niet werkelijk beoordeeld"
@@ -527,6 +544,13 @@ class TestBronbeoordelingsregelsZonderBronnen:
             "de AI-oordeelklasse is vastgepind op CON-02 en ESS-03: "
             f"{AUTOMATISCH_BRONBEOORDELING_IDS}"
         )
+
+
+class TestDeelbevindingsregels:
+    def test_deelbevinding_is_vastgepind_op_int01(self):
+        # Zonder pin kan een andere regel stil deze uitzondering op
+        # `test_automatische_regel_levert_een_gemeten_status` krijgen.
+        assert DEELBEVINDING_IDS == ["INT-01"], DEELBEVINDING_IDS
 
 
 class TestAfgeleideTelling:

@@ -15,6 +15,7 @@ from typing import Any, cast
 
 from database.models import DefinitieRecord
 from domain.ess03.contract import Beoordelingsbinding, Intentie
+from domain.int01.opslag import niet_toepasbaar_detail, tekstvingerafdruk
 from services.definition_edit_repository import DefinitionEditRepository
 from services.exceptions import RepositoryError
 from services.interfaces import Definition
@@ -347,6 +348,83 @@ def herbind_ess03_in_validatieresultaat(
             _als_mapping(uitkomst.get("review")).get("assessment", {}).get("historical")
         ),
     }
+    return herbonden
+
+
+_INT01 = "INT-01"
+
+
+def _herbereken_afgeleide_dekking(dekking: dict[str, Any]) -> None:
+    """`evaluated` en `coverage_ratio` opnieuw uit de tellers, zoals
+    `ModularValidationService._bereken_dekking` ze afleidt (pass + fail)."""
+    geevalueerd = int(dekking.get("passed") or 0) + int(dekking.get("failed") or 0)
+    totaal = int(dekking.get("total") or 0)
+    dekking["evaluated"] = geevalueerd
+    dekking["coverage_ratio"] = round(geevalueerd / totaal, 4) if totaal else 0.0
+
+
+def herbind_int01_in_validatieresultaat(
+    resultaat: Mapping[str, Any], kern: str
+) -> dict[str, Any]:
+    """Het V2-resultaat van een eerdere toetsing met INT-01 gebonden aan de
+    tekst die nú in de editor staat (DEF-770).
+
+    De vingerafdruk van de werkelijk getoetste tekst legt de INT-01-evaluator
+    zelf vast (`rule_results['INT-01']['fingerprint']`), dus ieder resultaat
+    draagt haar, ongeacht welke route het in de sessie zet. Gelijk aan de
+    huidige tekst = ongewijzigd (zelfde object). Anders, of zonder
+    vingerafdruk (geen deeluitkomst: ongewijzigd), een kopie
+    waarin INT-01 open en niet toepasbaar is — zonder de oude onderdelen, dus
+    nooit een oude 'één zin'-pass — in `rule_results`, `rule_statuses`,
+    `passed_rules`, `violations`, `review_required` en de dekking. Het
+    oorspronkelijke resultaat wordt niet gemuteerd.
+    """
+    ongewijzigd = resultaat if isinstance(resultaat, dict) else dict(resultaat)
+    statussen = resultaat.get("rule_statuses")
+    detail = _als_mapping(_als_mapping(resultaat.get("rule_results")).get(_INT01))
+    if not isinstance(statussen, Mapping) or not detail:
+        return ongewijzigd
+    if detail.get("fingerprint") == tekstvingerafdruk((kern or "").strip()):
+        return ongewijzigd
+    reden = (
+        "INT-01: de formuliertekst is na deze toetsing gewijzigd; de eerdere "
+        "uitkomst geldt niet voor de huidige tekst. Toets opnieuw."
+    )
+    oude_status = statussen.get(_INT01)
+    herbonden = deepcopy(dict(resultaat))
+    herbonden.setdefault("rule_results", {})[_INT01] = niet_toepasbaar_detail(reden)
+    herbonden["rule_statuses"][_INT01] = "review_required"
+    herbonden["passed_rules"] = [
+        code for code in resultaat.get("passed_rules") or [] if code != _INT01
+    ]
+    herbonden["violations"] = [
+        v
+        for v in resultaat.get("violations") or []
+        if not (isinstance(v, Mapping) and _INT01 in (v.get("code"), v.get("rule_id")))
+    ]
+    from services.validation.violation_builder import category_for_rule
+
+    herbonden["review_required"] = [
+        item
+        for item in resultaat.get("review_required") or []
+        if not (isinstance(item, Mapping) and item.get("rule_id") == _INT01)
+    ] + [
+        {
+            "rule_id": _INT01,
+            "category": category_for_rule(_INT01),
+            "reason": reden,
+            "signals": [],
+        }
+    ]
+    dekking = herbonden.get("evaluation_coverage")
+    if isinstance(dekking, dict) and isinstance(oude_status, str):
+        oud = _DEKKINGSTELLER.get(oude_status)
+        nieuw = _DEKKINGSTELLER.get("review_required")
+        if oud and nieuw and oud != nieuw:
+            dekking[oud] = max(0, int(dekking.get(oud) or 0) - 1)
+            dekking[nieuw] = int(dekking.get(nieuw) or 0) + 1
+        _herbereken_afgeleide_dekking(dekking)
+    herbonden["int01_rebound"] = {"from_status": oude_status}
     return herbonden
 
 
