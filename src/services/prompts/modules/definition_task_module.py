@@ -287,7 +287,17 @@ Formuleer nu de definitie van het begrip in dit datablok:
 
         # De vier klassieke vragen (wat/niet doel, afbakening, context, essentie)
         # staan al als ESS-01, ESS-03/05, CON-01 en ESS-CONT-001 in de prompt.
-        return f"""#### 🔍 KWALITEITSCONTROLE: Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij {context_vraag}, en volg CON-01."""
+        # DEF-770 vervolg (logs/def770-vervolg/generatie-diagnose-v1.md): "behoud
+        # de betekenis" alleen gaf geen controlehandeling; in G24 verdwenen een
+        # bronhandeling, een relatiewoord en de modaliteit. Daarom drie concrete
+        # controles vóór de definitieve zin, met voorrang boven stijlvoorkeuren.
+        # Generieke voorbeelden; geen proef- of domeintermen.
+        return f"""#### 🔍 KWALITEITSCONTROLE: Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij {context_vraag}, en volg CON-01.
+Leg vóór de definitieve zin de bepalende bronpassages naast je formulering (zonder bronnen: de gegeven context) en controleer drie punten:
+- bronhandeling: een handeling die het begrip afbakent, blijft een handeling met hetzelfde voorwerp; vervang haar niet door een eigenschapswoord (‘wordt gearchiveerd’ is niet ‘archiefwaardig’);
+- relatie: een bepalende relatie houdt haar relatiewoord en richting (‘overgedragen aan’, ‘afgeleid van’, ‘vóór’ of ‘na’); laat het relatiewoord niet weg om korter te formuleren;
+- modaliteit: een mogelijkheid, toestemming of niet-verplichting (‘kan’, ‘mag’, ‘hoeft niet’) wordt geen feit of eis, en een eis wordt geen mogelijkheid.
+Deze controle gaat vóór stijlvoorkeuren (actieve vorm, geen modale werkwoorden, compactheid). Een werkafspraak of mogelijkheid die het begrip niet afbakent, laat je weg in plaats van haar als eis op te nemen. Pas zo nodig de zin aan en lever uitsluitend de definitiekern."""
 
     def _build_metadata(
         self, begrip: str, word_type: str, org_contexts: list[str], has_context: bool

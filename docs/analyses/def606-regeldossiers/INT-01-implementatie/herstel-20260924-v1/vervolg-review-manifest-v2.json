@@ -1,0 +1,47 @@
+{
+  "app_base": "7ee7d7d293770dd86f2dd70f1b4945b25ead3c94",
+  "skills_base": "ed0fcfdcc169c37058f0436fc92c1e07752366b8",
+  "app_diff_sha256": "96a55efa472ebbafa65ba0db28fd794fddbff1cd0783ae648470f64408862fb6",
+  "skills_diff_sha256": "5254352510e5dfb8f271e69d745e73c64c4e3c095982008440e8926ea4d30de0",
+  "app_files": {
+    "src/domain/int01/zinsgrenzen.py": "be218948367fd8d9e60ba1655cc9f90cf93dc78376f354bd1bb9458599ae3ea3",
+    "src/services/prompts/modules/definition_task_module.py": "fbdb9e1923318733e47289b0b55ae34e7960ef31a4f9c0a061ad2b60897ba591",
+    "src/services/prompts/modules/json_based_rules_module.py": "60bad74b7efdff31ac791095af28f1d4624eb14174023b147b3fb4a3e4820700",
+    "tests/unit/validation/test_def770_herstel_zinsgrenzen.py": "a1b9d98c1d5fc338cedaae4461013d8acf66eef4fc39b9afe4286e7978faa17c",
+    "tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py": "8eccb32a69d609d192195658e6d3fa8392b6ea487fb437cf98bf5b2bfa310ed7",
+    "tests/unit/validation/test_def770_vervolg_zinsgrenzen.py": "4d5a103e2426a40d0d20b5ec11fb0db166ec41ea0d4d5a1ec33428c3c542ecfe"
+  },
+  "skills_files": {
+    "skills/definitie-nederlandse-definities/SKILL.md": "399131dd7d3f00960d9c5eccf200729f232b6faa1bea35ac7886dced12039e98",
+    "skills/definitie-nederlandse-definities/reference.md": "a2e0bc26368a3cde9b4ff7ad9be011bff4c982bf3e0faca05cd7426ae85d5973",
+    "skills/definitie-toetsregels/reference.md": "92ed6a72cc827a614884b62517d6bf94a11b9aea2fd10b07b0e7655bd633f610"
+  },
+  "tests": {
+    "make-lint.log": "443fdaa98252649ad17cea257c6ecedd5b2cf2cd822e8455822b77de9b3fe603",
+    "prompt-red.log": "15836998153fe8d7ca69cc127ff02dc40ece99fe5c56f2d0463da61eceb6ce4d",
+    "bundeltests-v1.log": "905cf78157d2ff01bbe86b61691cf8c24af0ce9ece92a3824fce07130c2e1c0b",
+    "black-check-v1.log": "b1ac3bf377c73aa78c2978fd3f9358459f951f18da88fc36b0ddb71a9698c1eb",
+    "black-herproefset.log": "7afb536fd8e000bdb889d7c2a582cd8c43a38c9f8ed7fc8a2be3132ac9b6e1a3",
+    "correctie-v2-ruff-0165.log": "b55a15a18a1ea234f7b205b754b1ce8f698d25d732bb90da1cdb1a19c52c634a",
+    "prompt-green.log": "b87d891030cfca07783ec42900526ac1cbf119c2a7a391a72ab58966fe50b5d5",
+    "bundelbouw-v1.log": "b29b350bb4e30065384929b8a56036f980b18f909dcea1c2280ba85cc2d5e45f",
+    "zinsgrenzen-red.log": "70a937c95b72a50de6658900d1f2c107f06c00415ee650ac10c22c8fba1c8f05",
+    "correctie-v2-make-lint.log": "443fdaa98252649ad17cea257c6ecedd5b2cf2cd822e8455822b77de9b3fe603",
+    "black-format.log": "8ec5ea799abd7253b2d2f298220dd5188b4128e923444ab58c066e5ab6764503",
+    "correctie-v2-green.log": "616626dabdafea1e21b881444c8710796fee537e1364994aa9d09ca5356820dc",
+    "gericht-regressie-definitief.log": "22784f6e77478c51279af9c0fd7df87eb789c26b9d59fd92ef57122e23999ac6",
+    "correctie-v2-black.log": "9c00def09d54fddb958ab55647695030cfda1ae84a293bb2159c6a0d109b378f",
+    "skills-gericht.log": "95ed68f709a7de10a56821368ccd945aa646ff9c2edff63eab3e8ceee4752f2b",
+    "correctie-v2-gericht-regressie.log": "99f38573484e3e576bbe0dcb81b2e8c96d4d84ee9b69969569667569ab17724b",
+    "gericht-regressie.log": "c43399b6e0da11370bd71aa5c3f2c1e23e1701d5bdf91bb69b6018be6e0a27ff",
+    "correctie-v2-black-2.log": "f75ab22183353cb7e46b1bf20229742c9488a8f36da36a89b7fde688b79e0ef4",
+    "correctie-v2-red.log": "737eea643cf897f8c6de357bcfc5e59d03c826e6ca853407099b6b846a45d7ed",
+    "zinsgrenzen-green.log": "d3da60a9f737c8a46c6bbda0f48c5f2b09ff1aa19dfe1c25094e36789af8dc4f",
+    "make-test-root-v1.log": "454ef6441b3152bffa55c7f1397e23648cd44910d0ca08fa45517d8e54dee4f1",
+    "green-definitief.log": "dca37e502c6d7b95c97d2fda9e06c63fda84313d4bf49b6e1c395560f599d543",
+    "ruff-pinned-v1.log": "8c85d0c9e11a7d68bdc83e1bb411c688dcf3025f06195d2bab096da46c0cfd67"
+  },
+  "implementer_session": "442a98fb-a377-403f-996e-433cf4a664fc",
+  "implementation_model": "claude-opus-5-5",
+  "reviewer_session": "01a0cfac-ea05-7700-ba73-8b5659751c1c"
+}

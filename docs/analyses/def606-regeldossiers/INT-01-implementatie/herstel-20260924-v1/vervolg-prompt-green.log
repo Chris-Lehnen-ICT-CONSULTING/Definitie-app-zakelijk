@@ -1,0 +1,10 @@
+................x............................                            [100%]
+=============================== warnings summary ===============================
+tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py::test_provider_ontvangt_int01_bij_alleen_organisatorische_context
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/definitie_crud.py:374: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+XFAIL tests/unit/services/prompts/modules/test_definition_task_transformation.py::TestDefinitionTaskTransformation::test_quality_control_uses_positive_framing - DEF-126 positive framing transformation not implemented (superseded by DEF-169)
+exit=0

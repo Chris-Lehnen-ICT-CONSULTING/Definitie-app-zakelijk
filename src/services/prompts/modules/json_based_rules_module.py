@@ -334,8 +334,22 @@ class JSONBasedRulesModule(BasePromptModule):
             "ARAI-02SUB1": "Vermijd algemene containertermen zoals 'aspect', 'ding', 'iets', 'element', 'factor'",
             "ARAI-02SUB2": "Vermijd ongespecificeerde containerbegrippen zoals 'proces', 'voorziening', 'activiteit'",
             "ARAI-03": "Vermijd subjectieve of contextafhankelijke bijvoeglijke naamwoorden",
-            "ARAI-04": "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'",
-            "ARAI-04SUB1": "Vermijd modale werkwoorden die onduidelijkheid scheppen over de essentie van het begrip",
+            # DEF-770 vervolg: het ARAI-04-voorbeeld ('kan beperken' → 'beperkt')
+            # gaf geen voorrang aan bronmodaliteit; in G24 werd 'hoeft niet'
+            # een eis. De regel blijft, met één voorrangsregel.
+            "ARAI-04": (
+                "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'. "
+                "Drukt de bron een mogelijkheid, toestemming of niet-verplichting "
+                "uit, maak daar dan geen feit of eis van: laat haar weg als zij het "
+                "begrip niet afbakent, en druk haar anders uit zonder modaal "
+                "werkwoord ('-baar', 'al dan niet', 'ongeacht')"
+            ),
+            "ARAI-04SUB1": (
+                "Vermijd modale werkwoorden die onduidelijkheid scheppen over de "
+                "essentie van het begrip; een mogelijkheid, toestemming of "
+                "niet-verplichting uit de bron wordt daardoor geen feit of eis "
+                "(zie ARAI-04)"
+            ),
             "ARAI-05": "Vermijd impliciete verwijzingen naar aannames, gewoonten of niet-toegelichte contexten",
             "ARAI-06": "Start zonder lidwoord ('de', 'het', 'een'), zonder koppelwerkwoord ('is', 'betekent') en zonder herhaling van het begrip",
             # ESS rules (Essentie)

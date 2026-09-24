@@ -1,0 +1,43 @@
+FFFFFFFFF.                                                               [100%]
+=================================== FAILURES ===================================
+E   AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+    assert 'Leg vóór de definitieve zin de bepalende bronpassages naast je formulering' in ': Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij algemeen gebruik, en volg CON-01.\n\n'
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:102: AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+E   AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+    assert 'mogelijkheid, toestemming of niet-verplichting' in "Vermijd modale hulpwerkwoorden**\n- Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'moge...moet', 'mag', 'zal'\n  ✅ maatregel die toegang beperkt tot bevoegde personen\n  ❌ maatregel die toegang kan beperken\n"
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:118: AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+E   AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+    assert 'Leg vóór de definitieve zin de bepalende bronpassages naast je formulering' in ': Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg CON-01.\n\n'
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:102: AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+E   AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+    assert 'mogelijkheid, toestemming of niet-verplichting' in "Vermijd modale hulpwerkwoorden**\n- Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'moge...moet', 'mag', 'zal'\n  ✅ maatregel die toegang beperkt tot bevoegde personen\n  ❌ maatregel die toegang kan beperken\n"
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:118: AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+E   AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+    assert 'Leg vóór de definitieve zin de bepalende bronpassages naast je formulering' in ': Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg CON-01.\n\n'
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:102: AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+E   AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+    assert 'mogelijkheid, toestemming of niet-verplichting' in "Vermijd modale hulpwerkwoorden**\n- Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'moge...moet', 'mag', 'zal'\n  ✅ maatregel die toegang beperkt tot bevoegde personen\n  ❌ maatregel die toegang kan beperken\n"
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:118: AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+E   AssertionError: assert 'lever uitsluitend de definitiekern' in ': controleer afbakening en rol van functie/doel volgens ess-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg con-01.\n\n'
+     +  where ': controleer afbakening en rol van functie/doel volgens ess-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg con-01.\n\n' = <built-in method lower of str object at 0x10a22bab0>()
+     +    where <built-in method lower of str object at 0x10a22bab0> = ': Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg CON-01.\n\n'.lower
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:128: AssertionError: assert 'lever uitsluitend de definitiekern' in ': controleer afbakening en rol van functie/doel volgens ess-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg con-01.\n\n'
+E   AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+    assert 'mogelijkheid, toestemming of niet-verplichting' in "Vermijd modale hulpwerkwoorden**\n- Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'moge...moet', 'mag', 'zal'\n  ✅ maatregel die toegang beperkt tot bevoegde personen\n  ❌ maatregel die toegang kan beperken\n"
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:118: AssertionError: ('ARAI-04', 'mogelijkheid, toestemming of niet-verplichting')
+E   AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+    assert 'Leg vóór de definitieve zin de bepalende bronpassages naast je formulering' in ': Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij de gegeven context, en volg CON-01.\n\n'
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py:102: AssertionError: Leg vóór de definitieve zin de bepalende bronpassages naast je formulering
+=========================== short test summary info ============================
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_eindcontrole_in_echte_prompt_een_keer_voor_de_opdrachtafsluiting[geen]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_arai04_kaarten_dragen_voorrangsregel_bij_bronmodaliteit[org+wet]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_eindcontrole_in_echte_prompt_een_keer_voor_de_opdrachtafsluiting[org+wet]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_arai04_kaarten_dragen_voorrangsregel_bij_bronmodaliteit[geen]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_eindcontrole_in_echte_prompt_een_keer_voor_de_opdrachtafsluiting[organisatorisch]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_arai04_kaarten_dragen_voorrangsregel_bij_bronmodaliteit[organisatorisch]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_uitvoercontract_blijft_een_zin_zonder_toelichting
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_arai04_kaarten_dragen_voorrangsregel_bij_bronmodaliteit[juridisch]
+FAILED tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py::test_eindcontrole_in_echte_prompt_een_keer_voor_de_opdrachtafsluiting[juridisch]
+exit=1
