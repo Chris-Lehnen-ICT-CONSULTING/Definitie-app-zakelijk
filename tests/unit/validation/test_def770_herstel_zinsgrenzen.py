@@ -21,6 +21,11 @@ implementatie:
   bewijs — onbekende afkorting ('voorz.'), persoonsvorm direct na de punt,
   geen persoonsvorm — blijft het onzeker; een vals fail is geen herstel.
 
+Eindproef-correctie (contract def770-int01/4, herstelanalyse-v8): T18
+haakjeszin aan het eind onzeker, T23 afkortingsachtige vorm zonder klinker
+onzeker, T17/T20 ingebed citaat met bewezen open bijzin of vervolg uit
+voorzetselgroepen één formulering — elk met negatieve tegenhangers.
+
 Nooit een volledige INT-01-pass; compactheid en begrijpelijkheid blijven
 apart open; oude opgeslagen uitkomsten gelden na de semantische wijziging
 niet meer als actueel (contractversie).
@@ -57,6 +62,19 @@ T23 = "onderbreking van de geluidsproef... daarna opnieuw luisteren"
 T24 = "strook voor tijdelijke bundeling. controle volgens zqv. blijft vereist"
 #: Gewone duidelijke grens (punt + hoofdletter): blijft zekere fail onder /3.
 ZEKER_FAIL = "strook voor tijdelijke bundeling. De controle blijft vereist."
+
+# Eindproef-correctie (contract /4): teksten uit de onafhankelijke T24 van
+# effectproeven-herstel-20260924-v1 (nu ontwikkelbewijs; labels ongewijzigd,
+# zie t24-adjudicatie-v1.json en astra-t24-vervolgbevinding-v1.md).
+E_T17 = "code waarmee een bediener de melding 'De baan is vrij.' bevestigt"
+E_T18 = (
+    "register voor tijdelijke proefboekingen (De beheerder wist deze na de oefening.)"
+)
+E_T20 = (
+    "kaart bij de oefenhandleiding ‘Waar bleef de boot?’ voor het reconstrueren "
+    "van een vaarvolgorde"
+)
+E_T23 = "vak voor overdracht volgens nvr. Nieuwe routes krijgen voorrang"
 
 # (id, tekst, zekere grenzen, onzekere grenzen)
 GEVALLEN = [
@@ -202,6 +220,162 @@ GEVALLEN = [
     ("initiaal-zonder-naamcontext", "rapport van J. Jansen over detentie.", 0, 1),
     ("titel-initiaal", "rapport van dr. J. Jansen over detentie.", 0, 0),
     ("enz-hoofdletter", "Object met gegevens enz. Het wordt geregistreerd.", 0, 1),
+    # ── Eindproef-correctie (/4) ──
+    # T18: zinspunctuatie aan het eind van een afsluitend haakjesdeel. Zonder
+    # bewijs voor een gewone bepaling onzeker (normatief fail, automatisch
+    # onzeker); nooit automatisch fail. Afkorting, getal en één woord beschermd.
+    ("e1-T18-haakjeszin-aan-einde", E_T18, 0, 1),
+    ("e1-haakjeszin-met-vervolg", E_T18 + " per proef", 0, 1),
+    ("e1-haakjes-vraag-aan-einde", "kaart met de vraag (Wie betaalt de kosten?)", 0, 1),
+    ("e1-haakjes-bepaling", "register voor proefboekingen (zonder bijlagen)", 0, 0),
+    # Punt binnen een getal blijft beschermd; een slotpunt ná een getal is
+    # geen getalpunt en kan een zin tussen haakjes afsluiten ('(Zie art. 3.)').
+    ("e1-haakjes-getalpunt", "strook voor meting (lengte 2.5 cm)", 0, 0),
+    ("e1-haakjes-slotpunt-na-getal", "strook voor meting (zie art. 3.)", 0, 1),
+    ("e1-haakjes-afkorting-vervolg", "set meetstroken (max. 5 st.) per proef", 0, 0),
+    # Eindproef-review v1, R1: woordenaantal en een bekende slotafkorting
+    # bewijzen geen niet-zelfstandigheid (was 0/0 onder v1-correctie).
+    ("e1-haakjes-titel", "lijst van onderzoekers (onder leiding van prof.)", 0, 1),
+    ("e1-haakjes-een-woord", "kaart met markering (sic!)", 0, 1),
+    ("e2-haakjes-imperatief-uitroep", "register voor proefboekingen (Stop!)", 0, 1),
+    ("e2-haakjes-imperatief-punt", "register voor proefboekingen (Wacht.)", 0, 1),
+    (
+        "e2-haakjeszin-eindigt-op-afkorting",
+        "register voor deelnemers (De registratie sluit in dec.)",
+        0,
+        1,
+    ),
+    (
+        "e2-haakjeszin-afkorting-met-vervolg",
+        "register voor deelnemers (De registratie sluit in dec.) per ronde",
+        0,
+        1,
+    ),
+    # Alleen een haakjesdeel dat geheel uit getallen en afkortingsfragmenten
+    # bestaat, kan geen zelfstandige zin bevatten.
+    ("e2-haakjes-afkortingsfragment", "overzicht van kosten (o.a.)", 0, 0),
+    ("e2-haakjes-getalfragment", "stap in de procedure (3.)", 0, 0),
+    # Eindproef-review v2, R1: een onbekende consonantvorm bewijst geen
+    # afkortingsfragment, ook niet na een getal (was 0/0 onder v2-correctie).
+    # Beperking: een onbekende eenheid ('mm.') blijft daardoor onzeker.
+    ("e2-haakjes-getal-eenheid", "strook met een lengte (ca. 5 mm.)", 0, 1),
+    ("e3-haakjes-uitroep-psst", "register voor deelnemers (Psst!)", 0, 1),
+    ("e3-haakjes-uitroep-brr", "register voor deelnemers (Brr!)", 0, 1),
+    ("e3-haakjes-consonant-punt", "register voor deelnemers (Psst.)", 0, 1),
+    ("e3-haakjes-consonant-vraag", "register voor deelnemers (Brr?)", 0, 1),
+    # Eén letter bewijst evenmin een afkorting ('O!' is een uitroep).
+    ("e3-haakjes-een-letter", "register voor deelnemers (O!)", 0, 1),
+    # Een bekende afkorting zonder eigen punt is geen bewezen fragment.
+    ("e3-haakjes-afkorting-uitroep", "register voor deelnemers (bijv!)", 0, 1),
+    # Beschermd blijven alleen getallen en bekende afkortingen met hun punt.
+    ("e3-haakjes-bekende-afkorting", "register voor deelnemers (bijv.)", 0, 0),
+    ("e3-haakjes-getal-bekende-afkorting", "set meetstroken (max. 5 st.)", 0, 0),
+    ("e1-geheel-tussen-haakjes", "(register voor tijdelijke proefboekingen.)", 0, 0),
+    ("e1-citaat-aan-einde", "code met de melding 'De baan is vrij.'", 0, 0),
+    # T23: een kleine-letterwoordvorm zonder klinker ('nvr', 'mm') is geen
+    # gewoon Nederlands woord maar afkortingsachtig: punt + hoofdletter is dan
+    # niet zeker. Woorden met klinker en hoofdletteracroniemen blijven zeker.
+    ("e1-T23-onbekende-afkorting", E_T23, 0, 1),
+    ("e1-afkortingsvorm-cijfer", "vak volgens nvr. 3 routes krijgen voorrang", 0, 1),
+    ("e1-afkortingsvorm-eenheid", "strook van 5 mm. De rand blijft vrij", 0, 1),
+    (
+        "e1-afkortingsvorm-klein",
+        "vak volgens nvr. nieuwe routes krijgen voorrang",
+        0,
+        1,
+    ),
+    (
+        "e1-woord-met-klinker",
+        "vak voor overdracht volgens regeling. Nieuwe routes krijgen voorrang",
+        1,
+        0,
+    ),
+    (
+        "e1-kort-woord-met-klinker",
+        "vak voor de rit. Nieuwe routes krijgen voorrang",
+        1,
+        0,
+    ),
+    # Eindproef-review v1, R2: hoofdlettergebruik bewijst niet dat een vorm
+    # zonder klinker geen afkorting is (NVR was 1/0 onder v1-correctie).
+    ("e1-hoofdletteracroniem", "vak volgens NVR. Nieuwe routes krijgen voorrang", 0, 1),
+    ("e2-afkorting-hoofdletter-chr", "register van werken van Chr. Huygens", 0, 1),
+    ("e2-afkorting-klein-chr", "register van werken van chr. Huygens", 0, 1),
+    (
+        "e2-afkorting-hoofdletter-nvr",
+        "vak voor overdracht volgens Nvr. Nieuwe routes krijgen voorrang",
+        0,
+        1,
+    ),
+    (
+        "e2-hoofdletterwoord-met-klinker",
+        "vak voor overdracht volgens Regeling. Nieuwe routes krijgen voorrang",
+        1,
+        0,
+    ),
+    # T17: een open bijzin vóór het citaat mag uit meer naamwoordgroepen met
+    # 'de'/'een' bestaan; elk woord is verklaard, geen persoonsvorm ervoor.
+    ("e1-T17-bijzin-meer-groepen", E_T17, 0, 0),
+    (
+        "e1-bijzin-werkwoord-voor-citaat",
+        "code waarmee een bediener meldt 'De baan is vrij.' bevestigt",
+        0,
+        1,
+    ),
+    (
+        "e1-bijzin-groepen-nieuwe-zin",
+        "code waarmee een bediener de melding 'De baan is vrij.' de controle volgt",
+        0,
+        1,
+    ),
+    (
+        "e1-geen-bijzinmarkering",
+        "code met een bediener de melding 'De baan is vrij.' bevestigt",
+        0,
+        1,
+    ),
+    (
+        "e1-bijzin-het-groep",
+        "code waarmee het team de melding 'De baan is vrij.' bevestigt",
+        0,
+        1,
+    ),
+    # T20: vervolg na het citaat dat volledig uit voorzetselgroepen bestaat
+    # (voorzetsel, hooguit een lidwoord, één kernwoord), zonder persoonsvorm.
+    ("e1-T20-voorzetselgroepen", E_T20, 0, 0),
+    (
+        "e1-voorzetselgroep-persoonsvorm",
+        (
+            "kaart bij de handleiding ‘Waar bleef de boot?’ voor het reconstrueren "
+            "is controle vereist"
+        ),
+        0,
+        1,
+    ),
+    (
+        "e1-voorzetselgroep-onvolledig",
+        (
+            "kaart bij de handleiding ‘Waar bleef de boot?’ voor het reconstrueren "
+            "van een"
+        ),
+        0,
+        1,
+    ),
+    (
+        "e1-voorzetselgroep-nieuwe-zin",
+        (
+            "kaart bij de handleiding ‘Waar bleef de boot?’ voor de oefening volgt "
+            "de controle"
+        ),
+        0,
+        1,
+    ),
+    (
+        "e1-voorzetselgroep-bijvoeglijk",
+        "kaart bij de handleiding ‘Waar bleef de boot?’ voor het grote reconstrueren",
+        0,
+        1,
+    ),
 ]
 
 
@@ -289,6 +463,55 @@ def test_r4_onvolledige_of_onbewezen_voortzetting_met_positie(tekst):
     assert "Gereed." in grens.passage
 
 
+def test_e1_t18_haakjeszin_onzeker_met_passage_en_positie():
+    seg = segmenteer(E_T18)
+    assert not seg.zekere_grenzen
+    [grens] = seg.onzekere_grenzen
+    assert grens.positie == E_T18.index(".)")
+    assert "oefening.)" in grens.passage
+    assert "haakjes" in grens.grond
+    uitkomst = regeluitkomst(seg)
+    assert uitkomst["status"] == "review_required"
+    assert "zinsstructuur" not in _delen(uitkomst)
+
+
+@pytest.mark.parametrize(
+    ("tekst", "teken"),
+    [
+        ("register voor proefboekingen (Stop!)", "!)"),
+        ("register voor deelnemers (De registratie sluit in dec.)", ".)"),
+    ],
+)
+def test_e2_haakjesslot_onzeker_met_passage_en_positie(tekst, teken):
+    seg = segmenteer(tekst)
+    assert not seg.zekere_grenzen
+    [grens] = seg.onzekere_grenzen
+    assert grens.positie == tekst.index(teken)
+    assert teken in grens.passage
+    assert "haakjes" in grens.grond
+    assert "zinsstructuur" not in _delen(regeluitkomst(seg))
+
+
+def test_e2_hoofdletterafkorting_onzeker_met_passage_en_positie():
+    tekst = "register van werken van Chr. Huygens"
+    seg = segmenteer(tekst)
+    assert not seg.zekere_grenzen
+    [grens] = seg.onzekere_grenzen
+    assert grens.positie == tekst.index("Chr.") + len("Chr")
+    assert "Chr." in grens.passage
+    assert "afkorting" in grens.grond
+
+
+def test_e1_t23_afkortingsvorm_onzeker_met_passage_en_positie():
+    seg = segmenteer(E_T23)
+    assert not seg.zekere_grenzen
+    [grens] = seg.onzekere_grenzen
+    assert grens.positie == E_T23.index("nvr.") + len("nvr")
+    assert "nvr." in grens.passage and "Nieuwe" in grens.passage
+    assert "afkorting" in grens.grond
+    assert regeluitkomst(seg)["status"] == "review_required"
+
+
 def test_t22_en_t23_passage_en_reden():
     [label] = segmenteer(T22).onzekere_grenzen
     assert "Oefenstatus:" in label.passage
@@ -367,6 +590,33 @@ SERVICEGEVALLEN = [
         "fail",
         {"zinsgrens_1": "fail", **OPEN},
     ),
+    # Eindproef-correctie (/4), beide laadpaden.
+    ("e1-T17", E_T17, "review_required", {"zinsstructuur": "pass", **OPEN}),
+    (
+        "e1-T18",
+        E_T18,
+        "review_required",
+        {"zinsgrens_onzeker_1": "review_required", **OPEN},
+    ),
+    ("e1-T20", E_T20, "review_required", {"zinsstructuur": "pass", **OPEN}),
+    (
+        "e2-haakjes-imperatief",
+        "register voor proefboekingen (Stop!)",
+        "review_required",
+        {"zinsgrens_onzeker_1": "review_required", **OPEN},
+    ),
+    (
+        "e2-hoofdletterafkorting",
+        "register van werken van Chr. Huygens",
+        "review_required",
+        {"zinsgrens_onzeker_1": "review_required", **OPEN},
+    ),
+    (
+        "e1-T23",
+        E_T23,
+        "review_required",
+        {"zinsgrens_onzeker_1": "review_required", **OPEN},
+    ),
 ]
 
 
@@ -391,21 +641,30 @@ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
 # ── Contractversie, opslag en weergave ──────────────────────────────────
 
 
-def test_contractversie_is_3_na_conservatief_besluit():
-    """Besluit punt 5: de beslisbetekenis wijzigt, dus /2 → /3."""
-    assert CONTRACTVERSIE == "def770-int01/3"
+def test_contractversie_is_4_na_eindproef_correctie():
+    """/3 (conservatief besluit) is gepusht en proefbron; de eindproef-correctie
+    wijzigt de beslisbetekenis (T18, T23, T17/T20), dus /3 → /4."""
+    assert CONTRACTVERSIE == "def770-int01/4"
 
 
-@pytest.mark.parametrize("oude_versie", ["def770-int01/1", "def770-int01/2"])
+@pytest.mark.parametrize(
+    "oude_versie", ["def770-int01/1", "def770-int01/2", "def770-int01/3"]
+)
 @pytest.mark.parametrize(
     ("tekst", "nieuw"),
-    [(T24, "review_required"), (ZEKER_FAIL, "fail")],
-    ids=["T24", "zeker-fail"],
+    [
+        (T24, "review_required"),
+        (ZEKER_FAIL, "fail"),
+        (E_T18, "review_required"),
+        (E_T23, "review_required"),
+    ],
+    ids=["T24", "zeker-fail", "e1-T18", "e1-T23"],
 )
 def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
     oude_versie, tekst, nieuw
 ):
-    # T24 was onder /2 'fail'; die oude uitkomst mag niet als /3 gelden.
+    # Een oude uitkomst (T24 onder /2 'fail', E_T23 onder /3 'fail', E_T18
+    # onder /3 zinsstructuur-pass) mag niet als actuele /4-uitkomst gelden.
     oud = dict(bouw_beoordeling(tekst, 1), status="fail", contract_version=oude_versie)
     gelezen = lees_beoordeling(oud, tekst)
     assert gelezen["applied"] is False
@@ -414,7 +673,7 @@ def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
     weergave = weergavedetail(oud, tekst)
     assert [p["id"] for p in weergave["parts"]] == ["tekstbinding"]
     assert weergave["status"] == "review_required"
-    # Een volgende schrijfactie levert een verse /3-uitkomst met historie.
+    # Een volgende schrijfactie levert een verse /4-uitkomst met historie.
     registratie = met_nieuwe_beoordeling({"int01_beoordeling": oud}, tekst, 2)
     assert registratie["int01_beoordeling"]["contract_version"] == CONTRACTVERSIE
     assert registratie["int01_beoordeling"]["status"] == nieuw
@@ -428,8 +687,12 @@ def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
         (T19, "review_required"),
         (T24, "review_required"),
         (ZEKER_FAIL, "fail"),
+        (E_T17, "review_required"),
+        (E_T18, "review_required"),
+        (E_T20, "review_required"),
+        (E_T23, "review_required"),
     ],
-    ids=["T15", "T19", "T24", "zeker-fail"],
+    ids=["T15", "T19", "T24", "zeker-fail", "e1-T17", "e1-T18", "e1-T20", "e1-T23"],
 )
 def test_opslag_en_teruglezen(tmp_path: Path, tekst, status):
     pad = tmp_path / "herstel.db"

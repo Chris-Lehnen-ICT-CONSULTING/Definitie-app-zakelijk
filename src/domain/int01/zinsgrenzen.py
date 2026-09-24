@@ -13,11 +13,16 @@ in de passage:
 
 - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
 - een punt in een afkorting, getal of naaminitiaal is geen grens; een
-  afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker;
+  afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker, net
+  als een punt na een woordvorm zonder klinker, ook met hoofdletter ('volgens
+  nvr. Nieuwe ...', 'Chr. Huygens');
+- een slotteken dat een haakjesdeel afsluit, is onzeker (ook bij één woord
+  en aan het eind van de kern), tenzij het haakjesdeel alleen uit getallen en
+  bekende afkortingen met hun punt bestaat;
 - een punt gevolgd door een kleine letter (buiten een bekende afkorting) is
   altijd onzeker: zonder woordsoortkennis is een onderwerp in het vervolg
   niet te bewijzen. Ook een voor een mens duidelijke tweede zin met kleine
-  beginletter wordt zo doorverwezen (contract /3, conservatief);
+  beginletter wordt zo doorverwezen (conservatief, sinds contract /3);
 - een beletselteken gevolgd door verdere tekst is onzeker;
 - een puntkomma en een dubbele punt zijn nooit een zelfstandige grens (K4);
   een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering;
@@ -70,9 +75,13 @@ _OPEN = "review_required"
 #: `rule_results`. /2: herziene grensclassificatie na de T24-proef. /3:
 #: conservatieve automatische beoordeling — alleen ondersteunde patronen
 #: krijgen een zekere uitkomst, twijfel gaat naar inhoudelijke beoordeling
-#: (conservatieve-beoordeling-besluit-v1). Een opgeslagen uitkomst onder een
+#: (conservatieve-beoordeling-besluit-v1). /4: eindproef-correctie — slotteken
+#: aan het eind van een afsluitend haakjesdeel en een afkortingsachtige
+#: woordvorm zonder klinker vóór de punt zijn onzeker; ingebedde citaten met
+#: een open bijzin uit naamwoordgroepen of een vervolg uit voorzetselgroepen
+#: zijn één formulering (herstelanalyse-v8). Een opgeslagen uitkomst onder een
 #: andere versie geldt niet meer als actueel.
-CONTRACTVERSIE = "def770-int01/3"
+CONTRACTVERSIE = "def770-int01/4"
 
 #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
 REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
@@ -98,6 +107,11 @@ _CITAATOPENERS = frozenset({"“", "„", "‘", "«", '"', "'"})
 _LIJSTREGEL = re.compile(r"[ \t]*(?:[-*•–]\s|\d{1,3}[.)]\s|[a-z][.)]\s)")
 _VOORAFGAAND_WOORD = re.compile(r"[\w.]+$")
 _GESTIPPELDE_AFKORTING = re.compile(r"^(?:[a-z]\.)+[a-z]$")
+#: Letters zonder klinker ('nvr', 'Chr', 'NVR', 'mm'): geen gewoon Nederlands
+#: woord maar een afkortingsachtige vorm, die de punt kan verklaren.
+#: Hoofdlettergebruik bewijst niet dat het geen afkorting is.
+_ZONDER_KLINKER = re.compile(r"[b-df-hj-np-tv-xz]{2,}", re.IGNORECASE)
+_GETAL = re.compile(r"\d+(?:[.,]\d+)*")
 #: Tegenwoordige en verleden persoonsvormen van hulp- en koppelwerkwoorden en
 #: veelvoorkomende definitiewerkwoorden. Na een citaatslot sluit een herkende
 #: persoonsvorm een bewezen voortzetting uit; afwezigheid bewijst niets.
@@ -209,6 +223,8 @@ class _Kandidaat:
     in_citaat: bool = False
     #: Positie van het openende aanhalingsteken van dat citaat (anders -1).
     citaatbegin: int = -1
+    #: Inhoud van het haakjesdeel dat het teken direct afsluit (anders None).
+    haakjesdeel: str | None = None
 
 
 def segmenteer(tekst: str) -> Segmentatie | None:
@@ -294,10 +310,13 @@ def _leestekenkandidaten(
         index = match.end()
         while index < len(tekst) and tekst[index] in _SLUITERS:
             index += 1
-        if not tekst[index:].strip() or not tekst[index].isspace():
+        omvattend = [(s, e) for s, e in ingesloten if s < match.start() < e]
+        haakjesdeel = _gesloten_haakjesdeel(tekst, match, omvattend)
+        if haakjesdeel is None and (
+            not tekst[index:].strip() or not tekst[index].isspace()
+        ):
             # Slotteken, of een punt binnen een getal, afkorting of adres.
             continue
-        omvattend = [(s, e) for s, e in ingesloten if s < match.start() < e]
         # Het binnenste omvattende paar bepaalt de functie.
         in_citaat = bool(omvattend) and tekst[max(omvattend)[0]] in _CITAATOPENERS
         kandidaten.append(
@@ -312,9 +331,24 @@ def _leestekenkandidaten(
                 voorwoord=_woord_ervoor(tekst, match.start()),
                 in_citaat=in_citaat,
                 citaatbegin=max(omvattend)[0] if in_citaat else -1,
+                haakjesdeel=haakjesdeel,
             )
         )
     return kandidaten
+
+
+def _gesloten_haakjesdeel(
+    tekst: str, match: re.Match[str], omvattend: list[tuple[int, int]]
+) -> str | None:
+    """De inhoud van het haakjesdeel dat het teken direct afsluit ('(De
+    beheerder wist deze na de oefening.)', '(Stop!)'), ook als er daarna geen
+    tekst meer volgt; anders None."""
+    if not omvattend:
+        return None
+    start, eind = max(omvattend)
+    if tekst[start] not in "([" or eind != match.end():
+        return None
+    return tekst[start + 1 : match.start()]
 
 
 def _vorig_woord(tekst: str, positie: int) -> str:
@@ -350,6 +384,8 @@ def _begin(volgend: str) -> str:
 
 def _classificeer(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
     """('zeker'|'onzeker'|'geen', grond) voor één leestekenkandidaat."""
+    if kandidaat.haakjesdeel is not None:
+        return _classificeer_haakjesslot(kandidaat.haakjesdeel + kandidaat.teken)
     if kandidaat.in_citaat and not kandidaat.sluiter_direct_na:
         # Interne citaatpunctuatie ('“Beleid. Uitvoering”'): hoort bij het
         # citaat, de buitenste zin loopt door.
@@ -370,6 +406,41 @@ def _classificeer(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
     return _classificeer_punt(kandidaat)
 
 
+def _classificeer_haakjesslot(haakjesdeel: str) -> tuple[str, str]:
+    """Slotteken dat een haakjesdeel afsluit (`haakjesdeel` inclusief dat
+    slotteken).
+
+    Alleen een haakjesdeel dat geheel uit getallen en bekende afkortingen met
+    hun punt bestaat ('(max. 5 st.)', '(o.a.)', '(3.)') bevat geen woord dat
+    een zelfstandige zin kan dragen. Anders kan tussen de haakjes een
+    zelfstandige zin staan, ook bij één woord ('(Stop!)', '(Psst!)') of een
+    slotafkorting ('(De registratie sluit in dec.)'), en ook als er daarna
+    niets meer volgt: onzeker, nooit automatisch fail.
+    """
+    if all(map(_fragmentdeel, haakjesdeel.split())):
+        return "geen", ""
+    return (
+        "onzeker",
+        (
+            "slotteken aan het eind van een haakjesdeel: zelfstandige zin tussen "
+            "haakjes niet uit te sluiten"
+        ),
+    )
+
+
+def _fragmentdeel(token: str) -> bool:
+    """Een getal, of een bekende afkorting met haar punt ('max.', 'o.a.').
+
+    Een onbekende vorm zonder klinker ('Psst', 'mm') of een losse letter
+    ('O') bewijst geen afkortingsfunctie; een getal maakt een volgend
+    onbekend woord geen eenheid."""
+    token = token.rstrip(",;:")
+    if _GETAL.fullmatch(token.rstrip(".?!")):
+        return True
+    functie = _afkortingsfunctie(token[:-1]) if token.endswith(".") else None
+    return functie in ("titel", "verwijzing", "mogelijk_zinslot", "afkorting")
+
+
 def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
     """Slotteken plus sluitend aanhalingsteken, gevolgd door een kleine letter.
 
@@ -378,10 +449,12 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
     Twee vormen gelden als bewijs, beide zonder herkende persoonsvorm in het
     vervolg:
 
-    - een korte slotwoordgroep: voorzetsel, hooguit een lidwoord en één woord
-      ('“Gereed.” op het scherm', '‘Wie betaalt?’ van de commissie');
-    - een bijzin die vlak vóór het citaat is geopend en waarin alleen het
-      geciteerde lijdend voorwerp staat ('die de melding “Gereed.” …'), met als
+    - een vervolg uit voorzetselgroepen: telkens voorzetsel, hooguit een
+      lidwoord en één woord ('“Gereed.” op het scherm', '‘Wie betaalt?’ van de
+      commissie', '‘…?’ voor het reconstrueren van een vaarvolgorde');
+    - een bijzin die vóór het citaat is geopend en waarin tot het citaat alleen
+      naamwoordgroepen staan ('die de melding “Gereed.” …', 'waarmee een
+      bediener de melding “…” …'), met als
       vervolg alleen het slotwerkwoord ('… toont') of een woordgroep die met
       een voorzetsel begint ('… op het scherm laat verschijnen').
 
@@ -398,7 +471,7 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
             and afgerond
             and (len(woorden) == 1 or woorden[0] in _VOORZETSELS)
         )
-        if _korte_slotgroep(woorden) or bijzin_slot:
+        if _voorzetselgroepen(woorden) or bijzin_slot:
             return "geen", ""
     return (
         "onzeker",
@@ -412,15 +485,21 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
 
 def _open_bijzin(voor: str) -> bool:
     """Vlak vóór het citaat is een bijzin geopend waarin tot het citaat alleen
-    een lijdend voorwerp staat: markering, lidwoord 'de' of 'een' en één woord
-    ('die de melding'). Die lidwoorden kunnen geen zelfstandig voornaamwoord
-    zijn, dus het woord erna is de kern van een naamwoordgroep en niet het
-    werkwoord. Een los woord na de markering ('die meldt') of een voornaamwoord
-    ('die het meldt') kan het werkwoord al bevatten: geen bewijs."""
-    staart = re.findall(r"[a-zà-ÿ]+", voor.lower())[-3:]
-    if len(staart) < 3:
-        return False
-    return staart[0] in _ONDERSCHIKKEND and staart[1] in ("de", "een")
+    naamwoordgroepen staan: markering, dan één of meer keer lidwoord 'de' of
+    'een' plus één woord ('die de melding', 'waarmee een bediener de
+    melding'). Die lidwoorden kunnen geen zelfstandig voornaamwoord zijn, dus
+    elk woord erna is de kern van een naamwoordgroep en niet het werkwoord;
+    zo is elk woord tussen markering en citaat verklaard. Een los woord ('die
+    meldt', 'een bediener meldt') of een voornaamwoord ('die het meldt') kan
+    het werkwoord al bevatten: geen bewijs."""
+    woorden = re.findall(r"[a-zà-ÿ]+", voor.lower())
+    groepen = 0
+    while len(woorden) >= 3 and woorden[-2] in ("de", "een"):
+        if woorden[-1] in _LIDWOORDEN | _VOORZETSELS | _ONDERSCHIKKEND:
+            return False
+        del woorden[-2:]
+        groepen += 1
+    return groepen > 0 and woorden[-1] in _ONDERSCHIKKEND
 
 
 def _classificeer_weglating(kandidaat: _Kandidaat) -> tuple[str, str]:
@@ -514,6 +593,16 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
     if begin in ("hoofd", "cijfer"):
         if kandidaat.ingesloten:
             return "onzeker", "punt binnen een ingesloten citaat of haakjes"
+        if _ZONDER_KLINKER.fullmatch(kandidaat.woord):
+            # 'volgens nvr. Nieuwe ...': de punt kan bij een onbekende afkorting
+            # horen of ook de zin afsluiten.
+            return (
+                "onzeker",
+                (
+                    "punt na een afkortingsachtige woordvorm zonder klinker: "
+                    "onbekende afkorting of zinseinde niet vast te stellen"
+                ),
+            )
         return "zeker", "punt gevolgd door een nieuw zinsbegin"
     if begin == "klein":
         # Contract /3 (conservatieve-beoordeling-uitwerking-v2): zonder
@@ -529,15 +618,25 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
     return "onzeker", "punt gevolgd door een teken dat geen zinsbegin is"
 
 
-def _korte_slotgroep(woorden: list[str]) -> bool:
-    """Voorzetsel plus één woord, of voorzetsel, lidwoord en één woord; een
-    onvolledige groep ('op', 'op de') bewijst niets."""
-    if not woorden or woorden[0] not in _VOORZETSELS:
-        return False
-    slot = woorden[-1] not in _VOORZETSELS | _LIDWOORDEN
-    if len(woorden) == 2:
-        return slot
-    return len(woorden) == 3 and woorden[1] in _LIDWOORDEN and slot
+def _voorzetselgroepen(woorden: list[str]) -> bool:
+    """Het vervolg bestaat volledig uit voorzetselgroepen: telkens voorzetsel,
+    hooguit een lidwoord en één kernwoord ('op het scherm', 'voor het
+    reconstrueren van een vaarvolgorde'). Elk woord is dan verklaard en er is
+    geen plaats voor een persoonsvorm. Een onvolledige groep ('op', 'op de'),
+    een extra woord ('op het grote scherm') of een woord buiten een groep
+    ('na afloop volgt ...') bewijst niets."""
+    functiewoord = _VOORZETSELS | _LIDWOORDEN
+    index = 0
+    while index < len(woorden):
+        if woorden[index] not in _VOORZETSELS:
+            return False
+        index += 1
+        if index < len(woorden) and woorden[index] in _LIDWOORDEN:
+            index += 1
+        if index >= len(woorden) or woorden[index] in functiewoord:
+            return False
+        index += 1
+    return bool(woorden)
 
 
 def _woorden_tot_zeker_zinsbegin(tekst: str) -> list[str]:
