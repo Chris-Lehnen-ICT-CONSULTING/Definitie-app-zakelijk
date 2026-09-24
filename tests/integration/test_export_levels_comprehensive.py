@@ -206,13 +206,14 @@ class TestExportLevelsFormats:
     """Test export levels × formats matrix (12 combinations)."""
 
     # DEF-743: UITGEBREID en COMPLEET exporteren het opgeslagen bronbewijs als
-    # eigen veld `bronbewijs`; BASIS niet. Exportcontract: 17 / 26 / 37.
+    # eigen veld `bronbewijs`; BASIS niet. DEF-770: idem de opgeslagen
+    # INT-01-deeluitkomst `int01_beoordeling`. Exportcontract: 17 / 27 / 38.
     @pytest.mark.parametrize(
         ("level", "expected_field_count"),
         [
             (ExportLevel.BASIS, 17),  # 10 definitie + 7 voorbeelden
-            (ExportLevel.UITGEBREID, 26),  # 19 definitie (+ bronbewijs) + 7 voorbeelden
-            (ExportLevel.COMPLEET, 37),  # 30 definitie (+ bronbewijs) + 7 voorbeelden
+            (ExportLevel.UITGEBREID, 27),  # 20 definitie (+ bronbewijs, int01) + 7
+            (ExportLevel.COMPLEET, 38),  # 31 definitie (+ bronbewijs, int01) + 7
         ],
     )
     @pytest.mark.parametrize(
@@ -266,6 +267,7 @@ class TestExportLevelsFormats:
                     f"CSV {level.value}: bronbewijs-kolom "
                     f"{'verwacht' if bronbewijs_expected else 'niet verwacht'} ({headers})"
                 )
+                assert ("int01_beoordeling" in headers) is bronbewijs_expected
 
                 # Verify we have data rows
                 rows = list(reader)
@@ -306,6 +308,7 @@ class TestExportLevelsFormats:
                 f"{'verwacht' if bronbewijs_expected else 'niet verwacht'} "
                 f"({list(first_def.keys())})"
             )
+            assert ("int01_beoordeling" in first_def) is bronbewijs_expected
 
         elif format == ExportFormat.TXT:
             # TXT format is free-form but should contain all data

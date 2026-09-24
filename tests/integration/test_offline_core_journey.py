@@ -129,16 +129,20 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: regel minder gefaald, één meer open; 34/29/5/15 → 33/29/4/16. De dekking
 #: telt sindsdien ook afgeronde niet-toepasselijkheid apart (`not_applicable`,
 #: hier nul).
+#: DEF-770: INT-01 keurt niet meer af op het woord 'die' in de bevroren
+#: definitie (een foutpositief); zij stelt één zin vast als deelbevinding en
+#: laat compactheid en begrijpelijkheid open (`review_required`). Eén regel
+#: minder gefaald, één meer open; 33/29/4/16 → 32/29/3/17.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 33,
+    "evaluated": 32,
     "passed": 29,
-    "failed": 4,
-    "review_required": 16,
+    "failed": 3,
+    "review_required": 17,
     "not_evaluated": 4,
     "error": 0,
     "not_applicable": 0,
     "total": 53,
-    "coverage_ratio": 0.6226,
+    "coverage_ratio": 0.6038,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -176,7 +180,6 @@ VERWACHTE_GESLAAGDE_REGELS = [
 ]
 VERWACHTE_GEFAALDE_REGELS = [
     "ESS-05",
-    "INT-01",
     "VER-01",
     "VER-03",
 ]

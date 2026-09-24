@@ -373,7 +373,24 @@ class JSONBasedRulesModule(BasePromptModule):
             "STR-08": "Gebruik 'en' ondubbelzinnig (maak duidelijk of beide vereist zijn of één van beide)",
             "STR-09": "Gebruik 'of' ondubbelzinnig (maak duidelijk of het inclusief of exclusief is)",
             # INT rules (Integriteit)
-            "INT-01": "Formuleer de definitie als één enkele, begrijpelijke zin",
+            # DEF-770: één norm voor genereren en toetsen (G). Geen hoofdzinplicht:
+            # het ASTRA-goedvoorbeeld is een naamwoordelijke kern met bijzin. Geen
+            # verzonnen doelgroep als terugval; context is geen doelgroep.
+            "INT-01": (
+                "Formuleer de definitiekern als één compacte zin in de geldende "
+                "substitutiestijl, begrijpelijk voor de vastgelegde doelgroep, met "
+                "alle onderbouwde bepalende kenmerken en noodzakelijke namen. Een "
+                "naamwoordelijke kern met noodzakelijke bijzin, zoals ‘eis die …’, is "
+                "toegestaan; een zelfstandige hoofdzin is niet vereist. Bijzinnen, "
+                "nevenschikking, komma’s en een puntkomma-opsomming zijn toegestaan "
+                "wanneer zij de afbakening dragen. Voeg geen tweede zin of "
+                "toelichtende uitweiding toe; aanvullende uitleg hoort apart. Behoud "
+                "een kenmerk ook als het een verschil met een verwant begrip "
+                "uitdrukt, en behoud negaties en de bronbetekenis: maak de betekenis "
+                "niet smaller of ruimer om korter te formuleren. Is geen doelgroep "
+                "vastgelegd, veronderstel er dan geen; de registratiecontext is geen "
+                "doelgroep. Verzin geen context of bron"
+            ),
             "INT-02": "Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
             "INT-03": "Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
             "INT-04": "Maak bepaalde lidwoorden ('de instelling', 'het systeem') expliciet door direct te specificeren welke bedoeld wordt",

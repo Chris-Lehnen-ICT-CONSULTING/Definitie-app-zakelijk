@@ -281,5 +281,13 @@ def test_ruwe_niet_object_registratie_zonder_beheerde_gegevens_blijft_mogelijk(d
     did = repo.create_definitie(
         DefinitieRecord(begrip="k", definitie="kern", categorie="type")
     )
+    # DEF-770: een nieuw record draagt altijd de beheerde INT-01-uitkomst;
+    # "zonder beheerde gegevens" is een record van vóór DEF-770.
+    import sqlite3
+
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            "UPDATE definities SET generation_prompt_data = NULL WHERE id = ?", (did,)
+        )
     assert repo.update_definitie(did, {"generation_prompt_data": None}, None)
     assert repo.get_definitie(did).generation_prompt_data is None

@@ -114,6 +114,9 @@ class EvaluatorType(StrEnum):
     # DEF-766: AI-beoordeling van telbaarheid en onderscheidbaarheid (code
     # toetst binding en citaatbestaan), ESS-03.
     COUNTABILITY_ASSESSMENT = "countability_assessment"
+    # DEF-770: functionele zinsgrenzen (INT-01) als deelbevinding; compactheid
+    # en begrijpelijkheid blijven een open onderdeel.
+    SENTENCE_BOUNDARY = "sentence_boundary"
 
 
 class ExamplePairPolicy(StrEnum):

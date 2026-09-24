@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
+from domain.int01.opslag import exportregels
 from export.export_txt import bronbewijs_regels
 from services.data_aggregation_service import (
     DataAggregationService,
@@ -227,6 +228,7 @@ EXPORT_LEVEL_FIELDS = {
             "updated_by",  # + User info
             "ketenpartners",  # + Team info
             "bronbewijs",  # + DEF-743: opgeslagen bronbewijs (compact JSON)
+            "int01_beoordeling",  # + DEF-770: INT-01-deeluitkomst (compact JSON)
         ],
         "voorbeelden": [
             "voorkeursterm",
@@ -270,6 +272,7 @@ EXPORT_LEVEL_FIELDS = {
             "last_exported_at",
             "export_destinations",
             "bronbewijs",  # DEF-743: opgeslagen bronbewijs (compact JSON)
+            "int01_beoordeling",  # DEF-770: INT-01-deeluitkomst (compact JSON)
         ],
         "voorbeelden": [
             "voorkeursterm",
@@ -531,6 +534,9 @@ class ExportService:
                 "toetsresultaten": export_data.toetsresultaten,
                 "beoordeling": export_data.beoordeling,
                 "beoordeling_gen": export_data.beoordeling_gen,
+                # DEF-770: opgeslagen INT-01-deeluitkomst met binding en
+                # `applied`; None = niet opgeslagen (nooit stil geslaagd).
+                "int01_beoordeling": export_data.int01_beoordeling,
             },
             "bronnen": {
                 "bronnen": export_data.bronnen,
@@ -598,6 +604,7 @@ class ExportService:
             "expert_review",
             "created_at",
             "updated_at",
+            "int01_beoordeling",  # DEF-770: gebonden INT-01-deeluitkomst (JSON)
         ]
 
         # Schrijf CSV
@@ -630,9 +637,12 @@ class ExportService:
                 "updated_at": (
                     export_data.updated_at.isoformat() if export_data.updated_at else ""
                 ),
+                # DEF-770: dezelfde compacte JSON als de bulk-CSV, met binding
+                # en `applied`; leeg = geen opgeslagen uitkomst.
+                "int01_beoordeling": export_data.int01_beoordeling or "",
             }
 
-            writer.writerow(_veilige_rij(row))
+            writer.writerow(_veilige_rij(_celwaarden(row)))
 
         logger.info(f"Definitie geëxporteerd naar CSV: {pad}")
         return str(pad)
@@ -781,6 +791,9 @@ class ExportService:
             # dict in JSON, compacte JSON-string in CSV/Excel (zie
             # `_celwaarde`), leesbaar in TXT.
             return export_data.bronbewijs
+        if field == "int01_beoordeling":
+            # DEF-770: geen recordkolom maar de opgeslagen deeluitkomst.
+            return export_data.int01_beoordeling or ""
         return value or ""
 
     def _build_export_row(
@@ -1000,6 +1013,7 @@ class ExportService:
             "antoniemen": "Antoniemen",
             "toelichting": "Toelichting",
             "bronbewijs": "Bronbewijs (CON-02)",
+            "int01_beoordeling": "Zinsgrenzen (INT-01)",
         }
 
         # Format each definition
@@ -1018,6 +1032,11 @@ class ExportService:
                         # individuele TXT-export).
                         lines.append(f"{label}:")
                         lines.extend(f"  {regel}" for regel in bronbewijs_regels(value))
+                        lines.append("")
+                        continue
+                    if field == "int01_beoordeling" and isinstance(value, dict):
+                        lines.append(f"{label}:")
+                        lines.extend(f"  {regel}" for regel in exportregels(value))
                         lines.append("")
                         continue
 

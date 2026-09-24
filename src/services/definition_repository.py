@@ -48,6 +48,10 @@ from domain.context.normalisatie import (
     contextsleutel,
     lees_contextwaarden,
 )
+from domain.int01.opslag import (
+    INT01_BEOORDELING_FIELD,
+    INT01_BEOORDELING_HISTORY_KEY,
+)
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -1213,6 +1217,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # zodat de editor haar toont en een hertoetsing dezelfde binding krijgt.
         # Zonder beoordeling ontbreken de sleutels: niets wordt verzonnen.
         self._herstel_ess03_beoordeling(record, definition.metadata)
+        self._herstel_int01_beoordeling(record, definition.metadata)
 
         # DEF-751 B2: de categoriekeuze (event, afgeleide status, historie)
         # onder eigen leessleutels — nooit onder de invoersleutel, zodat
@@ -1291,6 +1296,19 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return
         metadata[ESS03_ASSESSMENT_KEY] = beoordeling
         metadata[ESS03_ASSESSMENT_HISTORY_KEY] = record.get_ess03_assessment_history()
+
+    @staticmethod
+    def _herstel_int01_beoordeling(
+        record: DefinitieRecord, metadata: dict[str, Any]
+    ) -> None:
+        """Zet de opgeslagen INT-01-deeluitkomst (met `applied`) terug in
+        `Definition.metadata` (DEF-770); afwezig = geen sleutel.
+        """
+        beoordeling = record.get_int01_beoordeling()
+        if beoordeling is None:
+            return
+        metadata[INT01_BEOORDELING_FIELD] = beoordeling
+        metadata[INT01_BEOORDELING_HISTORY_KEY] = record.get_int01_beoordeling_history()
 
     # ===== Bronbewijs, CON-02-uitzondering en voorstellen (DEF-743) =====
     def set_source_review(
