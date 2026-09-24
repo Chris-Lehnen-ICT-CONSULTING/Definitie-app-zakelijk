@@ -1,0 +1,15 @@
+{
+  "base": "ee13ae1d7ce05482bd61f37dd51099b7ba8d23f0",
+  "head": "werkboom; inhoud gebonden aan acht bestandshashes en diffhash",
+  "diff_sha256": "c9f1c0d6e8d0f4e8d8b1ab1582c1144c919b37f61e1fe7120c69281d5e566bb7",
+  "files": {
+    "src/domain/int01/zinsgrenzen.py": "fbb40c0ea6bb749ac1728bc36415926c62026e8f01db6281e6946ed1d2b21f1c",
+    "src/services/prompts/modules/json_based_rules_module.py": "715be3b6e9250df6350faa9f5144e65740707723a8fe5b1a1dc9ae69ad3a19a3",
+    "src/services/prompts/modules/prompt_orchestrator.py": "0c7397c7fbe7e58adc5b8f71a8a9fcb0d00508aa109f059877170cc8faa42ab7",
+    "src/toetsregels/regels/INT-01.json": "c20bbda4917d2f85f58e65fa2c81b92605e5153af87e7c61cf892118c23de4f4",
+    "tests/unit/services/prompts/test_def743_con02_promptnorm.py": "5b994e6c910c5a289f96c88c83bfbf9eb7e02084c9ff22f2f123cd01b15c059f",
+    "tests/unit/validation/test_def770_int01_zinsgrenzen.py": "b6d9c3f299018f98bafdc5052dcc66d3dcc5744c246f827a2225361379f076d5",
+    "tests/unit/validation/test_def770_herstel_zinsgrenzen.py": "84067628395b6b859dfbbd6b9fc9d5a04c2ee7cd0356b6a17578cb1bc10eb61b",
+    "tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py": "2b94f23cdd7bdcd4040c3accecc832d21946dacc55563a8243bddc0f439ff9b2"
+  }
+}

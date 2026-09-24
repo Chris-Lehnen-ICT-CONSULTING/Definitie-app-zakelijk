@@ -1,0 +1,64 @@
+{
+  "call_id": "G02__nieuw__h2",
+  "request_sha256": "0538a555f8233f5a50eec29071ead6536c007705bb33e55a4f9bead95e8ca887",
+  "manifest_sha256": "66b34f46901ebd768ac66eae3f9d53d63fd79f9e46bfd81082e1e6d30f986848",
+  "counts_sha256": "c96f190dd4bdb94ba59cc0a1d5c3a689daaebb7cf4d89ac2c2100929dd8605af",
+  "goedkeuring_sha256": "f07ee12a6f692755a3185f5dc63326d83d5f8fa08a93a9b3e935661bf14da3cb",
+  "geteld_input_tokens": 17456,
+  "tijd": "2026-09-24T14:43:55+0200",
+  "duur_s": 3.352,
+  "bericht_id": "msg_011CfNHUCugQA877sRcon3PG",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 17456,
+    "output_tokens": 147,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "Aanvraag voor gebruik van een gemeentelijke oefenruimte waarvan de behandeling stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, zodat dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+  "ruwe_response": {
+    "id": "msg_011CfNHUCugQA877sRcon3PG",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "Aanvraag voor gebruik van een gemeentelijke oefenruimte waarvan de behandeling stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, zodat dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 17456,
+      "output_tokens": 147,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

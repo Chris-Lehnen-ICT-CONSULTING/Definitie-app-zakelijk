@@ -1,0 +1,43 @@
+{
+  "app_pr": 473,
+  "skills_pr": 355,
+  "skills_merge": "16b773de8a5a94ad2c8da9468b05f58086917baa",
+  "beoordeling": "AI-beoordeeld; afzonderlijke Astra/high-sessies expliciet goedgekeurd door Chris",
+  "varianten": {
+    "oud": {
+      "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+      "archive_root": "/private/tmp/def770-effectversies-7284_tcw/oud",
+      "tree": "88b6f813b5684ffc529524d9de7619e70d2b2250",
+      "bronhashes": {
+        "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+        "src/domain/int01/zinsgrenzen.py": null,
+        "src/domain/int01/opslag.py": null,
+        "src/services/validation/evaluators/sentence_boundary.py": null,
+        "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b"
+      }
+    },
+    "nieuw": {
+      "commit": "ee13ae1d7ce05482bd61f37dd51099b7ba8d23f0",
+      "archive_root": "/private/tmp/def770-effectversies-7284_tcw/nieuw",
+      "tree": "d1511541dd88db38809ce2935d0d50c396703410",
+      "bronhashes": {
+        "src/toetsregels/regels/INT-01.json": "29a9bfabe70a9c7c75d70b3f442ce5cc13eb81caaea1b267078f175aa9e1caf2",
+        "src/domain/int01/zinsgrenzen.py": "97c23b5cf893e037695069d31deb6bf1a92bfbb1807d4b2a5b3c11344fe66aea",
+        "src/domain/int01/opslag.py": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f",
+        "src/services/validation/evaluators/sentence_boundary.py": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b",
+        "src/services/prompts/modules/json_based_rules_module.py": "0b17c9b269009a1bf95ad9d5362b20d01fa1b8a7464e294a4d3733c9c0f3c2db"
+      }
+    }
+  },
+  "criteria_vooraf": {
+    "T24": "24/24 eenduidige referentie-uitkomsten incl. redenen/grenzen; geen nieuwe zekere fout; disputen buiten conformiteitsnoemer, wel zichtbaar",
+    "G24": "minstens één inhoudelijke verbetering, geen nieuwe bron-/betekenisfout en geen verslechtering per gepaarde invoer; wisselende richting onbeslist; verkennend, geen betrouwbaarheidsclaim"
+  },
+  "bronnenbeleid": "synthetische proefdossiers; geen echte juridische bronnen of gebruikersdata",
+  "prijsbron": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "prijs_geraadpleegd": "2026-09-24",
+  "model": "claude-opus-5",
+  "input_USD_per_miljoen": 5,
+  "output_USD_per_miljoen": 25,
+  "budgetgoedkeuring": "nog in afwachting"
+}

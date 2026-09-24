@@ -116,12 +116,13 @@ SEGMENTATIEGEVALLEN = [
     ),
     # Afkorting die ook zinslot kan zijn: functie niet zeker (EB03).
     ("enz-slot-EB03", "Object met gegevens enz. Het wordt geregistreerd.", 0, 1),
-    # Ingesloten citaat/titel: geen zekere grens, wel zichtbaar onzeker.
+    # Ingesloten citaat/titel: leestekens binnen het citaat vormen geen grens
+    # van de buitenste zin (T17-herstel, def770-int01/2); haakjes blijven onzeker.
     (
         "ingesloten-citaat",
         "nota met de titel “Beleid. Uitvoering” van de minister.",
         0,
-        1,
+        0,
     ),
     (
         "ingesloten-vraagtitel",
