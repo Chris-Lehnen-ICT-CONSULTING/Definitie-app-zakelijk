@@ -1,0 +1,48 @@
+{
+  "soort": "DEF-770 G24 count_tokens",
+  "opdracht_ref": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-herstel-20260924-v1/proefafspraken-v3.md",
+  "manifest_sha256": "5b85e4d4bafe4f15dcddb79e46243f813f40b4676109ee4b48a50a53d38a990c",
+  "tijd": "2026-09-24T19:09:59+0200",
+  "tellingen": {
+    "30571816c8106385d2075c5f5b22ca8985d0f2978c546e56aa664662c8607f0e": {
+      "input_tokens": 13594
+    },
+    "755f7e70abfc881cba0a7ab02ffd3428f0a43090cf9a011497d1a9fa3a035842": {
+      "input_tokens": 13598
+    },
+    "1d4622ee23ebbab15988874583d8faa19cbba3fa4fff94d62fd3879938ecd963": {
+      "input_tokens": 13847
+    },
+    "61cc23fbf8047f994450eab6f520ca56a6b60a831b3937eb3a8eb3670931748c": {
+      "input_tokens": 13570
+    },
+    "4fb76c0b008156da757cf43a89b1e45993331ddf3bc5d4b9a3373bc002004f0e": {
+      "input_tokens": 13578
+    },
+    "f5085760738f40a68c6e7e17bcd542072658d25bc0894a496c0268c14b973273": {
+      "input_tokens": 13572
+    },
+    "24f18d88486f80d8a48b29c6ea9e32ddb4fb7bd0b92d18cca3b172fcf78ebf9b": {
+      "input_tokens": 14465
+    },
+    "9a3569f642efd2c87c1090ae4f6149ab18ac9546c27a8f3469f022824b2201aa": {
+      "input_tokens": 14469
+    },
+    "630600bfb45cebb1a1e3b02a8449cc4255d13389c001c3ff63cc10200f85af76": {
+      "input_tokens": 14718
+    },
+    "1279e97419630075e586a2c339ce938f4967229e33de2b6419f5df7ad621fd29": {
+      "input_tokens": 14441
+    },
+    "4cb100e49499c726deba8fa91222a615c03229397da772f874fe79620fc50b77": {
+      "input_tokens": 14449
+    },
+    "ce59e85193a7226b52b16fd3816b4696e84bfb3f638380fd378059b3d70e29ad": {
+      "input_tokens": 14443
+    }
+  },
+  "max_kosten_usd_totaal": 2.28744,
+  "raming": "per aanroep input x $5/MTok + max_tokens x $25/MTok",
+  "plafond_usd": 5.0,
+  "binnen_plafond": true
+}

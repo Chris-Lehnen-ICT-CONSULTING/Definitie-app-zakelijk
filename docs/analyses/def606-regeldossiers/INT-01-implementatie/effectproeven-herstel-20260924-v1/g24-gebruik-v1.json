@@ -1,0 +1,179 @@
+{
+  "aanroepen": [
+    {
+      "call_id": "G01__oud__h1",
+      "input_tokens": 13594,
+      "output_tokens": 140,
+      "kosten_usd": 0.07147,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G01__oud__h2",
+      "input_tokens": 13594,
+      "output_tokens": 135,
+      "kosten_usd": 0.071345,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G02__oud__h1",
+      "input_tokens": 13598,
+      "output_tokens": 143,
+      "kosten_usd": 0.071565,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G02__oud__h2",
+      "input_tokens": 13598,
+      "output_tokens": 139,
+      "kosten_usd": 0.071465,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G03__oud__h1",
+      "input_tokens": 13847,
+      "output_tokens": 67,
+      "kosten_usd": 0.07091,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G03__oud__h2",
+      "input_tokens": 13847,
+      "output_tokens": 67,
+      "kosten_usd": 0.07091,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G04__oud__h1",
+      "input_tokens": 13570,
+      "output_tokens": 160,
+      "kosten_usd": 0.07185,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G04__oud__h2",
+      "input_tokens": 13570,
+      "output_tokens": 204,
+      "kosten_usd": 0.07295,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G05__oud__h1",
+      "input_tokens": 13578,
+      "output_tokens": 139,
+      "kosten_usd": 0.071365,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G05__oud__h2",
+      "input_tokens": 13578,
+      "output_tokens": 158,
+      "kosten_usd": 0.07184,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G06__oud__h1",
+      "input_tokens": 13572,
+      "output_tokens": 186,
+      "kosten_usd": 0.07251,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G06__oud__h2",
+      "input_tokens": 13572,
+      "output_tokens": 213,
+      "kosten_usd": 0.073185,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G01__nieuw__h1",
+      "input_tokens": 14465,
+      "output_tokens": 135,
+      "kosten_usd": 0.0757,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G01__nieuw__h2",
+      "input_tokens": 14465,
+      "output_tokens": 135,
+      "kosten_usd": 0.0757,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G02__nieuw__h1",
+      "input_tokens": 14469,
+      "output_tokens": 138,
+      "kosten_usd": 0.075795,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G02__nieuw__h2",
+      "input_tokens": 14469,
+      "output_tokens": 155,
+      "kosten_usd": 0.07622,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G03__nieuw__h1",
+      "input_tokens": 14718,
+      "output_tokens": 88,
+      "kosten_usd": 0.07579,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G03__nieuw__h2",
+      "input_tokens": 14718,
+      "output_tokens": 76,
+      "kosten_usd": 0.07549,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G04__nieuw__h1",
+      "input_tokens": 14441,
+      "output_tokens": 157,
+      "kosten_usd": 0.07613,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G04__nieuw__h2",
+      "input_tokens": 14441,
+      "output_tokens": 191,
+      "kosten_usd": 0.07698,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G05__nieuw__h1",
+      "input_tokens": 14449,
+      "output_tokens": 133,
+      "kosten_usd": 0.07557,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G05__nieuw__h2",
+      "input_tokens": 14449,
+      "output_tokens": 140,
+      "kosten_usd": 0.075745,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G06__nieuw__h1",
+      "input_tokens": 14443,
+      "output_tokens": 201,
+      "kosten_usd": 0.07724,
+      "stop_reason": "end_turn"
+    },
+    {
+      "call_id": "G06__nieuw__h2",
+      "input_tokens": 14443,
+      "output_tokens": 211,
+      "kosten_usd": 0.07749,
+      "stop_reason": "end_turn"
+    }
+  ],
+  "aantal": 24,
+  "input_tokens": 337488,
+  "output_tokens": 3511,
+  "totaal_usd": 1.775215,
+  "cumulatief_usd": 3.71545,
+  "bron_prijzen": "prijsbasis-v1.md",
+  "factuur_gecontroleerd": false
+}

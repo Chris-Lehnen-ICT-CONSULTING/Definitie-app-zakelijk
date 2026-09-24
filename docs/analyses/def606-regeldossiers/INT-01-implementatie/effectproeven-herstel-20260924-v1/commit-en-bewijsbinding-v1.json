@@ -1,0 +1,50 @@
+{
+  "app_commit": "6c18ce7127f0a785fefdd6bc952175a030be8643",
+  "skills_commit": "4e171419a5526afca65d0ec7e34fa3d8f50aae5c",
+  "reviewed_sources_still_identical": true,
+  "unchanged_reviewed_runners": {
+    "effectproef_bron.py": "f5fb979231bcc8f96b43fd31d5abddd47e8388350811f55a98bc42e72f8a3af7",
+    "t24_uitvoer.py": "644f377ea71171c984dc02c6015c4d2a1b7db443eb2f8e81fafa36ea821dbc16",
+    "g24_harnas.py": "2ec4388d7a60350855ee85dfcef997938eda34f6cc858dd9359569518ef15709",
+    "g24_regressie_offline.py": "61ff44c747f5045f2d11b46d9e1a5af8e1951bac3a434a026967b740e8fe2e01"
+  },
+  "bundles_after_commit_hook": [
+    {
+      "file": "cowork-exports/definitie-toetsregels.zip",
+      "sha256": "be0e02851694bab55b1191dff9197af78bf027363ee21f864691dfc963e2ff2c",
+      "source_content_matches": true,
+      "alias_mapping": false
+    },
+    {
+      "file": "cowork-exports/toetsregels.zip",
+      "sha256": "bc33dc9fc3158c9856fa669c8c17939120aca9c4f3f065d9663058804f022a4a",
+      "source_content_matches": true,
+      "alias_mapping": true
+    },
+    {
+      "file": "cowork-exports/definitie-nederlandse-definities.zip",
+      "sha256": "77d28130c89160059f13502adfe38e481ff4b9d28115b7a9ee6086b628e1e731",
+      "source_content_matches": true,
+      "alias_mapping": false
+    },
+    {
+      "file": "cowork-exports/nederlandse-definities.zip",
+      "sha256": "5ffe239774115246a41e5a9f89f4cf2ebe72d363a58659d10cc462b9927115da",
+      "source_content_matches": true,
+      "alias_mapping": true
+    }
+  ],
+  "unit_gate": {
+    "exit": 0,
+    "passed": 7195,
+    "skipped": 75,
+    "xfailed": 1,
+    "subtests": 21,
+    "log_sha256": "134568bdcd7fd35c59917bce49e15f7270324d5276d1d2cd5fea907f64a0e7a5"
+  },
+  "skills_tests": {
+    "passed": 94,
+    "subtests": 2,
+    "exit": 0
+  }
+}

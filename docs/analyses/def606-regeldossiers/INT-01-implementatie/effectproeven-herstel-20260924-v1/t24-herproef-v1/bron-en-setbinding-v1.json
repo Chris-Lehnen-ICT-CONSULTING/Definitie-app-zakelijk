@@ -1,0 +1,26 @@
+{
+  "utc": "2026-09-24T17:57:23.685710+00:00",
+  "app_commit": "c7f5d7dc921740f85a10d932480da338f9c2c276",
+  "archive": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-eindproeven/bron-nieuw-c7f5d7dc9.tar",
+  "archive_sha256": "2e92315834e8d066bb1121600fc1ef30781174227f1d09aa45a6bfea57623974",
+  "reviewed_production_unchanged": true,
+  "final_test_formatting_ast_identical": true,
+  "source_hashes": {
+    "src/domain/int01/zinsgrenzen.py": "04b5ab1ef0038a95c793875578dfd45629d00b2cc78e536e8877e070626b7421",
+    "src/services/prompts/modules/json_based_rules_module.py": "715be3b6e9250df6350faa9f5144e65740707723a8fe5b1a1dc9ae69ad3a19a3",
+    "src/services/prompts/modules/prompt_orchestrator.py": "0c7397c7fbe7e58adc5b8f71a8a9fcb0d00508aa109f059877170cc8faa42ab7",
+    "src/toetsregels/regels/INT-01.json": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99",
+    "tests/unit/services/prompts/test_def743_con02_promptnorm.py": "5b994e6c910c5a289f96c88c83bfbf9eb7e02084c9ff22f2f123cd01b15c059f",
+    "tests/unit/validation/test_def770_int01_zinsgrenzen.py": "b6d9c3f299018f98bafdc5052dcc66d3dcc5744c246f827a2225361379f076d5",
+    "tests/unit/validation/test_def770_herstel_zinsgrenzen.py": "7a4f74333e3e268f8c6e92a30e162c66edf78be26fa2b96771d1925642ec30d4",
+    "tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py": "2b94f23cdd7bdcd4040c3accecc832d21946dacc55563a8243bddc0f439ff9b2"
+  },
+  "maker_session": "01a0d471-f2b3-73c3-88bf-b3d0e875dd03",
+  "maker_tools_used": false,
+  "files": {
+    "maker-v1.json": "45293a89dc94e6f0cd358c89fdc1c8b086acf77c5d0710318a0a45baf8207d28",
+    "gevallen-v1.json": "5173cc02e234dbea3b324c1ba893da6ce4c55f8d7e42a30191a8e74d44b47df0",
+    "referentie-contract.md": "58fa4a1819d54b464879be5ea8e9e12b665063887ad2ab2b3ce0f9366aeba0d7"
+  },
+  "criteria": "Dezelfde vooraf vastgestelde proefafspraken-v3; oude mislukkingen niet gewijzigd. Verse set pas na bronbevriezing naar beoordelaars."
+}
