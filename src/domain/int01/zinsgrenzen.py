@@ -14,15 +14,10 @@ in de passage:
 - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
 - een punt in een afkorting, getal of naaminitiaal is geen grens; een
   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker;
-- een punt gevolgd door een kleine letter is onzeker, tenzij het woord ervoor
-  aantoonbaar een volledig woord is (een productief zelfstandignaamwoord-
-  achtervoegsel zoals '-ing' of '-heid') én het vervolg met een positief
-  herkend onderwerp begint (lidwoordgroep, of één woord met een eigen
-  voorzetselgroep) en een ondubbelzinnig vervoegde persoonsvorm met aanvulling
-  draagt
-  die niet in een bijzin of infinitiefconstructie staat: dan is het een
-  zekere tweede zin. Dit is een
-  conservatieve heuristiek, geen taalgarantie;
+- een punt gevolgd door een kleine letter (buiten een bekende afkorting) is
+  altijd onzeker: zonder woordsoortkennis is een onderwerp in het vervolg
+  niet te bewijzen. Ook een voor een mens duidelijke tweede zin met kleine
+  beginletter wordt zo doorverwezen (contract /3, conservatief);
 - een beletselteken gevolgd door verdere tekst is onzeker;
 - een puntkomma en een dubbele punt zijn nooit een zelfstandige grens (K4);
   een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering;
@@ -72,9 +67,12 @@ _FAIL = "fail"
 _OPEN = "review_required"
 
 #: Versie van de vorm én de betekenis van de INT-01-deeluitkomst in
-#: `rule_results`. /2: herziene grensclassificatie na de T24-proef; een
-#: opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
-CONTRACTVERSIE = "def770-int01/2"
+#: `rule_results`. /2: herziene grensclassificatie na de T24-proef. /3:
+#: conservatieve automatische beoordeling — alleen ondersteunde patronen
+#: krijgen een zekere uitkomst, twijfel gaat naar inhoudelijke beoordeling
+#: (conservatieve-beoordeling-besluit-v1). Een opgeslagen uitkomst onder een
+#: andere versie geldt niet meer als actueel.
+CONTRACTVERSIE = "def770-int01/3"
 
 #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
 REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
@@ -100,64 +98,34 @@ _CITAATOPENERS = frozenset({"“", "„", "‘", "«", '"', "'"})
 _LIJSTREGEL = re.compile(r"[ \t]*(?:[-*•–]\s|\d{1,3}[.)]\s|[a-z][.)]\s)")
 _VOORAFGAAND_WOORD = re.compile(r"[\w.]+$")
 _GESTIPPELDE_AFKORTING = re.compile(r"^(?:[a-z]\.)+[a-z]$")
-#: Productieve zelfstandignaamwoord-achtervoegsels (ook meervoud). Een
-#: afkorting breekt een woord gewoonlijk vóór zo'n achtervoegsel af ('afd.',
-#: 'voorz.'); eindigt het woord erop, dan is het een volledig woord. Lengte of
-#: klinkers bewijzen dat niet.
-_VOLLEDIG_WOORD = re.compile(
-    r"^[a-zà-ÿ]{3,}"
-    r"(?:ingen|ing|heden|heid|schappen|schap|iteiten|iteit|ties|tie|ismen|isme)$"
-)
 #: Tegenwoordige en verleden persoonsvormen van hulp- en koppelwerkwoorden en
-#: veelvoorkomende definitiewerkwoorden. Bewust niet: meervoudsvormen die ook
-#: zelfstandig naamwoord of voornaamwoord zijn ('zijn', 'vormen', 'gelden').
+#: veelvoorkomende definitiewerkwoorden. Na een citaatslot sluit een herkende
+#: persoonsvorm een bewezen voortzetting uit; afwezigheid bewijst niets.
 _PERSOONSVORMEN = frozenset(
     {"is", "wordt", "worden", "werd", "werden", "blijft", "blijven", "bleef"}
     | {"bleven", "heeft", "hebben", "had", "hadden", "kan", "kunnen", "kon"}
     | {"konden", "moet", "moeten", "moest", "moesten", "mag", "mogen", "mocht"}
     | {"mochten", "zal", "zullen", "zou", "zouden", "geldt", "bevat", "bevatten"}
 )
-#: Tegenwoordige meervoudsvormen zijn gelijk aan de infinitief ('toegepast
-#: worden'): zij bewijzen geen persoonsvorm en dus geen zelfstandige zin.
-_INFINITIEF_HOMOGRAAF = frozenset(
-    {"worden", "blijven", "hebben", "kunnen", "moeten", "mogen", "zullen"}
-    | {"bevatten"}
-)
-#: Werkwoordelijke woordvorm (voltooid deelwoord met 'ge', onvoltooid
-#: deelwoord op '-end(e)'/'-ande'): vóór de persoonsvorm geen bewijs van een
-#: onderwerp. Een zelfstandig naamwoord met die vorm blijft zo onzeker.
-_WERKWOORDELIJKE_VORM = re.compile(
-    r"^(?:[a-z]*ge[a-z]+(?:t|d|en)|[a-z]{3,}(?:ende?|ande))$"
-)
 _ZEKER_ZINSBEGIN = re.compile(r"[.?!…]\s+(?=[A-ZÀ-Ý\d])")
-#: Woorden die een bijzin, betrekkelijke bijzin of infinitiefconstructie
-#: inleiden, of nevenschikken. Staan ze vóór de persoonsvorm, dan hoort die
-#: persoonsvorm (mogelijk) bij een ondergeschikt deel: geen bewijs van een
-#: zelfstandige hoofdzin.
+#: Woorden die een bijzin of betrekkelijke bijzin inleiden (open bijzin vóór
+#: een citaat).
 _ONDERSCHIKKEND = frozenset(
     {"die", "dat", "wat", "wie", "welke", "waar", "waarbij", "waarin", "waarop"}
     | {"waarvan", "waardoor", "waarmee", "waarna", "als", "indien", "mits"}
     | {"tenzij", "omdat", "doordat", "zodat", "terwijl", "nadat", "voordat"}
     | {"totdat", "hoewel", "zodra", "wanneer"}
 )
-_BIJZIN_OF_INFINITIEF = _ONDERSCHIKKEND | {"om", "te", "en", "of", "maar"}
-#: Een vervolg dat hiermee begint, opent geen onderwerp maar zet een
-#: woordgroep of constructie voort (voorzetsel, voegwoord, infinitief).
+#: Voorzetsels die een slotwoordgroep na een citaat kunnen openen.
 _VOORZETSELS = frozenset(
     {"aan", "achter", "bij", "binnen", "boven", "buiten", "door", "in", "langs"}
     | {"met", "na", "naar", "naast", "onder", "op", "over", "per", "sinds"}
     | {"tegen", "tijdens", "tot", "uit", "van", "vanaf", "via", "volgens"}
     | {"voor", "zonder", "ter", "ten"}
 )
-_GEEN_ONDERWERPSBEGIN = _BIJZIN_OF_INFINITIEF | _VOORZETSELS | {"want", "dus"}
 _LIDWOORDEN = frozenset(
     {"de", "het", "een", "deze", "dit", "elke", "ieder", "iedere", "geen"}
     | {"alle", "zijn", "haar", "hun"}
-)
-#: Lidwoorden en aanwijzende woorden die een onderwerpsgroep openen. Niet de
-#: bezittelijke vormen: 'zijn'/'haar' zijn ook werkwoord of voornaamwoord.
-_ONDERWERP_LIDWOORDEN = frozenset(
-    {"de", "het", "een", "deze", "dit", "elke", "ieder", "iedere", "alle"}
 )
 
 # Afkortingen naar hun functie (kleine letters, zonder slotpunt). Een lijst is
@@ -548,18 +516,9 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
             return "onzeker", "punt binnen een ingesloten citaat of haakjes"
         return "zeker", "punt gevolgd door een nieuw zinsbegin"
     if begin == "klein":
-        if (
-            not kandidaat.ingesloten
-            and _VOLLEDIG_WOORD.match(kandidaat.woord)
-            and _eigen_onderwerp_en_persoonsvorm(kandidaat.volgend)
-        ):
-            return (
-                "zeker",
-                (
-                    "punt na een volledig woord gevolgd door een zelfstandige zin "
-                    "met kleine beginletter"
-                ),
-            )
+        # Contract /3 (conservatieve-beoordeling-uitwerking-v2): zonder
+        # woordsoortkennis is een onderwerp na de punt niet te bewijzen; ook een
+        # lidwoordgroep kan een tijdsbepaling zijn. Altijd onzeker.
         return (
             "onzeker",
             (
@@ -568,77 +527,6 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
             ),
         )
     return "onzeker", "punt gevolgd door een teken dat geen zinsbegin is"
-
-
-def _eigen_onderwerp_en_persoonsvorm(volgend: str) -> bool:
-    """Het vervolg (tot het volgende zekere zinsbegin) draagt een persoonsvorm
-    die niet vooraan staat.
-
-    Positief bewijs, geen taalgarantie: het vervolg begint met een onderwerp
-    (niet met een voorzetsel, voegwoord, betrekkelijk voornaamwoord of 'om'/
-    'te') en de eerste persoonsvorm volgt zonder tussenliggende bijzin- of
-    infinitiefmarkering. Staat de persoonsvorm vooraan ('voorz. wordt
-    ondertekend'), dan kan de tekst vóór de punt het onderwerp of een bijzin
-    daarvan zijn: één zin blijft mogelijk. Een ontbrekende persoonsvorm ('zie
-    ook', 'controle volgens protocol') bewijst evenmin een zelfstandige zin.
-    """
-    woorden = _woorden_tot_zeker_zinsbegin(volgend)
-    if len(woorden) < 2 or woorden[0] in _PERSOONSVORMEN | _GEEN_ONDERWERPSBEGIN:
-        # Persoonsvorm vooraan, of een vervolg dat met een voorzetsel,
-        # voegwoord, betrekkelijk voornaamwoord of 'om'/'te' begint: geen
-        # onderwerp aan het begin, dus geen bewijs van een zelfstandige zin.
-        return False
-    for index, woord in enumerate(woorden[1:], start=1):
-        if woord in _PERSOONSVORMEN:
-            if not _bewezen_persoonsvorm(woorden, index):
-                return False
-            return _onderwerp_herkend(woorden, index)
-        if woord in _BIJZIN_OF_INFINITIEF:
-            # 'controle die blijft ...': de persoonsvorm hoort bij een bijzin.
-            return False
-    return False
-
-
-def _bewezen_persoonsvorm(woorden: list[str], index: int) -> bool:
-    """De eerste werkwoordvorm op `index` bewijst een hoofdzin, alleen als:
-
-    - zij ondubbelzinnig vervoegd is ('worden' kan infinitief zijn);
-    - er een aanvulling op volgt (hoofdzinvolgorde; 'controle nodig is' kan
-      een bijzinrest zijn);
-    - er geen 'te' direct voor staat en de woorden ervoor geen
-      werkwoordelijke vorm bevatten ('toegepast', 'uitsluitend').
-    Anders blijft de grens onzeker.
-    """
-    return (
-        woorden[index] not in _INFINITIEF_HOMOGRAAF
-        and index < len(woorden) - 1
-        and woorden[index - 1] != "te"
-        and not any(_WERKWOORDELIJKE_VORM.match(w) for w in woorden[:index])
-    )
-
-
-def _onderwerp_herkend(woorden: list[str], index: int) -> bool:
-    """Positieve herkenning van het onderwerp vóór de persoonsvorm op `index`.
-
-    Twee patronen, beide één zinsdeel op de eerste plaats (hoofdzinvolgorde):
-
-    - een lidwoordgroep: lidwoord of aanwijzend woord plus ten minste één
-      woord ('de controle blijft …', 'het toezicht is …');
-    - één woord met een eigen voorzetselgroep ('controle volgens zqv. blijft
-      …', 'toezicht op naleving is …'): een bijwoord vormt met een
-      voorzetselgroep geen enkel zinsdeel, dus het woord is de kern van een
-      naamwoordgroep. Dit geldt onder de aanname van een correcte zin.
-
-    Een kaal woord direct vóór de persoonsvorm ('opnieuw wordt …', 'toezicht
-    is …') is niet positief te herkennen: onzeker.
-    """
-    if woorden[0] in _ONDERWERP_LIDWOORDEN and index >= 2:
-        return True
-    if woorden[1] not in _VOORZETSELS:
-        return False
-    # Voorzetsel direct na het woord, met een eigen woord als voorwerp.
-    functiewoord = _VOORZETSELS | _LIDWOORDEN
-    return any(woord not in functiewoord for woord in woorden[2:index])
 
 
 def _korte_slotgroep(woorden: list[str]) -> bool:

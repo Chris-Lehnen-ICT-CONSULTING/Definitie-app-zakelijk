@@ -12,11 +12,14 @@ implementatie:
 - T22 een los label met dubbele punt zonder vervolg is onzeker;
 - T23 een beletselteken met vervolg is onzeker;
 - T24 een punt na een aantoonbaar volledig woord (productief achtervoegsel),
-  gevolgd door een zelfstandige zin met kleine beginletter (eigen onderwerp
-  vóór de persoonsvorm), is een zekere grens (fail). Zonder dat bewijs — een
-  mogelijke onbekende afkorting ('voorz.'), een persoonsvorm direct na de
-  punt, geen persoonsvorm — blijft het onzeker; een vals fail wordt niet als
-  herstel geaccepteerd.
+  gevolgd door een zelfstandige zin met kleine beginletter, is alleen een
+  zekere grens (fail) als het onderwerp positief herkend is (lidwoordgroep).
+  Contract def770-int01/3 (conservatieve-beoordeling-besluit-v1, punt 3): een
+  kaal woord plus voorzetselgroep bewijst geen onderwerp. De oude T24-tekst
+  houdt haar normatieve fail-label in het historische corpus, maar haar
+  automatische dispositie onder /3 is onzeker (review_required). Zonder
+  bewijs — onbekende afkorting ('voorz.'), persoonsvorm direct na de punt,
+  geen persoonsvorm — blijft het onzeker; een vals fail is geen herstel.
 
 Nooit een volledige INT-01-pass; compactheid en begrijpelijkheid blijven
 apart open; oude opgeslagen uitkomsten gelden na de semantische wijziging
@@ -52,6 +55,8 @@ T19 = "“strook langs een proefwand die tijdens de meting onbelicht blijft.”"
 T22 = "Oefenstatus:"
 T23 = "onderbreking van de geluidsproef... daarna opnieuw luisteren"
 T24 = "strook voor tijdelijke bundeling. controle volgens zqv. blijft vereist"
+#: Gewone duidelijke grens (punt + hoofdletter): blijft zekere fail onder /3.
+ZEKER_FAIL = "strook voor tijdelijke bundeling. De controle blijft vereist."
 
 # (id, tekst, zekere grenzen, onzekere grenzen)
 GEVALLEN = [
@@ -81,10 +86,13 @@ GEVALLEN = [
     ("beletselteken-in-citaat", "melding 'wacht ... daarna' op het scherm.", 0, 0),
     # T24 en tegenhangers. Zeker alleen na een aantoonbaar volledig woord
     # (productief achtervoegsel, geen lengte-/klinkerheuristiek) én een vervolg
-    # met eigen onderwerp vóór de persoonsvorm; anders blijft twijfel zichtbaar.
-    ("T24-kleine-letter-zekere-zin", T24, 1, 1),
-    ("ingen-meervoud", "strook voor bundelingen. de controle blijft vereist", 1, 0),
-    ("heid-woord", "zorg voor de veiligheid. het toezicht is vereist", 1, 0),
+    # met positief herkend onderwerp; anders blijft twijfel zichtbaar.
+    # Besluit /3 punt 3: T24 automatisch onzeker (normatief label blijft fail).
+    ("T24-automatisch-onzeker-onder-3", T24, 0, 2),
+    # Uitwerking-v2 (conservatief /3): punt + kleine letter nooit automatisch
+    # zeker, ook niet na volledig woord en lidwoordgroep. Was zeker onder /2.
+    ("ingen-meervoud", "strook voor bundelingen. de controle blijft vereist", 0, 1),
+    ("heid-woord", "zorg voor de veiligheid. het toezicht is vereist", 0, 1),
     # Onbekende afkorting binnen één formulering: persoonsvorm direct na de punt.
     ("voorz-persoonsvorm", "bericht dat door de voorz. wordt ondertekend", 0, 1),
     # Zelfde afkorting, vervolg met eigen onderwerp: lexicaal niet te scheiden
@@ -106,7 +114,7 @@ GEVALLEN = [
     ("r1-bijzin-die", "regeling. die kan worden toegepast", 0, 1),
     ("r1-voorzetsel", "regeling. zonder de verplichting die blijft gelden", 0, 1),
     ("r1-relatief-voor-pv", "regeling. controle die blijft vereist", 0, 1),
-    ("r1-onderwerp-lidwoord", "regeling. de controle blijft vereist", 1, 0),
+    ("r1-onderwerp-lidwoord", "regeling. de controle blijft vereist", 0, 1),
     # Review R2: een slotteken direct vóór het sluitende aanhalingsteken kan
     # ook de buitenste zin afsluiten; zonder duidelijke voortzetting onzeker.
     ("r2-zelfstandig", "code met de melding “Gereed.” controle blijft vereist", 0, 1),
@@ -123,7 +131,7 @@ GEVALLEN = [
     ("r3-meervoud-ambigu", "regeling. controles kunnen volgen", 0, 1),
     ("r3-deelwoord-wordt", "regeling. uitsluitend wordt toegepast", 0, 1),
     ("r3-pv-achteraan", "regeling. controle nodig is", 0, 1),
-    ("r3-verleden-meervoud", "regeling. de controles werden uitgevoerd", 1, 0),
+    ("r3-verleden-meervoud", "regeling. de controles werden uitgevoerd", 0, 1),
     # r4: een kaal woord direct vóór de persoonsvorm is geen bewezen onderwerp
     # (was in r3 nog zeker); zie herstelanalyse-v5.
     ("r4-kaal-woord-voor-pv", "regeling. toezicht is vereist", 0, 1),
@@ -155,15 +163,23 @@ GEVALLEN = [
     ),
     ("r3-citaat-lange-pp", "code met de melding “Gereed.” op het grote scherm", 0, 1),
     ("r3-citaat-korte-pp", "melding “Gereed.” van de dienst", 0, 0),
-    # Correctiereview v2, R1: het onderwerp moet positief herkend zijn — een
-    # lidwoordgroep, of één woord met een eigen voorzetselgroep vóór de
-    # persoonsvorm (één zinsdeel op de eerste plaats). Een bijwoord of ander
-    # kaal woord direct vóór de persoonsvorm bewijst dat niet.
+    # Correctiereview v2, R1: het onderwerp moet positief herkend zijn — onder
+    # /3 alleen een lidwoordgroep. Een bijwoord, ander kaal woord of kaal woord
+    # plus voorzetselgroep vóór de persoonsvorm bewijst dat niet (besluit punt 3).
     ("r4-bijwoord-opnieuw", "regeling. opnieuw wordt toegepast", 0, 1),
     ("r4-bijwoord-nog", "regeling. nog wordt toegepast", 0, 1),
     ("r4-bijwoord-daarna", "regeling. daarna wordt controle uitgevoerd", 0, 1),
-    ("r4-lidwoordgroep", "regeling. de controle blijft vereist", 1, 0),
-    ("r4-woord-met-pp", "regeling. toezicht op naleving is vereist", 1, 0),
+    ("r4-lidwoordgroep", "regeling. de controle blijft vereist", 0, 1),
+    # Astra-conservatief-review-v1 R1: lidwoordgroep kan tijdsbepaling zijn.
+    ("c4-tijdsbepaling-de", "regeling. de hele dag wordt toegepast", 0, 1),
+    ("c4-tijdsbepaling-elke", "regeling. elke dag wordt toegepast", 0, 1),
+    ("c4-tijdsbepaling-deze", "regeling. deze week wordt toegepast", 0, 1),
+    # Duidelijke hoofdlettergrens blijft zekere fail; ononderbroken blijft één.
+    ("c4-hoofdletter-fail", "regeling. De controle blijft vereist.", 1, 0),
+    ("c4-ononderbroken", "regeling die elke dag wordt toegepast", 0, 0),
+    ("c3-woord-met-pp", "regeling. toezicht op naleving is vereist", 0, 1),
+    ("c3-bijwoord-met-pp", "regeling. opnieuw volgens protocol wordt toegepast", 0, 1),
+    ("c3-lidwoord-met-pp", "regeling. de controle volgens zqv. blijft vereist", 0, 2),
     ("r4-pp-zonder-object", "regeling. toezicht op is vereist", 0, 1),
     # Correctiereview v2, R2: een open bijzin vóór het citaat is alleen bewezen
     # met markering, lidwoord 'de'/'een' en één woord ('die de melding').
@@ -200,14 +216,45 @@ def test_segmentatie(tekst, zeker, onzeker):
     assert len(seg.onzekere_grenzen) == onzeker, seg
 
 
-def test_t24_grens_en_passage():
+def test_t24_onder_contract_3_onzeker_met_passage_en_positie():
+    """Besluit /3 punt 3: de normatieve fail blijft in het historische corpus;
+    de automatische dispositie is doorverwijzing, met vindbare grens."""
     seg = segmenteer(T24)
-    [grens] = seg.zekere_grenzen
+    assert not seg.zekere_grenzen
+    grens, afkorting = seg.onzekere_grenzen
     assert "bundeling." in grens.passage and "controle" in grens.passage
-    assert T24[grens.positie] == "."
-    assert "kleine" in grens.grond
-    [onzeker] = seg.onzekere_grenzen
-    assert "zqv." in onzeker.passage
+    assert grens.positie == T24.index("bundeling.") + len("bundeling")
+    assert "kleine letter" in grens.grond
+    assert "zqv." in afkorting.passage
+    uitkomst = regeluitkomst(seg)
+    assert uitkomst["status"] == "review_required"
+    assert "zinsstructuur" not in _delen(uitkomst)
+
+
+@pytest.mark.parametrize(
+    "tekst",
+    [
+        "strook voor tijdelijke bundeling. de controle blijft vereist",
+        "regeling. de hele dag wordt toegepast",
+    ],
+)
+def test_kleine_letter_na_punt_altijd_onzeker_met_passage_en_positie(tekst):
+    """Uitwerking-v2: punt + kleine beginletter krijgt onder /3 nooit een
+    automatische zekere uitkomst; de mogelijke grens blijft vindbaar."""
+    seg = segmenteer(tekst)
+    assert not seg.zekere_grenzen
+    [grens] = seg.onzekere_grenzen
+    assert tekst[grens.positie] == "."
+    assert tekst[grens.positie + 2].islower()
+    assert "kleine letter" in grens.grond
+    assert regeluitkomst(seg)["status"] == "review_required"
+
+
+def test_hoofdlettergrens_blijft_zekere_fail():
+    seg = segmenteer(ZEKER_FAIL)
+    [grens] = seg.zekere_grenzen
+    assert grens.positie == ZEKER_FAIL.index("bundeling.") + len("bundeling")
+    assert regeluitkomst(seg)["status"] == "fail"
 
 
 def test_r2_citaatafsluiting_onzeker_met_passage_en_reden():
@@ -303,11 +350,22 @@ SERVICEGEVALLEN = [
     ),
     ("T22", T22, "review_required", {"zinsgrens_onzeker_1": "review_required", **OPEN}),
     ("T23", T23, "review_required", {"zinsgrens_onzeker_1": "review_required", **OPEN}),
+    # Besluit /3 punt 3: automatische dispositie onzeker; normatief label fail.
     (
         "T24",
         T24,
+        "review_required",
+        {
+            "zinsgrens_onzeker_1": "review_required",
+            "zinsgrens_onzeker_2": "review_required",
+            **OPEN,
+        },
+    ),
+    (
+        "zeker-fail",
+        ZEKER_FAIL,
         "fail",
-        {"zinsgrens_1": "fail", "zinsgrens_onzeker_1": "review_required", **OPEN},
+        {"zinsgrens_1": "fail", **OPEN},
     ),
 ]
 
@@ -333,30 +391,45 @@ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
 # ── Contractversie, opslag en weergave ──────────────────────────────────
 
 
-def test_contractversie_is_verhoogd_na_semantische_wijziging():
-    assert CONTRACTVERSIE != "def770-int01/1"
+def test_contractversie_is_3_na_conservatief_besluit():
+    """Besluit punt 5: de beslisbetekenis wijzigt, dus /2 → /3."""
+    assert CONTRACTVERSIE == "def770-int01/3"
 
 
-def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel():
-    oud = dict(bouw_beoordeling(T24, 1), contract_version="def770-int01/1")
-    gelezen = lees_beoordeling(oud, T24)
+@pytest.mark.parametrize("oude_versie", ["def770-int01/1", "def770-int01/2"])
+@pytest.mark.parametrize(
+    ("tekst", "nieuw"),
+    [(T24, "review_required"), (ZEKER_FAIL, "fail")],
+    ids=["T24", "zeker-fail"],
+)
+def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
+    oude_versie, tekst, nieuw
+):
+    # T24 was onder /2 'fail'; die oude uitkomst mag niet als /3 gelden.
+    oud = dict(bouw_beoordeling(tekst, 1), status="fail", contract_version=oude_versie)
+    gelezen = lees_beoordeling(oud, tekst)
     assert gelezen["applied"] is False
     assert "contractversie" in gelezen["applied_reason"]
     # UI-weergave bij dezelfde tekst: niet toepasbaar, geen oude onderdelen.
-    weergave = weergavedetail(oud, T24)
+    weergave = weergavedetail(oud, tekst)
     assert [p["id"] for p in weergave["parts"]] == ["tekstbinding"]
     assert weergave["status"] == "review_required"
-    # Een volgende schrijfactie levert een verse uitkomst met historie.
-    registratie = met_nieuwe_beoordeling({"int01_beoordeling": oud}, T24, 2)
+    # Een volgende schrijfactie levert een verse /3-uitkomst met historie.
+    registratie = met_nieuwe_beoordeling({"int01_beoordeling": oud}, tekst, 2)
     assert registratie["int01_beoordeling"]["contract_version"] == CONTRACTVERSIE
-    assert registratie["int01_beoordeling"]["status"] == "fail"
+    assert registratie["int01_beoordeling"]["status"] == nieuw
     assert len(registratie["int01_beoordeling_history"]) == 1
 
 
 @pytest.mark.parametrize(
     ("tekst", "status"),
-    [(T15, "review_required"), (T19, "review_required"), (T24, "fail")],
-    ids=["T15", "T19", "T24"],
+    [
+        (T15, "review_required"),
+        (T19, "review_required"),
+        (T24, "review_required"),
+        (ZEKER_FAIL, "fail"),
+    ],
+    ids=["T15", "T19", "T24", "zeker-fail"],
 )
 def test_opslag_en_teruglezen(tmp_path: Path, tekst, status):
     pad = tmp_path / "herstel.db"

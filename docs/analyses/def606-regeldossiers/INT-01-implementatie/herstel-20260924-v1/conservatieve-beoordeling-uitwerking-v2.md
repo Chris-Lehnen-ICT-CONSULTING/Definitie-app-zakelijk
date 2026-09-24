@@ -1,0 +1,7 @@
+# Conservatieve beoordeling — concrete afbakening na review
+
+Uitwerking binnen het door Chris goedgekeurde richting1besluit, vóór vrijgave van de nieuwe proefset. Leidend samen met conservatieve-beoordeling-besluit-v1.md. Astra-conservatief-review-v1 toont dat ook een lidwoordgroep geen voldoende automatisch onderwerpbewijs is: “de hele dag”, “elke dag”, “deze week” kunnen tijdsbepalingen zijn.
+
+De heuristiek voor automatische zekere zinsgrenzen na punt plus kleine beginletter vervalt daarom. Zulke mogelijke zinsgrenzen blijven onzeker, met passage/positie/reden. Bekende punten die aantoonbaar intern zijn (afkorting/getal e.d.) behouden hun bestaande functie. Geen woordenlijst met tijdsbepalingen en geen nieuwe grammaticale parser. Dit is de concrete conservatieve grens van de huidige techniek; ook een voor een mens duidelijke tweede zin met kleine beginletter kan automatisch worden doorverwezen.
+
+Zinvolle automatische pass blijft mogelijk bij ononderbroken formuleringen; fail bij voldoende duidelijke andere zinsgrenzen. T24 rapporteert die dekking afzonderlijk. Normatieve tweede-zinlabels veranderen niet. Contractversie blijft /3: deze kandidaat is nog niet vrijgegeven/geactiveerd en de proef heeft nog niet plaatsgevonden. De passage over behouden positieve kleineletterpatronen in besluitv1 is door dit gerichte tegenbewijs vervallen; deze uitwerking is de actuele afbakening. R2/R3 en overige semantiek blijven ongewijzigd.
