@@ -1,0 +1,98 @@
+{
+  "utc": "2026-09-25T07:48:01.284411+00:00",
+  "sources": [
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py",
+      "sha256": "b543f964e7dab496cd664b38ca5e6a485796302fa89ef3ab1052cb15f4cb8005"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_adapter.py",
+      "sha256": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/integrity_rules_module.py",
+      "sha256": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/judgment_review.py",
+      "sha256": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/modular_validation_service.py",
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/result_contract.py",
+      "sha256": "88490821672719fc966956a2e6956da79cf8457c86608bd6f132ebebf7d94e9f"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/validation_orchestrator_v2.py",
+      "sha256": "af96b05e645f65dce52e5a7cfbb3661ca6fef4dab98022ae79196308540a35ba"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py",
+      "sha256": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/validation_view.py",
+      "sha256": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py",
+      "sha256": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_workflow_service.py",
+      "sha256": "5e17dffc6f458f05449d655f9a4604a503d44f3f542a8749a1a01863955622a2"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_import_service.py",
+      "sha256": "dc603a3c018108159523eefaf4cab2401b8c775744c83e0f15d9a1ae27cf59c1"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/tabs/import_export_beheer/csv_importer.py",
+      "sha256": "18fb01933e4433fb95ee050fc525ace2ac6c549bbd64a2f2b60af95aa9895356"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_edit_service.py",
+      "sha256": "2c19bc986aac4b74c2a070b4c2b33ff28211e6823bf8b2dfd5ca87e3951e87c5"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py",
+      "sha256": "0d7607a19c3ffe920d396744b2d101043405f48d83e192bceb427d070876cf31"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/database/models.py",
+      "sha256": "b00fec0ed549727ac35851d4d1eadb560f2378d5238d9f607b2372f479e30a55"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_enhancement.py",
+      "sha256": "820aaee512b0c1c39ec8e8bc15e21281223e0c4efa01732d1e1d449af326ccc9"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/ARAI-04SUB1.json",
+      "sha256": "63bc271926064d47ede4b876abfc786bcf48208835dc01658ce01c7343357ec3"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/STR-06.json",
+      "sha256": "94deacc025cf316ff1d11b0077fd757c01b94ada80eaab30acb7254b8daf9712"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-08.json",
+      "sha256": "982292a812552d50eec1245140001488c5b6a6ad52232b543108b242180d15b8"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/runtime_contract.py",
+      "sha256": "cf542ceec73b2573727bb5adf39053b6196efa617a5c78693cc7441a4daecf26"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/countability_assessment.py",
+      "sha256": "fe2c6d3561db9c33baf062d58c1d502bf4db00986e2302efb549bb80fa30f890"
+    }
+  ],
+  "corrected_path": "src/services/cleaning_service.py"
+}

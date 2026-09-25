@@ -1,0 +1,11 @@
+{
+  "proef": "C1 run2 (herhaling voor machinaal vastgelegde exitstatus, SC-17)",
+  "command": "cd /Users/chrislehnen/Projecten/Definitie-app && PYTHONPATH=src .venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/a-cowork/bewijs/proef-c1-run.py",
+  "start_utc": "2026-09-25T08:50:00Z",
+  "end_utc": "2026-09-25T08:50:01Z",
+  "exit_status": 0,
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "uitkomsten": "proef-c1-uitkomsten.json (run2); run1 bewaard als proef-c1-uitkomsten-run1.json",
+  "vastgelegd_door": "proef-c1-run2.sh op de Mac (bash), gestart door coördinator A (Cowork) via osascript",
+  "toetsing_run1_gelijk_run2": true
+}

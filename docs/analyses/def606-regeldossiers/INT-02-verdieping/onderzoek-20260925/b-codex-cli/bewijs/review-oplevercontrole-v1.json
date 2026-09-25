@@ -1,0 +1,144 @@
+{
+  "tijd_utc": "2026-09-25T08:23:36.342685+00:00",
+  "bewijssoort": "oplevercontrole documenten en hashes, geen appproef",
+  "oude_manifestbestanden": [
+    {
+      "path": "bewijs/aanvullende-bronnen-v1.json",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/bronextracten-v1.md",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/historische-diff-v1.txt",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/oplevercontrole-v1.json",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/proefplan-v1.md",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/proefuitkomsten-v1.json",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/proeven-b-v1.py",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/toegang-bronnen-v1.json",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "bewijs/uitvoering-v1.json",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "casusregister-b-v1.md",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "casusregister-b-v2.md",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "onderzoek-b-v1.md",
+      "sha256_unchanged": true
+    },
+    {
+      "path": "onderzoek-b-v2.md",
+      "sha256_unchanged": true
+    }
+  ],
+  "reviewbronbestanden": [
+    {
+      "path": "../a-claude-cli/onderzoek-a-v1.md",
+      "unchanged": true,
+      "sha256_actueel": "ea59e45bef2772d4b97e57a1c11ba1e5cf95500712d2fef26b03b12d0d5f8c00"
+    },
+    {
+      "path": "../a-claude-cli/casusregister-a-v1.md",
+      "unchanged": true,
+      "sha256_actueel": "3d2c5cbfa3e00b9ce6713cdf674382e41b84071d24a37ebf7c2a21a437b2df53"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/verwachtingen-a-v1.md",
+      "unchanged": true,
+      "sha256_actueel": "c3ec4e3be19b69f220e907be60b597e29649c2e49de681ad28cc5350c0dee022"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proeflog-a-v1.md",
+      "unchanged": true,
+      "sha256_actueel": "92ae47fa1a42cdac42f2d393823448bf256c3c3087463be7b2af8005b6b41d0c"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proef-p1-service.py",
+      "unchanged": true,
+      "sha256_actueel": "e84e7404b8b818733e891b97a43986770814b68c4669c63ea8449f4cd5b1977c"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proef-p2-prompt.py",
+      "unchanged": true,
+      "sha256_actueel": "2fefe6572a3e0f7f85ea517c45dbf099fd7521ce47c4907bad4ffcd05b9c4c49"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p1-invoer.json",
+      "unchanged": true,
+      "sha256_actueel": "1dfcb7ebc12f14c17f98eaa397527f8a0710119204db537bbaa8f368b91aca49"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p1-uitkomsten.json",
+      "unchanged": true,
+      "sha256_actueel": "fdec3d331d9736c67e92f7c81ed2905d8f5e98767463c9d9559b1cd0bff8f924"
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p2-uitkomsten.json",
+      "unchanged": true,
+      "sha256_actueel": "307174b0e0292ec19593f61af8df78ee3947ab90ba8650750fd220bce161b9ea"
+    },
+    {
+      "path": "../gedeeld/ontvangstlog.txt",
+      "unchanged": false,
+      "sha256_actueel": "d0050c2bc813a2b92e19c69dd659bad33f75ba9a8d61531e214177b6afdfa4a7",
+      "uitsluitend_toegevoegd": true,
+      "opmerking": "Coördinator voegde tijdens oplevercontrole ontvangst van beide reviews toe; onderzoeksbronnen ongewijzigd. Eerste exacte-hashcontrole wees deze logtoevoeging terecht aan; daarna append-only gecontroleerd."
+    },
+    {
+      "path": "../a-claude-cli/manifest-a-v1.json",
+      "unchanged": true,
+      "sha256_actueel": "3b71a51b1e5d3fc7f28da63e6f568e0c8f059e64fcb02cad312ccfbf4019d497"
+    },
+    {
+      "path": "../a-cowork/normlezing-coordinator-v1.md",
+      "unchanged": true,
+      "sha256_actueel": "d48f0e2ce350b9b74e583f039f824f7a4c7bd3a5e452a615e0955e95d5c3a586"
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-uitkomsten.json",
+      "unchanged": true,
+      "sha256_actueel": "25a333e75d91169fe636ef2419b9b4a352550a2cde00db2cfea14205b87ce26b"
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-run.py",
+      "unchanged": true,
+      "sha256_actueel": "33a15e92035741d6e26adcbfcd87ef7a5d0748b27e99ab4cb1fc3a09389c3fcc"
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-verwachtingen.json",
+      "unchanged": true,
+      "sha256_actueel": "3c67c448e015933b798db4ec5caaa99835744cba72cef77cfbcb81eff2ff3156"
+    }
+  ],
+  "reviewpunten": 26,
+  "bron_en_correctie_per_punt": true,
+  "tabellen_consistent": true,
+  "besluiten_B1_B9_aanwezig": true,
+  "erratum": "review-b-op-a-v1-erratum.md: RB-A-13 juiste codevindplaats 1920–1921",
+  "python_artefactaudit": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "geen_nieuwe_app_model_of_ui_proef": true
+}
