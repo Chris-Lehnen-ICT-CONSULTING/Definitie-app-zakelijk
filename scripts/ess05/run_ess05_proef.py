@@ -46,6 +46,20 @@ Beide eindgroepen (T: t_eind+t_herhaling, G: g) vereisen `--freeze`: alle
 verplichte velden (`freezevelden`) worden vóór elke call vergeleken en de
 freezehash gaat in de eindbinding.
 
+Ronde 8 (`--proef R8`, DEF-768-AI-20260925-R8, ADR-003-keten) is open voor
+echte calls binnen het gepinde budgetbesluit van Chris (25-09,
+`logs/def768/ronde8-budgetgoedkeuring-v1.json`: 68 modelstappen, max USD 25
+routerbudget, cumulatief 427, reserve 0, geen automatische extra ronde). Een
+echte run toetst dat besluit (hash en inhoud tegen de proefidentiteit) vóór
+omgeving, grootboek en netwerk en legt zijn hash in elke reservering. Fases: ontwikkeling (R720, R715, R717; elk twee stappen),
+verificatie_alleen (zes gemigreerde R7-antwoorden, alleen de verifier),
+t_eind en t_herhaling. Aanvullend voor R8, vóór grootboek en netwerk: runner
+en expliciete verifier op de productiegrenzen (`productiegrenzen`), begroot
+model en tarief, stap-1-payload binnen de bytegrens, kostenplan binnen het
+plafond, geen nulcallroutes, stopregel en fasevolgorde. Na elk geval legt de
+runner de acceptatie duurzaam vast; het eerste niet-geaccepteerde geval stopt
+de proef.
+
 Voorbeeld (droog, offline):
 
     .venv/bin/python scripts/ess05/run_ess05_proef.py --fase ontwikkeling \\
@@ -68,6 +82,7 @@ import time
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -79,6 +94,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 _SDK_RETRIES_VOORAF_GEZET = "AI_SDK_MAX_RETRIES" in os.environ
 os.environ["AI_SDK_MAX_RETRIES"] = "0"
 
+import migreer_r7_naar_v2 as mig
 import proefgrootboek as gb
 import proefinvoer as pi
 
@@ -87,6 +103,8 @@ logger = logging.getLogger("ess05.proefrunner")
 STANDAARD_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260924"
 T_FASES = ("ontwikkeling", "t_eind", "t_herhaling")
 G_FASES = ("g_ontwikkeling", "g")
+#: R8: alleen de verificatiestap op bevroren, gemigreerde concepten.
+V_FASES = ("verificatie_alleen",)
 BASISCOMMIT = "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3"
 #: Buitenste annuleringsmarge boven de dienstdeadline (s).
 MARGE_S = 10
@@ -99,6 +117,8 @@ _CODEBESTANDEN = (
     "scripts/ess05/run_ess05_proef.py",
     "scripts/ess05/proefgrootboek.py",
     "scripts/ess05/proefinvoer.py",
+    # R8: verificatiemateriaal en itembinding van de verifier-only-fase.
+    "scripts/ess05/migreer_r7_naar_v2.py",
     "src/services/validation/ess05_assessment_service.py",
     "src/services/validation/ai_beoordeling_transport.py",
     "src/domain/ess05/__init__.py",
@@ -319,6 +339,20 @@ R7_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260925-R7"
 R7_T_ONTWIKKELINVOER_SHA256 = (
     "1685f57c3219cd967daf77d49c16ab01311d38f9305f67f86cbed7e0acae2360"
 )
+#: Ronde 8 (ADR-003-keten): eigen rapportroot, grootboek, anker, slot en freezes.
+R8_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260925-R8"
+#: Ronde 8: T = R720, R715, R717 (maak_r8_ontwikkelinvoer.py).
+R8_T_ONTWIKKELINVOER_SHA256 = (
+    "d07846942171801e9e31dbd6b372023e4e1ba322a024ff2354430cec1fd291f0"
+)
+#: Ronde 8: zes gemigreerde R7-antwoorden (migreer_r7_naar_v2.py).
+R8_V_INVOER_SHA256 = "ddece7dbbdf928be8c89aca819e110ea0e8ad6e45aaf6ce582fe27c7528d155c"
+#: Ronde 8: het budgetbesluit van Chris ("budget is goedgekeurd", 25-09),
+#: gepind op pad en hash (`controleer_budgetbesluit`).
+R8_BUDGETBESLUIT = PROJECT_ROOT / "logs" / "def768" / "ronde8-budgetgoedkeuring-v1.json"
+R8_BUDGETBESLUIT_SHA256 = (
+    "bf82cd3bfd6cea12fc0d3d97df2305c922fdde8c19fb84db6f0a1e3320195d17"
+)
 
 
 @dataclass(frozen=True)
@@ -335,6 +369,11 @@ class Proef:
     #: Vastgelegde ontwikkelinvoer (sha256 van het bestand); None = geen binding.
     t_ontwikkelinvoer_sha256: str | None = None
     g_ontwikkelinvoer_sha256: str | None = None
+    #: R8: vastgelegde verifier-only-invoer (sha256 van het bestand).
+    v_invoer_sha256: str | None = None
+    #: R8: het gepinde budgetbesluit dat deze ronde voor echte calls opent.
+    budgetbesluit: Path | None = None
+    budgetbesluit_sha256: str | None = None
 
 
 PROEVEN = {
@@ -402,6 +441,19 @@ PROEVEN = {
         True,
         t_ontwikkelinvoer_sha256=R7_T_ONTWIKKELINVOER_SHA256,
     ),
+    # Ronde 8: open binnen het gepinde budgetbesluit (68 modelstappen, max
+    # USD 25 routerbudget, cumulatief 427, reserve 0); R1–R7 blijven gesloten.
+    "R8": Proef(
+        "R8",
+        gb.R8,
+        Proefopslag(R8_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R8_T_ONTWIKKELINVOER_SHA256,
+        v_invoer_sha256=R8_V_INVOER_SHA256,
+        budgetbesluit=R8_BUDGETBESLUIT,
+        budgetbesluit_sha256=R8_BUDGETBESLUIT_SHA256,
+    ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
 STANDAARD_PROEF = PROEVEN["R1"]
@@ -413,6 +465,8 @@ def _controleer_ontwikkelinvoer(proef: Proef, fase: str, pad: Path) -> None:
         verwacht, soort = proef.t_ontwikkelinvoer_sha256, "T-ontwikkelselectie"
     elif fase == "g_ontwikkeling":
         verwacht, soort = proef.g_ontwikkelinvoer_sha256, "G-ontwikkelinvoer"
+    elif fase in V_FASES:
+        verwacht, soort = proef.v_invoer_sha256, "verifier-only-invoer"
     else:
         return
     if verwacht is None or _sha_bestand(pad) != verwacht:
@@ -491,6 +545,246 @@ def _controleer_goedkeuring(omg: Omgeving, proef: Proef) -> None:
             "vereisen een eigen budgetbesluit en proefidentiteit; geen call gestart"
         )
         raise gb.BudgetSchendingError(msg)
+
+
+def productiegrenzen() -> dict[str, dict[str, int]]:
+    """Max_tokens en deadline van beide productiestappen, uit hun constructors.
+
+    De container bouwt `Ess05AssessmentService` en `Ess05VerificationService`
+    zonder eigen grenzen; hun standaardwaarden zijn dus de productiegrenzen.
+    """
+    import inspect
+
+    from services.validation.ess05_assessment_service import Ess05AssessmentService
+    from services.validation.ess05_verification_service import (
+        Ess05VerificationService,
+    )
+
+    grenzen = {}
+    for stap, klasse in (
+        ("beoordeling", Ess05AssessmentService),
+        ("verificatie", Ess05VerificationService),
+    ):
+        parameters = inspect.signature(klasse.__init__).parameters
+        grenzen[stap] = {
+            "max_tokens": parameters["max_tokens"].default,
+            "timeout_s": parameters["timeout_seconds"].default,
+        }
+    return grenzen
+
+
+def controleer_budgetbesluit(proef: Proef) -> str:
+    """Het gepinde budgetbesluit, getoetst tegen de proefidentiteit; geeft zijn hash.
+
+    Fail-closed: ontbrekend, onleesbaar, een andere hash, of een inhoud die niet
+    exact de caps, reserve, cumulatieve grens, historie en het kostenplafond
+    van de identiteit draagt. Een besluit verruimt nooit iets: de identiteit
+    blijft de grens, het besluit moet er precies op passen.
+    """
+    identiteit, kb = proef.identiteit, proef.identiteit.kostenbewaking
+    pad, verwacht = proef.budgetbesluit, proef.budgetbesluit_sha256
+    if (
+        pad is None
+        or verwacht is None
+        or kb is None
+        or identiteit.cumulatief_max is None
+    ):
+        msg = f"ronde {proef.naam} heeft geen budgetbesluit voor echte calls"
+        raise gb.BudgetSchendingError(msg)
+    try:
+        inhoud = Path(pad).read_bytes()
+        data = json.loads(inhoud)
+    except (OSError, json.JSONDecodeError) as exc:
+        msg = f"budgetbesluit {pad} ontbreekt of is onleesbaar: {exc}"
+        raise gb.BudgetSchendingError(msg) from exc
+    if hashlib.sha256(inhoud).hexdigest() != verwacht:
+        msg = f"budgetbesluit {Path(pad).name} wijkt af van de gepinde hash {verwacht}"
+        raise gb.BudgetSchendingError(msg)
+    velden = {
+        "type": "gebruikersgoedkeuring-proefbudget",
+        "extra_modelaanroepen_max": identiteit.totaal_max,
+        "cumulatief_max": identiteit.cumulatief_max,
+        "historisch_verbruik": identiteit.cumulatief_max - identiteit.totaal_max,
+        "reserve": identiteit.reserve_max,
+        "fasen_modelstappen_max": dict(identiteit.fasecaps),
+    }
+    afwijkend = [k for k, v in velden.items() if data.get(k) != v]
+    try:
+        plafond = Decimal(str(data.get("kostenbudget_usd"))) * 10**9
+    except InvalidOperation:
+        plafond = None
+    if plafond != kb.plafond_nusd:
+        afwijkend.append("kostenbudget_usd")
+    if not str(data.get("gebruikersantwoord") or "").strip():
+        afwijkend.append("gebruikersantwoord")
+    if afwijkend:
+        msg = (
+            f"budgetbesluit past niet op {identiteit.proef_id} (afwijkend: "
+            f"{afwijkend}); geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
+    return verwacht
+
+
+def _besluit_voor(omg: Omgeving, proef: Proef) -> str | None:
+    """Hash van het budgetbesluit voor een echte R8-run; None offline of vóór R8."""
+    if not omg.echt or proef.identiteit.kostenbewaking is None:
+        return None
+    return controleer_budgetbesluit(proef)
+
+
+def _standaard_max_tokens(proef: Proef) -> int:
+    """`--max-tokens-t` zonder waarde: R8 de productiegrens, oudere rondes 1500."""
+    if proef.identiteit.kostenbewaking is not None:
+        return productiegrenzen()["beoordeling"]["max_tokens"]
+    return 1500
+
+
+def _controleer_productiegrenzen(omg: Omgeving, proef: Proef) -> None:
+    """R8: runner en expliciete verifier exact op de productiegrenzen (vóór alles)."""
+    kb = proef.identiteit.kostenbewaking
+    if kb is None:
+        return
+    verwacht = productiegrenzen()
+    verifier = omg.dienst.verification_service
+    werkelijk = {
+        "beoordeling": {
+            "max_tokens": omg.dienst._max_tokens,
+            "timeout_s": omg.dienst._timeout_seconds,
+        },
+        "verificatie": {
+            "max_tokens": verifier.max_tokens,
+            "timeout_s": verifier.timeout_seconds,
+        },
+    }
+    if (
+        werkelijk != verwacht
+        or omg.timeout != verwacht["beoordeling"]["timeout_s"]
+        or any(g["max_tokens"] != kb.max_tokens for g in verwacht.values())
+    ):
+        msg = (
+            f"ronde {proef.naam}: runner en verifier moeten op de productiegrenzen "
+            f"draaien ({verwacht}, begroot max_tokens {kb.max_tokens}); kreeg "
+            f"{werkelijk}, transporttimeout {omg.timeout} — geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
+
+
+def _controleer_kostenroute(omg: Omgeving, proef: Proef) -> None:
+    """R8: routemodel, routertarief en thinkingbeleid zoals begroot (vóór alles)."""
+    kb = proef.identiteit.kostenbewaking
+    if kb is None:
+        return
+    for route in ("t", "t_verificatie"):
+        cfg = omg.modelconfig[route]
+        model = cfg["model"]
+        if model != kb.model:
+            msg = (
+                f"ronde {proef.naam}: model {model!r} voor {cfg['task_type']} is "
+                f"niet het begrote {kb.model!r} — geen call gestart"
+            )
+            raise gb.BudgetSchendingError(msg)
+        prijs, bekend = omg.prijs(route)
+        tarief = (round(prijs["input"] * 1e9), round(prijs["output"] * 1e9))
+        if not bekend or tarief != (kb.tarief_invoer_nusd, kb.tarief_uitvoer_nusd):
+            msg = (
+                f"ronde {proef.naam}: tarief {tarief} nUSD/token voor {model!r} "
+                f"(bekend: {bekend}) is niet het begrote "
+                f"({kb.tarief_invoer_nusd}, {kb.tarief_uitvoer_nusd}) — geen call gestart"
+            )
+            raise gb.BudgetSchendingError(msg)
+        if not omg.router.thinking_default_on(model, provider=cfg["provider"]):
+            msg = (
+                f"ronde {proef.naam}: thinking voor {model!r} wordt niet expliciet "
+                "uitgezet; de SDK-wacht zou elke call weigeren — geen call gestart"
+            )
+            raise gb.BudgetSchendingError(msg)
+
+
+def _payloadbytes(
+    omg: Omgeving, route: str, max_tokens: int, system: str, user: str
+) -> int:
+    """Bytes van de body zoals de Anthropic-client hem voor deze stap verstuurt.
+
+    Beide ESS-05-stappen vragen temperature 0.0 (`eenmalige_aanroep`); de
+    client stuurt hem alleen mee als de router hem voor dit model toelaat.
+    """
+    cfg = omg.modelconfig[route]
+    velden: dict[str, Any] = {
+        "model": cfg["model"],
+        "max_tokens": max_tokens,
+        "thinking": {"type": "disabled"},
+        "system": system,
+        "messages": [{"role": "user", "content": user}],
+    }
+    if omg.router.accepts_temperature(cfg["model"], provider=cfg["provider"]):
+        velden["temperature"] = 0.0
+    return gb.payloadbytes(velden)
+
+
+def _controleer_bytegrens(
+    proef: Proef, task_type: str, sleutel: str, bytes_: int
+) -> None:
+    kb = proef.identiteit.kostenbewaking
+    if kb is not None and bytes_ > kb.bytegrens[task_type]:
+        msg = (
+            f"{sleutel}: payload {bytes_} bytes > bytegrens {kb.bytegrens[task_type]} "
+            f"voor {task_type} — geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
+
+
+def _buitenste_deadline(omg: Omgeving, stappen: int) -> int:
+    """Buitenste annulering: elke modelstap zijn eigen deadline, plus marge."""
+    return stappen * omg.timeout + MARGE_S
+
+
+def _controleer_kostenplan(boek: gb.Grootboek, fase: str, gevallen: int) -> None:
+    """R8: stopregel, fasevolgorde en kostengrens van het hele plan (vóór elke call)."""
+    kb = boek.identiteit.kostenbewaking
+    stappen = boek.identiteit.fasestappen
+    if kb is None or stappen is None:
+        return
+    boek.controleer_fasestart(fase)
+    per_geval = sum(kb.stapgrens_nusd(t) for t in stappen[fase])
+    lopend = boek.kostenstand()["lopend_nusd"]
+    if lopend + gevallen * per_geval > kb.plafond_nusd:
+        msg = (
+            f"kostenplan: lopend {lopend} + {gevallen} × {per_geval} > "
+            f"{kb.plafond_nusd} nUSD (niets gestart)"
+        )
+        raise gb.BudgetSchendingError(msg)
+
+
+def _t_acceptatie(record: dict[str, Any], *, volledig: bool) -> tuple[bool, str]:
+    """Automatisch toetsbare acceptatie van één T-geval (geen inhoudelijke rubric).
+
+    Ontwikkelpoort: beide stappen voltooid (structureel geldig, niet afgekapt),
+    een vrijgegeven oordeel en de juiste status. Eindfases (`volledig`) ook elk
+    buurlabel. Een onnodige weigering of `unclear` telt niet als acceptatie.
+    """
+    stappen = record["reserveringen"]
+    statussen = [s["afsluitstatus"] for s in stappen]
+    if record["transport"]["bewakingsweigering"]:
+        return False, "bewakingsweigering"
+    document = record["beoordelingsdocument"] or {}
+    if document.get("status") != "assessed":
+        soort = (document.get("error") or {}).get("type")
+        return False, f"geen vrijgegeven oordeel ({soort}; stappen {statussen})"
+    if len(stappen) != 2 or any(s != "voltooid" for s in statussen):
+        return False, f"niet elke modelstap voltooid ({statussen})"
+    vergelijking = record["vergelijking"]
+    if not vergelijking["status_correct"]:
+        return False, (
+            f"status {vergelijking['gekregen']} is niet de verwachte "
+            f"{vergelijking['verwacht']}"
+        )
+    fout = [b["term"] for b in vergelijking["per_buur"] if not b["correct"]]
+    if volledig and fout:
+        return False, f"buurlabel onjuist: {fout}"
+    return True, "beide stappen voltooid, oordeel vrijgegeven, status correct" + (
+        " en elk buurlabel correct" if volledig else ""
+    )
 
 
 def _stop_bij_bewaking(sleutel: str, schending: str | None, *fouten: Any) -> None:
@@ -601,7 +895,7 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
         "code_sha256": code_sha256(),
         "effectieve_config_sha256": pi.sha_json(effectieve_config(omg)),
     }
-    if groep == "t":
+    if groep in ("t", "v"):  # R8: V bevriest op dezelfde T-code en -configuratie
         velden["prompt_version"] = omg.dienst.PROMPT_VERSION
         velden["verification_prompt_version"] = (
             omg.dienst.verification_service.PROMPT_VERSION
@@ -707,22 +1001,39 @@ def bouw_omgeving(
     sdk_bewaakt: bool,
     geheimen: tuple[str, ...],
     echt: bool = False,
+    verifier_max_tokens: int | None = None,
 ) -> Omgeving:
+    """`verifier_max_tokens` (R8): expliciete verifier met deze grens en dezelfde
+    deadline, zoals de container hem bouwt; None = de interne standaardverifier."""
     from config.config_manager import get_prompt_temperature
     from services.ai_service_v2 import AIServiceV2
     from services.validation.ess05_assessment_service import (
         Ess05AssessmentService,
         laad_ess05_norm,
     )
+    from services.validation.ess05_verification_service import (
+        Ess05VerificationService,
+    )
 
     bewaakt = gb.BewaakteClient(provider_client)
     ai = AIServiceV2(use_cache=False, ai_client=bewaakt, model_router=router)
+    verifier = (
+        Ess05VerificationService(
+            ai,
+            model_router=router,
+            timeout_seconds=timeout,
+            max_tokens=verifier_max_tokens,
+        )
+        if verifier_max_tokens is not None
+        else None
+    )
     dienst = Ess05AssessmentService(
         ai,
         model_router=router,
         timeout_seconds=timeout,
         max_tokens=max_tokens_t,
         cache_size=0,
+        verification_service=verifier,
     )
     g_temperatuur = float(get_prompt_temperature("definition"))
     t_provider, t_model = router.get_model("validation")
@@ -800,7 +1111,9 @@ def _laad_env() -> str:
     return "geen .env gevonden"
 
 
-def live_omgeving(*, timeout: int, max_tokens_t: int) -> Omgeving:
+def live_omgeving(
+    *, timeout: int, max_tokens_t: int, verifier_max_tokens: int | None = None
+) -> Omgeving:
     """De echte providerclient met SDK-wacht; sleutel alleen op aanwezigheid gecontroleerd."""
     import anthropic.resources.messages as sdk_messages
 
@@ -833,6 +1146,7 @@ def live_omgeving(*, timeout: int, max_tokens_t: int) -> Omgeving:
         sdk_bewaakt=True,
         geheimen=(sleutel,),
         echt=True,
+        verifier_max_tokens=verifier_max_tokens,
     )
 
 
@@ -1171,27 +1485,51 @@ def _sluit_stappen(
     afbraak: str,
 ) -> list[dict[str, Any]]:
     """Sluit elke gemaakte stapreservering af; geeft per stap de afsluiting."""
-    gesloten = []
-    for index, (stap, res, reservering) in enumerate(poging.gereserveerd):
-        netwerk = omg.netwerk_gestart(reservering)
-        status = _stapstatus(
+    statussen = [
+        _stapstatus(
             document,
             stap,
             laatste=index == len(poging.gereserveerd) - 1,
-            netwerk=netwerk,
+            netwerk=omg.netwerk_gestart(reservering),
             afbraak=afbraak,
         )
+        for index, (stap, _, reservering) in enumerate(poging.gereserveerd)
+    ]
+    return _sluit_met_statussen(omg, boek, poging, statussen)
+
+
+def _sluit_met_statussen(
+    omg: Omgeving,
+    boek: gb.Grootboek,
+    poging: gb.Stappenpoging,
+    statussen: list[str],
+) -> list[dict[str, Any]]:
+    """Sluit elke stapreservering met haar status; onder kostenbewaking met de
+    werkelijke kosten uit de SDK-usage (None zonder usage: dan telt de grens)."""
+    kb = boek.identiteit.kostenbewaking
+    gesloten = []
+    for (stap, res, reservering), status in zip(
+        poging.gereserveerd, statussen, strict=True
+    ):
+        kosten = gb.kosten_nusd(reservering.sdk, kb) if kb is not None else None
         boek.sluit(
             res["seq"],
             status,
-            netwerk_gestart=netwerk,
+            netwerk_gestart=omg.netwerk_gestart(reservering),
             details={
                 "client_aanroepen": reservering.client_aanroepen,
                 "sdk_aanroepen": reservering.sdk_aanroepen,
             },
+            kosten_werkelijk_nusd=kosten,
         )
         gesloten.append(
-            {"stap": stap, "res": res, "reservering": reservering, "status": status}
+            {
+                "stap": stap,
+                "res": res,
+                "reservering": reservering,
+                "status": status,
+                "kosten_nusd": kosten,
+            }
         )
     return gesloten
 
@@ -1233,9 +1571,23 @@ def _stapregistratie(
                     "sdk": reservering.sdk,
                 },
                 "kosten": gb.kosten(reservering.sdk, prijs, prijs_bekend=bekend),
+                # R8: begrote grens, gemeten payload en werkelijke kosten (nUSD).
+                "kosten_grens_nusd": res.get("kosten_grens_nusd"),
+                "payload_bytes": reservering.payload_bytes,
+                "kosten_nusd": item.get("kosten_nusd"),
             }
         )
     return registratie
+
+
+def _tokens(stappen: list[dict[str, Any]]) -> dict[str, int] | None:
+    """Werkelijke SDK-usage over de stappen, alleen als elke stap usage heeft."""
+    usages = [(s["transport"]["sdk"] or {}).get("usage") or {} for s in stappen]
+    invoer = [u.get("input_tokens") for u in usages]
+    uitvoer = [u.get("output_tokens") for u in usages]
+    if not stappen or not all(isinstance(t, int) for t in invoer + uitvoer):
+        return None
+    return {"input": sum(invoer), "output": sum(uitvoer)}
 
 
 def _totaalkosten(stappen: list[dict[str, Any]]) -> float | None:
@@ -1258,8 +1610,12 @@ async def _t_call(
     code_sha: str,
     config_sha: str,
     callmap: Path,
+    besluit: str | None = None,
 ) -> dict[str, Any]:
-    """Eén T-geval; elke modelstap reserveert bij haar aanroep (`Stappenpoging`)."""
+    """Eén T-geval; elke modelstap reserveert bij haar aanroep (`Stappenpoging`).
+
+    `besluit` (echte R8-run): hash van het budgetbesluit, in elke reservering.
+    """
     from services.validation.ess05_verification_service import aanroepgrens
 
     projectie = pi.modelprojectie(geval)
@@ -1278,6 +1634,7 @@ async def _t_call(
             "prompt_sha256": prompt.sha256,
             "code_sha256": code_sha,
             "config_sha256": config_sha,
+            **({"budgetbesluit_sha256": besluit} if besluit else {}),
         },
     )
     document, fout, afbraak = None, None, "afgebroken"
@@ -1298,7 +1655,7 @@ async def _t_call(
                     uitgesloten_termen=projectie.get("uitgesloten_termen") or (),
                     correlation_id=f"def768-wp7-{sleutel}",
                 ),
-                timeout=omg.timeout + MARGE_S,
+                timeout=_buitenste_deadline(omg, len(t_stappen(omg.dienst))),
             )
         document = beoordeling.als_dict()
     except TimeoutError:
@@ -1368,16 +1725,35 @@ async def _t_call(
             "tokens_used_aiservice_raming": attributie.get("tokens_used"),
         },
         "kosten": {"usd": _totaalkosten(stappen), "per_stap": "zie reserveringen"},
+        "tokens": _tokens(stappen),
+        "latentie_s": {
+            "beoordeling": (document or {}).get("elapsed_seconds"),
+            "verificatie": (document or {}).get("verification_elapsed_seconds"),
+        },
     }
+    kb = boek.identiteit.kostenbewaking
+    acceptatie = None
+    if kb is not None and poging.gereserveerd:
+        geaccepteerd, reden = _t_acceptatie(record, volledig=fase != "ontwikkeling")
+        acceptatie = {"geaccepteerd": geaccepteerd, "reden": reden}
+        record["acceptatie"] = acceptatie
     naam = f"{eerste_seq:03d}" if eerste_seq is not None else "geen-reservering"
-    gb.schrijf_nieuw(
-        callmap / f"{naam}-{fase}-{geval['id']}.json",
-        record,
-        geheimen=omg.geheimen,
-    )
+    bestand = f"{naam}-{fase}-{geval['id']}.json"
+    gb.schrijf_nieuw(callmap / bestand, record, geheimen=omg.geheimen)
+    if acceptatie is not None:
+        # Duurzaam vóór elke verdere stap: het eerste niet-geaccepteerde geval
+        # (ook een annulering of bewakingsweigering) stopt de proef.
+        boek.registreer_geval(
+            fase, sleutel, details={"callrecord": bestand}, **acceptatie
+        )
     if annulering is not None:
         raise annulering
     _stop_bij_bewaking(sleutel, poging.schending, (document or {}).get("error"), fout)
+    if acceptatie is not None and not acceptatie["geaccepteerd"]:
+        msg = (
+            f"{sleutel}: geval niet geaccepteerd ({acceptatie['reden']}); proef gestopt"
+        )
+        raise gb.BudgetSchendingError(msg)
     logger.info(
         "%s: verwacht=%s gekregen=%s afsluiting=%s %.1fs",
         sleutel,
@@ -1395,7 +1771,45 @@ async def _t_call(
         "afsluitstatus": status,
         "reserveringen": len(stappen),
         "kosten_usd": record["kosten"]["usd"],
+        "tokens": record["tokens"],
+        "latentie_s": record["latentie_s"],
+        "duur_s": duur,
+        "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
     }
+
+
+def _vooraftoets_r8_t(
+    omg: Omgeving,
+    proef: Proef,
+    fase: str,
+    gevallen: list[dict[str, Any]],
+    herhaal: list[str],
+) -> None:
+    """R8, vóór slot en grootboek: elk geval een modelgeval, stap 1 binnen de bytegrens.
+
+    De begroting telt elk geval als twee modelstappen; een nulcallroute zou de
+    fasevolgorde (alle gevallen geaccepteerd) onhaalbaar maken. De bytes van
+    stap 2 hangen af van het concept; die toetst de SDK-wacht vóór verzending.
+    """
+    if proef.identiteit.kostenbewaking is None:
+        return
+    plan = plan_t(fase, gevallen, herhaal)
+    nulcall = [
+        geval["id"]
+        for _, geval in plan
+        if pi.route(pi.modelprojectie(geval), _lege_ruimte(geval))["soort"] == "nulcall"
+    ]
+    if nulcall:
+        msg = (
+            f"ronde {proef.naam} begroot elk geval als modelgeval; nulcallroute(s) "
+            f"{sorted(set(nulcall))} geweigerd — geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
+    for sleutel, geval in plan:
+        prompt = pi.bouw_t_prompt(pi.modelprojectie(geval), omg.norm)
+        system, user = prompt.teksten
+        bytes_ = _payloadbytes(omg, "t", omg.dienst._max_tokens, system, user)
+        _controleer_bytegrens(proef, omg.dienst.TASK_TYPE, sleutel, bytes_)
 
 
 async def voer_t_fase(
@@ -1419,6 +1833,9 @@ async def voer_t_fase(
     _fase_van(proef, fase, T_FASES)
     _controleer_opslag(omg, opslag, proef)
     _controleer_goedkeuring(omg, proef)
+    _controleer_productiegrenzen(omg, proef)
+    _controleer_kostenroute(omg, proef)
+    besluit = _besluit_voor(omg, proef)
     stappen = len(t_stappen(omg.dienst))
     if technische_herhalingen:
         # Elke modelstap heeft een eigen reservering; een technische herhaling
@@ -1450,10 +1867,12 @@ async def voer_t_fase(
         code_sha256=code_sha,
         config_sha256=config_sha,
     )
+    _vooraftoets_r8_t(omg, proef, fase, gevallen, herhaal)
     deadline = _Deadline(totaal_deadline)
     with gb.Proefslot(opslag.slot):
         vorige = _lees_voorganger(omg, proef, voorganger_opslag)
         boek = _grootboek(opslag, nieuw_grootboek, proef)
+        boek.controleer_fasestart(fase)
         boek.controleer_binding(fase, bestand_sha, binding)  # vóór elke call
         voor = boek.samenvatting()
         routes, plan = [], []
@@ -1473,12 +1892,13 @@ async def voer_t_fase(
         if max_calls is not None:
             selectie = selectie[:max_calls]
         _controleer_plan(boek, fase, len(selectie), False, stappen)
+        _controleer_kostenplan(boek, fase, len(selectie))
         voorganger = _controleer_voorganger(boek, vorige, len(selectie) * stappen)
         runmap = _nieuwe_map(uitmap, fase)
         resultaten, niet_gestart = [], 0
         try:
             for sleutel, geval, _technisch in selectie:
-                if not deadline.past(omg.timeout + MARGE_S):
+                if not deadline.past(_buitenste_deadline(omg, stappen)):
                     niet_gestart += 1
                     continue
                 resultaten.append(
@@ -1493,6 +1913,7 @@ async def voer_t_fase(
                         code_sha=code_sha,
                         config_sha=config_sha,
                         callmap=runmap / "calls",
+                        besluit=besluit,
                     )
                 )
         finally:
@@ -1513,6 +1934,7 @@ async def voer_t_fase(
             samenvatting["grootboek"] = str(opslag.grootboek)
             samenvatting["eindbinding"] = binding
             samenvatting["voorganger_grootboek"] = voorganger
+            samenvatting["budgetbesluit_sha256"] = besluit
             gb.schrijf_nieuw(
                 runmap / "samenvatting.json", samenvatting, geheimen=omg.geheimen
             )
@@ -1535,7 +1957,24 @@ def _samenvatting(
     config: dict[str, Any],
 ) -> dict[str, Any]:
     kosten = [r["kosten_usd"] for r in resultaten]
+    tokens = [r.get("tokens") for r in resultaten]
+    latenties = [
+        s
+        for r in resultaten
+        for s in (r.get("latentie_s") or {}).values()
+        if isinstance(s, int | float)
+    ]
     return {
+        # Gemeten, niet begroot: werkelijke SDK-usage en stapduur (ontwikkelpoort).
+        "tokens": (
+            {
+                "input": sum(t["input"] for t in tokens),
+                "output": sum(t["output"] for t in tokens),
+            }
+            if tokens and all(tokens)
+            else None
+        ),
+        "latentie_s_max_per_stap": max(latenties) if latenties else None,
         "schema": "def768-ess05-proefrun/1",
         "proef_id": boek.identiteit.proef_id,
         "fase": fase,
@@ -1557,6 +1996,407 @@ def _samenvatting(
         "kosten_onbekend": sum(1 for k in kosten if k is None),
         "resultaten": resultaten,
     }
+
+
+# --- V (R8: alleen de verificatiestap) -----------------------------------------------------
+
+#: Een verificatieantwoord dat al op vorm of binding strandt, is geen
+#: semantische detectie van de bekende fout.
+_SCHEMAWEIGERINGEN = frozenset({"malformed_response", "candidate_hash_mismatch"})
+
+
+@dataclass(frozen=True)
+class _VItem:
+    """Eén bevroren verifier-only-item, opnieuw gebonden aan de huidige code."""
+
+    sleutel: str
+    item: dict[str, Any]
+    concept: Any
+    materiaal: dict[str, str]
+    regels: str
+    prompt: tuple[str, str]
+
+
+def valideer_v_invoer(data: Any, omg: Omgeving) -> list[_VItem]:
+    """De migratie-invoer, volledig opnieuw gebonden vóór grootboek en netwerk.
+
+    Per item: gevalhash, materiaalhashes, een structureel geldig concept met
+    exact de vastgelegde hash en controles, soort en foutdragers, en een
+    verificatieprompt die byte-gelijk is aan de bevroren prompt.
+    """
+    from domain.ess05.bewijs import verplichte_controles
+    from domain.ess05.contract import valideer_concept
+    from services.validation.ess05_assessment_service import _TOETSINSTRUCTIE
+    from services.validation.ess05_verification_service import (
+        bouw_verificatieprompt,
+        prompthash,
+    )
+
+    if (
+        not isinstance(data, dict)
+        or data.get("schema") != mig.INVOERSCHEMA
+        or not isinstance(data.get("items"), list)
+        or not data["items"]
+    ):
+        msg = f"verifier-only-invoer heeft niet het schema {mig.INVOERSCHEMA}"
+        raise pi.InvoerfoutError(msg)
+    ids = [item.get("id") for item in data["items"]]
+    if len(set(ids)) != len(ids):
+        msg = f"verifier-only-invoer heeft dubbele ids: {ids}"
+        raise pi.InvoerfoutError(msg)
+    uit = []
+    for item in data["items"]:
+        naam = item["id"]
+        geval = item["geval"]
+        if pi.sha_json(geval) != item["geval_sha256"]:
+            msg = f"{naam}: geval wijkt af van geval_sha256"
+            raise pi.InvoerfoutError(msg)
+        materiaal, buren, regels = mig.verificatiemateriaal(geval, omg.norm)
+        if {m: _sha_tekst(t) for m, t in materiaal.items()} != item["materiaal_sha256"]:
+            msg = f"{naam}: materiaal wijkt af van de bevroren materiaalhashes"
+            raise pi.InvoerfoutError(msg)
+        concept, fouten = valideer_concept(item["concept"], materiaal, buren)
+        if concept is None or concept.hash != item["concept_hash"]:
+            msg = f"{naam}: concept voldoet niet of concept_hash wijkt af ({fouten})"
+            raise pi.InvoerfoutError(msg)
+        verplicht = list(verplichte_controles(concept))
+        fout = item["foutdragende_items"]
+        if (
+            verplicht != item["verplichte_controles"]
+            or item["soort"] not in ("goed", "fout")
+            or (item["soort"] == "fout") != bool(fout)
+            or not set(fout) <= set(verplicht)
+        ):
+            msg = f"{naam}: controles, soort of foutdragende items ongeldig"
+            raise pi.InvoerfoutError(msg)
+        system, user = bouw_verificatieprompt(
+            regels, concept, norm=omg.norm, toetsinstructie=_TOETSINSTRUCTIE
+        )
+        if prompthash(system, user) != item["verificatieprompt_sha256"]:
+            msg = f"{naam}: verificatieprompt wijkt af van de bevroren invoer"
+            raise pi.InvoerfoutError(msg)
+        uit.append(
+            _VItem(
+                f"verificatie_alleen|{naam}|1",
+                item,
+                concept,
+                materiaal,
+                regels,
+                (system, user),
+            )
+        )
+    return uit
+
+
+def _v_status(resultaat: Any, netwerk: bool, afbraak: str) -> str:
+    """Afsluitstatus van de verificatiestap (zie `_afsluitstatus_t`)."""
+    from domain.ess05.contract import FOUT_SEMANTISCH
+
+    if resultaat is None:
+        return "technisch" if netwerk else afbraak
+    if resultaat.fout in (None, FOUT_SEMANTISCH):
+        return "voltooid"
+    if resultaat.fout in _TECHNISCHE_FOUTEN:
+        return "technisch" if netwerk else "niet_verzonden"
+    return "modelfout"
+
+
+def _v_acceptatie(
+    v: _VItem, resultaat: Any, status: str, schending: str | None
+) -> tuple[bool, str]:
+    """Goed item: vrijgave. Fout item: semantische weigering op een foutdrager.
+
+    Een schemaweigering, een weigering elders of een vrijgave van een fout item
+    is geen detectie; een weigering van een goed item is een onnodige weigering.
+    """
+    from domain.ess05.contract import FOUT_SEMANTISCH
+
+    if schending:
+        return False, f"bewakingsweigering: {schending}"
+    if resultaat is None:
+        return False, f"runtimefout zonder verificatieresultaat ({status})"
+    if resultaat.fout in _SCHEMAWEIGERINGEN:
+        return False, (
+            f"schemaweigering ({resultaat.fout}) telt niet als semantische detectie"
+        )
+    if status != "voltooid":
+        return False, f"runtimefout ({status}, {resultaat.fout})"
+    if v.item["soort"] == "goed":
+        if resultaat.goedgekeurd:
+            return True, "goed item vrijgegeven"
+        return False, f"onnodige weigering van een goed item ({resultaat.fout})"
+    if resultaat.goedgekeurd:
+        return False, "fout item vrijgegeven: bekende fout niet gedetecteerd"
+    geraakt = sorted(
+        {b["item"] for b in resultaat.uitkomst.bevindingen}
+        & set(v.item["foutdragende_items"])
+    )
+    if resultaat.fout != FOUT_SEMANTISCH or not geraakt:
+        return False, "semantische weigering buiten de foutdragende items"
+    return True, f"bekende fout gedetecteerd op {geraakt}"
+
+
+def _verificatieregistratie(resultaat: Any) -> dict[str, Any] | None:
+    if resultaat is None:
+        return None
+    return {
+        "fout": resultaat.fout,
+        "melding": resultaat.melding,
+        "ruw": dict(resultaat.ruw) if resultaat.ruw else None,
+        "bevindingen": (
+            [dict(b) for b in resultaat.uitkomst.bevindingen]
+            if resultaat.uitkomst is not None
+            else []
+        ),
+        "raw_response_sha256": resultaat.raw_hash,
+        "verified_at": resultaat.verified_at,
+        "invoer": dict(resultaat.invoer),
+        "attributie": dict(resultaat.attributie),
+    }
+
+
+async def _v_call(
+    omg: Omgeving,
+    boek: gb.Grootboek,
+    *,
+    fase: str,
+    v: _VItem,
+    bestand_sha: str,
+    binding: dict[str, Any] | None,
+    code_sha: str,
+    config_sha: str,
+    callmap: Path,
+    besluit: str | None = None,
+) -> dict[str, Any]:
+    """Eén verifier-only-item: één reservering, één verificatieaanroep."""
+    from services.validation.ess05_assessment_service import _TOETSINSTRUCTIE
+    from services.validation.ess05_verification_service import aanroepgrens
+
+    verifier = omg.dienst.verification_service
+    poging = gb.Stappenpoging(
+        boek,
+        fase=fase,
+        poging=v.sleutel,
+        stappen=((verifier.TASK_TYPE, "verificatie"),),
+        invoer_sha256=bestand_sha,
+        binding=binding,
+        details={
+            "item": v.item["id"],
+            "concept_hash": v.concept.hash,
+            "prompt_sha256": v.item["verificatieprompt_sha256"],
+            "code_sha256": code_sha,
+            "config_sha256": config_sha,
+            **({"budgetbesluit_sha256": besluit} if besluit else {}),
+        },
+    )
+    resultaat, fout, afbraak = None, None, "afgebroken"
+    annulering: asyncio.CancelledError | None = None
+    start = time.perf_counter()
+    try:
+        with aanroepgrens(poging.stap):
+            resultaat = await asyncio.wait_for(
+                verifier.verifieer(
+                    v.concept,
+                    v.materiaal,
+                    v.regels,
+                    norm=omg.norm,
+                    toetsinstructie=_TOETSINSTRUCTIE,
+                ),
+                timeout=_buitenste_deadline(omg, 1),
+            )
+    except TimeoutError:
+        fout = "buitenste deadline verstreken; aanroep geannuleerd"
+    except Exception as exc:
+        fout = gb.scrub(f"{type(exc).__name__}: {exc}")
+        afbraak = "niet_verzonden"
+    except asyncio.CancelledError as exc:
+        fout = "aanroep geannuleerd; wordt na registratie doorgegeven"
+        annulering = exc
+    finally:
+        statussen = [
+            _v_status(resultaat, omg.netwerk_gestart(r), afbraak)
+            for _, _, r in poging.gereserveerd
+        ]
+        gesloten = _sluit_met_statussen(omg, boek, poging, statussen)
+    duur = round(time.perf_counter() - start, 3)
+    stappen = _stapregistratie(omg, gesloten, None)
+    for stap in stappen:
+        stap["attributie"] = dict(resultaat.attributie) if resultaat else None
+    status = stappen[-1]["afsluitstatus"] if stappen else "niet_verzonden"
+    acceptatie = None
+    if stappen:
+        geaccepteerd, reden = _v_acceptatie(v, resultaat, status, poging.schending)
+        acceptatie = {"geaccepteerd": geaccepteerd, "reden": reden}
+    system, user = v.prompt
+    record = {
+        "schema": "def768-ess05-verifiercall/1",
+        "fase": fase,
+        "sleutel": v.sleutel,
+        "seq": stappen[0]["seq"] if stappen else None,
+        "item_id": v.item["id"],
+        "soort": v.item["soort"],
+        "bron": v.item["bron"],
+        "invoerbestand_sha256": bestand_sha,
+        "geval_sha256": v.item["geval_sha256"],
+        "concept_hash": v.concept.hash,
+        "foutdragende_items": v.item["foutdragende_items"],
+        "afsluitstatus": status,
+        "fout": fout,
+        "duur_s": duur,
+        "prompt": {
+            "system": system,
+            "user": user,
+            "sha256": v.item["verificatieprompt_sha256"],
+            "komt_overeen_met_dienst": bool(resultaat)
+            and resultaat.invoer.get("prompt_sha256")
+            == v.item["verificatieprompt_sha256"],
+        },
+        "ruw_antwoord": stappen[0]["ruw_antwoord"] if stappen else None,
+        "verificatie": _verificatieregistratie(resultaat),
+        "reserveringen": stappen,
+        "tokens": _tokens(stappen),
+        "latentie_s": {
+            "verificatie": round(resultaat.verstreken, 3) if resultaat else None
+        },
+        "kosten": {"usd": _totaalkosten(stappen), "per_stap": "zie reserveringen"},
+        "acceptatie": acceptatie,
+    }
+    naam = f"{record['seq']:03d}" if record["seq"] is not None else "geen-reservering"
+    bestand = f"{naam}-{fase}-{v.item['id']}.json"
+    gb.schrijf_nieuw(callmap / bestand, record, geheimen=omg.geheimen)
+    if acceptatie is not None:
+        boek.registreer_geval(
+            fase, v.sleutel, details={"callrecord": bestand}, **acceptatie
+        )
+    if annulering is not None:
+        raise annulering
+    _stop_bij_bewaking(v.sleutel, poging.schending, fout)
+    if acceptatie is not None and not acceptatie["geaccepteerd"]:
+        msg = (
+            f"{v.sleutel}: geval niet geaccepteerd ({acceptatie['reden']}); "
+            "proef gestopt"
+        )
+        raise gb.BudgetSchendingError(msg)
+    logger.info("%s: %s %.1fs", v.sleutel, (acceptatie or {}).get("reden"), duur)
+    return {
+        "sleutel": v.sleutel,
+        "id": v.item["id"],
+        "soort": v.item["soort"],
+        "afsluitstatus": status,
+        "reserveringen": len(stappen),
+        "kosten_usd": record["kosten"]["usd"],
+        "tokens": record["tokens"],
+        "latentie_s": record["latentie_s"],
+        "duur_s": duur,
+        "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
+        "status_correct": (acceptatie or {}).get("geaccepteerd"),
+    }
+
+
+async def voer_v_fase(
+    omg: Omgeving,
+    *,
+    gevallenpad: Path,
+    uitmap: Path,
+    opslag: Proefopslag,
+    proef: Proef,
+    fase: str = "verificatie_alleen",
+    freeze: Path | None = None,
+    voorganger_opslag: Proefopslag | Sequence[Proefopslag] | None = None,
+    nieuw_grootboek: bool = False,
+    technische_herhalingen: Sequence[str] = (),
+    max_calls: int | None = None,
+    totaal_deadline: float | None = None,
+) -> dict[str, Any]:
+    """R8 verifier-only: de bevroren migratie-invoer, elk item één verificatie."""
+    _fase_van(proef, fase, V_FASES)
+    _controleer_opslag(omg, opslag, proef)
+    _controleer_registratie(omg, proef)
+    _controleer_productiegrenzen(omg, proef)
+    _controleer_kostenroute(omg, proef)
+    besluit = _besluit_voor(omg, proef)
+    if technische_herhalingen:
+        msg = "technische herhaling in de verifier-only-fase is niet vastgelegd"
+        raise gb.BudgetSchendingError(msg)
+    _controleer_ontwikkelinvoer(proef, fase, gevallenpad)
+    items = valideer_v_invoer(
+        json.loads(Path(gevallenpad).read_text(encoding="utf-8")), omg
+    )
+    verifier = omg.dienst.verification_service
+    for v in items:
+        bytes_ = _payloadbytes(omg, "t_verificatie", verifier.max_tokens, *v.prompt)
+        _controleer_bytegrens(proef, verifier.TASK_TYPE, v.sleutel, bytes_)
+    bestand_sha = _sha_bestand(gevallenpad)
+    code_sha = code_sha256()
+    config = effectieve_config(omg)
+    config_sha = pi.sha_json(config)
+    binding = _eindbinding(
+        omg,
+        proef,
+        proef.identiteit.eindgroep(fase),
+        freeze,
+        dataset_sha256=bestand_sha,
+        herhaal_ids=[],
+        code_sha256=code_sha,
+        config_sha256=config_sha,
+    )
+    deadline = _Deadline(totaal_deadline)
+    with gb.Proefslot(opslag.slot):
+        vorige = _lees_voorganger(omg, proef, voorganger_opslag)
+        boek = _grootboek(opslag, nieuw_grootboek, proef)
+        boek.controleer_fasestart(fase)
+        boek.controleer_binding(fase, bestand_sha, binding)  # vóór elke call
+        voor = boek.samenvatting()
+        selectie, overgeslagen = _selecteer([(v.sleutel, v) for v in items], boek, ())
+        if max_calls is not None:
+            selectie = selectie[:max_calls]
+        _controleer_plan(boek, fase, len(selectie), False, 1)
+        _controleer_kostenplan(boek, fase, len(selectie))
+        voorganger = _controleer_voorganger(boek, vorige, len(selectie))
+        runmap = _nieuwe_map(uitmap, fase)
+        resultaten, niet_gestart = [], 0
+        try:
+            for _sleutel, v, _technisch in selectie:
+                if not deadline.past(_buitenste_deadline(omg, 1)):
+                    niet_gestart += 1
+                    continue
+                resultaten.append(
+                    await _v_call(
+                        omg,
+                        boek,
+                        fase=fase,
+                        v=v,
+                        bestand_sha=bestand_sha,
+                        binding=binding,
+                        code_sha=code_sha,
+                        config_sha=config_sha,
+                        callmap=runmap / "calls",
+                        besluit=besluit,
+                    )
+                )
+        finally:
+            samenvatting = _samenvatting(
+                omg,
+                boek,
+                voor,
+                fase=fase,
+                invoer=gevallenpad,
+                bestand_sha=bestand_sha,
+                resultaten=resultaten,
+                overgeslagen=overgeslagen,
+                niet_gestart=niet_gestart,
+                routes=[],
+                technisch=(),
+                config=config,
+            )
+            samenvatting["grootboek"] = str(opslag.grootboek)
+            samenvatting["eindbinding"] = binding
+            samenvatting["voorganger_grootboek"] = voorganger
+            samenvatting["budgetbesluit_sha256"] = besluit
+            gb.schrijf_nieuw(
+                runmap / "samenvatting.json", samenvatting, geheimen=omg.geheimen
+            )
+    return samenvatting
 
 
 # --- G --------------------------------------------------------------------------------------
@@ -1994,10 +2834,12 @@ def nulcallproef(gevallenpad: Path, uitmap: Path) -> dict[str, Any]:
     return samenvatting
 
 
-def droogomgeving(*, timeout: int, max_tokens_t: int) -> Omgeving:
+def droogomgeving(
+    *, timeout: int, max_tokens_t: int, verifier_max_tokens: int | None = None
+) -> Omgeving:
     """De omgeving zoals `--echt` haar bouwt, zonder providerclient of sleutel.
 
-    Alleen voor het berekenen van freezevelden; er is geen client, dus geen
+    Alleen voor freezevelden en vooraftoetsen; er is geen client, dus geen
     call mogelijk. `sdk_bewaakt=True` zoals live, zodat de effectieve
     configuratie (en haar hash) gelijk is aan die van de echte run met
     dezelfde `--timeout` en `--max-tokens-t`.
@@ -2011,6 +2853,7 @@ def droogomgeving(*, timeout: int, max_tokens_t: int) -> Omgeving:
         max_tokens_t=max_tokens_t,
         sdk_bewaakt=True,
         geheimen=(),
+        verifier_max_tokens=verifier_max_tokens,
     )
 
 
@@ -2021,16 +2864,50 @@ async def droogrun(
     *,
     proef: Proef = STANDAARD_PROEF,
     timeout: int = 60,
-    max_tokens_t: int = 1500,
+    max_tokens_t: int | None = None,
 ) -> dict[str, Any]:
-    """Alle prompts en controles van een fase, zonder client en zonder grootboek."""
+    """Alle prompts en controles van een fase, zonder client en zonder grootboek.
+
+    R8: ook de productiegrenzen, de kostenroute en de bytegrens per item, met
+    de omgeving zoals `--echt` haar bouwt (fail-closed, net als echt).
+    """
     from services.validation.ess05_assessment_service import laad_ess05_norm
 
-    _fase_van(proef, fase, (*T_FASES, *G_FASES))
+    if max_tokens_t is None:
+        max_tokens_t = _standaard_max_tokens(proef)
+    kb = proef.identiteit.kostenbewaking
+    _fase_van(proef, fase, (*T_FASES, *G_FASES, *V_FASES))
     _controleer_ontwikkelinvoer(proef, fase, pad)
+    omg_d = droogomgeving(
+        timeout=timeout,
+        max_tokens_t=max_tokens_t,
+        verifier_max_tokens=max_tokens_t if kb is not None else None,
+    )
+    _controleer_productiegrenzen(omg_d, proef)
+    _controleer_kostenroute(omg_d, proef)
     data = json.loads(Path(pad).read_text(encoding="utf-8"))
     items: list[dict[str, Any]] = []
-    if fase == "g_ontwikkeling":
+    if fase in V_FASES:
+        verifier = omg_d.dienst.verification_service
+        for v in valideer_v_invoer(data, omg_d):
+            system, user = v.prompt
+            bytes_ = _payloadbytes(
+                omg_d, "t_verificatie", verifier.max_tokens, system, user
+            )
+            _controleer_bytegrens(proef, verifier.TASK_TYPE, v.sleutel, bytes_)
+            items.append(
+                {
+                    "sleutel": v.sleutel,
+                    "soort": v.item["soort"],
+                    "prompt": {"system": system, "user": user},
+                    "prompt_sha256": v.item["verificatieprompt_sha256"],
+                    "concept_hash": v.concept.hash,
+                    "foutdragende_items": v.item["foutdragende_items"],
+                    "payload_bytes": bytes_,
+                }
+            )
+        extra: dict[str, Any] = {"norm_sha256": pi.sha_json(omg_d.norm)}
+    elif fase == "g_ontwikkeling":
         prompts = await g_prompts(data, alleen_actueel=True)
         for sleutel, item in plan_g_ontwikkeling(prompts):
             tekst = item["varianten"]["actueel"]
@@ -2076,6 +2953,7 @@ async def droogrun(
         gevallen, herhaal = pi.valideer_gevallenbestand(
             data, herhaal_vereist=proef.identiteit.eindgroep(fase) is not None
         )
+        _vooraftoets_r8_t(omg_d, proef, fase, gevallen, herhaal)
         for sleutel, geval in plan_t(fase, gevallen, herhaal):
             projectie = pi.modelprojectie(geval)
             route = pi.route(projectie, _lege_ruimte(geval))
@@ -2091,14 +2969,15 @@ async def droogrun(
                     "prompt": {"system": prompt.teksten[0], "user": prompt.teksten[1]},
                     "prompt_sha256": prompt.sha256,
                     "buren": [b.als_dict() for b in prompt.buren],
+                    "payload_bytes": _payloadbytes(
+                        omg_d, "t", max_tokens_t, *prompt.teksten
+                    ),
                 }
             )
         extra = {"norm_sha256": pi.sha_json(norm)}
     groep = proef.identiteit.eindgroep(fase)
     if proef.freeze_vereist and groep is not None:
-        velden = freezevelden(
-            droogomgeving(timeout=timeout, max_tokens_t=max_tokens_t), proef, groep.naam
-        )
+        velden = freezevelden(omg_d, proef, groep.naam)
         extra["freezevelden"] = {
             **velden,
             "dataset_sha256": _sha_bestand(pad),
@@ -2137,18 +3016,25 @@ def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    p.add_argument("--fase", required=True, choices=("nulcall", *T_FASES, *G_FASES))
+    p.add_argument(
+        "--fase", required=True, choices=("nulcall", *T_FASES, *V_FASES, *G_FASES)
+    )
     p.add_argument(
         "--proef",
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R6 zijn gesloten voor echte calls; R7 "
-            f"({gb.R7.proef_id}, alleen T-fases, opslag "
-            f"{PROEVEN['R7'].opslag.root}, cumulatief met R1 t/m R6 max 362)"
+            "R1 (standaard) t/m R7 zijn gesloten voor echte calls; R8 "
+            f"({gb.R8.proef_id}, ADR-003-keten, opslag {PROEVEN['R8'].opslag.root}, "
+            "cumulatief met R1 t/m R7 max 427) is open binnen het gepinde "
+            "budgetbesluit (68 modelstappen, max USD 25, reserve 0)"
         ),
     )
-    p.add_argument("--gevallen", type=Path, help="gevallenbestand (T-fases, nulcall)")
+    p.add_argument(
+        "--gevallen",
+        type=Path,
+        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8)",
+    )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
     )
@@ -2186,7 +3072,12 @@ def _parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--max-calls", type=int, default=None)
     p.add_argument("--timeout", type=int, default=60)
-    p.add_argument("--max-tokens-t", type=int, default=1500)
+    p.add_argument(
+        "--max-tokens-t",
+        type=int,
+        default=None,
+        help="standaard: R8 de productiegrens (3000, ook voor de verifier); oudere rondes 1500",
+    )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"
     )
@@ -2218,6 +3109,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0 if uitkomst["alle_routes_zoals_verwacht"] else 1
     if args.fase not in proef.identiteit.fasecaps:
         parser.error(f"fase {args.fase} bestaat niet in ronde {proef.naam}")
+    max_tokens_t = (
+        args.max_tokens_t
+        if args.max_tokens_t is not None
+        else _standaard_max_tokens(proef)
+    )
     if args.droog:
         with geen_netwerk():
             uitkomst = asyncio.run(
@@ -2227,7 +3123,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     uitmap,
                     proef=proef,
                     timeout=args.timeout,
-                    max_tokens_t=args.max_tokens_t,
+                    max_tokens_t=max_tokens_t,
                 )
             )
         logger.info(
@@ -2243,9 +3139,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not proef.echt_toegestaan:
         parser.error(
             f"ronde {proef.naam} ({proef.identiteit.proef_id}) is gesloten voor "
-            "echte calls; er staat geen ronde open (een nieuwe proef vereist "
-            "een eigen budgetbesluit)"
+            "echte calls; alleen een ronde met een eigen gepind budgetbesluit "
+            "staat open"
         )
+    if proef.identiteit.kostenbewaking is not None:
+        # Vóór sleutel, client en grootboek: het besluit moet exact passen.
+        try:
+            controleer_budgetbesluit(proef)
+        except gb.BudgetSchendingError as exc:
+            parser.error(str(exc))
     # Eén duurzame proefidentiteit: het grootboek volgt nooit --uitmap.
     if (
         args.grootboek is not None
@@ -2255,7 +3157,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"--grootboek {args.grootboek}: echte calls gebruiken uitsluitend "
             f"{proef.opslag.grootboek}"
         )
-    omg = live_omgeving(timeout=args.timeout, max_tokens_t=args.max_tokens_t)
+    omg = live_omgeving(
+        timeout=args.timeout,
+        max_tokens_t=max_tokens_t,
+        verifier_max_tokens=(
+            max_tokens_t if proef.identiteit.kostenbewaking is not None else None
+        ),
+    )
     gemeen = {
         "uitmap": uitmap,
         "opslag": proef.opslag,
@@ -2269,6 +3177,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.fase in G_FASES:
         uitkomst = asyncio.run(
             voer_g_fase(omg, fase=args.fase, g_invoerpad=pad, **gemeen)
+        )
+    elif args.fase in V_FASES:
+        uitkomst = asyncio.run(
+            voer_v_fase(omg, fase=args.fase, gevallenpad=pad, **gemeen)
         )
     else:
         uitkomst = asyncio.run(

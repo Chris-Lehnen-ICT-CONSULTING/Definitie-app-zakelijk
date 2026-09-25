@@ -59,6 +59,30 @@ geweigerd. Welke identiteit hoeveel stappen per geval goedkeurt, staat in
 `Proefidentiteit.modelstappen_per_geval` (R1 t/m R7: één).
 `BudgetSchendingError` is bewust géén `AIClientError`: de retrylus van
 `AsyncGPTClient` herhaalt hem nooit.
+
+`R8` (DEF-768-AI-20260925-R8, ADR-003-keten; livevervolg-proefvoorstel-
+technisch-v1 §3/§6 met de leidende rootcorrecties) telt modelstappen, geen
+gevallen: 6 ontwikkeling (3 gevallen × 2), 6 verifier-only, 40 T-eind (20 ×
+2) en 16 T-herhaling (8 × 2), reserve 0; samen met R7 t/m R1 nooit boven 427.
+Daarbovenop, alleen voor R8:
+
+- **kostenbewaking** (`Kostenbewaking`) — elke stap reserveert vóór het
+  netwerk een kostengrens uit een vaste bytegrens per taak, een expliciete
+  overheadmarge en `max_tokens`; de lopende som (werkelijke kosten waar de
+  usage bekend is, anders de grens: crash, timeout) plus de nieuwe grens mag
+  het routerbudget niet overschrijden. Dit is een begrenzing onder expliciete
+  aannames (tokens ≤ payloadbytes + overhead, routertarief), geen
+  factuurplafond;
+- **vaste taak per stap** (`fasestappen`) en **fasevolgorde** — een fase
+  begint pas als elk geval van haar voorganger geaccepteerd is;
+- **stopregel** — één niet-geaccepteerd geval (`registreer_geval`) stopt de
+  proef duurzaam; geen verborgen herhaling of extra ronde;
+- **gedeelde codebinding** — V en T delen code, configuratie en freeze.
+
+De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
+`max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
+caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
+aangenomen grens (schending = stop).
 """
 
 from __future__ import annotations
@@ -91,21 +115,27 @@ __all__ = [
     "R5",
     "R6",
     "R7",
+    "R8",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
     "BudgetSchendingError",
     "Eindgroep",
     "Grootboek",
+    "Kostenbewaking",
     "Proefidentiteit",
     "Proefslot",
     "Reservering",
+    "Stapgrens",
     "Stappenpoging",
     "actief",
     "ankerpad",
+    "begroting_nusd",
     "controleer_cumulatief",
     "installeer_sdk_wacht",
     "kosten",
+    "kosten_nusd",
+    "payloadbytes",
     "schrijf_nieuw",
     "scrub",
     "voorgangerketen",
@@ -148,10 +178,75 @@ class Eindgroep:
 
 
 @dataclass(frozen=True)
+class Stapgrens:
+    """De toegelaten payload en kostengrens van één modelstap (R8)."""
+
+    task_type: str
+    model: str
+    max_tokens: int
+    #: Compacte UTF-8-JSON-bytes van de verzonden body (zonder `timeout`).
+    bytegrens: int
+    #: Aangenomen providertokens bovenop de payloadbytes (opmaak, rollen).
+    overhead_tokens: int
+
+
+@dataclass(frozen=True)
+class Kostenbewaking:
+    """Fail-closed routerbudget in nanodollars (1 USD = 10⁹ n$), zonder floats.
+
+    Stapgrens = (bytegrens + overhead_tokens) × invoertarief + max_tokens ×
+    uitvoertarief. Aanname: een providertoken dekt minstens één payloadbyte;
+    overhead_tokens is een expliciete marge, geen bewezen providergrens. De
+    SDK-wacht toetst die aanname achteraf per stap (schending = stop).
+    """
+
+    plafond_nusd: int
+    model: str
+    tarief_invoer_nusd: int
+    tarief_uitvoer_nusd: int
+    max_tokens: int
+    overhead_tokens: int
+    bytegrens: Mapping[str, int]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "bytegrens", MappingProxyType(dict(self.bytegrens)))
+
+    def stapgrens(self, task_type: str) -> Stapgrens:
+        if task_type not in self.bytegrens:
+            msg = f"onbekende taak {task_type!r} voor de kostenbewaking"
+            raise BudgetSchendingError(msg)
+        return Stapgrens(
+            task_type=task_type,
+            model=self.model,
+            max_tokens=self.max_tokens,
+            bytegrens=self.bytegrens[task_type],
+            overhead_tokens=self.overhead_tokens,
+        )
+
+    def stapgrens_nusd(self, task_type: str) -> int:
+        grens = self.stapgrens(task_type)
+        return (
+            grens.bytegrens + grens.overhead_tokens
+        ) * self.tarief_invoer_nusd + grens.max_tokens * self.tarief_uitvoer_nusd
+
+    def als_dict(self) -> dict[str, Any]:
+        return {
+            "plafond_nusd": self.plafond_nusd,
+            "model": self.model,
+            "tarief_invoer_nusd": self.tarief_invoer_nusd,
+            "tarief_uitvoer_nusd": self.tarief_uitvoer_nusd,
+            "max_tokens": self.max_tokens,
+            "overhead_tokens": self.overhead_tokens,
+            "bytegrens": dict(self.bytegrens),
+            "stapgrens_nusd": {t: self.stapgrens_nusd(t) for t in self.bytegrens},
+        }
+
+
+@dataclass(frozen=True)
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` en `R2` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R8` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -165,9 +260,23 @@ class Proefidentiteit:
     cumulatief_max: int | None = None
     #: Modelstappen per geval waarvoor deze ronde is goedgekeurd (budgetbesluit).
     modelstappen_per_geval: int = 1
+    #: R8: kostenplafond en stapgrenzen; None = geen kostenbewaking (R1–R7).
+    kostenbewaking: Kostenbewaking | None = None
+    #: R8: de vaste taak per stap, per fase (fasecaps tellen stappen).
+    fasestappen: Mapping[str, tuple[str, ...]] | None = None
+    #: R8: fases die volledig geaccepteerd moeten zijn vóór deze fase begint.
+    fasevolgorde: Mapping[str, tuple[str, ...]] | None = None
+    #: R8: alle eindgroepen delen code, configuratie en freeze.
+    gedeelde_codebinding: bool = False
+    #: R8: één niet-geaccepteerd geval stopt de proef duurzaam.
+    stop_bij_eerste_fout: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "fasecaps", MappingProxyType(dict(self.fasecaps)))
+        for veld in ("fasestappen", "fasevolgorde"):
+            waarde = getattr(self, veld)
+            if waarde is not None:
+                object.__setattr__(self, veld, MappingProxyType(dict(waarde)))
 
     @property
     def totaal_max(self) -> int:
@@ -268,12 +377,79 @@ R7 = Proefidentiteit(
     voorganger=R6,
     cumulatief_max=362,
 )
-_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7)}
+_BEOORDELING, _VERIFICATIE = "validation", "ess05_verification"
+#: Ronde 8 (voorbereid, budget nog niet goedgekeurd; ADR-003-keten): 68
+#: modelstappen — 6 ontwikkeling (R720, R715, R717 × 2), 6 verifier-only (de
+#: zes migratiegevallen), 40 T-eind (20 × 2) en 16 T-herhaling (8 × 2),
+#: reserve 0; samen met R7 t/m R1 nooit boven 427 (359 werkelijke + 68).
+#: Kosten: productiegrens 3000 uitvoertokens per stap, routertarief
+#: claude-opus-5 ($5/$25 per 1M tokens), bytegrens per taak en 12000
+#: overheadtokens; volledige begroting 23,64 ≤ 25 USD (`begroting_nusd`).
+R8 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260925-R8",
+    fasecaps={
+        "ontwikkeling": 6,
+        "verificatie_alleen": 6,
+        "t_eind": 40,
+        "t_herhaling": 16,
+    },
+    reserve_max=0,
+    eindgroepen=(
+        Eindgroep("t", frozenset({"t_eind", "t_herhaling"}), 4),
+        Eindgroep("v", frozenset({"verificatie_alleen"}), 0),
+    ),
+    bindingsvelden=R7.bindingsvelden,
+    voorganger=R7,
+    cumulatief_max=427,
+    modelstappen_per_geval=2,
+    kostenbewaking=Kostenbewaking(
+        plafond_nusd=25_000_000_000,
+        model="claude-opus-5",
+        tarief_invoer_nusd=5_000,
+        tarief_uitvoer_nusd=25_000,
+        max_tokens=3000,
+        overhead_tokens=12_000,
+        bytegrens={_BEOORDELING: 36_000, _VERIFICATIE: 48_000},
+    ),
+    fasestappen={
+        "ontwikkeling": (_BEOORDELING, _VERIFICATIE),
+        "verificatie_alleen": (_VERIFICATIE,),
+        "t_eind": (_BEOORDELING, _VERIFICATIE),
+        "t_herhaling": (_BEOORDELING, _VERIFICATIE),
+    },
+    fasevolgorde={
+        "ontwikkeling": (),
+        "verificatie_alleen": ("ontwikkeling",),
+        "t_eind": ("verificatie_alleen",),
+        "t_herhaling": ("t_eind",),
+    },
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+)
+_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8)}
+#: Velden die alle eindgroepen delen bij `gedeelde_codebinding`.
+_GEDEELDE_BINDING = ("code_sha256", "config_sha256", "freeze_sha256")
+
+
+def begroting_nusd(identiteit: Proefidentiteit) -> int:
+    """De volledige stapbegroting: elke fasecap gevuld met de maximale stapgrens."""
+    kb, stappen = identiteit.kostenbewaking, identiteit.fasestappen
+    if kb is None or stappen is None:
+        msg = f"{identiteit.proef_id} heeft geen kostenbewaking"
+        raise BudgetSchendingError(msg)
+    totaal = 0
+    for fase, cap in identiteit.fasecaps.items():
+        gevallen, rest = divmod(cap, len(stappen[fase]))
+        if rest:
+            msg = f"fasecap {fase}={cap} is geen veelvoud van de stappen per geval"
+            raise BudgetSchendingError(msg)
+        totaal += gevallen * sum(kb.stapgrens_nusd(t) for t in stappen[fase])
+    return totaal
 
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R7"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R8"
         raise BudgetSchendingError(msg)
     return identiteit
 
@@ -522,6 +698,35 @@ class Grootboek:
             for r in self._reserveringen()
         )
 
+    def _gevallen(self) -> list[dict[str, Any]]:
+        return [r for r in self._records if r["soort"] == "geval"]
+
+    def kostenstand(self) -> dict[str, int]:
+        """Lopende kosten: werkelijk waar de usage bekend is, anders de grens.
+
+        Een onafgesloten reservering (crash) en een afsluiting zonder werkelijke
+        kosten (timeout, geen usage) tellen met hun volledige stapgrens.
+        """
+        kb = self.identiteit.kostenbewaking
+        if kb is None:
+            msg = f"{self.identiteit.proef_id} heeft geen kostenbewaking"
+            raise BudgetSchendingError(msg)
+        afgesloten = self._afsluitingen()
+        gereserveerd = werkelijk = lopend = 0
+        for r in self._reserveringen():
+            grens = r["kosten_grens_nusd"]
+            echt = afgesloten.get(r["seq"], {}).get("kosten_werkelijk_nusd")
+            gereserveerd += grens
+            werkelijk += echt or 0
+            lopend += grens if echt is None else echt
+        return {
+            "plafond_nusd": kb.plafond_nusd,
+            "gereserveerd_nusd": gereserveerd,
+            "werkelijk_bekend_nusd": werkelijk,
+            "lopend_nusd": lopend,
+            "resterend_nusd": kb.plafond_nusd - lopend,
+        }
+
     def samenvatting(self) -> dict[str, Any]:
         caps = self.identiteit.fasecaps
         reserveringen = self._reserveringen()
@@ -533,7 +738,21 @@ class Grootboek:
                 per_fase[r["fase"]] += 1
             status = afgesloten.get(r["seq"], {}).get("status", "onafgesloten")
             per_status[status] = per_status.get(status, 0) + 1
+        extra: dict[str, Any] = {}
+        if self.identiteit.kostenbewaking is not None:
+            gevallen: dict[str, dict[str, int]] = {}
+            for g in self._gevallen():
+                teller = gevallen.setdefault(
+                    g["fase"], {"geaccepteerd": 0, "geweigerd": 0}
+                )
+                teller["geaccepteerd" if g["geaccepteerd"] else "geweigerd"] += 1
+            extra = {
+                "kosten": self.kostenstand(),
+                "gevallen": gevallen,
+                "gestopt": any(not g["geaccepteerd"] for g in self._gevallen()),
+            }
         return {
+            **extra,
             "proef_id": self.identiteit.proef_id,
             "totaal": len(reserveringen),
             "totaal_max": self.identiteit.totaal_max,
@@ -615,6 +834,7 @@ class Grootboek:
         poging: str | None = None,
         stap: str | None = None,
         vorige_stap: str | None = None,
+        task_type: str | None = None,
     ) -> dict[str, Any]:
         """Reserveer één echte call vóór het netwerk; faalt hard buiten het budget.
 
@@ -623,11 +843,16 @@ class Grootboek:
         verplicht en gelijk voor alle reserveringen van één eindgroep.
         Een stap van een meerstapspoging (`poging`, `stap`, `vorige_stap`; sleutel
         `<poging>/<stap>`) volgt de stapregels uit de moduledocstring.
+        Onder kostenbewaking (R8) is elke reservering een stap met `task_type`
+        en gelden stopregel, fasevolgorde, vaste taak en kostenplafond.
         """
         caps = self.identiteit.fasecaps
         if fase not in caps:
             msg = f"onbekende fase {fase!r} voor {self.identiteit.proef_id}"
             raise BudgetSchendingError(msg)
+        kosten_grens: int | None = None
+        if self.identiteit.kostenbewaking is not None:
+            kosten_grens = self._controleer_kosten_en_volgorde(fase, poging, task_type)
         if poging is not None or stap is not None:
             self._controleer_stap(
                 sleutel, poging, stap, vorige_stap, technische_herhaling
@@ -674,7 +899,122 @@ class Grootboek:
         }
         if poging is not None:
             record.update({"poging": poging, "stap": stap})
+        if kosten_grens is not None:
+            record.update({"task_type": task_type, "kosten_grens_nusd": kosten_grens})
         return self._voeg_toe(record)
+
+    def controleer_fasestart(self, fase: str) -> None:
+        """R8: stopregel en fasevolgorde; ook vooraf door de runner te toetsen."""
+        identiteit = self.identiteit
+        if identiteit.fasestappen is None:
+            return
+        gevallen = self._gevallen()
+        geweigerd = next((g for g in gevallen if not g["geaccepteerd"]), None)
+        if identiteit.stop_bij_eerste_fout and geweigerd is not None:
+            msg = (
+                f"proef gestopt na niet-geaccepteerd geval {geweigerd['poging']!r} "
+                f"({geweigerd['reden']}); geen verdere modelstap"
+            )
+            raise BudgetSchendingError(msg)
+        for voorganger in (identiteit.fasevolgorde or {}).get(fase, ()):
+            nodig = identiteit.fasecaps[voorganger] // len(
+                identiteit.fasestappen[voorganger]
+            )
+            klaar = sum(
+                1 for g in gevallen if g["fase"] == voorganger and g["geaccepteerd"]
+            )
+            if klaar < nodig:
+                msg = (
+                    f"fase {fase!r} begint pas na volledig geaccepteerde fase "
+                    f"{voorganger!r} ({klaar}/{nodig} gevallen)"
+                )
+                raise BudgetSchendingError(msg)
+
+    def _controleer_kosten_en_volgorde(
+        self, fase: str, poging: str | None, task_type: str | None
+    ) -> int:
+        """R8-regels vóór het netwerk; geeft de kostengrens van deze stap."""
+        identiteit = self.identiteit
+        kb = identiteit.kostenbewaking
+        if kb is None or identiteit.fasestappen is None:
+            msg = f"{identiteit.proef_id} heeft geen kostenbewaking met fasestappen"
+            raise BudgetSchendingError(msg)
+        self.controleer_fasestart(fase)
+        if not poging:
+            msg = f"fase {fase!r} vereist een meerstapspoging (poging en stap)"
+            raise BudgetSchendingError(msg)
+        if task_type is None:
+            msg = f"stap van {poging!r} vereist een task_type (kostenbewaking)"
+            raise BudgetSchendingError(msg)
+        stappen = identiteit.fasestappen[fase]
+        index = sum(1 for r in self._reserveringen() if r.get("poging") == poging)
+        if index >= len(stappen) or stappen[index] != task_type:
+            msg = (
+                f"taak {task_type!r} is niet stap {index + 1} van fase {fase!r} "
+                f"(vaste volgorde {list(stappen)})"
+            )
+            raise BudgetSchendingError(msg)
+        grens = kb.stapgrens_nusd(task_type)
+        lopend = self.kostenstand()["lopend_nusd"]
+        if lopend + grens > kb.plafond_nusd:
+            msg = (
+                f"kostenplafond: lopend {lopend} + stapgrens {grens} > "
+                f"{kb.plafond_nusd} nUSD (niets verzonden)"
+            )
+            raise BudgetSchendingError(msg)
+        return grens
+
+    def registreer_geval(
+        self,
+        fase: str,
+        poging: str,
+        *,
+        geaccepteerd: bool,
+        reden: str,
+        details: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Leg de uitkomst van één geval duurzaam vast (R8-stopregel en volgorde).
+
+        Alleen na volledig afgesloten stappen en eenmalig; een geaccepteerd
+        geval heeft al zijn stappen gebruikt. Een niet-geaccepteerd geval stopt
+        de proef (zie `_controleer_kosten_en_volgorde`).
+        """
+        stappen = (self.identiteit.fasestappen or {}).get(fase)
+        if stappen is None:
+            msg = f"{self.identiteit.proef_id} registreert geen gevallen in {fase!r}"
+            raise BudgetSchendingError(msg)
+        eigen = [
+            r
+            for r in self._reserveringen()
+            if r.get("poging") == poging and r["fase"] == fase
+        ]
+        if not eigen:
+            msg = f"geval {poging!r}: geen reservering in fase {fase!r}"
+            raise BudgetSchendingError(msg)
+        afgesloten = self._afsluitingen()
+        if any(r["seq"] not in afgesloten for r in eigen):
+            msg = f"geval {poging!r}: niet alle stappen zijn afgesloten"
+            raise BudgetSchendingError(msg)
+        if any(g["poging"] == poging for g in self._gevallen()):
+            msg = f"geval {poging!r} is al geregistreerd"
+            raise BudgetSchendingError(msg)
+        if geaccepteerd and len(eigen) != len(stappen):
+            msg = (
+                f"geval {poging!r}: geaccepteerd met {len(eigen)} van "
+                f"{len(stappen)} stappen"
+            )
+            raise BudgetSchendingError(msg)
+        return self._voeg_toe(
+            {
+                "soort": "geval",
+                "fase": fase,
+                "poging": poging,
+                "geaccepteerd": bool(geaccepteerd),
+                "reden": reden,
+                "seqs": [r["seq"] for r in eigen],
+                "details": dict(details or {}),
+            }
+        )
 
     def _controleer_stap(
         self,
@@ -763,6 +1103,18 @@ class Grootboek:
                     "configuratie gewijzigd)"
                 )
                 raise BudgetSchendingError(msg)
+        if self.identiteit.gedeelde_codebinding:
+            gedeeld = next(
+                (r["binding"] for r in self._reserveringen() if r.get("binding")),
+                None,
+            )
+            for veld in _GEDEELDE_BINDING:
+                if gedeeld is not None and gedeeld.get(veld) != schoon.get(veld):
+                    msg = (
+                        f"{veld} van fase {fase!r} wijkt af van de gedeelde "
+                        "binding van V en T (zelfde code, configuratie en freeze)"
+                    )
+                    raise BudgetSchendingError(msg)
         return schoon
 
     def sluit(
@@ -772,8 +1124,13 @@ class Grootboek:
         *,
         netwerk_gestart: bool,
         details: Mapping[str, Any] | None = None,
+        kosten_werkelijk_nusd: int | None = None,
     ) -> dict[str, Any]:
-        """Sluit een reservering af; eenmalig, alleen met een bekende status."""
+        """Sluit een reservering af; eenmalig, alleen met een bekende status.
+
+        `kosten_werkelijk_nusd` (R8) = kosten uit de werkelijke SDK-usage;
+        None = onbekend, dan telt de stapgrens (`kostenstand`).
+        """
         if status not in AFSLUITSTATUSSEN:
             msg = f"onbekende afsluitstatus {status!r}"
             raise BudgetSchendingError(msg)
@@ -783,15 +1140,23 @@ class Grootboek:
         if seq in self._afsluitingen():
             msg = f"reservering {seq} is al afgesloten"
             raise BudgetSchendingError(msg)
-        return self._voeg_toe(
-            {
-                "soort": "afsluiting",
-                "seq": seq,
-                "status": status,
-                "netwerk_gestart": bool(netwerk_gestart),
-                "details": dict(details or {}),
-            }
-        )
+        record: dict[str, Any] = {
+            "soort": "afsluiting",
+            "seq": seq,
+            "status": status,
+            "netwerk_gestart": bool(netwerk_gestart),
+            "details": dict(details or {}),
+        }
+        if kosten_werkelijk_nusd is not None:
+            if (
+                isinstance(kosten_werkelijk_nusd, bool)
+                or not isinstance(kosten_werkelijk_nusd, int)
+                or kosten_werkelijk_nusd < 0
+            ):
+                msg = f"ongeldige werkelijke kosten {kosten_werkelijk_nusd!r}"
+                raise BudgetSchendingError(msg)
+            record["kosten_werkelijk_nusd"] = kosten_werkelijk_nusd
+        return self._voeg_toe(record)
 
 
 def voorgangerketen(identiteit: Proefidentiteit) -> tuple[Proefidentiteit, ...]:
@@ -883,6 +1248,10 @@ class Reservering:
     #: Een weigering door de bewaking (ADR-003). Blijft zichtbaar, ook als een
     #: hogere laag de `BudgetSchendingError` inpakt in een eigen fouttype.
     schending: str | None = None
+    #: R8: de toegelaten payload van deze stap; None = geen payloadwacht.
+    grens: Stapgrens | None = None
+    #: R8: gemeten compacte JSON-bytes van de verzonden body.
+    payload_bytes: int | None = None
 
 
 def _weiger(reservering: Reservering, msg: str) -> BudgetSchendingError:
@@ -964,6 +1333,7 @@ class Stappenpoging:
             )
             raise BudgetSchendingError(self._weigering)
         naam = self._stappen[index][1]
+        kb = self._boek.identiteit.kostenbewaking
         try:
             res = self._boek.reserveer(
                 self._fase,
@@ -974,11 +1344,16 @@ class Stappenpoging:
                 poging=self.poging,
                 stap=naam,
                 vorige_stap=self._stappen[index - 1][1] if index else None,
+                task_type=task_type if kb is not None else None,
             )
         except BudgetSchendingError as exc:
             self._weigering = str(exc)
             raise
-        reservering = Reservering(seq=res["seq"], sleutel=res["sleutel"])
+        reservering = Reservering(
+            seq=res["seq"],
+            sleutel=res["sleutel"],
+            grens=kb.stapgrens(task_type) if kb is not None else None,
+        )
         self.gereserveerd.append((naam, res, reservering))
         with actief(reservering):
             yield reservering
@@ -1026,10 +1401,102 @@ def _sdk_metadata(resp: Any) -> dict[str, Any]:
     if usage is not None:
         meta["usage"] = {
             naam: getattr(usage, naam)
-            for naam in ("input_tokens", "output_tokens")
+            for naam in ("input_tokens", "output_tokens", *_CACHEVELDEN)
             if isinstance(getattr(usage, naam, None), int)
         }
     return meta
+
+
+_CACHEVELDEN = ("cache_read_input_tokens", "cache_creation_input_tokens")
+#: De enige SDK-argumenten die onder een stapgrens het netwerk op mogen.
+_TOEGELATEN_PAYLOAD = frozenset(
+    {"model", "max_tokens", "temperature", "thinking", "system", "messages", "timeout"}
+)
+_THINKING_UIT = {"type": "disabled"}
+
+
+def _is_weggelaten(waarde: Any) -> bool:
+    """`anthropic.omit`/`NOT_GIVEN`: de SDK verzendt het veld niet."""
+    soort = type(waarde)
+    return soort.__module__.startswith("anthropic") and soort.__name__ in {
+        "Omit",
+        "NotGiven",
+    }
+
+
+def _is_getal(waarde: Any) -> bool:
+    return isinstance(waarde, int | float) and not isinstance(waarde, bool)
+
+
+def _payloadfout(
+    grens: Stapgrens, args: tuple, velden: Mapping[str, Any]
+) -> str | None:
+    """Reden waarom deze payload buiten de toegelaten platte tekst valt, of None."""
+    vreemd = sorted(set(velden) - _TOEGELATEN_PAYLOAD)
+    berichten = velden.get("messages")
+    if args or vreemd:
+        return f"payloadveld(en) {vreemd or 'positioneel'} niet toegestaan"
+    if velden.get("model") != grens.model:
+        return f"model {velden.get('model')!r} is niet {grens.model!r}"
+    if not isinstance(velden.get("max_tokens"), int) or (
+        velden["max_tokens"] != grens.max_tokens
+    ):
+        return f"max_tokens {velden.get('max_tokens')!r} is niet {grens.max_tokens}"
+    if velden.get("thinking") != _THINKING_UIT:
+        return f"thinking {velden.get('thinking')!r} is niet {_THINKING_UIT}"
+    if "system" in velden and not isinstance(velden["system"], str):
+        return "system moet platte tekst zijn (geen blokken of cache_control)"
+    if "temperature" in velden and not _is_getal(velden["temperature"]):
+        return "temperature moet een getal zijn"
+    if "timeout" in velden and not _is_getal(velden["timeout"]):
+        return "timeout moet een getal zijn"
+    if (
+        not isinstance(berichten, list)
+        or not berichten
+        or not all(
+            isinstance(b, dict)
+            and set(b) == {"role", "content"}
+            and b["role"] in {"user", "assistant"}
+            and isinstance(b["content"], str)
+            for b in berichten
+        )
+    ):
+        return (
+            "messages moeten tekstberichten {role: user|assistant, content: str} zijn"
+        )
+    return None
+
+
+def payloadbytes(velden: Mapping[str, Any]) -> int:
+    """Compacte UTF-8-JSON-bytes van de verzonden body (zonder `timeout`).
+
+    Dezelfde maat als de SDK-wacht; ook voor de vooraftoets van de runner.
+    """
+    body = {k: v for k, v in velden.items() if k != "timeout"}
+    return len(
+        json.dumps(body, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    )
+
+
+def _usagefout(
+    grens: Stapgrens, payload_bytes: int, sdk: Mapping[str, Any]
+) -> str | None:
+    """Reden waarom de werkelijke usage buiten de aangenomen stapgrens valt."""
+    usage = sdk.get("usage") or {}
+    invoer, uitvoer = usage.get("input_tokens"), usage.get("output_tokens")
+    if not isinstance(invoer, int) or not isinstance(uitvoer, int):
+        return "geen werkelijke usage in de SDK-respons: kosten niet te begrenzen"
+    if any(usage.get(veld) for veld in _CACHEVELDEN):
+        return f"cachetokens in de usage ({usage}); caching is niet toegelaten"
+    if invoer > payload_bytes + grens.overhead_tokens:
+        return (
+            f"input_tokens {invoer} > payloadbytes {payload_bytes} + overhead "
+            f"{grens.overhead_tokens}: de aanname tokens ≤ bytes + overhead houdt "
+            "geen stand; proef stoppen"
+        )
+    if uitvoer > grens.max_tokens:
+        return f"output_tokens {uitvoer} > max_tokens {grens.max_tokens}"
+    return None
 
 
 def installeer_sdk_wacht(klasse: Any) -> Any:
@@ -1038,7 +1505,9 @@ def installeer_sdk_wacht(klasse: Any) -> Any:
     Klasseniveau, omdat de client per aanroep `with_options(...)` en per
     eventloop een verse SDK-client gebruikt. Vóór het netwerk: reservering
     actief, nog geen SDK-aanroep in deze reservering, en `max_retries == 0` op
-    de SDK-client die de aanroep doet. Geeft een herstelfunctie terug.
+    de SDK-client die de aanroep doet. Draagt de reservering een stapgrens
+    (R8), dan ook: alleen toegelaten platte-tekstpayload binnen de bytegrens,
+    en achteraf usage binnen de aangenomen grens. Geeft een herstelfunctie terug.
     """
     origineel = klasse.create
 
@@ -1051,10 +1520,27 @@ def installeer_sdk_wacht(klasse: Any) -> Any:
         if reservering.sdk_aanroepen >= 1:
             msg = f"tweede SDK-aanroep binnen reservering {reservering.seq} geweigerd"
             raise _weiger(reservering, msg)
+        grens = reservering.grens
+        if grens is not None:
+            velden = {k: v for k, v in kwargs.items() if not _is_weggelaten(v)}
+            fout = _payloadfout(grens, args, velden)
+            if fout is None:
+                reservering.payload_bytes = payloadbytes(velden)
+                if reservering.payload_bytes > grens.bytegrens:
+                    fout = (
+                        f"payload {reservering.payload_bytes} bytes > bytegrens "
+                        f"{grens.bytegrens} voor {grens.task_type}"
+                    )
+            if fout is not None:
+                raise _weiger(reservering, f"vóór het netwerk geweigerd: {fout}")
         reservering.sdk_aanroepen += 1
         reservering.netwerk_gestart = True
         resp = await origineel(self, *args, **kwargs)
         reservering.sdk = _sdk_metadata(resp)
+        if grens is not None:
+            fout = _usagefout(grens, reservering.payload_bytes or 0, reservering.sdk)
+            if fout is not None:
+                raise _weiger(reservering, f"usage buiten de stapgrens: {fout}")
         return resp
 
     klasse.create = create
@@ -1087,6 +1573,22 @@ def kosten(
         "output_tokens": uitvoer,
         "tarief_per_token": {"input": prijs["input"], "output": prijs["output"]},
     }
+
+
+def kosten_nusd(sdk: Mapping[str, Any], kb: Kostenbewaking) -> int | None:
+    """Werkelijke stapkosten in nUSD uit de SDK-usage, of None zonder usage.
+
+    Cachetokens (die de wacht al weigert) tellen conservatief als tweemaal
+    het invoertarief.
+    """
+    usage = sdk.get("usage") or {}
+    invoer, uitvoer = usage.get("input_tokens"), usage.get("output_tokens")
+    if not isinstance(invoer, int) or not isinstance(uitvoer, int):
+        return None
+    cache = sum(usage.get(veld) or 0 for veld in _CACHEVELDEN)
+    return (invoer + 2 * cache) * kb.tarief_invoer_nusd + uitvoer * (
+        kb.tarief_uitvoer_nusd
+    )
 
 
 def schrijf_nieuw(pad: Path, data: Any, *, geheimen: tuple[str, ...]) -> str:

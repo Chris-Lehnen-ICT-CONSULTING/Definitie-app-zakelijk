@@ -171,8 +171,11 @@ class TestBinding:
 
 
 class TestGeenEchteCalls:
-    def test_geen_enkele_ronde_staat_open_voor_echte_calls(self):
-        assert not [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan]
+    def test_alleen_de_goedgekeurde_r8_staat_open_voor_echte_calls(self):
+        # R8 (budgetbesluit Chris 25-09, ronde8-budgetgoedkeuring-v1.json) is
+        # de enige open ronde; de eenstaps-rondes R1–R7 blijven gesloten.
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R8"]
+        assert runner.PROEVEN["R8"].budgetbesluit_sha256 is not None
 
     def test_oude_r7_freeze_past_niet_op_de_huidige_software(self, tmp_path):
         """Een freeze met de R7-identiteit (T/13) start geen call meer."""

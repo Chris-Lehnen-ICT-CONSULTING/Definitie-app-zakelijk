@@ -527,10 +527,13 @@ class TestGrootboekStapregels:
 
 class TestGeenOudeGoedkeuring:
     def test_oude_rondes_keuren_een_stap_per_geval_goed(self):
-        assert {
-            p.identiteit.modelstappen_per_geval for p in runner.PROEVEN.values()
-        } == {1}
-        assert not [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan]
+        oud = ("R1", "R2", "R3", "R4", "R5", "R6", "R7")
+        assert {runner.PROEVEN[n].identiteit.modelstappen_per_geval for n in oud} == {1}
+        # R8 (livevervolg) is de eigen tweestapsidentiteit met een eigen
+        # budgetbesluit; alleen R8 staat open, geen oude goedkeuring.
+        assert runner.PROEVEN["R8"].identiteit.modelstappen_per_geval == 2
+        assert set(runner.PROEVEN) == {*oud, "R8"}
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R8"]
 
     def test_geregistreerde_open_r7_weigert_een_echte_tweestapsrun(
         self, tmp_path, monkeypatch
