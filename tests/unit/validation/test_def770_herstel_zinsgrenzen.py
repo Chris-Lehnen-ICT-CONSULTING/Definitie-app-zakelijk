@@ -26,6 +26,12 @@ haakjeszin aan het eind onzeker, T23 afkortingsachtige vorm zonder klinker
 onzeker, T17/T20 ingebed citaat met bewezen open bijzin of vervolg uit
 voorzetselgroepen één formulering — elk met negatieve tegenhangers.
 
+Citaatbeleid (contract def770-int01/8, algemeen-citaatbesluit-v1): de
+positieve citaatpaden uit /4 vervallen; elke kleine-lettervoortzetting na een
+slotteken direct vóór een sluitend aanhalingsteken is onzeker. De historische
+verwachtingen blijven zichtbaar in GEVALLEN en SERVICEGEVALLEN; CITAATBESLUIT
+en CITAATBESLUIT_SERVICE geven de geldende automatische verwachting.
+
 Nooit een volledige INT-01-pass; compactheid en begrijpelijkheid blijven
 apart open; oude opgeslagen uitkomsten gelden na de semantische wijziging
 niet meer als actueel (contractversie).
@@ -379,9 +385,29 @@ GEVALLEN = [
 ]
 
 
+#: Citaatbeleid (herstel-20260924-v1/algemeen-citaatbesluit-v1.md, contract
+#: /8): een kleine-lettervoortzetting na een citaatslot is altijd onzeker. Deze
+#: gevallen hadden t/m /7 een positief citaatpad (voorzetselgroepen of een vóór
+#: het citaat geopende bijzin); hun oorspronkelijke tuple in GEVALLEN blijft
+#: als historische verwachting staan, dit is de geldende (zeker, onzeker).
+CITAATBESLUIT = {
+    "T17-ingesloten-citaat": (0, 1),
+    "citaat-recht": (0, 1),
+    "zin-na-citaat": (1, 1),
+    "r2-citaat-voortzetting": (0, 1),
+    "r2-citaat-voorzetsel": (0, 1),
+    "r3-citaat-korte-pp": (0, 1),
+    "r4-bijzin-voornaamwoord": (0, 1),
+    "r4-open-bijzin-pp": (0, 1),
+    "r4-open-bijzin-een": (0, 1),
+    "e1-T17-bijzin-meer-groepen": (0, 1),
+    "e1-T20-voorzetselgroepen": (0, 1),
+}
+
+
 @pytest.mark.parametrize(
     ("tekst", "zeker", "onzeker"),
-    [pytest.param(t, z, o, id=i) for i, t, z, o in GEVALLEN],
+    [pytest.param(t, *CITAATBESLUIT.get(i, (z, o)), id=i) for i, t, z, o in GEVALLEN],
 )
 def test_segmentatie(tekst, zeker, onzeker):
     seg = segmenteer(tekst)
@@ -620,10 +646,22 @@ SERVICEGEVALLEN = [
 ]
 
 
+#: Citaatbeleid (algemeen-citaatbesluit-v1, /8): geldende onderdelen voor de
+#: servicegevallen met een citaatvervolg; de oorspronkelijke verwachting in
+#: SERVICEGEVALLEN blijft als historische verwachting staan.
+CITAATBESLUIT_SERVICE = {
+    gid: {"zinsgrens_onzeker_1": "review_required", **OPEN}
+    for gid in ("T17", "e1-T17", "e1-T20")
+}
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("tekst", "status", "delen"),
-    [pytest.param(t, s, d, id=i) for i, t, s, d in SERVICEGEVALLEN],
+    [
+        pytest.param(t, s, CITAATBESLUIT_SERVICE.get(i, d), id=i)
+        for i, t, s, d in SERVICEGEVALLEN
+    ],
 )
 async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
     res = await svc.validate_definition(
@@ -649,8 +687,10 @@ def test_contractversie_na_titelbeleid_en_restherstel():
     de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel.
     Het restherstel (astra-acceptatiebevindingen-v1: los label zonder
     formulering) wijzigt haar opnieuw: /6 → /7
-    (test_def770_restherstel_zinsgrenzen.py)."""
-    assert CONTRACTVERSIE == "def770-int01/7"
+    (test_def770_restherstel_zinsgrenzen.py). Het citaatbeleid
+    (algemeen-citaatbesluit-v1: geen positief citaatvervolg) daarna: /7 → /8
+    (test_def770_citaatbeleid_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/8"
 
 
 @pytest.mark.parametrize(
@@ -662,6 +702,7 @@ def test_contractversie_na_titelbeleid_en_restherstel():
         "def770-int01/4",
         "def770-int01/5",
         "def770-int01/6",
+        "def770-int01/7",
     ],
 )
 @pytest.mark.parametrize(

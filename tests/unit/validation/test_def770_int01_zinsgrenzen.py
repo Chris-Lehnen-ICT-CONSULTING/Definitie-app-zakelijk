@@ -151,10 +151,20 @@ SEGMENTATIEGEVALLEN = [
 ]
 
 
+#: Citaatbeleid (herstel-20260924-v1/algemeen-citaatbesluit-v1.md, contract
+#: /8): een kleine-lettervoortzetting na een citaatslot is altijd onzeker. De
+#: oorspronkelijke tuple in SEGMENTATIEGEVALLEN blijft als historische
+#: verwachting staan; dit is de geldende (zeker, onzeker).
+CITAATBESLUIT = {"ingesloten-vraagtitel": (0, 1)}
+
+
 class TestSegmentatie:
     @pytest.mark.parametrize(
         ("tekst", "zeker", "onzeker"),
-        [pytest.param(t, z, o, id=i) for i, t, z, o in SEGMENTATIEGEVALLEN],
+        [
+            pytest.param(t, *CITAATBESLUIT.get(i, (z, o)), id=i)
+            for i, t, z, o in SEGMENTATIEGEVALLEN
+        ],
     )
     def test_functionele_zinsgrenzen(self, tekst, zeker, onzeker):
         seg = _segmenteer(tekst)

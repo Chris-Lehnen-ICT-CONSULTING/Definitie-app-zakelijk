@@ -25,6 +25,11 @@ labels zijn overgenomen, niet aangepast.
   (eventueel met lidwoord) is geen definitieformulering: /7 geeft een open
   onderdeel `formulering` met passage en reden in plaats van die pass.
 
+Citaatbeleid (algemeen-citaatbesluit-v1, contract /8): elke
+kleine-lettervoortzetting na een citaatslot is onzeker; het basisgedrag
+‘één woord na het lidwoord’ (a-T20-zonder-extra-woord) geeft daarom geen
+0/0 meer.
+
 Nooit een volledige INT-01-pass.
 """
 
@@ -79,14 +84,16 @@ BESLUIT_AUTOMATISCH = {"T20": "review_required"}
 
 # (id, tekst, zekere grenzen, onzekere grenzen)
 NOMINAAL = [
-    # Basisgedrag: één woord na het lidwoord in elke groep blijft 0/0.
+    # Basisgedrag t/m /7: één woord na het lidwoord in elke groep gaf 0/0.
+    # Citaatbeleid (algemeen-citaatbesluit-v1, contract /8): een
+    # kleine-lettervoortzetting na een citaatslot is altijd onzeker, dus 0/1.
     pytest.param(
         (
             "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de "
             "kleurcode van de opdracht"
         ),
         0,
-        0,
+        1,
         id="a-T20-zonder-extra-woord",
     ),
 ]
@@ -292,8 +299,10 @@ def test_opslag_en_teruglezen(tmp_path: Path, tekst):
     assert uit["parts"] == verwacht
 
 
-def test_contractversie_is_7_na_restherstel():
+def test_contractversie_na_restherstel_en_citaatbeleid():
     """/6 (titelbeleid) is proefbron van de verzegelde T24-acceptatie. Het
     restherstel verandert de interpretatie (los label geen zinsstructuur-pass),
-    dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7."""
-    assert CONTRACTVERSIE == "def770-int01/7"
+    dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7.
+    Het citaatbeleid (algemeen-citaatbesluit-v1) verandert haar opnieuw:
+    /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/8"
