@@ -291,13 +291,18 @@ Formuleer nu de definitie van het begrip in dit datablok:
         # de betekenis" alleen gaf geen controlehandeling; in G24 verdwenen een
         # bronhandeling, een relatiewoord en de modaliteit. Daarom drie concrete
         # controles vóór de definitieve zin, met voorrang boven stijlvoorkeuren.
+        # DEF-770 restherstel (logs/def770-restherstel/claude-resultaat-v2.md):
+        # in G24 vielen afbakenende gevolgen weg en werd een volgens de bron
+        # wisselende eigenschap vast kenmerk. Daarom een vierde punt en een
+        # weglaatcriterium in plaats van de losse weglaatzin; ESS-01 blijft gelijk.
         # Generieke voorbeelden; geen proef- of domeintermen.
         return f"""#### 🔍 KWALITEITSCONTROLE: Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij {context_vraag}, en volg CON-01.
-Leg vóór de definitieve zin de bepalende bronpassages naast je formulering (zonder bronnen: de gegeven context) en controleer drie punten:
+Leg vóór de definitieve zin de bepalende bronpassages naast je formulering (zonder bronnen: de gegeven context) en controleer vier punten:
 - bronhandeling: een handeling die het begrip afbakent, blijft een handeling met hetzelfde voorwerp; vervang haar niet door een eigenschapswoord (‘wordt gearchiveerd’ is niet ‘archiefwaardig’);
 - relatie: een bepalende relatie houdt haar relatiewoord en richting (‘overgedragen aan’, ‘afgeleid van’, ‘vóór’ of ‘na’); laat het relatiewoord niet weg om korter te formuleren;
-- modaliteit: een mogelijkheid, toestemming of niet-verplichting (‘kan’, ‘mag’, ‘hoeft niet’) wordt geen feit of eis, en een eis wordt geen mogelijkheid.
-Deze controle gaat vóór stijlvoorkeuren (actieve vorm, geen modale werkwoorden, compactheid). Een werkafspraak of mogelijkheid die het begrip niet afbakent, laat je weg in plaats van haar als eis op te nemen. Pas zo nodig de zin aan en lever uitsluitend de definitiekern."""
+- modaliteit: een mogelijkheid, toestemming of niet-verplichting (‘kan’, ‘mag’, ‘hoeft niet’) wordt geen feit of eis, en een eis wordt geen mogelijkheid;
+- voorwaarde en gevolg: een afbakenende voorwaarde houdt het gevolg dat de bron eraan koppelt, en elk alternatief houdt zijn eigen gevolg (voeg ze niet samen tot één ‘of’ zonder dat gevolg); behoud ook een afbakenend ontkend gevolg of een uitzondering (‘leidt niet tot …’, ‘behalve …’). Zo'n gevolg is een kenmerk, geen doel of effect in de zin van ESS-01.
+Deze controle gaat vóór stijlvoorkeuren (actieve vorm, geen modale werkwoorden, compactheid). Laat weg wat de bron niet als afbakening draagt: een werkafspraak, een mogelijkheid, of een eigenschap die volgens de bron mag wisselen zonder dat het begrip verandert; neem die niet op als eis of vaste beperking. Pas zo nodig de zin aan en lever uitsluitend de definitiekern."""
 
     def _build_metadata(
         self, begrip: str, word_type: str, org_contexts: list[str], has_context: bool

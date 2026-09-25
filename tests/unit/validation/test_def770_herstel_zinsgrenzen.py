@@ -641,13 +641,16 @@ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
 # ── Contractversie, opslag en weergave ──────────────────────────────────
 
 
-def test_contractversie_is_6_na_titelbeleid():
+def test_contractversie_na_titelbeleid_en_restherstel():
     """/5 (herproefcorrectie: T20 betrekkelijke bijzin na citaat, T24 lokaal
     verklaarde afkorting) is proefbron geweest. Het titelbeleid
     (titel-en-budgetbesluit-v1) laat de positieve titelherkenning vervallen:
     een titelvoortzetting met onbewezen woordrollen wordt onzeker. Dat wijzigt
-    de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel."""
-    assert CONTRACTVERSIE == "def770-int01/6"
+    de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel.
+    Het restherstel (astra-acceptatiebevindingen-v1: los label zonder
+    formulering) wijzigt haar opnieuw: /6 → /7
+    (test_def770_restherstel_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/7"
 
 
 @pytest.mark.parametrize(
@@ -658,6 +661,7 @@ def test_contractversie_is_6_na_titelbeleid():
         "def770-int01/3",
         "def770-int01/4",
         "def770-int01/5",
+        "def770-int01/6",
     ],
 )
 @pytest.mark.parametrize(

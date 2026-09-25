@@ -40,7 +40,9 @@ in de passage:
   waarvan de woordrollen niet bewezen zijn ('‘Klaar?’ waarop de namen staan')
   gaat naar inhoudelijke beoordeling;
 - een naamwoordelijke kern zonder zelfstandige hoofdzin is geldig: er is geen
-  hoofdzin- of persoonsvormplicht.
+  hoofdzin- of persoonsvormplicht. Een los label met hooguit één inhoudswoord
+  ('schakelblad') is echter geen definitieformulering: geen zinsstructuur-pass
+  maar een open onderdeel `formulering`.
 
 Eén vastgestelde zin is een deelbevinding. Compactheid en begrijpelijkheid
 voor de doelgroep zijn daarmee niet beoordeeld; de regel als geheel wordt
@@ -89,9 +91,11 @@ _OPEN = "review_required"
 #: (logs/def770-vervolg). /6: titelbeleid (titel-en-budgetbesluit-v1) — de
 #: positieve herkenning van een betrekkelijke bijzin met 'waar' + voorzetsel
 #: na een citaatslot uit /5 vervalt; zo'n voortzetting met onbewezen
-#: woordrollen is onzeker. Een opgeslagen uitkomst onder een andere versie
-#: geldt niet meer als actueel.
-CONTRACTVERSIE = "def770-int01/6"
+#: woordrollen is onzeker. /7: restherstel (astra-acceptatiebevindingen-v1) —
+#: een los label zonder formulering krijgt een open onderdeel `formulering` in
+#: plaats van een zinsstructuur-pass. Een opgeslagen uitkomst onder een andere
+#: versie geldt niet meer als actueel.
+CONTRACTVERSIE = "def770-int01/7"
 
 #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
 REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
@@ -226,6 +230,9 @@ class Segmentatie:
     zekere_grenzen: tuple[Zinsgrens, ...]
     onzekere_grenzen: tuple[Zinsgrens, ...]
     geheel_geciteerd: bool
+    #: De kern is een los label zonder definitieformulering (passage, positie
+    #: en reden); dan is er geen grond voor een zinsstructuur-pass.
+    zonder_formulering: Zinsgrens | None = None
 
 
 @dataclass(frozen=True)
@@ -273,7 +280,9 @@ def segmenteer(tekst: str) -> Segmentatie | None:
     onzeker.extend(_label_zonder_vervolg(tekst))
     onzeker.extend(_aansluiting_na_haakje(tekst))
     onzeker.sort(key=lambda grens: grens.positie)
-    return Segmentatie(tuple(zeker), tuple(onzeker), geheel)
+    return Segmentatie(
+        tuple(zeker), tuple(onzeker), geheel, _los_label(tekst, zeker + onzeker)
+    )
 
 
 def _boek(
@@ -570,7 +579,9 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
 
     - een vervolg uit voorzetselgroepen: telkens voorzetsel, hooguit een
       lidwoord en één woord ('“Gereed.” op het scherm', '‘Wie betaalt?’ van de
-      commissie', '‘…?’ voor het reconstrueren van een vaarvolgorde');
+      commissie', '‘…?’ voor het reconstrueren van een vaarvolgorde'); een
+      extra woord in een groep ('‘…?’ met de kleurcode van de bijbehorende
+      opdracht') bewijst zonder woordrollen niets en blijft onzeker;
     - een bijzin die vóór het citaat is geopend en waarin tot het citaat alleen
       naamwoordgroepen staan ('die de melding “Gereed.” …', 'waarmee een
       bediener de melding “…” …'), met als
@@ -811,6 +822,31 @@ def _label_zonder_vervolg(tekst: str) -> list[Zinsgrens]:
     ]
 
 
+def _los_label(tekst: str, grenzen: list[Zinsgrens]) -> Zinsgrens | None:
+    """Een kern met hooguit één inhoudswoord, eventueel na een lidwoord
+    ('schakelblad', 'Het schakelblad.', '“schakelblad”'): geen
+    definitieformulering, want een definitie noemt ten minste een bovenbegrip
+    met een onderscheidend kenmerk. Het ontbreken van zinsgrenzen is dan geen
+    grond voor een zinsstructuur-pass.
+
+    Staat er al een grens (ook het label met een dubbele punt, zie
+    `_label_zonder_vervolg`), dan draagt die de melding. Een langere kern
+    zonder werkwoord blijft een geldige naamwoordelijke formulering."""
+    if grenzen:
+        return None
+    woorden = re.findall(r"[^\W_]+(?:[-'’][^\W_]+)*", tekst)
+    if len([woord for woord in woorden if woord.lower() not in _LIDWOORDEN]) > 1:
+        return None
+    return Zinsgrens(
+        len(tekst) - len(tekst.lstrip()),
+        " ".join(tekst.split()),
+        (
+            "los label zonder verdere formulering: geen bovenbegrip met "
+            "onderscheidend kenmerk, dus geen definitieformulering vastgesteld"
+        ),
+    )
+
+
 def _passage(tekst: str, kandidaat: _Kandidaat) -> str:
     links = " ".join(tekst[: kandidaat.start].split()[-3:])
     teken = tekst[kandidaat.start : kandidaat.einde]
@@ -869,7 +905,19 @@ def _grensdelen(seg: Segmentatie) -> list[dict[str, Any]]:
         )
         for nummer, grens in enumerate(seg.onzekere_grenzen, start=1)
     ]
-    if not delen:
+    if not delen and seg.zonder_formulering is not None:
+        delen.append(
+            _deel(
+                "formulering",
+                _OPEN,
+                f"Geen definitieformulering vastgesteld: {seg.zonder_formulering.grond}.",
+                "Beoordeel of de kern een definitie is of alleen een begripsnaam of "
+                "label. Een definitie noemt ten minste een bovenbegrip met een "
+                "onderscheidend kenmerk; de app vult de tekst niet automatisch aan.",
+                seg.zonder_formulering,
+            )
+        )
+    elif not delen:
         delen.append(
             _deel(
                 "zinsstructuur",
@@ -963,6 +1011,12 @@ def open_melding(seg: Segmentatie) -> str:
             f'"{grens.passage}" ({grens.grond})' for grens in seg.onzekere_grenzen
         )
         melding = f"INT-01 — Zinsgrens onzeker bij {passages}; beoordeling nodig."
+    elif seg.zonder_formulering is not None:
+        label = seg.zonder_formulering
+        melding = (
+            f'INT-01 — Geen definitieformulering vastgesteld bij "{label.passage}" '
+            f"({label.grond}); beoordeling nodig."
+        )
     else:
         melding = "INT-01 — Eén definitieformulering vastgesteld."
     if seg.geheel_geciteerd:
