@@ -212,5 +212,6 @@ def test_contractversie_na_citaatbeleid_en_citaatcorrectie():
     """/7 (restherstel) is proefbron geweest; het citaatbeleid verandert de
     runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8. De
     citaatcorrectie (astra-acceptatie-v1) daarna: /8 → /9
-    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
-    assert CONTRACTVERSIE == "def770-int01/9"
+    (test_def770_citaatcorrectie_zinsgrenzen.py). Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
+    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/10"

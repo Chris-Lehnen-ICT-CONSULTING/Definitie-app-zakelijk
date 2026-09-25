@@ -13,7 +13,8 @@ in de passage:
 
 - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
 - een punt in een afkorting, getal of naaminitiaal is geen grens, ook niet
-  tussen 'bijv.' en een alfanumerieke code die direct afsluit ('bijv. R7.'); een
+  tussen 'bijv.' en een code of getal dat direct afsluit ('bijv. R7.',
+  'bijv. 12.'); een
   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker, net
   als een punt na een woordvorm zonder klinker, ook met hoofdletter ('volgens
   nvr. Nieuwe ...', 'Chr. Huygens'); de punten van een afkorting die de tekst
@@ -106,9 +107,10 @@ _OPEN = "review_required"
 #: punt (met of zonder spatie erna) bereikt de citaatslotroute; een
 #: alfanumerieke code die direct na 'bijv.' afsluit, maakt die afkortingspunt
 #: niet onzeker (astra-correctiereview-v2: niet na andere of onbekende
-#: afkortingen). Een
-#: opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
-CONTRACTVERSIE = "def770-int01/9"
+#: afkortingen). /10: voorbeeldgetal (astra-acceptatie-v2, T08) — dezelfde
+#: voorbeeldcontext geldt voor één afsluitend getal na 'bijv.' ('bijv. 12.').
+#: Een opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
+CONTRACTVERSIE = "def770-int01/10"
 
 #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
 REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
@@ -662,6 +664,9 @@ def _classificeer_afkorting(functie: str, kandidaat: _Kandidaat) -> tuple[str, s
     if begin == "cijfer":
         if functie == "verwijzing" or kandidaat.woord.lower() in _VOOR_GETAL:
             return "geen", ""
+        if _aangekondigd_voorbeeld(kandidaat):
+            # 'bijv. 12. De …': zelfde voorbeeldcontext als 'bijv. R7.'.
+            return "geen", ""
         return "onzeker", "afkorting gevolgd door een getal: mogelijk nieuw zinsbegin"
     if functie == "titel" and begin == "hoofd":
         return "geen", ""
@@ -681,24 +686,32 @@ def _classificeer_afkorting(functie: str, kandidaat: _Kandidaat) -> tuple[str, s
         )
     if functie == "mogelijk_zinslot":
         return "onzeker", "afkorting die ook een zin kan afsluiten"
-    if kandidaat.woord.lower() in _VOORBEELDAANKONDIGING and _afsluitende_code(
-        kandidaat.volgend
-    ):
+    if _aangekondigd_voorbeeld(kandidaat):
         # 'bijv. R7. De …': 'bijv.' kondigt zelf een voorbeeld aan; een nieuwe
         # zin zou alleen uit de code bestaan.
         return "geen", ""
     return "onzeker", "afkorting gevolgd door een hoofdletter"
 
 
-def _afsluitende_code(volgend: str) -> bool:
-    """Het vervolg is één alfanumerieke code ('R7') die direct met één
-    slotteken of het einde van de tekst afsluit ('bijv. R7.', 'bijv. R7').
+def _aangekondigd_voorbeeld(kandidaat: _Kandidaat) -> bool:
+    """De punt hoort bij 'bijv.' en daarna volgt één afsluitend voorbeeld
+    (`_afsluitend_voorbeeld`). Andere of onbekende afkortingen bewijzen geen
+    voorbeeldcontext (astra-correctiereview-v2, R3)."""
+    return kandidaat.woord.lower() in _VOORBEELDAANKONDIGING and (
+        _afsluitend_voorbeeld(kandidaat.volgend)
+    )
 
-    Een zin die alleen uit zo'n code bestaat, is geen zin; de afkortingspunt
-    ervoor is dan intern. De punt na de code wordt zelf als kandidaat
-    beoordeeld. Volgen na de code nog woorden of een komma ('bijv. R7 bevat
-    …', 'bijv. R7, R8 …'), dan kan de code een nieuwe zin openen: geen
-    vrijstelling. Een gewoon woord met hoofdletter ('bijv. De …') of een
+
+def _afsluitend_voorbeeld(volgend: str) -> bool:
+    """Het vervolg is één alfanumerieke code ('R7') of één getal ('12', '12.5')
+    dat direct met één slotteken of het einde van de tekst afsluit ('bijv.
+    R7.', 'bijv. 12.', 'bijv. R7').
+
+    Een zin die alleen uit zo'n code of getal bestaat, is geen zin; de
+    afkortingspunt ervoor is dan intern. De punt na het voorbeeld wordt zelf
+    als kandidaat beoordeeld. Volgen nog woorden of een komma ('bijv. R7
+    bevat …', 'bijv. 12, 13 …'), dan kan het voorbeeld een nieuwe zin openen:
+    geen vrijstelling. Een gewoon woord met hoofdletter ('bijv. De …') of een
     afkorting die ook een zin kan afsluiten ('enz. R7.') valt er niet onder."""
     delen = volgend.split(maxsplit=1)
     if not delen:
@@ -707,7 +720,7 @@ def _afsluitende_code(volgend: str) -> bool:
     kern = token[:-1] if token[-1] in ".?!" else token
     if len(delen) > 1 and kern == token:
         return False
-    return bool(_CODE.fullmatch(kern))
+    return bool(_CODE.fullmatch(kern) or _GETAL.fullmatch(kern))
 
 
 def _classificeer_getal(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:

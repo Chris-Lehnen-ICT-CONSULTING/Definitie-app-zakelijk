@@ -692,8 +692,9 @@ def test_contractversie_na_titelbeleid_en_restherstel():
     (test_def770_citaatbeleid_zinsgrenzen.py). De citaatcorrectie
     (astra-acceptatie-v1: lijstblok, citaatslot met scheidingsteken,
     voorbeeldcode na afkorting) daarna: /8 → /9
-    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
-    assert CONTRACTVERSIE == "def770-int01/9"
+    (test_def770_citaatcorrectie_zinsgrenzen.py). Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
+    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/10"
 
 
 @pytest.mark.parametrize(
@@ -707,6 +708,7 @@ def test_contractversie_na_titelbeleid_en_restherstel():
         "def770-int01/6",
         "def770-int01/7",
         "def770-int01/8",
+        "def770-int01/9",
     ],
 )
 @pytest.mark.parametrize(

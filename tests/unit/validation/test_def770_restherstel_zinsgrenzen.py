@@ -305,5 +305,6 @@ def test_contractversie_na_restherstel_en_citaatbeleid():
     dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7.
     Het citaatbeleid (algemeen-citaatbesluit-v1) verandert haar opnieuw:
     /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py), en de citaatcorrectie
-    (astra-acceptatie-v1): /8 → /9 (test_def770_citaatcorrectie_zinsgrenzen.py)."""
-    assert CONTRACTVERSIE == "def770-int01/9"
+    (astra-acceptatie-v1): /8 → /9 (test_def770_citaatcorrectie_zinsgrenzen.py). Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
+    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/10"

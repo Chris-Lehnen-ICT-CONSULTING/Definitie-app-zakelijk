@@ -433,8 +433,9 @@ def test_uitkomst_onder_contract_8_geldt_niet_als_actueel(gid):
     assert "contractversie" in gelezen["applied_reason"]
 
 
-def test_contractversie_is_9_na_citaatcorrectie():
+def test_contractversie_na_citaatcorrectie_en_voorbeeldgetal():
     """/8 (citaatbeleid) is proefbron van effectproeven-citaatbeleid-20260925-v1.
     Deze correctie verandert de runtime-interpretatie (lijstblok, citaatslot met
-    scheidingsteken, voorbeeldcode na afkorting), dus /8 → /9."""
-    assert CONTRACTVERSIE == "def770-int01/9"
+    scheidingsteken, voorbeeldcode na afkorting), dus /8 → /9. Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
+    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/10"
