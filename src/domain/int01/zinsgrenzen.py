@@ -15,7 +15,9 @@ in de passage:
 - een punt in een afkorting, getal of naaminitiaal is geen grens; een
   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker, net
   als een punt na een woordvorm zonder klinker, ook met hoofdletter ('volgens
-  nvr. Nieuwe ...', 'Chr. Huygens');
+  nvr. Nieuwe ...', 'Chr. Huygens'); de punten van een afkorting die de tekst
+  zelf verklaart ('(v.qr. = ...)'), zijn intern, maar zo'n afkorting direct
+  na een haakje maakt de aansluiting onzeker;
 - een slotteken dat een haakjesdeel afsluit, is onzeker (ook bij één woord
   en aan het eind van de kern), tenzij het haakjesdeel alleen uit getallen en
   bekende afkortingen met hun punt bestaat;
@@ -33,8 +35,10 @@ in de passage:
   altijd een open onderdeel broncitaat; interne leestekens van een ingesloten
   citaat vormen geen grens van de buitenste zin, binnen haakjes zijn ze
   onzeker. Een slotteken direct vóór het sluitende aanhalingsteken kan ook de
-  buitenste zin afsluiten: zonder aantoonbare voortzetting blijft het
-  onzeker;
+  buitenste zin afsluiten: zonder aantoonbare voortzetting (voorzetselgroepen
+  of een vóór het citaat geopende bijzin) blijft het onzeker; een voortzetting
+  waarvan de woordrollen niet bewezen zijn ('‘Klaar?’ waarop de namen staan')
+  gaat naar inhoudelijke beoordeling;
 - een naamwoordelijke kern zonder zelfstandige hoofdzin is geldig: er is geen
   hoofdzin- of persoonsvormplicht.
 
@@ -79,9 +83,15 @@ _OPEN = "review_required"
 #: aan het eind van een afsluitend haakjesdeel en een afkortingsachtige
 #: woordvorm zonder klinker vóór de punt zijn onzeker; ingebedde citaten met
 #: een open bijzin uit naamwoordgroepen of een vervolg uit voorzetselgroepen
-#: zijn één formulering (herstelanalyse-v8). Een opgeslagen uitkomst onder een
-#: andere versie geldt niet meer als actueel.
-CONTRACTVERSIE = "def770-int01/4"
+#: zijn één formulering (herstelanalyse-v8). /5: herproefcorrectie — de
+#: punten van een in de tekst zelf verklaarde afkorting zijn intern, en zo'n
+#: afkorting direct na een haakje geeft onzekerheid over de aansluiting
+#: (logs/def770-vervolg). /6: titelbeleid (titel-en-budgetbesluit-v1) — de
+#: positieve herkenning van een betrekkelijke bijzin met 'waar' + voorzetsel
+#: na een citaatslot uit /5 vervalt; zo'n voortzetting met onbewezen
+#: woordrollen is onzeker. Een opgeslagen uitkomst onder een andere versie
+#: geldt niet meer als actueel.
+CONTRACTVERSIE = "def770-int01/6"
 
 #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
 REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
@@ -112,6 +122,19 @@ _GESTIPPELDE_AFKORTING = re.compile(r"^(?:[a-z]\.)+[a-z]$")
 #: Hoofdlettergebruik bewijst niet dat het geen afkorting is.
 _ZONDER_KLINKER = re.compile(r"[b-df-hj-np-tv-xz]{2,}", re.IGNORECASE)
 _GETAL = re.compile(r"\d+(?:[.,]\d+)*")
+#: Een afkorting met een interne punt ('v.qr', 'dk.st').
+_AFKORTINGSVORM = r"[A-Za-z]+(?:\.[A-Za-z]+)+"
+#: De tekst verklaart een afkorting zelf: '(v.qr. = vakcodering …)', of een
+#: haakjesdeel dat alleen de afkorting noemt, eventueel na 'hierna' of
+#: 'afgekort' ('… standaard (hierna: dk.st.)').
+_VERKLARING_IS = re.compile(rf"\(\s*({_AFKORTINGSVORM})\.?\s*=")
+_VERKLARING_HAAKJES = re.compile(
+    rf"\(\s*(?:(?:hierna|afgekort)\s*:?\s*)?({_AFKORTINGSVORM})\.?\s*\)",
+    re.IGNORECASE,
+)
+_VERKLARINGSDEEL = re.compile(
+    rf"(?:(?:hierna|afgekort)\s*:?\s*)?{_AFKORTINGSVORM}\.?", re.IGNORECASE
+)
 #: Tegenwoordige en verleden persoonsvormen van hulp- en koppelwerkwoorden en
 #: veelvoorkomende definitiewerkwoorden. Na een citaatslot sluit een herkende
 #: persoonsvorm een bewezen voortzetting uit; afwezigheid bewijst niets.
@@ -248,6 +271,7 @@ def segmenteer(tekst: str) -> Segmentatie | None:
         )
     onzeker.extend(_regelgrenzen(tekst))
     onzeker.extend(_label_zonder_vervolg(tekst))
+    onzeker.extend(_aansluiting_na_haakje(tekst))
     onzeker.sort(key=lambda grens: grens.positie)
     return Segmentatie(tuple(zeker), tuple(onzeker), geheel)
 
@@ -385,6 +409,9 @@ def _begin(volgend: str) -> str:
 def _classificeer(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
     """('zeker'|'onzeker'|'geen', grond) voor één leestekenkandidaat."""
     if kandidaat.haakjesdeel is not None:
+        if _VERKLARINGSDEEL.fullmatch(kandidaat.haakjesdeel.strip() + kandidaat.teken):
+            # Het haakjesdeel verklaart alleen een afkorting ('(hierna: dk.st.)').
+            return "geen", ""
         return _classificeer_haakjesslot(kandidaat.haakjesdeel + kandidaat.teken)
     if kandidaat.in_citaat and not kandidaat.sluiter_direct_na:
         # Interne citaatpunctuatie ('“Beleid. Uitvoering”'): hoort bij het
@@ -398,12 +425,104 @@ def _classificeer(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
         return _classificeer_weglating(kandidaat)
     if kandidaat.teken in "?!":
         return _classificeer_vraag_uitroep(kandidaat)
+    if kandidaat.woord.lower() in _verklaarde_afkortingen(tekst):
+        return _classificeer_verklaarde_afkorting(kandidaat, tekst)
     afkorting = _afkortingsfunctie(kandidaat.woord)
     if afkorting is not None:
         return _classificeer_afkorting(afkorting, kandidaat)
     if kandidaat.woord.isdigit():
         return _classificeer_getal(kandidaat, tekst)
     return _classificeer_punt(kandidaat)
+
+
+def _verklaarde_afkortingen(tekst: str) -> frozenset[str]:
+    """Afkortingen die de tekst zelf verklaart (kleine letters, zonder slotpunt).
+
+    Alleen vormen met een interne punt ('v.qr'); zo'n vorm is geen woord dat
+    een zelfstandige zin kan zijn, en de verklaring maakt haar punten intern."""
+    return frozenset(
+        treffer.group(1).lower()
+        for patroon in (_VERKLARING_IS, _VERKLARING_HAAKJES)
+        for treffer in patroon.finditer(tekst)
+    )
+
+
+def _classificeer_verklaarde_afkorting(
+    kandidaat: _Kandidaat, tekst: str
+) -> tuple[str, str]:
+    """Slotpunt van een in de tekst verklaarde afkorting.
+
+    De punten tussen de delen ('v.qr') zijn geen kandidaat; de verklaring
+    bewijst de afkortingsfunctie. De slotpunt kan tegelijk zinseinde zijn:
+    de verklaring bewijst geen ononderbroken vervolg. Alleen in de verklaring
+    zelf (direct gevolgd door '=' of het sluitende haakje) is zij aantoonbaar
+    intern. Staat de vermelding direct na een sluitend haakje, dan meldt
+    `_aansluiting_na_haakje` die overgang al als onduidelijke aansluiting, met
+    een passage die deze punt omvat; een tweede melding met de afkorting als
+    reden zou de verkeerde grond geven. Elders blijft de slotpunt onzeker."""
+    if kandidaat.volgend[:1] in ("=", ")"):
+        return "geen", ""
+    if _begin(kandidaat.volgend) in ("hoofd", "cijfer"):
+        return (
+            "onzeker",
+            (
+                "verklaarde afkorting gevolgd door een hoofdletter of cijfer: "
+                "afkorting of zinseinde niet vast te stellen"
+            ),
+        )
+    begin_vermelding = kandidaat.start - len(kandidaat.woord)
+    if begin_vermelding in _vermeldingen_na_haakje(tekst):
+        # Dezelfde overgang staat al als onduidelijke aansluiting gemeld.
+        return "geen", ""
+    return (
+        "onzeker",
+        (
+            "slotpunt van een verklaarde afkorting gevolgd door verdere tekst: "
+            "afkortingspunt of ook zinseinde niet vast te stellen"
+        ),
+    )
+
+
+def _aansluiting_na_haakje(tekst: str) -> list[Zinsgrens]:
+    """Een verklaarde afkorting direct na een sluitend haakje ('(v.qr. = …)
+    v.qr. bepaalt …'): de afkorting is een naamwoord, en zonder verbindend woord
+    is niet vast te stellen of de formulering doorloopt of een nieuwe mededeling
+    begint. Onzeker, met passage en positie van het haakje.
+
+    De vermeldingen komen uit `_vermeldingen_na_haakje`, dezelfde bron die de
+    classificatie gebruikt om de afkortingsmelding op precies die overgang te
+    laten vervallen: onderdrukking en vervangende melding delen één voorwaarde.
+    """
+    grenzen: list[Zinsgrens] = []
+    for begin, haakje in _vermeldingen_na_haakje(tekst).items():
+        links = re.search(r"\S*$", tekst[:haakje])
+        rechts = re.match(r"\s*\S+(?:\s+\S+){0,3}", tekst[begin:])
+        start = links.start() if links else haakje
+        einde = begin + (rechts.end() if rechts else 0)
+        grenzen.append(
+            Zinsgrens(
+                haakje,
+                " ".join(tekst[start:einde].split()),
+                (
+                    "onduidelijke aansluiting na het haakje: een verklaarde "
+                    "afkorting volgt zonder verbindend woord; doorlopende "
+                    "formulering of nieuwe mededeling niet vast te stellen"
+                ),
+            )
+        )
+    return grenzen
+
+
+def _vermeldingen_na_haakje(tekst: str) -> dict[int, int]:
+    """Begin van elke vermelding van een verklaarde afkorting die direct (na
+    nul of meer witruimte) op een sluitend haakje volgt, met de positie van
+    dat haakje."""
+    verklaard = _verklaarde_afkortingen(tekst)
+    vermeldingen: dict[int, int] = {}
+    for treffer in re.finditer(rf"\)\s*({_AFKORTINGSVORM})\.?(?![\w.])", tekst):
+        if treffer.group(1).lower() in verklaard:
+            vermeldingen[treffer.start(1)] = treffer.start()
+    return vermeldingen
 
 
 def _classificeer_haakjesslot(haakjesdeel: str) -> tuple[str, str]:
@@ -460,6 +579,10 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
 
     Al het andere ('… voor gebruik is controle vereist', '… de controle volgt
     later', een langere woordgroep) blijft onzeker, met passage en positie.
+    Dat geldt ook voor een betrekkelijke bijzin met 'waar' + voorzetsel
+    ('‘Wie woont hier?’ waarop de aanwijzingen staan'): zonder woordsoortkennis
+    zijn de rollen niet te bewijzen ('waarop het werkt de deelnemers wachten'),
+    dus inhoudelijke beoordeling (titel-en-budgetbesluit-v1).
     """
     woorden = _woorden_tot_zeker_zinsbegin(kandidaat.volgend)
     if woorden and not any(woord in _PERSOONSVORMEN for woord in woorden):

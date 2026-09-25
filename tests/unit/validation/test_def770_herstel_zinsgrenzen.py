@@ -641,14 +641,24 @@ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
 # ── Contractversie, opslag en weergave ──────────────────────────────────
 
 
-def test_contractversie_is_4_na_eindproef_correctie():
-    """/3 (conservatief besluit) is gepusht en proefbron; de eindproef-correctie
-    wijzigt de beslisbetekenis (T18, T23, T17/T20), dus /3 → /4."""
-    assert CONTRACTVERSIE == "def770-int01/4"
+def test_contractversie_is_6_na_titelbeleid():
+    """/5 (herproefcorrectie: T20 betrekkelijke bijzin na citaat, T24 lokaal
+    verklaarde afkorting) is proefbron geweest. Het titelbeleid
+    (titel-en-budgetbesluit-v1) laat de positieve titelherkenning vervallen:
+    een titelvoortzetting met onbewezen woordrollen wordt onzeker. Dat wijzigt
+    de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel."""
+    assert CONTRACTVERSIE == "def770-int01/6"
 
 
 @pytest.mark.parametrize(
-    "oude_versie", ["def770-int01/1", "def770-int01/2", "def770-int01/3"]
+    "oude_versie",
+    [
+        "def770-int01/1",
+        "def770-int01/2",
+        "def770-int01/3",
+        "def770-int01/4",
+        "def770-int01/5",
+    ],
 )
 @pytest.mark.parametrize(
     ("tekst", "nieuw"),
@@ -664,7 +674,7 @@ def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
     oude_versie, tekst, nieuw
 ):
     # Een oude uitkomst (T24 onder /2 'fail', E_T23 onder /3 'fail', E_T18
-    # onder /3 zinsstructuur-pass) mag niet als actuele /4-uitkomst gelden.
+    # onder /3 zinsstructuur-pass) mag niet als actuele uitkomst gelden.
     oud = dict(bouw_beoordeling(tekst, 1), status="fail", contract_version=oude_versie)
     gelezen = lees_beoordeling(oud, tekst)
     assert gelezen["applied"] is False
@@ -673,7 +683,7 @@ def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
     weergave = weergavedetail(oud, tekst)
     assert [p["id"] for p in weergave["parts"]] == ["tekstbinding"]
     assert weergave["status"] == "review_required"
-    # Een volgende schrijfactie levert een verse /4-uitkomst met historie.
+    # Een volgende schrijfactie levert een verse actuele uitkomst met historie.
     registratie = met_nieuwe_beoordeling({"int01_beoordeling": oud}, tekst, 2)
     assert registratie["int01_beoordeling"]["contract_version"] == CONTRACTVERSIE
     assert registratie["int01_beoordeling"]["status"] == nieuw
