@@ -208,7 +208,9 @@ def test_opslag_en_teruglezen(tmp_path: Path):
     assert uit["parts"] == regeluitkomst(segmenteer(R_T17))["parts"]
 
 
-def test_contractversie_is_8_na_citaatbeleid():
+def test_contractversie_na_citaatbeleid_en_citaatcorrectie():
     """/7 (restherstel) is proefbron geweest; het citaatbeleid verandert de
-    runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8."""
-    assert CONTRACTVERSIE == "def770-int01/8"
+    runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8. De
+    citaatcorrectie (astra-acceptatie-v1) daarna: /8 → /9
+    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/9"

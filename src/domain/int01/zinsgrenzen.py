@@ -12,7 +12,8 @@ beoordeelt uitsluitend werkelijke zinsgrenzen, naar de functie van het teken
 in de passage:
 
 - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
-- een punt in een afkorting, getal of naaminitiaal is geen grens; een
+- een punt in een afkorting, getal of naaminitiaal is geen grens, ook niet
+  tussen 'bijv.' en een alfanumerieke code die direct afsluit ('bijv. R7.'); een
   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker, net
   als een punt na een woordvorm zonder klinker, ook met hoofdletter ('volgens
   nvr. Nieuwe ...', 'Chr. Huygens'); de punten van een afkorting die de tekst
@@ -27,8 +28,10 @@ in de passage:
   beginletter wordt zo doorverwezen (conservatief, sinds contract /3);
 - een beletselteken gevolgd door verdere tekst is onzeker;
 - een puntkomma en een dubbele punt zijn nooit een zelfstandige grens (K4);
-  een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering;
-  een los label dat op een dubbele punt eindigt, is onzeker;
+  een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering; een
+  inleidende dubbele punt geldt voor het hele aaneengesloten opsommingsblok,
+  en tekst direct na zo'n blok is onzeker; een los label dat op een dubbele
+  punt eindigt, is onzeker;
 - een regelomloop is niet vanzelf een tweede zin; een alinea- of
   opsommingsstructuur zonder inleidend teken wordt als onzeker getoond;
 - aanhalingstekens rond de hele kern maken twee zinnen niet één en geven
@@ -36,8 +39,9 @@ in de passage:
   citaat vormen geen grens van de buitenste zin, binnen haakjes zijn ze
   onzeker. Een slotteken direct vóór het sluitende aanhalingsteken kan ook de
   buitenste zin afsluiten: volgt verdere tekst zonder hoofdletter of cijfer,
-  dan is die grens altijd onzeker, want de samenhang van de voortzetting
-  vraagt grammaticale interpretatie (algemeen-citaatbesluit-v1);
+  ook na een komma, puntkomma of dubbele punt (met of zonder spatie), dan
+  is die grens altijd onzeker, want de samenhang van de voortzetting vraagt
+  grammaticale interpretatie (algemeen-citaatbesluit-v1);
 - een naamwoordelijke kern zonder zelfstandige hoofdzin is geldig: er is geen
   hoofdzin- of persoonsvormplicht. Een los label met hooguit één inhoudswoord
   ('schakelblad') is echter geen definitieformulering: geen zinsstructuur-pass
@@ -95,9 +99,16 @@ _OPEN = "review_required"
 #: plaats van een zinsstructuur-pass. /8: citaatbeleid
 #: (algemeen-citaatbesluit-v1) — een kleine-lettervoortzetting na een
 #: citaatslot is altijd onzeker; de positieve paden uit /4 (voorzetselgroepen,
-#: vóór het citaat geopende bijzin) vervallen. Een opgeslagen uitkomst onder een
-#: andere versie geldt niet meer als actueel.
-CONTRACTVERSIE = "def770-int01/8"
+#: vóór het citaat geopende bijzin) vervallen. /9: citaatcorrectie
+#: (logs/def770-citaatbeleid/astra-acceptatie-v1.md) — een inleidende dubbele
+#: punt geldt voor het hele aaneengesloten opsommingsblok en tekst direct na
+#: dat blok is onzeker; een citaatslot gevolgd door komma, puntkomma of dubbele
+#: punt (met of zonder spatie erna) bereikt de citaatslotroute; een
+#: alfanumerieke code die direct na 'bijv.' afsluit, maakt die afkortingspunt
+#: niet onzeker (astra-correctiereview-v2: niet na andere of onbekende
+#: afkortingen). Een
+#: opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
+CONTRACTVERSIE = "def770-int01/9"
 
 #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
 REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
@@ -121,6 +132,18 @@ _OPENERS = "\"'“‘„«(["
 _PAREN = {"“": "”", "„": "”", "‘": "’", "«": "»", "(": ")", "[": "]"}
 _CITAATOPENERS = frozenset({"“", "„", "‘", "«", '"', "'"})
 _LIJSTREGEL = re.compile(r"[ \t]*(?:[-*•–]\s|\d{1,3}[.)]\s|[a-z][.)]\s)")
+#: Scheidingstekens waarmee een citaatslot ('‘kom terug!’, dat') de kandidaat
+#: verloor (logs/def770-citaatbeleid/voorprobe-v2.log): de buitenste zin kan
+#: na het citaat geëindigd zijn of doorlopen, net als zonder scheidingsteken.
+_CITAATSCHEIDERS = frozenset(",;:")
+#: Een alfanumerieke code: hoofdletters en cijfers, met ten minste één cijfer
+#: ('R7', 'AB-12'). Geen gewoon woord.
+_CODE = re.compile(r"(?=[A-Z0-9-]*\d)[A-Z][A-Z0-9-]*")
+#: Afkorting die zelf 'bijvoorbeeld' betekent en dus positief een voorbeeld
+#: aankondigt (T08). Niet 'bv' (ook 'besloten vennootschap'), en geen andere of
+#: onbekende afkorting ('ca.', 'q.z.'): die bewijzen geen voorbeeldcontext
+#: (astra-correctiereview-v2, R3).
+_VOORBEELDAANKONDIGING = frozenset({"bijv"})
 _VOORAFGAAND_WOORD = re.compile(r"[\w.]+$")
 _GESTIPPELDE_AFKORTING = re.compile(r"^(?:[a-z]\.)+[a-z]$")
 #: Letters zonder klinker ('nvr', 'Chr', 'NVR', 'mm'): geen gewoon Nederlands
@@ -322,13 +345,19 @@ def _leestekenkandidaten(
             index += 1
         omvattend = [(s, e) for s, e in ingesloten if s < match.start() < e]
         haakjesdeel = _gesloten_haakjesdeel(tekst, match, omvattend)
+        # Het binnenste omvattende paar bepaalt de functie.
+        in_citaat = bool(omvattend) and tekst[max(omvattend)[0]] in _CITAATOPENERS
+        sluiter_direct_na = index > match.end()
+        scheider = in_citaat and sluiter_direct_na and _scheider_na_citaat(tekst, index)
+        if scheider:
+            # '‘kom terug!’, dat …' of '‘kom terug!’,dat …': het scheidingsteken
+            # hoort bij de overgang; een ontbrekende spatie bewijst niets.
+            index += 1
         if haakjesdeel is None and (
-            not tekst[index:].strip() or not tekst[index].isspace()
+            not tekst[index:].strip() or not (scheider or tekst[index].isspace())
         ):
             # Slotteken, of een punt binnen een getal, afkorting of adres.
             continue
-        # Het binnenste omvattende paar bepaalt de functie.
-        in_citaat = bool(omvattend) and tekst[max(omvattend)[0]] in _CITAATOPENERS
         kandidaten.append(
             _Kandidaat(
                 start=match.start(),
@@ -337,7 +366,7 @@ def _leestekenkandidaten(
                 woord=_vorig_woord(tekst, match.start()),
                 volgend=tekst[index:].lstrip().lstrip(_OPENERS),
                 ingesloten=bool(omvattend),
-                sluiter_direct_na=index > match.end(),
+                sluiter_direct_na=sluiter_direct_na,
                 voorwoord=_woord_ervoor(tekst, match.start()),
                 in_citaat=in_citaat,
                 citaatbegin=max(omvattend)[0] if in_citaat else -1,
@@ -345,6 +374,21 @@ def _leestekenkandidaten(
             )
         )
     return kandidaten
+
+
+def _scheider_na_citaat(tekst: str, index: int) -> bool:
+    """Direct na het sluitende aanhalingsteken van een citaatslot staat een
+    komma, puntkomma of dubbele punt, gevolgd door verdere tekst (met of
+    zonder witruimte ertussen).
+
+    Zonder deze herkenning verviel de kandidaat en gaf de overgang ongemerkt
+    zinsstructuur-pass (astra-acceptatie-v1, T17/T20; zonder spatie:
+    astra-correctiereview-v2, R2). Het scheidingsteken bewijst niet dat de
+    buitenste zin doorloopt; de classificatie gebeurt zoals zonder
+    scheidingsteken, met de positie van het slotteken."""
+    return tekst[index : index + 1] in _CITAATSCHEIDERS and bool(
+        tekst[index + 1 :].strip()
+    )
 
 
 def _gesloten_haakjesdeel(
@@ -637,7 +681,33 @@ def _classificeer_afkorting(functie: str, kandidaat: _Kandidaat) -> tuple[str, s
         )
     if functie == "mogelijk_zinslot":
         return "onzeker", "afkorting die ook een zin kan afsluiten"
+    if kandidaat.woord.lower() in _VOORBEELDAANKONDIGING and _afsluitende_code(
+        kandidaat.volgend
+    ):
+        # 'bijv. R7. De …': 'bijv.' kondigt zelf een voorbeeld aan; een nieuwe
+        # zin zou alleen uit de code bestaan.
+        return "geen", ""
     return "onzeker", "afkorting gevolgd door een hoofdletter"
+
+
+def _afsluitende_code(volgend: str) -> bool:
+    """Het vervolg is één alfanumerieke code ('R7') die direct met één
+    slotteken of het einde van de tekst afsluit ('bijv. R7.', 'bijv. R7').
+
+    Een zin die alleen uit zo'n code bestaat, is geen zin; de afkortingspunt
+    ervoor is dan intern. De punt na de code wordt zelf als kandidaat
+    beoordeeld. Volgen na de code nog woorden of een komma ('bijv. R7 bevat
+    …', 'bijv. R7, R8 …'), dan kan de code een nieuwe zin openen: geen
+    vrijstelling. Een gewoon woord met hoofdletter ('bijv. De …') of een
+    afkorting die ook een zin kan afsluiten ('enz. R7.') valt er niet onder."""
+    delen = volgend.split(maxsplit=1)
+    if not delen:
+        return False
+    token = delen[0]
+    kern = token[:-1] if token[-1] in ".?!" else token
+    if len(delen) > 1 and kern == token:
+        return False
+    return bool(_CODE.fullmatch(kern))
 
 
 def _classificeer_getal(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
@@ -690,7 +760,10 @@ def _regelgrenzen(tekst: str) -> list[Zinsgrens]:
     """Alinea- en opsommingsstructuur zonder slotteken: zichtbaar onzeker.
 
     Een enkele regelomloop midden in een formulering is geen grens. Een
-    regelovergang na een slotteken is al via het leesteken beoordeeld.
+    regelovergang na een slotteken is al via het leesteken beoordeeld. Een
+    inleidende dubbele punt geldt voor het hele aaneengesloten opsommingsblok
+    (astra-acceptatie-v1, T15); tekst die direct op zo'n blok volgt, kan het
+    laatste lid voortzetten of een zelfstandig vervolg zijn: onzeker.
     """
     grenzen: list[Zinsgrens] = []
     for match in re.finditer(r"\n", tekst):
@@ -699,18 +772,37 @@ def _regelgrenzen(tekst: str) -> list[Zinsgrens]:
         rest = tekst[index + 1 :]
         if not voor or not rest.strip() or voor[-1] in ".?!…":
             continue
+        in_blok = _in_ingeleid_lijstblok(tekst, index)
         if _LIJSTREGEL.match(rest):
-            if voor[-1] in ":;,":
+            if voor[-1] in ":;," or in_blok:
                 # Opsomming die na een inleidend of scheidend teken doorloopt:
                 # één formulering (K4), geen grens.
                 continue
             grond = "opsommingsteken of regelstructuur"
         elif re.match(r"[ \t]*\n", rest):
             grond = "alinea-overgang zonder slotteken"
+        elif in_blok:
+            grond = (
+                "tekst na een opsomming zonder slotteken: vervolg van het laatste "
+                "lid of zelfstandige vervolgtekst niet vast te stellen"
+            )
         else:
             continue
         grenzen.append(Zinsgrens(index, _regelpassage(voor, rest), grond))
     return grenzen
+
+
+def _in_ingeleid_lijstblok(tekst: str, index: int) -> bool:
+    """De regel die bij `index` eindigt, is een opsommingslid van een
+    aaneengesloten blok (geen lege of andere regel ertussen) dat direct volgt
+    op een regel die met een dubbele punt eindigt."""
+    regels = tekst[:index].split("\n")
+    positie = len(regels) - 1
+    while positie >= 0 and _LIJSTREGEL.match(regels[positie]):
+        positie -= 1
+    if positie in (len(regels) - 1, -1):
+        return False
+    return regels[positie].rstrip().endswith(":")
 
 
 def _label_zonder_vervolg(tekst: str) -> list[Zinsgrens]:
@@ -759,7 +851,15 @@ def _passage(tekst: str, kandidaat: _Kandidaat) -> str:
     links = " ".join(tekst[: kandidaat.start].split()[-3:])
     teken = tekst[kandidaat.start : kandidaat.einde]
     rechts = " ".join(tekst[kandidaat.einde :].split()[:4])
-    return f"{links}{teken} {rechts}".strip()
+    # Een scheidingsteken na een citaat zonder spatie ('‘kom terug!’,dat')
+    # blijft zo in de passage staan; er wordt geen spatie ingevoegd.
+    tussen = (
+        ""
+        if teken[-1:] in _CITAATSCHEIDERS
+        and not tekst[kandidaat.einde : kandidaat.einde + 1].isspace()
+        else " "
+    )
+    return f"{links}{teken}{tussen}{rechts}".strip()
 
 
 def _regelpassage(voor: str, rest: str) -> str:

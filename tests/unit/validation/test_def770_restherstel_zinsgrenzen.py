@@ -304,5 +304,6 @@ def test_contractversie_na_restherstel_en_citaatbeleid():
     restherstel verandert de interpretatie (los label geen zinsstructuur-pass),
     dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7.
     Het citaatbeleid (algemeen-citaatbesluit-v1) verandert haar opnieuw:
-    /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py)."""
-    assert CONTRACTVERSIE == "def770-int01/8"
+    /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py), en de citaatcorrectie
+    (astra-acceptatie-v1): /8 → /9 (test_def770_citaatcorrectie_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/9"

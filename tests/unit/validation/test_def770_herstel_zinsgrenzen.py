@@ -689,8 +689,11 @@ def test_contractversie_na_titelbeleid_en_restherstel():
     formulering) wijzigt haar opnieuw: /6 → /7
     (test_def770_restherstel_zinsgrenzen.py). Het citaatbeleid
     (algemeen-citaatbesluit-v1: geen positief citaatvervolg) daarna: /7 → /8
-    (test_def770_citaatbeleid_zinsgrenzen.py)."""
-    assert CONTRACTVERSIE == "def770-int01/8"
+    (test_def770_citaatbeleid_zinsgrenzen.py). De citaatcorrectie
+    (astra-acceptatie-v1: lijstblok, citaatslot met scheidingsteken,
+    voorbeeldcode na afkorting) daarna: /8 → /9
+    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
+    assert CONTRACTVERSIE == "def770-int01/9"
 
 
 @pytest.mark.parametrize(
@@ -703,6 +706,7 @@ def test_contractversie_na_titelbeleid_en_restherstel():
         "def770-int01/5",
         "def770-int01/6",
         "def770-int01/7",
+        "def770-int01/8",
     ],
 )
 @pytest.mark.parametrize(

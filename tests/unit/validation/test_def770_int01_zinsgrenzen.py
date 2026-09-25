@@ -173,7 +173,14 @@ class TestSegmentatie:
         assert len(seg.onzekere_grenzen) == onzeker, seg
 
     def test_opsomming_met_opsommingstekens_is_onzeker_niet_zeker(self):
-        seg = _segmenteer("sanctie bestaande uit:\n- gevangenisstraf\n- geldboete")
+        """T/m /8 verwachtte deze test ook voor de ingeleide lijst een onzekere
+        grens. Contract /9 (logs/def770-citaatbeleid/astra-acceptatie-v1.md,
+        T15): de inleidende dubbele punt geldt voor het hele aaneengesloten
+        blok, dus die lijst is één formulering. Zonder inleiding mag de
+        lijststructuur niet stil wegvallen."""
+        ingeleid = _segmenteer("sanctie bestaande uit:\n- gevangenisstraf\n- geldboete")
+        assert not ingeleid.zekere_grenzen and not ingeleid.onzekere_grenzen
+        seg = _segmenteer("sanctie bestaande uit\n- gevangenisstraf\n- geldboete")
         assert not seg.zekere_grenzen
         assert seg.onzekere_grenzen, "lijststructuur mag niet stil wegvallen"
 
