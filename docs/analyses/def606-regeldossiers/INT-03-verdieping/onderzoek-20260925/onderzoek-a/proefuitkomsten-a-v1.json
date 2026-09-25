@@ -1,0 +1,437 @@
+{
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15",
+  "offline_gate": true,
+  "scope": "service (manager+cache), promptmodule-render, orchestrator-moduleselectie, statische import-scan; geen UI, opslag, live model, normvalidatie",
+  "validatie": [
+    {
+      "id": "INT03-A-E01",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E02",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E03",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E04",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E05",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E06",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E07",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E08",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bwaarbij\\b"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bwaarbij\\b"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E09",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdeze\\b"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E10",
+      "route": "manager",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E01",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E02",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E03",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E04",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E05",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E06",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdie\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E07",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "additional:deze|dit|die|daarvan"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E08",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bwaarbij\\b"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bwaarbij\\b"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E09",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b"
+      ],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [
+        "\\bdeze\\b"
+      ],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    },
+    {
+      "id": "INT03-A-E10",
+      "route": "cache",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "huidig_verwacht": "review_required",
+      "signalen_verwacht": [],
+      "status_ok": true,
+      "signalen_ok": true,
+      "violation_INT03": false
+    }
+  ],
+  "prompt": {
+    "blok_met_voorbeelden": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin\n  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.\n  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+    "blok_zonder_voorbeelden": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+    "actieve_modules": {
+      "geen_context": {
+        "integrity_rules_actief": false,
+        "actief": [
+          "arai_rules",
+          "con_rules",
+          "definition_task",
+          "ess_rules",
+          "expertise",
+          "grammar",
+          "output_specification",
+          "semantic_categorisation",
+          "structure_rules",
+          "template",
+          "ver_rules"
+        ]
+      },
+      "alleen_organisatorisch": {
+        "integrity_rules_actief": false,
+        "actief": [
+          "arai_rules",
+          "con_rules",
+          "context_awareness",
+          "definition_task",
+          "ess_rules",
+          "expertise",
+          "grammar",
+          "output_specification",
+          "semantic_categorisation",
+          "structure_rules",
+          "template",
+          "ver_rules"
+        ]
+      },
+      "juridisch": {
+        "integrity_rules_actief": true,
+        "actief": [
+          "arai_rules",
+          "con_rules",
+          "context_awareness",
+          "definition_task",
+          "ess_rules",
+          "expertise",
+          "grammar",
+          "integrity_rules",
+          "output_specification",
+          "sam_rules",
+          "semantic_categorisation",
+          "structure_rules",
+          "template",
+          "ver_rules"
+        ]
+      },
+      "wettelijk": {
+        "integrity_rules_actief": true,
+        "actief": [
+          "arai_rules",
+          "con_rules",
+          "context_awareness",
+          "definition_task",
+          "ess_rules",
+          "expertise",
+          "grammar",
+          "integrity_rules",
+          "output_specification",
+          "sam_rules",
+          "semantic_categorisation",
+          "structure_rules",
+          "template",
+          "ver_rules"
+        ]
+      }
+    },
+    "geregistreerd": [
+      "arai_rules",
+      "con_rules",
+      "context_awareness",
+      "definition_task",
+      "ess_rules",
+      "expertise",
+      "grammar",
+      "integrity_rules",
+      "metrics",
+      "output_specification",
+      "sam_rules",
+      "semantic_categorisation",
+      "structure_rules",
+      "template",
+      "ver_rules"
+    ]
+  },
+  "statisch": {
+    "IntegrityRulesModule(": [
+      "src/services/prompts/modules/integrity_rules_module.py"
+    ],
+    "json_validator_loader": [
+      "src/toetsregels/json_validator_loader.py",
+      "src/services/validation/evaluators/__init__.py"
+    ],
+    "validators.INT_03": [],
+    "regels.INT-03": []
+  }
+}

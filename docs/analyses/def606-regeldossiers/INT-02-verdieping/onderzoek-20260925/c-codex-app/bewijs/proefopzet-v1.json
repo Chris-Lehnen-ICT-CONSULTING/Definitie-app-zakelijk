@@ -1,0 +1,21 @@
+{
+  "normvoorstel": "INT02-C-N1; nog niet besloten",
+  "vastlegging": "Vóór uitvoering proeven-c-v1.py",
+  "proeven": [
+    {"id":"P1","doel":"Nieuwe functiecontrasten en contextblindheid van actuele evaluator","grond":"judgment_review.evaluate retourneert onvoorwaardelijk review_required; patronen zijn signalen","verwacht":"Alle directe gevallen review_required, score null; bron/context wijzigen dit niet. Procedure zonder signaal blijft review_required."},
+    {"id":"P2","doel":"Werkelijke rendering INT-02","grond":"JSONBasedRulesModule._format_rule en instruction_map","verwacht":"Verbod op voorwaarden plus vermijd indien/mits/tenzij; toetsvraag ontbreekt; voorbeelden aan/uit verandert uitsluitend voorbeelden. Geen live modelproef."},
+    {"id":"P3","doel":"Nieuwe servicegrens: afleidingsregel met indien en ontbrekende context","grond":"Geen INT-02-contextvoorwaarde in runtime_contract","verwacht":"INT-02 review_required bij context aanwezig en leeg, geen INT-02-violation; geen regelcijfer. Overige regels buiten oordeel."},
+    {"id":"P4","doel":"Opschoning van twee synthetische kandidaten","grond":"CleaningService en opschonen verwijderen vormprefixen, niet gericht indien","verwacht":"Voorwaarde en criterium blijven behouden; label kan verdwijnen, hoofdletter/slotpunt wijzigen. Geen universele garantie."},
+    {"id":"P5","doel":"UI-statuslijst voor INT-02","grond":"_statuslijst_regels gebruikt codes/status, niet reden/signalen","verwacht":"Nog te beoordelen: INT-02, zonder reden/signaal. Alleen brongeëxtraheerde helper, geen UI-doorloop."},
+    {"id":"P6","doel":"INT-02-invloed op vaststelgate isoleren","grond":"_evaluate_gate leest score/context/issues; geen review_required","verwacht":"Met gecontroleerde overige voorwaarden gelijk resultaat met/zonder INT-02 review_required. Met score null blokkade wegens ontbrekend validatieresultaat. Gedeeltelijke route met gecontroleerde CON-01/02-hulp, geen echte vaststelling."}
+  ],
+  "gevallen": [
+    {"id":"INT02-C100","term":"stelselmatige dader","text":"Persoon die stelselmatige dader is op een dag indien die persoon in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.","context":{"organisatorische_context":["synthetische begrippenstudie"],"bedoeling":"deterministische afleiding, naar ASTRA; geen actueel recht"},"normverwachting":"INT-02 voldoet bij bevestigde afleidingsfunctie; circulariteit apart"},
+    {"id":"INT02-C101","term":"weigering","text":"De autoriteit weigert het document, tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld.","context":{"organisatorische_context":["synthetische begrippenstudie"],"bedoeling":"discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie"},"normverwachting":"INT-02 voldoet niet; geen actueel rechtsadvies"},
+    {"id":"INT02-C102","term":"afwijzing","text":"De medewerker wijst de aanvraag af indien de bijlage ontbreekt.","context":{"organisatorische_context":["synthetische procedure"],"bedoeling":"gebonden handelingsvoorschrift zonder discretionaire afweging"},"normverwachting":"N1: voldoet niet; strikt discretie-only alternatief: valt buiten verbod"},
+    {"id":"INT02-C103","term":"rechtsgevolg","text":"Verandering van een recht of verplichting die volgens de aangeleverde regeling volgt uit een rechtsfeit.","context":{"organisatorische_context":["synthetische begrippenstudie"],"bedoeling":"definitie van een gevolg, geen opdracht het te bewerkstelligen"},"normverwachting":"geen INT-02-overtreding uit gevolg-zijn; brongetrouwheid apart"},
+    {"id":"INT02-C104","term":"stemgerechtigd lid","text":"Lid dat stemgerechtigd is indien het vóór 1 januari is ingeschreven.","context":{},"normverwachting":"app niet toetsen/genereren zonder context; inhoudelijke functie onbeslist"},
+    {"id":"INT02-C105","term":"toelating","text":"De medewerker laat de aanvrager toe.","context":{"organisatorische_context":["synthetische procedure"],"bedoeling":"opdracht aan medewerker"},"normverwachting":"N1: voldoet niet ondanks ontbreken zeven signaalwoorden"}
+  ],
+  "grenzen":"Geen netwerkaanroepen; schrijfbeveiliging voor alles buiten bewijsmap; geen productiegegevens; historische zes manager/cache-uitkomsten hergebruiken na bronvergelijking; geen modelkwaliteit claimen."
+}

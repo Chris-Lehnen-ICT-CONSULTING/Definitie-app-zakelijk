@@ -1,0 +1,611 @@
+{
+  "rol": "adjudicator",
+  "ai_beoordeeld": true,
+  "teksten": [
+    {
+      "id": "B01",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "onzeker",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "onzeker"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G02-P01: oorspronkelijke verstrekking en dezelfde aanvraag zijn expliciet behouden. De omschrijving sluit een uitsluitend later bedacht gegeven en een uitsluitend over behandelsnelheid klagend bericht impliciet uit.",
+        "'Bij het overnemen ... niet is vastgelegd' laat de medewerker onbenoemd. Binnen het dossier is die actor aannemelijk, maar zijn afbakenende rol is niet eenduidig herkenbaar; onzeker, geen bewezen tegenspraak.",
+        "'En dat aan die aanvraag wordt gekoppeld' laat de verwijzing naar bericht of gegeven onduidelijk en kan administratieve verwerking tot categorievoorwaarde maken. De bron beschrijft koppeling als behandelingshandeling."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect en geen herstel van de onzekerheden."
+    },
+    {
+      "id": "B02",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "tekort",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "tekort"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G04-P01: drie uitputtende mogelijkheden en precies één vastgelegde reden zijn behouden. 'Uitvoering voltooid' behoudt binnen de oefensessiecontext herkenbaar dat de sessie heeft plaatsgevonden.",
+        "'Ingetrokken door de aanvrager' behoudt niet de eis van een uitdrukkelijk intrekkingsbericht; 'samengevoegd met een andere aanvraag' behoudt niet de verdere behandeling onder een ander aanvraagnummer.",
+        "De verkorting tot categorielabels verliest beschermde voorwaarden en voldoet daarom niet aan compactheid zonder betekenisverlies. Herhaling van de geslotenheid is niet de doorslaggevende grond."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; beide ontbrekende voorwaarden blijven ontbreken."
+    },
+    {
+      "id": "B03",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G05-P01: 'per wijziging', bevestiging door de primaire opslag en opvraagbaarheid van dezelfde wijziging via de zoekindex behouden het interval. De brongebonden vakterm 'commit' behoudt voor deze technische doelgroep impliciet de duurzame vastlegging.",
+        "Invoertijd en schermweergavetijd zijn uitgesloten; de twee meetpunten bepalen de duur onafhankelijk van de signaleringsgrens."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B04",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "tekort",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "tekort"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G04-P01: 'gesloten lijst van drie mogelijkheden' en 'precies één' behouden de limitatieve keuze. De nominalisering van intrekking en samenvoeging verandert de categorieën op zichzelf niet.",
+        "Een uitdrukkelijk intrekkingsbericht en verdere behandeling onder een ander aanvraagnummer ontbreken. De labels impliceren deze beschermde voorwaarden niet.",
+        "Het compactheidstekort betreft betekenisverlies door verkorting tot labels; de expliciete herhaling van de geslotenheid is niet op zichzelf doorslaggevend."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijke reparatie."
+    },
+    {
+      "id": "B05",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G01-P01: 'vastgelegd beginmoment en eindmoment', gereserveerde materialen en precies één werkplaats maken binnen de opgegeven planningscontext de afhaalbestemming herkenbaar. 'Ophaalt' stelt hier geen afzonderlijke eis van daadwerkelijk gerealiseerde afhaling.",
+        "De gebruiksperiode is expliciet onderscheiden. Een reservering alleen voldoet niet aan de omschrijving van het vastgelegde afhaaltijdvak."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B06",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G01-P01: planning, tijdgrenzen, gereserveerde materialen en één aangewezen werkplaats zijn behouden.",
+        "De bestemming ophalen onderscheidt het venster impliciet van de gebruiksperiode. Het vereiste geplande tijdvak sluit een reservering alleen uit."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B07",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "tekort",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "tekort"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G04-P01: 'waarde', de gesloten lijst en precies één keuze passen bij de registratiecontext. De verboden overige redenen zijn impliciet uitgesloten.",
+        "De categorielabels behouden niet het uitdrukkelijke intrekkingsbericht en de verdere behandeling onder een ander aanvraagnummer.",
+        "De compacte opsomming verliest daarmee noodzakelijke betekenis; de lengte of herhaling van beschermde uitsluitingen is niet de doorslaggevende tekortgrond."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; de ontbrekende voorwaarden worden niet hersteld."
+    },
+    {
+      "id": "B08",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "tekort",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "tekort"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G04-P01: 'als enige grond' behoudt samen met de gesloten lijst de enkelvoudige, uitputtende keuze.",
+        "Een uitdrukkelijk intrekkingsbericht en voortzetting onder een ander aanvraagnummer ontbreken; de genoemde labels dragen deze voorwaarden niet.",
+        "De slotbijzin herneemt omslachtig de geslotenheid. Doorslaggevend voor compactheid zonder betekenisverlies is dat de verkorte categorielabels beschermde afbakening verliezen."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B09",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G03-P01: schriftelijkheid, bezoekersvolgorde, vaststelling door de volledig genoemde Commissie Toegang en Doorstroming en afwezigheid van uitvoeringsplicht zijn behouden. De vaststellingseis sluit niet-vastgestelde concepten impliciet uit."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B10",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G01-P01: inhoudelijk identiek aan B05 en volgens dezelfde maatstaf beoordeeld. Het vastgelegde tijdvak voor gereserveerde materialen en precies één werkplaats behoudt binnen de planningscontext de afhaalbestemming.",
+        "De gebruiksperiode is expliciet onderscheiden; een reservering alleen is impliciet onvoldoende. 'Ophaalt' introduceert hier geen aantoonbare realisatievoorwaarde."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B11",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G06-P01: ruimte, sessie, geslaagde technische controle, openstaande inventariscontrole, uitsluitend voorbereiding door het voorbereidingsteam en uitsluiting van deelnemers zijn behouden.",
+        "'Vervalt bij aanvang ... of zodra' behoudt beide vervalmomenten, inclusief een eerdere melding. De afzonderlijke bevestiging na inventariscontrole sluit automatische volledige vrijgave uit. Eén specifieke sessie sluit een volgende sessie impliciet uit.",
+        "De lengte draagt noodzakelijke voorwaarden binnen één definitieformulering."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B12",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "onzeker",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "onzeker"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G02-P01: oorspronkelijke verstrekking, opnieuw verstrekken en dezelfde aanvraag zijn behouden; uitsluitend nieuwe gegevens en uitsluitend klachten over snelheid vallen buiten deze afbakening.",
+        "'Bij het overnemen ... niet is vastgelegd' benoemt de medewerker niet. Contextueel behoud van deze actor is aannemelijk, maar onvoldoende eenduidig voor voldoet; een tegenspraak is evenmin aangetoond.",
+        "'En dat aan die eerdere aanvraag wordt gekoppeld' laat het antecedent en de status van koppeling als mogelijke categorievoorwaarde onzeker. G02-P01 beschrijft koppeling als verwerking van het bericht."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; beide onzekerheden blijven bestaan."
+    },
+    {
+      "id": "B13",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G01-P01: planning, tijdgrenzen, precies één werkplaats, gereserveerde materialen en onderscheid met de gebruiksperiode zijn behouden. Een reservering zonder dit tijdvak is impliciet uitgesloten.",
+        "'Afhalende ... ophaalt' bevat lichte woordelijke overlap, zonder wezenlijk compactheidstekort."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B14",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G05-P01: 'een wijziging' en 'diezelfde wijziging' behouden de meting per wijziging. Beide meetpunten en de uitgesloten invoer- en schermweergavetijd zijn herkenbaar.",
+        "'Commit' behoudt voor de technische doelgroep de brongebonden duurzame vastlegging. De signaleringsgrens bepaalt het beschreven interval niet."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B15",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G03-P01: volledige commissienaam, schriftelijkheid, vaststelling, bezoekersvolgorde en niet-verplichtend karakter zijn behouden. Niet-vastgestelde concepten zijn impliciet uitgesloten.",
+        "'De volgorde beschrijft' blijft door de kern 'schriftelijke aanbeveling' herkenbaar adviserend."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B16",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G05-P01: de minder directe opening 'Tijdsduur van een wijziging' wordt onmiddellijk begrensd door de juiste twee technische gebeurtenissen voor dezelfde wijziging.",
+        "Duurzame vastlegging blijft via de brongebonden vakterm 'commit' behouden; invoertijd en schermweergavetijd vallen buiten het interval."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B17",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G03-P01: schriftelijkheid, volledige commissienaam, vaststelling, bezoekersvolgorde en ontbreken van uitvoeringsplicht zijn behouden. Concepten zijn impliciet uitgesloten.",
+        "'Een gesimuleerde loketdag' is generiek enkelvoud en legt geen aantoonbare beperking tot één toepassingsdag op."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B18",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "onzeker"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G02-P01: oorspronkelijke verstrekking, opnieuw verstrekken en dezelfde aanvraag zijn expliciet behouden. 'Ongeacht het ontvangstkanaal' is bronondersteund.",
+        "'Bij het overnemen ... is weggelaten' benoemt de medewerker niet. De dossiercontext ondersteunt die actor, maar de formulering maakt diens afbakenende rol niet eenduidig herkenbaar.",
+        "Een uitsluitend later bedacht gegeven en een uitsluitend over snelheid klagend bericht zijn impliciet uitgesloten."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; de actoronzekerheid blijft."
+    },
+    {
+      "id": "B19",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G03-P01: identiek aan B09 en gelijk beoordeeld. Alle beschermde kenmerken, de volledige commissienaam en het ontbreken van uitvoeringsplicht zijn behouden; vaststelling sluit concepten impliciet uit."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B20",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G06-P01: ruimte, sessie, toestand bij verlening, toegestane voorbereiding, betrokken gebruikers en beide vervalmomenten zijn behouden.",
+        "'Alleen ... afzonderlijke bevestiging na controle van de inventarislijst' behoudt de overgangsvoorwaarde en sluit automatische volledige vrijgave uit. De beperking tot één sessie sluit een volgende sessie impliciet uit.",
+        "De lengte draagt noodzakelijke afbakening."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect."
+    },
+    {
+      "id": "B21",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G06-P01: 'nadat ... is geslaagd en ... nog openstaat' is stroef, maar de voltooide technische controle en de nog openstaande inventariscontrole maken de tussenfase bij verlening voldoende herkenbaar.",
+        "'Overgaat ... door een afzonderlijke bevestiging na controle' behoudt zowel de afzonderlijke bevestiging als de vereiste volgorde en betekent geen automatische overgang.",
+        "Ruimte, sessie, voorbereidingsteam, toegestane handeling, deelnemersverbod en vervalmomenten zijn behouden."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; geen inhoudelijk effect en geen verandering van de stroeve formulering."
+    },
+    {
+      "id": "B22",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "tekort",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "tekort",
+        "betekenisbehoud": "tekort"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G06-P01: 'zolang de controle van de inventarislijst openstaat' maakt openstaan tot een voortdurende toestemmingsvoorwaarde. De bron noemt dit als toestand bij toekenning en zegt dat afronding de bestaande toekenning niet automatisch verandert.",
+        "'Volledige vrijgave een afzonderlijke bevestiging vereist' behoudt de afzonderlijke bevestiging, maar verliest dat volledige vrijgave pas na inventariscontrole kan ontstaan.",
+        "Ruimte, sessie, voorbereiding, deelnemersverbod en beide genoemde vervalmomenten blijven behouden. De verkorting verandert echter noodzakelijke tijdsrelaties en voldoet daarom niet aan compactheid zonder betekenisverlies."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; de aanvullende beperking en ontbrekende overgangsvoorwaarde blijven bestaan."
+    },
+    {
+      "id": "B23",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "onzeker"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G02-P01: 'opnieuw wordt verstrekt' in combinatie met 'bij het overnemen van diens eerdere aanvraag ... is weggelaten' behoudt oorspronkelijke aanwezigheid en dezelfde aanvraag impliciet. Dit is geen louter algemeen correctiebericht.",
+        "De medewerker blijft onbenoemd. De dossiercontext ondersteunt die actor, maar de formulering verzekert zijn afbakenende rol niet; betekenisbehoud blijft op dit punt onzeker.",
+        "Ontvangstkanaalonafhankelijkheid is bronondersteund. Uitsluitend nieuwe gegevens en uitsluitend klachten over snelheid voldoen niet aan de beschreven inhoudelijke relatie."
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en eindpunt toegevoegd; impliciet behoud en actoronzekerheid blijven gelijk."
+    },
+    {
+      "id": "B24",
+      "ruw": {
+        "zinsstructuur": "voldoet",
+        "compactheid": "voldoet",
+        "begrijpelijkheid": "voldoet",
+        "bronsteun": "voldoet",
+        "betekenisbehoud": "voldoet"
+      },
+      "opgeschoond": "identiek_aan_ruw",
+      "kernbevindingen": [
+        "G05-P01: interval per wijziging, commitbevestiging door de primaire opslag en opvraagbaarheid van dezelfde wijziging via de zoekindex zijn behouden. 'Commit' behoudt voor de technische doelgroep impliciet duurzame vastlegging.",
+        "Invoertijd en tekentijd van zoekresultaten zijn expliciet uitgesloten. De signaleringsgrens is geen onderdeel van de meetgrenzen."
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijk effect."
+    }
+  ],
+  "discrepanties": [
+    {
+      "id": "B01",
+      "A": "Begrijpelijkheid onzeker en betekenisbehoud onzeker: onduidelijk antecedent, mogelijke aanvullende koppelingseis en onbenoemde medewerker.",
+      "B": "Begrijpelijkheid voldoet en betekenisbehoud tekort wegens de ontbrekende medewerker; koppeling wordt niet als afzonderlijk probleem behandeld.",
+      "beslissing": "Voor ruw en opgeschoond: begrijpelijkheid onzeker en betekenisbehoud onzeker. De actor is niet expliciet behouden, maar contextueel impliciet behoud is mogelijk; daarom is een definitief tekort op uitsluitend deze grond te stellig. De slotverwijzing veroorzaakt daarnaast een inhoudelijk relevante onzekerheid.",
+      "brononderbouwing": "B01 zegt 'bij het overnemen ... niet is vastgelegd' en 'en dat aan die aanvraag wordt gekoppeld'. G02-P01 noemt weglaten door een medewerker en beschrijft vervolgens dat de medewerker het bericht koppelt. Dezelfde oorspronkelijke aanvraag is noodzakelijk, maar uitgevoerde administratieve koppeling wordt niet als voorwaarde voor het soort bericht geformuleerd. Onduidelijk blijft of B01 alleen die verwerking beschrijft of haar als extra categorievoorwaarde presenteert."
+    },
+    {
+      "id": "B05",
+      "A": "Bronsteun en betekenisbehoud onzeker: zonder 'gepland' kan werkelijk ophalen vereist lijken.",
+      "B": "Beide assen voldoen: de planningscontext maakt ophalen tot bestemming van het tijdvak.",
+      "beslissing": "Voor ruw en opgeschoond: bronsteun en betekenisbehoud voldoen. De samenhangende omschrijving behoudt het geplande afhaaltijdvak impliciet; de afwezigheid van het afzonderlijke woord 'gepland' bewijst hier geen afbakeningsprobleem.",
+      "brononderbouwing": "B05 combineert 'vastgelegd beginmoment en eindmoment', 'gereserveerde oefenmaterialen' en 'precies één wijkwerkplaats'. In G01-P01 en de opgegeven organisatorische context betreft dit interne planning van afhaalmomenten. Binnen die context beschrijft 'ophaalt' de voorziene bestemming, zonder afzonderlijke voorwaarde dat afhalen daadwerkelijk moet plaatsvinden. 'Los van de periode ... gebruikt' behoudt bovendien de beschermde scheiding."
+    },
+    {
+      "id": "B10",
+      "A": "Bronsteun en betekenisbehoud onzeker wegens mogelijk feitelijk in plaats van gepland ophalen.",
+      "B": "Bronsteun en betekenisbehoud voldoen wegens impliciet behoud van de planningsbestemming.",
+      "beslissing": "Voor ruw en opgeschoond: beide assen voldoen. B10 is identiek aan B05 en krijgt dezelfde inhoudelijke beoordeling.",
+      "brononderbouwing": "De combinatie 'vastgelegd beginmoment en eindmoment ... precies één wijkwerkplaats ... gereserveerde oefenmaterialen' behoudt binnen G01-P01 de geplande afhaalbestemming. 'Ophaalt' legt in deze context geen aantoonbare extra realisatievoorwaarde op. Het onderscheid met de gebruiksperiode is expliciet."
+    },
+    {
+      "id": "B12",
+      "A": "Begrijpelijkheid en betekenisbehoud onzeker wegens verwijzing, mogelijke koppelingseis en onbenoemde actor.",
+      "B": "Begrijpelijkheid voldoet; betekenisbehoud tekort wegens ontbrekende medewerker.",
+      "beslissing": "Voor ruw en opgeschoond: begrijpelijkheid en betekenisbehoud onzeker. De medewerker kan contextueel worden ingevuld, maar is niet eenduidig behouden. De slotbijzin laat bovendien verwijzing en categorievoorwaarde onzeker.",
+      "brononderbouwing": "B12 zegt 'bij het overnemen ... niet is vastgelegd' en 'en dat aan die eerdere aanvraag wordt gekoppeld'. G02-P01 onderscheidt het opnieuw verstrekken van een door de medewerker weggelaten gegeven van de daaropvolgende koppeling door die medewerker. 'Dat' kan op bericht of gegeven worden betrokken; de administratieve koppeling mag de noodzakelijke inhoudelijke relatie niet vervangen of ongemerkt verzwaren."
+    },
+    {
+      "id": "B18",
+      "A": "Betekenisbehoud onzeker: de medewerker is contextueel aannemelijk maar niet vermeld.",
+      "B": "Betekenisbehoud tekort: de vereiste actor ontbreekt.",
+      "beslissing": "Voor ruw en opgeschoond: betekenisbehoud onzeker. Niet-vermelding is vastgesteld; volledig verlies van de actor volgt daar bij contextuele interpretatie niet eenduidig uit. Voldoet zou evenmin voldoende onderbouwd zijn.",
+      "brononderbouwing": "B18 bewaart 'bij het overnemen van die aanvraag is weggelaten'. G02-P01 beschrijft deze overname als handeling van een medewerker. De passieve tekst laat die actor impliciet mogelijk, maar drukt niet zelfstandig uit dat juist weglaten door een medewerker afbakenend is. Oorspronkelijke verstrekking en dezelfde aanvraag zijn wel expliciet."
+    },
+    {
+      "id": "B21",
+      "A": "Begrijpelijkheid en betekenisbehoud onzeker door 'nadat ... en ... nog openstaat'.",
+      "B": "Beide assen voldoen: de constructie is stroef maar de toestand bij verlening blijft duidelijk.",
+      "beslissing": "Voor ruw en opgeschoond: begrijpelijkheid en betekenisbehoud voldoen. De formulering is taalkundig minder vloeiend, maar de volledige passage behoudt een herkenbare tussenfase. Er is geen voldoende concrete alternatieve tijdsrelatie om hier inhoudelijke onzekerheid vast te stellen.",
+      "brononderbouwing": "B21 combineert de voltooide toestand 'technische controle is geslaagd' met 'inventarislijst nog openstaat', beide bij 'verleend'. Dit behoudt de in G06-P01 beschreven toekenning na de eerste controle en vóór afronding van de tweede. 'Afzonderlijke bevestiging na controle van de inventarislijst' bewaart vervolgens de niet-automatische overgang. Anders dan 'zolang' in B22 introduceert deze passage geen voortdurende toestemmingsvoorwaarde."
+    },
+    {
+      "id": "B23",
+      "A": "Betekenisbehoud onzeker wegens onbenoemde medewerker; oorspronkelijke aanlevering impliciet behouden.",
+      "B": "Betekenisbehoud tekort wegens ontbrekende medewerker; oorspronkelijke aanlevering eveneens impliciet behouden.",
+      "beslissing": "Voor ruw en opgeschoond: betekenisbehoud onzeker. De actor blijft contextueel aannemelijk maar niet eenduidig afgebakend. De oorspronkelijke aanlevering ontbreekt niet inhoudelijk.",
+      "brononderbouwing": "In B23 legt 'opnieuw ... bij het overnemen van diens eerdere aanvraag ... weggelaten' de relatie met het oorspronkelijke gegeven en dezelfde aanvraag vast. G02-P01 noemt daarnaast specifiek de medewerker als degene die weglaat. Die actor wordt niet genoemd, maar is binnen de beschreven overnamecontext wel een mogelijke impliciete lezing; de tekst ondersteunt geen vaststelling dat een andere actor bedoeld is."
+    },
+    {
+      "id": "P02",
+      "A": "X_beter: 'Gepland' in B06 vermindert onzekerheid over feitelijk ophalen in B05.",
+      "B": "Gelijk: beide behouden de planningsbestemming en de beschermde afbakening.",
+      "beslissing": "Ruw en opgeschoond: gelijk. X maakt planning expliciet; Y maakt de scheiding met de gebruiksperiode expliciet. Beide betekenissen zijn ook in de andere tekst voldoende impliciet behouden. Er is geen aangetoonde inhoudelijke reparatie of verslechtering.",
+      "brononderbouwing": "G01-P01 definieert een gepland afhaaltijdvak. B06 zegt 'Gepland tijdvak ... één aangewezen wijkwerkplaats'; B05 noemt vastgelegde tijdgrenzen, gereserveerde materialen, precies één werkplaats en 'los van de periode ... gebruikt'. De aanvullende explicietheid in beide richtingen verandert de behouden afbakening niet."
+    },
+    {
+      "id": "P03",
+      "A": "Y_beter: B13 herstelt onzekerheid over het geplande karakter van B10.",
+      "B": "Gelijk: B10 behoudt die bestemming al impliciet.",
+      "beslissing": "Ruw en opgeschoond: gelijk. 'Gepland' in Y verduidelijkt expliciet wat X binnen de opgegeven context al voldoende behoudt. Dat rechtvaardigt geen inhoudelijke winstclaim.",
+      "brononderbouwing": "B10 bevat 'vastgelegd beginmoment en eindmoment ... gereserveerde oefenmaterialen'; B13 voegt 'Gepland' en 'afhalende' toe. Beide behouden volgens G01-P01 tijdgrenzen, precies één werkplaats, afhaalbestemming en de afzonderlijke gebruiksperiode."
+    },
+    {
+      "id": "P04",
+      "A": "X_beter: 'nadat ... terwijl' in B11 herstelt een temporele onzekerheid in B21.",
+      "B": "Gelijk: beide behouden de toestand bij verlening; het verschil is hoofdzakelijk vloeiendheid.",
+      "beslissing": "Ruw en opgeschoond: gelijk. De tussenfase is in beide teksten voldoende herkenbaar. X formuleert vloeiender, maar herstelt geen aangetoond inhoudelijk verlies in Y.",
+      "brononderbouwing": "G06-P01 vereist geslaagde technische controle en nog openstaande inventariscontrole bij toekenning. B11 gebruikt 'nadat ... terwijl'; B21 gebruikt 'nadat ... is geslaagd en ... nog openstaat'. Beide bewaren daarnaast afzonderlijke bevestiging na inventariscontrole. 'Eerder' in B21 en 'of zodra' in B11 behouden dezelfde werking van een eerdere gebrekmelding."
+    },
+    {
+      "id": "P07",
+      "A": "X_beter: B23 behoudt de inhoudelijke relatie en vermijdt B01's onduidelijke koppeling en verwijzing.",
+      "B": "Gelijk: dezelfde actor ontbreekt; expliciete tegenover impliciete oorspronkelijke aanlevering geeft geen doorslag.",
+      "beslissing": "Ruw en opgeschoond: X_beter. De gedeelde actoronzekerheid blijft zichtbaar, maar verhindert erkenning van de afzonderlijke verbetering niet: X vermijdt de onduidelijke vermenging van berichtcategorie en administratieve verwerking. Dit is een verduidelijking van de inhoudelijke afbakening, geen voorkeur voor kortere tekst.",
+      "brononderbouwing": "B23 behoudt via 'opnieuw ... bij het overnemen van diens eerdere aanvraag ... weggelaten' de noodzakelijke oorspronkelijke relatie uit G02-P01. B01 voegt 'en dat aan die aanvraag wordt gekoppeld' toe, terwijl de bron koppeling beschrijft als handeling van de medewerker. X verwijdert de onzekere extra categorievoorwaarde zonder de relatie met dezelfde aanvraag te verliezen."
+    },
+    {
+      "id": "P09",
+      "A": "Y_beter: B18 vermijdt de onduidelijke slotverwijzing en mogelijke koppelingseis van B12.",
+      "B": "Gelijk: beide missen dezelfde actor; de koppeling en kanaalverduidelijking zijn bronondersteund.",
+      "beslissing": "Ruw en opgeschoond: Y_beter. Dat koppeling als handeling bronondersteund is, beslist niet of zij ook als categorievoorwaarde hoort te functioneren. Y bewaart de inhoudelijke relaties zonder die onduidelijkheid. De gedeelde actoronzekerheid blijft bestaan.",
+      "brononderbouwing": "B12 zegt 'en dat aan die eerdere aanvraag wordt gekoppeld'. B18 behoudt expliciet 'bij de oorspronkelijke aanlevering van zijn aanvraag ... al was aangeleverd' en 'bij het overnemen van die aanvraag is weggelaten'. G02-P01 ondersteunt die inhoudelijke afbakening en ontvangstkanaalonafhankelijkheid, maar presenteert administratieve koppeling als verwerking."
+    }
+  ],
+  "paren": [
+    {
+      "paar_id": "P01",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B08 en Y=B04 behouden dezelfde enkelvoudige keuze uit drie gesloten categorieën. Beide missen het uitdrukkelijke intrekkingsbericht en de verdere behandeling onder een ander aanvraagnummer. In geen richting is een inhoudelijke verbetering aangetoond.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Gedeelde betekenis- en compactheidstekorten volgens G04-P01. 'Precies één' tegenover 'als enige grond' en 'grond' tegenover 'waarde' veroorzaken geen nieuwe fout of inhoudelijke verslechtering. Y formuleert directer; dat is hier geen inhoudelijke winst."
+    },
+    {
+      "paar_id": "P02",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B06 maakt planning expliciet; Y=B05 maakt het onderscheid met de gebruiksperiode expliciet. Beide behouden binnen G01-P01 de volledige afbakening, ook waar die impliciet is.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "X verliest de gebruiksperiodenegatie niet inhoudelijk; Y introduceert geen aantoonbare eis van feitelijke afhaling. In geen richting is een inhoudelijke verbetering, nieuwe fout of verslechtering vastgesteld."
+    },
+    {
+      "paar_id": "P03",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B10 en Y=B13 behouden dezelfde tijdgrenzen, werkplaatskoppeling, afhaalbestemming en scheiding met de gebruiksperiode. Y maakt planning explicieter, maar herstelt geen aangetoond inhoudelijk gebrek.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen nieuwe bron- of betekenisfout in enige richting. 'Gepland' en 'afhalende' in Y veranderen de in X contextueel behouden betekenis niet; de lichte woordelijke overlap in Y is geen wezenlijke verslechtering."
+    },
+    {
+      "paar_id": "P04",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B11 en Y=B21 behouden alle voorwaarden en negaties uit G06-P01. X beschrijft de toestand bij verlening vloeiender; Y blijft inhoudelijk voldoende duidelijk.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen aangetoonde inhoudelijke verbetering of verslechtering in enige richting. 'Overgaat' in Y blijft afhankelijk van afzonderlijke bevestiging na inventariscontrole. 'Eerder' in Y voegt geen ontbrekende vervalgrond toe aan X's 'of zodra'."
+    },
+    {
+      "paar_id": "P05",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B09 en Y=B15 behouden schriftelijkheid, volledige commissienaam, vaststelling, bezoekersvolgorde en afwezigheid van uitvoeringsplicht. De verschillende zinsbouw levert geen inhoudelijke winst op.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen nieuwe fout of verslechtering in enige richting. 'Beschrijft' in Y blijft onder de kern 'schriftelijke aanbeveling' adviserend; beide sluiten niet-vastgestelde concepten uit volgens G03-P01."
+    },
+    {
+      "paar_id": "P06",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B03 introduceert het interval directer; Y=B16 specificeert onmiddellijk dezelfde meetpunten voor dezelfde wijziging. Beide behouden de uitsluitingen en passende vaktaal uit G05-P01.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen inhoudelijke verbetering, nieuwe fout of wezenlijke verslechtering in enige richting. Y's minder directe opening wordt binnen dezelfde definitie opgehelderd; duurzame vastlegging blijft in beide via 'commit' behouden."
+    },
+    {
+      "paar_id": "P07",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B23 behoudt oorspronkelijke verstrekking en dezelfde aanvraag impliciet, en vermijdt de onduidelijke slotverwijzing en mogelijke aanvullende koppelingseis van Y=B01. De inhoudelijke afbakening wordt daardoor duidelijker zonder nieuw aangetoond verlies.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Beide behouden onzekerheid over de medewerker als afbakenende actor. X introduceert geen nieuwe fout of verslechtering. Y noemt oorspronkelijke aanlevering explicieter, maar verbetert daarmee geen ontbrekende betekenis in X en introduceert onzekerheid over administratieve koppeling als categorievoorwaarde. Dat is een verslechtering in afbakeningsduidelijkheid, geen vastgestelde bron- of betekenisfout; daarom blijven beide foutbooleans false."
+    },
+    {
+      "paar_id": "P08",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B02 en Y=B07 behouden dezelfde gesloten keuze uit precies drie categorieën en missen dezelfde voorwaarden bij intrekking en samenvoeging. Geen richting levert inhoudelijke verbetering op.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "De gedeelde fouten blijven: geen uitdrukkelijk intrekkingsbericht en geen verdere behandeling onder een ander aanvraagnummer. 'Grond' tegenover 'waarde' veroorzaakt binnen G04-P01 geen nieuwe fout of verslechtering."
+    },
+    {
+      "paar_id": "P09",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B18 behoudt oorspronkelijke verstrekking en dezelfde aanvraag expliciet, zonder de onduidelijke slotverwijzing en mogelijke aanvullende koppelingseis van X=B12. Dit verbetert de duidelijkheid van de inhoudelijke afbakening.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "De actoronzekerheid is gedeeld. Y introduceert geen nieuwe fout of verslechtering; ontvangstkanaalonafhankelijkheid is bronondersteund. X voegt een bronondersteunde verwerkingshandeling toe, maar maakt haar status als mogelijke categorievoorwaarde onzeker. Die verslechtering is geen bewezen fout, zodat beide foutbooleans false blijven."
+    },
+    {
+      "paar_id": "P10",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B14 en Y=B24 behouden hetzelfde interval per wijziging. Y noemt 'per wijziging' en het tekenen van resultaten explicieter; X bewaart die betekenis voldoende via dezelfde wijziging en uitgesloten schermweergavetijd.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen aangetoonde inhoudelijke verbetering, nieuwe fout of verslechtering in enige richting. Beide bewaren de meetpunten en uitsluitingen uit G05-P01."
+    },
+    {
+      "paar_id": "P11",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B20 behoudt openstaande inventariscontrole als toestand bij verlening en vereist afzonderlijke bevestiging na die controle. Y=B22 maakt openstaan tot voortdurende toestemmingsvoorwaarde en verliest de noodzakelijke volgorde voor volledige vrijgave.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": true,
+      "toelichting_foutvergelijking": "X herstelt ten opzichte van Y twee inhoudelijke punten zonder nieuwe fout of verslechtering. Y introduceert met 'zolang' een niet-ondersteunde beperking en laat 'na controle van de inventarislijst' bij de overgang weg. De kortere tekst van Y is daarom geen verbetering; de extra lengte van X draagt noodzakelijke betekenis uit G06-P01."
+    },
+    {
+      "paar_id": "P12",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B19 en Y=B17 behouden alle beschermde kenmerken, de volledige commissienaam en beide negaties. Verschillen in zinsbouw en generiek enkelvoud tegenover meervoud leveren geen inhoudelijke winst op.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen nieuwe fout of verslechtering in enige richting. 'Een gesimuleerde loketdag' in Y introduceert binnen G03-P01 geen aantoonbare beperking tot een eenmalig bruikbaar advies."
+    }
+  ],
+  "onopgeloste_disputen": [
+    "B01, B12, B18 en B23: de medewerker is niet expliciet genoemd. De dossiercontext ondersteunt impliciet behoud, maar de teksten maken niet eenduidig herkenbaar dat juist deze actor afbakenend is. Definitieve classificatie als volledig behouden of daadwerkelijk verloren blijft onzeker; dit geldt gelijk voor ruw en opgeschoond.",
+    "B01 en B12: niet eenduidig vast te stellen of de slotbijzin alleen administratieve verwerking beschrijft of uitgevoerde koppeling als extra categorievoorwaarde presenteert. Ook het antecedent van 'dat' blijft onduidelijk. De paarvoorkeuren erkennen het vermijden van deze onzekerheid, niet een bewezen bronfout."
+  ],
+  "beperkingen": [
+    "Uitsluitend de aangeleverde zes synthetische dossiers, 24 teksten met opschoningsvarianten en beoordelingen A en B gebruikt. Geen tools, agents, reviewers, extra CLI-sessies of externe rechtsbronnen gebruikt.",
+    "Dit is een AI-beoordeling van een kleine verkennende proef, geen menselijke validatie of algemene kwaliteitsclaim. Begrijpelijkheid is inhoudelijk beoordeeld, niet met doelgroepgebruikers getest.",
+    "De oud/nieuw-sleutel is onbekend gebleven. Er is geen aggregatie naar variantidentiteit uitgevoerd.",
+    "Alle teksten vormen één naamwoordelijke definitieformulering. Een ontbrekende beginhoofdletter of eindpunt is niet als zinsstructuurtekort behandeld.",
+    "'Identiek_aan_ruw' verwijst uitsluitend naar identieke asoordelen. De opgeschoonde teksten verschillen wel in hoofdlettergebruik en/of eindinterpunctie; geen enkele opschoning verandert inhoud of syntactische relaties.",
+    "Bronsteun betreft de steun voor uitgesproken inhoud; betekenisbehoud betreft daarnaast afbakening en ontbrekende kenmerken. Bronondersteunde labels kunnen daardoor toch onvoldoende betekenis behouden.",
+    "Impliciet behoud is beoordeeld op tekst, dossiercontext en doelgroep. Het is niet gelijkgesteld aan ontbrekende betekenis, maar evenmin aangenomen waar een beschermde relatie onvoldoende eenduidig herkenbaar blijft.",
+    "De foutbooleans registreren aangetoonde nieuwe bron- of betekenisfouten ten opzichte van de andere tekst. False sluit gedeelde fouten, onzekerheid of een afzonderlijk toegelichte verslechtering in duidelijkheid niet uit.",
+    "De gedeelde tekstgebreken in G04 en B22 blijven expliciet zichtbaar. Er is geen aanvullende aantoonbare gezamenlijke bronfout van A en B vastgesteld. Bij G04 berust het compactheidstekort primair op verlies van beschermde voorwaarden, niet op een automatisch verbod op herhaling van negaties."
+  ]
+}

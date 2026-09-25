@@ -1,0 +1,350 @@
+{
+  "versie": "v2",
+  "regel": "INT-03",
+  "datum": "2026-09-25",
+  "onderzoeker": "B",
+  "sessie": "01a0d782-026f-7a70-b451-84c5f82137dd",
+  "actief_model": "gpt-6-astra",
+  "reasoning": "high",
+  "modelbewijs": "Eigen turn_context gecontroleerd in fase 1; zie manifest-v1. Geen andere sessies gestart.",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "vastgelegd_utc": "2026-09-25T08:24:25.144579+00:00",
+  "eigen_bestanden": [
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/aanvulling-b-v1.md",
+      "sha256": "d791e7f7f216dc9ed04eba475ee781528379ece8e80fbae9f75bce3e2a64bb67",
+      "bytes": 40249
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/casusregister-b-v1.md",
+      "sha256": "aea3ef641838ddaba4950fa9cd93bf9f76a99ae2fbd27cd1e593860541e55c41",
+      "bytes": 12608
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proefverwachtingen-b-v1.json",
+      "sha256": "fde36bc7ccd07689861de150853bed16d7abd51635b11480a3fd9baa9bc30b98",
+      "bytes": 15313
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proef-b-v1.py",
+      "sha256": "f9acbf83b5d10f1bbf7fb78df69e4ab110b116aa0febcdb1be5efa248289422f",
+      "bytes": 5614
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proefuitkomsten-b-v1.json",
+      "sha256": "857d96bb20728ba7cf80755079c4580526ff7a952f1aa730d66b1260b3ac9f2b",
+      "bytes": 27928
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/bewijsmanifest-b-v1.json",
+      "sha256": "048cea04005ba8ee8ec285665bc88385d9e28209bd99f74a8f59bcecf57bbe92",
+      "bytes": 19973
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/review-b-op-a-v1.md",
+      "sha256": "90fa2fc1e3fc93da9fcbf262035a9a06d7b1fbd0750d30735f2eaec9a83f7229",
+      "bytes": 17204
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/review-b-op-c-v1.md",
+      "sha256": "1d1c1fddd90d23ec36f8d6615ad891a5eaf93db1930b6c783fedfe89b9780c1a",
+      "bytes": 16537
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/verwerking-b-v1.md",
+      "sha256": "48ab532cf206d6d5b2e74464dc585c9610ca3b4177509d57eab12f8caf2499be",
+      "bytes": 7122
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/aanvulling-b-v2.md",
+      "sha256": "9bf1f2f76cb1b301f8dfbbafa7324d61cc6aa68cf84ecc8139e2c7be8e61359f",
+      "bytes": 49701
+    }
+  ],
+  "nieuwe_oplevering": [
+    "review-b-op-a-v1.md",
+    "review-b-op-c-v1.md",
+    "verwerking-b-v1.md",
+    "aanvulling-b-v2.md",
+    "bewijsmanifest-b-v2.json"
+  ],
+  "ongewijzigde_v1": {
+    "manifest_sha256": "048cea04005ba8ee8ec285665bc88385d9e28209bd99f74a8f59bcecf57bbe92",
+    "vijf_manifestgebonden_bestanden_ongewijzigd": true,
+    "manifest_zelf_ongewijzigd": true,
+    "verwachtingen_achteraf_aangepast": false
+  },
+  "bronbasis_v1": {
+    "manifest": {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/bewijsmanifest-b-v1.json",
+      "sha256": "048cea04005ba8ee8ec285665bc88385d9e28209bd99f74a8f59bcecf57bbe92",
+      "bytes": 19973
+    },
+    "aantal_bronhashes": 56,
+    "claimbereik": "Historische lees-/proefbasis hergebruikt; geen claim dat externe bronnen opnieuw zijn opgehaald."
+  },
+  "fase2_bronnen": [
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/processtatus-v2.md",
+      "sha256": "a93207225cfd3b42219d94b80e160f350dbdfe65b8dbb889ac93d34a3fd688c1",
+      "bytes": 1050
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/feitenbasis-v1.md",
+      "sha256": "c160479ace16663bc89ebf902e69c1ab7c4f19ad87a0114473eddd82d158662d",
+      "bytes": 12298
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/astra-INT-03-raw-20260925.txt",
+      "sha256": "121c4fbb13c25cbe5847ab774f8eaba6c46b555b69ab01edcef4274df101deae",
+      "bytes": 1334
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/review-a-op-b-v1.md",
+      "sha256": "89fcddd3b7fdb30e4fddba13a0aaf372d5150ebecc928b89d5ab2753e08abcf5",
+      "bytes": 5510
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/bewijsmanifest-a-v1.json",
+      "sha256": "b37a4d862d8f4ef05b463044eacf4a722a01f82641c1f9fd922cb2eb940eed78",
+      "bytes": 1077
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/aanvulling-a-v1.md",
+      "sha256": "3b3bc4e5689258021e067bcef996b0c9d95b1d55a5efe965919d492f71e6f277",
+      "bytes": 23750
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proef-a-v1.py",
+      "sha256": "6338d9f77ff5c2f193b843002b25dc2c0899e8e0c4be0ba89702f095b482990a",
+      "bytes": 5307
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proef-a-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proef-a-v1.stdout",
+      "sha256": "24d0a0d043bac2fef33c7b52c3c019d3f504b53a862bd6e42d72c874015412dd",
+      "bytes": 447
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proefuitkomsten-a-v1.json",
+      "sha256": "0d226514e17674c07041872ba0c43daa0dc8bfe595d5de354a460dec67e199aa",
+      "bytes": 14031
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proefverwachtingen-a-v1.json",
+      "sha256": "a084efe82ffd44a272de10d54102459d90f7e1beefc8a56e5759560a6d4edbab",
+      "bytes": 5685
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/bewijsmanifest-c-v1.json",
+      "sha256": "0d18c023823ef7c1a6c3eae0d56ffd0b674c8f1d08d48882264bd797b633029e",
+      "bytes": 8072
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/aanvulling-c-v1.md",
+      "sha256": "31f3a53247584abac9722f27ef952af2a38b409de300175b9d18696c2241fbd3",
+      "bytes": 35238
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/casusregister-c-v1.md",
+      "sha256": "0126835e61fd053b9375d6598a2d84eb87213887bfc276245dc0d2290a31a04c",
+      "bytes": 12605
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proefverwachtingen-c-v1.json",
+      "sha256": "303486856b2a79ff971700a63c91d1eec4ed0bb9bbd63c1701704afc0f6257da",
+      "bytes": 11692
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proef-c-v1.py",
+      "sha256": "690ffe2d7baaa9af27d0b6a43be75a5d4cfdf92d6e9930802c2434bac63be054",
+      "bytes": 10028
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proefuitkomsten-c-v1.json",
+      "sha256": "906d4ee7dd959f1ca736af00e96661ecc139e865dec0ff1725211d0cde61c117",
+      "bytes": 26721
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proef-c-v1-run1.log",
+      "sha256": "f033cc92c88dfb49a759920e14538587e20fb9e05ea2cb932faf765a56910175",
+      "bytes": 2434
+    },
+    {
+      "pad": "src/services/validation/evaluators/judgment_review.py",
+      "sha256": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+      "bytes": 9732
+    },
+    {
+      "pad": "src/services/validation/modular_validation_service.py",
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "bytes": 97943
+    },
+    {
+      "pad": "src/services/validation/interfaces.py",
+      "sha256": "06ea54c753ef714beb4fe9f59318079c1af4b646c624ed9475759254307e1d49",
+      "bytes": 17611
+    },
+    {
+      "pad": "src/ui/components/validation_view.py",
+      "sha256": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+      "bytes": 37184
+    },
+    {
+      "pad": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "bytes": 20357
+    },
+    {
+      "pad": "src/services/prompts/modules/prompt_orchestrator.py",
+      "sha256": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+      "bytes": 20434
+    },
+    {
+      "pad": "src/services/prompts/modular_prompt_adapter.py",
+      "sha256": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+      "bytes": 17729
+    },
+    {
+      "pad": "src/toetsregels/regels/INT-03.json",
+      "sha256": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+      "bytes": 2103
+    },
+    {
+      "pad": "src/validation/additional_patterns.py",
+      "sha256": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+      "bytes": 2579
+    },
+    {
+      "pad": "tests/offline_bootstrap.py",
+      "sha256": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7",
+      "bytes": 25111
+    }
+  ],
+  "fase2_verificatie": {
+    "aard": "Bestands-/tekst-/broncontroles, geen nieuwe appproef of testsuite.",
+    "python": ".venv/bin/python -B (standaardbibliotheek, geen applicatie-imports)",
+    "manifestcontroles": {
+      "a": [
+        {
+          "bestand": "aanvulling-a-v1.md",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proef-a-v1.py",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proef-a-v1.stderr",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proef-a-v1.stdout",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proefuitkomsten-a-v1.json",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proefverwachtingen-a-v1.json",
+          "sha256_komt_overeen": true
+        }
+      ],
+      "c": [
+        {
+          "bestand": "aanvulling-c-v1.md",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "casusregister-c-v1.md",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proefverwachtingen-c-v1.json",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proef-c-v1.py",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proefuitkomsten-c-v1.json",
+          "sha256_komt_overeen": true
+        },
+        {
+          "bestand": "proef-c-v1-run1.log",
+          "sha256_komt_overeen": true
+        }
+      ]
+    },
+    "c_zeven_codehashes_overeenkomstig_huidige_bron": true,
+    "c_verwachtingen_hash_overeenkomstig": true,
+    "c_bestaande_servicevergelijkingen": {
+      "aantal": 30,
+      "alle_waar": true
+    },
+    "c_bestaande_promptvergelijkingen": {
+      "aantal": 7,
+      "alle_waar": true
+    },
+    "rapportstructuur": {
+      "review_A_punten_met_claim_oordeel_bron_gevolg": 21,
+      "review_C_punten_met_claim_oordeel_bron_gevolg": 19,
+      "verwerkte_RB_punten": 16,
+      "volledige_B_v2_Q1_tot_Q6_G_T_H": true
+    },
+    "git_controle": {
+      "commando": "git diff --exit-code HEAD -- src config tests",
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": "git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\n"
+    },
+    "eerste_manifestpoging": {
+      "exitstatus": 1,
+      "oorzaak": "Bewakingsassertie verwachtte alleen onderzoeksbestanden; de map bevat daarnaast door de host aangemaakte codex-runbestanden. Geen manifest geschreven tijdens deze poging.",
+      "correctie": "Alleen eigen onderzoeksartefacten hashen; hostbestanden uitsluitend op naam geïnventariseerd, niet gelezen of gewijzigd."
+    },
+    "uiteindelijke_bestandscontroles_exitstatus": 0,
+    "nieuwe_runtimeproef": false,
+    "reden_geen_nieuwe_runtimeproef": "Materiële tegenstrijdigheden zijn gericht in bron en bevroren artefacten controleerbaar: error-grens, deduplicatie, UI-tak, patroonuitsluiting, prefixfiltering en niet-geïsoleerde promptlengtes. Eerder geslaagde contractproeven blijven geldig op dezelfde commit/bronhashes.",
+    "gerichtherlezen": [
+      "judgment_review.py: normale review, deduplicatie per fragment en foutdoorgifte",
+      "modular_validation_service.py:1430-1483: ontbrekende input versus contractfout/exception",
+      "validation_view.py:803-808 en 859-864: speciale redenen versus statuscodes zonder expander",
+      "json_based_rules_module.py: prefixfilter en formatter",
+      "A-v1 patroonvoorstel: hem ontbreekt; record-lookahead wijzigt dekking",
+      "C-v1 promptuitkomsten: contextvarianten wijzigen meer dan uitsluitend integrity_rules"
+    ],
+    "beperkingen": [
+      "Geen live modelcalls, UI-run, opslag/herlaadproef, exportproef of effectmeting.",
+      "Geen opnieuw uitgevoerde A/B/C-hulpscripts; bevroren uitkomsten gelezen en hashes gecontroleerd.",
+      "Nieuwe G-B1-v2-tekst is advies, geen gemeten verbetering."
+    ]
+  },
+  "uitgesloten_hostbestanden": {
+    "namen": [
+      "codex-laatste-bericht-run1.txt",
+      "codex-run1.err",
+      "codex-run1.log",
+      "codex-run1.status",
+      "codex-run2.err",
+      "codex-run2.log",
+      "codex-run2.status",
+      "codex-run3.err",
+      "codex-run3.log",
+      "codex-run3.status",
+      "codex-run4.err",
+      "codex-run4.log",
+      "codex-run4.status"
+    ],
+    "grond": "Geen door B geschreven onderzoeksopleveringen; uitsluitend namen geïnventariseerd. Lopende sessielogs niet inhoudelijk gelezen, gehasht of gewijzigd."
+  },
+  "manifest_zelf": "Zelfhash staat buiten dit bestand in de oplevering; circulaire zelfhashing vermeden. V2 bindt ook het complete v1-manifest.",
+  "overdracht": "Naar A voor eigen verwerking, C-verwerking en synthese; latere synthesecontrole nog niet uitgevoerd. Geen gezamenlijke afronding."
+}

@@ -1,0 +1,97 @@
+{
+  "implementer": {
+    "cli": "Claude Code CLI2.1.282",
+    "session": "442a98fb-a377-403f-996e-433cf4a664fc",
+    "model": "claude-opus-5-5",
+    "log_prefix": "logs/def770-citaatbeleid/claude-uitvoering-"
+  },
+  "reviewer": {
+    "cli": "Codex CLI0.157.0",
+    "session": "01a0cfac-ea05-7700-ba73-8b5659751c1c",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "log_prefix": "logs/def770-citaatbeleid/astra-"
+  },
+  "independent_acceptance_roles": [
+    {
+      "run": 1,
+      "role": "maker",
+      "session": "01a0d7af-4806-7420-91d5-a788f2482521",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/maker-sessie-v1.jsonl",
+      "sha256": "9a05efe0fda597957adafe44b10bb7f3e0e02d76df0b0350a0f2df00d839154c"
+    },
+    {
+      "run": 1,
+      "role": "A",
+      "session": "01a0d7bf-3259-71b2-8954-3a4b5cd76845",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/t24-referentie-A-sessie-v1.jsonl",
+      "sha256": "c77e468c4789c786c480558510bcf217b9c7546ba1dd84e614128dcb9431d750"
+    },
+    {
+      "run": 1,
+      "role": "B",
+      "session": "01a0d7bf-43c2-78c3-9f61-7bb1fb6d06ba",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/t24-referentie-B-sessie-v1.jsonl",
+      "sha256": "5dc6df6f07e8e11e559ac1ce248952284122d83764231aa930ae085ad1006889"
+    },
+    {
+      "run": 1,
+      "role": "adjudicator",
+      "session": "01a0d7c3-07b2-78b0-89d5-6d3c1002416a",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/t24-adjudicatie-sessie-v1.jsonl",
+      "sha256": "8f11c4c77807c4d811d1e48f6c0a4831824c537e473664d731d6aa1097209a86"
+    },
+    {
+      "run": 2,
+      "role": "maker",
+      "session": "01a0d7cb-e2c8-72e0-827a-49f54a08aa83",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/maker-sessie-v2.jsonl",
+      "sha256": "fd0de23dde9698533dfe364ba3ef3e7c13eacbf65f24b1891e718461d0b785d1"
+    },
+    {
+      "run": 2,
+      "role": "A",
+      "session": "01a0d7e0-5f4f-76c0-8f7a-af7018e21eb6",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/t24-referentie-A-sessie-v2.jsonl",
+      "sha256": "559d1595506a239971163c9cc4c7bb9e62de7918bfaa70cb4af8a7670dbc6cd7"
+    },
+    {
+      "run": 2,
+      "role": "B",
+      "session": "01a0d7e0-7131-7542-b99f-70b0dbd04e5c",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/t24-referentie-B-sessie-v2.jsonl",
+      "sha256": "c5cd932221aaf128c8cab16c4f0adc38f7ea4a4b31946920a97d2119674cc98a"
+    },
+    {
+      "run": 2,
+      "role": "adjudicator",
+      "session": "01a0d7e3-de70-7032-b5b1-a94905cc480f",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0,
+      "log": "logs/def770-citaatbeleid/t24-adjudicatie-sessie-v2.jsonl",
+      "sha256": "6e6d5de2d829e43c1f80801565cde1b3681998961cfd559c2cec13a47de95d6d"
+    }
+  ]
+}

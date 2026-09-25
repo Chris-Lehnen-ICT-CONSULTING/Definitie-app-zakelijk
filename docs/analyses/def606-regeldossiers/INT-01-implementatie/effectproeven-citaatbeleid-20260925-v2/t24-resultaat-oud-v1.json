@@ -1,0 +1,2129 @@
+{
+  "soort": "DEF-770 T24 uitvoer (observatie, geen labels of scores)",
+  "script_sha256": "644f377ea71171c984dc02c6015c4d2a1b7db443eb2f8e81fafa36ea821dbc16",
+  "helper_sha256": "f5fb979231bcc8f96b43fd31d5abddd47e8388350811f55a98bc42e72f8a3af7",
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "bron": {
+    "archief": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/bron-oud-26f2374d.tar",
+    "archief_sha256": "e591502086a034c7245c37a3d525393d761c470667db615a95ff4397720525b5",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "commit_uit": "pax-header 'comment' van git archive",
+    "uitgepakte_leden": 3053,
+    "overgeslagen_leden": [
+      "data",
+      "data/uploads",
+      "data/uploads/documents",
+      "data/uploads/documents/documents_metadata.json",
+      "data/wetteksten",
+      "data/wetteksten/wid.txt"
+    ],
+    "uitsluitingsregel": "data/ en *.db/*.sqlite* (geen productiedata)",
+    "sleutelbestanden_sha256": {
+      "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "src/domain/int01/zinsgrenzen.py": "niet aanwezig",
+      "src/domain/int01/opslag.py": "niet aanwezig",
+      "src/services/validation/evaluators/sentence_boundary.py": "niet aanwezig",
+      "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "src/services/prompts/prompt_service_v2.py": "fd268584bf195fa816386f978832657b2781e016532449e2c8aeda1dc02581ab",
+      "src/services/orchestrators/definition_orchestrator_v2.py": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259",
+      "src/services/ai/anthropic_client.py": "91381bf25cfe3f1be7393b409105cf6a751d897ce7dd9530b32a8ac647e818e1",
+      "src/services/ai/model_router.py": "65e923d9840910c4a5113d344f8e2b2a7f64f9b9b59d966bdf63a97c07235bac",
+      "config/config.yaml": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "tests/offline_bootstrap.py": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7"
+    }
+  },
+  "moduleherkomst": {
+    "tests.offline_bootstrap": "tests/offline_bootstrap.py",
+    "services.validation.modular_validation_service": "src/services/validation/modular_validation_service.py",
+    "toetsregels.manager": "src/toetsregels/manager.py",
+    "toetsregels.cached_manager": "src/toetsregels/cached_manager.py",
+    "database.definitie_repository": "src/database/definitie_repository.py",
+    "database.models": "src/database/models.py",
+    "domain.int01.zinsgrenzen": "niet aanwezig",
+    "domain.int01.opslag": "niet aanwezig",
+    "services.validation.evaluators.sentence_boundary": "niet aanwezig"
+  },
+  "offline_gate_actief": true,
+  "invoer": {
+    "pad": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-gevallen-v1.json",
+    "sha256": "91bdd44016bfa4ff4eb1745c395c26c934e3ef7dac3895a042b2cb5b6412effe",
+    "aantal": 24
+  },
+  "gevallen": [
+    {
+      "id": "T01",
+      "stratum": "S1",
+      "begrip": "Schuifnest",
+      "tekst": "ondiepe uitsparing voor het opbergen van verschuifbare meetplaatjes",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met een voorzetselbepaling en een zelfstandig gebruikte werkwoordsvorm."
+    },
+    {
+      "id": "T02",
+      "stratum": "S1",
+      "begrip": "Terugkeervenster",
+      "tekst": "tijdvak waarin een onderbroken proef zonder nieuwe nulmeting kan worden hervat",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een betrekkelijke bijzin specificeert het tijdvak dat de kern benoemt."
+    },
+    {
+      "id": "T03",
+      "stratum": "S1",
+      "begrip": "Kleur-en-klankregister",
+      "tekst": "register van kleur en klank waarin waarnemers hun gelijktijdige indrukken vastleggen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Nevenschikking binnen een naamwoordgroep, gevolgd door een betrekkelijke bijzin."
+    },
+    {
+      "id": "T04",
+      "stratum": "S1",
+      "begrip": "Wisselhouder",
+      "tekst": "Houder voor een sensor of een proefgewicht dat tijdens de meting verplaatsbaar moet blijven. De gekozen inzet rust op drie nokken.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een naamwoordelijke opening bevat nevenschikking en een bijzin; daarna volgt een zelfstandige mededeling."
+    },
+    {
+      "id": "T05",
+      "stratum": "S2",
+      "begrip": "Rastermaat",
+      "tekst": "afstand van 2,5 mm tussen opeenvolgende hulplijnen op een tekenblad",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een decimaal getal en een eenheidsafkorting staan midden in de kern."
+    },
+    {
+      "id": "T06",
+      "stratum": "S2",
+      "begrip": "Veldstrook",
+      "tekst": "strook met 3 vakken voor aantekeningen van de fictieve onderzoeker dr. Mira Velden.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een cijfer wordt gecombineerd met een afgekorte titel en een persoonsnaam."
+    },
+    {
+      "id": "T07",
+      "stratum": "S2",
+      "begrip": "Aanvulbak",
+      "tekst": "bak voor losse knopen, koorden, lapjes e.d.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een opsommende naamwoordgroep eindigt op een afkorting met punten."
+    },
+    {
+      "id": "T08",
+      "stratum": "S2",
+      "begrip": "Rondekaart",
+      "tekst": "Kaart waarop elke proefronde een nummer krijgt, bijv. 12. De achterkant biedt ruimte voor opmerkingen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een afkorting en een getal gaan vooraf aan een punt en een nieuwe mededeling."
+    },
+    {
+      "id": "T09",
+      "stratum": "S3",
+      "begrip": "Schaduwmal",
+      "tekst": "Een schaduwmal is een plaat die een vaste omtrek op de werktafel projecteert.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een volledige mededelende zin sluit af met een punt."
+    },
+    {
+      "id": "T10",
+      "stratum": "S3",
+      "begrip": "Rustsignaal",
+      "tekst": "Een rustsignaal kondigt een pauze in de oefening aan. Het klinkt eenmaal.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee korte mededelende zinnen hebben elk een afsluitende punt."
+    },
+    {
+      "id": "T11",
+      "stratum": "S3",
+      "begrip": "Keuzevak",
+      "tekst": "Een keuzevak biedt ruimte voor één voorkeur. Welke mogelijkheid krijgt de markering?",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een mededeling wordt gevolgd door een vraag met een vraagteken."
+    },
+    {
+      "id": "T12",
+      "stratum": "S3",
+      "begrip": "Vangrand",
+      "tekst": "Een vangrand houdt rollende kralen op het werkblad. Laat de opening vrij!",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een beschrijvende zin wordt gevolgd door een aansporing met een uitroepteken."
+    },
+    {
+      "id": "T13",
+      "stratum": "S4",
+      "begrip": "Vouwgeleider",
+      "tekst": "smalle richel die het papier\nlangs een vooraf gekozen lijn\nnaar binnen laat buigen",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Regelomloop onderbreekt een doorlopende grammaticale constructie."
+    },
+    {
+      "id": "T14",
+      "stratum": "S4",
+      "begrip": "Luisterplek",
+      "tekst": "Een luisterplek is een afgeschermde ruimte voor het vergelijken van zachte geluiden.\n\nDe bekleding dempt weerkaatsingen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee mededelingen zijn met een lege regel over afzonderlijke alinea's verdeeld."
+    },
+    {
+      "id": "T15",
+      "stratum": "S4",
+      "begrip": "Sorteerblad",
+      "tekst": "blad met afzonderlijke zones voor:\n- ronde onderdelen;\n- vlakke onderdelen;\n- onregelmatige onderdelen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een naamwoordelijke aanloop mondt via een dubbele punt uit in een opsomming met puntkomma's."
+    },
+    {
+      "id": "T16",
+      "stratum": "S4",
+      "begrip": "Draaipauze",
+      "tekst": "**Draaipauze** is een onderbreking tussen twee omwentelingen; de aandrijving blijft gereed voor hervatting.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Markdownopmaak markeert het begrip en een puntkomma verbindt twee hoofdzinnen."
+    },
+    {
+      "id": "T17",
+      "stratum": "S5",
+      "begrip": "Startfluistering",
+      "tekst": "zacht uitgesproken aanwijzing met de woorden ‘nu beginnen’ waarmee een luisteroefening wordt geopend.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een kort citaat is opgenomen in een doorlopende naamwoordelijke constructie."
+    },
+    {
+      "id": "T18",
+      "stratum": "S5",
+      "begrip": "Middenpen",
+      "tekst": "Pen die het draaipunt van een kartonnen schijf vastlegt (zonder de schijf vast te klemmen). De punt steekt door de onderplaat.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ingelaste bepaling staat tussen haakjes vóór de afsluitende punt; daarna volgt een nieuwe mededeling."
+    },
+    {
+      "id": "T19",
+      "stratum": "S5",
+      "begrip": "Bewaarplooi",
+      "tekst": "“een dubbele vouw waarin een klein briefje zonder lijm blijft zitten.”",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De gehele kern staat tussen aanhalingstekens, met de punt binnen het sluitende teken."
+    },
+    {
+      "id": "T20",
+      "stratum": "S5",
+      "begrip": "Vraagtegel",
+      "tekst": "tegel uit de fictieve oefenreeks ‘Waar klinkt het?’ die een luisteraar naar de bron van een geluid laat wijzen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ingesloten titel eindigt op een vraagteken terwijl de omringende constructie daarna doorloopt."
+    },
+    {
+      "id": "T21",
+      "stratum": "S6",
+      "begrip": "Meetluwte",
+      "tekst": "",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Het tekstveld bevat geen tekens."
+    },
+    {
+      "id": "T22",
+      "stratum": "S6",
+      "begrip": "Afstemvak",
+      "tekst": "Afstemvak",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De tekst bestaat uitsluitend uit een los label."
+    },
+    {
+      "id": "T23",
+      "stratum": "S6",
+      "begrip": "Kantelruimte",
+      "tekst": "vrije ruimte onder een beweegbare plank. de rand blijft tijdens het kantelen zichtbaar",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Na een punt en een spatie volgt een kleine letter; een afsluitend leesteken ontbreekt."
+    },
+    {
+      "id": "T24",
+      "stratum": "S6",
+      "begrip": "Naloopwaarde",
+      "tekst": "waarde waarmee de uitloop van een proefwiel wordt genoteerd in zkr.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De kern eindigt op een verzonnen afkorting waarvan de betekenis niet wordt uitgelegd."
+    }
+  ],
+  "service": [
+    {
+      "id": "T01",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T02",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 27,
+          "failed": 6,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T03",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\ben\\b",
+            "description": "Verboden patroon gedetecteerd: \\ben\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\ben\\b",
+              "position": 19
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T04",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bof\\b",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bof\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bof\\b",
+              "position": 23
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 27,
+          "failed": 6,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T05",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ,",
+            "description": "Verboden patroon gedetecteerd: ,",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ",",
+              "position": 13
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T06",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 69
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T07",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ,",
+            "description": "Verboden patroon gedetecteerd: ,",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ",",
+              "position": 21
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T08",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ,, \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: ,, \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ",",
+              "position": 46
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T09",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 28
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T10",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 52
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T11",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bwelke\\b",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bwelke\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 43
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T12",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 50
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 25,
+          "failed": 8,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T13",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 14
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T14",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 83
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T15",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ;",
+            "description": "Verboden patroon gedetecteerd: ;",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ";",
+              "position": 53
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 27,
+          "failed": 6,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T16",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ;, ;\\s*[a-z]",
+            "description": "Verboden patroon gedetecteerd: ;, ;\\s*[a-z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ";",
+              "position": 60
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T17",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 30,
+          "failed": 3,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T18",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 4
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T19",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T20",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 52
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T21",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 13,
+          "not_evaluated": 7,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T22",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T23",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 39
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T24",
+      "laadpad": "manager",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 30,
+          "failed": 3,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T01",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T02",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 27,
+          "failed": 6,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T03",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\ben\\b",
+            "description": "Verboden patroon gedetecteerd: \\ben\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\ben\\b",
+              "position": 19
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T04",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bof\\b",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bof\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bof\\b",
+              "position": 23
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 27,
+          "failed": 6,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T05",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ,",
+            "description": "Verboden patroon gedetecteerd: ,",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ",",
+              "position": 13
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T06",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 69
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T07",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ,",
+            "description": "Verboden patroon gedetecteerd: ,",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ",",
+              "position": 21
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T08",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ,, \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: ,, \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ",",
+              "position": 46
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T09",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 28
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T10",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 52
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T11",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bwelke\\b",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bwelke\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 43
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T12",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 50
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 25,
+          "failed": 8,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T13",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 14
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T14",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 83
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 26,
+          "failed": 7,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T15",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ;",
+            "description": "Verboden patroon gedetecteerd: ;",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ";",
+              "position": 53
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 27,
+          "failed": 6,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T16",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: ;, ;\\s*[a-z]",
+            "description": "Verboden patroon gedetecteerd: ;, ;\\s*[a-z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": ";",
+              "position": 60
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T17",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 30,
+          "failed": 3,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T18",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 4
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T19",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T20",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\bdie\\b",
+              "position": 52
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T21",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 13,
+          "not_evaluated": 7,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T22",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 28,
+          "failed": 5,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T23",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "fail",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": false,
+        "violations_int01": [
+          {
+            "code": "INT-01",
+            "severity": "warning",
+            "severity_level": "low",
+            "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+            "rule_id": "INT-01",
+            "category": "structuur",
+            "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+            "metadata": {
+              "detected_pattern": "\\.\\s+[A-Z]",
+              "position": 39
+            }
+          }
+        ],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 29,
+          "failed": 4,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    },
+    {
+      "id": "T24",
+      "laadpad": "cache",
+      "int01": {
+        "contractversie": "2.1.0",
+        "rule_status": "pass",
+        "rule_result": "niet aanwezig",
+        "in_passed_rules": true,
+        "violations_int01": [],
+        "review_required_int01": [],
+        "evaluation_coverage": {
+          "evaluated": 33,
+          "passed": 30,
+          "failed": 3,
+          "review_required": 14,
+          "not_evaluated": 6,
+          "error": 0,
+          "not_applicable": 0,
+          "total": 53,
+          "coverage_ratio": 0.6226
+        },
+        "is_acceptable": false,
+        "overall_score": null
+      }
+    }
+  ],
+  "opslag": [
+    {
+      "id": "T01",
+      "db": "geval-000.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T02",
+      "db": "geval-001.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T03",
+      "db": "geval-002.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T04",
+      "db": "geval-003.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T05",
+      "db": "geval-004.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T06",
+      "db": "geval-005.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T07",
+      "db": "geval-006.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T08",
+      "db": "geval-007.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T09",
+      "db": "geval-008.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T10",
+      "db": "geval-009.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T11",
+      "db": "geval-010.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T12",
+      "db": "geval-011.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T13",
+      "db": "geval-012.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T14",
+      "db": "geval-013.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T15",
+      "db": "geval-014.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T16",
+      "db": "geval-015.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T17",
+      "db": "geval-016.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T18",
+      "db": "geval-017.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T19",
+      "db": "geval-018.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T20",
+      "db": "geval-019.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T21",
+      "db": "geval-020.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T22",
+      "db": "geval-021.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T23",
+      "db": "geval-022.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    },
+    {
+      "id": "T24",
+      "db": "geval-023.db",
+      "definitie_id": 3,
+      "teruggelezen_tekst_identiek": true,
+      "int01_beoordeling": "niet aanwezig"
+    }
+  ],
+  "fouten": 0
+}

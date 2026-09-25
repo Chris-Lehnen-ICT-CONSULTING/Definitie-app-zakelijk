@@ -1,0 +1,20 @@
+{
+  "at": "2026-09-25T12:18:54.615320+00:00",
+  "maker_session": [
+    {
+      "type": "thread.started",
+      "thread_id": "01a0d87f-5d7c-7a93-9236-ff85f93fc845"
+    }
+  ],
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "tool_calls": 0,
+  "case_count": 24,
+  "files": {
+    "logs/def770-afbakening/maker-v1.json": "c1bacce505a036007a4605e41bf1c590f384e465ba0a63e76b8df7f7d4c6aeed",
+    "logs/def770-afbakening/maker-sessie-v1.jsonl": "75a59dec7898335a3e925951b8c982393016060f6fea9b667e8e2442c639886c",
+    "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/t24-gevallen-v1.json": "1403a499f93559ea0fe3e1779017288994fca710ab828209b99f7ac1c55a8b7b",
+    "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/referentie-contract-v1.md": "d60b4dbb718101ae6b284f42fd33865e9bfca3d1d70accd81a6bc0ba82e740ea",
+    "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/bronfreeze-v2.json": "4a5b513517a14aa2846c86fbe4f3f6ddcf114a95d9cf197c21cefaff1ea29aac"
+  }
+}

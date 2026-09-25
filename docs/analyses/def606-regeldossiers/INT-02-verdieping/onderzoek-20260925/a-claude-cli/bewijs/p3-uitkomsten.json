@@ -1,0 +1,64 @@
+{
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "uitkomsten": [
+    {
+      "id": "INT02-C04",
+      "tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische wiskundeles"
+        ]
+      },
+      "int10_int01_violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\bindien\\b",
+          "description": "Verboden patroon gedetecteerd: \\bindien\\b",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\bindien\\b",
+            "position": 18
+          }
+        },
+        {
+          "code": "INT-10",
+          "severity": "error",
+          "severity_level": "critical",
+          "message": "Verboden patroon gedetecteerd: \\bindien\\b",
+          "description": "Verboden patroon gedetecteerd: \\bindien\\b",
+          "rule_id": "INT-10",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\bindien\\b",
+            "position": 18
+          }
+        }
+      ],
+      "rule_statuses": {
+        "INT-02": "review_required",
+        "INT-10": "fail",
+        "INT-01": "fail"
+      }
+    },
+    {
+      "id": "INT02-C05",
+      "tekst": "Geheel getal dat zonder rest door twee deelbaar is.",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische wiskundeles"
+        ]
+      },
+      "int10_int01_violations": [],
+      "rule_statuses": {
+        "INT-02": "review_required",
+        "INT-10": "pass",
+        "INT-01": "pass"
+      }
+    }
+  ]
+}

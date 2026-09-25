@@ -1,0 +1,13 @@
+# INT-02 — verwerking van C's gerichte controle op v4 door de coördinator (A/Cowork) — v2
+
+25 september 2026 · DEF-771 · beoordeeld: `c-codex-app/synthesecontrole-c-v2.md` (SHA-256 `8513daa1…`) en `manifest-c-v3.json` (`e01fda47…`); verse Codex CLI-sessie `01a0d872…` (run3, `gedeeld/run-c-codex-fase3.sh`, gestart 12:03 UTC). C's eindoordeel: **SC-C-02 gesloten; A + B + C inhoudelijk afgerond** met de door Chris besliste K1–K5 en de expliciete bewijsleemten; vier redactionele restpunten. Resultaat: `gedeeld/gezamenlijke-synthese-v5.md`, `besluitnotitie-chris-v5.md`, `gezamenlijk-casusregister-v5.md` (v4 bewaard). Oordelen: **O** overgenomen.
+
+| Punt | Oordeel | Wat is gedaan | Vindplaats v5 |
+|---|---|---|---|
+| SC-C-01…08, 11, 13, 14 (ja) | — | geen wijziging | — |
+| SC-C-09 (gedeeltelijk: C ontbrak in D:30, D:44, K2b:48, R:5) | O | D-kop "Onderzoeksvoorstel vóór de besluitvorming (A, B, coördinator en C eens over de hoofdlijn)"; kolomkop "Onderzoeksvoorkeuren (A, B, CO en C; verschillen per rij)"; K2b-zin "C legt geen voorkeur voor S0, S1 of vervangen vast; signalen zijn uitsluitend passagehulp."; R normversies "voorkeur van A, B, CO en C" | D §Onderzoeksvoorstel, K-tabel; R kop |
+| SC-C-10 / V4-C-02 (achtergebleven voorsteltaal onder de besluitentabel) | O | D-kop "Keuzeafwegingen vóór het besluit (ter verantwoording)" met C's exacte afbakeningsalinea (actuele besluitstatus = tabel + `besluiten-chris-v1.md`; oude activeringsalternatief geen actuele optie; geen implementatieopdracht); de oude keuzetabel en teksten blijven als verantwoording staan | D |
+| SC-C-12 (gedeeltelijk: D:3, D:22) | O | D-inleiding "6 proeven en 19 nieuwe casussen, naast zes historische casussen in C's eigen register"; D "Gemeten op main" vervangen door C's exacte omvangtekst (45/39 + 2; C P1–P6; P0 hergebruik; 76 = 57 + 19) | D |
+| V4-C-01 (§5-ontwerptekst en §8 spraken nog van "herstel" onder het K5-kader) | O | eerste twee zinnen van de H-alinea vervangen door C's tekst (H = afzonderlijk gevraagd toelichtingsvoorstel als nieuw concept; geen INT-02-tekstherstelroute; automatisch herstel alleen vormregels per K5/DEF-832); "Algemene activeringsvoorwaarde" → "Voor automatisch tekstherstel bij vormregels geldt als noodzakelijke, niet voldoende activeringsvoorwaarde"; §8 "(4) H vóór en na herstel" → "origineel en afzonderlijk toelichtingsvoorstel" | S §5, §8 |
+
+**Status:** onderzoek A+B+C inhoudelijk afgerond (C-oordeel op v4; redactionele restpunten in v5 verwerkt, geen nieuwe controleronde nodig volgens C). Besluiten van Chris: `gedeeld/besluiten-chris-v1.md`. Uitvoering: `gedeeld/uitvoeringsopdracht-codex-coordinator-v1.md` (opdracht voor Codex als coördinator; aparte opdracht, niet gestart). Publicatie bij DEF-771 na akkoord van Chris.

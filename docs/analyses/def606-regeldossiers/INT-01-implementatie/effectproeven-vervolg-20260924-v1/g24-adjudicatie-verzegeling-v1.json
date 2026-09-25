@@ -1,0 +1,11 @@
+{
+  "utc": "2026-09-25T05:34:12.294038+00:00",
+  "session": "01a0d708-089f-7ce3-9a0c-428b5b22f399",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "tools_used": false,
+  "blinding_key_not_shared": true,
+  "adjudicatie_sha256": "1d0e006c61d1c49f83de93b2ae0dafd5f5aebc2b30833fd0d61748795b027e80",
+  "blind_sha256": "c718144608a26487c4e4804fc64a401a477f7346de5de1f09019fb61b23d0769",
+  "keys_not_deblinded_until_this_seal": true
+}

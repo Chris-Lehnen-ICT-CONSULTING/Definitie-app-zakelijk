@@ -1,0 +1,264 @@
+{
+  "tijd_utc": "2026-09-25T08:34:53.633588+00:00",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "soort": "document- en bronverificatie; geen appproef",
+  "bestaande_bestanden": [
+    {
+      "pad": ".claude/CLAUDE.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": ".claude/handovers/archief/2026-09-25_1004-backup-01a0d783.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": ".claude/handovers/archief/CLAUDE-voor-handoveropruiming-20260925T0804-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": ".claude/handovers/archief/WIP-snapshot-20260925T080152Z-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/aanvullende-bronnen-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/bronextracten-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/historische-diff-v1.txt",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/oplevercontrole-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/proefplan-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/proefuitkomsten-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/proeven-b-v1.py",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-audit-v1.py",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-auditplan-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-audituitkomsten-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-audituitvoering-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-bronbinding-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-broncontrole-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/review-oplevercontrole-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/toegang-bronnen-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "bewijs/uitvoering-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "casusregister-b-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "casusregister-b-v2.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "manifest-b-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "onderzoek-b-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "onderzoek-b-v2.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "review-b-op-a-v1-erratum.md",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "review-b-op-a-v1.md",
+      "ongewijzigd": true
+    }
+  ],
+  "bronnen": [
+    {
+      "pad": "../a-claude-cli/review-a-op-b-v1.md",
+      "sha256_actueel": "382792b0515d05d3483d832779738482fbf592a343cf7911cf43f2393d7f8203",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/proef-p3-int10-melding.py",
+      "sha256_actueel": "5ed33394a7493a6deb82b6a805a010a68a5cf9f0ba6dccf001f1890c3eb50244",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/p3-uitkomsten.json",
+      "sha256_actueel": "829a3f5c6567bc118ce30e1f7a11b4033abbd9149450e0f060504b10d35cef55",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/proeflog-a-v2-p3.md",
+      "sha256_actueel": "f822ababf47c836f71906b7056b371fbb9c12bcefc75f2638ab19171c419c154",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "../gedeeld/ontvangstlog.txt",
+      "sha256_actueel": "d0050c2bc813a2b92e19c69dd659bad33f75ba9a8d61531e214177b6afdfa4a7",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "onderzoek-b-v2.md",
+      "sha256_actueel": "8312616f41ed56039530a838e04572155598f7000f09b8333adaaa9e2652474f",
+      "ongewijzigd": true
+    },
+    {
+      "pad": "casusregister-b-v2.md",
+      "sha256_actueel": "1ad33b10aabd57d5f612035d046a8af4cb5d0333546ca1d6d5afcdaa2683865e",
+      "ongewijzigd": true
+    }
+  ],
+  "verwerkte_punten": [
+    {
+      "id": "RA-B-01",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-02",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-03",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-04",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-05",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-06",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-07",
+      "oordeel": "overgenomen, met Chris’ latere scope-instructie"
+    },
+    {
+      "id": "RA-B-08",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-09",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-10",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-11",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-12",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-13",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-14",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-15",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-16",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-17",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-18",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-19",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-20",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-21",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-22",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-23",
+      "oordeel": "overgenomen"
+    },
+    {
+      "id": "RA-B-24",
+      "oordeel": "gedeeltelijk overgenomen"
+    },
+    {
+      "id": "RA-B-25",
+      "oordeel": "gedeeltelijk overgenomen"
+    }
+  ],
+  "alle_25_met_grond_en_vindplaats": true,
+  "Q1_Q6_en_V01_V10_structuur_behouden": true,
+  "casus_ids_en_letterlijke_kernteksten_behouden": true,
+  "casusaantal": 26,
+  "markdown_tabellen_consistent": true,
+  "INT10_status": "Geparkeerde waarneming, geen besluitpunt of wijzigingsafhankelijkheid",
+  "inhoudelijke_controle": "Nieuwe G met oude T/H gelezen: één kern, vragen via T/app, geen semantische reparatie via woordverwijdering. C02 variantonderscheid, geen universeel determinisme, geen grammaticale rolomkering geclaimd.",
+  "helper_exitstatus": 0,
+  "runtime_proeven_nieuw": 0,
+  "opmerking": "git diff --no-index eindigde 1 wegens aanwezige documentverschillen, geen testfout."
+}

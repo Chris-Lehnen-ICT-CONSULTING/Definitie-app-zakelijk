@@ -64,8 +64,14 @@ De keuze hangt alleen aan de omgeving:
 | In de omgeving | Modus | Wachttijd |
 |---|---|---|
 | geen van beide namen | staged (index) | 60 s |
-| beide namen, volledige commit-ID's | full (range + historie + boom) | 300 s |
+| beide namen, volledige commit-ID's | full (range + historie + boom) | 600 s |
 | één naam, of een waarde die geen commit-ID is | geen scan: `error`, nonzero | — |
+
+De wachttijd geldt per git- of gitleaks-aanroep, niet voor de hook als geheel.
+De volledige modus krijgt 600 s in plaats van de 300 s van de CI-gate (DEF-770):
+pre-commit bouwt gitleaks zelf met `go install`, en die build gebruikt de
+stdlib-regex in plaats van de snellere RE2-engine van de releasebinary. Scope,
+modi en afkeurregels blijven gelijk; de grens blijft vast en fail-closed.
 
 Die laatste regel is opzet. Aanwezigheid van één van beide namen — ook met een
 lege waarde — eist de volledige modus; de gate keurt de grenzen daarna af. Er is

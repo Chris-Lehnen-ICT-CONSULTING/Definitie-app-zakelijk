@@ -1,0 +1,706 @@
+{
+  "regel": "INT-03",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "offline_gate": true,
+  "scope": "route A: service manager/cache, context={}; route B: promptmodule en adapterprompt; geen UI, opslag, live model of normvalidatie",
+  "code_hashes": {
+    "src/toetsregels/regels/INT-03.json": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+    "src/services/validation/evaluators/judgment_review.py": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+    "src/validation/additional_patterns.py": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+    "src/services/validation/modular_validation_service.py": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+    "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+    "src/services/prompts/modules/prompt_orchestrator.py": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+    "src/services/prompts/modular_prompt_adapter.py": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3"
+  },
+  "verwachtingen_sha256": "303486856b2a79ff971700a63c91d1eec4ed0bb9bbd63c1701704afc0f6257da",
+  "route_a": [
+    {
+      "id": "INT03-C-E01",
+      "historisch": false,
+      "route": "manager",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E02",
+      "historisch": false,
+      "route": "manager",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E03",
+      "historisch": false,
+      "route": "manager",
+      "term": "regeling",
+      "text": "regeling waarbij deze afspraak geldt",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E04",
+      "historisch": false,
+      "route": "manager",
+      "term": "overdracht",
+      "text": "handeling van een medewerker aan een collega zodat het kan worden voortgezet",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E05",
+      "historisch": false,
+      "route": "manager",
+      "term": "geldboete",
+      "text": "sanctie bestaande uit betaling van een geldbedrag aan de staat",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E06",
+      "historisch": false,
+      "route": "manager",
+      "term": "beschikking",
+      "text": "besluit dat in het kader van een aanvraag wordt genomen",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bin het kader\\b"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bin het kader\\b"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E07",
+      "historisch": false,
+      "route": "manager",
+      "term": "toelichting",
+      "text": "bepaling waarin deze regel wordt uitgelegd",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E08",
+      "historisch": false,
+      "route": "manager",
+      "term": "informatieplicht",
+      "text": "verplichting van de werkgever om de werknemer over haar rechten te informeren",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E09",
+      "historisch": false,
+      "route": "manager",
+      "term": "verzending",
+      "text": "handeling waarbij, zodra deze gereed is, de aanvraag wordt verstuurd",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E10",
+      "historisch": false,
+      "route": "manager",
+      "term": "leeg",
+      "text": "",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "clear_relative",
+      "historisch": true,
+      "route": "manager",
+      "term": "aanvrager",
+      "text": "Persoon die een aanvraag indient.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "two_candidates",
+      "historisch": true,
+      "route": "manager",
+      "term": "aanvrager",
+      "text": "Persoon met een vertegenwoordiger die een aanvraag indient.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "external_reference",
+      "historisch": true,
+      "route": "manager",
+      "term": "handelende",
+      "text": "Deze verricht de handeling.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "possessive_ambiguity",
+      "historisch": true,
+      "route": "manager",
+      "term": "informant",
+      "text": "Persoon die zijn vertegenwoordiger informeert over zijn besluit.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "explicit_repeat",
+      "historisch": true,
+      "route": "manager",
+      "term": "aanvrager",
+      "text": "Persoon met een vertegenwoordiger waarbij de persoon een aanvraag indient.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bwaarbij\\b"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bwaarbij\\b"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E01",
+      "historisch": false,
+      "route": "cache",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E02",
+      "historisch": false,
+      "route": "cache",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E03",
+      "historisch": false,
+      "route": "cache",
+      "term": "regeling",
+      "text": "regeling waarbij deze afspraak geldt",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E04",
+      "historisch": false,
+      "route": "cache",
+      "term": "overdracht",
+      "text": "handeling van een medewerker aan een collega zodat het kan worden voortgezet",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E05",
+      "historisch": false,
+      "route": "cache",
+      "term": "geldboete",
+      "text": "sanctie bestaande uit betaling van een geldbedrag aan de staat",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E06",
+      "historisch": false,
+      "route": "cache",
+      "term": "beschikking",
+      "text": "besluit dat in het kader van een aanvraag wordt genomen",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bin het kader\\b"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bin het kader\\b"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E07",
+      "historisch": false,
+      "route": "cache",
+      "term": "toelichting",
+      "text": "bepaling waarin deze regel wordt uitgelegd",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E08",
+      "historisch": false,
+      "route": "cache",
+      "term": "informatieplicht",
+      "text": "verplichting van de werkgever om de werknemer over haar rechten te informeren",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E09",
+      "historisch": false,
+      "route": "cache",
+      "term": "verzending",
+      "text": "handeling waarbij, zodra deze gereed is, de aanvraag wordt verstuurd",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b",
+        "\\bwaarbij\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-E10",
+      "historisch": false,
+      "route": "cache",
+      "term": "leeg",
+      "text": "",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "matches": true
+    },
+    {
+      "id": "clear_relative",
+      "historisch": true,
+      "route": "cache",
+      "term": "aanvrager",
+      "text": "Persoon die een aanvraag indient.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "two_candidates",
+      "historisch": true,
+      "route": "cache",
+      "term": "aanvrager",
+      "text": "Persoon met een vertegenwoordiger die een aanvraag indient.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "external_reference",
+      "historisch": true,
+      "route": "cache",
+      "term": "handelende",
+      "text": "Deze verricht de handeling.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdeze\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdeze\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "possessive_ambiguity",
+      "historisch": true,
+      "route": "cache",
+      "term": "informant",
+      "text": "Persoon die zijn vertegenwoordiger informeert over zijn besluit.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bdie\\b",
+        "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+      ],
+      "matches": true
+    },
+    {
+      "id": "explicit_repeat",
+      "historisch": true,
+      "route": "cache",
+      "term": "aanvrager",
+      "text": "Persoon met een vertegenwoordiger waarbij de persoon een aanvraag indient.",
+      "status": "review_required",
+      "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+      "signals": [
+        "\\bwaarbij\\b"
+      ],
+      "violations_int03": 0,
+      "validation_status": "validated",
+      "expected_status": "review_required",
+      "expected_signals": [
+        "\\bwaarbij\\b"
+      ],
+      "matches": true
+    }
+  ],
+  "route_b": [
+    {
+      "id": "INT03-C-P01",
+      "blok": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+        "  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
+      ],
+      "rules_count": 9,
+      "matches": true
+    },
+    {
+      "id": "INT03-C-P02",
+      "blok": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+        "  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-P03",
+      "blok": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin"
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-P04",
+      "base_context": {},
+      "int03_present": false,
+      "skipped_modules": [
+        "context_awareness",
+        "integrity_rules",
+        "metrics",
+        "sam_rules"
+      ],
+      "prompt_length": 25925,
+      "blok": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-P05",
+      "base_context": {
+        "organisatorisch": [
+          "Prisma"
+        ]
+      },
+      "int03_present": false,
+      "skipped_modules": [
+        "integrity_rules",
+        "metrics",
+        "sam_rules"
+      ],
+      "prompt_length": 28500,
+      "blok": [],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-P06",
+      "base_context": {
+        "juridisch": [
+          "strafrecht"
+        ]
+      },
+      "int03_present": true,
+      "skipped_modules": [
+        "metrics"
+      ],
+      "prompt_length": 35907,
+      "blok": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+        "  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
+      ],
+      "matches": true
+    },
+    {
+      "id": "INT03-C-P07",
+      "base_context": {
+        "wettelijk": [
+          "Wetboek van Strafrecht"
+        ]
+      },
+      "int03_present": true,
+      "skipped_modules": [
+        "metrics"
+      ],
+      "prompt_length": 35931,
+      "blok": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+        "  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
+      ],
+      "matches": true
+    }
+  ],
+  "route_a_all_match": true,
+  "route_b_all_match": true
+}

@@ -1,0 +1,662 @@
+{
+  "code_commit": "23cc51bfddc5ee9393dea52e6a52a55b3e65615d",
+  "fouten": 0,
+  "both_load_paths_equal": true,
+  "storage_parts_and_status_equal": true,
+  "original_text_preserved": true,
+  "full_INT01_pass": 0,
+  "status_matches": 22,
+  "cases": 24,
+  "sentence_statuses": {
+    "pass": 13,
+    "fail": 6,
+    "review_required": 4,
+    "not_evaluated": 1
+  },
+  "automatic_decisions": 19,
+  "automatic_norm_supported": 18,
+  "automatic_coverage_nonempty": 0.8260869565217391,
+  "differences": [
+    {
+      "id": "T20",
+      "tekst": "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de kleurcode van de bijbehorende opdracht",
+      "expected_sentence": "pass",
+      "actual_sentence": "review_required",
+      "normative_sentence": "pass",
+      "status_match": false,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "opent het luik?’ met de kleurcode van",
+          "context_value": null,
+          "field": null,
+          "position": 52,
+          "reason": "Zinsgrens onzeker: slotteken vóór een sluitend aanhalingsteken gevolgd door verdere tekst: einde van het citaat of ook van de buitenste zin niet vast te stellen.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T22",
+      "tekst": "schakelblad",
+      "expected_sentence": "review_required",
+      "actual_sentence": "pass",
+      "normative_sentence": "review_required",
+      "status_match": false,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": "schakelblad",
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    }
+  ],
+  "rows": [
+    {
+      "id": "T01",
+      "tekst": "afgeschermde ruimte voor het tijdelijk bewaren van lichtgevoelige meetkaarten",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T02",
+      "tekst": "signaal dat uitsluitend wordt verzonden wanneer een uitgeleende meetboei haar oorspronkelijke aanlegpunt bereikt",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T03",
+      "tekst": "register van de Kamer voor Peil en Doorgang waarin zowel routecodes als waterstanden worden vastgelegd",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T04",
+      "tekst": "houder voor een sensor en een reservebatterij die samen uit het meetrek kunnen worden genomen",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T05",
+      "tekst": "hoeveelheid kleurstof van ca. 2,5 ml voor één controlemeting",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T06",
+      "tekst": "periode van 08.15 tot 08.45 uur voor het vervangen van een telcassette. Om 08.45 uur sluit de invoer.",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "fail",
+      "actual_total": "fail",
+      "expected_passage": "telcassette. Om 08.45 uur",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "van een telcassette. Om 08.45 uur sluit",
+          "context_value": null,
+          "field": null,
+          "position": 70,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T07",
+      "tekst": "gereserveerde zitplaats voor de fictieve proefleider dr. ir. Mira Veldkom tijdens de klanksimulatie",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T08",
+      "tekst": "voorraad voor vervanging van kleine onderdelen, zoals doppen, ringen e.d.",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T09",
+      "tekst": "Een nachtmerk maakt een bergvak zichtbaar bij gedimd licht.",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T10",
+      "tekst": "Een wachtschijf toont de resterende droogtijd. De kleur verandert bij iedere verstreken minuut.",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "fail",
+      "actual_total": "fail",
+      "expected_passage": "droogtijd. De kleur",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "de resterende droogtijd. De kleur verandert bij",
+          "context_value": null,
+          "field": null,
+          "position": 45,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T11",
+      "tekst": "Ontbreekt de routecode? Een navraagkaart legt het verzoek om aanvulling vast.",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "fail",
+      "actual_total": "fail",
+      "expected_passage": "routecode? Een navraagkaart",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "Ontbreekt de routecode? Een navraagkaart legt het",
+          "context_value": null,
+          "field": null,
+          "position": 22,
+          "reason": "Nieuwe zin: vraag- of uitroepteken gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T12",
+      "tekst": "Staak de proef! Een stopvlag markeert een onmiddellijke onderbreking van de meetronde.",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "fail",
+      "actual_total": "fail",
+      "expected_passage": "proef! Een stopvlag",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "Staak de proef! Een stopvlag markeert een",
+          "context_value": null,
+          "field": null,
+          "position": 14,
+          "reason": "Nieuwe zin: vraag- of uitroepteken gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T13",
+      "tekst": "verplaatsbare goot voor het opvangen\nvan spoelwater uit een demonstratiemodel",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T14",
+      "tekst": "Een wachtmap bevat nog niet toegewezen oefenverzoeken.\n\nDe beheerder bekijkt de inhoud aan het begin van iedere werkronde.",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "fail",
+      "actual_total": "fail",
+      "expected_passage": "oefenverzoeken.\n\nDe beheerder",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "niet toegewezen oefenverzoeken. De beheerder bekijkt de",
+          "context_value": null,
+          "field": null,
+          "position": 53,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T15",
+      "tekst": "pakket met uitsluitend:\n- een blanco routekaart;\n- een herbruikbare pen;\n- een afsluitclip.",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T16",
+      "tekst": "Een spiegelcode verbindt twee proefbakken; beide bakken behouden daarnaast hun eigen nummer",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T17",
+      "tekst": "strook met de melding ‘Kom terug!’ voor gebruik in een oefening met zoekrobots",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "normative_sentence": "pass",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T18",
+      "tekst": "tijdelijke opslagruimte (De deur blijft tijdens de proef open.) naast de sorteertafel",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": "open.) naast de sorteertafel",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "de proef open.) naast de sorteertafel",
+          "context_value": null,
+          "field": null,
+          "position": 61,
+          "reason": "Zinsgrens onzeker: slotteken aan het eind van een haakjesdeel: zelfstandige zin tussen haakjes niet uit te sluiten.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T19",
+      "tekst": "“Een luisterpunt vangt zachte tiksignalen op. Het bewaart geen geluidsopnamen.”",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "fail",
+      "actual_total": "fail",
+      "expected_passage": "op. Het bewaart",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "zachte tiksignalen op. Het bewaart geen geluidsopnamen.”",
+          "context_value": null,
+          "field": null,
+          "position": 44,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "broncitaat_expected": true,
+      "broncitaat_actual": true
+    },
+    {
+      "id": "T20",
+      "tekst": "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de kleurcode van de bijbehorende opdracht",
+      "expected_sentence": "pass",
+      "actual_sentence": "review_required",
+      "normative_sentence": "pass",
+      "status_match": false,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": null,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "opent het luik?’ met de kleurcode van",
+          "context_value": null,
+          "field": null,
+          "position": 52,
+          "reason": "Zinsgrens onzeker: slotteken vóór een sluitend aanhalingsteken gevolgd door verdere tekst: einde van het citaat of ook van de buitenste zin niet vast te stellen.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T21",
+      "tekst": "",
+      "expected_sentence": "not_evaluated",
+      "actual_sentence": "not_evaluated",
+      "normative_sentence": "not_evaluated",
+      "status_match": true,
+      "expected_total": "not_evaluated",
+      "actual_total": "not_evaluated",
+      "expected_passage": null,
+      "actual_parts": [],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T22",
+      "tekst": "schakelblad",
+      "expected_sentence": "review_required",
+      "actual_sentence": "pass",
+      "normative_sentence": "review_required",
+      "status_match": false,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": "schakelblad",
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T23",
+      "tekst": "tijdvak voor een aanvullende proef. begint zodra het hoofdscherm dooft",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": "proef. begint zodra",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "een aanvullende proef. begint zodra het hoofdscherm",
+          "context_value": null,
+          "field": null,
+          "position": 34,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    },
+    {
+      "id": "T24",
+      "tekst": "merkteken voor verwerking volgens zrp. volgende bak krijgt dezelfde code",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "normative_sentence": "fail",
+      "status_match": true,
+      "expected_total": "review_required",
+      "actual_total": "review_required",
+      "expected_passage": "zrp. volgende bak krijgt",
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "verwerking volgens zrp. volgende bak krijgt dezelfde",
+          "context_value": null,
+          "field": null,
+          "position": 37,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "broncitaat_expected": false,
+      "broncitaat_actual": false
+    }
+  ]
+}

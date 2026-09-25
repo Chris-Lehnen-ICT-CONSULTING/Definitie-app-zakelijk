@@ -1,0 +1,36 @@
+{
+  "utc": "2026-09-25T08:00:35.545860+00:00",
+  "readback": "v1 integraal teruggelezen; v2 wijzigingsdiff gelezen, ongewijzigde inhoud hergebruikt",
+  "active_documents": [
+    "onderzoek-b-v2.md",
+    "casusregister-b-v2.md"
+  ],
+  "preserved_first_versions": [
+    "onderzoek-b-v1.md",
+    "casusregister-b-v1.md"
+  ],
+  "Q1_Q6_present": true,
+  "case_ids_exact": true,
+  "case_count": 26,
+  "missing_markdown_links": [],
+  "source_hash_changes": [],
+  "probe_exit_status": 0,
+  "service_expectations_met": true,
+  "cleaning_expectations_met": true,
+  "application_diff_command": [
+    "git",
+    "diff",
+    "--name-only",
+    "HEAD",
+    "--",
+    "src",
+    "config",
+    "tests"
+  ],
+  "application_diff_exit_status": 0,
+  "application_diff_stdout": "",
+  "application_diff_stderr": "git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\n",
+  "cross_review_status": "niet ontvangen/niet uitgevoerd",
+  "synthesis_check_status": "niet opgedragen/niet uitgevoerd",
+  "self_correction": "C57: ingebedde equivalentie is geen equivalente klasseafbakening; INT-02-functieoordeel blijft V; geen A-conclusies gelezen"
+}

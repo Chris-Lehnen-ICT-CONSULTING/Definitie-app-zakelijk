@@ -1,0 +1,359 @@
+{
+  "type": "T24-eindbeoordeling tegen verzegelde AI-referenties",
+  "cases": [
+    {
+      "id": "T01",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft review_required met sentence_status pass, zonder grensmelding. De verbetering betreft het open totaaloordeel en de afzonderlijke onderdelen; de oude pass bewijst hier geen onjuiste zinsherkenning."
+    },
+    {
+      "id": "T02",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "De bijzin blijft conform de referentie binnen één formulering. Nieuw houdt compactheid en begrijpelijkheid open; uit de oude pass volgt geen eerdere zinsstructuurfout."
+    },
+    {
+      "id": "T03",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "De oude afwijzing wegens 'en' is vervangen door het referentieconforme oordeel van één formulering met open overige onderdelen."
+    },
+    {
+      "id": "T04",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw beoordeelt de verbonden deelzinnen conform de referentie als één zin. Oud wees af wegens 'en' en 'waarbij'."
+    },
+    {
+      "id": "T05",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw meldt geen zinsgrens bij het getal of de afkorting en geeft de juiste labels. De algemene reden van één formulering is hiermee verenigbaar; een letterlijke categoriecode 'getal' is niet vereist."
+    },
+    {
+      "id": "T06",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft conform de referentie één formulering zonder grensmelding bij 'dr. P. Velders'. Oud rapporteerde daar een verboden punt-hoofdletterpatroon."
+    },
+    {
+      "id": "T07",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft de juiste labels en meldt geen tweede zin bij de afsluitende afkorting. Oud wees de tekst af wegens een komma."
+    },
+    {
+      "id": "T08",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "gelijk",
+      "rationale": "Beide varianten wijzen af. Nieuw benoemt expliciet de tweede zin; positie 30 en de passage rond '4.2. De bijlagen' koppelen de melding aan de referentiegrens met een passende reden."
+    },
+    {
+      "id": "T09",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "De oude afwijzing wegens 'die' is vervangen door het referentieconforme oordeel van één zin, met compactheid en begrijpelijkheid open."
+    },
+    {
+      "id": "T10",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "gelijk",
+      "rationale": "Beide varianten wijzen af. Nieuw lokaliseert met positie 42 en het bewijs rond 'werkplek. De ontvanger' de referentiegrens en noemt passend een nieuw zinsbegin."
+    },
+    {
+      "id": "T11",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "gelijk",
+      "rationale": "Beide varianten wijzen af. De nieuwe positie 55 en bewijsselectie koppelen de melding aan 'gemeld. Waar is het object'; het verschil in selectielengte verandert de grens niet."
+    },
+    {
+      "id": "T12",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Oud gaf pass bij de twee zinnen. Nieuw geeft fail en koppelt positie 15 aan 'toevoer! Deze oproep', met een passende reden voor het uitroepteken en nieuwe zinsbegin."
+    },
+    {
+      "id": "T13",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw behandelt de regelomloop conform de referentie als één formulering. De verbetering betreft de open overige onderdelen en het totaaloordeel; de oude pass bewijst geen eerdere zinsstructuurfout."
+    },
+    {
+      "id": "T14",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "gelijk",
+      "rationale": "Beide varianten wijzen af. Positie 54 en het nieuwe bewijs verwijzen naar de grens tussen 'oefenmaterialen.' en 'De dienstleider'; de weergegeven witruimte verschilt, maar grens en reden zijn eenduidig te koppelen."
+    },
+    {
+      "id": "T15",
+      "nieuw_conform": false,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": false,
+      "grens_en_reden_conform": false,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Het totaaloordeel verbetert van fail naar het vereiste review_required. Nieuw markeert echter drie onzekere opmaakgrenzen terwijl de vaste referentie één zin zonder grensmelding vereist; deze gedeeltelijke verbetering is geen correcte zinsstructuurclassificatie."
+    },
+    {
+      "id": "T16",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft conform de referentie één formulering ondanks de puntkomma. De oude afwijzing wegens puntkommapatronen vervalt."
+    },
+    {
+      "id": "T17",
+      "nieuw_conform": false,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": false,
+      "grens_en_reden_conform": false,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Het totaaloordeel verbetert naar review_required, maar de zinsstructuur blijft afwijkend. De meldingen bij posities 27 en 44 maken het ingesloten citaat en de voortzetting tot onzekere grenzen, terwijl de vaste referentie één buitenste zin zonder grensmelding vereist."
+    },
+    {
+      "id": "T18",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft conform de referentie één zin met de parenthese erin. De verbetering betreft het open totaaloordeel; de oude pass bewijst geen onjuiste zinsherkenning."
+    },
+    {
+      "id": "T19",
+      "nieuw_conform": false,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft de juiste regel- en zinsstructuurlabels en geen onjuiste grensmelding. Volledige conformiteit ontbreekt omdat de vaste referentie broncitaat_open true vereist, terwijl de aangeleverde open onderdelen uitsluitend compactheid en begrijpelijkheid bevatten."
+    },
+    {
+      "id": "T20",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": true,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw meldt conform de referentie geen buitenste grens bij het vraagteken in de titel. Het open totaaloordeel verbetert; de oude pass bewijst geen eerdere zinsstructuurfout."
+    },
+    {
+      "id": "T21",
+      "nieuw_conform": true,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": true,
+      "grens_en_reden_conform": null,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Nieuw geeft voor de lege tekst beide voorgeschreven not_evaluated-labels en neemt INT-01 niet op in passed_rules. Een grensmelding is niet van toepassing; de eigen repositorybeoordeling is eveneens not_evaluated, zonder claim van identieke service- en repositoryparts."
+    },
+    {
+      "id": "T22",
+      "nieuw_conform": false,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": false,
+      "grens_en_reden_conform": false,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Het totaaloordeel verbetert naar review_required, maar sentence_status pass wijkt af van de vaste onzekerheidsreferentie voor 'Oefenstatus:'. De vereiste onzekerheid wegens onvoldoende informatie ontbreekt."
+    },
+    {
+      "id": "T23",
+      "nieuw_conform": false,
+      "rule_status_conform": true,
+      "zinsstructuur_conform": false,
+      "grens_en_reden_conform": false,
+      "oud_nieuw": "verbeterd",
+      "rationale": "Het totaaloordeel verbetert van fail naar review_required. Nieuw geeft echter sentence_status pass zonder de vastgelegde onzekerheid bij 'geluidsproef... daarna', zodat de zinsstructuur nog steeds niet conform is."
+    },
+    {
+      "id": "T24",
+      "nieuw_conform": false,
+      "rule_status_conform": false,
+      "zinsstructuur_conform": false,
+      "grens_en_reden_conform": false,
+      "oud_nieuw": "verslechterd",
+      "rationale": "Oud gaf het referentieconforme fail en wees met positie 32 naar de relevante passage; nieuw verlaagt deze zekere grens tot onzekerheid. De positie en kleine-letterreden zijn herkenbaar, maar de grenszekerheid en beide labels wijken af; volledige juistheid van de oude redentekst is hiermee niet bewezen."
+    }
+  ],
+  "samenvatting": {
+    "referenties_ongewijzigd": true,
+    "aantal_gevallen": 24,
+    "uitgesloten_disputen": 0,
+    "varianten": {
+      "oud": "26f2374d",
+      "nieuw": "ee13ae1d"
+    },
+    "rule_status_overeenkomst": {
+      "oud": {
+        "conform": 5,
+        "totaal": 24,
+        "ids": ["T08", "T10", "T11", "T14", "T24"]
+      },
+      "nieuw": {
+        "conform": 23,
+        "totaal": 24,
+        "afwijkend": ["T24"]
+      }
+    },
+    "zinsstructuurovereenkomst": {
+      "oud": {
+        "score": null,
+        "expliciete_sentence_status_aanwezig": 0,
+        "toelichting": "Alle 24 oude gevallen missen het afzonderlijke zinsstructuurlabel. De oude rule_status wordt niet stilzwijgend als sentence_status geteld."
+      },
+      "nieuw": {
+        "conform": 19,
+        "totaal": 24,
+        "afwijkend": ["T15", "T17", "T22", "T23", "T24"],
+        "toelichting": "Inclusief het conforme not_evaluated-label van T21; voor niet-lege teksten is de overeenkomst 18/23."
+      }
+    },
+    "grens_en_reden_nieuw": {
+      "conform": 18,
+      "afwijkend": 5,
+      "niet_van_toepassing": 1,
+      "toelichting": "T21 heeft geen beoordeelbare tekstgrens. Bij de vijf overige afwijkingen ontbreekt een vereiste onzekerheid of wordt juist een niet-conforme onzekere grens gemeld."
+    },
+    "volledig_toetscontract": {
+      "oud": {
+        "score": null,
+        "toelichting": "Het nieuwe deelcontract en de bijbehorende opslag zijn niet ondersteund; er is geen vergelijkbare volledige-contractscore."
+      },
+      "nieuw": {
+        "conform": 18,
+        "totaal": 24,
+        "afwijkend": ["T15", "T17", "T19", "T22", "T23", "T24"],
+        "toelichting": "Naast de vijf zinsstructuurafwijkingen ontbreekt bij T19 het vereiste open broncitaatonderdeel."
+      }
+    },
+    "criterium": "24/24 volledig conform het vaste toetscontract",
+    "criterium_gehaald": "nee",
+    "oud_nieuw_duiding": {
+      "verbeterd": 19,
+      "gelijk": 4,
+      "verslechterd": 1,
+      "onbeslist": 0,
+      "betekenis": "Deze kwalificatie betreft de richting van het regeluitkomstlabel ten opzichte van de referentie. Zij is geen telling van zuivere classifierwinst of volledige conformiteit; bij T15, T17, T19, T22 en T23 is de verbetering slechts gedeeltelijk.",
+      "oud_correct_nieuw_afwijkend": ["T24"],
+      "reikwijdte_regressie": "T24 regresseert aantoonbaar van een passend fail-regellabel met relevante positie naar review_required. Het oude afzonderlijke zinsstructuurlabel ontbreekt en de oude redentekst is niet volledig verklaard."
+    },
+    "veiligheid_open_oordeel": {
+      "int01_in_passed_rules_nieuw": 0,
+      "gevallen": 24,
+      "compactheid_en_begrijpelijkheid_open": "23/23 niet-lege gevallen",
+      "toelichting": "De nieuwe uitvoer vermijdt overal een volledige INT-01-pass. Dat beperkt overclaiming, maar maakt een onjuist zinsstructuurlabel of een verwijzing naar menselijke beoordeling niet conform."
+    },
+    "laadpaden_en_readback": {
+      "bron": "Aangeleverde resultaten en controleverklaring van de coördinator",
+      "identieke_laadpaden_oud": "24/24",
+      "identieke_laadpaden_nieuw": "24/24",
+      "runners": "Beide exit 0 en offline",
+      "nieuw_niet_leeg": "23/23 identieke opgeslagen status en parts, met ongewijzigde tekst",
+      "nieuw_leeg": "Service not_evaluated zonder rule_result; repository eigen not_evaluated-beoordeling. Geen aangetoonde parts-dictgelijkheid voor dit geval.",
+      "oud": "Nieuwe parts en beoordelingsopslag niet aanwezig."
+    },
+    "claimgrens": "Aangetoond zijn 23/24 nieuwe regellabelovereenkomsten, 19/24 zinsstructuurlabelovereenkomsten en 18/24 volledige-contractovereenkomsten binnen deze aangeleverde proef. Een vergelijking van 5/24 oud met 19/24 nieuw vergelijkt verschillende grootheden en is geen zuivere classifierwinst."
+  },
+  "bevindingen": [
+    {
+      "id": "T15",
+      "tekstbewijs": "pakket met uitsluitend:\n- een routeblad;\n- een telkaart;\n- een blanco verslagvel.",
+      "verwacht": "review_required / pass; geen grenspassage; opmaak verdeelt één kern.",
+      "werkelijk": "review_required / review_required; drie onzekere opmaakgrenzen bij posities 23, 40 en 56.",
+      "impact": "Onnodige onzekerheid over een volgens de vaste referentie zekere ene zin. Het totaaloordeel is verbeterd en blijft veilig open, maar de gevraagde zinsstructuurclassificatie is niet geleverd.",
+      "dispositie": "vastgelegd voor vervolg; appcode en referentie niet aangepast"
+    },
+    {
+      "id": "T17",
+      "tekstbewijs": "code die de melding 'Gereed. Neem de bak mee.' op het oefenscherm laat verschijnen.",
+      "verwacht": "review_required / pass; het ingesloten citaat introduceert geen buitenste grens.",
+      "werkelijk": "review_required / review_required; onzekerheid bij positie 27 wegens ingesloten citaat en bij positie 44 wegens kleine letter of onbekende afkorting.",
+      "impact": "De appuitvoer laat de buitenste zinsstructuur onterecht onzeker. De tweede reden behandelt de voortzetting na het citaat niet conform de vaste referentie; verwijzing naar beoordeling herstelt dit verschil niet.",
+      "dispositie": "vastgelegd voor vervolg; appcode en referentie niet aangepast"
+    },
+    {
+      "id": "T19",
+      "tekstbewijs": "“strook langs een proefwand die tijdens de meting onbelicht blijft.”",
+      "verwacht": "review_required / pass met broncitaat_open true.",
+      "werkelijk": "De labels passen, maar open_onderdelen bevat uitsluitend compactheid en begrijpelijkheid; ook de aangeleverde reviewtekst noemt geen open broncitaatonderdeel.",
+      "impact": "Aanvullende contractafwijking buiten de vijf zinsstructuurverschillen. Daarom zijn 19/24 conforme zinsstructuurlabels slechts 18/24 volledig conforme gevallen; readback van dezelfde parts verhelpt deze ontbrekende inhoud niet.",
+      "dispositie": "vastgelegd voor vervolg; appcode en referentie niet aangepast"
+    },
+    {
+      "id": "T22",
+      "tekstbewijs": "Oefenstatus:",
+      "verwacht": "review_required / review_required met onvoldoende informatie bij 'Oefenstatus:'.",
+      "werkelijk": "review_required / pass met 'Eén definitieformulering vastgesteld; geen zinsgrens gevonden.' en zonder bewijsselectie.",
+      "impact": "De vereiste onzekerheid over het losse label ontbreekt. Het open totaaloordeel voorkomt volledige goedkeuring, maar de zinsstructuur krijgt een te stellig positief oordeel.",
+      "dispositie": "vastgelegd voor vervolg; appcode en referentie niet aangepast"
+    },
+    {
+      "id": "T23",
+      "tekstbewijs": "geluidsproef... daarna",
+      "verwacht": "review_required / review_required met een onzekere grens wegens onvoldoende informatie.",
+      "werkelijk": "review_required / pass zonder grensmelding; oud gaf fail met de patroonbeschrijving '\\.\\s+[A-Z]' bij positie 34.",
+      "impact": "Nieuw mist de verzegelde onzekerheidsreferentie. Oud en nieuw leveren verschillende maar beide niet-passende zinsstructuurduidingen; de oude hoofdletterbeschrijving is niet rechtstreeks verklaarbaar uit het zichtbare 'daarna' en wordt niet alsnog passend geïnterpreteerd.",
+      "dispositie": "vastgelegd voor vervolg; appcode en referentie niet aangepast"
+    },
+    {
+      "id": "T24",
+      "tekstbewijs": "bundeling. controle",
+      "verwacht": "fail / fail wegens een zekere tweede zin ondanks de kleine beginletter; onzekerheid bij 'zqv.' heft deze grens niet op.",
+      "werkelijk": "Oud: fail met positie 32. Nieuw: review_required / review_required met onzekerheidsmeldingen bij posities 32 en 54.",
+      "impact": "Regressie van een conform oud regellabel naar een afwijkend nieuw regellabel en een afwijkend expliciet zinsstructuurlabel. De eerste grenslocatie en kleine-lettercontext passen, maar de onzekerheidskwalificatie niet; de oude patroonbeschrijving met '[A-Z]' rechtvaardigt geen claim dat ook de oude reden volledig correct was.",
+      "dispositie": "vastgelegd voor vervolg; appcode en referentie niet aangepast"
+    }
+  ],
+  "beperkingen": [
+    "Uitsluitend de aangeleverde uitvoer en verzegelde AI-referenties zijn beoordeeld; geen tools, code-inspectie, nieuwe uitvoering of menselijke validatie.",
+    "Laadpadgelijkheid, runnerstatus en opslagcontroles zijn aangeleverd bewijs van de coördinator en zijn hier niet zelfstandig opnieuw uitgevoerd.",
+    "De oude uitvoer bevat geen sentence_status of nieuwe parts. Een oude volledige pass is geen zelfstandig bewijs van foutieve zinsherkenning, en een oude fail bewijst niet automatisch een juiste grensanalyse.",
+    "Redencategorieën zijn inhoudelijk vergeleken; letterlijke gelijkheid tussen een categoriecode en een appzin is niet vereist. Een algemene reden van één formulering is bij conforme pass-gevallen aanvaardbaar, zonder daarmee specifieke interne herkenningsmechanismen te veronderstellen.",
+    "De positiegetallen en omringende passages ondersteunen de genoemde grenskoppelingen. Een niet-aangeleverde algemene indexconventie of verklaring van oude patroonmeldingen wordt niet verondersteld.",
+    "Bij T21 is de overeenkomst van not_evaluated beoordeeld; identieke service- en repositoryparts zijn niet aangetoond en worden niet geclaimd.",
+    "Deze 24 synthetische gevallen onderbouwen geen algemene nauwkeurigheid buiten deze proef. Compactheid, begrijpelijkheid en inhoudelijke definitiekwaliteit zijn niet beoordeeld."
+  ]
+}

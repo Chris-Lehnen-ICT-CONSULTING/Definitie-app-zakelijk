@@ -1,0 +1,10 @@
+{
+  "call_id": "G03__nieuw__h1",
+  "request_sha256": "b681c4a4f0fe3e8197de8c4f71075923141977cce9aa21a0d92aa8332fd85d89",
+  "manifest_sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce",
+  "counts_sha256": "76560d4e8acd0e8af9c1c6286dbd85c2a7e33c7d41fe900947c19069d07ce9f0",
+  "goedkeuring_sha256": "f54cd9fcfe48715180553a47ff807969640cbed9f1d98461c4cc903c601a9c5d",
+  "plafond_usd": 2.3854,
+  "tijd": "2026-09-25T09:42:53+0200",
+  "status": "verzonden; onbeslist zolang er geen resultaat is"
+}

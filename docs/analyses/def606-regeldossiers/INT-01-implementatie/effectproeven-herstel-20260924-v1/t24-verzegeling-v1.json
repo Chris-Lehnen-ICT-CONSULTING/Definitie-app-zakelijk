@@ -1,0 +1,15 @@
+{
+  "tijd_utc": "2026-09-24T17:15:36.937925+00:00",
+  "adjudicator_session": "01a0d467-6ee8-7810-85f2-acb96360d175",
+  "tools_used": false,
+  "verzegeld_voor_appuitvoering": true,
+  "sha256": {
+    "t24-gevallen-v1.json": "787815718bf2493cc1735b63219acc718985c2f123c0562fae6f894dadd85a25",
+    "t24-referentie-A-v1.json": "e42ae8df8649d4684bac4cf3ecf27b7fa6726aff1cbc62ed09c0c790629578de",
+    "t24-referentie-B-v1.json": "9139f5449cdbf058ab512a486feafb792c6281f9c34443b6ea4fb9a34ee34ea2",
+    "t24-adjudicatie-v1.json": "18e6b19f48ce9bb811628c4a3661e662ec8665fa01ff810e974a50f0a2cd3358",
+    "referentie-contract-v3.md": "58fa4a1819d54b464879be5ea8e9e12b665063887ad2ab2b3ce0f9366aeba0d7",
+    "proefafspraken-v3.md": "7cd2fd8bb062fb4d3f9cf21280349e98b0fa2cfc19ace3fa877142f3c9408c81",
+    "bron-en-setbinding-v1.json": "d349721c1c7bb7b8e2dfc80928aa957da5cb331e1db5d0e42b83d8430b600cb3"
+  }
+}

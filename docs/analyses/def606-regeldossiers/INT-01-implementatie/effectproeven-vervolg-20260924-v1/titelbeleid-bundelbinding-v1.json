@@ -1,0 +1,17 @@
+{
+  "checks": "Beide reference.md payloads gelijk aan beoordeelde bron met bestaande naamrewrite voor alias; 94tests+2subtests. Eerste coordinatorscontrole vergat de aliasnaamrewrite en faalde; inhoudelijke diff alleen die rewrite, daarna expliciet geverifieerd.",
+  "bundels": [
+    {
+      "bundle": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/cowork-exports/definitie-toetsregels.zip",
+      "bundle_sha256": "7596fea62b54c6feb219bbb84449d73b8a0e59b85c45d0b4e7f001d082af7e19",
+      "reference_sha256": "c6530d484749b74a464aef69765a110bd634d62cb52c156d28891205e00aed92",
+      "alias_rewrite": false
+    },
+    {
+      "bundle": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/cowork-exports/toetsregels.zip",
+      "bundle_sha256": "b1c9a2c3974265174efa11552bbd6db18e87577f3393a2fc068f8b89f5fad9fd",
+      "reference_sha256": "9e8fe26715ad4c4d319973336936dd7939041db26b01245625b4a3b8df6eaa69",
+      "alias_rewrite": true
+    }
+  ]
+}

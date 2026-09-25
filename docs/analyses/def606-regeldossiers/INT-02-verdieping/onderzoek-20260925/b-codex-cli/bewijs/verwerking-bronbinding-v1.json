@@ -1,0 +1,34 @@
+{
+  "start_utc": "2026-09-25T08:26:04.427986+00:00",
+  "fase": "Verwerking door B",
+  "bronnen": [
+    {
+      "pad": "../a-claude-cli/review-a-op-b-v1.md",
+      "sha256": "382792b0515d05d3483d832779738482fbf592a343cf7911cf43f2393d7f8203"
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/proef-p3-int10-melding.py",
+      "sha256": "5ed33394a7493a6deb82b6a805a010a68a5cf9f0ba6dccf001f1890c3eb50244"
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/p3-uitkomsten.json",
+      "sha256": "829a3f5c6567bc118ce30e1f7a11b4033abbd9149450e0f060504b10d35cef55"
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/proeflog-a-v2-p3.md",
+      "sha256": "f822ababf47c836f71906b7056b371fbb9c12bcefc75f2638ab19171c419c154"
+    },
+    {
+      "pad": "../gedeeld/ontvangstlog.txt",
+      "sha256": "d0050c2bc813a2b92e19c69dd659bad33f75ba9a8d61531e214177b6afdfa4a7"
+    },
+    {
+      "pad": "onderzoek-b-v2.md",
+      "sha256": "8312616f41ed56039530a838e04572155598f7000f09b8333adaaa9e2652474f"
+    },
+    {
+      "pad": "casusregister-b-v2.md",
+      "sha256": "1ad33b10aabd57d5f612035d046a8af4cb5d0333546ca1d6d5afcdaa2683865e"
+    }
+  ]
+}

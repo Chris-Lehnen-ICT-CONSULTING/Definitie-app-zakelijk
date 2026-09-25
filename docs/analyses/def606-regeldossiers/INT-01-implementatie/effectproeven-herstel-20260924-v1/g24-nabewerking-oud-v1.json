@@ -1,0 +1,214 @@
+{
+  "soort": "DEF-770 G24 nabewerking (offline; geen validatie/enhancement)",
+  "arm": "oud",
+  "manifest_sha256": "5b85e4d4bafe4f15dcddb79e46243f813f40b4676109ee4b48a50a53d38a990c",
+  "script_sha256": "2ec4388d7a60350855ee85dfcef997938eda34f6cc858dd9359569518ef15709",
+  "bron": {
+    "archief": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/bron-oud-26f2374d.tar",
+    "archief_sha256": "e591502086a034c7245c37a3d525393d761c470667db615a95ff4397720525b5",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "commit_uit": "pax-header 'comment' van git archive",
+    "sleutelbestanden_sha256": {
+      "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "src/domain/int01/zinsgrenzen.py": "niet aanwezig",
+      "src/domain/int01/opslag.py": "niet aanwezig",
+      "src/services/validation/evaluators/sentence_boundary.py": "niet aanwezig",
+      "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "src/services/prompts/prompt_service_v2.py": "fd268584bf195fa816386f978832657b2781e016532449e2c8aeda1dc02581ab",
+      "src/services/orchestrators/definition_orchestrator_v2.py": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259",
+      "src/services/ai/anthropic_client.py": "91381bf25cfe3f1be7393b409105cf6a751d897ce7dd9530b32a8ac647e818e1",
+      "src/services/ai/model_router.py": "65e923d9840910c4a5113d344f8e2b2a7f64f9b9b59d966bdf63a97c07235bac",
+      "config/config.yaml": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "tests/offline_bootstrap.py": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7"
+    }
+  },
+  "offline_gate_actief": true,
+  "uitvoermap": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-herstel-20260924-v1/g24-generaties-v1",
+  "compleet": true,
+  "ontbrekend": [],
+  "rijen": [
+    {
+      "call_id": "G01__oud__h1",
+      "resultaat_sha256": "aa9d7013a930f5db62f1a1fb9daa6832b3a42a58e5cb5ff6759f0ae60fede06a",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+      "definitie_kern": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen"
+    },
+    {
+      "call_id": "G01__oud__h2",
+      "resultaat_sha256": "8de57f2e8b9d01316740df351a39c1eb240d45c67f478640138464fd17cf09ca",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+      "definitie_kern": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen"
+    },
+    {
+      "call_id": "G02__oud__h1",
+      "resultaat_sha256": "1daa73cd4fca1fd55e6a77365ec1b3991411724e13882598b9835b214b0c7f50",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan.",
+      "definitie_kern": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan"
+    },
+    {
+      "call_id": "G02__oud__h2",
+      "resultaat_sha256": "bb2c854c68e870862353782a4626d78e8316300e241c938c4958904bb1dcde4b",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat.",
+      "definitie_kern": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat"
+    },
+    {
+      "call_id": "G03__oud__h1",
+      "resultaat_sha256": "40c236c5aaa1ecd00cfbd78a5c156013c7c0c5afae5b15800d23c5f9a30f5876",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd.",
+      "definitie_kern": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd"
+    },
+    {
+      "call_id": "G03__oud__h2",
+      "resultaat_sha256": "2cb0c527e01d2bf930d1c4f59aa7553e95541e747bf6c24dd0b3b87465034659",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd.",
+      "definitie_kern": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd"
+    },
+    {
+      "call_id": "G04__oud__h1",
+      "resultaat_sha256": "d4adf8529d14e937fb40e183c0073ffb528d0e530ff445efa006356ec3baeae6",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen.",
+      "definitie_kern": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen"
+    },
+    {
+      "call_id": "G04__oud__h2",
+      "resultaat_sha256": "0ad0636614a01e530533a05f43fa796bbc9b4aef1bc4be8cb2e8266d20b04f40",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft.",
+      "definitie_kern": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft"
+    },
+    {
+      "call_id": "G05__oud__h1",
+      "resultaat_sha256": "51bb999b952f19b8ddbf485d7762c1d8d4af61195d9db9de9f69013dfab609ea",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft.",
+      "definitie_kern": "tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft"
+    },
+    {
+      "call_id": "G05__oud__h2",
+      "resultaat_sha256": "d8ec08d6bf50754e3caaaa13a48b867b063a1d30ba9b29d720d08adb61b8c37c",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont.",
+      "definitie_kern": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont"
+    },
+    {
+      "call_id": "G06__oud__h1",
+      "resultaat_sha256": "1ab7ad8783aa8d83e16ed60c6ab17e88cf355d34f53cd95b6e0078ef39792299",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld.",
+      "definitie_kern": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld"
+    },
+    {
+      "call_id": "G06__oud__h2",
+      "resultaat_sha256": "8fd87cd76807ac0acb81600c3a181d0cb339f0b9e84caa3326bed353eb36877d",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft.",
+      "definitie_kern": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft"
+    }
+  ]
+}

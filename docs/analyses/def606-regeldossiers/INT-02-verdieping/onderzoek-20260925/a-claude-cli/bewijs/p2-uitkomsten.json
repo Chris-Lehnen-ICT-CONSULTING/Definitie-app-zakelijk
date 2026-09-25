@@ -1,0 +1,85 @@
+{
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "include_examples_in_rules": true,
+  "geregistreerde_modules": {
+    "expertise": "ExpertiseModule",
+    "output_specification": "OutputSpecificationModule",
+    "grammar": "GrammarModule",
+    "context_awareness": "ContextAwarenessModule",
+    "semantic_categorisation": "SemanticCategorisationModule",
+    "template": "TemplateModule",
+    "arai_rules": "JSONBasedRulesModule",
+    "con_rules": "JSONBasedRulesModule",
+    "ess_rules": "JSONBasedRulesModule",
+    "integrity_rules": "JSONBasedRulesModule",
+    "sam_rules": "JSONBasedRulesModule",
+    "structure_rules": "JSONBasedRulesModule",
+    "ver_rules": "JSONBasedRulesModule",
+    "metrics": "MetricsModule",
+    "definition_task": "DefinitionTaskModule"
+  },
+  "integrity_rules_module_geregistreerd": false,
+  "dode_toegang_voorbeeld_in_uitvoer": false,
+  "int02_blok_letterlijk": [
+    "🔹 **INT-02 - Geen beslisregel**",
+    "- Een definitie bevat geen beslisregels of voorwaarden.",
+    "- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
+    "  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+    "  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+  ],
+  "modules": {
+    "integrity_rules": {
+      "success": true,
+      "metadata": {
+        "rules_count": 9,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "INT"
+      },
+      "relevante_regels": [
+        "🔹 **INT-01 - Compacte en begrijpelijke zin**",
+        "🔹 **INT-02 - Geen beslisregel**",
+        "- Een definitie bevat geen beslisregels of voorwaarden.",
+        "- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'"
+      ]
+    },
+    "structure_rules": {
+      "success": true,
+      "metadata": {
+        "rules_count": 11,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "STR"
+      },
+      "relevante_regels": [
+        "🔹 **STR-09 - Dubbelzinnige 'of' is verboden**",
+        "  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart"
+      ]
+    },
+    "ess_rules": {
+      "success": true,
+      "metadata": {
+        "rules_count": 6,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "ESS-"
+      },
+      "relevante_regels": [
+        "- **Instructie:** Bepaal uit de bedoelde betekenis en de beschikbare onderbouwing wat als één instantie geldt. Maak een noodzakelijke eenheidsgrens duidelijk met een passend bovenbegrip en begripsbepalende kenmerken. Gebruik een identifier alleen als zijn referentsoort, scope en relevante geldigheid zijn onderbouwd; verzin geen nummer, bron of telconventie. Laat niet-telbare stoffen of kwaliteiten niet stil veranderen in telbare monsters, porties of registraties. Bij een noodzakelijke maar onbesliste eenheidsgrens of continuïteitsvraag waarover bronnen en context elkaar niet werkelijk tegenspreken: verzin geen grens of conventie en lever één voorlopige kandidaat binnen de beschikbare grond, zonder melding of toelichting in de zin; de gerichte verduidelijkingsvraag blijft bij de ESS-03-beoordeling (uitkomst onvoldoende informatie, met één gerichte vraag). Spreken bronnen of context elkaar werkelijk tegen over de teleenheid, maak dan geen stille keuze en leg geen betwiste telconventie in de kern vast. Een naam of het woord ‘uniek’ is geen bewijs. Houd registratiecontext en bronadministratie buiten de kern, maar behoud inhoudelijk noodzakelijke namen en voorwaarden. Geef uitleg en synthetische voorbeelden afzonderlijk; ze vervangen geen ontbrekende kernafgrenzing."
+      ]
+    },
+    "arai_rules": {
+      "success": true,
+      "metadata": {
+        "rules_count": 9,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "ARAI"
+      },
+      "relevante_regels": [
+        "🔹 **ARAI-04 - Vermijd modale hulpwerkwoorden**",
+        "🔹 **ARAI-04SUB1 - Beperk gebruik van modale werkwoorden**"
+      ]
+    }
+  }
+}

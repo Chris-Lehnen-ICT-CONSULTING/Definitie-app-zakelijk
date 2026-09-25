@@ -1,0 +1,35 @@
+{
+  "utc": "2026-09-24T18:06:54.428396+00:00",
+  "sealed_before_app_execution": true,
+  "source": "c7f5d7dc921740f85a10d932480da338f9c2c276",
+  "roles": {
+    "referentie-A": {
+      "session": "01a0d490-c282-7473-8489-9c90d3f70daf",
+      "tools_used": false,
+      "session_log": "logs/def770-eindproeven/herproef-referentie-A-sessie-v1.jsonl",
+      "session_log_sha256": "c63d48164e08440fc3a77cadbf42fbbb5afc3369d8162911c75a5e835c504e8b"
+    },
+    "referentie-B": {
+      "session": "01a0d490-b8c6-7f11-bf39-032c6079ed78",
+      "tools_used": false,
+      "session_log": "logs/def770-eindproeven/herproef-referentie-B-sessie-v1.jsonl",
+      "session_log_sha256": "a53392a439a259c8e38c58c8edf4670ea442594458f302d8f225b438e28ecea4"
+    },
+    "adjudicatie": {
+      "session": "01a0d496-9f24-7351-97f4-af27f2b0840a",
+      "tools_used": false,
+      "session_log": "logs/def770-eindproeven/herproef-adjudicatie-sessie-v1.jsonl",
+      "session_log_sha256": "d31396f3144705eb3fbb3a3dd3c51cc85776c873093e63344b0e810da2a87fa7"
+    }
+  },
+  "files": {
+    "bron-en-setbinding-v1.json": "716e8710bd4582c8462e5e3391ac782833ef2bc91e65d962f0650576593cd0a0",
+    "maker-v1.json": "45293a89dc94e6f0cd358c89fdc1c8b086acf77c5d0710318a0a45baf8207d28",
+    "gevallen-v1.json": "5173cc02e234dbea3b324c1ba893da6ce4c55f8d7e42a30191a8e74d44b47df0",
+    "adjudicatie-v1.json": "3da246ad2d5f37b0b16c6b0c133ffd1531b1a525774a929bb5ae648488f0b291",
+    "referentie-contract.md": "58fa4a1819d54b464879be5ea8e9e12b665063887ad2ab2b3ce0f9366aeba0d7",
+    "referentie-B-v1.json": "e4defa38031d60ecfe0843772cb04eea4cdec2a414103a97ca23f76703faec76",
+    "referentie-A-v1.json": "cfdd34c39e5cb557ac05a8da50aff4031a8953317a0f5ce8ba2574ecf57ffd8c"
+  },
+  "criteria_sha256": "7cd2fd8bb062fb4d3f9cf21280349e98b0fa2cfc19ace3fa877142f3c9408c81"
+}

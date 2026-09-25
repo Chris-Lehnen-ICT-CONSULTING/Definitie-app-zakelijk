@@ -1,0 +1,58 @@
+[
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/claude-tekstafstemming-resultaat-v1.md",
+    "sha256": "f877ebe0def920aab7d67d7f017a8c5a308cf199897875ef017c1c7efc3a46f8"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/contractreview-v1.md",
+    "sha256": "50b6eaf85c6d3ca86f6a254428104d13577f0671b4068e792648f5f9120721c2"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/tekstafstemming-review-v1.md",
+    "sha256": "29b115d86a2e0a8d8d92eafb90bdebd4885a287d443baa9eeee180346d041a58"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/tekstafstemming-v1.patch",
+    "sha256": "83fdbae707472b3479d04f7d9e745ce7b400895b40a8cb91a469c625450360bb"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/promptpariteit-v1.log",
+    "sha256": "5a06a5abf9fb0167580be5f1d5548cfae6583f94b2f4ccc210eacf2073b6d05d"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/tekstcontrole-v1.log",
+    "sha256": "173ba074868668ef6884854dc2ba9490fcfea25c1ab360934b7a77b131cbcf0c"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/tekstafstemming-gericht-v1.log",
+    "sha256": "0e38a79c3c2a49ee3b635e113118cd4993f91029c1a5cfc2b572bb2648a53d7a"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/lint-tekstafstemming-v1.log",
+    "sha256": "60c049a9ec7b525459d16df80d1a0fb862467e96899faf0e069c0b2291261cf9"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/skills-tests-v1.log",
+    "sha256": "d720e4bdb218be6acb0481e82ff4fd0718ee72215530c4d6e2d790b884b244cd"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/bundelbouw-canoniek-v1.log",
+    "sha256": "dc73e05158896409d44b12880f8a5297ccc113fc92c58fed3b4ef0de09a6cc8b"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/bundelbouw-alias-v1.log",
+    "sha256": "f1702465642919ed2f4397a792133291fef0beb3781ef08064413209eaad4b71"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/bundeltests-v1.log",
+    "sha256": "6b18c04b6b4c37615e9d65c862bdad9591d1b6b53cb7dc7a776d78be114bc5f6"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/app-broncommit-v1.log",
+    "sha256": "f1f8204a9605a2ef7c9134cbeb94011ca6645963669ac57d3c0121f4e02264ff"
+  },
+  {
+    "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/skills-broncommit-v1.log",
+    "sha256": "498878d8e01d5c2ebad58b92448181287f9c870b4aaf49252dc47ff7e1d936cd"
+  }
+]

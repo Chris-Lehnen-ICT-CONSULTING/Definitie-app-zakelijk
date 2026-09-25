@@ -1,0 +1,30 @@
+{
+  "utc": "2026-09-24T21:47:50.974764+00:00",
+  "generation_commit": "ad45a0a8af1026822d5d3ed942ca986edd11988d",
+  "archive": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-vervolg/bron-generatie-ad45a0a8a.tar",
+  "archive_sha256": "c5dbd182657f9fc206bed2c0290902c9008c6846385e2d70be5d639c5a3e33d8",
+  "generation_source_hashes": {
+    "src/services/prompts/modules/definition_task_module.py": "fbdb9e1923318733e47289b0b55ae34e7960ef31a4f9c0a061ad2b60897ba591",
+    "src/services/prompts/modules/json_based_rules_module.py": "60bad74b7efdff31ac791095af28f1d4624eb14174023b147b3fb4a3e4820700",
+    "tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py": "8eccb32a69d609d192195658e6d3fa8392b6ea487fb437cf98bf5b2bfa310ed7"
+  },
+  "maker": {
+    "utc": "2026-09-24T21:00:45.614214+00:00",
+    "maker_session": "01a0d535-0354-7213-81dc-9b6d9eb850a4",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "tools_used": false,
+    "no_nonempty_previous_case_reused": true,
+    "t24": 24,
+    "g24_dossiers": 6,
+    "quarantined_until_source_freeze": true,
+    "files": {
+      "maker-v1.json": "c14397d3a96e77c053567d44fed07abfdceb18ef01d8d6787a75fdb4ca5390dd",
+      "maker-opdracht-v1.md": "776d9be96c85730aa7b638893aba8b3276ce327ce667dd578d9c196a55c537ad",
+      "maker-sessie-v1.jsonl": "bfb2bf21ad55dbb010136af481e1b7f740d9cb56cf7e5ca304baeec8853aa7ac"
+    }
+  },
+  "g24_input_sha256": "ba8ce11d21e4eb5c41cae178935bb3349bf0f29e87a974ad58299b93341eb470",
+  "scope": "Generatieacceptatie op afzonderlijke generatiecommit. Classifiercorrecties niet in deze commit en geen classifier-/T20-vrijgave. T24 blijft afgeschermd tot nieuw bron-/beleidbesluit.",
+  "paid_calls_yet": 0
+}

@@ -1,0 +1,64 @@
+{
+  "call_id": "G01__oud__h2",
+  "request_sha256": "30571816c8106385d2075c5f5b22ca8985d0f2978c546e56aa664662c8607f0e",
+  "manifest_sha256": "5b85e4d4bafe4f15dcddb79e46243f813f40b4676109ee4b48a50a53d38a990c",
+  "counts_sha256": "c50831ecc5b8e41a5a85cd720417a67d112a78a14b51bac9e2e5c2ca21a86306",
+  "goedkeuring_sha256": "b72aeef122f272e83d8042f34357bda374eff8b3f4099b2d29390166c976a5f2",
+  "geteld_input_tokens": 13594,
+  "tijd": "2026-09-24T19:10:50+0200",
+  "duur_s": 2.164,
+  "bericht_id": "msg_011CfNdpsghwuscSKuks6jgk",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 13594,
+    "output_tokens": 135,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+  "ruwe_response": {
+    "id": "msg_011CfNdpsghwuscSKuks6jgk",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 13594,
+      "output_tokens": 135,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

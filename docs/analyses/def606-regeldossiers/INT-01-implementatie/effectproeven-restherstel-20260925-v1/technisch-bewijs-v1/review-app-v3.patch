@@ -1,0 +1,749 @@
+diff --git a/src/domain/int01/zinsgrenzen.py b/src/domain/int01/zinsgrenzen.py
+index ee87ff7a6..8f43be98d 100644
+--- a/src/domain/int01/zinsgrenzen.py
++++ b/src/domain/int01/zinsgrenzen.py
+@@ -40,7 +40,9 @@ in de passage:
+   waarvan de woordrollen niet bewezen zijn ('‘Klaar?’ waarop de namen staan')
+   gaat naar inhoudelijke beoordeling;
+ - een naamwoordelijke kern zonder zelfstandige hoofdzin is geldig: er is geen
+-  hoofdzin- of persoonsvormplicht.
++  hoofdzin- of persoonsvormplicht. Een los label met hooguit één inhoudswoord
++  ('schakelblad') is echter geen definitieformulering: geen zinsstructuur-pass
++  maar een open onderdeel `formulering`.
+ 
+ Eén vastgestelde zin is een deelbevinding. Compactheid en begrijpelijkheid
+ voor de doelgroep zijn daarmee niet beoordeeld; de regel als geheel wordt
+@@ -89,9 +91,11 @@ _OPEN = "review_required"
+ #: (logs/def770-vervolg). /6: titelbeleid (titel-en-budgetbesluit-v1) — de
+ #: positieve herkenning van een betrekkelijke bijzin met 'waar' + voorzetsel
+ #: na een citaatslot uit /5 vervalt; zo'n voortzetting met onbewezen
+-#: woordrollen is onzeker. Een opgeslagen uitkomst onder een andere versie
+-#: geldt niet meer als actueel.
+-CONTRACTVERSIE = "def770-int01/6"
++#: woordrollen is onzeker. /7: restherstel (astra-acceptatiebevindingen-v1) —
++#: een los label zonder formulering krijgt een open onderdeel `formulering` in
++#: plaats van een zinsstructuur-pass. Een opgeslagen uitkomst onder een andere
++#: versie geldt niet meer als actueel.
++CONTRACTVERSIE = "def770-int01/7"
+ 
+ #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
+ REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
+@@ -226,6 +230,9 @@ class Segmentatie:
+     zekere_grenzen: tuple[Zinsgrens, ...]
+     onzekere_grenzen: tuple[Zinsgrens, ...]
+     geheel_geciteerd: bool
++    #: De kern is een los label zonder definitieformulering (passage, positie
++    #: en reden); dan is er geen grond voor een zinsstructuur-pass.
++    zonder_formulering: Zinsgrens | None = None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -273,7 +280,9 @@ def segmenteer(tekst: str) -> Segmentatie | None:
+     onzeker.extend(_label_zonder_vervolg(tekst))
+     onzeker.extend(_aansluiting_na_haakje(tekst))
+     onzeker.sort(key=lambda grens: grens.positie)
+-    return Segmentatie(tuple(zeker), tuple(onzeker), geheel)
++    return Segmentatie(
++        tuple(zeker), tuple(onzeker), geheel, _los_label(tekst, zeker + onzeker)
++    )
+ 
+ 
+ def _boek(
+@@ -570,7 +579,9 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
+ 
+     - een vervolg uit voorzetselgroepen: telkens voorzetsel, hooguit een
+       lidwoord en één woord ('“Gereed.” op het scherm', '‘Wie betaalt?’ van de
+-      commissie', '‘…?’ voor het reconstrueren van een vaarvolgorde');
++      commissie', '‘…?’ voor het reconstrueren van een vaarvolgorde'); een
++      extra woord in een groep ('‘…?’ met de kleurcode van de bijbehorende
++      opdracht') bewijst zonder woordrollen niets en blijft onzeker;
+     - een bijzin die vóór het citaat is geopend en waarin tot het citaat alleen
+       naamwoordgroepen staan ('die de melding “Gereed.” …', 'waarmee een
+       bediener de melding “…” …'), met als
+@@ -811,6 +822,31 @@ def _label_zonder_vervolg(tekst: str) -> list[Zinsgrens]:
+     ]
+ 
+ 
++def _los_label(tekst: str, grenzen: list[Zinsgrens]) -> Zinsgrens | None:
++    """Een kern met hooguit één inhoudswoord, eventueel na een lidwoord
++    ('schakelblad', 'Het schakelblad.', '“schakelblad”'): geen
++    definitieformulering, want een definitie noemt ten minste een bovenbegrip
++    met een onderscheidend kenmerk. Het ontbreken van zinsgrenzen is dan geen
++    grond voor een zinsstructuur-pass.
++
++    Staat er al een grens (ook het label met een dubbele punt, zie
++    `_label_zonder_vervolg`), dan draagt die de melding. Een langere kern
++    zonder werkwoord blijft een geldige naamwoordelijke formulering."""
++    if grenzen:
++        return None
++    woorden = re.findall(r"[^\W_]+(?:[-'’][^\W_]+)*", tekst)
++    if len([woord for woord in woorden if woord.lower() not in _LIDWOORDEN]) > 1:
++        return None
++    return Zinsgrens(
++        len(tekst) - len(tekst.lstrip()),
++        " ".join(tekst.split()),
++        (
++            "los label zonder verdere formulering: geen bovenbegrip met "
++            "onderscheidend kenmerk, dus geen definitieformulering vastgesteld"
++        ),
++    )
++
++
+ def _passage(tekst: str, kandidaat: _Kandidaat) -> str:
+     links = " ".join(tekst[: kandidaat.start].split()[-3:])
+     teken = tekst[kandidaat.start : kandidaat.einde]
+@@ -869,7 +905,19 @@ def _grensdelen(seg: Segmentatie) -> list[dict[str, Any]]:
+         )
+         for nummer, grens in enumerate(seg.onzekere_grenzen, start=1)
+     ]
+-    if not delen:
++    if not delen and seg.zonder_formulering is not None:
++        delen.append(
++            _deel(
++                "formulering",
++                _OPEN,
++                f"Geen definitieformulering vastgesteld: {seg.zonder_formulering.grond}.",
++                "Beoordeel of de kern een definitie is of alleen een begripsnaam of "
++                "label. Een definitie noemt ten minste een bovenbegrip met een "
++                "onderscheidend kenmerk; de app vult de tekst niet automatisch aan.",
++                seg.zonder_formulering,
++            )
++        )
++    elif not delen:
+         delen.append(
+             _deel(
+                 "zinsstructuur",
+@@ -963,6 +1011,12 @@ def open_melding(seg: Segmentatie) -> str:
+             f'"{grens.passage}" ({grens.grond})' for grens in seg.onzekere_grenzen
+         )
+         melding = f"INT-01 — Zinsgrens onzeker bij {passages}; beoordeling nodig."
++    elif seg.zonder_formulering is not None:
++        label = seg.zonder_formulering
++        melding = (
++            f'INT-01 — Geen definitieformulering vastgesteld bij "{label.passage}" '
++            f"({label.grond}); beoordeling nodig."
++        )
+     else:
+         melding = "INT-01 — Eén definitieformulering vastgesteld."
+     if seg.geheel_geciteerd:
+diff --git a/src/services/prompts/modules/context_awareness_module.py b/src/services/prompts/modules/context_awareness_module.py
+index 6ef650938..0df978fd1 100644
+--- a/src/services/prompts/modules/context_awareness_module.py
++++ b/src/services/prompts/modules/context_awareness_module.py
+@@ -203,7 +203,7 @@ Gebruik domein-specifieke termen.
+ ❌ "straf" → ✅ "sanctie" (formeel juridisch)
+ 
+ **MECHANISME 2 - SCOPE:**
+-Vernauw begrippen met domein-qualifiers.
++Kies het domeinspecifieke woord binnen de afbakening die de bron geeft; maak de betekenis niet smaller dan de bron met een extra qualifier, zoals een eigenschap die volgens de bron mag wisselen.
+ ❌ "regels" → ✅ "gedragsregels"
+ ❌ "beslissing" → ✅ "beschikking"
+ ❌ "procedure" → ✅ "formele procedure"
+diff --git a/src/services/prompts/modules/definition_task_module.py b/src/services/prompts/modules/definition_task_module.py
+index 539a3fd64..66f5d6f69 100644
+--- a/src/services/prompts/modules/definition_task_module.py
++++ b/src/services/prompts/modules/definition_task_module.py
+@@ -291,13 +291,18 @@ Formuleer nu de definitie van het begrip in dit datablok:
+         # de betekenis" alleen gaf geen controlehandeling; in G24 verdwenen een
+         # bronhandeling, een relatiewoord en de modaliteit. Daarom drie concrete
+         # controles vóór de definitieve zin, met voorrang boven stijlvoorkeuren.
++        # DEF-770 restherstel (logs/def770-restherstel/claude-resultaat-v2.md):
++        # in G24 vielen afbakenende gevolgen weg en werd een volgens de bron
++        # wisselende eigenschap vast kenmerk. Daarom een vierde punt en een
++        # weglaatcriterium in plaats van de losse weglaatzin; ESS-01 blijft gelijk.
+         # Generieke voorbeelden; geen proef- of domeintermen.
+         return f"""#### 🔍 KWALITEITSCONTROLE: Controleer afbakening en rol van functie/doel volgens ESS-01; behoud de gegeven betekenis, passend bij {context_vraag}, en volg CON-01.
+-Leg vóór de definitieve zin de bepalende bronpassages naast je formulering (zonder bronnen: de gegeven context) en controleer drie punten:
++Leg vóór de definitieve zin de bepalende bronpassages naast je formulering (zonder bronnen: de gegeven context) en controleer vier punten:
+ - bronhandeling: een handeling die het begrip afbakent, blijft een handeling met hetzelfde voorwerp; vervang haar niet door een eigenschapswoord (‘wordt gearchiveerd’ is niet ‘archiefwaardig’);
+ - relatie: een bepalende relatie houdt haar relatiewoord en richting (‘overgedragen aan’, ‘afgeleid van’, ‘vóór’ of ‘na’); laat het relatiewoord niet weg om korter te formuleren;
+-- modaliteit: een mogelijkheid, toestemming of niet-verplichting (‘kan’, ‘mag’, ‘hoeft niet’) wordt geen feit of eis, en een eis wordt geen mogelijkheid.
+-Deze controle gaat vóór stijlvoorkeuren (actieve vorm, geen modale werkwoorden, compactheid). Een werkafspraak of mogelijkheid die het begrip niet afbakent, laat je weg in plaats van haar als eis op te nemen. Pas zo nodig de zin aan en lever uitsluitend de definitiekern."""
++- modaliteit: een mogelijkheid, toestemming of niet-verplichting (‘kan’, ‘mag’, ‘hoeft niet’) wordt geen feit of eis, en een eis wordt geen mogelijkheid;
++- voorwaarde en gevolg: een afbakenende voorwaarde houdt het gevolg dat de bron eraan koppelt, en elk alternatief houdt zijn eigen gevolg (voeg ze niet samen tot één ‘of’ zonder dat gevolg); behoud ook een afbakenend ontkend gevolg of een uitzondering (‘leidt niet tot …’, ‘behalve …’). Zo'n gevolg is een kenmerk, geen doel of effect in de zin van ESS-01.
++Deze controle gaat vóór stijlvoorkeuren (actieve vorm, geen modale werkwoorden, compactheid). Laat weg wat de bron niet als afbakening draagt: een werkafspraak, een mogelijkheid, of een eigenschap die volgens de bron mag wisselen zonder dat het begrip verandert; neem die niet op als eis of vaste beperking. Pas zo nodig de zin aan en lever uitsluitend de definitiekern."""
+ 
+     def _build_metadata(
+         self, begrip: str, word_type: str, org_contexts: list[str], has_context: bool
+diff --git a/src/services/prompts/modules/json_based_rules_module.py b/src/services/prompts/modules/json_based_rules_module.py
+index 628e639ec..71cf2b27d 100644
+--- a/src/services/prompts/modules/json_based_rules_module.py
++++ b/src/services/prompts/modules/json_based_rules_module.py
+@@ -440,11 +440,13 @@ class JSONBasedRulesModule(BasePromptModule):
+                 "mogelijkheid geen feit (druk haar zo nodig zonder modaal werkwoord "
+                 "uit, bijvoorbeeld met ‘-baar’), houd ‘uitsluitend’ bij het deel "
+                 "waarop het slaat, formuleer een afbakenende toepassings- of "
+-                "eindvoorwaarde als kenmerk in plaats van haar weg te laten, laat "
++                "eindvoorwaarde, met het gevolg dat de bron eraan koppelt, als "
++                "kenmerk in plaats van haar weg te laten, laat "
+                 "een verwijzing zoals ‘die’ naar één antecedent wijzen, en behoud "
+                 "een brongebonden beperking zoals ‘is op zichzelf geen bewijs van "
+                 "…’ wanneer zij het begrip afbakent. Neem bronbijzaken die het "
+-                "begrip niet afbakenen niet op. Is geen doelgroep "
++                "begrip niet afbakenen niet op, ook geen eigenschap die volgens de "
++                "bron mag wisselen. Is geen doelgroep "
+                 "vastgelegd, veronderstel er dan geen; de registratiecontext is geen "
+                 "doelgroep. Verzin geen context of bron"
+             ),
+diff --git a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+index 11104257c..de3dacf9a 100644
+--- a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+@@ -641,13 +641,16 @@ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
+ # ── Contractversie, opslag en weergave ──────────────────────────────────
+ 
+ 
+-def test_contractversie_is_6_na_titelbeleid():
++def test_contractversie_na_titelbeleid_en_restherstel():
+     """/5 (herproefcorrectie: T20 betrekkelijke bijzin na citaat, T24 lokaal
+     verklaarde afkorting) is proefbron geweest. Het titelbeleid
+     (titel-en-budgetbesluit-v1) laat de positieve titelherkenning vervallen:
+     een titelvoortzetting met onbewezen woordrollen wordt onzeker. Dat wijzigt
+-    de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel."""
+-    assert CONTRACTVERSIE == "def770-int01/6"
++    de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel.
++    Het restherstel (astra-acceptatiebevindingen-v1: los label zonder
++    formulering) wijzigt haar opnieuw: /6 → /7
++    (test_def770_restherstel_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/7"
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -658,6 +661,7 @@ def test_contractversie_is_6_na_titelbeleid():
+         "def770-int01/3",
+         "def770-int01/4",
+         "def770-int01/5",
++        "def770-int01/6",
+     ],
+ )
+ @pytest.mark.parametrize(
+diff --git a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+new file mode 100644
+index 000000000..60e14c226
+--- /dev/null
++++ b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+@@ -0,0 +1,296 @@
++"""DEF-770 restherstel (contract /7): nominale titelvoortzetting en los label.
++
++Bron: herstel-20260924-v1/astra-acceptatiebevindingen-v1.md. De verzegelde
++T24-acceptatie (effectproeven-vervolg-20260924-v1) is nu ontwikkelbewijs; haar
++labels zijn overgenomen, niet aangepast.
++
++- T20 (nieuw): ‘fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de
++  kleurcode van de bijbehorende opdracht’. Referentie pass; de app geeft
++  review_required. Oorzaak: `_voorzetselgroepen` staat na het lidwoord één
++  woord toe, dus ‘van de bijbehorende opdracht’ strandt. De eerste kandidaat
++  (/7, één extra woord onder structurele voorwaarden) is afgekeurd
++  (astra-review-v1): ‘met het regent hard’ en ‘tijdens de proef wacht’ werden
++  onterecht pass, omdat het structuurargument grammaticale correctheid
++  veronderstelde. Correctiepoging 2 verwijdert die uitbreiding: zonder bewijs
++  van woordrollen is exacte T20 niet veilig positief te herkennen.
++  Beleid (herstel-20260924-v1/restherstel-titelbesluit-v1.md, Chris: “Ja,
++  deze twijfelgevallen inhoudelijk beoordelen (advies)”): een nominale
++  voortzetting na een titel of citaat waarvan de samenhang woordrollen in een
++  uitgebreide voorzetselgroep vraagt (lidwoord plus extra woord vóór de kern),
++  krijgt automatisch review_required. De normatieve referentie blijft pass;
++  het historische label en de oude 23/24-uitslag blijven ongewijzigd. De
++  eerdere strikte xfails zijn vervangen door deze besluitverwachting.
++- T22: ‘schakelblad’. Referentie review_required. Tot en met /6 gaf het
++  ontbreken van grenzen automatisch `zinsstructuur: pass`. Eén inhoudswoord
++  (eventueel met lidwoord) is geen definitieformulering: /7 geeft een open
++  onderdeel `formulering` met passage en reden in plaats van die pass.
++
++Nooit een volledige INT-01-pass.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from database.definitie_repository import (
++    DefinitieRecord,
++    DefinitieRepository,
++    DefinitieStatus,
++)
++from domain.int01.zinsgrenzen import (
++    CONTRACTVERSIE,
++    open_melding,
++    regeluitkomst,
++    segmenteer,
++)
++from services.validation.modular_validation_service import ModularValidationService
++from toetsregels.manager import get_toetsregel_manager
++
++pytestmark = [pytest.mark.unit]
++
++#: T20 uit de verzegelde T24-acceptatie (t24-gevallen-v1.json); referentie pass.
++A_T20 = (
++    "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de kleurcode van "
++    "de bijbehorende opdracht"
++)
++#: T22 uit dezelfde set; referentie review_required.
++A_T22 = "schakelblad"
++
++TITEL = "kaart met de titel ‘Klaar?’ "
++
++
++# ── T20: voorzetselgroep; restherstel-titelbesluit-v1 ──────────────────
++
++#: Verzegelde T24-adjudicatie (vervolgproef); alleen gelezen, nooit gewijzigd.
++T24_ADJUDICATIE = (
++    Path(__file__).resolve().parents[3]
++    / "docs/analyses/def606-regeldossiers/INT-01-implementatie"
++    / "effectproeven-vervolg-20260924-v1/t24-adjudicatie-v1.json"
++)
++#: Historische normatieve referentie (t24-adjudicatie-v1.json): blijft zichtbaar.
++REFERENTIE_NORMATIEF = {"T20": "pass"}
++#: Automatische verwachting volgens restherstel-titelbesluit-v1 (25 september
++#: 2026): uitgebreide voorzetselgroep na een titel of citaat → inhoudelijke
++#: beoordeling. Geen relabel van de referentie; een dekkingsbeperking.
++BESLUIT_AUTOMATISCH = {"T20": "review_required"}
++
++# (id, tekst, zekere grenzen, onzekere grenzen)
++NOMINAAL = [
++    # Basisgedrag: één woord na het lidwoord in elke groep blijft 0/0.
++    pytest.param(
++        (
++            "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de "
++            "kleurcode van de opdracht"
++        ),
++        0,
++        0,
++        id="a-T20-zonder-extra-woord",
++    ),
++]
++
++# Onzeker: een extra woord in een voorzetselgroep bewijst geen rollen.
++ONZEKER = [
++    # Astra-review-v1 R1: exacte regressies van de eerste kandidaat.
++    ("r1-het-regent-hard", TITEL + "met het regent hard", 0, 1),
++    ("r1-tijdens-wacht", TITEL + "tijdens de proef wacht", 0, 1),
++    # restherstel-titelbesluit-v1: exacte T20 onzeker (automatisch
++    # review_required), met passage en reden.
++    ("a-T20-besluit", A_T20, 0, 1),
++    # Eerdere uitbreidingsgevallen: terug naar basisgedrag.
++    ("van-het", TITEL + "met de kleur van het grote vak", 0, 1),
++    ("volgens-de", TITEL + "volgens de vaste volgorde", 0, 1),
++    ("extra-woord-midden", TITEL + "met de rode rand van de kaart", 0, 1),
++    ("onbekend", TITEL + "met de blorse vek", 0, 1),
++    ("a-T20-met-tweede-zin", A_T20 + ". De speler wacht.", 1, 1),
++    # Eerdere tegenvoorbeelden blijven onzeker.
++    ("drie-woorden", TITEL + "met de kaart speelt men", 0, 1),
++    ("twee-bijvoeglijk", TITEL + "met de kleine rode kaart", 0, 1),
++    ("infinitief", TITEL + "met de pen schrijven", 0, 1),
++    ("partikel-op", TITEL + "op het grote scherm", 0, 1),
++    ("partikel-uit", TITEL + "uit de speler wacht", 0, 1),
++    ("voegwoord-voor", TITEL + "voor de speler wacht", 0, 1),
++    ("voornaamwoord-deze", TITEL + "met deze speelde hij", 0, 1),
++    ("voornaamwoord-een", TITEL + "met een speelde hij", 0, 1),
++    ("bijzinwoord", TITEL + "met de kaart die", 0, 1),
++    ("persoonsvorm", A_T20 + " is", 0, 1),
++    ("woord-buiten-groep", A_T20 + " wacht de speler", 0, 1),
++    # Titelbeleid ongewijzigd: 'waar' + voorzetsel blijft onzeker.
++    ("waar-bijzin", TITEL + "waarop het werkt de deelnemers wachten", 0, 1),
++    ("waar-bijzin-lidwoord", TITEL + "waarin de namen staan", 0, 1),
++]
++
++
++@pytest.mark.parametrize(
++    ("tekst", "zeker", "onzeker"),
++    NOMINAAL + [pytest.param(t, z, o, id=i) for i, t, z, o in ONZEKER],
++)
++def test_segmentatie(tekst, zeker, onzeker):
++    seg = segmenteer(tekst)
++    assert seg is not None
++    assert len(seg.zekere_grenzen) == zeker, seg
++    assert len(seg.onzekere_grenzen) == onzeker, seg
++
++
++@pytest.mark.parametrize(
++    "tekst",
++    [A_T20, TITEL + "met het regent hard", TITEL + "tijdens de proef wacht"],
++    ids=["a-T20", "r1-het-regent-hard", "r1-tijdens-wacht"],
++)
++def test_onzekere_titelvoortzetting_houdt_passage_en_reden(tekst):
++    seg = segmenteer(tekst)
++    [grens] = seg.onzekere_grenzen
++    assert "?’" in grens.passage
++    assert "aanhalingsteken" in grens.grond
++    delen = {p["id"]: p["status"] for p in regeluitkomst(seg)["parts"]}
++    assert "zinsstructuur" not in delen
++    assert delen["zinsgrens_onzeker_1"] == "review_required"
++
++
++def test_a_t20_besluitverwachting_en_normatieve_referentie():
++    """restherstel-titelbesluit-v1: automatisch review_required; de verzegelde
++    normatieve referentie blijft pass en is hier zichtbaar, niet aangepast."""
++    adjudicatie = json.loads(T24_ADJUDICATIE.read_text(encoding="utf-8"))
++    [geval] = [c for c in adjudicatie["cases"] if c["id"] == "T20"]
++    assert geval["sentence_status"] == REFERENTIE_NORMATIEF["T20"]
++    detail = regeluitkomst(segmenteer(A_T20))
++    delen = {p["id"]: p["status"] for p in detail["parts"]}
++    assert detail["status"] == BESLUIT_AUTOMATISCH["T20"]
++    assert "zinsstructuur" not in delen
++    assert delen["zinsgrens_onzeker_1"] == BESLUIT_AUTOMATISCH["T20"]
++
++
++# ── T22: los label ───────────────────────────────────────────────────────
++
++LOS_LABEL = [
++    ("a-T22", A_T22),
++    ("hoofdletter-punt", "Schakelblad."),
++    ("witruimte", "  schakelblad \n"),
++    ("aanhalingstekens", "“schakelblad”"),
++    ("koppelteken", "schakel-blad"),
++    ("met-lidwoord", "het schakelblad"),
++    ("ander-woord", "Reservevak"),
++    ("uitroep", "Opgelet!"),
++]
++
++
++@pytest.mark.parametrize("tekst", [pytest.param(t, id=i) for i, t in LOS_LABEL])
++def test_los_label_geen_zinsstructuur_pass(tekst):
++    seg = segmenteer(tekst)
++    assert seg is not None and not seg.zekere_grenzen
++    detail = regeluitkomst(seg)
++    assert detail["status"] == "review_required"
++    delen = {p["id"]: p for p in detail["parts"]}
++    assert "zinsstructuur" not in delen
++    formulering = delen["formulering"]
++    assert formulering["status"] == "review_required"
++    assert formulering["evidence"] == " ".join(tekst.split())
++    assert formulering["position"] == len(tekst) - len(tekst.lstrip())
++    assert "definitieformulering" in formulering["reason"]
++    assert "Eén definitieformulering vastgesteld" not in open_melding(seg)
++    assert "Geen definitieformulering vastgesteld" in open_melding(seg)
++
++
++def test_label_met_dubbele_punt_blijft_grens_zonder_dubbele_melding():
++    """Het bestaande label-met-dubbele-puntpatroon (T22 in de herproef,
++    'Reservevak:') blijft één onzekere grens; geen tweede melding."""
++    seg = segmenteer("Reservevak:")
++    assert len(seg.onzekere_grenzen) == 1
++    delen = [p["id"] for p in regeluitkomst(seg)["parts"]]
++    assert delen == ["zinsgrens_onzeker_1", "compactheid", "begrijpelijkheid"]
++
++
++def test_lege_tekst_blijft_niet_beoordeeld():
++    assert segmenteer("") is None
++    assert segmenteer("   \n") is None
++
++
++# Geldige nominale definities zonder persoonsvorm houden hun zinsstructuur-pass.
++NOMINALE_DEFINITIES = [
++    "Voorziening voor de tijdelijke opslag van regenwater",
++    "tijdelijke opslag",
++    "schakelblad voor de reserveset",
++    "Schakelblad (SB)",
++]
++
++
++@pytest.mark.parametrize("tekst", NOMINALE_DEFINITIES)
++def test_nominale_definitie_houdt_zinsstructuur_pass(tekst):
++    delen = {p["id"]: p["status"] for p in regeluitkomst(segmenteer(tekst))["parts"]}
++    assert delen["zinsstructuur"] == "pass"
++    assert "formulering" not in delen
++
++
++# ── Service (beide laadpaden), opslag en actualiteit ────────────────────
++
++
++@pytest.fixture(
++    scope="module", params=["toetsregel_manager", "cached_manager (productiepad)"]
++)
++def svc(request) -> ModularValidationService:
++    if request.param.startswith("cached_manager"):
++        from toetsregels.cached_manager import get_cached_toetsregel_manager
++        from toetsregels.rule_cache import get_rule_cache
++
++        get_rule_cache().clear_cache()
++        manager = get_cached_toetsregel_manager()
++    else:
++        manager = get_toetsregel_manager()
++    return ModularValidationService(manager, None, None)
++
++
++OPEN = {"compactheid": "review_required", "begrijpelijkheid": "review_required"}
++SERVICEGEVALLEN = [
++    # restherstel-titelbesluit-v1: automatisch review_required (BESLUIT_AUTOMATISCH).
++    ("a-T20", "omslagfiche", A_T20, {"zinsgrens_onzeker_1": "review_required", **OPEN}),
++    ("a-T22", "schakelblad", A_T22, {"formulering": "review_required", **OPEN}),
++]
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize(
++    ("begrip", "tekst", "delen"),
++    [pytest.param(b, t, d, id=i) for i, b, t, d in SERVICEGEVALLEN],
++)
++async def test_service_uitkomst_beide_laadpaden(svc, begrip, tekst, delen):
++    res = await svc.validate_definition(
++        begrip=begrip, text=tekst, ontologische_categorie=None, context={}
++    )
++    assert res["rule_statuses"]["INT-01"] == "review_required"
++    assert "INT-01" not in res["passed_rules"]
++    detail = res["rule_results"]["INT-01"]
++    assert detail["contract_version"] == CONTRACTVERSIE
++    assert {p["id"]: p["status"] for p in detail["parts"]} == delen
++
++
++@pytest.mark.parametrize("tekst", [A_T20, A_T22], ids=["a-T20", "a-T22"])
++def test_opslag_en_teruglezen(tmp_path: Path, tekst):
++    pad = tmp_path / "restherstel.db"
++    did = DefinitieRepository(str(pad)).create_definitie(
++        DefinitieRecord(
++            begrip="object",
++            definitie=tekst,
++            categorie="type",
++            organisatorische_context='["Synthetische Proefdienst"]',
++            juridische_context="[]",
++            wettelijke_basis="[]",
++            status=DefinitieStatus.DRAFT.value,
++        )
++    )
++    record = DefinitieRepository(str(pad)).get_definitie(did)
++    assert record is not None and record.definitie == tekst
++    uit = record.get_int01_beoordeling()
++    assert uit["applied"] is True
++    assert uit["status"] == "review_required"
++    assert uit["contract_version"] == CONTRACTVERSIE
++    verwacht = regeluitkomst(segmenteer(tekst))["parts"]
++    assert uit["parts"] == verwacht
++
++
++def test_contractversie_is_7_na_restherstel():
++    """/6 (titelbeleid) is proefbron van de verzegelde T24-acceptatie. Het
++    restherstel verandert de interpretatie (los label geen zinsstructuur-pass),
++    dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7."""
++    assert CONTRACTVERSIE == "def770-int01/7"
+diff --git a/tests/unit/services/prompts/test_def770_restherstel_promptbehoud.py b/tests/unit/services/prompts/test_def770_restherstel_promptbehoud.py
+new file mode 100644
+index 000000000..53e6232de
+--- /dev/null
++++ b/tests/unit/services/prompts/test_def770_restherstel_promptbehoud.py
+@@ -0,0 +1,222 @@
++"""DEF-770 restherstel: bronafbakening bij generatie, zonder ESS-01-normwijziging.
++
++Diagnose (logs/def770-restherstel/claude-resultaat-v2.md, astra-review-v1): in
++G24 vielen in beide varianten afbakenende gevolgen weg (een gevolg dat aan één
++alternatief van een voorwaarde vastzit, ontkende gevolgen), en kreeg een
++eigenschap die volgens de bron mag wisselen een vaste plaats in de definitie.
++De eindcontrole toetste handeling, relatie en modaliteit, maar niet de
++koppeling voorwaarde–gevolg; en MECHANISME 2 ('Vernauw begrippen met
++domein-qualifiers') gaf een algemene opdracht tot vernauwen, zonder grens bij
++de bronafbakening.
++
++Correctie: de eindcontrole krijgt het punt voorwaarde en gevolg (elk
++alternatief met eigen gevolg, ontkende gevolgen, uitzonderingen) en vervangt de
++weglaatzin door een criterium dat ook de wisselende eigenschap omvat;
++MECHANISME 2 kiest het domeinwoord binnen de bronafbakening; de INT-01-kaart
++sluit daarop aan. ESS-01 blijft ongewijzigd.
++
++Bewijsgrens: deze tests tonen dat de tekst de echte prompt bereikt, op de
++bedoelde plek, in elke contextvariant. Het zijn geen bewijzen dat het model
++minder betekenisfouten maakt; dat vraagt een nieuwe onafhankelijke effectproef.
++"""
++
++from __future__ import annotations
++
++import json
++import uuid
++from pathlib import Path
++
++import pytest
++
++from services.interfaces import GenerationRequest
++from services.prompts.prompt_service_v2 import PromptServiceV2
++
++pytestmark = [pytest.mark.unit]
++
++SRC = Path(__file__).resolve().parents[4] / "src"
++MODULES = [
++    SRC / "services/prompts/modules/definition_task_module.py",
++    SRC / "services/prompts/modules/json_based_rules_module.py",
++    SRC / "services/prompts/modules/context_awareness_module.py",
++]
++
++CONTEXTEN = [
++    {},
++    {"org": ["Synthetische Proefdienst"]},
++    {"jur": ["bestuursrecht"]},
++    {"org": ["Synthetische Proefdienst"], "wet": ["Synthetische Proefwet"]},
++]
++CONTEXT_IDS = ["geen", "organisatorisch", "juridisch", "org+wet"]
++
++#: Het nieuwe controlepunt in de eindcontrole.
++VOORWAARDE_GEVOLG = (
++    "voorwaarde en gevolg",
++    "het gevolg dat de bron eraan koppelt",
++    "elk alternatief",
++    "ontkend gevolg",
++    "uitzondering",
++    "geen doel of effect in de zin van ESS-01",
++)
++#: De vervangen weglaatzin: nu een criterium, inclusief wisselende eigenschap.
++WEGLAATCRITERIUM = (
++    "Laat weg wat de bron niet als afbakening draagt",
++    (
++        "een eigenschap die volgens de bron mag wisselen zonder dat het begrip "
++        "verandert"
++    ),
++)
++OUDE_WEGLAATZIN = (
++    "Een werkafspraak of mogelijkheid die het begrip niet afbakent, laat je weg "
++    "in plaats van haar als eis op te nemen."
++)
++OUDE_MECHANISME_2 = "Vernauw begrippen met domein-qualifiers."
++NIEUW_MECHANISME_2 = (
++    "Kies het domeinspecifieke woord binnen de afbakening die de bron geeft",
++    "niet smaller dan de bron",
++)
++#: Termen uit de G24-dossiers of beoordelaarsvelden: nooit in productie.
++LEKTERMEN = (
++    "onvolledigheidsmarkering",
++    "wachttijd",
++    "sorteertafel",
++    "cyclusnummer",
++    "heropent",
++    "tegenstrijdigheid",
++    "fasebuffer",
++    "wisselbak",
++    "controletafel",
++    "terugzetverzoek",
++    "beschermde_kenmerken",
++    "beschermde_negaties",
++)
++
++
++def _request(**context) -> GenerationRequest:
++    return GenerationRequest(
++        id=str(uuid.uuid4()),
++        begrip="proefvergunning",
++        ontologische_categorie="type",
++        organisatorische_context=context.get("org"),
++        juridische_context=context.get("jur"),
++        wettelijke_basis=context.get("wet"),
++    )
++
++
++async def _prompt(context=None, **velden) -> str:
++    resultaat = await PromptServiceV2().build_generation_prompt(
++        _request(**velden), context=context
++    )
++    return resultaat.text
++
++
++def _eindcontrole(prompt: str) -> str:
++    return prompt.split("KWALITEITSCONTROLE", 1)[1].split("####", 1)[0]
++
++
++def _kaart(prompt: str, regel: str) -> str:
++    kaart = prompt.split(f"🔹 **{regel} - ", 1)[1]
++    return kaart.split("🔹 **", 1)[0].split("###", 1)[0]
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize("velden", CONTEXTEN, ids=CONTEXT_IDS)
++async def test_eindcontrole_draagt_voorwaarde_gevolg_en_weglaatcriterium(velden):
++    prompt = await _prompt(**velden)
++    controle = _eindcontrole(prompt)
++    for zinsdeel in VOORWAARDE_GEVOLG + WEGLAATCRITERIUM:
++        assert zinsdeel in controle, zinsdeel
++    assert "controleer vier punten" in controle
++    # Vervangen, niet aangevuld: de oude weglaatzin is weg.
++    assert OUDE_WEGLAATZIN not in prompt
++    # Voorrang ongewijzigd: vóór stijlvoorkeuren en vóór de opdrachtafsluiting.
++    assert "gaat vóór stijlvoorkeuren" in controle
++    assert prompt.index("voorwaarde en gevolg") < prompt.index("Geef nu de definitie")
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize("velden", CONTEXTEN, ids=CONTEXT_IDS)
++async def test_mechanisme_2_begrensd_door_bronafbakening(velden):
++    prompt = await _prompt(**velden)
++    assert OUDE_MECHANISME_2 not in prompt
++    if "MECHANISME 2" in prompt:
++        blok = prompt.split("MECHANISME 2", 1)[1].split("MECHANISME 3", 1)[0]
++        for zinsdeel in NIEUW_MECHANISME_2:
++            assert zinsdeel in blok, zinsdeel
++
++
++@pytest.mark.asyncio
++async def test_mechanisme_2_verschijnt_bij_context():
++    """Het begrensde mechanisme bereikt de prompt waar contextmechanismen
++    getoond worden; anders zou de test hierboven niets bewijzen."""
++    prompt = await _prompt(org=["Synthetische Proefdienst"])
++    assert "MECHANISME 2" in prompt
++    assert NIEUW_MECHANISME_2[0] in prompt
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize("velden", CONTEXTEN, ids=CONTEXT_IDS)
++async def test_int01_kaart_harmonieert_met_eindcontrole(velden):
++    kaart = _kaart(await _prompt(**velden), "INT-01")
++    assert "met het gevolg dat de bron eraan koppelt" in kaart
++    assert "mag wisselen" in kaart
++    # Bestaande betekenisbehoudnorm blijft.
++    assert "Neem bronbijzaken die het begrip niet afbakenen niet op" in kaart
++    assert "toepassings- of eindvoorwaarde" in kaart
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize("velden", CONTEXTEN, ids=CONTEXT_IDS)
++async def test_ess01_norm_ongewijzigd_in_prompt(velden):
++    """Geen ESS-01-normwijziging: de kaart volgt het ongewijzigde regelrecord."""
++    record = json.loads((SRC / "toetsregels/regels/ESS-01.json").read_text("utf-8"))
++    kaart = _kaart(await _prompt(**velden), "ESS-01")
++    assert record["uitleg"] in kaart
++    assert "niet-begripsbepalend doel, gewenst effect" in kaart
++
++
++@pytest.mark.asyncio
++async def test_bron_volledig_en_eindcontrole_samen_in_prompt():
++    passage = (
++        "Een proefvergunning vervalt bij een vastgestelde overtreding; tot die "
++        "vaststelling blijft zij gelden. Verlenging volgt niet automatisch. De "
++        "kleur van het vergunningsformulier kan per jaar verschillen."
++    )
++    context = {
++        "documents": {
++            "snippets": [
++                {
++                    "provider": "documents",
++                    "title": "synthetisch proefdocument",
++                    "filename": "synthetisch proefdocument",
++                    "doc_id": "B01",
++                    "snippet": passage,
++                    "score": 0.0,
++                    "selection_basis": "selected_short_document",
++                    "used_in_prompt": True,
++                    "citation_label": "volledig document",
++                }
++            ]
++        }
++    }
++    resultaat = await PromptServiceV2().build_generation_prompt(
++        _request(org=["Synthetische Proefdienst"]), context=context
++    )
++    [bron] = [
++        s
++        for s in resultaat.metadata["source_receipt"]["sources"]
++        if s["source_type"] == "document"
++    ]
++    assert bron["content"] == passage and bron["truncated"] is False
++    assert passage in resultaat.text
++    for zinsdeel in VOORWAARDE_GEVOLG:
++        assert zinsdeel in _eindcontrole(resultaat.text), zinsdeel
++
++
++@pytest.mark.asyncio
++async def test_geen_proeftermen_in_prompt_of_modules():
++    prompt = await _prompt(org=["Synthetische Proefdienst"])
++    bronnen = [pad.read_text(encoding="utf-8") for pad in MODULES]
++    for term in LEKTERMEN:
++        assert term not in prompt, term
++        for bron in bronnen:
++            assert term not in bron, term

@@ -1,0 +1,161 @@
+{
+  "samenvatting": {
+    "verslechterd": 2,
+    "onbeslist": 3,
+    "verbeterd": 4,
+    "gelijk": 3
+  },
+  "paren": [
+    {
+      "paar_id": "P01",
+      "calls": {
+        "X": "G05__nieuw__h2",
+        "Y": "G05__oud__h2"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "verslechterd",
+      "nieuwe_bron_of_betekenisfout": true,
+      "reden": "Y=B05 herstelt tegenover X=B03 de beschermde onvolledigheidsmarkering bij de wachttijdroute uit G05-P01. X biedt geen compenserende inhoudelijke verbetering: zijn expliciete sensorherkomst blijft bij Y contextueel behouden. Geen nieuwe fout of verslechtering bij Y vastgesteld.",
+      "foutvergelijking": "X mist een beschermd kenmerk dat Y behoudt. Dit is een aanvullende betekenisomissie bij X, geen tegenspraak van de bron. Y behoudt de overige afbakening."
+    },
+    {
+      "paar_id": "P02",
+      "calls": {
+        "X": "G02__nieuw__h1",
+        "Y": "G02__oud__h1"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "onbeslist",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "X=B20 en Y=B15 behouden dezelfde sluitingsoorzaak en bewijsvoorwaarde. X vermijdt de mogelijke vernauwing door 'Geregistreerd verzoek', maar of die vernauwing onjuist is blijft onzeker. Voor Y is evenmin inhoudelijke winst vastgesteld. Beide missen dat registratie niet automatisch heropent.",
+      "foutvergelijking": "Geen zekere aanvullende fout vastgesteld. Bij Y blijft een mogelijke extra registratievoorwaarde open; false betekent hier niet dat die onzekerheid is opgelost. De ontbrekende registratiebeperking is gedeeld."
+    },
+    {
+      "paar_id": "P03",
+      "calls": {
+        "X": "G01__oud__h2",
+        "Y": "G01__nieuw__h2"
+      },
+      "nieuw_label": "Y",
+      "uitkomst": "onbeslist",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "Y=B24 voegt tegenover X=B09 brongetrouwe plaatsonafhankelijkheid toe, maar behoudt 'op de sorteertafel'. Daardoor ontstaat een nieuwe interpretatieve spanning en neemt de compactheid af. X vermijdt die spanning en uitwerking, maar behoudt een onterechte plaatsbeperking. Geen van beide richtingen levert een eenduidige verbetering zonder verslechtering op.",
+      "foutvergelijking": "De niet-ondersteunde plaatsing op de tafel staat in beide teksten. Bij Y zijn verminderde compactheid en nieuwe interpretatieve spanning vastgesteld, maar blijft onzeker of de slotbepaling de betekenisbeperking uiteindelijk opheft. Daarom geen aanvullende zekere bron- of betekenisfout als true gemarkeerd; de verslechteringen blijven wel expliciet meegewogen."
+    },
+    {
+      "paar_id": "P04",
+      "calls": {
+        "X": "G02__oud__h2",
+        "Y": "G02__nieuw__h2"
+      },
+      "nieuw_label": "Y",
+      "uitkomst": "verbeterd",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "Y=B13 herstelt tegenover X=B16 de koppeling van de onjuiste systeemmelding aan de sluiting van de aanvraag. X schrijft de sluiting grammaticaal aan het verzoek toe. Dit is inhoudelijk herstel van G02-P01 en verbetert de begrijpelijkheid. X heeft geen compenserende inhoudelijke winst; geen nieuwe fout of verslechtering bij Y vastgesteld.",
+      "foutvergelijking": "X bevat de aanvullende verkeerde objectkoppeling. Beide missen de beschermde beperking dat registratie niet automatisch heropent; deze gedeelde omissie verhindert erkenning van het concrete herstel niet."
+    },
+    {
+      "paar_id": "P05",
+      "calls": {
+        "X": "G03__nieuw__h1",
+        "Y": "G03__oud__h1"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "X=B06 en Y=B23 behouden dezelfde beschermde inhoud uit G03-P01. X formuleert geen hergebruik na correctie expliciet; Y behoudt dat met 'blijvend' impliciet. Beide voldoen als één definitie. Geen inhoudelijke verbetering, nieuwe fout of aantoonbare verslechtering in een van beide richtingen.",
+      "foutvergelijking": "Geen verschillende bron- of betekenisfouten vastgesteld. De voorkeur voor een vloeiender geïntegreerde bijzin in Y rechtvaardigt hier geen inhoudelijke winstclaim."
+    },
+    {
+      "paar_id": "P06",
+      "calls": {
+        "X": "G05__nieuw__h1",
+        "Y": "G05__oud__h1"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "verslechterd",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "Y=B04 behoudt tegenover X=B21 dezelfde inhoud en vermijdt de herhaalde vrijgave binnen de voorwaardeketen. De winst betreft uitsluitend compactheid zonder betekenisverlies. Er wordt geen inhoudelijk herstel geclaimd: sensorherkomst en uitsluiting van nummerloze pakketten waren bij X al impliciet behouden. Geen nieuwe fout of verslechtering bij Y vastgesteld.",
+      "foutvergelijking": "Beide behouden de beschermde inhoud van G05-P01. De doorslag is het aantoonbaar vervallen van de herhaling 'wordt vrijgegeven zodra ... worden vrijgegeven', niet een voorkeur voor minder woorden of expliciet boven impliciet behoud."
+    },
+    {
+      "paar_id": "P07",
+      "calls": {
+        "X": "G04__nieuw__h1",
+        "Y": "G04__oud__h1"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "verbeterd",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "X=B22 behoudt tegenover Y=B19 uitvoerder, tijdsgrens en volledige gesloten lijst uit G04-P01 zonder de registratiebijzaak over veldwaarden. De winst betreft compactheid zonder verlies van de bedoelde betekenis; geen inhoudelijk herstel of nieuwe begripsinformatie. Y biedt geen compenserende afbakeningswinst. Geen nieuwe fout of verslechtering bij X vastgesteld.",
+      "foutvergelijking": "De veldwaardevastlegging in Y is brongetrouw en geen betekenisfout. Weglaten ervan in X verliest geen beschermd kenmerk. Het paaroordeel betreft de afgebakende compactheidsas, geen inhoudelijke kwaliteitswinst."
+    },
+    {
+      "paar_id": "P08",
+      "calls": {
+        "X": "G01__nieuw__h1",
+        "Y": "G01__oud__h1"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "X=B14 en Y=B02 behouden dezelfde gebruikskenmerken en bevatten dezelfde onterechte plaatsbeperking. 'Centrale' en de herhaling van 'van' leveren geen relevant verschil op. Geen inhoudelijke verbetering of aanvullende verslechtering in een van beide richtingen.",
+      "foutvergelijking": "Beide bevatten een gedeelde bron- en betekenisfout: G01-P01 ondersteunt geen definitiebeperking tot plaatsing op de sorteertafel en laat plaatswijziging toe. Gelijk betekent hier niet foutloos."
+    },
+    {
+      "paar_id": "P09",
+      "calls": {
+        "X": "G04__oud__h2",
+        "Y": "G04__nieuw__h2"
+      },
+      "nieuw_label": "Y",
+      "uitkomst": "verbeterd",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "Y=B07 behoudt tegenover X=B12 alle beschermde kenmerken uit G04-P01 zonder de registratiebijzaak over oude en nieuwe veldwaarden. De winst betreft compactheid zonder betekenisverlies, geen inhoudelijk herstel. X biedt geen aanvullende noodzakelijke afbakening. Geen nieuwe fout of verslechtering bij Y vastgesteld.",
+      "foutvergelijking": "Het extra detail in X is ondersteund, maar niet nodig voor het begrip. Beide behouden uitvoerder, tijdstip, gesloten lijst en impliciete uitsluitingen. Dezelfde maatstaf als bij P07 is toegepast."
+    },
+    {
+      "paar_id": "P10",
+      "calls": {
+        "X": "G06__oud__h2",
+        "Y": "G06__nieuw__h2"
+      },
+      "nieuw_label": "Y",
+      "uitkomst": "verbeterd",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "Y=B08 herstelt tegenover X=B18 de doelbinding aan voorbereiding van de inhoudelijke bespreking en de beperking dat de status geen juistheidsbevestiging inhoudt. Y vermijdt bovendien de onzekere aanwijzing van de kopie als statusdrager. Onmiddellijk verval blijft behouden. X heeft geen compenserende inhoudelijke winst; geen nieuwe fout of verslechtering bij Y vastgesteld.",
+      "foutvergelijking": "X mist twee beperkingen die Y behoudt. De statusdrager in X blijft afzonderlijk onzeker. Beide missen de stopplicht, volledige geldigheidsduur en afzonderlijke statusbeslissing uit G06-P01; automatische definitieve vrijgave is bij beide niet uitgesloten."
+    },
+    {
+      "paar_id": "P11",
+      "calls": {
+        "X": "G06__nieuw__h1",
+        "Y": "G06__oud__h1"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "onbeslist",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "X=B10 behoudt tegenover Y=B11 de doelbinding en het ontbreken van een juistheidsoordeel. Y behoudt tegenover X ondubbelzinnig het onmiddellijke verval bij tegenstrijdigheid. Bij X blijft onzeker of 'wordt toegekend ... zolang' ook de geldigheid van een bestaande status regelt. Beide richtingen brengen daarom verlies of verminderde zekerheid mee.",
+      "foutvergelijking": "Y heeft zekere aanvullende betekenisomissies: doelbinding en geen juistheidsbevestiging. Bij X is geen zekere tegengestelde vervalregel vastgesteld, maar wel minder ondubbelzinnig behoud en onzekerheid voor de doelgroep; false wist deze verslechtering niet uit. Beide missen stopplicht en afzonderlijke statusbeslissing. De gemengde afruil blijft onbeslist."
+    },
+    {
+      "paar_id": "P12",
+      "calls": {
+        "X": "G03__nieuw__h2",
+        "Y": "G03__oud__h2"
+      },
+      "nieuw_label": "X",
+      "uitkomst": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false,
+      "reden": "X=B01 en Y=B17 behouden dezelfde beschermde inhoud uit G03-P01. X noemt geen hergebruik na correctie expliciet; Y behoudt dit met 'blijft verwijzen' impliciet. De elliptische nabepaling in X blijft begrijpelijk binnen één definitie. Geen inhoudelijke verbetering, nieuwe fout of aantoonbare verslechtering in een van beide richtingen.",
+      "foutvergelijking": "Geen verschillende bron- of betekenisfouten vastgesteld. Dezelfde maatstaf als bij P05 geldt: vloeiender formuleren zonder aantoonbaar herstel van een beoordeeld tekort geeft hier geen doorslag."
+    }
+  ],
+  "onopgeloste_disputen": [
+    "B15/P02: G02-P01 beslist niet eenduidig of voltooide registratie een bestaansvoorwaarde van het begrip is. De mogelijke vernauwing blijft onzeker; P02 blijft onbeslist.",
+    "B10/P11: het is niet eenduidig of 'wordt toegekend ... zolang' uitsluitend toekenning of ook voortdurende geldigheid regelt. Onmiddellijk verval is mogelijk impliciet bedoeld, maar onvoldoende zeker behouden. P11 bevat daarnaast een echte afruil met doelbinding en geen juistheidsbevestiging.",
+    "B24/P03: onzeker blijft of 'ongeacht ... opstelplaats' de eerdere plaatsbeperking opheft. De niet-ondersteunde plaatsuitspraak en de nieuwe interpretatieve spanning blijven zichtbaar; P03 blijft onbeslist.",
+    "B18: de bron bepaalt de statusdrager niet expliciet genoeg om toekenning aan de dossierkopie met zekerheid te aanvaarden of als tegenspraak af te wijzen. Deze onzekerheid verhindert het inhoudelijk onderbouwde Y_beter bij P10 niet."
+  ],
+  "acceptatie_gehaald": false
+}

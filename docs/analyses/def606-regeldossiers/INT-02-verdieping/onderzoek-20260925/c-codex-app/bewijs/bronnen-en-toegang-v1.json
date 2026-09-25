@@ -1,0 +1,410 @@
+{
+  "starttijd_utc": "2026-09-25T08:32:34.570Z",
+  "vastgelegd_utc": "2026-09-25T08:36:51.071697+00:00",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "sessie": "01a0d7b1-e2da-7973-b542-44b023339e89",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "runtimeversie": "0.155.0-alpha.16",
+  "modelbewijs": "session_meta en turn_context van eigen rollout; alleen metadata gelezen",
+  "bronnen": [
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/startopdracht-c-v1.md",
+      "leesbaar": true,
+      "bytes": 11677,
+      "sha256": "19fef51d84dfa42f979d5150125bc3357ba37b1a0707ae47c59e860d55b0bea0",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/feitenbasis-v1.md",
+      "leesbaar": true,
+      "bytes": 25474,
+      "sha256": "fa895f1d6f9777e44837d8cc936688827aedacee22d9ba858d9fc9d7fd89f530",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/bronnen/astra-INT-02-raw.wikitext",
+      "leesbaar": true,
+      "bytes": 3039,
+      "sha256": "01d00ea0fb674329f0eb3bf6f470b587f9b871e8d40d891ed1142b876abedc1b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/bronnen/astra-Beslisregel-raw.wikitext",
+      "leesbaar": true,
+      "bytes": 1246,
+      "sha256": "35477c067cb6baaa114b17112fd6e79e35e12e349619783f52d3d66525e2ca8e",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/bronnen/astra-Afleidingsregel-raw.wikitext",
+      "leesbaar": true,
+      "bytes": 1782,
+      "sha256": "793375d9d503ce5303b460b87a6372c9ff6ac3c10d8e40219b70673415b79f4d",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/bronnen/skill-toetsregel-onderzoek/SKILL.md",
+      "leesbaar": true,
+      "bytes": 14294,
+      "sha256": "66d65b3f9292b46a33feec67c11cbdc456fa16a4c5918feee04301af6b808e6d",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/bronnen/skill-toetsregel-onderzoek/references/werkcontract.md",
+      "leesbaar": true,
+      "bytes": 11435,
+      "sha256": "edaccc86d59903512624dec5af7f6ebcb79471ba2046cbcd9dc0e8586efaa68b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/bronnen/skill-toetsregel-onderzoek/references/genereren-en-toetsen.md",
+      "leesbaar": true,
+      "bytes": 11106,
+      "sha256": "bc96faf144313f299f3739092b640619a885d87dafc83a97714d2a507810dd85",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-v1.md",
+      "leesbaar": true,
+      "bytes": 4068,
+      "sha256": "1db8b4ea4f303f1ffa4af257aa710a87fe14f9bf3c233dc73c16e24b2cea8b85",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-bewijs-v1/gevallen.json",
+      "leesbaar": true,
+      "bytes": 666,
+      "sha256": "bbe7eae215ed6fa01b746f14fc318f9709866ae375afd4b79484ea912fd341d4",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-bewijs-v1/uitkomsten.json",
+      "leesbaar": true,
+      "bytes": 8521,
+      "sha256": "202ce6b3590b10a563b13d6f5f022e0a6c03b8977aaaa2031014be4a80def89b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-bewijs-v1/claude-review.json",
+      "leesbaar": true,
+      "bytes": 1369,
+      "sha256": "f8e9ce2bab396d9c5328fda47b24052a7e0e8114ab49db57352505c3a13f2dde",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/ARAI-04-v1.md",
+      "leesbaar": true,
+      "bytes": 4419,
+      "sha256": "e18fdd91ef5552607287e62055fc702337af96a3b9d7b0ab68219271a72090a4",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/ESS-04-v1.md",
+      "leesbaar": true,
+      "bytes": 3964,
+      "sha256": "c1846fe312b86daace9ddb4d5e7be48c1279584a056e807d74a59dfcaf797d9e",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/ESS-05-v1.md",
+      "leesbaar": true,
+      "bytes": 3976,
+      "sha256": "252399fdf5353025116c5543de009c946423affefc5bb2f6f6b2422d9108d8b9",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-v2.md",
+      "leesbaar": true,
+      "bytes": 4251,
+      "sha256": "f5c3f352dc8d732a1ae2f1ed2f532539ce4f49c51243e0655caec8d90d22b66d",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/samenhang-v1.md",
+      "leesbaar": true,
+      "bytes": 11612,
+      "sha256": "7987b3cb326e33d662d74a4393498ca4f3f3343f8fb63119cbdd4cc3ffb30a8b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/overzicht-v1.md",
+      "leesbaar": true,
+      "bytes": 9827,
+      "sha256": "0b7c8b730486744a22d6d6f9b541accaaa5278af465366cdcb3d3e88640f9d1a",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/ESS-05-verdieping/onderzoek-20260921/gedeeld/besluiten-v1.md",
+      "leesbaar": true,
+      "bytes": 6092,
+      "sha256": "6696dab58fa47097662a47f12c52a3bd83e045bc3085208e9e24919e8886d801",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-verdieping/onderzoek-20260921/besluitnotitie-chris-v1.md",
+      "leesbaar": true,
+      "bytes": 6366,
+      "sha256": "34a457d4fb99099ca5c88dc429b39583933a521e9895d654a1f3f8d98a928257",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-verdieping/onderzoek-20260921/gezamenlijke-synthese-v2.md",
+      "leesbaar": true,
+      "bytes": 28978,
+      "sha256": "5d025f09c238bcada4929a5c078c6af5652e3337315a694152c6393f907e5d9e",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-15-DEF-606-besluit-geen-totaalscore-v1.md",
+      "leesbaar": true,
+      "bytes": 5587,
+      "sha256": "3f7ab1ab9ad06bc297c3037d9ae8ce48cfd65fe91098edd6a73cfef2d5791077",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-11-DEF-606-productbedoeling-toetsregels-skills-v1.md",
+      "leesbaar": true,
+      "bytes": 22879,
+      "sha256": "6afa61fc9521228d113847f9105a3318d5f78b86354371c370975b6c0127eb79",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-07-DEF-625-astra-bronaanvulling-v2.md",
+      "leesbaar": true,
+      "bytes": 23443,
+      "sha256": "cef0adcd7d5cbd8554c28f7c08eb287f3c4843d515cf6aab1b8e4943f7629564",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-02.json",
+      "leesbaar": true,
+      "bytes": 1886,
+      "sha256": "f4149faae49ccb932b4907fde1c50b5c6503c164d100ce6d08de3e816119a5a2",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/judgment_review.py",
+      "leesbaar": true,
+      "bytes": 9732,
+      "sha256": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/modular_validation_service.py",
+      "leesbaar": true,
+      "bytes": 97943,
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/json_based_rules_module.py",
+      "leesbaar": true,
+      "bytes": 20357,
+      "sha256": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/integrity_rules_module.py",
+      "leesbaar": true,
+      "bytes": 10583,
+      "sha256": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_adapter.py",
+      "leesbaar": true,
+      "bytes": 17729,
+      "sha256": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition/cleaning_service.py",
+      "leesbaar": false,
+      "fout": "[Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/Definitie-app/src/services/definition/cleaning_service.py'"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py",
+      "leesbaar": true,
+      "bytes": 9536,
+      "sha256": "b543f964e7dab496cd664b38ca5e6a485796302fa89ef3ab1052cb15f4cb8005",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/validation/additional_patterns.py",
+      "leesbaar": true,
+      "bytes": 2579,
+      "sha256": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/runtime_contract.py",
+      "leesbaar": true,
+      "bytes": 26979,
+      "sha256": "cf542ceec73b2573727bb5adf39053b6196efa617a5c78693cc7441a4daecf26",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/countability_assessment.py",
+      "leesbaar": true,
+      "bytes": 6375,
+      "sha256": "fe2c6d3561db9c33baf062d58c1d502bf4db00986e2302efb549bb80fa30f890",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/policies/approval_gate_policy.py",
+      "leesbaar": true,
+      "bytes": 5584,
+      "sha256": "d133e23d12d143addcaa73555b4c73ca6454577dfbf8b1813824bdb5a750706f",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/validation_view.py",
+      "leesbaar": true,
+      "bytes": 37184,
+      "sha256": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py",
+      "leesbaar": true,
+      "bytes": 96515,
+      "sha256": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-02.py",
+      "leesbaar": true,
+      "bytes": 4405,
+      "sha256": "331112295708f44a2056a2fdebf8932181a490434a34b43283275593bb4f1960",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/validators/INT_02.py",
+      "leesbaar": true,
+      "bytes": 4405,
+      "sha256": "331112295708f44a2056a2fdebf8932181a490434a34b43283275593bb4f1960",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/tests/unit/validation/test_v2_golden_int_more.py",
+      "leesbaar": true,
+      "bytes": 2306,
+      "sha256": "101e54b536d10eda7f5418205fc020d0be1eaf9d969e9dee6de2b900ba1acc85",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/tests/fixtures/toetsregels/runtime_cases.yaml",
+      "leesbaar": true,
+      "bytes": 22564,
+      "sha256": "9a67bce634ce76e6b340d3c573470373c8f858a16d92dd003f0d3f4740774f7d",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_workflow_service.py",
+      "leesbaar": true,
+      "bytes": 45485,
+      "sha256": "5e17dffc6f458f05449d655f9a4604a503d44f3f542a8749a1a01863955622a2",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_import_service.py",
+      "leesbaar": true,
+      "bytes": 18380,
+      "sha256": "dc603a3c018108159523eefaf4cab2401b8c775744c83e0f15d9a1ae27cf59c1",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py",
+      "leesbaar": true,
+      "bytes": 44377,
+      "sha256": "0d7607a19c3ffe920d396744b2d101043405f48d83e192bceb427d070876cf31",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_repository.py",
+      "leesbaar": true,
+      "bytes": 70629,
+      "sha256": "5d2f80cdc8284b72c2a9503f9ad83b112b1972259088e2d9a5ccd7a9c50d3d53",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/tabs/import_export_beheer/csv_importer.py",
+      "leesbaar": true,
+      "bytes": 11439,
+      "sha256": "18fb01933e4433fb95ee050fc525ace2ac6c549bbd64a2f2b60af95aa9895356",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py",
+      "leesbaar": true,
+      "bytes": 98676,
+      "sha256": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/opschoning/opschoning.py",
+      "leesbaar": true,
+      "bytes": 8084,
+      "sha256": "48c79e39207cd16f85d511d2b6fa3b81e4b739dcfc0c04f1142d38d96499cdc5",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/opschoning/opschoning_enhanced.py",
+      "leesbaar": true,
+      "bytes": 4573,
+      "sha256": "9579fcafc875a4b8600a3d4de16c8526b8b099ca6eba61c0e2e76de897207acc",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/SKILL.md",
+      "leesbaar": true,
+      "bytes": 11823,
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/reference.md",
+      "leesbaar": true,
+      "bytes": 16735,
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess03-eenheid-identiteit.md",
+      "leesbaar": true,
+      "bytes": 13659,
+      "sha256": "86c3e01ef7ea0424763401228ea311074486a69110ce54b2724365e14d2544b6",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess04-toetsbaarheid.md",
+      "leesbaar": true,
+      "bytes": 7169,
+      "sha256": "f113e264abc2b8c0519cff8d82536b1317c4f9d3e3c83ac2d383b1b25bb7a3bd",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/references/ess01-functiegrens.md",
+      "leesbaar": true,
+      "bytes": 7404,
+      "sha256": "939c97a0c21ede12066953d61d116e04292c5b8162cb20df7f12c24514ab67cf",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/SKILL.md",
+      "leesbaar": true,
+      "bytes": 9921,
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/reference.md",
+      "leesbaar": true,
+      "bytes": 20405,
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "inhoudelijke_lezing": "zie bronverwijzingen in onderzoek; inventarisatie bewijst alleen toegang en hash"
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "dossiers": [
+    {
+      "id": "G01",
+      "stratum": "gewone kern",
+      "begrip": "uitleenvenster",
+      "organisatorische_context": [
+        "Fictieve publieke organisatie: Gemeentelijke Materialendienst Lommerdam.",
+        "Interne planning van afhaalmomenten voor gedeelde oefenmaterialen."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G01-P01",
+          "tekst": "De Gemeentelijke Materialendienst Lommerdam beheert oefenmaterialen voor fictieve wijkwerkplaatsen. In de planning worden tijdvakken vastgelegd waarin een werkplaats gereserveerde materialen bij het magazijn kan ophalen. Medewerkers noemen zo'n tijdvak een uitleenvenster. Bij ieder venster horen een beginmoment, een eindmoment en precies één afhalende werkplaats. Het venster betreft uitsluitend het ophalen; de periode waarin de materialen worden gebruikt, staat elders geregistreerd. Een materiaalreservering kan al bestaan voordat een venster is gekozen. Vensters duren meestal twintig minuten, maar de planner mag een andere duur kiezen. Op drukke dagen gebruikt het team een groen planbord en stuurt het de werkplaats vooraf een herinnering. Die werkwijzen helpen bij de uitvoering, maar bepalen niet of een gepland tijdvak een uitleenvenster is. Ook zonder herinnering of planbord blijft een correct vastgelegd venster geldig binnen deze interne administratie.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Het dossier onderscheidt het geplande afhaalmoment van zowel de materiaalreservering als de gebruiksperiode. Gebruikelijke duur en ondersteunende werkafspraken mogen die afbakening niet vervangen.",
+      "doelgroep": "Planners en magazijnmedewerkers zonder specialistische opleiding.",
+      "beschermde_kenmerken": [
+        "Tijdvak met beginmoment en eindmoment.",
+        "Bestemd voor het ophalen van gereserveerde materialen.",
+        "Gekoppeld aan precies één afhalende werkplaats."
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Het uitleenvenster betreft niet de gebruiksperiode van de materialen.",
+        "Een reservering alleen is nog geen uitleenvenster."
+      ]
+    },
+    {
+      "id": "G02",
+      "stratum": "noodzakelijke bijzin",
+      "begrip": "herstelmelding",
+      "organisatorische_context": [
+        "Fictieve publieke organisatie: Regionaal Oefenloket Veenzoom.",
+        "Interne behandeling van onvolledig overgenomen aanvragen voor oefenruimten."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G02-P01",
+          "tekst": "Het Regionaal Oefenloket Veenzoom ontvangt aanvragen voor het gebruik van oefenruimten. Bij het overnemen van een aanvraag kan een medewerker een gegeven weglaten dat de aanvrager oorspronkelijk wel heeft aangeleverd. Een bericht van de aanvrager waarin juist zo'n ontbrekend gegeven opnieuw wordt verstrekt, wordt intern als herstelmelding behandeld. Het verband met de eerdere aanlevering is noodzakelijk: een bericht met een pas later bedacht gegeven valt onder aanvulling. Een klacht over de snelheid van behandeling valt evenmin onder herstelmelding. De medewerker koppelt het bericht aan de oorspronkelijke aanvraag en controleert de oorspronkelijke aanlevering. Het bericht mag via het portaal, per brief of aan de balie binnenkomen. Portaalberichten krijgen doorgaans een blauwe markering. Het loket bespreekt aantallen tijdens het maandelijkse teamoverleg, maar ontvangstkanaal, kleur en bespreekmoment veranderen de inhoudelijke categorie van het bericht niet.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De relatie tussen het opnieuw verstrekte gegeven, de oorspronkelijke aanlevering en het weglaten door een medewerker bepaalt de afbakening. Een algemene omschrijving als correctiebericht zou dat onderscheid onvoldoende dragen.",
+      "doelgroep": "Baliemedewerkers en medewerkers die aanvragen registreren.",
+      "beschermde_kenmerken": [
+        "Bericht van de aanvrager.",
+        "Het bericht verstrekt opnieuw een gegeven uit de oorspronkelijke aanlevering.",
+        "Een medewerker heeft dat gegeven bij het overnemen weggelaten.",
+        "Het bericht heeft betrekking op dezelfde oorspronkelijke aanvraag."
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Een pas later bedacht gegeven valt niet onder herstelmelding.",
+        "Een klacht over behandelsnelheid valt niet onder herstelmelding."
+      ]
+    },
+    {
+      "id": "G03",
+      "stratum": "noodzakelijke naam",
+      "begrip": "routeadvies",
+      "organisatorische_context": [
+        "Fictieve publieke organisatie: Stadsdienst Nemerwaard.",
+        "Interne adviezen over looproutes tijdens gesimuleerde loketdagen."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G03-P01",
+          "tekst": "Binnen de Stadsdienst Nemerwaard adviseren verschillende groepen over looproutes tijdens gesimuleerde loketdagen. De interne categorie routeadvies is voorbehouden aan schriftelijke aanbevelingen die zijn vastgesteld door de Commissie Toegang en Doorstroming. Deze volledige naam onderscheidt de commissie van het Team Toegang, dat dagelijkse aanwijzingen geeft, en de Werkgroep Doorstroming, die metingen verzamelt. Een aanbeveling betreft de volgorde waarin bezoekers langs oefenbalies worden geleid. Een concept van een commissielid is nog geen routeadvies zolang de commissie het niet heeft vastgesteld. Een routeadvies verplicht het organiserende team niet tot uitvoering. De commissie vergadert meestal op donderdag en gebruikt vaak een document met een paars voorblad. Sommige adviezen bevatten een plattegrond, andere alleen tekst. Vergaderdag, voorblad en aanwezigheid van een kaart zijn praktische gewoonten, geen voorwaarden voor opname in de categorie. Het secretariaat bewaart ook afwijkende uitvoeringskeuzes.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De categorie hangt samen met vaststelling door één specifiek genoemd orgaan. De naam en het adviserende karakter voorkomen verwarring met aanwijzingen, meetresultaten en nog niet vastgestelde concepten.",
+      "doelgroep": "Secretariaatsmedewerkers en organisatoren van gesimuleerde loketdagen.",
+      "beschermde_kenmerken": [
+        "Schriftelijke aanbeveling.",
+        "Vastgesteld door de Commissie Toegang en Doorstroming.",
+        "Betreft de volgorde van bezoekers langs oefenbalies."
+      ],
+      "beschermde_namen": [
+        "Commissie Toegang en Doorstroming"
+      ],
+      "beschermde_negaties": [
+        "Een nog niet vastgesteld concept is geen routeadvies.",
+        "Een routeadvies verplicht niet tot uitvoering."
+      ]
+    },
+    {
+      "id": "G04",
+      "stratum": "limitatieve opsomming",
+      "begrip": "afsluitreden",
+      "organisatorische_context": [
+        "Fictieve publieke organisatie: Publiek Proefloket Koperveen.",
+        "Afsluiting van aanvragen voor deelname aan oefensessies."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G04-P01",
+          "tekst": "Het Publiek Proefloket Koperveen registreert aanvragen voor deelname aan oefensessies. Wanneer een aanvraag wordt afgesloten, kiest de behandelaar precies één afsluitreden uit een gesloten lijst. Die lijst bevat: uitvoering voltooid, ingetrokken door de aanvrager en samengevoegd met een andere aanvraag. Uitvoering voltooid betekent dat de aangevraagde oefensessie daadwerkelijk heeft plaatsgevonden. Ingetrokken door de aanvrager vereist een uitdrukkelijk intrekkingsbericht. Samengevoegd betekent dat de verdere behandeling onder het nummer van een andere aanvraag doorgaat. Er is geen restcategorie en een behandelaar kan geen eigen reden toevoegen. Een ontbrekend telefoonnummer, een volle agenda of langdurig uitblijven van antwoord vormt binnen deze proefadministratie geen afsluitreden. Zulke omstandigheden kunnen wel in een werknotitie staan. Het scherm toont de drie keuzes in wisselende volgorde. Voor een maandrapport worden aantallen per reden opgeteld; de presentatievolgorde en rapportagefrequentie hebben geen invloed op de toegestane keuzes.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Het begrip verwijst naar een verplichte keuze uit precies drie inhoudelijk afgebakende mogelijkheden. De opsomming is uitputtend en mag niet het karakter van voorbeelden krijgen.",
+      "doelgroep": "Aanvraagbehandelaars en beheerders van de proefadministratie.",
+      "beschermde_kenmerken": [
+        "Bij afsluiting wordt precies één reden gekozen.",
+        "Uitvoering voltooid: de aangevraagde oefensessie heeft daadwerkelijk plaatsgevonden.",
+        "Ingetrokken door de aanvrager: er is een uitdrukkelijk intrekkingsbericht.",
+        "Samengevoegd met een andere aanvraag: verdere behandeling loopt onder een ander aanvraagnummer.",
+        "De lijst met drie mogelijkheden is gesloten."
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Er is geen restcategorie.",
+        "Een behandelaar kan geen eigen afsluitreden toevoegen.",
+        "Ontbrekende contactgegevens, agendagebrek en uitblijvend antwoord zijn geen afsluitredenen."
+      ]
+    },
+    {
+      "id": "G05",
+      "stratum": "vaktaal/doelgroep",
+      "begrip": "registratielatentie",
+      "organisatorische_context": [
+        "Fictieve publieke organisatie: Gemeentelijk Simulatiearchief Rieterveld.",
+        "Technisch beheer van een oefenregister met uitsluitend kunstmatige dossiers."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G05-P01",
+          "tekst": "Het Gemeentelijk Simulatiearchief Rieterveld gebruikt een oefenregister met uitsluitend kunstmatige dossiers. Technisch beheerders meten per wijziging de registratielatentie. De meting begint wanneer de primaire opslag de commit bevestigt en eindigt wanneer dezelfde wijziging via de zoekindex opvraagbaar is. Commit betekent hier dat de primaire opslag de wijziging duurzaam heeft vastgelegd; de zoekindex is de afzonderlijke structuur waarmee zoekopdrachten dossiers vinden. De meting betreft dus de overdracht tussen deze twee technische momenten. Tijd die een medewerker aan invoeren besteedt en tijd die een zoekscherm nodig heeft om resultaten te tekenen, vallen erbuiten. Het dashboard toont doorgaans milliseconden en gebruikt oranje voor waarden boven de lokale signaleringsgrens. De grens wordt per oefening gekozen en bepaalt niet wat registratielatentie betekent. De documentatie is bestemd voor technisch beheerders; termen als commit en zoekindex mogen daarom worden gebruikt mits hun onderlinge relatie helder blijft.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De doelgroep moet het gemeten interval tussen twee technische gebeurtenissen kunnen herkennen. Algemene wachttijd, invoertijd en schermvertraging hebben een andere reikwijdte.",
+      "doelgroep": "Technisch beheerders die vertrouwd zijn met gegevensopslag en zoekindexen.",
+      "beschermde_kenmerken": [
+        "Een tijdsinterval per wijziging.",
+        "Begin: bevestiging van de commit door de primaire opslag.",
+        "Einde: dezelfde wijziging is via de zoekindex opvraagbaar.",
+        "Commit betreft duurzame vastlegging in de primaire opslag."
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Invoertijd van de medewerker valt buiten de meting.",
+        "Tekentijd van het zoekscherm valt buiten de meting.",
+        "De signaleringsgrens bepaalt niet de betekenis van registratielatentie."
+      ]
+    },
+    {
+      "id": "G06",
+      "stratum": "risico betekenisverlies bij inkorten",
+      "begrip": "voorwaardelijke vrijgave",
+      "organisatorische_context": [
+        "Fictieve publieke organisatie: Regionale Dienst Oefenvoorzieningen Duinrade.",
+        "Gebruik van oefenruimten door interne teams tijdens gesimuleerde werkzaamheden."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G06-P01",
+          "tekst": "De Regionale Dienst Oefenvoorzieningen Duinrade kent voorwaardelijke vrijgave toe aan een specifieke oefenruimte voor een specifieke oefensessie. De toekenning gebeurt nadat de technische controle is geslaagd, terwijl de controle van de inventarislijst nog openstaat. Zij staat uitsluitend toe dat het voorbereidingsteam materiaal klaarzet; deelnemers mogen de ruimte nog niet gebruiken. Een volledige vrijgave ontstaat pas door een afzonderlijke bevestiging nadat ook de inventarislijst is gecontroleerd. Het enkele afronden van die controle verandert de bestaande toekenning dus niet automatisch. De voorwaardelijke vrijgave vervalt bij aanvang van de geplande oefensessie of eerder zodra een technisch gebrek wordt gemeld. Zij geldt niet voor een volgende sessie in dezelfde ruimte. Op het planbord wordt meestal een gele magneet geplaatst en de sleutel ligt doorgaans bij de avondcoördinator. Kleur, sleutelbewaring en dienstrooster zijn ondersteunende afspraken en vormen geen onderdeel van de toegestane handeling of geldigheidsduur.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De regeling biedt een beperkte mogelijkheid tot voorbereiding in een tussenfase. Bij verkorting moeten voorwaarden, toegestane handeling, betrokken gebruikers, vervalmomenten en afzonderlijke overgang naar volledige vrijgave herkenbaar blijven.",
+      "doelgroep": "Ruimtecoördinatoren en voorbereidingsteams.",
+      "beschermde_kenmerken": [
+        "Geldt voor één specifieke ruimte en één specifieke oefensessie.",
+        "De technische controle is geslaagd en de inventariscontrole staat nog open.",
+        "Alleen het voorbereidingsteam mag materiaal klaarzetten.",
+        "Vervalt bij aanvang van de geplande sessie of eerder bij melding van een technisch gebrek.",
+        "Volledige vrijgave vereist een afzonderlijke bevestiging na controle van de inventarislijst."
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Deelnemers mogen de ruimte nog niet gebruiken.",
+        "Afronding van de inventariscontrole leidt niet automatisch tot volledige vrijgave.",
+        "De toekenning geldt niet voor een volgende sessie in dezelfde ruimte."
+      ]
+    }
+  ],
+  "teksten": [
+    {
+      "id": "B01",
+      "dossier_id": "G02",
+      "ruwe_tekst": "bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld",
+      "opgeschoonde_kandidaat": "Bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld."
+    },
+    {
+      "id": "B02",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Grond uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager of samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige reden vastlegt, zonder restcategorie en zonder zelf toegevoegde reden",
+      "opgeschoonde_kandidaat": "Grond uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager of samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige reden vastlegt, zonder restcategorie en zonder zelf toegevoegde reden."
+    },
+    {
+      "id": "B03",
+      "dossier_id": "G05",
+      "ruwe_tekst": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit van die wijziging bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de invoertijd van een medewerker en zonder de weergavetijd van een zoekscherm",
+      "opgeschoonde_kandidaat": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit van die wijziging bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de invoertijd van een medewerker en zonder de weergavetijd van een zoekscherm."
+    },
+    {
+      "id": "B04",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Grond uit een gesloten lijst van drie mogelijkheden, bestaande uit uitvoering voltooid, intrekking door de aanvrager en samenvoeging met een andere aanvraag, waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie en zonder zelf toegevoegde grond",
+      "opgeschoonde_kandidaat": "Grond uit een gesloten lijst van drie mogelijkheden, bestaande uit uitvoering voltooid, intrekking door de aanvrager en samenvoeging met een andere aanvraag, waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie en zonder zelf toegevoegde grond."
+    },
+    {
+      "id": "B05",
+      "dossier_id": "G01",
+      "ruwe_tekst": "tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt",
+      "opgeschoonde_kandidaat": "Tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt."
+    },
+    {
+      "id": "B06",
+      "dossier_id": "G01",
+      "ruwe_tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt",
+      "opgeschoonde_kandidaat": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt."
+    },
+    {
+      "id": "B07",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden",
+      "opgeschoonde_kandidaat": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden."
+    },
+    {
+      "id": "B08",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt",
+      "opgeschoonde_kandidaat": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt."
+    },
+    {
+      "id": "B09",
+      "dossier_id": "G03",
+      "ruwe_tekst": "schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team",
+      "opgeschoonde_kandidaat": "Schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team."
+    },
+    {
+      "id": "B10",
+      "dossier_id": "G01",
+      "ruwe_tekst": "tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt",
+      "opgeschoonde_kandidaat": "Tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt."
+    },
+    {
+      "id": "B11",
+      "dossier_id": "G06",
+      "ruwe_tekst": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst",
+      "opgeschoonde_kandidaat": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst."
+    },
+    {
+      "id": "B12",
+      "dossier_id": "G02",
+      "ruwe_tekst": "bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld",
+      "opgeschoonde_kandidaat": "Bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld."
+    },
+    {
+      "id": "B13",
+      "dossier_id": "G01",
+      "ruwe_tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt",
+      "opgeschoonde_kandidaat": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt."
+    },
+    {
+      "id": "B14",
+      "dossier_id": "G05",
+      "ruwe_tekst": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen",
+      "opgeschoonde_kandidaat": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen."
+    },
+    {
+      "id": "B15",
+      "dossier_id": "G03",
+      "ruwe_tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+      "opgeschoonde_kandidaat": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten."
+    },
+    {
+      "id": "B16",
+      "dossier_id": "G05",
+      "ruwe_tekst": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven",
+      "opgeschoonde_kandidaat": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven."
+    },
+    {
+      "id": "B17",
+      "dossier_id": "G03",
+      "ruwe_tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+      "opgeschoonde_kandidaat": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten."
+    },
+    {
+      "id": "B18",
+      "dossier_id": "G02",
+      "ruwe_tekst": "bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering van zijn aanvraag voor een oefenruimte al was aangeleverd maar bij het overnemen van die aanvraag is weggelaten, ongeacht het ontvangstkanaal",
+      "opgeschoonde_kandidaat": "Bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering van zijn aanvraag voor een oefenruimte al was aangeleverd maar bij het overnemen van die aanvraag is weggelaten, ongeacht het ontvangstkanaal."
+    },
+    {
+      "id": "B19",
+      "dossier_id": "G03",
+      "ruwe_tekst": "schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team",
+      "opgeschoonde_kandidaat": "Schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team."
+    },
+    {
+      "id": "B20",
+      "dossier_id": "G06",
+      "ruwe_tekst": "toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, en die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave alleen ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst",
+      "opgeschoonde_kandidaat": "Toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, en die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave alleen ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst."
+    },
+    {
+      "id": "B21",
+      "dossier_id": "G06",
+      "ruwe_tekst": "toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd en de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, en die overgaat in volledige vrijgave door een afzonderlijke bevestiging na controle van de inventarislijst",
+      "opgeschoonde_kandidaat": "Toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd en de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, en die overgaat in volledige vrijgave door een afzonderlijke bevestiging na controle van de inventarislijst."
+    },
+    {
+      "id": "B22",
+      "dossier_id": "G06",
+      "ruwe_tekst": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist",
+      "opgeschoonde_kandidaat": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist."
+    },
+    {
+      "id": "B23",
+      "dossier_id": "G02",
+      "ruwe_tekst": "bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij het overnemen van diens eerdere aanvraag voor een oefenruimte is weggelaten, ongeacht het ontvangstkanaal",
+      "opgeschoonde_kandidaat": "Bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij het overnemen van diens eerdere aanvraag voor een oefenruimte is weggelaten, ongeacht het ontvangstkanaal."
+    },
+    {
+      "id": "B24",
+      "dossier_id": "G05",
+      "ruwe_tekst": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de tijd voor invoer door een medewerker en zonder de tijd voor het tekenen van zoekresultaten",
+      "opgeschoonde_kandidaat": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de tijd voor invoer door een medewerker en zonder de tijd voor het tekenen van zoekresultaten."
+    }
+  ],
+  "paren": [
+    {
+      "paar_id": "P01",
+      "dossier_id": "G04",
+      "herhaling": 2,
+      "X": "B08",
+      "Y": "B04"
+    },
+    {
+      "paar_id": "P02",
+      "dossier_id": "G01",
+      "herhaling": 2,
+      "X": "B06",
+      "Y": "B05"
+    },
+    {
+      "paar_id": "P03",
+      "dossier_id": "G01",
+      "herhaling": 1,
+      "X": "B10",
+      "Y": "B13"
+    },
+    {
+      "paar_id": "P04",
+      "dossier_id": "G06",
+      "herhaling": 2,
+      "X": "B11",
+      "Y": "B21"
+    },
+    {
+      "paar_id": "P05",
+      "dossier_id": "G03",
+      "herhaling": 2,
+      "X": "B09",
+      "Y": "B15"
+    },
+    {
+      "paar_id": "P06",
+      "dossier_id": "G05",
+      "herhaling": 2,
+      "X": "B03",
+      "Y": "B16"
+    },
+    {
+      "paar_id": "P07",
+      "dossier_id": "G02",
+      "herhaling": 1,
+      "X": "B23",
+      "Y": "B01"
+    },
+    {
+      "paar_id": "P08",
+      "dossier_id": "G04",
+      "herhaling": 1,
+      "X": "B02",
+      "Y": "B07"
+    },
+    {
+      "paar_id": "P09",
+      "dossier_id": "G02",
+      "herhaling": 2,
+      "X": "B12",
+      "Y": "B18"
+    },
+    {
+      "paar_id": "P10",
+      "dossier_id": "G05",
+      "herhaling": 1,
+      "X": "B14",
+      "Y": "B24"
+    },
+    {
+      "paar_id": "P11",
+      "dossier_id": "G06",
+      "herhaling": 1,
+      "X": "B20",
+      "Y": "B22"
+    },
+    {
+      "paar_id": "P12",
+      "dossier_id": "G03",
+      "herhaling": 1,
+      "X": "B19",
+      "Y": "B17"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-25T12:02:06.195835+00:00",
+  "product_commit": "86b2c0b20a2913484256b931e6e3c7848391ed13",
+  "head": "659ab505bcba2af6293917dbbcbcbaebc8a5e581",
+  "contract": "def770-int01/10",
+  "files": [
+    {
+      "path": "src/toetsregels/regels/INT-01.json",
+      "sha256": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99"
+    },
+    {
+      "path": "src/toetsregels/regels/INT-07.json",
+      "sha256": "e64a427c4b6571e28eec665abd49fd4ec7eeeef0d6d5f717748878def4be78fc"
+    },
+    {
+      "path": "src/domain/int01/zinsgrenzen.py",
+      "sha256": "aac0d0c9f66ba96e0e78b73b8f4ab901eaa5ed837dc0446e2a8c40b4057802b8"
+    },
+    {
+      "path": "src/domain/int01/opslag.py",
+      "sha256": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f"
+    },
+    {
+      "path": "src/services/validation/evaluators/sentence_boundary.py",
+      "sha256": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ]
+}

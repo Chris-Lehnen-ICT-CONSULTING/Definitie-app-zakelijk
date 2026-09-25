@@ -1,0 +1,274 @@
+{
+  "starttijd_utc": "2026-09-25T08:38:40.238764+00:00",
+  "python": "3.13.15",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "opzet_sha256": "ec6b1ff8179ed554ed4d034020b3541e2126a7e0bc41cc9b6b496aed0d50b553",
+  "proeven": [
+    {
+      "id": "P1",
+      "uitgevoerd": true,
+      "uitkomst": [
+        {
+          "id": "INT02-C100",
+          "uitkomst": {
+            "status": "review_required",
+            "score": null,
+            "findings": [],
+            "pattern_hits": [],
+            "first_hit_pattern": null,
+            "first_hit_pos": null,
+            "violation": null,
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "metadata": {
+              "signals": [
+                "\\bindien\\b"
+              ]
+            }
+          }
+        },
+        {
+          "id": "INT02-C101",
+          "uitkomst": {
+            "status": "review_required",
+            "score": null,
+            "findings": [],
+            "pattern_hits": [],
+            "first_hit_pattern": null,
+            "first_hit_pos": null,
+            "violation": null,
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "metadata": {
+              "signals": [
+                "\\btenzij\\b"
+              ]
+            }
+          }
+        },
+        {
+          "id": "INT02-C102",
+          "uitkomst": {
+            "status": "review_required",
+            "score": null,
+            "findings": [],
+            "pattern_hits": [],
+            "first_hit_pattern": null,
+            "first_hit_pos": null,
+            "violation": null,
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "metadata": {
+              "signals": [
+                "\\bindien\\b"
+              ]
+            }
+          }
+        },
+        {
+          "id": "INT02-C103",
+          "uitkomst": {
+            "status": "review_required",
+            "score": null,
+            "findings": [],
+            "pattern_hits": [],
+            "first_hit_pattern": null,
+            "first_hit_pos": null,
+            "violation": null,
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "metadata": {}
+          }
+        },
+        {
+          "id": "INT02-C104",
+          "uitkomst": {
+            "status": "review_required",
+            "score": null,
+            "findings": [],
+            "pattern_hits": [],
+            "first_hit_pattern": null,
+            "first_hit_pos": null,
+            "violation": null,
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "metadata": {
+              "signals": [
+                "\\bindien\\b"
+              ]
+            }
+          }
+        },
+        {
+          "id": "INT02-C105",
+          "uitkomst": {
+            "status": "review_required",
+            "score": null,
+            "findings": [],
+            "pattern_hits": [],
+            "first_hit_pattern": null,
+            "first_hit_pos": null,
+            "violation": null,
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "metadata": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "uitgevoerd": true,
+      "uitkomst": [
+        {
+          "voorbeelden": true,
+          "tekst": "🔹 **INT-02 - Geen beslisregel**\n- Een definitie bevat geen beslisregels of voorwaarden.\n- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'\n  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.\n  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+        },
+        {
+          "voorbeelden": false,
+          "tekst": "🔹 **INT-02 - Geen beslisregel**\n- Een definitie bevat geen beslisregels of voorwaarden.\n- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "uitgevoerd": true,
+      "uitkomst": [
+        {
+          "id": "INT02-C100",
+          "runstatus": null,
+          "rule_status": "review_required",
+          "reviews": [
+            {
+              "rule_id": "INT-02",
+              "category": "structuur",
+              "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+              "signals": [
+                "\\bindien\\b"
+              ]
+            }
+          ],
+          "violations": [],
+          "overall_score": null
+        },
+        {
+          "id": "INT02-C104",
+          "runstatus": null,
+          "rule_status": "review_required",
+          "reviews": [
+            {
+              "rule_id": "INT-02",
+              "category": "structuur",
+              "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+              "signals": [
+                "\\bindien\\b"
+              ]
+            }
+          ],
+          "violations": [],
+          "overall_score": null
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "uitgevoerd": true,
+      "uitkomst": [
+        {
+          "id": "INT02-C100",
+          "invoer": "stelselmatige dader: Persoon die stelselmatige dader is op een dag indien die persoon in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+          "resultaat": {
+            "original_text": "stelselmatige dader: Persoon die stelselmatige dader is op een dag indien die persoon in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+            "cleaned_text": "Persoon die stelselmatige dader is op een dag indien die persoon in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+            "was_cleaned": true,
+            "applied_rules": [
+              "removed_circular_definition",
+              "capitalized_first_letter"
+            ],
+            "improvements": [
+              "Verwijderd onnodige voorvoegsels",
+              "Hoofdletter toegevoegd"
+            ],
+            "metadata": {
+              "timestamp": "2026-09-25T08:38:40.991003+00:00",
+              "term": "stelselmatige dader",
+              "service_version": "1.0"
+            }
+          }
+        },
+        {
+          "id": "INT02-C03",
+          "invoer": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+          "resultaat": {
+            "original_text": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+            "cleaned_text": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+            "was_cleaned": false,
+            "applied_rules": [],
+            "improvements": [],
+            "metadata": {
+              "timestamp": "2026-09-25T08:38:40.991875+00:00",
+              "term": "aanvraag",
+              "service_version": "1.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "uitgevoerd": true,
+      "uitkomst": {
+        "bewijssoort": "uitvoering brongeëxtraheerde statushelper",
+        "regels": [
+          "🟠 Nog te beoordelen: INT-02"
+        ]
+      }
+    },
+    {
+      "id": "P6",
+      "uitgevoerd": true,
+      "uitkomst": {
+        "bewijssoort": "geïsoleerde gatefunctie; CON-01/02 en recordinterfaces gecontroleerd vervangen",
+        "gevallen": [
+          {
+            "score": 0.9,
+            "review_required": [],
+            "gate": {
+              "status": "pass",
+              "reasons": []
+            }
+          },
+          {
+            "score": 0.9,
+            "review_required": [
+              {
+                "rule_id": "INT-02",
+                "status": "review_required"
+              }
+            ],
+            "gate": {
+              "status": "pass",
+              "reasons": []
+            }
+          },
+          {
+            "score": null,
+            "review_required": [
+              {
+                "rule_id": "INT-02",
+                "status": "review_required"
+              }
+            ],
+            "gate": {
+              "status": "blocked",
+              "reasons": [
+                "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "geblokkeerde_schrijfacties": [
+    {
+      "event": "os.mkdir",
+      "pad": "cache"
+    }
+  ],
+  "eindtijd_utc": "2026-09-25T08:38:41.000909+00:00"
+}

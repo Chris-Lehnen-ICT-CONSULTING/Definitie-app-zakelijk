@@ -1,0 +1,314 @@
+{
+  "proef": "C1",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15",
+  "start_utc": "2026-09-25T07:43:29.835074+00:00",
+  "prompt_rendering": {
+    "include_examples=True": {
+      "success": true,
+      "rules_count": 9,
+      "int02_blok": [
+        "🔹 **INT-02 - Geen beslisregel**",
+        "- Een definitie bevat geen beslisregels of voorwaarden.",
+        "- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
+        "  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+        "  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+      ]
+    },
+    "include_examples=False": {
+      "success": true,
+      "rules_count": 9,
+      "int02_blok": [
+        "🔹 **INT-02 - Geen beslisregel**",
+        "- Een definitie bevat geen beslisregels of voorwaarden.",
+        "- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'"
+      ]
+    }
+  },
+  "toetsing": [
+    {
+      "id": "INT02-C01",
+      "tekst": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C02",
+      "tekst": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C03",
+      "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C04",
+      "tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C05",
+      "tekst": "Geheel getal dat zonder rest door twee deelbaar is.",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C06",
+      "tekst": "",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C80",
+      "tekst": "stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C81",
+      "tekst": "stelselmatige dader: persoon die als zodanig geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C82",
+      "tekst": "weigering: besluit waarbij de bevoegde autoriteit de aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\btenzij\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\btenzij\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C83",
+      "tekst": "passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C84",
+      "tekst": "eigen bijdrage: bedrag voor zover dat het drempelbedrag overschrijdt",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bvoor zover\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bvoor zover\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C85",
+      "tekst": "spoedaanvraag: aanvraag die alleen als spoedeisend wordt behandeld op voorwaarde dat de aanvrager de spoed aantoont",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    },
+    {
+      "id": "INT02-C86",
+      "tekst": "Toegang: toestemming verleend door een bevoegde autoriteit, INDIEN alle voorwaarden zijn vervuld.",
+      "verwacht_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "werkelijk": {
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated"
+      },
+      "fout": null,
+      "match": true
+    }
+  ],
+  "eind_utc": "2026-09-25T07:43:30.572363+00:00",
+  "samenvatting": {
+    "gevallen": 13,
+    "match": 13,
+    "mismatch": [],
+    "fouten": []
+  }
+}

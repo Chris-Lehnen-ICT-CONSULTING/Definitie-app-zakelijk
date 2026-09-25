@@ -1,0 +1,105 @@
+{
+  "generation_source_commit": "6c18ce7127f0a785fefdd6bc952175a030be8643",
+  "revalidated_source_commit": "c7f5d7dc921740f85a10d932480da338f9c2c276",
+  "source_preparations": {
+    "original": "397e6e18941db07b26562380e273a3dd27e4b876efcba8a2d2de314d6bafe39e",
+    "contract4": "653cc71f694a71095c6c4a33c1788cf269b09dada810a11477661ea66b79d0d6"
+  },
+  "prompt_and_request_equality": [
+    {
+      "id": "G01",
+      "prompt_sha256": "3db019410845bde9e98d22a93e0edab53be5399862cd84cde07ed034cfc0a9ea",
+      "equal_fields": {
+        "invoer_id": true,
+        "request_velden": true,
+        "context": true,
+        "fragmentrelaties": true,
+        "bronnormalisatie": true,
+        "prompt": true,
+        "api_verzoek": true,
+        "source_receipt": true
+      }
+    },
+    {
+      "id": "G02",
+      "prompt_sha256": "ee44008ecf960cc29b934c24c2b2d0cdc7645366d03f1b6b17ddef2f669f888a",
+      "equal_fields": {
+        "invoer_id": true,
+        "request_velden": true,
+        "context": true,
+        "fragmentrelaties": true,
+        "bronnormalisatie": true,
+        "prompt": true,
+        "api_verzoek": true,
+        "source_receipt": true
+      }
+    },
+    {
+      "id": "G03",
+      "prompt_sha256": "59251cbabf2f2128a1b9997f96eed8bbf06de452d423cbe94091237afc523246",
+      "equal_fields": {
+        "invoer_id": true,
+        "request_velden": true,
+        "context": true,
+        "fragmentrelaties": true,
+        "bronnormalisatie": true,
+        "prompt": true,
+        "api_verzoek": true,
+        "source_receipt": true
+      }
+    },
+    {
+      "id": "G04",
+      "prompt_sha256": "e740851f29b39d3dc5575e168026e789799721ce42ea060abb94931a07fa8e4e",
+      "equal_fields": {
+        "invoer_id": true,
+        "request_velden": true,
+        "context": true,
+        "fragmentrelaties": true,
+        "bronnormalisatie": true,
+        "prompt": true,
+        "api_verzoek": true,
+        "source_receipt": true
+      }
+    },
+    {
+      "id": "G05",
+      "prompt_sha256": "25eae313e05537189dcf125dace537861780ed169ab55dee9fb6c33907eec246",
+      "equal_fields": {
+        "invoer_id": true,
+        "request_velden": true,
+        "context": true,
+        "fragmentrelaties": true,
+        "bronnormalisatie": true,
+        "prompt": true,
+        "api_verzoek": true,
+        "source_receipt": true
+      }
+    },
+    {
+      "id": "G06",
+      "prompt_sha256": "c685fd0c1a832e67331845c1f99e95b2bed11fe3a9ab1d69cff5bc7f8139acef",
+      "equal_fields": {
+        "invoer_id": true,
+        "request_velden": true,
+        "context": true,
+        "fragmentrelaties": true,
+        "bronnormalisatie": true,
+        "prompt": true,
+        "api_verzoek": true,
+        "source_receipt": true
+      }
+    }
+  ],
+  "new_paid_calls": 0,
+  "offline_evaluator": {
+    "cases": 48,
+    "service_observations": 96,
+    "errors": 0,
+    "sentence_pass": 48,
+    "full_review_required": 48,
+    "paths_and_storage_equal": true,
+    "contract": "def770-int01/4"
+  },
+  "interpretation": "G24 inhoudelijke beoordeling blijft geldig en onvoldoende. Zinsstructuur-pass bewijst geen inhoudelijke kwaliteit."
+}

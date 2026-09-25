@@ -1,0 +1,48 @@
+{
+  "sealed_at": "2026-09-25T07:54:40.149034+00:00",
+  "roles": [
+    {
+      "role": "A",
+      "session": "01a0d787-b0f8-7ed2-ad69-92f9b8a53480",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tools_used": false,
+      "files": [
+        {
+          "path": "logs/def770-restherstel/g24-beoordeling-A-v1.json",
+          "sha256": "e0d5d084b916b6046f4dab2be71845dc34785e18ef00212326c68197257be6f8"
+        },
+        {
+          "path": "logs/def770-restherstel/g24-beoordelaar-A-opdracht-v1.md",
+          "sha256": "dfe834852be473546fd74d11315905f2bd01da707a89ff18cb5584b194c612c5"
+        },
+        {
+          "path": "logs/def770-restherstel/g24-beoordeling-A-sessie-v1.jsonl",
+          "sha256": "b62bd57c635deee644b0d5eac095599ca59b29bf0eda4146baac8a9043075a8d"
+        }
+      ]
+    },
+    {
+      "role": "B",
+      "session": "01a0d787-c42c-7271-a56b-30ffb948a3e5",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tools_used": false,
+      "files": [
+        {
+          "path": "logs/def770-restherstel/g24-beoordeling-B-v1.json",
+          "sha256": "b0bf2b30cd58e01c23ecfe25d687d0e46eb7752fec1dedc44993e457a4e297ff"
+        },
+        {
+          "path": "logs/def770-restherstel/g24-beoordelaar-B-opdracht-v1.md",
+          "sha256": "08d04ece3ef186c7d160a6a2a7e3f3fbff2db0448a72a91c83e66988f8f16d9e"
+        },
+        {
+          "path": "logs/def770-restherstel/g24-beoordeling-B-sessie-v1.jsonl",
+          "sha256": "d8154a7e9f89f51a2258c693924486315d75448457a84f99696dc9d77b893893"
+        }
+      ]
+    }
+  ],
+  "mapping_shared": false
+}

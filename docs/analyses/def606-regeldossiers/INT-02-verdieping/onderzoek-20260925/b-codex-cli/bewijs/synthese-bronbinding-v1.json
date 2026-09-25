@@ -1,0 +1,93 @@
+{
+  "registratie_utc": "2026-09-25T08:40:38.757713+00:00",
+  "bewijssoort": "Document- en bestaand bewijscontrole; geen nieuwe appproef",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "bronnen": [
+    {
+      "pad": "../gedeeld/gezamenlijke-synthese-v1.md",
+      "sha256": "2d61888e8179203d51468e6c08cbc6a90d4265b729d0f216fa8d58f24230932b"
+    },
+    {
+      "pad": "../gedeeld/besluitnotitie-chris-v1.md",
+      "sha256": "b84af91340042bc0587aa356e76cc26c01f755cdf14b953e58dff392c2017526"
+    },
+    {
+      "pad": "../gedeeld/gezamenlijk-casusregister-v1.md",
+      "sha256": "0b307db83b2132902db603d7740212fa28182ed171915ef9bf8748225c8e8092"
+    },
+    {
+      "pad": "../gedeeld/ontvangstlog.txt",
+      "sha256": "4d1076a3125b2b7128846b538dc53d0587050058c466676091c6e55f81cf06d2"
+    },
+    {
+      "pad": "../a-claude-cli/onderzoek-a-v2.md",
+      "sha256": "641c296e182ee6e0f0d6323239dea432d2e481abdf455f13e8a4a72df303287c"
+    },
+    {
+      "pad": "../a-claude-cli/casusregister-a-v2.md",
+      "sha256": "7d5e90aa460aa26d5a71ff3debc3d394de31308d98d014275682a44450c80dfb"
+    },
+    {
+      "pad": "../a-claude-cli/verwerking-a-v1.md",
+      "sha256": "a7106f9e17a5fd955b59375bd930ddd4a93040bbaeac6ea84eb8b02666f545bd"
+    },
+    {
+      "pad": "../a-claude-cli/review-a-op-b-v1.md",
+      "sha256": "382792b0515d05d3483d832779738482fbf592a343cf7911cf43f2393d7f8203"
+    },
+    {
+      "pad": "onderzoek-b-v3.md",
+      "sha256": "ac94555b069366510e560a0e63b681bca60b399e1ff47d0546e7652adbec85ec"
+    },
+    {
+      "pad": "casusregister-b-v3.md",
+      "sha256": "56646553d38300b6321abc045fb08c5a7da794701452ad685c03169115effbcd"
+    },
+    {
+      "pad": "verwerking-b-v1.md",
+      "sha256": "c620ca62824bbe2486a9e49b4f34a9e3047ac72d2cf50456880b323f8a2b1ad3"
+    },
+    {
+      "pad": "review-b-op-a-v1.md",
+      "sha256": "706ed0faa2cb01040776523aabf7d4c7397b656c6c9014481c8833e1433b8aeb"
+    },
+    {
+      "pad": "review-b-op-a-v1-erratum.md",
+      "sha256": "881bad5e52a7dd19fa016c1fd04bae7d0974b2e9d99a65f990d08231420736d1"
+    },
+    {
+      "pad": "../a-cowork/normlezing-coordinator-v1.md",
+      "sha256": "d48f0e2ce350b9b74e583f039f824f7a4c7bd3a5e452a615e0955e95d5c3a586"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-run.py",
+      "sha256": "33a15e92035741d6e26adcbfcd87ef7a5d0748b27e99ab4cb1fc3a09389c3fcc"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-uitkomsten.json",
+      "sha256": "25a333e75d91169fe636ef2419b9b4a352550a2cde00db2cfea14205b87ce26b"
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/p1-uitkomsten.json",
+      "sha256": "fdec3d331d9736c67e92f7c81ed2905d8f5e98767463c9d9559b1cd0bff8f924"
+    },
+    {
+      "pad": "../a-claude-cli/bewijs/p3-uitkomsten.json",
+      "sha256": "829a3f5c6567bc118ce30e1f7a11b4033abbd9149450e0f060504b10d35cef55"
+    },
+    {
+      "pad": "bewijs/proefuitkomsten-v1.json",
+      "sha256": "874691337ddb57df6b74c1f9c793dec98698bcd8a31e8ef8b90eb13bb9ebd9d2"
+    },
+    {
+      "pad": "bewijs/uitvoering-v1.json",
+      "sha256": "3ae91ec874bb6328393aa2ebaa919dd6058f5dd46fffd0e0afbd50b9145e4c52"
+    }
+  ],
+  "aantal_servicewaarnemingen": {
+    "A_P1": 25,
+    "B_P1": 7,
+    "CO_C1": 13,
+    "totaal": 45
+  }
+}

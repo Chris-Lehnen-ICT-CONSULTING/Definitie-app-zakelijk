@@ -1,0 +1,22 @@
+# INT-02 — verwerking van de synthesecontrole van C door de coördinator (A/Cowork) — v1
+
+25 september 2026 · DEF-771 · beoordeeld: `c-codex-app/synthesecontrole-c-v1.md` (SHA-256 `26cde499…`, SC-C-01…14; 1 materieel open punt, SC-C-02) en `c-codex-app/manifest-c-v2.json` (`5d15a599…`). C's controle draaide in een verse Codex CLI-sessie (`gedeeld/run-c-codex-fase2b.sh`), omdat de ChatGPT-app-thread van C een actieve writer hield. Resultaat: `gedeeld/gezamenlijke-synthese-v4.md`, `gedeeld/besluitnotitie-chris-v4.md`, `gedeeld/gezamenlijk-casusregister-v4.md` (v3 bewaard). Oordelen: **O** overgenomen · **GO** gedeeltelijk overgenomen · **AG** afgewezen met grond · **OP** open.
+
+| SC-C | Aard (C) | Oordeel | Wat is gedaan | Vindplaats v4 |
+|---|---|---|---|---|
+| SC-C-01 (norm C-N1 juist overgenomen) | materieel gecontroleerd, geen correctie | O | bevestiging; geen wijziging aan de normtekst | S §2 |
+| SC-C-02 (G-tekst verbiedt ruimer dan N/T: "geen afweging die aan het oordeel … wordt overgelaten"; C107) | **materieel, open** | O | de twee G-zinnen vervangen door C's exacte tekst (handelingsvoorschrift/behandelprocedure en discretionaire beslisregel die voorschrijft; kwalitatief/constitutief kenmerk beschrijven mag; constitutief oordeel niet verwijderen); skillzin `nederlandse-definities/reference.md:186` vervangen door C's tekst; D-formulering "geen voorschrift of afweging in de kern" vervangen; C107 als G-toetsgeval toegevoegd; §9-rij toegevoegd | S §3, §6, §9; D "Prompt en skills (G)" |
+| SC-C-03 (T-meldingen juist; optionele zin "regeluitkomst blijft VN; andere open punten erbij") | redactioneel | O | zin toegevoegd in de T-tekst | S §4 |
+| SC-C-04 (H juist; stopreden "onbesliste toepasselijke normkeuze") | redactioneel | O | stopreden toegevoegd; daarnaast het K5-besluit van Chris (DEF-832) als kadertekst boven §5 | S §5 |
+| SC-C-05 (bewijsgrenzen noemen UI/gate "alleen codelezing" terwijl C-P5/P6 functieproeven zijn) | redactioneel (bewijslabel) | O | C's vervangtekst in S §10, D "Bewijsgrenzen" en R "Niet gemeten" | S §10; D; R samenvatting |
+| SC-C-06 (keten/herlaad/export juist begrensd) | gecontroleerd | O | geen wijziging | S §1; D geparkeerd |
+| SC-C-07 (C100–C118 juist; R-C108 preciseren) | redactioneel | O | R-C108: "een onder de gekozen norm zelfstandig aangetoonde overtreding blijft VN, met de overige open punten erbij" | R C108 |
+| SC-C-08 (R-C02 / example_pair_reason juist) | gecontroleerd | O | geen wijziging | S §6; R C02 |
+| SC-C-09 (C ontbreekt in voorkeurkoppen; C heeft géén S1-/vervangen-voorkeur) | redactioneel (weglating) | O | §9-kop "A, B, CO en C"; C's standpuntalinea letterlijk toegevoegd; C in de O1-voorkeur, N-breed-voorkeur en "Kern"-kop; signaalparagraaf en §9-rij: C legt geen signaalkeuze vast | S §1, §2, §4, §9 |
+| SC-C-10 (K-tabel, bestaand beleid, geparkeerd juist) | gecontroleerd | O | geen wijziging aan de structuur; de besluiten van Chris zijn als aparte tabel bovenaan D toegevoegd (geen wijziging van de voorstelteksten) | D "Besluiten van Chris" |
+| SC-C-11 (ESS-04-spanning juist; §7-kop te absoluut) | redactioneel | O | kop "Relaties en resterende buurregelspanning" | S §7 |
+| SC-C-12 (omvang: 76 = 57 + 19; P2 ontbreekt in C-opsomming; P0 is hergebruik) | redactioneel (onjuiste weergave) | O | C's exacte omvangtekst in S §1 en R-samenvatting; P2 toegevoegd; §13: "19 nieuwe casussen, naast zes historische casussen in C's eigen register" | S §1, §13; R samenvatting |
+| SC-C-13 (verwachting-/exitbewijs te algemeen; ASTRA-oldid) | redactioneel | O | C's vervangtekst in S §10 (lijnspecifieke beperking; C's exit 0/uitgevoerd=true/hash lokaal bewijs; P3 bewijst regelvelden, niet runstatus); "drie modellen" → "vier onafhankelijke lijnen" | S §10 |
+| SC-C-14 (effectontwerp: C's 12 scenario's × 3 runs niet overgenomen) | redactioneel (te verantwoorden) | O | C's exacte toevoeging in S §8 (ontwerpkeuze zonder bewezen equivalentie; C105/C107/C112/C115/C116 verplicht afdekken; C117/C118 bij fout-/bindingsacceptatie) | S §8 |
+
+**Open na verwerking:** geen afgewezen punten. C's eindoordeel ("A+B+C afgerond na verwerking van SC-C-02") wordt niet alvast als uitgevoerd geclaimd: C controleert de geraakte passages van v4 (`gedeeld/synthesecontrole-opdracht-c-v2.md`). De besluiten van Chris (K1–K5, `gedeeld/besluiten-v1.md`) zijn in D v4 opgenomen als besluiten, gescheiden van de onderzoeksvoorstellen; zij wijzigen geen voorstel- of casusregistertekst.

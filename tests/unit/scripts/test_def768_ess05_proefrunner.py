@@ -719,7 +719,7 @@ class TestGPromptgrens:
             {
                 "id": 9100 + i,
                 "begrip": f"randbuur{i}",
-                "definitie": "x" * (laatste if i == 3 else 6000),
+                "definitie": "x" * (laatste if i == 3 else 4000),
             }
             for i in range(4)
         ]
@@ -727,8 +727,10 @@ class TestGPromptgrens:
 
     async def _gekalibreerd(self, marge: int) -> dict:
         grens = pi.g_promptgrens()
-        tekst, _ = await pi.bouw_g_prompt_met_buren(self._invoer(6000))
-        invoer = self._invoer(6000 + grens - marge - len(tekst))
+        # Integratie DEF-770: de basisprompt is langer (INT-01); 4×4000 laat
+        # ruimte om de laatste buur exact te kalibreren.
+        tekst, _ = await pi.bouw_g_prompt_met_buren(self._invoer(4000))
+        invoer = self._invoer(4000 + grens - marge - len(tekst))
         tekst, buren = await pi.bouw_g_prompt_met_buren(invoer)
         assert len(tekst) == grens - marge
         assert buren["aantal"] >= 4  # de vier repositoryburen staan in de prompt

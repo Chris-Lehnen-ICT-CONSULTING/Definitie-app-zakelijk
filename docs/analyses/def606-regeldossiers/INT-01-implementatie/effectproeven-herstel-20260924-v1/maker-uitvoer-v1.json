@@ -1,0 +1,395 @@
+{
+  "type": "AI-gemaakte onafhankelijke proefset",
+  "maker_model": "gpt-6-astra",
+  "reasoning": "high",
+  "t24": [
+    {
+      "id": "T01",
+      "stratum": "S1",
+      "begrip": "lichtbuffer",
+      "tekst": "tijdelijke opslagruimte voor ongebruikte lichtmodules",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met een voorzetselbepaling en zonder persoonsvorm of afsluitend leesteken."
+    },
+    {
+      "id": "T02",
+      "stratum": "S1",
+      "begrip": "doorgiftemelding",
+      "tekst": "melding die ontstaat zodra een depot een krat aan een ander depot overdraagt",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met een beperkende betrekkelijke bijzin en een daarin opgenomen tijdsbepalende bijzin."
+    },
+    {
+      "id": "T03",
+      "stratum": "S1",
+      "begrip": "oeverloket",
+      "tekst": "contactpunt van de Dienst Oever en Overtocht voor aanvragen over drijvende wachtruimten",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Nevenschikking met 'en' binnen een organisatienaam, gevolgd door een bepaling van het contactpunt."
+    },
+    {
+      "id": "T04",
+      "stratum": "S1",
+      "begrip": "wisselvenster",
+      "tekst": "periode waarin een beheerder een route opent en een toezichthouder de vorige route sluit",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een betrekkelijke bijzin bevat nevengeschikte deelzinnen met verschillende onderwerpen."
+    },
+    {
+      "id": "T05",
+      "stratum": "S2",
+      "begrip": "kalibratievak",
+      "tekst": "ruimte voor meetstroken met een lengte van 2,5 cm en een afwijking van max. 0,2 mm.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Decimale getallen, een afkorting met punt en maateenheden komen samen met een afsluitende punt voor."
+    },
+    {
+      "id": "T06",
+      "stratum": "S2",
+      "begrip": "referentiebundel",
+      "tekst": "verzameling proefkaarten volgens het schema van dr. M. Veldspoor",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een fictieve persoonsnaam wordt voorafgegaan door een afgekorte titel en een initiaal met punt."
+    },
+    {
+      "id": "T07",
+      "stratum": "S2",
+      "begrip": "routebijlage",
+      "tekst": "aanvulling bij een dossier van het Bureau Routeordening, afgekort B.R.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De tekst eindigt op een afkorting met interne punten en een slotpunt."
+    },
+    {
+      "id": "T08",
+      "stratum": "S2",
+      "begrip": "nachtvak",
+      "tekst": "Een nachtvak omvat blokken nr. 4 en 5. De bezetting staat in tabel 2.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een afkortingspunt binnen de tekst wordt gecombineerd met getallen en afzonderlijke mededelende zinnen."
+    },
+    {
+      "id": "T09",
+      "stratum": "S3",
+      "begrip": "reservestrook",
+      "tekst": "Een reservestrook blijft beschikbaar voor uitgevallen meetbanen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een volledige mededelende formulering eindigt op een punt."
+    },
+    {
+      "id": "T10",
+      "stratum": "S3",
+      "begrip": "herstelkaart",
+      "tekst": "Een herstelkaart legt een onderbroken sorteerronde vast. De kaart vervalt na hervatting.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee mededelende formuleringen hebben ieder een eigen persoonsvorm en afsluitende punt."
+    },
+    {
+      "id": "T11",
+      "stratum": "S3",
+      "begrip": "keuzesignaal",
+      "tekst": "Is de ontvangstroute beschikbaar? Het keuzesignaal toont de laatst bevestigde route.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een directe vraag wordt gevolgd door een mededeling met een hoofdletter aan het begin."
+    },
+    {
+      "id": "T12",
+      "stratum": "S3",
+      "begrip": "stopvlag",
+      "tekst": "Onderbreek de toevoer! De stopvlag markeert een geblokkeerde invoerbaan.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een gebiedende formulering met uitroepteken wordt gevolgd door een mededelende formulering."
+    },
+    {
+      "id": "T13",
+      "stratum": "S4",
+      "begrip": "overlooprek",
+      "tekst": "rek voor pakketten\nwaarvoor in het hoofdmagazijn\ntijdelijk geen plaats beschikbaar is",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Regelomlopen doorsnijden een doorlopende naamwoordelijke constructie en de bijbehorende betrekkelijke bijzin."
+    },
+    {
+      "id": "T14",
+      "stratum": "S4",
+      "begrip": "wisselrapport",
+      "tekst": "Een wisselrapport vermeldt de overdracht van een meetpost.\n\nDe opvolgende ploeg bevestigt de ontvangst.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een lege regel scheidt twee alinea's die elk een afgeronde mededeling bevatten."
+    },
+    {
+      "id": "T15",
+      "stratum": "S4",
+      "begrip": "startpakket",
+      "tekst": "pakket met uitsluitend:\n- een routekaart;\n- een blanco logblad;\n- een sluitzegel.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een inleidende naamwoordelijke constructie loopt via een dubbele punt door in een opsomming met puntkomma's."
+    },
+    {
+      "id": "T16",
+      "stratum": "S4",
+      "begrip": "stiltevenster",
+      "tekst": "Een stiltevenster onderbreekt automatische omroepen; handmatige noodmeldingen blijven mogelijk",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een puntkomma verbindt zelfstandige deelzinnen zonder afsluitende punt aan het einde van de tekst."
+    },
+    {
+      "id": "T17",
+      "stratum": "S5",
+      "begrip": "vrijgavecode",
+      "tekst": "code waarmee een bediener de melding 'De baan is vrij.' bevestigt",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een geciteerde mededeling met eigen punt staat ingebed in een doorlopende naamwoordelijke constructie."
+    },
+    {
+      "id": "T18",
+      "stratum": "S5",
+      "begrip": "schaduwregister",
+      "tekst": "register voor tijdelijke proefboekingen (De beheerder wist deze na de oefening.)",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een naamwoordelijke kern bevat een tussen haakjes geplaatste volledige mededeling met hoofdletter en punt."
+    },
+    {
+      "id": "T19",
+      "stratum": "S5",
+      "begrip": "rondemarker",
+      "tekst": "“markering van het begin van een telronde”",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De gehele naamwoordelijke kern staat tussen typografische aanhalingstekens en bevat geen slotpunt."
+    },
+    {
+      "id": "T20",
+      "stratum": "S5",
+      "begrip": "terugkijkkaart",
+      "tekst": "kaart bij de oefenhandleiding ‘Waar bleef de boot?’ voor het reconstrueren van een vaarvolgorde",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ingesloten fictieve titel bevat een vraagteken terwijl de omringende constructie daarna doorloopt."
+    },
+    {
+      "id": "T21",
+      "stratum": "S6",
+      "begrip": "restvenster",
+      "tekst": "",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een lege tekstwaarde bevat geen talige kern of interpunctie."
+    },
+    {
+      "id": "T22",
+      "stratum": "S6",
+      "begrip": "wisselhouder",
+      "tekst": "Wisselhouder:",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Alleen het begripslabel en een dubbele punt zijn aanwezig, zonder daaropvolgende omschrijving."
+    },
+    {
+      "id": "T23",
+      "stratum": "S6",
+      "begrip": "nevelvak",
+      "tekst": "vak voor overdracht volgens nvr. Nieuwe routes krijgen voorrang",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een niet toegelichte letterreeks met punt wordt gevolgd door een hoofdletter en een zelfstandige formulering."
+    },
+    {
+      "id": "T24",
+      "stratum": "S6",
+      "begrip": "draagpauze",
+      "tekst": "onderbreking van het vervoer. de lading blijft op dezelfde drager",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Na een punt volgt een kleine letter; de eerste teksteenheid is naamwoordelijk en de volgende bevat een persoonsvorm."
+    }
+  ],
+  "g24_inputs": [
+    {
+      "id": "G01",
+      "stratum": "gewone kern",
+      "begrip": "verplaatsingsbericht",
+      "organisatorische_context": [
+        "De fictieve publieke Dienst Materiaalcirculatie beheert gedeelde hulpmiddelen voor wijkwerkplaatsen.",
+        "Het dossier beschrijft uitsluitend de interne administratieve werkwijze van deze proeforganisatie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G01-P01",
+          "tekst": "De Dienst Materiaalcirculatie beheert gedeelde hulpmiddelen voor zes fictieve wijkwerkplaatsen. Wanneer een hulpmiddel daadwerkelijk van de ene werkplaats naar de andere is gebracht, maakt de ontvangende medewerker een verplaatsingsbericht aan. Het bericht legt vast welk hulpmiddel is verplaatst, uit welke werkplaats het kwam en welke werkplaats het heeft ontvangen. Deze drie gegevens zijn nodig om de voorraadlocatie bij te werken. Een voorgenomen verplaatsing hoort in de planning en levert nog geen verplaatsingsbericht op. Het tijdstip van invoer, de kleur van het gebruikte scherm en een optionele toelichting helpen medewerkers bij hun werk, maar bepalen niet om welk administratief bericht het gaat. De dienst toont berichten standaard in een dagoverzicht. Tijdens oefeningen mag hetzelfde bericht op papier worden vastgelegd; het medium verandert de betekenis niet. De teamleider bespreekt opvallende verplaatsingen tijdens het maandelijkse magazijnoverleg.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Het gaat om de administratieve vastlegging van een uitgevoerde verplaatsing tussen werkplaatsen. Behoud het onderscheid met planning en de koppeling tussen hulpmiddel, herkomst en ontvangstlocatie.",
+      "doelgroep": "Magazijnmedewerkers en beheerders van wijkwerkplaatsen zonder specialistische administratieve opleiding.",
+      "beschermde_kenmerken": [
+        "Administratieve vastlegging",
+        "Daadwerkelijk uitgevoerde verplaatsing tussen twee werkplaatsen",
+        "Identificatie van het hulpmiddel",
+        "Vastlegging van zowel de oorspronkelijke als de ontvangende werkplaats"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Een uitsluitend voorgenomen verplaatsing levert nog geen verplaatsingsbericht op."
+      ]
+    },
+    {
+      "id": "G02",
+      "stratum": "noodzakelijke bijzin",
+      "begrip": "aansluitverzoek",
+      "organisatorische_context": [
+        "Het fictieve publieke Bureau Buurtritten verdeelt aanvragen voor vervoer naar gezamenlijke voorzieningen.",
+        "Dit dossier betreft een interne categorie aanvragen, zonder aanspraken buiten de proeforganisatie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G02-P01",
+          "tekst": "Het Bureau Buurtritten verwerkt aanvragen voor vervoer naar gezamenlijke voorzieningen. Medewerkers gebruiken de categorie aansluitverzoek uitsluitend voor een aanvraag waarbij de gewenste aankomsttijd afhangt van een andere rit die al in hetzelfde planningssysteem is bevestigd. Die afhankelijkheid moet uit de aanvraag blijken: zonder aansluiting op die bevestigde rit vervalt het doel van de aangevraagde aankomsttijd. Een overeenkomstige bestemming of toevallig gelijke vertrektijd is onvoldoende. Ook een verwijzing naar een nog onbevestigd ritidee voldoet niet aan deze interne categorie. De aanvraag kan telefonisch worden genoteerd of via een formulier binnenkomen. Het bureau gebruikt op het scherm een kettingsymbool en behandelt zulke aanvragen meestal in de ochtend. Symbool en behandeltijd zijn werkafspraken, geen kenmerken van de categorie. De planner controleert de verwijzing naar de bevestigde rit voordat hij de aanvraag aan een route toevoegt. De categorie zegt op zichzelf niets over toewijzing.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De afbakening berust op de afhankelijkheidsrelatie tussen de gewenste aankomsttijd en een andere, reeds bevestigde rit. Een verkorte formulering moet die relatie en de bevestigingsstatus herkenbaar behouden.",
+      "doelgroep": "Medewerkers die vervoersaanvragen registreren en planners die de aanvragen indelen.",
+      "beschermde_kenmerken": [
+        "Aanvraag voor vervoer",
+        "Gewenste aankomsttijd is afhankelijk van aansluiting op een andere rit",
+        "De andere rit is al bevestigd in hetzelfde planningssysteem",
+        "De afhankelijkheid blijkt uit de aanvraag"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Alleen dezelfde bestemming of vertrektijd is onvoldoende.",
+        "Een verwijzing naar een onbevestigd ritidee voldoet niet.",
+        "De categorie houdt op zichzelf geen toewijzing in."
+      ]
+    },
+    {
+      "id": "G03",
+      "stratum": "noodzakelijke naam",
+      "begrip": "spiegelinschrijving",
+      "organisatorische_context": [
+        "De fictieve publieke Archiefdienst Wolkenwaard oefent het herstellen van dossierindexen.",
+        "Registerbenamingen hebben binnen deze oefenomgeving een vastgelegde onderscheidende functie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G03-P01",
+          "tekst": "De Archiefdienst Wolkenwaard gebruikt twee gescheiden registers tijdens herstelproeven. Het Register Eerste Vastlegging bevat de oorspronkelijke inschrijvingen. Het Register Tegenlicht bevat de daarvan overgenomen inschrijvingen waarmee medewerkers herstelprocedures oefenen. Binnen deze werkwijze mag een inschrijving alleen spiegelinschrijving heten als zij uit het Register Eerste Vastlegging is overgenomen in het Register Tegenlicht en daarbij dezelfde dossiercode heeft behouden. De twee registernamen wijzen concrete administraties aan; het zijn geen vrije omschrijvingen van functies. Een kopie in een persoonlijke oefenmap of een overname in omgekeerde richting valt buiten deze categorie. De schermkop van het doelregister is paars en het oefenteam gebruikt doorgaans een dubbele monitor. Deze inrichting kan veranderen. De spiegelinschrijving krijgt een eigen invoertijd, zodat de oefenleider kan zien wanneer de overname plaatsvond. Die invoertijd hoeft niet gelijk te zijn aan die van het oorspronkelijke record.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Behoud de richting van overname, de identiteit van beide benoemde registers en het behoud van de dossiercode. Het gaat niet om willekeurige kopieën of om een generieke combinatie van bron- en doelregister.",
+      "doelgroep": "Archiefmedewerkers die herstelproeven voorbereiden en uitvoeren.",
+      "beschermde_kenmerken": [
+        "Overname van een inschrijving",
+        "Overname vanuit het aangewezen bronregister naar het aangewezen doelregister",
+        "De dossiercode blijft gelijk"
+      ],
+      "beschermde_namen": [
+        "Register Eerste Vastlegging",
+        "Register Tegenlicht"
+      ],
+      "beschermde_negaties": [
+        "Een kopie in een persoonlijke oefenmap valt buiten de categorie.",
+        "Overname in omgekeerde richting valt buiten de categorie."
+      ]
+    },
+    {
+      "id": "G04",
+      "stratum": "limitatieve opsomming",
+      "begrip": "herstelgrond",
+      "organisatorische_context": [
+        "Het fictieve publieke Loket Terreinkaarten verwerkt aanvragen voor interne terreinplattegronden.",
+        "De herstelprocedure betreft de volledigheid en technische leesbaarheid van aanvraagpakketten."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G04-P01",
+          "tekst": "Het Loket Terreinkaarten controleert binnengekomen aanvraagpakketten voordat een tekenaar eraan werkt. Voor het terugleggen van een pakket gebruikt het loket drie herstelgronden: een ontbrekende terreincode, een onleesbaar kaartbestand of het ontbreken van een contactkanaal voor terugkoppeling. Deze opsomming is gesloten. Eén van deze omstandigheden is voldoende; meerdere kunnen tegelijk worden geregistreerd. Een medewerker mag geen vierde grond toevoegen onder een algemene noemer zoals overige onvolledigheid. Een ongebruikelijke kaartkleur, een beknopte toelichting of een drukke planning vormt dus geen herstelgrond. De medewerker vermeldt welke van de drie omstandigheden is aangetroffen, zodat de aanvragende afdeling gericht kan aanvullen. Het loket gebruikt daarvoor momenteel selectievakjes in een groen formulier. De formulierkleur en de volgorde van de vakjes zijn niet bepalend. Een herstelgrond betreft het aanvraagpakket en zegt niets over de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De categorie omvat uitsluitend de drie genoemde omstandigheden. Behoud dat elke omstandigheid afzonderlijk voldoende is en dat de opsomming geen voorbeeldenverzameling vormt.",
+      "doelgroep": "Loketmedewerkers en medewerkers van afdelingen die terreinplattegronden aanvragen.",
+      "beschermde_kenmerken": [
+        "Grond voor het terugleggen van een aanvraagpakket ter aanvulling",
+        "Ontbrekende terreincode",
+        "Onleesbaar kaartbestand",
+        "Ontbrekend contactkanaal voor terugkoppeling",
+        "Gesloten opsomming met drie alternatieven",
+        "Een enkele genoemde omstandigheid is voldoende; samenloop is mogelijk"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Andere omstandigheden vormen geen herstelgrond.",
+        "De gronden hoeven niet alle drie tegelijk aanwezig te zijn.",
+        "Een herstelgrond is geen inhoudelijk oordeel over het terreinontwerp."
+      ]
+    },
+    {
+      "id": "G05",
+      "stratum": "vaktaal/doelgroep",
+      "begrip": "nulpaar",
+      "organisatorische_context": [
+        "Het fictieve publieke Meetbureau Binnenlucht beheert sensoren in gezamenlijke gebouwen.",
+        "De bron richt zich op nieuwe gebouwbeheerders die metingen uitvoeren zonder opleiding in meettechniek."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G05-P01",
+          "tekst": "Het Meetbureau Binnenlucht laat gebouwbeheerders controleren of een sensor tijdens een meetronde verschuift in zijn aanwijzing. In de technische werkinstructie heet het gebruikte hulpmiddel een nulpaar. Daarvoor wordt met dezelfde sensor tweemaal dezelfde afgesloten referentiecapsule gemeten: eenmaal direct vóór en eenmaal direct na de meetronde. De twee uitkomsten worden samen bewaard. Hun verschil maakt een verandering van de sensorrespons tijdens die ronde zichtbaar. Met nul wordt hier de vaste vergelijkingsbasis bedoeld; de uitkomsten hoeven niet het getal nul te zijn. De referentiecapsule bevat een stabiel proefmengsel en wordt niet gebruikt om de gebouwlucht te bemonsteren. Nieuwe gebouwbeheerders kennen termen als drift en referentiemeting vaak nog niet. De instructie moet daarom begrijpelijk blijven zonder die voorkennis. Het bureau bewaart de capsule gewoonlijk in een blauwe koffer en drukt de uitkomsten standaard naast elkaar af. Die presentatie is niet vereist.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Laat voor beginnende gebouwbeheerders begrijpelijk blijven welke twee uitkomsten bij elkaar horen, hoe ze zijn verkregen en waarvoor hun vergelijking dient. De vakterm 'nul' mag niet als een vereiste numerieke uitkomst worden uitgelegd.",
+      "doelgroep": "Beginnende gebouwbeheerders zonder opleiding in meettechniek.",
+      "beschermde_kenmerken": [
+        "Twee samen bewaarde meetuitkomsten",
+        "Dezelfde sensor en dezelfde afgesloten referentiecapsule",
+        "Een meting direct vóór en een meting direct na dezelfde meetronde",
+        "Vergelijking maakt verandering van de sensoraanwijzing tijdens de ronde zichtbaar"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "De meetuitkomsten hoeven niet nul te zijn.",
+        "De referentiecapsule wordt niet gebruikt voor het bemonsteren van gebouwlucht."
+      ]
+    },
+    {
+      "id": "G06",
+      "stratum": "risico betekenisverlies bij inkorten",
+      "begrip": "routepauze",
+      "organisatorische_context": [
+        "Het fictieve publieke Bureau Zaalverdeling verdeelt aanvragen voor gedeelde vergaderruimten.",
+        "De beschreven status bestaat uitsluitend binnen het interne aanvraagproces van de proeforganisatie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G06-P01",
+          "tekst": "Het Bureau Zaalverdeling verdeelt aanvragen voor gedeelde vergaderruimten automatisch over behandelteams. Een routepauze wordt door een medewerker ingesteld wanneer de opgegeven locatie nog niet eenduidig aan een beheergebied kan worden gekoppeld. Alleen de automatische toedeling van die aanvraag wordt dan tijdelijk onderbroken. De aanvraag blijft ontvangen, behoudt haar oorspronkelijke ontvangsttijd en mag ondertussen handmatig worden onderzocht en aangevuld. De status is geen afwijzing, trekt de aanvraag niet in en blokkeert geen handmatige behandeling. Zodra een medewerker het beheergebied heeft vastgesteld, heft die medewerker de routepauze op en kan de automatische toedeling worden hervat. Er geldt geen vaste duur. Het scherm toont tijdens de pauze een zandlopertje; teamleiders bekijken de betrokken aanvragen meestal op vrijdag. Deze presentatie en overlegdag zijn niet bepalend. Verkorting tot een algemene behandelstop zou het onderscheid tussen automatische toedeling en inhoudelijke werkzaamheden wegnemen.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Behoud de beperkte reikwijdte van de onderbreking en de aanleiding ervoor. De aanvraag blijft bestaan met haar oorspronkelijke ontvangsttijd, terwijl handmatige behandeling mogelijk blijft; opheffing volgt op vaststelling van het beheergebied door een medewerker.",
+      "doelgroep": "Medewerkers die aanvragen behandelen en teamleiders die de verdeling bewaken.",
+      "beschermde_kenmerken": [
+        "Door een medewerker ingestelde tijdelijke onderbreking",
+        "Onderbreking betreft uitsluitend automatische toedeling van één aanvraag",
+        "Aanleiding is een nog niet eenduidige koppeling van de locatie aan een beheergebied",
+        "Behoud van de ontvangen aanvraag en haar oorspronkelijke ontvangsttijd",
+        "Opheffing door een medewerker na vaststelling van het beheergebied"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "De routepauze is geen afwijzing.",
+        "De routepauze trekt de aanvraag niet in.",
+        "De routepauze blokkeert geen handmatige behandeling.",
+        "Er geldt geen vaste duur."
+      ]
+    }
+  ]
+}

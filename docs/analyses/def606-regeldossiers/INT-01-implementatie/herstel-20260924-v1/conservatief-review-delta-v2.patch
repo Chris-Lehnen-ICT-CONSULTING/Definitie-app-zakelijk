@@ -1,0 +1,443 @@
+diff --git a/src/domain/int01/zinsgrenzen.py b/src/domain/int01/zinsgrenzen.py
+index 9e34a8a70..62cf69eed 100644
+--- a/src/domain/int01/zinsgrenzen.py
++++ b/src/domain/int01/zinsgrenzen.py
+@@ -14,15 +14,10 @@ in de passage:
+ - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
+ - een punt in een afkorting, getal of naaminitiaal is geen grens; een
+   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker;
+-- een punt gevolgd door een kleine letter is onzeker, tenzij het woord ervoor
+-  aantoonbaar een volledig woord is (een productief zelfstandignaamwoord-
+-  achtervoegsel zoals '-ing' of '-heid') én het vervolg met een positief
+-  herkend onderwerp begint (lidwoordgroep, of één woord met een eigen
+-  voorzetselgroep) en een ondubbelzinnig vervoegde persoonsvorm met aanvulling
+-  draagt
+-  die niet in een bijzin of infinitiefconstructie staat: dan is het een
+-  zekere tweede zin. Dit is een
+-  conservatieve heuristiek, geen taalgarantie;
++- een punt gevolgd door een kleine letter (buiten een bekende afkorting) is
++  altijd onzeker: zonder woordsoortkennis is een onderwerp in het vervolg
++  niet te bewijzen. Ook een voor een mens duidelijke tweede zin met kleine
++  beginletter wordt zo doorverwezen (contract /3, conservatief);
+ - een beletselteken gevolgd door verdere tekst is onzeker;
+ - een puntkomma en een dubbele punt zijn nooit een zelfstandige grens (K4);
+   een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering;
+@@ -72,9 +67,12 @@ _FAIL = "fail"
+ _OPEN = "review_required"
+ 
+ #: Versie van de vorm én de betekenis van de INT-01-deeluitkomst in
+-#: `rule_results`. /2: herziene grensclassificatie na de T24-proef; een
+-#: opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
+-CONTRACTVERSIE = "def770-int01/2"
++#: `rule_results`. /2: herziene grensclassificatie na de T24-proef. /3:
++#: conservatieve automatische beoordeling — alleen ondersteunde patronen
++#: krijgen een zekere uitkomst, twijfel gaat naar inhoudelijke beoordeling
++#: (conservatieve-beoordeling-besluit-v1). Een opgeslagen uitkomst onder een
++#: andere versie geldt niet meer als actueel.
++CONTRACTVERSIE = "def770-int01/3"
+ 
+ #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
+ REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
+@@ -100,65 +98,35 @@ _CITAATOPENERS = frozenset({"“", "„", "‘", "«", '"', "'"})
+ _LIJSTREGEL = re.compile(r"[ \t]*(?:[-*•–]\s|\d{1,3}[.)]\s|[a-z][.)]\s)")
+ _VOORAFGAAND_WOORD = re.compile(r"[\w.]+$")
+ _GESTIPPELDE_AFKORTING = re.compile(r"^(?:[a-z]\.)+[a-z]$")
+-#: Productieve zelfstandignaamwoord-achtervoegsels (ook meervoud). Een
+-#: afkorting breekt een woord gewoonlijk vóór zo'n achtervoegsel af ('afd.',
+-#: 'voorz.'); eindigt het woord erop, dan is het een volledig woord. Lengte of
+-#: klinkers bewijzen dat niet.
+-_VOLLEDIG_WOORD = re.compile(
+-    r"^[a-zà-ÿ]{3,}"
+-    r"(?:ingen|ing|heden|heid|schappen|schap|iteiten|iteit|ties|tie|ismen|isme)$"
+-)
+ #: Tegenwoordige en verleden persoonsvormen van hulp- en koppelwerkwoorden en
+-#: veelvoorkomende definitiewerkwoorden. Bewust niet: meervoudsvormen die ook
+-#: zelfstandig naamwoord of voornaamwoord zijn ('zijn', 'vormen', 'gelden').
++#: veelvoorkomende definitiewerkwoorden. Na een citaatslot sluit een herkende
++#: persoonsvorm een bewezen voortzetting uit; afwezigheid bewijst niets.
+ _PERSOONSVORMEN = frozenset(
+     {"is", "wordt", "worden", "werd", "werden", "blijft", "blijven", "bleef"}
+     | {"bleven", "heeft", "hebben", "had", "hadden", "kan", "kunnen", "kon"}
+     | {"konden", "moet", "moeten", "moest", "moesten", "mag", "mogen", "mocht"}
+     | {"mochten", "zal", "zullen", "zou", "zouden", "geldt", "bevat", "bevatten"}
+ )
+-#: Tegenwoordige meervoudsvormen zijn gelijk aan de infinitief ('toegepast
+-#: worden'): zij bewijzen geen persoonsvorm en dus geen zelfstandige zin.
+-_INFINITIEF_HOMOGRAAF = frozenset(
+-    {"worden", "blijven", "hebben", "kunnen", "moeten", "mogen", "zullen"}
+-    | {"bevatten"}
+-)
+-#: Werkwoordelijke woordvorm (voltooid deelwoord met 'ge', onvoltooid
+-#: deelwoord op '-end(e)'/'-ande'): vóór de persoonsvorm geen bewijs van een
+-#: onderwerp. Een zelfstandig naamwoord met die vorm blijft zo onzeker.
+-_WERKWOORDELIJKE_VORM = re.compile(
+-    r"^(?:[a-z]*ge[a-z]+(?:t|d|en)|[a-z]{3,}(?:ende?|ande))$"
+-)
+ _ZEKER_ZINSBEGIN = re.compile(r"[.?!…]\s+(?=[A-ZÀ-Ý\d])")
+-#: Woorden die een bijzin, betrekkelijke bijzin of infinitiefconstructie
+-#: inleiden, of nevenschikken. Staan ze vóór de persoonsvorm, dan hoort die
+-#: persoonsvorm (mogelijk) bij een ondergeschikt deel: geen bewijs van een
+-#: zelfstandige hoofdzin.
++#: Woorden die een bijzin of betrekkelijke bijzin inleiden (open bijzin vóór
++#: een citaat).
+ _ONDERSCHIKKEND = frozenset(
+     {"die", "dat", "wat", "wie", "welke", "waar", "waarbij", "waarin", "waarop"}
+     | {"waarvan", "waardoor", "waarmee", "waarna", "als", "indien", "mits"}
+     | {"tenzij", "omdat", "doordat", "zodat", "terwijl", "nadat", "voordat"}
+     | {"totdat", "hoewel", "zodra", "wanneer"}
+ )
+-_BIJZIN_OF_INFINITIEF = _ONDERSCHIKKEND | {"om", "te", "en", "of", "maar"}
+-#: Een vervolg dat hiermee begint, opent geen onderwerp maar zet een
+-#: woordgroep of constructie voort (voorzetsel, voegwoord, infinitief).
++#: Voorzetsels die een slotwoordgroep na een citaat kunnen openen.
+ _VOORZETSELS = frozenset(
+     {"aan", "achter", "bij", "binnen", "boven", "buiten", "door", "in", "langs"}
+     | {"met", "na", "naar", "naast", "onder", "op", "over", "per", "sinds"}
+     | {"tegen", "tijdens", "tot", "uit", "van", "vanaf", "via", "volgens"}
+     | {"voor", "zonder", "ter", "ten"}
+ )
+-_GEEN_ONDERWERPSBEGIN = _BIJZIN_OF_INFINITIEF | _VOORZETSELS | {"want", "dus"}
+ _LIDWOORDEN = frozenset(
+     {"de", "het", "een", "deze", "dit", "elke", "ieder", "iedere", "geen"}
+     | {"alle", "zijn", "haar", "hun"}
+ )
+-#: Lidwoorden en aanwijzende woorden die een onderwerpsgroep openen. Niet de
+-#: bezittelijke vormen: 'zijn'/'haar' zijn ook werkwoord of voornaamwoord.
+-_ONDERWERP_LIDWOORDEN = frozenset(
+-    {"de", "het", "een", "deze", "dit", "elke", "ieder", "iedere", "alle"}
+-)
+ 
+ # Afkortingen naar hun functie (kleine letters, zonder slotpunt). Een lijst is
+ # hier geen afkeurgrond maar alleen een uitzondering; wat niet eenduidig is,
+@@ -548,18 +516,9 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
+             return "onzeker", "punt binnen een ingesloten citaat of haakjes"
+         return "zeker", "punt gevolgd door een nieuw zinsbegin"
+     if begin == "klein":
+-        if (
+-            not kandidaat.ingesloten
+-            and _VOLLEDIG_WOORD.match(kandidaat.woord)
+-            and _eigen_onderwerp_en_persoonsvorm(kandidaat.volgend)
+-        ):
+-            return (
+-                "zeker",
+-                (
+-                    "punt na een volledig woord gevolgd door een zelfstandige zin "
+-                    "met kleine beginletter"
+-                ),
+-            )
++        # Contract /3 (conservatieve-beoordeling-uitwerking-v2): zonder
++        # woordsoortkennis is een onderwerp na de punt niet te bewijzen; ook een
++        # lidwoordgroep kan een tijdsbepaling zijn. Altijd onzeker.
+         return (
+             "onzeker",
+             (
+@@ -570,77 +529,6 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
+     return "onzeker", "punt gevolgd door een teken dat geen zinsbegin is"
+ 
+ 
+-def _eigen_onderwerp_en_persoonsvorm(volgend: str) -> bool:
+-    """Het vervolg (tot het volgende zekere zinsbegin) draagt een persoonsvorm
+-    die niet vooraan staat.
+-
+-    Positief bewijs, geen taalgarantie: het vervolg begint met een onderwerp
+-    (niet met een voorzetsel, voegwoord, betrekkelijk voornaamwoord of 'om'/
+-    'te') en de eerste persoonsvorm volgt zonder tussenliggende bijzin- of
+-    infinitiefmarkering. Staat de persoonsvorm vooraan ('voorz. wordt
+-    ondertekend'), dan kan de tekst vóór de punt het onderwerp of een bijzin
+-    daarvan zijn: één zin blijft mogelijk. Een ontbrekende persoonsvorm ('zie
+-    ook', 'controle volgens protocol') bewijst evenmin een zelfstandige zin.
+-    """
+-    woorden = _woorden_tot_zeker_zinsbegin(volgend)
+-    if len(woorden) < 2 or woorden[0] in _PERSOONSVORMEN | _GEEN_ONDERWERPSBEGIN:
+-        # Persoonsvorm vooraan, of een vervolg dat met een voorzetsel,
+-        # voegwoord, betrekkelijk voornaamwoord of 'om'/'te' begint: geen
+-        # onderwerp aan het begin, dus geen bewijs van een zelfstandige zin.
+-        return False
+-    for index, woord in enumerate(woorden[1:], start=1):
+-        if woord in _PERSOONSVORMEN:
+-            if not _bewezen_persoonsvorm(woorden, index):
+-                return False
+-            return _onderwerp_herkend(woorden, index)
+-        if woord in _BIJZIN_OF_INFINITIEF:
+-            # 'controle die blijft ...': de persoonsvorm hoort bij een bijzin.
+-            return False
+-    return False
+-
+-
+-def _bewezen_persoonsvorm(woorden: list[str], index: int) -> bool:
+-    """De eerste werkwoordvorm op `index` bewijst een hoofdzin, alleen als:
+-
+-    - zij ondubbelzinnig vervoegd is ('worden' kan infinitief zijn);
+-    - er een aanvulling op volgt (hoofdzinvolgorde; 'controle nodig is' kan
+-      een bijzinrest zijn);
+-    - er geen 'te' direct voor staat en de woorden ervoor geen
+-      werkwoordelijke vorm bevatten ('toegepast', 'uitsluitend').
+-    Anders blijft de grens onzeker.
+-    """
+-    return (
+-        woorden[index] not in _INFINITIEF_HOMOGRAAF
+-        and index < len(woorden) - 1
+-        and woorden[index - 1] != "te"
+-        and not any(_WERKWOORDELIJKE_VORM.match(w) for w in woorden[:index])
+-    )
+-
+-
+-def _onderwerp_herkend(woorden: list[str], index: int) -> bool:
+-    """Positieve herkenning van het onderwerp vóór de persoonsvorm op `index`.
+-
+-    Twee patronen, beide één zinsdeel op de eerste plaats (hoofdzinvolgorde):
+-
+-    - een lidwoordgroep: lidwoord of aanwijzend woord plus ten minste één
+-      woord ('de controle blijft …', 'het toezicht is …');
+-    - één woord met een eigen voorzetselgroep ('controle volgens zqv. blijft
+-      …', 'toezicht op naleving is …'): een bijwoord vormt met een
+-      voorzetselgroep geen enkel zinsdeel, dus het woord is de kern van een
+-      naamwoordgroep. Dit geldt onder de aanname van een correcte zin.
+-
+-    Een kaal woord direct vóór de persoonsvorm ('opnieuw wordt …', 'toezicht
+-    is …') is niet positief te herkennen: onzeker.
+-    """
+-    if woorden[0] in _ONDERWERP_LIDWOORDEN and index >= 2:
+-        return True
+-    if woorden[1] not in _VOORZETSELS:
+-        return False
+-    # Voorzetsel direct na het woord, met een eigen woord als voorwerp.
+-    functiewoord = _VOORZETSELS | _LIDWOORDEN
+-    return any(woord not in functiewoord for woord in woorden[2:index])
+-
+-
+ def _korte_slotgroep(woorden: list[str]) -> bool:
+     """Voorzetsel plus één woord, of voorzetsel, lidwoord en één woord; een
+     onvolledige groep ('op', 'op de') bewijst niets."""
+diff --git a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+index 244d6b4d9..cbe7e2702 100644
+--- a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+@@ -12,11 +12,14 @@ implementatie:
+ - T22 een los label met dubbele punt zonder vervolg is onzeker;
+ - T23 een beletselteken met vervolg is onzeker;
+ - T24 een punt na een aantoonbaar volledig woord (productief achtervoegsel),
+-  gevolgd door een zelfstandige zin met kleine beginletter (eigen onderwerp
+-  vóór de persoonsvorm), is een zekere grens (fail). Zonder dat bewijs — een
+-  mogelijke onbekende afkorting ('voorz.'), een persoonsvorm direct na de
+-  punt, geen persoonsvorm — blijft het onzeker; een vals fail wordt niet als
+-  herstel geaccepteerd.
++  gevolgd door een zelfstandige zin met kleine beginletter, is alleen een
++  zekere grens (fail) als het onderwerp positief herkend is (lidwoordgroep).
++  Contract def770-int01/3 (conservatieve-beoordeling-besluit-v1, punt 3): een
++  kaal woord plus voorzetselgroep bewijst geen onderwerp. De oude T24-tekst
++  houdt haar normatieve fail-label in het historische corpus, maar haar
++  automatische dispositie onder /3 is onzeker (review_required). Zonder
++  bewijs — onbekende afkorting ('voorz.'), persoonsvorm direct na de punt,
++  geen persoonsvorm — blijft het onzeker; een vals fail is geen herstel.
+ 
+ Nooit een volledige INT-01-pass; compactheid en begrijpelijkheid blijven
+ apart open; oude opgeslagen uitkomsten gelden na de semantische wijziging
+@@ -52,6 +55,8 @@ T19 = "“strook langs een proefwand die tijdens de meting onbelicht blijft.”"
+ T22 = "Oefenstatus:"
+ T23 = "onderbreking van de geluidsproef... daarna opnieuw luisteren"
+ T24 = "strook voor tijdelijke bundeling. controle volgens zqv. blijft vereist"
++#: Gewone duidelijke grens (punt + hoofdletter): blijft zekere fail onder /3.
++ZEKER_FAIL = "strook voor tijdelijke bundeling. De controle blijft vereist."
+ 
+ # (id, tekst, zekere grenzen, onzekere grenzen)
+ GEVALLEN = [
+@@ -81,10 +86,13 @@ GEVALLEN = [
+     ("beletselteken-in-citaat", "melding 'wacht ... daarna' op het scherm.", 0, 0),
+     # T24 en tegenhangers. Zeker alleen na een aantoonbaar volledig woord
+     # (productief achtervoegsel, geen lengte-/klinkerheuristiek) én een vervolg
+-    # met eigen onderwerp vóór de persoonsvorm; anders blijft twijfel zichtbaar.
+-    ("T24-kleine-letter-zekere-zin", T24, 1, 1),
+-    ("ingen-meervoud", "strook voor bundelingen. de controle blijft vereist", 1, 0),
+-    ("heid-woord", "zorg voor de veiligheid. het toezicht is vereist", 1, 0),
++    # met positief herkend onderwerp; anders blijft twijfel zichtbaar.
++    # Besluit /3 punt 3: T24 automatisch onzeker (normatief label blijft fail).
++    ("T24-automatisch-onzeker-onder-3", T24, 0, 2),
++    # Uitwerking-v2 (conservatief /3): punt + kleine letter nooit automatisch
++    # zeker, ook niet na volledig woord en lidwoordgroep. Was zeker onder /2.
++    ("ingen-meervoud", "strook voor bundelingen. de controle blijft vereist", 0, 1),
++    ("heid-woord", "zorg voor de veiligheid. het toezicht is vereist", 0, 1),
+     # Onbekende afkorting binnen één formulering: persoonsvorm direct na de punt.
+     ("voorz-persoonsvorm", "bericht dat door de voorz. wordt ondertekend", 0, 1),
+     # Zelfde afkorting, vervolg met eigen onderwerp: lexicaal niet te scheiden
+@@ -106,7 +114,7 @@ GEVALLEN = [
+     ("r1-bijzin-die", "regeling. die kan worden toegepast", 0, 1),
+     ("r1-voorzetsel", "regeling. zonder de verplichting die blijft gelden", 0, 1),
+     ("r1-relatief-voor-pv", "regeling. controle die blijft vereist", 0, 1),
+-    ("r1-onderwerp-lidwoord", "regeling. de controle blijft vereist", 1, 0),
++    ("r1-onderwerp-lidwoord", "regeling. de controle blijft vereist", 0, 1),
+     # Review R2: een slotteken direct vóór het sluitende aanhalingsteken kan
+     # ook de buitenste zin afsluiten; zonder duidelijke voortzetting onzeker.
+     ("r2-zelfstandig", "code met de melding “Gereed.” controle blijft vereist", 0, 1),
+@@ -123,7 +131,7 @@ GEVALLEN = [
+     ("r3-meervoud-ambigu", "regeling. controles kunnen volgen", 0, 1),
+     ("r3-deelwoord-wordt", "regeling. uitsluitend wordt toegepast", 0, 1),
+     ("r3-pv-achteraan", "regeling. controle nodig is", 0, 1),
+-    ("r3-verleden-meervoud", "regeling. de controles werden uitgevoerd", 1, 0),
++    ("r3-verleden-meervoud", "regeling. de controles werden uitgevoerd", 0, 1),
+     # r4: een kaal woord direct vóór de persoonsvorm is geen bewezen onderwerp
+     # (was in r3 nog zeker); zie herstelanalyse-v5.
+     ("r4-kaal-woord-voor-pv", "regeling. toezicht is vereist", 0, 1),
+@@ -155,15 +163,23 @@ GEVALLEN = [
+     ),
+     ("r3-citaat-lange-pp", "code met de melding “Gereed.” op het grote scherm", 0, 1),
+     ("r3-citaat-korte-pp", "melding “Gereed.” van de dienst", 0, 0),
+-    # Correctiereview v2, R1: het onderwerp moet positief herkend zijn — een
+-    # lidwoordgroep, of één woord met een eigen voorzetselgroep vóór de
+-    # persoonsvorm (één zinsdeel op de eerste plaats). Een bijwoord of ander
+-    # kaal woord direct vóór de persoonsvorm bewijst dat niet.
++    # Correctiereview v2, R1: het onderwerp moet positief herkend zijn — onder
++    # /3 alleen een lidwoordgroep. Een bijwoord, ander kaal woord of kaal woord
++    # plus voorzetselgroep vóór de persoonsvorm bewijst dat niet (besluit punt 3).
+     ("r4-bijwoord-opnieuw", "regeling. opnieuw wordt toegepast", 0, 1),
+     ("r4-bijwoord-nog", "regeling. nog wordt toegepast", 0, 1),
+     ("r4-bijwoord-daarna", "regeling. daarna wordt controle uitgevoerd", 0, 1),
+-    ("r4-lidwoordgroep", "regeling. de controle blijft vereist", 1, 0),
+-    ("r4-woord-met-pp", "regeling. toezicht op naleving is vereist", 1, 0),
++    ("r4-lidwoordgroep", "regeling. de controle blijft vereist", 0, 1),
++    # Astra-conservatief-review-v1 R1: lidwoordgroep kan tijdsbepaling zijn.
++    ("c4-tijdsbepaling-de", "regeling. de hele dag wordt toegepast", 0, 1),
++    ("c4-tijdsbepaling-elke", "regeling. elke dag wordt toegepast", 0, 1),
++    ("c4-tijdsbepaling-deze", "regeling. deze week wordt toegepast", 0, 1),
++    # Duidelijke hoofdlettergrens blijft zekere fail; ononderbroken blijft één.
++    ("c4-hoofdletter-fail", "regeling. De controle blijft vereist.", 1, 0),
++    ("c4-ononderbroken", "regeling die elke dag wordt toegepast", 0, 0),
++    ("c3-woord-met-pp", "regeling. toezicht op naleving is vereist", 0, 1),
++    ("c3-bijwoord-met-pp", "regeling. opnieuw volgens protocol wordt toegepast", 0, 1),
++    ("c3-lidwoord-met-pp", "regeling. de controle volgens zqv. blijft vereist", 0, 2),
+     ("r4-pp-zonder-object", "regeling. toezicht op is vereist", 0, 1),
+     # Correctiereview v2, R2: een open bijzin vóór het citaat is alleen bewezen
+     # met markering, lidwoord 'de'/'een' en één woord ('die de melding').
+@@ -200,14 +216,45 @@ def test_segmentatie(tekst, zeker, onzeker):
+     assert len(seg.onzekere_grenzen) == onzeker, seg
+ 
+ 
+-def test_t24_grens_en_passage():
++def test_t24_onder_contract_3_onzeker_met_passage_en_positie():
++    """Besluit /3 punt 3: de normatieve fail blijft in het historische corpus;
++    de automatische dispositie is doorverwijzing, met vindbare grens."""
+     seg = segmenteer(T24)
+-    [grens] = seg.zekere_grenzen
++    assert not seg.zekere_grenzen
++    grens, afkorting = seg.onzekere_grenzen
+     assert "bundeling." in grens.passage and "controle" in grens.passage
+-    assert T24[grens.positie] == "."
+-    assert "kleine" in grens.grond
+-    [onzeker] = seg.onzekere_grenzen
+-    assert "zqv." in onzeker.passage
++    assert grens.positie == T24.index("bundeling.") + len("bundeling")
++    assert "kleine letter" in grens.grond
++    assert "zqv." in afkorting.passage
++    uitkomst = regeluitkomst(seg)
++    assert uitkomst["status"] == "review_required"
++    assert "zinsstructuur" not in _delen(uitkomst)
++
++
++@pytest.mark.parametrize(
++    "tekst",
++    [
++        "strook voor tijdelijke bundeling. de controle blijft vereist",
++        "regeling. de hele dag wordt toegepast",
++    ],
++)
++def test_kleine_letter_na_punt_altijd_onzeker_met_passage_en_positie(tekst):
++    """Uitwerking-v2: punt + kleine beginletter krijgt onder /3 nooit een
++    automatische zekere uitkomst; de mogelijke grens blijft vindbaar."""
++    seg = segmenteer(tekst)
++    assert not seg.zekere_grenzen
++    [grens] = seg.onzekere_grenzen
++    assert tekst[grens.positie] == "."
++    assert tekst[grens.positie + 2].islower()
++    assert "kleine letter" in grens.grond
++    assert regeluitkomst(seg)["status"] == "review_required"
++
++
++def test_hoofdlettergrens_blijft_zekere_fail():
++    seg = segmenteer(ZEKER_FAIL)
++    [grens] = seg.zekere_grenzen
++    assert grens.positie == ZEKER_FAIL.index("bundeling.") + len("bundeling")
++    assert regeluitkomst(seg)["status"] == "fail"
+ 
+ 
+ def test_r2_citaatafsluiting_onzeker_met_passage_en_reden():
+@@ -303,11 +350,22 @@ SERVICEGEVALLEN = [
+     ),
+     ("T22", T22, "review_required", {"zinsgrens_onzeker_1": "review_required", **OPEN}),
+     ("T23", T23, "review_required", {"zinsgrens_onzeker_1": "review_required", **OPEN}),
++    # Besluit /3 punt 3: automatische dispositie onzeker; normatief label fail.
+     (
+         "T24",
+         T24,
++        "review_required",
++        {
++            "zinsgrens_onzeker_1": "review_required",
++            "zinsgrens_onzeker_2": "review_required",
++            **OPEN,
++        },
++    ),
++    (
++        "zeker-fail",
++        ZEKER_FAIL,
+         "fail",
+-        {"zinsgrens_1": "fail", "zinsgrens_onzeker_1": "review_required", **OPEN},
++        {"zinsgrens_1": "fail", **OPEN},
+     ),
+ ]
+ 
+@@ -333,30 +391,45 @@ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
+ # ── Contractversie, opslag en weergave ──────────────────────────────────
+ 
+ 
+-def test_contractversie_is_verhoogd_na_semantische_wijziging():
+-    assert CONTRACTVERSIE != "def770-int01/1"
++def test_contractversie_is_3_na_conservatief_besluit():
++    """Besluit punt 5: de beslisbetekenis wijzigt, dus /2 → /3."""
++    assert CONTRACTVERSIE == "def770-int01/3"
+ 
+ 
+-def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel():
+-    oud = dict(bouw_beoordeling(T24, 1), contract_version="def770-int01/1")
+-    gelezen = lees_beoordeling(oud, T24)
++@pytest.mark.parametrize("oude_versie", ["def770-int01/1", "def770-int01/2"])
++@pytest.mark.parametrize(
++    ("tekst", "nieuw"),
++    [(T24, "review_required"), (ZEKER_FAIL, "fail")],
++    ids=["T24", "zeker-fail"],
++)
++def test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel(
++    oude_versie, tekst, nieuw
++):
++    # T24 was onder /2 'fail'; die oude uitkomst mag niet als /3 gelden.
++    oud = dict(bouw_beoordeling(tekst, 1), status="fail", contract_version=oude_versie)
++    gelezen = lees_beoordeling(oud, tekst)
+     assert gelezen["applied"] is False
+     assert "contractversie" in gelezen["applied_reason"]
+     # UI-weergave bij dezelfde tekst: niet toepasbaar, geen oude onderdelen.
+-    weergave = weergavedetail(oud, T24)
++    weergave = weergavedetail(oud, tekst)
+     assert [p["id"] for p in weergave["parts"]] == ["tekstbinding"]
+     assert weergave["status"] == "review_required"
+-    # Een volgende schrijfactie levert een verse uitkomst met historie.
+-    registratie = met_nieuwe_beoordeling({"int01_beoordeling": oud}, T24, 2)
++    # Een volgende schrijfactie levert een verse /3-uitkomst met historie.
++    registratie = met_nieuwe_beoordeling({"int01_beoordeling": oud}, tekst, 2)
+     assert registratie["int01_beoordeling"]["contract_version"] == CONTRACTVERSIE
+-    assert registratie["int01_beoordeling"]["status"] == "fail"
++    assert registratie["int01_beoordeling"]["status"] == nieuw
+     assert len(registratie["int01_beoordeling_history"]) == 1
+ 
+ 
+ @pytest.mark.parametrize(
+     ("tekst", "status"),
+-    [(T15, "review_required"), (T19, "review_required"), (T24, "fail")],
+-    ids=["T15", "T19", "T24"],
++    [
++        (T15, "review_required"),
++        (T19, "review_required"),
++        (T24, "review_required"),
++        (ZEKER_FAIL, "fail"),
++    ],
++    ids=["T15", "T19", "T24", "zeker-fail"],
+ )
+ def test_opslag_en_teruglezen(tmp_path: Path, tekst, status):
+     pad = tmp_path / "herstel.db"

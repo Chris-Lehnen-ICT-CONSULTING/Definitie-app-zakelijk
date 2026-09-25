@@ -1,0 +1,247 @@
+{
+  "beoordelaar": "A",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "cases": [
+    {
+      "id": "T01",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De naamwoordelijke kern vormt met de aansluitende voorzetselbepalingen één syntactisch geheel. Een persoonsvorm en afsluitend leesteken zijn hiervoor niet vereist.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T02",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De betrekkelijke bijzin met 'waarmee' hoort bij 'fiche' en vormt geen afzonderlijke zin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T03",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De nevenschikkingen verbinden naamdelen en organisaties binnen één naamwoordelijke definitiekern. Er begint nergens een tweede zin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T04",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "Binnen de bijzin met 'waarbij' zijn twee deelzinnen met 'en' verbonden. Hun verschillende onderwerpen maken daarvan geen twee afzonderlijke zinnen.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T05",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "getal",
+      "broncitaat_open": false,
+      "rationale": "Het getal '2,5' en de verwijzing 'nr. 8.' blijven binnen dezelfde kern. De punt na 'nr.' hoort bij de afkorting; alleen de laatste punt sluit de zin af.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T06",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De titel en de auteursvermelding zijn bepalingen binnen één naamwoordelijke kern. De punten in 'dr. P. Velders' behoren tot de aanspreektitel en initiaal.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T07",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "afkorting_als_slot",
+      "broncitaat_open": false,
+      "rationale": "De letterafkorting 'T.O.' staat aan het einde van de doorlopende bepaling 'vastgelegd door de T.O.'. Haar interne punt markeert geen nieuw zinsbegin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T08",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "proefreeks 4.2. De bijlagen",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "Na het reeksnummer en de afsluitende punt begint met 'De bijlagen bevatten' een zelfstandige tweede zin. De interne punt in '4.2' en de afsluitende afkorting 'e.d.' veranderen die grens niet.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T09",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De betrekkelijke bijzin bepaalt welke opening wordt bedoeld en blijft onderdeel van één zin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T10",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "werkplek. De ontvanger",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "De punt sluit de naamwoordelijke definitiekern af. 'De ontvanger tekent op de achterzijde.' is een zelfstandige tweede mededeling.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T11",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "gemeld. Waar is",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "Na de afgesloten definitiekern volgt met 'Waar is het object voor het laatst gezien?' een zelfstandige vraagzin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T12",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "toevoer! Deze oproep",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "Het uitroepteken sluit de gebiedende zin 'Stop de toevoer!' af. Daarna begint een tweede zin met het onderwerp 'Deze oproep'.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T13",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "rationale": "De regelovergangen onderbreken aansluitende bepalingen bij 'rek' en 'drogen'. De tekst blijft syntactisch één naamwoordelijke kern.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T14",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "oefenmaterialen.\n\nDe dienstleider",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "De punt sluit de definitiekern af en 'De dienstleider bewaart' begint een zelfstandige tweede zin. Het oordeel berust op die zinsstructuur en niet alleen op de alineaovergang.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T15",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "rationale": "De drie opsommingsleden vullen gezamenlijk 'pakket met uitsluitend' aan. De dubbele punt, opsommingstekens en puntkomma's verdelen deze ene kern zonder een tweede zin te beginnen.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T16",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De puntkomma verbindt de naamwoordelijke kern en de mededelende deelzin binnen één zin. De eigen persoonsvorm van het tweede deel bewijst op zichzelf geen tweede zin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T17",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "rationale": "De tekst 'Gereed. Neem de bak mee.' is ingesloten als inhoud van de melding. De buitenste zin loopt na het citaat door met 'op het oefenscherm laat verschijnen'.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T18",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "rationale": "De mededeling tussen haakjes is als parenthese opgenomen vóór de afsluitende punt van de buitenste zin. Het eigen onderwerp en de persoonsvorm maken haar hier niet tot een afzonderlijke tweede zin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T19",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": true,
+      "rationale": "Binnen het citaat staat één naamwoordelijke kern met een betrekkelijke bijzin en één afsluitende punt. Omdat de gehele kern is geciteerd, blijft broncitaat een open onderdeel.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T20",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "rationale": "Het vraagteken behoort tot de ingesloten boektitel 'Wie hoort erbij?'. De buitenste naamwoordelijke kern loopt daarna door met 'met deelnemers aan het klankatelier'.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T21",
+      "status": "not_evaluated",
+      "sentence_status": "not_evaluated",
+      "boundary_passage": null,
+      "reason_category": "leeg",
+      "broncitaat_open": false,
+      "rationale": "Het tekstveld is leeg, zodat geen zinsstructuur kan worden beoordeeld.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T22",
+      "status": "review_required",
+      "sentence_status": "review_required",
+      "boundary_passage": "Oefenstatus:",
+      "reason_category": "onvoldoende_informatie",
+      "broncitaat_open": false,
+      "rationale": "'Oefenstatus:' is een los label dat met de dubbele punt nog inhoud lijkt aan te kondigen. Zonder die inhoud is onvoldoende duidelijk of hier een zelfstandige definitiekern staat.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T23",
+      "status": "review_required",
+      "sentence_status": "review_required",
+      "boundary_passage": "geluidsproef... daarna",
+      "reason_category": "onvoldoende_informatie",
+      "broncitaat_open": false,
+      "rationale": "Het beletselteken in 'geluidsproef... daarna' kan een onderbreking binnen één zin of een afsluiting vóór een elliptische instructie aangeven. 'Daarna opnieuw luisteren' biedt onvoldoende syntactisch houvast om die grens zeker vast te stellen.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T24",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "bundeling. controle",
+      "reason_category": "kleine_letter",
+      "broncitaat_open": false,
+      "rationale": "Na de afgesloten kern begint bij 'controle' een zelfstandige mededeling met 'blijft vereist'; de kleine beginletter heft die zinsgrens niet op. De betekenis en eventuele grensfunctie van 'zqv.' blijven onzeker, maar doen niets af aan de zekere tweede zin na 'bundeling.'.",
+      "certainty": "zeker"
+    }
+  ]
+}

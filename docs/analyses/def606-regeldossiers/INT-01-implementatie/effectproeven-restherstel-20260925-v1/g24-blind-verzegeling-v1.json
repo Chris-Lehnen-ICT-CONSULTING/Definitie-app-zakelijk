@@ -1,0 +1,18 @@
+{
+  "time": "2026-09-25T07:46:24.056826+00:00",
+  "files": [
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-blind-v1.json",
+      "sha256": "a78c30f6880777d764a0c75504f9165961dcee89fda9b6b9adbd99faf5fae856"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-blind-sleutel-v1.json",
+      "sha256": "bb8f5230c64fd2766a63857110c7f393536572f281aa9040ecdda8f575d7511c"
+    }
+  ],
+  "generations": 24,
+  "run_cost_usd": 1.818475,
+  "cumulative_cost_usd": 7.533075,
+  "cumulative_cap_usd": 8.1,
+  "remaining_usd": 0.566925
+}

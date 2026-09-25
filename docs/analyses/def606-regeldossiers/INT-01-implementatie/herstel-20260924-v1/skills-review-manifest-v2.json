@@ -1,0 +1,13 @@
+{
+  "base": "16b773de8a5a94ad2c8da9468b05f58086917baa",
+  "head": "werkboom",
+  "diff_sha256": "7b921398034e6da6c79079afd9aaccdc6b202c8ac56e591a74053698228529bb",
+  "files": {
+    "cowork-exports/definitie-nederlandse-definities.zip": "f38d73a1de91ec0ef613b3d9f9092a858ace8d23faf6576c1ce6fff361b70d41",
+    "cowork-exports/definitie-toetsregels.zip": "e54a8843f1a151550fcc62aa34911a3325a11a7e366d983d2c5db77114046e19",
+    "cowork-exports/nederlandse-definities.zip": "5ffe239774115246a41e5a9f89f4cf2ebe72d363a58659d10cc462b9927115da",
+    "cowork-exports/toetsregels.zip": "83fdf547a08c0fb7d3a7e9e1dc94f51ed4baa1e49c082095f3d11b309553b5e6",
+    "skills/definitie-nederlandse-definities/reference.md": "2f20587229cdbbcccc2bd413180b216f7c32f8a8883200d479cc051147fbeb47",
+    "skills/definitie-toetsregels/reference.md": "7b8fc94d31e6d0608a07575c2e24b7ebd8a4e135d61167560157eb952e42ba64"
+  }
+}

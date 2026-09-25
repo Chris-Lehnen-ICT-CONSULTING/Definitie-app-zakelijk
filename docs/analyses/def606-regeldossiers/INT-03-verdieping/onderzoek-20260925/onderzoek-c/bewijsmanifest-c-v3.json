@@ -1,0 +1,96 @@
+{
+  "regel": "INT-03",
+  "onderzoeker": "C",
+  "versie": "v3 (fase 3: synthesecontrole op gedeeld/synthese-v1.md)",
+  "vervangt": "bewijsmanifest-c-v2.json (blijft staan; sha256 d104d0a371ff0859cd378837521acd5aa5ff313046ab620dee8f4a9423bec180)",
+  "sessie": {
+    "omgeving": "Claude Code CLI, headless, Mac van Chris; zelfde sessie als fase 1 en 2 (90f43917-9578-48d1-ab42-a020077cd7dc)",
+    "model": "claude-fable-5-1",
+    "effort": "xhigh",
+    "opdracht": "gedeeld/synthesecontrole-opdracht-c-v1.md (sha256 8a6cb118a645b303efadf34bc8cda4e3d2bc4977d486ad8a5d95bde67ce4cb0f) en het bijbehorende bericht van Chris",
+    "beperkingen": "WebFetch niet toegestaan; geen live modelcalls; geen brede testsuite; in fase 3 geen nieuwe proef uitgevoerd (alleen gerichte broncontroles met grep/Read)"
+  },
+  "datum_utc": "2026-09-25",
+  "leesbasis": {
+    "repository": "/Users/chrislehnen/Projecten/Definitie-app",
+    "branch": "onderzoek/DEF-772-INT-03-20260925",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "python": ".venv/bin/python 3.13.15 (in fase 3 niet gebruikt)"
+  },
+  "gecontroleerd_document": {
+    "gedeeld/synthese-v1.md": "0065ec61dc0fff50902061a722698f8ca6c8cc2d4b2d54738df95f89e822ad4e",
+    "hashcontrole": "door C herberekend met shasum -a 256; gelijk aan de hash in de opdracht van Chris"
+  },
+  "eigen_bestanden_sha256": {
+    "fase_1_ongewijzigd": {
+      "aanvulling-c-v1.md": "31f3a53247584abac9722f27ef952af2a38b409de300175b9d18696c2241fbd3",
+      "casusregister-c-v1.md": "0126835e61fd053b9375d6598a2d84eb87213887bfc276245dc0d2290a31a04c",
+      "proefverwachtingen-c-v1.json": "303486856b2a79ff971700a63c91d1eec4ed0bb9bbd63c1701704afc0f6257da",
+      "proef-c-v1.py": "690ffe2d7baaa9af27d0b6a43be75a5d4cfdf92d6e9930802c2434bac63be054",
+      "proefuitkomsten-c-v1.json": "906d4ee7dd959f1ca736af00e96661ecc139e865dec0ff1725211d0cde61c117",
+      "proef-c-v1-run1.log": "f033cc92c88dfb49a759920e14538587e20fb9e05ea2cb932faf765a56910175",
+      "bewijsmanifest-c-v1.json": "0d18c023823ef7c1a6c3eae0d56ffd0b674c8f1d08d48882264bd797b633029e"
+    },
+    "fase_2_ongewijzigd": {
+      "review-c-op-a-v1.md": "2d98f235a10c2d1b1eb6f4408002103ed1ed2154982dbcd28558c7fb71968455",
+      "review-c-op-b-v1.md": "87b215c63e0bcd0e0e18f09efb69864f1740880c5c181fbdfe4bf75b5e61a3d2",
+      "verwerking-c-v1.md": "4a6f6829e4725f67bc7a8b8aa2dcc24aae0f5b1497e4fffe44ece13dab3768a6",
+      "aanvulling-c-v2.md": "ad4af8d155b434b95919d1e318f379445a6b9f484f90a6693cc1ee7a7a55f4ad",
+      "proefverwachtingen-c-v2.json": "bb3ccc4f3f0d12e66a76186637b0ab9840bbc09e27b12527555773e202a9ece0",
+      "proef-c-v2.py": "7cc728b349aa25d608537ce0e45f1ce1f45a158d54b5dd38cc21150898100c7a",
+      "proefuitkomsten-c-v2.json": "2d1e70a670a13d844525636b290eb4a519ac245d821ecde8e99b1e760f3f9bac",
+      "proef-c-v2-run1.log": "dea5c9e5ae3f87732e72f9465a90907937c53d44dee1c9fc8f1af94c419ff870",
+      "bewijsmanifest-c-v2.json": "d104d0a371ff0859cd378837521acd5aa5ff313046ab620dee8f4a9423bec180"
+    },
+    "fase_3_nieuw": {
+      "synthesecontrole-c-v1.md": "0d49cd0b52ae28e35877cd9280d36249c5f4f086214c37211145df2cdb8af356"
+    },
+    "opmerking": "alle v1- en v2-hashes zijn na fase 3 herberekend en gelijk aan bewijsmanifest-c-v2.json (niets gewijzigd); dit manifest hasht zichzelf niet"
+  },
+  "gelezen_in_fase_3_sha256": {
+    "onderzoek-a/aanvulling-a-v2.md": "cf0ecd92f784bbb7f65e7cd1c600c70d88645ac174efd4326ad71b45e34c6042",
+    "onderzoek-a/verwerking-a-v1.md": "7d6ff1da4e884ddee6579cfd5ccac4da9f9a5b19617908e0be74f8be56cd24e8",
+    "onderzoek-a/bewijsmanifest-a-v2.json": "80992a60d437fc46f9b0ee1d3f323a34a4c5bc8aadd3c359474587b04f34ebed",
+    "onderzoek-b/aanvulling-b-v2.md": "9bf1f2f76cb1b301f8dfbbafa7324d61cc6aa68cf84ecc8139e2c7be8e61359f",
+    "onderzoek-b/review-b-op-c-v1.md": "1d1c1fddd90d23ec36f8d6615ad891a5eaf93db1930b6c783fedfe89b9780c1a",
+    "onderzoek-b/verwerking-b-v1.md": "48ab532cf206d6d5b2e74464dc585c9610ca3b4177509d57eab12f8caf2499be",
+    "onderzoek-d/aanvulling-d-v1.md": "4dda0efd29475584a17ab2e37b72fdd8636fb32804d67f6bda8a69c78da5af2a",
+    "onderzoek-d/casusregister-d-v2.md": "4a4e297e5c29312c871601d3d2bb5109ee62ff564e4893e39c31273e9a08d40c",
+    "gedeeld/feitenbasis-v1.md": "c160479ace16663bc89ebf902e69c1ab7c4f19ad87a0114473eddd82d158662d",
+    "gedeeld/synthesecontrole-opdracht-c-v1.md": "8a6cb118a645b303efadf34bc8cda4e3d2bc4977d486ad8a5d95bde67ce4cb0f"
+  },
+  "hashcontrole_overdracht": "aanvulling-a-v2 cf0ecd92… en verwerking-a-v1 7d6ff1da… komen overeen met bewijsmanifest-a-v2.json; review-c-op-a-v1 2d98f235… (eigen) komt overeen met het ontvangen-blok in bewijsmanifest-a-v2.json; bewijsmanifest-a-v2.json bindt aanvulling-b-v2, aanvulling-c-v2, aanvulling-d-v1, review-b-op-c-v1, verwerking-b-v1 en verwerking-c-v1 niet (synthesecontrole SC-07)",
+  "broncontroles_fase_3": {
+    "src/services/validation/modular_validation_service.py": {
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "controle": "grep: def _evaluate_rule r. 1413, aanroep _evaluate_via_registry r. 1427; geen _evaluate_json_rule. Bevestigt D-correctie op feitenbasis-v1.md r. 46 (SC-10)"
+    },
+    "_claude-global-setup/skills/definitie-nederlandse-definities/reference.md": {
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "controle": "grep op sectiekoppen: r. 146 '## Grammaticaregels', r. 173 '## Verboden Patronen'; geen sectie 'Bijzinnen'; bijzin-aanbeveling r. 169-171; r. 185 valt onder Verboden Patronen (SC-22)"
+    }
+  },
+  "gelezen_zonder_nieuwe_hash_in_fase_3": [
+    "eigen aanvulling-c-v2.md, casusregister-c-v1.md, review-c-op-a-v1.md, proefuitkomsten-c-v2.json (hashes hierboven)",
+    "review-b-op-c-v1.md: door C pas in fase 3 gelezen; BC-01…BC-19 verwerkt in synthesecontrole-c-v1.md §3 (errata), niet in aanvulling-c-v2.md"
+  ],
+  "niet_gelezen_of_niet_toegestaan": {
+    "taaladvies.net / onzetaal.nl": "WebFetch niet toegestaan; uitzonderingen loos 'het', 'iedereen', 'wie/wat' berusten op B S9 en D W1–W4 (secundair)",
+    "Ross DBT §4.3": "niet gelezen (door niemand)",
+    "src/toetsregels/regels/INT-06.json": "niet gelezen; A's INT-06-claim niet geverifieerd",
+    "Cowork-kopieën van definitie-toetsregels en definitie-nederlandse-definities": "door niemand gehasht (SC-40)",
+    "onderzoek-d/proef-d-v1.py, proefuitkomsten-d-v1/v2.json, bewijsmanifest-d-v1.json": "niet gelezen; D-cijfers (20 service, 4 prompt, exit 0) overgenomen uit aanvulling-d-v1.md en casusregister-d-v2.md"
+  },
+  "uitkomst_synthesecontrole": {
+    "punten": 43,
+    "materieel_vereist_synthese_v2": ["SC-06", "SC-07", "SC-14", "SC-19", "SC-27", "SC-30", "SC-34", "SC-35"],
+    "redactioneel_voor_besluit_of_publicatie": ["SC-02", "SC-03", "SC-10", "SC-22", "SC-23", "SC-26", "SC-43"],
+    "standpunt_c": "K3 (a) hele INT-module ongewijzigd; K6 lemma-standpunt ongewijzigd en gelijk aan A/B/D; koppeling fail-aan-vaststaande-bedoeling ingetrokken (C = A/B/D)",
+    "errata_op_eigen_werk": ["E-C1", "E-C2", "E-C3", "E-C4", "E-C5", "E-C6", "E-C7", "E-C8", "E-C9", "E-C10", "E-C11"]
+  },
+  "opgeleverd_fase_3": [
+    "synthesecontrole-c-v1.md",
+    "bewijsmanifest-c-v3.json"
+  ],
+  "status": "fase 3 van C afgerond: synthesecontrole op synthese-v1 (0065ec61…); geen bestaand bestand gewijzigd; geen implementatie, geen commits, geen issues, geen andere sessies; synthese-v2 door A nog niet geschreven; geen gezamenlijke afronding geclaimd"
+}

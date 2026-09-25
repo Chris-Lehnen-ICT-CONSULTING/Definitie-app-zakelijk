@@ -1,0 +1,76 @@
+{
+  "phase": "wederzijdse review B op A",
+  "start_utc": "2026-09-25T08:04:10.617245+00:00",
+  "session_id": "01a0d783-365b-7d82-81d3-684fd0e016fc",
+  "source_files": [
+    {
+      "path": "../a-claude-cli/onderzoek-a-v1.md",
+      "sha256": "ea59e45bef2772d4b97e57a1c11ba1e5cf95500712d2fef26b03b12d0d5f8c00",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/casusregister-a-v1.md",
+      "sha256": "3d2c5cbfa3e00b9ce6713cdf674382e41b84071d24a37ebf7c2a21a437b2df53",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/verwachtingen-a-v1.md",
+      "sha256": "c3ec4e3be19b69f220e907be60b597e29649c2e49de681ad28cc5350c0dee022",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proeflog-a-v1.md",
+      "sha256": "92ae47fa1a42cdac42f2d393823448bf256c3c3087463be7b2af8005b6b41d0c",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proef-p1-service.py",
+      "sha256": "e84e7404b8b818733e891b97a43986770814b68c4669c63ea8449f4cd5b1977c",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proef-p2-prompt.py",
+      "sha256": "2fefe6572a3e0f7f85ea517c45dbf099fd7521ce47c4907bad4ffcd05b9c4c49",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p1-invoer.json",
+      "sha256": "1dfcb7ebc12f14c17f98eaa397527f8a0710119204db537bbaa8f368b91aca49",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p1-uitkomsten.json",
+      "sha256": "fdec3d331d9736c67e92f7c81ed2905d8f5e98767463c9d9559b1cd0bff8f924",
+      "matches_manifest": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p2-uitkomsten.json",
+      "sha256": "307174b0e0292ec19593f61af8df78ee3947ab90ba8650750fd220bce161b9ea",
+      "matches_manifest": true
+    },
+    {
+      "path": "../gedeeld/ontvangstlog.txt",
+      "sha256": "e367055e4a0f296f5413b6c51fe6e0ab03d1d5654fbfcdfc1017bda6fbab8dbe"
+    },
+    {
+      "path": "../a-claude-cli/manifest-a-v1.json",
+      "sha256": "3b71a51b1e5d3fc7f28da63e6f568e0c8f059e64fcb02cad312ccfbf4019d497"
+    },
+    {
+      "path": "../a-cowork/normlezing-coordinator-v1.md",
+      "sha256": "d48f0e2ce350b9b74e583f039f824f7a4c7bd3a5e452a615e0955e95d5c3a586"
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-uitkomsten.json",
+      "sha256": "25a333e75d91169fe636ef2419b9b4a352550a2cde00db2cfea14205b87ce26b"
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-run.py",
+      "sha256": "33a15e92035741d6e26adcbfcd87ef7a5d0748b27e99ab4cb1fc3a09389c3fcc"
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-verwachtingen.json",
+      "sha256": "3c67c448e015933b798db4ec5caaa99835744cba72cef77cfbcb81eff2ff3156"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "seed": "338903793332182018352584459201041140471",
+  "teksten": {
+    "B21": "G03__nieuw__h2",
+    "B13": "G03__oud__h2",
+    "B22": "G04__nieuw__h2",
+    "B08": "G04__oud__h2",
+    "B17": "G05__nieuw__h1",
+    "B15": "G05__oud__h1",
+    "B02": "G05__oud__h2",
+    "B12": "G05__nieuw__h2",
+    "B10": "G06__oud__h1",
+    "B18": "G06__nieuw__h1",
+    "B23": "G02__oud__h1",
+    "B01": "G02__nieuw__h1",
+    "B04": "G03__nieuw__h1",
+    "B16": "G03__oud__h1",
+    "B24": "G02__nieuw__h2",
+    "B20": "G02__oud__h2",
+    "B19": "G04__nieuw__h1",
+    "B05": "G04__oud__h1",
+    "B06": "G01__nieuw__h1",
+    "B11": "G01__oud__h1",
+    "B09": "G06__oud__h2",
+    "B07": "G06__nieuw__h2",
+    "B03": "G01__oud__h2",
+    "B14": "G01__nieuw__h2"
+  },
+  "paren": {
+    "P01": {
+      "invoer_id": "G03",
+      "herhaling": 2,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P02": {
+      "invoer_id": "G04",
+      "herhaling": 2,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P03": {
+      "invoer_id": "G05",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P04": {
+      "invoer_id": "G05",
+      "herhaling": 2,
+      "X": "oud",
+      "Y": "nieuw"
+    },
+    "P05": {
+      "invoer_id": "G06",
+      "herhaling": 1,
+      "X": "oud",
+      "Y": "nieuw"
+    },
+    "P06": {
+      "invoer_id": "G02",
+      "herhaling": 1,
+      "X": "oud",
+      "Y": "nieuw"
+    },
+    "P07": {
+      "invoer_id": "G03",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P08": {
+      "invoer_id": "G02",
+      "herhaling": 2,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P09": {
+      "invoer_id": "G04",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P10": {
+      "invoer_id": "G01",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud"
+    },
+    "P11": {
+      "invoer_id": "G06",
+      "herhaling": 2,
+      "X": "oud",
+      "Y": "nieuw"
+    },
+    "P12": {
+      "invoer_id": "G01",
+      "herhaling": 2,
+      "X": "oud",
+      "Y": "nieuw"
+    }
+  }
+}

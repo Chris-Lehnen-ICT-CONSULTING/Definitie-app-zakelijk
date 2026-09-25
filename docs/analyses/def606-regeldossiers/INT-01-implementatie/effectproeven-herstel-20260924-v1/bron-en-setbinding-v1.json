@@ -1,0 +1,27 @@
+{
+  "utc": "2026-09-24T17:08:31.756224+00:00",
+  "commit": "6c18ce7127f0a785fefdd6bc952175a030be8643",
+  "archive": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-eindproeven/bron-nieuw-6c18ce712.tar",
+  "archive_sha256": "24e82f128c8c78d46acdf7539da1a3ed7766c0d3234a333a3e17bab697485f6e",
+  "review_manifest_sha256": "f22337b12e2f1decbb810affab0b36071b66c1338397d1d2d5e2ff4e23f52f00",
+  "source_hashes": {
+    "src/domain/int01/zinsgrenzen.py": "60a9b372b51c259eab75903ce6c66b72b25cd0253320c4b2e34fc2132d9bc6a9",
+    "src/services/prompts/modules/json_based_rules_module.py": "715be3b6e9250df6350faa9f5144e65740707723a8fe5b1a1dc9ae69ad3a19a3",
+    "src/services/prompts/modules/prompt_orchestrator.py": "0c7397c7fbe7e58adc5b8f71a8a9fcb0d00508aa109f059877170cc8faa42ab7",
+    "src/toetsregels/regels/INT-01.json": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99",
+    "tests/unit/services/prompts/test_def743_con02_promptnorm.py": "5b994e6c910c5a289f96c88c83bfbf9eb7e02084c9ff22f2f123cd01b15c059f",
+    "tests/unit/validation/test_def770_int01_zinsgrenzen.py": "b6d9c3f299018f98bafdc5052dcc66d3dcc5744c246f827a2225361379f076d5",
+    "tests/unit/validation/test_def770_herstel_zinsgrenzen.py": "1dafc84c9c2811b6170523bd788dccb9a436ebe0281de71034c7efce990a2be7",
+    "tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py": "2b94f23cdd7bdcd4040c3accecc832d21946dacc55563a8243bddc0f439ff9b2"
+  },
+  "maker_session": "01a0d453-7cb6-71a1-9322-4c8429369e0b",
+  "maker_tools_used": false,
+  "files": {
+    "maker-uitvoer-v1.json": "5d98e7d10b035f225a3fa54c0f006aaa40be00176f1795bee10f86eac7ddf13f",
+    "t24-gevallen-v1.json": "787815718bf2493cc1735b63219acc718985c2f123c0562fae6f894dadd85a25",
+    "g24-invoer-v1.json": "c30b5793ee3ccf8cdca05c35b5dcd2ad3417610cab345affbce00a5ce3dec034",
+    "referentie-contract-v3.md": "58fa4a1819d54b464879be5ea8e9e12b665063887ad2ab2b3ce0f9366aeba0d7",
+    "proefafspraken-v3.md": "7cd2fd8bb062fb4d3f9cf21280349e98b0fa2cfc19ace3fa877142f3c9408c81"
+  },
+  "note": "Bron bevroren v\u00f3\u00f3r vrijgave aan referentiebeoordelaars. Maker had geen code/uitkomsten."
+}

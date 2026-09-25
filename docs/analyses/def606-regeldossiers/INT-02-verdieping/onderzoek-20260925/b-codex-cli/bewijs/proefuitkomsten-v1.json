@@ -1,0 +1,280 @@
+{
+  "utc": "2026-09-25T07:46:13.277828+00:00",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "offline": true,
+  "stubs": [],
+  "proof_type": "offline service/formatter/cleaning + source binding",
+  "cases": [
+    {
+      "id": "INT02-C50",
+      "input": {
+        "term": "stelselmatige dader",
+        "text": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetisch ASTRA-model"
+          ]
+        }
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": [
+            "\\bindien\\b"
+          ]
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C51",
+      "input": {
+        "term": "weigering",
+        "text": "De bevoegde autoriteit weigert het document, tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetisch ASTRA-model"
+          ]
+        }
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": [
+          "\\btenzij\\b"
+        ]
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": [
+            "\\btenzij\\b"
+          ]
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C52",
+      "input": {
+        "term": "aanvraag",
+        "text": "Aanvraag die de behandelaar moet afwijzen bij een ontbrekende bijlage.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetisch loket"
+          ]
+        }
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": []
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": []
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C53",
+      "input": {
+        "term": "vernietiging",
+        "text": "Rechtshandeling waardoor de rechtsgevolgen van een eerdere rechtshandeling vervallen.",
+        "context": {
+          "organisatorische_context": [
+            "Synthetisch begrippenmodel"
+          ]
+        }
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": []
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": []
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C54",
+      "input": {
+        "term": "stemgerechtigd lid",
+        "text": "Lid dat stemgerechtigd is alleen als het vóór 1 januari is ingeschreven.",
+        "context": {
+          "organisatorische_context": [
+            "Fictieve vereniging"
+          ]
+        }
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": [
+          "\\balleen als\\b"
+        ]
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": [
+            "\\balleen als\\b"
+          ]
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C55",
+      "input": {
+        "term": "beschadigd voorwerp",
+        "text": "Voorwerp met een waarneembare onderbreking van het oppervlak.",
+        "context": {
+          "organisatorische_context": [
+            "Fictieve inspectie"
+          ]
+        }
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": []
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": []
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C56",
+      "input": {
+        "term": "stelselmatige dader",
+        "text": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+        "context": {}
+      },
+      "expected": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "actual": {
+        "status": "review_required",
+        "review": {
+          "rule_id": "INT-02",
+          "category": "structuur",
+          "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+          "signals": [
+            "\\bindien\\b"
+          ]
+        },
+        "passed": false,
+        "violations": [],
+        "rule_result": null,
+        "run_status": "validated"
+      },
+      "expectation_met": true
+    }
+  ],
+  "prompt": {
+    "True": "🔹 **INT-02 - Geen beslisregel**\n- Een definitie bevat geen beslisregels of voorwaarden.\n- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'\n  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.\n  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+    "False": "🔹 **INT-02 - Geen beslisregel**\n- Een definitie bevat geen beslisregels of voorwaarden.\n- **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'"
+  },
+  "cleaning": [
+    {
+      "id": "INT02-C50",
+      "raw": "Ontologische categorie: type\nstelselmatige dader: Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "cleaned": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "applied_rules": [
+        "extracted_ontology_type",
+        "added_period"
+      ],
+      "metadata": {
+        "timestamp": "2026-09-25T07:46:13.360941+00:00",
+        "term": "stelselmatige dader",
+        "service_version": "1.0"
+      },
+      "expected_content": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "expectation_met": true
+    },
+    {
+      "id": "INT02-C52",
+      "raw": "Ontologische categorie: type\naanvraag: Aanvraag die de behandelaar moet afwijzen bij een ontbrekende bijlage",
+      "cleaned": "Aanvraag die de behandelaar moet afwijzen bij een ontbrekende bijlage.",
+      "applied_rules": [
+        "extracted_ontology_type",
+        "added_period"
+      ],
+      "metadata": {
+        "timestamp": "2026-09-25T07:46:13.361856+00:00",
+        "term": "aanvraag",
+        "service_version": "1.0"
+      },
+      "expected_content": "Aanvraag die de behandelaar moet afwijzen bij een ontbrekende bijlage.",
+      "expectation_met": true
+    }
+  ],
+  "historical_binding": {
+    "old_commit": "d68a98a909630e15db6e1cb9c9c8171f957bff9d",
+    "record_equal_to_git": true,
+    "record_equal_to_evidence": true,
+    "sha256": "f4149faae49ccb932b4907fde1c50b5c6503c164d100ce6d08de3e816119a5a2",
+    "historical_sha256": "f4149faae49ccb932b4907fde1c50b5c6503c164d100ce6d08de3e816119a5a2",
+    "signals_ast_unchanged": true,
+    "evaluate_ast_unchanged": false,
+    "restriction": "evaluate bevat alleen toegevoegde branches voor ESS-01/02/04; INT-02-codepad gelijk; overige keten niet gelijk verondersteld"
+  }
+}

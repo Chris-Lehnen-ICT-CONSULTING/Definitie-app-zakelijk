@@ -1,0 +1,21 @@
+$ /Users/chrislehnen/.cache/pre-commit/repoy903793m/py_env-python3.13/bin/ruff --version
+ruff 0.16.5
+exit=0
+
+$ /Users/chrislehnen/.cache/pre-commit/repoy903793m/py_env-python3.13/bin/ruff check src/domain/int01/zinsgrenzen.py tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py tests/unit/validation/test_def770_voorbeeldgetal_zinsgrenzen.py tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py tests/unit/validation/test_def770_herstel_zinsgrenzen.py tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+All checks passed!
+exit=0
+
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/black --check src/domain/int01/zinsgrenzen.py tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py tests/unit/validation/test_def770_voorbeeldgetal_zinsgrenzen.py tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py tests/unit/validation/test_def770_herstel_zinsgrenzen.py tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+All done! ✨ 🍰 ✨
+6 files would be left unchanged.
+exit=0
+
+$ make PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python lint
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+405 files would be left unchanged.
+exit=0
+

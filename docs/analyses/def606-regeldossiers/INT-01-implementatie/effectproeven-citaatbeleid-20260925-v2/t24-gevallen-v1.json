@@ -1,0 +1,194 @@
+[
+  {
+    "id": "T01",
+    "stratum": "S1",
+    "begrip": "Schuifnest",
+    "tekst": "ondiepe uitsparing voor het opbergen van verschuifbare meetplaatjes",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een voorzetselbepaling en een zelfstandig gebruikte werkwoordsvorm."
+  },
+  {
+    "id": "T02",
+    "stratum": "S1",
+    "begrip": "Terugkeervenster",
+    "tekst": "tijdvak waarin een onderbroken proef zonder nieuwe nulmeting kan worden hervat",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een betrekkelijke bijzin specificeert het tijdvak dat de kern benoemt."
+  },
+  {
+    "id": "T03",
+    "stratum": "S1",
+    "begrip": "Kleur-en-klankregister",
+    "tekst": "register van kleur en klank waarin waarnemers hun gelijktijdige indrukken vastleggen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevenschikking binnen een naamwoordgroep, gevolgd door een betrekkelijke bijzin."
+  },
+  {
+    "id": "T04",
+    "stratum": "S1",
+    "begrip": "Wisselhouder",
+    "tekst": "Houder voor een sensor of een proefgewicht dat tijdens de meting verplaatsbaar moet blijven. De gekozen inzet rust op drie nokken.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een naamwoordelijke opening bevat nevenschikking en een bijzin; daarna volgt een zelfstandige mededeling."
+  },
+  {
+    "id": "T05",
+    "stratum": "S2",
+    "begrip": "Rastermaat",
+    "tekst": "afstand van 2,5 mm tussen opeenvolgende hulplijnen op een tekenblad",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een decimaal getal en een eenheidsafkorting staan midden in de kern."
+  },
+  {
+    "id": "T06",
+    "stratum": "S2",
+    "begrip": "Veldstrook",
+    "tekst": "strook met 3 vakken voor aantekeningen van de fictieve onderzoeker dr. Mira Velden.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een cijfer wordt gecombineerd met een afgekorte titel en een persoonsnaam."
+  },
+  {
+    "id": "T07",
+    "stratum": "S2",
+    "begrip": "Aanvulbak",
+    "tekst": "bak voor losse knopen, koorden, lapjes e.d.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een opsommende naamwoordgroep eindigt op een afkorting met punten."
+  },
+  {
+    "id": "T08",
+    "stratum": "S2",
+    "begrip": "Rondekaart",
+    "tekst": "Kaart waarop elke proefronde een nummer krijgt, bijv. 12. De achterkant biedt ruimte voor opmerkingen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een afkorting en een getal gaan vooraf aan een punt en een nieuwe mededeling."
+  },
+  {
+    "id": "T09",
+    "stratum": "S3",
+    "begrip": "Schaduwmal",
+    "tekst": "Een schaduwmal is een plaat die een vaste omtrek op de werktafel projecteert.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een volledige mededelende zin sluit af met een punt."
+  },
+  {
+    "id": "T10",
+    "stratum": "S3",
+    "begrip": "Rustsignaal",
+    "tekst": "Een rustsignaal kondigt een pauze in de oefening aan. Het klinkt eenmaal.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee korte mededelende zinnen hebben elk een afsluitende punt."
+  },
+  {
+    "id": "T11",
+    "stratum": "S3",
+    "begrip": "Keuzevak",
+    "tekst": "Een keuzevak biedt ruimte voor één voorkeur. Welke mogelijkheid krijgt de markering?",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een mededeling wordt gevolgd door een vraag met een vraagteken."
+  },
+  {
+    "id": "T12",
+    "stratum": "S3",
+    "begrip": "Vangrand",
+    "tekst": "Een vangrand houdt rollende kralen op het werkblad. Laat de opening vrij!",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een beschrijvende zin wordt gevolgd door een aansporing met een uitroepteken."
+  },
+  {
+    "id": "T13",
+    "stratum": "S4",
+    "begrip": "Vouwgeleider",
+    "tekst": "smalle richel die het papier\nlangs een vooraf gekozen lijn\nnaar binnen laat buigen",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Regelomloop onderbreekt een doorlopende grammaticale constructie."
+  },
+  {
+    "id": "T14",
+    "stratum": "S4",
+    "begrip": "Luisterplek",
+    "tekst": "Een luisterplek is een afgeschermde ruimte voor het vergelijken van zachte geluiden.\n\nDe bekleding dempt weerkaatsingen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee mededelingen zijn met een lege regel over afzonderlijke alinea's verdeeld."
+  },
+  {
+    "id": "T15",
+    "stratum": "S4",
+    "begrip": "Sorteerblad",
+    "tekst": "blad met afzonderlijke zones voor:\n- ronde onderdelen;\n- vlakke onderdelen;\n- onregelmatige onderdelen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een naamwoordelijke aanloop mondt via een dubbele punt uit in een opsomming met puntkomma's."
+  },
+  {
+    "id": "T16",
+    "stratum": "S4",
+    "begrip": "Draaipauze",
+    "tekst": "**Draaipauze** is een onderbreking tussen twee omwentelingen; de aandrijving blijft gereed voor hervatting.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Markdownopmaak markeert het begrip en een puntkomma verbindt twee hoofdzinnen."
+  },
+  {
+    "id": "T17",
+    "stratum": "S5",
+    "begrip": "Startfluistering",
+    "tekst": "zacht uitgesproken aanwijzing met de woorden ‘nu beginnen’ waarmee een luisteroefening wordt geopend.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een kort citaat is opgenomen in een doorlopende naamwoordelijke constructie."
+  },
+  {
+    "id": "T18",
+    "stratum": "S5",
+    "begrip": "Middenpen",
+    "tekst": "Pen die het draaipunt van een kartonnen schijf vastlegt (zonder de schijf vast te klemmen). De punt steekt door de onderplaat.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een ingelaste bepaling staat tussen haakjes vóór de afsluitende punt; daarna volgt een nieuwe mededeling."
+  },
+  {
+    "id": "T19",
+    "stratum": "S5",
+    "begrip": "Bewaarplooi",
+    "tekst": "“een dubbele vouw waarin een klein briefje zonder lijm blijft zitten.”",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De gehele kern staat tussen aanhalingstekens, met de punt binnen het sluitende teken."
+  },
+  {
+    "id": "T20",
+    "stratum": "S5",
+    "begrip": "Vraagtegel",
+    "tekst": "tegel uit de fictieve oefenreeks ‘Waar klinkt het?’ die een luisteraar naar de bron van een geluid laat wijzen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een ingesloten titel eindigt op een vraagteken terwijl de omringende constructie daarna doorloopt."
+  },
+  {
+    "id": "T21",
+    "stratum": "S6",
+    "begrip": "Meetluwte",
+    "tekst": "",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Het tekstveld bevat geen tekens."
+  },
+  {
+    "id": "T22",
+    "stratum": "S6",
+    "begrip": "Afstemvak",
+    "tekst": "Afstemvak",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De tekst bestaat uitsluitend uit een los label."
+  },
+  {
+    "id": "T23",
+    "stratum": "S6",
+    "begrip": "Kantelruimte",
+    "tekst": "vrije ruimte onder een beweegbare plank. de rand blijft tijdens het kantelen zichtbaar",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Na een punt en een spatie volgt een kleine letter; een afsluitend leesteken ontbreekt."
+  },
+  {
+    "id": "T24",
+    "stratum": "S6",
+    "begrip": "Naloopwaarde",
+    "tekst": "waarde waarmee de uitloop van een proefwiel wordt genoteerd in zkr.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De kern eindigt op een verzonnen afkorting waarvan de betekenis niet wordt uitgelegd."
+  }
+]

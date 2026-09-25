@@ -1,0 +1,13 @@
+diff --git a/skills/definitie-toetsregels/reference.md b/skills/definitie-toetsregels/reference.md
+index fd3af2d..f4ffc17 100644
+--- a/skills/definitie-toetsregels/reference.md
++++ b/skills/definitie-toetsregels/reference.md
+@@ -90,7 +90,7 @@ Een zinsstructuurbevinding bewijst dus geen volledige INT-01-pass. Vermeld expli
+ 
+ **Onderscheidende voorbeelden (uitsluitend zinsstructuur).** ‘eis die migratie naar de toekomstige situatie mogelijk maakt’ vraagt geen hoofdzin; ‘eis die migratie mogelijk maakt. Zij vervalt daarna.’ bevat een tweede zin. ‘verwijzing naar art. 3’ bewijst geen tweede zin; ‘categorie A. Registratie’ is in de app onzeker. Een komma, puntkomma of opmaakregel alleen levert geen afkeur op. Geen van deze voorbeelden bewijst compactheid of doelgroepbegrip.
+ 
+-Deze instructies volgen de lokale operationalisering van DEF-770: het INT-01-regelrecord, de generatie-instructie en het contract `def770-int01/9` (conservatieve automatische beoordeling: alleen ondersteunde patronen krijgen een zekere uitkomst, twijfel gaat naar inhoudelijke beoordeling; een mogelijke grens bij een punt met kleine beginletter, en bij een slotteken direct vóór een sluitend aanhalingsteken met een voortzetting zonder hoofdletter of cijfer, ook na een komma, puntkomma of dubbele punt, blijft in de app altijd open); een onder een eerdere contractversie opgeslagen uitkomst geldt niet als actueel en moet opnieuw worden getoetst voordat zij als actueel kan gelden. Ze zijn geen bewijs dat die appversie al is uitgerold of dat kwaliteitswinst is aangetoond.
++Deze instructies volgen de lokale operationalisering van DEF-770: het INT-01-regelrecord, de generatie-instructie en het contract `def770-int01/10` (conservatieve automatische beoordeling: alleen ondersteunde patronen krijgen een zekere uitkomst, twijfel gaat naar inhoudelijke beoordeling; een mogelijke grens bij een punt met kleine beginletter, en bij een slotteken direct vóór een sluitend aanhalingsteken met een voortzetting zonder hoofdletter of cijfer, ook na een komma, puntkomma of dubbele punt, blijft in de app altijd open); een onder een eerdere contractversie opgeslagen uitkomst geldt niet als actueel en moet opnieuw worden getoetst voordat zij als actueel kan gelden. Ze zijn geen bewijs dat die appversie al is uitgerold of dat kwaliteitswinst is aangetoond.
+ 
+ ### SAM — Semantische Samenhang (8 regels)
+ 

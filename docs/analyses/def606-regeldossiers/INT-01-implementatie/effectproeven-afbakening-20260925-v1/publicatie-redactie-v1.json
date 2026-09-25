@@ -1,0 +1,12 @@
+{
+  "finding_count": 6,
+  "classification": "Alle zes treffers zijn zelfstandig herberekende SHA-256-vingerafdrukken van de synthetische API-verzoekbody, geen authenticatiegegevens.",
+  "original_file": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/promptpariteit-v1.log",
+  "original_sha256": "5a06a5abf9fb0167580be5f1d5548cfae6583f94b2f4ccc210eacf2073b6d05d",
+  "publication_file": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/technisch-bewijs-v1/promptpariteit-publicatie-v1.txt",
+  "publication_sha256": "1999c093f84a6496de3bb281cf08ccccd10b4eebfffdcf661f38a40b19b95e87",
+  "replacement_count": 6,
+  "replacement": "[GEREDIGEERDE_VERZOEKVINGERAFDRUK]",
+  "unchanged": "Alle overige bytes, promptvingerafdrukken, pariteitsuitkomsten en exitstatus blijven gelijk. Origineel blijft lokaal, niet gepubliceerd.",
+  "security": "Geen wijziging scannerconfig, allowlist of hooks; normale commitcontrole opnieuw vereist."
+}

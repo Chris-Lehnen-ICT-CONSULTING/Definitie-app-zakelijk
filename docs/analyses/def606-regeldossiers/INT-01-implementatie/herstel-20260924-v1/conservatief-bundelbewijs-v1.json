@@ -1,0 +1,39 @@
+{
+  "tests": {
+    "passed": 94,
+    "subtests_passed": 2,
+    "exit": 0
+  },
+  "bundles": [
+    {
+      "bundle": "cowork-exports/definitie-toetsregels.zip",
+      "sha256": "be0e02851694bab55b1191dff9197af78bf027363ee21f864691dfc963e2ff2c",
+      "reference_sha256": "3b97a9c41c4904ba490cd7bfe6da4e0ade874182bf36d0a853ec193018b1779b",
+      "matches_source": true,
+      "mapping_applied": false
+    },
+    {
+      "bundle": "cowork-exports/toetsregels.zip",
+      "sha256": "bc33dc9fc3158c9856fa669c8c17939120aca9c4f3f065d9663058804f022a4a",
+      "reference_sha256": "c859b3e536c8159ab4d8dc40d9b4baab8a491d0976522ad584d8c31262aeb738",
+      "matches_source": true,
+      "mapping_applied": true
+    },
+    {
+      "bundle": "cowork-exports/definitie-nederlandse-definities.zip",
+      "sha256": "77d28130c89160059f13502adfe38e481ff4b9d28115b7a9ee6086b628e1e731",
+      "reference_sha256": "2f20587229cdbbcccc2bd413180b216f7c32f8a8883200d479cc051147fbeb47",
+      "matches_source": true,
+      "mapping_applied": false
+    },
+    {
+      "bundle": "cowork-exports/nederlandse-definities.zip",
+      "sha256": "5ffe239774115246a41e5a9f89f4cf2ebe72d363a58659d10cc462b9927115da",
+      "reference_sha256": "c711aea575fe5cee688b64990879ed165113348b43be4cc82770681358c1c741",
+      "matches_source": true,
+      "mapping_applied": true
+    }
+  ],
+  "activation": "niet uitgevoerd (ALG-391)",
+  "verification_note": "Eerste eigen bytecontrole signaleerde naamverschillen in aliasbundels. Verschillen bekeken: bestaande canonieke-naar-aliasnaamtransformatie. Hier tegen dezelfde vastgelegde mapping gecontroleerd, geen bronwijziging."
+}

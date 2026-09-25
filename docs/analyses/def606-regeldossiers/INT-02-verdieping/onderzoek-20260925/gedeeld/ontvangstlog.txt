@@ -1,0 +1,44 @@
+2026-09-25T07:55:46Z ontvangst A-CLI v1 bevestigd door coördinator (job 20260925T074156-9ac95377, 77 turns, 657 s); manifest-a-v1.json door coördinator geschreven uit eindbericht (Write geweigerd door padpatroon)
+ea59e45bef2772d4b97e57a1c11ba1e5cf95500712d2fef26b03b12d0d5f8c00  a-claude-cli/onderzoek-a-v1.md
+3d2c5cbfa3e00b9ce6713cdf674382e41b84071d24a37ebf7c2a21a437b2df53  a-claude-cli/casusregister-a-v1.md
+2026-09-25T08:02:54Z ontvangst B v1/v2 bevestigd door coördinator (codex exec thread 01a0d783-365b-7d82-81d3-684fd0e016fc, run1 gestart 07:41:35Z, laatste bericht 08:01Z); v2 = B's eigen correctie C57 vóór kruisreview, v1 bewaard; v2 leidend voor review
+8312616f41ed56039530a838e04572155598f7000f09b8333adaaa9e2652474f  b-codex-cli/onderzoek-b-v2.md
+1ad33b10aabd57d5f612035d046a8af4cb5d0333546ca1d6d5afcdaa2683865e  b-codex-cli/casusregister-b-v2.md
+b885ed585dfa16062cac342fda6b0d18464059b6b1d5c31ead6ec6edc602cbf7  b-codex-cli/onderzoek-b-v1.md
+fcac4dd19424fac5a1de12deebb79960a39d8f5465618b304f5c80b8a83b0b0a  b-codex-cli/manifest-b-v1.json
+2026-09-25T08:21:58Z ontvangst review-a-op-b-v1 (claude job 20260925T080323-faaa03d5, 34 turns, 330 s) en review-b-op-a-v1 + erratum (codex thread 01a0d783, run2 gestart 08:03:11Z) bevestigd door coördinator; beide reviews wederzijds overgedragen voor verwerking
+382792b0515d05d3483d832779738482fbf592a343cf7911cf43f2393d7f8203  a-claude-cli/review-a-op-b-v1.md
+706ed0faa2cb01040776523aabf7d4c7397b656c6c9014481c8833e1433b8aeb  b-codex-cli/review-b-op-a-v1.md
+881bad5e52a7dd19fa016c1fd04bae7d0974b2e9d99a65f990d08231420736d1  b-codex-cli/review-b-op-a-v1-erratum.md
+2d61888e8179203d51468e6c08cbc6a90d4265b729d0f216fa8d58f24230932b  gedeeld/gezamenlijke-synthese-v1.md
+b84af91340042bc0587aa356e76cc26c01f755cdf14b953e58dff392c2017526  gedeeld/besluitnotitie-chris-v1.md
+0b307db83b2132902db603d7740212fa28182ed171915ef9bf8748225c8e8092  gedeeld/gezamenlijk-casusregister-v1.md
+c620ca62824bbe2486a9e49b4f34a9e3047ac72d2cf50456880b323f8a2b1ad3  b-codex-cli/verwerking-b-v1.md
+ac94555b069366510e560a0e63b681bca60b399e1ff47d0546e7652adbec85ec  b-codex-cli/onderzoek-b-v3.md
+a7106f9e17a5fd955b59375bd930ddd4a93040bbaeac6ea84eb8b02666f545bd  a-claude-cli/verwerking-a-v1.md
+641c296e182ee6e0f0d6323239dea432d2e481abdf455f13e8a4a72df303287c  a-claude-cli/onderzoek-a-v2.md
+2026-09-25T08:35:12Z verwerking A en B ontvangen; synthese v1, besluitnotitie v1, gezamenlijk casusregister v1 overgedragen aan B voor synthesecontrole (run4)
+f80feaf473014a10979b0673fe5281ff4a2c1acff7017ebb48561468cce7523e  gedeeld/gezamenlijke-synthese-v2.md
+8d2c0487fcca63fabe9a9a9245eeda9fd21b8c8ed7bc6eee23908710c6319789  gedeeld/besluitnotitie-chris-v2.md
+d4de995a1633fdfb555a46b21f0426315a3781febf3f5d70ac9f500dfbfaab9b  gedeeld/gezamenlijk-casusregister-v2.md
+a164aa6bf29491e57fcfc869cfc7e0d9adf7152703505616ac482e67215d968c  a-cowork/verwerking-synthesecontrole-a-v1.md
+f226f7f50a536eddf42ee7048814eb0d43f159ed7796da50b2546db33ded5907  b-codex-cli/synthesecontrole-b-v1.md
+2026-09-25T08:58:36Z synthesecontrole B v1 ontvangen en verwerkt; v2-documenten overgedragen aan B voor gerichte controle (run5)
+2026-09-25T12:03:00Z synthesecontrole C v1 ontvangen (verse Codex CLI-sessie, run2; 14 punten, 1 materieel SC-C-02) en verwerkt; K1–K5 door Chris beslist (besluiten-chris-v1.md; DEF-831, DEF-832); v4-documenten overgedragen aan C voor gerichte controle (run3)
+db42f326f9ac0c0dc2d4f02124f328bef3b813d6b573594d108a1bd92e0cfb8a  gedeeld/gezamenlijke-synthese-v4.md
+af142f0e0de5b6be291533f3fe5422b0c8dc17dc9dd84db193d75297daa9a5a7  gedeeld/besluitnotitie-chris-v4.md
+998da620c19ece0ac2b826b8b9dce33c6854215c45b8bc67b703e528b9d9a2c2  gedeeld/gezamenlijk-casusregister-v4.md
+bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2  gedeeld/besluiten-chris-v1.md
+5658695cc5484c8829d8aeaf5be31052f98cba38b0c976b974dfbbdecafd02c4  a-cowork/verwerking-synthesecontrole-c-v1.md
+26cde499eaca5ce96530cda392bb3b4078c721a184028ec5d936439504b707a1  c-codex-app/synthesecontrole-c-v1.md
+5d15a5993a30460dd0dc873a4e09cc4ba552aa35fb4307f4301a7dcebe640e1e  c-codex-app/manifest-c-v2.json
+2026-09-25T12:11:43Z gerichte controle C v2 ontvangen (run3, sessie 01a0d872…): SC-C-02 gesloten, A+B+C inhoudelijk afgerond; 4 redactionele restpunten verwerkt in v5; uitvoeringsopdracht voor Codex-coördinator geschreven (niet gestart)
+cc0c89007c39f67aa25fadc9ed22910ad285a140e077189517c666d8dd9ee9b3  gedeeld/gezamenlijke-synthese-v5.md
+fb6770c40471f70475409678c3d9ba0ecb0b03e74de38701619d5307c5ee0385  gedeeld/besluitnotitie-chris-v5.md
+76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734  gedeeld/gezamenlijk-casusregister-v5.md
+1933418508af7357cbc1c2c9d8da9c75c60a5650508dd4c2c46d1c79187f3446  gedeeld/uitvoeringsopdracht-codex-coordinator-v1.md
+dd1b043b6df2ee5423152b67cf0f1995ffa0cae71a8a1efce5b713d818372c4a  a-cowork/verwerking-synthesecontrole-c-v2.md
+8513daa103d306869587b55438b34ad9e6bd7e76bf62da294ea583304805c42c  c-codex-app/synthesecontrole-c-v2.md
+e01fda477cadb5304c3e4ca5f3d2e6310671a5d6ea90a1230b2587a2f6d20664  c-codex-app/manifest-c-v3.json
+2026-09-25T12:18:07Z akkoord Chris op v5; gepubliceerd bij DEF-771 (oplevercomment 1a1b848a…, zes acceptatiecriteria afgevinkt, kop in beschrijving); Prompt Forge op aanwijzing van Chris niet gebruikt (door coördinator gestarte backend weer gestopt)
+2026-09-25T13:07:41Z gemergd in main: PR #478 (merge commit a3c012312); branch docs/DEF-771-int02-regeldossier, commits e8f88bca8 (dossier) + 9f748dfc7 (pre-commit: ruff/black slaan docs/analyses/ over); alle 29 CI-checks groen; deze regel is lokaal bijgeschreven na de merge en niet opnieuw gecommit

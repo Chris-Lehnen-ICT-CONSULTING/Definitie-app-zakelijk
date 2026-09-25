@@ -1,0 +1,212 @@
+{
+  "soort": "DEF-770 G24 nabewerking (offline; geen validatie/enhancement)",
+  "arm": "oud",
+  "manifest_sha256": "66b34f46901ebd768ac66eae3f9d53d63fd79f9e46bfd81082e1e6d30f986848",
+  "script_sha256": "2ec4388d7a60350855ee85dfcef997938eda34f6cc858dd9359569518ef15709",
+  "bron": {
+    "archief": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/bron-oud-26f2374d.tar",
+    "archief_sha256": "e591502086a034c7245c37a3d525393d761c470667db615a95ff4397720525b5",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "commit_uit": "pax-header 'comment' van git archive",
+    "sleutelbestanden_sha256": {
+      "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "src/domain/int01/zinsgrenzen.py": "niet aanwezig",
+      "src/domain/int01/opslag.py": "niet aanwezig",
+      "src/services/validation/evaluators/sentence_boundary.py": "niet aanwezig",
+      "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "src/services/prompts/prompt_service_v2.py": "fd268584bf195fa816386f978832657b2781e016532449e2c8aeda1dc02581ab",
+      "src/services/orchestrators/definition_orchestrator_v2.py": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259",
+      "src/services/ai/anthropic_client.py": "91381bf25cfe3f1be7393b409105cf6a751d897ce7dd9530b32a8ac647e818e1",
+      "src/services/ai/model_router.py": "65e923d9840910c4a5113d344f8e2b2a7f64f9b9b59d966bdf63a97c07235bac",
+      "config/config.yaml": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "tests/offline_bootstrap.py": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7"
+    }
+  },
+  "offline_gate_actief": true,
+  "uitvoermap": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/g24-generaties-v1",
+  "compleet": true,
+  "ontbrekend": [],
+  "rijen": [
+    {
+      "call_id": "G01__oud__h1",
+      "resultaat_sha256": "ebc93e7a23d1496813eb8c1d12ce59da5e1430ec76edef869fd29ab0924f2d61",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak.",
+      "definitie_kern": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak"
+    },
+    {
+      "call_id": "G01__oud__h2",
+      "resultaat_sha256": "50812689cc68afed3f8979b5674d88f4831af81cd3934bcf51682f2567f0d42c",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak.",
+      "definitie_kern": "Begeleidend document dat voor één interne verplaatsing van een herbruikbare bak de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten, zonder gegevens over de inhoud of de voorraadwaarde van die bak"
+    },
+    {
+      "call_id": "G02__oud__h1",
+      "resultaat_sha256": "27ba7d9dd47c122fb8b79d592f12f4a264b0e3818b3b554b0fb3de35c4907979",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Behandelingsstatus van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor de behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Behandelingsstatus van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor de behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Behandelingsstatus van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor de behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet.",
+      "definitie_kern": "Behandelingsstatus van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor de behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet"
+    },
+    {
+      "call_id": "G02__oud__h2",
+      "resultaat_sha256": "0f8b3baaedd9655e3dc47b4ecc4b95702126cc7792f2d6b0f42b2c8b5034cdcb",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Status van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt uitsluitend doordat één gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Status van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt uitsluitend doordat één gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Status van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt uitsluitend doordat één gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet.",
+      "definitie_kern": "Status van een reserveringsaanvraag voor een oefenruimte waarvan de behandeling stilligt uitsluitend doordat één gevraagde plattegrond ontbreekt terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn, waardoor dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet"
+    },
+    {
+      "call_id": "G03__oud__h1",
+      "resultaat_sha256": "ae1fb0d113ddc2a471f3b96b6a7f74e0779b2155d1b59a45a0b72a9118a13f70",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Advies over een voorgestelde bezoekersroute waarvan dezelfde tekst is vastgesteld door zowel de Kamer voor Toegang en Verblijf als het Bureau voor Routes en Rust, zonder dat daarmee over ingebruikname van die route wordt besloten",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Advies over een voorgestelde bezoekersroute waarvan dezelfde tekst is vastgesteld door zowel de Kamer voor Toegang en Verblijf als het Bureau voor Routes en Rust, zonder dat daarmee over ingebruikname van die route wordt besloten.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Advies over een voorgestelde bezoekersroute waarvan dezelfde tekst is vastgesteld door zowel de Kamer voor Toegang en Verblijf als het Bureau voor Routes en Rust, zonder dat daarmee over ingebruikname van die route wordt besloten.",
+      "definitie_kern": "Advies over een voorgestelde bezoekersroute waarvan dezelfde tekst is vastgesteld door zowel de Kamer voor Toegang en Verblijf als het Bureau voor Routes en Rust, zonder dat daarmee over ingebruikname van die route wordt besloten"
+    },
+    {
+      "call_id": "G03__oud__h2",
+      "resultaat_sha256": "73501220aba4a9aa7ee7c458a269657f49b02d5de6fabbe3f31f9b1712bda827",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "advies over een voorgestelde bezoekersroute waarvan de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust dezelfde tekst hebben vastgesteld, zonder dat daarmee over ingebruikname van die route wordt besloten",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Advies over een voorgestelde bezoekersroute waarvan de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust dezelfde tekst hebben vastgesteld, zonder dat daarmee over ingebruikname van die route wordt besloten.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Advies over een voorgestelde bezoekersroute waarvan de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust dezelfde tekst hebben vastgesteld, zonder dat daarmee over ingebruikname van die route wordt besloten.",
+      "definitie_kern": "advies over een voorgestelde bezoekersroute waarvan de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust dezelfde tekst hebben vastgesteld, zonder dat daarmee over ingebruikname van die route wordt besloten"
+    },
+    {
+      "call_id": "G04__oud__h1",
+      "resultaat_sha256": "50a86d9e13941dc6af0eb07b9ca8da95e344b5dc4bcbf9021038da5827afcd02",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Verzameling van precies drie stukken die bij één wisseling van kastbeheerder van dezelfde uitleenkast en hetzelfde overdrachtsmoment samenhangen, bestaande uit een actuele inhoudslijst van die uitleenkast, een overzicht van lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad dat ook bij het ontbreken van afwijkingen die uitkomst vermeldt, ongeacht de drager waarop de stukken worden overgedragen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Verzameling van precies drie stukken die bij één wisseling van kastbeheerder van dezelfde uitleenkast en hetzelfde overdrachtsmoment samenhangen, bestaande uit een actuele inhoudslijst van die uitleenkast, een overzicht van lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad dat ook bij het ontbreken van afwijkingen die uitkomst vermeldt, ongeacht de drager waarop de stukken worden overgedragen.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Verzameling van precies drie stukken die bij één wisseling van kastbeheerder van dezelfde uitleenkast en hetzelfde overdrachtsmoment samenhangen, bestaande uit een actuele inhoudslijst van die uitleenkast, een overzicht van lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad dat ook bij het ontbreken van afwijkingen die uitkomst vermeldt, ongeacht de drager waarop de stukken worden overgedragen.",
+      "definitie_kern": "Verzameling van precies drie stukken die bij één wisseling van kastbeheerder van dezelfde uitleenkast en hetzelfde overdrachtsmoment samenhangen, bestaande uit een actuele inhoudslijst van die uitleenkast, een overzicht van lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad dat ook bij het ontbreken van afwijkingen die uitkomst vermeldt, ongeacht de drager waarop de stukken worden overgedragen"
+    },
+    {
+      "call_id": "G04__oud__h2",
+      "resultaat_sha256": "592af26abfdd965ae276783f9a6221b1c2fc807d95b460e4abaf46be8107cab1",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Verzameling stukken die bij één wisseling van kastbeheerder van één uitleenkast uitsluitend bestaat uit een actuele inhoudslijst van die kast, een overzicht van de op dat overdrachtsmoment lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad, ongeacht de drager waarop deze stukken worden overgedragen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Verzameling stukken die bij één wisseling van kastbeheerder van één uitleenkast uitsluitend bestaat uit een actuele inhoudslijst van die kast, een overzicht van de op dat overdrachtsmoment lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad, ongeacht de drager waarop deze stukken worden overgedragen.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Verzameling stukken die bij één wisseling van kastbeheerder van één uitleenkast uitsluitend bestaat uit een actuele inhoudslijst van die kast, een overzicht van de op dat overdrachtsmoment lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad, ongeacht de drager waarop deze stukken worden overgedragen.",
+      "definitie_kern": "Verzameling stukken die bij één wisseling van kastbeheerder van één uitleenkast uitsluitend bestaat uit een actuele inhoudslijst van die kast, een overzicht van de op dat overdrachtsmoment lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad, ongeacht de drager waarop deze stukken worden overgedragen"
+    },
+    {
+      "call_id": "G05__oud__h1",
+      "resultaat_sha256": "89cb4aa0ca30c109f5675757c1b00d26ca8a768ba85e992234be6ada290291e0",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op één afsluitmoment verminderd met het uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal voor diezelfde materiaalsoort en hetzelfde afsluitmoment, waarbij een positieve uitkomst meer getelde exemplaren dan verwacht aangeeft, een negatieve uitkomst minder en nul overeenstemming",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op één afsluitmoment verminderd met het uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal voor diezelfde materiaalsoort en hetzelfde afsluitmoment, waarbij een positieve uitkomst meer getelde exemplaren dan verwacht aangeeft, een negatieve uitkomst minder en nul overeenstemming.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op één afsluitmoment verminderd met het uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal voor diezelfde materiaalsoort en hetzelfde afsluitmoment, waarbij een positieve uitkomst meer getelde exemplaren dan verwacht aangeeft, een negatieve uitkomst minder en nul overeenstemming.",
+      "definitie_kern": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op één afsluitmoment verminderd met het uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal voor diezelfde materiaalsoort en hetzelfde afsluitmoment, waarbij een positieve uitkomst meer getelde exemplaren dan verwacht aangeeft, een negatieve uitkomst minder en nul overeenstemming"
+    },
+    {
+      "call_id": "G05__oud__h2",
+      "resultaat_sha256": "4235737fd0a5fd2d40fda7d458c05a22706407a5f23f4ceb1d80521a61f253c5",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op een bepaald afsluitmoment verminderd met het voor diezelfde materiaalsoort en datzelfde afsluitmoment uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op een bepaald afsluitmoment verminderd met het voor diezelfde materiaalsoort en datzelfde afsluitmoment uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op een bepaald afsluitmoment verminderd met het voor diezelfde materiaalsoort en datzelfde afsluitmoment uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal.",
+      "definitie_kern": "Uitkomst in aantal exemplaren van het getelde aantal oefenmaterialen van één materiaalsoort op een bepaald afsluitmoment verminderd met het voor diezelfde materiaalsoort en datzelfde afsluitmoment uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal"
+    },
+    {
+      "call_id": "G06__oud__h1",
+      "resultaat_sha256": "2f34cb6b7110ea6f131c366f20a7e9c6ea395c8533c6ce7ce4cef1875446f57a",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Maatregel waarbij één dossierbijlage voor bezoekers ontoegankelijk blijft terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld, lopend tot de koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Maatregel waarbij één dossierbijlage voor bezoekers ontoegankelijk blijft terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld, lopend tot de koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Maatregel waarbij één dossierbijlage voor bezoekers ontoegankelijk blijft terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld, lopend tot de koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven.",
+      "definitie_kern": "Maatregel waarbij één dossierbijlage voor bezoekers ontoegankelijk blijft terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld, lopend tot de koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven"
+    },
+    {
+      "call_id": "G06__oud__h2",
+      "resultaat_sha256": "95aed2c5d235c7ee24f00c448d9a3816e2997642cc59859b4e19b39dc529e815",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Maatregel waarbij één bijlage van een dossier voor bezoekers van het oefenportaal niet te openen is terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld en eindigend zodra die koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Maatregel waarbij één bijlage van een dossier voor bezoekers van het oefenportaal niet te openen is terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld en eindigend zodra die koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Maatregel waarbij één bijlage van een dossier voor bezoekers van het oefenportaal niet te openen is terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld en eindigend zodra die koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven.",
+      "definitie_kern": "Maatregel waarbij één bijlage van een dossier voor bezoekers van het oefenportaal niet te openen is terwijl bevoegde medewerkers toegang houden, ingesteld bij een concrete aanwijzing dat de bijlage aan het verkeerde dossier is gekoppeld en eindigend zodra die koppeling is bevestigd of hersteld, waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven"
+    }
+  ]
+}

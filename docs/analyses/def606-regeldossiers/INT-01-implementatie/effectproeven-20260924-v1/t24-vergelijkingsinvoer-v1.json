@@ -1,0 +1,2160 @@
+[
+  {
+    "geval": {
+      "id": "T01",
+      "stratum": "S1",
+      "begrip": "bakjesverdeler",
+      "tekst": "hulpmiddel voor de gelijkmatige verdeling van lege kweekbakjes over werktafels",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met opeenvolgende voorzetselbepalingen en zonder afsluitend leesteken."
+    },
+    "referentie": {
+      "id": "T01",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De naamwoordelijke kern 'hulpmiddel voor de gelijkmatige verdeling' vormt met de aansluitende bepalingen één geheel. Een persoonsvorm of afsluitende punt is daarvoor niet vereist.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T02",
+      "stratum": "S1",
+      "begrip": "terugkeerfiche",
+      "tekst": "fiche waarmee een bezoeker na een tijdelijke onderbreking toegang krijgt tot dezelfde oefenruimte.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met een betrekkelijke bijzin die de functie en reikwijdte bepaalt."
+    },
+    "referentie": {
+      "id": "T02",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De bijzin 'waarmee een bezoeker na een tijdelijke onderbreking toegang krijgt tot dezelfde oefenruimte' bepaalt 'fiche'. Deze bijzin vormt geen tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T03",
+      "stratum": "S1",
+      "begrip": "afstemmingskring",
+      "tekst": "overleggroep van het Bureau voor Water en Werk en de Kamer voor Rust en Ruimte",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Nevenschikking binnen twee organisatienamen en tussen die namen, met herhaald gebruik van hetzelfde voegwoord."
+    },
+    "referentie": {
+      "id": "T03",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De nevenschikkingen binnen 'Bureau voor Water en Werk' en 'Kamer voor Rust en Ruimte' en tussen beide namen behoren tot één naamwoordelijke kern. Zij introduceren geen tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\ben\\b",
+          "description": "Verboden patroon gedetecteerd: \\ben\\b",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\ben\\b",
+            "position": 39
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T04",
+      "stratum": "S1",
+      "begrip": "dubbelcontrole",
+      "tekst": "controle waarbij een medewerker de verpakking onderzoekt en een andere medewerker de telling bevestigt",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een noodzakelijke bijzin met twee nevengeschikte deelzinnen en verschillende onderwerpen."
+    },
+    "referentie": {
+      "id": "T04",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Binnen de bijzin met 'waarbij' verbindt 'en' het onderzoeken van de verpakking en het bevestigen van de telling. De verschillende onderwerpen maken deze verbonden deelzinnen niet tot afzonderlijke zinnen.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\ben\\b, \\bwaarbij\\b",
+          "description": "Verboden patroon gedetecteerd: \\ben\\b, \\bwaarbij\\b",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\bwaarbij\\b",
+            "position": 9
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T05",
+      "stratum": "S2",
+      "begrip": "kalibratiespoor",
+      "tekst": "markering op 2,5 cm van de rand, aangebracht volgens werkblad nr. 8.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Decimaal getal, maateenheid, afkorting met punt en een nummer aan het einde van de kern."
+    },
+    "referentie": {
+      "id": "T05",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "getal",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'2,5 cm' en 'werkblad nr. 8.' blijven bepalingen binnen dezelfde kern. De punt in 'nr.' is een afkortingspunt; na de afsluitende punt volgt geen tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: ,",
+          "description": "Verboden patroon gedetecteerd: ,",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": ",",
+            "position": 14
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T06",
+      "stratum": "S2",
+      "begrip": "voorbeeldlezing",
+      "tekst": "instructiebijeenkomst onder de titel 'Meten in lagen' van dr. P. Velders",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een geciteerde titel naast een aanspreektitel en een persoonsinitiaal met punten."
+    },
+    "referentie": {
+      "id": "T06",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'Meten in lagen' is een ingesloten titel en de punten in 'dr. P. Velders' behoren tot de titelafkorting en initiaal. De tekst bevat één naamwoordelijke kern.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Het oordeel is gelijk. B noemt 'Meten in lagen' een boektitel, maar de tekst vermeldt uitsluitend een titel; deze onnodige specificatie is niet overgenomen en verandert het referentielabel niet."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 60
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T07",
+      "stratum": "S2",
+      "begrip": "vaktoewijzing",
+      "tekst": "registratie van de plaatsing van een pakket in een tijdelijk opslagvak, vastgelegd door de T.O.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een letterafkorting met interne punten op de positie van het zinslot."
+    },
+    "referentie": {
+      "id": "T07",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "afkorting_als_slot",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'T.O.' sluit aan op 'vastgelegd door de' aan het einde van de kern. De punten binnen deze letterafkorting leveren geen tweede zin op.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: ,",
+          "description": "Verboden patroon gedetecteerd: ,",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": ",",
+            "position": 70
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T08",
+      "stratum": "S2",
+      "begrip": "serienotitie",
+      "tekst": "aantekening bij proefreeks 4.2. De bijlagen bevatten tekeningen, meetbladen e.d.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een hiërarchisch nummer naast een zinsgrens en een afsluitende afkorting in de volgende zin."
+    },
+    "referentie": {
+      "id": "T08",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "4.2. De bijlagen",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Na het reeksnummer '4.2' en de afsluitende punt begint de zelfstandige mededeling 'De bijlagen bevatten tekeningen, meetbladen e.d.'. De interne nummerpunt en de afsluitende afkorting veranderen deze zekere zinsgrens niet.",
+      "disposition": "beslecht",
+      "difference_resolution": "Uitsluitend een tekstselectieverschil: A selecteert 'proefreeks 4.2. De bijlagen' en B '4.2. De bijlagen'. Beide passages wijzen dezelfde grens na '4.2.' aan; de kortere exacte substring van B volstaat en is overgenomen."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: ,, \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: ,, \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 30
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "fail",
+      "sentence_status": "fail",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "bij proefreeks 4.2. De bijlagen bevatten tekeningen,",
+          "context_value": null,
+          "field": null,
+          "position": 30,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"bij proefreeks 4.2. De bijlagen bevatten tekeningen,\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "description": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"bij proefreeks 4.2. De bijlagen bevatten tekeningen,\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch.",
+          "metadata": {
+            "position": 30
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "fail"
+    }
+  },
+  {
+    "geval": {
+      "id": "T09",
+      "stratum": "S3",
+      "begrip": "lichtvenster",
+      "tekst": "opening die daglicht doorlaat naar de observatiekamer.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een nominale definitiekern met een afsluitende punt."
+    },
+    "referentie": {
+      "id": "T09",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'die daglicht doorlaat naar de observatiekamer' is een betrekkelijke bijzin bij 'opening'. De tekst vormt één zin met een afsluitende punt.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+          "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\bdie\\b",
+            "position": 8
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T10",
+      "stratum": "S3",
+      "begrip": "wisselkaart",
+      "tekst": "kaart voor het overdragen van een werkplek. De ontvanger tekent op de achterzijde.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een nominale kern gevolgd door een zelfstandige mededelende zin met een eigen onderwerp."
+    },
+    "referentie": {
+      "id": "T10",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "werkplek. De ontvanger",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De punt na 'werkplek' sluit de naamwoordelijke kern af. 'De ontvanger tekent op de achterzijde.' vormt een zelfstandige tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 42
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "fail",
+      "sentence_status": "fail",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "van een werkplek. De ontvanger tekent op",
+          "context_value": null,
+          "field": null,
+          "position": 42,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"van een werkplek. De ontvanger tekent op\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "description": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"van een werkplek. De ontvanger tekent op\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch.",
+          "metadata": {
+            "position": 42
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "fail"
+    }
+  },
+  {
+    "geval": {
+      "id": "T11",
+      "stratum": "S3",
+      "begrip": "zoeksein",
+      "tekst": "signaal waarmee een ontbrekend oefenobject wordt gemeld. Waar is het object voor het laatst gezien?",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een mededelende kern gevolgd door een directe vraag met een vraagteken."
+    },
+    "referentie": {
+      "id": "T11",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "gemeld. Waar is het object",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De definitiekern eindigt bij 'gemeld.'. Daarna volgt de zelfstandige vraagzin 'Waar is het object voor het laatst gezien?'.",
+      "disposition": "beslecht",
+      "difference_resolution": "Uitsluitend een tekstselectieverschil: A selecteert 'gemeld. Waar is' en B 'gemeld. Waar is het object'. Beide passages wijzen dezelfde grens na 'gemeld.' aan; de selectie van B is overgenomen omdat zij ook het onderwerp van de vraagzin toont."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 55
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "fail",
+      "sentence_status": "fail",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "oefenobject wordt gemeld. Waar is het object",
+          "context_value": null,
+          "field": null,
+          "position": 55,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"oefenobject wordt gemeld. Waar is het object\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "description": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"oefenobject wordt gemeld. Waar is het object\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch.",
+          "metadata": {
+            "position": 55
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "fail"
+    }
+  },
+  {
+    "geval": {
+      "id": "T12",
+      "stratum": "S3",
+      "begrip": "stoproep",
+      "tekst": "Stop de toevoer! Deze oproep onderbreekt de gezamenlijke proef.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een gebiedende zin met uitroepteken gevolgd door een verklarende mededelende zin."
+    },
+    "referentie": {
+      "id": "T12",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "toevoer! Deze oproep",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'Stop de toevoer!' is een afgesloten gebiedende zin. 'Deze oproep onderbreekt de gezamenlijke proef.' is de daaropvolgende zelfstandige tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "fail",
+      "sentence_status": "fail",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "Stop de toevoer! Deze oproep onderbreekt de",
+          "context_value": null,
+          "field": null,
+          "position": 15,
+          "reason": "Nieuwe zin: vraag- of uitroepteken gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"Stop de toevoer! Deze oproep onderbreekt de\" (vraag- of uitroepteken gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "description": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"Stop de toevoer! Deze oproep onderbreekt de\" (vraag- of uitroepteken gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch.",
+          "metadata": {
+            "position": 15
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "fail"
+    }
+  },
+  {
+    "geval": {
+      "id": "T13",
+      "stratum": "S4",
+      "begrip": "droogrek",
+      "tekst": "rek voor het drogen\nvan beschilderde panelen\nin de oefenwerkplaats",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Visuele regelomloop binnen doorlopende syntactische woordgroepen."
+    },
+    "referentie": {
+      "id": "T13",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'van beschilderde panelen' sluit syntactisch aan op 'het drogen', waarna 'in de oefenwerkplaats' volgt. De regelovergangen verdelen één doorlopende naamwoordelijke kern.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T14",
+      "stratum": "S4",
+      "begrip": "avondregister",
+      "tekst": "overzicht van de na sluiting aanwezige oefenmaterialen.\n\nDe dienstleider bewaart het overzicht tot de volgende opening.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een alineaovergang tussen een definitiekern en een zelfstandige gebruiksinstructie."
+    },
+    "referentie": {
+      "id": "T14",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "oefenmaterialen.\n\nDe dienstleider",
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De definitiekern sluit af na 'oefenmaterialen.'. 'De dienstleider bewaart het overzicht tot de volgende opening.' vormt een zelfstandige tweede zin, zodat de grens niet uitsluitend uit de alineaopmaak volgt.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 54
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "fail",
+      "sentence_status": "fail",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "sluiting aanwezige oefenmaterialen. De dienstleider bewaart het",
+          "context_value": null,
+          "field": null,
+          "position": 54,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"sluiting aanwezige oefenmaterialen. De dienstleider bewaart het\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "description": "INT-01 — De definitie bevat 2 zinnen; INT-01 vraagt één zin. Zinsgrens bij \"sluiting aanwezige oefenmaterialen. De dienstleider bewaart het\" (punt gevolgd door een nieuw zinsbegin). Compactheid en begrijpelijkheid zijn niet automatisch beoordeeld.",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch.",
+          "metadata": {
+            "position": 54
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "fail"
+    }
+  },
+  {
+    "geval": {
+      "id": "T15",
+      "stratum": "S4",
+      "begrip": "startpakket",
+      "tekst": "pakket met uitsluitend:\n- een routeblad;\n- een telkaart;\n- een blanco verslagvel.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een inleidende woordgroep met dubbele punt en een verticale opsomming met puntkomma's."
+    },
+    "referentie": {
+      "id": "T15",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'een routeblad', 'een telkaart' en 'een blanco verslagvel' vullen gezamenlijk 'pakket met uitsluitend' aan. De opsomming en puntkomma's verdelen onderdelen van één naamwoordelijke kern.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: ;",
+          "description": "Verboden patroon gedetecteerd: ;",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": ";",
+            "position": 39
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "review_required",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "pakket met uitsluitend: ↵ - een routeblad; -",
+          "context_value": null,
+          "field": null,
+          "position": 23,
+          "reason": "Zinsgrens onzeker: opsommingsteken of regelstructuur.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "zinsgrens_onzeker_2",
+          "status": "review_required",
+          "evidence": "- een routeblad; ↵ - een telkaart; -",
+          "context_value": null,
+          "field": null,
+          "position": 40,
+          "reason": "Zinsgrens onzeker: opsommingsteken of regelstructuur.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "zinsgrens_onzeker_3",
+          "status": "review_required",
+          "evidence": "- een telkaart; ↵ - een blanco verslagvel.",
+          "context_value": null,
+          "field": null,
+          "position": 56,
+          "reason": "Zinsgrens onzeker: opsommingsteken of regelstructuur.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Zinsgrens onzeker bij \"pakket met uitsluitend: ↵ - een routeblad; -\" (opsommingsteken of regelstructuur); \"- een routeblad; ↵ - een telkaart; -\" (opsommingsteken of regelstructuur); \"- een telkaart; ↵ - een blanco verslagvel.\" (opsommingsteken of regelstructuur); beoordeling nodig. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T16",
+      "stratum": "S4",
+      "begrip": "ruilmoment",
+      "tekst": "tijdstip voor het wisselen van oefenrollen; de begeleider kondigt het begin aan",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een puntkomma tussen een nominale kern en een deel met onderwerp en persoonsvorm."
+    },
+    "referentie": {
+      "id": "T16",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "De puntkomma verbindt 'tijdstip voor het wisselen van oefenrollen' met 'de begeleider kondigt het begin aan' binnen één zin. Het eigen onderwerp en de persoonsvorm in het tweede deel bewijzen hier geen afzonderlijke tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: ;, ;\\s*[a-z]",
+          "description": "Verboden patroon gedetecteerd: ;, ;\\s*[a-z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": ";",
+            "position": 42
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T17",
+      "stratum": "S5",
+      "begrip": "vrijgavecode",
+      "tekst": "code die de melding 'Gereed. Neem de bak mee.' op het oefenscherm laat verschijnen.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ingebed citaat met interne punten en een gebiedende formulering."
+    },
+    "referentie": {
+      "id": "T17",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'Gereed. Neem de bak mee.' is als melding ingesloten in de bijzin. De buitenste zin loopt door met 'op het oefenscherm laat verschijnen', waardoor de interne punten geen buitenste zinsgrenzen vormen.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bdie\\b",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z], \\bdie\\b",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\bdie\\b",
+            "position": 5
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "review_required",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "de melding 'Gereed. Neem de bak mee.'",
+          "context_value": null,
+          "field": null,
+          "position": 27,
+          "reason": "Zinsgrens onzeker: punt binnen een ingesloten citaat of haakjes.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "zinsgrens_onzeker_2",
+          "status": "review_required",
+          "evidence": "de bak mee.' op het oefenscherm laat",
+          "context_value": null,
+          "field": null,
+          "position": 44,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Zinsgrens onzeker bij \"de melding 'Gereed. Neem de bak mee.'\" (punt binnen een ingesloten citaat of haakjes); \"de bak mee.' op het oefenscherm laat\" (punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter); beoordeling nodig. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T18",
+      "stratum": "S5",
+      "begrip": "reservevak",
+      "tekst": "opslagvak voor ongebruikte oefensets (de blauwe kast blijft buiten gebruik).",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een parenthetische mededeling met een eigen onderwerp en persoonsvorm binnen de kern."
+    },
+    "referentie": {
+      "id": "T18",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'de blauwe kast blijft buiten gebruik' staat als parenthese binnen de kern, vóór de afsluitende punt. Het onderwerp en de persoonsvorm binnen de haakjes maken deze invoeging niet tot een afzonderlijke tweede zin.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T19",
+      "stratum": "S5",
+      "begrip": "schaduwstrook",
+      "tekst": "“strook langs een proefwand die tijdens de meting onbelicht blijft.”",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De gehele kern staat tussen typografische aanhalingstekens, met de eindpunt binnen het citaat."
+    },
+    "referentie": {
+      "id": "T19",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": true,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Het gehele-kerncitaat bevat intern één naamwoordelijke kern met de bijzin 'die tijdens de meting onbelicht blijft' en één afsluitende punt. Broncitaat blijft volgens het contract een open onderdeel.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\bdie\\b",
+          "description": "Verboden patroon gedetecteerd: \\bdie\\b",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\bdie\\b",
+            "position": 28
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T20",
+      "stratum": "S5",
+      "begrip": "luisterronde",
+      "tekst": "bespreking van het oefenboek 'Wie hoort erbij?' met deelnemers aan het klankatelier.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ingesloten titel met vraagteken wordt gevolgd door een verdere bepaling van dezelfde kern."
+    },
+    "referentie": {
+      "id": "T20",
+      "status": "review_required",
+      "sentence_status": "pass",
+      "boundary_passage": null,
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Het vraagteken behoort tot de ingesloten titel 'Wie hoort erbij?'. 'met deelnemers aan het klankatelier' vervolgt dezelfde buitenste naamwoordelijke kern.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T21",
+      "stratum": "S6",
+      "begrip": "tussenmelding",
+      "tekst": "",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een leeg tekstveld bij een afzonderlijk opgegeven begrip."
+    },
+    "referentie": {
+      "id": "T21",
+      "status": "not_evaluated",
+      "sentence_status": "not_evaluated",
+      "boundary_passage": null,
+      "reason_category": "leeg",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Het tekstveld is leeg, zodat de zinsstructuur niet wordt beoordeeld. De contractueel voorgeschreven referentie 'not_evaluated' is wel eenduidig vast te stellen.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden. Evalueerbaar betreft hier vergelijking met het referentielabel, niet de aanwezigheid van beoordeelbare zinsstructuur."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "not_evaluated",
+      "sentence_status": "not_evaluated",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "not_evaluated"
+    }
+  },
+  {
+    "geval": {
+      "id": "T22",
+      "stratum": "S6",
+      "begrip": "oefenstatus",
+      "tekst": "Oefenstatus:",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een los label met dubbele punt zonder daaropvolgende inhoud."
+    },
+    "referentie": {
+      "id": "T22",
+      "status": "review_required",
+      "sentence_status": "review_required",
+      "boundary_passage": "Oefenstatus:",
+      "reason_category": "onvoldoende_informatie",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "'Oefenstatus:' is een los label met een dubbele punt zonder vervolg. Daardoor is onvoldoende duidelijk of een afgeronde naamwoordelijke definitiekern aanwezig is; een tweede zin is evenmin aangetoond.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Beide beoordelingen stellen dezelfde onzekerheid vast. Dat levert een eenduidige referentie 'review_required' op en vormt geen dispuut."
+    },
+    "oud": {
+      "rule_status": "pass",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": true,
+      "violations": [],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T23",
+      "stratum": "S6",
+      "begrip": "luwtepauze",
+      "tekst": "onderbreking van de geluidsproef... daarna opnieuw luisteren",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een beletselteken verbindt een nominale omschrijving met een elliptisch vervolg zonder expliciet onderwerp."
+    },
+    "referentie": {
+      "id": "T23",
+      "status": "review_required",
+      "sentence_status": "review_required",
+      "boundary_passage": "geluidsproef... daarna",
+      "reason_category": "onvoldoende_informatie",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Het beletselteken in 'geluidsproef... daarna' kan een onderbreking binnen één zin of een afsluiting vóór een elliptische instructie aangeven. 'daarna opnieuw luisteren' maakt die grens niet zeker.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Beide beoordelingen stellen dezelfde onzekere grens vast. 'onvoldoende_informatie' is een passende beschikbare hulpcategorie; de onzekerheidsreferentie blijft eenduidig en vormt geen dispuut."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 34
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "pass",
+      "zinsdelen": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Eén definitieformulering vastgesteld. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  },
+  {
+    "geval": {
+      "id": "T24",
+      "stratum": "S6",
+      "begrip": "koppelstrook",
+      "tekst": "strook voor tijdelijke bundeling. controle volgens zqv. blijft vereist",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een kleine letter na een punt komt samen voor met een niet toegelichte afkorting en een ontbrekend eindleesteken."
+    },
+    "referentie": {
+      "id": "T24",
+      "status": "fail",
+      "sentence_status": "fail",
+      "boundary_passage": "bundeling. controle",
+      "reason_category": "kleine_letter",
+      "broncitaat_open": false,
+      "evalueerbaar": true,
+      "dispuut": false,
+      "rationale": "Na de afgesloten kern 'strook voor tijdelijke bundeling.' volgt de zelfstandige mededeling 'controle volgens zqv. blijft vereist', ondanks de kleine beginletter. De onduidelijkheid rond 'zqv.' neemt de zekere grens na 'bundeling.' niet weg.",
+      "disposition": "overeenkomst",
+      "difference_resolution": "Geen inhoudelijk of structureel verschil; het overeengekomen oordeel blijft behouden. De lokale onzekerheid rond 'zqv.' verandert het zekere fail-oordeel niet."
+    },
+    "oud": {
+      "rule_status": "fail",
+      "sentence_status": "niet aanwezig",
+      "zinsdelen": [],
+      "open_onderdelen": [],
+      "in_passed_rules": false,
+      "violations": [
+        {
+          "code": "INT-01",
+          "severity": "warning",
+          "severity_level": "low",
+          "message": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "description": "Verboden patroon gedetecteerd: \\.\\s+[A-Z]",
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "suggestion": "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen.",
+          "metadata": {
+            "detected_pattern": "\\.\\s+[A-Z]",
+            "position": 32
+          }
+        }
+      ],
+      "review_required": [],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": null,
+      "opslag_status": "niet aanwezig"
+    },
+    "nieuw": {
+      "rule_status": "review_required",
+      "sentence_status": "review_required",
+      "zinsdelen": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "voor tijdelijke bundeling. controle volgens zqv. blijft",
+          "context_value": null,
+          "field": null,
+          "position": 32,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "zinsgrens_onzeker_2",
+          "status": "review_required",
+          "evidence": "controle volgens zqv. blijft vereist",
+          "context_value": null,
+          "field": null,
+          "position": 54,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        }
+      ],
+      "open_onderdelen": [
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep."
+        }
+      ],
+      "in_passed_rules": false,
+      "violations": [],
+      "review_required": [
+        {
+          "rule_id": "INT-01",
+          "category": "structuur",
+          "reason": "INT-01 — Zinsgrens onzeker bij \"voor tijdelijke bundeling. controle volgens zqv. blijft\" (punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter); \"controle volgens zqv. blijft vereist\" (punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter); beoordeling nodig. Compactheid en begrijpelijkheid zijn nog niet inhoudelijk beoordeeld.",
+          "signals": []
+        }
+      ],
+      "laadpaden_identiek": true,
+      "opslag_tekst_identiek": true,
+      "opslag_uitkomst_identiek": true,
+      "opslag_status": "review_required"
+    }
+  }
+]

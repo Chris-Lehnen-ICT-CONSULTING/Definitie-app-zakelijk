@@ -1,0 +1,736 @@
+{
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "python_executable": "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+  "offline_gate": {
+    "gate_actief": true,
+    "applicatiemodules_bij_installatie": [],
+    "sessieroot": "/private/tmp/def519-sessie-9gibsn8b",
+    "sessietempdir": "/private/tmp/def519-sessie-9gibsn8b/tempfiles",
+    "systeem_tempdir": "/tmp"
+  },
+  "stubs": "Geen modelresponsstubs; geen cleaning-service of repository geïnjecteerd; bootstrap neutraliseert sleutels en blokkeert netwerk/gebruikersdatabases.",
+  "verwachtingen_sha256": "fde36bc7ccd07689861de150853bed16d7abd51635b11480a3fd9baa9bc30b98",
+  "scope": "Service manager/cache en echte module/adapterpromptbouw; geen UI, opslag of modelkwaliteit.",
+  "service": [
+    {
+      "id": "INT03-B-E01",
+      "route": "manager",
+      "invoer": {
+        "begrip": "context",
+        "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": [
+            "\\bdie\\b",
+            "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+          ]
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "fail",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E02",
+      "route": "manager",
+      "invoer": {
+        "begrip": "context",
+        "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": [
+            "\\bdie\\b",
+            "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+          ]
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "fail",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E03",
+      "route": "manager",
+      "invoer": {
+        "begrip": "regeling",
+        "text": "regeling waarbij deze afspraak geldt",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdeze\\b",
+          "\\bwaarbij\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdeze\\b",
+          "\\bwaarbij\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": [
+            "\\bdeze\\b",
+            "\\bwaarbij\\b",
+            "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+          ]
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "fail",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "fail",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E04",
+      "route": "manager",
+      "invoer": {
+        "begrip": "instrument",
+        "text": "instrument voor een besluit nadat het is vastgesteld",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "fail",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E05",
+      "route": "manager",
+      "invoer": {
+        "begrip": "driehoek",
+        "text": "veelhoek met drie zijden",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E06",
+      "route": "manager",
+      "invoer": {
+        "begrip": "pijl",
+        "text": "teken dat een richting aangeeft",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E07",
+      "route": "manager",
+      "invoer": {
+        "begrip": "kennisgeving",
+        "text": "bericht van een medewerker aan een leidinggevende over zijn besluit",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E14",
+      "route": "manager",
+      "invoer": {
+        "begrip": "leeg",
+        "text": "",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "fail"
+      }
+    },
+    {
+      "id": "INT03-B-E01",
+      "route": "cache",
+      "invoer": {
+        "begrip": "context",
+        "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": [
+            "\\bdie\\b",
+            "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+          ]
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "fail",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E02",
+      "route": "cache",
+      "invoer": {
+        "begrip": "context",
+        "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": [
+            "\\bdie\\b",
+            "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+          ]
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "fail",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E03",
+      "route": "cache",
+      "invoer": {
+        "begrip": "regeling",
+        "text": "regeling waarbij deze afspraak geldt",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdeze\\b",
+          "\\bwaarbij\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdeze\\b",
+          "\\bwaarbij\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": [
+            "\\bdeze\\b",
+            "\\bwaarbij\\b",
+            "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+          ]
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "fail",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "fail",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E04",
+      "route": "cache",
+      "invoer": {
+        "begrip": "instrument",
+        "text": "instrument voor een besluit nadat het is vastgesteld",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "fail",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E05",
+      "route": "cache",
+      "invoer": {
+        "begrip": "driehoek",
+        "text": "veelhoek met drie zijden",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E06",
+      "route": "cache",
+      "invoer": {
+        "begrip": "pijl",
+        "text": "teken dat een richting aangeeft",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E07",
+      "route": "cache",
+      "invoer": {
+        "begrip": "kennisgeving",
+        "text": "bericht van een medewerker aan een leidinggevende over zijn besluit",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "pass"
+      }
+    },
+    {
+      "id": "INT03-B-E14",
+      "route": "cache",
+      "invoer": {
+        "begrip": "leeg",
+        "text": "",
+        "context": {}
+      },
+      "verwacht": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      },
+      "overeenkomst": true,
+      "review_items": [
+        {
+          "rule_id": "INT-03",
+          "category": "structuur",
+          "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+          "signals": []
+        }
+      ],
+      "int03_violations": [],
+      "int03_geslaagd": false,
+      "buurstatussen": {
+        "INT-01": "pass",
+        "ARAI-05": "pass",
+        "CON-CIRC-001": "pass",
+        "VAL-EMP-001": "fail"
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "id": "zonder_context",
+      "invoer": {
+        "id": "zonder_context",
+        "base_context": {},
+        "adapter_int03": false
+      },
+      "moduleklasse": "JSONBasedRulesModule",
+      "module_metadata": {
+        "rules_count": 9,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "INT"
+      },
+      "exact_moduleblok": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin\n  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.\n  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "exact_adapterblok": null,
+      "volledige_adapterprompt_sha256": "56f293475b0ea2812d85df973b2213e8a3914d891762a3136017e78b1eea7b28",
+      "volledige_adapterprompt_tekens": 24202,
+      "overeenkomst": true
+    },
+    {
+      "id": "juridische_context",
+      "invoer": {
+        "id": "juridische_context",
+        "base_context": {
+          "juridisch": [
+            "synthetisch onderzoeksdomein"
+          ]
+        },
+        "adapter_int03": true
+      },
+      "moduleklasse": "JSONBasedRulesModule",
+      "module_metadata": {
+        "rules_count": 9,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "INT"
+      },
+      "exact_moduleblok": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin\n  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.\n  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "exact_adapterblok": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin\n  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.\n  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "volledige_adapterprompt_sha256": "1731ff7c78b6efe6064b98f20461a3a8d20e02e7ade639da369bc4f6f2aa5c03",
+      "volledige_adapterprompt_tekens": 34220,
+      "overeenkomst": true
+    },
+    {
+      "id": "organisatorische_context",
+      "invoer": {
+        "id": "organisatorische_context",
+        "base_context": {
+          "organisatorisch": [
+            "synthetische organisatie"
+          ]
+        },
+        "adapter_int03": false
+      },
+      "moduleklasse": "JSONBasedRulesModule",
+      "module_metadata": {
+        "rules_count": 9,
+        "rules_skipped": [],
+        "include_examples": true,
+        "rule_prefix": "INT"
+      },
+      "exact_moduleblok": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin\n  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.\n  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "exact_adapterblok": null,
+      "volledige_adapterprompt_sha256": "e5d4ca10a9dda4276aaaf8411247ff803d753783a8990e92e4c6be6ff3748c45",
+      "volledige_adapterprompt_tekens": 26813,
+      "overeenkomst": true
+    }
+  ],
+  "zelfde_moduleblok": true,
+  "alle_runtimeverwachtingen_uitgekomen": true,
+  "commando": [
+    ".venv/bin/python",
+    "-B",
+    "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proef-b-v1.py",
+    "/Users/chrislehnen/Projecten/Definitie-app"
+  ],
+  "werkdirectory": "/Users/chrislehnen/Projecten/Definitie-app",
+  "uitgevoerd_utc": "2026-09-25T07:45:41.597167+00:00",
+  "exitstatus": 0,
+  "stderr": "2026-09-25 09:45:39.877 xcodebuild[16679:90820356]  DVTFilePathFSEvents: Failed to start fs event stream.\n2026-09-25 09:45:40.253 xcodebuild[16679:90820354] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 \"Input/output error\". Using NSCachesDirectory instead.\n",
+  "proefscript_sha256": "f9acbf83b5d10f1bbf7fb78df69e4ab110b116aa0febcdb1be5efa248289422f"
+}

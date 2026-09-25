@@ -1,0 +1,194 @@
+[
+  {
+    "id": "T01",
+    "stratum": "S1",
+    "begrip": "schaduwvak",
+    "tekst": "afgeschermde ruimte voor het tijdelijk bewaren van lichtgevoelige meetkaarten",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een doelbepaling en zonder persoonsvorm of afsluitend leesteken."
+  },
+  {
+    "id": "T02",
+    "stratum": "S1",
+    "begrip": "terugkeersignaal",
+    "tekst": "signaal dat uitsluitend wordt verzonden wanneer een uitgeleende meetboei haar oorspronkelijke aanlegpunt bereikt",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een beperkende betrekkelijke bijzin en een daarin opgenomen tijdsbepalende bijzin."
+  },
+  {
+    "id": "T03",
+    "stratum": "S1",
+    "begrip": "dubbelregister",
+    "tekst": "register van de Kamer voor Peil en Doorgang waarin zowel routecodes als waterstanden worden vastgelegd",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevenschikking binnen een organisatienaam naast een afzonderlijke zowel-alsconstructie in een bijzin."
+  },
+  {
+    "id": "T04",
+    "stratum": "S1",
+    "begrip": "wisseldrager",
+    "tekst": "houder voor een sensor en een reservebatterij die samen uit het meetrek kunnen worden genomen",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevengeschikte naamwoordgroepen gevolgd door een betrekkelijke bijzin met meervoudige verwijzing."
+  },
+  {
+    "id": "T05",
+    "stratum": "S2",
+    "begrip": "proefreserve",
+    "tekst": "hoeveelheid kleurstof van ca. 2,5 ml voor één controlemeting",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Afkortingspunt midden in de kern, gecombineerd met een decimaal getal en een eenheidssymbool."
+  },
+  {
+    "id": "T06",
+    "stratum": "S2",
+    "begrip": "wisselvenster",
+    "tekst": "periode van 08.15 tot 08.45 uur voor het vervangen van een telcassette. Om 08.45 uur sluit de invoer.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Punten in tijdnotaties naast een punt tussen twee tekstgedeelten en een afsluitende punt."
+  },
+  {
+    "id": "T07",
+    "stratum": "S2",
+    "begrip": "proefstoel",
+    "tekst": "gereserveerde zitplaats voor de fictieve proefleider dr. ir. Mira Veldkom tijdens de klanksimulatie",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Opeenvolgende afgekorte titels vóór een synthetische persoonsnaam binnen een naamwoordelijke kern."
+  },
+  {
+    "id": "T08",
+    "stratum": "S2",
+    "begrip": "reservemateriaal",
+    "tekst": "voorraad voor vervanging van kleine onderdelen, zoals doppen, ringen e.d.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Opsommende voorbeelden met een meerledige afkorting aan het einde van de tekst."
+  },
+  {
+    "id": "T09",
+    "stratum": "S3",
+    "begrip": "nachtmerk",
+    "tekst": "Een nachtmerk maakt een bergvak zichtbaar bij gedimd licht.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Zelfstandige mededelende formulering met hoofdletter en afsluitende punt."
+  },
+  {
+    "id": "T10",
+    "stratum": "S3",
+    "begrip": "wachtschijf",
+    "tekst": "Een wachtschijf toont de resterende droogtijd. De kleur verandert bij iedere verstreken minuut.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Punt tussen twee mededelende formuleringen met elk een eigen onderwerp en persoonsvorm."
+  },
+  {
+    "id": "T11",
+    "stratum": "S3",
+    "begrip": "navraagkaart",
+    "tekst": "Ontbreekt de routecode? Een navraagkaart legt het verzoek om aanvulling vast.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Vraagteken na een directe vraag, gevolgd door een mededelende formulering."
+  },
+  {
+    "id": "T12",
+    "stratum": "S3",
+    "begrip": "stopvlag",
+    "tekst": "Staak de proef! Een stopvlag markeert een onmiddellijke onderbreking van de meetronde.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Uitroepteken na een gebiedende formulering, gevolgd door een zelfstandig tekstgedeelte met punt."
+  },
+  {
+    "id": "T13",
+    "stratum": "S4",
+    "begrip": "vouwgoot",
+    "tekst": "verplaatsbare goot voor het opvangen\nvan spoelwater uit een demonstratiemodel",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Enkele regelomloop midden in een doorlopende voorzetselgroep zonder leesteken."
+  },
+  {
+    "id": "T14",
+    "stratum": "S4",
+    "begrip": "wachtmap",
+    "tekst": "Een wachtmap bevat nog niet toegewezen oefenverzoeken.\n\nDe beheerder bekijkt de inhoud aan het begin van iedere werkronde.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Alineascheiding gecombineerd met hoofdletters en afsluitende punten."
+  },
+  {
+    "id": "T15",
+    "stratum": "S4",
+    "begrip": "uitgifteset",
+    "tekst": "pakket met uitsluitend:\n- een blanco routekaart;\n- een herbruikbare pen;\n- een afsluitclip.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke aanloop met dubbele punt en een verticale opsomming met puntkomma's en eindpunt."
+  },
+  {
+    "id": "T16",
+    "stratum": "S4",
+    "begrip": "spiegelcode",
+    "tekst": "Een spiegelcode verbindt twee proefbakken; beide bakken behouden daarnaast hun eigen nummer",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Puntkomma tussen formuleringen met een eigen persoonsvorm, zonder afsluitend leesteken."
+  },
+  {
+    "id": "T17",
+    "stratum": "S5",
+    "begrip": "roepstrook",
+    "tekst": "strook met de melding ‘Kom terug!’ voor gebruik in een oefening met zoekrobots",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Ingebed citaat met uitroepteken waarna de omvattende naamwoordelijke constructie doorloopt."
+  },
+  {
+    "id": "T18",
+    "stratum": "S5",
+    "begrip": "nevenvak",
+    "tekst": "tijdelijke opslagruimte (De deur blijft tijdens de proef open.) naast de sorteertafel",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Tussen haakjes geplaatste mededeling met hoofdletter en punt binnen een doorlopende kern."
+  },
+  {
+    "id": "T19",
+    "stratum": "S5",
+    "begrip": "luisterpunt",
+    "tekst": "“Een luisterpunt vangt zachte tiksignalen op. Het bewaart geen geluidsopnamen.”",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De volledige tekst staat tussen aanhalingstekens en bevat intern twee met punten afgesloten mededelingen."
+  },
+  {
+    "id": "T20",
+    "stratum": "S5",
+    "begrip": "omslagfiche",
+    "tekst": "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de kleurcode van de bijbehorende opdracht",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Ingesloten boektitel met vraagteken, gevolgd door een bepaling buiten de titel."
+  },
+  {
+    "id": "T21",
+    "stratum": "S6",
+    "begrip": "dauwpoort",
+    "tekst": "",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Lege tekstwaarde bij een afzonderlijk ingevuld begripsveld."
+  },
+  {
+    "id": "T22",
+    "stratum": "S6",
+    "begrip": "schakelblad",
+    "tekst": "schakelblad",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Uitsluitend herhaling van het begripslabel zonder aanvullende formulering of leesteken."
+  },
+  {
+    "id": "T23",
+    "stratum": "S6",
+    "begrip": "restvenster",
+    "tekst": "tijdvak voor een aanvullende proef. begint zodra het hoofdscherm dooft",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Punt gevolgd door een kleine letter en een persoonsvorm zonder uitgedrukt onderwerp."
+  },
+  {
+    "id": "T24",
+    "stratum": "S6",
+    "begrip": "koppelmerk",
+    "tekst": "merkteken voor verwerking volgens zrp. volgende bak krijgt dezelfde code",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Niet toegelichte fictieve afkorting met punt vóór een tekstgedeelte dat met een kleine letter begint."
+  }
+]

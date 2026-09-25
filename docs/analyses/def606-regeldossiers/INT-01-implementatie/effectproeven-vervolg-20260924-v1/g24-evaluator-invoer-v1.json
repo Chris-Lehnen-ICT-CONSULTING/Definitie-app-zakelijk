@@ -1,0 +1,386 @@
+[
+  {
+    "id": "G01__oud__h1__ruw",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__oud__h1__opgeschoond",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__oud__h2__ruw",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__oud__h2__opgeschoond",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__oud__h1__ruw",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Geregistreerd verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, waarbij uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding van het planningssysteem dat een tijdvakkeuze ontbrak",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__oud__h1__opgeschoond",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Geregistreerd verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, waarbij uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding van het planningssysteem dat een tijdvakkeuze ontbrak.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__oud__h2__ruw",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten op grond van een onjuiste melding van het planningssysteem dat een tijdvakkeuze ontbrak",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__oud__h2__opgeschoond",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten op grond van een onjuiste melding van het planningssysteem dat een tijdvakkeuze ontbrak.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__oud__h1__ruw",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "code die het register Inname en Teruggave bij elke bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en blijvend naar één overdrachtsgebeurtenis verwijst",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__oud__h1__opgeschoond",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "Code die het register Inname en Teruggave bij elke bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en blijvend naar één overdrachtsgebeurtenis verwijst.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__oud__h2__ruw",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "code die het register Inname en Teruggave bij iedere bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis blijft verwijzen",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__oud__h2__opgeschoond",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "Code die het register Inname en Teruggave bij iedere bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis blijft verwijzen.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__oud__h1__ruw",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "Door een baliemedewerker vóór de toewijzing van oefenmateriaal uitgevoerde wijziging in een oefenaanvraag die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__oud__h1__opgeschoond",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "Door een baliemedewerker vóór de toewijzing van oefenmateriaal uitgevoerde wijziging in een oefenaanvraag die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__oud__h2__ruw",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__oud__h2__opgeschoond",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__oud__h1__ruw",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer en die groepering vasthoudt tot vrijgave, die plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__oud__h1__opgeschoond",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer en die groepering vasthoudt tot vrijgave, die plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__oud__h2__ruw",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met eenzelfde cyclusnummer bijeenhoudt tot vrijgave van die cyclus, waarbij vrijgave plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__oud__h2__opgeschoond",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met eenzelfde cyclusnummer bijeenhoudt tot vrijgave van die cyclus, waarbij vrijgave plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__oud__h1__ruw",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, en die uitsluitend overdracht van een kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__oud__h1__opgeschoond",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, en die uitsluitend overdracht van een kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__oud__h2__ruw",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetische dossierkopie die wordt toegekend na een geslaagde volledigheidscontrole en tijdens een nog lopende consistentiecontrole, en die uitsluitend overdracht van die kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__oud__h2__opgeschoond",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetische dossierkopie die wordt toegekend na een geslaagde volledigheidscontrole en tijdens een nog lopende consistentiecontrole, en die uitsluitend overdracht van die kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__nieuw__h1__ruw",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en het herstelvak met beschadigde kaarten",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__nieuw__h1__opgeschoond",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en het herstelvak met beschadigde kaarten.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__nieuw__h2__ruw",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "verplaatsbare bak op de sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en het herstelvak met beschadigde kaarten, ongeacht kleur, opstelplaats of het al dan niet opnieuw bedrukt zijn van de kaarten",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G01__nieuw__h2__opgeschoond",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "tekst": "Verplaatsbare bak op de sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en het herstelvak met beschadigde kaarten, ongeacht kleur, opstelplaats of het al dan niet opnieuw bedrukt zijn van de kaarten.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__nieuw__h1__ruw",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat wordt geregistreerd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berust op een onterechte melding van het planningssysteem dat de deelnemer geen tijdvak had gekozen",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__nieuw__h1__opgeschoond",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat wordt geregistreerd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berust op een onterechte melding van het planningssysteem dat de deelnemer geen tijdvak had gekozen.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__nieuw__h2__ruw",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat wordt vastgelegd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onjuiste melding van het planningssysteem dat de deelnemer geen tijdvak had gekozen",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G02__nieuw__h2__opgeschoond",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat wordt vastgelegd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onjuiste melding van het planningssysteem dat de deelnemer geen tijdvak had gekozen.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__nieuw__h1__ruw",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "Code die het register Inname en Teruggave bij iedere bevestigde overdracht tussen werktafels aanmaakt, die binnen dat register uniek blijft en die naar één overdrachtsgebeurtenis verwijst, ook na een correctie niet aan een andere gebeurtenis toegekend",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__nieuw__h1__opgeschoond",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "Code die het register Inname en Teruggave bij iedere bevestigde overdracht tussen werktafels aanmaakt, die binnen dat register uniek blijft en die naar één overdrachtsgebeurtenis verwijst, ook na een correctie niet aan een andere gebeurtenis toegekend.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__nieuw__h2__ruw",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "code die het register Inname en Teruggave bij iedere bevestigde overdracht tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis verwijst, ook na een correctie niet aan een andere gebeurtenis toegekend",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G03__nieuw__h2__opgeschoond",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "tekst": "Code die het register Inname en Teruggave bij iedere bevestigde overdracht tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis verwijst, ook na een correctie niet aan een andere gebeurtenis toegekend.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__nieuw__h1__ruw",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "wijziging in een oefenaanvraag die een baliemedewerker vóór de toewijzing van het oefenmateriaal uitvoert en die beperkt is tot het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__nieuw__h1__opgeschoond",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "Wijziging in een oefenaanvraag die een baliemedewerker vóór de toewijzing van het oefenmateriaal uitvoert en die beperkt is tot het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__nieuw__h2__ruw",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "wijziging die een baliemedewerker vóór de toewijzing van het oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G04__nieuw__h2__opgeschoond",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "tekst": "Wijziging die een baliemedewerker vóór de toewijzing van het oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__nieuw__h1__ruw",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "tijdelijke geheugenruimte die binnenkomende gegevenspakketten met een cyclusnummer per cyclus bijeenhoudt tot die cyclus wordt vrijgegeven zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel, bij het verstrijken van de ingestelde wachttijd, de op dat moment beschikbare pakketten met een onvolledigheidsmarkering worden vrijgegeven",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__nieuw__h1__opgeschoond",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met een cyclusnummer per cyclus bijeenhoudt tot die cyclus wordt vrijgegeven zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel, bij het verstrijken van de ingestelde wachttijd, de op dat moment beschikbare pakketten met een onvolledigheidsmarkering worden vrijgegeven.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__nieuw__h2__ruw",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "tijdelijke geheugenruimte die binnenkomende gegevenspakketten van meetsensoren per cyclusnummer bijeenhoudt tot die cyclus wordt vrijgegeven zodra alle voor die cyclus verwachte pakketten aanwezig zijn of de ingestelde wachttijd verstrijkt, waarbij pakketten zonder cyclusnummer er niet in worden opgenomen",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G05__nieuw__h2__opgeschoond",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van meetsensoren per cyclusnummer bijeenhoudt tot die cyclus wordt vrijgegeven zodra alle voor die cyclus verwachte pakketten aanwezig zijn of de ingestelde wachttijd verstrijkt, waarbij pakketten zonder cyclusnummer er niet in worden opgenomen.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__nieuw__h1__ruw",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetisch dossier die wordt toegekend nadat de volledigheidscontrole is geslaagd en zolang de consistentiecontrole loopt zonder vastgestelde tegenstrijdigheid, en die uitsluitend overdracht van een kopie aan de interne controletafel ter voorbereiding van de inhoudelijke bespreking toestaat, zonder verstrekking buiten het oefenarchief en zonder oordeel over de juistheid van de inhoud",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__nieuw__h1__opgeschoond",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetisch dossier die wordt toegekend nadat de volledigheidscontrole is geslaagd en zolang de consistentiecontrole loopt zonder vastgestelde tegenstrijdigheid, en die uitsluitend overdracht van een kopie aan de interne controletafel ter voorbereiding van de inhoudelijke bespreking toestaat, zonder verstrekking buiten het oefenarchief en zonder oordeel over de juistheid van de inhoud.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__nieuw__h2__ruw",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, die uitsluitend overdracht van een kopie aan de interne controletafel ter voorbereiding van de inhoudelijke bespreking toestaat, geen verstrekking buiten het oefenarchief toestaat, op zichzelf geen vaststelling van inhoudelijke juistheid inhoudt en vervalt zodra een tegenstrijdigheid is vastgesteld",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  },
+  {
+    "id": "G06__nieuw__h2__opgeschoond",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, die uitsluitend overdracht van een kopie aan de interne controletafel ter voorbereiding van de inhoudelijke bespreking toestaat, geen verstrekking buiten het oefenarchief toestaat, op zichzelf geen vaststelling van inhoudelijke juistheid inhoudt en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+    "herkomst": "synthetische G24-generatie, brongebonden opgeslagen respons",
+    "rationale": "Offline appbeoordeling; geen referentielabel of inhoudelijke einduitspraak"
+  }
+]

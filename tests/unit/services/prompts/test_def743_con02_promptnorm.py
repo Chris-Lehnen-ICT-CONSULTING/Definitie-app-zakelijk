@@ -181,7 +181,9 @@ def test_orchestrator_activeert_con_rules_ook_zonder_context():
     actief = orch._get_active_modules(enriched, UnifiedGeneratorConfig())
     assert "con_rules" in actief
     # Smal: geen blanket-activering van contextgebonden modules.
-    assert "integrity_rules" not in actief
+    # DEF-770: integrity_rules is altijd actief (INT-01 geldt voor elke
+    # definitie); de module toont zonder juridische context alleen INT-01.
+    assert "integrity_rules" in actief
     assert "sam_rules" not in actief
     assert "context_awareness" not in actief
 

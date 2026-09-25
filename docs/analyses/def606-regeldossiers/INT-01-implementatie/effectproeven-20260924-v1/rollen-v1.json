@@ -1,0 +1,30 @@
+{
+  "maker": {
+    "session_id": "01a0d327-8e89-7470-bd40-3980715d885f",
+    "CLI_model": "gpt-6-astra",
+    "reasoning": "high",
+    "tool_calls": 0,
+    "source_log": "logs/def770-effectproeven/maker-sessie.jsonl"
+  },
+  "referentie-A": {
+    "session_id": "01a0d32b-97d9-7ad0-afe6-6b8beb1ba821",
+    "CLI_model": "gpt-6-astra",
+    "reasoning": "high",
+    "tool_calls": 0,
+    "source_log": "logs/def770-effectproeven/referentie-A-sessie.jsonl"
+  },
+  "referentie-B": {
+    "session_id": "01a0d32b-8074-7fe1-915f-4d9930ed41f5",
+    "CLI_model": "gpt-6-astra",
+    "reasoning": "high",
+    "tool_calls": 0,
+    "source_log": "logs/def770-effectproeven/referentie-B-sessie.jsonl"
+  },
+  "adjudicatie": {
+    "session_id": "01a0d32e-87c3-7a83-822d-aff7a14d9086",
+    "CLI_model": "gpt-6-astra",
+    "reasoning": "high",
+    "tool_calls": 0,
+    "source_log": "logs/def770-effectproeven/adjudicatie-sessie.jsonl"
+  }
+}

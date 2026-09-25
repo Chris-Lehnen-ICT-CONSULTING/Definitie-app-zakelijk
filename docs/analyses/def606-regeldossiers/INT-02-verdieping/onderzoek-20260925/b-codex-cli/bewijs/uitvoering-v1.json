@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+    "-B",
+    "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/b-codex-cli/bewijs/proeven-b-v1.py"
+  ],
+  "cwd": "/Users/chrislehnen/Projecten/Definitie-app",
+  "environment_overrides": {
+    "PYTHONPATH": "src",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "start_utc": "2026-09-25T07:46:12.682318+00:00",
+  "end_utc": "2026-09-25T07:46:13.531111+00:00",
+  "exit_status": 0,
+  "stdout": "{\"service_cases\": 7, \"service_expectations\": true, \"cleaning_expectations\": [true, true], \"historical_binding\": {\"old_commit\": \"d68a98a909630e15db6e1cb9c9c8171f957bff9d\", \"record_equal_to_git\": true, \"record_equal_to_evidence\": true, \"sha256\": \"f4149faae49ccb932b4907fde1c50b5c6503c164d100ce6d08de3e816119a5a2\", \"historical_sha256\": \"f4149faae49ccb932b4907fde1c50b5c6503c164d100ce6d08de3e816119a5a2\", \"signals_ast_unchanged\": true, \"evaluate_ast_unchanged\": false, \"restriction\": \"evaluate bevat alleen toegevoegde branches voor ESS-01/02/04; INT-02-codepad gelijk; overige keten niet gelijk verondersteld\"}}\n",
+  "stderr": "git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\ngit: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\ngit: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\ngit: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\n"
+}

@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "rule": "INT-02",
+  "project": "DEF",
+  "issue": "DEF-771",
+  "researcher": "B",
+  "phase": "Onafhankelijke eerste versies; B opgeleverd, expliciete overdracht A nog nodig",
+  "session_id": "01a0d783-365b-7d82-81d3-684fd0e016fc",
+  "start_utc": "2026-09-25T07:41:35.775Z",
+  "end_utc": "2026-09-25T08:01:19.651071+00:00",
+  "head_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch_observed": "onderzoek/DEF-772-INT-03-20260925",
+  "model": {
+    "name": "gpt-6-astra",
+    "reasoning_effort": "high",
+    "verification": "Eigen rollout session_meta + turn_context, sessie-ID gelijk aan CODEX_SESSION_ID",
+    "cli_version": "0.157.0",
+    "python_version": "3.13.15",
+    "other_tools": "exec_command; Python standaardbibliotheek; git; Skill-tool analysis-mode; research-dispatch geweigerd, geen delegatie"
+  },
+  "source_access_report": "bewijs/toegang-bronnen-v1.json",
+  "source_access_correction": {
+    "unavailable": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition/cleaning_service.py",
+    "readable_actual_path": "/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py"
+  },
+  "active_documents": [
+    "onderzoek-b-v2.md",
+    "casusregister-b-v2.md"
+  ],
+  "preserved_independent_first_versions": [
+    "onderzoek-b-v1.md",
+    "casusregister-b-v1.md"
+  ],
+  "version_note": "V2 is eigen verificatiecorrectie vóór overdracht, geen kruisreview: C57 logische verruiming expliciet; scenario/INT-02-functie-uitkomst gelijk. Eén Markdown-tabelrij hersteld. V1 intact.",
+  "independence": {
+    "read_A_new_conclusions": false,
+    "read_cross_reviews": false,
+    "read_synthesis": false,
+    "read_shared_facts_and_historical_dossiers": true,
+    "started_subagents_or_other_sessions": false
+  },
+  "verification": "bewijs/oplevercontrole-v1.json",
+  "next_handoff": {
+    "from": "Onderzoeker A / coördinator",
+    "to": "Onderzoeker B, deze sessie",
+    "required": "Bevestig opslag van beide volledige eerste onderzoeken; draag A-onderzoek en claimrelevante bijlagen expliciet over voor kruisreview en stuur A-review op B voor puntgewijze verwerking. B v2 is de actuele te reviewen bijdrage; v1 blijft bewaard.",
+    "later": "Volledige synthese op verzoek overdragen voor één synthesecontrole."
+  },
+  "joint_research_complete": false,
+  "files": [
+    {
+      "path": "bewijs/aanvullende-bronnen-v1.json",
+      "bytes": 4739,
+      "sha256": "af8afa7e0810d0bbb03ca0b7a6e6e431ec772728965c7837d853f6c342172a95"
+    },
+    {
+      "path": "bewijs/bronextracten-v1.md",
+      "bytes": 97418,
+      "sha256": "222c472b876d7a82785554eb50551ab4c3deb009eac8cbed4cb0736408607ded"
+    },
+    {
+      "path": "bewijs/historische-diff-v1.txt",
+      "bytes": 9342,
+      "sha256": "25b52c31fe9efa58a9f9e7e58291eaf46bd3072625b8ea376ac6382616f2d7fa"
+    },
+    {
+      "path": "bewijs/oplevercontrole-v1.json",
+      "bytes": 1171,
+      "sha256": "20a5de71f0d912df45eb71a3b4b5a555de14661c742efe48b30c83b15631ade8"
+    },
+    {
+      "path": "bewijs/proefplan-v1.md",
+      "bytes": 2558,
+      "sha256": "945a7e32406b090a2751c7f5945cd8f6f7fe6f91694696b9b6df7f475561da5a"
+    },
+    {
+      "path": "bewijs/proefuitkomsten-v1.json",
+      "bytes": 9438,
+      "sha256": "874691337ddb57df6b74c1f9c793dec98698bcd8a31e8ef8b90eb13bb9ebd9d2"
+    },
+    {
+      "path": "bewijs/proeven-b-v1.py",
+      "bytes": 6565,
+      "sha256": "ab96c3a1243cdb385d311ad05099adfbc970fd3012e43c28e49aabf864c6a503"
+    },
+    {
+      "path": "bewijs/toegang-bronnen-v1.json",
+      "bytes": 13141,
+      "sha256": "75898d409bbfcb68e8231b2a824ad4a1c51704b16c2bd96fa874dae678c0f775"
+    },
+    {
+      "path": "bewijs/uitvoering-v1.json",
+      "bytes": 1626,
+      "sha256": "3ae91ec874bb6328393aa2ebaa919dd6058f5dd46fffd0e0afbd50b9145e4c52"
+    },
+    {
+      "path": "casusregister-b-v1.md",
+      "bytes": 15928,
+      "sha256": "03e08a64dad63c829bff7f4910a5f10a065fce12ba7d9790da73cc8eb30453b0"
+    },
+    {
+      "path": "casusregister-b-v2.md",
+      "bytes": 16512,
+      "sha256": "1ad33b10aabd57d5f612035d046a8af4cb5d0333546ca1d6d5afcdaa2683865e"
+    },
+    {
+      "path": "onderzoek-b-v1.md",
+      "bytes": 59175,
+      "sha256": "b885ed585dfa16062cac342fda6b0d18464059b6b1d5c31ead6ec6edc602cbf7"
+    },
+    {
+      "path": "onderzoek-b-v2.md",
+      "bytes": 59720,
+      "sha256": "8312616f41ed56039530a838e04572155598f7000f09b8333adaaa9e2652474f"
+    }
+  ],
+  "manifest_self_hash": "Niet intern opgenomen wegens zelfreferentie; SHA-256 van dit exacte manifest staat in het eindbericht."
+}

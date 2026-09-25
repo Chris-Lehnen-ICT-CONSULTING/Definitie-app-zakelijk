@@ -321,9 +321,11 @@ async def _gekalibreerde_buren(service: PromptServiceV2, marge: int) -> dict:
     def lengte(verzameling: dict) -> int:
         return basis + 2 + len(generatieburen_blok(verzameling) or "")
 
-    verzameling = _lange_buren(4, 6000)
+    # Integratie DEF-770: de basisprompt is langer (INT-01); 4×4000 laat
+    # ruimte om de laatste buur exact te kalibreren.
+    verzameling = _lange_buren(4, 4000)
     tekort = maximum - marge - lengte(verzameling)
-    verzameling["buren"][-1]["definitie"] = "x" * (6000 + tekort)
+    verzameling["buren"][-1]["definitie"] = "x" * (4000 + tekort)
     assert lengte(verzameling) == maximum - marge
     return verzameling
 

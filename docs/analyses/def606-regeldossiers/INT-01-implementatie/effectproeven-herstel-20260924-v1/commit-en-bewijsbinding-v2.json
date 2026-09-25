@@ -1,0 +1,45 @@
+{
+  "app_commit": "c7f5d7dc921740f85a10d932480da338f9c2c276",
+  "skills_commit": "ed0fcfdcc169c37058f0436fc92c1e07752366b8",
+  "bundles_after_commit_hook": [
+    {
+      "file": "cowork-exports/definitie-toetsregels.zip",
+      "sha256": "53927d960bd180f0787938976e79aaef6873fa7c5744276ee08738ffcbd6deda",
+      "reference_matches_source": true,
+      "alias_mapping": false
+    },
+    {
+      "file": "cowork-exports/toetsregels.zip",
+      "sha256": "78d895bb6bd9058e50cae77845f86bfef6f3e4937c41f6d09f403993048e80ea",
+      "reference_matches_source": true,
+      "alias_mapping": true
+    },
+    {
+      "file": "cowork-exports/definitie-nederlandse-definities.zip",
+      "sha256": "77d28130c89160059f13502adfe38e481ff4b9d28115b7a9ee6086b628e1e731",
+      "reference_matches_source": true,
+      "alias_mapping": false
+    },
+    {
+      "file": "cowork-exports/nederlandse-definities.zip",
+      "sha256": "5ffe239774115246a41e5a9f89f4cf2ebe72d363a58659d10cc462b9927115da",
+      "reference_matches_source": true,
+      "alias_mapping": true
+    }
+  ],
+  "unit_gate": {
+    "passed": 7271,
+    "skipped": 75,
+    "xfailed": 1,
+    "subtests": 21,
+    "exit": 0,
+    "log_sha256": "cda6e0bad918cb02ba7074435cc420acdb2ca8835bb96ac569b560cfd701f349"
+  },
+  "focused_tests": 267,
+  "skills_tests": {
+    "passed": 94,
+    "subtests": 2
+  },
+  "review_diff_sha256": "92f95666d4945d5075f3ec2de2dbdd61cbfcdae824d806d5b6d38f2b92a5f57c",
+  "live_activation": false
+}

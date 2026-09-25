@@ -1,0 +1,220 @@
+{
+  "record_sha256": "f4149faae49ccb932b4907fde1c50b5c6503c164d100ce6d08de3e816119a5a2",
+  "record_bytegelijk_aan_git_d68a98a9": true,
+  "record_gelijk_aan_historisch_bewijs": true,
+  "signalen_functie_ast_ongewijzigd": true,
+  "evaluator_bestand_bytegelijk": false,
+  "duiding": "evaluate kreeg alleen ESS-01/02/04-takken; INT-02 volgt nog dezelfde default. Geen claim dat het gehele evaluatorbestand ongewijzigd is. Historische manager/cache-metingen blijven historisch; actuele nieuwe serviceproef vult aan.",
+  "historische_routes": {
+    "manager": [
+      {
+        "input": {
+          "label": "good",
+          "term": "transitie-eis",
+          "text": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "bad",
+          "term": "transitie-eis",
+          "text": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "procedure",
+          "text": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": [
+              "\\bindien\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "membership",
+          "text": "Getal dat even is indien het zonder rest door twee deelbaar is."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": [
+              "\\bindien\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "same_membership_no_if",
+          "text": "Geheel getal dat zonder rest door twee deelbaar is."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "empty",
+          "text": ""
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      }
+    ],
+    "cache": [
+      {
+        "input": {
+          "label": "good",
+          "term": "transitie-eis",
+          "text": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "bad",
+          "term": "transitie-eis",
+          "text": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "procedure",
+          "text": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": [
+              "\\bindien\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "membership",
+          "text": "Getal dat even is indien het zonder rest door twee deelbaar is."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": [
+              "\\bindien\\b"
+            ]
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "same_membership_no_if",
+          "text": "Geheel getal dat zonder rest door twee deelbaar is."
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      },
+      {
+        "input": {
+          "label": "empty",
+          "text": ""
+        },
+        "status": "review_required",
+        "violations": [],
+        "reviews": [
+          {
+            "rule_id": "INT-02",
+            "category": "structuur",
+            "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+            "signals": []
+          }
+        ]
+      }
+    ]
+  },
+  "commando": "git diff d68a98a9 HEAD -- src/toetsregels/regels/INT-02.json src/services/validation/evaluators/judgment_review.py src/validation/additional_patterns.py",
+  "exitstatus": 0
+}

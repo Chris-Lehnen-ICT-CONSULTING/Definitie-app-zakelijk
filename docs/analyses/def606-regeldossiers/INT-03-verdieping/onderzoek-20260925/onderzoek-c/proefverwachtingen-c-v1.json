@@ -1,0 +1,225 @@
+{
+  "regel": "INT-03",
+  "onderzoeker": "C (Claude Code CLI, claude-fable-5-1, effort xhigh)",
+  "datum": "2026-09-25",
+  "leesbasis_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "vastgelegd_voor_uitvoering": true,
+  "toelichting": "Verwachtingen beschrijven het HUIDIGE appgedrag op de leesbasis (te actualiseren feit), niet de norm. Kolom 'norm_verwachting' geeft het inhoudelijk verwachte oordeel volgens de ASTRA-regel; die kolom wordt door de proef niet getoetst (menselijk oordeel) en dient als vergelijkingsbasis in het casusregister.",
+  "toetsvraag_record": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+  "patroon_extra": "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))",
+  "route_a_validatie": [
+    {
+      "id": "INT03-C-E01",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "bron": "ASTRA ONJUIST-voorbeeld = INT-03.json foute_voorbeelden[0]",
+      "norm_verwachting": "voldoet niet ('het' zonder eenduidig antecedent)",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "judgment_review levert altijd review_required; alleen 'die' staat in de patroonlijst, 'het' (het werkelijke probleemwoord) niet"
+    },
+    {
+      "id": "INT03-C-E02",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+      "bron": "ASTRA JUIST(ER)-voorbeeld = INT-03.json goede_voorbeelden[0]",
+      "norm_verwachting": "voldoet",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "identieke signalen als E01: het mechanisme onderscheidt het paar niet (example_pair_reason in het record)"
+    },
+    {
+      "id": "INT03-C-E03",
+      "term": "regeling",
+      "text": "regeling waarbij deze afspraak geldt",
+      "bron": "tests/fixtures/toetsregels/runtime_cases.yaml INT-03 probe",
+      "norm_verwachting": "nog te beoordelen / voldoet niet: 'deze afspraak' heeft geen antecedent in de zin",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdeze\\b", "\\bwaarbij\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "drie patronen vuren; 'waarbij' is een betrekkelijk bijwoord, geen voornaamwoord"
+    },
+    {
+      "id": "INT03-C-E04",
+      "term": "overdracht",
+      "text": "handeling van een medewerker aan een collega zodat het kan worden voortgezet",
+      "bron": "synthetisch: 'het' als enig voornaamwoord, antecedent ontbreekt",
+      "norm_verwachting": "voldoet niet",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "grond": "'het' staat in geen enkel patroon; geen signaal, wel reviewplicht"
+    },
+    {
+      "id": "INT03-C-E05",
+      "term": "geldboete",
+      "text": "sanctie bestaande uit betaling van een geldbedrag aan de staat",
+      "bron": "synthetisch: geen voornaamwoord",
+      "norm_verwachting": "voldoet (regel niet van toepassing: geen voornaamwoord)",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "grond": "judgment_review kent geen 'geen voornaamwoord → voldoet/niet van toepassing'-tak"
+    },
+    {
+      "id": "INT03-C-E06",
+      "term": "beschikking",
+      "text": "besluit dat in het kader van een aanvraag wordt genomen",
+      "bron": "synthetisch: patroon 'in het kader' zonder voornaamwoordprobleem; 'dat' als betrekkelijk voornaamwoord",
+      "norm_verwachting": "voldoet (INT-03); 'in het kader van' is een ARAI-05/ESS-01-kwestie",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bin het kader\\b"],
+      "grond": "de patroonlijst bevat niet-voornaamwoorden; 'dat' ontbreekt in alle patronen"
+    },
+    {
+      "id": "INT03-C-E07",
+      "term": "toelichting",
+      "text": "bepaling waarin deze regel wordt uitgelegd",
+      "bron": "synthetisch: negatieve lookahead van het extra patroon ('deze regel')",
+      "norm_verwachting": "nog te beoordelen: 'deze regel' verwijst buiten de zin",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdeze\\b"],
+      "grond": "het extra patroon zondert 'deze regel' uit, maar het recordpatroon \\bdeze\\b vuurt toch: de uitzondering is dood"
+    },
+    {
+      "id": "INT03-C-E08",
+      "term": "informatieplicht",
+      "text": "verplichting van de werkgever om de werknemer over haar rechten te informeren",
+      "bron": "synthetisch: bezittelijk voornaamwoord met twee kandidaten (werkgever/werknemer)",
+      "norm_verwachting": "voldoet niet (ambigu antecedent 'haar')",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "grond": "bezittelijke voornaamwoorden staan in geen patroon"
+    },
+    {
+      "id": "INT03-C-E09",
+      "term": "verzending",
+      "text": "handeling waarbij, zodra deze gereed is, de aanvraag wordt verstuurd",
+      "bron": "synthetisch, naar claude-review.json (catafoor/vooruitverwijzing)",
+      "norm_verwachting": "open beleidskeuze: antecedent staat in dezelfde zin maar ná het voornaamwoord",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdeze\\b", "\\bwaarbij\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "signalen tonen niet dat het antecedent volgt; de reviewer moet dat zelf zien"
+    },
+    {
+      "id": "INT03-C-E10",
+      "term": "leeg",
+      "text": "",
+      "bron": "historisch geval 'empty' (INT-03-bewijs-v1), geactualiseerd",
+      "norm_verwachting": "geen toetsobject (VAL-EMP-001), geen INT-03-oordeel",
+      "expected_status": "review_required",
+      "expected_signals": [],
+      "grond": "judgment_review heeft, anders dan countability_assessment, geen lege-tekst-tak"
+    },
+    {
+      "id": "clear_relative",
+      "historisch": true,
+      "term": "aanvrager",
+      "text": "Persoon die een aanvraag indient.",
+      "bron": "INT-03-bewijs-v1/gevallen.json (11-09-2026)",
+      "norm_verwachting": "voldoet (betrekkelijke bijzin met één antecedent)",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "actualisatie van het historische resultaat op 26f2374d"
+    },
+    {
+      "id": "two_candidates",
+      "historisch": true,
+      "term": "aanvrager",
+      "text": "Persoon met een vertegenwoordiger die een aanvraag indient.",
+      "bron": "INT-03-bewijs-v1/gevallen.json",
+      "norm_verwachting": "voldoet niet / nog te beoordelen (persoon of vertegenwoordiger?)",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "actualisatie"
+    },
+    {
+      "id": "external_reference",
+      "historisch": true,
+      "term": "handelende",
+      "text": "Deze verricht de handeling.",
+      "bron": "INT-03-bewijs-v1/gevallen.json",
+      "norm_verwachting": "voldoet niet (antecedent buiten de definitie)",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdeze\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "actualisatie"
+    },
+    {
+      "id": "possessive_ambiguity",
+      "historisch": true,
+      "term": "informant",
+      "text": "Persoon die zijn vertegenwoordiger informeert over zijn besluit.",
+      "bron": "INT-03-bewijs-v1/gevallen.json",
+      "norm_verwachting": "voldoet niet (tweede 'zijn' ambigu)",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"],
+      "grond": "actualisatie; het signaal wijst op het onproblematische 'die', niet op 'zijn'"
+    },
+    {
+      "id": "explicit_repeat",
+      "historisch": true,
+      "term": "aanvrager",
+      "text": "Persoon met een vertegenwoordiger waarbij de persoon een aanvraag indient.",
+      "bron": "INT-03-bewijs-v1/gevallen.json",
+      "norm_verwachting": "voldoet (herhaling van het zelfstandig naamwoord)",
+      "expected_status": "review_required",
+      "expected_signals": ["\\bwaarbij\\b"],
+      "grond": "actualisatie; het herstel via herhaling wordt alsnog gesignaleerd door 'waarbij'"
+    }
+  ],
+  "route_b_prompt": [
+    {
+      "id": "INT03-C-P01",
+      "wat": "JSONBasedRulesModule(rule_prefix='INT') zonder context, include_examples=True: exact INT-03-blok",
+      "expected_lines": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+        "  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
+      ],
+      "grond": "json_based_rules_module._format_rule + instruction_map['INT-03'] + INT-03.json; de toelichting ('dezelfde zin of zinsdeel', 'zelfstandig naamwoord') wordt niet gerenderd"
+    },
+    {
+      "id": "INT03-C-P02",
+      "wat": "zelfde module, met juridische context: blok identiek aan P01",
+      "expected_same_as": "INT03-C-P01",
+      "grond": "de INT-module kent geen contextgating; alleen CON-regels zijn contextgebonden (DEF-743)"
+    },
+    {
+      "id": "INT03-C-P03",
+      "wat": "zelfde module, include_examples=False: alleen kop, uitleg en instructie",
+      "expected_lines": [
+        "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**",
+        "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+        "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin"
+      ],
+      "grond": "_format_rule slaat voorbeelden over bij include_examples=False"
+    },
+    {
+      "id": "INT03-C-P04",
+      "wat": "volledige adapterprompt zonder enige context",
+      "expected_int03_present": false,
+      "expected_skipped_contains": ["integrity_rules"],
+      "grond": "prompt_orchestrator._get_active_modules activeert integrity_rules alleen bij juridische of wettelijke context"
+    },
+    {
+      "id": "INT03-C-P05",
+      "wat": "volledige adapterprompt met uitsluitend organisatorische context",
+      "expected_int03_present": false,
+      "expected_skipped_contains": ["integrity_rules"],
+      "grond": "organisatorische context activeert integrity_rules niet"
+    },
+    {
+      "id": "INT03-C-P06",
+      "wat": "volledige adapterprompt met juridische context",
+      "expected_int03_present": true,
+      "expected_skipped_contains": [],
+      "grond": "juridische context activeert integrity_rules; blok moet gelijk zijn aan P01"
+    },
+    {
+      "id": "INT03-C-P07",
+      "wat": "volledige adapterprompt met uitsluitend wettelijke basis",
+      "expected_int03_present": true,
+      "expected_skipped_contains": [],
+      "grond": "wettelijke context activeert integrity_rules eveneens"
+    }
+  ]
+}

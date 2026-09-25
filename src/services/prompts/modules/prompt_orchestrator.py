@@ -463,10 +463,15 @@ class PromptOrchestrator:
         active.add("arai_rules")
         active.add("ver_rules")
 
+        # DEF-770: INT-01 (één compacte zin, geldigheid 'alle') wordt voor elke
+        # definitie getoetst, dus de INT-module is altijd actief; de module zelf
+        # toont zonder juridische of wettelijke context alleen INT-01 (smal: de
+        # overige INT-regels en SAM behouden hun DEF-123-toepasselijkheid).
+        active.add("integrity_rules")
+
         # Context-dependent rule modules
         if context.has_juridische_context() or context.has_wettelijke_context():
-            # Legal context requires integrity and coherence rules
-            active.add("integrity_rules")
+            # Legal context requires coherence rules
             active.add("sam_rules")
             logger.debug("DEF-123: Legal rule modules activated (juridische context)")
         # DEF-622: het contextcontract (CON-01) geldt voor élke context — ook

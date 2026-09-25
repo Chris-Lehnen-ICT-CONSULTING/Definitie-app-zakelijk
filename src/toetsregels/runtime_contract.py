@@ -117,6 +117,9 @@ class EvaluatorType(StrEnum):
     # DEF-768: AI-beoordeling van onderscheid van verwante begrippen (code
     # toetst binding, citaatbestaan en berekent de uitkomst), ESS-05.
     DISTINCTION_ASSESSMENT = "distinction_assessment"
+    # DEF-770: functionele zinsgrenzen (INT-01) als deelbevinding; compactheid
+    # en begrijpelijkheid blijven een open onderdeel.
+    SENTENCE_BOUNDARY = "sentence_boundary"
 
 
 class ExamplePairPolicy(StrEnum):

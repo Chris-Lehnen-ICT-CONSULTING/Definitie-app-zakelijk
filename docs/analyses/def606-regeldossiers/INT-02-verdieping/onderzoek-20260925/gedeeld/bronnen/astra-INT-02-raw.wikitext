@@ -1,0 +1,35 @@
+{{DefinitieRegel
+|Identificatie=INT-02
+|Regel-kort=geen beslisregel
+|Regel=Een definitie mag niet geformuleerd worden als een beslisregel.
+|Toelichting=Bij een [[Beslisregel|beslisregel]] komt oordeelsvorming kijken, de uitkomst hiervan is dus niet 100% deterministisch. Bron hiervan is vaak beleid, waar dus kennelijk een discretionaire bevoegdheid is opengelaten.
+
+Uiteraard mag een definitie wel geformuleerd worden als een [[Afleidingsregel |afleidingsregel]], want dat is een geheel deterministisch algoritme voor het uitrekenen van een (“afgeleid”) feit op basis van andere (zowel oorspronkelijke als afgeleide) feiten. Sterker nog: een afleidbaar begrip MOET gedefinieerd worden in termen van een afleidingsregel.
+
+'''Achtergrond'''
+
+Synoniem voor de term "beslisregel" is de DEMO-term "actieregel" (EN: Action Rule), daar gedefinieerd als "richtlijn voor actor bij het afhandelen van coördinatie-event". Het idee daar is dat een actor a.d.h.v. criteria als waarheid, juistheid en oprechtheid (cf. Habermas) uiteindelijk een beslissing neemt en daarvoor verantwoordelijkheid draagt.
+Dat lijkt op het begrip ''Behavioral business rule'': ‘a business rule that is an obligation concerning conduct, action, practice, or procedure’ (Ronald G. Ross, Business Knowledge Blueprints, blz. 260).
+
+Een "afleidingsregel" (EN: derivation rule) levert nieuwe (afgeleide) feiten op. Zulke afgeleide feiten veranderen de toestand van de wereld van de enterprise niet, ze stellen die alleen anders voor (maar dat kan wel handig zijn). Alleen de creatie van originele feiten verandert de toestand van de wereld. Zo is het berekenen van de dagomzet van de winkel erg handig, maar het verandert niets aan de verkopen van die dag.
+
+Dat lijkt op het begrip definitional rule: ‘a business rule that establishes a definitional criterion that is necessarily true for each instance of a concept’ (Ronald G. Ross, Business Knowledge Blueprints, blz. 268).
+|Voorbeelden='''transitie-eis'''
+ONJUIST: ‘eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.’
+
+JUIST: ‘eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.’
+|Brondocument=[[How_to_define_business_terms_in_plain_English:_a_primer_(Ronald_Ross)|DBT]], 4.2
+|Prioriteit=midden
+|Aanbeveling=aanbevolen
+|Geldigheid=alle
+|Status=definitief
+|Type=gehele definitie
+|Thema=interne kwaliteit van de definitie
+|Redactieopmerking=Aandachtspunten:
+
+* is het verband met categorieën van business rules (zoals "afleidingsregels", "beslisregels", "geldigheidsregels") hiermee voldoende omlijnd?
+* klopt het aangeven verband met “definitional rule” van Ross – zo ja, hoe dit beter uitleggen? Of onderbrengen bij de uitleg van het begrip afleidingsregel
+* het voorbeeld met de term "transitie-eis" (uit Ross) vind ik niet erg sprekend; welk SRK-voorbeeld zou kunnen demonstreren waar dit een misverstand zou kunnen zijn?
+|Code=INT-02
+|Aanbeveling gebruik=aanbevolen
+}}

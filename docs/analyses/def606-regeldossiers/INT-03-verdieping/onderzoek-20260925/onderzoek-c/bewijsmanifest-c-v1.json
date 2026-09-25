@@ -1,0 +1,90 @@
+{
+  "regel": "INT-03",
+  "onderzoeker": "C",
+  "sessie": {
+    "omgeving": "Claude Code CLI, headless, Mac van Chris",
+    "model": "claude-fable-5-1",
+    "effort": "xhigh",
+    "onafhankelijkheid": "vóór opslag van v1 niets gelezen uit onderzoek-a/, onderzoek-b/ of onderzoek-c/run1-opus55-afgebroken/; claude-run2.* zijn de hostlogs van deze sessie en zijn niet gelezen"
+  },
+  "datum_utc": "2026-09-25T08:00:36Z",
+  "leesbasis": {
+    "repository": "/Users/chrislehnen/Projecten/Definitie-app",
+    "branch": "onderzoek/DEF-772-INT-03-20260925",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "werkboom_code_schoon": "git status --porcelain src config tests → leeg",
+    "python": ".venv/bin/python 3.13.15"
+  },
+  "opgeleverde_bestanden_sha256": {
+    "aanvulling-c-v1.md": "31f3a53247584abac9722f27ef952af2a38b409de300175b9d18696c2241fbd3",
+    "casusregister-c-v1.md": "0126835e61fd053b9375d6598a2d84eb87213887bfc276245dc0d2290a31a04c",
+    "proefverwachtingen-c-v1.json": "303486856b2a79ff971700a63c91d1eec4ed0bb9bbd63c1701704afc0f6257da",
+    "proef-c-v1.py": "690ffe2d7baaa9af27d0b6a43be75a5d4cfdf92d6e9930802c2434bac63be054",
+    "proefuitkomsten-c-v1.json": "906d4ee7dd959f1ca736af00e96661ecc139e865dec0ff1725211d0cde61c117",
+    "proef-c-v1-run1.log": "f033cc92c88dfb49a759920e14538587e20fb9e05ea2cb932faf765a56910175"
+  },
+  "extra_bestand": "proef-c-v1-run1.log is het stdout/stderr-log van de proefuitvoering (niet gevraagd in de startopdracht; mag worden verwijderd)",
+  "proef": {
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proef-c-v1.py",
+      "/Users/chrislehnen/Projecten/Definitie-app",
+      "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3"
+    ],
+    "cwd": "/Users/chrislehnen/Projecten/Definitie-app",
+    "exit_status": 0,
+    "offline_gate": true,
+    "scope": "route A: 15 gevallen × manager/cache via ModularValidationService (context={}); route B: JSONBasedRulesModule-blok (3 varianten) en ModularPromptAdapter-prompt (4 contextvarianten); geen UI, opslag, export, live model of normvalidatie",
+    "route_a_all_match": true,
+    "route_b_all_match": true
+  },
+  "gelezen_bronnen_sha256": {
+    "gedeeld/feitenbasis-v1.md": "c160479ace16663bc89ebf902e69c1ab7c4f19ad87a0114473eddd82d158662d",
+    "gedeeld/astra-INT-03-raw-20260925.txt": "121c4fbb13c25cbe5847ab774f8eaba6c46b555b69ab01edcef4274df101deae",
+    "gedeeld/startopdracht-c-v1.md": "e70b6fd47fbb5761610ccf1b5e12460e932a28d4fc7efb722255ab0659eed776",
+    "docs/analyses/def606-regeldossiers/INT-03-v1.md": "b01ecc2c82f105ce5f20373ebe791ddb05c72de415b707a385b4d4b12974d269",
+    "docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/gevallen.json": "c6a91538ac4c1eb2bb56d4747351b9166e086a43b0124b5f82accecfc5aadcda",
+    "docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/uitkomsten.json": "a909973dd98c328cf14987f3e861c6e5b209fc5b40e1e15575f8ace7a8fa346f",
+    "docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/claude-review.json": "cac75f89a9b5c59c57b65005d0069517f8c2a209f0222f433a0816654d468267",
+    "src/toetsregels/regels/INT-03.json": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+    "src/services/validation/evaluators/judgment_review.py": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+    "src/validation/additional_patterns.py": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+    "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+    "src/services/prompts/modular_prompt_adapter.py": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+    "src/services/prompts/modules/integrity_rules_module.py": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979",
+    "src/services/prompts/modules/prompt_orchestrator.py": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+    "src/services/validation/modular_validation_service.py": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+    "src/ui/components/validation_view.py": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+    "src/toetsregels/regels/INT-03.py": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+    "src/toetsregels/validators/INT_03.py": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+    "_claude-global-setup/skills/toetsregel-onderzoek/SKILL.md": "66d65b3f9292b46a33feec67c11cbdc456fa16a4c5918feee04301af6b808e6d",
+    "_claude-global-setup/skills/toetsregel-onderzoek/references/werkcontract.md": "edaccc86d59903512624dec5af7f6ebcb79471ba2046cbcd9dc0e8586efaa68b",
+    "_claude-global-setup/skills/toetsregel-onderzoek/references/startopdracht.md": "491dbb82bb9c1b89388f6626d650528434b6ed4864541c477fbcc09e7ee31513",
+    "_claude-global-setup/skills/toetsregel-onderzoek/references/genereren-en-toetsen.md": "bc96faf144313f299f3739092b640619a885d87dafc83a97714d2a507810dd85",
+    "_claude-global-setup/skills/definitie-toetsregels/SKILL.md": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+    "_claude-global-setup/skills/definitie-toetsregels/reference.md": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+    "_claude-global-setup/skills/definitie-nederlandse-definities/SKILL.md": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+    "_claude-global-setup/skills/definitie-nederlandse-definities/reference.md": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4"
+  },
+  "gelezen_zonder_hash": [
+    "docs/analyses/2026-09-07-definitiekwaliteit-dossiers-int-sam.md (regels 120-164)",
+    "docs/analyses/2026-09-07-definitiekwaliteit-dossiers-int-sam-prompt-bewijs.json (rule_presence en skipped_modules per variant)",
+    "src/services/validation/interfaces.py, evaluators/base.py, evaluators/countability_assessment.py, evaluators/source_evidence.py (kop), ess03_assessment_service.py (kop)",
+    "src/domain/ess03/contract.py (regels 1-120)",
+    "src/toetsregels/runtime_contract.py, manager.py (get_all_regels), cached_manager.py, rule_cache.py (padregels)",
+    "src/toetsregels/regels/INT-01.json, ARAI-05.json, CON-CIRC-001.json",
+    "src/services/definition_generator_context.py (EnrichedContext, has_*_context), definition_generator_config.py (UnifiedGeneratorConfig), prompts/modular_prompt_builder.py (PromptComponentConfig), prompts/modules/base_module.py",
+    "src/ui/components/expert_review_tab.py (regels 1218-1260, 1601-1680, 1769-1848), src/services/service_factory.py (295-312), src/services/definition_edit_service.py (255-325), src/export/export_txt.py (regel 14), src/database/schema.sql (grep review/validation), src/validation/definitie_validator.py (170-240), src/config/config_manager.py (205-230)",
+    "tests/offline_bootstrap.py, tests/fixtures/toetsregels/runtime_cases.yaml (370-395), tests/unit/validation/test_rule_runtime_matrix.py (160-260), tests/unit/services/prompts/test_def171_optimization.py (1-120)",
+    "docs/analyses/def606-regeldossiers/INT-01-verdieping/onderzoek-20260923/onderzoek-a/proef-v2.py, proefverwachtingen-v1.json, proefuitkomsten-v2.json, bewijsmanifest-v1.json (werkvormvoorbeeld)"
+  ],
+  "niet_leesbaar_of_niet_gelezen": {
+    "~/.agents/skills/ en ~/.claude/skills/": "geblokkeerd door de werkmapbeperking van deze CLI-sessie; vervangen door _claude-global-setup/skills/ met identieke hashes (SKILL.md 66d65b3f… = Mac-versie uit de feitenbasis)",
+    "Ross DBT §4.3": "niet gelezen; claims daarover niet geverifieerd",
+    "onzetaal.nl/taalloket/voornaamwoord": "niet gelezen; taalkundige claims (expletief 'het') niet geverifieerd",
+    "onderzoek-a/, onderzoek-b/, onderzoek-c/run1-opus55-afgebroken/": "bewust niet gelezen (onafhankelijkheid)",
+    "Cowork-gesynchroniseerde skills (94206774…)": "niet gelezen"
+  },
+  "status": "onderzoek C v1 opgeslagen; wederzijdse review, verwerking en synthesecontrole nog niet uitgevoerd; geen gezamenlijke afronding geclaimd"
+}

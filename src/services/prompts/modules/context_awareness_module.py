@@ -203,7 +203,7 @@ Gebruik domein-specifieke termen.
 ❌ "straf" → ✅ "sanctie" (formeel juridisch)
 
 **MECHANISME 2 - SCOPE:**
-Vernauw begrippen met domein-qualifiers.
+Kies het domeinspecifieke woord binnen de afbakening die de bron geeft; maak de betekenis niet smaller dan de bron met een extra qualifier, zoals een eigenschap die volgens de bron mag wisselen.
 ❌ "regels" → ✅ "gedragsregels"
 ❌ "beslissing" → ✅ "beschikking"
 ❌ "procedure" → ✅ "formele procedure"

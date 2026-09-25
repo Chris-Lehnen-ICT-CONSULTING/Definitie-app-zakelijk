@@ -90,7 +90,13 @@ async def test_bewijs_wordt_per_record_bewaard_en_teruggelezen(tmp_path):
         )
     )
     oud = repo.get(historisch)
-    assert "generation_prompt_data" not in oud.metadata
+    # DEF-770: de registratie draagt nu altijd de INT-01-uitkomst, maar geen
+    # generatiebewijs en dus geen vóórtekst.
+    from ui.components.tekstwijziging import tekstwijziging_uit_bewijs
+
+    registratie = oud.metadata.get("generation_prompt_data") or {}
+    assert set(registratie) <= {"int01_beoordeling", "int01_beoordeling_history"}
+    assert tekstwijziging_uit_bewijs(registratie, "Historische definitie.") is None
 
 
 async def test_adapter_geeft_het_bewijs_door_aan_de_ui(tmp_path):

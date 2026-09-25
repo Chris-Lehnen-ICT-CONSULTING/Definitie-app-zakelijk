@@ -1,0 +1,21 @@
+{
+  "original_evidence": "../effectproeven-restherstel-20260925-v1/g24-rapport-v1.md",
+  "prompt_equality_proof": "g24-behoudbinding-v1.json",
+  "generation_source_identical_to": "108f38a3933cfe1335908d77a1aaadf0f8f36cc3",
+  "current_commit": "86b2c0b20a2913484256b931e6e3c7848391ed13",
+  "change_since_full_prompt_equality": "Alleen classifier, tests en toetsreferentie. Generatiecode/configuratie/definitie-nederlandse-definities bytegelijk.",
+  "new_paid_calls": 0,
+  "cumulative_usd": 7.533075,
+  "cap_usd": 8.1,
+  "remaining_usd": 0.566925,
+  "offline_evaluator": {
+    "inputs": 48,
+    "service_observations": 96,
+    "storage_records": 48,
+    "errors": 0,
+    "load_paths_equal": true,
+    "original_text_preserved": true,
+    "storage_parts_and_status_equal": true,
+    "full_int01_passes": 0
+  }
+}

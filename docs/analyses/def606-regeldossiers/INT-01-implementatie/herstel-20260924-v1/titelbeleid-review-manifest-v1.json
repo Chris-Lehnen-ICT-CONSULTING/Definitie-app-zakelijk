@@ -1,0 +1,22 @@
+{
+  "bases": {
+    "app": "b5fde95e49ce9036cd4dec3a92d0aed457443dd2",
+    "skills": "5c42e404adde2916e6970ac1ac22e4057ba5d62f"
+  },
+  "files": {
+    "app": {
+      "src/domain/int01/zinsgrenzen.py": "cdd65dc1ea781c3aa009a691e868d1a846b3ab795b75d5f7a9e0b3b4943f657f",
+      "tests/unit/validation/test_def770_herstel_zinsgrenzen.py": "d6c6e3398a8cab4afe5f17a067ab225262455a51782dc53a757cabd8dcd2f163",
+      "tests/unit/validation/test_def770_int01_zinsgrenzen.py": "b6d9c3f299018f98bafdc5052dcc66d3dcc5744c246f827a2225361379f076d5",
+      "tests/unit/validation/test_def770_vervolg_zinsgrenzen.py": "d5fe82527d3656104fce7f7378c898dd1b603e0958dab348f74f640322dfd302"
+    },
+    "skills": {
+      "skills/definitie-toetsregels/reference.md": "c6530d484749b74a464aef69765a110bd634d62cb52c156d28891205e00aed92"
+    }
+  },
+  "diffs": {
+    "app": "0db86a7db313e945e377692cd4359bb49acc7bd98036929e057453eb15230eba",
+    "skills": "fa2273d7fc0bc8c6da88e2ac5b2be0be5e76d7b99fea2e46d88e5d77d5c3f972"
+  },
+  "generation_source_unchanged_from_review_v3": true
+}

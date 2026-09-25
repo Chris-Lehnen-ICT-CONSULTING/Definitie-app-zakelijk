@@ -1,0 +1,64 @@
+{
+  "call_id": "G04__oud__h2",
+  "request_sha256": "87a215d784c004945e1f2b423922986ffe979c130d0af79e18bc01efd517c7a5",
+  "manifest_sha256": "4e8d79cc8194fe417fca2f52c74a6ab0dd657cc6e7aff40c85ca981155e7a941",
+  "counts_sha256": "717520ee35e483c620f24a5c12a7978f3dce70c67a62c80fffa7e05958d4f4b3",
+  "goedkeuring_sha256": "6de2c34cd55c0f655b7497b4187994d028119ee16a2ff00136fe544d4ee2c451",
+  "geteld_input_tokens": 17314,
+  "tijd": "2026-09-25T07:16:55+0200",
+  "duur_s": 2.574,
+  "bericht_id": "msg_011CfPbC92uqebHyG2boZcY2",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 17314,
+    "output_tokens": 172,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd",
+  "ruwe_response": {
+    "id": "msg_011CfPbC92uqebHyG2boZcY2",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 17314,
+      "output_tokens": 172,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

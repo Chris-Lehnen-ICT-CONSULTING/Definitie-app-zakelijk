@@ -1,0 +1,12 @@
+{
+  "new_commit": "86b2c0b20a2913484256b931e6e3c7848391ed13",
+  "new_archive": "logs/def770-citaatbeleid/bron-voorbeeldgetal-v4.tar",
+  "new_archive_sha256": "57350c6c084e10caca1c7fd5fe5415651f18854ba608334a8f74281faf4fcc2f",
+  "old_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "old_archive": "logs/def770-effectproeven/bron-oud-26f2374d.tar",
+  "skills_commit": "2fa72640f6cd48d0d9e5fc9e08fd19942b05a979",
+  "criteria": "24/24 inclusief status, redenen, grenzen en broncitaat; geen nieuwe zekere fout; geen volledige INT-01-pass; beide laadpaden/opslag consistent; disputen zichtbaar, geen herlabeling na run",
+  "independent_roles": "nieuwe aparte Astra/high CLI-sessies voor maker, A, B, adjudicator; geen tools; geen appuitkomsten voor adjudicatie",
+  "source_policy": "geen codewijziging na setvrijgave",
+  "g24": "bestaand bewijs behouden; geen nieuwe generatiecalls"
+}

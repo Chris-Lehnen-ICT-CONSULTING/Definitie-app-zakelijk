@@ -1,0 +1,14 @@
+--- logs/def770-restherstel/herstelkopie-v4/app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py	2026-09-25 09:28:47
++++ tests/unit/validation/test_def770_restherstel_zinsgrenzen.py	2026-09-25 09:33:36
+@@ -154,7 +154,10 @@
+     normatieve referentie blijft pass en is hier zichtbaar, niet aangepast."""
+     adjudicatie = json.loads(T24_ADJUDICATIE.read_text(encoding="utf-8"))
+     [geval] = [c for c in adjudicatie["cases"] if c["id"] == "T20"]
+-    assert geval["sentence_status"] == REFERENTIE_NORMATIEF["T20"]
++    # Normatieve as (astra-review-v3): de referentie blijft pass.
++    assert geval["normative_sentence_status"] == REFERENTIE_NORMATIEF["T20"]
++    # Historisch automatisch label van die proef, apart en onveranderd.
++    assert geval["sentence_status"] == "pass"
+     detail = regeluitkomst(segmenteer(A_T20))
+     delen = {p["id"]: p["status"] for p in detail["parts"]}
+     assert detail["status"] == BESLUIT_AUTOMATISCH["T20"]

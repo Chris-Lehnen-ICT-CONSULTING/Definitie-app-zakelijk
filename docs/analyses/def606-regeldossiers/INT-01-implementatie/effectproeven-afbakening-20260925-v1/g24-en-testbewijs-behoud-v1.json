@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-25T12:17:49.441260+00:00",
+  "committed_source": "3c2535361be6851a779372926302d1d027897d4b",
+  "archive_all_regular_files_equal_to_verified_derived_archive": true,
+  "regular_file_count": 3322,
+  "prompt_parity_log": "promptpariteit-v1.log",
+  "all_six_prompts_and_requests_identical": true,
+  "unchanged_runtime_contract": "def770-int01/10",
+  "retained_g24": "../effectproeven-citaatbeleid-20260925-v2/g24-behoudbinding-contract10-v1.json",
+  "limitations": "kleine synthetische AI-proef; G04/G02 ongewijzigd; geen nieuwe generatiecalls",
+  "unit_gate_retained": "7567 passed, 75 skipped, 1 bestaande xfail, 21 subtests; executable code/tests/config unchanged",
+  "new_focused_gate": "939 passed, 5 skipped; exit0",
+  "bundles": "96 passed, 2 subtests; exit0"
+}

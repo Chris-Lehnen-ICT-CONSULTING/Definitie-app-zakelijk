@@ -1,0 +1,14 @@
+{
+  "tests": "94 passed, 2 subtests; exit 0",
+  "canonical_source_parity": true,
+  "files": [
+    {
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/cowork-exports/definitie-toetsregels.zip",
+      "sha256": "0ef297fc0b35f916fda5fef08cd52b0aba979cd7076e29744e5f977302384198"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/cowork-exports/toetsregels.zip",
+      "sha256": "f798ef4b238eae537afcff57e2ebcc8fdba5eb22453bf71bb90204a3710a7d61"
+    }
+  ]
+}

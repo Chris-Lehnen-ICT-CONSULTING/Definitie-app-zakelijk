@@ -568,12 +568,12 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/test_export_levels_comprehensive.py::TestLargeDataset::test_large_export_performance": {
-      "source_sha256": "57f21bdfe12b2e29f19d693d2a76eb88055ace42e823336c9fd0aac25be3b492",
+      "source_sha256": "5b2e07c4fc61f7ffa1cb8502103ce1aad69cc6ad826d909f7b6dc5887dfb71d6",
       "comparisons": [
         "duration < 10.0"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Herbinding DEF-770 (24-09-2026): alleen de bestandshash is bijgewerkt; de tijdsvergelijking en de AST van deze functie zijn gelijk aan base 26f2374d, de module kreeg andere exportassertions in TestExportLevelsFormats (veldaantallen en int01_beoordeling). Geen timingbeoordeling."
     },
     "tests/integration/test_history_removal.py::TestPerformanceImprovement::test_import_time": {
       "source_sha256": "4fe4f438d9ee03fd75a0552369b3878ae618d55d99713590c4dba1b1e27a94ca",

@@ -1,0 +1,68 @@
+{
+  "app_base": "e38ad95796fea35154482da8d8568e3663be4c36",
+  "skills_base": "a048806c67a441103a2d229d0247f3c8c26f326b",
+  "files": [
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/domain/int01/zinsgrenzen.py",
+      "sha256": "7f1216d3825caec0beca7f405a0931ecf9e7dbd26f8f41b3630e984665574bb0"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/services/prompts/modules/context_awareness_module.py",
+      "sha256": "45e9964778ddeab1729fecb4a1d9ad5ef54dd3e69d5a23a055041fb8462fc105"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/services/prompts/modules/definition_task_module.py",
+      "sha256": "416bc336bd734d6586324ba3e23c931ee6bde341f9a5e51eb949e44fb571c479"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py",
+      "sha256": "b858f645a7db4b1f86b6eddf40c57854deccb917afbdd640a8f12b11ab31ff7e"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py",
+      "sha256": "2be2d1678bb46c107eb6cc83961007b037350bbd14fcc8cbe128cd5789bae2e3"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/services/prompts/test_def770_restherstel_promptbehoud.py",
+      "sha256": "99486f6167c2a776040600321c6b1b1bb1c0e5fe1250ef4f8e349c93e33681f6"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "b94073cdcf109b408c0bc7caebffbe3beac3aad84d65d89ba819e9859ede4af2"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "483c291fa854912af908b623369f336356024780d9b2fa080c8e089abc0b0ede"
+    },
+    {
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-toetsregels/reference.md",
+      "sha256": "d053f336a0d8c02a5d653122538e60574d946210f2bdf8772f4b87569ccaea2e"
+    }
+  ],
+  "diffs": [
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/review-app-v3.patch",
+      "sha256": "08ededd2cbbee73ea5f2670136e1abcaf7a5eafe50755a995b691f9c7e1ad256"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/review-skills-v3.patch",
+      "sha256": "b02a6276a3e16208e7ed61a0cc7c070bee75ae702f4ec86cde3e1b9408ddaa0f"
+    }
+  ],
+  "changed_since_v2": [
+    "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py",
+    "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-toetsregels/reference.md"
+  ],
+  "changed_since_v3": [
+    "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py"
+  ],
+  "delta_v4": {
+    "path": "logs/def770-restherstel/review-delta-v4.patch",
+    "sha256": "9696bc551dc0fe3d371832943428857165d50f2f7ce2517497f2e8c8c1b91c1c"
+  },
+  "diffs_note": "v3 full patches plus exact delta_v4; source hashes final"
+}

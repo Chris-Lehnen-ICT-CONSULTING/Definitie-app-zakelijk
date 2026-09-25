@@ -1,0 +1,386 @@
+[
+  {
+    "id": "G01__oud__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "uitleenvenster",
+    "tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__oud__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "uitleenvenster",
+    "tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__oud__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "uitleenvenster",
+    "tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__oud__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "uitleenvenster",
+    "tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__oud__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "herstelmelding",
+    "tekst": "bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__oud__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "herstelmelding",
+    "tekst": "Bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__oud__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "herstelmelding",
+    "tekst": "bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__oud__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "herstelmelding",
+    "tekst": "Bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__oud__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "routeadvies",
+    "tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__oud__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "routeadvies",
+    "tekst": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__oud__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "routeadvies",
+    "tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__oud__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "routeadvies",
+    "tekst": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__oud__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "afsluitreden",
+    "tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__oud__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "afsluitreden",
+    "tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__oud__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "afsluitreden",
+    "tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__oud__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "afsluitreden",
+    "tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__oud__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__oud__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__oud__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__oud__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__oud__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__oud__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__oud__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__oud__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__nieuw__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "uitleenvenster",
+    "tekst": "tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__nieuw__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "uitleenvenster",
+    "tekst": "Tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__nieuw__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "uitleenvenster",
+    "tekst": "tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G01__nieuw__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "uitleenvenster",
+    "tekst": "Tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, los van de periode waarin die materialen worden gebruikt.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__nieuw__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "herstelmelding",
+    "tekst": "bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij het overnemen van diens eerdere aanvraag voor een oefenruimte is weggelaten, ongeacht het ontvangstkanaal",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__nieuw__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "herstelmelding",
+    "tekst": "Bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij het overnemen van diens eerdere aanvraag voor een oefenruimte is weggelaten, ongeacht het ontvangstkanaal.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__nieuw__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "herstelmelding",
+    "tekst": "bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering van zijn aanvraag voor een oefenruimte al was aangeleverd maar bij het overnemen van die aanvraag is weggelaten, ongeacht het ontvangstkanaal",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G02__nieuw__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "herstelmelding",
+    "tekst": "Bericht van een aanvrager waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering van zijn aanvraag voor een oefenruimte al was aangeleverd maar bij het overnemen van die aanvraag is weggelaten, ongeacht het ontvangstkanaal.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__nieuw__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "routeadvies",
+    "tekst": "schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__nieuw__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "routeadvies",
+    "tekst": "Schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__nieuw__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "routeadvies",
+    "tekst": "schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G03__nieuw__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "routeadvies",
+    "tekst": "Schriftelijke aanbeveling over de volgorde waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, vastgesteld door de Commissie Toegang en Doorstroming, zonder uitvoeringsplicht voor het organiserende team.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__nieuw__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "afsluitreden",
+    "tekst": "Grond uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager of samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige reden vastlegt, zonder restcategorie en zonder zelf toegevoegde reden",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__nieuw__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "afsluitreden",
+    "tekst": "Grond uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager of samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige reden vastlegt, zonder restcategorie en zonder zelf toegevoegde reden.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__nieuw__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "afsluitreden",
+    "tekst": "Grond uit een gesloten lijst van drie mogelijkheden, bestaande uit uitvoering voltooid, intrekking door de aanvrager en samenvoeging met een andere aanvraag, waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie en zonder zelf toegevoegde grond",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G04__nieuw__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "afsluitreden",
+    "tekst": "Grond uit een gesloten lijst van drie mogelijkheden, bestaande uit uitvoering voltooid, intrekking door de aanvrager en samenvoeging met een andere aanvraag, waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie en zonder zelf toegevoegde grond.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__nieuw__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de tijd voor invoer door een medewerker en zonder de tijd voor het tekenen van zoekresultaten",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__nieuw__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de tijd voor invoer door een medewerker en zonder de tijd voor het tekenen van zoekresultaten.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__nieuw__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit van die wijziging bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de invoertijd van een medewerker en zonder de weergavetijd van een zoekscherm",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G05__nieuw__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "registratielatentie",
+    "tekst": "Tijdsduur per wijziging tussen het moment waarop de primaire opslag de commit van die wijziging bevestigt en het moment waarop dezelfde wijziging via de zoekindex opvraagbaar is, zonder de invoertijd van een medewerker en zonder de weergavetijd van een zoekscherm.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__nieuw__h1__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, en die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave alleen ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__nieuw__h1__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, en die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave alleen ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__nieuw__h2__ruw",
+    "stratum": "G24 generatie ruw",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd en de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, en die overgaat in volledige vrijgave door een afzonderlijke bevestiging na controle van de inventarislijst",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  },
+  {
+    "id": "G06__nieuw__h2__opgeschoond",
+    "stratum": "G24 generatie opgeschoond",
+    "begrip": "voorwaardelijke vrijgave",
+    "tekst": "Toekenning voor één oefenruimte en één geplande oefensessie, verleend nadat de technische controle is geslaagd en de controle van de inventarislijst nog openstaat, die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten en gebruik door deelnemers niet toestaat, die vervalt bij aanvang van die oefensessie of eerder zodra een technisch gebrek wordt gemeld, en die overgaat in volledige vrijgave door een afzonderlijke bevestiging na controle van de inventarislijst.",
+    "herkomst": "synthetische onafhankelijke G24-proef",
+    "rationale": "Offline ketencontrole, geen inhoudelijk label"
+  }
+]

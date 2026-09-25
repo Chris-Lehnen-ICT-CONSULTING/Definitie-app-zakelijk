@@ -1,0 +1,14 @@
+........................................................................ [ 19%]
+........................................................................ [ 38%]
+........................................................................ [ 58%]
+........................................................................ [ 77%]
+........................................................................ [ 97%]
+..........                                                               [100%]
+=============================== warnings summary ===============================
+tests/unit/validation/test_def770_vervolg_zinsgrenzen.py: 2 warnings
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py: 8 warnings
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/definitie_crud.py:374: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit=0

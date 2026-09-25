@@ -1,0 +1,64 @@
+{
+  "call_id": "G06__oud__h1",
+  "request_sha256": "3e9c1156b84a4d684f960b004090df6d046cb2032b81cfa39cce8c95138545bf",
+  "manifest_sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce",
+  "counts_sha256": "76560d4e8acd0e8af9c1c6286dbd85c2a7e33c7d41fe900947c19069d07ce9f0",
+  "goedkeuring_sha256": "f54cd9fcfe48715180553a47ff807969640cbed9f1d98461c4cc903c601a9c5d",
+  "geteld_input_tokens": 13574,
+  "tijd": "2026-09-25T09:42:41+0200",
+  "duur_s": 2.873,
+  "bericht_id": "msg_011CfPnJtKNCECZq6KGUQT8o",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 13574,
+    "output_tokens": 169,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist",
+  "ruwe_response": {
+    "id": "msg_011CfPnJtKNCECZq6KGUQT8o",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 13574,
+      "output_tokens": 169,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

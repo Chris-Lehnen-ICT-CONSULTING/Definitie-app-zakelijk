@@ -1,0 +1,39 @@
+diff --git a/logs/def770-herstel/herstelkopie-testlint-v1/test_def770_herstel_zinsgrenzen.py b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+index aa9286c93..e275a486a 100644
+--- a/logs/def770-herstel/herstelkopie-testlint-v1/test_def770_herstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+@@ -345,22 +345,28 @@ GEVALLEN = [
+     ("e1-T20-voorzetselgroepen", E_T20, 0, 0),
+     (
+         "e1-voorzetselgroep-persoonsvorm",
+-        "kaart bij de handleiding ‘Waar bleef de boot?’ voor het reconstrueren "
+-        "is controle vereist",
++        (
++            "kaart bij de handleiding ‘Waar bleef de boot?’ voor het reconstrueren "
++            "is controle vereist"
++        ),
+         0,
+         1,
+     ),
+     (
+         "e1-voorzetselgroep-onvolledig",
+-        "kaart bij de handleiding ‘Waar bleef de boot?’ voor het reconstrueren "
+-        "van een",
++        (
++            "kaart bij de handleiding ‘Waar bleef de boot?’ voor het reconstrueren "
++            "van een"
++        ),
+         0,
+         1,
+     ),
+     (
+         "e1-voorzetselgroep-nieuwe-zin",
+-        "kaart bij de handleiding ‘Waar bleef de boot?’ voor de oefening volgt "
+-        "de controle",
++        (
++            "kaart bij de handleiding ‘Waar bleef de boot?’ voor de oefening volgt "
++            "de controle"
++        ),
+         0,
+         1,
+     ),

@@ -1,0 +1,10 @@
+A+B+C kan **inhoudelijk worden afgerond** met de besliste K1–K5 en expliciete bewijsleemten. SC-C-02 is gesloten. SC-C-09/10/12 vragen nog redactionele verwerking; exacte correcties en beide v4-tekstspanningen staan in het rapport.
+
+- [synthesecontrole-c-v2.md](/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/c-codex-app/synthesecontrole-c-v2.md)  
+  SHA-256: `8513daa103d306869587b55438b34ad9e6bd7e76bf62da294ea583304805c42c`
+- [manifest-c-v3.json](/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/c-codex-app/manifest-c-v3.json)  
+  SHA-256: `e01fda477cadb5304c3e4ca5f3d2e6310671a5d6ea90a1230b2587a2f6d20664`
+
+Alle hashes gecontroleerd. Geen implementatie, agents of wijzigingen aan bestaande onderzoeksversies.
+
+Automatische goedkeuring blokkeerde twee skills wegens mogelijke agentstart. Bestandsbeveiliging blokkeerde een kleine rapportredactie: bij D:22 betekent “twee zinnen” de passage vanaf “Gemeten op main:” tot het alinea-einde. Geen blokkade omzeild.

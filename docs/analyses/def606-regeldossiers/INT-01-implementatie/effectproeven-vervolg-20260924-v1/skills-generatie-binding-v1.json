@@ -1,0 +1,22 @@
+{
+  "skills_generation_commit": "5c42e404adde2916e6970ac1ac22e4057ba5d62f",
+  "source_hashes": {
+    "skills/definitie-nederlandse-definities/SKILL.md": "399131dd7d3f00960d9c5eccf200729f232b6faa1bea35ac7886dced12039e98",
+    "skills/definitie-nederlandse-definities/reference.md": "a2e0bc26368a3cde9b4ff7ad9be011bff4c982bf3e0faca05cd7426ae85d5973"
+  },
+  "bundles": [
+    {
+      "file": "cowork-exports/definitie-nederlandse-definities.zip",
+      "sha256": "0bf9d3bbf803ed9063519cf5320f5c79e315ce69cbd3f894f73e9f36cac859cd",
+      "skill_and_reference_match_reviewed_source": true,
+      "alias_mapping": false
+    },
+    {
+      "file": "cowork-exports/nederlandse-definities.zip",
+      "sha256": "e9f5113e50327639ffd534816afc1b7ba4011350736db977124dc0356f75d326",
+      "skill_and_reference_match_reviewed_source": true,
+      "alias_mapping": true
+    }
+  ],
+  "scope": "Alleen generatievaardigheid; toetsregels-reference en bijbehorende twee bundels blijven lokaal pending wegens titelbesluit. Geen liveactivatie."
+}

@@ -1,0 +1,16 @@
+{{Toon begrippen
+|Naam=Afleidingsregel
+|Definitie=Een geheel deterministisch algoritme voor het uitrekenen van een (“afgeleid”) feit op basis van andere (zowel originele als afgeleide) feiten.
+|Toelichting=<ul>
+<li>Het uitvoeren van een afleidingsregel, leidend tot een afgeleid feit, verandert de toestand in de (business) wereld niet – zo is het berekenen van de dagomzet van de winkel erg handig, maar het verandert niets aan de verkopen van die dag;
+<li>Originele feiten zijn een verandering in de toestand van de (business) wereld; zulke originele (productie)feiten kunnen worden onderscheiden in twee smaken:
+<ol><li>immaterieel (verreweg in de meerderheid in de SRK), zoals beslissen, beoordelen, adviseren, ontwerpen;<li>materieel, zoals maken, transporteren en waarnemen.
+</ol></ul>
+|Voorbeeld=<ul><li>getal (scalar), bijvoorbeeld '''leeftijd''' = vandaag – geboortedatum
+<li>waarheidswaarde (boolean), bijvoorbeeld [persoon] is '''stelselmatige dader''' op [dag] = [persoon] is in de op [dag] afgelopen vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk veroordeeld
+<li>homogene verzameling, bijvoorbeeld VEROORDELINGEN = {veroordeling 1, veroordeling 2, …}; hierbij zijn alle elementen uit de verzameling van hetzelfde type (in dit voorbeeld: een veroordeling)
+<li>heterogene verzameling, bijvoorbeeld PERSONALIA = {naam, voornamen, geboortedatum, …} of VERBLIJVEN = {verblijfstitel, datum einde geldigheid}, waarbij elementen uit de verzameling niet van hetzelfde type hoeven te zijn; of zelfs dat de elementen op hun beurt verzamelingen bevatten, zoals ID-STAAT = {PERSONALIA, VERBLIJVEN, HUIDIG BRP-ADRES, datum laatste scan EEGG ID-document, …}
+</ul>
+|Synoniemen=Afleidingsregels
+}}
+[[Category:Informatiemodel KDA]]

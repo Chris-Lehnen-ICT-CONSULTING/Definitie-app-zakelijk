@@ -1,0 +1,153 @@
+{
+  "scope": "Ontwikkelregressie op reeds bekende eerste herstelset; geen onafhankelijke effectproef. Alleen labels vergeleken, volledige bewijscontrole volgt op verse set.",
+  "source": "c7f5d7dc921740f85a10d932480da338f9c2c276",
+  "labels_conform": 24,
+  "total": 24,
+  "errors": 0,
+  "rows": [
+    {
+      "id": "T01",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T02",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T03",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T04",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T05",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T06",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T07",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T08",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "labels_conform": true
+    },
+    {
+      "id": "T09",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T10",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "labels_conform": true
+    },
+    {
+      "id": "T11",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "labels_conform": true
+    },
+    {
+      "id": "T12",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "labels_conform": true
+    },
+    {
+      "id": "T13",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T14",
+      "expected_sentence": "fail",
+      "actual_sentence": "fail",
+      "labels_conform": true
+    },
+    {
+      "id": "T15",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T16",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T17",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T18",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "labels_conform": true
+    },
+    {
+      "id": "T19",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T20",
+      "expected_sentence": "pass",
+      "actual_sentence": "pass",
+      "labels_conform": true
+    },
+    {
+      "id": "T21",
+      "expected_sentence": "not_evaluated",
+      "actual_sentence": "not_evaluated",
+      "labels_conform": true
+    },
+    {
+      "id": "T22",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "labels_conform": true
+    },
+    {
+      "id": "T23",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "labels_conform": true
+    },
+    {
+      "id": "T24",
+      "expected_sentence": "review_required",
+      "actual_sentence": "review_required",
+      "labels_conform": true
+    }
+  ]
+}

@@ -1,0 +1,373 @@
+{
+  "rol": "beoordelaar",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "ai_beoordeeld": true,
+  "teksten": [
+    {
+      "id": "B01",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "onzeker", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "onzeker", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "zinsstructuur", "passage": "ook na een correctie niet aan een andere gebeurtenis toegekend", "bron": "G03-P01; naamwoordelijke kern: code", "oordeel": "De kern is geldig, maar de losse participiumgroep is syntactisch zwak aangesloten; een elliptische nabepaling is mogelijk."},
+        {"as": "betekenisbehoud", "passage": "het register Inname en Teruggave; binnen dat register uniek; ook na een correctie niet aan een andere gebeurtenis toegekend", "bron": "G03-P01; beschermde naam en verbod op hergebruik", "oordeel": "De volledige naam, bevestigde overdracht, uniciteit en blijvende koppeling zijn behouden. De kleine letter in register verandert de identificatie niet; de herkomst sluit codes uit het andere register impliciet uit."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; betekenis en syntactische onzekerheid blijven gelijk."
+    },
+    {
+      "id": "B02",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "bronsteun", "passage": "op de centrale sorteertafel", "bron": "G01-P01", "oordeel": "De bron vermeldt meestal links van de sorteertafel, niet erop, en maakt de plaats uitdrukkelijk veranderlijk."},
+        {"as": "betekenisbehoud", "passage": "Verplaatsbare bak op de centrale sorteertafel", "bron": "G01-P01; verplaatsbare fysieke bak en veranderlijke plaats", "oordeel": "De plaatsbepaling voegt een onterechte beperking toe. Tijdelijkheid, gebruikte kaarten en wachten op volgende rondes blijven behouden; de onderscheiden bestemmingen behouden de uitsluiting van voorraad- en beschadigde kaarten impliciet."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; geen inhoudelijke of structurele reparatie."
+    },
+    {
+      "id": "B03",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "zodra alle voor die cyclus verwachte pakketten aanwezig zijn of de ingestelde wachttijd verstrijkt", "bron": "G05-P01; vrijgave met onvolledigheidsmarkering bij ontbrekende pakketten", "oordeel": "Vrijgave zonder volledigheid blijft mogelijk, maar de vereiste onvolledigheidsmarkering ontbreekt en volgt niet logisch uit het verstrijken van de wachttijd."},
+        {"as": "begrijpelijkheid", "passage": "per cyclusnummer; vrijgegeven", "bron": "G05-P01; doelgroep meetketenbeheerders", "oordeel": "Deze vaktermen zijn passend voor de vastgelegde doelgroep."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; de ontbrekende markering wordt niet hersteld."
+    },
+    {
+      "id": "B04",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt", "bron": "G05-P01", "oordeel": "Beide vrijgaveroutes en de markering bij de wachttijdroute zijn behouden. De uitsluiting van pakketten zonder cyclusnummer is expliciet."},
+        {"as": "compactheid", "passage": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer", "bron": "G05-P01; beschermde kenmerken", "oordeel": "De lengte dient de groepering, vrijgavevoorwaarden en uitzonderingen; geen betekenisloze bronbijzaken toegevoegd."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; inhoud en zinsbouw gelijk."
+    },
+    {
+      "id": "B05",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt", "bron": "G05-P01", "oordeel": "De wachttijdroute omvat herkenbare onvolledige vrijgave; volledigheid is geen absolute voorwaarde. Pakketten zonder cyclusnummer zijn expliciet uitgesloten."},
+        {"as": "betekenisbehoud", "passage": "binnenkomende gegevenspakketten met eenzelfde cyclusnummer", "bron": "G05-P01; technische sensorcontext", "oordeel": "Sensorherkomst wordt niet herhaald, maar is binnen de vastgelegde meetketencontext impliciet behouden; de groepering per cyclusnummer is expliciet."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; inhoud en zinsbouw gelijk."
+    },
+    {
+      "id": "B06",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "onzeker", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "onzeker", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "zinsstructuur", "passage": "ook na een correctie niet aan een andere gebeurtenis toegekend", "bron": "G03-P01; naamwoordelijke kern: code", "oordeel": "De definitiekern is geldig, maar de afsluitende participiumgroep is slechts elliptisch met de voorafgaande betrekkelijke bijzinnen verbonden."},
+        {"as": "betekenisbehoud", "passage": "het register Inname en Teruggave; uniek blijft; niet aan een andere gebeurtenis toegekend", "bron": "G03-P01; beschermde naam en negaties", "oordeel": "Registeridentiteit, bevestigde overdracht, uniciteit en verbod op hergebruik zijn behouden; de aangegeven herkomst sluit het andere register impliciet uit."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de syntactische onzekerheid blijft bestaan."
+    },
+    {
+      "id": "B07",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "een baliemedewerker vóór de toewijzing; uitsluitend bestaat uit", "bron": "G04-P01; uitvoerder, tijdstip en gesloten lijst", "oordeel": "Alle drie handelingen zijn volledig genoemd. Uitsluitend sluit andere handelingen, waaronder wijzigingen van materiaalsoort, hoeveelheid en afhaallocatie, logisch uit."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; betekenis en structuur gelijk."
+    },
+    {
+      "id": "B08",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "vervalt zodra een tegenstrijdigheid is vastgesteld", "bron": "G06-P01; voorbereiding moet stoppen bij verval", "oordeel": "Onmiddellijk verval is behouden, maar stoppen van al begonnen voorbereiding volgt niet noodzakelijk uit het vervallen van toestemming tot overdracht en wordt niet vermeld."},
+        {"as": "betekenisbehoud", "passage": "wordt toegekend ... tijdens de nog lopende consistentiecontrole", "bron": "G06-P01; geldigheid tot afronding en afzonderlijke statusbeslissing", "oordeel": "Een toekenningsmoment bepaalt niet de volledige geldigheidsduur. Voortduring tot afronding zonder tegenstrijdigheid en een afzonderlijke beslissing daarna ontbreken; automatische definitieve vrijgave wordt niet uitgesloten."},
+        {"as": "betekenisbehoud", "passage": "ter voorbereiding van de inhoudelijke bespreking; geen verstrekking buiten het oefenarchief; geen vaststelling van inhoudelijke juistheid", "bron": "G06-P01", "oordeel": "Doelbinding en beide genoemde beperkingen zijn expliciet behouden."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de ontbrekende statusgevolgen blijven ontbreken."
+    },
+    {
+      "id": "B09",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "bronsteun", "passage": "op de centrale sorteertafel", "bron": "G01-P01", "oordeel": "Een plaats op de tafel is niet ondersteund; de bron noemt meestal links ervan en laat plaatswijziging toe."},
+        {"as": "betekenisbehoud", "passage": "Verplaatsbare bak op de centrale sorteertafel", "bron": "G01-P01; plaats is niet bepalend", "oordeel": "De definitie vernauwt de bestemming onterecht met een locatie-eis. De vier beschermde kernkenmerken en de onderscheiden bestemmingen van ongebruikte en beschadigde kaarten zijn verder behouden."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de locatiebeperking blijft bestaan."
+    },
+    {
+      "id": "B10",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "onzeker", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "onzeker", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "begrijpelijkheid", "passage": "wordt toegekend ... zolang de consistentiecontrole loopt zonder vastgestelde tegenstrijdigheid", "bron": "G06-P01; toekenning tegenover geldigheidsduur", "oordeel": "Zolang kan een geldigheidsvoorwaarde uitdrukken, maar sluit grammaticaal aan op wordt toegekend. Daardoor blijft onzeker of onmiddellijke beëindiging van een bestaande status wordt bedoeld."},
+        {"as": "betekenisbehoud", "passage": "zolang de consistentiecontrole loopt zonder vastgestelde tegenstrijdigheid", "bron": "G06-P01; onmiddellijk verval, stopzetting voorbereiding en afzonderlijke statusbeslissing", "oordeel": "Voortduring en verval zijn mogelijk impliciet bedoeld, maar niet ondubbelzinnig behouden. De stopzetting van voorbereiding en afzonderlijke beslissing na afronding ontbreken in ieder geval; geen automatische definitieve vrijgave is niet verzekerd."},
+        {"as": "betekenisbehoud", "passage": "ter voorbereiding van de inhoudelijke bespreking; zonder verstrekking buiten het oefenarchief en zonder oordeel over de juistheid", "bron": "G06-P01", "oordeel": "Doelbinding, interne beperking en het ontbreken van een juistheidsoordeel zijn behouden."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de dubbelzinnigheid rond toekenning en geldigheid blijft bestaan."
+    },
+    {
+      "id": "B11",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "uitsluitend overdracht van een kopie aan de interne controletafel toelaat", "bron": "G06-P01; voorbereiding van de inhoudelijke bespreking", "oordeel": "De interne ontvanger en kopiebeperking blijven behouden en sluiten externe verstrekking impliciet uit. Het toegestane doel ontbreekt, zodat overdracht voor andere interne doeleinden niet wordt uitgesloten."},
+        {"as": "betekenisbehoud", "passage": "vervalt zodra een tegenstrijdigheid is vastgesteld", "bron": "G06-P01; stoppen voorbereiding, geldigheid tot afronding en afzonderlijke statusbeslissing", "oordeel": "Onmiddellijk verval is behouden. Stoppen van voorbereiding, voortduring zonder tegenstrijdigheid tot afronding en een afzonderlijke beslissing daarna zijn niet vermeld en niet afleidbaar."},
+        {"as": "betekenisbehoud", "passage": "tijdens de nog lopende consistentiecontrole", "bron": "G06-P01; geen bevestiging van inhoudelijke juistheid", "oordeel": "Een lopende controle maakt het voorlopige karakter herkenbaar, maar de tekst legt niet vast dat de status geen juistheidsbevestiging inhoudt."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de inhoudelijke lacunes blijven bestaan."
+    },
+    {
+      "id": "B12",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "compactheid", "passage": "waarbij de oude en de nieuwe veldwaarde worden vastgelegd", "bron": "G04-P01; registratie voor de nabespreking", "oordeel": "Dit ondersteunde uitvoeringsdetail onderscheidt geen baliecorrectie van andere handelingen en verlengt de definitie zonder noodzakelijke begripsafbakening."},
+        {"as": "betekenisbehoud", "passage": "een baliemedewerker vóór de toewijzing; uitsluitend bestaat uit", "bron": "G04-P01; beschermde kenmerken en negaties", "oordeel": "Uitvoerder, tijdstip en alle drie handelingen zijn behouden; de gesloten lijst sluit andere wijzigingen impliciet uit."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de niet-definiërende toevoeging blijft staan."
+    },
+    {
+      "id": "B13",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "dat wordt vastgelegd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt", "bron": "G02-P01; registratie heropent niet automatisch", "oordeel": "De oorzaak en het bewijs uit dezelfde aanvraag zijn behouden. Niet vermeld is dat registratie geen automatische heropening betekent; een verzoek om herplaatsing sluit automatische uitvoering bij registratie niet logisch uit."},
+        {"as": "betekenisbehoud", "passage": "de sluiting berustte op een onjuiste melding van het planningssysteem", "bron": "G02-P01; geen vrijwillige intrekking en geen werkelijk ontbrekende tijdvakkeuze", "oordeel": "De twee uitgesloten sluitingsgronden zijn impliciet behouden door de positieve causale afbakening."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de beperking van het registratiegevolg blijft onvermeld."
+    },
+    {
+      "id": "B14",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "bronsteun", "passage": "op de sorteertafel", "bron": "G01-P01", "oordeel": "De bron ondersteunt geen plaats op de tafel en maakt de opstelplaats niet bepalend."},
+        {"as": "betekenisbehoud", "passage": "Verplaatsbare bak op de sorteertafel", "bron": "G01-P01; verplaatsbare fysieke bak met veranderlijke plaats", "oordeel": "De locatie vernauwt de definitie ten onrechte. Tijdelijkheid, gebruikte kaarten, volgende rondes en de onderscheiden bestemmingen voor uitgesloten kaarten blijven behouden."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; geen betekenisverandering."
+    },
+    {
+      "id": "B15",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "onzeker", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "onzeker", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "bronsteun", "passage": "Geregistreerd verzoek", "bron": "G02-P01; medewerkers registreren zo'n vraag alleen als terugzetverzoek wanneer", "oordeel": "De bron beschrijft classificatie bij registratie, maar maakt niet ondubbelzinnig voltooide registratie tot bestaansvoorwaarde. De formulering kan passende binnenkomende verzoeken vóór registratie onterecht uitsluiten."},
+        {"as": "betekenisbehoud", "passage": "Geregistreerd verzoek ... opnieuw in de werkvoorraad te plaatsen", "bron": "G02-P01; registratie heropent niet automatisch", "oordeel": "Het ontbreken van automatische heropening wordt niet vermeld of logisch gegarandeerd. Dit is een ontbrekende beperking, geen expliciete bewering dat heropening wel automatisch gebeurt."},
+        {"as": "betekenisbehoud", "passage": "uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding", "bron": "G02-P01", "oordeel": "Oorzaak, bewijs uit dezelfde aanvraag en de impliciete uitsluiting van de twee andere sluitingsgronden zijn behouden."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; mogelijke vernauwing en ontbrekende registratiebeperking blijven bestaan."
+    },
+    {
+      "id": "B16",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "tekort", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "tekort", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "zinsstructuur", "passage": "Verzoek ... dat ... is gesloten", "bron": "G02-P01; sluiting betreft de oefenaanvraag", "oordeel": "Dat verwijst grammaticaal naar het verzoek; bij aanvraag zou die horen. De geldige naamwoordelijke kern herstelt deze verkeerde aansluiting niet."},
+        {"as": "begrijpelijkheid", "passage": "dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten", "bron": "G02-P01", "oordeel": "De lezer moet zelf reconstrueren dat de aanvraag gesloten is, terwijl de zin het verzoek als gesloten presenteert."},
+        {"as": "bronsteun", "passage": "Verzoek ... dat ... is gesloten op grond van een onjuiste melding", "bron": "G02-P01", "oordeel": "Sluiting van het verzoek door de systeemmelding is niet ondersteund; de bron legt die oorzaak bij de aanvraag."},
+        {"as": "betekenisbehoud", "passage": "dat ... is gesloten; opnieuw in de werkvoorraad te plaatsen", "bron": "G02-P01; sluitingsoorzaak van dezelfde aanvraag en geen automatische heropening", "oordeel": "De causale afbakening is verkeerd aangehecht. Daarnaast ontbreekt de beperking dat registratie niet automatisch heropent."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de verkeerde verwijzing wordt niet gerepareerd."
+    },
+    {
+      "id": "B17",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "het register Inname en Teruggave; binnen dat register uniek; naar één overdrachtsgebeurtenis blijft verwijzen", "bron": "G03-P01; beschermde naam en negaties", "oordeel": "De naam identificeert het juiste register volledig. Blijft verwijzen behoudt het verbod op hergebruik ook na correctie impliciet; herkomst sluit het andere register uit. Oefendossier past bij de broncontext."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; geen inhoudelijke of structurele wijziging."
+    },
+    {
+      "id": "B18",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "onzeker", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "onzeker", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "bronsteun", "passage": "Status van een synthetische dossierkopie", "bron": "G06-P01; dossiers ondergaan controles, de status staat kopieoverdracht toe", "oordeel": "De bron onderscheidt het gecontroleerde dossier van de over te dragen kopie en wijst de status niet expliciet aan de kopie toe. Deze verschuiving van statusdrager is onvoldoende zeker ondersteund."},
+        {"as": "betekenisbehoud", "passage": "uitsluitend overdracht van die kopie aan de interne controletafel toelaat", "bron": "G06-P01; overdracht voor voorbereiding van de inhoudelijke bespreking", "oordeel": "De interne beperking sluit externe verstrekking impliciet uit, maar de doelbinding ontbreekt."},
+        {"as": "betekenisbehoud", "passage": "vervalt zodra een tegenstrijdigheid is vastgesteld", "bron": "G06-P01; stoppen voorbereiding, voortduring tot afronding en afzonderlijke statusbeslissing", "oordeel": "Onmiddellijk verval is behouden. Stoppen van voorbereiding, geldigheid zonder tegenstrijdigheid tot afronding en de afzonderlijke beslissing daarna ontbreken."},
+        {"as": "betekenisbehoud", "passage": "tijdens een nog lopende consistentiecontrole", "bron": "G06-P01; geen bevestiging van inhoudelijke juistheid", "oordeel": "Het voorlopige karakter is herkenbaar, maar het ontbreken van een juistheidsbevestiging wordt niet vastgelegd."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de onzekerheid over de statusdrager en inhoudelijke lacunes blijven bestaan."
+    },
+    {
+      "id": "B19",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "compactheid", "passage": "waarbij de oude en de nieuwe veldwaarde worden vastgelegd", "bron": "G04-P01; vastlegging voor nabespreking", "oordeel": "Dit uitvoeringsdetail is brongetrouw, maar niet nodig om de gesloten categorie handelingen af te bakenen."},
+        {"as": "betekenisbehoud", "passage": "Door een baliemedewerker vóór de toewijzing ... uitsluitend bestaat uit", "bron": "G04-P01; beschermde kenmerken en negaties", "oordeel": "De naamwoordelijke kern wijziging bevat de juiste uitvoerder, termijn en volledige gesloten lijst. De uitgesloten andere wijzigingen blijven impliciet uitgesloten."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; geen inhoudelijke of structurele wijziging."
+    },
+    {
+      "id": "B20",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "dat wordt geregistreerd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt", "bron": "G02-P01; registratie heropent niet automatisch", "oordeel": "De brongebonden oorzaak en bewijsvoorwaarde blijven behouden. De beperking van het registratiegevolg ontbreekt; verzoek om herplaatsing garandeert niet dat registratie geen automatische heropening veroorzaakt."},
+        {"as": "betekenisbehoud", "passage": "de sluiting berust op een onterechte melding van het planningssysteem", "bron": "G02-P01; vrijwillige intrekking en werkelijk ontbrekende tijdvakkeuze uitgesloten", "oordeel": "De positieve oorzaakbeperking behoudt beide uitsluitingen impliciet."}
+      ],
+      "opschoning_effect": "Alleen een slotpunt toegevoegd; de ontbrekende beperking blijft ontbreken."
+    },
+    {
+      "id": "B21",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "compactheid", "passage": "tot die cyclus wordt vrijgegeven zodra ... de op dat moment beschikbare pakketten ... worden vrijgegeven", "bron": "G05-P01; twee vrijgavevoorwaarden", "oordeel": "Vrijgave wordt in de wachttijdtak opnieuw als voorwaarde voor vrijgave geformuleerd. Deze herhaling voegt geen afbakening toe."},
+        {"as": "betekenisbehoud", "passage": "gegevenspakketten met een cyclusnummer per cyclus; bij het verstrijken van de ingestelde wachttijd ... met een onvolledigheidsmarkering", "bron": "G05-P01", "oordeel": "Groepering, beide vrijgaveroutes en onvolledigheidsmarkering zijn behouden. De omschreven opname van pakketten met cyclusnummer sluit nummerloze pakketten impliciet uit; sensorherkomst blijft impliciet via de vastgelegde context."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; de herhaling blijft staan."
+    },
+    {
+      "id": "B22",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "een baliemedewerker vóór de toewijzing; beperkt is tot", "bron": "G04-P01; gesloten lijst van drie handelingen", "oordeel": "Uitvoerder, tijdstip en alle drie handelingen zijn behouden. Beperkt is tot maakt de lijst uitputtend en sluit de afzonderlijk genoemde verboden wijzigingen logisch uit."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; inhoud en structuur gelijk."
+    },
+    {
+      "id": "B23",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {"as": "betekenisbehoud", "passage": "het register Inname en Teruggave; uniek; blijvend naar één overdrachtsgebeurtenis verwijst", "bron": "G03-P01; beschermde naam en negaties", "oordeel": "De volledige registeridentiteit is behouden. Blijvend naar één gebeurtenis verwijzen sluit hergebruik na correctie impliciet uit; de herkomst sluit codes uit het andere register uit."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; geen betekenis- of structuurwijziging."
+    },
+    {
+      "id": "B24",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "onzeker", "bronsteun": "tekort", "betekenisbehoud": "onzeker"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "tekort", "begrijpelijkheid": "onzeker", "bronsteun": "tekort", "betekenisbehoud": "onzeker"},
+      "bevindingen": [
+        {"as": "bronsteun", "passage": "op de sorteertafel", "bron": "G01-P01", "oordeel": "Deze locatie is niet ondersteund; de bron noemt meestal links van de tafel en laat plaatswijziging toe."},
+        {"as": "betekenisbehoud", "passage": "op de sorteertafel ... ongeacht ... opstelplaats", "bron": "G01-P01; plaats heeft geen invloed op het begrip", "oordeel": "Ongeacht opstelplaats probeert plaatsafhankelijkheid terecht uit te sluiten, maar botst met de eerdere plaatsbeperking. Onzeker blijft welke formulering de afbakening bepaalt."},
+        {"as": "begrijpelijkheid", "passage": "op de sorteertafel ... ongeacht ... opstelplaats", "bron": "G01-P01", "oordeel": "Nieuwe medewerkers krijgen tegenstrijdige aanwijzingen over waar de bak moet staan."},
+        {"as": "compactheid", "passage": "ongeacht kleur, opstelplaats of het al dan niet opnieuw bedrukt zijn van de kaarten", "bron": "G01-P01; kleur en opnieuw bedrukken zijn geen toelatingsvoorwaarden", "oordeel": "Kleur en opnieuw bedrukken waren eerder niet als voorwaarden opgevoerd; hun afzonderlijke bespreking is niet nodig voor de definitiekern. De plaatsverduidelijking heeft wel inhoudelijke relevantie, maar lost de botsing niet eenduidig op."}
+      ],
+      "opschoning_effect": "Alleen beginhoofdletter en slotpunt toegevoegd; de spanning tussen de plaatsbepalingen blijft bestaan."
+    }
+  ],
+  "paren": [
+    {
+      "paar_id": "P01",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B05 behoudt de vereiste onvolledigheidsmarkering bij de wachttijdroute; X=B03 laat die weg. Dit is inhoudelijke winst, niet alleen een lengteverschil.",
+      "verschil_in_bron_of_betekenisfouten": "Y herstelt de ontbrekende markering. Sensorherkomst blijft bij Y impliciet binnen de vastgelegde context; geen nieuwe bron- of betekenisfout vastgesteld."
+    },
+    {
+      "paar_id": "P02",
+      "ruw": "onbeslist",
+      "opgeschoond": "onbeslist",
+      "reden": "X=B20 en Y=B15 behouden dezelfde oorzaak en bewijsvoorwaarde, maar laten beide het ontbreken van automatische heropening onvermeld. Geregistreerd verzoek bij Y kan aanvullend vernauwen; de bron maakt niet zeker of dat onjuist is.",
+      "verschil_in_bron_of_betekenisfouten": "Gedeelde ontbrekende registratiebeperking; alleen Y heeft onzekerheid over registratie als bestaansvoorwaarde. Geen voldoende zeker verschil voor een beter-oordeel."
+    },
+    {
+      "paar_id": "P03",
+      "ruw": "onbeslist",
+      "opgeschoond": "onbeslist",
+      "reden": "X=B09 bevat een onterechte plaatsbeperking. Y=B24 voegt terecht plaats-onafhankelijkheid toe, maar behoudt de strijdige plaatsbepaling en voegt niet-definiërende details toe. De inhoudelijke reparatie is daardoor niet eenduidig.",
+      "verschil_in_bron_of_betekenisfouten": "Beide noemen de niet-ondersteunde plaats op de tafel. Y introduceert bovendien interne spanning tussen die plaats en ongeacht opstelplaats; een foutloze verbetering is niet aangetoond."
+    },
+    {
+      "paar_id": "P04",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B13 verbindt de onjuiste systeemmelding correct aan de sluiting van de aanvraag. X=B16 laat dat is gesloten grammaticaal op het verzoek slaan. Y herstelt daarmee zowel de verwijzing als de causale afbakening.",
+      "verschil_in_bron_of_betekenisfouten": "De verkeerde statusdrager van de sluiting verdwijnt bij Y; geen nieuwe fout vastgesteld. Beide missen nog de beperking dat registratie niet automatisch heropent."
+    },
+    {
+      "paar_id": "P05",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B23 integreert de blijvende gebeurteniskoppeling in een volledige betrekkelijke bijzin. X=B06 gebruikt daarvoor een los aangehechte participiumgroep. Inhoudelijk zijn beide gelijkwaardig; de structurele winst geeft de doorslag omdat geen betekenistekort is vastgesteld.",
+      "verschil_in_bron_of_betekenisfouten": "Geen verschil in inhoudelijke fouten vastgesteld. Blijvend behoudt het verbod op hergebruik, inclusief na correctie; naam en uniciteit blijven behouden."
+    },
+    {
+      "paar_id": "P06",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B04 formuleert de twee vrijgaveroutes zonder de vrijgave-bij-vrijgaveherhaling van X=B21. Beide behouden de vereiste betekenis; de winst is structurele compactheid, niet minder woorden op zichzelf.",
+      "verschil_in_bron_of_betekenisfouten": "Geen bron- of betekenisfout bij een van beide vastgesteld. Y noemt sensorherkomst en uitsluiting van nummerloze pakketten expliciet; X behoudt die binnen de context impliciet."
+    },
+    {
+      "paar_id": "P07",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B22 behoudt dezelfde gesloten lijst, uitvoerder en termijn als Y=B19, zonder de niet-definiërende vastlegging van veldwaarden. Er is geen inhoudelijke uitbreiding; de compactheidswinst ontstaat zonder verlies van afbakening.",
+      "verschil_in_bron_of_betekenisfouten": "Geen bron- of betekenisfouten vastgesteld. Het weggelaten registratiegegeven bij X is een ondersteunde bronbijzaak, geen beschermd afbakenend kenmerk."
+    },
+    {
+      "paar_id": "P08",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B14 en Y=B02 behouden dezelfde kern en bevatten dezelfde onterechte plaatsbeperking. Centraal en de extra herhaling van van veranderen de relevante kwaliteit niet.",
+      "verschil_in_bron_of_betekenisfouten": "Geen relevant verschil: beide stellen de bak op de sorteertafel terwijl plaats niet bepalend is en die concrete positie niet wordt ondersteund."
+    },
+    {
+      "paar_id": "P09",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B07 behoudt alle afbakenende kenmerken van X=B12 zonder de niet-definiërende vastlegging van oude en nieuwe veldwaarden. De doorslag is compactheid zonder betekenisverlies.",
+      "verschil_in_bron_of_betekenisfouten": "Geen nieuwe of verschillende betekenisfout vastgesteld. Het bij X toegevoegde vastleggingsdetail is brongetrouw, maar niet nodig voor deze begripsafbakening."
+    },
+    {
+      "paar_id": "P10",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B08 behoudt de doelbinding aan voorbereiding van de inhoudelijke bespreking en maakt expliciet dat de status geen juistheidsbevestiging is. X=B18 mist beide en verschuift de statusdrager onzeker naar de kopie.",
+      "verschil_in_bron_of_betekenisfouten": "Y herstelt de ontbrekende doelbinding en juistheidsbeperking en vermijdt de onzekere statusdrager. Geen nieuwe fout vastgesteld; beide missen nog stoppen van voorbereiding, volledige geldigheidsduur en de afzonderlijke statusbeslissing."
+    },
+    {
+      "paar_id": "P11",
+      "ruw": "onbeslist",
+      "opgeschoond": "onbeslist",
+      "reden": "X=B10 behoudt doelbinding en het ontbreken van een juistheidsoordeel. Y=B11 formuleert onmiddellijk verval bij tegenstrijdigheid duidelijker; bij X kan zolang slechts op toekenning slaan. Deze inhoudelijke en interpretatieve afruil levert geen eenduidige winnaar op.",
+      "verschil_in_bron_of_betekenisfouten": "Y mist beperkingen die X expliciet bewaart; X bewaart de beëindigingsregel minder ondubbelzinnig dan Y. Beide missen stoppen van voorbereiding en een afzonderlijke beslissing na afronding."
+    },
+    {
+      "paar_id": "P12",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B17 integreert de permanente koppeling met blijft verwijzen. X=B01 gebruikt een los aangehechte participiumgroep. De betekenis blijft gelijkwaardig; de duidelijker geïntegreerde zinsbouw geeft de doorslag.",
+      "verschil_in_bron_of_betekenisfouten": "Geen nieuwe bron- of betekenisfout vastgesteld. De volledige registeridentiteit en uniciteit blijven behouden; blijft verwijzen sluit hergebruik na correctie impliciet uit."
+    }
+  ],
+  "beperkingen": [
+    "Dit is beoordelaar A: een zelfstandige, verkennende AI-beoordeling van een kleine synthetische proef, zonder tools, externe bronnen, extra modelcalls of kennis van variantidentiteit en andere beoordelingen.",
+    "Alle oordelen betreffen uitsluitend de meegeleverde dossiers en hun vastgelegde doelgroep; er worden geen externe juridische uitspraken gedaan.",
+    "Een nominale definitie met een geldige naamwoordelijke kern geldt hier als één definitorische zin. Het ontbreken van beginhoofdletter of slotpunt in ruwe tekst geldt niet op zichzelf als structuurtekort. Geen van de ruwe teksten bevat afzonderlijke toelichting of een weigering.",
+    "Geen ruwe tekst is teken voor teken identiek aan zijn opgeschoonde kandidaat. Daarom zijn beide beoordelingen uitgeschreven. Opschoning verandert uitsluitend hoofdlettergebruik en/of eindinterpunctie en herstelt geen inhoudelijk probleem.",
+    "Bronsteun beoordeelt de gedane uitspraken; betekenisbehoud beoordeelt tevens ontbrekende beperkingen. Een ontbrekende beschermde negatie is niet automatisch een tegengestelde bewering. Impliciet behoud is aanvaard waar de afbakening dat daadwerkelijk draagt.",
+    "De niet-automatische heropening in G02 is een procedureel gevolg, maar begrenst voor registrerende loketmedewerkers wat het verzoek bewerkstelligt. Daarom is het als relevante beschermde beperking meegewogen. Kleur, opstelplaats als vaste eis, herbedrukking en veldwaardelogging zijn geen zelfstandige noodzakelijke begripskenmerken.",
+    "Er is geen aggregatie tussen herhalingen, geen vertaling naar oud of nieuw en geen algemene kwaliteitswinstclaim."
+  ]
+}

@@ -1,0 +1,10 @@
+{{Toon begrippen
+|Naam=Beslisregel
+|Definitie=Algoritme waarvoor oordeelsvorming nodig is
+|Toelichting=Bij een beslisregel komt oordeelsvorming kijken, de uitkomst hiervan is dus niet 100% deterministisch. Bron hiervan is vaak wet of beleid, waar dus kennelijk een discretionaire bevoegdheid is opengelaten.
+
+Synoniem voor de term "beslisregel" is de DEMO-term "actieregel" (EN: Action Rule), daar gedefinieerd als "richtlijn voor actor bij het afhandelen van coördinatie-event". Het idee daar is dat een actor a.d.h.v. criteria als waarheid, juistheid en oprechtheid (cf. Habermas) uiteindelijk een beslissing neemt en daarvoor verantwoordelijkheid draagt.
+|Voorbeeld=[http://wetten.overheid.nl/jci1.3:c:BWBR0005212&hoofdstuk=VI&artikel=45&lid=2 art. 45 lid 2 Ppw]: ''Indien binnen de periode van acht weken (...) gaat de tot weigering of vervallenverklaring bevoegde autoriteit tot weigering of vervallenverklaring over, tenzij hij van oordeel is dat de aanvrager respectievelijk de houder door deze beslissing onevenredig zou worden benadeeld.''
+Kennelijk vindt hier een afweging over al dan niet evenredigheid van benadeling plaats; de uitslag is onderwerp van oordeelsvorming en niet deterministisch.
+|Synoniemen=beslisregels, actieregel
+}}

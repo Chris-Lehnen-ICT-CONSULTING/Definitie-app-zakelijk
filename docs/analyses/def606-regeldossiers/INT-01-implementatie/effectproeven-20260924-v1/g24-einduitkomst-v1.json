@@ -1,0 +1,211 @@
+{
+  "adjudicatie_sha256": "477388a7edab8698a1a7d0c05e5f49241b42a7a539d6840beaa952c4fa7bec0a",
+  "paren": [
+    {
+      "paar_id": "P10",
+      "invoer_id": "G01",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B06 en Y=B11 zijn in beide uitvoervormen tekstueel identiek. Er is geen inhoudelijk verschil.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Geen bron- of betekenisfout vastgesteld; geen verschil door opschoning."
+    },
+    {
+      "paar_id": "P12",
+      "invoer_id": "G01",
+      "herhaling": 2,
+      "X": "oud",
+      "Y": "nieuw",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B03 en Y=B14 zijn in beide uitvoervormen tekstueel identiek. Er is geen inhoudelijk verschil.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Geen bron- of betekenisfout vastgesteld; geen verschil door opschoning."
+    },
+    {
+      "paar_id": "P06",
+      "invoer_id": "G02",
+      "herhaling": 1,
+      "X": "oud",
+      "Y": "nieuw",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B23 beschrijft de behandelingsstatus en Y=B01 de aanvraag met die status. Beide perspectieven zijn bronondersteund; de relevante inhoudelijke gebreken zijn gelijk.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Beide maken mogelijke voortzetting zeker en laten de uitsluiting van een bijkomende capaciteitsreden lokaal onzeker. Geen nieuwe fout of verslechtering aan één zijde."
+    },
+    {
+      "paar_id": "P08",
+      "invoer_id": "G02",
+      "herhaling": 2,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "verslechterd",
+      "reden": "Y=B20 bewaart met 'uitsluitend doordat' de exclusieve oorzaak van stilstand eenduidig; X=B24 beperkt rechtstreeks slechts de ontbrekende informatie. Y verbetert daarmee een beschermde uitsluiting zonder aantoonbare nieuwe fout of verslechtering.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Bij X is de capaciteitsuitsluiting onzeker, niet bewezen tegengesproken; daarom geen stellige nieuwe foutclaim. Y neemt die onzekerheid weg. Beide houden de vastgestelde modaliteitsfout 'wordt voortgezet'."
+    },
+    {
+      "paar_id": "P07",
+      "invoer_id": "G03",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B04 en Y=B16 behouden beide beschermde namen, gezamenlijke vaststelling van dezelfde tekst en de grens met besluitvorming. De aandachtspunten bij X zijn ondersteund; hun weglating bij Y verliest geen beschermde afbakening.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Geen aangetoonde bron- of betekenisfout of inhoudelijke verslechtering bij een van beide."
+    },
+    {
+      "paar_id": "P01",
+      "invoer_id": "G03",
+      "herhaling": 2,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B21 en Y=B13 behouden de volledige namen, dezelfde door beide organen vastgestelde tekst en de grens met het ingebruiknamebesluit. De ondersteunde aandachtspunten bij X zijn geen noodzakelijke beschermde differentia; hun aanwezigheid of weglating levert hier geen aangetoonde inhoudelijke winst of verslechtering op.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Geen bron- of betekenisfout vastgesteld bij een van beide."
+    },
+    {
+      "paar_id": "P09",
+      "invoer_id": "G04",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "verbeterd",
+      "reden": "X=B19 koppelt alle stukken helder aan dezelfde kast en hetzelfde overdrachtsmoment; Y=B05 maakt deze beschermde relatie onzeker met 'van ... samenhangen'. X behoudt het onvoorwaardelijke ingevulde afwijkingenblad, ook zonder afwijkingen. De explicitering bij Y compenseert de relationele onduidelijkheid niet en herstelt geen bij X ontbrekend beschermd kenmerk.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "X introduceert geen fout. Y heeft een aantoonbaar begrijpelijkheidsprobleem en onzeker betekenisbehoud, maar geen bewezen inhoudelijke tegenspraak; de foutbooleans maken van die onzekerheid geen zekere betekenisfout."
+    },
+    {
+      "paar_id": "P02",
+      "invoer_id": "G04",
+      "herhaling": 2,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B22 vermeldt aantal en gezamenlijke betrekking expliciet; Y=B08 behoudt die door de gesloten opsomming en gemeenschappelijke inleiding. Beide vereisen het ingevulde afwijkingenblad onvoorwaardelijk, ook zonder afwijkingen. Geen inhoudelijke winst of verslechtering vastgesteld.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Impliciet behoud bij Y is geen ontbrekend kenmerk; beide bewaren de beschermde samenstelling."
+    },
+    {
+      "paar_id": "P03",
+      "invoer_id": "G05",
+      "herhaling": 1,
+      "X": "nieuw",
+      "Y": "oud",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B17 en Y=B15 behouden dezelfde rekenrelatie, vergelijkbaarheid, eenheid en tekenuitleg. 'Hoeveelheid' tegenover 'aantal' en de geringe formuleringverschillen leveren geen onderbouwde inhoudelijke winst op.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Beide blijven moeilijk toegankelijk voor de doelgroep en missen de beschermde beperking dat een verschil op zichzelf geen verlies bewijst. Geen nieuwe fout aan één zijde."
+    },
+    {
+      "paar_id": "P04",
+      "invoer_id": "G05",
+      "herhaling": 2,
+      "X": "oud",
+      "Y": "nieuw",
+      "uitkomst_oud_naar_nieuw": "verbeterd",
+      "reden": "Y=B12 legt de brongebonden betekenis van positief, negatief en nul uit voor vrijwilligers; X=B02 laat deze afleiding aan de lezer. Dit is een inhoudelijke verbetering van de uitleg, zonder aangetoonde nieuwe verslechtering. Beide blijven door de geneste rekenconstructie onder de begrijpelijkheidsmaatstaf.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "X behoudt de tekenbetekenis impliciet, dus het verschil is geen nieuwe betekenisfout. Beide missen de beperking over verliesbewijs; die gedeelde omissie blijft staan."
+    },
+    {
+      "paar_id": "P05",
+      "invoer_id": "G06",
+      "herhaling": 1,
+      "X": "oud",
+      "Y": "nieuw",
+      "uitkomst_oud_naar_nieuw": "gelijk",
+      "reden": "X=B10 en Y=B18 behouden dezelfde documentreikwijdte, toegangsscheiding en beëindiging. 'Niet te openen' en 'eindigend zodra' tegenover 'ontoegankelijk' en 'lopend tot' leveren hier geen aantoonbare inhoudelijke winst of verslechtering op.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "Beide missen daadwerkelijk lopend onderzoek als voorwaarde en de beschermde beperkingen over inhoud en aanvraaguitkomst."
+    },
+    {
+      "paar_id": "P11",
+      "invoer_id": "G06",
+      "herhaling": 2,
+      "X": "oud",
+      "Y": "nieuw",
+      "uitkomst_oud_naar_nieuw": "verslechterd",
+      "reden": "X=B09 verbindt 'ingesteld ... en eindigend zodra' ondubbelzinnig aan de maatregel. Y=B07 laat met 'die voortduurt' ook aansluiting bij de aanwijzing toe. X verbetert de bronduiding en de beschermde beëindigingsvoorwaarde zonder aantoonbare nieuwe verslechtering.",
+      "nieuwe_bron_of_betekenisfout": false,
+      "nuance": "De extra bron- en verwijzingsonzekerheid bij Y is geen bewezen nieuwe onware uitspraak. Beide houden de vastgestelde omissies over lopend onderzoek, inhoudelijke juistheid en aanvraaguitkomst; X lost die niet op."
+    }
+  ],
+  "invoeren": [
+    {
+      "id": "G01",
+      "begrip": "bakroutekaart",
+      "herhalingen": [
+        "gelijk",
+        "gelijk"
+      ],
+      "gepaard_eindoordeel": "gelijk",
+      "prompt_identiek": true
+    },
+    {
+      "id": "G02",
+      "begrip": "hervatbare aanvraag",
+      "herhalingen": [
+        "gelijk",
+        "verslechterd"
+      ],
+      "gepaard_eindoordeel": "onbeslist",
+      "prompt_identiek": false
+    },
+    {
+      "id": "G03",
+      "begrip": "gezamenlijk routeadvies",
+      "herhalingen": [
+        "gelijk",
+        "gelijk"
+      ],
+      "gepaard_eindoordeel": "gelijk",
+      "prompt_identiek": false
+    },
+    {
+      "id": "G04",
+      "begrip": "overdrachtsset",
+      "herhalingen": [
+        "verbeterd",
+        "gelijk"
+      ],
+      "gepaard_eindoordeel": "onbeslist",
+      "prompt_identiek": true
+    },
+    {
+      "id": "G05",
+      "begrip": "aansluitverschil",
+      "herhalingen": [
+        "gelijk",
+        "verbeterd"
+      ],
+      "gepaard_eindoordeel": "onbeslist",
+      "prompt_identiek": true
+    },
+    {
+      "id": "G06",
+      "begrip": "tijdelijke zichtbeperking",
+      "herhalingen": [
+        "gelijk",
+        "verslechterd"
+      ],
+      "gepaard_eindoordeel": "onbeslist",
+      "prompt_identiek": false
+    }
+  ],
+  "aantallen_herhalingsparen": {
+    "gelijk": 8,
+    "verbeterd": 2,
+    "verslechterd": 2
+  },
+  "aantallen_gepaarde_invoeren": {
+    "gelijk": 2,
+    "onbeslist": 4
+  },
+  "aggregatie": "Alleen gelijke herhalingsrichtingen leveren een stabiel invoeroordeel; gelijk plus verandering blijft conservatief onbeslist. Ruwe en opgeschoonde oordelen identiek.",
+  "criterium_gehaald": false,
+  "reden_criterium": "Geen stabiele verbetering per invoer, twee verslechteringen in afzonderlijke herhalingen; positieve verschillen komen uitsluitend voor bij identieke prompts."
+}

@@ -1,0 +1,20 @@
+{
+  "new_commit": "3c2535361be6851a779372926302d1d027897d4b",
+  "new_archive": "logs/def770-afbakening/bron-afbakening-v1.tar",
+  "new_archive_sha256": "7fa75fbb10251e638ade1b67a95d6191d01e180f14176ab353c4b73e34b27c35",
+  "old_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "old_archive": "logs/def770-effectproeven/bron-oud-26f2374d.tar",
+  "skills_commit": "263038b7cddcf9742a909bace86a03b2a7f254ad",
+  "criteria": "24/24 inclusief status, redenen, grenzen en broncitaat; geen nieuwe zekere fout; geen volledige INT-01-pass; beide laadpaden/opslag consistent; disputen zichtbaar, geen herlabeling na run",
+  "independent_roles": "nieuwe aparte Astra/high CLI-sessies voor maker, A, B, adjudicator; geen tools; geen appuitkomsten voor adjudicatie",
+  "source_policy": "geen codewijziging na setvrijgave",
+  "g24": "bestaand bewijs behouden; geen nieuwe generatiecalls",
+  "at": "2026-09-25T12:31:23.575636+00:00",
+  "source_freeze": "bronfreeze-v2.json",
+  "source_binding": "bronbinding-v1.json",
+  "reference_seal": "t24-referenties-verzegeling-v1.json",
+  "supersedes": "runbinding-v1.json",
+  "supersession_reason": "V1 was de voorbereiding vóór tekstafstemming. V2 verwijst naar de werkelijk uitgevoerde en vooraf bevroren tekstcorrectiecommit; criteria en resultaten zijn ongewijzigd.",
+  "actual_new_output": "t24-resultaat-nieuw-v1.json",
+  "actual_old_output": "t24-resultaat-oud-v1.json"
+}

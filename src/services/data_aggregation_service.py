@@ -265,6 +265,10 @@ class DefinitieExportData:
         default_factory=lambda: deepcopy(_BRONBEWIJS_LEEG)
     )
 
+    # DEF-770: de opgeslagen INT-01-deeluitkomst (onderdelen, redenen en
+    # binding aan kern en versie) met `applied`; None = niet opgeslagen.
+    int01_beoordeling: dict[str, Any] | None = None
+
     # Technische metadata
     marker: str | None = None
     prompt_text: str | None = None
@@ -406,6 +410,8 @@ class DataAggregationService:
                 self._zet_broncontractvelden(export_data, definitie_record)
                 if not export_data.bronnen:
                     export_data.bronnen = bronregels_uit_bewijs(export_data.bronbewijs)
+                # DEF-770: uitsluitend van het record, nooit uit aanvullende data.
+                export_data.int01_beoordeling = definitie_record.get_int01_beoordeling()
 
             # Timestamps
             export_data.created_at = definitie_record.created_at
@@ -663,6 +669,7 @@ class DataAggregationService:
             "bronnen_gebruikt": export_data.bronnen_gebruikt,
             "expert_review": export_data.expert_review,
             "bronbewijs": export_data.bronbewijs,
+            "int01_beoordeling": export_data.int01_beoordeling,  # DEF-770
             "marker": export_data.marker,
             "prompt_text": export_data.prompt_text,
         }

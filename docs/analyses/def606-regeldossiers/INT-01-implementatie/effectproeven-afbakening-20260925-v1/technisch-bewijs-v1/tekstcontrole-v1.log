@@ -1,0 +1,6 @@
+json geldig: ja; sleutels ['aanbeveling', 'brondocument', 'foute_voorbeelden', 'geldigheid', 'goede_voorbeelden', 'id', 'naam', 'prioriteit', 'relatie', 'runtime_contract', 'status', 'thema', 'toelichting', 'toetsvraag', 'type', 'uitleg']
+toelichting bevat INT-07-verwijzing: True
+oude brede formulering weg: True
+toetsregel_manager geladen: True toelichting gelijk aan bron: True
+cached_manager geladen: True toelichting gelijk aan bron: True
+exit=0

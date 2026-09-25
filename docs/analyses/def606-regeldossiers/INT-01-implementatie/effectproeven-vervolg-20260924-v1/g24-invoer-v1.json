@@ -1,0 +1,202 @@
+[
+  {
+    "id": "G01",
+    "stratum": "gewone kern",
+    "begrip": "wisselbak",
+    "organisatorische_context": [
+      "Fictief publiek Oefenbureau Zandveer",
+      "Intern beheer van fysieke kaarten voor demonstratierondes"
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G01-P01",
+        "tekst": "Bij het publieke Oefenbureau Zandveer gaan fysieke routekaarten na iedere demonstratieronde naar een centrale sorteertafel. Medewerkers gebruiken daar verschillende bakken. Het opschrift wisselbak is gereserveerd voor de verplaatsbare bak waarin reeds gebruikte routekaarten tijdelijk wachten op verdeling over de volgende demonstratierondes. Ongebruikte voorraadkaarten liggen in het voorraadrek; beschadigde kaarten gaan naar een afzonderlijk herstelvak. Een kaart hoeft niet opnieuw bedrukt te worden om in de wisselbak te mogen liggen. De tijdelijke bewaring eindigt zodra een medewerker de kaarten aan een volgende ronde toewijst. De bak is momenteel blauw en staat meestal links van de sorteertafel, maar kleur en plaats mogen zonder wijziging van het gebruik worden aangepast. Het bureau koos stapelbare bakken omdat de oefenruimte klein is. Tijdens introducties laat de beheerder met drie voorbeeldkaarten zien hoe het verdelen verloopt.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Het begrip betreft de verplaatsbare fysieke bak voor tijdelijke bewaring van gebruikte routekaarten die nog over volgende demonstratierondes moeten worden verdeeld.",
+    "doelgroep": "Nieuwe medewerkers die routekaarten sorteren",
+    "beschermde_kenmerken": [
+      "Verplaatsbare fysieke bak",
+      "Tijdelijke bewaring",
+      "Reeds gebruikte routekaarten",
+      "Bewaring in afwachting van verdeling over volgende demonstratierondes"
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Ongebruikte voorraadkaarten en beschadigde kaarten vallen buiten de beschreven bestemming"
+    ]
+  },
+  {
+    "id": "G02",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "terugzetverzoek",
+    "organisatorische_context": [
+      "Fictief publiek Loket Proefroutes",
+      "Administratieve oefenomgeving met routeaanvragen en een planningssysteem"
+    ],
+    "juridische_context": [
+      "Interne oefenafspraken zonder juridische werking buiten de simulatie"
+    ],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G02-P01",
+        "tekst": "Het Loket Proefroutes oefent met aanvragen voor begeleide wandelproeven. Een deelnemer kan vragen een gesloten oefenaanvraag opnieuw in de werkvoorraad te plaatsen. De medewerkers registreren zo'n vraag alleen als terugzetverzoek wanneer de aanvraag is gesloten doordat het planningssysteem ten onrechte meldde dat de deelnemer geen tijdvak had gekozen. Die oorzaak moet blijken uit het gebeurtenissenoverzicht van dezelfde aanvraag. Een aanvraag die de deelnemer zelf heeft ingetrokken, valt buiten deze route, ook als die deelnemer later alsnog wil meedoen. Ook sluiting wegens een werkelijk ontbrekende tijdvakkeuze valt erbuiten. Registratie van het verzoek heropent de aanvraag nog niet; een oefencoördinator controleert eerst het overzicht. Verzoeken komen doorgaans via een geel schermformulier binnen, maar mogen tijdens een storing mondeling worden vastgelegd. De maandelijkse oefenbespreking telt deze verzoeken om fouten in de simulatie te bespreken.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De afbakening hangt af van de oorzaak van sluiting: een aantoonbaar onjuiste systeemmelding over een ontbrekende tijdvakkeuze bij dezelfde oefenaanvraag.",
+    "doelgroep": "Loketmedewerkers die binnenkomende vragen registreren",
+    "beschermde_kenmerken": [
+      "Verzoek om een gesloten oefenaanvraag opnieuw in de werkvoorraad te plaatsen",
+      "Sluiting veroorzaakt door een onjuiste systeemmelding over een ontbrekende tijdvakkeuze",
+      "De sluitingsoorzaak blijkt uit het gebeurtenissenoverzicht van dezelfde aanvraag"
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Geen vrijwillig ingetrokken aanvraag",
+      "Geen aanvraag gesloten wegens een werkelijk ontbrekende tijdvakkeuze",
+      "Registratie van het verzoek heropent de aanvraag niet automatisch"
+    ]
+  },
+  {
+    "id": "G03",
+    "stratum": "noodzakelijke naam",
+    "begrip": "overdrachtsmerk",
+    "organisatorische_context": [
+      "Fictieve publieke Werkplaats Oeverlicht",
+      "Overdracht van oefendossiers tussen administratieve werktafels"
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G03-P01",
+        "tekst": "De publieke Werkplaats Oeverlicht gebruikt twee oefenregisters met vrijwel gelijke schermen. Register Inname en Teruggave bewaart overdrachten tussen werktafels. Register Inname en Tijdelijke Bewaring bewaart uitsluitend plaatsingen in een opslagrek. Bij iedere bevestigde overdracht tussen werktafels maakt Register Inname en Teruggave een code aan die binnen dat register uniek blijft. Alleen deze code heet in de werkinstructies overdrachtsmerk. Een code uit het andere register krijgt die benaming niet, ook niet wanneer de tekenreeks toevallig gelijk is. Het overdrachtsmerk verwijst naar één overdrachtsgebeurtenis en wordt na een correctie niet aan een andere gebeurtenis toegekend. De volledige registernaam is nodig omdat beide registers in dezelfde oefenomgeving voorkomen. Op het huidige scherm verschijnt het merk rechtsboven in paarse letters. Medewerkers mogen het op een papieren begeleidstrook overnemen; die strook vormt geen afzonderlijke registratie.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De herkomst uit het specifiek genoemde register bepaalt samen met de unieke verwijzing naar één bevestigde overdrachtsgebeurtenis welke code onder dit begrip valt.",
+    "doelgroep": "Medewerkers die dossiers tussen werktafels overdragen",
+    "beschermde_kenmerken": [
+      "Code aangemaakt bij een bevestigde overdracht tussen werktafels",
+      "Aangemaakt door Register Inname en Teruggave",
+      "Uniek binnen dat register",
+      "Blijvende verwijzing naar één overdrachtsgebeurtenis"
+    ],
+    "beschermde_namen": [
+      "Register Inname en Teruggave"
+    ],
+    "beschermde_negaties": [
+      "Codes uit Register Inname en Tijdelijke Bewaring vallen erbuiten",
+      "Geen hergebruik voor een andere overdrachtsgebeurtenis"
+    ]
+  },
+  {
+    "id": "G04",
+    "stratum": "limitatieve opsomming",
+    "begrip": "baliecorrectie",
+    "organisatorische_context": [
+      "Fictief publiek Simulatieloket Rietdam",
+      "Administratieve verwerking van aanvragen voor oefenmateriaal"
+    ],
+    "juridische_context": [
+      "Gesloten interne bevoegdheidsafspraak voor een simulatie, zonder beroep op echte regelgeving"
+    ],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G04-P01",
+        "tekst": "Het Simulatieloket Rietdam verdeelt wijzigingen in oefenaanvragen over een baliemedewerker en een oefencoördinator. Voor baliecorrecties geldt een gesloten lijst van drie handelingen: overtollige spaties uit de materiaalcode verwijderen, de weergavetaal van het ontvangstbericht wijzigen en een tweede afdruk van datzelfde ontvangstbericht uitschakelen. De baliemedewerker mag deze handelingen uitsluitend vóór de toewijzing van het oefenmateriaal uitvoeren. Andere wijzigingen worden niet als baliecorrectie geregistreerd, ook wanneer ze weinig tijd kosten of voor de medewerker onschuldig lijken. Het veranderen van de materiaalsoort, hoeveelheid of gekozen afhaallocatie hoort dus bij de oefencoördinator. Het systeem bewaart bij iedere handeling de oude en de nieuwe veldwaarde voor de nabespreking. In de eerste trainingsweek hangen voorbeelden naast de balie. De lijst kan alleen worden gewijzigd door een nieuwe interne oefeninstructie; de huidige instructie bevat geen restcategorie voor vergelijkbare handelingen.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Het begrip omvat uitsluitend de drie genoemde handelingen door de baliemedewerker, uitgevoerd vóór toewijzing van het oefenmateriaal.",
+    "doelgroep": "Baliemedewerkers in de administratieve simulatie",
+    "beschermde_kenmerken": [
+      "Uitvoering door de baliemedewerker",
+      "Uitvoering vóór toewijzing van het oefenmateriaal",
+      "Overtollige spaties uit de materiaalcode verwijderen",
+      "De weergavetaal van het ontvangstbericht wijzigen",
+      "Een tweede afdruk van hetzelfde ontvangstbericht uitschakelen",
+      "De drie handelingen vormen een uitputtende opsomming"
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Geen andere of vergelijkbare handelingen buiten de gesloten lijst",
+      "Geen wijziging van materiaalsoort, hoeveelheid of afhaallocatie"
+    ]
+  },
+  {
+    "id": "G05",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "fasebuffer",
+    "organisatorische_context": [
+      "Fictieve publieke Meetdienst Wolkenwaard",
+      "Technische verwerking van gegevens uit oefensensoren"
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G05-P01",
+        "tekst": "De Meetdienst Wolkenwaard oefent met sensoren die iedere meetcyclus een gegevenspakket verzenden. Pakketten van verschillende sensoren bereiken de verwerker niet altijd tegelijk. In de technische handleiding wordt fasebuffer gebruikt voor de tijdelijke geheugenruimte die binnenkomende pakketten per cyclusnummer bijeenhoudt totdat die cyclus wordt vrijgegeven. Vrijgave gebeurt zodra alle voor die cyclus verwachte pakketten aanwezig zijn, of zodra de ingestelde wachttijd verstrijkt. Bij het verstrijken van de wachttijd gaat de beschikbare verzameling verder met een onvolledigheidsmarkering. Pakketten zonder cyclusnummer worden naar de foutopvang gestuurd en komen niet in de fasebuffer. De handleiding is bedoeld voor meetketenbeheerders; zij kennen cyclusnummers, vrijgave en onvolledigheidsmarkeringen uit hun opleiding. Het bedieningsscherm toont de buffer als een rij blokjes. De huidige wachttijd is tijdens trainingen drie tellen, maar kan per oefenopstelling worden ingesteld zonder dat de functie verandert.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Tijdelijke geheugenopslag groepeert sensorpakketten per cyclusnummer en houdt ze vast tot volledigheid of het verstrijken van de ingestelde wachttijd; onvolledige vrijgave blijft herkenbaar.",
+    "doelgroep": "Meetketenbeheerders met kennis van de gebruikte technische begrippen",
+    "beschermde_kenmerken": [
+      "Tijdelijke geheugenruimte",
+      "Groepering van binnenkomende sensorpakketten per cyclusnummer",
+      "Vasthouden tot alle verwachte pakketten aanwezig zijn of de ingestelde wachttijd verstrijkt",
+      "Vrijgave van de beschikbare verzameling met onvolledigheidsmarkering bij ontbrekende pakketten"
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Pakketten zonder cyclusnummer worden niet opgenomen",
+      "Volledigheid is geen absolute voorwaarde voor vrijgave"
+    ]
+  },
+  {
+    "id": "G06",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "organisatorische_context": [
+      "Fictief publiek Oefenarchief Duinveer",
+      "Gecontroleerde overdracht van synthetische dossierkopieën aan een interne controletafel"
+    ],
+    "juridische_context": [
+      "Interne simulatieafspraken over inzage en overdracht; geen echte wettelijke bevoegdheden"
+    ],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G06-P01",
+        "tekst": "Het Oefenarchief Duinveer laat synthetische dossiers door twee afzonderlijke controles gaan: een controle op volledigheid en een controle op interne consistentie. De status voorwaardelijke vrijgave mag pas worden toegekend nadat de volledigheidscontrole is geslaagd, terwijl de consistentiecontrole nog loopt. Deze status staat uitsluitend toe dat een kopie naar de interne controletafel gaat voor voorbereiding van de inhoudelijke bespreking. Zij geeft geen toestemming voor verstrekking buiten het oefenarchief en betekent niet dat de inhoud juist is bevonden. Als de consistentiecontrole een tegenstrijdigheid vaststelt, vervalt de status onmiddellijk en moet de controletafel de voorbereiding stoppen. Zonder vastgestelde tegenstrijdigheid blijft de status gelden totdat de controle is afgerond; daarna volgt een afzonderlijke statusbeslissing. De overdracht wordt nu met een oranje pictogram getoond. Tijdens proefdagen bespreekt het team de aantallen bij de lunch, maar die bespreking beïnvloedt de status niet.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Een tijdelijke status tussen twee controlestappen staat beperkte interne overdracht van een kopie toe, met onmiddellijke beëindiging bij een vastgestelde tegenstrijdigheid en een afzonderlijke statusbeslissing na afronding.",
+    "doelgroep": "Archiefmedewerkers en medewerkers van de interne controletafel",
+    "beschermde_kenmerken": [
+      "Volledigheidscontrole is geslaagd",
+      "Consistentiecontrole loopt nog",
+      "Uitsluitend overdracht van een kopie naar de interne controletafel",
+      "Overdracht dient de voorbereiding van de inhoudelijke bespreking",
+      "Status vervalt onmiddellijk bij een vastgestelde tegenstrijdigheid",
+      "Voorbereiding moet stoppen bij dat verval",
+      "Zonder vastgestelde tegenstrijdigheid geldt de status tot afronding van de controle",
+      "Na afronding volgt een afzonderlijke statusbeslissing"
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Geen toestemming voor verstrekking buiten het oefenarchief",
+      "Geen bevestiging dat de inhoud juist is bevonden",
+      "Geen automatische definitieve vrijgave na afronding van de controle"
+    ]
+  }
+]

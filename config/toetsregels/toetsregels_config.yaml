@@ -96,6 +96,11 @@ runtime_contract:
     # citaatbestaan en berekent de uitkomst; modelvoorstellen blijven
     # onbevestigd. Geen cijfer (no_score); geen zelfstandige blokkade.
     - "distinction_assessment"
+    # DEF-770 (INT-01): functionele zinsgrenzen — code stelt zekere en onzekere
+    # grenzen vast met passage en reden; één vastgestelde zin is een
+    # deelbevinding, compactheid en begrijpelijkheid blijven open. Geen cijfer
+    # (score_policy excluded_from_score) en geen zelfstandige blokkade.
+    - "sentence_boundary"
 
   required_inputs:
     - "definition_text"

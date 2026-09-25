@@ -1,0 +1,19 @@
+{
+  "base": "6c18ce7127f0a785fefdd6bc952175a030be8643",
+  "delta_sha256": "984dcef72b6acbd578be48955280c1daa50df692d74117e1b05fdb15a5927325",
+  "files": {
+    "src/domain/int01/zinsgrenzen.py": "04b5ab1ef0038a95c793875578dfd45629d00b2cc78e536e8877e070626b7421",
+    "src/services/prompts/modules/json_based_rules_module.py": "715be3b6e9250df6350faa9f5144e65740707723a8fe5b1a1dc9ae69ad3a19a3",
+    "src/services/prompts/modules/prompt_orchestrator.py": "0c7397c7fbe7e58adc5b8f71a8a9fcb0d00508aa109f059877170cc8faa42ab7",
+    "src/toetsregels/regels/INT-01.json": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99",
+    "tests/unit/services/prompts/test_def743_con02_promptnorm.py": "5b994e6c910c5a289f96c88c83bfbf9eb7e02084c9ff22f2f123cd01b15c059f",
+    "tests/unit/validation/test_def770_int01_zinsgrenzen.py": "b6d9c3f299018f98bafdc5052dcc66d3dcc5744c246f827a2225361379f076d5",
+    "tests/unit/validation/test_def770_herstel_zinsgrenzen.py": "21d14607c70bd02e1d380def4546f642fe840f509ee3c2f1b7155df0c143b83f",
+    "tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py": "2b94f23cdd7bdcd4040c3accecc832d21946dacc55563a8243bddc0f439ff9b2"
+  },
+  "skills_base": "4e171419a5526afca65d0ec7e34fa3d8f50aae5c",
+  "skills_delta_sha256": "8ae7c7c280c916843c2bd6ed60e968b2139eef44e6bc133a4da269153abacdec",
+  "skills_files": {
+    "skills/definitie-toetsregels/reference.md": "691cd71fc34a151be35f2c41a91295eb4c4362e5be1c092e0d8edffab6934a5f"
+  }
+}

@@ -1,0 +1,271 @@
+{
+  "seed": 51555805566983033371432419340,
+  "teksten": {
+    "B01": {
+      "call_id": "G02__oud__h1",
+      "invoer_id": "G02",
+      "arm": "oud",
+      "herhaling": 1,
+      "request_sha256": "300fc9caf1beef6b1decf0a3e9217a6cb5f1be86873f1222552c8c65491ad162",
+      "begrip_gesanitiseerd": "herstelmelding"
+    },
+    "B02": {
+      "call_id": "G04__nieuw__h1",
+      "invoer_id": "G04",
+      "arm": "nieuw",
+      "herhaling": 1,
+      "request_sha256": "35b2cd8fb29bcb8f4d58d35409c53575c2902d5ad4e37e5dca954d703640b158",
+      "begrip_gesanitiseerd": "afsluitreden"
+    },
+    "B03": {
+      "call_id": "G05__nieuw__h2",
+      "invoer_id": "G05",
+      "arm": "nieuw",
+      "herhaling": 2,
+      "request_sha256": "d238c7600e94aa53ac2ec15c605517da8354ef3e1e83cd957e32ec9bb13f1891",
+      "begrip_gesanitiseerd": "registratielatentie"
+    },
+    "B04": {
+      "call_id": "G04__nieuw__h2",
+      "invoer_id": "G04",
+      "arm": "nieuw",
+      "herhaling": 2,
+      "request_sha256": "35b2cd8fb29bcb8f4d58d35409c53575c2902d5ad4e37e5dca954d703640b158",
+      "begrip_gesanitiseerd": "afsluitreden"
+    },
+    "B05": {
+      "call_id": "G01__nieuw__h2",
+      "invoer_id": "G01",
+      "arm": "nieuw",
+      "herhaling": 2,
+      "request_sha256": "863e05ca6ae3a9cc1b6888d5bf334024596a0a21be46e072ae7a028a41041893",
+      "begrip_gesanitiseerd": "uitleenvenster"
+    },
+    "B06": {
+      "call_id": "G01__oud__h2",
+      "invoer_id": "G01",
+      "arm": "oud",
+      "herhaling": 2,
+      "request_sha256": "def0c4ae031bf95bc1b9b1933400d74155013b27aede302f35dd6edfdd2660b4",
+      "begrip_gesanitiseerd": "uitleenvenster"
+    },
+    "B07": {
+      "call_id": "G04__oud__h1",
+      "invoer_id": "G04",
+      "arm": "oud",
+      "herhaling": 1,
+      "request_sha256": "2b18ca925211899474324bf95241255284932f5b438bd6f1ea7f9d31c729d045",
+      "begrip_gesanitiseerd": "afsluitreden"
+    },
+    "B08": {
+      "call_id": "G04__oud__h2",
+      "invoer_id": "G04",
+      "arm": "oud",
+      "herhaling": 2,
+      "request_sha256": "2b18ca925211899474324bf95241255284932f5b438bd6f1ea7f9d31c729d045",
+      "begrip_gesanitiseerd": "afsluitreden"
+    },
+    "B09": {
+      "call_id": "G03__nieuw__h2",
+      "invoer_id": "G03",
+      "arm": "nieuw",
+      "herhaling": 2,
+      "request_sha256": "b681c4a4f0fe3e8197de8c4f71075923141977cce9aa21a0d92aa8332fd85d89",
+      "begrip_gesanitiseerd": "routeadvies"
+    },
+    "B10": {
+      "call_id": "G01__nieuw__h1",
+      "invoer_id": "G01",
+      "arm": "nieuw",
+      "herhaling": 1,
+      "request_sha256": "863e05ca6ae3a9cc1b6888d5bf334024596a0a21be46e072ae7a028a41041893",
+      "begrip_gesanitiseerd": "uitleenvenster"
+    },
+    "B11": {
+      "call_id": "G06__oud__h2",
+      "invoer_id": "G06",
+      "arm": "oud",
+      "herhaling": 2,
+      "request_sha256": "3e9c1156b84a4d684f960b004090df6d046cb2032b81cfa39cce8c95138545bf",
+      "begrip_gesanitiseerd": "voorwaardelijke vrijgave"
+    },
+    "B12": {
+      "call_id": "G02__oud__h2",
+      "invoer_id": "G02",
+      "arm": "oud",
+      "herhaling": 2,
+      "request_sha256": "300fc9caf1beef6b1decf0a3e9217a6cb5f1be86873f1222552c8c65491ad162",
+      "begrip_gesanitiseerd": "herstelmelding"
+    },
+    "B13": {
+      "call_id": "G01__oud__h1",
+      "invoer_id": "G01",
+      "arm": "oud",
+      "herhaling": 1,
+      "request_sha256": "def0c4ae031bf95bc1b9b1933400d74155013b27aede302f35dd6edfdd2660b4",
+      "begrip_gesanitiseerd": "uitleenvenster"
+    },
+    "B14": {
+      "call_id": "G05__oud__h1",
+      "invoer_id": "G05",
+      "arm": "oud",
+      "herhaling": 1,
+      "request_sha256": "f882ecceb692dd86670c7c2894a5af27ecc77f7e588e91d477d6cbbe1069c48a",
+      "begrip_gesanitiseerd": "registratielatentie"
+    },
+    "B15": {
+      "call_id": "G03__oud__h2",
+      "invoer_id": "G03",
+      "arm": "oud",
+      "herhaling": 2,
+      "request_sha256": "f5774c2867c9f13ab7d5688f0a8fe8fb83079ddb333fcdf283037f0684b7b5d2",
+      "begrip_gesanitiseerd": "routeadvies"
+    },
+    "B16": {
+      "call_id": "G05__oud__h2",
+      "invoer_id": "G05",
+      "arm": "oud",
+      "herhaling": 2,
+      "request_sha256": "f882ecceb692dd86670c7c2894a5af27ecc77f7e588e91d477d6cbbe1069c48a",
+      "begrip_gesanitiseerd": "registratielatentie"
+    },
+    "B17": {
+      "call_id": "G03__oud__h1",
+      "invoer_id": "G03",
+      "arm": "oud",
+      "herhaling": 1,
+      "request_sha256": "f5774c2867c9f13ab7d5688f0a8fe8fb83079ddb333fcdf283037f0684b7b5d2",
+      "begrip_gesanitiseerd": "routeadvies"
+    },
+    "B18": {
+      "call_id": "G02__nieuw__h2",
+      "invoer_id": "G02",
+      "arm": "nieuw",
+      "herhaling": 2,
+      "request_sha256": "eac94a3084a6ac02c75585bfd11b41a578f467828c7dd828cc013b9ea5f0e91f",
+      "begrip_gesanitiseerd": "herstelmelding"
+    },
+    "B19": {
+      "call_id": "G03__nieuw__h1",
+      "invoer_id": "G03",
+      "arm": "nieuw",
+      "herhaling": 1,
+      "request_sha256": "b681c4a4f0fe3e8197de8c4f71075923141977cce9aa21a0d92aa8332fd85d89",
+      "begrip_gesanitiseerd": "routeadvies"
+    },
+    "B20": {
+      "call_id": "G06__nieuw__h1",
+      "invoer_id": "G06",
+      "arm": "nieuw",
+      "herhaling": 1,
+      "request_sha256": "fafbbb25cf7bf83cf091a637da828ce37b17a50b31983511064b562c5e814c2f",
+      "begrip_gesanitiseerd": "voorwaardelijke vrijgave"
+    },
+    "B21": {
+      "call_id": "G06__nieuw__h2",
+      "invoer_id": "G06",
+      "arm": "nieuw",
+      "herhaling": 2,
+      "request_sha256": "fafbbb25cf7bf83cf091a637da828ce37b17a50b31983511064b562c5e814c2f",
+      "begrip_gesanitiseerd": "voorwaardelijke vrijgave"
+    },
+    "B22": {
+      "call_id": "G06__oud__h1",
+      "invoer_id": "G06",
+      "arm": "oud",
+      "herhaling": 1,
+      "request_sha256": "3e9c1156b84a4d684f960b004090df6d046cb2032b81cfa39cce8c95138545bf",
+      "begrip_gesanitiseerd": "voorwaardelijke vrijgave"
+    },
+    "B23": {
+      "call_id": "G02__nieuw__h1",
+      "invoer_id": "G02",
+      "arm": "nieuw",
+      "herhaling": 1,
+      "request_sha256": "eac94a3084a6ac02c75585bfd11b41a578f467828c7dd828cc013b9ea5f0e91f",
+      "begrip_gesanitiseerd": "herstelmelding"
+    },
+    "B24": {
+      "call_id": "G05__nieuw__h1",
+      "invoer_id": "G05",
+      "arm": "nieuw",
+      "herhaling": 1,
+      "request_sha256": "d238c7600e94aa53ac2ec15c605517da8354ef3e1e83cd957e32ec9bb13f1891",
+      "begrip_gesanitiseerd": "registratielatentie"
+    }
+  },
+  "paren": {
+    "P01": {
+      "X": "oud",
+      "Y": "nieuw",
+      "dossier_id": "G04",
+      "herhaling": 2
+    },
+    "P02": {
+      "X": "oud",
+      "Y": "nieuw",
+      "dossier_id": "G01",
+      "herhaling": 2
+    },
+    "P03": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G01",
+      "herhaling": 1
+    },
+    "P04": {
+      "X": "oud",
+      "Y": "nieuw",
+      "dossier_id": "G06",
+      "herhaling": 2
+    },
+    "P05": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G03",
+      "herhaling": 2
+    },
+    "P06": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G05",
+      "herhaling": 2
+    },
+    "P07": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G02",
+      "herhaling": 1
+    },
+    "P08": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G04",
+      "herhaling": 1
+    },
+    "P09": {
+      "X": "oud",
+      "Y": "nieuw",
+      "dossier_id": "G02",
+      "herhaling": 2
+    },
+    "P10": {
+      "X": "oud",
+      "Y": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 1
+    },
+    "P11": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G06",
+      "herhaling": 1
+    },
+    "P12": {
+      "X": "nieuw",
+      "Y": "oud",
+      "dossier_id": "G03",
+      "herhaling": 1
+    }
+  }
+}

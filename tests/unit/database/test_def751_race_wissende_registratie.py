@@ -18,6 +18,7 @@ blijven exact; readback via een nieuwe repository.
 from __future__ import annotations
 
 import json
+import sqlite3
 
 import pytest
 
@@ -39,7 +40,7 @@ def db_path(tmp_path) -> str:
 
 
 def _record(db_path: str) -> int:
-    return DefinitieRepository(db_path).create_definitie(
+    did = DefinitieRepository(db_path).create_definitie(
         DefinitieRecord(
             begrip="keurmerk",
             definitie="kern",
@@ -50,6 +51,24 @@ def _record(db_path: str) -> int:
             ),
         )
     )
+    # DEF-770: sinds INT-01 draagt elk nieuw record een beheerde deeluitkomst.
+    # Deze interleaving vereist een record zónder beheerde gegevens bij A's
+    # voorcontrole: een record van vóór DEF-770 (registratie zonder INT-01).
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            "UPDATE definities SET generation_prompt_data = ? WHERE id = ?",
+            (
+                json.dumps(
+                    {
+                        "prompt": "p",
+                        SOURCE_REVIEW_HISTORY_KEY: [{"x": 1}],
+                        "vreemd": True,
+                    }
+                ),
+                did,
+            ),
+        )
+    return did
 
 
 def _b_schrijft_twee_keuzes(db_path: str, did: int) -> None:

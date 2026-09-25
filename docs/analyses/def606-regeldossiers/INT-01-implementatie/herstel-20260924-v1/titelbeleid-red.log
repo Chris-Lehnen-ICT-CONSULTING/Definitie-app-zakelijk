@@ -1,0 +1,114 @@
+................F........................................F.............. [ 19%]
+.........................F.....................F.............F.......... [ 38%]
+.....................................................................F.F [ 58%]
+.....F...FFFF...F.......................FF....F..........F..F........... [ 77%]
+........................................................................ [ 97%]
+..........                                                               [100%]
+=================================== FAILURES ===================================
+E   assert True is False
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:680: assert True is False
+E   assert True is False
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:680: assert True is False
+E   assert True is False
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:680: assert True is False
+E   assert True is False
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:680: assert True is False
+E   AssertionError: assert 'def770-int01/5' == 'def770-int01/6'
+      
+      - def770-int01/6
+      ?              ^
+      + def770-int01/5
+      ?              ^
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:650: AssertionError: assert 'def770-int01/5' == 'def770-int01/6'
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(Zinsgrens(positie=65, passage='de aanwijzingen staan. De kaart ligt klaar.', grond='punt gevolgd door een nieuw zinsbegin'),), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(Zinsgrens(positie=65, passage='de aanwijzingen staan. De kaart ligt klaar.', grond='punt gevolgd door een nieuw zinsbegin'),), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(Zinsgrens(positie=65, passage='de aanwijzingen staan. De kaart ligt klaar.', grond='punt gevolgd door een nieuw zinsbegin'),), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_vervolg_zinsgrenzen.py:584: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+=============================== warnings summary ===============================
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py: 8 warnings
+tests/unit/validation/test_def770_vervolg_zinsgrenzen.py: 2 warnings
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/definitie_crud.py:374: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel[zeker-fail-def770-int01/5]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel[e1-T18-def770-int01/5]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel[e1-T23-def770-int01/5]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_uitkomst_onder_oude_contractversie_geldt_niet_als_actueel[T24-def770-int01/5]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_contractversie_is_6_na_titelbeleid
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c2-r1-twee-groepen]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[t20-waarvan-punt]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c4-r1-dit-werkt]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[t20-zin-na-bijzin]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c3-r1-waarvoor-gemarkeerd]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c3-r1-gemarkeerd-punt]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[t20-waarbij]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c3-r1-waarin-gemarkeerd]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c3-r1-gemarkeerd]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[t20-waarin]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c2-r1-voorzetselgroep]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c4-r1-het-werkt]
+FAILED tests/unit/validation/test_def770_vervolg_zinsgrenzen.py::test_segmentatie[c3-r1-waarmee-gemarkeerd]
+exit=1

@@ -61,6 +61,7 @@ from domain.categorie_herkomst import (
 )
 from domain.context.contract import is_versienummer
 from domain.context.normalisatie import contextsleutel, lees_contextwaarden
+from domain.int01.opslag import INT01_OWNED_KEYS, met_nieuwe_beoordeling
 
 logger = logging.getLogger(__name__)
 
@@ -1192,6 +1193,7 @@ class DefinitieCrudRepository:
                 *CATEGORY_CHOICE_OWNED_KEYS,
                 *ESS03_OWNED_KEYS,
                 *ESS05_OWNED_KEYS,
+                *INT01_OWNED_KEYS,
             )
         ):
             msg = (
@@ -1230,7 +1232,14 @@ class DefinitieCrudRepository:
         # een ruwe schrijfactie; alleen de structurele sleutel
         # `ess03_assessment` (onder de lock) mag ze wijzigen. DEF-768: idem
         # voor de ESS-05-beoordeling, burenlijst en lege-ruimtebevestiging.
-        beheerd = (*CATEGORY_CHOICE_OWNED_KEYS, *ESS03_OWNED_KEYS, *ESS05_OWNED_KEYS)
+        # DEF-770: de INT-01-uitkomst is evenmin ruw schrijfbaar; zij wordt
+        # ónder de lock uit de opgeslagen kern afgeleid.
+        beheerd = (
+            *CATEGORY_CHOICE_OWNED_KEYS,
+            *ESS03_OWNED_KEYS,
+            *ESS05_OWNED_KEYS,
+            *INT01_OWNED_KEYS,
+        )
         beheerd_aanwezig = any(s in registratie or s in opgeslagen for s in beheerd)
         if not beheerd_aanwezig:
             return registratie, False
@@ -1410,6 +1419,31 @@ class DefinitieCrudRepository:
                 registratie
             )
         return gewijzigd
+
+    def _verwerk_int01_registratie(
+        self, actueel: DefinitieRecord, velden: dict[str, Any]
+    ) -> None:
+        """De INT-01-deeluitkomst bij de kern die deze UPDATE achterlaat (DEF-770).
+
+        Ónder de lock, als laatste registratiestap: gebonden aan exact de
+        resulterende kern (zonder toelichting) en de nieuwe versie. Blijft de
+        kern gelijk en bindt de opgeslagen uitkomst er al aan, dan verandert
+        er niets; anders gaat de vorige uitkomst naar de historie. Een ruwe
+        niet-JSON-registratie laat dit ongemoeid (die is hierboven al
+        geweigerd zodra er beheerde sleutels zijn).
+        """
+        tekst = velden.get("definitie", actueel.definitie)
+        kern = splits_definitietekst(str(tekst or ""))[0]
+        registratie = self._voortbouwbasis(actueel, velden)
+        if registratie is None:
+            return
+        bijgewerkt = met_nieuwe_beoordeling(
+            registratie, kern, actueel.version_number + 1
+        )
+        if bijgewerkt != registratie:
+            velden["generation_prompt_data"] = serialiseer_generatieregistratie(
+                bijgewerkt
+            )
 
     @staticmethod
     def _voortbouwbasis(
@@ -1593,8 +1627,15 @@ class DefinitieCrudRepository:
         """
         registratie = lees_generatieregistratie(record.generation_prompt_data) or {}
         aangeleverd = registratie.get(CATEGORY_CHOICE_KEY)
-        for sleutel in CATEGORY_CHOICE_OWNED_KEYS:
+        for sleutel in (*CATEGORY_CHOICE_OWNED_KEYS, *INT01_OWNED_KEYS):
             registratie.pop(sleutel, None)
+        # DEF-770: de INT-01-deeluitkomst van exact deze kern en versie; een
+        # aangeleverde (geïmporteerde) uitkomst wordt nooit overgenomen.
+        registratie = met_nieuwe_beoordeling(
+            registratie,
+            splits_definitietekst(record.definitie or "")[0],
+            record.version_number,
+        )
         if aangeleverd is not None:
             registratie[CATEGORY_CHOICE_IMPORTED_KEY] = deepcopy(aangeleverd)
         if record.source_type == SourceType.IMPORTED.value:
@@ -2553,6 +2594,7 @@ class DefinitieCrudRepository:
             )
             if not schrijfbaar:
                 return False
+            self._verwerk_int01_registratie(actueel, velden)
 
             # DEF-622 (deltareview V2c): uitsluitend de atomaire vaststelactie
             # neemt de gebonden CON-01-beoordeling in dezelfde UPDATE mee naar

@@ -1,0 +1,3 @@
+# Prijsbasis voor de nieuwe G24
+
+Op24september2026 opnieuw gecontroleerd bij Anthropic: [officiële modelprijzen](https://platform.claude.com/docs/en/about-claude/pricing), rij Claude Opus5: standaardinvoerUS$5 en uitvoerUS$25 per miljoen tokens. Dit is het ongewijzigde proefmodel claude-opus-5, zonder caching/batch. [Tokentelling](https://platform.claude.com/docs/en/build-with-claude/token-counting) wordt vóór generatie gebruikt om de aanvragen te ramen. De tariefconstanten van het eerder gereviewde harnas sluiten hierop aan. Geen factuurcontrole; werkelijke usage wordt afzonderlijk bewaard. Budgetgrens voor de nieuwe run US$3.059765, naast de al bestede US$1.940235.

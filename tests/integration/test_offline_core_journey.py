@@ -133,17 +133,22 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: bevroren grens (`ess05_bevroren_antwoord`: geen oordeel). Deze journey
 #: levert geen bevestigd verwant begrip; zonder bevestigde buur is ESS-05 open
 #: met één vraag (besluit K-2) i.p.v. de trefwoord-`fail` — één regel minder
-#: gefaald, één meer open; 33/29/4/16 → 32/29/3/17.
+#: gefaald, één meer open.
+#: DEF-770: INT-01 keurt niet meer af op het woord 'die' in de bevroren
+#: definitie (een foutpositief); zij stelt één zin vast als deelbevinding en
+#: laat compactheid en begrijpelijkheid open (`review_required`). Eén regel
+#: minder gefaald, één meer open.
+#: Samen (integratie DEF-768 + DEF-770): 33/29/4/16 → 31/29/2/18.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 32,
+    "evaluated": 31,
     "passed": 29,
-    "failed": 3,
-    "review_required": 17,
+    "failed": 2,
+    "review_required": 18,
     "not_evaluated": 4,
     "error": 0,
     "not_applicable": 0,
     "total": 53,
-    "coverage_ratio": 0.6038,
+    "coverage_ratio": 0.5849,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -180,7 +185,6 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "VER-02",
 ]
 VERWACHTE_GEFAALDE_REGELS = [
-    "INT-01",
     "VER-01",
     "VER-03",
 ]

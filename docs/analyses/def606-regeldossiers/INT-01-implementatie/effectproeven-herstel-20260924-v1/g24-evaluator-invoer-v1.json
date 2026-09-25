@@ -1,0 +1,386 @@
+[
+  {
+    "id": "B01-ruw",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B01-opgeschoond",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B02-ruw",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B02-opgeschoond",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B03-ruw",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B03-opgeschoond",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B04-ruw",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B04-opgeschoond",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "Tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B05-ruw",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "samenhorend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na één meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde toont",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B05-opgeschoond",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "Samenhorend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na één meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde toont.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B06-ruw",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Omstandigheid aan een aanvraagpakket voor een terreinplattegrond die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt en die zich beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en andere kenmerken van het pakket of de inhoudelijke bruikbaarheid van het terreinontwerp buiten beschouwing blijven",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B06-opgeschoond",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Omstandigheid aan een aanvraagpakket voor een terreinplattegrond die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt en die zich beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en andere kenmerken van het pakket of de inhoudelijke bruikbaarheid van het terreinontwerp buiten beschouwing blijven.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B07-ruw",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B07-opgeschoond",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B08-ruw",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B08-opgeschoond",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B09-ruw",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie niet eenduidig aan een beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag tijdelijk is onderbroken zonder vaste duur, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven tot de medewerker het beheergebied heeft vastgesteld en de status opheft",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B09-opgeschoond",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie niet eenduidig aan een beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag tijdelijk is onderbroken zonder vaste duur, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven tot de medewerker het beheergebied heeft vastgesteld en de status opheft.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B10-ruw",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B10-opgeschoond",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B11-ruw",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B11-opgeschoond",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B12-ruw",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving die vanuit het Register Eerste Vastlegging met behoud van dezelfde dossiercode is overgenomen in het Register Tegenlicht en daarbij een eigen invoertijd krijgt",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B12-opgeschoond",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving die vanuit het Register Eerste Vastlegging met behoud van dezelfde dossiercode is overgenomen in het Register Tegenlicht en daarbij een eigen invoertijd krijgt.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B13-ruw",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B13-opgeschoond",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B14-ruw",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel overeenkomstige bestemming, een toevallig gelijke vertrektijd of een verwijzing naar een onbevestigd ritidee niet volstaat",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B14-opgeschoond",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel overeenkomstige bestemming, een toevallig gelijke vertrektijd of een verwijzing naar een onbevestigd ritidee niet volstaat.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B15-ruw",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving die vanuit het Register Eerste Vastlegging is overgenomen in het Register Tegenlicht met behoud van dezelfde dossiercode en met een eigen invoertijd die afwijkt van die van het oorspronkelijke record",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B15-opgeschoond",
+    "stratum": "G03",
+    "begrip": "spiegelinschrijving",
+    "tekst": "Inschrijving die vanuit het Register Eerste Vastlegging is overgenomen in het Register Tegenlicht met behoud van dezelfde dossiercode en met een eigen invoertijd die afwijkt van die van het oorspronkelijke record.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B16-ruw",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B16-opgeschoond",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B17-ruw",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B17-opgeschoond",
+    "stratum": "G01",
+    "begrip": "verplaatsingsbericht",
+    "tekst": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B18-ruw",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "omstandigheid aan een binnengekomen aanvraagpakket die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt, uitsluitend bestaand uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en geen andere omstandigheid als zodanig geldt",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B18-opgeschoond",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Omstandigheid aan een binnengekomen aanvraagpakket die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt, uitsluitend bestaand uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en geen andere omstandigheid als zodanig geldt.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B19-ruw",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B19-opgeschoond",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B20-ruw",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "samenhangend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B20-opgeschoond",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "Samenhangend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B21-ruw",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B21-opgeschoond",
+    "stratum": "G04",
+    "begrip": "herstelgrond",
+    "tekst": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B22-ruw",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte, door een medewerker ingesteld zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag zonder vaste duur is onderbroken en de aanvraag ontvangen blijft met behoud van haar oorspronkelijke ontvangsttijd en met handmatig onderzoek, aanvulling en behandeling die mogelijk blijven tot de medewerker die het beheergebied vaststelt de onderbreking opheft",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B22-opgeschoond",
+    "stratum": "G06",
+    "begrip": "routepauze",
+    "tekst": "Status van een aanvraag voor een gedeelde vergaderruimte, door een medewerker ingesteld zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag zonder vaste duur is onderbroken en de aanvraag ontvangen blijft met behoud van haar oorspronkelijke ontvangsttijd en met handmatig onderzoek, aanvulling en behandeling die mogelijk blijven tot de medewerker die het beheergebied vaststelt de onderbreking opheft.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B23-ruw",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B23-opgeschoond",
+    "stratum": "G02",
+    "begrip": "aansluitverzoek",
+    "tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B24-ruw",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "ruw modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  },
+  {
+    "id": "B24-opgeschoond",
+    "stratum": "G05",
+    "begrip": "nulpaar",
+    "tekst": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont.",
+    "herkomst": "G24generatie, bronbinding via blindset/sleutel",
+    "rationale": "opgeschoond modelantwoord, uitsluitend offline automatische zinsbeoordeling"
+  }
+]

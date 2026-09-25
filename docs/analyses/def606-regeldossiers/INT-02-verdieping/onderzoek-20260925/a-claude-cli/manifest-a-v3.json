@@ -1,0 +1,38 @@
+{
+  "onderzoek": "INT-02 — Geen beslisregel (DEF-771)",
+  "onderzoekslijn": "A — uitvoerende Claude Code CLI-sessie",
+  "fase": "verwerking door beiden — verwerking A van review B opgeleverd",
+  "actuele_versies": {
+    "onderzoek": "onderzoek-a-v2.md",
+    "casusregister": "casusregister-a-v2.md (wijzigingen; overige rijen v1)",
+    "verwerking": "verwerking-a-v1.md",
+    "review_op_b": "review-a-op-b-v1.md"
+  },
+  "verwerkte_review": {
+    "b-codex-cli/review-b-op-a-v1.md": "26 punten RB-A-01…26",
+    "b-codex-cli/review-b-op-a-v1-erratum.md": "vindplaatscorrectie RB-A-13"
+  },
+  "head_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "bestanden": [
+    {"pad": "onderzoek-a-v1.md", "sha256": "ea59e45bef2772d4b97e57a1c11ba1e5cf95500712d2fef26b03b12d0d5f8c00"},
+    {"pad": "onderzoek-a-v2.md", "sha256": "641c296e182ee6e0f0d6323239dea432d2e481abdf455f13e8a4a72df303287c"},
+    {"pad": "casusregister-a-v1.md", "sha256": "3d2c5cbfa3e00b9ce6713cdf674382e41b84071d24a37ebf7c2a21a437b2df53"},
+    {"pad": "casusregister-a-v2.md", "sha256": "7d5e90aa460aa26d5a71ff3debc3d394de31308d98d014275682a44450c80dfb"},
+    {"pad": "verwerking-a-v1.md", "sha256": "a7106f9e17a5fd955b59375bd930ddd4a93040bbaeac6ea84eb8b02666f545bd"},
+    {"pad": "review-a-op-b-v1.md", "sha256": "382792b0515d05d3483d832779738482fbf592a343cf7911cf43f2393d7f8203"},
+    {"pad": "manifest-a-v1.json", "sha256": "3b71a51b1e5d3fc7f28da63e6f568e0c8f059e64fcb02cad312ccfbf4019d497"},
+    {"pad": "manifest-a-v2.json", "sha256": "1af45182d3eaf8660f256631da02b36ffae800511470e806fa3695a6d9b85a02"},
+    {"pad": "bewijs/verwachtingen-a-v1.md", "sha256": "c3ec4e3be19b69f220e907be60b597e29649c2e49de681ad28cc5350c0dee022"},
+    {"pad": "bewijs/proeflog-a-v1.md", "sha256": "92ae47fa1a42cdac42f2d393823448bf256c3c3087463be7b2af8005b6b41d0c"},
+    {"pad": "bewijs/proeflog-a-v2-p3.md", "sha256": "f822ababf47c836f71906b7056b371fbb9c12bcefc75f2638ab19171c419c154"},
+    {"pad": "bewijs/proef-p1-service.py", "sha256": "e84e7404b8b818733e891b97a43986770814b68c4669c63ea8449f4cd5b1977c"},
+    {"pad": "bewijs/proef-p2-prompt.py", "sha256": "2fefe6572a3e0f7f85ea517c45dbf099fd7521ce47c4907bad4ffcd05b9c4c49"},
+    {"pad": "bewijs/proef-p3-int10-melding.py", "sha256": "5ed33394a7493a6deb82b6a805a010a68a5cf9f0ba6dccf001f1890c3eb50244"},
+    {"pad": "bewijs/p1-invoer.json", "sha256": "1dfcb7ebc12f14c17f98eaa397527f8a0710119204db537bbaa8f368b91aca49"},
+    {"pad": "bewijs/p1-uitkomsten.json", "sha256": "fdec3d331d9736c67e92f7c81ed2905d8f5e98767463c9d9559b1cd0bff8f924"},
+    {"pad": "bewijs/p2-uitkomsten.json", "sha256": "307174b0e0292ec19593f61af8df78ee3947ab90ba8650750fd220bce161b9ea"},
+    {"pad": "bewijs/p3-uitkomsten.json", "sha256": "829a3f5c6567bc118ce30e1f7a11b4033abbd9149450e0f060504b10d35cef55"}
+  ],
+  "nieuwe_proeven_in_deze_fase": "geen (gerichte broncontrole: besluit 15-09 r. 27; logische analyse C04/C05)",
+  "opmerking": "Manifest bevat zichzelf niet."
+}

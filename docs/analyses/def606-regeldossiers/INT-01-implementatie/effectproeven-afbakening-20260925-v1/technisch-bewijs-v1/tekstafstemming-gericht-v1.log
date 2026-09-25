@@ -1,0 +1,118 @@
+cmd: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -B -m pytest -q --tb=line -p no:cacheprovider --junitxml=/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-afbakening/tekstafstemming-gericht-v1.xml tests/unit/validation/test_def770_int01_zinsgrenzen.py tests/unit/validation/test_json_validators.py tests/unit/validation/test_category_mapping_externalized.py tests/unit/validation/test_rule_runtime_matrix.py tests/unit/validation/test_v2_golden_additional_patterns.py tests/unit/validation/test_v2_golden_initial_int_con.py tests/unit/services/test_def770_int01_keten.py tests/unit/services/test_def770_int01_opslag.py tests/unit/services/prompts -m unit
+cwd: /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/
+........................................................................ [  7%]
+........................................................................ [ 15%]
+........................................................................ [ 22%]
+........................................................................ [ 30%]
+........................................................................ [ 38%]
+........................................................................ [ 45%]
+........................................................................ [ 53%]
+........................................................................ [ 61%]
+........................................................................ [ 68%]
+..............................................s.sss.....s............... [ 76%]
+........................................................................ [ 83%]
+........................................................................ [ 91%]
+........................................................................ [ 99%]
+........                                                                 [100%]
+=============================== warnings summary ===============================
+tests/unit/services/prompts/test_def622_eindprompt.py: 4 warnings
+tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py: 1 warning
+tests/unit/services/test_def770_int01_keten.py: 4 warnings
+tests/unit/services/test_def770_int01_opslag.py: 15 warnings
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py: 1 warning
+tests/unit/services/prompts/test_def743_con02_promptnorm.py: 1 warning
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/definitie_crud.py:374: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+tests/unit/services/test_def770_int01_opslag.py::TestExport::test_record_zonder_opgeslagen_uitkomst_is_zichtbaar_niet_beoordeeld
+tests/unit/services/test_def770_int01_opslag.py::TestTekstwijziging::test_ruwe_registratie_kan_de_uitkomst_niet_vervalsen
+tests/unit/services/test_def770_int01_opslag.py::TestTekstwijziging::test_update_zonder_kernwijziging_behoudt_de_uitkomst
+tests/unit/services/test_def770_int01_opslag.py::TestTekstwijziging::test_update_van_de_kern_levert_nieuwe_uitkomst_en_historie
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/definitie_crud.py:2574: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(query, params + where_params)
+
+tests/unit/services/test_def770_int01_opslag.py::TestExport::test_enkele_csv_export_draagt_de_gebonden_uitkomst[Afgebakend object. Heeft vaste vorm.]
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/schema_contract.py:629: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10b269750>
+    return tuple(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/services/test_def770_int01_opslag.py::TestTekstwijziging::test_wijziging_buiten_de_persistentielaag_maakt_uitkomst_historisch
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/schema_contract.py:110: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10aaaf450>
+    def fold_identifier(naam: str) -> str:
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_ver_module_baseline
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_ver_module_baseline returned <class 'str'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_ess_module_baseline
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_ess_module_baseline returned <class 'str'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_arai_module_baseline
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_arai_module_baseline returned <class 'str'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_con_module_baseline
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_con_module_baseline returned <class 'str'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_sam_module_baseline
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/python.py:170: PytestReturnNotNoneWarning: Test functions should return None, but tests/unit/services/prompts/test_json_based_rules_consolidation.py::test_sam_module_baseline returned <class 'str'>.
+  Did you mean to use `assert` instead of `return`?
+  See https://docs.pytest.org/en/stable/how-to/assert.html#return-not-none for more information.
+    warnings.warn(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[BEDOELD_IS_PROCES \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[BEDOELD_IS_PROCES \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[gewoon antwoord zonder expansie BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[gewoon antwoord zonder expansie BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa midden \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa\ufdfa midden \ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01\ufb01 BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_antwoordbudget_geldt_op_de_genormaliseerde_tekst
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:123: PytestWarning: The test <Function test_antwoordbudget_geldt_op_de_genormaliseerde_tekst> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    def test_antwoordbudget_geldt_op_de_genormaliseerde_tekst():
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_normaliseer_prompt_tekst_is_nfkc_en_geen_sanitisatie
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:93: PytestWarning: The test <Function test_normaliseer_prompt_tekst_is_nfkc_en_geen_sanitisatie> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    def test_normaliseer_prompt_tekst_is_nfkc_en_geen_sanitisatie():
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21 BEDOELD_IS_PROCES]
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:106: PytestWarning: The test <Function test_datalijn_is_nooit_afgekapt_ongeacht_nfkc_expansie[\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21\uff21 BEDOELD_IS_PROCES]> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    @pytest.mark.parametrize(
+
+tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py::test_reviewrepro_sqlite_readback_prompt_bevat_de_keuze
+  tests/unit/services/prompts/test_def751_unicodefix_verduidelijking.py:239: PytestWarning: The test <Function test_reviewrepro_sqlite_readback_prompt_bevat_de_keuze> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
+    def test_reviewrepro_sqlite_readback_prompt_bevat_de_keuze(tmp_path, monkeypatch):/Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/unraisableexception.py:33: ResourceWarning: unclosed database in <tests.offline_bootstrap._GateVerbinding object at 0x10b26ae50>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/services/prompts/test_json_based_rules_consolidation.py:403: Run AFTER consolidation implementation
+SKIPPED [1] tests/unit/services/prompts/test_json_based_rules_consolidation.py:459: Run AFTER consolidation implementation
+SKIPPED [1] tests/unit/services/prompts/test_json_based_rules_consolidation.py:475: Run AFTER consolidation implementation
+SKIPPED [1] tests/unit/services/prompts/test_json_based_rules_consolidation.py:443: Run AFTER consolidation implementation
+SKIPPED [1] tests/unit/services/prompts/test_json_based_rules_consolidation.py:427: Run AFTER consolidation implementation
+exit=0

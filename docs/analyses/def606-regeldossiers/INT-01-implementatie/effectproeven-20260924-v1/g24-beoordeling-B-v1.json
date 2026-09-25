@@ -1,0 +1,690 @@
+{
+  "rol": "beoordelaar",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "ai_beoordeeld": true,
+  "teksten": [
+    {
+      "id": "B01",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "bronsteun",
+          "passage": "zonder nieuwe aanvraag wordt voortgezet",
+          "bron": "G02-B01",
+          "oordeel": "De bron zegt dat dezelfde behandeling kan worden voortgezet. De tekst maakt daarvan een zekere voortzetting; deze sterkere toezegging is niet ondersteund en verandert de betekenis."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt",
+          "bron": "G02-B01; beschermde uitsluiting van wachten op een intern capaciteitsbesluit",
+          "oordeel": "Andere ontbrekende gegevens zijn uitgesloten, maar 'uitsluitend' bepaalt hier wat ontbreekt. Of daarmee ook een gelijktijdige andere reden voor stilstand wordt uitgesloten, is onzeker."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "alle overige vereiste gegevens aanwezig en gecontroleerd zijn",
+          "bron": "G02-B01",
+          "oordeel": "De controle van de overige gegevens en de voortzetting van dezelfde aanvraag zijn behouden. Er wordt geen wachttijdvoorwaarde toegevoegd."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; één definitiekern zonder toelichting, met ongewijzigde inhoud en zinsstructuur."
+    },
+    {
+      "id": "B02",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "begrijpelijkheid",
+          "passage": "het voor diezelfde materiaalsoort en datzelfde afsluitmoment uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal",
+          "bron": "G05; doelgroep vrijwilligers zonder administratieve vakopleiding",
+          "oordeel": "De lange opeenstapeling vóór 'verwachte aantal' maakt het tweede aftrektal moeilijk herkenbaar. De noodzakelijke gegevens zijn aanwezig, maar onvoldoende toegankelijk geordend voor de doelgroep."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "verminderd met",
+          "bron": "G05-B01; beschermde aftrekrichting en tekenbetekenis",
+          "oordeel": "Geteld minus verwacht blijft behouden, evenals berekeningsbasis, materiaalsoort, afsluitmoment en eenheid. De betekenis van positief en negatief volgt logisch uit deze aftrekrichting en is impliciet behouden; geld is door de eenheid exemplaren uitgesloten."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Uitkomst in aantal exemplaren",
+          "bron": "G05-B01; beschermde negatie: een verschil vormt op zichzelf geen bewijs van verlies",
+          "oordeel": "De beperking van de bewijskracht is niet vermeld. De rekenomschrijving spreekt haar niet tegen, maar legt ook niet vast dat een gevonden verschil op zichzelf geen verlies bewijst; deze beschermde interpretatiegrens ontbreekt."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen betekenis- of structuurwijziging."
+    },
+    {
+      "id": "B03",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "voor één interne verplaatsing van een herbruikbare bak",
+          "bron": "G01-B01",
+          "oordeel": "De afzonderlijke verplaatsing, vertrekplek, bestemmingsplek, geplande volgorde en afsluiting bij aankomst zijn behouden. De vermelding van tussenplekken verplicht niet tot het bestaan daarvan."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "zonder gegevens over de inhoud of de voorraadwaarde",
+          "bron": "G01-B01; beschermde negaties",
+          "oordeel": "Inhoud en voorraadwaarde zijn expliciet uitgesloten. 'Document' stelt geen eisen aan papierformaat of kleur en behoudt daarmee de drageronafhankelijke afbakening."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; dezelfde begrijpelijke naamwoordelijke definitiekern."
+    },
+    {
+      "id": "B04",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust dezelfde tekst hebben vastgesteld",
+          "bron": "G03-B01; beide beschermde namen",
+          "oordeel": "Beide namen en gezamenlijke vaststelling van dezelfde tekst zijn behouden. De conjunctie sluit een advies van slechts één orgaan impliciet uit."
+        },
+        {
+          "as": "bronsteun",
+          "passage": "met aandachtspunten voor bereikbaarheid en rustplekken en zonder besluit over ingebruikname",
+          "bron": "G03-B01",
+          "oordeel": "Zowel de genoemde aandachtspunten als het ontbreken van een ingebruiknamebesluit zijn ondersteund. De aandachtspunten voegen relevante context toe zonder een nieuwe voorwaarde te verzinnen."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; inhoud en éénzinsstructuur blijven gelijk."
+    },
+    {
+      "id": "B05",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "onzeker"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "onzeker"},
+      "bevindingen": [
+        {
+          "as": "begrijpelijkheid",
+          "passage": "die bij één wisseling van kastbeheerder van dezelfde uitleenkast en hetzelfde overdrachtsmoment samenhangen",
+          "bron": "G04; doelgroep vrijwillige kastbeheerders",
+          "oordeel": "De verbinding van 'van' met 'samenhangen' is gebrekkig en maakt de onderlinge relaties moeilijk leesbaar. Dit blijft één zin, maar de formulering is onvoldoende begrijpelijk."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "van dezelfde uitleenkast en hetzelfde overdrachtsmoment samenhangen",
+          "bron": "G04-B01; alle onderdelen betreffen dezelfde kast en hetzelfde overdrachtsmoment",
+          "oordeel": "De juiste begrippen staan er, maar hun grammaticale verbinding legt niet helder vast dat alle drie de stukken op beide dezelfde referenten betrekking hebben. Het behoud van deze afbakening is daardoor onzeker."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "ingevuld afwijkingenblad dat ook bij het ontbreken van afwijkingen die uitkomst vermeldt",
+          "bron": "G04-B01",
+          "oordeel": "Het verplichte blad bij afwezigheid van afwijkingen is expliciet behouden. De gesloten samenstelling van precies drie stukken en de drageronafhankelijkheid sluiten extra documenten en verpakkingsmiddelen als onderdelen uit."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; de gebrekkige verbinding en betekenisambiguïteit blijven bestaan."
+    },
+    {
+      "id": "B06",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "de vertrekplek, de bestemmingsplek en de geplande volgorde van tussenplekken",
+          "bron": "G01-B01",
+          "oordeel": "De routegegevens horen bij één interne verplaatsing van een herbruikbare bak, met afsluiting bij aankomst. De formulering vereist geen tussenplekken wanneer die ontbreken."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Begeleidend document",
+          "bron": "G01-B01; beschermde negaties",
+          "oordeel": "De omschrijving stelt geen papier- of kleurvoorwaarden. De aparte uitsluiting van inhoud en voorraadwaarde behoudt de grens met voorraadadministratie."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen wijziging van betekenis of zinsstructuur."
+    },
+    {
+      "id": "B07",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "onzeker", "bronsteun": "onzeker", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "onzeker", "bronsteun": "onzeker", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "begrijpelijkheid",
+          "passage": "gekoppeld, die voortduurt tot de koppeling is bevestigd of hersteld",
+          "bron": "G06-B01; beschermde beëindigingsvoorwaarde",
+          "oordeel": "'Die' kan terugwijzen naar de maatregel, maar ook naar de concrete aanwijzing. Daardoor is onzeker of de eindvoorwaarde duidelijk aan de maatregel wordt gekoppeld."
+        },
+        {
+          "as": "bronsteun",
+          "passage": "die voortduurt",
+          "bron": "G06-B01",
+          "oordeel": "De bron ondersteunt voortduring van de maatregel tot bevestiging of herstel. De mogelijke lezing dat de aanwijzing zelf tot dat moment voortduurt, is niet als zodanig ondersteund."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "ingesteld bij een concrete aanwijzing",
+          "bron": "G06-B01; beschermd kenmerk: die koppeling wordt nog onderzocht",
+          "oordeel": "Een aanwijzing is behouden, maar daadwerkelijk lopend onderzoek wordt niet als voorwaarde genoemd. Wachten op bevestiging of herstel impliceert niet noodzakelijk dat de koppeling nog wordt onderzocht."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "waarbij de bijlage behouden blijft en de overige dossierstukken zichtbaar blijven",
+          "bron": "G06-B01; beschermde negaties",
+          "oordeel": "Niet-verwijderen en zichtbaarheid van andere stukken zijn behouden, evenals toegang voor bevoegde medewerkers. Het ontbreken van een oordeel over inhoud en aanvraaguitkomst is niet vermeld; de tekst beweert zulke oordelen niet, maar borgt de beschermde interpretatiegrens niet expliciet of logisch."
+        }
+      ],
+      "opschoning_effect": "Beginletter verhoogd en eindpunt toegevoegd; de verwijzingsambiguïteit en inhoudelijke omissies blijven bestaan."
+    },
+    {
+      "id": "B08",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "uitsluitend bestaat uit",
+          "bron": "G04-B01; precies drie onderdelen en geen andere documenten",
+          "oordeel": "De gesloten opsomming van drie afzonderlijke stukken behoudt precies drie onderdelen impliciet. Het ingevulde afwijkingenblad is onvoorwaardelijk onderdeel en kan dus ook zonder afwijkingen niet vervallen."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "bij één wisseling van kastbeheerder van één uitleenkast",
+          "bron": "G04-B01",
+          "oordeel": "De gemeenschappelijke kast en overdracht gelden voor de hele opsomming; 'op dat overdrachtsmoment' bevestigt de tijdskoppeling. De gesloten samenstelling en drageronafhankelijkheid sluiten map, drager en persoonlijke toelichting als onderdelen uit."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; gesloten opsomming en éénzinsstructuur blijven behouden."
+    },
+    {
+      "id": "B09",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "ingesteld bij een concrete aanwijzing",
+          "bron": "G06-B01; beschermd kenmerk: die koppeling wordt nog onderzocht",
+          "oordeel": "De concrete aanwijzing is behouden, maar lopend onderzoek ontbreekt als toepassingsvoorwaarde. Een nog onbevestigde of niet herstelde koppeling betekent niet noodzakelijk dat onderzoek plaatsvindt."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "eindigend zodra die koppeling is bevestigd of hersteld",
+          "bron": "G06-B01",
+          "oordeel": "De beëindiging is helder aan de maatregel gekoppeld en laat geen aanvullende voorwaarde van ochtendoverleg toe. Eén bijlage, bezoekers, medewerkerstoegang, behoud van de bijlage en zichtbaarheid van andere stukken zijn eveneens behouden."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Maatregel waarbij één bijlage van een dossier",
+          "bron": "G06-B01; beschermde negaties over inhoudelijke juistheid en aanvraaguitkomst",
+          "oordeel": "De tekst noemt geen inhoudelijk oordeel of aanvraagbesluit, maar legt evenmin vast dat de maatregel daarover niets zegt. Deze beschermde interpretatiebeperkingen zijn niet vermeld en volgen niet noodzakelijk uit de beschreven toegangseffecten."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; betekenis en structuur blijven gelijk."
+    },
+    {
+      "id": "B10",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "ingesteld bij een concrete aanwijzing",
+          "bron": "G06-B01; beschermd kenmerk: die koppeling wordt nog onderzocht",
+          "oordeel": "De concrete aanwijzing is aanwezig, maar daadwerkelijk lopend onderzoek wordt niet als voorwaarde behouden. De eindvoorwaarde vult deze ontbrekende aanleiding niet logisch aan."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "lopend tot de koppeling is bevestigd of hersteld",
+          "bron": "G06-B01",
+          "oordeel": "Dit geeft het einde van de maatregel aan en introduceert geen ochtendoverleg als extra voorwaarde. Het onderscheid tussen bezoekers en bevoegde medewerkers, één geraakte bijlage, niet-verwijderen en zichtbaarheid van andere stukken blijven behouden."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Maatregel waarbij één dossierbijlage voor bezoekers ontoegankelijk blijft",
+          "bron": "G06-B01; beschermde negaties over inhoudelijke juistheid en aanvraaguitkomst",
+          "oordeel": "Dat de maatregel niets zegt over inhoudelijke juistheid en aanvraaguitkomst is niet vermeld. De toegangsomschrijving weerspreekt die grenzen niet, maar garandeert hun behoud evenmin."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen wijziging van betekenis of éénzinsstructuur."
+    },
+    {
+      "id": "B11",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "de geplande volgorde van tussenplekken vastlegt en bij aankomst wordt afgesloten",
+          "bron": "G01-B01",
+          "oordeel": "De geplande route en afsluiting zijn behouden, naast vertrekplek, bestemmingsplek en één interne verplaatsing van een herbruikbare bak. Er wordt geen minimumaantal tussenplekken voorgeschreven."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "zonder gegevens over de inhoud of de voorraadwaarde",
+          "bron": "G01-B01; beschermde negaties",
+          "oordeel": "De afbakening tegenover inhoud en voorraadwaarde is expliciet. De algemene documentomschrijving maakt papierformaat en kleur niet tot voorwaarden."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; dezelfde definitiekern zonder toelichting."
+    },
+    {
+      "id": "B12",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "begrijpelijkheid",
+          "passage": "de uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte hoeveelheid",
+          "bron": "G05; doelgroep vrijwilligers zonder administratieve vakopleiding",
+          "oordeel": "De verwachte hoeveelheid verschijnt pas na een lange voorbepaling in een al omvangrijke rekenomschrijving. De uitleg van positief en negatief helpt, maar lost de moeilijk toegankelijke basisberekening niet op."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "een positieve uitkomst meer getelde exemplaren dan verwacht aangeeft, een negatieve uitkomst minder",
+          "bron": "G05-B01",
+          "oordeel": "Aftrekrichting, tekenbetekenis, berekeningsbasis en vergelijking van dezelfde materiaalsoort op hetzelfde afsluitmoment zijn behouden. De eenheid exemplaren sluit geld impliciet uit."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Uitkomst in exemplaren",
+          "bron": "G05-B01; beschermde negatie: geen zelfstandig bewijs van verlies",
+          "oordeel": "De beperking van de bewijskracht ontbreekt. De tekst beweert geen verlies, maar bewaart ook niet de beschermde grens dat het verschil op zichzelf geen verlies bewijst."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijke of structurele wijziging."
+    },
+    {
+      "id": "B13",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust dezelfde tekst hebben vastgesteld",
+          "bron": "G03-B01; beide beschermde namen",
+          "oordeel": "Precies de twee aangewezen organen stellen dezelfde tekst vast. Daarmee is vaststelling door slechts één orgaan impliciet uitgesloten."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "zonder dat daarmee over ingebruikname van die route wordt besloten",
+          "bron": "G03-B01",
+          "oordeel": "Het onderscheid tussen advies en besluit blijft expliciet behouden. Het weglaten van de aandachtspunten over bereikbaarheid en rustplekken verliest geen beschermd onderscheidend kenmerk."
+        }
+      ],
+      "opschoning_effect": "Beginletter verhoogd en eindpunt toegevoegd; inhoud en éénzinsstructuur blijven gelijk."
+    },
+    {
+      "id": "B14",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "voor één interne verplaatsing van een herbruikbare bak",
+          "bron": "G01-B01",
+          "oordeel": "De eenmalige verplaatsing, beide eindplekken, geplande volgorde en afsluiting bij aankomst zijn behouden. De omschrijving blijft toepasbaar wanneer er geen tussenplekken zijn."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "zonder gegevens over de inhoud of de voorraadwaarde",
+          "bron": "G01-B01; beschermde negaties",
+          "oordeel": "De uitsluiting van inhoud en voorraadwaarde is expliciet. De documentomschrijving stelt geen eisen aan papierformaat of kleur."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen betekenis- of structuurwijziging."
+    },
+    {
+      "id": "B15",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "begrijpelijkheid",
+          "passage": "het uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte aantal",
+          "bron": "G05; doelgroep vrijwilligers zonder administratieve vakopleiding",
+          "oordeel": "De gestapelde voorbepalingen maken de verwachte hoeveelheid en daarmee de aftrekking moeilijk te volgen. De gewone uitleg van de tekens helpt, maar maakt de hele berekening nog niet voldoende toegankelijk."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "verminderd met",
+          "bron": "G05-B01",
+          "oordeel": "De aftrekrichting, berekeningsbasis, gelijke materiaalsoort en hetzelfde afsluitmoment zijn behouden. Positief, negatief en nul zijn correct uitgelegd; exemplaren sluiten geld als eenheid uit."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Uitkomst in aantal exemplaren",
+          "bron": "G05-B01; beschermde negatie: geen zelfstandig bewijs van verlies",
+          "oordeel": "Dat een verschil op zichzelf geen verlies bewijst, is niet vermeld. Dit is een ontbrekende interpretatiegrens, geen expliciete bewering dat verlies is bewezen."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; inhoud en éénzinsstructuur blijven gelijk."
+    },
+    {
+      "id": "B16",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "vastgesteld door zowel de Kamer voor Toegang en Verblijf als het Bureau voor Routes en Rust",
+          "bron": "G03-B01; beide beschermde namen",
+          "oordeel": "De volledige namen, dezelfde tekst en vaststelling door beide organen blijven behouden. Een afzonderlijk advies voldoet hierdoor impliciet niet."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "zonder dat daarmee over ingebruikname van die route wordt besloten",
+          "bron": "G03-B01",
+          "oordeel": "Het advies betreft een voorgestelde bezoekersroute en neemt geen ingebruiknamebesluit. Niet-opgenomen praktische afspraken en inhoudelijke aandachtspunten zijn niet nodig voor deze beschermde afbakening."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; dezelfde definitiekern."
+    },
+    {
+      "id": "B17",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "tekort", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "begrijpelijkheid",
+          "passage": "de uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten berekende verwachte hoeveelheid",
+          "bron": "G05; doelgroep vrijwilligers zonder administratieve vakopleiding",
+          "oordeel": "De lange voorbepaling verbergt het tweede aftrektal in een zware naamwoordelijke constructie. De aanvullende tekenuitleg is nuttig, maar herstelt de toegankelijkheid van de basisberekening onvoldoende."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "voor diezelfde materiaalsoort en hetzelfde afsluitmoment",
+          "bron": "G05-B01",
+          "oordeel": "Vergelijkbaarheid, aftrekrichting en de herkomst van het verwachte aantal zijn behouden. De tekenuitleg klopt en de eenheid exemplaren sluit geld uit."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "Uitkomst in exemplaren",
+          "bron": "G05-B01; beschermde negatie: geen zelfstandig bewijs van verlies",
+          "oordeel": "De beperking dat het verschil geen zelfstandig verliesbewijs vormt, ontbreekt. Het gaat om niet-vermelde beschermde betekenis, niet om een expliciete tegenspraak."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen wijziging van inhoud of zinsstructuur."
+    },
+    {
+      "id": "B18",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "ingesteld bij een concrete aanwijzing",
+          "bron": "G06-B01; beschermd kenmerk: die koppeling wordt nog onderzocht",
+          "oordeel": "De aanwijzing voor een verkeerde koppeling blijft behouden, maar het lopende onderzoek ontbreekt als toepassingsvoorwaarde. De toekomstige bevestiging of het herstel impliceert dit niet noodzakelijk."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "eindigend zodra de koppeling is bevestigd of hersteld",
+          "bron": "G06-B01",
+          "oordeel": "De maatregel eindigt bij de juiste voorwaarde, zonder afhankelijkheid van ochtendoverleg. Eén bijlage, onderscheiden toegang, niet-verwijderen en zichtbaarheid van andere stukken blijven behouden."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "maatregel waarbij één bijlage in een dossier voor bezoekers niet te openen is",
+          "bron": "G06-B01; beschermde negaties over inhoudelijke juistheid en aanvraaguitkomst",
+          "oordeel": "De tekst vermeldt niet dat de maatregel niets zegt over inhoudelijke juistheid of aanvraaguitkomst. Deze interpretatiegrenzen zijn niet tegengesproken, maar evenmin noodzakelijk vervat in de toegangsomschrijving."
+        }
+      ],
+      "opschoning_effect": "Beginletter verhoogd en eindpunt toegevoegd; geen betekenis- of structuurwijziging."
+    },
+    {
+      "id": "B19",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "precies drie bij elkaar horende stukken die betrekking hebben op dezelfde uitleenkast en hetzelfde moment van beheerderswisseling",
+          "bron": "G04-B01",
+          "oordeel": "Het aantal, de gemeenschappelijke kast en het gemeenschappelijke overdrachtsmoment zijn expliciet behouden. De drie voorgeschreven onderdelen zijn volledig en correct benoemd."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "een door de vertrekkende beheerder ingevuld afwijkingenblad",
+          "bron": "G04-B01; beschermde negaties",
+          "oordeel": "Het blad is onvoorwaardelijk verplicht en blijft daardoor ook zonder afwijkingen onderdeel. Precies drie genoemde stukken en drageronafhankelijkheid sluiten extra documenten, map, drager en persoonlijke toelichting als onderdelen uit."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen betekenis- of structuurwijziging."
+    },
+    {
+      "id": "B20",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "bronsteun",
+          "passage": "dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+          "bron": "G02-B01",
+          "oordeel": "De bron ondersteunt mogelijkheid tot voortzetting, geen gegarandeerde feitelijke voortzetting. 'Wordt voortgezet' versterkt de bron en veroorzaakt ook betekenisverlies."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "stilligt uitsluitend doordat één gevraagde plattegrond ontbreekt",
+          "bron": "G02-B01; beschermde oorzakelijke afbakening",
+          "oordeel": "Hier beperkt 'uitsluitend' de oorzaak van het stilliggen. Daarmee is wachten op een capaciteitsbesluit impliciet uitgesloten; aanwezigheid en controle van alle overige gegevens sluiten andere ontbrekende gegevens uit."
+        },
+        {
+          "as": "bronsteun",
+          "passage": "Status van een reserveringsaanvraag",
+          "bron": "G02-B01",
+          "oordeel": "De statusformulering is verdedigbaar omdat de bron het begrip expliciet als toe te kennen status gebruikt. Er wordt geen wachttijdvoorwaarde ingevoerd."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; de te stellige voortzetting blijft ongewijzigd."
+    },
+    {
+      "id": "B21",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "één tekst die zowel de Kamer voor Toegang en Verblijf als het Bureau voor Routes en Rust heeft vastgesteld",
+          "bron": "G03-B01; beide beschermde namen",
+          "oordeel": "Dezelfde tekst en vaststelling door precies beide aangewezen organen zijn behouden. Vaststelling door slechts één orgaan voldoet impliciet niet."
+        },
+        {
+          "as": "bronsteun",
+          "passage": "met aandachtspunten voor bereikbaarheid en rustplekken en zonder besluit over ingebruikname",
+          "bron": "G03-B01",
+          "oordeel": "De aanvullende aandachtspunten zijn ondersteund en het onderscheid met een ingebruiknamebesluit blijft expliciet. De grotere lengte brengt hier geen aantoonbaar compactheidstekort mee."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; inhoud en éénzinsstructuur blijven gelijk."
+    },
+    {
+      "id": "B22",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "voldoet", "betekenisbehoud": "voldoet"},
+      "bevindingen": [
+        {
+          "as": "betekenisbehoud",
+          "passage": "die alle drie dezelfde uitleenkast en hetzelfde overdrachtsmoment betreffen",
+          "bron": "G04-B01",
+          "oordeel": "Alle drie de correct genoemde onderdelen zijn expliciet aan dezelfde kast en hetzelfde moment verbonden. 'Precies drie' houdt de samenstelling gesloten."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "een door de vertrekkende beheerder ingevuld afwijkingenblad",
+          "bron": "G04-B01; beschermde negaties",
+          "oordeel": "Het afwijkingenblad wordt onvoorwaardelijk verlangd, dus ook wanneer afwijkingen ontbreken. De gesloten samenstelling en 'ongeacht de drager' houden extra documenten en verpakkingsmiddelen buiten de set."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen inhoudelijke of structurele wijziging."
+    },
+    {
+      "id": "B23",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "bronsteun",
+          "passage": "de behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+          "bron": "G02-B01",
+          "oordeel": "De mogelijkheid uit de bron wordt een zekere voortzetting. Dit is een niet-ondersteunde versterking met gevolgen voor betekenisbehoud."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt",
+          "bron": "G02-B01; beschermde uitsluiting van wachten op een intern capaciteitsbesluit",
+          "oordeel": "Uitsluitend de plattegrond ontbreekt, maar de formulering sluit een gelijktijdige andere oorzaak van stilstand niet eenduidig uit. De capaciteitsuitsluiting is daardoor onzeker behouden."
+        },
+        {
+          "as": "bronsteun",
+          "passage": "Behandelingsstatus van een reserveringsaanvraag",
+          "bron": "G02-B01",
+          "oordeel": "De bron spreekt expliciet over een status, zodat dit geen aangetoonde categoriefout is. Aanwezigheid en controle van overige gegevens en voortzetting zonder nieuwe aanvraag zijn verder behouden; een wachttijdcriterium ontbreekt terecht."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; inhoudelijke versterking en onzekerheid blijven bestaan."
+    },
+    {
+      "id": "B24",
+      "beoordeling_geldt_voor": ["ruw", "opgeschoond"],
+      "ruw": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "opgeschoond": {"zinsstructuur": "voldoet", "compactheid": "voldoet", "begrijpelijkheid": "voldoet", "bronsteun": "tekort", "betekenisbehoud": "tekort"},
+      "bevindingen": [
+        {
+          "as": "bronsteun",
+          "passage": "dezelfde behandeling na ontvangst van die plattegrond zonder nieuwe aanvraag wordt voortgezet",
+          "bron": "G02-B01",
+          "oordeel": "De bron beschrijft dat voortzetting mogelijk is. De tekst garandeert voortzetting en behoudt die modaliteit daardoor niet."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "stilligt doordat uitsluitend de gevraagde plattegrond ontbreekt",
+          "bron": "G02-B01; beschermde uitsluiting van wachten op een intern capaciteitsbesluit",
+          "oordeel": "'Uitsluitend' beperkt rechtstreeks de ontbrekende informatie, niet ondubbelzinnig alle oorzaken van stilstand. Het uitsluiten van een gelijktijdig capaciteitsbesluit blijft onzeker."
+        },
+        {
+          "as": "betekenisbehoud",
+          "passage": "alle overige vereiste gegevens aanwezig en gecontroleerd zijn",
+          "bron": "G02-B01",
+          "oordeel": "Andere ontbrekende gegevens zijn uitgesloten en dezelfde bestaande behandeling blijft het onderwerp. De gemeentelijke oefenruimte past bij de dossiercontext; er wordt geen wachttijdvoorwaarde toegevoegd."
+        }
+      ],
+      "opschoning_effect": "Alleen een eindpunt toegevoegd; geen betekenis- of structuurwijziging."
+    }
+  ],
+  "paren": [
+    {
+      "paar_id": "P01",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B21 en Y=B13 behouden dezelfde beschermde route-, naam-, vaststellings- en besluitafbakening. X noemt ondersteunde aandachtspunten; Y laat die niet-definiërende details weg. Alleen de geringere lengte rechtvaardigt geen voorkeur.",
+      "verschil_in_bron_of_betekenisfouten": "Geen aangetoond verschil; beide zonder vastgestelde bron- of betekenisfout."
+    },
+    {
+      "paar_id": "P02",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B22 maakt aantal en gemeenschappelijke referenten explicieter; Y=B08 behoudt dezelfde gesloten samenstelling en gemeenschappelijke overdracht via de syntactische reikwijdte van de opsomming. Beide verlangen het afwijkingenblad onvoorwaardelijk.",
+      "verschil_in_bron_of_betekenisfouten": "Geen aangetoond verschil; impliciete bewaring bij Y is geen ontbrekend kenmerk."
+    },
+    {
+      "paar_id": "P03",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B17 en Y=B15 geven dezelfde berekening, vergelijking en tekenuitleg. De verschillen tussen 'hoeveelheid' en 'aantal' en tussen de eenheidsformuleringen leveren geen aantoonbare inhoudelijke verbetering op.",
+      "verschil_in_bron_of_betekenisfouten": "Beide missen de beschermde beperking dat een verschil op zichzelf geen verlies bewijst; beide hebben een moeilijk toegankelijke rekenconstructie."
+    },
+    {
+      "paar_id": "P04",
+      "ruw": "onbeslist",
+      "opgeschoond": "onbeslist",
+      "reden": "Y=B12 legt positief, negatief en nul expliciet uit, wat de doelgroep helpt; X=B02 bevat dezelfde tekenbetekenis logisch in de aftrekking en vraagt minder leestijd. Beide blijven syntactisch zwaar en missen een beschermde interpretatiegrens, zodat explicitering tegenover extra leeslast geen beslissende winst geeft.",
+      "verschil_in_bron_of_betekenisfouten": "Geen inhoudelijke correctie van de gedeelde omissie over verliesbewijs. Het ontbreken van expliciete tekenuitleg bij X is geen betekenisfout."
+    },
+    {
+      "paar_id": "P05",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B10 en Y=B18 behouden dezelfde toegangseffecten en beëindigingsvoorwaarde. 'Niet te openen' bij Y is toegankelijk geformuleerd, maar levert tegenover 'ontoegankelijk' geen inhoudelijke verbetering op en kan de gedeelde betekenisgebreken niet beslissen.",
+      "verschil_in_bron_of_betekenisfouten": "Beide missen lopend onderzoek als voorwaarde en vermelden de beschermde beperkingen over inhoud en aanvraaguitkomst niet; geen nieuwe fout bij een van beide."
+    },
+    {
+      "paar_id": "P06",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B23 definieert de behandelingsstatus en Y=B01 de aanvraag met die eigenschappen; de bron ondersteunt beide perspectieven. De toepassingsvoorwaarden en te stellige voortzetting verschillen inhoudelijk niet aantoonbaar.",
+      "verschil_in_bron_of_betekenisfouten": "Beide versterken 'kan worden voortgezet' tot 'wordt voortgezet' en laten de exclusiviteit van de oorzaak van stilstand onzeker."
+    },
+    {
+      "paar_id": "P07",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B04 en Y=B16 behouden de volledige namen, gezamenlijke vaststelling van dezelfde tekst en scheiding tussen advies en besluit. De aandachtspunten bij X zijn ondersteund maar niet noodzakelijk voor de beschermde afbakening; hun weglating maakt Y niet vanzelf beter.",
+      "verschil_in_bron_of_betekenisfouten": "Geen aangetoond verschil; beide behouden de beschermde betekenis."
+    },
+    {
+      "paar_id": "P08",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B20 koppelt 'uitsluitend' rechtstreeks aan de oorzaak van het stilliggen en sluit daarmee een capaciteitsbesluit als andere oorzaak duidelijk uit. Bij X=B24 bepaalt 'uitsluitend' rechtstreeks wat ontbreekt, waardoor die uitsluiting onzeker blijft. Dit is een inhoudelijke aanscherping zonder aangetoonde verslechtering.",
+      "verschil_in_bron_of_betekenisfouten": "Y neemt de onzekerheid over de beschermde oorzakelijke afbakening weg en introduceert geen nieuwe bron- of betekenisfout. Beide behouden wel de bestaande fout dat mogelijke voortzetting als zekere voortzetting wordt gepresenteerd."
+    },
+    {
+      "paar_id": "P09",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B19 legt helder vast dat alle stukken dezelfde kast en hetzelfde overdrachtsmoment betreffen. Y=B05 maakt die beschermde relatie onzeker door 'van ... samenhangen'. Het verplichte blad zonder afwijkingen blijft bij X impliciet behouden door de onvoorwaardelijke samenstelling.",
+      "verschil_in_bron_of_betekenisfouten": "X vermijdt de betekenisambiguïteit van Y zonder beschermd kenmerk te verliezen of een nieuwe bronfout toe te voegen. Y vermeldt het invullen bij afwezigheid van afwijkingen explicieter, maar X laat het blad dan niet vervallen."
+    },
+    {
+      "paar_id": "P10",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B06 en Y=B11 zijn onderling tekstueel identiek, zowel in ruwe als opgeschoonde vorm.",
+      "verschil_in_bron_of_betekenisfouten": "Geen verschil; geen bron- of betekenisfout vastgesteld."
+    },
+    {
+      "paar_id": "P11",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B09 koppelt 'eindigend zodra' duidelijk aan de maatregel. Bij Y=B07 kan 'die voortduurt' ook op de aanwijzing slaan, waardoor onzeker wordt wat precies eindigt. X maakt daarmee de beschermde beëindigingsvoorwaarde inhoudelijk zekerder, zonder aangetoonde verslechtering.",
+      "verschil_in_bron_of_betekenisfouten": "X vermijdt de verwijzings- en bronambiguïteit van Y en voegt geen nieuwe fout toe. Beide missen nog lopend onderzoek als voorwaarde en de beschermde interpretatiebeperkingen over inhoud en aanvraaguitkomst."
+    },
+    {
+      "paar_id": "P12",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B03 en Y=B14 zijn onderling tekstueel identiek, zowel in ruwe als opgeschoonde vorm.",
+      "verschil_in_bron_of_betekenisfouten": "Geen verschil; geen bron- of betekenisfout vastgesteld."
+    }
+  ],
+  "beperkingen": [
+    "Uitsluitend de aangeleverde synthetische dossiers en teksten zijn beoordeeld; geen tools, externe bronnen, appuitkomsten of beoordelingen van anderen gebruikt.",
+    "Dit is een zelfstandige AI-beoordeling, geen menselijke validatie of externe juridische uitspraak.",
+    "Alle ruwe teksten bevatten uitsluitend een definitiekern. De opgeschoonde teksten verschillen alleen door een eindpunt en bij B07, B13 en B18 tevens een hoofdletter; daarom zijn afzonderlijke maar gelijke asoordelen gegeven.",
+    "Begrijpelijkheid is tekstueel beoordeeld voor de opgegeven doelgroep, zonder gebruikersonderzoek. Compactheid is niet gelijkgesteld aan lengte; relevante uitleg en noodzakelijke afbakeningen zijn niet wegens hun omvang afgekeurd.",
+    "Beschermde interpretatiegrenzen over verliesbewijs en inhoudelijke oordelen zijn als inhoudelijk relevant behandeld. Niet vermelden daarvan is onderscheiden van tegenspreken; logisch behouden voorwaarden zijn niet als omissie aangemerkt.",
+    "De proef is klein en verkennend. Er is geen aggregatie over herhalingen of naar onbekende varianten en geen algemene kwaliteitswinstclaim."
+  ]
+}

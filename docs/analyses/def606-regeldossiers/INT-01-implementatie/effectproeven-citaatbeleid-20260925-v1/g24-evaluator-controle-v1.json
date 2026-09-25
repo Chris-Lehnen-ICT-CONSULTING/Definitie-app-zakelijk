@@ -1,0 +1,10 @@
+{
+  "inputs": 48,
+  "service_observations": 96,
+  "storage_records": 48,
+  "errors": 0,
+  "load_paths_equal": true,
+  "original_text_preserved": true,
+  "storage_parts_and_status_equal": true,
+  "full_int01_passes": 0
+}

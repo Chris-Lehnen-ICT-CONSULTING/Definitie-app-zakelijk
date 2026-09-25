@@ -1,0 +1,148 @@
+{
+  "versie": "c-v1",
+  "status": "onafhankelijke eerste versie opgeleverd; kruisreview en verwerking nog niet ontvangen",
+  "project": "DEF",
+  "regel": "INT-02",
+  "issue": "DEF-771",
+  "uitvoermap": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/c-codex-app",
+  "head_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "starttijd_utc": "2026-09-25T08:32:34.570Z",
+  "eindtijd_utc": "2026-09-25T08:51:36.162086+00:00",
+  "onderzoeker": "C, Codex-app",
+  "sessie_id": "01a0d7b1-e2da-7973-b542-44b023339e89",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "tool_runtimeversie": "0.155.0-alpha.16",
+  "python": "3.13.15",
+  "modelbewijs": "session_meta en turn_context van eigen rollout; alleen metadata gelezen",
+  "bestanden": [
+    {
+      "pad": "bewijs/bronnen-en-toegang-v1.json",
+      "bytes": 21666,
+      "sha256": "51ab5073117b070c1bf22970060c9162ee411ff854457eb4a4e3a41ce9df0bb0"
+    },
+    {
+      "pad": "bewijs/exitstatus-v1.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "pad": "bewijs/historisch-hergebruik-v1.json",
+      "bytes": 7060,
+      "sha256": "44d5423380d6bde2f5700efeaab8faf592d1c2be83290fea36c33bdfdff2a6d5"
+    },
+    {
+      "pad": "bewijs/historische-diff-v1.txt",
+      "bytes": 10338,
+      "sha256": "54d86140f3dc3941fb0e542ab9a10660c38be56686ba3b776b54161db6677fd8"
+    },
+    {
+      "pad": "bewijs/proefopzet-v1.json",
+      "bytes": 4305,
+      "sha256": "ec6b1ff8179ed554ed4d034020b3541e2126a7e0bc41cc9b6b496aed0d50b553"
+    },
+    {
+      "pad": "bewijs/proefuitkomsten-v1.json",
+      "bytes": 8864,
+      "sha256": "cc3d65b7b79868ef5f7201d32607294c36a6b9f6a007e2b5811a54744a74a392"
+    },
+    {
+      "pad": "bewijs/proefuitvoer-v1.log",
+      "bytes": 8865,
+      "sha256": "239993a0819c3bedb335d906f9cc0158fd142de733be036b3999d64d5850c784"
+    },
+    {
+      "pad": "bewijs/proeven-c-v1.py",
+      "bytes": 6714,
+      "sha256": "2d5cbc220d625df20dab6f4b66425439246a85a7380716353523c93fefe7d930"
+    },
+    {
+      "pad": "bewijs/uitvoering-en-grenzen-v1.md",
+      "bytes": 2542,
+      "sha256": "915122c5264638242dabcc487fab0c5acf34f253f98bb38a28cd5452a74c28bc"
+    },
+    {
+      "pad": "casusregister-c-v1.md",
+      "bytes": 14189,
+      "sha256": "72325dcc5558c3c129b4b145284a8d4d41eacbeef26fdeb97efa39278f6b8b12"
+    },
+    {
+      "pad": "onderzoek-c-v1.md",
+      "bytes": 53497,
+      "sha256": "896d589b1db8289f68c46c43e634fa87c8099980e87723665c2a8b3de0c856e2"
+    }
+  ],
+  "zelfverwijzing": {
+    "pad": "manifest-c-v1.json",
+    "sha256": "Wordt buiten dit bestand in het eindbericht vermeld; geen circulaire zelfhash."
+  },
+  "verificatie": {
+    "onderzoek_volledig_teruggelezen": true,
+    "casusregister_volledig_teruggelezen": true,
+    "Q1_tot_Q6": true,
+    "casussen": 25,
+    "IDs_uniek_en_binnen_toegewezen_reeks": true,
+    "lokale_markdownlinks_bestaand": [
+      "bewijs/bronnen-en-toegang-v1.json",
+      "bewijs/uitvoering-en-grenzen-v1.md",
+      "casusregister-c-v1.md"
+    ],
+    "zes_proeven_uitgevoerd": true,
+    "proefproces_exitstatus": 0,
+    "bronhash_drift": [],
+    "git_tracked_status": "",
+    "geen_nieuwe_bijdragen_A_B_gelezen": true,
+    "app_of_skills_gewijzigd": false,
+    "kwaliteitswinst_aangetoond": false,
+    "gezamenlijk_onderzoek_afgerond": false
+  },
+  "beperkingen": [
+    "Opgegeven cleaning-pad ontbreekt; juiste pad src/services/cleaning_service.py gebruikt.",
+    "Een cache-mkdir buiten uitvoermap is geblokkeerd; geen bypass.",
+    "P3 las runstatus via verkeerde sleutel status; alleen regelresultaten als gemeten geclaimd.",
+    "Geen live generatie, volledige UI, database-, import- of exportproef.",
+    "P5/P6 zijn bronfunctieproeven; P6 met gecontroleerde CON-01/02-hulp.",
+    "Geen DBT-tekst of actuele juridische bron gecontroleerd.",
+    "Eerste rapport-schrijfpoging faalde op shell-quoteparser; geen inhoud geschreven. Daarna exacte voorbereide tekst uit eigen toolinvoer als nieuw bestand veilig opgeslagen."
+  ],
+  "aanvullende_bronhashes": [
+    {
+      "pad": "src/services/validation/evaluators/base.py",
+      "sha256": "638481fd50eea860d8b493a4e40ca5156944641ed7e1cb9e891303098331817d"
+    },
+    {
+      "pad": "src/services/validation/types_internal.py",
+      "sha256": "8e4b6aab5ffc4bdf9069f368e2ad83603283e8e51563da1ca8ede6874373d2ac"
+    },
+    {
+      "pad": "src/services/prompts/modules/__init__.py",
+      "sha256": "9c9e0420b9f249c2023deeb51d0d4d413a7290e0e0dfc29b69c26de31e9c951f"
+    },
+    {
+      "pad": "src/toetsregels/manager.py",
+      "sha256": "8c8807bc7cd565c6a1f7d3632f4a256e8d5f7419a91ac3adbee6150b8032d3d6"
+    },
+    {
+      "pad": "src/toetsregels/cached_manager.py",
+      "sha256": "6ff2a795f270570a739d8343318bd55d5fec3e25fa7ae89505138b4d1a6bd3c4"
+    },
+    {
+      "pad": "src/services/definition_generator_enhancement.py",
+      "sha256": "820aaee512b0c1c39ec8e8bc15e21281223e0c4efa01732d1e1d449af326ccc9"
+    },
+    {
+      "pad": "config/toetsregels/toetsregels_config.yaml",
+      "sha256": "c9eab346eaed1a584bf139da8c469e883109a87324ba18d3e2cb90237850cbb7"
+    },
+    {
+      "pad": "config/validation/rule_reasoning_config.yaml",
+      "sha256": "9e0d06710077bacf2a523ab56d9231f420647f6f87f38a46b911154e8d7d2c26"
+    },
+    {
+      "pad": ".claude/rules/patterns.md",
+      "sha256": "aadad98574fade55a6a4ee93b7385f78090bed8ff0f754f96bb975569b3821b5"
+    }
+  ],
+  "volgende_overdracht": "A wijst het volledige eigen onderzoek met relevante bijlagen expliciet aan voor C-kruisreview, ontvangt C-v1 en levert zijn review van C-v1. C bewaart v1, verwerkt ontvangen punten in nieuwe versie en controleert daarna op verzoek de synthese."
+}

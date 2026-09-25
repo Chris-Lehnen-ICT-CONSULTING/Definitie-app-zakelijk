@@ -1,0 +1,17 @@
+{
+  "at": "2026-09-25T08:31:44.809885+00:00",
+  "session": "01a0d7af-4806-7420-91d5-a788f2482521",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "tool_calls": 0,
+  "cases": 24,
+  "strata": {
+    "S1": 4,
+    "S2": 4,
+    "S3": 4,
+    "S4": 4,
+    "S5": 4,
+    "S6": 4
+  },
+  "sha256": "f0aedf52399d8a5b3d74d346fecbdfb370b36300fe2294a7f4a4633179e416f6"
+}

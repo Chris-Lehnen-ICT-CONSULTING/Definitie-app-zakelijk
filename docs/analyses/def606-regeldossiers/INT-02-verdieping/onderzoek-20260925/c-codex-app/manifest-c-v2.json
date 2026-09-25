@@ -1,0 +1,204 @@
+{
+  "versie": "c-v2",
+  "project": "DEF",
+  "issue": "DEF-771",
+  "regel": "INT-02",
+  "onderzoeker": "C",
+  "datum": "2026-09-25",
+  "registratietijd_utc": "2026-09-25T11:08:09.246887+00:00",
+  "fase": "een synthesecontrole van de ontvangen v3",
+  "uitvoermap": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/c-codex-app",
+  "status": "synthesecontrole opgeleverd; gezamenlijke inhoudelijke afronding nog niet bevestigd",
+  "eindoordeel": {
+    "materieel_open": [
+      "SC-C-02"
+    ],
+    "reden": "Exacte G-tekst verbiedt afweging ruimer dan N/T en de C107-grens dragen.",
+    "verwerking": "Exacte correctie voorgesteld; niet uitgevoerd in de leidende stukken.",
+    "beleidskeuzes_open": [
+      "K1",
+      "K2",
+      "K2b",
+      "K3",
+      "K4",
+      "K5"
+    ]
+  },
+  "bestanden": [
+    {
+      "pad": "bewijs/bronnen-en-toegang-v1.json",
+      "bytes": 21666,
+      "sha256": "51ab5073117b070c1bf22970060c9162ee411ff854457eb4a4e3a41ce9df0bb0"
+    },
+    {
+      "pad": "bewijs/exitstatus-v1.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "pad": "bewijs/historisch-hergebruik-v1.json",
+      "bytes": 7060,
+      "sha256": "44d5423380d6bde2f5700efeaab8faf592d1c2be83290fea36c33bdfdff2a6d5"
+    },
+    {
+      "pad": "bewijs/historische-diff-v1.txt",
+      "bytes": 10338,
+      "sha256": "54d86140f3dc3941fb0e542ab9a10660c38be56686ba3b776b54161db6677fd8"
+    },
+    {
+      "pad": "bewijs/proefopzet-v1.json",
+      "bytes": 4305,
+      "sha256": "ec6b1ff8179ed554ed4d034020b3541e2126a7e0bc41cc9b6b496aed0d50b553"
+    },
+    {
+      "pad": "bewijs/proefuitkomsten-v1.json",
+      "bytes": 8864,
+      "sha256": "cc3d65b7b79868ef5f7201d32607294c36a6b9f6a007e2b5811a54744a74a392"
+    },
+    {
+      "pad": "bewijs/proefuitvoer-v1.log",
+      "bytes": 8865,
+      "sha256": "239993a0819c3bedb335d906f9cc0158fd142de733be036b3999d64d5850c784"
+    },
+    {
+      "pad": "bewijs/proeven-c-v1.py",
+      "bytes": 6714,
+      "sha256": "2d5cbc220d625df20dab6f4b66425439246a85a7380716353523c93fefe7d930"
+    },
+    {
+      "pad": "bewijs/uitvoering-en-grenzen-v1.md",
+      "bytes": 2542,
+      "sha256": "915122c5264638242dabcc487fab0c5acf34f253f98bb38a28cd5452a74c28bc"
+    },
+    {
+      "pad": "casusregister-c-v1.md",
+      "bytes": 14189,
+      "sha256": "72325dcc5558c3c129b4b145284a8d4d41eacbeef26fdeb97efa39278f6b8b12"
+    },
+    {
+      "pad": "manifest-c-v1.json",
+      "bytes": 5811,
+      "sha256": "68373998d64db6ec7a0087783f588db059c42a47185e6830dec1e2bd5422bf4f"
+    },
+    {
+      "pad": "onderzoek-c-v1.md",
+      "bytes": 53497,
+      "sha256": "896d589b1db8289f68c46c43e634fa87c8099980e87723665c2a8b3de0c856e2"
+    },
+    {
+      "pad": "synthesecontrole-c-v1.md",
+      "bytes": 18919,
+      "sha256": "26cde499eaca5ce96530cda392bb3b4078c721a184028ec5d936439504b707a1"
+    }
+  ],
+  "zelfverwijzing": {
+    "pad": "manifest-c-v2.json",
+    "sha256": "Buiten dit bestand in het eindbericht; geen circulaire zelfhash."
+  },
+  "gelezen_bronversies": [
+    {
+      "pad": "../gedeeld/gezamenlijke-synthese-v3.md",
+      "sha256": "544c3993d32c7986922adfbf9823bd2666e611566dad466c4fe329f62197746c"
+    },
+    {
+      "pad": "../gedeeld/besluitnotitie-chris-v3.md",
+      "sha256": "27b515eef361cb5c8ad9256c95dd60f47786491c86967e8bb0981c4dcb294b89"
+    },
+    {
+      "pad": "../gedeeld/gezamenlijk-casusregister-v3.md",
+      "sha256": "c878fe01c1d4b053c06eacd8919eb309bbad2ab9341d45531448ff6f75c897a1"
+    },
+    {
+      "pad": "../a-cowork/review-a-op-c-v1.md",
+      "sha256": "2a0a9a70f6f64ec0502d939884dae082b287ae088b04a2d2b20b5b5c30c1f555"
+    },
+    {
+      "pad": "../a-cowork/normlezing-coordinator-v1.md",
+      "sha256": "d48f0e2ce350b9b74e583f039f824f7a4c7bd3a5e452a615e0955e95d5c3a586"
+    },
+    {
+      "pad": "../a-claude-cli/onderzoek-a-v2.md",
+      "sha256": "641c296e182ee6e0f0d6323239dea432d2e481abdf455f13e8a4a72df303287c"
+    },
+    {
+      "pad": "../b-codex-cli/onderzoek-b-v3.md",
+      "sha256": "ac94555b069366510e560a0e63b681bca60b399e1ff47d0546e7652adbec85ec"
+    },
+    {
+      "pad": "../b-codex-cli/synthesecontrole-b-v2.md",
+      "sha256": "e222aaad8267f229178946c71d3a2214b60f10b384498c10013b53a09e7edd49"
+    },
+    {
+      "pad": "../gedeeld/feitenbasis-v1.md",
+      "sha256": "fa895f1d6f9777e44837d8cc936688827aedacee22d9ba858d9fc9d7fd89f530"
+    },
+    {
+      "pad": "../gedeeld/bronnen/astra-Afleidingsregel-raw.wikitext",
+      "sha256": "793375d9d503ce5303b460b87a6372c9ff6ac3c10d8e40219b70673415b79f4d"
+    },
+    {
+      "pad": "../gedeeld/bronnen/astra-Beslisregel-raw.wikitext",
+      "sha256": "35477c067cb6baaa114b17112fd6e79e35e12e349619783f52d3d66525e2ca8e"
+    },
+    {
+      "pad": "../gedeeld/bronnen/astra-INT-02-raw.wikitext",
+      "sha256": "01d00ea0fb674329f0eb3bf6f470b587f9b871e8d40d891ed1142b876abedc1b"
+    }
+  ],
+  "verificatie": {
+    "eigen_onderzoek_en_casusregister_volledig_herlezen": true,
+    "S_D_R_RA_volledig_gelezen": true,
+    "A_B_gericht_gelezen": true,
+    "rapport_volledig_teruggelezen": true,
+    "SC_C_punten": [
+      "SC-C-01",
+      "SC-C-02",
+      "SC-C-03",
+      "SC-C-04",
+      "SC-C-05",
+      "SC-C-06",
+      "SC-C-07",
+      "SC-C-08",
+      "SC-C-09",
+      "SC-C-10",
+      "SC-C-11",
+      "SC-C-12",
+      "SC-C-13",
+      "SC-C-14"
+    ],
+    "RA_C_01_tot_14_gedekt": true,
+    "gezamenlijke_casus_ids": 76,
+    "C100_tot_C118_aanwezig": true,
+    "bestaande_bestanden_ongewijzigd": true,
+    "bronhash_drift": [],
+    "v1_manifest_hashafwijkingen": [],
+    "lokale_rapportlinks_gecontroleerd": [
+      "onderzoek-c-v1.md",
+      "casusregister-c-v1.md",
+      "../gedeeld/gezamenlijke-synthese-v3.md",
+      "../gedeeld/besluitnotitie-chris-v3.md",
+      "../gedeeld/gezamenlijk-casusregister-v3.md",
+      "../a-cowork/review-a-op-c-v1.md",
+      "../a-claude-cli/onderzoek-a-v2.md",
+      "../b-codex-cli/onderzoek-b-v3.md",
+      "../a-cowork/normlezing-coordinator-v1.md",
+      "../b-codex-cli/synthesecontrole-b-v2.md",
+      "bewijs/uitvoering-en-grenzen-v1.md",
+      "manifest-c-v2.json"
+    ],
+    "behouden_proefbewijs": "C P1–P6 uitgevoerd=true; exit 0; proefopzethash in uitvoer gelijk aan bewaarde opzet. Geen heruitvoering.",
+    "geen_nieuwe_agents": true,
+    "geen_implementatie": true,
+    "alleen_twee_nieuwe_bestanden_in_C": true
+  },
+  "beperkingen": [
+    "Geen nieuwe runtime-, model-, gebruikers- of herstelproeven.",
+    "Geen huidige juridische geldigheid of rechtstreekse DBT-tekst geverifieerd.",
+    "Bewaarde proeven bewijzen alleen hun beschreven functie-/servicegrens.",
+    "SC-C-02 is een contractbevinding, geen gemeten generatieverlies.",
+    "Het oordeel geldt uitsluitend voor de hierboven gehashte v3-bronnen."
+  ],
+  "toolbeperkingen": [
+    "Automatische goedkeuringscontrole weigerde research-dispatch en requesting-code-review vanwege mogelijk starten van agents/reviewers; geen omzeiling. analysis-mode is geladen."
+  ]
+}

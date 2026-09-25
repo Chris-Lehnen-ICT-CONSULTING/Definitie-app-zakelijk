@@ -1,0 +1,194 @@
+[
+  {
+    "id": "T01",
+    "stratum": "S1",
+    "begrip": "schaduwkam",
+    "tekst": "verstelbare rij lamellen voor het verdelen van schaduw over een kweekbak",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een doelbepaling."
+  },
+  {
+    "id": "T02",
+    "stratum": "S1",
+    "begrip": "terugkeervenster",
+    "tekst": "tijdvak waarin een uitgeleend meetinstrument zonder nieuwe afstelling opnieuw kan worden aangesloten",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een beperkende betrekkelijke bijzin."
+  },
+  {
+    "id": "T03",
+    "stratum": "S1",
+    "begrip": "Riet en Ruis",
+    "tekst": "atelier met de naam Riet en Ruis dat vezels verwerkt tot geluiddempende panelen",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevenschikking binnen een eigennaam, gevolgd door een betrekkelijke bijzin."
+  },
+  {
+    "id": "T04",
+    "stratum": "S1",
+    "begrip": "wisselmand",
+    "tekst": "Mand waarvan de bodem alleen sluit wanneer beide draagbeugels omhoogstaan. De beugels vormen samen het sluitmechanisme.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een noodzakelijke bijzin en een afzonderlijke vervolgzinsconstructie."
+  },
+  {
+    "id": "T05",
+    "stratum": "S2",
+    "begrip": "doseerpas",
+    "tekst": "kaart met doseerstappen van 0,5 ml voor reservoirs van max. 12 ml.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Decimaal getal, meeteenheden en een afkorting met punt binnen de tekst."
+  },
+  {
+    "id": "T06",
+    "stratum": "S2",
+    "begrip": "Veldschaal",
+    "tekst": "indeling van bladglans in 7 niveaus, ontworpen door prof. Elin Veld.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een cijfer en een afgekorte titel vóór een persoonsnaam."
+  },
+  {
+    "id": "T07",
+    "stratum": "S2",
+    "begrip": "restvak",
+    "tekst": "vak voor kleine werkplaatsmaterialen zoals klemmen, doppen, ringen enz.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Voorbeeldenreeks met een afkorting op zinslot."
+  },
+  {
+    "id": "T08",
+    "stratum": "S2",
+    "begrip": "nachtindex",
+    "tekst": "Verhouding tussen de gemeten lichtsterkte om 02.00 uur en die om 23.00 uur. De tabel vermeldt deze verhouding als NI.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Tijdnotaties met punten en een tweede zin die eindigt met een letterafkorting."
+  },
+  {
+    "id": "T09",
+    "stratum": "S3",
+    "begrip": "warmtenest",
+    "tekst": "Een warmtenest is een geïsoleerde uitsparing waarin een monster langzaam afkoelt.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Volledige mededelende zin met een afsluitende punt."
+  },
+  {
+    "id": "T10",
+    "stratum": "S3",
+    "begrip": "spoorlint",
+    "tekst": "Een spoorlint registreert de route van een rollend voorwerp. Elke bocht laat een gekleurde markering achter.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee mededelende zinnen met expliciete punten."
+  },
+  {
+    "id": "T11",
+    "stratum": "S3",
+    "begrip": "twijfelpijl",
+    "tekst": "Een twijfelpijl wijst naar een nog onbevestigde bestemming. Welke route volgt na bevestiging?",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Mededelende zin gevolgd door een vraag met een vraagteken."
+  },
+  {
+    "id": "T12",
+    "stratum": "S3",
+    "begrip": "stopveer",
+    "tekst": "Een stopveer blokkeert het deksel zodra de spanning wegvalt. Laat de veer vrij!",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Omschrijvende zin gevolgd door een gebiedende zin met uitroepteken."
+  },
+  {
+    "id": "T13",
+    "stratum": "S4",
+    "begrip": "vouwrug",
+    "tekst": "**buigzame verbinding** tussen twee platen\nwaarmee beide platen vlak op elkaar kunnen worden gelegd",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Markdownmarkering en een regelomloop binnen een grammaticale constructie."
+  },
+  {
+    "id": "T14",
+    "stratum": "S4",
+    "begrip": "rustbekken",
+    "tekst": "Een rustbekken is een verbreding waarin stromend mengsel tijdelijk vertraagt.\n\nZwaardere deeltjes verzamelen zich op de bodem.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee zinnen verdeeld over afzonderlijke alinea's."
+  },
+  {
+    "id": "T15",
+    "stratum": "S4",
+    "begrip": "monsterpakket",
+    "tekst": "verzameling voor één meetronde, bestaande uit:\n- een afsluitbaar buisje\n- twee blanco stroken\n- een genummerde draaghoes",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke inleiding met dubbele punt en een opsomming over meerdere regels."
+  },
+  {
+    "id": "T16",
+    "stratum": "S4",
+    "begrip": "kantelwacht",
+    "tekst": "Een kantelwacht houdt een schaal horizontaal; bij overbelasting zakt één steunpunt.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee hoofdzinsconstructies verbonden door een puntkomma."
+  },
+  {
+    "id": "T17",
+    "stratum": "S5",
+    "begrip": "fluisterstand",
+    "tekst": "bedrijfsstand waarin een toestel de melding ‘Ik luister.’ toont terwijl de motor stilstaat",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Ingesloten citaat met een punt, waarna de omringende constructie doorloopt."
+  },
+  {
+    "id": "T18",
+    "stratum": "S5",
+    "begrip": "dubbelhulsel",
+    "tekst": "Een dubbelhulsel bestaat uit twee losse omhullingen (de binnenste houdt vocht vast). De buitenste laag laat lucht door.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Parenthetische bijzin binnen de eerste zin, gevolgd door een tweede zin."
+  },
+  {
+    "id": "T19",
+    "stratum": "S5",
+    "begrip": "vangvlak",
+    "tekst": "“Oppervlak waarop losse vezels tijdens het zeven achterblijven.”",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De gehele naamwoordelijke kern staat tussen aanhalingstekens, inclusief de slotpunt."
+  },
+  {
+    "id": "T20",
+    "stratum": "S5",
+    "begrip": "Keeromkaart",
+    "tekst": "routekaart met de titel ‘Waarheen?’ die bij iedere splitsing twee mogelijke vervolgrichtingen toont.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Ingesloten titel met vraagteken en aansluitend een betrekkelijke bijzin."
+  },
+  {
+    "id": "T21",
+    "stratum": "S6",
+    "begrip": "wachtlus",
+    "tekst": "",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Lege tekst zonder tekens of witruimte."
+  },
+  {
+    "id": "T22",
+    "stratum": "S6",
+    "begrip": "nevelrand",
+    "tekst": "nevelrand",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Los label zonder omschrijving of leesteken."
+  },
+  {
+    "id": "T23",
+    "stratum": "S6",
+    "begrip": "schuifanker",
+    "tekst": "bevestiging die langs een rail kan bewegen. bij belasting grijpen twee nokken in de rail",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Punt gevolgd door een kleine letter; afsluitende interpunctie ontbreekt."
+  },
+  {
+    "id": "T24",
+    "stratum": "S6",
+    "begrip": "korrelpoort",
+    "tekst": "opening voor materiaal van klasse zqv. met een instelbare doorlaat",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Niet toegelichte afkortingsvorm met punt vóór een aansluitende voorzetselgroep."
+  }
+]

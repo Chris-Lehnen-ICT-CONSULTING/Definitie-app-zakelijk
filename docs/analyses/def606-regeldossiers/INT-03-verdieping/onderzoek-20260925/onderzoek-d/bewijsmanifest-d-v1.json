@@ -1,0 +1,685 @@
+{
+  "schema": "INT03-D-bewijsmanifest-v1",
+  "gemaakt_utc": "2026-09-25T08:33:44.481254+00:00",
+  "onderzoeker": "D",
+  "taak_id": "01a0d79e-c525-7e82-a798-1f5660a79a7f",
+  "taal": "Nederlands",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "modelbewijs": {
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "bron": "/Users/chrislehnen/.codex/sessions/2026/09/25/rollout-2026-09-25T10-11-41-01a0d79e-c525-7e82-a798-1f5660a79a7f.jsonl",
+    "record": "turn_context",
+    "turn_id": "01a0d7a2-9c89-7ee1-9143-67d9fe46a2eb",
+    "grens": "Model/effort uit eigen sessiemetadata, geen zelfbeschrijving; volledig sessielog niet gekopieerd"
+  },
+  "actuele_bestanden": {
+    "onderzoek": "aanvulling-d-v1.md",
+    "casusregister": "casusregister-d-v2.md",
+    "GTH_verwachtingen": "proefverwachtingen-d-v2.json",
+    "nulmeting_verwachtingen": "proefverwachtingen-d-v1.json",
+    "script": "proef-d-v1.py",
+    "nulmeting_uitkomsten": "proefuitkomsten-d-v2.json",
+    "mislukte_start": "proefuitkomsten-d-v1.json"
+  },
+  "eigen_bestanden": [
+    {
+      "pad": ".offline-runtime-d-v1/.def519-session-root",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "pad": ".offline-runtime-d-v1/werk/cache/.hmac_key",
+      "sha256": "a2fc92234b498692c5ae19090147a8629b381d4263c0868de75eab3b2f3cb1cd",
+      "bytes": 32
+    },
+    {
+      "pad": ".offline-runtime-d-v1/werk/cache/d012a035818de5256d325cec8f98bb4a.json",
+      "sha256": "4d0eb1b9e194957dfd5c86202a5951c93af6cfb0d4b8e0e83e1944ff93f3307f",
+      "bytes": 96077
+    },
+    {
+      "pad": ".offline-runtime-d-v1/werk/cache/metadata.json",
+      "sha256": "64ddcac75e025506001e3ac63ecdb5561cf37f96eae49db917ee9ac188deacd6",
+      "bytes": 135
+    },
+    {
+      "pad": ".offline-runtime-d-v1/xcrun_db",
+      "sha256": "8a4cd73fa0c95177e52e6b7c199a31078dc5f70264a53b08b3ff6c44649e0b56",
+      "bytes": 1088
+    },
+    {
+      "pad": "aanvulling-d-v1.md",
+      "sha256": "4dda0efd29475584a17ab2e37b72fdd8636fb32804d67f6bda8a69c78da5af2a",
+      "bytes": 50845
+    },
+    {
+      "pad": "casusregister-d-v1.md",
+      "sha256": "43aed327fa62214d6f5a572865778ffba4adb5fcc1973931e682516cd84f89a1",
+      "bytes": 13806
+    },
+    {
+      "pad": "casusregister-d-v2.md",
+      "sha256": "4a4e297e5c29312c871601d3d2bb5109ee62ff564e4893e39c31273e9a08d40c",
+      "bytes": 14533
+    },
+    {
+      "pad": "proef-d-v1.py",
+      "sha256": "2bc5acf24eb07870b358408b959f910c803ab0e64c3703b845471b8ff784301a",
+      "bytes": 5321
+    },
+    {
+      "pad": "proefuitkomsten-d-v1.json",
+      "sha256": "5085693db6cdf082181450e68c43b037213b65a16d8bb4275561246bfda036f3",
+      "bytes": 2216
+    },
+    {
+      "pad": "proefuitkomsten-d-v2.json",
+      "sha256": "41d4f3e27cfcf9306d35ee5c72de6cb75cf7d8c0a20e13f1047f936b1c08b88a",
+      "bytes": 180482
+    },
+    {
+      "pad": "proefverwachtingen-d-v1.json",
+      "sha256": "a8358235cd8ea641cad4153d41718902aa094083126b5aaabe51ce8484e0ac51",
+      "bytes": 15708
+    },
+    {
+      "pad": "proefverwachtingen-d-v2.json",
+      "sha256": "b108b3681c38ac46c8c4b569c93065d5f4d2279382f784a32fadfb8abc95c0be",
+      "bytes": 16194
+    }
+  ],
+  "zelfhash": "Niet opgenomen: manifest hashen na schrijven voorkomt circulaire zelfbinding.",
+  "symlinks": [
+    {
+      "pad": ".offline-runtime-d-v1/werk/config",
+      "doel": "/Users/chrislehnen/Projecten/Definitie-app/config",
+      "gebruik": "leespad voor proef; eigen Python-audithook blokkeert schrijven buiten onderzoek-d"
+    },
+    {
+      "pad": ".offline-runtime-d-v1/werk/src",
+      "doel": "/Users/chrislehnen/Projecten/Definitie-app/src",
+      "gebruik": "leespad voor proef; eigen Python-audithook blokkeert schrijven buiten onderzoek-d"
+    }
+  ],
+  "bronbestanden": [
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/startopdracht-d-v1.md",
+      "sha256": "fc4e3662626523395aa0dcea36c8693f29e375102d1965077531695dcedb1dc3",
+      "bytes": 5025
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/feitenbasis-v1.md",
+      "sha256": "c160479ace16663bc89ebf902e69c1ab7c4f19ad87a0114473eddd82d158662d",
+      "bytes": 12298
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/astra-INT-03-raw-20260925.txt",
+      "sha256": "121c4fbb13c25cbe5847ab774f8eaba6c46b555b69ab01edcef4274df101deae",
+      "bytes": 1334
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-v1.md",
+      "sha256": "b01ecc2c82f105ce5f20373ebe791ddb05c72de415b707a385b4d4b12974d269",
+      "bytes": 3973
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/gevallen.json",
+      "sha256": "c6a91538ac4c1eb2bb56d4747351b9166e086a43b0124b5f82accecfc5aadcda",
+      "bytes": 483
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/uitkomsten.json",
+      "sha256": "a909973dd98c328cf14987f3e861c6e5b209fc5b40e1e15575f8ace7a8fa346f",
+      "bytes": 9618
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/claude-review.json",
+      "sha256": "cac75f89a9b5c59c57b65005d0069517f8c2a209f0222f433a0816654d468267",
+      "bytes": 1256
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-07-definitiekwaliteit-dossiers-int-sam.md",
+      "sha256": "0863cc10956b53e8c9df5fa5759bce84eb1b5e462bfc4d0afbd08cc8c0f58da8",
+      "bytes": 81869
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-07-DEF-625-ross-brononderzoek-v1.md",
+      "sha256": "22643405fe6c48be5c45da501cb064e329c7b6ade3aecf8d6849da7af46f637a",
+      "bytes": 11522
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-15-DEF-606-besluit-geen-totaalscore-v1.md",
+      "sha256": "3f7ab1ab9ad06bc297c3037d9ae8ce48cfd65fe91098edd6a73cfef2d5791077",
+      "bytes": 5587
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-17-DEF-606-centraal-regelregister-v1.md",
+      "sha256": "88455ac1fdd2b0fc10864b7b19e0cc64569738dbe3cb0fe2a56985e9235fdaca",
+      "bytes": 9000
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-03.json",
+      "sha256": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+      "bytes": 2103,
+      "sha256_HEAD": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-03.py",
+      "sha256": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+      "bytes": 4867,
+      "sha256_HEAD": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/validators/INT_03.py",
+      "sha256": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+      "bytes": 4867,
+      "sha256_HEAD": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/manager.py",
+      "sha256": "8c8807bc7cd565c6a1f7d3632f4a256e8d5f7419a91ac3adbee6150b8032d3d6",
+      "bytes": 16475,
+      "sha256_HEAD": "8c8807bc7cd565c6a1f7d3632f4a256e8d5f7419a91ac3adbee6150b8032d3d6",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/cached_manager.py",
+      "sha256": "6ff2a795f270570a739d8343318bd55d5fec3e25fa7ae89505138b4d1a6bd3c4",
+      "bytes": 5676,
+      "sha256_HEAD": "6ff2a795f270570a739d8343318bd55d5fec3e25fa7ae89505138b4d1a6bd3c4",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/modular_validation_service.py",
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "bytes": 97943,
+      "sha256_HEAD": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/judgment_review.py",
+      "sha256": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+      "bytes": 9732,
+      "sha256_HEAD": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/registry.py",
+      "sha256": "d13e7554fb6c2a9baf932a9cb4b1428d84b6ff1526132cb3b5136f3055a4a720",
+      "bytes": 2999,
+      "sha256_HEAD": "d13e7554fb6c2a9baf932a9cb4b1428d84b6ff1526132cb3b5136f3055a4a720",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/interfaces.py",
+      "sha256": "06ea54c753ef714beb4fe9f59318079c1af4b646c624ed9475759254307e1d49",
+      "bytes": 17611,
+      "sha256_HEAD": "06ea54c753ef714beb4fe9f59318079c1af4b646c624ed9475759254307e1d49",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/validation/additional_patterns.py",
+      "sha256": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+      "bytes": 2579,
+      "sha256_HEAD": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "bytes": 20357,
+      "sha256_HEAD": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_adapter.py",
+      "sha256": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+      "bytes": 17729,
+      "sha256_HEAD": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py",
+      "sha256": "bcd71514644d840e7e4210483e8847e0f91873ea3a2ce625060bd8a491579cc8",
+      "bytes": 1900,
+      "sha256_HEAD": "bcd71514644d840e7e4210483e8847e0f91873ea3a2ce625060bd8a491579cc8",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/integrity_rules_module.py",
+      "sha256": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979",
+      "bytes": 10583,
+      "sha256_HEAD": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/prompt_orchestrator.py",
+      "sha256": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+      "bytes": 20434,
+      "sha256_HEAD": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/base_module.py",
+      "sha256": "776408205dd2406a18e4233a15b27b5ad5fe948829b81e7fc2cbb7c62dd42a7c",
+      "bytes": 9576,
+      "sha256_HEAD": "776408205dd2406a18e4233a15b27b5ad5fe948829b81e7fc2cbb7c62dd42a7c",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_context.py",
+      "sha256": "9f6b26b2bd37f7e332b7e66df1d916239aaeb898c432f21dbb804b686571c21f",
+      "bytes": 14509,
+      "sha256_HEAD": "9f6b26b2bd37f7e332b7e66df1d916239aaeb898c432f21dbb804b686571c21f",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_config.py",
+      "sha256": "af81d17db0904bb68b52cfc7329e38c51c92b5a6632acba6b15895db26eb3175",
+      "bytes": 11806,
+      "sha256_HEAD": "af81d17db0904bb68b52cfc7329e38c51c92b5a6632acba6b15895db26eb3175",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py",
+      "sha256": "7dea476ecf9c8064ffe150bb5ccfe79386f8e85554e347eff55cacc4e70a1a37",
+      "bytes": 44993,
+      "sha256_HEAD": "7dea476ecf9c8064ffe150bb5ccfe79386f8e85554e347eff55cacc4e70a1a37",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/validation_view.py",
+      "sha256": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+      "bytes": 37184,
+      "sha256_HEAD": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py",
+      "sha256": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31",
+      "bytes": 96515,
+      "sha256_HEAD": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/export/export_txt.py",
+      "sha256": "ed44a8dd446c1994a30559425ebea1d80cfb82274888b1c4da2a0dc6767e6658",
+      "bytes": 21121,
+      "sha256_HEAD": "ed44a8dd446c1994a30559425ebea1d80cfb82274888b1c4da2a0dc6767e6658",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-01.json",
+      "sha256": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "bytes": 1767,
+      "sha256_HEAD": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/ARAI-05.json",
+      "sha256": "7a526b32a0ef0fb220134e96e31b21fb3108b181766f3c41038a213e67762e8b",
+      "bytes": 1746,
+      "sha256_HEAD": "7a526b32a0ef0fb220134e96e31b21fb3108b181766f3c41038a213e67762e8b",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/CON-CIRC-001.json",
+      "sha256": "0b44bfac1c60faf0aacd509c6bd9a896a2f2375dab4bea03a2a3f7def67d5ffb",
+      "bytes": 598,
+      "sha256_HEAD": "0b44bfac1c60faf0aacd509c6bd9a896a2f2375dab4bea03a2a3f7def67d5ffb",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/config/toetsregels/toetsregels_config.yaml",
+      "sha256": "c9eab346eaed1a584bf139da8c469e883109a87324ba18d3e2cb90237850cbb7",
+      "bytes": 11396,
+      "sha256_HEAD": "c9eab346eaed1a584bf139da8c469e883109a87324ba18d3e2cb90237850cbb7",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/config/config.yaml",
+      "sha256": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "bytes": 6835,
+      "sha256_HEAD": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/tests/fixtures/toetsregels/runtime_cases.yaml",
+      "sha256": "9a67bce634ce76e6b340d3c573470373c8f858a16d92dd003f0d3f4740774f7d",
+      "bytes": 22564,
+      "sha256_HEAD": "9a67bce634ce76e6b340d3c573470373c8f858a16d92dd003f0d3f4740774f7d",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/tests/offline_bootstrap.py",
+      "sha256": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7",
+      "bytes": 25111,
+      "sha256_HEAD": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-verdieping/onderzoek-20260923/onderzoek-a/proef-v2.py",
+      "sha256": "90cf5006e289fbdc587faf65ebc48765ef4ceb63f1424e54318487a8253a6a26",
+      "bytes": 1966
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/.claude/rules/project-rules.md",
+      "sha256": "7bf261c6983fdd02774cc54f5b0ed5831cb682afea142ffea5882369082d26d7",
+      "bytes": 1095,
+      "sha256_HEAD": "7bf261c6983fdd02774cc54f5b0ed5831cb682afea142ffea5882369082d26d7",
+      "gelijk_aan_HEAD": true
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/SKILL.md",
+      "sha256": "66d65b3f9292b46a33feec67c11cbdc456fa16a4c5918feee04301af6b808e6d",
+      "bytes": 14294
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/references/werkcontract.md",
+      "sha256": "edaccc86d59903512624dec5af7f6ebcb79471ba2046cbcd9dc0e8586efaa68b",
+      "bytes": 11435
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/references/startopdracht.md",
+      "sha256": "491dbb82bb9c1b89388f6626d650528434b6ed4864541c477fbcc09e7ee31513",
+      "bytes": 9680
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/references/genereren-en-toetsen.md",
+      "sha256": "bc96faf144313f299f3739092b640619a885d87dafc83a97714d2a507810dd85",
+      "bytes": 11106
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/analysis-mode/SKILL.md",
+      "sha256": "386f33d275fc5d897fa09951f8405fdc5a27dfa7e208b688e2fce4c06dbfb1c9",
+      "bytes": 5081
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/research-dispatch/SKILL.md",
+      "sha256": "cabe43717289937dcc3d18bf829b89f91c4deedcf21ceb5952d318224d6e1fc3",
+      "bytes": 6240
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/verification-before-completion/SKILL.md",
+      "sha256": "df49a4141ccf3a6f447d7dc8d0e075c5b548a7acc96e5db3674ca0d540b6a96a",
+      "bytes": 9418
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/SKILL.md",
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "bytes": 11823
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-toetsregels/SKILL.md",
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "bytes": 11823
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-toetsregels/SKILL.md",
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "bytes": 11823
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/reference.md",
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "bytes": 16735
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-toetsregels/reference.md",
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "bytes": 16735
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-toetsregels/reference.md",
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "bytes": 16735
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "bytes": 9921
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "bytes": 9921
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "bytes": 9921
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "bytes": 20405
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "bytes": 20405
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "bytes": 20405
+    }
+  ],
+  "linear_bronnen": [
+    {
+      "id": "DEF-624",
+      "url": "https://linear.app/definitie-app/issue/DEF-624/story-classificeer-53-regels-en-voorkom-default-pass-score-inflatie",
+      "status": "In Progress",
+      "updatedAt": "2026-09-21T07:23:03.411Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; geen comments opgehaald",
+      "beschrijving_begin": "## Uitvoering hervat — 16 september 2026\n\nChris heeft de eerste deellevering goedgekeurd: [resultaatcontract en consumermigratie](<https://linear.app/definitie-app/document/def-624-resultaatcontract-en-consumermigratie-goedgekeurd-31b1600cd55d>). Ontbrekende/ongeldige status wordt onbekend; Claude Code CLI implementeert, Codex CLI reviewt. De overige storycriteria en afhankelijkheid van <issue id=\"1d31076f-7fe9-4684-93f9-dea45e8bd888\" href=\"https://linear.app/definitie-app/issue/DEF-623/story-herstel-semantische-pariteit-voor-ver-01-03-en-sam-02-06\">DEF-623</issue> blijven open.\n\n## Productbesluit — voorlopig geen totaalcijfer — 15 september 2026\n\nChris heeft bij de besluitvorming voor <issue id=\"380b1044-67f4-4a6e-b446-2b424fce48b7\" href=\"https://linear.app/definitie-app/issue/DEF-743/story-implementeer-con-02-bronbasis-betekenissteun-en-herleidbare\">DEF-743</issue> expliciet ingestemd met voorlopig geen totaalcijfer en geen vervangende deelscore over alleen cijfergevende regels. De app toont wel de toepasselijke regeloordelen, welke controles daadwerkelijk zijn uitgevoerd, beoordelingsdekking en openstaande tekortkomingen, onzekerheden en uitzonderingen. Technische fouten blijven afzonderlijk zichtbaar.\n\nCON-02 krijgt geen numerieke bijdrage. Deze keuze sluit aan op de bestaande tijdelijke onbeschikbaarheid van de totaalscore bij CON-01; zij verandert niet stilzwijgend de scorepolicy van alle andere regelrecords. Een latere score over andere regels vraagt hier een afzonderlijk besluit over selectie, berekening/noemer en betekenis. Lagere beoordelingsdekking mag geen hogere kwaliteit suggereren.\n\nDit besluit vervangt de open vraag of nu een (deel)totaalcijfer moet worden getoond. De inhoudelijke classificatie, regeloordelen, dekkingsweergave en overige restscope blijven bestaan. Geen implementatieclaim en geen wijziging van de issuestatus.\n\n---\n\n## Audit na CON-01-oplevering — 15 september 2026\n\nNiet overbodig: contractclassificatie en score-/dekkingsfundament zijn al geleverd; CON-01 heeft geen cijfer en de totaalscore blijft bewust tijdelijk niet beschikbaar. Niet opnieuw bouwen wat al bewezen is. De inhoudelijke classificatie/goed-fout-paren, consumer-/resultaatcontractdrift en expliciete score-uitwerking blijven open. De oude types-module converteert None nog naar 0.0, maar daarvoor is geen actieve productiecaller aangetroffen; dit is contractdrift, geen bewezen gebruikersroute.\n\n[Onderbouwing, bronregels en verse proefresultaten](<https://linear.app/definitie-app/document/con-01-actuele-restscope-van-vijf-vervolgissues-15-september-2026-942b82fe5626>). Getoetst op main `dc7a70e80`; onderstaande oudere probleemmetingen zijn historie waar deze actualisatie ze corrigeert.\n\n---\n\n## Actuele restscope — vastgesteld 4 september 2026\n\nStatus blijft **Backlog**, overeenkomstig het administratief parkeren van 31 augustus. Classificatie- en scorefundament zijn al geleverd; afronding wacht op inhoudelijke en end-to-end bewijsvoering.\n\nDe records op `1e791b07` verklaren 37 automatische, 12 reviewplichtige en 4 niet-geëvalueerde regels; 21 zijn scorerend en 32 uitgesloten van de score. Deze aantallen worden uit de versioned records afgeleid en zijn geen productkwaliteitsmeting. Beschikbare invoer kan de uitkomst per aanroep veranderen.\n\n### Te leve"
+    },
+    {
+      "id": "DEF-625",
+      "url": "https://linear.app/definitie-app/issue/DEF-625/story-versioneer-astra-herkomst-afwijkingen-en-driftcontrole",
+      "status": "Backlog",
+      "updatedAt": "2026-09-23T20:23:14.327Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; geen comments opgehaald",
+      "beschrijving_begin": "**Severity:** MEDIUM · **Parent:** <issue id=\"50dd087c-4152-49ec-b037-a831b3b9a131\" href=\"https://linear.app/definitie-app/issue/DEF-606/tech-debthigh-maak-53-toetsregels-een-uitvoerbare-ssot-verwijder\">DEF-606</issue> · **Bronnen:** Cowork ASTRA-vergelijking 2026-08-11 en actuele ASTRA-pagina's.\n\n## Doel\n\nLeg per toetsregel de normatieve herkomst, bronstatus en bewuste projectafwijkingen versioned vast en voeg een reproduceerbare driftcontrole toe, zonder runtime-afhankelijkheid van de publieke ASTRA-wiki.\n\n## Specificatie-protocol\n\n### Onderzoeksbevindingen\n\n| Aspect | Bevinding |\n| -- | -- |\n| Externe norm | ASTRA publiceert de Standaard Definitiekwaliteit en de regels voor definitiekwaliteit. De standaard noemt de versie uit 2018, aanscherping in 2024, beheer door SES en akkoord op 10-02-2025. |\n| Appdata | 35 van de 53 JSON-records hebben momenteel `brondocument: ASTRA`. Cowork reconstrueert 36 ASTRA-regels plus 17 projecttoevoegingen. |\n| Inhoudelijke aansluiting | Cowork vond dat de JSON-naam/toetsvraag/uitleg voor de 36 ASTRA-regels de norm volgen; de betwiste oude Pythonvalidators doen dat niet. |\n| Gevonden drift | Cowork rapporteert tien prioriteitsverschillen, bronstatus `discussie` voor STR-02/STR-04, afgevlakte bronherkomst en ongedocumenteerde projectuitbreiding bij ESS-02. |\n| Lokale productnorm | Voor CON-01 is de lokale representatiekeuze expliciet: context staat niet in de definitietekst maar als verplicht gestructureerd gegeven bij het definitierecord. Dit moet als bewuste projectinterpretatie/afwijking zichtbaar zijn. |\n| Beperking | De Cowork-duelmeting gebruikte één goed/fout-paar per regel. Dat is geschikt als drift-/regressiesignaal, niet als bewijs van volledige semantische correctheid. |\n\n## Requirements\n\n1. Voeg aan het regelcontract bronmetadata toe: canonieke bron, bronregel/URL, bronversie of peildatum, bronstatus en projectstatus.\n2. Leg iedere projecttoevoeging en bewuste afwijking expliciet vast met motivatie en beslisreferentie.\n3. Maak prioriteit en scoringpolicy niet stil gelijk aan de externe norm: markeer `source_priority` en een eventueel afwijkende `project_priority`.\n4. Behandel ASTRA-voorbeelden als normatieve testkandidaten, aangevuld met projectcases en grensgevallen.\n5. Bouw een offline/reproduceerbare snapshot- of diffcontrole. Productieruntime doet geen netwerkverzoek naar ASTRA.\n6. Een bronwijziging past de runtime niet automatisch aan; zij maakt een reviewbare wijziging/CI-signalering.\n\n## Open vragen vóór bouwen\n\n1. Is ASTRA leidend voor alle 36 overgenomen regels, of mogen bestaande projectprioriteiten bewust afwijken na productbesluit?\n2. Wie keurt ASTRA-drift en projectafwijkingen inhoudelijk goed?\n3. Welke updatecadans geldt: per release, maandelijks of handmatig?\n4. Worden STR-02 en STR-04 zolang de bronstatus `discussie` heeft review-only, niet-blokkerend, of projectmatig toch definitief?\n\nLeg antwoorden vast in een comment `Specificatie afgerond`.\n\n## Acceptatiecriteria\n\n- [ ] Alle 53 regels vermelden `source_kind`: ASTRA of project.\n- [ ] Alle ASTRA-regels verwijzen naar de specifieke regel/bron en een peildatum of snapshot.\n- [ ] De 17 projectregels zijn als projecttoevoeging herkenbaar en hebben een rationale/eigenaar.\n- [ ] De gerapporteerde tien prioriteitsverschillen zijn één voor één bevestigd en vervolgens gelijkgetrokken of als bewuste override gedocumenteerd.\n- [ ] STR-02 en STR-04 hebben een expliciete projectpolicy voor hun bronstatus `discussie`.\n- [ ] ESS-02 documenteert de uitbreiding van type/instantie naar vier UFO-categorieën als lokale uitbreiding.\n- [ ] CON-01 documenteert dat context buiten de definitietekst blijft en als gestructureerde recorddata verplicht is.\n- [ ] Driftcontrole is reproduceerbaar, faalt/signaleert zichtbaar en muteert geen runtimeconfig automatisch.\n- [ ] Geen netwerkafhankelijkheid in productievalidatie.\n- [ ] Contract-, drift- en gedragstests zijn groen.\n\n## Niet in scope\n\n* Oude Pythonvalidatorlagen aansluiten of verwijderen.\n* Automatisch accepteren van externe normwijzigingen.\n* De evaluatorimplementaties uit <issue id=\"fe936e69-dd24-4502-9a5c-46289f331e6d\" href=\"https://linear.app/definitie-app/issue/DEF-622/validationhigh-con-01-contextcontract-end-to-end-afdwingen\">DEF-622</issue>/<issue id=\"1d31076f-7fe9-4684-93f9-dea45e8bd888\" href=\"https://linear.app/definitie-app/issue/DEF-623/validationhigh-semantische-pariteit-ver-01-03-en-sam-02-06\">DEF-623</issue>/<issue id=\"10357e4d-ef1d-4ebf-ab01-30c273713c4c\" href=\"https://linear.app/definitie-app/issue/DEF-624/validationhigh-classificeer-53-regels-en-voorkom-default-pass-score\">DEF-624</issue> bouwen.\n\n## Bronnen\n\n* `docs/analyses/2026-08-11-DEF-606-inhoudelijk-antwoord.md`\n* `src/toetsregels/regels/*.json`\n* `config/toetsregels/toetsregels_config.yaml`\n* ASTRA Standaard Definitiekwaliteit\n* ASTRA Regels voor definitiekwaliteit\n\n## Brononderzoek stap 1 — 7 september 2026\n\n[ASTRA-bronaanvulling: alle 36 regelrevisies, nuances en open bronketen](<https://linear.app/definitie-app/document/def-625-astra-bronaanvulling-36-regelrevisies-en-open-bronketen-7-b5b7b02d4d4d>)\n\nDe volledige actuele categorie-inventaris en alle 36 verschillende detailpagina’s zijn rechtstreeks gelezen. Per regel zijn canonieke pagina, revisie, wijzigingsdatum, oorspronkelijke bronverwijzing, prioriteit, aanbeveling, toepasselijkheid, status en relevante uitzonderingen vastgelegd. Overzicht: revisie 8707; standaard: 8701. Bronstatus: 34 definitief en 2 discussie (STR-02/STR-04); 26 verplicht en 10 aanbevolen. De eerdere open detaildekking van 29 regel-ID’s is voor de actuele ASTRA-webpublicatie gesloten.\n\nSTR-02 heeft een eigen canonieke pagina over zelfherhaling; INT-07 gaat over toegankelijke afkortingen. De lokale koppelingen zijn niet gewijzigd. ESS-02, INT-02 en INT-08 bevatten nog redactionele discussie ondanks de status definitief. Het bronregister onderscheidt dit van een goedgekeurd normbesluit. De eerdere Cowork-claim dat alle lokale teksten de norm volgen is daarmee geen afdoende bewijs van volledige aansluiting.\n\n[Primaire Ross-bronnen en leesdekking](<https://linear.app/definitie-app/document/def-625-ross-primaire-bronnen-en-leesdekking-7-september-2026-dad0066d9d93>): 18 richtlijnen geïnventariseerd, 12 uitgewerkt gelezen. Aanvullende browsercontrole van de oorspronkelijke PDF-link gaf een zichtbare BRS-404-pagina. [Politie/MAS/MDM-brononderzoek](<https://linear.app/definitie-app/document/def-625-oorspronkelijke-bronnen-politie-mas-en-mdm-7-september-2026-f921bb7289c9>): bibliografische en governancegegevens aangevuld; integrale oorspronkelijke richtlijnen en later CIOB-besluit nog niet verkregen.\n\n### Voorgesteld — niet uitgevoerd\n\nDe bronaanvulling §7 beschrijft zes controles: compleet bronpakket; verkeerde/dubbele bronkoppeling; wijzi"
+    },
+    {
+      "id": "DEF-626",
+      "url": "https://linear.app/definitie-app/issue/DEF-626/story-persisteer-append-only-validatiesnapshots-atomair-per",
+      "status": "Backlog",
+      "updatedAt": "2026-09-21T07:33:19.517Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; geen comments opgehaald",
+      "beschrijving_begin": "> Roadmapcorrectie vastgesteld door Chris op 4 september 2026. Acceptatiecriteria en scope zijn bijgewerkt; de bestaande issuestatus blijft behouden. Dit is geen softwareoplevering.\n\n## Persistentiegrens — vastgesteld 4 september 2026\n\n[DEF-621](<https://linear.app/definitie-app/issue/DEF-621>) heeft het bewaren van een onbekende score als NULL verbeterd. Dat is geen append-only snapshot en garandeert niet dat `validation_status`, `unknown_reason` en `validation_readiness` de opslaggrens overleven.\n\n### Aanvullende acceptatiecriteria\n\n- [ ] Bewaar de expliciete runstatus en reden/readiness naast score, acceptability, violations, evaluatiedekking, rule/config/validatorversies, tijdstip en definitie-/context-/bronidentiteit.\n- [ ] `NULL`, een werkelijk gemeten score `0.0` en ontbrekend legacybewijs blijven na save→reload onderscheiden.\n- [ ] Genereer, lees opnieuw in en beoordeel hetzelfde record via echte repository- en adapterpaden; test ook een handmatig gewijzigde definitie.\n- [ ] Een snapshotclaim en de definitieversie committen atomair. Falen van snapshotopslag kan nooit een geldige of vastgestelde definitie opleveren.\n- [ ] Draftbehoud bij snapshotfout gebeurt uitsluitend via een expliciet geteste fallback die `unknown/stale` vastlegt; rollback van de kwaliteitsmutatie wordt niet als geldige gedeeltelijke commit gepresenteerd.\n- [ ] Snapshots zijn append-only; stale-detectie verandert niet de historische inhoud maar de toepasselijkheid/actuele verwijzing.\n- [ ] Het model kan meerdere bewijscomponenten onderscheiden. De ontologycomponent wordt in [DEF-642](<https://linear.app/definitie-app/issue/DEF-642>) geleverd; afwezigheid geeft nooit impliciet akkoord.\n\nDe Fase-A-deeloplevering en dependencies volgen het gewijzigde §3-voorstel. Dit issue bouwt geen ontologie-evaluator.\n\n---\n\n## Beschrijving\n\nVoeg een versioned, append-only kwaliteitsverklaring toe met score, acceptability, violations, rule/config/validatorversie, timestamp, context- en bronsethash. Sla definitieversie en snapshot atomair op; draftopslag blijft mogelijk wanneer validatie onbekend is.\n\n## User story\n\nAls een **begripsbeheerder**\nwil ik **dat iedere definitieversie een onveranderlijk validatiesnapshot met alle bewijsvelden heeft**\nzodat **vaststelling reproduceerbaar en auditbaar is**.\n\n## Codebase-onderzoek\n\n| Aspect | Bevinding |\n| -- | -- |\n| Relevante bestanden | `src/database/migrations/`, `src/models/validation_snapshot.py`, `src/repositories/validation_snapshot_repository.py`, `src/services/orchestrators/definition_orchestrator_v2.py`, `src/services/definition_repository.py` |\n| Bestaande patronen | Raw SQLite + Pythonmigraties, repositorylaag, ServiceContainer, provideragnostische services en TDD |\n| Afhankelijkheden | <issue id=\"50dd087c-4152-49ec-b037-a831b3b9a131\" href=\"https://linear.app/definitie-app/issue/DEF-606/epic-een-uitvoerbaar-toetsregelcontract-en-53-gedragsbewijs\">DEF-606</issue>/503 rulecontract; bestaand Pythonmigratie- en repositorypatroon |\n\n## Acceptatiecriteria\n\n- [ ] Migratie, model en repository ondersteunen append-only snapshots\n- [ ] Snapshot verwijst exact naar definitieversie, context- en bronsethash\n- [ ] Mislukte snapshotopslag maakt de draft `validation_unknown`/stale en nooit vaststelbaar\n- [ ] Mutatie van bestaand bewijs is door"
+    },
+    {
+      "id": "DEF-630",
+      "url": "https://linear.app/definitie-app/issue/DEF-630/story-dwing-een-approvalgate-af-voor-vaststellen-overrides-en-alle",
+      "status": "Backlog",
+      "updatedAt": "2026-09-21T07:23:03.411Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; geen comments opgehaald",
+      "beschrijving_begin": "## Audit na CON-01-oplevering — 15 september 2026\n\nNiet overbodig: twee verse proeven zonder opgeslagen validatiebewijs slagen nog bij handmatige approve. Null-score geeft override_required; score 0.95 geeft gate pass. SQLite-readback is beide keren established. De CON-01-specifieke blokkade bij ontbrekende context/open naamfunctie is wel geleverd en hoeft niet opnieuw gebouwd te worden. Gemeenschappelijke snapshot-/review-/status-/exportbeveiliging blijft noodzakelijk.\n\n[Onderbouwing, bronregels en verse proefresultaten](<https://linear.app/definitie-app/document/con-01-actuele-restscope-van-vijf-vervolgissues-15-september-2026-942b82fe5626>). Getoetst op main `dc7a70e80`; onderstaande oudere probleemmetingen zijn historie waar deze actualisatie ze corrigeert.\n\n---\n\n> Roadmapcorrectie vastgesteld door Chris op 4 september 2026. Acceptatiecriteria en scope zijn bijgewerkt; de bestaande issuestatus blijft behouden. Dit is geen softwareoplevering.\n\n## Fase-A-gatecontract — vastgesteld 4 september 2026\n\nLever één domeincontract voor alle vaststel- en niet-draft-exportroutes. Een onbekende verplichte kwaliteitscomponent blokkeert. De generieke gate wordt in A geleverd; de echte ontologycomponent volgt in [DEF-642](<https://linear.app/definitie-app/issue/DEF-642>). Tests met synthetisch positief ontologiebewijs bewijzen alleen het componentcontract en mogen geen productie-uitzondering worden.\n\n### Verplicht regressiegedrag\n\n- [ ] Score 0.95 zonder actueel snapshot blokkeert vaststellen en niet-draft-export.\n- [ ] Normaliseer severity aan de grens: dezelfde critical onder `severity` en `severity_level` heeft dezelfde blokkerende uitkomst.\n- [ ] Ontbrekende context, verplicht bewijs, actor of vereiste review kan niet met alleen een notitie worden opgeheven.\n- [ ] Harde kwaliteits-/bevoegdheidsvoorwaarden worden niet afgezwakt via soft floor of een algemene hard-overridevlag. Toegestane niet-kritieke uitzonderingen vereisen expliciete policy, actor, reden, policyversie en oorspronkelijke findings.\n- [ ] `approve`, `update_status`, edit-statuskeuze en overige toegestane statuswrites gebruiken het contract; anders wordt de route afgeschermd.\n- [ ] Generator-export via adapter, kale sync-service-export, async-export en beheer-/bulkexport hebben dezelfde beslissing.\n- [ ] Draft-export blijft mogelijk uitsluitend als herkenbaar concept met mens- én machineleesbaar label; geen impliciet vastgesteld resultaat.\n- [ ] Verplichte `review_required`-uitkomsten hebben een versioned menselijke beoordeling; een numerieke score vervangt die niet.\n- [ ] Behoud de [DEF-482](<https://linear.app/definitie-app/issue/DEF-482>)-garanties: exact beoordeelde versie, all-or-nothing metadata/app-audit en bijeffecten na commit.\n- [ ] Fase A mag dit componentcontract opleveren terwijl normale vaststelling nog blokkeert wegens ontbrekend verplicht ontologybewijs. Dat is geen geslaagde volledige productketen.\n\n### Bevoegdheidsgrens\n\nLokale tests gebruiken expliciete synthetische actoren. Een callerstring `reviewer` is geen geauthenticeerde identiteit. Identity/RBAC/scoping voor gedeeld gebruik blijft [DEF-617](<https://linear.app/definitie-app/issue/DEF-617>); zonder die levering volgt geen externe gebruiksclaim.\n\nBronnen: [directe statusroute](<https://github.com/Chris-Lehnen-I"
+    },
+    {
+      "id": "DEF-638",
+      "url": "https://linear.app/definitie-app/issue/DEF-638/story-implementeer-maximaal-een-validatorgerichte-repair-en-revalidate",
+      "status": "Backlog",
+      "updatedAt": "2026-09-21T07:23:03.411Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; geen comments opgehaald",
+      "beschrijving_begin": "## Audit na CON-01-oplevering — 15 september 2026\n\nNiet overbodig: de expliciet uitgestelde gerichte repairservice is nog niet geleverd. De container injecteert enhancement_service=None en de CON-01-route sluit automatisch herstel bewust uit. Generatiebescherming, tekstvergelijking en hertoetsing uit <issue id=\"fe936e69-dd24-4502-9a5c-46289f331e6d\" href=\"https://linear.app/definitie-app/issue/DEF-622/story-dwing-het-con-01-contextcontract-end-to-end-af\">DEF-622</issue> zijn herbruikbare voorbereiding. Nog nodig: gerichte herstelinput/beleid, traceerbare versies en diff, betekenisbehoud en gekoppeld meetbewijs. Behoud als gepland vervolgwerk.\n\n[Onderbouwing, bronregels en verse proefresultaten](<https://linear.app/definitie-app/document/con-01-actuele-restscope-van-vijf-vervolgissues-15-september-2026-942b82fe5626>). Getoetst op main `dc7a70e80`; onderstaande oudere probleemmetingen zijn historie waar deze actualisatie ze corrigeert.\n\n---\n\n## Beschrijving\n\nInjecteer een repairservice die uitsluitend rule-ID, geconstateerde span, reden, relevante bron en toegestane wijziging ontvangt. Bewaar original, repaired, diff, provider/prompt/ruleversies en valideer opnieuw; bij resterende hard-fail blijft de draft onvaststelbaar.\n\n## User story\n\nAls een **reviewer**\nwil ik **dat een afgekeurde draft hoogstens één gerichte, traceerbare herstelstap krijgt**\nzodat **reparatie controleerbaar blijft en geen generieke self-critique-loop ontstaat**.\n\n## Codebase-onderzoek\n\n| Aspect | Bevinding |\n| -- | -- |\n| Relevante bestanden | `src/services/orchestrators/definition_orchestrator_v2.py`, nieuwe repairservice, containerinjectie, snapshot-/diffmodellen en tests |\n| Bestaande patronen | Provideragnostische AI-client, modulaire promptservice, ServiceContainer, raw SQLite/repository en TDD |\n| Afhankelijkheden | Structured envelope, <issue id=\"0bbeca56-190f-4498-9b1a-b7613cdc23d6\" href=\"https://linear.app/definitie-app/issue/DEF-611/epicp0-versioned-validatiebewijs-en-niet-omzeilbare-vaststel\">DEF-611</issue> snapshots/gates en <issue id=\"50dd087c-4152-49ec-b037-a831b3b9a131\" href=\"https://linear.app/definitie-app/issue/DEF-606/epic-een-uitvoerbaar-toetsregelcontract-en-53-gedragsbewijs\">DEF-606</issue> rulecontract |\n\n## Acceptatiecriteria\n\n- [ ] Maximaal één repaircall per generatie\n- [ ] Repairinput bevat alleen gerichte violations en benodigde bronnen\n- [ ] Original/repaired/diff en versies zijn auditbaar\n- [ ] Revalidation gebruikt hetzelfde actuele rulecontract\n- [ ] Geen verbetering of nieuwe critical violation resulteert in behouden draft plus waarschuwing\n- [ ] Meetresultaat wordt paired tegen de bevroren Fase-A-baseline gerapporteerd\n- [ ] Relevante unit- en contracttests zijn eerst rood en daarna groen\n- [ ] Eén featurebranch; verificatiebewijs in het Linear-oplevercomment\n\n## Randgevallen en testoverwegingen\n\n* Meerdere violations met conflicterende reparaties\n* Providerfailure of lege repair\n* Repair wijzigt bronondersteunde betekenis\n* Nondeterministische dubbele run\n\n## Open vragen\n\n1. Welke severity’s zijn automatisch repairbaar en welke vereisen direct menselijke review?\n2. Worden meerdere compatibele violations in één repair gecombineerd of kiest de policy één hoogste prioriteit?\n\n## Uitvoering\n\n**Repo:** `~/Projecten/Definitie-app`\n**Branch:*"
+    },
+    {
+      "id": "DEF-606",
+      "url": "https://linear.app/definitie-app/issue/DEF-606/epic-een-uitvoerbaar-toetsregelcontract-en-53-gedragsbewijs",
+      "status": "In Progress",
+      "updatedAt": "2026-09-23T15:57:31.935Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; geen comments opgehaald",
+      "beschrijving_begin": "## Vastgelegde uitvoeringsvolgorde na CON-01 — 15 september 2026\n\nChris heeft deze volgorde bevestigd. Gebruik haar bij het oppakken en plannen van het resterende werk:\n\n1. **Eerst [DEF-464](<https://linear.app/definitie-app/issue/DEF-464>):** de oude CON-01-Pythonvalidators en legacy-loader gecontroleerd uitfaseren. De actieve context_metadata-evaluator behouden. Dit is afgebakende opruiming; bestaande verwijderingsvoorwaarden blijven gelden.\n2. **Daarna [DEF-624](<https://linear.app/definitie-app/issue/DEF-624>) en [DEF-677](<https://linear.app/definitie-app/issue/DEF-677>) vanuit deze epic plannen:** eerst gezamenlijke besluiten over resultaat-/scorecontract, blokkeerbeleid en severity vastleggen, vervolgens de resterende implementatie en het bewijs uitvoeren. Hun scope is regeloverstijgend; neem deze besluiten niet uitsluitend vanuit CON-01. Tussen deze twee issues is hiermee geen verplichte onderlinge volgorde gekozen.\n3. **Vervolgens [DEF-638](<https://linear.app/definitie-app/issue/DEF-638>):** gericht automatisch herstel bouwen en testen zodra het benodigde regel- en bewijscontract vaststaat. Controleer vóór de start de relevante besluiten uit stap 2 en de bestaande afhankelijkheden. Volledige ingebruikname vereist ook de benodigde bewijs- en gatevoorzieningen; afronding van CON-01 alleen is geen activatiebewijs.\n\n**Afgerond behouden:** [DEF-622](<https://linear.app/definitie-app/issue/DEF-622>) en [DEF-744](<https://linear.app/definitie-app/issue/DEF-744>) blijven Done. PR451 en PR452 leveren het CON-01-implementatiepakket; de globale skills zijn bijgewerkt. Heropen dit werk niet voor de hierboven afzonderlijk geplande vervolgonderwerpen.\n\n**Apart eigenaarschap:** [DEF-630](<https://linear.app/definitie-app/issue/DEF-630>) blijft de algemene vaststel-/exportbeveiliging dragen, buiten deze uitvoeringsreeks. De noodzakelijke koppeling met herstelactivatie blijft bestaan. <issue id=\"e9012f0a-b61a-4e71-94a9-e607c649df94\" href=\"https://linear.app/definitie-app/issue/DEF-638/story-implementeer-maximaal-een-validatorgerichte-repair-en-revalidate\">DEF-638</issue> blijft onder <issue id=\"61554d77-1eda-42ff-a44c-9b72a54ac162\" href=\"https://linear.app/definitie-app/issue/DEF-612/epic-compacte-generate-validate-repair-flow-met-meetbare\">DEF-612</issue>; <issue id=\"10357e4d-ef1d-4ebf-ab01-30c273713c4c\" href=\"https://linear.app/definitie-app/issue/DEF-624/story-classificeer-53-regels-en-voorkom-default-pass-score-inflatie\">DEF-624</issue> en <issue id=\"dbddef87-ac75-4c22-adad-2c6c1bad06e2\" href=\"https://linear.app/definitie-app/issue/DEF-677/validationmedium-duplicaathandhaving-capability-defect-blokkeert-niet\">DEF-677</issue> blijven onder <issue id=\"50dd087c-4152-49ec-b037-a831b3b9a131\" href=\"https://linear.app/definitie-app/issue/DEF-606/epic-een-uitvoerbaar-toetsregelcontract-en-53-gedragsbewijs\">DEF-606</issue>.\n\n**Planningscontrole:** leg bij de start van iedere stap vast welke voorgaande resultaten en contractbesluiten beschikbaar zijn. Afwijken van deze volgorde vraagt een expliciete nieuwe planningsafspraak. Reeds geleverde onderdelen hergebruiken; bestaande bredere fasevoorwaarden en afhankelijkheden blijven zichtbaar. Deze registratie start geen implementatie.\n\nOnderbouwing: [audit van de vijf vervolgissues](<https://linear.app/defini"
+    },
+    {
+      "id": "DEF-772",
+      "url": "https://linear.app/definitie-app/issue/DEF-772",
+      "status": "Backlog",
+      "updatedAt": "2026-09-17T08:38:56.301Z",
+      "gelezen_op": "2026-09-25",
+      "methode": "mcp__linear__get_issue; read-only; volledige description ontvangen",
+      "gelezen_kern": "Centrale placeholder; historisch dossier INT-03-v1.md; antecedent en verwijzingsbereik vereisen inhoudelijke review; normwijziging/implementatie pas na besluit."
+    }
+  ],
+  "webbronnen": [
+    {
+      "url": "https://onzetaal.nl/taalloket/voornaamwoord",
+      "status": "rechtstreeks gelezen 2026-09-25",
+      "gelezen": "inleiding, soorten, verwijzing binnen/buiten tekst"
+    },
+    {
+      "url": "https://onzetaal.nl/taalloket/betrekkelijk-voornaamwoord",
+      "status": "rechtstreeks gelezen 2026-09-25",
+      "gelezen": "antecedent als woord/groep/zin, ingesloten antecedent, die/dat/wat"
+    },
+    {
+      "url": "https://onzetaal.nl/taalloket/bezittelijk-voornaamwoord",
+      "status": "rechtstreeks gelezen 2026-09-25",
+      "gelezen": "relationele functie, voorbeelden en woordgeslacht"
+    },
+    {
+      "url": "https://onzetaal.nl/taalloket/wederkerend-voornaamwoord-wederkerig-voornaamwoord",
+      "status": "rechtstreeks gelezen 2026-09-25",
+      "gelezen": "verwijzing naar onderwerp; wederkerigheid"
+    },
+    {
+      "url": "https://www.astraonline.nl/index.php/Voornaamwoord-verwijzing_duidelijk",
+      "status": "webopen not accessible; aangeleverde lokale raw-snapshot wel gelezen"
+    },
+    {
+      "url": "https://www.astraonline.nl/index.php/How_to_define_business_terms_in_plain_English:_a_primer_(Ronald_Ross)",
+      "status": "webopen Cache miss"
+    },
+    {
+      "url": "https://www.brsolutions.com/publications/crafting-definitions-a-primer/",
+      "status": "webopen not accessible"
+    },
+    {
+      "url": "https://www.brsolutions.com/wp-content/uploads/2016/10/How-to-Define-Business-Terms-Primer.pdf",
+      "status": "webopen not accessible; Ross paragraaf 4.3 niet gelezen"
+    }
+  ],
+  "verificatie": {
+    "Q1_Q6_aanwezig": true,
+    "casussen_GTH": 18,
+    "servicegevallen": 10,
+    "laadpaden": 2,
+    "serviceverwachtingen_uitgekomen": 20,
+    "promptvarianten_uitgekomen": 4,
+    "verwachtingen_v1_voor_eerste_run": true,
+    "zelfde_script_beide_pogingen": true,
+    "E04_GH_aanscherping": "v2 vóór enige G/H-uitvoering; IDs/invoer/huidige runtimeverwachtingen onveranderd",
+    "proef_exitstatus": 0,
+    "eerste_start_exitstatus": 1,
+    "offline_gate": {
+      "gate_actief": true,
+      "applicatiemodules_bij_installatie": [],
+      "sessieroot": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/.offline-runtime-d-v1",
+      "sessietempdir": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/.offline-runtime-d-v1/tempfiles",
+      "systeem_tempdir": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/.offline-runtime-d-v1"
+    },
+    "stubs": [],
+    "lint": {
+      "commando": ".venv/bin/ruff check --no-cache --select F docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/proef-d-v1.py",
+      "exitstatus": 0,
+      "uitvoer": "All checks passed!",
+      "grens": "Pyflakes-controle proefscript, geen applicatie-lint of brede suite"
+    },
+    "syntax": "ast.parse geslaagd",
+    "tracked_diff_leeg": true,
+    "staged_diff_leeg": true,
+    "links": [
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "../gedeeld/startopdracht-d-v1.md",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "casusregister-d-v1.md",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "proefverwachtingen-d-v1.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "casusregister-d-v2.md",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "proefverwachtingen-d-v2.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "proefuitkomsten-d-v1.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "proefuitkomsten-d-v2.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "proef-d-v1.py",
+        "bestaat": true
+      },
+      {
+        "bestand": "aanvulling-d-v1.md",
+        "doel": "bewijsmanifest-d-v1.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "casusregister-d-v1.md",
+        "doel": "proefverwachtingen-d-v1.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "casusregister-d-v1.md",
+        "doel": "proefuitkomsten-d-v1.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "casusregister-d-v2.md",
+        "doel": "proefverwachtingen-d-v2.json",
+        "bestaat": true
+      },
+      {
+        "bestand": "casusregister-d-v2.md",
+        "doel": "proefuitkomsten-d-v2.json",
+        "bestaat": true
+      }
+    ],
+    "inhoudelijke_zelfcontrole": "Onderzoek en actueel casusregister teruggelezen; scope/bewijs/status/versies gecontroleerd. Geen onafhankelijke kruisreview.",
+    "geen_nieuwe_conclusies_ABC_gelezen": true,
+    "schrijfgrens": "Alle door D gemaakte onderzoeks- en runtimebestanden onder onderzoek-d; bestaande bronnen behouden. Git-diffcontrole bewijst tracked toestand; geen algemene snapshotclaim over gelijktijdig ongetrackt werk van andere onderzoekers."
+  },
+  "beperkingen": [
+    "Geen live modelcalls",
+    "Geen gebruikersproef",
+    "Geen volledige UI-/opslag-/exportketenproef",
+    "Geen Ross 4.3",
+    "Geen nieuwe normbesluiten of implementatie",
+    "Geen gezamenlijke afronding"
+  ],
+  "volgende_overdracht": "Coördinator A ontvangt eigen eerste bijdrage en claimrelevante bijlagen; daarna gerichte kruisreview en besluitvorming. Geen bericht naar andere sessies verstuurd."
+}

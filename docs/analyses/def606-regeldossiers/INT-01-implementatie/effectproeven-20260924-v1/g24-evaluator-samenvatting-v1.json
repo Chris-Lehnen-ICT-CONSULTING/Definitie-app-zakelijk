@@ -1,0 +1,14 @@
+{
+  "teksten": 48,
+  "service_observaties": 96,
+  "laadpaden_identiek": 48,
+  "status": {
+    "review_required": 48
+  },
+  "zinsstructuur": {
+    "pass": 48
+  },
+  "in_passed_rules": 0,
+  "fouten": 0,
+  "offline_gate_actief": true
+}

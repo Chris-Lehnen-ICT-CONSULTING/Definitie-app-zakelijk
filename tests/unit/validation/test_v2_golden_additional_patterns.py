@@ -49,6 +49,9 @@ async def test_additional_patterns_ess01_detects_goal_phrases():
 
 @pytest.mark.asyncio
 async def test_additional_patterns_int01_detects_multi_sentence():
+    # DEF-770: INT-01 staat niet meer in additional_patterns; de tweede zin
+    # wordt nu door de sentence_boundary-evaluator gevonden. De naam van deze
+    # test is historisch, de verwachting (tweede zin faalt) blijft.
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     text = (
         "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. "

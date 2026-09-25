@@ -59,12 +59,22 @@ VERMOGEN = (
     "bovenbegrip toe, maar verbind het via de relatie uit de bron, zoals een rol "
     "die die bevoegdheid inhoudt."
 )
-#: ARAI-04-instructies blijven byte-gelijk (norm/validatie niet gewijzigd).
+#: ARAI-04-instructies blijven byte-gelijk (norm/validatie niet gewijzigd door
+#: DEF-768). Integratie met main: DEF-770 (INT-01 vervolg) gaf beide een
+#: voorrangsregel voor bronmodaliteit; de pin volgt die geïntegreerde basis.
 ARAI = {
-    "ARAI-04": "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'",
+    "ARAI-04": (
+        "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'. "
+        "Drukt de bron een mogelijkheid, toestemming of niet-verplichting "
+        "uit, maak daar dan geen feit of eis van: laat haar weg als zij het "
+        "begrip niet afbakent, en druk haar anders uit zonder modaal "
+        "werkwoord ('-baar', 'al dan niet', 'ongeacht')"
+    ),
     "ARAI-04SUB1": (
-        "Vermijd modale werkwoorden die onduidelijkheid scheppen over de essentie "
-        "van het begrip"
+        "Vermijd modale werkwoorden die onduidelijkheid scheppen over de "
+        "essentie van het begrip; een mogelijkheid, toestemming of "
+        "niet-verplichting uit de bron wordt daardoor geen feit of eis "
+        "(zie ARAI-04)"
     ),
 }
 GEVALSWOORDEN = (
