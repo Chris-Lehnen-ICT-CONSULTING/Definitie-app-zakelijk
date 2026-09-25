@@ -105,8 +105,9 @@ async def test_int01_in_echte_prompt_bij_elke_context(context, juridisch):
         assert len(int_ids) > 1 and "INT-02" in int_ids
         assert sam_ids
     else:
-        # Smal: alleen INT-01; overige INT en SAM ongewijzigd afwezig.
-        assert int_ids == ["INT-01"]
+        # Smal: alleen INT-01 en INT-03 (DEF-772 K3(b)); overige INT en SAM
+        # ongewijzigd afwezig.
+        assert int_ids == ["INT-01", "INT-03"]
         assert not sam_ids
 
 
@@ -184,7 +185,8 @@ def test_orchestrator_activeert_integrity_altijd_en_sam_ongewijzigd():
     assert {"integrity_rules", "sam_rules"} <= actief
 
 
-def test_int_module_toont_zonder_juridische_context_alleen_int01():
+def test_int_module_toont_zonder_juridische_context_alleen_int01_en_int03():
+    """DEF-772 K3(b): naast INT-01 is ook INT-03 contextvrij; de rest niet."""
     module = JSONBasedRulesModule("INT", "integrity_rules", "INT", "🔒", "INT", 70)
     module.initialize({"include_examples": True})
 
@@ -197,14 +199,14 @@ def test_int_module_toont_zonder_juridische_context_alleen_int01():
         )
 
     zonder = module.execute(_ctx(_enriched(organisatorisch=ORG)))
-    assert _rule_ids(zonder.content) == ["INT-01"]
-    assert zonder.metadata["rules_count"] == 1
+    assert _rule_ids(zonder.content) == ["INT-01", "INT-03"]
+    assert zonder.metadata["rules_count"] == 2
     assert "INT-02" in zonder.metadata["rules_skipped"]
     met = module.execute(_ctx(_enriched(wettelijk=["Synthetische Proefwet"])))
     assert "INT-01" in _rule_ids(met.content) and "INT-02" in _rule_ids(met.content)
     assert met.metadata["rules_skipped"] == []
     assert sorted(_rule_ids(met.content)) == sorted(
-        ["INT-01", *zonder.metadata["rules_skipped"]]
+        ["INT-01", "INT-03", *zonder.metadata["rules_skipped"]]
     )
 
 
