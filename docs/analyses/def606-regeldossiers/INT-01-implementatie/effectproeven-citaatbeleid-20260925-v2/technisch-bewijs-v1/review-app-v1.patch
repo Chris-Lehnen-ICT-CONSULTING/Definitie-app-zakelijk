@@ -1,0 +1,580 @@
+diff --git a/src/domain/int01/zinsgrenzen.py b/src/domain/int01/zinsgrenzen.py
+index 8f43be98d..809b7a20d 100644
+--- a/src/domain/int01/zinsgrenzen.py
++++ b/src/domain/int01/zinsgrenzen.py
+@@ -35,10 +35,9 @@ in de passage:
+   altijd een open onderdeel broncitaat; interne leestekens van een ingesloten
+   citaat vormen geen grens van de buitenste zin, binnen haakjes zijn ze
+   onzeker. Een slotteken direct vóór het sluitende aanhalingsteken kan ook de
+-  buitenste zin afsluiten: zonder aantoonbare voortzetting (voorzetselgroepen
+-  of een vóór het citaat geopende bijzin) blijft het onzeker; een voortzetting
+-  waarvan de woordrollen niet bewezen zijn ('‘Klaar?’ waarop de namen staan')
+-  gaat naar inhoudelijke beoordeling;
++  buitenste zin afsluiten: volgt verdere tekst zonder hoofdletter of cijfer,
++  dan is die grens altijd onzeker, want de samenhang van de voortzetting
++  vraagt grammaticale interpretatie (algemeen-citaatbesluit-v1);
+ - een naamwoordelijke kern zonder zelfstandige hoofdzin is geldig: er is geen
+   hoofdzin- of persoonsvormplicht. Een los label met hooguit één inhoudswoord
+   ('schakelblad') is echter geen definitieformulering: geen zinsstructuur-pass
+@@ -93,9 +92,12 @@ _OPEN = "review_required"
+ #: na een citaatslot uit /5 vervalt; zo'n voortzetting met onbewezen
+ #: woordrollen is onzeker. /7: restherstel (astra-acceptatiebevindingen-v1) —
+ #: een los label zonder formulering krijgt een open onderdeel `formulering` in
+-#: plaats van een zinsstructuur-pass. Een opgeslagen uitkomst onder een andere
+-#: versie geldt niet meer als actueel.
+-CONTRACTVERSIE = "def770-int01/7"
++#: plaats van een zinsstructuur-pass. /8: citaatbeleid
++#: (algemeen-citaatbesluit-v1) — een kleine-lettervoortzetting na een
++#: citaatslot is altijd onzeker; de positieve paden uit /4 (voorzetselgroepen,
++#: vóór het citaat geopende bijzin) vervallen. Een opgeslagen uitkomst onder een
++#: andere versie geldt niet meer als actueel.
++CONTRACTVERSIE = "def770-int01/8"
+ 
+ #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
+ REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
+@@ -139,31 +141,6 @@ _VERKLARING_HAAKJES = re.compile(
+ _VERKLARINGSDEEL = re.compile(
+     rf"(?:(?:hierna|afgekort)\s*:?\s*)?{_AFKORTINGSVORM}\.?", re.IGNORECASE
+ )
+-#: Tegenwoordige en verleden persoonsvormen van hulp- en koppelwerkwoorden en
+-#: veelvoorkomende definitiewerkwoorden. Na een citaatslot sluit een herkende
+-#: persoonsvorm een bewezen voortzetting uit; afwezigheid bewijst niets.
+-_PERSOONSVORMEN = frozenset(
+-    {"is", "wordt", "worden", "werd", "werden", "blijft", "blijven", "bleef"}
+-    | {"bleven", "heeft", "hebben", "had", "hadden", "kan", "kunnen", "kon"}
+-    | {"konden", "moet", "moeten", "moest", "moesten", "mag", "mogen", "mocht"}
+-    | {"mochten", "zal", "zullen", "zou", "zouden", "geldt", "bevat", "bevatten"}
+-)
+-_ZEKER_ZINSBEGIN = re.compile(r"[.?!…]\s+(?=[A-ZÀ-Ý\d])")
+-#: Woorden die een bijzin of betrekkelijke bijzin inleiden (open bijzin vóór
+-#: een citaat).
+-_ONDERSCHIKKEND = frozenset(
+-    {"die", "dat", "wat", "wie", "welke", "waar", "waarbij", "waarin", "waarop"}
+-    | {"waarvan", "waardoor", "waarmee", "waarna", "als", "indien", "mits"}
+-    | {"tenzij", "omdat", "doordat", "zodat", "terwijl", "nadat", "voordat"}
+-    | {"totdat", "hoewel", "zodra", "wanneer"}
+-)
+-#: Voorzetsels die een slotwoordgroep na een citaat kunnen openen.
+-_VOORZETSELS = frozenset(
+-    {"aan", "achter", "bij", "binnen", "boven", "buiten", "door", "in", "langs"}
+-    | {"met", "na", "naar", "naast", "onder", "op", "over", "per", "sinds"}
+-    | {"tegen", "tijdens", "tot", "uit", "van", "vanaf", "via", "volgens"}
+-    | {"voor", "zonder", "ter", "ten"}
+-)
+ _LIDWOORDEN = frozenset(
+     {"de", "het", "een", "deze", "dit", "elke", "ieder", "iedere", "geen"}
+     | {"alle", "zijn", "haar", "hun"}
+@@ -429,7 +406,7 @@ def _classificeer(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
+     if kandidaat.in_citaat and _begin(kandidaat.volgend) not in ("hoofd", "cijfer"):
+         # Het slotteken staat direct vóór het sluitende aanhalingsteken: dat
+         # kan het citaat én de buitenste zin afsluiten.
+-        return _classificeer_citaatslot(kandidaat, tekst)
++        return _classificeer_citaatslot()
+     if kandidaat.teken in ("...", "…"):
+         return _classificeer_weglating(kandidaat)
+     if kandidaat.teken in "?!":
+@@ -569,44 +546,20 @@ def _fragmentdeel(token: str) -> bool:
+     return functie in ("titel", "verwijzing", "mogelijk_zinslot", "afkorting")
+ 
+ 
+-def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
+-    """Slotteken plus sluitend aanhalingsteken, gevolgd door een kleine letter.
+-
+-    Alleen een aantoonbare voortzetting van de buitenste zin maakt het één
+-    formulering. Het ontbreken van een herkende persoonsvorm bewijst dat niet.
+-    Twee vormen gelden als bewijs, beide zonder herkende persoonsvorm in het
+-    vervolg:
+-
+-    - een vervolg uit voorzetselgroepen: telkens voorzetsel, hooguit een
+-      lidwoord en één woord ('“Gereed.” op het scherm', '‘Wie betaalt?’ van de
+-      commissie', '‘…?’ voor het reconstrueren van een vaarvolgorde'); een
+-      extra woord in een groep ('‘…?’ met de kleurcode van de bijbehorende
+-      opdracht') bewijst zonder woordrollen niets en blijft onzeker;
+-    - een bijzin die vóór het citaat is geopend en waarin tot het citaat alleen
+-      naamwoordgroepen staan ('die de melding “Gereed.” …', 'waarmee een
+-      bediener de melding “…” …'), met als
+-      vervolg alleen het slotwerkwoord ('… toont') of een woordgroep die met
+-      een voorzetsel begint ('… op het scherm laat verschijnen').
+-
+-    Al het andere ('… voor gebruik is controle vereist', '… de controle volgt
+-    later', een langere woordgroep) blijft onzeker, met passage en positie.
+-    Dat geldt ook voor een betrekkelijke bijzin met 'waar' + voorzetsel
+-    ('‘Wie woont hier?’ waarop de aanwijzingen staan'): zonder woordsoortkennis
+-    zijn de rollen niet te bewijzen ('waarop het werkt de deelnemers wachten'),
+-    dus inhoudelijke beoordeling (titel-en-budgetbesluit-v1).
++def _classificeer_citaatslot() -> tuple[str, str]:
++    """Slotteken plus sluitend aanhalingsteken, gevolgd door verdere tekst die
++    niet met een hoofdletter of cijfer begint: altijd onzeker.
++
++    Of de buitenste zin doorloopt ('“Gereed.” op het scherm', 'die de melding
++    “Gereed.” toont', '‘Ga verder!’ dat … markeert') of na het citaat eindigt,
++    hangt af van grammaticale interpretatie van samenhang of woordrollen
++    ('met het regent', 'die de melding “Gereed.” klaar'). Volgens
++    algemeen-citaatbesluit-v1 is dat inhoudelijke beoordeling; geen woordgroep,
++    woorduitgang of afwezigheid van een herkende persoonsvorm geeft
++    automatisch positief bewijs (contract /8, zoals punt plus kleine letter
++    sinds /3). Interne citaatpunctuatie die niet direct vóór het sluitende
++    teken staat, en zekere grenzen met hoofdletter, vallen hier niet onder.
+     """
+-    woorden = _woorden_tot_zeker_zinsbegin(kandidaat.volgend)
+-    if woorden and not any(woord in _PERSOONSVORMEN for woord in woorden):
+-        functiewoord = _VOORZETSELS | _LIDWOORDEN
+-        # Het vervolg eindigt niet op een losse voorzetsel of lidwoord.
+-        afgerond = woorden[-1] not in functiewoord
+-        bijzin_slot = (
+-            _open_bijzin(tekst[: kandidaat.citaatbegin])
+-            and afgerond
+-            and (len(woorden) == 1 or woorden[0] in _VOORZETSELS)
+-        )
+-        if _voorzetselgroepen(woorden) or bijzin_slot:
+-            return "geen", ""
+     return (
+         "onzeker",
+         (
+@@ -617,25 +570,6 @@ def _classificeer_citaatslot(kandidaat: _Kandidaat, tekst: str) -> tuple[str, st
+     )
+ 
+ 
+-def _open_bijzin(voor: str) -> bool:
+-    """Vlak vóór het citaat is een bijzin geopend waarin tot het citaat alleen
+-    naamwoordgroepen staan: markering, dan één of meer keer lidwoord 'de' of
+-    'een' plus één woord ('die de melding', 'waarmee een bediener de
+-    melding'). Die lidwoorden kunnen geen zelfstandig voornaamwoord zijn, dus
+-    elk woord erna is de kern van een naamwoordgroep en niet het werkwoord;
+-    zo is elk woord tussen markering en citaat verklaard. Een los woord ('die
+-    meldt', 'een bediener meldt') of een voornaamwoord ('die het meldt') kan
+-    het werkwoord al bevatten: geen bewijs."""
+-    woorden = re.findall(r"[a-zà-ÿ]+", voor.lower())
+-    groepen = 0
+-    while len(woorden) >= 3 and woorden[-2] in ("de", "een"):
+-        if woorden[-1] in _LIDWOORDEN | _VOORZETSELS | _ONDERSCHIKKEND:
+-            return False
+-        del woorden[-2:]
+-        groepen += 1
+-    return groepen > 0 and woorden[-1] in _ONDERSCHIKKEND
+-
+-
+ def _classificeer_weglating(kandidaat: _Kandidaat) -> tuple[str, str]:
+     if _begin(kandidaat.volgend) == "hoofd":
+         return "onzeker", "weglatingsteken gevolgd door een hoofdletter"
+@@ -752,32 +686,6 @@ def _classificeer_punt(kandidaat: _Kandidaat) -> tuple[str, str]:
+     return "onzeker", "punt gevolgd door een teken dat geen zinsbegin is"
+ 
+ 
+-def _voorzetselgroepen(woorden: list[str]) -> bool:
+-    """Het vervolg bestaat volledig uit voorzetselgroepen: telkens voorzetsel,
+-    hooguit een lidwoord en één kernwoord ('op het scherm', 'voor het
+-    reconstrueren van een vaarvolgorde'). Elk woord is dan verklaard en er is
+-    geen plaats voor een persoonsvorm. Een onvolledige groep ('op', 'op de'),
+-    een extra woord ('op het grote scherm') of een woord buiten een groep
+-    ('na afloop volgt ...') bewijst niets."""
+-    functiewoord = _VOORZETSELS | _LIDWOORDEN
+-    index = 0
+-    while index < len(woorden):
+-        if woorden[index] not in _VOORZETSELS:
+-            return False
+-        index += 1
+-        if index < len(woorden) and woorden[index] in _LIDWOORDEN:
+-            index += 1
+-        if index >= len(woorden) or woorden[index] in functiewoord:
+-            return False
+-        index += 1
+-    return bool(woorden)
+-
+-
+-def _woorden_tot_zeker_zinsbegin(tekst: str) -> list[str]:
+-    eerste_zin = _ZEKER_ZINSBEGIN.split(tekst, 1)[0].lower()
+-    return re.findall(r"[a-zà-ÿ]+", eerste_zin)
+-
+-
+ def _regelgrenzen(tekst: str) -> list[Zinsgrens]:
+     """Alinea- en opsommingsstructuur zonder slotteken: zichtbaar onzeker.
+ 
+diff --git a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+index de3dacf9a..569ce23cc 100644
+--- a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+@@ -26,6 +26,12 @@ haakjeszin aan het eind onzeker, T23 afkortingsachtige vorm zonder klinker
+ onzeker, T17/T20 ingebed citaat met bewezen open bijzin of vervolg uit
+ voorzetselgroepen één formulering — elk met negatieve tegenhangers.
+ 
++Citaatbeleid (contract def770-int01/8, algemeen-citaatbesluit-v1): de
++positieve citaatpaden uit /4 vervallen; elke kleine-lettervoortzetting na een
++slotteken direct vóór een sluitend aanhalingsteken is onzeker. De historische
++verwachtingen blijven zichtbaar in GEVALLEN en SERVICEGEVALLEN; CITAATBESLUIT
++en CITAATBESLUIT_SERVICE geven de geldende automatische verwachting.
++
+ Nooit een volledige INT-01-pass; compactheid en begrijpelijkheid blijven
+ apart open; oude opgeslagen uitkomsten gelden na de semantische wijziging
+ niet meer als actueel (contractversie).
+@@ -379,9 +385,29 @@ GEVALLEN = [
+ ]
+ 
+ 
++#: Citaatbeleid (herstel-20260924-v1/algemeen-citaatbesluit-v1.md, contract
++#: /8): een kleine-lettervoortzetting na een citaatslot is altijd onzeker. Deze
++#: gevallen hadden t/m /7 een positief citaatpad (voorzetselgroepen of een vóór
++#: het citaat geopende bijzin); hun oorspronkelijke tuple in GEVALLEN blijft
++#: als historische verwachting staan, dit is de geldende (zeker, onzeker).
++CITAATBESLUIT = {
++    "T17-ingesloten-citaat": (0, 1),
++    "citaat-recht": (0, 1),
++    "zin-na-citaat": (1, 1),
++    "r2-citaat-voortzetting": (0, 1),
++    "r2-citaat-voorzetsel": (0, 1),
++    "r3-citaat-korte-pp": (0, 1),
++    "r4-bijzin-voornaamwoord": (0, 1),
++    "r4-open-bijzin-pp": (0, 1),
++    "r4-open-bijzin-een": (0, 1),
++    "e1-T17-bijzin-meer-groepen": (0, 1),
++    "e1-T20-voorzetselgroepen": (0, 1),
++}
++
++
+ @pytest.mark.parametrize(
+     ("tekst", "zeker", "onzeker"),
+-    [pytest.param(t, z, o, id=i) for i, t, z, o in GEVALLEN],
++    [pytest.param(t, *CITAATBESLUIT.get(i, (z, o)), id=i) for i, t, z, o in GEVALLEN],
+ )
+ def test_segmentatie(tekst, zeker, onzeker):
+     seg = segmenteer(tekst)
+@@ -620,10 +646,22 @@ SERVICEGEVALLEN = [
+ ]
+ 
+ 
++#: Citaatbeleid (algemeen-citaatbesluit-v1, /8): geldende onderdelen voor de
++#: servicegevallen met een citaatvervolg; de oorspronkelijke verwachting in
++#: SERVICEGEVALLEN blijft als historische verwachting staan.
++CITAATBESLUIT_SERVICE = {
++    gid: {"zinsgrens_onzeker_1": "review_required", **OPEN}
++    for gid in ("T17", "e1-T17", "e1-T20")
++}
++
++
+ @pytest.mark.asyncio
+ @pytest.mark.parametrize(
+     ("tekst", "status", "delen"),
+-    [pytest.param(t, s, d, id=i) for i, t, s, d in SERVICEGEVALLEN],
++    [
++        pytest.param(t, s, CITAATBESLUIT_SERVICE.get(i, d), id=i)
++        for i, t, s, d in SERVICEGEVALLEN
++    ],
+ )
+ async def test_service_uitkomst_beide_laadpaden(svc, tekst, status, delen):
+     res = await svc.validate_definition(
+@@ -649,8 +687,10 @@ def test_contractversie_na_titelbeleid_en_restherstel():
+     de beslisbetekenis, dus /5 → /6; uitkomsten onder /5 zijn niet actueel.
+     Het restherstel (astra-acceptatiebevindingen-v1: los label zonder
+     formulering) wijzigt haar opnieuw: /6 → /7
+-    (test_def770_restherstel_zinsgrenzen.py)."""
+-    assert CONTRACTVERSIE == "def770-int01/7"
++    (test_def770_restherstel_zinsgrenzen.py). Het citaatbeleid
++    (algemeen-citaatbesluit-v1: geen positief citaatvervolg) daarna: /7 → /8
++    (test_def770_citaatbeleid_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/8"
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -662,6 +702,7 @@ def test_contractversie_na_titelbeleid_en_restherstel():
+         "def770-int01/4",
+         "def770-int01/5",
+         "def770-int01/6",
++        "def770-int01/7",
+     ],
+ )
+ @pytest.mark.parametrize(
+diff --git a/tests/unit/validation/test_def770_int01_zinsgrenzen.py b/tests/unit/validation/test_def770_int01_zinsgrenzen.py
+index 3437bbb9a..007bb92e6 100644
+--- a/tests/unit/validation/test_def770_int01_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_int01_zinsgrenzen.py
+@@ -151,10 +151,20 @@ SEGMENTATIEGEVALLEN = [
+ ]
+ 
+ 
++#: Citaatbeleid (herstel-20260924-v1/algemeen-citaatbesluit-v1.md, contract
++#: /8): een kleine-lettervoortzetting na een citaatslot is altijd onzeker. De
++#: oorspronkelijke tuple in SEGMENTATIEGEVALLEN blijft als historische
++#: verwachting staan; dit is de geldende (zeker, onzeker).
++CITAATBESLUIT = {"ingesloten-vraagtitel": (0, 1)}
++
++
+ class TestSegmentatie:
+     @pytest.mark.parametrize(
+         ("tekst", "zeker", "onzeker"),
+-        [pytest.param(t, z, o, id=i) for i, t, z, o in SEGMENTATIEGEVALLEN],
++        [
++            pytest.param(t, *CITAATBESLUIT.get(i, (z, o)), id=i)
++            for i, t, z, o in SEGMENTATIEGEVALLEN
++        ],
+     )
+     def test_functionele_zinsgrenzen(self, tekst, zeker, onzeker):
+         seg = _segmenteer(tekst)
+diff --git a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+index ec3eb551f..9e3a537de 100644
+--- a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+@@ -25,6 +25,11 @@ labels zijn overgenomen, niet aangepast.
+   (eventueel met lidwoord) is geen definitieformulering: /7 geeft een open
+   onderdeel `formulering` met passage en reden in plaats van die pass.
+ 
++Citaatbeleid (algemeen-citaatbesluit-v1, contract /8): elke
++kleine-lettervoortzetting na een citaatslot is onzeker; het basisgedrag
++‘één woord na het lidwoord’ (a-T20-zonder-extra-woord) geeft daarom geen
++0/0 meer.
++
+ Nooit een volledige INT-01-pass.
+ """
+ 
+@@ -79,14 +84,16 @@ BESLUIT_AUTOMATISCH = {"T20": "review_required"}
+ 
+ # (id, tekst, zekere grenzen, onzekere grenzen)
+ NOMINAAL = [
+-    # Basisgedrag: één woord na het lidwoord in elke groep blijft 0/0.
++    # Basisgedrag t/m /7: één woord na het lidwoord in elke groep gaf 0/0.
++    # Citaatbeleid (algemeen-citaatbesluit-v1, contract /8): een
++    # kleine-lettervoortzetting na een citaatslot is altijd onzeker, dus 0/1.
+     pytest.param(
+         (
+             "fiche bij het fictieve oefenboek ‘Wie opent het luik?’ met de "
+             "kleurcode van de opdracht"
+         ),
+         0,
+-        0,
++        1,
+         id="a-T20-zonder-extra-woord",
+     ),
+ ]
+@@ -292,8 +299,10 @@ def test_opslag_en_teruglezen(tmp_path: Path, tekst):
+     assert uit["parts"] == verwacht
+ 
+ 
+-def test_contractversie_is_7_na_restherstel():
++def test_contractversie_na_restherstel_en_citaatbeleid():
+     """/6 (titelbeleid) is proefbron van de verzegelde T24-acceptatie. Het
+     restherstel verandert de interpretatie (los label geen zinsstructuur-pass),
+-    dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7."""
+-    assert CONTRACTVERSIE == "def770-int01/7"
++    dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7.
++    Het citaatbeleid (algemeen-citaatbesluit-v1) verandert haar opnieuw:
++    /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/8"
+diff --git a/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py b/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
+new file mode 100644
+index 000000000..c70bdac13
+--- /dev/null
++++ b/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
+@@ -0,0 +1,214 @@
++"""DEF-770 citaatbeleid (contract /8): citaatvervolgen naar inhoudelijke beoordeling.
++
++Besluit: herstel-20260924-v1/algemeen-citaatbesluit-v1.md (Chris: “ja”). Bij
++een titel of citaat met interne zinseindpunctuatie en een voortzetting
++waarvoor de samenhang of woordrollen grammaticale interpretatie vereist, is
++de automatische uitkomst review_required. Normatief kan de tekst één correcte
++formulering zijn. Geen woorduitgang, veronderstelde grammaticale correctheid
++of afwezigheid van een herkende hoofdzin levert automatisch positief bewijs.
++
++Tot en met /7 gaven twee positieve paden na een citaatslot toch een pass:
++voorzetselgroepen erna en een vóór het citaat geopende bijzin. Beide leiden
++de samenhang af uit veronderstelde woordrollen (‘met het regent’: ‘het’ als
++lidwoord; ‘die de melding “Gereed.” klaar’: ‘klaar’ als slotwerkwoord). Onder
++/8 is elke kleine-lettervoortzetting na een citaatslot onzeker, zoals een punt
++met kleine letter sinds /3.
++
++Behouden (geen algemene onzekerverklaring voor citaten): interne leestekens
++van een citaat die niet direct vóór het sluitende teken staan, een citaat
++zonder slotteken, en zekere buitenste grenzen.
++
++T17 uit de restherstelproef (effectproeven-restherstel-20260925-v1) is
++ontwikkelbewijs; de labels zijn overgenomen uit astra-t24-acceptatie-v1.md
++(normatief en historisch automatisch pass), niet aangepast. De afzonderlijke
++besluitverwachting is review_required. Nooit een volledige INT-01-pass.
++"""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++import pytest
++
++from database.definitie_repository import (
++    DefinitieRecord,
++    DefinitieRepository,
++    DefinitieStatus,
++)
++from domain.int01.zinsgrenzen import CONTRACTVERSIE, regeluitkomst, segmenteer
++from services.validation.modular_validation_service import ModularValidationService
++from toetsregels.manager import get_toetsregel_manager
++
++pytestmark = [pytest.mark.unit]
++
++#: T17 uit de restherstelproef; ontwikkelbewijs.
++R_T17 = (
++    "bord met de tekst ‘Ga verder!’ dat tijdens een oefening een vrije doorgang "
++    "markeert"
++)
++#: Labels van die proef (astra-t24-acceptatie-v1.md): zichtbaar, ongewijzigd.
++REFERENTIE_NORMATIEF = {"T17": "pass"}
++HISTORISCH_AUTOMATISCH = {"T17": "pass"}
++#: Besluitverwachting volgens algemeen-citaatbesluit-v1.
++BESLUIT_AUTOMATISCH = {"T17": "review_required"}
++
++
++# (id, tekst, zekere grenzen, onzekere grenzen)
++ONZEKER = [
++    ("r-T17", R_T17, 0, 1),
++    # dat/die-bijzin na het citaat: zelfde vorm, andere lezing mogelijk.
++    (
++        "dat-hoofdzinvolgorde",
++        (
++            "bord met de tekst ‘Ga verder!’ dat markeert tijdens een oefening een "
++            "vrije doorgang"
++        ),
++        0,
++        1,
++    ),
++    ("die-bijzin", "kaart met de titel ‘Klaar?’ die de speler bewaart", 0, 1),
++    # Tot en met /7 pass via voorzetselgroepen: veronderstelde woordrollen.
++    ("pp-het-regent", "kaart met de titel ‘Klaar?’ met het regent", 0, 1),
++    ("pp-scherm", "code met de melding “Gereed.” op het scherm", 0, 1),
++    ("pp-commissie", "vraag ‘Wie betaalt?’ van de commissie", 0, 1),
++    # Tot en met /7 pass via een vóór het citaat geopende bijzin.
++    ("bijzin-toont", "code die de melding “Gereed.” toont", 0, 1),
++    ("bijzin-klaar", "code die de melding “Gereed.” klaar", 0, 1),
++    (
++        "bijzin-pp",
++        "code waarmee een bediener de melding “Gereed.” op het scherm zet",
++        0,
++        1,
++    ),
++]
++
++# Afbakening: het besluit is geen algemene onzekerverklaring voor citaten.
++BEHOUDEN = [
++    # Interne punctuatie niet direct vóór het sluitende teken.
++    ("intern-punt", "melding “Klaar. Ga door” op het scherm", 0, 0),
++    ("intern-vraag", "formulier met de kop “Wie? Wanneer” boven de velden", 0, 0),
++    # Citaat zonder slotteken: geen kandidaat.
++    (
++        "zonder-slotteken",
++        "bord met de tekst ‘Ga verder’ dat een doorgang markeert",
++        0,
++        0,
++    ),
++    # Zekere buitenste grens blijft zeker, naast de onzekere citaatgrens.
++    (
++        "zekere-grens",
++        "bord met de tekst ‘Ga verder!’ op de muur. Het bord hangt vast.",
++        1,
++        1,
++    ),
++    # Nominale kern zonder citaat: geen persoonsvormplicht.
++    ("geen-citaat", "bord dat tijdens een oefening een vrije doorgang markeert", 0, 0),
++]
++
++
++@pytest.mark.parametrize(
++    ("tekst", "zeker", "onzeker"),
++    [pytest.param(t, z, o, id=i) for i, t, z, o in ONZEKER + BEHOUDEN],
++)
++def test_segmentatie(tekst, zeker, onzeker):
++    seg = segmenteer(tekst)
++    assert seg is not None
++    assert len(seg.zekere_grenzen) == zeker, seg
++    assert len(seg.onzekere_grenzen) == onzeker, seg
++
++
++@pytest.mark.parametrize(
++    "tekst", [t for _, t, _, _ in ONZEKER], ids=[i for i, *_ in ONZEKER]
++)
++def test_citaatvervolg_houdt_passage_en_reden(tekst):
++    seg = segmenteer(tekst)
++    [grens] = seg.onzekere_grenzen
++    assert grens.passage and tekst[grens.positie] in "?!."
++    assert "aanhalingsteken" in grens.grond
++    delen = {p["id"]: p["status"] for p in regeluitkomst(seg)["parts"]}
++    assert "zinsstructuur" not in delen
++
++
++def test_geheel_geciteerde_kern_ongewijzigd():
++    seg = segmenteer("“Een luisterpunt vangt zachte tiksignalen op.”")
++    assert not seg.zekere_grenzen and not seg.onzekere_grenzen
++    delen = {p["id"]: p["status"] for p in regeluitkomst(seg)["parts"]}
++    assert delen["zinsstructuur"] == "pass"
++    assert delen["broncitaat"] == "review_required"
++
++
++def test_r_t17_besluitverwachting_naast_referentie():
++    """Normatief en historisch pass blijven zichtbaar; automatisch geldt het
++    besluit (review_required)."""
++    assert REFERENTIE_NORMATIEF["T17"] == HISTORISCH_AUTOMATISCH["T17"] == "pass"
++    detail = regeluitkomst(segmenteer(R_T17))
++    assert detail["status"] == BESLUIT_AUTOMATISCH["T17"]
++    delen = {p["id"]: p["status"] for p in detail["parts"]}
++    assert delen["zinsgrens_onzeker_1"] == BESLUIT_AUTOMATISCH["T17"]
++
++
++# ── Service (beide laadpaden), opslag en actualiteit ────────────────────
++
++
++@pytest.fixture(
++    scope="module", params=["toetsregel_manager", "cached_manager (productiepad)"]
++)
++def svc(request) -> ModularValidationService:
++    if request.param.startswith("cached_manager"):
++        from toetsregels.cached_manager import get_cached_toetsregel_manager
++        from toetsregels.rule_cache import get_rule_cache
++
++        get_rule_cache().clear_cache()
++        manager = get_cached_toetsregel_manager()
++    else:
++        manager = get_toetsregel_manager()
++    return ModularValidationService(manager, None, None)
++
++
++OPEN = {"compactheid": "review_required", "begrijpelijkheid": "review_required"}
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize(
++    "tekst",
++    [R_T17, "code met de melding “Gereed.” op het scherm"],
++    ids=["r-T17", "pp-scherm"],
++)
++async def test_service_beide_laadpaden(svc, tekst):
++    res = await svc.validate_definition(
++        begrip="object", text=tekst, ontologische_categorie=None, context={}
++    )
++    assert res["rule_statuses"]["INT-01"] == "review_required"
++    assert "INT-01" not in res["passed_rules"]
++    detail = res["rule_results"]["INT-01"]
++    assert detail["contract_version"] == CONTRACTVERSIE
++    assert {p["id"]: p["status"] for p in detail["parts"]} == {
++        "zinsgrens_onzeker_1": "review_required",
++        **OPEN,
++    }
++
++
++def test_opslag_en_teruglezen(tmp_path: Path):
++    pad = tmp_path / "citaatbeleid.db"
++    did = DefinitieRepository(str(pad)).create_definitie(
++        DefinitieRecord(
++            begrip="object",
++            definitie=R_T17,
++            categorie="type",
++            organisatorische_context='["Synthetische Proefdienst"]',
++            juridische_context="[]",
++            wettelijke_basis="[]",
++            status=DefinitieStatus.DRAFT.value,
++        )
++    )
++    uit = DefinitieRepository(str(pad)).get_definitie(did).get_int01_beoordeling()
++    assert uit["applied"] is True
++    assert uit["status"] == "review_required"
++    assert uit["contract_version"] == CONTRACTVERSIE
++    assert uit["parts"] == regeluitkomst(segmenteer(R_T17))["parts"]
++
++
++def test_contractversie_is_8_na_citaatbeleid():
++    """/7 (restherstel) is proefbron geweest; het citaatbeleid verandert de
++    runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8."""
++    assert CONTRACTVERSIE == "def770-int01/8"

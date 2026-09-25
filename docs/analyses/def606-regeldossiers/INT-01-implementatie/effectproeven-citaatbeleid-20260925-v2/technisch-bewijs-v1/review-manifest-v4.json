@@ -1,0 +1,42 @@
+{
+  "at": "2026-09-25T10:58:48.921105+00:00",
+  "app_base": "58f70cb1dc1e3f78381f420a716220058a623105",
+  "skills_base": "201053a192222b91e459f0b0c13b3170c1c01911",
+  "files": [
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/domain/int01/zinsgrenzen.py",
+      "sha256": "aac0d0c9f66ba96e0e78b73b8f4ab901eaa5ed837dc0446e2a8c40b4057802b8"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py",
+      "sha256": "2094783a938a1022301d975033e9b3d8fc4cb62dfca28218cf332fc9371db3a1"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py",
+      "sha256": "783c1261247cb1ae0aadea701952d808e2e3157fc772cdad9666a2a3b2afa833"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py",
+      "sha256": "ca15b3d34be5f8b809f8e431583ccf1405a4b83c57a4f13db44614bddfbe9dfc"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py",
+      "sha256": "c11d31300b2932e2b7c6339a25a8b2a0399a891e2f377b2f5ea57c2f5e265139"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_voorbeeldgetal_zinsgrenzen.py",
+      "sha256": "a86ab5d35c49d7cf4714a58e83326d29cbb9f15402eafa721d758306887c2ce5"
+    },
+    {
+      "repo": "skills",
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-toetsregels/reference.md",
+      "sha256": "83bae6fd19a8baffb95613ead2284cf4527664fd26e84934867f0bc8b686d148"
+    }
+  ]
+}

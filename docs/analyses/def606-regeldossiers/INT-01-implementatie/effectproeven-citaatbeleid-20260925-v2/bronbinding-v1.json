@@ -1,0 +1,70 @@
+{
+  "app_commit": "58f70cb1dc1e3f78381f420a716220058a623105",
+  "skills_commit": "201053a192222b91e459f0b0c13b3170c1c01911",
+  "archive": {
+    "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-citaatbeleid/bron-citaatcorrectie-v2.tar",
+    "sha256": "db838558d9af999638d72f488c1e4c512c14fb0077bbb82e1b70f537f71aa149"
+  },
+  "reviewed_files": [
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/domain/int01/zinsgrenzen.py",
+      "sha256": "23e9c0b65d862074b4d5fb1de79c570172ebd0fc9cc00f67c98756550e3644cc"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py",
+      "sha256": "3ce8f73726fa88f57afc664867cef8f27706b0044c3b6babf02e88e29630732f"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py",
+      "sha256": "4472cb401c9fe9f5361736cca6bcb3bce8bd03d5803494375fcbefe6d931248f"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_int01_zinsgrenzen.py",
+      "sha256": "b9ca82956e75594a8ba688c4b7cff9eea2419199ff5339f6139fd0da3d430834"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py",
+      "sha256": "d514de4021b0b7c02d45a37ab0aee812c52710933397dc538fed07dd35e261bf"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py",
+      "sha256": "3940415295a07cf106c1d3940d5c1e7d763eb3293088435090c02d5a3fde33d4"
+    },
+    {
+      "repo": "skills",
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-toetsregels/reference.md",
+      "sha256": "77eda8f6ecc7afe9b027910cd45ac5689a35494c095f55f677ebcb126c1863c1"
+    }
+  ],
+  "product_freeze": [
+    {
+      "path": "src/toetsregels/regels/INT-01.json",
+      "sha256": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99"
+    },
+    {
+      "path": "src/domain/int01/zinsgrenzen.py",
+      "sha256": "23e9c0b65d862074b4d5fb1de79c570172ebd0fc9cc00f67c98756550e3644cc"
+    },
+    {
+      "path": "src/domain/int01/opslag.py",
+      "sha256": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f"
+    },
+    {
+      "path": "src/services/validation/evaluators/sentence_boundary.py",
+      "sha256": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ],
+  "generation_source_unchanged_from": "108f38a3933cfe1335908d77a1aaadf0f8f36cc3",
+  "unit_gate": "7546passed75skipped1xfail21subtests;exit0",
+  "bundles": "94passed2subtests;exit0;canonical source parity after commit"
+}

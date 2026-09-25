@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-25T08:47:01.967276+00:00",
+  "base": "c8e8997ec39693e6c66c4792be4459ed214c080d",
+  "review": "logs/def770-citaatbeleid/astra-review-v1.md",
+  "contract": "def770-int01/8",
+  "gate": "bronreview akkoord; canonieke unitgate loopt nog; geen codewijzigingen na vrijgave",
+  "files": [
+    {
+      "path": "src/toetsregels/regels/INT-01.json",
+      "sha256": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99"
+    },
+    {
+      "path": "src/domain/int01/zinsgrenzen.py",
+      "sha256": "3f0e0224e50a8bfeacff9e420b72b411b0c453f7c85b20a6b960b9040d9cbf29"
+    },
+    {
+      "path": "src/domain/int01/opslag.py",
+      "sha256": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f"
+    },
+    {
+      "path": "src/services/validation/evaluators/sentence_boundary.py",
+      "sha256": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ],
+  "metadata_correctie": "Alleen reviewverwijzing hersteld; brontijdstip en hashes ongewijzigd."
+}
