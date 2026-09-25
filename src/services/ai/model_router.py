@@ -51,6 +51,10 @@ class ModelRouter:
                 "explanation",
                 "examples",
                 "validation",
+                # DEF-768/ADR-003: eigen taak voor de semantische ESS-05-
+                # verificatie, bewust in dezelfde tier als `validation`
+                # (zelfde geconfigureerde modelkeuze, geen nieuw model).
+                "ess05_verification",
             ],
             "standard": ["synonyms", "antonyms"],
         },

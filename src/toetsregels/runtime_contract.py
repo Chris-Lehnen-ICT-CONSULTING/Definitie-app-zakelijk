@@ -114,6 +114,9 @@ class EvaluatorType(StrEnum):
     # DEF-766: AI-beoordeling van telbaarheid en onderscheidbaarheid (code
     # toetst binding en citaatbestaan), ESS-03.
     COUNTABILITY_ASSESSMENT = "countability_assessment"
+    # DEF-768: AI-beoordeling van onderscheid van verwante begrippen (code
+    # toetst binding, citaatbestaan en berekent de uitkomst), ESS-05.
+    DISTINCTION_ASSESSMENT = "distinction_assessment"
 
 
 class ExamplePairPolicy(StrEnum):

@@ -361,7 +361,81 @@ class JSONBasedRulesModule(BasePromptModule):
                 "ontbrekende kernafgrenzing."
             ),
             "ESS-04": "Gebruik objectief toetsbare elementen (deadlines, aantallen, percentages, meetbare criteria)",
-            "ESS-05": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
+            # DEF-768: G-tekst ESS-05 (synthese §6.5 v2), met de kenmerkvraag van
+            # de toetsing (K-3b, ESS05-E05/E06) in plaats van een extensietoets.
+            # Het onderscheid zit in de gekozen kenmerken, niet in een trefwoord
+            # of vergelijkingsfrase; de vergelijking per verwant begrip doet de
+            # ESS-05-beoordeling. Review 24-09: een ander woord is nog geen
+            # afgrenzing (gedeelde gevallen mogen), en de trefwoorden zijn geen
+            # verbod — namen en vaste termen blijven staan. Ronde 2 (blinde
+            # G-beoordeling): geen ongegronde uitsluiting om disjunct te worden,
+            # en CON-01 vervangt geen bronrelatie met de contextorganisatie.
+            # Ronde 3 (R2G4): gedeelde betekenisbepalende relaties blijven naast
+            # het onderscheid staan en verschuiven niet naar een onderdeel.
+            # Ronde 4 (R3G3): die behoudzin gepreciseerd voor een toegekend
+            # vermogen/bevoegdheid/taak: blijft bij het begrip, geen uitvoering,
+            # zonder modaal werkwoord (ARAI-04 blijft ongewijzigd gelden).
+            # Ronde 5 (R4-E04): het vermogen hoort bij de drager die de bron
+            # aanwijst; is dat een ander dan het bovenbegrip, dan via de
+            # bronrelatie. Geen rolverbod of vaste formulering.
+            "ESS-05": (
+                "Kies een bovenbegrip en toespitsende kenmerken die het begrip "
+                "binnen de gegeven context onderscheiden van de aangeleverde "
+                "verwante begrippen: de kern drukt per verwant begrip een "
+                "onderbouwd verschil in kenmerken uit ten opzichte van de "
+                "beschrijving van dat begrip. Een ander woord of een ander "
+                "kenmerk alleen is nog geen afgrenzing: het kenmerk moet "
+                "gevallen van het verwante begrip afgrenzen die volgens bron of "
+                "bedoelde betekenis niet onder dit begrip vallen; gedeelde "
+                "gevallen mogen. Overlap van gevallen is geen "
+                "gebrek: een persoon of object dat beide rollen vervult, maakt de "
+                "definitie niet onvoldoende onderscheidend, zolang het "
+                "onderscheidende kenmerk kenbaar is. Ontleen de kenmerken "
+                "aan de aangeleverde bronnen en de bedoelde betekenis; verzin geen "
+                "verwant begrip, kenmerk of bron, verzin geen tegenvoorbeeld of "
+                "betekenis om een afgrenzing te maken, en vernauw de betekenis "
+                "niet verder dan de bron draagt om een verschil te maken. Voeg "
+                "voor een afgrenzing geen uitsluiting of voorwaarde toe die de "
+                "bron niet noemt, ook niet door te vermelden dat een kenmerk uit "
+                "de beschrijving van een verwant begrip ontbreekt; draagt het "
+                "bronkenmerk geen volledige scheiding, dan blijven de gedeelde "
+                "gevallen gedeeld. Laat een kenmerk of relatie die de bron aan het "
+                "begrip zelf toekent niet weg omdat de verwante begrippen haar "
+                "delen: behoud gedeelde betekenisbepalende relaties naast de "
+                "onderscheidende kenmerken, zonder ze als onderscheid op te voeren, "
+                "en verschuif een relatie niet naar een ander object, zoals van het "
+                "begrip naar een onderdeel of inhoud ervan, of van een vastlegging "
+                "naar wat is vastgelegd. Ook een vermogen, bevoegdheid of taak die "
+                "de bron toekent, blijft een kenmerk van de drager die de bron "
+                "daarvoor aanwijst: maak er geen feitelijk uitgevoerde handeling "
+                "van, schrijf het niet toe aan het object waarop het betrekking "
+                "heeft, ook niet als eigenschap van dat object, en formuleer het "
+                "zonder modaal werkwoord als eigenschap van die drager (zoals ‘met "
+                "het vermogen om …’); is die drager een ander dan wat het gekozen "
+                "bovenbegrip aanduidt, zoals de persoon die een rol vervult, "
+                "schrijf het dan niet aan het bovenbegrip toe, maar verbind het "
+                "via de relatie uit de bron, zoals een rol die die bevoegdheid "
+                "inhoudt. Een "
+                "onderscheidend kenmerk mag geen niet-begripsbepalend doel of "
+                "gebruik zijn (ESS-01). Een korte vergelijkende formulering zonder "
+                "de definitie van het andere begrip is toegestaan wanneer de kern "
+                "anders onduidelijk blijft; een contrast dat de definitie van het "
+                "andere begrip nodig heeft, hoort niet in de kern — de app kan het "
+                "als toelichtingsvoorstel apart aanbieden. De woorden ‘uniek’, "
+                "‘specifiek’, ‘bijzonder’ en ‘onderscheidend kenmerk’ zijn op "
+                "zichzelf geen kenmerk en vervangen geen concreet kenmerk; als "
+                "deel van een door de bron gedragen naam, vaste term of "
+                "noodzakelijke inhoud blijven ze staan. Zijn geen verwante begrippen "
+                "aangeleverd, lever dan één kandidaat op grond van de bron; de "
+                "vergelijking blijft bij de ESS-05-beoordeling open. Spreken "
+                "bronnen of context elkaar tegen over de afgrenzing of over wat "
+                "een verwant begrip is, maak dan geen stille keuze. Laat de "
+                "registratiecontext als vermelding buiten de kern (CON-01), maar "
+                "vervang daarmee geen relatie uit de bron: een door de bron "
+                "genoemde relatie met een organisatie, persoon of object blijft in "
+                "de kern wanneer zij de betekenis mede bepaalt, ook als die "
+                "organisatie tevens de registratiecontext is."
+            ),
             # STR rules (Structuur)
             "STR-01": "Start de definitie met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord",
             "STR-02": "Begin met een breder begrip (genus) en specificeer vervolgens hoe de term daarvan verschilt",

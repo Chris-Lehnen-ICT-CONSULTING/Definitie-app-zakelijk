@@ -214,6 +214,8 @@ Refereer context-specifieke verbanden.
 ❌ "begeleiding" → ✅ "reclasseringstoezicht"
 ❌ "functionaris" → ✅ "officier van justitie"
 
+⚠️ GRENS: deze mechanismen bepalen welke domeinterm je kiest voor wat de definitie toch moet noemen. Voeg er geen partij, persoon, ontvanger of rol- of statuskwalificatie mee toe die bron en bedoelde betekenis niet noemen.
+
 🧪 TEST: Is elke naam in de zin inhoudelijk noodzakelijk voor de afbakening, en is er niets (kenmerk, register, nummer) toegevoegd alleen om de context herkenbaar te maken?
 """
 

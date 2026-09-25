@@ -15,7 +15,12 @@ from typing import Any
 
 from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
-from database.models import DefinitieStatus, DuplicateMatch, normalize_wettelijke_basis
+from database.models import (
+    DefinitieStatus,
+    DuplicateMatch,
+    normalize_wettelijke_basis,
+    splits_definitietekst,
+)
 from domain.context.normalisatie import contextsleutel, lees_contextwaarden
 
 logger = logging.getLogger(__name__)
@@ -113,6 +118,28 @@ KANDIDATEN_SYNONIEM_QUERY = f"""
 
 class DuplicaatKandidatenOverschredenError(RuntimeError):
     """Het kandidatenplafond is geraakt; de duplicaatcontrole is onvolledig."""
+
+
+# DEF-768: verwante begrippen voor ESS-05 = actieve records met exact dezelfde
+# drie (genormaliseerde) contextlijsten en een ander begrip. De context staat
+# als JSON-tekst opgeslagen en is in SQL niet ordeongevoelig te vergelijken
+# (de B-03-les), dus: gepagineerde lezing van alleen de benodigde kolommen,
+# vergelijking in Python. Boven het plafond is de burenlijst onvolledig en
+# faalt de lookup gesloten (ESS-05 → technische fout), nooit stil afgekapt.
+ESS05_BUREN_PLAFOND = 25
+ESS05_BUREN_QUERY = """
+    SELECT id, begrip, definitie, organisatorische_context, juridische_context,
+           wettelijke_basis
+    FROM definities
+    WHERE status != 'archived'
+      AND id > ?
+    ORDER BY id
+    LIMIT ?
+"""
+
+
+class Ess05BurenOverschredenError(RuntimeError):
+    """Meer verwante begrippen in deze context dan ESS-05 in één beoordeling toetst."""
 
 
 @dataclass(frozen=True)
@@ -282,6 +309,61 @@ class DefinitieDuplicateRepository:
             and (status is None or rij.status == status.value)
         ]
         return sorted(gelijk, key=_voorrang)
+
+    def zoek_context_buren(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = None,
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Actieve records in exact dezelfde context met een ander begrip (DEF-768).
+
+        `[{id, begrip, definitie}]` op id; de definitie zonder toelichting.
+        Zonder context geen buren. Kale connectie (DEF-482).
+        """
+        gezocht = (
+            contextsleutel(lees_contextwaarden(organisatorische_context)),
+            contextsleutel(lees_contextwaarden(juridische_context)),
+            contextsleutel(lees_contextwaarden(wettelijke_basis)),
+        )
+        if not any(gezocht):
+            return []
+        eigen = str(begrip or "").strip().casefold()
+        buren: list[dict[str, Any]] = []
+        laatste_id = 0
+        conn = self._db.get_connection()
+        while True:
+            rijen = conn.execute(
+                ESS05_BUREN_QUERY, (laatste_id, KANDIDATEN_PAGINA)
+            ).fetchall()
+            for rij in rijen:
+                if rij[0] == eigen_id or str(rij[1] or "").strip().casefold() == eigen:
+                    continue
+                sleutels = tuple(
+                    contextsleutel(lees_contextwaarden(waarde)) for waarde in rij[3:6]
+                )
+                if sleutels != gezocht:
+                    continue
+                buren.append(
+                    {
+                        "id": rij[0],
+                        "begrip": rij[1],
+                        "definitie": splits_definitietekst(rij[2] or "")[0],
+                    }
+                )
+                if len(buren) > ESS05_BUREN_PLAFOND:
+                    msg = (
+                        f"meer dan {ESS05_BUREN_PLAFOND} verwante begrippen in deze "
+                        "context; de ESS-05-burenlijst zou onvolledig zijn"
+                    )
+                    raise Ess05BurenOverschredenError(msg)
+            if len(rijen) < KANDIDATEN_PAGINA:
+                break
+            laatste_id = int(rijen[-1][0])
+        return buren
 
     def _volledig_record(self, definitie_id: int) -> Any:
         conn = self._db.get_connection()

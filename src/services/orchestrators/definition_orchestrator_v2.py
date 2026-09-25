@@ -143,6 +143,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         source_assessment_service: Any | None = None,
         # DEF-766: AI-telbaarheidsbeoordeling (ESS-03); idem
         ess03_assessment_service: Any | None = None,
+        # DEF-768: AI-onderscheidsbeoordeling (ESS-05); idem
+        ess05_assessment_service: Any | None = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -196,6 +198,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         self._source_assessment_service = source_assessment_service
         # DEF-766: telbaarheidsbeoordeling; idem
         self._ess03_assessment_service = ess03_assessment_service
+        # DEF-768: onderscheidsbeoordeling; idem
+        self._ess05_assessment_service = ess05_assessment_service
 
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
@@ -270,6 +274,24 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         return self._ess03_assessment_service
 
     @property
+    def ess05_assessment_service(self) -> Any:
+        """De AI-onderscheidsbeoordeling voor ESS-05 (DEF-768), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam.
+        """
+        if self._ess05_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.ess05_assessment_service import (
+                Ess05AssessmentService,
+            )
+
+            self._ess05_assessment_service = Ess05AssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._ess05_assessment_service
+
+    @property
     def validation_service(self) -> "ValidationOrchestratorInterface":
         """
         Lazy-load ValidationOrchestratorV2 on first access (DEF-90 performance optimization).
@@ -333,6 +355,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 source_assessment_service=self.source_assessment_service,
                 # DEF-766: idem voor de telbaarheidsbeoordeling (ESS-03).
                 ess03_assessment_service=self.ess03_assessment_service,
+                # DEF-768: idem voor de onderscheidsbeoordeling (ESS-05); de
+                # repository levert verse buren in dezelfde context.
+                ess05_assessment_service=self.ess05_assessment_service,
+                ess05_burenbron=self.repository,
             )
 
             logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")
@@ -945,10 +971,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             if geweigerd is not None:
                 return geweigerd
 
+            # DEF-768 (WP7-G-kanaal): verwante begrippen vóór de generatie,
+            # met dezelfde samenstelling en herkomst als de ESS-05-toets.
+            prompt_context = self._met_generatieburen(sanitized_request, context)
+
             # Promptbouw met de weigeringen vóór het model (prompt_te_lang,
             # verduidelijking_niet_in_prompt); zie `_bouw_prompt_of_weiger`.
             prompt_result, geweigerd = await self._bouw_prompt_of_weiger(
-                sanitized_request, feedback_history, context, generation_id, start_time
+                sanitized_request,
+                feedback_history,
+                prompt_context,
+                generation_id,
+                start_time,
             )
             if geweigerd is not None:
                 return geweigerd
@@ -1341,6 +1375,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # de definitieve kandidaat, vóór opslag op het record.
                     "ess03_assessment": self._beoordeling_uit(
                         raw_validation, "ess03_assessment"
+                    ),
+                    # DEF-768: idem de AI-onderscheidsbeoordeling (ESS-05).
+                    "ess05_assessment": self._beoordeling_uit(
+                        raw_validation, "ess05_assessment"
                     ),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
@@ -1830,6 +1868,35 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             )
         return prompt_result, None
 
+    def _met_generatieburen(
+        self, request: GenerationRequest, context: dict[str, Any] | None
+    ) -> dict[str, Any]:
+        """De promptcontext plus de verwante begrippen voor G (DEF-768).
+
+        Samenstelling als bij T: aangeleverde besluiten (`ess05_buren`) +
+        gebruikersinvoer (`gerelateerde_begrippen`) + verse repository-buren in
+        exact dezelfde context (`zoek_ess05_buren`, nog zonder eigen id). Een
+        fout wordt een zichtbare foutverzameling in de prompt, geen lege lijst
+        en geen weigering. De oorspronkelijke context wordt niet gemuteerd.
+        """
+        from services.prompts.ess05_generatieburen import (
+            GENERATIEBUREN_SLEUTEL,
+            verzamel_generatieburen,
+        )
+
+        verzameling = verzamel_generatieburen(
+            request.begrip,
+            {
+                "organisatorische_context": request.organisatorische_context or [],
+                "juridische_context": request.juridische_context or [],
+                "wettelijke_basis": request.wettelijke_basis or [],
+            },
+            opgeslagen=deepcopy(request.ess05_buren),
+            gerelateerde_begrippen=deepcopy(request.gerelateerde_begrippen),
+            burenbron=self.repository,
+        )
+        return {**(context or {}), GENERATIEBUREN_SLEUTEL: verzameling}
+
     @staticmethod
     def _kwitantie_uit(prompt_result: Any) -> dict[str, Any] | None:
         """De bronkwitantie van de promptservice (DEF-743), of None."""
@@ -1875,6 +1942,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 wettelijke_basis=request.wettelijke_basis or [],
                 ontologische_categorie=request.ontologische_categorie,
                 created_by=request.actor,
+                gerelateerde_begrippen=self._gerelateerde_invoer(request),
                 metadata=self._kandidaatregistratie(request),
             )
             raw_validation = await self.validation_service.validate_definition(
@@ -1921,12 +1989,28 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         dezelfde waarde als `generation_prompt_data["betekenisverduidelijking"]`
         van het record; normalisatie (strip) gebeurt in de wrapper, dus aan
         beide kanten gelijk. Er komt hier niets bij wat het record niet krijgt.
+
+        DEF-768 (WP7-G-kanaal): aangeleverde `ess05_buren` gaan op dezelfde
+        manier mee (kandidaat én record, `_create_definition_object`), zodat
+        G, T en het opgeslagen record dezelfde buren zien.
         """
-        return {
+        registratie: dict[str, Any] = {
             "generation_prompt_data": {
                 "betekenisverduidelijking": request.betekenisverduidelijking or None
             }
         }
+        if request.ess05_buren is not None:
+            registratie["ess05_buren"] = deepcopy(request.ess05_buren)
+        return registratie
+
+    @staticmethod
+    def _gerelateerde_invoer(request: GenerationRequest) -> list[str]:
+        """De door de gebruiker genoemde verwante begrippen (DEF-768).
+
+        Een niet-lijst telt, net als in de burensamenstelling, niet mee.
+        """
+        termen = request.gerelateerde_begrippen
+        return list(termen) if isinstance(termen, (list, tuple)) else []
 
     @classmethod
     def _bronbeoordeling_uit(cls, raw_validation: Any) -> dict[str, Any] | None:
@@ -2021,6 +2105,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         )
         if keuze_invoer is not None:
             metadata["category_choice_input"] = keuze_invoer
+        # DEF-768 (WP7-G-kanaal): dezelfde aangeleverde buren als de getoetste
+        # kandidaat (`_kandidaatregistratie`); de opslag valideert ze fail-closed.
+        if request.ess05_buren is not None:
+            metadata["ess05_buren"] = deepcopy(request.ess05_buren)
         return Definition(
             begrip=request.begrip,
             definitie=text,
@@ -2038,6 +2126,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             metadata=metadata,
             created_by=request.actor,
             created_at=datetime.now(UTC),
+            gerelateerde_begrippen=self._gerelateerde_invoer(request),
         )
 
     async def _safe_save_definition(self, definition: Definition) -> int | None:

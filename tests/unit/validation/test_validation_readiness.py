@@ -176,7 +176,7 @@ def _basisresultaat(**overrides: Any) -> dict[str, Any]:
     return resultaat
 
 
-def test_contractversie_is_verhoogd_naar_2_1_0() -> None:
+def test_contractversie_is_verhoogd_naar_2_2_0() -> None:
     # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
     # rule_results toe en maakt overall_score nullable; 1.4.0 (DEF-743) voegt
     # source_assessment toe (de volledige AI-bronbeoordeling van CON-02).
@@ -184,7 +184,23 @@ def test_contractversie_is_verhoogd_naar_2_1_0() -> None:
     # afwezige status betekent niet langer "validated" (SemVer-major).
     # 2.1.0 (DEF-766, additief): resultaatstatus not_applicable en
     # ess03_assessment (de AI-telbaarheidsbeoordeling van ESS-03).
-    assert CONTRACT_VERSION == "2.1.0"
+    # 2.2.0 (DEF-768, additief): ess05_assessment (de AI-onderscheids-
+    # beoordeling van ESS-05) en ess05_actieve_buren (de burenlijst waarop zij
+    # gebonden is).
+    assert CONTRACT_VERSION == "2.2.0"
+    onderscheid = _schema()["properties"]["ess05_assessment"]
+    assert onderscheid["type"] == ["object", "null"]
+    assert set(onderscheid["properties"]["status"]["enum"]) == {
+        "assessed",
+        "error",
+        "unavailable",
+    }
+    assert _schema()["properties"]["ess05_actieve_buren"]["type"] == [
+        "array",
+        "null",
+    ]
+    for veld in ("ess05_assessment", "ess05_actieve_buren"):
+        assert veld not in _schema()["required"]
     statussen = _schema()["properties"]["rule_statuses"]["additionalProperties"]
     assert "not_applicable" in statussen["enum"]
     assert (

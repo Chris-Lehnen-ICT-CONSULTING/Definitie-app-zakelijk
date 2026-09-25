@@ -20,6 +20,9 @@ from services.validation.evaluators.countability_assessment import (
     CountabilityAssessmentEvaluator,
 )
 from services.validation.evaluators.deferred import DEFERRED_EVALUATORS
+from services.validation.evaluators.distinction_assessment import (
+    DistinctionAssessmentEvaluator,
+)
 from services.validation.evaluators.duplicate_detection import (
     DuplicateDetectionEvaluator,
 )
@@ -70,6 +73,7 @@ def build_default_registry() -> EvaluatorRegistry:
         ContextMetadataEvaluator(),
         SourceEvidenceEvaluator(),
         CountabilityAssessmentEvaluator(),
+        DistinctionAssessmentEvaluator(),
         DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),
         *DEFERRED_EVALUATORS,

@@ -403,6 +403,24 @@ class DefinitieRepository:
         """Alle actieve kandidaten met dit begrip, gepagineerd (DEF-672)."""
         return self._duplicates.find_active_by_begrip(begrip)
 
+    def zoek_context_buren(
+        self,
+        begrip: str,
+        organisatorische_context: Any,
+        juridische_context: Any = None,
+        wettelijke_basis: Any = None,
+        *,
+        eigen_id: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Verwante begrippen voor ESS-05: zelfde context, ander begrip (DEF-768)."""
+        return self._duplicates.zoek_context_buren(
+            begrip,
+            organisatorische_context,
+            juridische_context,
+            wettelijke_basis,
+            eigen_id=eigen_id,
+        )
+
     def count_exact_by_context(
         self,
         *,

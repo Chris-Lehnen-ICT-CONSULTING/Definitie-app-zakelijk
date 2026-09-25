@@ -245,6 +245,14 @@ class GenerationRequest:
     # als DATA in het contextblok van de prompt. Eigen typed veld, bewust niet
     # via `options` of `extra_instructies`, zodat de actie herkenbaar blijft.
     betekenisverduidelijking: str | None = None
+    # DEF-768 (WP7-G-kanaal): optioneel aangeleverde verwante begrippen, in
+    # dezelfde vorm als bij de ESS-05-toets: canonieke buren met besluit
+    # (`ess05_buren`: id, term, definitie, herkomst, bevestigd[, afgewezen])
+    # en door de gebruiker genoemde termen (bevestigd). Samen met verse
+    # repository-buren uit dezelfde context reizen ze als DATA naar de
+    # generatieprompt. Leeg/afwezig is toegestaan.
+    ess05_buren: list[dict[str, Any]] | None = None
+    gerelateerde_begrippen: list[str] | None = None
 
 
 @dataclass

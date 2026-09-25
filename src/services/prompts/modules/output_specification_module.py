@@ -171,4 +171,4 @@ Deze definitie heeft specifieke lengte-eisen:
 - Vermijd jargon tenzij noodzakelijk voor het vakgebied
 - Gebruik concrete, specifieke termen
 - Vermijd vage kwalificaties (veel, weinig, meestal)
-- Maak onderscheid tussen het begrip en verwante begrippen"""
+- Onderscheid het begrip van verwante begrippen met kenmerken, niet met een vergelijkingsfrase"""

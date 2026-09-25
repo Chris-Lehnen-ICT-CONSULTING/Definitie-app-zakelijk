@@ -20,6 +20,7 @@ in deze suite meet de lokale code, niet de API-latency.
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import sqlite3
@@ -131,6 +132,78 @@ def ess03_bevroren_antwoord(prompt: str) -> str:
     return json.dumps(antwoord, ensure_ascii=False)
 
 
+#: DEF-768: de gebruikersprompt van de ESS-05-beoordeling is herkenbaar aan de
+#: vaste kernregel uit `ess05_assessment_service.bouw_beoordelingsprompt`.
+ESS05_SOORT = "ess05"
+_ESS05_KERNREGEL = re.compile(
+    r"^Definitiekern \(te toetsen, ongewijzigd\): ", re.MULTILINE
+)
+_ESS05_BUUR_ID = re.compile(r'^<buur id="([^"]+)"', re.MULTILINE)
+
+
+def is_ess05_beoordelingsprompt(prompt: str) -> bool:
+    """Is dit de gebruikersprompt van de ESS-05-beoordeling (DEF-768)?"""
+    return _ESS05_KERNREGEL.search(prompt) is not None
+
+
+#: ADR-003: de tweede ESS-05-stap (semantische verificatie) is herkenbaar aan
+#: het conceptblok uit `ess05_verification_service.bouw_verificatieprompt`.
+ESS05_VERIFICATIE_SOORT = "ess05_verificatie"
+_ESS05_CONCEPTBLOK = re.compile(
+    r'<conceptoordeel candidate_hash="[0-9a-f]{64}">\n(.*?)\n</conceptoordeel>', re.S
+)
+
+
+def is_ess05_verificatieprompt(prompt: str) -> bool:
+    """Is dit de gebruikersprompt van de ESS-05-verificatie (ADR-003)?"""
+    return _ESS05_CONCEPTBLOK.search(prompt) is not None
+
+
+def ess05_bevroren_antwoord(prompt: str) -> str:
+    """Het bevroren ESS-05-conceptoordeel (`/2`) zonder inhoudelijk oordeel.
+
+    Geen modelkwaliteit en geen oordeel: het kernkenmerk is de volledige kern
+    (geen afgeleide `lacks_differentia`), elke aangeleverde buur krijgt precies
+    één keer `unclear` met een gemarkeerde onzekerheid, geen voorstel en geen
+    vraag. De app maakt daar zelf 'nog te beoordelen' van — zonder bevestigde
+    buur of met een onbeslist onderscheid nooit een pass.
+    """
+    from tests.fixtures.def768_fakes import concept_uit_spec, materiaal_uit_prompt
+
+    spec = {
+        "lacks_differentia": False,
+        "reason": "Bevroren proefantwoord: geen inhoudelijk onderscheidsoordeel.",
+        "neighbours": [
+            {
+                "neighbour_id": buur_id,
+                "distinction": "unclear",
+                "distinguishing_feature_quote": None,
+                "missing_feature": None,
+                "reason": "Bevroren proefantwoord: niet beoordeeld.",
+                "uncertainty": "Bevroren proefantwoord: onderscheid niet bepaald.",
+            }
+            for buur_id in _ESS05_BUUR_ID.findall(prompt)
+        ],
+        "proposed_neighbours": [],
+        "question": None,
+    }
+    concept = concept_uit_spec(spec, materiaal_uit_prompt(prompt))
+    return json.dumps(concept, ensure_ascii=False)
+
+
+def ess05_bevroren_verificatie(prompt: str) -> str:
+    """Een volledige, positieve verificatie van exact het getoonde concept.
+
+    Bewijst alleen de keten (twee afzonderlijke aanroepen, exacte binding),
+    geen semantisch vermogen.
+    """
+    from tests.fixtures.def768_fakes import verificatie_voor
+
+    treffer = _ESS05_CONCEPTBLOK.search(prompt)
+    concept = json.loads(html.unescape(treffer.group(1))) if treffer else {}
+    return json.dumps(verificatie_voor(concept), ensure_ascii=False)
+
+
 def verwachte_termen(soort: str, aantal: int) -> list[str]:
     """De exacte lijst die de parser uit een geldig antwoord moet halen."""
     prefix = _TERM_PREFIX[soort]
@@ -162,6 +235,10 @@ def _ontleed_prompt(prompt: str) -> tuple[str | None, int]:
     """Bepaal soort en gevraagd aantal uit de prompt van de productiecode."""
     if is_ess03_beoordelingsprompt(prompt):
         return ESS03_SOORT, 0
+    if is_ess05_verificatieprompt(prompt):
+        return ESS05_VERIFICATIE_SOORT, 0
+    if is_ess05_beoordelingsprompt(prompt):
+        return ESS05_SOORT, 0
     laag = prompt.lower()
     for soort, markering in _SOORT_MARKERINGEN:
         if markering in laag:
@@ -215,6 +292,9 @@ class BevrorenAIClient:
     De ESS-03-beoordelingsprompt (DEF-766, soort ``ess03``) krijgt in ``geldig``
     en ``tekort`` het gesloten antwoord uit `ess03_bevroren_antwoord`; in
     ``leeg`` een lege respons, die de dienst als technische fout meldt.
+    De ESS-05-beoordelingsprompt (DEF-768, soort ``ess05``) idem met
+    `ess05_bevroren_antwoord`; de verificatieprompt (ADR-003, soort
+    ``ess05_verificatie``) met `ess05_bevroren_verificatie`.
     """
 
     def __init__(self, modus: str = "geldig") -> None:
@@ -260,6 +340,10 @@ class BevrorenAIClient:
             tekst = ""
         elif soort == ESS03_SOORT:
             tekst = ess03_bevroren_antwoord(prompt)
+        elif soort == ESS05_SOORT:
+            tekst = ess05_bevroren_antwoord(prompt)
+        elif soort == ESS05_VERIFICATIE_SOORT:
+            tekst = ess05_bevroren_verificatie(prompt)
         elif self.modus == "tekort":
             tekst = _antwoordtekst(soort, max(gevraagd - 1, 0)) if soort else ""
         else:

@@ -13,8 +13,10 @@ import uuid
 from collections.abc import Iterable
 from typing import Any
 
+from domain.context.contract import CONTEXT_VELDEN
 from domain.context.normalisatie import canoniseer_contextlijst
 from domain.ess03 import contract as ess03_contract
+from domain.ess05 import contract as ess05_contract
 from domain.sources.contract import (
     beoordeling_niet_beschikbaar,
     beoordeling_technische_fout,
@@ -116,6 +118,26 @@ def _technische_blokkade(
     return None
 
 
+def _gerelateerde_begrippen(context_dict: dict[str, Any]) -> Any:
+    """De door de gebruiker genoemde verwante begrippen (DEF-768: gebruikersburen).
+
+    Recordpad: `definition.gerelateerde_begrippen` (verrijking); tekstpad en
+    editor: de topniveausleutel `gerelateerde_begrippen`.
+    """
+    definitie = context_dict.get("definition")
+    if isinstance(definitie, dict) and "gerelateerde_begrippen" in definitie:
+        return definitie["gerelateerde_begrippen"]
+    return context_dict.get("gerelateerde_begrippen")
+
+
+def _bronnen_uit(context_dict: dict[str, Any]) -> list[Any]:
+    """De bronset van de kandidaat (`provenance_sources`, anders `sources`)."""
+    bronnen = context_dict.get("provenance_sources")
+    if bronnen is None:
+        bronnen = context_dict.get("sources")
+    return bronnen if isinstance(bronnen, list) else []
+
+
 class ValidationOrchestratorV2(ValidationOrchestratorInterface):
     """Orchestrator voor validatie (V2).
 
@@ -135,6 +157,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         cleaning_service: CleaningServiceInterface | None = None,
         source_assessment_service: Any | None = None,
         ess03_assessment_service: Any | None = None,
+        ess05_assessment_service: Any | None = None,
+        ess05_burenbron: Any | None = None,
     ) -> None:
         if validation_service is None:
             msg = "validation_service is vereist"
@@ -147,6 +171,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # DEF-766: de AI-telbaarheidsbeoordeling (ESS-03) is standaard
         # onderdeel van elke validatie met term en tekst; idem.
         self.ess03_assessment_service = ess03_assessment_service
+        # DEF-768: de AI-onderscheidsbeoordeling (ESS-05) is standaard
+        # onderdeel van elke validatie met term, tekst en context; de
+        # burenbron levert verse repository-buren in dezelfde context
+        # (`zoek_ess05_buren(begrip, contexten, eigen_id)`).
+        self.ess05_assessment_service = ess05_assessment_service
+        self.ess05_burenbron = ess05_burenbron
 
     async def validate_text(
         self,
@@ -215,6 +245,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if telbaarheid is not None:
                     context_dict["ess03_assessment"] = telbaarheid
+                # DEF-768: idem voor de onderscheidsbeoordeling (ESS-05).
+                onderscheid = await self._beoordeel_onderscheid(
+                    begrip, text, context_dict, correlation_id
+                )
+                if onderscheid is not None:
+                    context_dict["ess05_assessment"] = onderscheid
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
@@ -229,6 +265,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     ensure_schema_compliance(result, correlation_id),
                     assessment,
                     telbaarheid,
+                    onderscheid,
+                    context_dict.get("ess05_actieve_buren"),
                 )
 
             except Exception as e:
@@ -291,6 +329,13 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if telbaarheid is not None:
                     context_dict["ess03_assessment"] = telbaarheid
+                # DEF-768: de onderscheidsbeoordeling bindt aan dezelfde
+                # recordtekst, contextlijsten en de burenlijst van het record.
+                onderscheid = await self._beoordeel_onderscheid(
+                    definition.begrip, recordtekst, context_dict, correlation_id
+                )
+                if onderscheid is not None:
+                    context_dict["ess05_assessment"] = onderscheid
 
                 text = definition.definitie
 
@@ -306,6 +351,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     ensure_schema_compliance(result, correlation_id),
                     assessment,
                     telbaarheid,
+                    onderscheid,
+                    context_dict.get("ess05_actieve_buren"),
                 )
 
             except Exception as e:
@@ -521,21 +568,205 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 _vingerafdruk(), "unknown", f"{type(exc).__name__}: {exc}"
             )
 
+    async def _beoordeel_onderscheid(
+        self,
+        begrip: str,
+        tekst: str,
+        context_dict: dict[str, Any],
+        correlation_id: str,
+    ) -> dict[str, Any] | None:
+        """De standaard AI-onderscheidsbeoordeling voor exact deze validatie (DEF-768).
+
+        Een door de aanroeper meegegeven `ess05_assessment`, `ess05_binding`,
+        `ess05_actieve_buren` of `ess05_uitgesloten_termen` wordt weggegooid:
+        die zijn nooit een kortere weg naar een positief oordeel. Volgorde,
+        fail-closed: (1) zonder term, (niet-lege) tekst of context geen
+        burenlookup, geen AI-aanroep en geen beoordeling (`None`: de evaluator
+        meldt `not_evaluated`); (2) de actieve burenlijst = opgeslagen besluiten
+        (`ess05_buren`) + gebruikersinvoer (`gerelateerde_begrippen`, bevestigd)
+        + verse repository-buren in dezelfde context; een ongeldige lijst of
+        een mislukte lookup is een technische fout zonder AI-aanroep; (3) geen
+        actieve buren en een geldige deskundige bevestiging van een lege
+        vergelijkingsruimte → geen AI-aanroep (`None`: de evaluator geeft pass
+        op die bevestiging); (4) zonder dienst `unavailable`; (5) een fout in
+        de dienst is een technische fout — nooit stil een pass.
+        """
+        for sleutel in (
+            "ess05_assessment",
+            "ess05_binding",
+            "ess05_actieve_buren",
+            "ess05_uitgesloten_termen",
+        ):
+            context_dict.pop(sleutel, None)
+        if not str(begrip or "").strip() or not str(tekst or "").strip():
+            return None
+        if not ess05_contract.heeft_context(context_dict):
+            return None
+        bronnen = _bronnen_uit(context_dict)
+        intentie = ess03_contract.intentie_uit_context(context_dict)
+
+        def _vingerafdruk(buren: Iterable[Any] = ()) -> str:
+            return ess05_contract.bereken_ess05_vingerafdruk(
+                begrip, tekst, context_dict, bronnen, intentie=intentie, buren=buren
+            )
+
+        actief, afgewezen = self._actieve_ess05_buren(
+            begrip, context_dict, correlation_id
+        )
+        if isinstance(actief, str):  # (foutreden, detail)
+            return ess05_contract.beoordeling_technische_fout(
+                _vingerafdruk(), actief, afgewezen
+            )
+        context_dict["ess05_actieve_buren"] = [b.als_dict() for b in actief]
+        context_dict["ess05_uitgesloten_termen"] = list(afgewezen)
+        vingerafdruk = _vingerafdruk(actief)
+        if not actief and ess05_contract.lege_ruimte_geldig(
+            context_dict.get("ess05_lege_ruimte"), vingerafdruk
+        ):
+            return None
+        return await self._vraag_ess05_beoordeling(
+            begrip,
+            tekst,
+            context_dict,
+            bronnen,
+            actief=actief,
+            afgewezen=afgewezen,
+            intentie=intentie,
+            vingerafdruk=vingerafdruk,
+            correlation_id=correlation_id,
+        )
+
+    def _actieve_ess05_buren(
+        self, begrip: str, context_dict: dict[str, Any], correlation_id: str
+    ) -> tuple[Any, Any]:
+        """(actieve buren, afgewezen termen), of (foutreden, detail) — fail-closed.
+
+        Een mislukte repositorylookup of een ongeldige lijst is een technische
+        fout zonder AI-aanroep; dan is het eerste element de reden (tekst) in
+        plaats van de tuple met buren.
+        """
+        try:
+            rijen = self._repositoryburen(begrip, context_dict)
+        except Exception as exc:
+            logger.error(
+                "DEF-768: burenlookup mislukt (correlation_id=%s): %s",
+                correlation_id,
+                type(exc).__name__,
+            )
+            return (
+                "neighbour_lookup",
+                f"verwante begrippen niet opgehaald: {type(exc).__name__}",
+            )
+        try:
+            return ess05_contract.stel_actieve_buren_samen(
+                context_dict.get("ess05_buren"),
+                _gerelateerde_begrippen(context_dict),
+                rijen,
+            )
+        except ess05_contract.OngeldigeBurenlijstError as exc:
+            logger.error(
+                "DEF-768: ongeldige burenlijst (correlation_id=%s): %s",
+                correlation_id,
+                exc,
+            )
+            return ("invalid_neighbours", str(exc))
+
+    async def _vraag_ess05_beoordeling(
+        self,
+        begrip: str,
+        tekst: str,
+        context_dict: dict[str, Any],
+        bronnen: list[Any],
+        *,
+        actief: Any,
+        afgewezen: Any,
+        intentie: Any,
+        vingerafdruk: str,
+        correlation_id: str,
+    ) -> dict[str, Any]:
+        """Eén verse beoordeling van de dienst; zonder dienst `unavailable`, bij
+        een fout een technische fout — nooit stil een pass (DEF-768)."""
+        if self.ess05_assessment_service is None:
+            logger.warning(
+                "DEF-768: geen Ess05AssessmentService geïnjecteerd; ESS-05 blijft "
+                "open (correlation_id=%s)",
+                correlation_id,
+            )
+            return ess05_contract.beoordeling_niet_beschikbaar(
+                vingerafdruk,
+                "geen ESS-05-beoordelingsdienst beschikbaar; AI-beoordeling niet "
+                "uitgevoerd",
+            )
+        binding = getattr(self.ess05_assessment_service, "binding", None)
+        if callable(binding):
+            try:
+                context_dict["ess05_binding"] = binding().als_dict()
+            except Exception as exc:  # pragma: no cover - defensief
+                logger.warning("DEF-768: beoordelingsbinding niet bepaald: %s", exc)
+        try:
+            assessment = await self.ess05_assessment_service.assess(
+                begrip,
+                tekst,
+                context_dict,
+                bronnen,
+                buren=actief,
+                intentie=intentie,
+                uitgesloten_termen=afgewezen,
+                correlation_id=correlation_id,
+            )
+            document = (
+                assessment.als_dict() if hasattr(assessment, "als_dict") else assessment
+            )
+            if not isinstance(document, dict):
+                msg = f"beoordelingsdienst gaf {type(document).__name__} terug"
+                raise TypeError(msg)
+            return document
+        except Exception as exc:
+            logger.error(
+                "DEF-768: onderscheidsbeoordeling mislukt (correlation_id=%s): %s: %s",
+                correlation_id,
+                type(exc).__name__,
+                exc,
+            )
+            return ess05_contract.beoordeling_technische_fout(
+                vingerafdruk, "unknown", f"{type(exc).__name__}: {exc}"
+            )
+
+    def _repositoryburen(
+        self, begrip: str, context_dict: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        """Verse repository-buren in dezelfde context; zonder burenbron geen."""
+        zoek = getattr(self.ess05_burenbron, "zoek_ess05_buren", None)
+        if not callable(zoek):
+            return []
+        contexten = {veld: context_dict.get(veld) for veld in CONTEXT_VELDEN}
+        rijen = zoek(begrip, contexten, context_dict.get("definition_id"))
+        if not isinstance(rijen, list):
+            msg = f"burenbron gaf {type(rijen).__name__} terug"
+            raise TypeError(msg)
+        return rijen
+
     @staticmethod
     def _met_beoordelingen(
         result: ValidationResult,
         assessment: dict[str, Any] | None,
         telbaarheid: dict[str, Any] | None,
+        onderscheid: dict[str, Any] | None = None,
+        actieve_buren: list[dict[str, Any]] | None = None,
     ) -> ValidationResult:
         """Geef de verkregen beoordelingen volledig terug (contract 1.4.0 / 2.1.0).
 
         Zo kan de aanroeper (generatie, editor, opslag) ze bewaren zonder
         tweede AI-aanroep. Kopieën: het resultaat mag de context van de
-        evaluator niet delen.
+        evaluator niet delen. DEF-768: ook de actieve burenlijst waartegen
+        ESS-05 is beoordeeld, zodat de editor een expertbesluit zonder
+        AI-aanroep kan afspelen en de binding bij opslaan kan controleren.
         """
         if isinstance(result, dict):
             result["source_assessment"] = copy.deepcopy(assessment)
             result["ess03_assessment"] = copy.deepcopy(telbaarheid)
+            result["ess05_assessment"] = copy.deepcopy(onderscheid)
+            result["ess05_actieve_buren"] = copy.deepcopy(actieve_buren)
         return result
 
     @staticmethod
@@ -612,6 +843,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         )
         self._verrijk_met_bronvelden(enriched, definition)
         self._verrijk_met_ess03_velden(enriched, definition)
+        self._verrijk_met_ess05_velden(enriched, definition)
 
         # Gebundelde definition metadata onder sleutel 'definition'
         try:
@@ -664,6 +896,24 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
             enriched["ess03_verduidelijking"] = verduidelijking.strip()
         else:
             enriched.pop("ess03_verduidelijking", None)
+
+    @staticmethod
+    def _verrijk_met_ess05_velden(
+        enriched: dict[str, Any], definition: Definition
+    ) -> None:
+        """De burenlijst en een lege-ruimtebevestiging van het record (DEF-768).
+
+        Beide zijn recordwaarden in `Definition.metadata` (`ess05_buren`,
+        `ess05_lege_ruimte`; bij laden hersteld uit de generatieregistratie,
+        in de editor de actuele staat) en vervangen aanroeperwaarden onder
+        dezelfde sleutels (deep copy); ontbreken ze, dan wordt niets verzonnen.
+        """
+        meta = definition.metadata or {}
+        for sleutel in ("ess05_buren", "ess05_lege_ruimte"):
+            if meta.get(sleutel) is not None:
+                enriched[sleutel] = copy.deepcopy(meta[sleutel])
+            else:
+                enriched.pop(sleutel, None)
 
     @staticmethod
     def _verrijk_met_bronvelden(

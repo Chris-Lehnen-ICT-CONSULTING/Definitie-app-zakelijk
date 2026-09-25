@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     from services.synonym_orchestrator import SynonymOrchestrator
     from services.synonym_suggester import SynonymSuggester
     from services.validation.ess03_assessment_service import Ess03AssessmentService
+    from services.validation.ess05_assessment_service import Ess05AssessmentService
     from services.validation.interfaces import ValidationOrchestratorInterface
     from services.validation.source_assessment_service import SourceAssessmentService
     from services.web_lookup.synonym_service import JuridischeSynoniemService
@@ -328,6 +329,34 @@ class ServiceContainer:
             "Ess03AssessmentService", self._instances["ess03_assessment_service"]
         )
 
+    def ess05_assessment_service(self) -> "Ess05AssessmentService":
+        """De AI-onderscheidsbeoordeling voor ESS-05 (DEF-768), singleton.
+
+        Zelfde opzet als ESS-03: op de gedeelde AIServiceV2 en de ModelRouter
+        (taak `validation`); één instantie (en één interne cache) voor editor
+        en generatie. De semantische verificatie (ADR-003) is een afzonderlijke
+        dienst met eigen taak `ess05_verification` op dezelfde AI-dienst en
+        router.
+        """
+        if "ess05_assessment_service" not in self._instances:
+            from services.validation.ess05_assessment_service import (
+                Ess05AssessmentService,
+            )
+            from services.validation.ess05_verification_service import (
+                Ess05VerificationService,
+            )
+
+            self._instances["ess05_assessment_service"] = Ess05AssessmentService(
+                self.ai_service(),
+                model_router=self.model_router(),
+                verification_service=Ess05VerificationService(
+                    self.ai_service(), model_router=self.model_router()
+                ),
+            )
+        return cast(
+            "Ess05AssessmentService", self._instances["ess05_assessment_service"]
+        )
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -397,6 +426,8 @@ class ServiceContainer:
                 source_assessment_service=self.source_assessment_service(),
                 # DEF-766: gedeelde AI-telbaarheidsbeoordeling (ESS-03)
                 ess03_assessment_service=self.ess03_assessment_service(),
+                # DEF-768: gedeelde AI-onderscheidsbeoordeling (ESS-05)
+                ess05_assessment_service=self.ess05_assessment_service(),
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 

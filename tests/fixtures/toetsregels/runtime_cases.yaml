@@ -324,18 +324,31 @@ ESS-04:
     tekst: "controle: toets van naleving door de dienst"
 
 ESS-05:
+  # DEF-768: AI-beoordeling van onderscheid per verwant begrip (evaluator
+  # distinction_assessment, judgment + automated, no_score, context
+  # verplicht). Zonder voorbereide beoordeling (geen dienst) is de uitkomst
+  # expliciet open; een vergelijkingsfrase of trefwoord in de zin bewijst
+  # geen onderscheid en het ontbreken ervan is geen gebrek.
   required_fields: []
-  negatief:
+  issue: DEF-768
+  reden: >
+    onderscheid van verwante begrippen is een inhoudelijk oordeel per buur
+    (DEF-768); de oude woordindicator keurde het eigen en het ASTRA-goede
+    voorbeeld af en liet "beschrijving met onderscheidend kenmerk" slagen.
+    Sinds de AI-beoordeling geeft de app dat oordeel zelf op kandidaat,
+    context, bronnen en verwante begrippen; het tekstpad van deze matrix
+    levert geen dienst en dan is 'nog te beoordelen' het contractuele
+    antwoord. Het gedrag mét beoordeling staat in test_def768_ess05_evaluator.py.
+  probe:
     begrip: profiel
     tekst: "profiel: beschrijving van een persoon"
-    verwacht_in_melding: "onderscheidend kenmerk"
-  positief:
+    context:
+      organisatorische_context: ["Synthetische Dienst"]
+  bronwoord:
     begrip: profiel
-    tekst: "profiel: beschrijving met onderscheidend kenmerk"
-  grens:
-    begrip: profiel
-    tekst: "profiel: specifieke beschrijving"
-    verwacht: violation
+    tekst: "profiel: beschrijving met onderscheidend kenmerk, in tegenstelling tot een dossier"
+    context:
+      organisatorische_context: ["Synthetische Dienst"]
 
 ESS-CONT-001:
   required_fields: [min_words]

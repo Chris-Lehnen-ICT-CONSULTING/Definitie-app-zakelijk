@@ -13,6 +13,11 @@ from database.audit_helpers import AuditHelpers
 from database.db_connection import DatabaseConnection
 from database.definitie_duplicates import DefinitieDuplicateRepository
 from database.definitie_search import DefinitieSearchRepository
+from database.ess05_registratie import (
+    ess05_invoer_uit,
+    neutraliseer_geimporteerde_ess05,
+    voeg_ess05_samen,
+)
 from database.models import (
     CATEGORY_CHOICE_CLAIM_KEY,
     CATEGORY_CHOICE_HISTORY_KEY,
@@ -24,6 +29,7 @@ from database.models import (
     ESS03_ASSESSMENT_KEY,
     ESS03_OWNED_KEYS,
     ESS03_VERDUIDELIJKING_VELD,
+    ESS05_OWNED_KEYS,
     SOURCE_EVIDENCE_HISTORY_KEY,
     SOURCE_EVIDENCE_KEY,
     SOURCE_PROPOSALS_KEY,
@@ -33,6 +39,7 @@ from database.models import (
     Bronmetadatatoepassing,
     DefinitieRecord,
     DefinitieStatus,
+    SourceType,
     VaststelconflictError,
     Voorstelreservering,
     Voorsteltoepassing,
@@ -1181,7 +1188,11 @@ class DefinitieCrudRepository:
         # DEF-766: ook de ESS-03-beoordeling en haar historie zijn beheerd.
         if any(
             sleutel in opgeslagen
-            for sleutel in (*CATEGORY_CHOICE_OWNED_KEYS, *ESS03_OWNED_KEYS)
+            for sleutel in (
+                *CATEGORY_CHOICE_OWNED_KEYS,
+                *ESS03_OWNED_KEYS,
+                *ESS05_OWNED_KEYS,
+            )
         ):
             msg = (
                 "generation_prompt_data kan niet door een niet-JSON-object worden "
@@ -1217,8 +1228,9 @@ class DefinitieCrudRepository:
         aangeleverd = registratie.get(CATEGORY_CHOICE_KEY)
         # DEF-766: de ESS-03-beoordeling en haar historie komen evenmin uit
         # een ruwe schrijfactie; alleen de structurele sleutel
-        # `ess03_assessment` (onder de lock) mag ze wijzigen.
-        beheerd = (*CATEGORY_CHOICE_OWNED_KEYS, *ESS03_OWNED_KEYS)
+        # `ess03_assessment` (onder de lock) mag ze wijzigen. DEF-768: idem
+        # voor de ESS-05-beoordeling, burenlijst en lege-ruimtebevestiging.
+        beheerd = (*CATEGORY_CHOICE_OWNED_KEYS, *ESS03_OWNED_KEYS, *ESS05_OWNED_KEYS)
         beheerd_aanwezig = any(s in registratie or s in opgeslagen for s in beheerd)
         if not beheerd_aanwezig:
             return registratie, False
@@ -1341,6 +1353,7 @@ class DefinitieCrudRepository:
         ess03: tuple[dict[str, Any] | None, str | None],
         updated_by: str | None,
         categoriekeuze: Mapping[str, Any] | None,
+        ess05: Mapping[str, Any] | None = None,
     ) -> tuple[bool, bool]:
         """Bronbewijs, keuzestaat en ESS-03 in dezelfde UPDATE: (bronnen_gewijzigd, schrijfbaar).
 
@@ -1362,13 +1375,41 @@ class DefinitieCrudRepository:
             niets_te_schrijven
             and ess03_invoer is None
             and ess03_verduidelijking is None
+            and not ess05
         ):
             return bronnen_gewijzigd, False
         self._verwerk_keuzestaat(actueel, updates, velden, categoriekeuze)
         self._verwerk_ess03_registratie(
             actueel, velden, ess03_invoer, ess03_verduidelijking
         )
+        self._verwerk_ess05_registratie(actueel, velden, ess05)
         return bronnen_gewijzigd, bool(velden)
+
+    def _verwerk_ess05_registratie(
+        self,
+        actueel: DefinitieRecord,
+        velden: dict[str, Any],
+        invoer: Mapping[str, Any] | None,
+    ) -> bool:
+        """ESS-05-beoordeling, burenlijst en lege ruimte in dezelfde UPDATE (DEF-768).
+
+        Zelfde opzet als ESS-03: láátste stap bovenop de registratie van deze
+        UPDATE, gelijk = geen wijziging, anders append-only historie.
+        """
+        if not invoer:
+            return False
+        registratie = self._voortbouwbasis(actueel, velden)
+        if registratie is None:
+            msg = "ESS-05-invoer kan niet samen met een ruwe niet-JSON registratie"
+            raise ValueError(msg)
+        gewijzigd = voeg_ess05_samen(
+            registratie, invoer, versie=actueel.version_number, nu=_nu()
+        )
+        if gewijzigd:
+            velden["generation_prompt_data"] = serialiseer_generatieregistratie(
+                registratie
+            )
+        return gewijzigd
 
     @staticmethod
     def _voortbouwbasis(
@@ -1545,6 +1586,10 @@ class DefinitieCrudRepository:
         uitsluitend van de aanroepende route zelf (generatie: manual/model,
         default; import: import) en kent nooit een actor — een nieuw record
         heeft geen handelende mens die een keuze kan bevestigen.
+
+        DEF-768 BC-01: bij een geïmporteerd record (`source_type` imported)
+        wordt aangeleverd ESS-05-bewijs niet-actuele historie
+        (`neutraliseer_geimporteerde_ess05`).
         """
         registratie = lees_generatieregistratie(record.generation_prompt_data) or {}
         aangeleverd = registratie.get(CATEGORY_CHOICE_KEY)
@@ -1552,6 +1597,11 @@ class DefinitieCrudRepository:
             registratie.pop(sleutel, None)
         if aangeleverd is not None:
             registratie[CATEGORY_CHOICE_IMPORTED_KEY] = deepcopy(aangeleverd)
+        if record.source_type == SourceType.IMPORTED.value:
+            # DEF-768 BC-01: aangeleverd ESS-05-bewijs is nooit actueel.
+            neutraliseer_geimporteerde_ess05(
+                registratie, versie=record.version_number, nu=_nu()
+            )
         if categoriekeuze is not None:
             herkomst = categoriekeuze.get("origin")
             if herkomst in _KEUZEHERKOMSTEN_VIA_UPDATE:
@@ -2387,6 +2437,9 @@ class DefinitieCrudRepository:
         ess03_aangeleverd = (
             ess03_invoer is not None or ess03_verduidelijking is not None
         )
+        # DEF-768: idem voor ESS-05 (beoordeling, burenlijst, lege ruimte);
+        # vormcontrole vóór de transactie.
+        ess05_invoer = ess05_invoer_uit(updates)
         # DEF-751 B2 (reviewbevinding 2): een generiek `updates`-dict kan geen
         # menselijke keuze vastleggen; dat kan alleen het expliciete commando
         # `record_category_choice` (dat `_categoriekeuze` zet).
@@ -2442,7 +2495,12 @@ class DefinitieCrudRepository:
             if hasattr(current, field) and field in allowed_fields
         }
 
-        if not velden and bewijsinvoer is None and not ess03_aangeleverd:
+        if (
+            not velden
+            and bewijsinvoer is None
+            and not ess03_aangeleverd
+            and not ess05_invoer
+        ):
             return False
 
         # DEF-751 (herreview, aanvullend): een ruwe `generation_prompt_data`
@@ -2491,6 +2549,7 @@ class DefinitieCrudRepository:
                 (ess03_invoer, ess03_verduidelijking),
                 updated_by,
                 _categoriekeuze,
+                ess05_invoer,
             )
             if not schrijfbaar:
                 return False

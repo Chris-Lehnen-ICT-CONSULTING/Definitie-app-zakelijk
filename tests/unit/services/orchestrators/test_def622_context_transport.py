@@ -67,6 +67,11 @@ async def test_text_transports_context_metadata_without_mutating_input():
     # `unavailable`-document mee (nooit stil een pass).
     ontvangen = dict(service.received)
     assert ontvangen.pop("ess03_assessment")["status"] == "unavailable"
+    # DEF-768: idem voor ESS-05, met de (hier lege) burenlijst en afgewezen
+    # termen waartegen beoordeeld is.
+    assert ontvangen.pop("ess05_assessment")["status"] == "unavailable"
+    assert ontvangen.pop("ess05_actieve_buren") == []
+    assert ontvangen.pop("ess05_uitgesloten_termen") == []
     assert ontvangen == {**metadata, "record_text": "kwaliteitsmerk"}
     # De dubbel heeft `supplied` in de diepte gemuteerd; de aanroeper mag
     # daar niets van merken.

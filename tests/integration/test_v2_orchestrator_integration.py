@@ -271,7 +271,16 @@ class TestV2OrchestratorIntegration:
         assert promptaanroep.kwargs["feedback_history"] == [
             {"type": "quality", "content": "Previous definition was too technical"}
         ]
-        assert promptaanroep.kwargs["context"] == {"session": "test"}
+        # DEF-768 (WP7-G-kanaal): de meegegeven context blijft ongewijzigd en
+        # krijgt de vóór de generatie samengestelde verwante begrippen erbij.
+        assert promptaanroep.kwargs["context"] == {
+            "session": "test",
+            "ess05_generatieburen": {
+                "status": "ok",
+                "buren": [],
+                "uitgesloten_termen": [],
+            },
+        }
 
         # 4. AI-generatie krijgt de gebouwde prompt en de opgegeven opties
         services["ai_service"].generate_definition.assert_awaited_once()

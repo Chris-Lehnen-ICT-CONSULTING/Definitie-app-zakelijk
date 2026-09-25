@@ -15,6 +15,7 @@ from typing import Any, cast
 
 from database.models import DefinitieRecord
 from domain.ess03.contract import Beoordelingsbinding, Intentie
+from domain.ess05.contract import Ess05Beoordelingsbinding
 from services.definition_edit_repository import DefinitionEditRepository
 from services.exceptions import RepositoryError
 from services.interfaces import Definition
@@ -86,6 +87,14 @@ def bouw_validatiecontext(
     )
     if isinstance(verduidelijking, str) and verduidelijking.strip():
         ctx["ess03_verduidelijking"] = verduidelijking.strip()
+    # DEF-768: de ESS-05-burenlijst (met expertbesluiten) en een lege-
+    # ruimtebevestiging — de sessie wint zodra zij de sleutel draagt, anders
+    # het record — plus de door de gebruiker genoemde verwante begrippen.
+    for sleutel in ("ess05_buren", "ess05_lege_ruimte"):
+        waarde = eigen_meta[sleutel] if sleutel in eigen_meta else meta.get(sleutel)
+        if waarde is not None:
+            ctx[sleutel] = deepcopy(waarde)
+    ctx["gerelateerde_begrippen"] = list(definition.gerelateerde_begrippen or [])
     return ctx
 
 
@@ -276,8 +285,26 @@ def herbind_ess03_in_validatieresultaat(
     if not isinstance(beoordeling, Mapping) or not isinstance(statussen, Mapping):
         return ongewijzigd
     uitkomst = ess03_uitkomst_van_definition(kandidaat, binding, assessment=beoordeling)
-    huidig_detail = _als_mapping((resultaat.get("rule_results") or {}).get(_ESS03))
-    oude_status = statussen.get(_ESS03)
+    return _herbind_regel(resultaat, _ESS03, uitkomst, "ess03_rebound")
+
+
+def _herbind_regel(
+    resultaat: Mapping[str, Any],
+    code: str,
+    uitkomst: dict[str, Any],
+    herbindsleutel: str,
+) -> dict[str, Any]:
+    """Zet de afgespeelde uitkomst van één AI-regel in een kopie van het resultaat.
+
+    Gedeeld door ESS-03 (DEF-766) en ESS-05 (DEF-768). Klopt de uitkomst nog
+    met het resultaat, dan het ongewijzigde object; anders een kopie met de
+    regel bijgewerkt in `rule_results`, `rule_statuses`, `passed_rules`,
+    `violations`, `review_required` en de dekking.
+    """
+    ongewijzigd = resultaat if isinstance(resultaat, dict) else dict(resultaat)
+    statussen = _als_mapping(resultaat.get("rule_statuses"))
+    huidig_detail = _als_mapping((resultaat.get("rule_results") or {}).get(code))
+    oude_status = statussen.get(code)
     if (
         uitkomst["status"] == oude_status
         and uitkomst["fingerprint"] == huidig_detail.get("fingerprint")
@@ -289,20 +316,20 @@ def herbind_ess03_in_validatieresultaat(
         return ongewijzigd
 
     herbonden = deepcopy(dict(resultaat))
-    herbonden.setdefault("rule_results", {})[_ESS03] = uitkomst
-    herbonden.setdefault("rule_statuses", {})[_ESS03] = uitkomst["status"]
+    herbonden.setdefault("rule_results", {})[code] = uitkomst
+    herbonden.setdefault("rule_statuses", {})[code] = uitkomst["status"]
     herbonden["passed_rules"] = [
-        code for code in resultaat.get("passed_rules") or [] if code != _ESS03
+        regel for regel in resultaat.get("passed_rules") or [] if regel != code
     ]
     herbonden["violations"] = [
         v
         for v in resultaat.get("violations") or []
-        if not (isinstance(v, Mapping) and _ESS03 in (v.get("code"), v.get("rule_id")))
+        if not (isinstance(v, Mapping) and code in (v.get("code"), v.get("rule_id")))
     ]
     herbonden["review_required"] = [
         item
         for item in resultaat.get("review_required") or []
-        if not (isinstance(item, Mapping) and item.get("rule_id") == _ESS03)
+        if not (isinstance(item, Mapping) and item.get("rule_id") == code)
     ]
     delen = uitkomst.get("parts") or []
     reden = (delen[0].get("reason") if delen else None) or ""
@@ -311,24 +338,24 @@ def herbind_ess03_in_validatieresultaat(
     if uitkomst["status"] == "review_required":
         herbonden["review_required"].append(
             {
-                "rule_id": _ESS03,
-                "category": category_for_rule(_ESS03),
+                "rule_id": code,
+                "category": category_for_rule(code),
                 "reason": reden,
                 "signals": [],
             }
         )
     elif uitkomst["status"] == "pass":
-        herbonden["passed_rules"].append(_ESS03)
+        herbonden["passed_rules"].append(code)
     elif uitkomst["status"] == "fail":
         # Zelfde niet-blokkerende vorm als de evaluator (besluit 21-09-2026).
         herbonden["violations"].append(
             {
-                "code": _ESS03,
-                "rule_id": _ESS03,
+                "code": code,
+                "rule_id": code,
                 "severity": "warning",
                 "message": reden,
                 "description": reden,
-                "category": category_for_rule(_ESS03),
+                "category": category_for_rule(code),
                 "advisory": True,
             }
         )
@@ -340,7 +367,7 @@ def herbind_ess03_in_validatieresultaat(
         if oud and nieuw and oud != nieuw:
             dekking[oud] = max(0, int(dekking.get(oud) or 0) - 1)
             dekking[nieuw] = int(dekking.get(nieuw) or 0) + 1
-    herbonden["ess03_rebound"] = {
+    herbonden[herbindsleutel] = {
         "from_status": oude_status,
         "to_status": uitkomst["status"],
         "historical": bool(
@@ -348,6 +375,188 @@ def herbind_ess03_in_validatieresultaat(
         ),
     }
     return herbonden
+
+
+# --- ESS-05 (DEF-768) ----------------------------------------------------------------
+
+_ESS05 = "ESS-05"
+
+
+def _contextlijsten(definition: Definition) -> dict[str, list[str]]:
+    return {
+        "organisatorische_context": list(definition.organisatorische_context or []),
+        "juridische_context": list(definition.juridische_context or []),
+        "wettelijke_basis": list(definition.wettelijke_basis or []),
+    }
+
+
+def ess05_actieve_buren_van(
+    definition: Definition, buren_van_toetsing: Any
+) -> tuple[tuple[Any, ...], tuple[str, ...]]:
+    """(actieve buren, afgewezen termen) van de kandidaat, zonder databaselookup.
+
+    De opgeslagen besluiten en `gerelateerde_begrippen` komen van de
+    kandidaat; de repository-buren uit de burenlijst van de toetsing
+    (`ess05_actieve_buren`), zodat een expertbesluit exact op de buren van die
+    toetsing wordt afgespeeld. Fail-closed (`OngeldigeBurenlijstError`).
+    """
+    from domain.ess05.contract import repositoryrijen_uit, stel_actieve_buren_samen
+
+    meta: Mapping[str, Any] = definition.metadata or {}
+    return stel_actieve_buren_samen(
+        meta.get("ess05_buren"),
+        list(definition.gerelateerde_begrippen or []),
+        repositoryrijen_uit(buren_van_toetsing),
+    )
+
+
+def ess05_uitkomst_van_definition(
+    definition: Definition,
+    buren_van_toetsing: Any,
+    binding: Ess05Beoordelingsbinding | None = None,
+    *,
+    assessment: Any = _ONGEZET,
+) -> dict[str, Any]:
+    """De ESS-05-uitkomst van de kandidaat: replay zonder AI-aanroep (DEF-768).
+
+    Speelt de beoordeling af op term, tekst, context, bedoelde betekenis,
+    bronset en de actieve burenlijst (besluiten van de kandidaat, buren van
+    de toetsing) tegen de actuele binding. Een ongeldige burenlijst geeft de
+    contractfout (`error`), nooit een pass.
+    """
+    from domain.ess05.contract import OngeldigeBurenlijstError, beoordeel_onderscheid
+
+    meta: Mapping[str, Any] = definition.metadata or {}
+    buren: Any
+    afgewezen: tuple[str, ...]
+    try:
+        buren, afgewezen = ess05_actieve_buren_van(definition, buren_van_toetsing)
+    except OngeldigeBurenlijstError:
+        # De ruwe lijst gaat door naar de replay, die hem als contractfout
+        # (`error`) meldt — nooit een pass.
+        buren, afgewezen = meta.get("ess05_buren"), ()
+    return beoordeel_onderscheid(
+        definition.begrip or "",
+        definition.definitie or "",
+        _contextlijsten(definition),
+        _record_bronnen(meta),
+        intentie=ess03_intentie_van_definition(definition),
+        buren=buren,
+        lege_ruimte=meta.get("ess05_lege_ruimte"),
+        assessment=(
+            meta.get("ess05_assessment") if assessment is _ONGEZET else assessment
+        ),
+        binding=binding,
+        uitgesloten_termen=afgewezen,
+    ).als_dict()
+
+
+def herbind_ess05_in_validatieresultaat(
+    resultaat: Mapping[str, Any],
+    kandidaat: Definition,
+    *,
+    binding: Ess05Beoordelingsbinding | None,
+) -> dict[str, Any]:
+    """Het validatieresultaat met ESS-05 afgespeeld op de kandidaat zoals die nú is.
+
+    Zelfde opzet als ESS-03 (DEF-766 R1/R5), zonder AI-aanroep: een
+    expertbesluit (bevestigen, afwijzen, lege ruimte) of een gewijzigde
+    invoer wordt direct zichtbaar. Het oorspronkelijke resultaat blijft
+    ongemoeid.
+    """
+    ongewijzigd = resultaat if isinstance(resultaat, dict) else dict(resultaat)
+    beoordeling = resultaat.get("ess05_assessment")
+    statussen = resultaat.get("rule_statuses")
+    if not isinstance(statussen, Mapping) or _ESS05 not in statussen:
+        return ongewijzigd
+    uitkomst = ess05_uitkomst_van_definition(
+        kandidaat,
+        resultaat.get("ess05_actieve_buren"),
+        binding,
+        assessment=beoordeling if isinstance(beoordeling, Mapping) else None,
+    )
+    return _herbind_regel(resultaat, _ESS05, uitkomst, "ess05_rebound")
+
+
+def bindingsafwijzing_ess05(
+    assessment: Any,
+    definition: Definition,
+    buren_van_toetsing: Any,
+    *,
+    binding: Ess05Beoordelingsbinding | None = None,
+) -> str | None:
+    """Waarom een ESS-05-sessiebeoordeling níet bij de op te slaan kandidaat hoort, of None.
+
+    Zelfde regel als DEF-809/DEF-766: alleen `assessed`, met exact de
+    vingerafdruk van de kandidaat (term, tekst, context, bedoelde betekenis,
+    bronnen, actieve buren). ADR-003: met een bekende binding daarnaast de
+    volledige replaycontrole (alle tien ESS-05-bindingsvelden, materiaal,
+    bindingscontext en een semantisch goedgekeurde verificatie); alleen een
+    beoordeling die de replay zou toepassen wordt vastgelegd.
+    """
+    from domain.ess05.contract import (
+        OngeldigeBurenlijstError,
+        beoordelingsafwijzing,
+        bereken_ess05_vingerafdruk,
+    )
+
+    if not isinstance(assessment, Mapping):
+        return "beoordeling is geen object"
+    if assessment.get("status") != "assessed":
+        return (
+            f"ESS-05-beoordeling niet uitgevoerd (status {assessment.get('status')!r})"
+        )
+    try:
+        buren, afgewezen = ess05_actieve_buren_van(definition, buren_van_toetsing)
+    except OngeldigeBurenlijstError as exc:
+        return f"ongeldige burenlijst: {exc}"
+    vingerafdruk = bereken_ess05_vingerafdruk(
+        definition.begrip or "",
+        definition.definitie or "",
+        _contextlijsten(definition),
+        _record_bronnen(definition.metadata or {}),
+        intentie=ess03_intentie_van_definition(definition),
+        buren=buren,
+    )
+    if assessment.get("fingerprint") != vingerafdruk:
+        return (
+            "beoordeling hoort niet bij de op te slaan kandidaat (tekst, context, "
+            "term, bedoelde betekenis, bronnen of verwante begrippen zijn sinds de "
+            "toetsing gewijzigd); toets opnieuw na opslaan"
+        )
+    if binding is None:
+        return None
+    return beoordelingsafwijzing(
+        assessment,
+        definition.begrip or "",
+        definition.definitie or "",
+        _contextlijsten(definition),
+        _record_bronnen(definition.metadata or {}),
+        intentie=ess03_intentie_van_definition(definition),
+        buren=buren,
+        binding=binding,
+        uitgesloten_termen=afgewezen,
+    )
+
+
+def _neem_ess05_beoordeling_op(
+    assessment: Mapping[str, Any] | None,
+    definition: Definition,
+    buren_van_toetsing: Any,
+    binding: Ess05Beoordelingsbinding | None,
+) -> tuple[bool, str | None]:
+    """Zet een bindende ESS-05-sessiebeoordeling als actueel bewijs op de kandidaat."""
+    if assessment is None:
+        return False, None
+    reden = bindingsafwijzing_ess05(
+        assessment, definition, buren_van_toetsing, binding=binding
+    )
+    if reden is not None:
+        return False, reden
+    if definition.metadata is None:
+        definition.metadata = {}
+    definition.metadata["ess05_assessment"] = deepcopy(dict(assessment))
+    return True, None
 
 
 def bindingsafwijzing_ess03(
@@ -395,7 +604,10 @@ def bindingsafwijzing_ess03(
 
 
 def _configuratieafwijzing_ess03(
-    assessment: Mapping[str, Any], binding: Beoordelingsbinding | None
+    assessment: Mapping[str, Any],
+    binding: Beoordelingsbinding | None,
+    *,
+    regel: str = "ESS-03",
 ) -> str | None:
     """R1: promptversie, norm en provider/model tegen de actuele binding (indien bekend)."""
     if binding is None:
@@ -407,7 +619,7 @@ def _configuratieafwijzing_ess03(
             f"actueel is {binding.prompt_version!r}"
         )
     if assessment.get("norm_sha256") != binding.norm_sha256:
-        return "beoordeling hoort bij een eerdere versie van de ESS-03-norm"
+        return f"beoordeling hoort bij een eerdere versie van de {regel}-norm"
     if (attributie.get("provider") or None) != (binding.provider or None) or (
         attributie.get("model") != binding.model
     ):
@@ -512,6 +724,9 @@ def normaliseer_validatieresultaat(v: Mapping[str, Any]) -> dict[str, Any]:
         "source_assessment": deepcopy(ruw.get("source_assessment")),
         # DEF-766 (contract 2.1.0): de ESS-03-beoordeling van deze toetsing.
         "ess03_assessment": deepcopy(ruw.get("ess03_assessment")),
+        # DEF-768: de ESS-05-beoordeling en de burenlijst van deze toetsing.
+        "ess05_assessment": deepcopy(ruw.get("ess05_assessment")),
+        "ess05_actieve_buren": deepcopy(ruw.get("ess05_actieve_buren")),
         "raw_v2": ruw,
     }
 
@@ -628,6 +843,9 @@ class DefinitionEditService:
         ess03_assessment: Mapping[str, Any] | None = None,
         ess03_binding: Beoordelingsbinding | None = None,
         categoriekeuze: Mapping[str, Any] | None = None,
+        ess05_assessment: Mapping[str, Any] | None = None,
+        ess05_actieve_buren: Any = None,
+        ess05_binding: Ess05Beoordelingsbinding | None = None,
     ) -> dict[str, Any]:
         """
         Sla definitie wijzigingen op.
@@ -662,6 +880,12 @@ class DefinitionEditService:
                 via deze parameter — nooit via `updates`/metadata — ontstaat
                 een keuze-event; vereist `updates["version_number"]` (de
                 versie van de getoonde kandidaat) tot de uiteindelijke UPDATE.
+            ess05_assessment / ess05_actieve_buren / ess05_binding: DEF-768:
+                de ESS-05-beoordeling van de laatste toetsing, de burenlijst
+                waartegen zij is gegeven en de actuele binding; zelfde regel
+                (`bindingsafwijzing_ess05`). `updates["ess05_buren"]` en
+                `updates["ess05_lege_ruimte"]` vervoeren expertbesluiten en
+                worden recordwaarden (ook zonder beoordeling).
 
         Returns:
             Result dictionary met success status; `source_assessment_persisted`
@@ -710,6 +934,11 @@ class DefinitionEditService:
             ess03_bewaard, ess03_reden = _neem_ess03_beoordeling_op(
                 ess03_assessment, updated_definition, ess03_binding
             )
+            # DEF-768: idem voor de ESS-05-beoordeling (na de expertbesluiten
+            # van deze opslag, die in `_apply_updates` al op de kandidaat staan).
+            ess05_bewaard, ess05_reden = _neem_ess05_beoordeling_op(
+                ess05_assessment, updated_definition, ess05_actieve_buren, ess05_binding
+            )
 
             # Validate if requested
             validation_results = None
@@ -743,6 +972,8 @@ class DefinitionEditService:
                 "source_assessment_reason": beoordeling_reden,
                 "ess03_assessment_persisted": ess03_bewaard,
                 "ess03_assessment_reason": ess03_reden,
+                "ess05_assessment_persisted": ess05_bewaard,
+                "ess05_assessment_reason": ess05_reden,
             }
 
         except Exception as e:
@@ -1068,6 +1299,11 @@ class DefinitionEditService:
             updated.metadata["ess03_verduidelijking"] = updates[
                 "ess03_verduidelijking"
             ].strip()
+        # DEF-768: expertbesluiten over ESS-05 (burenlijst, lege ruimte; `{}`
+        # = bewust gewist) worden recordwaarden; de DB-laag valideert.
+        for sleutel in ("ess05_buren", "ess05_lege_ruimte"):
+            if updates.get(sleutel) is not None:
+                updated.metadata[sleutel] = deepcopy(updates[sleutel])
 
         return updated
 

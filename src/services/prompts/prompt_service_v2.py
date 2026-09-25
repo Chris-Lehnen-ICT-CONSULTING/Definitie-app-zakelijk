@@ -22,6 +22,13 @@ from services.definition_generator_context import (
 )
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
+from services.prompts.ess05_generatieburen import (
+    GENERATIEBUREN_SLEUTEL,
+    generatieburen_blok,
+    generatieburen_kwitantie,
+)
+from services.prompts.modular_prompt_adapter import PromptTeLangError
+from services.prompts.modular_prompt_builder import PromptComponentConfig
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
 from utils.type_helpers import ensure_string
@@ -496,6 +503,24 @@ class PromptServiceV2:
                 prompt_text, enriched_context
             )
 
+            # DEF-768 (WP7-G-kanaal): de vóór de generatie samengestelde
+            # verwante begrippen (zelfde samenstelling en herkomst als de
+            # ESS-05-toets) als DATA achter de prompt; geen blok bij een lege
+            # lijst, een zichtbare melding bij een fout.
+            buren = enriched_context.metadata.get(GENERATIEBUREN_SLEUTEL)
+            burenblok = generatieburen_blok(buren)
+            if burenblok:
+                prompt_text = f"{prompt_text}\n\n{burenblok}"
+            buren_kwitantie = generatieburen_kwitantie(buren)
+
+            # DEF-768 (reviewcorrectie WP7-5): de COMPLETE eindprompt — modulaire
+            # prompt, bronnenblok én burenblok — valt onder dezelfde harde kap
+            # als de modulaire bouwer. Te lang is een zichtbare weigering vóór
+            # het model; er wordt niets afgekapt en geen bron of buur weggelaten.
+            maximum = self.max_prompt_lengte()
+            if maximum < len(prompt_text):
+                raise PromptTeLangError(len(prompt_text), maximum)
+
             # Estimate token count
             token_count = len(prompt_text.split()) * 1.3  # Conservative estimate
 
@@ -522,6 +547,11 @@ class PromptServiceV2:
                     ),
                     # DEF-743: per-aanroep kwitantie van het feitelijke brongebruik
                     "source_receipt": source_receipt,
+                    **(
+                        {GENERATIEBUREN_SLEUTEL: buren_kwitantie}
+                        if buren_kwitantie is not None
+                        else {}
+                    ),
                 },
             )
 
@@ -539,6 +569,13 @@ class PromptServiceV2:
                 exc_info=True,
             )
             raise
+
+    def max_prompt_lengte(self) -> int:
+        """De harde kap op de complete generatieprompt: die van de modulaire
+        promptbouwer (één bron van waarheid, ook voor de proefrunner)."""
+        builder = getattr(self.prompt_generator, "builders", {}).get("modular")
+        config = getattr(builder, "component_config", None) or PromptComponentConfig()
+        return int(config.max_prompt_length)
 
     # ==============================
     # DEF-315: XML source formatting

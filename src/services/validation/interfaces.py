@@ -66,7 +66,14 @@ from services.interfaces import Definition
 # volledige AI-telbaarheidsbeoordeling die de async wrapper voor exact deze
 # validatie heeft verkregen (contract domain.ess03.contract), of null. Geen
 # bestaande status of veld is van betekenis veranderd: SemVer-minor.
-CONTRACT_VERSION = "2.1.0"
+#
+# 2.2.0 (DEF-768): additief uitgebreid met `ess05_assessment` — de volledige
+# AI-onderscheidsbeoordeling (ESS-05) die de async wrapper voor exact deze
+# validatie heeft verkregen (contract domain.ess05.contract), of null — en
+# `ess05_actieve_buren`: de burenlijst (herkomst, bevestiging) waaraan die
+# beoordeling gebonden is, zodat opslag en herbinding zonder databaselookup
+# kunnen controleren. Geen veld is van betekenis veranderd: SemVer-minor.
+CONTRACT_VERSION = "2.2.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -170,6 +177,12 @@ class ValidationResult(TypedDict, total=False):
     # wrapper voor deze validatie heeft verkregen (store-ready, zie
     # domain.ess03.contract), of None zonder beoordeling (geen term/tekst).
     ess03_assessment: NotRequired[dict[str, Any] | None]
+
+    # DEF-768 (2.2.0): de volledige AI-onderscheidsbeoordeling (ESS-05) en de
+    # actieve burenlijst waaraan zij gebonden is (domain.ess05.contract), of
+    # None zonder beoordeling (geen term, tekst of context).
+    ess05_assessment: NotRequired[dict[str, Any] | None]
+    ess05_actieve_buren: NotRequired[list[dict[str, Any]] | None]
 
     # DEF-621/DEF-624: verplicht bij validation_unknown; validation_readiness
     # alleen bij unknown_reason ruleset_incomplete (de enige reden waarbij

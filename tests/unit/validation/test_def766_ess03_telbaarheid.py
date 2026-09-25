@@ -210,7 +210,8 @@ class TestRegelcontract:
         # Ook het alternatieve levende pad (de hardgecodeerde indicator) is
         # dicht: er is geen ESS-03-patroon meer dat een pass of fail draagt.
         assert "ESS-03" not in _INDICATOREN
-        assert "ESS-05" in _INDICATOREN  # ESS-05 blijft ongewijzigd
+        # DEF-768: ook ESS-05 loopt niet meer via een woordindicator.
+        assert "ESS-05" not in _INDICATOREN
 
 
 class _StubSupport:
@@ -516,8 +517,8 @@ class TestGeenAutomatischHerstel:
             "ESS-03", "Object met een nummer.", "object"
         )
         assert "Vereist element herkend" not in reden
-        # ESS-05 houdt zijn bestaande heuristiek.
-        assert "Vereist element herkend" in renderer._build_pass_reason(
+        # DEF-768: ook ESS-05 heeft geen heuristische passverklaring meer.
+        assert "Vereist element herkend" not in renderer._build_pass_reason(
             "ESS-05", "eigenschap die een entiteit onderscheidt", "kenmerk"
         )
 

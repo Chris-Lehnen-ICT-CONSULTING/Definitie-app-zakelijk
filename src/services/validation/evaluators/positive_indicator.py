@@ -1,10 +1,18 @@
 """Regels waarbij een signaal juist aanwézig moet zijn (DEF-606).
 
-ESS-05 gebruikt zijn patronen als positief signaal: een treffer is gewenst,
-het ontbreken van het kenmerk is de violation. Het gedrag is één-op-één
-overgenomen uit `ModularValidationService._evaluate_json_rule` (de
-`_has_*`-helpers), zodat het invoeren van het evaluatorcontract geen
-regelbetekenis verschuift.
+Een record met deze evaluator gebruikt zijn `herkenbaar_patronen` als
+positief signaal: een treffer is gewenst. Aanvullende hardgecodeerde
+indicatoren (`_INDICATOREN`) zijn er sinds DEF-768 niet meer; de strategie
+blijft geregistreerd als contractwaarde, maar geen actief regelrecord
+gebruikt haar nog.
+
+ESS-05 stond hier tot DEF-768. De indicator (`onderscheidt`, `specifiek`,
+`bijzonder`, `kenmerk`, `eigenschap`) keurde het eigen goede voorbeeld en
+het ASTRA-goede voorbeeld af en liet lege trefwoordzinnen ("heeft een
+onderscheidend kenmerk") slagen: een trefwoord bewijst geen onderscheid en
+het ontbreken ervan is geen gebrek. De regel loopt nu via
+`distinction_assessment` (AI-beoordeling per verwant begrip, `no_score`);
+de indicator is verwijderd, geen alternatief levend pad.
 
 ESS-04 stond hier eerder ook. Die regel is bij de reparatiepas op DEF-624a
 naar `judgment_review` verplaatst: "toetsbaarheid" is een inhoudelijk
@@ -25,10 +33,6 @@ een woordtreffer bewijst geen individuatie en het ontbreken ervan is geen
 gebrek (servicemeting 13×2 in het ESS-03-onderzoek van 18 september 2026).
 De regel loopt nu via `judgment_review` met `no_score`; de indicator is
 verwijderd, ook hier: geen alternatief levend pad.
-
-Bekende beperking, belegd bij DEF-624: deze helper gebruikt een eigen
-hardgecodeerd patroon in plaats van de `herkenbaar_patronen` uit het
-record zelf. Daardoor keurt ESS-05 zijn eigen goede voorbeeld af.
 """
 
 from __future__ import annotations
@@ -49,18 +53,9 @@ from toetsregels.runtime_contract import EvaluatorType, RuleRecord
 
 __all__ = ["PositiveIndicatorEvaluator"]
 
-_ONDERSCHEIDEND_KENMERK = re.compile(
-    r"\b(onderscheidt|specifiek|bijzonder|kenmerk|eigenschap)\b", re.IGNORECASE
-)
-
-# rule-ID -> (patroon dat aanwezig moet zijn, melding, suggestiereden)
-_INDICATOREN: dict[str, tuple[re.Pattern[str], str, str]] = {
-    "ESS-05": (
-        _ONDERSCHEIDEND_KENMERK,
-        "Ontbreekt onderscheidend kenmerk",
-        "distinguishing",
-    ),
-}
+# rule-ID -> (patroon dat aanwezig moet zijn, melding, suggestiereden).
+# Bewust leeg sinds DEF-768 (zie de moduledocstring).
+_INDICATOREN: dict[str, tuple[re.Pattern[str], str, str]] = {}
 
 
 class PositiveIndicatorEvaluator:

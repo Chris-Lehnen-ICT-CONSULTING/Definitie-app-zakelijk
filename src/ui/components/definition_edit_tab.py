@@ -6,7 +6,8 @@ van definities met ondersteuning voor versiegeschiedenis en auto-save.
 """
 
 import logging
-from datetime import datetime, timedelta
+from copy import deepcopy
+from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
 import streamlit as st
@@ -230,6 +231,9 @@ class DefinitionEditTab:
                     # DEF-766: telbaarheid (ESS-03) van het opgeslagen record,
                     # replay op de kandidaat zoals nu bewerkt.
                     self._render_ess03_section(definition)
+                    # DEF-768: onderscheid (ESS-05) met burenlijst en
+                    # expertbesluiten, replay zonder AI-aanroep.
+                    self._render_ess05_section(definition)
                     # DEF-808: opgegeven bronmetadata aanvullen op de
                     # documentbronnen van het opgeslagen record.
                     self._render_bronmetadata_section(definition)
@@ -1202,6 +1206,148 @@ class DefinitionEditTab:
             )
             return None
 
+    # ------------------------------------------------------------------
+    # DEF-768: ESS-05 (voldoende onderscheidend) — sessiestaat en besluiten
+    # ------------------------------------------------------------------
+
+    #: Expertbesluiten die per record in de sessie staan tot 'Opslaan'.
+    _ESS05_BESLUITSLEUTELS: tuple[str, ...] = ("ess05_buren", "ess05_lege_ruimte")
+
+    @staticmethod
+    def _uit_laatste_toetsing(sleutel: str) -> Any | None:
+        """`sleutel` uit de laatste toetsing (genormaliseerd, anders ruw)."""
+        laatste = SessionStateManager.get_value("edit_last_validation")
+        if not isinstance(laatste, dict):
+            return None
+        waarde = laatste.get(sleutel)
+        if waarde is None:
+            waarde = _als_dict(laatste.get("raw_v2")).get(sleutel)
+        return waarde
+
+    @classmethod
+    def _sessiebeoordeling_ess05(cls) -> dict[str, Any] | None:
+        """De ESS-05-beoordeling uit de laatste toetsing, of None (DEF-768)."""
+        beoordeling = cls._uit_laatste_toetsing("ess05_assessment")
+        return beoordeling if isinstance(beoordeling, dict) else None
+
+    @classmethod
+    def _sessie_actieve_buren(cls) -> list[Any] | None:
+        """De actieve burenlijst waarop de laatste toetsing ESS-05 beoordeelde."""
+        buren = cls._uit_laatste_toetsing("ess05_actieve_buren")
+        return buren if isinstance(buren, list) else None
+
+    @classmethod
+    def _ess05_sessiebesluiten(cls, def_id: Any) -> dict[str, Any]:
+        """De ESS-05-besluiten die in deze sessie zijn genomen (nog niet opgeslagen).
+
+        Alleen aanwezige sleutels; een bewust gewiste lege-ruimtebevestiging is
+        `{}` en telt dus mee.
+        """
+        besluiten: dict[str, Any] = {}
+        for sleutel in cls._ESS05_BESLUITSLEUTELS:
+            waarde = SessionStateManager.get_value(f"edit_{def_id}_{sleutel}")
+            if waarde is not None:
+                besluiten[sleutel] = deepcopy(waarde)
+        return besluiten
+
+    @classmethod
+    def _wis_ess05_sessiebesluiten(cls, def_id: Any) -> None:
+        for sleutel in cls._ESS05_BESLUITSLEUTELS:
+            SessionStateManager.set_value(f"edit_{def_id}_{sleutel}", None)
+
+    @staticmethod
+    def _ess05_binding() -> Any | None:
+        """De actuele ESS-05-beoordelingsbinding uit de gecachte dienst, zonder
+        netwerk; None wanneer de dienst niet beschikbaar is (de replay benoemt
+        dat dan en past geen opgeslagen beoordeling toe)."""
+        try:
+            from ui.cached_services import get_cached_service_container
+
+            return get_cached_service_container().ess05_assessment_service().binding()
+        except Exception as e:
+            logger.warning(
+                "ESS-05-beoordelingsbinding niet beschikbaar: %s: %s",
+                type(e).__name__,
+                e,
+            )
+            return None
+
+    def _pas_ess05_besluit_toe(
+        self, definition: Any, actie: str, **gegevens: Any
+    ) -> str | None:
+        """Voer een ESS-05-expertbesluit uit op de kandidaat; None of de reden
+        waarom niet.
+
+        Het besluit komt in de sessie (`edit_{id}_ess05_buren` of
+        `_ess05_lege_ruimte`) en gaat mee bij 'Valideren' en 'Opslaan'. Geen
+        AI-aanroep: de replay maakt het effect direct zichtbaar. Zonder
+        bestaande gebruikersidentiteit wordt niets vastgelegd.
+        """
+        from domain.ess05 import expertacties
+        from domain.ess05.contract import OngeldigeBurenlijstError
+        from services.definition_edit_service import (
+            ess05_actieve_buren_van,
+            ess05_uitkomst_van_definition,
+        )
+
+        actor = self._handelende_gebruiker()
+        if not actor:
+            return "vul eerst je naam in; een besluit wordt nooit anoniem vastgelegd"
+        def_id = getattr(definition, "id", None)
+        kandidaat = self._kandidaat_uit_formulier(definition)
+        opgeslagen = (kandidaat.metadata or {}).get("ess05_buren") or []
+        nu = datetime.now(UTC).isoformat(timespec="seconds")
+        try:
+            if actie == "lege_ruimte":
+                uitkomst = ess05_uitkomst_van_definition(
+                    kandidaat, self._sessie_actieve_buren(), None
+                )
+                if uitkomst.get("review", {}).get("neighbours"):
+                    return "er zijn verwante begrippen; de lege ruimte geldt niet"
+                besluit: Any = expertacties.bevestig_lege_ruimte(
+                    uitkomst.get("fingerprint") or "",
+                    grond=gegevens.get("grond", ""),
+                    actor=actor,
+                    at=nu,
+                )
+                SessionStateManager.set_value(
+                    f"edit_{def_id}_ess05_lege_ruimte", besluit
+                )
+                return None
+            actief, _ = ess05_actieve_buren_van(kandidaat, self._sessie_actieve_buren())
+            actief_dicts = [b.als_dict() for b in actief]
+            if actie == "bevestig":
+                besluit = expertacties.bevestig_buur(
+                    opgeslagen, actief_dicts, gegevens["buur_id"], actor=actor, at=nu
+                )
+            elif actie == "wijs_af":
+                besluit = expertacties.wijs_buur_af(
+                    opgeslagen,
+                    actief_dicts,
+                    gegevens["buur_id"],
+                    actor=actor,
+                    at=nu,
+                    grond=gegevens.get("grond", ""),
+                )
+            elif actie == "voeg_toe":
+                besluit = expertacties.voeg_buur_toe(
+                    opgeslagen,
+                    gegevens.get("term", ""),
+                    gegevens.get("definitie"),
+                    actor=actor,
+                    at=nu,
+                )
+            elif actie == "neem_over":
+                besluit = expertacties.neem_voorstel_over(
+                    opgeslagen, gegevens["voorstel"], actor=actor, at=nu
+                )
+            else:
+                return f"onbekende actie {actie!r}"
+        except (ValueError, OngeldigeBurenlijstError) as e:
+            return str(e)
+        SessionStateManager.set_value(f"edit_{def_id}_ess05_buren", besluit)
+        return None
+
     def _proposal_service(self) -> Any | None:
         """`SourceProposalService` uit de gecachte container (AI-service + router)."""
         if self.edit_service.proposal_service is not None:
@@ -1313,6 +1459,10 @@ class DefinitionEditTab:
                 k("categorie"), definition.categorie
             )
             or None,
+            # DEF-768: de door de gebruiker genoemde verwante begrippen (ESS-05).
+            gerelateerde_begrippen=list(
+                getattr(definition, "gerelateerde_begrippen", None) or []
+            ),
             metadata={
                 sleutel: meta.get(sleutel)
                 for sleutel in (
@@ -1321,17 +1471,22 @@ class DefinitionEditTab:
                     "generation_prompt_data",
                     "ess03_assessment",
                     "ess03_verduidelijking",
+                    "ess05_assessment",
+                    "ess05_buren",
+                    "ess05_lege_ruimte",
                 )
                 if meta.get(sleutel) is not None
             },
         )
+        # metadata is hierboven altijd als dict geconstrueerd; de guard
+        # maakt dat expliciet voor het `dict | None`-veldtype (mypy).
+        if kandidaat.metadata is None:
+            kandidaat.metadata = {}
         verduidelijking = self._sessieverduidelijking(def_id)
         if verduidelijking is not None:
-            # metadata is hierboven altijd als dict geconstrueerd; de guard
-            # maakt dat expliciet voor het `dict | None`-veldtype (mypy).
-            if kandidaat.metadata is None:
-                kandidaat.metadata = {}
             kandidaat.metadata["ess03_verduidelijking"] = verduidelijking
+        # DEF-768: ESS-05-besluiten van deze sessie winnen van het record.
+        kandidaat.metadata.update(self._ess05_sessiebesluiten(def_id))
         return kandidaat
 
     def _render_ess03_section(self, definition: Any) -> None:
@@ -1376,6 +1531,217 @@ class DefinitionEditTab:
                 )
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             logger.warning("ESS-03-sectie kon niet worden getoond: %s", e)
+
+    def _render_ess05_section(self, definition: Any) -> None:
+        """ESS-05 (voldoende onderscheidend): de uitkomst op de kandidaat zoals
+        nu bewerkt, de burenlijst met herkomst en de expertbesluiten.
+
+        Geen AI-aanroep: de laatste toetsing (of anders de opgeslagen
+        beoordeling) wordt afgespeeld op de actuele kandidaat en burenlijst.
+        Besluiten (bevestigen, gemotiveerd afwijzen, toevoegen, voorstel
+        overnemen, lege ruimte bevestigen) staan in de sessie tot 'Opslaan'.
+        """
+        try:
+            from domain.ess05.contract import OngeldigeBurenlijstError
+            from services.definition_edit_service import (
+                ess05_actieve_buren_van,
+                ess05_uitkomst_van_definition,
+            )
+            from ui.components.validation_view import render_rule_results
+
+            def_id = getattr(definition, "id", None)
+            kandidaat = self._kandidaat_uit_formulier(definition)
+            sessieburen = self._sessie_actieve_buren()
+            sessiebeoordeling = self._sessiebeoordeling_ess05()
+            beoordeling = (
+                sessiebeoordeling
+                if sessiebeoordeling is not None
+                else (kandidaat.metadata or {}).get("ess05_assessment")
+            )
+            uitkomst = ess05_uitkomst_van_definition(
+                kandidaat,
+                sessieburen,
+                self._ess05_binding() if isinstance(beoordeling, dict) else None,
+                assessment=beoordeling,
+            )
+            with st.expander(
+                "🧭 Onderscheid (ESS-05) — verwante begrippen en AI-beoordeling",
+                expanded=False,
+            ):
+                render_rule_results({"ESS-05": uitkomst})
+                st.caption(
+                    "Herkomst: AI-beoordeling per verwant begrip plus besluiten van "
+                    "de deskundige. Geen cijfer; een negatieve uitkomst blokkeert "
+                    "vaststellen of exporteren niet en wijzigt de tekst niet. "
+                    "Besluiten gelden pas na 'Opslaan'; 'Valideren' vraagt een "
+                    "nieuwe beoordeling."
+                )
+                try:
+                    actief, _ = ess05_actieve_buren_van(kandidaat, sessieburen)
+                except OngeldigeBurenlijstError as e:
+                    # De uitkomst hierboven meldt de fout al als 'error'.
+                    logger.warning("ESS-05: burenlijst ongeldig (%s); geen acties", e)
+                    actief = ()
+                self._render_ess05_acties(
+                    definition,
+                    def_id,
+                    actief,
+                    uitkomst,
+                    self._ess05_bronverwijzingen(kandidaat),
+                )
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning("ESS-05-sectie kon niet worden getoond: %s", e)
+
+    def _render_ess05_acties(
+        self,
+        definition: Any,
+        def_id: Any,
+        actief: Any,
+        uitkomst: dict[str, Any],
+        verwijzingen: dict[str, dict[str, str]] | None = None,
+    ) -> None:
+        """De expertknoppen van ESS-05 (key-only widgets, waarden via de sessie)."""
+        for index, buur in enumerate(actief):
+            self._render_ess05_buuracties(
+                definition, def_id, index, buur, (verwijzingen or {}).get(buur.id)
+            )
+        self._render_ess05_nieuwe_buren(definition, def_id, actief, uitkomst)
+
+    @staticmethod
+    def _ess05_bronverwijzingen(kandidaat: Any) -> dict[str, dict[str, str]]:
+        """Per buur-id de bronverwijzing uit de opgeslagen burenlijst.
+
+        De actieve `Buur` draagt alleen herkomst en status; de verwijzing
+        (`source_id` + citaat) van een overgenomen voorstel staat apart op de
+        opgeslagen regel en wordt hier naast de herkomst getoond.
+        """
+        from domain.ess05.contract import bronverwijzing, buur_id
+
+        uit: dict[str, dict[str, str]] = {}
+        for item in (getattr(kandidaat, "metadata", None) or {}).get(
+            "ess05_buren"
+        ) or []:
+            if not isinstance(item, dict):
+                continue
+            verwijzing = bronverwijzing(item)
+            if verwijzing:
+                sleutel = str(item.get("id") or "").strip() or buur_id(
+                    str(item.get("herkomst")), str(item.get("term") or "")
+                )
+                uit[sleutel] = verwijzing
+        return uit
+
+    @staticmethod
+    def _toon_ess05_bronverwijzing(verwijzing: dict[str, str] | None) -> None:
+        if verwijzing:
+            st.caption(
+                f"Bronverwijzing bij het voorstel: {verwijzing['source_id']} — "
+                f"“{verwijzing['quote']}”"
+            )
+
+    @staticmethod
+    def _ess05_sleutel(def_id: Any, naam: str) -> str:
+        return f"edit_{def_id}_ess05_{naam}"
+
+    @staticmethod
+    def _meld_ess05_besluit(fout: str | None) -> None:
+        """Een geweigerd besluit wordt benoemd; een vastgelegd besluit herlaadt."""
+        if fout:
+            st.warning(f"⚠️ Besluit niet vastgelegd: {fout}.")
+        else:
+            st.rerun()
+
+    def _render_ess05_buuracties(
+        self,
+        definition: Any,
+        def_id: Any,
+        index: int,
+        buur: Any,
+        verwijzing: dict[str, str] | None = None,
+    ) -> None:
+        """Bevestigen of gemotiveerd afwijzen van één verwant begrip."""
+        grondsleutel = self._ess05_sleutel(def_id, f"grond_{index}")
+        status = "bevestigd" if buur.bevestigd else "onbevestigd"
+        st.markdown(f"**{buur.term}** ({buur.herkomst}, {status})")
+        self._toon_ess05_bronverwijzing(verwijzing)
+        kolommen = st.columns(2)
+        with kolommen[0]:
+            if not buur.bevestigd and st.button(
+                "✅ Bevestig als verwant begrip",
+                key=self._ess05_sleutel(def_id, f"bevestig_{index}"),
+            ):
+                self._meld_ess05_besluit(
+                    self._pas_ess05_besluit_toe(definition, "bevestig", buur_id=buur.id)
+                )
+        with kolommen[1]:
+            st.text_input("Grond voor afwijzen", key=grondsleutel)
+            if st.button(
+                "🚫 Wijs af", key=self._ess05_sleutel(def_id, f"wijs_af_{index}")
+            ):
+                self._meld_ess05_besluit(
+                    self._pas_ess05_besluit_toe(
+                        definition,
+                        "wijs_af",
+                        buur_id=buur.id,
+                        grond=SessionStateManager.get_value(grondsleutel, ""),
+                    )
+                )
+
+    def _render_ess05_nieuwe_buren(
+        self, definition: Any, def_id: Any, actief: Any, uitkomst: dict[str, Any]
+    ) -> None:
+        """Voorstel overnemen, verwant begrip toevoegen, lege ruimte bevestigen."""
+
+        def k(naam: str) -> str:
+            return self._ess05_sleutel(def_id, naam)
+
+        from domain.ess05.contract import bronverwijzing
+
+        meld = self._meld_ess05_besluit
+        for index, voorstel in enumerate(
+            (uitkomst.get("review") or {}).get("proposals") or []
+        ):
+            self._toon_ess05_bronverwijzing(bronverwijzing(voorstel))
+            if st.button(
+                f"➕ Neem voorstel ‘{voorstel.get('term')}’ over "
+                f"({voorstel.get('herkomst')}, onbevestigd)",
+                key=k(f"voorstel_{index}"),
+            ):
+                meld(
+                    self._pas_ess05_besluit_toe(
+                        definition, "neem_over", voorstel=voorstel
+                    )
+                )
+
+        st.text_input("Verwant begrip toevoegen", key=k("nieuwe_term"))
+        st.text_area("Definitie van dat begrip (optioneel)", key=k("nieuwe_definitie"))
+        if st.button("➕ Voeg verwant begrip toe", key=k("voeg_toe")):
+            meld(
+                self._pas_ess05_besluit_toe(
+                    definition,
+                    "voeg_toe",
+                    term=SessionStateManager.get_value(k("nieuwe_term"), ""),
+                    definitie=SessionStateManager.get_value(k("nieuwe_definitie")),
+                )
+            )
+
+        if not actief:
+            st.text_input(
+                "Grond: er zijn in deze context geen verwante begrippen",
+                key=k("lege_grond"),
+            )
+            if st.button(
+                # Niet `lege_ruimte`: dat is de besluitsleutel zelf.
+                "✅ Bevestig: geen verwante begrippen",
+                key=k("bevestig_leeg"),
+            ):
+                meld(
+                    self._pas_ess05_besluit_toe(
+                        definition,
+                        "lege_ruimte",
+                        grond=SessionStateManager.get_value(k("lege_grond"), ""),
+                    )
+                )
 
     # ------------------------------------------------------------------
     # DEF-808: opgegeven bronmetadata aanvullen op het opgeslagen record
@@ -2013,6 +2379,9 @@ class DefinitionEditTab:
                 # van een vorige sessie; het record toont zijn opgeslagen
                 # beoordeling via de replay-sectie.
                 SessionStateManager.set_value("edit_last_validation", None)
+                # DEF-768: niet-opgeslagen ESS-05-besluiten horen bij de vorige
+                # sessie; het record draagt de opgeslagen besluiten.
+                self._wis_ess05_sessiebesluiten(definition_id)
 
                 # DEF-156 Fix 2B: Eager voorbeelden loading to prevent data loss
                 # Explicitly resolve and cache voorbeelden in session state
@@ -2132,6 +2501,41 @@ class DefinitionEditTab:
                 f"{result['ess03_assessment_reason']}."
             )
 
+    def _ess05_opslagargumenten(
+        self, definition_id: Any, updates: dict[str, Any]
+    ) -> dict[str, Any]:
+        """DEF-768: zet de ESS-05-besluiten van deze sessie (burenlijst, lege
+        ruimte — ook bewust gewist) in `updates` en geef de beoordeling van de
+        laatste toetsing met haar burenlijst en binding terug als argumenten
+        voor `save_definition`; de servicelaag legt haar alleen vast als zij
+        exact aan de op te slaan kandidaat bindt."""
+        updates.update(self._ess05_sessiebesluiten(definition_id))
+        beoordeling = self._sessiebeoordeling_ess05()
+        return {
+            "ess05_assessment": beoordeling,
+            "ess05_actieve_buren": self._sessie_actieve_buren(),
+            "ess05_binding": (
+                self._ess05_binding() if beoordeling is not None else None
+            ),
+        }
+
+    @staticmethod
+    def _meld_ess05_beoordeling_bij_opslaan(
+        result: dict[str, Any], sessiebeoordeling: dict[str, Any] | None
+    ) -> None:
+        """DEF-768: wat er bij Opslaan met de ESS-05-sessiebeoordeling gebeurde."""
+        if result.get("ess05_assessment_persisted"):
+            st.success(
+                "✅ ESS-05-beoordeling (onderscheid) van de laatste toetsing "
+                "opgeslagen bij de actuele kandidaat (AI-beoordeling; geen "
+                "vaststelling, geen blokkade)."
+            )
+        elif sessiebeoordeling is not None and result.get("ess05_assessment_reason"):
+            st.warning(
+                "⚠️ ESS-05-beoordeling van de laatste toetsing niet opgeslagen: "
+                f"{result['ess05_assessment_reason']}."
+            )
+
     def _save_definition(self) -> None:
         """Save the edited definition."""
         try:
@@ -2193,6 +2597,8 @@ class DefinitionEditTab:
             verduidelijking = self._sessieverduidelijking(definition_id)
             if verduidelijking is not None:
                 updates["ess03_verduidelijking"] = verduidelijking
+            # DEF-768: ESS-05-besluiten en de beoordeling van de laatste toetsing.
+            ess05 = self._ess05_opslagargumenten(definition_id, updates)
 
             # DEF-751 B2: alleen een werkelijk gewijzigde categorie is een
             # keuze van deze opslaan-actie; zij reist als `editor`-event mee
@@ -2224,6 +2630,7 @@ class DefinitionEditTab:
                 ess03_assessment=sessiebeoordeling_ess03,
                 ess03_binding=self._ess03_binding(),
                 categoriekeuze=categoriekeuze,
+                **ess05,
             )
 
             if result["success"]:
@@ -2232,6 +2639,10 @@ class DefinitionEditTab:
                 self._meld_ess03_beoordeling_bij_opslaan(
                     result, sessiebeoordeling_ess03
                 )
+                self._meld_ess05_beoordeling_bij_opslaan(
+                    result, ess05["ess05_assessment"]
+                )
+                self._wis_ess05_sessiebesluiten(definition_id)
 
                 # Show validation results if available
                 if result.get("validation"):
@@ -2317,8 +2728,14 @@ class DefinitionEditTab:
                 categorie=SessionStateManager.get_value(k("categorie"))
                 or getattr(geladen, "categorie", None),
                 toelichting=SessionStateManager.get_value(k("toelichting"), ""),
+                # DEF-768: genoemde verwante begrippen van het geladen record.
+                gerelateerde_begrippen=list(
+                    getattr(geladen, "gerelateerde_begrippen", None) or []
+                ),
                 metadata={
                     "status": SessionStateManager.get_value(k("status"), "draft"),
+                    # DEF-768: ESS-05-besluiten van deze sessie (sessie wint).
+                    **self._ess05_sessiebesluiten(def_id),
                     # DEF-766: de verduidelijking van déze sessie gaat mee in de
                     # ESS-03-binding (ook bewust leeg); zonder veld geldt die
                     # van het record. De tekst blijft ongewijzigd.
@@ -2434,10 +2851,24 @@ class DefinitionEditTab:
             return results
         from services.definition_edit_service import (
             herbind_ess03_in_validatieresultaat,
+            herbind_ess05_in_validatieresultaat,
         )
 
+        kandidaat = self._kandidaat_uit_formulier(definition)
         herbonden = herbind_ess03_in_validatieresultaat(
-            v2, self._kandidaat_uit_formulier(definition), binding=self._ess03_binding()
+            v2, kandidaat, binding=self._ess03_binding()
+        )
+        # DEF-768: ESS-05 idem — een expertbesluit of gewijzigde invoer is
+        # direct zichtbaar, zonder AI-aanroep. De binding is alleen nodig als
+        # er een inhoudelijke beoordeling af te spelen is.
+        beoordeling = herbonden.get("ess05_assessment")
+        ess05_binding = (
+            self._ess05_binding()
+            if isinstance(beoordeling, dict) and beoordeling.get("status") == "assessed"
+            else None
+        )
+        herbonden = herbind_ess05_in_validatieresultaat(
+            herbonden, kandidaat, binding=ess05_binding
         )
         if herbonden is v2:
             return results

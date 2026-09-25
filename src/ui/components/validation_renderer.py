@@ -354,10 +354,11 @@ class ValidationRenderer:
             # bewijst geen toetsbaarheid; ESS-04 komt nooit als geslaagde regel
             # binnen en een menselijk 'voldoet' krijgt hier geen woord- of
             # getalsverklaring.
+            # DEF-768: idem ESS-05 — een trefwoord ('onderscheidt', 'kenmerk')
+            # bewijst geen onderscheid; de grond van een ESS-05-'voldoet' staat
+            # per verwant begrip in het regelresultaat, niet in een woordtreffer.
             if rid == "CON-01":
                 return "Context niet letterlijk benoemd; geen duplicaat gedetecteerd."
-            if rid == "ESS-05":
-                return "Vereist element herkend (heuristiek)."
         except (KeyError, TypeError, re.error) as e:
             # DEF-246: Log pass reason computation failure
             logger.debug(

@@ -1435,18 +1435,19 @@ class ModularValidationService:
         """
         beschikbaar = self._available_inputs(ctx)
         ontbrekend = missing_inputs(record, beschikbaar)
-        if ontbrekend:
-            namen = ", ".join(sorted(item.value for item in ontbrekend))
-            return EvaluationOutcome.not_evaluated(
-                f"vereiste invoer ontbreekt: {namen}"
-            )
-
         deps = EvaluationDeps(
             support=self,
             available_inputs=beschikbaar,
             repository=self._repository,
             pattern_cache=state.pattern_cache,
         )
+        if ontbrekend:
+            namen = ", ".join(sorted(item.value for item in ontbrekend))
+            generiek = EvaluationOutcome.not_evaluated(
+                f"vereiste invoer ontbreekt: {namen}"
+            )
+            return self._gemotiveerd_niet_beoordeeld(record, ctx, deps, generiek)
+
         try:
             evaluator = self._registry.resolve(record.evaluator)
             return evaluator.evaluate(record, ctx, deps)
@@ -1480,6 +1481,52 @@ class ModularValidationService:
                 status=ResultStatus.ERROR,
                 reason=f"{type(exc).__name__}: {exc}",
             )
+
+    def _gemotiveerd_niet_beoordeeld(
+        self,
+        record: RuleRecord,
+        ctx: EvaluationContext,
+        deps: EvaluationDeps,
+        generiek: EvaluationOutcome,
+    ) -> EvaluationOutcome:
+        """Ontbrekende vereiste invoer: `not_evaluated`, zo mogelijk gemotiveerd.
+
+        Een evaluator die dat expliciet aangeeft (`motiveert_ontbrekende_invoer`,
+        DEF-768 ESS-05) levert zijn eigen gestructureerde `not_evaluated` met
+        reden en vervolgstap, zodat élke weergave de reden toont. De
+        contextplicht blijft: elke andere uitkomst — of een fout — valt terug
+        op de generieke `not_evaluated`; zonder vereiste invoer nooit een oordeel.
+        """
+        try:
+            evaluator = self._registry.resolve(record.evaluator)
+            if not getattr(evaluator, "motiveert_ontbrekende_invoer", False):
+                return generiek
+            uitkomst = evaluator.evaluate(record, ctx, deps)
+        except Exception as exc:
+            logger.warning(
+                "Regel %s: gemotiveerde niet-beoordeling mislukt (%s); generiek",
+                record.rule_id,
+                type(exc).__name__,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": record.rule_id,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+            return generiek
+        if uitkomst.status is not ResultStatus.NOT_EVALUATED:
+            logger.warning(
+                "Regel %s gaf %s bij ontbrekende vereiste invoer; genegeerd",
+                record.rule_id,
+                uitkomst.status.value,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": record.rule_id,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+            return generiek
+        return uitkomst
 
     def _available_inputs(self, ctx: EvaluationContext) -> frozenset[RequiredInput]:
         """Welke gedeclareerde invoer is voor deze validatie beschikbaar?
@@ -1962,8 +2009,10 @@ class ModularValidationService:
                 "kwantitatieve afbakening; voeg geen termijn of grens toe om een "
                 "signaal te verkrijgen."
             )
-        if reason == "distinguishing" and c == "ESS-05":
-            return "Voeg een onderscheidend kenmerk toe dat het begrip afbakent."
+        # DEF-768: de ESS-05-hint ("voeg een onderscheidend kenmerk toe") hoorde
+        # bij de verwijderde woordindicator (reden "distinguishing"). ESS-05
+        # levert zijn eigen reden en vervolgstap per verwant begrip
+        # (`DistinctionAssessmentEvaluator`); er is geen vervangende hint.
         if reason == "singular" and c == "VER-01":
             return "Schrijf het lemma in enkelvoud (tenzij plurale tantum)."
 

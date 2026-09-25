@@ -699,6 +699,13 @@ class ServiceAdapter:
                 # DEF-366: Multi-collection RAG support
                 rag_collection_ids=safe_dict_get(kwargs, "rag_collection_ids", None),
                 betekenisverduidelijking=(verduidelijking or None),
+                # DEF-768 (WP7-G-kanaal): optionele verwante begrippen; ongewijzigd
+                # doorgegeven, zodat een ongeldige lijst zichtbaar faalt in de
+                # samenstelling i.p.v. hier stil te worden weggefilterd.
+                ess05_buren=safe_dict_get(kwargs, "ess05_buren", None),
+                gerelateerde_begrippen=safe_dict_get(
+                    kwargs, "gerelateerde_begrippen", None
+                ),
             )
 
             # Compose additional context (documents/web lookup augmentation, etc.)

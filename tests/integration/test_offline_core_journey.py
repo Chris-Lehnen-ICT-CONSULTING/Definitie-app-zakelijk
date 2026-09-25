@@ -129,16 +129,21 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: regel minder gefaald, één meer open; 34/29/5/15 → 33/29/4/16. De dekking
 #: telt sindsdien ook afgeronde niet-toepasselijkheid apart (`not_applicable`,
 #: hier nul).
+#: DEF-768: ESS-05 is een AI-beoordeling per verwant begrip via dezelfde
+#: bevroren grens (`ess05_bevroren_antwoord`: geen oordeel). Deze journey
+#: levert geen bevestigd verwant begrip; zonder bevestigde buur is ESS-05 open
+#: met één vraag (besluit K-2) i.p.v. de trefwoord-`fail` — één regel minder
+#: gefaald, één meer open; 33/29/4/16 → 32/29/3/17.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 33,
+    "evaluated": 32,
     "passed": 29,
-    "failed": 4,
-    "review_required": 16,
+    "failed": 3,
+    "review_required": 17,
     "not_evaluated": 4,
     "error": 0,
     "not_applicable": 0,
     "total": 53,
-    "coverage_ratio": 0.6226,
+    "coverage_ratio": 0.6038,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -175,7 +180,6 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "VER-02",
 ]
 VERWACHTE_GEFAALDE_REGELS = [
-    "ESS-05",
     "INT-01",
     "VER-01",
     "VER-03",

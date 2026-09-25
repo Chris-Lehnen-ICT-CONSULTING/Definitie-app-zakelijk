@@ -220,8 +220,7 @@ STRUCTUUR van je definitie:
 
 VERVOLG met:
 - BOVENBEGRIP (impliciet door de keuze van het kernwoord)
-- ONDERSCHEIDENDE KENMERKEN (wat maakt dit uniek)
-- VERSCHIL met verwante begrippen (hoe te onderscheiden)
+- ONDERSCHEIDENDE KENMERKEN (kenmerken die het begrip in deze context scheiden van verwante begrippen; ‘uniek’ of ‘specifiek’ is op zichzelf geen kenmerk, maar blijft staan als deel van een naam of vaste term)
 
 VOORBEELDEN (GOED):
 ✅ "woord dat handelingen of toestanden uitdrukt"

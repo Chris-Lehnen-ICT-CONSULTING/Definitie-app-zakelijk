@@ -1,9 +1,9 @@
 {
   "id": "ESS_05",
   "naam": "Voldoende onderscheidend",
-  "uitleg": "Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.",
-  "toelichting": "De definitie moet aangeven waarin het begrip zich onderscheidt van andere begrippen binnen hetzelfde domein, bijvoorbeeld via een expliciete tegenstelling, verschil- of unieke kenmerken. Zonder dit onderscheid zijn definities verwarrend en overlappend.",
-  "toetsvraag": "Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?",
+  "uitleg": "Met de definitie is het begrip te onderscheiden van de andere begrippen die in dezelfde context relevant zijn: de kern drukt ten opzichte van elk verwant begrip een onderbouwd verschil in kenmerken uit dat gevallen van dat begrip afgrenst die volgens bron of bedoelde betekenis niet onder dit begrip vallen; gedeelde gevallen mogen. Het onderscheid ligt in de gekozen kenmerken (bovenbegrip en toespitsing), niet in een vergelijkingsfrase; de woorden 'uniek', 'specifiek' of 'kenmerk' zijn op zichzelf geen kenmerk, maar blijven staan als deel van een door de bron gedragen naam of vaste term.",
+  "toelichting": "Bron (ASTRA, Brondocument Politie), letterlijk: \"Een definitie moet onderscheidend zijn binnen een domein. Met een definitie moet een begrip duidelijk te onderscheiden zijn van andere begrippen in dezelfde context.\" ASTRA's voorbeeld: 'onttrekking' als \"incident waarbij een jeugdige zonder toestemming de justitiële jeugdinrichting verlaat\" \"kan niet worden onderscheiden van ontvluchting\"; de goede versie noemt \"één van de volgende justitiële voorzieningen: de open justitiële jeugdinrichting; het terrein dat tot de gesloten justitiële jeugdinrichting behoort\". Lokale uitwerking (DEF-768): een materiedeskundige moet met de kern het begrip kunnen scheiden van elk relevant verwant begrip — begrippen met hetzelfde bovenbegrip en begrippen die in deze context met het begrip verward kunnen worden of deels dezelfde gevallen dekken; het bovenbegrip, onderbegrippen, synoniemen en homoniemen in een andere context zijn geen verwante begrippen. De toets per verwant begrip is of de kern in de vastgelegde context een onderbouwd verschil in kenmerken uitdrukt ten opzichte van de beschrijving van dat begrip. Een ander woord of een ander kenmerk alleen is nog geen afgrenzing: het kenmerk grenst gevallen van het verwante begrip af die volgens bron of bedoelde betekenis niet onder dit begrip vallen (in het ASTRA-paar draagt 'jeugdige' ook ontvluchting en grenst dus niets af); draagt het materiaal die afgrenzing niet, dan blijft het oordeel open en worden geen tegenvoorbeeld of betekenis verzonnen. Overlap van gevallen is geen gebrek zolang het onderscheidende kenmerk kenbaar is: een persoon of object dat beide rollen vervult bewijst op zichzelf geen gebrek. Een vergelijkende formulering is toegestaan als schrijfhulp maar bewijst niets en vervangt geen kenmerk; een contrast dat de definitie van het andere begrip nodig heeft, hoort in de toelichting. Zijn geen verwante begrippen bekend, dan blijft het oordeel open met één gerichte vraag; een deskundige kan met grond vastleggen dat de vergelijkingsruimte in deze context leeg is. Door het model voorgestelde verwante begrippen blijven onbevestigde voorstellen. Ontbrekende invoer, een onbeslist oordeel en een technische fout zijn geen bewezen overtreding. De regel geeft geen cijfer en blokkeert niet zelfstandig; er is geen automatisch herstel; een verbetervoorstel kan apart worden aangevraagd. Normherkomst en lokale uitwerking gescheiden: de eis en het voorbeeldpaar komen uit de gelezen ASTRA-pagina (21-09-2026, revisie niet verifieerbaar); de afbakening van de vergelijkingsruimte, de overlapregel, de informatievoorwaarden en de uitkomst bij een bevestigd lege vergelijkingsruimte zijn het lokale operationaliseringsvoorstel (besluiten K-1…K-10, synthese 23-09-2026).",
+  "toetsvraag": "Drukt de definitiekern in deze context ten opzichte van elk relevant verwant begrip een onderbouwd verschil in kenmerken uit dat gevallen van dat begrip afgrenst die volgens bron of bedoelde betekenis niet onder dit begrip vallen (gedeelde gevallen mogen), en is per verwant begrip aan te wijzen welk kenmerk in de kern dat verschil draagt?",
   "herkenbaar_patronen": [
     "\\bonderscheidt zich door\\b",
     "\\bspecifiek voor\\b",
@@ -15,34 +15,40 @@
     "\\buniek ten opzichte van\\b"
   ],
   "goede_voorbeelden": [
-    "Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming."
+    "Incident waarbij een jeugdige zonder toestemming één van de volgende justitiële voorzieningen verlaat: de open justitiële jeugdinrichting of het terrein dat tot de gesloten justitiële jeugdinrichting behoort."
   ],
   "foute_voorbeelden": [
-    "Toezicht: het houden van toezicht op iemand."
+    "Incident waarbij een jeugdige zonder toestemming de justitiële jeugdinrichting verlaat."
   ],
-  "prioriteit": "hoog",
+  "prioriteit": "midden",
   "aanbeveling": "verplicht",
   "geldigheid": "alle",
   "status": "definitief",
   "type": "essentie",
-  "thema": "onderscheidend vermogen",
+  "thema": "onderscheid van verwante begrippen",
   "brondocument": "ASTRA",
   "relatie": [
     {
       "fulltext": "Voldoende onderscheidend",
       "fullurl": "https://www.astraonline.nl/index.php/Voldoende_onderscheidend"
+    },
+    {
+      "fulltext": "Instanties uniek onderscheidbaar",
+      "fullurl": "https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar"
     }
   ],
   "runtime_contract": {
-    "evaluator": "positive_indicator",
+    "evaluator": "distinction_assessment",
     "required_inputs": [
-      "definition_text"
+      "definition_text",
+      "term",
+      "context_lists"
     ],
-    "executability": "deterministic",
+    "executability": "judgment",
     "automation_status": "automated",
-    "score_policy": "scored",
-    "example_pair_policy": "source_defect",
-    "example_pair_reason": "De evaluator gebruikt eigen indicatorpatronen in plaats van de patronen uit het record, waardoor ESS-05 zijn eigen goede voorbeeld afkeurt.",
-    "example_pair_issue": "DEF-624"
+    "score_policy": "no_score",
+    "example_pair_policy": "review_policy",
+    "example_pair_reason": "Onderscheid van verwante begrippen vraagt per verwant begrip een inhoudelijk oordeel over een onderbouwd kenmerkverschil; de vervangen trefwoordindicator keurde het eigen en het ASTRA-goede voorbeeld af en liet lege trefwoordzinnen slagen. Sinds DEF-768 (AI-beoordeling) geeft de app dat oordeel zelf; het ASTRA-paar is alleen beslisbaar met het verwante begrip 'ontvluchting' als aangeleverde buur, dus geen deterministische regressiecase en geen deskundig gevalideerde goldset.",
+    "example_pair_issue": "DEF-768"
   }
 }

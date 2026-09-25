@@ -27,10 +27,19 @@ from database.definitie_repository import (
     Voorstelreservering,
     Voorsteltoepassing,
 )
+from database.ess05_registratie import (
+    ESS05_INVOERSLEUTELS,
+    valideer_ess05_invoer,
+    voeg_ess05_samen,
+)
 from database.models import (
     ESS03_ASSESSMENT_HISTORY_KEY,
     ESS03_ASSESSMENT_KEY,
     ESS03_VERDUIDELIJKING_VELD,
+    ESS05_ASSESSMENT_HISTORY_KEY,
+    ESS05_ASSESSMENT_KEY,
+    ESS05_BUREN_VELD,
+    ESS05_LEGE_RUIMTE_VELD,
     KANDIDAATSTADIA,
     SOURCE_EVIDENCE_HISTORY_KEY,
     SOURCE_EVIDENCE_KEY,
@@ -184,6 +193,18 @@ def _voeg_ess03_invoer_toe(
     verduidelijking = _ess03_verduidelijking_invoer(metadata)
     if verduidelijking is not None:
         updates[ESS03_VERDUIDELIJKING_VELD] = verduidelijking
+
+
+def _voeg_ess05_invoer_toe(
+    updates: dict[str, Any], metadata: dict[str, Any] | None
+) -> None:
+    """DEF-768: ESS-05-beoordeling, burenlijst en lege-ruimtebevestiging reizen
+    als structurele sleutels mee; de DB-laag valideert en voegt ze samen.
+    Sleutel afwezig = onaangeraakt; `{}` voor de lege ruimte = wissen."""
+    for sleutel in ESS05_INVOERSLEUTELS:
+        waarde = (metadata or {}).get(sleutel)
+        if waarde is not None:
+            updates[sleutel] = deepcopy(waarde)
 
 
 #: DEF-751 B2: de invoersleutel voor de herkomst van een categorie bij een
@@ -1068,6 +1089,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         verduidelijking = _ess03_verduidelijking_invoer(metadata)
         if verduidelijking is not None:
             prompt_data[ESS03_VERDUIDELIJKING_VELD] = verduidelijking
+        # DEF-768: de ESS-05-registratie van de generatie/eerste toetsing;
+        # vormcontrole fail-closed (ValueError → RepositoryError).
+        ess05 = valideer_ess05_invoer(metadata)
+        if ess05:
+            voeg_ess05_samen(prompt_data, ess05, versie=record.version_number, nu="")
         if not prompt_data:
             return None
         return serialiseer_generatieregistratie(prompt_data)
@@ -1213,6 +1239,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # zodat de editor haar toont en een hertoetsing dezelfde binding krijgt.
         # Zonder beoordeling ontbreken de sleutels: niets wordt verzonnen.
         self._herstel_ess03_beoordeling(record, definition.metadata)
+        # DEF-768: idem voor ESS-05 (beoordeling + historie, burenlijst, lege
+        # ruimte). Zonder opgeslagen waarde ontbreken de sleutels.
+        self._herstel_ess05(record, definition.metadata)
 
         # DEF-751 B2: de categoriekeuze (event, afgeleide status, historie)
         # onder eigen leessleutels — nooit onder de invoersleutel, zodat
@@ -1291,6 +1320,38 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return
         metadata[ESS03_ASSESSMENT_KEY] = beoordeling
         metadata[ESS03_ASSESSMENT_HISTORY_KEY] = record.get_ess03_assessment_history()
+
+    @staticmethod
+    def _herstel_ess05(record: DefinitieRecord, metadata: dict[str, Any]) -> None:
+        """Zet de opgeslagen ESS-05-registratie terug in `Definition.metadata` (DEF-768)."""
+        beoordeling = record.get_ess05_assessment()
+        if beoordeling is not None:
+            metadata[ESS05_ASSESSMENT_KEY] = beoordeling
+            metadata[ESS05_ASSESSMENT_HISTORY_KEY] = (
+                record.get_ess05_assessment_history()
+            )
+        buren = record.get_ess05_buren()
+        if buren is not None:
+            metadata[ESS05_BUREN_VELD] = buren
+        lege_ruimte = record.get_ess05_lege_ruimte()
+        if lege_ruimte is not None:
+            metadata[ESS05_LEGE_RUIMTE_VELD] = lege_ruimte
+
+    def zoek_ess05_buren(
+        self, begrip: str, contexten: dict[str, Any], eigen_id: int | None
+    ) -> list[dict[str, Any]]:
+        """Verse repository-buren voor ESS-05: zelfde context, ander begrip (DEF-768).
+
+        De burenbron van `ValidationOrchestratorV2`. Een fout loopt door: de
+        wrapper maakt er een technische fout van, nooit een lege lijst.
+        """
+        return self.legacy_repo.zoek_context_buren(
+            begrip,
+            contexten.get("organisatorische_context"),
+            contexten.get("juridische_context"),
+            contexten.get("wettelijke_basis"),
+            eigen_id=eigen_id,
+        )
 
     # ===== Bronbewijs, CON-02-uitzondering en voorstellen (DEF-743) =====
     def set_source_review(
@@ -1706,6 +1767,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # (→ RepositoryError), niets geschreven.
         _voeg_bewijsinvoer_toe(updates, definition.metadata)
         _voeg_ess03_invoer_toe(updates, definition.metadata)
+        _voeg_ess05_invoer_toe(updates, definition.metadata)
         # DEF-751 B2 (reviewbevinding 3): de versie die de aanroeper vóór
         # zich had (`metadata["version_number"]`, gezet bij laden en door de
         # editor) reist mee tot de uiteindelijke UPDATE als optimistic lock:

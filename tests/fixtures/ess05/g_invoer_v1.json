@@ -1,0 +1,91 @@
+{
+  "schema": "def768-ess05-g-invoer/1",
+  "status": "bevroren",
+  "vastgelegd_op": "2026-09-24",
+  "vastgelegd_door": "Claude Code CLI-uitvoerder (sessie 6d273f41), vóór enige modelcall",
+  "doel": "G-proef (runplan v2 §5.3, variant A): 4 synthetische broninvoeren × 2 varianten (basis- versus actuele ESS-05-generatie-instructie, overige promptcontext gelijk) × 2 runs = 16 calls. Beoordeling later door beoordelaars met de rubric van runplan v2 §5.4; geen automatische toetsmodelcalls.",
+  "synthetisch": "Alle invoeren, contexten en documenten zijn SYNTHETISCH en niet juridisch gevalideerd. Geen live web, geen productie-DB.",
+  "afscherming": "Naar de promptopbouw gaan uitsluitend begrip, organisatorische_context, juridische_context, wettelijke_basis, ontologische_categorie en documenten (doc_id/title/snippet). id, dekking en aandachtspunten blijven lokaal.",
+  "beperking": "De productiegeneratieprompt heeft geen gestructureerd kanaal voor verwante begrippen: aangeleverde buren bereiken de generator alleen via de documentpassages. De 'aangeleverde verwante begrippen' uit de actuele G-tekst zijn in deze proef dus bronbegrippen.",
+  "g_teksten": {
+    "basis": {
+      "tekst": "Maak expliciet duidelijk waarin het begrip zich onderscheidt van andere verwante begrippen",
+      "herkomst": "git show 26f2374d302fc66fc0b12ed29dc34585f7c0a5c3:src/services/prompts/modules/json_based_rules_module.py, regel 364 (instruction_map['ESS-05'])",
+      "sha256": "7becf15d09c7c508adb5a011b992b2c1bbc38529a38a3238869b71cbd4e107b8"
+    },
+    "actueel": {
+      "herkomst": "werkboom src/services/prompts/modules/json_based_rules_module.py, JSONBasedRulesModule._get_instruction_for_rule('ESS-05'); de runner leest de tekst uit de code en weigert bij een andere hash",
+      "sha256": "1e2d7223d7f10ef71acad7c08989f36aa97943d189d40a86f03e461314775454"
+    }
+  },
+  "invoeren": [
+    {
+      "id": "G1-rol-overlap",
+      "dekking": "rol-overlap (ESS05-E05-patroon)",
+      "begrip": "lener",
+      "organisatorische_context": ["Synthetische Uitleendienst"],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "ontologische_categorie": "type",
+      "documenten": [
+        {
+          "doc_id": "wp7-g1-reglement",
+          "title": "Synthetisch uitleenreglement (WP7)",
+          "snippet": "Artikel 1. Een lener is een persoon die bij de Synthetische Uitleendienst een actuele lening heeft lopen. Artikel 2. Een werknemer is een persoon met een arbeidsovereenkomst met de Synthetische Uitleendienst. Werknemers mogen ook materiaal lenen; zij zijn dan tevens lener."
+        }
+      ],
+      "aandachtspunten": "Kern draagt het leningkenmerk (actuele lening bij de dienst). Overlap met werknemer is geen gebrek: geen vernauwing als 'die geen werknemer is'; geen verzonnen kenmerk."
+    },
+    {
+      "id": "G2-naam-met-trefwoord",
+      "dekking": "noodzakelijke naam met trefwoord ('bijzondere')",
+      "begrip": "bijzondere verblijfsbijdrage",
+      "organisatorische_context": ["Synthetische Gemeente Voorbeeldstad"],
+      "juridische_context": ["bestuursrecht"],
+      "wettelijke_basis": ["Synthetische Verordening Verblijfsbijdragen 2026"],
+      "ontologische_categorie": "type",
+      "documenten": [
+        {
+          "doc_id": "wp7-g2-verordening",
+          "title": "Synthetische Verordening Verblijfsbijdragen 2026 (WP7)",
+          "snippet": "Artikel 3. De bijzondere verblijfsbijdrage is een eenmalige tegemoetkoming van de gemeente in de kosten van tijdelijk verblijf buiten de eigen woning na een calamiteit. Artikel 4. De algemene verblijfsbijdrage is een maandelijkse tegemoetkoming van de gemeente in de woonkosten."
+        }
+      ],
+      "aandachtspunten": "De naam met 'bijzondere' blijft staan waar hij nodig is; 'bijzonder' vervangt geen kenmerk. Afgrenzing van de algemene verblijfsbijdrage via eenmalig / tijdelijk verblijf buiten de woning / na een calamiteit."
+    },
+    {
+      "id": "G3-ontbrekend-kenmerk",
+      "dekking": "ontbrekend of te ruim kenmerk (ASTRA-FOUT-patroon)",
+      "begrip": "onttrekking",
+      "organisatorische_context": ["DJI"],
+      "juridische_context": ["jeugdstrafrecht"],
+      "wettelijke_basis": [],
+      "ontologische_categorie": null,
+      "documenten": [
+        {
+          "doc_id": "wp7-g3-werkinstructie",
+          "title": "Synthetische werkinstructie incidenten justitiële jeugdinrichting (WP7, niet uit ASTRA)",
+          "snippet": "Onttrekking: een jeugdige verlaat zonder toestemming een open justitiële jeugdinrichting of het terrein van een gesloten justitiële jeugdinrichting. Ontvluchting: een jeugdige doorbreekt zonder toestemming de beveiligde grens van een gesloten justitiële jeugdinrichting."
+        }
+      ],
+      "aandachtspunten": "Kern noemt de voorzieningen (open JJI of terrein van de gesloten JJI); 'een jeugdige die zonder toestemming de inrichting verlaat' is te ruim en omvat ontvluchting."
+    },
+    {
+      "id": "G4-meerdere-buren",
+      "dekking": "meerdere aangeleverde verwante begrippen (via de bron)",
+      "begrip": "geldboete",
+      "organisatorische_context": ["OM"],
+      "juridische_context": ["strafrecht"],
+      "wettelijke_basis": [],
+      "ontologische_categorie": "type",
+      "documenten": [
+        {
+          "doc_id": "wp7-g4-sanctieoverzicht",
+          "title": "Synthetisch overzicht hoofdstraffen (WP7, niet juridisch gevalideerd)",
+          "snippet": "Dit overzicht kent drie hoofdstraffen, alle drie opgelegd door de rechter: de gevangenisstraf (vrijheidsbeneming in een penitentiaire inrichting), de taakstraf (het onbetaald verrichten van arbeid) en de geldboete (de verplichting een geldbedrag aan de staat te betalen)."
+        }
+      ],
+      "aandachtspunten": "Kern: verplichting een geldbedrag aan de staat te betalen. 'Door de rechter opgelegd' grenst niets af; geen contrastzin met de definitie van taakstraf of gevangenisstraf in de kern."
+    }
+  ]
+}

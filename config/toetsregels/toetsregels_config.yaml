@@ -91,6 +91,11 @@ runtime_contract:
     # aangeleverde materiaal. Geen cijfer (score_policy no_score); een
     # negatieve uitkomst is geen vaststel-/exportblokkade (besluit 21-09-2026).
     - "countability_assessment"
+    # DEF-768 (ESS-05): AI-beoordeling van onderscheid van verwante begrippen
+    # per buur (kenmerkvraag, K-3b) — code toetst binding, gesloten velden en
+    # citaatbestaan en berekent de uitkomst; modelvoorstellen blijven
+    # onbevestigd. Geen cijfer (no_score); geen zelfstandige blokkade.
+    - "distinction_assessment"
 
   required_inputs:
     - "definition_text"

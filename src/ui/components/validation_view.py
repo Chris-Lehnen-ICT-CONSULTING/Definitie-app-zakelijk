@@ -333,6 +333,10 @@ _UITKOMSTLABEL: dict[str, str] = {
 _HERKOMSTLABEL: dict[str, str] = {
     "source_assessment": "AI-beoordeling",
     "ess03_assessment": "AI-beoordeling",
+    # DEF-768: ESS-05 — AI-beoordeling, of een deskundige bevestiging dat de
+    # vergelijkingsruimte in deze context leeg is.
+    "ess05_assessment": "AI-beoordeling",
+    "ess05_empty_space": "deskundige bevestiging",
     "source_review": "deskundige uitzondering",
 }
 
@@ -476,9 +480,45 @@ def _review_regels(review: dict[str, Any]) -> list[str]:
 
     beoordeling = review.get("assessment")
     if isinstance(beoordeling, dict):
+        if "neighbours" in review:
+            # DEF-768: een ESS-05-samenvatting draagt geen `verdict`, maar is
+            # wel een AI-beoordeling en geen bronbeoordeling.
+            beoordeling = {**beoordeling, "verdict": beoordeling.get("verdict")}
         beoordelingsregel = _beoordelingsregel(beoordeling)
         if beoordelingsregel is not None:
             regels.append(beoordelingsregel)
+    if "neighbours" in review:
+        regels.extend(_ess05_regels(review))
+    return regels
+
+
+def _buurlabel(buur: dict[str, Any]) -> str:
+    bevestiging = "bevestigd" if buur.get("bevestigd") else "onbevestigd"
+    return f"{buur.get('term')} ({buur.get('herkomst')}, {bevestiging})"
+
+
+def _ess05_regels(review: dict[str, Any]) -> list[str]:
+    """ESS-05 (DEF-768): de ene vraag, de burenlijst met herkomst en
+    bevestiging, onbevestigde voorstellen en een afgewezen lege-ruimte-
+    bevestiging. Niets wordt stil weggelaten."""
+    regels: list[str] = []
+    if review.get("question"):
+        regels.append(f"❓ Vraag: {review['question']}")
+    buren = [b for b in review.get("neighbours") or [] if isinstance(b, dict)]
+    if buren:
+        regels.append("Verwante begrippen: " + "; ".join(_buurlabel(b) for b in buren))
+    else:
+        regels.append(
+            "Verwante begrippen: geen verwante begrippen bekend in deze context."
+        )
+    for voorstel in review.get("proposals") or []:
+        if isinstance(voorstel, dict):
+            regels.append(f"Voorstel: {_buurlabel(voorstel)} — nog te bevestigen")
+    if review.get("empty_space_rejected"):
+        regels.append(
+            "⏳ Bevestiging 'geen verwante begrippen' niet toegepast: "
+            f"{review['empty_space_rejected']}"
+        )
     return regels
 
 

@@ -100,6 +100,29 @@ ESS03_OWNED_KEYS: tuple[str, ...] = (
     ESS03_VERDUIDELIJKING_VELD,
 )
 
+#: Sleutels in `generation_prompt_data` (DEF-768): de actuele AI-onderscheids-
+#: beoordeling van ESS-05 (contract `domain.ess05.contract`) met append-only
+#: historie, de burenlijst met expertbesluiten (bevestigd/afgewezen, actor,
+#: tijdstip, grond) met historie, en een deskundige bevestiging van een lege
+#: vergelijkingsruimte. Geen kolom, geen schema. Namen eindigen bewust niet op
+#: _KEY voor de nieuwe velden (secret-scan DEF-522).
+ESS05_ASSESSMENT_KEY = "ess05_assessment"
+ESS05_ASSESSMENT_HISTORY_KEY = "ess05_assessment_history"
+ESS05_BUREN_VELD = "ess05_buren"
+ESS05_BUREN_HISTORIE_VELD = "ess05_buren_history"
+ESS05_LEGE_RUIMTE_VELD = "ess05_lege_ruimte"
+#: Een via JSON-import aangeleverde lege-ruimtebevestiging: bewaard als
+#: onbevestigde invoer, nooit als actuele bevestiging gelezen (BC-01).
+ESS05_LEGE_RUIMTE_IMPORT_VELD = "ess05_lege_ruimte_imported"
+ESS05_OWNED_KEYS: tuple[str, ...] = (
+    ESS05_ASSESSMENT_KEY,
+    ESS05_ASSESSMENT_HISTORY_KEY,
+    ESS05_BUREN_VELD,
+    ESS05_BUREN_HISTORIE_VELD,
+    ESS05_LEGE_RUIMTE_VELD,
+    ESS05_LEGE_RUIMTE_IMPORT_VELD,
+)
+
 #: De drie contextvelden zoals het bewijs ze vastlegt (zelfde namen als het record).
 _CONTEXTVELDEN: tuple[str, ...] = (
     "organisatorische_context",
@@ -617,6 +640,45 @@ class DefinitieRecord:
             return None
         waarde = registratie.get(ESS03_VERDUIDELIJKING_VELD)
         return waarde.strip() if isinstance(waarde, str) else None
+
+    # ------------------------------------ ESS-05-onderscheid (DEF-768)
+
+    def get_ess05_assessment(self) -> dict[str, Any] | None:
+        """De actuele AI-onderscheidsbeoordeling (ESS-05), of None (afwezig/misvormd).
+
+        Of het document nog bij dít record hoort, bepaalt de replay van het
+        contract (`domain.ess05.contract.beoordeel_onderscheid`).
+        """
+        registratie = self.get_generatieregistratie() or {}
+        beoordeling = registratie.get(ESS05_ASSESSMENT_KEY)
+        if (
+            not isinstance(beoordeling, dict)
+            or not str(beoordeling.get("fingerprint") or "").strip()
+        ):
+            return None
+        return deepcopy(beoordeling)
+
+    def get_ess05_assessment_history(self) -> list[dict[str, Any]]:
+        """De append-only lijst van vervangen ESS-05-beoordelingen (oud → nieuw)."""
+        registratie = self.get_generatieregistratie() or {}
+        historie = registratie.get(ESS05_ASSESSMENT_HISTORY_KEY)
+        if not isinstance(historie, list):
+            return []
+        return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    def get_ess05_buren(self) -> list[dict[str, Any]] | None:
+        """De opgeslagen burenlijst met expertbesluiten, of None (nooit vastgelegd)."""
+        registratie = self.get_generatieregistratie() or {}
+        buren = registratie.get(ESS05_BUREN_VELD)
+        if not isinstance(buren, list):
+            return None
+        return [deepcopy(b) for b in buren if isinstance(b, dict)]
+
+    def get_ess05_lege_ruimte(self) -> dict[str, Any] | None:
+        """De deskundige bevestiging 'vergelijkingsruimte leeg', of None."""
+        registratie = self.get_generatieregistratie() or {}
+        bevestiging = registratie.get(ESS05_LEGE_RUIMTE_VELD)
+        return deepcopy(bevestiging) if isinstance(bevestiging, dict) else None
 
     # ------------------------------------ categoriekeuze (DEF-751 B2)
 

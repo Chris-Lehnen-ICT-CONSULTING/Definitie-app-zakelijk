@@ -1,0 +1,385 @@
+{
+  "schema": "def768-ess05-gevallen/1",
+  "status": "bevroren",
+  "vastgelegd_op": "2026-09-24",
+  "vastgelegd_door": "Claude Code CLI-uitvoerder (sessie 6d273f41), vóór enige modelcall",
+  "basis": "HEAD 26f2374d302fc66fc0b12ed29dc34585f7c0a5c3 + werkboomdiff totaal 0febff9cca7cca8356c15a60ffb25ccef4739169e0164c337641f3d8beca2b09",
+  "doel": "WP7-ontwikkelronde (13 calls, één ronde): de oorspronkelijke twaalf ontwikkelgevallen uit het uitvoeringsplan v2 (WP7) minus B-09 (zonder context: offline nulcallroute, zie nulcallroutes_v1.json) plus ESS05-E05 en ESS05-E06; runplan v2 §5.2/§5.3.",
+  "labelbron": "Labels en gronden uit het gezamenlijke casusregister v2 (kolom T-O3, app-substitutietoets met alleen aangeleverde buren) en runplan v2 §5.2; vooraf vastgelegd, nooit bijgesteld op modeluitvoer.",
+  "synthetisch": "Alle buurdefinities, bronnen, contexten en toelichtingen in dit bestand zijn SYNTHETISCH (niet juridisch gevalideerd) tenzij 'herkomst' anders zegt. De ASTRA-teksten (A-01, A-02, A-23) komen uit de ASTRA-pagina (revisie 8561) via het casusregister; de buurdefinitie van 'ontvluchting' is synthetisch en gelijk aan die in tests/unit/domain/test_def768_ess05_contract.py.",
+  "afscherming": "Naar het model gaan uitsluitend begrip, tekst, toelichting, categorie, betekenisverduidelijking, verduidelijking, context, bronnen, buren en uitgesloten_termen (scripts/ess05/proefinvoer.py MODELVELDEN). id, casusregister, verwacht, verwacht_per_buur, grond en herkomst blijven lokaal.",
+  "gevallen": [
+    {
+      "id": "A-01",
+      "casusregister": "A-01 / B-02 (ASTRA-GOED)",
+      "begrip": "onttrekking",
+      "tekst": "Incident waarbij een jeugdige zonder toestemming één van de volgende justitiële voorzieningen verlaat: de open justitiële jeugdinrichting of het terrein dat tot de gesloten justitiële jeugdinrichting behoort.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["DJI"],
+        "juridische_context": ["jeugdstrafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "doc_id": "wp7-synth-jji-werkinstructie",
+          "title": "Synthetische werkinstructie incidenten justitiële jeugdinrichting (WP7, niet uit ASTRA)",
+          "snippet": "Onttrekking: een jeugdige verlaat zonder toestemming een open justitiële jeugdinrichting of het terrein van een gesloten justitiële jeugdinrichting. Ontvluchting: een jeugdige doorbreekt zonder toestemming de beveiligde grens van een gesloten justitiële jeugdinrichting."
+        }
+      ],
+      "buren": [
+        {
+          "term": "ontvluchting",
+          "definitie": "Incident waarbij een jeugdige zonder toestemming de beveiligde grens van een gesloten justitiële jeugdinrichting doorbreekt.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "pass",
+      "verwacht_per_buur": {"ontvluchting": "distinguished"},
+      "grond": "De opsomming van voorzieningen (open JJI of het terrein van de gesloten JJI) grenst gevallen van ontvluchting (doorbreken van de beveiligde grens van de gesloten JJI) af; 'jeugdige' en 'zonder toestemming' alleen doen dat niet (casusregister v2, A-01 T-O3; runplan v2 §5.2).",
+      "herkomst": {
+        "tekst": "ASTRA-pagina revisie 8561 via casusregister v2",
+        "synthetisch": ["buurdefinitie ontvluchting", "bron (werkinstructie)", "context"]
+      }
+    },
+    {
+      "id": "A-02",
+      "casusregister": "A-02 / B-01 (ASTRA-FOUT)",
+      "begrip": "onttrekking",
+      "tekst": "Incident waarbij een jeugdige zonder toestemming de justitiële jeugdinrichting verlaat.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["DJI"],
+        "juridische_context": ["jeugdstrafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "doc_id": "wp7-synth-jji-werkinstructie",
+          "title": "Synthetische werkinstructie incidenten justitiële jeugdinrichting (WP7, niet uit ASTRA)",
+          "snippet": "Onttrekking: een jeugdige verlaat zonder toestemming een open justitiële jeugdinrichting of het terrein van een gesloten justitiële jeugdinrichting. Ontvluchting: een jeugdige doorbreekt zonder toestemming de beveiligde grens van een gesloten justitiële jeugdinrichting."
+        }
+      ],
+      "buren": [
+        {
+          "term": "ontvluchting",
+          "definitie": "Incident waarbij een jeugdige zonder toestemming de beveiligde grens van een gesloten justitiële jeugdinrichting doorbreekt.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "fail",
+      "verwacht_per_buur": {"ontvluchting": "not_distinguished"},
+      "grond": "Een jeugdige die zonder toestemming het gesloten JJI-gebouw verlaat valt onder deze kern en is een geval van ontvluchting; ontbrekend kenmerk = de specifieke voorzieningen (open JJI of terrein van de gesloten JJI). 'Jeugdige' grenst niets af (casusregister v2, A-02 T-O3; runplan v2 §5.2).",
+      "herkomst": {
+        "tekst": "ASTRA-pagina revisie 8561 via casusregister v2",
+        "synthetisch": ["buurdefinitie ontvluchting", "bron (werkinstructie)", "context"]
+      }
+    },
+    {
+      "id": "A-05",
+      "casusregister": "A-05 / B-05",
+      "begrip": "geldboete",
+      "tekst": "Sanctie bestaande uit betaling van een geldbedrag aan de staat.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["OM"],
+        "juridische_context": ["strafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [
+        {
+          "term": "taakstraf",
+          "definitie": "Sanctie die door de rechter wordt opgelegd en bestaat uit het onbetaald verrichten van arbeid.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        },
+        {
+          "term": "gevangenisstraf",
+          "definitie": "Sanctie die bestaat uit vrijheidsbeneming in een penitentiaire inrichting.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "pass",
+      "verwacht_per_buur": {"taakstraf": "distinguished", "gevangenisstraf": "distinguished"},
+      "grond": "'Betaling van een geldbedrag aan de staat' grenst af van onbetaalde arbeid (taakstraf) en vrijheidsbeneming (gevangenisstraf) (casusregister v2, A-05 T-O3: voldoet met buren).",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["buurdefinities", "context"]}
+    },
+    {
+      "id": "A-07",
+      "casusregister": "A-07 / H-empty_keyword",
+      "begrip": "object",
+      "tekst": "Object met een bijzonder kenmerk.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["Synthetische registratiedienst"],
+        "juridische_context": [],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [],
+      "verwacht": "fail",
+      "verwacht_per_buur": {},
+      "grond": "'Een bijzonder kenmerk' noemt geen kenmerk: de kern kan zonder toespitsing geen enkel verwant begrip uitsluiten (K-8, lacks_differentia); het trefwoord bewijst niets (casusregister v2, A-07 T-O3: voldoet niet).",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["context"]}
+    },
+    {
+      "id": "A-08",
+      "casusregister": "A-08 / B-11",
+      "begrip": "straf",
+      "tekst": "Straf zonder onderscheidend kenmerk ten opzichte van andere straffen.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["OM"],
+        "juridische_context": ["strafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [],
+      "verwacht": "fail",
+      "verwacht_per_buur": {},
+      "grond": "De kern ontkent zelf dat er een onderscheidend kenmerk is en herhaalt de term: geen toespitsing, geen enkel verwant begrip uitgesloten (K-8, lacks_differentia; casusregister v2, A-08 T-O3: voldoet niet).",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["context"]}
+    },
+    {
+      "id": "A-12",
+      "casusregister": "A-12",
+      "begrip": "toezicht",
+      "tekst": "Toezicht dat verschilt van ander toezicht.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["Reclassering"],
+        "juridische_context": ["strafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [],
+      "verwacht": "fail",
+      "verwacht_per_buur": {},
+      "grond": "Lege vergelijkingsfrase zonder kenmerk ('verschilt van ander toezicht'), circulair: geen toespitsing (K-8, lacks_differentia; casusregister v2, A-12 T-O3: voldoet niet).",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["context", "keuze begrip 'toezicht'"]}
+    },
+    {
+      "id": "B-06",
+      "casusregister": "B-06",
+      "begrip": "geldboete",
+      "tekst": "Sanctie die door de rechter wordt opgelegd, in tegenstelling tot een taakstraf.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["OM"],
+        "juridische_context": ["strafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [
+        {
+          "term": "taakstraf",
+          "definitie": "Sanctie die door de rechter wordt opgelegd en bestaat uit het onbetaald verrichten van arbeid.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "fail",
+      "verwacht_per_buur": {"taakstraf": "not_distinguished"},
+      "grond": "Het enige kenmerk (door de rechter opgelegd) draagt de taakstraf ook; het genoemde contrast klopt inhoudelijk niet en verhult de ontbrekende differentia (betaling van een geldbedrag) (casusregister v2, B-06 T-O3: voldoet niet).",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["buurdefinitie taakstraf", "context"]}
+    },
+    {
+      "id": "B-07",
+      "casusregister": "B-07",
+      "begrip": "geldboete",
+      "tekst": "Sanctie met een specifiek kenmerk, in tegenstelling tot een taakstraf.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["OM"],
+        "juridische_context": ["strafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [
+        {
+          "term": "taakstraf",
+          "definitie": "Sanctie die door de rechter wordt opgelegd en bestaat uit het onbetaald verrichten van arbeid.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "fail",
+      "verwacht_per_buur": {"taakstraf": "not_distinguished"},
+      "grond": "'Een specifiek kenmerk' is geen kenmerk en het contrast met de taakstraf noemt geen verschil; de kern onderscheidt niets van de taakstraf (casusregister v2, B-07 T-O3: voldoet niet). Ook lacks_differentia zou 'fail' geven.",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["buurdefinitie taakstraf", "context"]}
+    },
+    {
+      "id": "B-08",
+      "casusregister": "B-08",
+      "begrip": "verdachte",
+      "tekst": "Persoon tegen wie een redelijk vermoeden van schuld aan een strafbaar feit bestaat.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["OM"],
+        "juridische_context": ["strafprocesrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [
+        {
+          "term": "getuige",
+          "definitie": "Persoon die in een strafzaak een verklaring aflegt over wat hij zelf heeft waargenomen.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        },
+        {
+          "term": "slachtoffer",
+          "definitie": "Persoon die als rechtstreeks gevolg van een strafbaar feit schade heeft ondervonden.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        },
+        {
+          "term": "veroordeelde",
+          "definitie": "Persoon die bij onherroepelijke rechterlijke uitspraak schuldig is verklaard aan een strafbaar feit.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "pass",
+      "verwacht_per_buur": {
+        "getuige": "distinguished",
+        "slachtoffer": "distinguished",
+        "veroordeelde": "distinguished"
+      },
+      "grond": "'Redelijk vermoeden van schuld' is een ander kenmerk dan verklaren over waarneming, schade ondervinden of onherroepelijk schuldig verklaard zijn; dat één persoon meerdere rollen kan hebben is extensie-overlap en geen gebrek (casusregister v2, B-08 T-O3: voldoet).",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["buurdefinities", "context"]}
+    },
+    {
+      "id": "A-16",
+      "casusregister": "A-16",
+      "begrip": "maatregel",
+      "tekst": "Sanctie die de rechter oplegt ter beveiliging van de samenleving.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["OM"],
+        "juridische_context": ["strafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "doc_id": "wp7-synth-sanctieoverzicht-doel",
+          "title": "Synthetisch overzicht strafrechtelijke sancties (WP7, niet juridisch gevalideerd)",
+          "snippet": "Het strafrecht kent twee soorten sancties die naar hun doel worden onderscheiden. Een straf beoogt vergelding: zij voegt leed toe als reactie op een strafbaar feit. Een maatregel beoogt de beveiliging van de samenleving of herstel; dat doel is bepalend voor het begrip maatregel."
+        }
+      ],
+      "buren": [
+        {
+          "term": "straf",
+          "definitie": "Sanctie die de rechter oplegt als vergelding voor een strafbaar feit en die leed toevoegt.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "pass",
+      "verwacht_per_buur": {"straf": "distinguished"},
+      "grond": "De (synthetische) bron maakt het doel 'beveiliging van de samenleving' begripsbepalend; een onderscheid op een onderbouwd doelkenmerk is geen gebrek zolang het kenbaar is (T-tekst; ESS-01 beoordeelt het doelkenmerk zelf apart). Casusregister v2 A-16 T-O3: voldoet mits ESS-01 het kenmerk toestaat — de bron hier staat dat toe.",
+      "herkomst": {"tekst": "casusregister v2", "synthetisch": ["bron (sanctieoverzicht)", "buurdefinitie straf", "context"]}
+    },
+    {
+      "id": "A-23",
+      "casusregister": "A-23",
+      "begrip": "onttrekking",
+      "tekst": "Incident waarbij een jeugdige zonder toestemming één van de volgende justitiële voorzieningen verlaat: de open justitiële jeugdinrichting of het terrein dat tot de gesloten justitiële jeugdinrichting behoort.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["DJI"],
+        "juridische_context": ["jeugdstrafrecht"],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "doc_id": "wp7-synth-conflictbron",
+          "title": "Synthetische registratie-instructie (WP7, bewust tegenstrijdig met de ontologie)",
+          "snippet": "In deze registratie-instructie worden onttrekking en ontvluchting als synoniemen gebruikt: beide betekenen dat een jeugdige zonder toestemming de inrichting verlaat."
+        }
+      ],
+      "buren": [
+        {
+          "term": "ontvluchting",
+          "definitie": "Incident waarbij een jeugdige zonder toestemming de beveiligde grens van een gesloten justitiële jeugdinrichting doorbreekt.",
+          "herkomst": "ontologie",
+          "bevestigd": false
+        }
+      ],
+      "verwacht": "review_required",
+      "verwacht_per_buur": {"ontvluchting": "unclear"},
+      "grond": "Bronconflict: de bron noemt ontvluchting een synoniem, de (onbevestigde) ontologiebuur een zusterbegrip. Geen stille keuze; de relatie blijft open met één vraag (casusregister v2, A-23 T-O3: open). Een onbevestigde buur kan nooit 'fail' opleveren.",
+      "herkomst": {
+        "tekst": "ASTRA-pagina revisie 8561 via casusregister v2 (tekst = A-01)",
+        "synthetisch": ["tegenstrijdige bron","ontologiebuur ontvluchting (herkomst 'ontologie' is gereserveerd, DEF-300)", "context"]
+      }
+    },
+    {
+      "id": "ESS05-E05",
+      "casusregister": "ESS05-E05 (runplan v2 §5.2)",
+      "begrip": "lener",
+      "tekst": "Persoon met een actuele lening bij de instelling.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["Synthetische Uitleendienst"],
+        "juridische_context": [],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [
+        {
+          "term": "werknemer",
+          "definitie": "Persoon met een arbeidsovereenkomst met de instelling.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "pass",
+      "verwacht_per_buur": {"werknemer": "distinguished"},
+      "grond": "Een actuele lening en een arbeidsovereenkomst zijn verschillende kenmerken; dat één persoon beide kan zijn is overlap van gevallen en geen gebrek (K-3b; runplan v2 §5.2).",
+      "herkomst": {"tekst": "synthetisch (uitleendienst)", "synthetisch": ["alles"]}
+    },
+    {
+      "id": "ESS05-E06",
+      "casusregister": "ESS05-E06 (runplan v2 §5.2)",
+      "begrip": "gebruiker",
+      "tekst": "Persoon die in het systeem is geregistreerd.",
+      "toelichting": null,
+      "categorie": null,
+      "context": {
+        "organisatorische_context": ["Synthetische Uitleendienst"],
+        "juridische_context": [],
+        "wettelijke_basis": []
+      },
+      "bronnen": [],
+      "buren": [
+        {
+          "term": "klant",
+          "definitie": "Persoon die in het systeem is geregistreerd.",
+          "herkomst": "gebruiker",
+          "bevestigd": true
+        }
+      ],
+      "verwacht": "fail",
+      "verwacht_per_buur": {"klant": "not_distinguished"},
+      "grond": "Kern en buurdefinitie zijn gelijk ('geregistreerd'): geen enkel kenmerk grenst de klant af (runplan v2 §5.2; in code beschermd: gelijk citaat bewijst geen onderscheid).",
+      "herkomst": {"tekst": "synthetisch (uitleendienst)", "synthetisch": ["alles"]}
+    }
+  ]
+}

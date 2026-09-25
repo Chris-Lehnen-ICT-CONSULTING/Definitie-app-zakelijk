@@ -88,8 +88,8 @@ TWEE_TREFFERS = (
 #: generieke slotregel — positief vast te pinnen, anders laat elke
 #: teruggezette tak met andere woorden de test groen.
 GENERIEKE_PASSVERKLARING = "Geen issues gemeld door validator."
-#: ESS-05 is de enige overgebleven ESS-tak met een heuristische verklaring.
-ESS05_PASSVERKLARING = "Vereist element herkend (heuristiek)."
+#: DEF-768: ook de ESS-05-tak met een heuristische verklaring is geschrapt.
+OUDE_ESS05_PASSVERKLARING = "Vereist element herkend (heuristiek)."
 
 OUDE_HINT = (
     "Maak een objectief toetsbaar element expliciet (bijv. termijn of meetbare grens)."
@@ -293,17 +293,17 @@ class TestRenderer:
         assert "heuristiek" not in reden.lower()
         assert "getal" not in reden.lower()
 
-    def test_ess05_houdt_zijn_bestaande_heuristiek(self):
-        # Letterlijk: het schrappen van de ESS-04-tak mag de overgebleven
-        # ESS-05-uitleg niet meeslepen of stil herformuleren.
+    def test_ess05_heeft_geen_heuristische_passverklaring_meer(self):
+        # DEF-768: ESS-05 is een AI-beoordeling per verwant begrip; een
+        # trefwoord bewijst geen onderscheid en krijgt geen passverklaring.
         renderer = ValidationRenderer()
         assert (
             renderer._build_pass_reason(
                 "ESS-05", "eigenschap die een entiteit onderscheidt", "kenmerk"
             )
-            == ESS05_PASSVERKLARING
+            == GENERIEKE_PASSVERKLARING
         )
-        assert ESS05_PASSVERKLARING != GENERIEKE_PASSVERKLARING
+        assert OUDE_ESS05_PASSVERKLARING != GENERIEKE_PASSVERKLARING
 
 
 class TestHerstelhint:

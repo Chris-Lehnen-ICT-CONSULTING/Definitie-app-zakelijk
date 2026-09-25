@@ -523,8 +523,9 @@ class TestBronbeoordelingsregelsZonderBronnen:
 
     def test_er_is_ten_minste_een_bronbeoordelingsregel(self):
         # DEF-766: ESS-03 kwam erbij (AI-telbaarheidsbeoordeling).
-        assert AUTOMATISCH_BRONBEOORDELING_IDS == ["CON-02", "ESS-03"], (
-            "de AI-oordeelklasse is vastgepind op CON-02 en ESS-03: "
+        # DEF-768: ESS-05 kwam erbij (AI-onderscheidsbeoordeling per buur).
+        assert AUTOMATISCH_BRONBEOORDELING_IDS == ["CON-02", "ESS-03", "ESS-05"], (
+            "de AI-oordeelklasse is vastgepind op CON-02, ESS-03 en ESS-05: "
             f"{AUTOMATISCH_BRONBEOORDELING_IDS}"
         )
 

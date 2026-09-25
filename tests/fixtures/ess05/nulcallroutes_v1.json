@@ -1,0 +1,80 @@
+{
+  "schema": "def768-ess05-gevallen/1",
+  "status": "bevroren",
+  "vastgelegd_op": "2026-09-24",
+  "vastgelegd_door": "Claude Code CLI-uitvoerder (sessie 6d273f41), vóór enige modelcall",
+  "doel": "Offline routeproef (runplan v2 §5.1): deze gevallen eindigen per contract zonder modelcall en tellen niet mee in het callbudget. Eén controlegeval (N-05) laat zien dat een verouderde lege-ruimtebevestiging géén nulcall is; de runner voert dat geval in deze fase niet uit en meldt 'zou aanroepen'. De te-lange-passageroute (input_truncated) staat in de unittests (8001 tekens past niet leesbaar in dit bestand).",
+  "synthetisch": "Alles synthetisch, behalve de scenario-omschrijving van B-09 (casusregister v2).",
+  "gevallen": [
+    {
+      "id": "B-09",
+      "casusregister": "B-09",
+      "begrip": "zaaknummer",
+      "tekst": "Nummer waaronder een zaak in het zaaksysteem wordt geregistreerd.",
+      "context": {"organisatorische_context": [], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "buren": [],
+      "verwacht_route": "nulcall",
+      "verwacht": "not_evaluated",
+      "grond": "Zonder context is niet te bepalen welke verwante begrippen de definitie moet uitsluiten (K-9); geen modelcall."
+    },
+    {
+      "id": "N-02",
+      "casusregister": "runplan v2 §5.1 (geen tekst)",
+      "begrip": "lener",
+      "tekst": "",
+      "context": {"organisatorische_context": ["Synthetische Uitleendienst"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "buren": [],
+      "verwacht_route": "nulcall",
+      "verwacht": "not_evaluated",
+      "grond": "Zonder definitietekst valt niets te beoordelen; geen modelcall."
+    },
+    {
+      "id": "N-03",
+      "casusregister": "runplan v2 §5.1 (K-2 lege ruimte)",
+      "begrip": "driehoek",
+      "tekst": "Veelhoek met precies drie zijden.",
+      "context": {"organisatorische_context": ["Synthetische meetkundecursus"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "buren": [],
+      "lege_ruimte_bevestiging": {
+        "grond": "Synthetische deskundige bevestiging voor de routeproef: in deze cursuscontext worden geen verwante begrippen onderscheiden.",
+        "actor": "wp7-routeproef (synthetisch)"
+      },
+      "verwacht_route": "nulcall",
+      "verwacht": "pass",
+      "grond": "Geen actieve buren en een geldige, aan de actuele vingerafdruk gebonden deskundige bevestiging van een lege vergelijkingsruimte (K-2): pass zonder modelcall. De runner bindt deze synthetische bevestiging expliciet aan de vingerafdruk."
+    },
+    {
+      "id": "N-04",
+      "casusregister": "runplan v2 §5.1 (ongeldige burenlijst)",
+      "begrip": "lener",
+      "tekst": "Persoon met een actuele lening bij de instelling.",
+      "context": {"organisatorische_context": ["Synthetische Uitleendienst"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "buren": [{"term": "werknemer", "definitie": "Persoon met een arbeidsovereenkomst met de instelling.", "herkomst": "gebruiker", "bevestigd": "ja"}],
+      "verwacht_route": "nulcall",
+      "verwacht": "error",
+      "grond": "Een ongeldige burenlijst ('bevestigd' is geen waar/onwaar) is een technische fout zonder modelcall, nooit een stille pass."
+    },
+    {
+      "id": "N-05",
+      "casusregister": "runplan v2 §5.1 (niet automatisch nulcall)",
+      "begrip": "driehoek",
+      "tekst": "Veelhoek met precies drie zijden.",
+      "context": {"organisatorische_context": ["Synthetische meetkundecursus"], "juridische_context": [], "wettelijke_basis": []},
+      "bronnen": [],
+      "buren": [],
+      "lege_ruimte": {
+        "contract_version": "ess05/1",
+        "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+        "grond": "Verouderde bevestiging (andere vingerafdruk).",
+        "actor": "wp7-routeproef (synthetisch)"
+      },
+      "verwacht_route": "aanroep",
+      "verwacht": "review_required",
+      "grond": "Een bevestiging bij een andere vingerafdruk geldt niet; met context en zonder buren volgt een modelcall (K-8/K-1). 'verwacht' is hier alleen formeel; de routeproef voert deze call niet uit."
+    }
+  ]
+}

@@ -142,25 +142,29 @@ async def test_ess04_testable_element_pass_and_fail():
 
 
 @pytest.mark.asyncio
-async def test_ess05_distinguishing_feature_pass_and_fail():
+async def test_ess05_trefwoord_bewijst_geen_onderscheid():
+    """DEF-768: ESS-05 is een AI-beoordeling per verwant begrip, geen woordindicator.
+
+    Zonder context is de regel niet beoordeeld (context is verplichte invoer);
+    mét context maar zonder beoordelingsdienst is zij expliciet open. Een
+    trefwoord ('onderscheidt', 'kenmerk') geeft geen pass en het ontbreken
+    ervan geen violation.
+    """
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
+    context = {"organisatorische_context": ["Synthetische Dienst"]}
 
-    res_ok = await svc.validate_definition(
-        begrip="speciaal kenmerk",
-        text="eigenschap die een entiteit onderscheidt van andere entiteiten",
-        ontologische_categorie=None,
-        context={},
-    )
-    assert not any(
-        v.get("code") == "ESS-05" for v in res_ok.get("violations", [])
-    ), res_ok
+    for tekst in (
+        "eigenschap die een entiteit onderscheidt van andere entiteiten",
+        "een entiteit die in situaties voorkomt",
+    ):
+        zonder_context = await svc.validate_definition(
+            begrip="kenmerk", text=tekst, ontologische_categorie=None, context={}
+        )
+        assert zonder_context["rule_statuses"]["ESS-05"] == "not_evaluated"
 
-    res_bad = await svc.validate_definition(
-        begrip="kenmerk",
-        text="een entiteit die in situaties voorkomt",
-        ontologische_categorie=None,
-        context={},
-    )
-    assert any(
-        v.get("code") == "ESS-05" for v in res_bad.get("violations", [])
-    ), res_bad
+        res = await svc.validate_definition(
+            begrip="kenmerk", text=tekst, ontologische_categorie=None, context=context
+        )
+        assert res["rule_statuses"]["ESS-05"] == "review_required", res
+        assert "ESS-05" not in res.get("passed_rules", [])
+        assert not any(v.get("code") == "ESS-05" for v in res.get("violations", []))
