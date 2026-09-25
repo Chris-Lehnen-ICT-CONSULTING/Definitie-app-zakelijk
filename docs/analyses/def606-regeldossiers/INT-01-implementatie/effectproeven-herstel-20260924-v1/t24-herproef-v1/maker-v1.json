@@ -1,0 +1,199 @@
+{
+  "type": "AI-gemaakte onafhankelijke T24herproefset",
+  "maker_model": "gpt-6-astra",
+  "reasoning": "high",
+  "t24": [
+    {
+      "id": "T01",
+      "stratum": "S1",
+      "begrip": "regenbuffer",
+      "tekst": "Voorziening voor de tijdelijke opslag van regenwater",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met een voorzetselgroep en zonder afsluitend leesteken."
+    },
+    {
+      "id": "T02",
+      "stratum": "S1",
+      "begrip": "retourkrat",
+      "tekst": "Transportbak die na aflevering van de inhoud naar de verzender terugkeert.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met een beperkende betrekkelijke bijzin."
+    },
+    {
+      "id": "T03",
+      "stratum": "S1",
+      "begrip": "warmte- en koudeopslag",
+      "tekst": "Opslag van warmte en koude in een ondergronds reservoir voor later gebruik",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Nevenschikking binnen de begripsnaam en binnen de naamwoordelijke omschrijving."
+    },
+    {
+      "id": "T04",
+      "stratum": "S1",
+      "begrip": "zaadruilkast",
+      "tekst": "Kast waarin bezoekers zaden achterlaten en waaruit zij zaden meenemen. Elk vak bevat één plantensoort.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke kern met nevengeschikte betrekkelijke bijzinnen, gevolgd door een zelfstandige zin."
+    },
+    {
+      "id": "T05",
+      "stratum": "S2",
+      "begrip": "monsterlade",
+      "tekst": "Lade voor maximaal 12 buisjes met elk 2,5 ml vloeistof.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Geheel getal, decimaal getal met komma en een eenheidsafkorting binnen de kern."
+    },
+    {
+      "id": "T06",
+      "stratum": "S2",
+      "begrip": "schetscatalogus",
+      "tekst": "Geordend overzicht van de ontwerpen van ir. Maanlijn. Elke schets heeft een volgnummer.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Titelafkorting vóór een verzonnen naam, gecombineerd met een latere punt tussen twee zinnen."
+    },
+    {
+      "id": "T07",
+      "stratum": "S2",
+      "begrip": "knutselvoorraad",
+      "tekst": "Verzameling materialen voor handwerk, zoals papier, draad, kralen enz.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Voorbeeldenreeks met een afkorting op het zinslot."
+    },
+    {
+      "id": "T08",
+      "stratum": "S2",
+      "begrip": "inspectieronde",
+      "tekst": "Controle van een installatie volgens schema nr. 4, bijv. vóór ingebruikname. De controleur registreert de meetwaarden.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee afkortingen met punten binnen de eerste zin en een afzonderlijke vervolgzin."
+    },
+    {
+      "id": "T09",
+      "stratum": "S3",
+      "begrip": "stiltecabine",
+      "tekst": "Een stiltecabine is een afgesloten werkplek die omgevingsgeluid dempt.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Volledige mededelende zin met een afsluitende punt."
+    },
+    {
+      "id": "T10",
+      "stratum": "S3",
+      "begrip": "wisselvak",
+      "tekst": "Een wisselvak is een gemarkeerde ruimte waar estafettelopers een stok overdragen. De markering begrenst de overdrachtsruimte.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee volledige mededelende zinnen met expliciete punten."
+    },
+    {
+      "id": "T11",
+      "stratum": "S3",
+      "begrip": "controlevraag",
+      "tekst": "Een controlevraag is een vraag waarmee een spreker nagaat of een uitleg is begrepen. Kan de toehoorder de beschreven stap navertellen?",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een mededelende zin wordt gevolgd door een vragende zin met vraagteken."
+    },
+    {
+      "id": "T12",
+      "stratum": "S3",
+      "begrip": "stoproep",
+      "tekst": "Een stoproep is een luide mondelinge opdracht om een handeling onmiddellijk te onderbreken. Leg het gereedschap neer!",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een omschrijvende zin wordt gevolgd door een gebiedende zin met uitroepteken."
+    },
+    {
+      "id": "T13",
+      "stratum": "S4",
+      "begrip": "oeverstrook",
+      "tekst": "Strook begroeide grond\nlangs een waterloop\ndie afstromend water vertraagt.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Regelomloop verdeelt een naamwoordelijke kern en de bijbehorende betrekkelijke bijzin."
+    },
+    {
+      "id": "T14",
+      "stratum": "S4",
+      "begrip": "reparatielogboek",
+      "tekst": "Een reparatielogboek is een chronologisch overzicht van uitgevoerde herstelwerkzaamheden.\n\nElke vermelding beschrijft de storing en de toegepaste ingreep.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee volledige zinnen staan in afzonderlijke alinea's."
+    },
+    {
+      "id": "T15",
+      "stratum": "S4",
+      "begrip": "veldmeetset",
+      "tekst": "Draagbare uitrusting voor terreinmetingen, bestaande uit:\n- een afstandsmeter;\n- een peilstok;\n- een notitiekaart.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Naamwoordelijke aanloop met dubbele punt en een opsomming met puntkomma's."
+    },
+    {
+      "id": "T16",
+      "stratum": "S4",
+      "begrip": "nachtventilatie",
+      "tekst": "Nachtventilatie is het verversen van binnenlucht tijdens de nacht; de luchtstroom voert opgehoopte warmte af.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Twee hoofdzinnen zijn verbonden door een puntkomma."
+    },
+    {
+      "id": "T17",
+      "stratum": "S5",
+      "begrip": "waarschuwingsbord",
+      "tekst": "Bord dat met de tekst ‘Pas op!’ de aandacht vestigt op een gevaarlijke plek.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een kort citaat met uitroepteken is ingebed in een doorlopende omschrijving."
+    },
+    {
+      "id": "T18",
+      "stratum": "S5",
+      "begrip": "kiemhoes",
+      "tekst": "Een kiemhoes is een doorlatende omhulling rond een zaaibak. (De omhulling houdt insecten buiten.)",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een zelfstandige vervolgzin met eigen eindpunt staat geheel tussen haakjes."
+    },
+    {
+      "id": "T19",
+      "stratum": "S5",
+      "begrip": "luisterplek",
+      "tekst": "“Afgebakende ruimte waar bezoekers een geluidsopname beluisteren.”",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "De gehele naamwoordelijke kern staat tussen aanhalingstekens, inclusief de afsluitende punt."
+    },
+    {
+      "id": "T20",
+      "stratum": "S5",
+      "begrip": "raadselkaart",
+      "tekst": "Spelkaart met de titel ‘Wie woont hier?’ waarop aanwijzingen voor een fictief dierverblijf staan.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ingesloten verzonnen titel bevat een vraagteken, waarna de omschrijving doorloopt."
+    },
+    {
+      "id": "T21",
+      "stratum": "S6",
+      "begrip": "wachtmarkering",
+      "tekst": "",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Leeg tekstveld zonder woorden, witruimte of leestekens."
+    },
+    {
+      "id": "T22",
+      "stratum": "S6",
+      "begrip": "reservevak",
+      "tekst": "Reservevak:",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Uitsluitend een begripslabel met dubbele punt, zonder daaropvolgende omschrijving."
+    },
+    {
+      "id": "T23",
+      "stratum": "S6",
+      "begrip": "droogrek",
+      "tekst": "Een droogrek is een frame waaraan nat textiel wordt opgehangen. de open ruimte tussen de stangen laat lucht door.",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Na een punt volgt een grammaticaal zelfstandige formulering die met een kleine letter begint."
+    },
+    {
+      "id": "T24",
+      "stratum": "S6",
+      "begrip": "sorteerbak",
+      "tekst": "Bak voor onderdelen met een vakcode (v.qr. = vakcodering voor quicksortering) v.qr. bepaalt het sorteervak",
+      "herkomst": "synthetisch voor deze proef",
+      "rationale": "Een ter plekke verklaarde fictieve afkorting met interne punten keert terug vóór een werkwoord; de overgang heeft geen afzonderlijk grensleesteken."
+    }
+  ]
+}

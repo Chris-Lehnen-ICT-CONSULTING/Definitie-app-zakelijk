@@ -1,0 +1,760 @@
+diff --git a/src/domain/int01/zinsgrenzen.py b/src/domain/int01/zinsgrenzen.py
+index 809b7a20d..d3627a45a 100644
+--- a/src/domain/int01/zinsgrenzen.py
++++ b/src/domain/int01/zinsgrenzen.py
+@@ -12,7 +12,8 @@ beoordeelt uitsluitend werkelijke zinsgrenzen, naar de functie van het teken
+ in de passage:
+ 
+ - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
+-- een punt in een afkorting, getal of naaminitiaal is geen grens; een
++- een punt in een afkorting, getal of naaminitiaal is geen grens, ook niet
++  tussen 'bijv.' en een alfanumerieke code die direct afsluit ('bijv. R7.'); een
+   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker, net
+   als een punt na een woordvorm zonder klinker, ook met hoofdletter ('volgens
+   nvr. Nieuwe ...', 'Chr. Huygens'); de punten van een afkorting die de tekst
+@@ -27,8 +28,10 @@ in de passage:
+   beginletter wordt zo doorverwezen (conservatief, sinds contract /3);
+ - een beletselteken gevolgd door verdere tekst is onzeker;
+ - een puntkomma en een dubbele punt zijn nooit een zelfstandige grens (K4);
+-  een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering;
+-  een los label dat op een dubbele punt eindigt, is onzeker;
++  een opsomming die na ':', ';' of ',' doorloopt, blijft één formulering; een
++  inleidende dubbele punt geldt voor het hele aaneengesloten opsommingsblok,
++  en tekst direct na zo'n blok is onzeker; een los label dat op een dubbele
++  punt eindigt, is onzeker;
+ - een regelomloop is niet vanzelf een tweede zin; een alinea- of
+   opsommingsstructuur zonder inleidend teken wordt als onzeker getoond;
+ - aanhalingstekens rond de hele kern maken twee zinnen niet één en geven
+@@ -36,8 +39,9 @@ in de passage:
+   citaat vormen geen grens van de buitenste zin, binnen haakjes zijn ze
+   onzeker. Een slotteken direct vóór het sluitende aanhalingsteken kan ook de
+   buitenste zin afsluiten: volgt verdere tekst zonder hoofdletter of cijfer,
+-  dan is die grens altijd onzeker, want de samenhang van de voortzetting
+-  vraagt grammaticale interpretatie (algemeen-citaatbesluit-v1);
++  ook na een komma, puntkomma of dubbele punt (met of zonder spatie), dan
++  is die grens altijd onzeker, want de samenhang van de voortzetting vraagt
++  grammaticale interpretatie (algemeen-citaatbesluit-v1);
+ - een naamwoordelijke kern zonder zelfstandige hoofdzin is geldig: er is geen
+   hoofdzin- of persoonsvormplicht. Een los label met hooguit één inhoudswoord
+   ('schakelblad') is echter geen definitieformulering: geen zinsstructuur-pass
+@@ -95,9 +99,16 @@ _OPEN = "review_required"
+ #: plaats van een zinsstructuur-pass. /8: citaatbeleid
+ #: (algemeen-citaatbesluit-v1) — een kleine-lettervoortzetting na een
+ #: citaatslot is altijd onzeker; de positieve paden uit /4 (voorzetselgroepen,
+-#: vóór het citaat geopende bijzin) vervallen. Een opgeslagen uitkomst onder een
+-#: andere versie geldt niet meer als actueel.
+-CONTRACTVERSIE = "def770-int01/8"
++#: vóór het citaat geopende bijzin) vervallen. /9: citaatcorrectie
++#: (logs/def770-citaatbeleid/astra-acceptatie-v1.md) — een inleidende dubbele
++#: punt geldt voor het hele aaneengesloten opsommingsblok en tekst direct na
++#: dat blok is onzeker; een citaatslot gevolgd door komma, puntkomma of dubbele
++#: punt (met of zonder spatie erna) bereikt de citaatslotroute; een
++#: alfanumerieke code die direct na 'bijv.' afsluit, maakt die afkortingspunt
++#: niet onzeker (astra-correctiereview-v2: niet na andere of onbekende
++#: afkortingen). Een
++#: opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
++CONTRACTVERSIE = "def770-int01/9"
+ 
+ #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
+ REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
+@@ -121,6 +132,18 @@ _OPENERS = "\"'“‘„«(["
+ _PAREN = {"“": "”", "„": "”", "‘": "’", "«": "»", "(": ")", "[": "]"}
+ _CITAATOPENERS = frozenset({"“", "„", "‘", "«", '"', "'"})
+ _LIJSTREGEL = re.compile(r"[ \t]*(?:[-*•–]\s|\d{1,3}[.)]\s|[a-z][.)]\s)")
++#: Scheidingstekens waarmee een citaatslot ('‘kom terug!’, dat') de kandidaat
++#: verloor (logs/def770-citaatbeleid/voorprobe-v2.log): de buitenste zin kan
++#: na het citaat geëindigd zijn of doorlopen, net als zonder scheidingsteken.
++_CITAATSCHEIDERS = frozenset(",;:")
++#: Een alfanumerieke code: hoofdletters en cijfers, met ten minste één cijfer
++#: ('R7', 'AB-12'). Geen gewoon woord.
++_CODE = re.compile(r"(?=[A-Z0-9-]*\d)[A-Z][A-Z0-9-]*")
++#: Afkorting die zelf 'bijvoorbeeld' betekent en dus positief een voorbeeld
++#: aankondigt (T08). Niet 'bv' (ook 'besloten vennootschap'), en geen andere of
++#: onbekende afkorting ('ca.', 'q.z.'): die bewijzen geen voorbeeldcontext
++#: (astra-correctiereview-v2, R3).
++_VOORBEELDAANKONDIGING = frozenset({"bijv"})
+ _VOORAFGAAND_WOORD = re.compile(r"[\w.]+$")
+ _GESTIPPELDE_AFKORTING = re.compile(r"^(?:[a-z]\.)+[a-z]$")
+ #: Letters zonder klinker ('nvr', 'Chr', 'NVR', 'mm'): geen gewoon Nederlands
+@@ -322,13 +345,19 @@ def _leestekenkandidaten(
+             index += 1
+         omvattend = [(s, e) for s, e in ingesloten if s < match.start() < e]
+         haakjesdeel = _gesloten_haakjesdeel(tekst, match, omvattend)
++        # Het binnenste omvattende paar bepaalt de functie.
++        in_citaat = bool(omvattend) and tekst[max(omvattend)[0]] in _CITAATOPENERS
++        sluiter_direct_na = index > match.end()
++        scheider = in_citaat and sluiter_direct_na and _scheider_na_citaat(tekst, index)
++        if scheider:
++            # '‘kom terug!’, dat …' of '‘kom terug!’,dat …': het scheidingsteken
++            # hoort bij de overgang; een ontbrekende spatie bewijst niets.
++            index += 1
+         if haakjesdeel is None and (
+-            not tekst[index:].strip() or not tekst[index].isspace()
++            not tekst[index:].strip() or not (scheider or tekst[index].isspace())
+         ):
+             # Slotteken, of een punt binnen een getal, afkorting of adres.
+             continue
+-        # Het binnenste omvattende paar bepaalt de functie.
+-        in_citaat = bool(omvattend) and tekst[max(omvattend)[0]] in _CITAATOPENERS
+         kandidaten.append(
+             _Kandidaat(
+                 start=match.start(),
+@@ -337,7 +366,7 @@ def _leestekenkandidaten(
+                 woord=_vorig_woord(tekst, match.start()),
+                 volgend=tekst[index:].lstrip().lstrip(_OPENERS),
+                 ingesloten=bool(omvattend),
+-                sluiter_direct_na=index > match.end(),
++                sluiter_direct_na=sluiter_direct_na,
+                 voorwoord=_woord_ervoor(tekst, match.start()),
+                 in_citaat=in_citaat,
+                 citaatbegin=max(omvattend)[0] if in_citaat else -1,
+@@ -347,6 +376,21 @@ def _leestekenkandidaten(
+     return kandidaten
+ 
+ 
++def _scheider_na_citaat(tekst: str, index: int) -> bool:
++    """Direct na het sluitende aanhalingsteken van een citaatslot staat een
++    komma, puntkomma of dubbele punt, gevolgd door verdere tekst (met of
++    zonder witruimte ertussen).
++
++    Zonder deze herkenning verviel de kandidaat en gaf de overgang ongemerkt
++    zinsstructuur-pass (astra-acceptatie-v1, T17/T20; zonder spatie:
++    astra-correctiereview-v2, R2). Het scheidingsteken bewijst niet dat de
++    buitenste zin doorloopt; de classificatie gebeurt zoals zonder
++    scheidingsteken, met de positie van het slotteken."""
++    return tekst[index : index + 1] in _CITAATSCHEIDERS and bool(
++        tekst[index + 1 :].strip()
++    )
++
++
+ def _gesloten_haakjesdeel(
+     tekst: str, match: re.Match[str], omvattend: list[tuple[int, int]]
+ ) -> str | None:
+@@ -637,9 +681,35 @@ def _classificeer_afkorting(functie: str, kandidaat: _Kandidaat) -> tuple[str, s
+         )
+     if functie == "mogelijk_zinslot":
+         return "onzeker", "afkorting die ook een zin kan afsluiten"
++    if kandidaat.woord.lower() in _VOORBEELDAANKONDIGING and _afsluitende_code(
++        kandidaat.volgend
++    ):
++        # 'bijv. R7. De …': 'bijv.' kondigt zelf een voorbeeld aan; een nieuwe
++        # zin zou alleen uit de code bestaan.
++        return "geen", ""
+     return "onzeker", "afkorting gevolgd door een hoofdletter"
+ 
+ 
++def _afsluitende_code(volgend: str) -> bool:
++    """Het vervolg is één alfanumerieke code ('R7') die direct met één
++    slotteken of het einde van de tekst afsluit ('bijv. R7.', 'bijv. R7').
++
++    Een zin die alleen uit zo'n code bestaat, is geen zin; de afkortingspunt
++    ervoor is dan intern. De punt na de code wordt zelf als kandidaat
++    beoordeeld. Volgen na de code nog woorden of een komma ('bijv. R7 bevat
++    …', 'bijv. R7, R8 …'), dan kan de code een nieuwe zin openen: geen
++    vrijstelling. Een gewoon woord met hoofdletter ('bijv. De …') of een
++    afkorting die ook een zin kan afsluiten ('enz. R7.') valt er niet onder."""
++    delen = volgend.split(maxsplit=1)
++    if not delen:
++        return False
++    token = delen[0]
++    kern = token[:-1] if token[-1] in ".?!" else token
++    if len(delen) > 1 and kern == token:
++        return False
++    return bool(_CODE.fullmatch(kern))
++
++
+ def _classificeer_getal(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
+     regelbegin = tekst.rfind("\n", 0, kandidaat.start) + 1
+     if (
+@@ -690,7 +760,10 @@ def _regelgrenzen(tekst: str) -> list[Zinsgrens]:
+     """Alinea- en opsommingsstructuur zonder slotteken: zichtbaar onzeker.
+ 
+     Een enkele regelomloop midden in een formulering is geen grens. Een
+-    regelovergang na een slotteken is al via het leesteken beoordeeld.
++    regelovergang na een slotteken is al via het leesteken beoordeeld. Een
++    inleidende dubbele punt geldt voor het hele aaneengesloten opsommingsblok
++    (astra-acceptatie-v1, T15); tekst die direct op zo'n blok volgt, kan het
++    laatste lid voortzetten of een zelfstandig vervolg zijn: onzeker.
+     """
+     grenzen: list[Zinsgrens] = []
+     for match in re.finditer(r"\n", tekst):
+@@ -699,20 +772,39 @@ def _regelgrenzen(tekst: str) -> list[Zinsgrens]:
+         rest = tekst[index + 1 :]
+         if not voor or not rest.strip() or voor[-1] in ".?!…":
+             continue
++        in_blok = _in_ingeleid_lijstblok(tekst, index)
+         if _LIJSTREGEL.match(rest):
+-            if voor[-1] in ":;,":
++            if voor[-1] in ":;," or in_blok:
+                 # Opsomming die na een inleidend of scheidend teken doorloopt:
+                 # één formulering (K4), geen grens.
+                 continue
+             grond = "opsommingsteken of regelstructuur"
+         elif re.match(r"[ \t]*\n", rest):
+             grond = "alinea-overgang zonder slotteken"
++        elif in_blok:
++            grond = (
++                "tekst na een opsomming zonder slotteken: vervolg van het laatste "
++                "lid of zelfstandige vervolgtekst niet vast te stellen"
++            )
+         else:
+             continue
+         grenzen.append(Zinsgrens(index, _regelpassage(voor, rest), grond))
+     return grenzen
+ 
+ 
++def _in_ingeleid_lijstblok(tekst: str, index: int) -> bool:
++    """De regel die bij `index` eindigt, is een opsommingslid van een
++    aaneengesloten blok (geen lege of andere regel ertussen) dat direct volgt
++    op een regel die met een dubbele punt eindigt."""
++    regels = tekst[:index].split("\n")
++    positie = len(regels) - 1
++    while positie >= 0 and _LIJSTREGEL.match(regels[positie]):
++        positie -= 1
++    if positie in (len(regels) - 1, -1):
++        return False
++    return regels[positie].rstrip().endswith(":")
++
++
+ def _label_zonder_vervolg(tekst: str) -> list[Zinsgrens]:
+     """Een kern die op een dubbele punt eindigt ('Oefenstatus:'): onzeker."""
+     kern = tekst.rstrip()
+@@ -759,7 +851,15 @@ def _passage(tekst: str, kandidaat: _Kandidaat) -> str:
+     links = " ".join(tekst[: kandidaat.start].split()[-3:])
+     teken = tekst[kandidaat.start : kandidaat.einde]
+     rechts = " ".join(tekst[kandidaat.einde :].split()[:4])
+-    return f"{links}{teken} {rechts}".strip()
++    # Een scheidingsteken na een citaat zonder spatie ('‘kom terug!’,dat')
++    # blijft zo in de passage staan; er wordt geen spatie ingevoegd.
++    tussen = (
++        ""
++        if teken[-1:] in _CITAATSCHEIDERS
++        and not tekst[kandidaat.einde : kandidaat.einde + 1].isspace()
++        else " "
++    )
++    return f"{links}{teken}{tussen}{rechts}".strip()
+ 
+ 
+ def _regelpassage(voor: str, rest: str) -> str:
+diff --git a/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py b/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
+index c70bdac13..71a6ed7f3 100644
+--- a/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
+@@ -208,7 +208,9 @@ def test_opslag_en_teruglezen(tmp_path: Path):
+     assert uit["parts"] == regeluitkomst(segmenteer(R_T17))["parts"]
+ 
+ 
+-def test_contractversie_is_8_na_citaatbeleid():
++def test_contractversie_na_citaatbeleid_en_citaatcorrectie():
+     """/7 (restherstel) is proefbron geweest; het citaatbeleid verandert de
+-    runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8."""
+-    assert CONTRACTVERSIE == "def770-int01/8"
++    runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8. De
++    citaatcorrectie (astra-acceptatie-v1) daarna: /8 → /9
++    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/9"
+diff --git a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+index 569ce23cc..e502f9203 100644
+--- a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+@@ -689,8 +689,11 @@ def test_contractversie_na_titelbeleid_en_restherstel():
+     formulering) wijzigt haar opnieuw: /6 → /7
+     (test_def770_restherstel_zinsgrenzen.py). Het citaatbeleid
+     (algemeen-citaatbesluit-v1: geen positief citaatvervolg) daarna: /7 → /8
+-    (test_def770_citaatbeleid_zinsgrenzen.py)."""
+-    assert CONTRACTVERSIE == "def770-int01/8"
++    (test_def770_citaatbeleid_zinsgrenzen.py). De citaatcorrectie
++    (astra-acceptatie-v1: lijstblok, citaatslot met scheidingsteken,
++    voorbeeldcode na afkorting) daarna: /8 → /9
++    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/9"
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -703,6 +706,7 @@ def test_contractversie_na_titelbeleid_en_restherstel():
+         "def770-int01/5",
+         "def770-int01/6",
+         "def770-int01/7",
++        "def770-int01/8",
+     ],
+ )
+ @pytest.mark.parametrize(
+diff --git a/tests/unit/validation/test_def770_int01_zinsgrenzen.py b/tests/unit/validation/test_def770_int01_zinsgrenzen.py
+index 007bb92e6..0eb97ae22 100644
+--- a/tests/unit/validation/test_def770_int01_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_int01_zinsgrenzen.py
+@@ -173,7 +173,14 @@ class TestSegmentatie:
+         assert len(seg.onzekere_grenzen) == onzeker, seg
+ 
+     def test_opsomming_met_opsommingstekens_is_onzeker_niet_zeker(self):
+-        seg = _segmenteer("sanctie bestaande uit:\n- gevangenisstraf\n- geldboete")
++        """T/m /8 verwachtte deze test ook voor de ingeleide lijst een onzekere
++        grens. Contract /9 (logs/def770-citaatbeleid/astra-acceptatie-v1.md,
++        T15): de inleidende dubbele punt geldt voor het hele aaneengesloten
++        blok, dus die lijst is één formulering. Zonder inleiding mag de
++        lijststructuur niet stil wegvallen."""
++        ingeleid = _segmenteer("sanctie bestaande uit:\n- gevangenisstraf\n- geldboete")
++        assert not ingeleid.zekere_grenzen and not ingeleid.onzekere_grenzen
++        seg = _segmenteer("sanctie bestaande uit\n- gevangenisstraf\n- geldboete")
+         assert not seg.zekere_grenzen
+         assert seg.onzekere_grenzen, "lijststructuur mag niet stil wegvallen"
+ 
+diff --git a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+index 9e3a537de..e4a5f021e 100644
+--- a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+@@ -304,5 +304,6 @@ def test_contractversie_na_restherstel_en_citaatbeleid():
+     restherstel verandert de interpretatie (los label geen zinsstructuur-pass),
+     dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7.
+     Het citaatbeleid (algemeen-citaatbesluit-v1) verandert haar opnieuw:
+-    /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py)."""
+-    assert CONTRACTVERSIE == "def770-int01/8"
++    /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py), en de citaatcorrectie
++    (astra-acceptatie-v1): /8 → /9 (test_def770_citaatcorrectie_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/9"
+diff --git a/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py b/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py
+new file mode 100644
+index 000000000..2c5f06231
+--- /dev/null
++++ b/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py
+@@ -0,0 +1,440 @@
++"""DEF-770 correctie na de citaatbeleidproef (contract /9).
++
++Bron: logs/def770-citaatbeleid/astra-acceptatie-v1.md (drie bevestigde
++bevindingen). De afgeronde proef effectproeven-citaatbeleid-20260925-v1 is nu
++ontwikkelbewijs: T15, T17, T20 en T08 zijn ontwikkelregressies. Hun teksten en
++automatische labels worden hier alleen gelezen, nooit aangepast.
++
++1. T15 — een expliciete lijstinleiding met dubbele punt geldt voor het hele
++   aaneengesloten opsommingsblok, niet alleen voor het eerste lid. Werkelijke
++   zinseindtekens blijven beoordeeld; een niet-ingeleide lijst, een
++   blokonderbreking en tekst na het blok worden niet vrijgesteld (tekst na het
++   blok was tot en met /8 alleen gemaskeerd door de grens tussen de leden).
++2. T17/T20 — een citaatslot gevolgd door een scheidingsteken (‘kom terug!’,
++   dat …) verloor de kandidaat en gaf zinsstructuur-pass. Voor komma,
++   puntkomma en dubbele punt is dat verlies aangetoond (voorprobe-v2.log); de
++   overgang bereikt nu de bestaande onzekerheidsroute, met de positie van het
++   slotteken. Interne citaatpunctuatie, een citaat zonder slotteken en een
++   latere zekere grens blijven zoals ze waren. Geen grammaticale pass.
++3. T08 — ‘bijv. R7. De …’: na ‘bijv.’, dat zelf een voorbeeld aankondigt, is
++   een alfanumerieke code die direct met een slotteken of het tekstenende
++   afsluit geen zinsbegin; een zin die alleen uit ‘R7.’ bestaat, is geen zin.
++   De werkelijke grens na ‘R7.’ blijft zeker. Geen algemene vrijstelling voor
++   afkortingen vóór een hoofdletter; andere en onbekende afkortingen (‘ca.’,
++   ‘bv.’, ‘q.z.’) blijven onzeker (astra-correctiereview-v2, R3).
++
++Correctiereview v2 (R2): een citaatslot met komma, puntkomma of dubbele punt
++zonder spatie erna volgt dezelfde route als met spatie.
++
++Nooit een volledige INT-01-pass.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from domain.int01.opslag import bouw_beoordeling, lees_beoordeling
++from domain.int01.zinsgrenzen import CONTRACTVERSIE, regeluitkomst, segmenteer
++from services.validation.modular_validation_service import ModularValidationService
++from toetsregels.manager import get_toetsregel_manager
++
++pytestmark = [pytest.mark.unit]
++
++PROEF = (
++    Path(__file__).resolve().parents[3]
++    / "docs/analyses/def606-regeldossiers/INT-01-implementatie"
++    / "effectproeven-citaatbeleid-20260925-v1"
++)
++
++#: Teksten uit t24-gevallen-v1.json (gecontroleerd in test_proefbinding).
++P_T08 = (
++    "tekenreeks voor een terugkerende proefzending, bijv. R7. De laatste positie "
++    "bevat een cijfer van 0 t/m 9."
++)
++P_T15 = (
++    "samenstel van drie losneembare lagen:\n- een poreuze bovenlaag\n"
++    "- een gekleurde tussenlaag\n- een gladde onderlaag"
++)
++P_T17 = (
++    "Een terugroepteken is een lichtsignaal met de betekenis ‘kom terug!’, dat "
++    "verschijnt zodra een oefenwagen zijn keerpunt passeert."
++)
++P_T20 = (
++    "Een luisterkaart is een kaart uit de oefenreeks ‘Wie luistert?’, waarop een "
++    "geluid door een abstract patroon wordt weergegeven. De achterzijde toont de "
++    "bijbehorende beweging."
++)
++PROEFTEKSTEN = {"T08": P_T08, "T15": P_T15, "T17": P_T17, "T20": P_T20}
++
++REDEN_CITAAT = "sluitend aanhalingsteken"
++REDEN_CITAAT_HOOFD = "binnen een ingesloten citaat"
++REDEN_LIJSTVERVOLG = "na een opsomming"
++
++
++# (id, tekst, [(soort, teken op positie, deel van de passage, deel van de
++# reden)]) — elke verwachte grens met positie, passage en reden; geen andere.
++GEVALLEN = [
++    # ── 1. Lijstcontext ─────────────────────────────────────────────────
++    ("T15", P_T15, []),
++    ("lijst-minimaal", "lagen:\n- bovenlaag\n- onderlaag", []),
++    ("lijst-drie-leden", "lagen:\n- bovenlaag\n- tussenlaag\n- onderlaag", []),
++    # Behoud: puntkomma na het lid was al één formulering.
++    ("lijst-puntkomma", "lagen:\n- bovenlaag;\n- onderlaag", []),
++    # Behoud: geen inleidende dubbele punt, geen vrijstelling.
++    (
++        "lijst-oningeleid",
++        "lagen\n- bovenlaag\n- onderlaag",
++        [
++            ("onzeker", "\n", "lagen ↵ - bovenlaag", "opsommingsteken"),
++            ("onzeker", "\n", "bovenlaag ↵ - onderlaag", "opsommingsteken"),
++        ],
++    ),
++    # Behoud: een lege regel onderbreekt het blok.
++    (
++        "lijst-lege-regel",
++        "lagen:\n- bovenlaag\n\n- onderlaag",
++        [
++            ("onzeker", "\n", "bovenlaag ↵ - onderlaag", "alinea-overgang"),
++            ("onzeker", "\n", "bovenlaag ↵ - onderlaag", "opsommingsteken"),
++        ],
++    ),
++    # Tekst tussen de leden onderbreekt het blok: zij zelf en het lid daarna
++    # blijven onzeker.
++    (
++        "lijst-tussentekst",
++        "lagen:\n- bovenlaag\ntussentekst\n- onderlaag",
++        [
++            ("onzeker", "\n", "bovenlaag ↵ tussentekst", REDEN_LIJSTVERVOLG),
++            ("onzeker", "\n", "tussentekst ↵ - onderlaag", "opsommingsteken"),
++        ],
++    ),
++    # Zelfstandige vervolgtekst na het blok: niet vrijgesteld.
++    (
++        "lijst-vervolgtekst",
++        "lagen:\n- bovenlaag\n- onderlaag\nDe kaart ligt klaar",
++        [("onzeker", "\n", "onderlaag ↵ De kaart", REDEN_LIJSTVERVOLG)],
++    ),
++    (
++        "lijst-een-lid-vervolgtekst",
++        "lagen:\n- bovenlaag\nDe kaart ligt klaar",
++        [("onzeker", "\n", "bovenlaag ↵ De kaart", REDEN_LIJSTVERVOLG)],
++    ),
++    (
++        "lijst-alinea-na-blok",
++        "lagen:\n- bovenlaag\n- onderlaag\n\nDe kaart ligt klaar",
++        [("onzeker", "\n", "onderlaag ↵ De kaart", "alinea-overgang")],
++    ),
++    # Behoud: een werkelijk zinseindteken in een lid blijft beoordeeld.
++    (
++        "lijst-zinseindteken",
++        "lagen:\n- bovenlaag.\n- onderlaag",
++        [("onzeker", ".", "bovenlaag. - onderlaag", "geen zinsbegin")],
++    ),
++    (
++        "lijst-zinseindteken-hoofdletter",
++        "lagen:\n- De bovenlaag is ruw. Hij slijt.\n- onderlaag",
++        [
++            ("zeker", ".", "ruw. Hij slijt", "nieuw zinsbegin"),
++            ("onzeker", ".", "slijt. - onderlaag", "geen zinsbegin"),
++        ],
++    ),
++    # ── 2. Citaatslot gevolgd door een scheidingsteken ──────────────────
++    (
++        "T17",
++        P_T17,
++        [("onzeker", "!", "‘kom terug!’, dat verschijnt", REDEN_CITAAT)],
++    ),
++    (
++        "T20",
++        P_T20,
++        [
++            ("onzeker", "?", "‘Wie luistert?’, waarop een geluid", REDEN_CITAAT),
++            ("zeker", ".", "weergegeven. De achterzijde", "nieuw zinsbegin"),
++        ],
++    ),
++    (
++        "citaat-komma",
++        "bord met de tekst ‘kom terug!’, dat verschijnt",
++        [("onzeker", "!", "terug!’, dat verschijnt", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-puntkomma",
++        "bord met de tekst ‘kom terug!’; de lamp brandt",
++        [("onzeker", "!", "terug!’; de lamp", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-dubbelepunt",
++        "bord met de tekst ‘kom terug!’: de lamp brandt",
++        [("onzeker", "!", "terug!’: de lamp", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-punt-komma",
++        "bord met de tekst “Gereed.”, dat verschijnt",
++        [("onzeker", ".", "“Gereed.”, dat verschijnt", REDEN_CITAAT)],
++    ),
++    # Hoofdletter na de komma: de bestaande route voor een teken binnen een
++    # citaat, zoals zonder komma; nooit zeker.
++    (
++        "citaat-komma-hoofdletter",
++        "bord met de tekst ‘kom terug!’, Dat verschijnt",
++        [("onzeker", "!", "terug!’, Dat verschijnt", REDEN_CITAAT_HOOFD)],
++    ),
++    # Correctiereview v2 (R2): zonder spatie na het scheidingsteken dezelfde
++    # overgang; een ontbrekende spatie bewijst geen samenhang. Passage zonder
++    # ingevoegde spatie, positie op het slotteken.
++    (
++        "citaat-komma-zonder-spatie",
++        "bord met de tekst ‘kom terug!’,dat verschijnt",
++        [("onzeker", "!", "terug!’,dat verschijnt", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-puntkomma-zonder-spatie",
++        "bord met de tekst ‘kom terug!’;de lamp brandt",
++        [("onzeker", "!", "terug!’;de lamp", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-dubbelepunt-zonder-spatie",
++        "bord met de tekst ‘kom terug!’:de lamp brandt",
++        [("onzeker", "!", "terug!’:de lamp", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-punt-komma-zonder-spatie",
++        "bord met de tekst “Gereed.”,dat verschijnt",
++        [("onzeker", ".", "“Gereed.”,dat verschijnt", REDEN_CITAAT)],
++    ),
++    (
++        "citaat-komma-hoofdletter-zonder-spatie",
++        "bord met de tekst ‘kom terug!’,Dat verschijnt",
++        [("onzeker", "!", "terug!’,Dat verschijnt", REDEN_CITAAT_HOOFD)],
++    ),
++    (
++        "T20-zonder-spatie",
++        P_T20.replace("’, waarop", "’,waarop"),
++        [
++            ("onzeker", "?", "‘Wie luistert?’,waarop een geluid", REDEN_CITAAT),
++            ("zeker", ".", "weergegeven. De achterzijde", "nieuw zinsbegin"),
++        ],
++    ),
++    # Behoud: zonder slotteken, interne punctuatie, haakjes.
++    ("citaat-zonder-slotteken", "bord met de tekst ‘kom terug’, dat verschijnt", []),
++    ("citaat-zonder-slotteken-zonder-spatie", "bord met de tekst ‘kom terug’,dat", []),
++    ("citaat-intern", "bord met de tekst ‘Klaar. Ga door’, dat verschijnt", []),
++    ("citaat-intern-zonder-spatie", "bord met de tekst ‘Klaar. Ga door’,dat", []),
++    ("haakjes-afkorting-komma", "bord (zie hfst. 3), dat verschijnt", []),
++    (
++        "haakjes-slot-komma",
++        "bord (Stop!), dat verschijnt",
++        [("onzeker", "!", "(Stop!)", "haakjesdeel")],
++    ),
++    # ── 3. Afkorting vóór een voorbeeldcode ─────────────────────────────
++    ("T08", P_T08, [("zeker", ".", "R7. De laatste positie", "nieuw zinsbegin")]),
++    ("code-slot", "tekenreeks, bijv. R7.", []),
++    ("code-einde", "tekenreeks, bijv. R7", []),
++    # Correctiereview v2 (R3): alleen 'bijv.' (= bijvoorbeeld) kondigt zelf een
++    # voorbeeld aan. Een onbekende gestippelde afkorting of een andere
++    # afkorting bewijst geen voorbeeldcontext: onzeker, zoals op /8.
++    (
++        "onbekende-afkorting-code",
++        "houder volgens q.z. AB-12.",
++        [
++            (
++                "onzeker",
++                ".",
++                "volgens q.z. AB-12.",
++                "afkorting gevolgd door een hoofdletter",
++            )
++        ],
++    ),
++    (
++        "onbekende-afkorting-code-einde",
++        "houder volgens q.z. AB-12",
++        [
++            (
++                "onzeker",
++                ".",
++                "volgens q.z. AB-12",
++                "afkorting gevolgd door een hoofdletter",
++            )
++        ],
++    ),
++    (
++        "andere-afkorting-code",
++        "houder, ca. R7.",
++        [("onzeker", ".", "ca. R7.", "afkorting gevolgd door een hoofdletter")],
++    ),
++    (
++        "bv-code",
++        "houder, bv. R7.",
++        [("onzeker", ".", "bv. R7.", "afkorting gevolgd door een hoofdletter")],
++    ),
++    # Negatieve tegenhangers: blijven onzeker.
++    (
++        "code-met-vervolg",
++        "tekenreeks, bijv. R7 bevat een cijfer",
++        [("onzeker", ".", "bijv. R7 bevat", "afkorting gevolgd door een hoofdletter")],
++    ),
++    (
++        "code-met-komma",
++        "tekenreeks, bijv. R7, R8 en R9",
++        [("onzeker", ".", "bijv. R7, R8", "afkorting gevolgd door een hoofdletter")],
++    ),
++    (
++        "hoofdletterwoord",
++        "tekenreeks, bijv. De kaart ligt klaar",
++        [("onzeker", ".", "bijv. De kaart", "afkorting gevolgd door een hoofdletter")],
++    ),
++    (
++        "code-zonder-cijfer",
++        "tekenreeks, bijv. NVR.",
++        [("onzeker", ".", "bijv. NVR.", "afkorting gevolgd door een hoofdletter")],
++    ),
++    (
++        "code-met-kleine-letter",
++        "tekenreeks, bijv. Rood7.",
++        [("onzeker", ".", "bijv. Rood7.", "afkorting gevolgd door een hoofdletter")],
++    ),
++    (
++        "mogelijk-zinslot-code",
++        "tekenreeks, enz. R7.",
++        [("onzeker", ".", "enz. R7.", "ook een zin kan afsluiten")],
++    ),
++]
++
++
++@pytest.mark.parametrize(
++    ("tekst", "verwacht"), [pytest.param(t, v, id=i) for i, t, v in GEVALLEN]
++)
++def test_grenzen_met_positie_passage_en_reden(tekst, verwacht):
++    seg = segmenteer(tekst)
++    assert seg is not None
++    gevonden = [("zeker", g) for g in seg.zekere_grenzen] + [
++        ("onzeker", g) for g in seg.onzekere_grenzen
++    ]
++    assert len(gevonden) == len(verwacht), seg
++    for soort, teken, passage, reden in verwacht:
++        assert any(
++            s == soort
++            and tekst[g.positie] == teken
++            and passage in g.passage
++            and reden in g.grond
++            for s, g in gevonden
++        ), (soort, teken, passage, reden, seg)
++
++
++def test_zonder_grenzen_geeft_zinsstructuur_pass():
++    delen = {p["id"]: p["status"] for p in regeluitkomst(segmenteer(P_T15))["parts"]}
++    assert delen == {
++        "zinsstructuur": "pass",
++        "compactheid": "review_required",
++        "begrijpelijkheid": "review_required",
++    }
++
++
++# ── Binding aan de afgeronde proef (alleen lezen) ───────────────────────
++
++
++def _proefcases(naam: str) -> dict[str, dict]:
++    data = json.loads((PROEF / naam).read_text(encoding="utf-8"))
++    cases = data["cases"] if isinstance(data, dict) else data
++    return {case["id"]: case for case in cases}
++
++
++def test_proefbinding_teksten_ongewijzigd():
++    gevallen = _proefcases("t24-gevallen-v1.json")
++    for gid, tekst in PROEFTEKSTEN.items():
++        assert gevallen[gid]["tekst"] == tekst
++
++
++def _zinsstatus(seg) -> str:
++    if seg.zekere_grenzen:
++        return "fail"
++    if seg.onzekere_grenzen or seg.zonder_formulering is not None:
++        return "review_required"
++    return "pass"
++
++
++@pytest.mark.parametrize("gid", sorted(PROEFTEKSTEN))
++def test_ontwikkelregressie_volgt_adjudicatie(gid):
++    """Automatische zinsstatus en grenspassages volgen de verzegelde
++    adjudicatie; de labels worden gelezen, niet overschreven."""
++    case = _proefcases("t24-adjudicatie-v1.json")[gid]
++    seg = segmenteer(PROEFTEKSTEN[gid])
++    assert _zinsstatus(seg) == case["sentence_status"]
++    zeker = [g.passage for g in seg.zekere_grenzen]
++    onzeker = [g.passage for g in seg.onzekere_grenzen]
++    for grens in case["boundaries"]:
++        passages = zeker if grens["expected"] == "zeker" else onzeker
++        assert any(grens["passage"] in p for p in passages), (grens, seg)
++    if case["boundary_passage"]:
++        assert any(case["boundary_passage"] in p for p in zeker + onzeker), seg
++
++
++# ── Service (beide laadpaden), actualiteit en contract ──────────────────
++
++
++@pytest.fixture(
++    scope="module", params=["toetsregel_manager", "cached_manager (productiepad)"]
++)
++def svc(request) -> ModularValidationService:
++    if request.param.startswith("cached_manager"):
++        from toetsregels.cached_manager import get_cached_toetsregel_manager
++        from toetsregels.rule_cache import get_rule_cache
++
++        get_rule_cache().clear_cache()
++        manager = get_cached_toetsregel_manager()
++    else:
++        manager = get_toetsregel_manager()
++    return ModularValidationService(manager, None, None)
++
++
++OPEN = {"compactheid": "review_required", "begrijpelijkheid": "review_required"}
++
++
++@pytest.mark.asyncio
++@pytest.mark.parametrize(
++    ("tekst", "status", "delen"),
++    [
++        pytest.param(P_T15, "review_required", {"zinsstructuur": "pass"}, id="T15"),
++        pytest.param(
++            P_T17,
++            "review_required",
++            {"zinsgrens_onzeker_1": "review_required"},
++            id="T17",
++        ),
++        pytest.param(
++            P_T20,
++            "fail",
++            {"zinsgrens_1": "fail", "zinsgrens_onzeker_1": "review_required"},
++            id="T20",
++        ),
++        pytest.param(P_T08, "fail", {"zinsgrens_1": "fail"}, id="T08"),
++    ],
++)
++async def test_service_beide_laadpaden(svc, tekst, status, delen):
++    res = await svc.validate_definition(
++        begrip="object", text=tekst, ontologische_categorie=None, context={}
++    )
++    assert res["rule_statuses"]["INT-01"] == status
++    assert "INT-01" not in res["passed_rules"]
++    detail = res["rule_results"]["INT-01"]
++    assert detail["contract_version"] == CONTRACTVERSIE
++    assert {p["id"]: p["status"] for p in detail["parts"]} == {**delen, **OPEN}
++
++
++@pytest.mark.parametrize("gid", sorted(PROEFTEKSTEN))
++def test_uitkomst_onder_contract_8_geldt_niet_als_actueel(gid):
++    tekst = PROEFTEKSTEN[gid]
++    oud = dict(bouw_beoordeling(tekst, 1), contract_version="def770-int01/8")
++    gelezen = lees_beoordeling(oud, tekst)
++    assert gelezen["applied"] is False
++    assert "contractversie" in gelezen["applied_reason"]
++
++
++def test_contractversie_is_9_na_citaatcorrectie():
++    """/8 (citaatbeleid) is proefbron van effectproeven-citaatbeleid-20260925-v1.
++    Deze correctie verandert de runtime-interpretatie (lijstblok, citaatslot met
++    scheidingsteken, voorbeeldcode na afkorting), dus /8 → /9."""
++    assert CONTRACTVERSIE == "def770-int01/9"

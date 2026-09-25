@@ -1,0 +1,16 @@
+{
+  "purpose": "Afzonderlijke generatiebron; geen classifier- of effectvrijgave",
+  "reviewed_base": "7ee7d7d293770dd86f2dd70f1b4945b25ead3c94",
+  "generation_files": {
+    "src/services/prompts/modules/definition_task_module.py": "fbdb9e1923318733e47289b0b55ae34e7960ef31a4f9c0a061ad2b60897ba591",
+    "src/services/prompts/modules/json_based_rules_module.py": "60bad74b7efdff31ac791095af28f1d4624eb14174023b147b3fb4a3e4820700",
+    "tests/unit/services/prompts/test_def770_vervolg_betekenisbehoud.py": "8eccb32a69d609d192195658e6d3fa8392b6ea487fb437cf98bf5b2bfa310ed7"
+  },
+  "reviewer_session": "01a0cfac-ea05-7700-ba73-8b5659751c1c",
+  "reviews": [
+    "vervolg-astra-review-v1.md",
+    "vervolg-astra-review-v2.md",
+    "vervolg-astra-review-v3.md"
+  ],
+  "limits": "Brede v3-unitgate is op gecombineerde werkbron gedraaid, inclusief nog niet gecommitteerde classifiercorrecties en vijf nieuwe T20-xfail. Geen claim volledige gate op afzonderlijke generatiecommit; werkelijke g24-prepare en promptdoorwerking binden generatieketen afzonderlijk."
+}

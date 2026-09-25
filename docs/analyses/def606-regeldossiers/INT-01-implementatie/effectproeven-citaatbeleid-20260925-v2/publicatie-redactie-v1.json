@@ -1,0 +1,39 @@
+{
+  "reason": "Twaalf gitleaks-meldingen in vier rapporten; exact dezelfde uit testbron samengestelde sleutel-testfixture in geparametriseerde testnamen. Geen scanneruitzondering toegepast.",
+  "fixture_source": "tests/unit/utils/test_pii_redaction_api_keys.py",
+  "fixture_symbol": "_PROJECT_OPENAI_KEY",
+  "fixture_source_sha256": "0581339e66acae6bdcb25a8cda03ebfe09bfa8fdb27a48f463b87faf7e2731bd",
+  "total_replacements": 12,
+  "files": [
+    {
+      "original_local": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v3-junit.xml",
+      "published": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v3-junit-geredigeerd.xml",
+      "replacements": 3,
+      "raw_sha256": "84052e7ab4d53373927292f557cb13d439911f6976398650b39aa81f85681b56",
+      "published_sha256": "cce4962c7387e5dbfbb4a6fbacd02996c017c3c9a77026959a66ff389941adb2"
+    },
+    {
+      "original_local": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v3-inventaris.json",
+      "published": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v3-inventaris-geredigeerd.json",
+      "replacements": 3,
+      "raw_sha256": "53bd2786f247a3f4f29975b53a2248d1eaf94b8e1645cf6e711bcaf1583fcdca",
+      "published_sha256": "0cd3e3637f7ad100e787016a7cd0d3773b4083b2142baaa91bda5e5021bc0901"
+    },
+    {
+      "original_local": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v4-junit.xml",
+      "published": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v4-junit-geredigeerd.xml",
+      "replacements": 3,
+      "raw_sha256": "e6689e9a254e0ca5a4530d746b7b4530dd13bf37aafd3356060312201ae75db9",
+      "published_sha256": "cefa81de9714b37025f558b36c30b2cc479d35beb9a3169f33af9bb8c73e8940"
+    },
+    {
+      "original_local": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v4-inventaris.json",
+      "published": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v4-inventaris-geredigeerd.json",
+      "replacements": 3,
+      "raw_sha256": "dc37a00a25d2404f3426c1b473b2bdae448790a032c3e1016fd57a7f87f1ad3a",
+      "published_sha256": "f78ce548447d08eb7efdef169a65cc9f847bfcb477e603669c9a8600f9bdeb08"
+    }
+  ],
+  "test_counts_and_outcomes_unchanged": true,
+  "original_publication_manifest_local": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/publicatiebinding-v2.json"
+}

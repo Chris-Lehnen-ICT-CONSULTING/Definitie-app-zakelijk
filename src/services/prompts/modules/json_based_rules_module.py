@@ -43,6 +43,21 @@ def _is_contextgebonden(regel_key: str) -> bool:
     )
 
 
+# DEF-770: de integrity_rules-module is altijd actief omdat INT-01 (één compacte
+# zin) voor elke definitie geldt. De overige INT-regels behouden hun bestaande
+# DEF-123-toepasselijkheid: alleen bij juridische of wettelijke context — smal:
+# zonder die context krijgt de prompt precies INT-01 erbij en niets anders.
+_JURIDISCH_GEBONDEN_PREFIX = "INT"
+_JURIDISCH_VRIJE_REGELS: frozenset[str] = frozenset({"INT-01"})
+
+
+def _is_juridisch_gebonden(regel_key: str) -> bool:
+    return (
+        regel_key.startswith(_JURIDISCH_GEBONDEN_PREFIX)
+        and regel_key not in _JURIDISCH_VRIJE_REGELS
+    )
+
+
 class JSONBasedRulesModule(BasePromptModule):
     """
     Generieke module voor validatieregels die uit JSON worden geladen.
@@ -160,8 +175,13 @@ class JSONBasedRulesModule(BasePromptModule):
 
             # DEF-743: contextgebonden regels alleen tonen als er context is.
             has_context = self._has_any_context(context)
+            # DEF-770: INT-regels behalve INT-01 alleen bij juridische context.
+            has_legal = self._has_legal_context(context)
             rules_skipped = sorted(
-                k for k in filtered_rules if not has_context and _is_contextgebonden(k)
+                k
+                for k in filtered_rules
+                if (not has_context and _is_contextgebonden(k))
+                or (not has_legal and _is_juridisch_gebonden(k))
             )
             shown_rules = {
                 k: v for k, v in filtered_rules.items() if k not in rules_skipped
@@ -222,6 +242,20 @@ class JSONBasedRulesModule(BasePromptModule):
             return False
         try:
             return bool(predicate())
+        except (AttributeError, TypeError):
+            return False
+
+    @staticmethod
+    def _has_legal_context(context: ModuleContext) -> bool:
+        """DEF-770: hetzelfde predicaat als de orchestrator voor DEF-123
+        (juridische of wettelijke context); faalt gesloten naar False."""
+        enriched = getattr(context, "enriched_context", None)
+        predicates = [
+            getattr(enriched, naam, None)
+            for naam in ("has_juridische_context", "has_wettelijke_context")
+        ]
+        try:
+            return any(bool(p()) for p in predicates if callable(p))
         except (AttributeError, TypeError):
             return False
 
@@ -300,8 +334,22 @@ class JSONBasedRulesModule(BasePromptModule):
             "ARAI-02SUB1": "Vermijd algemene containertermen zoals 'aspect', 'ding', 'iets', 'element', 'factor'",
             "ARAI-02SUB2": "Vermijd ongespecificeerde containerbegrippen zoals 'proces', 'voorziening', 'activiteit'",
             "ARAI-03": "Vermijd subjectieve of contextafhankelijke bijvoeglijke naamwoorden",
-            "ARAI-04": "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'",
-            "ARAI-04SUB1": "Vermijd modale werkwoorden die onduidelijkheid scheppen over de essentie van het begrip",
+            # DEF-770 vervolg: het ARAI-04-voorbeeld ('kan beperken' → 'beperkt')
+            # gaf geen voorrang aan bronmodaliteit; in G24 werd 'hoeft niet'
+            # een eis. De regel blijft, met één voorrangsregel.
+            "ARAI-04": (
+                "Vermijd modale hulpwerkwoorden zoals 'kan', 'moet', 'mag', 'zal'. "
+                "Drukt de bron een mogelijkheid, toestemming of niet-verplichting "
+                "uit, maak daar dan geen feit of eis van: laat haar weg als zij het "
+                "begrip niet afbakent, en druk haar anders uit zonder modaal "
+                "werkwoord ('-baar', 'al dan niet', 'ongeacht')"
+            ),
+            "ARAI-04SUB1": (
+                "Vermijd modale werkwoorden die onduidelijkheid scheppen over de "
+                "essentie van het begrip; een mogelijkheid, toestemming of "
+                "niet-verplichting uit de bron wordt daardoor geen feit of eis "
+                "(zie ARAI-04)"
+            ),
             "ARAI-05": "Vermijd impliciete verwijzingen naar aannames, gewoonten of niet-toegelichte contexten",
             "ARAI-06": "Start zonder lidwoord ('de', 'het', 'een'), zonder koppelwerkwoord ('is', 'betekent') en zonder herhaling van het begrip",
             # ESS rules (Essentie)
@@ -387,7 +435,18 @@ class JSONBasedRulesModule(BasePromptModule):
                 "toelichtende uitweiding toe; aanvullende uitleg hoort apart. Behoud "
                 "een kenmerk ook als het een verschil met een verwant begrip "
                 "uitdrukt, en behoud negaties en de bronbetekenis: maak de betekenis "
-                "niet smaller of ruimer om korter te formuleren. Is geen doelgroep "
+                "niet smaller of ruimer om korter te formuleren. Dat geldt ook bij "
+                "herformuleren om een andere regel te volgen: maak van een "
+                "mogelijkheid geen feit (druk haar zo nodig zonder modaal werkwoord "
+                "uit, bijvoorbeeld met ‘-baar’), houd ‘uitsluitend’ bij het deel "
+                "waarop het slaat, formuleer een afbakenende toepassings- of "
+                "eindvoorwaarde, met het gevolg dat de bron eraan koppelt, als "
+                "kenmerk in plaats van haar weg te laten, laat "
+                "een verwijzing zoals ‘die’ naar één antecedent wijzen, en behoud "
+                "een brongebonden beperking zoals ‘is op zichzelf geen bewijs van "
+                "…’ wanneer zij het begrip afbakent. Neem bronbijzaken die het "
+                "begrip niet afbakenen niet op, ook geen eigenschap die volgens de "
+                "bron mag wisselen. Is geen doelgroep "
                 "vastgelegd, veronderstel er dan geen; de registratiecontext is geen "
                 "doelgroep. Verzin geen context of bron"
             ),

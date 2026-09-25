@@ -1,0 +1,39 @@
+{
+  "soort": "DEF-770 G24 count_tokens",
+  "opdracht_ref": "Chris 2026-09-24: voer T24 en G24 uit; deze fase uitsluitend gratis tokentelling, geen generatie en geen budgetakkoord",
+  "manifest_sha256": "66b34f46901ebd768ac66eae3f9d53d63fd79f9e46bfd81082e1e6d30f986848",
+  "tijd": "2026-09-24T14:30:38+0200",
+  "tellingen": {
+    "79254e03387e9cacaecaeeee16d3491bfbad2aeb66f4641b92d54c6446194c7d": {
+      "input_tokens": 13543
+    },
+    "0560012659bef74d196ab28dad7f753fa472cf19d5788b0ff193c4eb9dbb7a8d": {
+      "input_tokens": 17116
+    },
+    "0c2bf8d22710c87d03425c66564897be88de3195b71c4770fd2fff7970b6f39a": {
+      "input_tokens": 17063
+    },
+    "3158aa2b5ce57805364758530e1c6464839a4ba1af2264f2c8f3e35dcf414cbf": {
+      "input_tokens": 13515
+    },
+    "0a8ec76c2c888eaa0fd4b166202817db408d858c485f5ed0456dc3fb49e3d194": {
+      "input_tokens": 13561
+    },
+    "4484dc3d09649a79e33367b5b7721f67d622ade8ceb8e4a31380fd4ebbaa7869": {
+      "input_tokens": 17455
+    },
+    "0538a555f8233f5a50eec29071ead6536c007705bb33e55a4f9bead95e8ca887": {
+      "input_tokens": 17456
+    },
+    "a7aa746eda4c36d9a47eb21afa967a038e6b34e73dcdbc4fd2259d826e96f275": {
+      "input_tokens": 17403
+    },
+    "302ba617b3b058053d6cb9dbe81fe8f33470a6bfe5f8fea972b8de8f725f2012": {
+      "input_tokens": 17795
+    }
+  },
+  "max_kosten_usd_totaal": 2.45526,
+  "raming": "per aanroep input x $5/MTok + max_tokens x $25/MTok",
+  "plafond_usd": 5.0,
+  "binnen_plafond": true
+}

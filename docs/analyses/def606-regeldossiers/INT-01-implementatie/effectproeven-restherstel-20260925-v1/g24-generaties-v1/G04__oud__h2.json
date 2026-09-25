@@ -1,0 +1,64 @@
+{
+  "call_id": "G04__oud__h2",
+  "request_sha256": "2b18ca925211899474324bf95241255284932f5b438bd6f1ea7f9d31c729d045",
+  "manifest_sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce",
+  "counts_sha256": "76560d4e8acd0e8af9c1c6286dbd85c2a7e33c7d41fe900947c19069d07ce9f0",
+  "goedkeuring_sha256": "f54cd9fcfe48715180553a47ff807969640cbed9f1d98461c4cc903c601a9c5d",
+  "geteld_input_tokens": 13643,
+  "tijd": "2026-09-25T09:42:31+0200",
+  "duur_s": 3.007,
+  "bericht_id": "msg_011CfPnJ5mfYjCP1hganrAuk",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 13643,
+    "output_tokens": 150,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt",
+  "ruwe_response": {
+    "id": "msg_011CfPnJ5mfYjCP1hganrAuk",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 13643,
+      "output_tokens": 150,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

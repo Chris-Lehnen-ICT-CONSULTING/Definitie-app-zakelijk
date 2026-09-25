@@ -1,0 +1,10 @@
+{
+  "utc": "2026-09-24T17:23:10.063558+00:00",
+  "sha256": {
+    "g24-blind-v1.json": "c669a8a13349a1c7ce8f254d42f830c52abba18c265dad4ef87f973b3ea51590",
+    "g24-beoordeling-A-v1.json": "a447cf1fc1044539c87c97b53e903b6c2deefc3b5f4b8e96893ccf78dee141a7",
+    "g24-beoordeling-B-v1.json": "79618440353bc9cde3ab12e258939072aa31d23d70f90d137272e73aa05b83d5"
+  },
+  "no_tools": true,
+  "variantidentiteit_verborgen": true
+}

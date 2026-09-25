@@ -1,0 +1,7 @@
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/toetsregels/regels/INT-01.json: trailing-whitespace regels=[] eof_ok=True
+/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-toetsregels/reference.md: trailing-whitespace regels=[] eof_ok=True
+INT-01.json: json geldig
+$ (cwd skills) /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python scripts/stale_reference_detector.py
+✅ Geen stale references gevonden.
+stale-references exit=0
+whitespace/eof fouten=0

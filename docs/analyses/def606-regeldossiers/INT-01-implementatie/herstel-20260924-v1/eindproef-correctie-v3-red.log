@@ -1,0 +1,62 @@
+........................................................................ [ 26%]
+.................F...................................................... [ 53%]
+......F.F..........F.F.................................................. [ 80%]
+...........F......................F................                      [100%]
+=================================== FAILURES ===================================
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+E   AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+    assert 0 == 1
+     +  where 0 = len(())
+     +    where () = Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False).onzekere_grenzen
+/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py:384: AssertionError: Segmentatie(zekere_grenzen=(), onzekere_grenzen=(), geheel_geciteerd=False)
+=============================== warnings summary ===============================
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[e1-T23]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[zeker-fail]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[e1-T20]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[T24]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[T15]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[e1-T17]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[T19]
+tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_opslag_en_teruglezen[e1-T18]
+  /Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/database/definitie_crud.py:374: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e3-haakjes-afkorting-uitroep]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e3-haakjes-uitroep-psst]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e2-haakjes-getal-eenheid]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e3-haakjes-uitroep-brr]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e3-haakjes-consonant-vraag]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e3-haakjes-consonant-punt]
+FAILED tests/unit/validation/test_def770_herstel_zinsgrenzen.py::test_segmentatie[e3-haakjes-een-letter]
+exit=1

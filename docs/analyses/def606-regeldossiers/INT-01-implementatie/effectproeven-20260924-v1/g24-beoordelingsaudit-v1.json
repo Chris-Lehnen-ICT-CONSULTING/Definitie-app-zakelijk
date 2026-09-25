@@ -1,0 +1,49 @@
+{
+  "rollen": [
+    {
+      "rol": "A",
+      "sessie": "01a0d32b-97d9-7ad0-afe6-6b8beb1ba821",
+      "itemtypes": [
+        "error",
+        "error",
+        "agent_message"
+      ],
+      "einde": "turn.completed",
+      "model_opdracht": "gpt-6-astra",
+      "reasoning_opdracht": "high",
+      "tools_gebruikt": false,
+      "log": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/g24-beoordeling-A-sessie-v1.jsonl",
+      "uitvoer_sha256": "cbfe7786cc12c2c8b5b0601f84a7fb5b4a18ccead8801a3966832dd8a7c90f1c"
+    },
+    {
+      "rol": "B",
+      "sessie": "01a0d32b-8074-7fe1-915f-4d9930ed41f5",
+      "itemtypes": [
+        "error",
+        "error",
+        "agent_message"
+      ],
+      "einde": "turn.completed",
+      "model_opdracht": "gpt-6-astra",
+      "reasoning_opdracht": "high",
+      "tools_gebruikt": false,
+      "log": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/g24-beoordeling-B-sessie-v1.jsonl",
+      "uitvoer_sha256": "27b7897ec068fe48aeacfd9747893dbaff182ea5ef8b95a2b30f8b0189b924d3"
+    }
+  ],
+  "verschillen_op_assen": [
+    {
+      "id": "B05",
+      "as": "compactheid",
+      "A": "tekort",
+      "B": "voldoet"
+    },
+    {
+      "id": "B07",
+      "as": "bronsteun",
+      "A": "voldoet",
+      "B": "onzeker"
+    }
+  ],
+  "beide_cli_exitcode": 0
+}

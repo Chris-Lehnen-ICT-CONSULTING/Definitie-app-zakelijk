@@ -1,0 +1,64 @@
+{
+  "call_id": "G03__oud__h2",
+  "request_sha256": "f5774c2867c9f13ab7d5688f0a8fe8fb83079ddb333fcdf283037f0684b7b5d2",
+  "manifest_sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce",
+  "counts_sha256": "76560d4e8acd0e8af9c1c6286dbd85c2a7e33c7d41fe900947c19069d07ce9f0",
+  "goedkeuring_sha256": "f54cd9fcfe48715180553a47ff807969640cbed9f1d98461c4cc903c601a9c5d",
+  "geteld_input_tokens": 13510,
+  "tijd": "2026-09-25T09:42:24+0200",
+  "duur_s": 2.478,
+  "bericht_id": "msg_011CfPnHfcrfWmgamzuZk2fR",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 13510,
+    "output_tokens": 110,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+  "ruwe_response": {
+    "id": "msg_011CfPnHfcrfWmgamzuZk2fR",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 13510,
+      "output_tokens": 110,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

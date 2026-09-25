@@ -1,0 +1,20 @@
+{
+  "utc": "2026-09-25T05:31:12.077566+00:00",
+  "app_commit": "23cc51bfddc5ee9393dea52e6a52a55b3e65615d",
+  "skills_commit": "a048806c67a441103a2d229d0247f3c8c26f326b",
+  "archive": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-vervolg/bron-titelbeleid-v1.tar",
+  "archive_sha256": "15c7c4e4f138d31007e7db5bb646f4cb8080cf04292201c41a7e6d44651d8760",
+  "review_manifest_sha256": "94377ed4a29e919113a37d7241c03b7d7b5c83b3aad30895657b205ea56f83d6",
+  "source_byte_equal_after_hooks": true,
+  "unit_gate": {
+    "passed": 7374,
+    "skipped": 75,
+    "xfail": 1,
+    "subtests": 21,
+    "exit_code": 0
+  },
+  "t24_input_sha256": "550217186cd27a82901754f22d2ceb48b8b2dafb9f54af13b46fb36c4516299c",
+  "contract_sha256": "e67b4207f35e9eb18a95d8d91d61517aa9c7471ad4f84154f46a016f31463300",
+  "generation_commit": "ad45a0a8af1026822d5d3ed942ca986edd11988d",
+  "generation_source_unchanged": true
+}

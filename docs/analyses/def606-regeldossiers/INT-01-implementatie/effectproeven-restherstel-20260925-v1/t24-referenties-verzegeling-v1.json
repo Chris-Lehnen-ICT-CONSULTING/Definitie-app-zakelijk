@@ -1,0 +1,36 @@
+{
+  "sealed_at": "2026-09-25T07:35:20.185092+00:00",
+  "app_execution_started": false,
+  "adjudicator_session": "01a0d77a-8883-7200-82a6-23906e771057",
+  "tools_used": false,
+  "files": [
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/t24-gevallen-v1.json",
+      "sha256": "ea9845f29ed93651afc3f4879c282ac9b517eafbfd830f191da0ccb73b5c9dca"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/referentie-contract-v2.md",
+      "sha256": "fb1bf1590a415e1e41b068e12f20b791f6e799def59c00dcc7bf2befee637d43"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/t24-referentie-A-v1.json",
+      "sha256": "53f586c42475c59e336ca14481c2ac319b42926365a301a77a61a424ae5e07ad"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/t24-referentie-B-v1.json",
+      "sha256": "a16a3881bd0e8dcb06a2302151c67b00bce19c9217331f4dc1beb9c43379f4cd"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/t24-adjudicatie-v1.json",
+      "sha256": "c1e27b95587f83fd32656b557f951c9fd9a2c7322b0dd58e1a70f6771a9e4ad6"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/t24-eerste-oordelen-verzegeling-v1.json",
+      "sha256": "c7db22528a9fe559460afa444cebbd854d0fdb7ebf283b7343b692a79914f209"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/bronfreeze-product-v1.json",
+      "sha256": "42644d7d4ab7640a49bba6c17032b509ea764d4844bd17debf2fe5082e5d8384"
+    }
+  ]
+}

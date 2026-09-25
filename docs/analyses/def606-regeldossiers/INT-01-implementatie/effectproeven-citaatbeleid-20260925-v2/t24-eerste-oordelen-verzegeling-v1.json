@@ -1,0 +1,37 @@
+{
+  "at": "2026-09-25T09:27:01.956171+00:00",
+  "roles": [
+    {
+      "role": "A",
+      "session": "01a0d7e0-5f4f-76c0-8f7a-af7018e21eb6",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0
+    },
+    {
+      "role": "B",
+      "session": "01a0d7e0-7131-7542-b99f-70b0dbd04e5c",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "tool_calls": 0
+    }
+  ],
+  "files": [
+    {
+      "path": "t24-gevallen-v1.json",
+      "sha256": "91bdd44016bfa4ff4eb1745c395c26c934e3ef7dac3895a042b2cb5b6412effe"
+    },
+    {
+      "path": "referentie-contract-v1.md",
+      "sha256": "0a5390359a1eb66b9b8e8f1cb9e402777175181d273d76b3902547088f1d0170"
+    },
+    {
+      "path": "t24-referentie-A-v1.json",
+      "sha256": "be6a54336f06d0b92c7a82a0e6efb81709edc823b5e880f9cc55f33ad6ebe8f3"
+    },
+    {
+      "path": "t24-referentie-B-v1.json",
+      "sha256": "fb51c176758b0ba05e3bb913056cfeac7710c626c71394a4d4b73fa1e22f2b1d"
+    }
+  ]
+}
