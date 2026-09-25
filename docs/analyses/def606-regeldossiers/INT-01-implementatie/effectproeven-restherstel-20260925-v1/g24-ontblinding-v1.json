@@ -1,0 +1,140 @@
+{
+  "unblinded_at": "2026-09-25T08:01:51.372775+00:00",
+  "adjudication_sealed_before_unblinding": true,
+  "sealed_adjudication_sha256": "6a7d17c85b5d41aa69b56d4113d7869b3689367eb6c79b7ca62a73ac237bf850",
+  "counts_raw": {
+    "gelijk": 9,
+    "nieuw_beter": 3
+  },
+  "counts_clean": {
+    "gelijk": 9,
+    "nieuw_beter": 3
+  },
+  "new_error_pairs": [],
+  "onopgeloste_disputen": [
+    "B01, B12, B18 en B23: de medewerker is niet expliciet genoemd. De dossiercontext ondersteunt impliciet behoud, maar de teksten maken niet eenduidig herkenbaar dat juist deze actor afbakenend is. Definitieve classificatie als volledig behouden of daadwerkelijk verloren blijft onzeker; dit geldt gelijk voor ruw en opgeschoond.",
+    "B01 en B12: niet eenduidig vast te stellen of de slotbijzin alleen administratieve verwerking beschrijft of uitgevoerde koppeling als extra categorievoorwaarde presenteert. Ook het antecedent van 'dat' blijft onduidelijk. De paarvoorkeuren erkennen het vermijden van deze onzekerheid, niet een bewezen bronfout."
+  ],
+  "rows": [
+    {
+      "pair": "P01",
+      "dossier": "G04",
+      "herhaling": 2,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B08 en Y=B04 behouden dezelfde enkelvoudige keuze uit drie gesloten categorieën. Beide missen het uitdrukkelijke intrekkingsbericht en de verdere behandeling onder een ander aanvraagnummer. In geen richting is een inhoudelijke verbetering aangetoond.",
+      "error_comparison": "Gedeelde betekenis- en compactheidstekorten volgens G04-P01. 'Precies één' tegenover 'als enige grond' en 'grond' tegenover 'waarde' veroorzaken geen nieuwe fout of inhoudelijke verslechtering. Y formuleert directer; dat is hier geen inhoudelijke winst."
+    },
+    {
+      "pair": "P02",
+      "dossier": "G01",
+      "herhaling": 2,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B06 maakt planning expliciet; Y=B05 maakt het onderscheid met de gebruiksperiode expliciet. Beide behouden binnen G01-P01 de volledige afbakening, ook waar die impliciet is.",
+      "error_comparison": "X verliest de gebruiksperiodenegatie niet inhoudelijk; Y introduceert geen aantoonbare eis van feitelijke afhaling. In geen richting is een inhoudelijke verbetering, nieuwe fout of verslechtering vastgesteld."
+    },
+    {
+      "pair": "P03",
+      "dossier": "G01",
+      "herhaling": 1,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B10 en Y=B13 behouden dezelfde tijdgrenzen, werkplaatskoppeling, afhaalbestemming en scheiding met de gebruiksperiode. Y maakt planning explicieter, maar herstelt geen aangetoond inhoudelijk gebrek.",
+      "error_comparison": "Geen nieuwe bron- of betekenisfout in enige richting. 'Gepland' en 'afhalende' in Y veranderen de in X contextueel behouden betekenis niet; de lichte woordelijke overlap in Y is geen wezenlijke verslechtering."
+    },
+    {
+      "pair": "P04",
+      "dossier": "G06",
+      "herhaling": 2,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B11 en Y=B21 behouden alle voorwaarden en negaties uit G06-P01. X beschrijft de toestand bij verlening vloeiender; Y blijft inhoudelijk voldoende duidelijk.",
+      "error_comparison": "Geen aangetoonde inhoudelijke verbetering of verslechtering in enige richting. 'Overgaat' in Y blijft afhankelijk van afzonderlijke bevestiging na inventariscontrole. 'Eerder' in Y voegt geen ontbrekende vervalgrond toe aan X's 'of zodra'."
+    },
+    {
+      "pair": "P05",
+      "dossier": "G03",
+      "herhaling": 2,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B09 en Y=B15 behouden schriftelijkheid, volledige commissienaam, vaststelling, bezoekersvolgorde en afwezigheid van uitvoeringsplicht. De verschillende zinsbouw levert geen inhoudelijke winst op.",
+      "error_comparison": "Geen nieuwe fout of verslechtering in enige richting. 'Beschrijft' in Y blijft onder de kern 'schriftelijke aanbeveling' adviserend; beide sluiten niet-vastgestelde concepten uit volgens G03-P01."
+    },
+    {
+      "pair": "P06",
+      "dossier": "G05",
+      "herhaling": 2,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B03 introduceert het interval directer; Y=B16 specificeert onmiddellijk dezelfde meetpunten voor dezelfde wijziging. Beide behouden de uitsluitingen en passende vaktaal uit G05-P01.",
+      "error_comparison": "Geen inhoudelijke verbetering, nieuwe fout of wezenlijke verslechtering in enige richting. Y's minder directe opening wordt binnen dezelfde definitie opgehelderd; duurzame vastlegging blijft in beide via 'commit' behouden."
+    },
+    {
+      "pair": "P07",
+      "dossier": "G02",
+      "herhaling": 1,
+      "ruw": "nieuw_beter",
+      "opgeschoond": "nieuw_beter",
+      "new_error": false,
+      "reason": "X=B23 behoudt oorspronkelijke verstrekking en dezelfde aanvraag impliciet, en vermijdt de onduidelijke slotverwijzing en mogelijke aanvullende koppelingseis van Y=B01. De inhoudelijke afbakening wordt daardoor duidelijker zonder nieuw aangetoond verlies.",
+      "error_comparison": "Beide behouden onzekerheid over de medewerker als afbakenende actor. X introduceert geen nieuwe fout of verslechtering. Y noemt oorspronkelijke aanlevering explicieter, maar verbetert daarmee geen ontbrekende betekenis in X en introduceert onzekerheid over administratieve koppeling als categorievoorwaarde. Dat is een verslechtering in afbakeningsduidelijkheid, geen vastgestelde bron- of betekenisfout; daarom blijven beide foutbooleans false."
+    },
+    {
+      "pair": "P08",
+      "dossier": "G04",
+      "herhaling": 1,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B02 en Y=B07 behouden dezelfde gesloten keuze uit precies drie categorieën en missen dezelfde voorwaarden bij intrekking en samenvoeging. Geen richting levert inhoudelijke verbetering op.",
+      "error_comparison": "De gedeelde fouten blijven: geen uitdrukkelijk intrekkingsbericht en geen verdere behandeling onder een ander aanvraagnummer. 'Grond' tegenover 'waarde' veroorzaakt binnen G04-P01 geen nieuwe fout of verslechtering."
+    },
+    {
+      "pair": "P09",
+      "dossier": "G02",
+      "herhaling": 2,
+      "ruw": "nieuw_beter",
+      "opgeschoond": "nieuw_beter",
+      "new_error": false,
+      "reason": "Y=B18 behoudt oorspronkelijke verstrekking en dezelfde aanvraag expliciet, zonder de onduidelijke slotverwijzing en mogelijke aanvullende koppelingseis van X=B12. Dit verbetert de duidelijkheid van de inhoudelijke afbakening.",
+      "error_comparison": "De actoronzekerheid is gedeeld. Y introduceert geen nieuwe fout of verslechtering; ontvangstkanaalonafhankelijkheid is bronondersteund. X voegt een bronondersteunde verwerkingshandeling toe, maar maakt haar status als mogelijke categorievoorwaarde onzeker. Die verslechtering is geen bewezen fout, zodat beide foutbooleans false blijven."
+    },
+    {
+      "pair": "P10",
+      "dossier": "G05",
+      "herhaling": 1,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B14 en Y=B24 behouden hetzelfde interval per wijziging. Y noemt 'per wijziging' en het tekenen van resultaten explicieter; X bewaart die betekenis voldoende via dezelfde wijziging en uitgesloten schermweergavetijd.",
+      "error_comparison": "Geen aangetoonde inhoudelijke verbetering, nieuwe fout of verslechtering in enige richting. Beide bewaren de meetpunten en uitsluitingen uit G05-P01."
+    },
+    {
+      "pair": "P11",
+      "dossier": "G06",
+      "herhaling": 1,
+      "ruw": "nieuw_beter",
+      "opgeschoond": "nieuw_beter",
+      "new_error": false,
+      "reason": "X=B20 behoudt openstaande inventariscontrole als toestand bij verlening en vereist afzonderlijke bevestiging na die controle. Y=B22 maakt openstaan tot voortdurende toestemmingsvoorwaarde en verliest de noodzakelijke volgorde voor volledige vrijgave.",
+      "error_comparison": "X herstelt ten opzichte van Y twee inhoudelijke punten zonder nieuwe fout of verslechtering. Y introduceert met 'zolang' een niet-ondersteunde beperking en laat 'na controle van de inventarislijst' bij de overgang weg. De kortere tekst van Y is daarom geen verbetering; de extra lengte van X draagt noodzakelijke betekenis uit G06-P01."
+    },
+    {
+      "pair": "P12",
+      "dossier": "G03",
+      "herhaling": 1,
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "new_error": false,
+      "reason": "X=B19 en Y=B17 behouden alle beschermde kenmerken, de volledige commissienaam en beide negaties. Verschillen in zinsbouw en generiek enkelvoud tegenover meervoud leveren geen inhoudelijke winst op.",
+      "error_comparison": "Geen nieuwe fout of verslechtering in enige richting. 'Een gesimuleerde loketdag' in Y introduceert binnen G03-P01 geen aantoonbare beperking tot een eenmalig bruikbaar advies."
+    }
+  ]
+}

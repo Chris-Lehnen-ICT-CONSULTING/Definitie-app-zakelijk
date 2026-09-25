@@ -1,0 +1,193 @@
+[
+  {
+    "id": "G01",
+    "stratum": "gewone kern",
+    "begrip": "uitleenvenster",
+    "organisatorische_context": [
+      "Fictieve publieke organisatie: Gemeentelijke Materialendienst Lommerdam.",
+      "Interne planning van afhaalmomenten voor gedeelde oefenmaterialen."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G01-P01",
+        "tekst": "De Gemeentelijke Materialendienst Lommerdam beheert oefenmaterialen voor fictieve wijkwerkplaatsen. In de planning worden tijdvakken vastgelegd waarin een werkplaats gereserveerde materialen bij het magazijn kan ophalen. Medewerkers noemen zo'n tijdvak een uitleenvenster. Bij ieder venster horen een beginmoment, een eindmoment en precies één afhalende werkplaats. Het venster betreft uitsluitend het ophalen; de periode waarin de materialen worden gebruikt, staat elders geregistreerd. Een materiaalreservering kan al bestaan voordat een venster is gekozen. Vensters duren meestal twintig minuten, maar de planner mag een andere duur kiezen. Op drukke dagen gebruikt het team een groen planbord en stuurt het de werkplaats vooraf een herinnering. Die werkwijzen helpen bij de uitvoering, maar bepalen niet of een gepland tijdvak een uitleenvenster is. Ook zonder herinnering of planbord blijft een correct vastgelegd venster geldig binnen deze interne administratie.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Het dossier onderscheidt het geplande afhaalmoment van zowel de materiaalreservering als de gebruiksperiode. Gebruikelijke duur en ondersteunende werkafspraken mogen die afbakening niet vervangen.",
+    "doelgroep": "Planners en magazijnmedewerkers zonder specialistische opleiding.",
+    "beschermde_kenmerken": [
+      "Tijdvak met beginmoment en eindmoment.",
+      "Bestemd voor het ophalen van gereserveerde materialen.",
+      "Gekoppeld aan precies één afhalende werkplaats."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Het uitleenvenster betreft niet de gebruiksperiode van de materialen.",
+      "Een reservering alleen is nog geen uitleenvenster."
+    ]
+  },
+  {
+    "id": "G02",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "herstelmelding",
+    "organisatorische_context": [
+      "Fictieve publieke organisatie: Regionaal Oefenloket Veenzoom.",
+      "Interne behandeling van onvolledig overgenomen aanvragen voor oefenruimten."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G02-P01",
+        "tekst": "Het Regionaal Oefenloket Veenzoom ontvangt aanvragen voor het gebruik van oefenruimten. Bij het overnemen van een aanvraag kan een medewerker een gegeven weglaten dat de aanvrager oorspronkelijk wel heeft aangeleverd. Een bericht van de aanvrager waarin juist zo'n ontbrekend gegeven opnieuw wordt verstrekt, wordt intern als herstelmelding behandeld. Het verband met de eerdere aanlevering is noodzakelijk: een bericht met een pas later bedacht gegeven valt onder aanvulling. Een klacht over de snelheid van behandeling valt evenmin onder herstelmelding. De medewerker koppelt het bericht aan de oorspronkelijke aanvraag en controleert de oorspronkelijke aanlevering. Het bericht mag via het portaal, per brief of aan de balie binnenkomen. Portaalberichten krijgen doorgaans een blauwe markering. Het loket bespreekt aantallen tijdens het maandelijkse teamoverleg, maar ontvangstkanaal, kleur en bespreekmoment veranderen de inhoudelijke categorie van het bericht niet.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De relatie tussen het opnieuw verstrekte gegeven, de oorspronkelijke aanlevering en het weglaten door een medewerker bepaalt de afbakening. Een algemene omschrijving als correctiebericht zou dat onderscheid onvoldoende dragen.",
+    "doelgroep": "Baliemedewerkers en medewerkers die aanvragen registreren.",
+    "beschermde_kenmerken": [
+      "Bericht van de aanvrager.",
+      "Het bericht verstrekt opnieuw een gegeven uit de oorspronkelijke aanlevering.",
+      "Een medewerker heeft dat gegeven bij het overnemen weggelaten.",
+      "Het bericht heeft betrekking op dezelfde oorspronkelijke aanvraag."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Een pas later bedacht gegeven valt niet onder herstelmelding.",
+      "Een klacht over behandelsnelheid valt niet onder herstelmelding."
+    ]
+  },
+  {
+    "id": "G03",
+    "stratum": "noodzakelijke naam",
+    "begrip": "routeadvies",
+    "organisatorische_context": [
+      "Fictieve publieke organisatie: Stadsdienst Nemerwaard.",
+      "Interne adviezen over looproutes tijdens gesimuleerde loketdagen."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G03-P01",
+        "tekst": "Binnen de Stadsdienst Nemerwaard adviseren verschillende groepen over looproutes tijdens gesimuleerde loketdagen. De interne categorie routeadvies is voorbehouden aan schriftelijke aanbevelingen die zijn vastgesteld door de Commissie Toegang en Doorstroming. Deze volledige naam onderscheidt de commissie van het Team Toegang, dat dagelijkse aanwijzingen geeft, en de Werkgroep Doorstroming, die metingen verzamelt. Een aanbeveling betreft de volgorde waarin bezoekers langs oefenbalies worden geleid. Een concept van een commissielid is nog geen routeadvies zolang de commissie het niet heeft vastgesteld. Een routeadvies verplicht het organiserende team niet tot uitvoering. De commissie vergadert meestal op donderdag en gebruikt vaak een document met een paars voorblad. Sommige adviezen bevatten een plattegrond, andere alleen tekst. Vergaderdag, voorblad en aanwezigheid van een kaart zijn praktische gewoonten, geen voorwaarden voor opname in de categorie. Het secretariaat bewaart ook afwijkende uitvoeringskeuzes.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De categorie hangt samen met vaststelling door één specifiek genoemd orgaan. De naam en het adviserende karakter voorkomen verwarring met aanwijzingen, meetresultaten en nog niet vastgestelde concepten.",
+    "doelgroep": "Secretariaatsmedewerkers en organisatoren van gesimuleerde loketdagen.",
+    "beschermde_kenmerken": [
+      "Schriftelijke aanbeveling.",
+      "Vastgesteld door de Commissie Toegang en Doorstroming.",
+      "Betreft de volgorde van bezoekers langs oefenbalies."
+    ],
+    "beschermde_namen": [
+      "Commissie Toegang en Doorstroming"
+    ],
+    "beschermde_negaties": [
+      "Een nog niet vastgesteld concept is geen routeadvies.",
+      "Een routeadvies verplicht niet tot uitvoering."
+    ]
+  },
+  {
+    "id": "G04",
+    "stratum": "limitatieve opsomming",
+    "begrip": "afsluitreden",
+    "organisatorische_context": [
+      "Fictieve publieke organisatie: Publiek Proefloket Koperveen.",
+      "Afsluiting van aanvragen voor deelname aan oefensessies."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G04-P01",
+        "tekst": "Het Publiek Proefloket Koperveen registreert aanvragen voor deelname aan oefensessies. Wanneer een aanvraag wordt afgesloten, kiest de behandelaar precies één afsluitreden uit een gesloten lijst. Die lijst bevat: uitvoering voltooid, ingetrokken door de aanvrager en samengevoegd met een andere aanvraag. Uitvoering voltooid betekent dat de aangevraagde oefensessie daadwerkelijk heeft plaatsgevonden. Ingetrokken door de aanvrager vereist een uitdrukkelijk intrekkingsbericht. Samengevoegd betekent dat de verdere behandeling onder het nummer van een andere aanvraag doorgaat. Er is geen restcategorie en een behandelaar kan geen eigen reden toevoegen. Een ontbrekend telefoonnummer, een volle agenda of langdurig uitblijven van antwoord vormt binnen deze proefadministratie geen afsluitreden. Zulke omstandigheden kunnen wel in een werknotitie staan. Het scherm toont de drie keuzes in wisselende volgorde. Voor een maandrapport worden aantallen per reden opgeteld; de presentatievolgorde en rapportagefrequentie hebben geen invloed op de toegestane keuzes.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Het begrip verwijst naar een verplichte keuze uit precies drie inhoudelijk afgebakende mogelijkheden. De opsomming is uitputtend en mag niet het karakter van voorbeelden krijgen.",
+    "doelgroep": "Aanvraagbehandelaars en beheerders van de proefadministratie.",
+    "beschermde_kenmerken": [
+      "Bij afsluiting wordt precies één reden gekozen.",
+      "Uitvoering voltooid: de aangevraagde oefensessie heeft daadwerkelijk plaatsgevonden.",
+      "Ingetrokken door de aanvrager: er is een uitdrukkelijk intrekkingsbericht.",
+      "Samengevoegd met een andere aanvraag: verdere behandeling loopt onder een ander aanvraagnummer.",
+      "De lijst met drie mogelijkheden is gesloten."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Er is geen restcategorie.",
+      "Een behandelaar kan geen eigen afsluitreden toevoegen.",
+      "Ontbrekende contactgegevens, agendagebrek en uitblijvend antwoord zijn geen afsluitredenen."
+    ]
+  },
+  {
+    "id": "G05",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "registratielatentie",
+    "organisatorische_context": [
+      "Fictieve publieke organisatie: Gemeentelijk Simulatiearchief Rieterveld.",
+      "Technisch beheer van een oefenregister met uitsluitend kunstmatige dossiers."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G05-P01",
+        "tekst": "Het Gemeentelijk Simulatiearchief Rieterveld gebruikt een oefenregister met uitsluitend kunstmatige dossiers. Technisch beheerders meten per wijziging de registratielatentie. De meting begint wanneer de primaire opslag de commit bevestigt en eindigt wanneer dezelfde wijziging via de zoekindex opvraagbaar is. Commit betekent hier dat de primaire opslag de wijziging duurzaam heeft vastgelegd; de zoekindex is de afzonderlijke structuur waarmee zoekopdrachten dossiers vinden. De meting betreft dus de overdracht tussen deze twee technische momenten. Tijd die een medewerker aan invoeren besteedt en tijd die een zoekscherm nodig heeft om resultaten te tekenen, vallen erbuiten. Het dashboard toont doorgaans milliseconden en gebruikt oranje voor waarden boven de lokale signaleringsgrens. De grens wordt per oefening gekozen en bepaalt niet wat registratielatentie betekent. De documentatie is bestemd voor technisch beheerders; termen als commit en zoekindex mogen daarom worden gebruikt mits hun onderlinge relatie helder blijft.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De doelgroep moet het gemeten interval tussen twee technische gebeurtenissen kunnen herkennen. Algemene wachttijd, invoertijd en schermvertraging hebben een andere reikwijdte.",
+    "doelgroep": "Technisch beheerders die vertrouwd zijn met gegevensopslag en zoekindexen.",
+    "beschermde_kenmerken": [
+      "Een tijdsinterval per wijziging.",
+      "Begin: bevestiging van de commit door de primaire opslag.",
+      "Einde: dezelfde wijziging is via de zoekindex opvraagbaar.",
+      "Commit betreft duurzame vastlegging in de primaire opslag."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Invoertijd van de medewerker valt buiten de meting.",
+      "Tekentijd van het zoekscherm valt buiten de meting.",
+      "De signaleringsgrens bepaalt niet de betekenis van registratielatentie."
+    ]
+  },
+  {
+    "id": "G06",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "voorwaardelijke vrijgave",
+    "organisatorische_context": [
+      "Fictieve publieke organisatie: Regionale Dienst Oefenvoorzieningen Duinrade.",
+      "Gebruik van oefenruimten door interne teams tijdens gesimuleerde werkzaamheden."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G06-P01",
+        "tekst": "De Regionale Dienst Oefenvoorzieningen Duinrade kent voorwaardelijke vrijgave toe aan een specifieke oefenruimte voor een specifieke oefensessie. De toekenning gebeurt nadat de technische controle is geslaagd, terwijl de controle van de inventarislijst nog openstaat. Zij staat uitsluitend toe dat het voorbereidingsteam materiaal klaarzet; deelnemers mogen de ruimte nog niet gebruiken. Een volledige vrijgave ontstaat pas door een afzonderlijke bevestiging nadat ook de inventarislijst is gecontroleerd. Het enkele afronden van die controle verandert de bestaande toekenning dus niet automatisch. De voorwaardelijke vrijgave vervalt bij aanvang van de geplande oefensessie of eerder zodra een technisch gebrek wordt gemeld. Zij geldt niet voor een volgende sessie in dezelfde ruimte. Op het planbord wordt meestal een gele magneet geplaatst en de sleutel ligt doorgaans bij de avondcoördinator. Kleur, sleutelbewaring en dienstrooster zijn ondersteunende afspraken en vormen geen onderdeel van de toegestane handeling of geldigheidsduur.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De regeling biedt een beperkte mogelijkheid tot voorbereiding in een tussenfase. Bij verkorting moeten voorwaarden, toegestane handeling, betrokken gebruikers, vervalmomenten en afzonderlijke overgang naar volledige vrijgave herkenbaar blijven.",
+    "doelgroep": "Ruimtecoördinatoren en voorbereidingsteams.",
+    "beschermde_kenmerken": [
+      "Geldt voor één specifieke ruimte en één specifieke oefensessie.",
+      "De technische controle is geslaagd en de inventariscontrole staat nog open.",
+      "Alleen het voorbereidingsteam mag materiaal klaarzetten.",
+      "Vervalt bij aanvang van de geplande sessie of eerder bij melding van een technisch gebrek.",
+      "Volledige vrijgave vereist een afzonderlijke bevestiging na controle van de inventarislijst."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Deelnemers mogen de ruimte nog niet gebruiken.",
+      "Afronding van de inventariscontrole leidt niet automatisch tot volledige vrijgave.",
+      "De toekenning geldt niet voor een volgende sessie in dezelfde ruimte."
+    ]
+  }
+]

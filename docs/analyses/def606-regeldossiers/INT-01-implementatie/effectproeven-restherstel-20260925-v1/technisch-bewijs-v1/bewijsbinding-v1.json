@@ -1,0 +1,120 @@
+{
+  "recorded_at": "2026-09-25T07:51:34.727442+00:00",
+  "implementation": {
+    "cli": "/Users/chrislehnen/.local/bin/claude",
+    "session": "442a98fb-a377-403f-996e-433cf4a664fc",
+    "model": "claude-opus-5-5",
+    "logs": [
+      "logs/def770-restherstel/claude-uitvoering-v1.jsonl",
+      "logs/def770-restherstel/claude-uitvoering-v2.jsonl",
+      "logs/def770-restherstel/claude-uitvoering-v3.jsonl",
+      "logs/def770-restherstel/claude-uitvoering-v4.jsonl"
+    ]
+  },
+  "review": {
+    "cli": "/Users/chrislehnen/.local/bin/codex",
+    "session": "01a0cfac-ea05-7700-ba73-8b5659751c1c",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "logs": [
+      "logs/def770-restherstel/astra-sessie-v1.jsonl",
+      "logs/def770-restherstel/astra-sessie-v2.jsonl",
+      "logs/def770-restherstel/astra-sessie-v3.jsonl",
+      "logs/def770-restherstel/astra-sessie-v4.jsonl"
+    ]
+  },
+  "files": [
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/claude-resultaat-v1.md",
+      "sha256": "bd4ad2120fc8b61214e79c18bb7705697928e28b8815b963fe15bf5c01d80cb8"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/claude-resultaat-v2.md",
+      "sha256": "d9f53554d70c2b830df08cffe2dd10eefa946d32d45e2149096f675377f24fa6"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/claude-resultaat-v3.md",
+      "sha256": "cd2c7884f9a3ab9e887df1a98121d58219628830a1dd2240ea762c8efc0c67a5"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/claude-resultaat-v4.md",
+      "sha256": "015d682482d8ee271d289b354ae394e3cbb0f0b09c8f50fdf61ab55d89d64b10"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/astra-review-v1.md",
+      "sha256": "729e641ece57ddd8235d62d62175371b1fe9d7b0e133f091540b13fef847e22c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/astra-review-v2.md",
+      "sha256": "6f66a2e8b0c32e2e5db5464e417e5199f20f49c6680acea74ae37796bea9e88f"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/astra-review-v3.md",
+      "sha256": "686ec6afaa48c35f88d328250c1ca0f684aab05251688dc1a88e49b74080fe90"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/astra-review-v4.md",
+      "sha256": "007fd6963e0ea6fd5baaecc10f44bf32d26e52b74208137b7d37b119411471e5"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/review-manifest-v4.json",
+      "sha256": "681b1425565cf7db671d2e8cbf99c1d06807bf726ad90b2d1c56c1ff6d062c95"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/review-delta-v4.patch",
+      "sha256": "9696bc551dc0fe3d371832943428857165d50f2f7ce2517497f2e8c8c1b91c1c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/review-app-v3.patch",
+      "sha256": "08ededd2cbbee73ea5f2670136e1abcaf7a5eafe50755a995b691f9c7e1ad256"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/review-skills-v3.patch",
+      "sha256": "b02a6276a3e16208e7ed61a0cc7c070bee75ae702f4ec86cde3e1b9408ddaa0f"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/make-test-root-v2.log",
+      "sha256": "c6cc9510bf4235e0ed5fac9a1ae5d87f792ba5019b3627fcec4a9de937ebd7b4"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v3-beleid-gericht-2.xml",
+      "sha256": "4e4a7e6c318c13004a6372eeb8b6d327cf21b8746680297a622f879e52b62e25"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v4-test.xml",
+      "sha256": "22208a20e8aba76a26427e019cfb38d5b5cb7aeb05d8bf0091373d4746f97b47"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/prompt-red-v2.xml",
+      "sha256": "fbd17eea4ea6a07889e1f501acc112872e447566fde57141186d9204173c1a3d"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/prompt-green-v2.xml",
+      "sha256": "551fa61d2aed15f5e610ea7a405123eb7a148b1cfbe573d38031ece5f293c322"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v2-gericht-regressie.xml",
+      "sha256": "2dbecaad9fb02c4913d6567212e511636e566f1073971ad8f0b96ee414944d82"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v2-integratie.xml",
+      "sha256": "98ab06e458a143224f69bd7c700bb7e69f80bde638084faad86c72d2631134d7"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v4-ruff-0165.log",
+      "sha256": "4a5d630601bc598c103800f804a0b2a26f862e3bb7779a2d9eb6a55a2289dfdf"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v4-black.log",
+      "sha256": "4f2090f9f9773a4835a231b237ff3f34d481dcf7723044e630f3e35d081ab96e"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/v3-make-lint.log",
+      "sha256": "443fdaa98252649ad17cea257c6ecedd5b2cf2cd822e8455822b77de9b3fe603"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/technisch-bewijs-v1/bundeltests-v3.log",
+      "sha256": "7336b4774657b80dbd0537e2244dc6998b3e4b6f39f76c63e5da10f14f9155e7"
+    }
+  ]
+}
