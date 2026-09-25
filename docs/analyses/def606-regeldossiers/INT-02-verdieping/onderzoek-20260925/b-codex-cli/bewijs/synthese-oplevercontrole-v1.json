@@ -1,0 +1,96 @@
+{
+  "utc": "2026-09-25T08:47:20.235445+00:00",
+  "bewijssoort": "Oplevercontrole van onderzoeksdocumenten en bestaand proefbewijs; geen nieuwe app- of modelproef",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "synthesecontrole_sha256": "f226f7f50a536eddf42ee7048814eb0d43f159ed7796da50b2546db33ded5907",
+  "punten": [
+    "SC-01",
+    "SC-02",
+    "SC-03",
+    "SC-04",
+    "SC-05",
+    "SC-06",
+    "SC-07",
+    "SC-08",
+    "SC-09",
+    "SC-10",
+    "SC-11",
+    "SC-12",
+    "SC-13",
+    "SC-14",
+    "SC-15",
+    "SC-16",
+    "SC-17",
+    "SC-18",
+    "SC-19",
+    "SC-20",
+    "SC-21"
+  ],
+  "bronhashes_ongewijzigd": true,
+  "ontvangsthashes_match": 7,
+  "oude_onderzoeks_en_bewijsbestanden_ongewijzigd": [
+    "bewijs/aanvullende-bronnen-v1.json",
+    "bewijs/bronextracten-v1.md",
+    "bewijs/historische-diff-v1.txt",
+    "bewijs/oplevercontrole-v1.json",
+    "bewijs/proefplan-v1.md",
+    "bewijs/proefuitkomsten-v1.json",
+    "bewijs/proeven-b-v1.py",
+    "bewijs/review-audit-v1.py",
+    "bewijs/review-auditplan-v1.md",
+    "bewijs/review-audituitkomsten-v1.json",
+    "bewijs/review-audituitvoering-v1.json",
+    "bewijs/review-bronbinding-v1.json",
+    "bewijs/review-broncontrole-v1.md",
+    "bewijs/review-oplevercontrole-v1.json",
+    "bewijs/toegang-bronnen-v1.json",
+    "bewijs/uitvoering-v1.json",
+    "bewijs/verwerk-review-v1.py",
+    "bewijs/verwerking-bronbinding-v1.json",
+    "bewijs/verwerking-broncontrole-v1.md",
+    "bewijs/verwerking-oplevercontrole-v1.json",
+    "casusregister-b-v1.md",
+    "casusregister-b-v2.md",
+    "casusregister-b-v3.md",
+    "manifest-b-v1.json",
+    "manifest-b-v2.json",
+    "onderzoek-b-v1.md",
+    "onderzoek-b-v2.md",
+    "onderzoek-b-v3.md",
+    "review-b-op-a-v1-erratum.md",
+    "review-b-op-a-v1.md",
+    "verwerking-b-v1.md"
+  ],
+  "beheersbestanden": [
+    {
+      "path": ".claude/CLAUDE.md",
+      "ongewijzigd": false
+    },
+    {
+      "path": ".claude/handovers/archief/2026-09-25_1004-backup-01a0d783.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/CLAUDE-voor-handoveropruiming-20260925T0804-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/WIP-snapshot-20260925T080152Z-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/WIP-snapshot-20260925T082355Z-v1.md",
+      "ongewijzigd": true
+    }
+  ],
+  "beheer_toelichting": "Automatisch ingevoegde handoversectie verwijderd volgens sessie-instructie; handovers verplaatst naar archief; vooraf unieke herstelkopie gemaakt. Dit betreft uitsluitend .claude binnen de werkroot, geen onderzoeksversies.",
+  "tellingen": {
+    "servicewaarnemingen": 45,
+    "unieke_service_casus_ids": 39,
+    "nieuwe_service_ids_na_zes_historische": 33,
+    "register_ids": 57,
+    "A_P1_zonder_context": 24
+  },
+  "getrackte_diff": [],
+  "inhoudelijke_beoordeling": "Handmatige bronvergelijking vastgelegd in SC-01 t/m SC-21; documentstructuurcontrole is geen bewijs van appwerking."
+}

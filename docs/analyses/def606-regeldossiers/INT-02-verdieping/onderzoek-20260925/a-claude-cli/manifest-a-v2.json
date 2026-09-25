@@ -1,0 +1,41 @@
+{
+  "onderzoek": "INT-02 — Geen beslisregel (DEF-771)",
+  "onderzoekslijn": "A — uitvoerende Claude Code CLI-sessie (gestart door Cowork-hoofdsessie)",
+  "fase": "wederzijdse review — review A op B opgeleverd",
+  "actuele_versies": {
+    "onderzoek": "onderzoek-a-v1.md (ongewijzigd; correcties uit de review volgen in een latere verwerking)",
+    "review_op_b": "review-a-op-b-v1.md"
+  },
+  "beoordeelde_versies_b": {
+    "b-codex-cli/onderzoek-b-v2.md": "8312616f41ed56039530a838e04572155598f7000f09b8333adaaa9e2652474f",
+    "b-codex-cli/casusregister-b-v2.md": "1ad33b10aabd57d5f612035d046a8af4cb5d0333546ca1d6d5afcdaa2683865e",
+    "b-codex-cli/manifest-b-v1.json": "fcac4dd19424fac5a1de12deebb79960a39d8f5465618b304f5c80b8a83b0b0a",
+    "a-cowork/normlezing-coordinator-v1.md": "d48f0e2ce350b9b74e583f039f824f7a4c7bd3a5e452a615e0955e95d5c3a586",
+    "a-cowork/bewijs/proef-c1-uitkomsten.json": "25a333e75d91169fe636ef2419b9b4a352550a2cde00db2cfea14205b87ce26b"
+  },
+  "head_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "reviewfase_eindtijd_utc": "2026-09-25T08:08:13Z",
+  "bestanden": [
+    {"pad": "onderzoek-a-v1.md", "sha256": "ea59e45bef2772d4b97e57a1c11ba1e5cf95500712d2fef26b03b12d0d5f8c00"},
+    {"pad": "casusregister-a-v1.md", "sha256": "3d2c5cbfa3e00b9ce6713cdf674382e41b84071d24a37ebf7c2a21a437b2df53"},
+    {"pad": "review-a-op-b-v1.md", "sha256": "382792b0515d05d3483d832779738482fbf592a343cf7911cf43f2393d7f8203"},
+    {"pad": "manifest-a-v1.json", "sha256": "3b71a51b1e5d3fc7f28da63e6f568e0c8f059e64fcb02cad312ccfbf4019d497", "opmerking": "niet door deze sessie geschreven (Write werd in fase 1 geweigerd); aangetroffen in de map"},
+    {"pad": "bewijs/verwachtingen-a-v1.md", "sha256": "c3ec4e3be19b69f220e907be60b597e29649c2e49de681ad28cc5350c0dee022"},
+    {"pad": "bewijs/proeflog-a-v1.md", "sha256": "92ae47fa1a42cdac42f2d393823448bf256c3c3087463be7b2af8005b6b41d0c"},
+    {"pad": "bewijs/proef-p1-service.py", "sha256": "e84e7404b8b818733e891b97a43986770814b68c4669c63ea8449f4cd5b1977c"},
+    {"pad": "bewijs/proef-p2-prompt.py", "sha256": "2fefe6572a3e0f7f85ea517c45dbf099fd7521ce47c4907bad4ffcd05b9c4c49"},
+    {"pad": "bewijs/p1-invoer.json", "sha256": "1dfcb7ebc12f14c17f98eaa397527f8a0710119204db537bbaa8f368b91aca49"},
+    {"pad": "bewijs/p1-uitkomsten.json", "sha256": "fdec3d331d9736c67e92f7c81ed2905d8f5e98767463c9d9559b1cd0bff8f924"},
+    {"pad": "bewijs/p2-uitkomsten.json", "sha256": "307174b0e0292ec19593f61af8df78ee3947ab90ba8650750fd220bce161b9ea"},
+    {"pad": "bewijs/proef-p3-int10-melding.py", "sha256": "5ed33394a7493a6deb82b6a805a010a68a5cf9f0ba6dccf001f1890c3eb50244"},
+    {"pad": "bewijs/p3-uitkomsten.json", "sha256": "829a3f5c6567bc118ce30e1f7a11b4033abbd9149450e0f060504b10d35cef55"},
+    {"pad": "bewijs/proeflog-a-v2-p3.md", "sha256": "f822ababf47c836f71906b7056b371fbb9c12bcefc75f2638ab19171c419c154"}
+  ],
+  "niet_uitgevoerd": [
+    "volledige lezing van b-codex-cli/bewijs/bronextracten-v1.md (alleen gericht in de repo nagekeken)",
+    "nacontrole van B-claims over expert_review_tab.py:1079 (CON-02) en definitie_origineel (al opgeschoond)",
+    "gateproef op severity versus severity_level (alleen codelezing)",
+    "verwerking van de eigen correcties in een onderzoek-a-v2 (volgt na ontvangst van de review van B)"
+  ],
+  "opmerking": "Manifest bevat zichzelf niet."
+}

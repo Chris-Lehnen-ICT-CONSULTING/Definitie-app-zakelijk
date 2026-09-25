@@ -1,0 +1,22 @@
+Alle 25 reviewpunten zijn verwerkt. V1/v2 zijn ongewijzigd; INT-10 blijft geparkeerd zonder besluitvraag of afhankelijkheid voor INT-02.
+
+- [verwerking-b-v1.md](verwerking-b-v1.md)  
+  SHA-256: `c620ca62824bbe2486a9e49b4f34a9e3047ac72d2cf50456880b323f8a2b1ad3`
+- [onderzoek-b-v3.md](onderzoek-b-v3.md)  
+  SHA-256: `ac94555b069366510e560a0e63b681bca60b399e1ff47d0546e7652adbec85ec`
+- [casusregister-b-v3.md](casusregister-b-v3.md)  
+  SHA-256: `56646553d38300b6321abc045fb08c5a7da794701452ad685c03169115effbcd`
+- [manifest-b-v3.json](manifest-b-v3.json) — 36 opgenomen bestanden gecontroleerd.  
+  SHA-256: `16a8b51ade5145abb455f23a15366a5e8a81d3ca4413e79b077ff15a7b82008e`
+
+De automatische controle weigerde twee skill-aanroepen wegens mogelijk starten van agents of reviewsessies. De verwerking is zelfstandig voltooid.
+
+Open blijven de synthesecontrole, ontbrekend route-/effectbewijs en DBT-/betekenisvragen. Deze vereisen respectievelijk overdracht, een uitvoeringsopdracht of aanvullende bronnen.
+
+Bij Chris liggen:
+
+- **K1 ↔ B-1/2/3/6:** functiegrens; voorkeur N-B1.
+- **K2 ↔ B-4 en RA-B-17:** evaluator en beperkte signaaluitbreiding; voorkeur O1.
+- **K3 ↔ B-5:** samenhangend contract en verduidelijkte voorbeeldreden.
+- **K4:** expliciet poortbeleid; voorkeur geen zelfstandige INT-02-blokkade.
+- **K5 ↔ A §5.4:** eventuele H-uitvoering, maximaal één betekenisbehoudende poging.
