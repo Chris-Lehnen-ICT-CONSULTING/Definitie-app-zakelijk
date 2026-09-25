@@ -1,0 +1,261 @@
+{
+  "versie": "v3",
+  "regel": "INT-03",
+  "fase": "Synthesecontrole B",
+  "datum": "2026-09-25",
+  "onderzoeker": "B",
+  "sessie": "01a0d782-026f-7a70-b451-84c5f82137dd",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "identiteitsgrond": "Bestaande eigen turn_context-controle fase 1, behouden in manifest-v1/v2; geen andere sessie gestart.",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "vastgelegd_utc": "2026-09-25T08:41:53.919291+00:00",
+  "eigen_bestanden": [
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/aanvulling-b-v1.md",
+      "sha256": "d791e7f7f216dc9ed04eba475ee781528379ece8e80fbae9f75bce3e2a64bb67",
+      "bytes": 40249
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/casusregister-b-v1.md",
+      "sha256": "aea3ef641838ddaba4950fa9cd93bf9f76a99ae2fbd27cd1e593860541e55c41",
+      "bytes": 12608
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proefverwachtingen-b-v1.json",
+      "sha256": "fde36bc7ccd07689861de150853bed16d7abd51635b11480a3fd9baa9bc30b98",
+      "bytes": 15313
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proef-b-v1.py",
+      "sha256": "f9acbf83b5d10f1bbf7fb78df69e4ab110b116aa0febcdb1be5efa248289422f",
+      "bytes": 5614
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proefuitkomsten-b-v1.json",
+      "sha256": "857d96bb20728ba7cf80755079c4580526ff7a952f1aa730d66b1260b3ac9f2b",
+      "bytes": 27928
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/bewijsmanifest-b-v1.json",
+      "sha256": "048cea04005ba8ee8ec285665bc88385d9e28209bd99f74a8f59bcecf57bbe92",
+      "bytes": 19973
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/review-b-op-a-v1.md",
+      "sha256": "90fa2fc1e3fc93da9fcbf262035a9a06d7b1fbd0750d30735f2eaec9a83f7229",
+      "bytes": 17204
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/review-b-op-c-v1.md",
+      "sha256": "1d1c1fddd90d23ec36f8d6615ad891a5eaf93db1930b6c783fedfe89b9780c1a",
+      "bytes": 16537
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/verwerking-b-v1.md",
+      "sha256": "48ab532cf206d6d5b2e74464dc585c9610ca3b4177509d57eab12f8caf2499be",
+      "bytes": 7122
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/aanvulling-b-v2.md",
+      "sha256": "9bf1f2f76cb1b301f8dfbbafa7324d61cc6aa68cf84ecc8139e2c7be8e61359f",
+      "bytes": 49701
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/bewijsmanifest-b-v2.json",
+      "sha256": "69b01f75254224c1c50b099a285d726d63cde28fc4771201eab48c5f93b4767d",
+      "bytes": 14642
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/synthesecontrole-b-v1.md",
+      "sha256": "9ab5a94d60008b23bd8a04652fa8b95276973f87351aef9e4c11992c0c24866e",
+      "bytes": 24936
+    }
+  ],
+  "nieuwe_oplevering": [
+    "synthesecontrole-b-v1.md",
+    "bewijsmanifest-b-v3.json"
+  ],
+  "bronbasis_voorgaande_fasen": {
+    "manifest_v2": {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/bewijsmanifest-b-v2.json",
+      "sha256": "69b01f75254224c1c50b099a285d726d63cde28fc4771201eab48c5f93b4767d",
+      "bytes": 14642
+    },
+    "eerdere_elf_eigen_bestanden_ongewijzigd": true,
+    "primaire_bronnen": "Reeds gelezen taalbronnen/code blijven via manifest-v1/v2 gebonden. Geen nieuwe web-/Ross-claim."
+  },
+  "bronnen_synthesecontrole": [
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/synthese-v1.md",
+      "sha256": "0065ec61dc0fff50902061a722698f8ca6c8cc2d4b2d54738df95f89e822ad4e",
+      "bytes": 19978,
+      "controlebereik": "Volledig gelezen in deze synthesecontrole"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/aanvulling-a-v2.md",
+      "sha256": "cf0ecd92f784bbb7f65e7cd1c600c70d88645ac174efd4326ad71b45e34c6042",
+      "bytes": 21124,
+      "controlebereik": "Volledig gelezen in deze synthesecontrole"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/verwerking-a-v1.md",
+      "sha256": "7d6ff1da4e884ddee6579cfd5ccac4da9f9a5b19617908e0be74f8be56cd24e8",
+      "bytes": 14096,
+      "controlebereik": "Volledig gelezen in deze synthesecontrole"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/aanvulling-d-v1.md",
+      "sha256": "4dda0efd29475584a17ab2e37b72fdd8636fb32804d67f6bda8a69c78da5af2a",
+      "bytes": 50845,
+      "controlebereik": "Volledig gelezen in deze synthesecontrole"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/aanvulling-c-v2.md",
+      "sha256": "ad4af8d155b434b95919d1e318f379445a6b9f484f90a6693cc1ee7a7a55f4ad",
+      "bytes": 44157,
+      "controlebereik": "Gericht gelezen: relevante G/T-/casuspassages of proefmetadata/uitkomsten; geen heruitvoering"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proefuitkomsten-c-v2.json",
+      "sha256": "2d1e70a670a13d844525636b290eb4a519ac245d821ecde8e99b1e760f3f9bac",
+      "bytes": 2175,
+      "controlebereik": "Gericht gelezen: relevante G/T-/casuspassages of proefmetadata/uitkomsten; geen heruitvoering"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/proefuitkomsten-d-v1.json",
+      "sha256": "5085693db6cdf082181450e68c43b037213b65a16d8bb4275561246bfda036f3",
+      "bytes": 2216,
+      "controlebereik": "Gericht gelezen: relevante G/T-/casuspassages of proefmetadata/uitkomsten; geen heruitvoering"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/proefuitkomsten-d-v2.json",
+      "sha256": "41d4f3e27cfcf9306d35ee5c72de6cb75cf7d8c0a20e13f1047f936b1c08b88a",
+      "bytes": 180482,
+      "controlebereik": "Gericht gelezen: relevante G/T-/casuspassages of proefmetadata/uitkomsten; geen heruitvoering"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/casusregister-d-v2.md",
+      "sha256": "4a4e297e5c29312c871601d3d2bb5109ee62ff564e4893e39c31273e9a08d40c",
+      "bytes": 14533,
+      "controlebereik": "Gericht gelezen: relevante G/T-/casuspassages of proefmetadata/uitkomsten; geen heruitvoering"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proef-c-v2.py",
+      "sha256": "7cc728b349aa25d608537ce0e45f1ce1f45a158d54b5dd38cc21150898100c7a",
+      "bytes": 5950,
+      "controlebereik": "SHA-256-binding; niet opnieuw uitgevoerd en geen volledige scriptreview"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proefverwachtingen-c-v2.json",
+      "sha256": "bb3ccc4f3f0d12e66a76186637b0ab9840bbc09e27b12527555773e202a9ece0",
+      "bytes": 1507,
+      "controlebereik": "SHA-256-binding; niet opnieuw uitgevoerd en geen volledige scriptreview"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/proef-d-v1.py",
+      "sha256": "2bc5acf24eb07870b358408b959f910c803ab0e64c3703b845471b8ff784301a",
+      "bytes": 5321,
+      "controlebereik": "SHA-256-binding; niet opnieuw uitgevoerd en geen volledige scriptreview"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/proefverwachtingen-d-v1.json",
+      "sha256": "a8358235cd8ea641cad4153d41718902aa094083126b5aaabe51ce8484e0ac51",
+      "bytes": 15708,
+      "controlebereik": "SHA-256-binding; niet opnieuw uitgevoerd en geen volledige scriptreview"
+    },
+    {
+      "pad": "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-d/proefverwachtingen-d-v2.json",
+      "sha256": "b108b3681c38ac46c8c4b569c93065d5f4d2279382f784a32fadfb8abc95c0be",
+      "bytes": 16194,
+      "controlebereik": "SHA-256-binding; niet opnieuw uitgevoerd en geen volledige scriptreview"
+    },
+    {
+      "pad": "src/services/validation/modular_validation_service.py",
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "bytes": 97943,
+      "controlebereik": "Error-grens 1430–1483 gericht herlezen; overige relevante bronbasis in manifest-v2"
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/research-dispatch/SKILL.md",
+      "sha256": "cabe43717289937dcc3d18bf829b89f91c4deedcf21ceb5952d318224d6e1fc3",
+      "bytes": 6240,
+      "controlebereik": "Volledig gelezen; bestaande toegewezen rol/opdracht begrenst workflow"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/requesting-code-review/SKILL.md",
+      "sha256": "c9cbbd8a292b55639f5b5e996c9bf1c364a71874ab1ab07b65e1c300a23dc3a0",
+      "bytes": 10815,
+      "controlebereik": "Scope en rolgrenzen gericht herlezen"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/analysis-mode/SKILL.md",
+      "sha256": "386f33d275fc5d897fa09951f8405fdc5a27dfa7e208b688e2fce4c06dbfb1c9",
+      "bytes": 5081,
+      "controlebereik": "Bron-/analyseprotocol gericht herlezen; eerder toegepast"
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/verification-before-completion/SKILL.md",
+      "sha256": "df49a4141ccf3a6f447d7dc8d0e075c5b548a7acc96e5db3674ca0d540b6a96a",
+      "bytes": 9418,
+      "controlebereik": "Volledig herlezen; eindartefact volledig teruggelezen"
+    }
+  ],
+  "verificatie": {
+    "vereiste_synthesehash_komt_overeen": true,
+    "volledig_gelezen_verplichte_documenten": 4,
+    "controlepunten": 20,
+    "materieel_synthese_v2_nodig": 18,
+    "redactioneel": 2,
+    "zes_opdrachtaspecten_afgedekt": true,
+    "eindrapport_volledig_teruggelezen": true,
+    "punten_hebben_passage_oordeel_grond_correctie_en_zwaarte": true,
+    "c_tweede_meting": {
+      "int_tekens": 4205,
+      "zonder_voorbeelden": 2461,
+      "int03_blok": 607,
+      "all_match": true,
+      "codehashes_overeenkomstig": true,
+      "verwachtingshash_overeenkomstig": true
+    },
+    "d_uitvoeringsidentiteit": {
+      "v1_exitstatus": 1,
+      "v2_exitstatus": 0,
+      "v2_service_rijen": 20,
+      "v2_promptvarianten": 4,
+      "v2_alle_verwachtingen_uitgekomen": true,
+      "script_hash_beide_pogingen_overeenkomstig": true,
+      "v2_gebonden_aan_verwachtingen_v1": true,
+      "geen_volledige_onafhankelijke_proefscriptreview": true
+    },
+    "git_controle": {
+      "commando": "git diff --exit-code HEAD -- src config tests",
+      "exitstatus": 0,
+      "stdout": "",
+      "stderr": "git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead\n"
+    },
+    "bestandscontrole": {
+      "interpreter": ".venv/bin/python -B",
+      "alleen_standaardbibliotheek": true,
+      "appimports": false,
+      "eindcontrole_exitstatus": 0
+    },
+    "nieuwe_runtimeproef": false,
+    "reden": "Documenttegenstrijdigheden, foutgrens en uitvoeringsidentiteit zijn met gericht bron-/artefactonderzoek beslisbaar; geen nieuwe functionele claim.",
+    "beperkingen": [
+      "Geen UI-/opslag-/exportdoorloop of model-/gebruikersproef.",
+      "Geen nieuwe aangetoonde kwaliteitswinst.",
+      "D alleen inhoudelijk voor synthese en op relevante uitvoeringsidentiteit gecontroleerd."
+    ]
+  },
+  "toegang": {
+    "vereiste_onderzoeksstukken": "Alle leesbaar",
+    "skill_tool": "research-dispatch/requesting-code-review/analysis-mode: MCP tool call requires approval, but approval policy is never; lokale instructies gebruikt.",
+    "research_dispatch_pad": "~/.agents/skills/research-dispatch/SKILL.md ontbreekt; ~/.claude/skills/research-dispatch/SKILL.md gelezen.",
+    "overige_toegang": "Ross blijft eerder vastgestelde bronleemte; niet opnieuw opgehaald."
+  },
+  "manifest_zelf": "Zelfhash afzonderlijk in oplevering, geen circulaire zelfhash. Dit manifest bindt de twaalf andere eigen onderzoeksbestanden, inclusief manifest-v1/v2.",
+  "hostlogs": "Geen onderzoeksopleveringen; niet gelezen of gewijzigd voor deze controle.",
+  "overdracht": "A verwerkt de materiële punten in synthese-v2 met dispositie per SB-punt; daarna gerichte controle van de correcties. Geen gezamenlijke afronding."
+}
