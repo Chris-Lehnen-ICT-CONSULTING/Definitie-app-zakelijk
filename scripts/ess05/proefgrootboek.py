@@ -79,6 +79,16 @@ Daarbovenop, alleen voor R8:
   proef duurzaam; geen verborgen herhaling of extra ronde;
 - **gedeelde codebinding** — V en T delen code en configuratie; elke eindgroep heeft een eigen freeze.
 
+`R9` (DEF-768-AI-20260926-R9, gerichte herproef na het R8-offsetherstel;
+besluit Chris 26-09, `logs/def768/ronde9-herproefgoedkeuring-v1.json`) volgt
+dezelfde regels als R8 met 2 ontwikkeling (alleen R720 × 2), 6 verifier-only,
+40 T-eind en 16 T-herhaling, reserve 0; samen met R8 t/m R1 nooit boven 424
+(360 werkelijke + 64). Het routerplafond is USD 24,901265; het
+**kostenkader** (`kostenkader_nusd`, USD 25) begrenst de lopende kosten van
+de voorgangers onder kostenbewaking (R8, uit zijn grootboek) plus dit plafond
+(`controleer_cumulatief`), zodat R8 en R9 samen binnen het oorspronkelijke
+budget blijven.
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -96,7 +106,7 @@ import logging
 import os
 import re
 from collections.abc import Iterator, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from types import MappingProxyType
@@ -116,6 +126,7 @@ __all__ = [
     "R6",
     "R7",
     "R8",
+    "R9",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -246,7 +257,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R8` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R9` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -270,6 +281,9 @@ class Proefidentiteit:
     gedeelde_codebinding: bool = False
     #: R8: één niet-geaccepteerd geval stopt de proef duurzaam.
     stop_bij_eerste_fout: bool = False
+    #: R9: gezamenlijk routerbudget (nUSD) met de voorgangers onder
+    #: kostenbewaking: hun lopende kosten plus het eigen plafond; None = geen.
+    kostenkader_nusd: int | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "fasecaps", MappingProxyType(dict(self.fasecaps)))
@@ -426,7 +440,35 @@ R8 = Proefidentiteit(
     gedeelde_codebinding=True,
     stop_bij_eerste_fout=True,
 )
-_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8)}
+#: Ronde 9 (besluit Chris 26-09, "Ja" op offsetherstel-vervolgproef-voorstel-
+#: v1): gerichte herproef na het R8-offsetherstel, max 64 modelstappen — 2
+#: ontwikkeling (alleen R720 × 2), 6 verifier-only, 40 T-eind (20 × 2) en 16
+#: T-herhaling (8 × 2), reserve 0; samen met R8 t/m R1 nooit boven 424 (360
+#: werkelijke + 64). Zelfde model, tarief, bytegrenzen en productiegrens als
+#: R8; plafond USD 24,901265 = kader USD 25 − werkelijke R8-kosten 0,098735.
+#: Begroting 22,26 USD (`begroting_nusd`).
+R9 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260926-R9",
+    fasecaps={
+        "ontwikkeling": 2,
+        "verificatie_alleen": 6,
+        "t_eind": 40,
+        "t_herhaling": 16,
+    },
+    reserve_max=0,
+    eindgroepen=R8.eindgroepen,
+    bindingsvelden=R8.bindingsvelden,
+    voorganger=R8,
+    cumulatief_max=424,
+    modelstappen_per_geval=2,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=24_901_265_000),
+    fasestappen=R8.fasestappen,
+    fasevolgorde=R8.fasevolgorde,
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+)
+_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9)}
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
 _GEDEELDE_BINDING = ("code_sha256", "config_sha256")
@@ -450,7 +492,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R8"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R9"
         raise BudgetSchendingError(msg)
     return identiteit
 
@@ -1230,6 +1272,34 @@ def controleer_cumulatief(
         msg = (
             f"cumulatief {vorig} ({herkomst}) + {nu} + {extra} "
             f"gepland > {identiteit.cumulatief_max} echte calls (niets gestart)"
+        )
+        raise BudgetSchendingError(msg)
+    _controleer_kostenkader(identiteit, boeken)
+
+
+def _controleer_kostenkader(
+    identiteit: Proefidentiteit, boeken: tuple[Grootboek, ...]
+) -> None:
+    """R9: lopende kosten van de voorgangers onder kostenbewaking + eigen plafond.
+
+    Werkelijk waar de usage bekend is, anders de stapgrens (`kostenstand`);
+    zo blijven de rondes samen binnen het oorspronkelijke kader.
+    """
+    kader, kb = identiteit.kostenkader_nusd, identiteit.kostenbewaking
+    if kader is None:
+        return
+    if kb is None:
+        msg = f"{identiteit.proef_id}: kostenkader zonder eigen kostenbewaking"
+        raise BudgetSchendingError(msg)
+    eerder = sum(
+        b.kostenstand()["lopend_nusd"]
+        for b in boeken
+        if b.identiteit.kostenbewaking is not None
+    )
+    if eerder + kb.plafond_nusd > kader:
+        msg = (
+            f"kostenkader: voorgangers lopend {eerder} + plafond {kb.plafond_nusd} "
+            f"> {kader} nUSD (niets gestart)"
         )
         raise BudgetSchendingError(msg)
 

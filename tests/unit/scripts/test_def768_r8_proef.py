@@ -369,10 +369,11 @@ def _besluit(tmp_path: Path, **anders) -> Path:
 
 
 class TestR8Registratie:
-    def test_r8_geregistreerd_open_binnen_de_goedgekeurde_limieten(self):
+    def test_r8_geregistreerd_binnen_de_goedgekeurde_limieten_en_gesloten(self):
         proef = runner.PROEVEN["R8"]
         assert proef.identiteit is gb.R8
-        assert proef.echt_toegestaan is True
+        # R9 (26-09): R8 is na zijn stop (één betaalde stap) gesloten.
+        assert proef.echt_toegestaan is False
         assert proef.freeze_vereist is True
         assert proef.opslag.root == R8_MAP
         assert proef.t_ontwikkelinvoer_sha256 == runner.R8_T_ONTWIKKELINVOER_SHA256
@@ -391,11 +392,14 @@ class TestR8Registratie:
         )
         assert gb.R8.kostenbewaking.plafond_nusd == 25_000_000_000
 
-    def test_alleen_r8_open_oude_rondes_gesloten(self):
+    def test_oude_rondes_en_r8_gesloten(self):
         for naam in ("R1", "R2", "R3", "R4", "R5", "R6", "R7"):
             assert runner.PROEVEN[naam].echt_toegestaan is False
             assert runner.PROEVEN[naam].budgetbesluit_sha256 is None
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R8"]
+        # R8 gesloten, zijn besluit blijft gepind; alleen R9 staat open.
+        assert runner.PROEVEN["R8"].echt_toegestaan is False
+        assert runner.PROEVEN["R8"].budgetbesluit_sha256 == BUDGETBESLUIT_SHA256
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R9"]
 
     @besluit_nodig
     def test_budgetbesluit_past_op_de_proefidentiteit(self):
@@ -433,11 +437,13 @@ class TestR8Registratie:
             runner.controleer_budgetbesluit(runner.PROEVEN["R7"])
 
     @besluit_nodig
-    def test_echte_poorten_open_via_de_geregistreerde_route(self):
-        """Zonder grootboek of netwerk: de gewone poorten laten R8 door."""
+    def test_geregistreerde_route_gesloten_overige_poorten_ongewijzigd(self):
+        """Zonder grootboek of netwerk: R8 is gesloten (R9, 26-09); de overige
+        poorten en het gepinde besluit gelden ongewijzigd."""
         proef = runner.PROEVEN["R8"]
         omg = dataclasses.replace(_omgeving8(_R8Provider()), echt=True)
-        runner._controleer_opslag(omg, proef.opslag, proef)
+        with pytest.raises(gb.BudgetSchendingError, match="gesloten"):
+            runner._controleer_opslag(omg, proef.opslag, proef)
         runner._controleer_goedkeuring(omg, proef)
         runner._controleer_productiegrenzen(omg, proef)
         runner._controleer_kostenroute(omg, proef)
@@ -446,29 +452,21 @@ class TestR8Registratie:
         assert runner._besluit_voor(offline, proef) is None
 
     @besluit_nodig
-    def test_cli_echt_r8_bouwt_de_live_omgeving_op_productiegrenzen(
-        self, monkeypatch, tmp_path
+    def test_cli_echt_r8_gesloten_voor_de_live_omgeving(
+        self, monkeypatch, tmp_path, capsys
     ):
+        """R9 (26-09): geen live omgeving meer voor R8; de productiegrenzen van
+        de live omgeving toetst test_def768_r9_proef."""
         gebouwd = {}
         voor_r8 = _r8_grootboekstand()
-
-        class _GestoptError(Exception):
-            pass
-
-        def _live(**kw):
-            gebouwd.update(kw)
-            raise _GestoptError  # vóór client, grootboek en netwerk
-
-        monkeypatch.setattr(runner, "live_omgeving", _live)
+        monkeypatch.setattr(runner, "live_omgeving", lambda **kw: gebouwd.update(kw))
         pad = _gevallenbestand(tmp_path, 3)
-        with pytest.raises(_GestoptError):
+        with pytest.raises(SystemExit) as exc:
             runner.main(["--proef", "R8", "--fase", "ontwikkeling", "--gevallen",
                          str(pad), "--echt"])  # fmt: skip
-        assert gebouwd == {
-            "timeout": 60,
-            "max_tokens_t": 3000,
-            "verifier_max_tokens": 3000,
-        }
+        assert exc.value.code == 2
+        assert "gesloten" in capsys.readouterr().err
+        assert gebouwd == {}
         assert _r8_grootboekstand() == voor_r8
 
     @besluit_nodig
@@ -479,8 +477,13 @@ class TestR8Registratie:
         voor_r8 = _r8_grootboekstand()
         monkeypatch.setattr(runner, "live_omgeving", lambda **kw: gebouwd.append(kw))
         pad = _besluit(tmp_path, reserve=3)
+        # Programmatisch heropend: toetst de besluitpoort, niet de sluiting.
         monkeypatch.setitem(
-            runner.PROEVEN, "R8", _r8(budgetbesluit=pad, budgetbesluit_sha256=_sha(pad))
+            runner.PROEVEN,
+            "R8",
+            _r8(
+                echt_toegestaan=True, budgetbesluit=pad, budgetbesluit_sha256=_sha(pad)
+            ),
         )
         gevallen = _gevallenbestand(tmp_path, 3)
         with pytest.raises(SystemExit) as exc:
@@ -495,8 +498,9 @@ class TestR8Registratie:
         provider = _R8Provider()
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
         pad = _gevallenbestand(tmp_path, 3)
+        # Programmatisch heropend: toetst de opslagpoort, niet de sluiting.
         with pytest.raises(gb.BudgetSchendingError, match="canonieke"):
-            _t8(omg, tmp_path, pad, proef=runner.PROEVEN["R8"])
+            _t8(omg, tmp_path, pad, proef=_r8(echt_toegestaan=True))
         assert provider.aanroepen == []
         assert not _opslag8(tmp_path).grootboek.exists()
 
@@ -505,7 +509,7 @@ class TestR8Registratie:
         provider = _R8Provider()
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
         pad = _gevallenbestand(tmp_path, 3)
-        kopie = _r8(t_ontwikkelinvoer_sha256=_sha(pad))
+        kopie = _r8(echt_toegestaan=True, t_ontwikkelinvoer_sha256=_sha(pad))
         with pytest.raises(gb.BudgetSchendingError, match="geregistreerde"):
             asyncio.run(runner.voer_t_fase(omg, fase="ontwikkeling", gevallenpad=pad,
                                            uitmap=tmp_path / "uit", opslag=kopie.opslag,

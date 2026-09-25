@@ -46,7 +46,7 @@ Beide eindgroepen (T: t_eind+t_herhaling, G: g) vereisen `--freeze`: alle
 verplichte velden (`freezevelden`) worden vóór elke call vergeleken en de
 freezehash gaat in de eindbinding.
 
-Ronde 8 (`--proef R8`, DEF-768-AI-20260925-R8, ADR-003-keten) is open voor
+Ronde 8 (`--proef R8`, DEF-768-AI-20260925-R8, ADR-003-keten) was open voor
 echte calls binnen het gepinde budgetbesluit van Chris (25-09,
 `logs/def768/ronde8-budgetgoedkeuring-v1.json`: 68 modelstappen, max USD 25
 routerbudget, cumulatief 427, reserve 0, geen automatische extra ronde). Een
@@ -58,7 +58,19 @@ en expliciete verifier op de productiegrenzen (`productiegrenzen`), begroot
 model en tarief, stap-1-payload binnen de bytegrens, kostenplan binnen het
 plafond, geen nulcallroutes, stopregel en fasevolgorde. Na elk geval legt de
 runner de acceptatie duurzaam vast; het eerste niet-geaccepteerde geval stopt
-de proef.
+de proef. R8 stopte na één betaalde stap (R720, USD 0,098735) en is gesloten
+voor echte calls; zijn besluit blijft gepind als grond onder R9.
+
+Ronde 9 (`--proef R9`, DEF-768-AI-20260926-R9, gerichte herproef na het
+R8-offsetherstel; besluit Chris 26-09,
+`logs/def768/ronde9-herproefgoedkeuring-v1.json`) is de enige open ronde: 64
+modelstappen (ontwikkeling alleen R720, verificatie_alleen op de ongewijzigde
+R8-V-invoer, t_eind, t_herhaling), reserve 0, cumulatief 424, routerplafond
+USD 24,901265 binnen het kader van USD 25 inclusief de werkelijke R8-kosten.
+Het besluit draagt het oorspronkelijke 68/25-besluit en de payloadtoestemming
+(beide op hash gepind) mee. Een run toetst vóór grootboek en netwerk ook de
+vastgelegde prompt- en antwoordcontractidentiteit (`contract`), die ook in de
+freeze van beide eindgroepen staat.
 
 Voorbeeld (droog, offline):
 
@@ -84,6 +96,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -355,6 +368,38 @@ R8_BUDGETBESLUIT = PROJECT_ROOT / "logs" / "def768" / "ronde8-budgetgoedkeuring-
 R8_BUDGETBESLUIT_SHA256 = (
     "bf82cd3bfd6cea12fc0d3d97df2305c922fdde8c19fb84db6f0a1e3320195d17"
 )
+#: Ronde 9 (gerichte herproef): eigen rapportroot, grootboek, anker, slot en freezes.
+R9_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260926-R9"
+#: Ronde 9: T = alleen R720, exact uit de R8-selectie (maak_r9_ontwikkelinvoer.py).
+R9_T_ONTWIKKELINVOER_SHA256 = (
+    "4e11ebe579ba9852217951fdf21466dc3131f2ba925f49fb7114b242eef3439d"
+)
+#: Ronde 9: het herproefbesluit van Chris ("Ja", 26-09), gepind op pad en hash.
+R9_BUDGETBESLUIT = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde9-herproefgoedkeuring-v1.json"
+)
+R9_BUDGETBESLUIT_SHA256 = (
+    "89ea16dddc7bb4403d4aa6f6fdaebc385f8fb40c40e1d6698b98bcd321765018"
+)
+#: De toestemming voor verzending naar Anthropic (25-09, max 68 calls, USD 25),
+#: waarbinnen R8 en R9 samen blijven; gepind op pad en hash.
+R9_PAYLOADTOESTEMMING = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde8-anthropic-versturingstoestemming-v1.json"
+)
+R9_PAYLOADTOESTEMMING_SHA256 = (
+    "a118986fa8c05161beb4f1b8eae642cc5b8ba05cb879519b289a734f26ac3a08"
+)
+#: Ronde 9: de prompt- en antwoordcontractidentiteit van de offsetherstelcode
+#: (3dd7010e2); een run op andere code start niets (`_controleer_contract`).
+R9_CONTRACT = MappingProxyType(
+    {
+        "prompt_version": "ess05-assess/15",
+        "verification_prompt_version": "ess05-verify/2",
+        "answer_schema_version": "ess05-answer/1",
+        "concept_schema_version": "ess05-concept/1",
+        "verification_schema_version": "ess05-verification/1",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -376,6 +421,11 @@ class Proef:
     #: R8: het gepinde budgetbesluit dat deze ronde voor echte calls opent.
     budgetbesluit: Path | None = None
     budgetbesluit_sha256: str | None = None
+    #: R9: de gepinde payloadtoestemming onder het oorspronkelijke kader.
+    payloadtoestemming: Path | None = None
+    payloadtoestemming_sha256: str | None = None
+    #: R9: vastgelegde prompt- en antwoordcontractidentiteit (`contractidentiteit`).
+    contract: Mapping[str, str] | None = None
 
 
 PROEVEN = {
@@ -443,18 +493,36 @@ PROEVEN = {
         True,
         t_ontwikkelinvoer_sha256=R7_T_ONTWIKKELINVOER_SHA256,
     ),
-    # Ronde 8: open binnen het gepinde budgetbesluit (68 modelstappen, max
-    # USD 25 routerbudget, cumulatief 427, reserve 0); R1–R7 blijven gesloten.
+    # Ronde 8: duurzaam gestopt na één betaalde stap (R720, 25-09) en gesloten
+    # voor echte calls. Het besluit (68 modelstappen, max USD 25, cumulatief
+    # 427, reserve 0) blijft gepind: het is de grond onder het R9-besluit.
     "R8": Proef(
         "R8",
         gb.R8,
         Proefopslag(R8_UITMAP),
-        True,
+        False,
         True,
         t_ontwikkelinvoer_sha256=R8_T_ONTWIKKELINVOER_SHA256,
         v_invoer_sha256=R8_V_INVOER_SHA256,
         budgetbesluit=R8_BUDGETBESLUIT,
         budgetbesluit_sha256=R8_BUDGETBESLUIT_SHA256,
+    ),
+    # Ronde 9: open binnen het gepinde herproefbesluit (64 modelstappen,
+    # plafond USD 24,901265, cumulatief 424, reserve 0); R1–R8 gesloten. De
+    # V-invoer is ongewijzigd die van R8 (zelfde bestandshash).
+    "R9": Proef(
+        "R9",
+        gb.R9,
+        Proefopslag(R9_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R9_T_ONTWIKKELINVOER_SHA256,
+        v_invoer_sha256=R8_V_INVOER_SHA256,
+        budgetbesluit=R9_BUDGETBESLUIT,
+        budgetbesluit_sha256=R9_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R9_CONTRACT,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -611,14 +679,12 @@ def controleer_budgetbesluit(proef: Proef) -> str:
         "fasen_modelstappen_max": dict(identiteit.fasecaps),
     }
     afwijkend = [k for k, v in velden.items() if data.get(k) != v]
-    try:
-        plafond = Decimal(str(data.get("kostenbudget_usd"))) * 10**9
-    except InvalidOperation:
-        plafond = None
-    if plafond != kb.plafond_nusd:
+    if _nusd(data.get("kostenbudget_usd")) != kb.plafond_nusd:
         afwijkend.append("kostenbudget_usd")
     if not str(data.get("gebruikersantwoord") or "").strip():
         afwijkend.append("gebruikersantwoord")
+    if identiteit.kostenkader_nusd is not None:
+        afwijkend += _kaderafwijkingen(proef, data)
     if afwijkend:
         msg = (
             f"budgetbesluit past niet op {identiteit.proef_id} (afwijkend: "
@@ -626,6 +692,114 @@ def controleer_budgetbesluit(proef: Proef) -> str:
         )
         raise gb.BudgetSchendingError(msg)
     return verwacht
+
+
+def _nusd(waarde: Any) -> Decimal | None:
+    """Een USD-bedrag uit een besluit in nanodollars; None als het geen getal is."""
+    try:
+        return Decimal(str(waarde)) * 10**9
+    except InvalidOperation:
+        return None
+
+
+def _grondproef(proef: Proef) -> Proef:
+    """De geregistreerde voorganger wiens besluit het kader van deze ronde draagt."""
+    grond = next(
+        (p for p in PROEVEN.values() if p.identiteit is proef.identiteit.voorganger),
+        None,
+    )
+    if grond is None or grond.identiteit.kostenbewaking is None:
+        msg = f"ronde {proef.naam}: geen voorganger met budgetbesluit als kader"
+        raise gb.BudgetSchendingError(msg)
+    return grond
+
+
+def _controleer_payloadtoestemming(proef: Proef, grond: Proef) -> None:
+    """De gepinde payloadtoestemming, passend op het oorspronkelijke kader."""
+    pad, verwacht = proef.payloadtoestemming, proef.payloadtoestemming_sha256
+    kader = proef.identiteit.kostenkader_nusd
+    try:
+        inhoud = Path(pad).read_bytes() if pad is not None else b""
+        data = json.loads(inhoud)
+    except (OSError, json.JSONDecodeError) as exc:
+        msg = f"payloadtoestemming {pad} ontbreekt of is onleesbaar: {exc}"
+        raise gb.BudgetSchendingError(msg) from exc
+    if verwacht is None or hashlib.sha256(inhoud).hexdigest() != verwacht:
+        msg = f"payloadtoestemming {Path(pad).name} wijkt af van de gepinde hash {verwacht}"
+        raise gb.BudgetSchendingError(msg)
+    if (
+        data.get("budget_calls_max") != grond.identiteit.totaal_max
+        or _nusd(data.get("budget_usd_max")) != kader
+        or not str(data.get("user_reply") or "").strip()
+    ):
+        msg = (
+            f"payloadtoestemming past niet op het kader van {grond.naam} "
+            f"({grond.identiteit.totaal_max} calls, {kader} nUSD); geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
+
+
+def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
+    """R9: het besluit draagt het oorspronkelijke kader van de voorganger (R8).
+
+    Het oorspronkelijke besluit en de payloadtoestemming moeten zelf gepind en
+    geldig zijn; het R8-verbruik plus deze ronde blijft binnen hun 68 stappen
+    en USD 25. De werkelijke R8-kosten toetst `gb.controleer_cumulatief` tegen
+    het R8-grootboek.
+    """
+    identiteit = proef.identiteit
+    grond = _grondproef(proef)
+    controleer_budgetbesluit(grond)
+    _controleer_payloadtoestemming(proef, grond)
+    g, kader = grond.identiteit, identiteit.kostenkader_nusd
+    afwijkend = []
+    if _nusd(data.get("oorspronkelijk_kostenbudget_usd")) != kader or (
+        kader != g.kostenbewaking.plafond_nusd
+    ):
+        afwijkend.append("oorspronkelijk_kostenbudget_usd")
+    verbruik = _nusd(data.get("r8_verbruik_usd"))
+    if verbruik is None or verbruik + identiteit.kostenbewaking.plafond_nusd != kader:
+        afwijkend.append("r8_verbruik_usd")
+    if data.get("oorspronkelijk_extra_budget") != g.totaal_max:
+        afwijkend.append("oorspronkelijk_extra_budget")
+    if data.get("oorspronkelijk_cumulatief_plafond") != g.cumulatief_max:
+        afwijkend.append("oorspronkelijk_cumulatief_plafond")
+    stappen = data.get("r8_verbruik_modelstappen")
+    if (
+        not isinstance(stappen, int)
+        or isinstance(stappen, bool)
+        or stappen < 0
+        or stappen + identiteit.totaal_max > g.totaal_max
+        or data.get("historisch_verbruik") != g.cumulatief_max - g.totaal_max + stappen
+    ):
+        afwijkend.append("r8_verbruik_modelstappen")
+    return afwijkend
+
+
+def contractidentiteit(omg: Omgeving) -> dict[str, str]:
+    """Prompt- en antwoordcontractversies zoals de gebouwde omgeving ze draagt."""
+    from domain.ess05 import bewijs
+
+    return {
+        "prompt_version": omg.dienst.PROMPT_VERSION,
+        "verification_prompt_version": omg.dienst.verification_service.PROMPT_VERSION,
+        "answer_schema_version": bewijs.ANTWOORDSCHEMA,
+        "concept_schema_version": bewijs.CONCEPTSCHEMA,
+        "verification_schema_version": bewijs.VERIFICATIESCHEMA,
+    }
+
+
+def _controleer_contract(omg: Omgeving, proef: Proef) -> None:
+    """R9: de code draagt exact de vastgelegde contractidentiteit (vóór alles)."""
+    if proef.contract is None:
+        return
+    werkelijk = contractidentiteit(omg)
+    if werkelijk != dict(proef.contract):
+        msg = (
+            f"ronde {proef.naam}: contractidentiteit {werkelijk} is niet de "
+            f"vastgelegde {dict(proef.contract)} — geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
 
 
 def _besluit_voor(omg: Omgeving, proef: Proef) -> str | None:
@@ -935,6 +1109,8 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
         )
         velden["system_prompt_sha256"] = _sha_tekst(_systeemprompt(omg.norm))
         velden["norm_sha256"] = omg.dienst.norm_sha256
+        if proef.contract is not None:  # R9; freezes van R8 en ouder ongewijzigd
+            velden.update(contractidentiteit(omg))
     else:
         velden["g_actueel_instructie_sha256"] = _sha_tekst(pi.huidige_g_instructie())
     return velden
@@ -1871,6 +2047,7 @@ async def voer_t_fase(
     _controleer_goedkeuring(omg, proef)
     _controleer_productiegrenzen(omg, proef)
     _controleer_kostenroute(omg, proef)
+    _controleer_contract(omg, proef)
     besluit = _besluit_voor(omg, proef)
     stappen = len(t_stappen(omg.dienst))
     if technische_herhalingen:
@@ -2349,6 +2526,7 @@ async def voer_v_fase(
     _controleer_registratie(omg, proef)
     _controleer_productiegrenzen(omg, proef)
     _controleer_kostenroute(omg, proef)
+    _controleer_contract(omg, proef)
     besluit = _besluit_voor(omg, proef)
     if technische_herhalingen:
         msg = "technische herhaling in de verifier-only-fase is niet vastgelegd"
@@ -2924,6 +3102,7 @@ async def droogrun(
     )
     _controleer_productiegrenzen(omg_d, proef)
     _controleer_kostenroute(omg_d, proef)
+    _controleer_contract(omg_d, proef)
     data = json.loads(Path(pad).read_text(encoding="utf-8"))
     items: list[dict[str, Any]] = []
     if fase in V_FASES:
@@ -3063,16 +3242,16 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R7 zijn gesloten voor echte calls; R8 "
-            f"({gb.R8.proef_id}, ADR-003-keten, opslag {PROEVEN['R8'].opslag.root}, "
-            "cumulatief met R1 t/m R7 max 427) is open binnen het gepinde "
-            "budgetbesluit (68 modelstappen, max USD 25, reserve 0)"
+            "R1 (standaard) t/m R8 zijn gesloten voor echte calls; R9 "
+            f"({gb.R9.proef_id}, gerichte herproef, opslag {PROEVEN['R9'].opslag.root}, "
+            "cumulatief met R1 t/m R8 max 424) is open binnen het gepinde "
+            "herproefbesluit (64 modelstappen, max USD 24,901265, reserve 0)"
         ),
     )
     p.add_argument(
         "--gevallen",
         type=Path,
-        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8)",
+        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8/R9)",
     )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
@@ -3115,7 +3294,7 @@ def _parser() -> argparse.ArgumentParser:
         "--max-tokens-t",
         type=int,
         default=None,
-        help="standaard: R8 de productiegrens (3000, ook voor de verifier); oudere rondes 1500",
+        help="standaard: R8/R9 de productiegrens (3000, ook voor de verifier); oudere rondes 1500",
     )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"
