@@ -41,3 +41,4 @@ dd1b043b6df2ee5423152b67cf0f1995ffa0cae71a8a1efce5b713d818372c4a  a-cowork/verwe
 8513daa103d306869587b55438b34ad9e6bd7e76bf62da294ea583304805c42c  c-codex-app/synthesecontrole-c-v2.md
 e01fda477cadb5304c3e4ca5f3d2e6310671a5d6ea90a1230b2587a2f6d20664  c-codex-app/manifest-c-v3.json
 2026-09-25T12:18:07Z akkoord Chris op v5; gepubliceerd bij DEF-771 (oplevercomment 1a1b848a…, zes acceptatiecriteria afgevinkt, kop in beschrijving); Prompt Forge op aanwijzing van Chris niet gebruikt (door coördinator gestarte backend weer gestopt)
+2026-09-25T13:07:41Z gemergd in main: PR #478 (merge commit a3c012312); branch docs/DEF-771-int02-regeldossier, commits e8f88bca8 (dossier) + 9f748dfc7 (pre-commit: ruff/black slaan docs/analyses/ over); alle 29 CI-checks groen; deze regel is lokaal bijgeschreven na de merge en niet opnieuw gecommit
