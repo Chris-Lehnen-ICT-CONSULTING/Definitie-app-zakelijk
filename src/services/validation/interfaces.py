@@ -66,7 +66,12 @@ from services.interfaces import Definition
 # volledige AI-telbaarheidsbeoordeling die de async wrapper voor exact deze
 # validatie heeft verkregen (contract domain.ess03.contract), of null. Geen
 # bestaande status of veld is van betekenis veranderd: SemVer-minor.
-CONTRACT_VERSION = "2.1.0"
+#
+# 2.2.0 (DEF-771): additief — een deeluitkomst in rule_results (parts.status)
+# mag `not_evaluated` zijn. INT-02 levert zo bij ontbrekende kern of context
+# de exacte NE-melding als deeluitkomst (score en fingerprint null, geen
+# oordeel). Geen nieuw veld; geen bestaande status van betekenis veranderd.
+CONTRACT_VERSION = "2.2.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -239,7 +244,10 @@ class RuleResultPart(TypedDict):
     """
 
     id: str
-    status: Literal["pass", "fail", "review_required", "error", "not_applicable"]
+    # DEF-771 (2.2.0): ook `not_evaluated` — de reden zegt wat ontbreekt.
+    status: Literal[
+        "pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"
+    ]
     evidence: str | None
     context_value: str | None
     field: str | None

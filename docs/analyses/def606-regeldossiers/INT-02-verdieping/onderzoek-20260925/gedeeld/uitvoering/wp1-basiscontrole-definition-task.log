@@ -1,0 +1,48 @@
+# Basiscontrole vooraf bestaande failure — 2026-09-25T18:34:02Z
+# bron: git archive 0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d (src tests config pytest.ini) naar /tmp/def771-wp1-basis-1790361228; geen WP1-wijziging aanwezig
+# commando (cwd /tmp/def771-wp1-basis-1790361228): /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/services/prompts/modules/test_definition_task_transformation.py::TestDefinitionTaskTransformation::test_no_negative_commands_in_guide -q -p no:cacheprovider -p no:randomly
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ TestDefinitionTaskTransformation.test_no_negative_commands_in_guide ______
+
+self = <tests.unit.services.prompts.modules.test_definition_task_transformation.TestDefinitionTaskTransformation object at 0x10df7cf30>
+
+    def test_no_negative_commands_in_guide(self):
+        """
+        Test that the guide minimizes negative commands.
+    
+        Instead of multiple "Geen X", "Niet Y", "Vermijd Z",
+        should focus on what TO do.
+        """
+        result = self.module.execute(self.context)
+    
+        # Count negative indicators
+        guide_section = result.content[
+            : (
+                result.content.find("METADATA")
+                if "METADATA" in result.content
+                else len(result.content)
+            )
+        ]
+    
+        negative_count = (
+            guide_section.count("Geen ")
+            + guide_section.count("Niet ")
+            + guide_section.count("Vermijd ")
+            + guide_section.count("niet ")
+        )
+    
+        # Some negatives might be necessary, but should be minimal
+>       assert negative_count < 10, (
+            f"Guide has {negative_count} negative commands. "
+            "Should focus on positive construction instructions instead"
+        )
+E       AssertionError: Guide has 12 negative commands. Should focus on positive construction instructions instead
+E       assert 12 < 10
+
+tests/unit/services/prompts/modules/test_definition_task_transformation.py:243: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+=========================== short test summary info ============================
+FAILED tests/unit/services/prompts/modules/test_definition_task_transformation.py::TestDefinitionTaskTransformation::test_no_negative_commands_in_guide
+# exitstatus: 1

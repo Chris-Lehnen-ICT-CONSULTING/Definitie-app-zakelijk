@@ -26,13 +26,14 @@ Dit document definieert het bindende contract voor `ValidationResult` objecten i
 ## Scope & Status
 
 - **Scope**: Alle validation responses van ValidationOrchestratorV2
-- **Versie**: 2.0.0 (SemVer)
+- **Versie**: 2.2.0 (SemVer)
 - **Backward Compatibility**: Gegarandeerd binnen major version. De overgang 1.x → 2.0.0 is een betekenisverandering (zie tabel); legacy-invoer blijft leesbaar via de normalisatie in `services.validation.result_contract`, maar levert nooit een oordeel.
 
 ### Wijzigingen
 
 | Versie | Wijziging |
 | --- | --- |
+| 2.2.0 | DEF-771 (26-09-2026): een deeluitkomst in `rule_results` (`parts[].status`) mag `not_evaluated` zijn. INT-02 boekt bij ontbrekende kern of context `rule_results['INT-02']` met status `not_evaluated`, `score` en `fingerprint` `null`, `contract_version` uit het regelrecord en één onderdeel `invoer` met de exacte melding "INT-02 — Niet uitgevoerd: {kern/context} ontbreekt. Er is geen inhoudelijk oordeel." Geen oordeel, score, reviewpunt of poort; `rule_statuses` en de dekking blijven zoals ze waren. Additief; geen nieuw veld. |
 | 2.0.0 | DEF-624 (deellevering 1, 16-09-2026): `validation_status` is verplicht in de canonieke uitvoervorm en heeft geen `default: validated` meer. Een afwezige, null of ongeldige status betekent niet langer "uitgevoerde run" maar wordt aan de invoergrens (dict, legacy object, fabriek, adapter) `validation_unknown` met reden `contract_status_missing` / `contract_status_invalid`; een degraded result is `validation_unknown` met `validation_error`. `validation_readiness` is alleen bij `ruleset_incomplete` verplicht (alleen dan gemeten). Bij `validation_unknown` is `is_acceptable` altijd `false` en `overall_score` 0 of null. Conversies verzinnen geen geslaagde regels (de oude `BASIC-00x`-default vervalt) en maken van een `None`-score geen 0.0 (ook niet via de legacy-sleutel `score`). In de TypedDict-binding zijn de schemaverplichte velden `Required[...]` (`ValidationResult.__required_keys__` == `required`); een expliciet `source_assessment: null` reist bij conversie mee en een aanwezige ongeldige status wordt als `contract_status_invalid` (niet als ontbrekend) gemeld. `services.validation.types` voert geen eigen versie meer maar herexporteert dit contract; de fabriek normaliseert een afwezige/ongeldige status via de centrale statusbepaling (AC 1) en weigert alleen tegenstrijdige expliciete metadata (reden bij validated, expliciete unknown zonder contractuele reden, `ruleset_incomplete` zonder volledige readiness, readiness buiten de schemavorm); `is_valid_result` volgt de conditionele schema-eisen incl. de unknown-placeholders en de readinessvorm. Vorige versie gepind als `schemas/validation_result_v1.4.0.schema.json`. |
 | 1.4.0 | DEF-743: `source_assessment` (volledige AI-bronbeoordeling CON-02, of null) toegevoegd. Additief. |
 | 1.3.0 | DEF-622: `rule_results` toegevoegd; `overall_score` en categoriescores mogen `null` zijn (geen noemer zonder CON-01). Additief. |

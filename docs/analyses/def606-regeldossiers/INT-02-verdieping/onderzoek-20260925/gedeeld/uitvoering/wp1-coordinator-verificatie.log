@@ -1,0 +1,36 @@
+# WP1 — verificatie door coördinator, 25-09-2026
+
+Commando: DEF771_SKILLS_ROOT=/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_contract.py tests/unit/validation/test_v2_golden_int_more.py -v -ra -p no:cacheprovider
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=4069697267
+rootdir: /Users/chrislehnen/Projecten/Definitie-app
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 18 items
+
+tests/unit/validation/test_def771_int02_contract.py ..............       [ 77%]
+tests/unit/validation/test_v2_golden_int_more.py ....                    [100%]
+
+============================== 18 passed in 0.86s ==============================
+
+Exitstatus: 0
+
+Ruff: .venv/bin/python -m ruff check tests/unit/validation/test_def771_int02_contract.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py
+Black: .venv/bin/python -m black --check [dezelfde twee bestanden]
+
+All checks passed!
+would reformat tests/unit/validation/test_def771_int02_contract.py
+would reformat docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py
+
+Oh no! 💥 💔 💥
+2 files would be reformatted.
+
+Gezamenlijke exitstatus: 1
+

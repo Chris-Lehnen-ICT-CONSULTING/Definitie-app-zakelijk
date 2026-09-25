@@ -804,7 +804,8 @@ def render_validation_detailed_list(
         if not isinstance(review_item, dict):
             continue
         rule_id = review_item.get("rule_id")
-        if rule_id in ("ESS-01", "ESS-02", "ESS-04"):
+        # DEF-771: ook de INT-02-passagehulp (toetsvraag, passage, positie).
+        if rule_id in ("ESS-01", "ESS-02", "ESS-04", "INT-02"):
             st.text(str(review_item.get("reason") or f"{rule_id} — Nog te beoordelen"))
 
     # Toggle + details
