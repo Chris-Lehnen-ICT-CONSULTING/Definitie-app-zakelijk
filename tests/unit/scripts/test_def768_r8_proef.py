@@ -850,6 +850,37 @@ class TestVerifierOnly:
         assert provider.aanroepen == []
         assert not _opslag8(tmp_path).grootboek.exists()
 
+    def test_t_eind_na_v_met_een_eigen_freeze_per_eindgroep(self, tmp_path):
+        """De geplande keten: V (freeze groep v), dan T (freeze groep t)."""
+        pad, items = _v_invoer(tmp_path, ("goed", "fout") * 3)
+        provider = _R8Provider(
+            uitkomsten={
+                i["concept_hash"]: {i["foutdragende_items"][0]: "unsupported"}
+                for i in items
+                if i["soort"] == "fout"
+            }
+        )
+        omg = _omgeving8(provider)
+        proef = _r8(v_invoer_sha256=_sha(pad))
+        _v8(omg, tmp_path, pad, proef=proef)
+        assert [g["geaccepteerd"] for g in _v_gevallen(tmp_path)] == [True] * 6
+        freeze_t = tmp_path / "freeze-t.json"
+        freeze_t.write_text(
+            json.dumps(runner.freezevelden(omg, proef, "t")), encoding="utf-8"
+        )
+        voor = len(provider.stappen)
+        _t8(omg, tmp_path, _gevallenbestand(tmp_path, 20, "eind.json"),
+            fase="t_eind", nieuw=False, proef=proef, freeze=freeze_t,
+            max_calls=1)  # fmt: skip
+        assert provider.stappen[voor:] == ["beoordeling", "verificatie"]
+        reserveringen = _soort(tmp_path, "reservering")
+        v, *_ = [r for r in reserveringen if r["fase"] == "verificatie_alleen"]
+        t, *_ = [r for r in reserveringen if r["fase"] == "t_eind"]
+        for veld in ("code_sha256", "config_sha256"):
+            assert t["binding"][veld] == v["binding"][veld]
+        assert t["binding"]["freeze_sha256"] == _sha(freeze_t)
+        assert v["binding"]["freeze_sha256"] != _sha(freeze_t)
+
     @pytest.mark.skipif(not R8_VINVOER.is_file(), reason="R8-V-invoer ontbreekt")
     def test_droog_echte_verificatie_invoer(self, tmp_path):
         code = runner.main(["--proef", "R8", "--fase", "verificatie_alleen", "--gevallen",

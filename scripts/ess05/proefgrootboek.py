@@ -77,7 +77,7 @@ Daarbovenop, alleen voor R8:
   begint pas als elk geval van haar voorganger geaccepteerd is;
 - **stopregel** — één niet-geaccepteerd geval (`registreer_geval`) stopt de
   proef duurzaam; geen verborgen herhaling of extra ronde;
-- **gedeelde codebinding** — V en T delen code, configuratie en freeze.
+- **gedeelde codebinding** — V en T delen code en configuratie; elke eindgroep heeft een eigen freeze.
 
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
@@ -266,7 +266,7 @@ class Proefidentiteit:
     fasestappen: Mapping[str, tuple[str, ...]] | None = None
     #: R8: fases die volledig geaccepteerd moeten zijn vóór deze fase begint.
     fasevolgorde: Mapping[str, tuple[str, ...]] | None = None
-    #: R8: alle eindgroepen delen code, configuratie en freeze.
+    #: R8: alle eindgroepen delen code en configuratie (freeze per groep).
     gedeelde_codebinding: bool = False
     #: R8: één niet-geaccepteerd geval stopt de proef duurzaam.
     stop_bij_eerste_fout: bool = False
@@ -427,8 +427,9 @@ R8 = Proefidentiteit(
     stop_bij_eerste_fout=True,
 )
 _IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8)}
-#: Velden die alle eindgroepen delen bij `gedeelde_codebinding`.
-_GEDEELDE_BINDING = ("code_sha256", "config_sha256", "freeze_sha256")
+#: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
+#: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
+_GEDEELDE_BINDING = ("code_sha256", "config_sha256")
 
 
 def begroting_nusd(identiteit: Proefidentiteit) -> int:
@@ -1112,7 +1113,7 @@ class Grootboek:
                 if gedeeld is not None and gedeeld.get(veld) != schoon.get(veld):
                     msg = (
                         f"{veld} van fase {fase!r} wijkt af van de gedeelde "
-                        "binding van V en T (zelfde code, configuratie en freeze)"
+                        "binding van V en T (zelfde code en configuratie)"
                     )
                     raise BudgetSchendingError(msg)
         return schoon

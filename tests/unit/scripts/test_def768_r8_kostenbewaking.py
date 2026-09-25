@@ -363,6 +363,15 @@ class TestStopEnVolgorde:
         with pytest.raises(gb.BudgetSchendingError, match="config"):
             _stap(boek, "t_eind", "t_eind|R1|1", 0, binding=_binding(config="e" * 64))
 
+    def test_v_en_t_hebben_elk_een_eigen_freeze(self, tmp_path):
+        """Elke eindgroep bevriest op haar eigen groep (v/t); alleen code en
+        configuratie zijn gedeeld (proefvoorstel par. 6.1)."""
+        boek = _boek(tmp_path)
+        _ontwikkeling_klaar(boek)
+        _v_klaar_na_ontwikkeling(boek)
+        eigen_freeze = {**_binding(), "freeze_sha256": "e" * 64}
+        _stap(boek, "t_eind", "t_eind|R1|1", 0, binding=eigen_freeze)
+
     def test_fasestart_vooraf_toetsbaar(self, tmp_path):
         boek = _boek(tmp_path)
         boek.controleer_fasestart("ontwikkeling")
