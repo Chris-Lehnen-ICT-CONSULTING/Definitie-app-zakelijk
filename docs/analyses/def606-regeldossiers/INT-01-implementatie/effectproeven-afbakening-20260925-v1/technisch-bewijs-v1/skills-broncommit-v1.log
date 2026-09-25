@@ -1,0 +1,11 @@
+✅ definitie-toetsregels → cowork-exports/definitie-toetsregels.zip
+
+════════════════════════════════════════════════
+  1 skill(s) geëxporteerd naar: cowork-exports/
+  Upload via: Claude Desktop → Customize → Skills → +
+
+  Tip: draai --diff om te zien welke nog ontbreken in Cowork
+════════════════════════════════════════════════
+pre-commit: cowork-exports/definitie-toetsregels.zip ververst en gestaged
+[feature/DEF-770-int01-herstel-skills 263038b] docs(DEF-770): Verduidelijk INT-01 en INT-07 afbakening
+ 3 files changed, 1 insertion(+), 1 deletion(-)
