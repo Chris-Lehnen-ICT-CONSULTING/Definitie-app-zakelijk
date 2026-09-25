@@ -1,0 +1,41 @@
+[
+  {
+    "role": "maker",
+    "session": "01a0d87f-5d7c-7a93-9236-ff85f93fc845",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "log": "logs/def770-afbakening/maker-sessie-v1.jsonl",
+    "sha256": "75a59dec7898335a3e925951b8c982393016060f6fea9b667e8e2442c639886c",
+    "item_types": [
+      "agent_message",
+      "error"
+    ],
+    "tool_calls": 0
+  },
+  {
+    "role": "A",
+    "session": "01a0d881-77e7-78d1-83b9-f41d2fad45c9",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "log": "logs/def770-afbakening/referentie-A-sessie-v1.jsonl",
+    "sha256": "ba9db337b5f24c7a1f32d11ec2d1a9430fd053c8f1241ac4bb3ac74322abe34b",
+    "item_types": [
+      "agent_message",
+      "error"
+    ],
+    "tool_calls": 0
+  },
+  {
+    "role": "B",
+    "session": "01a0d881-7808-7592-9017-ed4412d8f9d1",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "log": "logs/def770-afbakening/referentie-B-sessie-v1.jsonl",
+    "sha256": "076d8ca87baeef9fb7b31e34cd972070fd26a2d6b0753877f7c8e53bc643e420",
+    "item_types": [
+      "agent_message",
+      "error"
+    ],
+    "tool_calls": 0
+  }
+]
