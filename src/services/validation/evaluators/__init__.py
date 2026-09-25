@@ -30,6 +30,9 @@ from services.validation.evaluators.ontological_category import (
     OntologicalCategoryEvaluator,
 )
 from services.validation.evaluators.positive_indicator import PositiveIndicatorEvaluator
+from services.validation.evaluators.pronoun_reference_assessment import (
+    PronounReferenceAssessmentEvaluator,
+)
 from services.validation.evaluators.qualification import QualificationEvaluator
 from services.validation.evaluators.registry import (
     DuplicateEvaluatorError,
@@ -71,6 +74,7 @@ def build_default_registry() -> EvaluatorRegistry:
         ContextMetadataEvaluator(),
         SourceEvidenceEvaluator(),
         CountabilityAssessmentEvaluator(),
+        PronounReferenceAssessmentEvaluator(),
         SentenceBoundaryEvaluator(),
         DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),
