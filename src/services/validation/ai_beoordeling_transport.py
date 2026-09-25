@@ -13,10 +13,11 @@ import asyncio
 import hashlib
 import json
 import logging
-import re
 from collections.abc import Mapping
 from typing import Any
 
+# Verplaatst naar het domein (R8-offsetherstel); hier ongewijzigd doorgegeven.
+from domain.modeluitvoer import parse_modeluitvoer
 from services.interfaces import AIRateLimitError, AIServiceError, AITimeoutError
 
 __all__ = [
@@ -26,9 +27,6 @@ __all__ = [
     "parse_modeluitvoer",
     "stop_reason",
 ]
-
-#: Eén volledig markdown-codeblok om het antwoord; alleen dán wordt het uitgepakt.
-_CODEBLOK = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.IGNORECASE | re.DOTALL)
 
 #: Loggers waarop de onderliggende lagen een herhaalde transportpoging melden
 #: (Anthropic/OpenAI-SDK `_base_client`: "Retrying request"; AsyncGPTClient
@@ -47,27 +45,6 @@ def normhash(norm: Mapping[str, str]) -> str:
     return hashlib.sha256(
         json.dumps(dict(norm), ensure_ascii=False, sort_keys=True).encode("utf-8")
     ).hexdigest()
-
-
-def parse_modeluitvoer(text: Any) -> dict[str, Any] | None:
-    """Het JSON-object dat het héle modelantwoord vormt, of None.
-
-    Gesloten (DEF-766, correctieronde 1, R2): het antwoord is één JSON-object,
-    eventueel in één markdown-codeblok, en niets anders. Omliggende tekst,
-    meerdere objecten, een lijst of afgekapte JSON worden niet 'gerepareerd'
-    door een deelstring te kiezen — dat is een technische fout.
-    """
-    if not isinstance(text, str) or not text.strip():
-        return None
-    schoon = text.strip()
-    omhuld = _CODEBLOK.fullmatch(schoon)
-    if omhuld is not None:
-        schoon = omhuld.group(1).strip()
-    try:
-        data = json.loads(schoon)
-    except json.JSONDecodeError:
-        return None
-    return data if isinstance(data, dict) else None
 
 
 class Pogingenteller(logging.Filter):

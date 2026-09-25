@@ -22,6 +22,7 @@ niet het detectievermogen van een echte verifier.
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
@@ -30,6 +31,7 @@ from typing import Any
 
 from domain.ess03.contract import Intentie
 from domain.ess05.bewijs import (
+    ANTWOORDSCHEMA,
     CONCEPTSCHEMA,
     VERIFICATIESCHEMA,
     Ess05Concept,
@@ -40,6 +42,7 @@ from domain.ess05.contract import (
     FASE_VERIFICATIE,
     FOUT_SEMANTISCH,
     Ess05Beoordelingsbinding,
+    afleidingsbinding,
     beoordeling_niet_beschikbaar,
     beoordeling_technische_fout,
     beoordelingsmateriaal,
@@ -205,6 +208,23 @@ def concept_uit_spec(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> d
     return concept
 
 
+def antwoord_uit_concept(concept: Mapping[str, Any]) -> dict:
+    """Hetzelfde oordeel als modelantwoord (`ANTWOORDSCHEMA`): bewijsplaatsen
+    met materiaal-id, hash en citaat, zonder posities (die leidt de app af)."""
+    antwoord = deepcopy(dict(concept))
+    antwoord["schema_version"] = ANTWOORDSCHEMA
+    antwoord["evidence"] = [
+        {k: e[k] for k in ("id", "material_id", "material_sha256", "quote")}
+        for e in concept["evidence"]
+    ]
+    return antwoord
+
+
+def antwoord_uit_spec(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> dict:
+    """`concept_uit_spec` als modelantwoord (wat een fake provider teruggeeft)."""
+    return antwoord_uit_concept(concept_uit_spec(spec, materiaal))
+
+
 _PLAATS = re.compile(
     r"<plaats id=(\"[^\"]*\"|'[^']*') sha256=\"[0-9a-f]{64}\">(.*?)</plaats>", re.S
 )
@@ -300,6 +320,10 @@ def bouw_document(
             uitgesloten_termen=uitgesloten,
         )
     hashes = materiaalhashes(materiaal)
+    # Zoals de dienst: de ongewijzigde ruwe respons (antwoord zonder posities)
+    # en de binding van het daaruit afgeleide concept.
+    ruwe_respons = json.dumps(antwoord_uit_concept(ruw), ensure_ascii=False)
+    ruwe_hash = _sha(ruwe_respons)
     return {
         "contract_version": CONTRACTVERSIE,
         "prompt_version": binding.prompt_version,
@@ -328,7 +352,11 @@ def bouw_document(
         "verification": verificatie_ruw,
         "judgment": oordeel.als_dict() if oordeel is not None else None,
         "rejected": rejected,
-        "raw_response_sha256": "r" * 64,
+        "raw_response": ruwe_respons,
+        "raw_response_sha256": ruwe_hash,
+        "concept_derivation": afleidingsbinding(
+            ruwe_hash, Ess05Concept(deepcopy(ruw)), materiaal
+        ),
         "verification_raw_response_sha256": "v" * 64,
     }
 

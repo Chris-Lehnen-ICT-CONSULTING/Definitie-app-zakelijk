@@ -37,7 +37,7 @@ import pytest
 from services.ai.base_client import ChatResponse
 from services.validation.ess05_verification_service import aanroepgrens
 from tests.fixtures.def768_fakes import (
-    concept_uit_spec,
+    antwoord_uit_spec,
     is_verificatievraag,
     materiaal_uit_prompt,
     verificatie_voor,
@@ -140,7 +140,7 @@ class _TweestapsProvider(_FakeProvider):
                     if plek.startswith("neighbour:")
                 ],
             }
-            tekst = json.dumps(concept_uit_spec(spec, materiaal))
+            tekst = json.dumps(antwoord_uit_spec(spec, materiaal))
         if self.sdk:
             await _SDK().create()
         self.aanroepen.append({"model": model, **kwargs})

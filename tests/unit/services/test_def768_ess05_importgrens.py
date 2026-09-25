@@ -8,7 +8,8 @@ zoals `DefinitionEditTab._render_ess05_section`). Geen netwerk, geen modelcall.
 * Een lokaal werkelijk verkregen beoordeling blijft na opslaan en laden een
   actuele pass (positieve controle).
 * Een samenhangend vervalst document (M3-C: concept, verificatie en beide
-  hashvelden consistent herschreven) speelt lokaal als pass af — de replay
+  hashvelden consistent herschreven; sinds `ess05-assess/15` ook ruwe respons
+  en afleidingsbinding) speelt lokaal als pass af — de replay
   toetst consistentie, geen herkomst — maar via JSON-import wordt het nooit een
   actuele beoordeling.
 * Ook een legitieme export → import geeft zonder nieuwe beoordeling geen
@@ -21,6 +22,7 @@ zoals `DefinitionEditTab._render_ess05_section`). Geen netwerk, geen modelcall.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
@@ -37,7 +39,11 @@ from services.definition_edit_service import (
     ess05_uitkomst_van_definition,
 )
 from services.definition_repository import DefinitionRepository
-from tests.fixtures.def768_fakes import BINDING, bouw_ess05_beoordeling
+from tests.fixtures.def768_fakes import (
+    BINDING,
+    antwoord_uit_concept,
+    bouw_ess05_beoordeling,
+)
 from tests.unit.services.test_def768_ess05_persistentie import (
     BEGRIP,
     BUREN,
@@ -76,12 +82,19 @@ def _lokaal(tmp_path: Path, naam: str = "bron.db") -> tuple[DefinitionRepository
 
 
 def _vervals(doc: dict[str, Any]) -> dict[str, Any]:
-    """M3-C: concept, verificatie en beide hashvelden samenhangend herschreven."""
+    """M3-C: concept, verificatie en beide hashvelden samenhangend herschreven,
+    inclusief de ruwe respons en de afleidingsbinding daarvan."""
     doc = deepcopy(doc)
     doc["concept"]["claims"][0]["text"] = "Vervalste, niet geverifieerde onderbouwing."
     nieuw = Ess05Concept(deepcopy(doc["concept"])).hash
     doc["verification"]["candidate_hash"] = nieuw
     doc["verification_input"]["candidate_hash"] = nieuw
+    ruw = json.dumps(antwoord_uit_concept(doc["concept"]), ensure_ascii=False)
+    ruwe_hash = hashlib.sha256(ruw.encode("utf-8")).hexdigest()
+    doc["raw_response"] = ruw
+    doc["raw_response_sha256"] = ruwe_hash
+    doc["concept_derivation"]["raw_response_sha256"] = ruwe_hash
+    doc["concept_derivation"]["concept_hash"] = nieuw
     return doc
 
 

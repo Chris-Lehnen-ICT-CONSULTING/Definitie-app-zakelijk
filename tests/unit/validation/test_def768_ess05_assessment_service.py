@@ -30,6 +30,7 @@ from services.validation.ess05_assessment_service import (
     laad_ess05_norm,
 )
 from tests.fixtures.def768_fakes import (
+    antwoord_uit_concept,
     concept_uit_spec,
     materiaal_uit_prompt,
     verificatie_voor,
@@ -123,7 +124,8 @@ class FakeAI:
         if isinstance(uitkomst, dict) and "lacks_differentia" in uitkomst:
             concept = concept_uit_spec(uitkomst, materiaal_uit_prompt(prompt))
             self.uitkomsten.insert(0, verificatie_voor(concept))
-            uitkomst = concept
+            # Het model levert het antwoord zonder posities; de app leidt ze af.
+            uitkomst = antwoord_uit_concept(concept)
         tekst = uitkomst if isinstance(uitkomst, str) else json.dumps(uitkomst)
         return AIGenerationResult(
             text=tekst,
@@ -274,7 +276,7 @@ class TestAanroep:
                 _uitvoer(BUREN_E05), materiaal_uit_prompt(prompt)
             )
             concept["neighbours"][0]["satisfies_definition"] = False
-            return concept
+            return antwoord_uit_concept(concept)
 
         ai, svc = _service(met_planveld)
         doc = (await _assess(svc)).als_dict()
@@ -492,7 +494,8 @@ class TestOntwikkelcorrectiePrompt:
     def test_versie_is_verhoogd(self):
         # /3 ontwikkelcorrectie; /4 ronde 2 (zie TestRonde2Prompt).
         # /14: ADR-003, gesloten `/2`-antwoord; toetsinstructie ongewijzigd.
-        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/14"
+        # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
+        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
 
     def test_citaatinstructie_vraagt_een_aaneengesloten_fragment_met_zelfcontrole(
         self,
@@ -651,7 +654,7 @@ class TestRonde2ParserBlijftStreng:
             concept = concept_uit_spec(
                 _uitvoer(BUREN_E05), materiaal_uit_prompt(prompt)
             )
-            tekst = json.dumps(concept)[:-1] + ",}"
+            tekst = json.dumps(antwoord_uit_concept(concept))[:-1] + ",}"
             assert tekst.endswith(",}")
             return tekst
 

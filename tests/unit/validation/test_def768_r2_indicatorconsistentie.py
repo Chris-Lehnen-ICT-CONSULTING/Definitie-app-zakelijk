@@ -110,7 +110,8 @@ def test_versie_is_verhoogd():
     # verbreedt de takken (R4-E02).
     # /14 (ADR-003): alleen het uitvoertemplate naar het gesloten concept
     # (`ess05-concept/1`); de toetsinstructie (T/13) blijft bytegelijk.
-    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/14"
+    # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
+    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
 
 
 def test_echte_prompt_draagt_indicatorconsistentie():

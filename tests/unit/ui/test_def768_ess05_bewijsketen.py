@@ -20,13 +20,16 @@ echte verifier.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 import pytest
 
+from domain.ess05.bewijs import concepthash
 from services.definition_repository import DefinitionRepository
 from services.validation.ess05_assessment_service import Ess05Assessment
-from tests.fixtures.def768_fakes import FakeEss05Assessor
+from tests.fixtures.def768_fakes import FakeEss05Assessor, antwoord_uit_concept
 from tests.unit.ui.test_def768_ess05_editor import (
     _echte_toetsing,
     _ess05_kop,
@@ -110,6 +113,18 @@ def _concept_na_verificatie_gewijzigd(doc: dict) -> None:
     doc["concept"]["claims"][0]["text"] = GEVERIFIEERDE_REDEN + " Aangevuld."
 
 
+def _concept_en_respons_na_verificatie_gewijzigd(doc: dict) -> None:
+    # Ruwe respons en afleiding consistent mee gewijzigd (R8-offsetherstel):
+    # dan weigert alleen nog de binding aan de verzonden verifierinvoer.
+    _concept_na_verificatie_gewijzigd(doc)
+    doc["raw_response"] = json.dumps(antwoord_uit_concept(doc["concept"]))
+    ruwhash = hashlib.sha256(doc["raw_response"].encode("utf-8")).hexdigest()
+    doc["raw_response_sha256"] = ruwhash
+    doc["concept_derivation"].update(
+        raw_response_sha256=ruwhash, concept_hash=concepthash(doc["concept"])
+    )
+
+
 def _legacy_contract(doc: dict) -> None:
     doc["contract_version"] = "ess05/1"
 
@@ -119,10 +134,19 @@ def _legacy_contract(doc: dict) -> None:
     [
         (_zonder_verificatie, "semantische verificatie"),
         (_afgekeurde_verificatie, "semantische verificatie"),
-        (_concept_na_verificatie_gewijzigd, "verificatie hoort niet bij"),
+        # R8-offsetherstel: een concept dat niet uit de ruwe respons volgt,
+        # strandt al op de afleidingsbinding.
+        (_concept_na_verificatie_gewijzigd, "gebonden afleiding"),
+        (_concept_en_respons_na_verificatie_gewijzigd, "verificatie hoort niet bij"),
         (_legacy_contract, "ess05/1"),
     ],
-    ids=["zonder", "afgekeurd", "ander-concept", "legacy-1"],
+    ids=[
+        "zonder",
+        "afgekeurd",
+        "ander-concept",
+        "ander-concept-en-respons",
+        "legacy-1",
+    ],
 )
 def test_ongeverifieerd_concept_verschijnt_nooit_als_motivering(editor, mutatie, reden):
     teksten = _teksten_na_toetsing(editor, _GemanipuleerdeDienst(mutatie))

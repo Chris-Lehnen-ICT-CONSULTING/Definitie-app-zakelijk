@@ -79,7 +79,7 @@ import socket
 import subprocess
 import sys
 import time
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -125,6 +125,8 @@ _CODEBESTANDEN = (
     "src/domain/ess05/contract.py",
     # ADR-003: gesloten bewijscontract en de semantische verificatiestap.
     "src/domain/ess05/bewijs.py",
+    # R8-offsetherstel: modeluitvoerparser van transport en ESS-05-replay.
+    "src/domain/modeluitvoer.py",
     "src/services/validation/ess05_verification_service.py",
     "src/domain/ess03/contract.py",
     "src/domain/context/contract.py",
@@ -799,6 +801,37 @@ def _stop_bij_bewaking(sleutel: str, schending: str | None, *fouten: Any) -> Non
     ):
         msg = f"bewaking greep in bij {sleutel}: run gestopt"
         raise gb.BudgetSchendingError(msg)
+
+
+class GevalGestoptError(gb.BudgetSchendingError):
+    """De run stopt na een gestarte (en dus meegetelde) aanroep; draagt zijn resultaat.
+
+    Zo komt ook een afgewezen, betaalde stap in `resultaten` van de
+    samenvatting; stopregel en budgetboekhouding blijven ongewijzigd.
+    """
+
+    def __init__(self, msg: str, resultaat: dict[str, Any]) -> None:
+        super().__init__(msg)
+        self.resultaat = resultaat
+
+
+def _stop_met_resultaat(
+    resultaat: dict[str, Any],
+    sleutel: str,
+    schending: str | None,
+    acceptatie: Mapping[str, Any] | None,
+    *fouten: Any,
+) -> None:
+    """Bewakingsweigering of niet-geaccepteerd geval: stop, met het resultaat erbij."""
+    try:
+        _stop_bij_bewaking(sleutel, schending, *fouten)
+    except gb.BudgetSchendingError as exc:
+        raise GevalGestoptError(str(exc), resultaat) from exc
+    if acceptatie is not None and not acceptatie["geaccepteerd"]:
+        msg = (
+            f"{sleutel}: geval niet geaccepteerd ({acceptatie['reden']}); proef gestopt"
+        )
+        raise GevalGestoptError(msg, resultaat)
 
 
 def _grootboek(opslag: Proefopslag, nieuw: bool, proef: Proef) -> gb.Grootboek:
@@ -1746,23 +1779,7 @@ async def _t_call(
         boek.registreer_geval(
             fase, sleutel, details={"callrecord": bestand}, **acceptatie
         )
-    if annulering is not None:
-        raise annulering
-    _stop_bij_bewaking(sleutel, poging.schending, (document or {}).get("error"), fout)
-    if acceptatie is not None and not acceptatie["geaccepteerd"]:
-        msg = (
-            f"{sleutel}: geval niet geaccepteerd ({acceptatie['reden']}); proef gestopt"
-        )
-        raise gb.BudgetSchendingError(msg)
-    logger.info(
-        "%s: verwacht=%s gekregen=%s afsluiting=%s %.1fs",
-        sleutel,
-        geval["verwacht"],
-        uitkomst.get("status"),
-        status,
-        duur,
-    )
-    return {
+    resultaat = {
         "sleutel": sleutel,
         "id": geval["id"],
         "verwacht": geval["verwacht"],
@@ -1776,6 +1793,25 @@ async def _t_call(
         "duur_s": duur,
         "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
     }
+    if annulering is not None:
+        raise annulering
+    _stop_met_resultaat(
+        resultaat,
+        sleutel,
+        poging.schending,
+        acceptatie,
+        (document or {}).get("error"),
+        fout,
+    )
+    logger.info(
+        "%s: verwacht=%s gekregen=%s afsluiting=%s %.1fs",
+        sleutel,
+        geval["verwacht"],
+        uitkomst.get("status"),
+        status,
+        duur,
+    )
+    return resultaat
 
 
 def _vooraftoets_r8_t(
@@ -1901,21 +1937,25 @@ async def voer_t_fase(
                 if not deadline.past(_buitenste_deadline(omg, stappen)):
                     niet_gestart += 1
                     continue
-                resultaten.append(
-                    await _t_call(
-                        omg,
-                        boek,
-                        fase=fase,
-                        sleutel=sleutel,
-                        geval=geval,
-                        bestand_sha=bestand_sha,
-                        binding=binding,
-                        code_sha=code_sha,
-                        config_sha=config_sha,
-                        callmap=runmap / "calls",
-                        besluit=besluit,
+                try:
+                    resultaten.append(
+                        await _t_call(
+                            omg,
+                            boek,
+                            fase=fase,
+                            sleutel=sleutel,
+                            geval=geval,
+                            bestand_sha=bestand_sha,
+                            binding=binding,
+                            code_sha=code_sha,
+                            config_sha=config_sha,
+                            callmap=runmap / "calls",
+                            besluit=besluit,
+                        )
                     )
-                )
+                except GevalGestoptError as exc:
+                    resultaten.append(exc.resultaat)
+                    raise
         finally:
             samenvatting = _samenvatting(
                 omg,
@@ -2268,17 +2308,7 @@ async def _v_call(
         boek.registreer_geval(
             fase, v.sleutel, details={"callrecord": bestand}, **acceptatie
         )
-    if annulering is not None:
-        raise annulering
-    _stop_bij_bewaking(v.sleutel, poging.schending, fout)
-    if acceptatie is not None and not acceptatie["geaccepteerd"]:
-        msg = (
-            f"{v.sleutel}: geval niet geaccepteerd ({acceptatie['reden']}); "
-            "proef gestopt"
-        )
-        raise gb.BudgetSchendingError(msg)
-    logger.info("%s: %s %.1fs", v.sleutel, (acceptatie or {}).get("reden"), duur)
-    return {
+    resultaat = {
         "sleutel": v.sleutel,
         "id": v.item["id"],
         "soort": v.item["soort"],
@@ -2291,6 +2321,11 @@ async def _v_call(
         "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
         "status_correct": (acceptatie or {}).get("geaccepteerd"),
     }
+    if annulering is not None:
+        raise annulering
+    _stop_met_resultaat(resultaat, v.sleutel, poging.schending, acceptatie, fout)
+    logger.info("%s: %s %.1fs", v.sleutel, (acceptatie or {}).get("reden"), duur)
+    return resultaat
 
 
 async def voer_v_fase(
@@ -2360,20 +2395,24 @@ async def voer_v_fase(
                 if not deadline.past(_buitenste_deadline(omg, 1)):
                     niet_gestart += 1
                     continue
-                resultaten.append(
-                    await _v_call(
-                        omg,
-                        boek,
-                        fase=fase,
-                        v=v,
-                        bestand_sha=bestand_sha,
-                        binding=binding,
-                        code_sha=code_sha,
-                        config_sha=config_sha,
-                        callmap=runmap / "calls",
-                        besluit=besluit,
+                try:
+                    resultaten.append(
+                        await _v_call(
+                            omg,
+                            boek,
+                            fase=fase,
+                            v=v,
+                            bestand_sha=bestand_sha,
+                            binding=binding,
+                            code_sha=code_sha,
+                            config_sha=config_sha,
+                            callmap=runmap / "calls",
+                            besluit=besluit,
+                        )
                     )
-                )
+                except GevalGestoptError as exc:
+                    resultaten.append(exc.resultaat)
+                    raise
         finally:
             samenvatting = _samenvatting(
                 omg,

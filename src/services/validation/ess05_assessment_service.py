@@ -15,9 +15,13 @@ De dienst:
    structuur (kernkenmerken, bewijsplaatsen, claims, buren, voorstellen,
    vraag), met de norm uit het actieve ESS-05-regelrecord, de toetsinstructie
    en al het materiaal als XML-escaped **gegevens**;
-3. controleert het concept fail-closed (`domain.ess05.contract.valideer_concept`):
-   afwijkende vorm is `malformed_response`, één niet-verifieerbare bewijsplaats
-   maakt het hele antwoord `unverifiable_evidence`; dan volgt géén verificatie;
+3. leidt uit het antwoord (`ess05-answer/1`: citaten zonder posities) het
+   concept af en controleert het fail-closed
+   (`domain.ess05.contract.valideer_antwoord`): afwijkende vorm is
+   `malformed_response`, één niet-letterlijk, dubbelzinnig of anderszins
+   niet-verifieerbaar citaat maakt het hele antwoord `unverifiable_evidence`;
+   dan volgt géén verificatie. De ruwe respons blijft ongewijzigd bewaard en
+   het afgeleide concept is eraan en aan het materiaal gebonden;
 4. laat een geldig concept precies één keer semantisch verifiëren door de
    afzonderlijke `Ess05VerificationService` (eigen taak en prompt);
 5. past alleen een volledig, positief en exact gebonden verificatieresultaat
@@ -39,7 +43,6 @@ from collections.abc import Iterable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from html import unescape
 from pathlib import Path
 from typing import Any
 from xml.sax.saxutils import escape, quoteattr
@@ -47,7 +50,7 @@ from xml.sax.saxutils import escape, quoteattr
 from domain.context.contract import CONTEXT_VELDEN
 from domain.context.normalisatie import canoniseer_contextlijst
 from domain.ess03.contract import Intentie
-from domain.ess05.bewijs import CONCEPTSCHEMA, Ess05Concept
+from domain.ess05.bewijs import ANTWOORDSCHEMA, Ess05Concept
 from domain.ess05.contract import (
     CONTRACTVERSIE,
     FASE_BEOORDELING,
@@ -55,6 +58,7 @@ from domain.ess05.contract import (
     FOUT_SEMANTISCH,
     Buur,
     Ess05Beoordelingsbinding,
+    afleidingsbinding,
     beoordeling_technische_fout,
     beoordelingsmateriaal,
     bereken_ess05_vingerafdruk,
@@ -62,7 +66,7 @@ from domain.ess05.contract import (
     materiaalhashes,
     normaliseer_buren,
     pas_verificatie_toe,
-    valideer_concept,
+    valideer_antwoord,
 )
 from domain.sources.normalisatie import Bronidentiteit, canoniseer_bronnen
 from services.validation.ai_beoordeling_transport import normhash, parse_modeluitvoer
@@ -322,22 +326,24 @@ _ANTWOORDSTRUCTUUR = (
     "Afwezigheid van informatie is geen ontkenning. Elke claim en elke bewijsplaats "
     "wordt gebruikt; zet geen losse tekst buiten claims.\n"
     "- Een bewijsplaats verwijst naar één materiaal-id en sha256 uit <materiaal>, met "
-    "start en end als posities in tekens (vanaf 0, end exclusief) in de oorspronkelijke "
-    "tekst van dat materiaal; een XML-escape zoals &amp; telt als één teken. quote is "
-    "exact die tekst van start tot end. Een kernfragment (core_features, genus_evidence, "
-    "feature_evidence) komt uit het materiaal definition; source_evidence uit een "
-    "materiaal source:….\n"
+    "in quote een exact, aaneengesloten fragment uit de oorspronkelijke tekst van dat "
+    "materiaal; een XML-escape zoals &amp; staat voor één teken. Geef geen posities: "
+    "de app bepaalt de plaats zelf en aanvaardt een citaat alleen als het precies één "
+    "keer letterlijk in dat materiaal staat. Staat je fragment er vaker, kies dan een "
+    "langer aaneengesloten fragment dat er precies één keer staat. Een kernfragment "
+    "(core_features, genus_evidence, feature_evidence) komt uit het materiaal "
+    "definition; source_evidence uit een materiaal source:….\n"
     "- Per verwant begrip: distinguished heeft feature_evidence en geen "
     "missing_feature_claim; not_distinguished heeft missing_feature_claim en geen "
     "feature_evidence; unclear heeft geen feature_evidence.\n\n"
     "Antwoord uitsluitend met één JSON-object en niets anders, exact deze velden:\n"
     "{\n"
-    f'  "schema_version": "{CONCEPTSCHEMA}",\n'
+    f'  "schema_version": "{ANTWOORDSCHEMA}",\n'
     '  "genus_evidence": "<bewijs-id> of null",\n'
     '  "core_features": [{"id": "F1", "evidence": "<bewijs-id>"}],\n'
     '  "evidence": [{"id": "E1", "material_id": "<materiaal-id>", '
-    '"material_sha256": "<sha256>", "start": 0, "end": 0, '
-    '"quote": "exacte tekst van start tot end"}],\n'
+    '"material_sha256": "<sha256>", '
+    '"quote": "exact fragment dat één keer in dat materiaal staat"}],\n'
     '  "claims": [{"id": "C1", '
     '"role": "material|inference|absence_in_supplied_material", '
     '"text": "korte afgebakende uitspraak", "evidence": ["E1"], "premises": []}],\n'
@@ -490,22 +496,6 @@ class Ess05Assessment:
         return deepcopy(dict(self.data))
 
 
-def _ontsnap_citaten(geparsed: dict[str, Any]) -> dict[str, Any]:
-    """Zet XML-escaping uit de prompt terug in citaten en voorgestelde termen."""
-    kopie = deepcopy(geparsed)
-    for lijst, velden in (("evidence", ("quote",)), ("proposals", ("term",))):
-        items = kopie.get(lijst)
-        if not isinstance(items, list):
-            continue
-        for item in items:
-            if not isinstance(item, dict):
-                continue
-            for veld in velden:
-                if isinstance(item.get(veld), str):
-                    item[veld] = unescape(item[veld])
-    return kopie
-
-
 @dataclass(frozen=True)
 class _Stap1:
     """Uitkomst van de eerste stap: een gecontroleerd concept of een fout."""
@@ -568,7 +558,11 @@ class Ess05AssessmentService:
     #: /14 (ADR-003, contract ess05/2): toetsinstructie ongewijzigd; alleen het
     #: antwoord is een gesloten conceptoordeel met kernkenmerken, bewijsplaatsen
     #: en claims, gevolgd door een afzonderlijke semantische verificatie.
-    PROMPT_VERSION = "ess05-assess/14"
+    #: /15 (R8-offsetherstel): toetsinstructie ongewijzigd; het antwoord
+    #: (`ess05-answer/1`) geeft per bewijsplaats alleen materiaal, hash en het
+    #: exacte citaat; de app leidt de plaats af bij precies één letterlijke
+    #: treffer (R720: zeven letterlijke citaten, alle posities fout geteld).
+    PROMPT_VERSION = "ess05-assess/15"
     TASK_TYPE = "validation"
 
     def __init__(
@@ -759,6 +753,9 @@ class Ess05AssessmentService:
                 correlation_id=correlation_id,
             )
         document["concept"] = stap1.concept.als_dict()
+        document["concept_derivation"] = afleidingsbinding(
+            str(aanroep.raw_hash), stap1.concept, materiaal
+        )
 
         verificatie = await self._verifier.verifieer(
             stap1.concept,
@@ -834,6 +831,8 @@ class Ess05AssessmentService:
     @staticmethod
     def _registreer_stap1(document: dict[str, Any], aanroep: Aanroepresultaat) -> None:
         document["attribution"] = dict(aanroep.attributie)
+        # Ongewijzigd bewaard: de afleiding van het concept is eraan gebonden.
+        document["raw_response"] = aanroep.tekst
         document["raw_response_sha256"] = aanroep.raw_hash
         document["assessed_at"] = datetime.now(UTC).isoformat()
         document["elapsed_seconds"] = round(aanroep.verstreken, 3)
@@ -855,7 +854,7 @@ class Ess05AssessmentService:
         materiaal: Mapping[str, str],
         buren: tuple[Buur, ...],
     ) -> _Stap1:
-        """Transport → kaal JSON → gesloten structuur → bewijsplaatsen."""
+        """Transport → kaal JSON → gesloten structuur → afgeleide bewijsplaatsen."""
         fout = transportfout(aanroep, self._timeout_seconds)
         if fout is not None:
             return _Stap1(None, fout[0], fout[1], [])
@@ -864,7 +863,7 @@ class Ess05AssessmentService:
             return _Stap1(
                 None, "malformed_response", "modelantwoord is geen kaal JSON-object", []
             )
-        concept, fouten = valideer_concept(_ontsnap_citaten(geparsed), materiaal, buren)
+        concept, fouten = valideer_antwoord(geparsed, materiaal, buren)
         if concept is not None:
             return _Stap1(concept, None, None, [])
         if fouten and fouten[0]["reason"] == "structuurfout":

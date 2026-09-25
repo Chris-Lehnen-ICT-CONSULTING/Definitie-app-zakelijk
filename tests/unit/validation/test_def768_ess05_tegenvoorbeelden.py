@@ -24,6 +24,7 @@ tot een echte modelproef).
 
 from __future__ import annotations
 
+import hashlib
 import json
 from copy import deepcopy
 from typing import Any
@@ -39,6 +40,7 @@ from domain.ess05.contract import (
     beoordeel_onderscheid,
 )
 from tests.fixtures.def768_fakes import (
+    antwoord_uit_concept,
     concept_uit_spec,
     materiaal_uit_prompt,
     verificatie_voor,
@@ -75,7 +77,8 @@ class _Scenario:
         if self.wijzig is not None:
             concept = self.wijzig(concept)
         self.concept = concept
-        return concept
+        # Het model levert het antwoord zonder posities; de app leidt ze af.
+        return antwoord_uit_concept(concept)
 
     def verificatie(self, _prompt: str) -> dict[str, Any]:
         assert self.concept is not None
@@ -312,7 +315,16 @@ async def test_replay_weigert_verificatie_van_ander_concept_met_herschreven_veri
     ander["verification"]["candidate_hash"] = nieuw
     verzonden = ander["verification_input"]["candidate_hash"]
     assert verzonden == doc["verification_input"]["candidate_hash"] != nieuw
+    # R8-offsetherstel: zonder passende ruwe respons strandt dit al op de
+    # afleidingsbinding.
+    assert "gebonden afleiding" in _alle_teksten(_replay(ander, binding))
 
+    # Ruwe respons en afleiding consistent mee herschreven: alleen de binding
+    # aan de verzonden verifierinvoer kan nog weigeren.
+    ander["raw_response"] = json.dumps(antwoord_uit_concept(ander["concept"]))
+    ruwhash = hashlib.sha256(ander["raw_response"].encode("utf-8")).hexdigest()
+    ander["raw_response_sha256"] = ruwhash
+    ander["concept_derivation"].update(raw_response_sha256=ruwhash, concept_hash=nieuw)
     uitkomst = _replay(ander, binding)
     assert uitkomst["status"] != STATUS_PASS
     assert "verificatie hoort niet bij dit conceptoordeel" in _alle_teksten(uitkomst)

@@ -39,8 +39,8 @@ from services.validation.ess05_assessment_service import (
 )
 from services.validation.ess05_verification_service import Ess05VerificationService
 from tests.fixtures.def768_fakes import (
+    antwoord_uit_spec,
     bouw_ess05_beoordeling,
-    concept_uit_spec,
     materiaal_uit_prompt,
 )
 from tests.unit.scripts.test_def768_ess05_proefrunner import (
@@ -110,7 +110,7 @@ class _ConceptProvider(_FakeProvider):
                 if plek.startswith("neighbour:")
             ],
         }
-        self.tekst = json.dumps(concept_uit_spec(spec, materiaal))
+        self.tekst = json.dumps(antwoord_uit_spec(spec, materiaal))
         return await super().chat_completion(messages, model, **kwargs)
 
 

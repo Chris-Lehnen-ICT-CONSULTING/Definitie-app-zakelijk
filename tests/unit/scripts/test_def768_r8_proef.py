@@ -32,6 +32,7 @@ import pytest
 from services.ai.base_client import ChatResponse
 from services.ai.model_router import ModelRouter
 from tests.fixtures.def768_fakes import (
+    antwoord_uit_spec,
     concept_uit_spec,
     is_verificatievraag,
     materiaal_uit_prompt,
@@ -62,6 +63,17 @@ except ModuleNotFoundError:  # pragma: no cover - alleen tijdens RED
 
 R8_ID = "DEF-768-AI-20260925-R8"
 R8_MAP = ROOT / "reports" / R8_ID
+
+
+def _r8_grootboekstand() -> str | None:
+    """sha256 van het canonieke R8-grootboek, of None als het (nog) niet bestaat.
+
+    Sinds de echte R8-call (25-09) bestaat het; tests mogen het nooit raken.
+    """
+    pad = R8_MAP / "callgrootboek.jsonl"
+    return hashlib.sha256(pad.read_bytes()).hexdigest() if pad.exists() else None
+
+
 R7_MAP = ROOT / "reports" / "DEF-768-AI-20260925-R7"
 R7_EINDSET = R7_MAP / "onafhankelijke-eindset-v1.json"
 R8_SELECTIE = R8_MAP / "ontwikkelselectie-v1.json"
@@ -257,9 +269,26 @@ class _R8Provider(_FakeProvider):
                     for b in buren
                 ],
             }
-            tekst = json.dumps(concept_uit_spec(spec, materiaal))
+            tekst = json.dumps(antwoord_uit_spec(spec, materiaal))
         self.aanroepen.append({"model": model, **kwargs})
         return ChatResponse(text=tekst, tokens_used=10, model=model)
+
+
+R8_RUWE_RESPONS = json.loads(
+    (ROOT / "tests/fixtures/ess05/r8_r720_ruwe_respons_v1.json").read_text(
+        encoding="utf-8"
+    )
+)["raw_response"]
+
+
+class _OudeR8Respons(_R8Provider):
+    """Stap 1 levert letterlijk de echte R8-respons (oud schema met posities)."""
+
+    async def chat_completion(self, messages, model, **kwargs):
+        antwoord = await super().chat_completion(messages, model, **kwargs)
+        if self.stappen[-1] == "beoordeling":
+            return ChatResponse(text=R8_RUWE_RESPONS, tokens_used=10, model=model)
+        return antwoord
 
 
 def _omgeving8(provider, *, router=None, timeout=60, max_tokens_t=3000,
@@ -421,6 +450,7 @@ class TestR8Registratie:
         self, monkeypatch, tmp_path
     ):
         gebouwd = {}
+        voor_r8 = _r8_grootboekstand()
 
         class _GestoptError(Exception):
             pass
@@ -439,13 +469,14 @@ class TestR8Registratie:
             "max_tokens_t": 3000,
             "verifier_max_tokens": 3000,
         }
-        assert not (R8_MAP / "callgrootboek.jsonl").exists()
+        assert _r8_grootboekstand() == voor_r8
 
     @besluit_nodig
     def test_cli_weigert_een_niet_passend_besluit_voor_de_live_omgeving(
         self, monkeypatch, tmp_path, capsys
     ):
         gebouwd = []
+        voor_r8 = _r8_grootboekstand()
         monkeypatch.setattr(runner, "live_omgeving", lambda **kw: gebouwd.append(kw))
         pad = _besluit(tmp_path, reserve=3)
         monkeypatch.setitem(
@@ -458,7 +489,7 @@ class TestR8Registratie:
         assert exc.value.code == 2
         assert "budgetbesluit past niet" in capsys.readouterr().err
         assert gebouwd == []  # geen sleutel, client of grootboek
-        assert not (R8_MAP / "callgrootboek.jsonl").exists()
+        assert _r8_grootboekstand() == voor_r8
 
     def test_echt_buiten_de_canonieke_opslag_geweigerd(self, tmp_path):
         provider = _R8Provider()
@@ -470,6 +501,7 @@ class TestR8Registratie:
         assert not _opslag8(tmp_path).grootboek.exists()
 
     def test_echt_met_een_niet_geregistreerde_kopie_geweigerd(self, tmp_path):
+        voor_r8 = _r8_grootboekstand()
         provider = _R8Provider()
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
         pad = _gevallenbestand(tmp_path, 3)
@@ -479,7 +511,7 @@ class TestR8Registratie:
                                            uitmap=tmp_path / "uit", opslag=kopie.opslag,
                                            proef=kopie))  # fmt: skip
         assert provider.aanroepen == []
-        assert not (R8_MAP / "callgrootboek.jsonl").exists()
+        assert _r8_grootboekstand() == voor_r8
 
     def test_oude_ronde_blijft_ook_programmatisch_gesloten(self, tmp_path):
         provider = _R8Provider()
@@ -622,6 +654,26 @@ class TestAcceptatieEnStop:
         with pytest.raises(gb.BudgetSchendingError, match="gestopt"):
             _t8(_omgeving8(provider), tmp_path, pad, nieuw=False)
         assert len(provider.aanroepen) == 2
+
+    def test_afgewezen_betaalde_stap_telt_in_de_samenvatting(self, sdk_wacht, tmp_path):
+        """R8 (25-09): de echte, betaalde R720-respons werd afgewezen, maar de
+        samenvatting meldde 0 gestarte aanroepen en geen resultaat of kosten."""
+        provider = _OudeR8Respons(sdk=True)
+        omg = dataclasses.replace(_omgeving8(provider), sdk_bewaakt=True)
+        with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
+            _t8(omg, tmp_path, _gevallenbestand(tmp_path, 3))
+        assert provider.stappen == ["beoordeling"]  # verifier niet aangeroepen
+        (pad,) = (tmp_path / "uit").glob("ontwikkeling-*/samenvatting.json")
+        samenvatting = json.loads(pad.read_text(encoding="utf-8"))
+        assert samenvatting["aanroepen_gestart"] == 1
+        (resultaat,) = samenvatting["resultaten"]
+        assert resultaat["geaccepteerd"] is False
+        assert resultaat["afsluitstatus"] == "modelfout"
+        assert samenvatting["tokens"] == {"input": 100, "output": 20}
+        assert samenvatting["kosten_usd_bekend"] == pytest.approx(0.001)
+        na = samenvatting["grootboek_na"]
+        assert (na["netwerk_gestart"], na["gestopt"]) == (1, True)
+        assert na["kosten"]["lopend_nusd"] == 1_000_000
 
     def test_hervatting_na_crash_voor_de_gevalregistratie_start_niets(
         self, monkeypatch, tmp_path
@@ -782,7 +834,8 @@ class TestVerifierOnly:
             _omgeving8(_R8Provider()), runner.PROEVEN["R8"], "v"
         )
         assert velden["groep"] == "v"
-        assert velden["prompt_version"] == "ess05-assess/14"
+        # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
+        assert velden["prompt_version"] == "ess05-assess/15"
         assert velden["verification_prompt_version"] == "ess05-verify/2"
         assert {"system_prompt_sha256", "norm_sha256"} <= set(velden)
 
@@ -819,6 +872,11 @@ class TestVerifierOnly:
         assert provider.stappen == ["verificatie"]
         (geval,) = _v_gevallen(tmp_path)
         assert geval["geaccepteerd"] is False
+        (pad,) = (tmp_path / "uit").glob("verificatie_alleen-*/samenvatting.json")
+        samenvatting = json.loads(pad.read_text(encoding="utf-8"))
+        assert samenvatting["aanroepen_gestart"] == 1
+        (resultaat,) = samenvatting["resultaten"]
+        assert resultaat["geaccepteerd"] is False
 
     def test_schemaweigering_telt_niet_als_detectie(self, tmp_path):
         pad, _ = _v_invoer(tmp_path, soorten=("fout",))

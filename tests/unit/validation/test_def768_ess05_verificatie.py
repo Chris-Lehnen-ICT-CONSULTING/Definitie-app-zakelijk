@@ -17,6 +17,7 @@ import json
 
 import pytest
 
+from domain.ess05.bewijs import CONCEPTSCHEMA
 from domain.ess05.contract import (
     CONTRACTVERSIE,
     STATUS_ERROR,
@@ -31,7 +32,11 @@ from domain.ess05.contract import (
 from services.interfaces import AIGenerationResult, AITimeoutError
 from services.validation.ess05_assessment_service import Ess05AssessmentService
 from services.validation.ess05_verification_service import Ess05VerificationService
-from tests.fixtures.def768_fakes import concept_uit_spec, verificatie_voor
+from tests.fixtures.def768_fakes import (
+    antwoord_uit_concept,
+    concept_uit_spec,
+    verificatie_voor,
+)
 
 pytestmark = [pytest.mark.unit]
 
@@ -106,6 +111,12 @@ class FakeAI:
             raise uitkomst
         if callable(uitkomst):
             uitkomst = uitkomst(prompt)
+        if (
+            isinstance(uitkomst, dict)
+            and uitkomst.get("schema_version") == CONCEPTSCHEMA
+        ):
+            # Een concept gaat als modelantwoord (`ess05-answer/1`) over de grens.
+            uitkomst = antwoord_uit_concept(uitkomst)
         tekst = uitkomst if isinstance(uitkomst, str) else json.dumps(uitkomst)
         return AIGenerationResult(
             text=tekst,
@@ -348,7 +359,8 @@ class TestBindingEnCache:
         assert ai.calls == []
 
     def test_versies(self):
-        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/14"
+        # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
+        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
         assert Ess05VerificationService.PROMPT_VERSION == "ess05-verify/2"
         assert Ess05VerificationService.TASK_TYPE == "ess05_verification"
 

@@ -43,6 +43,7 @@ from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
 from domain.ess03.contract import Intentie, materiaalhashes
 from domain.ess05 import bewijs
 from domain.ess05.bewijs import (
+    ANTWOORDSCHEMA,
     CONCEPTSCHEMA,
     RENDERERVERSIE,
     VERIFICATIESCHEMA,
@@ -50,6 +51,7 @@ from domain.ess05.bewijs import (
     Verificatieuitkomst,
     toets_verificatie,
 )
+from domain.modeluitvoer import parse_modeluitvoer
 from domain.sources.contract import vind_citaat
 from domain.sources.normalisatie import Bronidentiteit, canoniseer_bronnen
 
@@ -76,6 +78,7 @@ __all__ = [
     "Ess05Uitkomst",
     "GevalideerdOnderscheid",
     "OngeldigeBurenlijstError",
+    "afleidingsbinding",
     "beoordeel_onderscheid",
     "beoordeling_niet_beschikbaar",
     "beoordeling_technische_fout",
@@ -94,6 +97,7 @@ __all__ = [
     "repositoryrijen_uit",
     "stel_actieve_buren_samen",
     "stel_burenlijst_samen",
+    "valideer_antwoord",
     "valideer_concept",
 ]
 
@@ -633,8 +637,26 @@ def _basisdocument(fingerprint: str, status: str) -> dict[str, Any]:
         "verification": None,
         "judgment": None,
         "rejected": [],
+        "raw_response": None,
         "raw_response_sha256": None,
+        "concept_derivation": None,
         "verification_raw_response_sha256": None,
+    }
+
+
+def afleidingsbinding(
+    raw_response_sha256: str, concept: Ess05Concept, materiaal: Mapping[str, str]
+) -> dict[str, Any]:
+    """De binding van het afgeleide concept aan ruwe respons en materiaal.
+
+    `raw_response_sha256` is de hash van de ongewijzigd bewaarde ruwe
+    respons; `concept_hash` is de kandidaat die de verifier toetst.
+    """
+    return {
+        "answer_schema_version": ANTWOORDSCHEMA,
+        "raw_response_sha256": raw_response_sha256,
+        "material": materiaalhashes(materiaal),
+        "concept_hash": concept.hash,
     }
 
 
@@ -705,6 +727,19 @@ def valideer_concept(
     zegt niets over semantische juistheid.
     """
     return bewijs.valideer_concept(ruw, materiaal, {b.id: b.definitie for b in buren})
+
+
+def valideer_antwoord(
+    ruw: Any, materiaal: Mapping[str, str], buren: Iterable[Buur]
+) -> tuple[Ess05Concept | None, list[dict[str, Any]]]:
+    """Leid het concept af uit het modelantwoord (`ANTWOORDSCHEMA`). Fail-closed.
+
+    De app bepaalt elke bewijsplaats zelf, alleen bij precies één letterlijke
+    treffer in het aangewezen materiaal; daarna gelden dezelfde vaste controles
+    als bij `valideer_concept`. Geen reparatie, geen herinterpretatie van een
+    antwoord in een ander schema.
+    """
+    return bewijs.valideer_antwoord(ruw, materiaal, {b.id: b.definitie for b in buren})
 
 
 def _filter_voorstellen(
@@ -962,6 +997,44 @@ def _vul_samenvatting(
     samenvatting["phase"] = _tekst(fout.get("phase")) or None
 
 
+def _afleidingsafwijzing(
+    assessment: Mapping[str, Any],
+    materiaal: Mapping[str, str],
+    buren: tuple[Buur, ...],
+) -> str | None:
+    """Waarom het opgeslagen concept niet de afleiding van de ruwe respons is, of None.
+
+    De ruwe respons moet ongewijzigd bewaard zijn (hash), de afleidingsbinding
+    moet exact bij respons, huidig materiaal en concept horen, en opnieuw
+    afleiden uit die respons moet exact het opgeslagen concept geven.
+    """
+    ruw = assessment.get("raw_response")
+    ruwhash = assessment.get("raw_response_sha256")
+    if not isinstance(ruw, str) or (
+        hashlib.sha256(ruw.encode("utf-8")).hexdigest() != ruwhash
+    ):
+        return "ruwe respons ontbreekt of hoort niet bij raw_response_sha256"
+    concept = assessment.get("concept")
+    verwacht = {
+        "answer_schema_version": ANTWOORDSCHEMA,
+        "raw_response_sha256": ruwhash,
+        "material": materiaalhashes(materiaal),
+        "concept_hash": bewijs.concepthash(concept),
+    }
+    afleiding = assessment.get("concept_derivation")
+    afleiding = afleiding if isinstance(afleiding, Mapping) else {}
+    afwijkend = sorted(
+        {k for k in verwacht if afleiding.get(k) != verwacht[k]}
+        | (set(afleiding) - set(verwacht))
+    )
+    if afwijkend:
+        return f"afleidingsbinding wijkt af ({', '.join(afwijkend)})"
+    afgeleid, _ = valideer_antwoord(parse_modeluitvoer(ruw), materiaal, buren)
+    if afgeleid is None or dict(afgeleid.data) != concept:
+        return "opgeslagen concept is niet afgeleid uit de bewaarde ruwe respons"
+    return None
+
+
 def _geverifieerd_oordeel(
     assessment: Mapping[str, Any],
     materiaal: Mapping[str, str],
@@ -974,8 +1047,12 @@ def _geverifieerd_oordeel(
 
     Het opgeslagen `judgment` is alleen weergave: replay leidt het oordeel
     opnieuw af uit concept + verificatie. Ontbreekt of faalt de verificatie,
-    dan is er geen toepasbaar oordeel.
+    dan is er geen toepasbaar oordeel. Het concept moet bovendien exact de
+    afleiding zijn van de bewaarde ruwe respons op dit materiaal.
     """
+    reden = _afleidingsafwijzing(assessment, materiaal, buren)
+    if reden is not None:
+        return None, f"beoordeling zonder gebonden afleiding: {reden}", None
     concept, fouten = valideer_concept(assessment.get("concept"), materiaal, buren)
     if concept is None:
         return (

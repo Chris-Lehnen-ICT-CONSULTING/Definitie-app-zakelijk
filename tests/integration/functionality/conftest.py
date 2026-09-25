@@ -168,7 +168,7 @@ def ess05_bevroren_antwoord(prompt: str) -> str:
     vraag. De app maakt daar zelf 'nog te beoordelen' van — zonder bevestigde
     buur of met een onbeslist onderscheid nooit een pass.
     """
-    from tests.fixtures.def768_fakes import concept_uit_spec, materiaal_uit_prompt
+    from tests.fixtures.def768_fakes import antwoord_uit_spec, materiaal_uit_prompt
 
     spec = {
         "lacks_differentia": False,
@@ -187,8 +187,9 @@ def ess05_bevroren_antwoord(prompt: str) -> str:
         "proposed_neighbours": [],
         "question": None,
     }
-    concept = concept_uit_spec(spec, materiaal_uit_prompt(prompt))
-    return json.dumps(concept, ensure_ascii=False)
+    # Modelantwoord `ess05-answer/1`: citaten zonder posities (R8-offsetherstel).
+    antwoord = antwoord_uit_spec(spec, materiaal_uit_prompt(prompt))
+    return json.dumps(antwoord, ensure_ascii=False)
 
 
 def ess05_bevroren_verificatie(prompt: str) -> str:

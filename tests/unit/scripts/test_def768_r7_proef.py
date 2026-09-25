@@ -588,7 +588,8 @@ class TestDroogR7:
         assert droog["freezevelden"]["proef_id"] == R7_ID
         # ADR-003: de droge freeze volgt de actuele tweestaps-T (/14 plus
         # verificatieprompt); zo past zij niet meer op de eenstaps-/13-freeze.
-        assert droog["freezevelden"]["prompt_version"] == "ess05-assess/14"
+        # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
+        assert droog["freezevelden"]["prompt_version"] == "ess05-assess/15"
         assert droog["freezevelden"]["verification_prompt_version"] == (
             "ess05-verify/2"
         )

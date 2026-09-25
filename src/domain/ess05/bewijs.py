@@ -17,6 +17,15 @@ Een beoordeling verloopt in twee stappen:
    verplichte, unieke dekking en de juiste kandidaat-hash; alleen alles
    `supported` geeft vrijgave.
 
+Het model levert het concept als **antwoord** (`ANTWOORDSCHEMA`): dezelfde
+gesloten structuur, maar per bewijsplaats alleen materiaal-ID, materiaalhash
+en het exacte citaat. `valideer_antwoord` leidt begin en eind af, uitsluitend
+bij precies één letterlijke treffer in het aangewezen materiaal (R8-offset-
+herstel: tekens tellen door het model is geen betrouwbare basis). Het
+resultaat is een gewoon `CONCEPTSCHEMA`-concept; een antwoord in een ander
+schema, met posities, of met een niet-letterlijk, dubbelzinnig of aan ander
+materiaal ontleend citaat wordt geweigerd, nooit gerepareerd.
+
 Grens: een bestaand citaat bewijst geen dragende gevolgtrekking. Deze module
 claimt geen semantische juistheid; dat oordeel ligt bij de verifier.
 """
@@ -28,9 +37,11 @@ import json
 from collections.abc import Callable, Iterable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass
+from html import unescape
 from typing import Any
 
 __all__ = [
+    "ANTWOORDSCHEMA",
     "CONCEPTSCHEMA",
     "RENDERERVERSIE",
     "ROLLEN",
@@ -40,12 +51,16 @@ __all__ = [
     "Verificatieuitkomst",
     "concepthash",
     "toets_verificatie",
+    "valideer_antwoord",
     "valideer_concept",
     "verplichte_controles",
 ]
 
 #: Versie van het gesloten conceptschema (eerste stap).
 CONCEPTSCHEMA = "ess05-concept/1"
+#: Versie van het modelantwoord van de eerste stap: bewijsplaatsen zonder
+#: posities; de app leidt ze af (`valideer_antwoord`).
+ANTWOORDSCHEMA = "ess05-answer/1"
 #: Versie van het gesloten verificatieschema (tweede stap).
 VERIFICATIESCHEMA = "ess05-verification/1"
 #: Versie van de vaste weergave van gecontroleerde claims.
@@ -79,6 +94,7 @@ _CONCEPTVELDEN = frozenset(
 _BEWIJSVELDEN = frozenset(
     {"id", "material_id", "material_sha256", "start", "end", "quote"}
 )
+_ANTWOORDBEWIJSVELDEN = frozenset({"id", "material_id", "material_sha256", "quote"})
 _KENMERKVELDEN = frozenset({"id", "evidence"})
 _CLAIMVELDEN = frozenset({"id", "role", "text", "evidence", "premises"})
 _BUURVELDEN = frozenset(
@@ -670,6 +686,144 @@ def valideer_concept(
     if fouten:
         return None, fouten
     return Ess05Concept(deepcopy(dict(ruw))), []
+
+
+# --- het modelantwoord: bewijsplaatsen afleiden ------------------------------------------
+
+
+def _antwoordbewijsveldfout(item: Mapping[str, Any], pad: str) -> str | None:
+    return _eerste(
+        (
+            (lambda: not _tekst(item["id"]), f"{pad}.id ontbreekt"),
+            (lambda: not _tekst(item["material_id"]), f"{pad}.material_id ontbreekt"),
+            (
+                lambda: not _tekst(item["material_sha256"]),
+                f"{pad}.material_sha256 ontbreekt",
+            ),
+            (
+                lambda: not isinstance(item["quote"], str) or not item["quote"],
+                f"{pad}.quote ontbreekt",
+            ),
+        )
+    )
+
+
+def _antwoordvormfout(antwoord: Any) -> str | None:
+    """Alleen wat het antwoord van het concept onderscheidt: schema en bewijsvelden."""
+    fout = _exacte_velden(antwoord, _CONCEPTVELDEN, "antwoord")
+    if fout:
+        return fout
+    if antwoord["schema_version"] != ANTWOORDSCHEMA:
+        return f"schema_version moet {ANTWOORDSCHEMA!r} zijn"
+    return _lijstfout(
+        antwoord["evidence"],
+        _ANTWOORDBEWIJSVELDEN,
+        "evidence",
+        _antwoordbewijsveldfout,
+    )
+
+
+def _treffers(tekst: str, citaat: str) -> list[int]:
+    """Alle beginposities van `citaat` in `tekst`, ook overlappende."""
+    posities: list[int] = []
+    positie = tekst.find(citaat)
+    while positie != -1:
+        posities.append(positie)
+        positie = tekst.find(citaat, positie + 1)
+    return posities
+
+
+def _plaatsbepaling(
+    item: Mapping[str, Any], materiaal: Mapping[str, str]
+) -> tuple[int | None, str | None]:
+    """(begin, None) bij precies één letterlijke treffer, anders (None, reden)."""
+    tekst = materiaal.get(item["material_id"])
+    if tekst is None:
+        return None, "onbekend materiaal"
+    if item["material_sha256"] != _sha256(tekst):
+        return None, "materiaalhash wijkt af"
+    treffers = _treffers(tekst, item["quote"])
+    if not treffers:
+        return None, "citaat staat niet letterlijk in het aangewezen materiaal"
+    if len(treffers) > 1:
+        return None, (
+            f"citaat is dubbelzinnig: het staat {len(treffers)} keer in het "
+            "aangewezen materiaal"
+        )
+    return treffers[0], None
+
+
+def _als_concept(antwoord: Mapping[str, Any], begin: Mapping[str, int]) -> dict:
+    """Het concept met de afgeleide posities; verder letterlijk het antwoord."""
+    concept = deepcopy(dict(antwoord))
+    concept["schema_version"] = CONCEPTSCHEMA
+    concept["evidence"] = [
+        {
+            "id": item["id"],
+            "material_id": item["material_id"],
+            "material_sha256": item["material_sha256"],
+            "start": begin.get(item["id"], 0),
+            "end": begin.get(item["id"], 0) + len(item["quote"]),
+            "quote": item["quote"],
+        }
+        for item in antwoord["evidence"]
+    ]
+    return concept
+
+
+def _ontsnap(antwoord: Mapping[str, Any]) -> dict[str, Any]:
+    """XML-escaping uit de prompt terug in citaten en voorgestelde termen.
+
+    Het materiaal staat XML-escaped in de prompt; een escape zoals `&amp;`
+    staat voor één teken van de oorspronkelijke tekst.
+    """
+    kopie = deepcopy(dict(antwoord))
+    for lijst, veld in (("evidence", "quote"), ("proposals", "term")):
+        items = kopie.get(lijst)
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if isinstance(item, dict) and isinstance(item.get(veld), str):
+                item[veld] = unescape(item[veld])
+    return kopie
+
+
+def valideer_antwoord(
+    antwoord: Any,
+    materiaal: Mapping[str, str],
+    buren: Mapping[str, str | None],
+) -> tuple[Ess05Concept | None, list[dict[str, Any]]]:
+    """Leid uit een `ANTWOORDSCHEMA`-antwoord het concept af en valideer het.
+
+    (concept, []) of (None, fouten); fail-closed, zonder reparatie. Volgorde
+    zoals `valideer_concept`: eerst structuur (`reason == "structuurfout"`),
+    dan per bewijsplaats de afleiding — alleen bij precies één letterlijke
+    treffer in het aangewezen materiaal met de juiste hash — en daarna de
+    overige vaste controles op het afgeleide concept.
+    """
+    if isinstance(antwoord, Mapping):
+        antwoord = _ontsnap(antwoord)
+    fout = _antwoordvormfout(antwoord)
+    if fout is None:
+        # Structuur- en verwijzingscontrole vóór de plaatsbepaling: dezelfde
+        # prioriteit als bij een concept; de voorlopige posities gaan nergens heen.
+        voorlopig = _als_concept(antwoord, {})
+        fout = _vormfout(voorlopig) or _verwijzingsfout(voorlopig, buren)
+    if fout is not None:
+        return None, [{"reason": "structuurfout", "detail": fout}]
+    begin: dict[str, int] = {}
+    fouten: list[dict[str, Any]] = []
+    for item in antwoord["evidence"]:
+        positie, reden = _plaatsbepaling(item, materiaal)
+        if reden is not None:
+            fouten.append(
+                {"reason": reden, "detail": f"{item['id']}: {item['quote'][:120]}"}
+            )
+        else:
+            begin[item["id"]] = positie
+    if fouten:
+        return None, fouten
+    return valideer_concept(_als_concept(antwoord, begin), materiaal, buren)
 
 
 # --- verificatie -----------------------------------------------------------------------
