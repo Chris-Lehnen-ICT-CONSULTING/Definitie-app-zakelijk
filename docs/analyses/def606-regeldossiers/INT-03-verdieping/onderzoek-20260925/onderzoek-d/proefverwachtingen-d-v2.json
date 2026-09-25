@@ -1,0 +1,345 @@
+{
+  "schema": "INT03-D-verwachtingen-v2",
+  "vastgelegd_op": "2026-09-25T08:24:08.111240+00:00",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "normversie": "N-D1 voorstel; ASTRA-paar brongebonden",
+  "meetgrens": "Alleen offline huidige service en prompttransport. G/T/H hieronder zijn vooraf ontworpen inhoudelijke verwachtingen, geen uitgevoerde generatie of herstel.",
+  "casussen": [
+    {
+      "id": "INT03-D-E01",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+      "bedoeling": "De gebeurtenis wordt begrepen; beide relatieve die-verwijzingen betreffen omstandigheden.",
+      "grond": "ASTRA-snapshot 25-09, JUIST(ER); JSON goed voorbeeld",
+      "G": "Behoud duidelijke verwijzingen; geen schrappen van die.",
+      "T": "voldoet voor INT-03 volgens ASTRA-paar; geen oordeel over alle andere regels.",
+      "H": "Geen herstel nodig.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-D-E02",
+      "term": "context",
+      "text": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "bedoeling": "De gebeurtenis wordt begrepen; het kan ook als geheel worden gelezen en maakt de bedoelde gebeurtenis niet duidelijk.",
+      "grond": "ASTRA-snapshot 25-09, ONJUIST; JSON fout voorbeeld",
+      "G": "Maak die gebeurtenis expliciet bij dezelfde betekenis.",
+      "T": "voldoet niet volgens ASTRA-paar; niet afleiden uit het aantal voornaamwoorden.",
+      "H": "Vervang alleen het laatste het door die gebeurtenis bij bevestigde bedoeling; hertoets buren.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-D-E03",
+      "term": "regeling",
+      "text": "regeling waarbij deze afspraak geldt",
+      "bedoeling": "Welke afspraak is bedoeld is niet aangeleverd; regeling en afspraak zijn niet vooraf als identiek bevestigd.",
+      "grond": "Bestaande runtimefixture + expliciete synthetische bedoeling D",
+      "G": "Vraag welke afspraak bedoeld is; geen afspraak verzinnen.",
+      "T": "voldoet niet als zelfstandig te lezen definitie: deze afspraak niet identificeerbaar; herstelgrond ontbreekt. Indien domeinlezer die afspraak aantoonbaar kan bepalen: beoordeling nodig tot die onderbouwing er is.",
+      "H": "Stop zonder voorstel totdat afspraak/bedoeling bevestigd is.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": [
+          "\\bdeze\\b",
+          "\\bwaarbij\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-D-E04",
+      "term": "verslag",
+      "text": "Verslag over een besluit nadat het is vastgesteld.",
+      "bedoeling": "Het besluit is vastgesteld; verslag en besluit zijn twee grammaticaal mogelijke kandidaten.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Maak besluit expliciet met behoud van de tijdsrelatie, bijvoorbeeld: Verslag over een besluit nadat dat besluit is vastgesteld. Laat bij onduidelijke temporele aansluiting eerst de bedoeling bevestigen.",
+      "T": "voldoet niet: het laat verslag/besluit open.",
+      "H": "Vervang het door dat besluit bij bevestigde bedoeling; schrap nadat niet. Beoordeel of de tijdsrelatie bij het opstellen van het verslag hoort; bij twijfel stop en verduidelijk.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": []
+      }
+    },
+    {
+      "id": "INT03-D-E05",
+      "term": "aantekening",
+      "text": "Schriftelijke vastlegging van een waarneming.",
+      "bedoeling": "Geen verwijzend voornaamwoord; geen extra context nodig voor INT-03.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Behoud de zin.",
+      "T": "voldoet voor INT-03 na inhoudelijke afwezigheidscontrole; geen regex-afwezigheid als bewijs.",
+      "H": "Geen herstel.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": []
+      }
+    },
+    {
+      "id": "INT03-D-E06",
+      "term": "aanvrager",
+      "text": "Persoon die een aanvraag indient.",
+      "bedoeling": "Die verwijst naar persoon.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Behoud betrekkelijke bijzin.",
+      "T": "voldoet.",
+      "H": "Geen herstel; INT-01-patroonconflict apart melden.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-D-E07",
+      "term": "pijl",
+      "text": "Teken dat een richting aangeeft.",
+      "bedoeling": "Dat verwijst naar teken.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Behoud betrekkelijke bijzin.",
+      "T": "voldoet.",
+      "H": "Geen herstel.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": []
+      }
+    },
+    {
+      "id": "INT03-D-E08",
+      "term": "kennisgever",
+      "text": "Persoon die zijn vertegenwoordiger informeert over zijn besluit.",
+      "bedoeling": "Het besluit van de persoon is bedoeld; de tweede zijn kan ook bij de vertegenwoordiger horen.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Maak eigenaar van het besluit expliciet.",
+      "T": "voldoet niet bij deze vastgelegde dubbele lezing; tweede zijn beoordelen.",
+      "H": "Voorstel: Persoon die zijn vertegenwoordiger informeert over het besluit van de persoon; beoordeel leesbaarheid en behoud.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-D-E09",
+      "term": "object",
+      "text": "",
+      "bedoeling": "Geen definitietekst.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Vraag de definitie of voldoende invoer voor generatie.",
+      "T": "niet beoordeeld wegens lege kern; leegte is VAL-EMP-001, geen inhoudelijke INT-03-pass of overtreding.",
+      "H": "Stop; niet herstellen vanuit verzonnen kenmerken.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": []
+      }
+    },
+    {
+      "id": "INT03-D-E10",
+      "term": "kadernotitie",
+      "text": "Notitie in het kader van een onderzoek.",
+      "bedoeling": "Het is lidwoord; in het kader is een frase, geen voornaamwoordverwijzing.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Geen wijziging onder INT-03.",
+      "T": "voldoet voor INT-03; zelfstandige inhoud/ARAI-05 elders beoordelen.",
+      "H": "Een frasehit is geen reparatiegrond.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reason": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signals": [
+          "\\bin het kader\\b"
+        ]
+      }
+    },
+    {
+      "id": "INT03-D-E11",
+      "term": "vertegenwoordiger",
+      "text": "Persoon met een aanvrager die een aanvraag indient.",
+      "bedoeling": "Nog onbeslist of persoon of aanvrager indient.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Vraag wie indient.",
+      "T": "voldoet niet bij vastgestelde twee lezingen; voor herstel onvoldoende bedoeling.",
+      "H": "Stop vóór keuze van actor; maximaal één gericht voorstel na bevestiging.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E12",
+      "term": "aanvraagbericht",
+      "text": "Bericht dat, zodra deze gereed is, de aanvraag vergezelt.",
+      "bedoeling": "Dat verwijst naar bericht; deze verwijst vooruit naar de aanvraag.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Voorkeur voor expliciete aanvraag, maar vooruitwijzing niet categorisch verbieden.",
+      "T": "beoordeling nodig: vooruitverwijzing is geen fout op zichzelf; voldoet indien onafhankelijke lezing eenduidig aanvraag vaststelt.",
+      "H": "Geen automatische vervanging; alternatief met de aanvraag pas na bevestiging.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E13",
+      "term": "document",
+      "text": "Document dat voor archivering is bestemd.",
+      "bedoeling": "De kern herhaalt lemma document; dat verwijst duidelijk naar het genus document.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Kies passend ander genus alleen indien inhoudelijk onderbouwd.",
+      "T": "INT-03 voldoet; mogelijke circulariteit apart.",
+      "H": "Los CON-CIRC-001 niet op door een onduidelijk het in te voeren.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E14",
+      "term": "meldende persoon",
+      "text": "Persoon die een bericht indient nadat de ontvanger haar heeft bevestigd dat het is ontvangen.",
+      "bedoeling": "Haar is de persoon; het is het bericht, maar bevestiging kan anders gelezen worden.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Behoud actorrelaties; maak gerichte verwijzingen duidelijk.",
+      "T": "beoordeling nodig; alle verwijzingen apart onderbouwen, geen geslacht/ontologie als automatische keuze.",
+      "H": "Niet op goed geluk haar of het vervangen; stop bij onvoldoende betekenisgrond.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E15",
+      "term": "ontvangstbericht",
+      "text": "Bericht waarmee de ontvanger de ontvangst bevestigt.",
+      "bedoeling": "Waarmee verwijst naar bericht.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Behoud duidelijk voornaamwoordelijk bijwoord.",
+      "T": "voldoet volgens voorgestelde uitbreiding naar verwijzende constructies.",
+      "H": "Geen herstel.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E16",
+      "term": "waarneming",
+      "text": "Waarneming dat het regent.",
+      "bedoeling": "Het is onpersoonlijk gebruikt, zonder aan te wijzen antecedent.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Geen object bijverzinnen voor het.",
+      "T": "voldoet voor referentiële duidelijkheid volgens N-D1; expliciete uitzondering moet Chris bevestigen.",
+      "H": "Geen herstel onder INT-03; lemmaherhaling apart.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E17",
+      "term": "aanvrager",
+      "text": "Persoon die een aanvraag indient.",
+      "bedoeling": "Zelfde type duidelijke relatie als E06, maar evaluator/invoertransport valt technisch uit.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "G-kandidaat blijft ongewijzigd.",
+      "T": "error; geen inhoudelijk oordeel, geen afkeur.",
+      "H": "Stop; technische oorzaak herstellen buiten tekst. Niet uitgevoerd; foutinjectie buiten huidige nulmeting.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-D-E18",
+      "term": "kennisgeving",
+      "text": "Mededeling aan een ontvanger waarbij deze wordt geregistreerd.",
+      "bedoeling": "Bronpassage zegt ontvanger; opgegeven bedoeling zegt mededeling.",
+      "grond": "Synthetisch ontwerp D; normvoorstel N-D1, nog te besluiten",
+      "G": "Maak conflict zichtbaar; geen definitieve kandidaat op één gekozen lezing.",
+      "T": "beoordeling nodig over bedoeling; tekst kan dubbelzinnig zijn, bronconflict afzonderlijk registreren.",
+      "H": "Stop zonder herschrijving tot eigenaar conflict oplost.",
+      "buurregels": "INT-01, ARAI-05, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    }
+  ],
+  "promptverwachtingen": [
+    {
+      "id": "zonder_context",
+      "context": {},
+      "module_INT03": true,
+      "adapter_INT03": false
+    },
+    {
+      "id": "organisatorisch",
+      "context": {
+        "organisatorisch": [
+          "Synthetische organisatie"
+        ]
+      },
+      "module_INT03": true,
+      "adapter_INT03": false
+    },
+    {
+      "id": "juridisch",
+      "context": {
+        "juridisch": [
+          "Synthetisch rechtsgebied"
+        ]
+      },
+      "module_INT03": true,
+      "adapter_INT03": true
+    },
+    {
+      "id": "wettelijk",
+      "context": {
+        "wettelijk": [
+          "Synthetische wet"
+        ]
+      },
+      "module_INT03": true,
+      "adapter_INT03": true
+    }
+  ],
+  "promptinstellingen": {
+    "include_examples": true,
+    "compact_mode": false
+  },
+  "verwachtingsgrond": "JSONBasedRulesModule.execute en PromptOrchestrator._get_active_modules op gebonden commit; waarneming nog uit te voeren",
+  "wijziging": "Alleen G/H-verwachting E04 aangescherpt vóór enige G/H-uitvoering: tijdsrelatie nadat behouden. Invoer, IDs en verwachte huidige service/promptuitkomsten blijven v1; de offline nulmeting is aan v1 gebonden."
+}

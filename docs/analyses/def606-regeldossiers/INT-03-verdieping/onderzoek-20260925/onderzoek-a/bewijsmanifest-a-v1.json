@@ -1,0 +1,19 @@
+{
+  "onderzoeker": "A (Cowork, Claude Fable 5.1)",
+  "datum": "2026-09-25",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "bestanden": {
+    "aanvulling-a-v1.md": "3b3bc4e5689258021e067bcef996b0c9d95b1d55a5efe965919d492f71e6f277",
+    "proef-a-v1.py": "6338d9f77ff5c2f193b843002b25dc2c0899e8e0c4be0ba89702f095b482990a",
+    "proef-a-v1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proef-a-v1.stdout": "24d0a0d043bac2fef33c7b52c3c019d3f504b53a862bd6e42d72c874015412dd",
+    "proefuitkomsten-a-v1.json": "0d226514e17674c07041872ba0c43daa0dc8bfe595d5de354a460dec67e199aa",
+    "proefverwachtingen-a-v1.json": "a084efe82ffd44a272de10d54102459d90f7e1beefc8a56e5759560a6d4edbab"
+  },
+  "proef": {
+    "commando": ".venv/bin/python docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proef-a-v1.py <repo> 26f2374d…",
+    "exit": 0,
+    "runtime": "Mac .venv python 3.13.15, tests/offline_bootstrap gate actief"
+  },
+  "gelezen_van_anderen_voor_v1": "geen (onderzoek-b/ en onderzoek-c/ niet gelezen)"
+}

@@ -1,0 +1,2 @@
+{"status_ok_all": true, "signalen_ok_all": true, "afwijkingen": [], "actief": {"geen_context": false, "alleen_organisatorisch": false, "juridisch": true, "wettelijk": true}, "statisch": {"IntegrityRulesModule(": ["src/services/prompts/modules/integrity_rules_module.py"], "json_validator_loader": ["src/toetsregels/json_validator_loader.py", "src/services/validation/evaluators/__init__.py"], "validators.INT_03": [], "regels.INT-03": []}}
+exit=0

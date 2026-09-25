@@ -1,0 +1,35 @@
+{
+  "regel": "INT-03",
+  "fase": "2",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "offline_gate": true,
+  "scope": "moduleomvang INT/SAM via de door de adapter geregistreerde JSONBasedRulesModule-instanties; geen UI, opslag, live model of normvalidatie",
+  "code_hashes": {
+    "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+    "src/services/prompts/modules/prompt_orchestrator.py": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+    "src/services/prompts/modular_prompt_adapter.py": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+    "src/toetsregels/regels/INT-03.json": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac"
+  },
+  "verwachtingen_sha256": "bb3ccc4f3f0d12e66a76186637b0ab9840bbc09e27b12527555773e202a9ece0",
+  "meting": {
+    "int_module_tekens": 4205,
+    "int_module_rules_count": 9,
+    "int_module_zonder_voorbeelden_tekens": 2461,
+    "sam_module_tekens": 3196,
+    "sam_module_rules_count": 8,
+    "int03_blok_tekens": 607,
+    "int03_blok": "🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**\n- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.\n- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin\n  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.\n  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+    "int_plus_sam_tekens": 7401,
+    "verschil_met_p05_p06_uit_v1": 6
+  },
+  "checks": {
+    "int_module_binnen_verwachting": true,
+    "int03_blok_binnen_verwachting": true,
+    "int_plus_sam_binnen_tolerantie": true,
+    "int_rules_count_ok": true,
+    "sam_rules_count_ok": true,
+    "zonder_voorbeelden_kleiner": true
+  },
+  "all_match": true
+}

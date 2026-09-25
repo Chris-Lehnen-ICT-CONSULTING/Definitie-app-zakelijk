@@ -1,0 +1,65 @@
+{
+  "doc": "Vooraf vastgelegde verwachtingen onderzoeker C, INT-03, 25-09-2026. Vastgelegd vóór uitvoering van proef-c-v1.py. 'verwacht_huidig' = voorspelling van het huidige appgedrag op commit 26f2374d (uit statische codelezing: judgment_review.py r.66-78, 196-216; INT-03.json; additional_patterns.py r.36-38). 'verwacht_norm' = inhoudelijke verwachting volgens ASTRA INT-03 (gedeeld/astra-INT-03-raw-20260925.txt), onafhankelijk van de app; synthetisch, geen gevalideerd juridisch praktijkgeval.",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "toetsvraag_record": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+  "extra_patroon": "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))",
+  "validatie": [
+    {
+      "id": "INT03-C-E01",
+      "begrip": "context",
+      "tekst": "geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd",
+      "omschrijving": "ASTRA ONJUIST-voorbeeld ('het' zonder duidelijk antecedent)",
+      "verwacht_huidig": {"status": "review_required", "reden_is_toetsvraag": true, "signalen_bevatten": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"], "signalen_exact": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"], "opmerking": "het echte probleemwoord 'het' wordt niet gesignaleerd; alleen de correcte betrekkelijke 'die' vuurt"},
+      "verwacht_norm": "voldoet niet (ASTRA: ONJUIST)"
+    },
+    {
+      "id": "INT03-C-E02",
+      "begrip": "context",
+      "tekst": "geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd",
+      "omschrijving": "ASTRA JUIST(ER)-voorbeeld",
+      "verwacht_huidig": {"status": "review_required", "reden_is_toetsvraag": true, "signalen_exact": ["\\bdie\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"], "opmerking": "zelfde signalen als E01: signalen onderscheiden goed en fout voorbeeld niet"},
+      "verwacht_norm": "voldoet (ASTRA: JUIST(ER))"
+    },
+    {
+      "id": "INT03-C-E03",
+      "begrip": "regeling",
+      "tekst": "regeling waarbij deze afspraak geldt",
+      "omschrijving": "runtime_cases.yaml-probe; 'deze afspraak' verwijst naar een niet eerder genoemde afspraak",
+      "verwacht_huidig": {"status": "review_required", "reden_is_toetsvraag": true, "signalen_exact": ["\\bdeze\\b", "\\bwaarbij\\b", "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"]},
+      "verwacht_norm": "voldoet niet ('deze afspraak': welke afspraak blijkt niet uit de definitie); 'waarbij' zelf is duidelijk (antecedent 'regeling')"
+    },
+    {
+      "id": "INT03-C-E04",
+      "begrip": "inspectieverslag",
+      "tekst": "verslag van een inspectie van een gebouw nadat het is afgerond",
+      "omschrijving": "'het' als enig voornaamwoord; kandidaat-antecedenten 'verslag' en 'gebouw' (beide het-woorden)",
+      "verwacht_huidig": {"status": "review_required", "reden_is_toetsvraag": true, "signalen_exact": []},
+      "verwacht_norm": "voldoet niet (twee grammaticaal passende antecedenten)"
+    },
+    {
+      "id": "INT03-C-E05",
+      "begrip": "aanvraag",
+      "tekst": "schriftelijk verzoek van een belanghebbende aan een bestuursorgaan om een besluit te nemen",
+      "omschrijving": "geen voornaamwoord",
+      "verwacht_huidig": {"status": "review_required", "reden_is_toetsvraag": true, "signalen_exact": []},
+      "verwacht_norm": "niet van toepassing / voldoet (geen voornaamwoord aanwezig)"
+    },
+    {
+      "id": "INT03-C-E06",
+      "begrip": "getuigenverklaring",
+      "tekst": "verklaring van een getuige over een verdachte waarin zijn rol wordt beschreven",
+      "omschrijving": "bezittelijk 'zijn' met twee kandidaten (getuige, verdachte); 'waarin' duidelijk",
+      "verwacht_huidig": {"status": "review_required", "reden_is_toetsvraag": true, "signalen_exact": []},
+      "verwacht_norm": "voldoet niet (bezittelijke verwijzing ambigu)"
+    }
+  ],
+  "validatie_routes": ["ToetsregelManager", "CachedToetsregelManager"],
+  "prompt": [
+    {"id": "INT03-C-P01", "wat": "JSONBasedRulesModule(rule_prefix='INT') rechtstreeks, zonder context", "verwacht": {"int03_blok_aanwezig": true, "blok_regels": ["🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**", "- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.", "- **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin", "  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.", "  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."]}},
+    {"id": "INT03-C-P02", "wat": "JSONBasedRulesModule(rule_prefix='INT') rechtstreeks, met juridische context", "verwacht": {"int03_blok_aanwezig": true, "blok_gelijk_aan_P01": true}},
+    {"id": "INT03-C-P03", "wat": "volledige ModularPromptAdapter.build_prompt, geen context", "verwacht": {"int03_in_prompt": false, "integrity_rules_actief": false}},
+    {"id": "INT03-C-P04", "wat": "volledige build_prompt, alleen organisatorische context", "verwacht": {"int03_in_prompt": false, "integrity_rules_actief": false}},
+    {"id": "INT03-C-P05", "wat": "volledige build_prompt, juridische context", "verwacht": {"int03_in_prompt": true, "integrity_rules_actief": true, "blok_gelijk_aan_P01": true}},
+    {"id": "INT03-C-P06", "wat": "volledige build_prompt, alleen wettelijke context", "verwacht": {"int03_in_prompt": true, "integrity_rules_actief": true, "blok_gelijk_aan_P01": true}}
+  ]
+}

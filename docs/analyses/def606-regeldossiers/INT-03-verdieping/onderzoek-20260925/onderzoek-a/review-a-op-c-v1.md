@@ -1,0 +1,24 @@
+# Review A op onderzoek C (aanvulling-c-v1.md, casusregister-c-v1.md, proefuitkomsten-c-v1.json) — v1 — 25-09-2026
+
+Gereviewde versie: onderzoek-c/aanvulling-c-v1.md (claude-fable-5-1, xhigh; manifest bewijsmanifest-c-v1.json). Reviewer: onderzoeker A (Cowork). Zelfde formaat en oordelen als review-a-op-b-v1.md.
+
+| # | Claim C (vindplaats) | Oordeel | Bron / tegenbewijs | Gevolg |
+|---|---|---|---|---|
+| RC-01 | Q1: toetsvraag versmalt de aandacht tot aanwijzende voornaamwoorden terwijl het ASTRA-voorbeeld over 'het' gaat | bevestigd | INT-03.json toetsvraag; ASTRA-paar | Toetsvraag vervangen (A 5.1, B, C G2 stemmen overeen). |
+| RC-02 | Extra patroon (additional_patterns) is dood door recordpatroon `\bdeze\b` | bevestigd | A E09: recordpatroon vuurt, additional niet | Opschonen naar één plek (K4/B4). |
+| RC-03 | Uitzondering 4 vooruitverwijzing: toegestaan mits eenduidig, geen afkeurgrond, wel stijlvoorkeur "antecedent eerst" | bevestigd | B: niet categorisch verbieden, beoordelen (E08 B) | Gezamenlijk voorstel; ASTRA zwijgt → open keuze B6, met dit als aanbevolen optie. |
+| RC-04 | Q3: INT-01 bestraft de INT-03-conforme bijzin (INT01-E01/E03) | bevestigd | INT-01.json patronen `\bdie\b`, `\bwaarbij\b` (A gecontroleerd); B proef E01/E02 INT-01-fail | Zie RB-04; conflict is reëel, eigenaar DEF-770. |
+| RC-05 | Q4 UI: INT-03 verschijnt alleen als code in "🟠 Nog te beoordelen: …"; reden/signalen nergens getoond; geen reviewbesluit per INT-03 | bevestigd (materieel nieuw) | validation_view.py r. 803–808 (alleen ESS-01/02/04 reden), r. 859–864 (`continue` zonder expander) — door A gelezen op 26f2374d; expert_review_tab: per-regelbeoordeling alleen CON-01/02, ESS-03 | Synthese: T1a vereist UI-uitbreiding r. 807 met INT-03 én passagehulp; anders blijft de verbetering onzichtbaar. Reviewbesluit-opslag is gedeeld defect (DEF-626/627). |
+| RC-06 | Prompt 25.925 tekens (geen context) vs 35.907 (juridisch), kap 60.000 | onvoldoende bewezen door A, plausibel | Alleen in C's proef gemeten; A heeft geen volledige build_prompt gedraaid | Overnemen met bronvermelding C; relevant voor K3/B3. |
+| RC-07 | G1 vervangende instructie incl. "lever dan één voorlopige kandidaat en laat de vraag bij de beoordeling" | bevestigd, met kanttekening | Er is geen vraagroute in de generatie-UI; formulering "voorlopige kandidaat" is daarom realistischer dan B's "vraag om verduidelijking" | Synthese gebruikt C's G1 als basis, ingekort tot instructieregel; woordenlijst uit A/C. |
+| RC-08 | G2 nieuwe foute voorbeelden: "Persoon met een vertegenwoordiger die een aanvraag indient" en "… de werknemer over haar rechten te informeren" | bevestigd, met correctie op A | Eerste voorbeeld toont dat "bijzin direct na een naamwoord" niet volstaat: 'die' volgt direct op 'vertegenwoordiger' maar kan 'persoon' bedoelen | A herformuleert uitzondering 1: "betrekkelijke bijzin waarvan het antecedent eenduidig is" i.p.v. "direct na het antecedent". |
+| RC-09 | B3: hele INT-module altijd activeren | beleidskeuze | B D2: alleen INT-03 contextvrij; A: smal eerst | Beide standpunten met gevolgen naar Chris (K3). |
+| RC-10 | B7: legacy opruimen (IntegrityRulesModule, INT-03.py/INT_03.py, definitie_validator-mapping) | bevestigd, buiten regelscope | A statisch: IntegrityRulesModule alleen in eigen bestand; C: ook in test_def171_optimization.py | Als tech-debt-signaal registreren; geen INT-03-besluit. |
+| RC-11 | T-contract: negatieve uitkomst blokkeert vaststellen/export niet tenzij Chris anders beslist; geen cijfer | bevestigd | ESS-02/03/04-besluiten; B D6; A 5.2 | Gedeelde lijn. |
+| RC-12 | definitie_validator.py INT-03-mapping (r. 180, 230, 598) zonder consument | onvoldoende bewezen door A | Niet door A gecontroleerd; statische claim C | In synthese als C-claim (statisch) markeren. |
+| RC-13 | Zes historische gevallen (11-09) leveren op 26f2374d dezelfde uitkomsten | bevestigd | C proef route A; A's eigen 10 gevallen consistent | Historisch bewijs geactualiseerd; hergebruik toegestaan. |
+| RC-14 | Nulmeting-telling "2 van 5 overtredingen zonder signaal, 3 foutpositieve signalen" | bevestigd binnen C-register | Telling hangt af van C's casuskeuze | In synthese niet als algemeen percentage presenteren; per geval rapporteren. |
+| RC-15 | Uitzondering 2 expletief 'het': "niet geverifieerd" | aangevuld | B S9 (Taaladvies: loos onderwerp) gelezen | Nu onderbouwd via B; C kan de markering opheffen. |
+| RC-16 | Q4: uitvoeringsvolgorde "eerst G5 (INT-blok altijd), dan strengere T" | bevestigd | Skill §3: hardere poort maakt bestaande foutpositieven ernstiger | Overgenomen in synthese als volgorde-eis. |
+
+Samenvattend: C levert de meest complete ketenanalyse (UI, transport, opslag) en bewijst de belangrijkste nieuwe bevinding (RC-05). Correctie op A via RC-08. Aansluiting G↔T: C's G1 en T-tabel delen dezelfde norm; akkoord. Verschil met B alleen op K3/B3 (beleidskeuze) en op de lemma-verwijzing (RB-03).

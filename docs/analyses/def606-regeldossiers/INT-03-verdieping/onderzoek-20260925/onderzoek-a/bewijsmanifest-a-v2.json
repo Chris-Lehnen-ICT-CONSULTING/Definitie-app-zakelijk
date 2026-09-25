@@ -1,0 +1,56 @@
+{
+  "onderzoeker": "A (Cowork, claude-fable-5-1)",
+  "datum": "2026-09-25",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "skillversie": {
+    "methodiek_toegepast": "Mac ~/.agents/skills/toetsregel-onderzoek (SKILL.md sha256 66d65b3f9292b46a33feec67c11cbdc456fa16a4c5918feee04301af6b808e6d, 24-09-2026; references 23-09)",
+    "gestart_vanuit": "Cowork-gesynchroniseerde kopie (SKILL.md sha256 94206774af44cf579af36664dda0c2a13b19bf15f1a191c01e77aa940066069e)",
+    "definitie-toetsregels": "Mac SKILL.md 21b4157c…, reference.md f3252105… (identiek in ~/.claude/skills, ~/.agents/skills, _claude-global-setup)"
+  },
+  "eigen_bestanden": {
+    "aanvulling-a-v1.md": "3b3bc4e5689258021e067bcef996b0c9d95b1d55a5efe965919d492f71e6f277",
+    "aanvulling-a-v2.md": "cf0ecd92f784bbb7f65e7cd1c600c70d88645ac174efd4326ad71b45e34c6042",
+    "proef-a-v1.py": "6338d9f77ff5c2f193b843002b25dc2c0899e8e0c4be0ba89702f095b482990a",
+    "proef-a-v1.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proef-a-v1.stdout": "24d0a0d043bac2fef33c7b52c3c019d3f504b53a862bd6e42d72c874015412dd",
+    "proefuitkomsten-a-v1.json": "0d226514e17674c07041872ba0c43daa0dc8bfe595d5de354a460dec67e199aa",
+    "proefverwachtingen-a-v1.json": "a084efe82ffd44a272de10d54102459d90f7e1beefc8a56e5759560a6d4edbab",
+    "review-a-op-b-v1.md": "89fcddd3b7fdb30e4fddba13a0aaf372d5150ebecc928b89d5ab2753e08abcf5",
+    "review-a-op-c-v1.md": "d874b37d0bb6f1c20739f10e3c8d800faed50e84393c1b66adac0d77889b431a",
+    "verwerking-a-v1.md": "7d6ff1da4e884ddee6579cfd5ccac4da9f9a5b19617908e0be74f8be56cd24e8"
+  },
+  "bronbestanden_repo": {
+    "src/toetsregels/regels/INT-03.json": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+    "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+    "src/toetsregels/regels/STR-04.json": "b20aa3285f987c8fa4557cba94d7bdd701250a3295f22b4438d597df2780e460",
+    "src/services/validation/evaluators/judgment_review.py": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+    "src/validation/additional_patterns.py": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+    "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+    "src/services/prompts/modules/prompt_orchestrator.py": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+    "src/services/prompts/modular_prompt_adapter.py": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+    "src/services/prompts/modules/integrity_rules_module.py": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979",
+    "src/ui/components/validation_view.py": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+    "src/toetsregels/validators/INT_03.py": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+    "src/toetsregels/regels/INT-03.py": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+    "docs/analyses/def606-regeldossiers/INT-03-v1.md": "b01ecc2c82f105ce5f20373ebe791ddb05c72de415b707a385b4d4b12974d269"
+  },
+  "gedeeld_en_ontvangen": {
+    "gedeeld/feitenbasis-v1.md": "c160479ace16663bc89ebf902e69c1ab7c4f19ad87a0114473eddd82d158662d",
+    "gedeeld/astra-INT-03-raw-20260925.txt": "121c4fbb13c25cbe5847ab774f8eaba6c46b555b69ab01edcef4274df101deae",
+    "gedeeld/startopdracht-b-v1.md": "4493a9fab6ba7edeede14bbee5ea90b3567fc4112968ffa480d38c14a6b29954",
+    "gedeeld/startopdracht-c-v1.md": "e70b6fd47fbb5761610ccf1b5e12460e932a28d4fc7efb722255ab0659eed776",
+    "gedeeld/startopdracht-d-v1.md": "fc4e3662626523395aa0dcea36c8693f29e375102d1965077531695dcedb1dc3",
+    "onderzoek-b/aanvulling-b-v1.md": "d791e7f7f216dc9ed04eba475ee781528379ece8e80fbae9f75bce3e2a64bb67",
+    "onderzoek-b/review-b-op-a-v1.md": "90fa2fc1e3fc93da9fcbf262035a9a06d7b1fbd0750d30735f2eaec9a83f7229",
+    "onderzoek-c/aanvulling-c-v1.md": "31f3a53247584abac9722f27ef952af2a38b409de300175b9d18696c2241fbd3",
+    "onderzoek-c/review-c-op-a-v1.md": "2d98f235a10c2d1b1eb6f4408002103ed1ed2154982dbcd28558c7fb71968455"
+  },
+  "proef": {
+    "commando": "cd /Users/chrislehnen/Projecten/Definitie-app && .venv/bin/python docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-a/proef-a-v1.py /Users/chrislehnen/Projecten/Definitie-app 26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "exit": 0,
+    "runtime": "Mac .venv python 3.13.15, tests/offline_bootstrap gate actief; signalen in proefuitkomsten genormaliseerd (norm_sig)",
+    "correctie": "regelnummers _get_active_modules in proefverwachtingen-a-v1.json (461-465) zijn onjuist; juist: 466-471 (RA-15); bestand blijft ongewijzigd als bevroren verwachting"
+  },
+  "fase": "v2 na reviews B en C; verwerking in verwerking-a-v1.md"
+}
