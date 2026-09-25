@@ -877,7 +877,9 @@ class DefinitionEditTab:
                 results = self._validate_definition()
                 if results:
                     # Sla op in session en render buiten kolommen (full-width)
-                    SessionStateManager.set_value("edit_last_validation", results)
+                    self._bewaar_sessieresultaat(
+                        results, SessionStateManager.get_value("editing_definition_id")
+                    )
                     st.rerun()
                 else:
                     st.info("Validatie service niet beschikbaar")
@@ -1829,8 +1831,8 @@ class DefinitionEditTab:
                     normaliseer_validatieresultaat,
                 )
 
-                SessionStateManager.set_value(
-                    "edit_last_validation", normaliseer_validatieresultaat(validatie)
+                self._bewaar_sessieresultaat(
+                    normaliseer_validatieresultaat(validatie), def_id
                 )
         self._refresh_current_definition()
 
@@ -2236,9 +2238,7 @@ class DefinitionEditTab:
                 # Show validation results if available
                 if result.get("validation"):
                     # Sla op in session en render buiten kolommen (full-width)
-                    SessionStateManager.set_value(
-                        "edit_last_validation", result["validation"]
-                    )
+                    self._bewaar_sessieresultaat(result["validation"], definition_id)
                     st.rerun()
 
                 # Refresh definition
@@ -2412,9 +2412,22 @@ class DefinitionEditTab:
             if results:
                 st.markdown("#### ✅ Kwaliteitstoetsing")
                 self._show_validation_results(results)
+            else:
+                self._render_opgeslagen_int01()
         except (KeyError, TypeError, AttributeError):
             # KeyError: missing key, TypeError: wrong type, AttributeError: missing method
             pass
+
+    @staticmethod
+    def _bewaar_sessieresultaat(results: Any, def_id: Any) -> None:
+        """Het enige schrijfpunt van `edit_last_validation` (DEF-770): bindt
+        ieder vers resultaat (Valideren, voorsteltoepassing, opslaan) aan het
+        record waarvoor het gemaakt is. De tekstbinding van INT-01 draagt het
+        resultaat zelf (vingerafdruk van de getoetste tekst in
+        `rule_results`), zodat geen producent haar kan vergeten."""
+        if isinstance(results, dict) and def_id is not None:
+            results = dict(results, editing_definition_id=def_id)
+        SessionStateManager.set_value("edit_last_validation", results)
 
     def _actueel_sessieresultaat(self) -> dict[str, Any] | None:
         """`edit_last_validation` voor het record dat nu bewerkt wordt, met ESS-03
@@ -2434,14 +2447,37 @@ class DefinitionEditTab:
             return results
         from services.definition_edit_service import (
             herbind_ess03_in_validatieresultaat,
+            herbind_int01_in_validatieresultaat,
         )
 
+        kandidaat = self._kandidaat_uit_formulier(definition)
         herbonden = herbind_ess03_in_validatieresultaat(
-            v2, self._kandidaat_uit_formulier(definition), binding=self._ess03_binding()
+            v2, kandidaat, binding=self._ess03_binding()
+        )
+        # DEF-770: INT-01 alleen voor exact de getoetste formuliertekst.
+        herbonden = herbind_int01_in_validatieresultaat(
+            herbonden, kandidaat.definitie or ""
         )
         if herbonden is v2:
             return results
         return {**results, "raw_v2": herbonden}
+
+    def _render_opgeslagen_int01(self) -> None:
+        """Zonder sessieresultaat: de opgeslagen INT-01-uitkomst (DEF-770),
+        gebonden aan de tekst die nú in het formulier staat — anders zichtbaar
+        niet toepasbaar of niet beoordeeld; nooit een oude pass."""
+        definition = SessionStateManager.get_value("editing_definition")
+        if definition is None:
+            return
+        from domain.int01.opslag import INT01_BEOORDELING_FIELD, weergavedetail
+        from ui.components.validation_view import render_rule_results
+
+        opgeslagen = (getattr(definition, "metadata", None) or {}).get(
+            INT01_BEOORDELING_FIELD
+        )
+        kern = self._kandidaat_uit_formulier(definition).definitie or ""
+        st.markdown("#### Opgeslagen INT-01-uitkomst (zinsgrenzen)")
+        render_rule_results({"INT-01": weergavedetail(opgeslagen, kern)})
 
     def _show_validation_results(self, results: dict[str, Any]) -> None:
         """Show validation results."""

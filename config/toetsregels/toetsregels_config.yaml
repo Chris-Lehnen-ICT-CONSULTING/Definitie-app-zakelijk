@@ -91,6 +91,11 @@ runtime_contract:
     # aangeleverde materiaal. Geen cijfer (score_policy no_score); een
     # negatieve uitkomst is geen vaststel-/exportblokkade (besluit 21-09-2026).
     - "countability_assessment"
+    # DEF-770 (INT-01): functionele zinsgrenzen — code stelt zekere en onzekere
+    # grenzen vast met passage en reden; één vastgestelde zin is een
+    # deelbevinding, compactheid en begrijpelijkheid blijven open. Geen cijfer
+    # (score_policy excluded_from_score) en geen zelfstandige blokkade.
+    - "sentence_boundary"
 
   required_inputs:
     - "definition_text"

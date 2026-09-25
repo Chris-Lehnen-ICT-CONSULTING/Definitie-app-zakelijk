@@ -37,6 +37,7 @@ from services.validation.evaluators.registry import (
     UnknownEvaluatorError,
     get_default_registry,
 )
+from services.validation.evaluators.sentence_boundary import SentenceBoundaryEvaluator
 from services.validation.evaluators.source_evidence import SourceEvidenceEvaluator
 
 __all__ = [
@@ -70,6 +71,7 @@ def build_default_registry() -> EvaluatorRegistry:
         ContextMetadataEvaluator(),
         SourceEvidenceEvaluator(),
         CountabilityAssessmentEvaluator(),
+        SentenceBoundaryEvaluator(),
         DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),
         *DEFERRED_EVALUATORS,

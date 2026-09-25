@@ -29,10 +29,10 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
         r"\b(om te|met als doel|bedoeld om|teneinde|zodat)\b",
         r"\b(gericht op|ten behoeve van)\b",
     ],
-    "INT-01": [
-        r"\.\s+[A-Z]",  # Meerdere zinnen
-        r";\s*[a-z]",  # Semicolon gevolgd door kleine letter (mogelijk nieuwe zin)
-    ],
+    # INT-01 staat hier bewust niet meer (DEF-770): een punt plus hoofdletter
+    # keurde 'dr. Smit' af en miste een vraagzin, en een puntkomma is geen
+    # zelfstandige zinsgrens (K4). De regel stelt zinsgrenzen functioneel vast
+    # in `services.validation.evaluators.sentence_boundary`.
     "INT-03": [
         r"\b(deze|dit|die|daarvan)\b(?!\s+(begrip|definitie|regel))",  # Onduidelijke verwijzingen
     ],

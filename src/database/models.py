@@ -15,6 +15,11 @@ from typing import Any, cast
 
 from domain.categorie_herkomst import bepaal_keuzestatus, is_categoriekeuze
 from domain.context.normalisatie import contextsleutel, lees_contextwaarden
+from domain.int01.opslag import (
+    INT01_BEOORDELING_FIELD,
+    INT01_BEOORDELING_HISTORY_KEY,
+    lees_beoordeling,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -575,6 +580,27 @@ class DefinitieRecord:
         """De append-only lijst van vervangen bewijsdocumenten (oud → nieuw)."""
         registratie = self.get_generatieregistratie() or {}
         historie = registratie.get(SOURCE_EVIDENCE_HISTORY_KEY)
+        if not isinstance(historie, list):
+            return []
+        return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    # ------------------------------------ INT-01-deeluitkomst (DEF-770)
+
+    def get_int01_beoordeling(self) -> dict[str, Any] | None:
+        """De opgeslagen INT-01-deeluitkomst met `applied`, of None (afwezig).
+
+        `applied` is alleen True als de uitkomst aan exact de huidige kern
+        (zonder toelichting) en contractversie bindt; anders is zij historisch.
+        """
+        registratie = self.get_generatieregistratie() or {}
+        return lees_beoordeling(
+            registratie.get(INT01_BEOORDELING_FIELD), self.get_definitie_tekst()
+        )
+
+    def get_int01_beoordeling_history(self) -> list[dict[str, Any]]:
+        """De append-only lijst van vervangen INT-01-uitkomsten (oud → nieuw)."""
+        registratie = self.get_generatieregistratie() or {}
+        historie = registratie.get(INT01_BEOORDELING_HISTORY_KEY)
         if not isinstance(historie, list):
             return []
         return [deepcopy(h) for h in historie if isinstance(h, dict)]
