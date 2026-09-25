@@ -1,0 +1,42 @@
+{
+  "sealed_at": "2026-09-25T07:32:02.448525+00:00",
+  "app_execution_started": false,
+  "roles": [
+    {
+      "role": "A",
+      "session": "01a0d777-0a8f-7342-b797-2a795f154d48",
+      "files": [
+        {
+          "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/t24-referentie-A-v1.json",
+          "sha256": "53f586c42475c59e336ca14481c2ac319b42926365a301a77a61a424ae5e07ad"
+        },
+        {
+          "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/t24-referentie-A-opdracht-v1.md",
+          "sha256": "5303f11414a1f492812c0c6f85be104f6a7786c71390541e84dff363e1940015"
+        },
+        {
+          "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/t24-referentie-A-sessie-v1.jsonl",
+          "sha256": "7d7a9cda3e83801249c7b7fbbd9b273d3802e4b9edea5395bc608ae0baf2221b"
+        }
+      ]
+    },
+    {
+      "role": "B",
+      "session": "01a0d777-1930-7263-a60c-e9904c09a0b4",
+      "files": [
+        {
+          "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/t24-referentie-B-v1.json",
+          "sha256": "a16a3881bd0e8dcb06a2302151c67b00bce19c9217331f4dc1beb9c43379f4cd"
+        },
+        {
+          "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/t24-referentie-B-opdracht-v1.md",
+          "sha256": "871cd61110c33e1edce48d38773e4f53c4a526c4b08633311845aff26b3e25d9"
+        },
+        {
+          "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-restherstel/t24-referentie-B-sessie-v1.jsonl",
+          "sha256": "41b1968dc515c2de4525b4b2597bebb3cbd5726467b9865f5410782c5caba269"
+        }
+      ]
+    }
+  ]
+}

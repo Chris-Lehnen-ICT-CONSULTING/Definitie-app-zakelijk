@@ -1,0 +1,64 @@
+{
+  "call_id": "G05__oud__h1",
+  "request_sha256": "f882ecceb692dd86670c7c2894a5af27ecc77f7e588e91d477d6cbbe1069c48a",
+  "manifest_sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce",
+  "counts_sha256": "76560d4e8acd0e8af9c1c6286dbd85c2a7e33c7d41fe900947c19069d07ce9f0",
+  "goedkeuring_sha256": "f54cd9fcfe48715180553a47ff807969640cbed9f1d98461c4cc903c601a9c5d",
+  "geteld_input_tokens": 13817,
+  "tijd": "2026-09-25T09:42:35+0200",
+  "duur_s": 4.734,
+  "bericht_id": "msg_011CfPnJJaMBXRTQv58RAQhc",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 13817,
+    "output_tokens": 111,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen",
+  "ruwe_response": {
+    "id": "msg_011CfPnJJaMBXRTQv58RAQhc",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 13817,
+      "output_tokens": 111,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

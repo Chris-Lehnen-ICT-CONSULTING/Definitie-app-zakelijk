@@ -1,0 +1,222 @@
+{
+  "aanroepen": [
+    {
+      "call_id": "G01__nieuw__h1",
+      "input_tokens": 13543,
+      "output_tokens": 113,
+      "kosten_usd": 0.07054,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "7904e9db39127af93956d784551f8dbb0ce2db9af755538fcd7fab0ffda013e0"
+    },
+    {
+      "call_id": "G01__nieuw__h2",
+      "input_tokens": 13543,
+      "output_tokens": 113,
+      "kosten_usd": 0.07054,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "88d9ab1c59ca5e687df18631fefab576544a230982a05fd20735f27c24e8ab24"
+    },
+    {
+      "call_id": "G01__oud__h1",
+      "input_tokens": 13543,
+      "output_tokens": 113,
+      "kosten_usd": 0.07054,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "ebc93e7a23d1496813eb8c1d12ce59da5e1430ec76edef869fd29ab0924f2d61"
+    },
+    {
+      "call_id": "G01__oud__h2",
+      "input_tokens": 13543,
+      "output_tokens": 113,
+      "kosten_usd": 0.07054,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "50812689cc68afed3f8979b5674d88f4831af81cd3934bcf51682f2567f0d42c"
+    },
+    {
+      "call_id": "G02__nieuw__h1",
+      "input_tokens": 17456,
+      "output_tokens": 140,
+      "kosten_usd": 0.09078000000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "a085d848297dce27d48a6bfba2137f979e42642d41d039fcf87331fc6a4178b8"
+    },
+    {
+      "call_id": "G02__nieuw__h2",
+      "input_tokens": 17456,
+      "output_tokens": 147,
+      "kosten_usd": 0.09095500000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "8af381b07c54c041938e6dd8f679f4a914890a51cd550efd3d25f8682ccf001a"
+    },
+    {
+      "call_id": "G02__oud__h1",
+      "input_tokens": 17116,
+      "output_tokens": 147,
+      "kosten_usd": 0.089255,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "27ba7d9dd47c122fb8b79d592f12f4a264b0e3818b3b554b0fb3de35c4907979"
+    },
+    {
+      "call_id": "G02__oud__h2",
+      "input_tokens": 17116,
+      "output_tokens": 144,
+      "kosten_usd": 0.08918000000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "0f8b3baaedd9655e3dc47b4ecc4b95702126cc7792f2d6b0f42b2c8b5034cdcb"
+    },
+    {
+      "call_id": "G03__nieuw__h1",
+      "input_tokens": 17403,
+      "output_tokens": 115,
+      "kosten_usd": 0.08989000000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "97a3c17a4dd3a273dff88bd17fba053ac0c2e71cbc0c47327758182c59c32899"
+    },
+    {
+      "call_id": "G03__nieuw__h2",
+      "input_tokens": 17403,
+      "output_tokens": 119,
+      "kosten_usd": 0.08999000000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "e22fa38ace5bcb8dff1fb8a23f371a6eb3cf89ba93eec96cb71af7d6ec104667"
+    },
+    {
+      "call_id": "G03__oud__h1",
+      "input_tokens": 17063,
+      "output_tokens": 101,
+      "kosten_usd": 0.08784,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "ae1fb0d113ddc2a471f3b96b6a7f74e0779b2155d1b59a45a0b72a9118a13f70"
+    },
+    {
+      "call_id": "G03__oud__h2",
+      "input_tokens": 17063,
+      "output_tokens": 98,
+      "kosten_usd": 0.087765,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "73501220aba4a9aa7ee7c458a269657f49b02d5de6fabbe3f31f9b1712bda827"
+    },
+    {
+      "call_id": "G04__nieuw__h1",
+      "input_tokens": 13515,
+      "output_tokens": 150,
+      "kosten_usd": 0.07132500000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "8f70e7dcbdfcc9aad6616e5e75f7dc40f6297759e5f09ac3fb4a41d9d74d51f3"
+    },
+    {
+      "call_id": "G04__nieuw__h2",
+      "input_tokens": 13515,
+      "output_tokens": 153,
+      "kosten_usd": 0.0714,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "7cb6085b1bc2c0b279e6de7282531f4e41129765b8b49fb95704302a97df542a"
+    },
+    {
+      "call_id": "G04__oud__h1",
+      "input_tokens": 13515,
+      "output_tokens": 185,
+      "kosten_usd": 0.07220000000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "50a86d9e13941dc6af0eb07b9ca8da95e344b5dc4bcbf9021038da5827afcd02"
+    },
+    {
+      "call_id": "G04__oud__h2",
+      "input_tokens": 13515,
+      "output_tokens": 140,
+      "kosten_usd": 0.07107500000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "592af26abfdd965ae276783f9a6221b1c2fc807d95b460e4abaf46be8107cab1"
+    },
+    {
+      "call_id": "G05__nieuw__h1",
+      "input_tokens": 13561,
+      "output_tokens": 184,
+      "kosten_usd": 0.072405,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "5c8ba8553df0a093de60a92bbf9bdeaec19ab7a576d141798d363c647cadc41c"
+    },
+    {
+      "call_id": "G05__nieuw__h2",
+      "input_tokens": 13561,
+      "output_tokens": 184,
+      "kosten_usd": 0.072405,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "1d4e89bebceb5891caff8422e66f4607d62c12104424e935bb03478036d39a38"
+    },
+    {
+      "call_id": "G05__oud__h1",
+      "input_tokens": 13561,
+      "output_tokens": 183,
+      "kosten_usd": 0.07238,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "89cb4aa0ca30c109f5675757c1b00d26ca8a768ba85e992234be6ada290291e0"
+    },
+    {
+      "call_id": "G05__oud__h2",
+      "input_tokens": 13561,
+      "output_tokens": 129,
+      "kosten_usd": 0.07103000000000001,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "4235737fd0a5fd2d40fda7d458c05a22706407a5f23f4ceb1d80521a61f253c5"
+    },
+    {
+      "call_id": "G06__nieuw__h1",
+      "input_tokens": 17795,
+      "output_tokens": 154,
+      "kosten_usd": 0.09282500000000002,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "5b822eff4b414e3580e24d6e0aaec076825ce4e39577a703939891f402f5a9ab"
+    },
+    {
+      "call_id": "G06__nieuw__h2",
+      "input_tokens": 17795,
+      "output_tokens": 155,
+      "kosten_usd": 0.09285000000000002,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "3a24a57c6cd58918e65eb91d13e9ece5ce54e4d5b953255901acad8c8acf9999"
+    },
+    {
+      "call_id": "G06__oud__h1",
+      "input_tokens": 17455,
+      "output_tokens": 156,
+      "kosten_usd": 0.091175,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "2f34cb6b7110ea6f131c366f20a7e9c6ea395c8533c6ce7ce4cef1875446f57a"
+    },
+    {
+      "call_id": "G06__oud__h2",
+      "input_tokens": 17455,
+      "output_tokens": 163,
+      "kosten_usd": 0.09135,
+      "stop_reason": "end_turn",
+      "model": "claude-opus-5",
+      "sha256": "95aed2c5d235c7ee24f00c448d9a3816e2997642cc59859b4e19b39dc529e815"
+    }
+  ],
+  "totaal_usd": 1.9402350000000002,
+  "grondslag": "provider usage tegen USD5/MTok input, USD25/MTok output; geen factuurcontrole"
+}

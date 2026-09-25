@@ -1,0 +1,435 @@
+{
+  "rol": "adjudicator",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "cases": [
+    {
+      "id": "T01",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De naamwoordelijke kern en de gebruiksbepaling vormen één doorlopende formulering. Het contract stelt geen persoonsvormplicht.",
+      "automation_rationale": "De ononderbroken, heldere formulering biedt voldoende positieve ondersteuning voor één zinsstructuur. Er is geen mogelijke interne zinsgrens.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T02",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De waarin-bijzin specificeert onder welke omstandigheden het tijdvak hervatting toelaat. Kern en bijzin vormen één formulering.",
+      "automation_rationale": "De tekst is een ononderbroken heldere formulering zonder mogelijke interne zinsgrens. De bijzondere beperking voor voortzettingen na titels of citaten is hier niet van toepassing.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T03",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "Kleur en klank zijn nevengeschikte onderdelen binnen dezelfde naamwoordgroep. De waarin-bijzin specificeert het register en de slotpunt sluit één formulering af.",
+      "automation_rationale": "De heldere formulering loopt door tot de enige punt aan het tekstslot. Er is voldoende positieve ondersteuning voor één zinsstructuur.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T04",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "moet blijven. De gekozen inzet",
+      "boundaries": [],
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "Na de naamwoordelijke omschrijving met bijzin volgt een afzonderlijke mededeling over de gekozen inzet. De tekst bevat daardoor twee buitenste zinseenheden.",
+      "automation_rationale": "De gewone afsluitende punt en het duidelijke nieuwe zinsbegin ondersteunen een zekere buitenste grens. Dit valt onder de contractueel toegestane automatische fail voor gewone zinsgrenzen.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T05",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "getal",
+      "broncitaat_open": false,
+      "rationale": "De afstand, maat en plaatsbepaling vormen samen één naamwoordelijke formulering. De komma behoort tot het decimale getal.",
+      "automation_rationale": "De komma in ‘2,5’ is aantoonbaar intern aan het getal en ‘mm’ bevat geen grenspunctuatie. De overige tekst vormt een heldere doorlopende formulering.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T06",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De verwijzing naar de onderzoeker hoort bij één naamwoordelijke formulering. De afgekorte titel dr. staat bij de persoonsnaam Mira Velden.",
+      "automation_rationale": "‘de fictieve onderzoeker dr. Mira Velden’ levert expliciete titel- en naamcontext voor de interne afkortingspunt. De laatste punt sluit de enige formulering af.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T07",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "afkorting_als_slot",
+      "broncitaat_open": false,
+      "rationale": "De opgesomde voorwerpen vullen één naamwoordelijke kern aan. De bekende afkorting e.d. rondt deze opsomming af.",
+      "automation_rationale": "De opsommingscontext ondersteunt de interpretatie van ‘e.d.’ als bekende afkorting. De punten introduceren geen tweede zin en de formulering heeft een duidelijke samenhang.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T08",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "bijv. 12. De achterkant",
+      "boundaries": [],
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "Het voorbeeldnummer behoort bij de omschrijving van de nummering. Daarna volgt een zelfstandige mededeling over de achterkant.",
+      "automation_rationale": "De punt in ‘bijv.’ is intern aan een bekende afkorting. De punt na ‘12’ en het duidelijke nieuwe zinsbegin ondersteunen een zekere buitenste grens.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T09",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De hoofdzin en de betrekkelijke bijzin over de plaat vormen samen één mededelende zin.",
+      "automation_rationale": "De heldere formulering loopt zonder mogelijke interne zinsgrens door tot de afsluitende punt. Dit ondersteunt automatisch pass.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T10",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "oefening aan. Het klinkt",
+      "boundaries": [],
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "De aankondiging van de pauze en het eenmaal klinken staan in twee afzonderlijke mededelende zinnen.",
+      "automation_rationale": "De gewone punt en het duidelijke vervolg ‘Het klinkt’ ondersteunen een zekere buitenste zinsgrens.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T11",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "één voorkeur. Welke mogelijkheid",
+      "boundaries": [],
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "Na de beschrijvende mededeling volgt een zelfstandige vraag. Daardoor bevat de tekst twee zinseenheden.",
+      "automation_rationale": "De gewone punt met daarop een duidelijk nieuw vraagbegin ondersteunt een zekere buitenste grens. Het vraagteken sluit de tweede zin af.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T12",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "het werkblad. Laat de opening",
+      "boundaries": [],
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "De beschrijving van de vangrand en de daaropvolgende aansporing vormen twee afzonderlijke zinnen. Een uitgeschreven onderwerp is voor de aansporing niet vereist.",
+      "automation_rationale": "De gewone punt en het duidelijke nieuwe begin van de aansporing ondersteunen een zekere buitenste grens.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T13",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "rationale": "De drie regels vormen samen één naamwoordelijke kern met een doorlopende betrekkelijke bijzin. De regelovergangen verdelen diezelfde constructie.",
+      "automation_rationale": "De enkele regelovergangen staan binnen een heldere doorlopende formulering en bevatten geen zinsafsluiting of afzonderlijke labels. De samenhang ondersteunt automatisch pass.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T14",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "zachte geluiden.\n\nDe bekleding",
+      "boundaries": [],
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "rationale": "De omschrijving van de luisterplek en de mededeling over de bekleding staan in afzonderlijke zinnen en alinea's.",
+      "automation_rationale": "De afsluitende punt, lege regel en het duidelijke nieuwe zinsbegin ondersteunen gezamenlijk een zekere buitenste grens.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T15",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "opmaak",
+      "broncitaat_open": false,
+      "rationale": "De drie opsommingsleden vullen gezamenlijk ‘zones voor’ aan. De dubbele punt en puntkomma's organiseren één samenhangende formulering.",
+      "automation_rationale": "De expliciete aanloop en parallelle opsommingsleden ondersteunen één formulering. De regelovergangen en opsommingstekens vormen hier geen zelfstandige zinsgrenzen.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T16",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "geen_grens",
+      "broncitaat_open": false,
+      "rationale": "De puntkomma verbindt twee inhoudelijk samenhangende hoofdzinnen binnen één samengestelde zin. De vetmarkering verandert de zinsstructuur niet; compactheid blijft afzonderlijk open.",
+      "automation_rationale": "De puntkomma vormt hier geen buitenste zinseinde en de tekst loopt helder door tot de slotpunt. De markdownmarkering introduceert evenmin een zinsgrens.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T17",
+      "normative_sentence_status": "pass",
+      "sentence_status": "review_required",
+      "status": "review_required",
+      "boundary_passage": "‘nu beginnen’ waarmee een luisteroefening",
+      "boundaries": [],
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "rationale": "Het citaat vermeldt de woorden van de aanwijzing. De waarmee-bijzin beschrijft de aanwijzing als middel om de luisteroefening te openen, zodat één samenhangende formulering ontstaat.",
+      "automation_rationale": "Het vaststellen van de aansluiting van ‘waarmee’ na het citaat vereist interpretatie van de samenhang en woordrollen. Het expliciete besluit over waar-plus-voorzetselvervolgen en het algemene besluit vereisen daarvoor review_required; interne zinseindpunctuatie is voor deze categorie geen gestelde voorwaarde.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T18",
+      "normative_sentence_status": "fail",
+      "sentence_status": "fail",
+      "status": "fail",
+      "boundary_passage": "vast te klemmen). De punt steekt",
+      "boundaries": [],
+      "reason_category": "nieuw_zinsbegin",
+      "broncitaat_open": false,
+      "rationale": "De bepaling tussen haakjes behoort bij de eerste formulering. Na de afsluitende punt volgt een zelfstandige mededeling over de punt van de pen.",
+      "automation_rationale": "De punt buiten de gesloten haakjes en het duidelijke nieuwe zinsbegin ondersteunen een zekere buitenste grens. De haakjes schermen deze grens niet af.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T19",
+      "normative_sentence_status": "pass",
+      "sentence_status": "pass",
+      "status": "review_required",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": true,
+      "rationale": "Het hele-kerncitaat bevat één naamwoordelijke formulering met een betrekkelijke bijzin. De broncitaatvraag blijft volgens het contract afzonderlijk open.",
+      "automation_rationale": "De enige punt staat aan het einde van de gehele kern en wordt uitsluitend gevolgd door het sluitende aanhalingsteken. De inhoud bevat geen interne grens naar een tweede zin; pass berust op die structuur.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T20",
+      "normative_sentence_status": "pass",
+      "sentence_status": "review_required",
+      "status": "review_required",
+      "boundary_passage": "‘Waar klinkt het?’ die een luisteraar",
+      "boundaries": [],
+      "reason_category": "citaat_haakjes",
+      "broncitaat_open": false,
+      "rationale": "De vragende titel benoemt de fictieve oefenreeks. De die-bijzin kan de tegel specificeren via zijn functie in de luisteroefening, waardoor één samenhangende formulering ontstaat.",
+      "automation_rationale": "De titelcontext ondersteunt dat het vraagteken intern is, maar de aansluitende die-bijzin vereist grammaticale interpretatie. Het algemene besluit noemt deze categorie expliciet en vereist review_required.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T21",
+      "normative_sentence_status": "not_evaluated",
+      "sentence_status": "not_evaluated",
+      "status": "not_evaluated",
+      "boundary_passage": null,
+      "boundaries": [],
+      "reason_category": "leeg",
+      "broncitaat_open": false,
+      "rationale": "Er is geen tekst waarvan de zinsstructuur kan worden beoordeeld.",
+      "automation_rationale": "Het lege tekstveld krijgt volgens het contract not_evaluated.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T22",
+      "normative_sentence_status": "review_required",
+      "sentence_status": "review_required",
+      "status": "review_required",
+      "boundary_passage": "Afstemvak",
+      "boundaries": [],
+      "reason_category": "onvoldoende_informatie",
+      "broncitaat_open": false,
+      "rationale": "De tekst bestaat uitsluitend uit het losse begripslabel. Er is onvoldoende informatie om dit als een uitgewerkte naamwoordelijke formulering te beoordelen, terwijl evenmin meervoudige zinsstructuur is aangetoond.",
+      "automation_rationale": "Het losse label levert geen voldoende positief ondersteunde formulering of zekere zinsgrens op. De afwezigheid van een hoofdzin of leestekens rechtvaardigt op zichzelf geen pass.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T23",
+      "normative_sentence_status": "fail",
+      "sentence_status": "review_required",
+      "status": "review_required",
+      "boundary_passage": "beweegbare plank. de rand blijft",
+      "boundaries": [],
+      "reason_category": "kleine_letter",
+      "broncitaat_open": false,
+      "rationale": "Na de naamwoordelijke omschrijving volgt een zelfstandige mededeling over de zichtbaarheid van de rand. De kleine beginletter en ontbrekende slotpunt nemen die tweede zinseenheid niet weg.",
+      "automation_rationale": "De mogelijke grens bestaat uit een punt gevolgd door een kleine letter. Het contract vereist daarvoor review_required, onafhankelijk van de normatieve herkenning van een tweede zin.",
+      "certainty": "zeker"
+    },
+    {
+      "id": "T24",
+      "normative_sentence_status": "review_required",
+      "sentence_status": "review_required",
+      "status": "review_required",
+      "boundary_passage": "wordt genoteerd in zkr.",
+      "boundaries": [],
+      "reason_category": "afkorting_als_slot",
+      "broncitaat_open": false,
+      "rationale": "De aanloop vormt een naamwoordelijke kern met een betrekkelijke bijzin. De onverklaarde afkorting laat de voltooiing van de slotbepaling onzeker; dit bewijst geen tweede zin, maar ondersteunt evenmin een definitief positief oordeel over de volledige formulering.",
+      "automation_rationale": "Voor ‘zkr.’ ontbreekt voldoende expliciete context om de onbekende afkorting en haar slotfunctie vast te stellen. Het conservatieve beleid vereist review_required en laat geen fail uitsluitend wegens mogelijke onvolledigheid toe.",
+      "certainty": "zeker"
+    }
+  ],
+  "discrepanties": [
+    {
+      "id": "T10",
+      "velden": [
+        "boundary_passage"
+      ],
+      "referentie_A": {
+        "boundary_passage": "oefening aan. Het klinkt"
+      },
+      "referentie_B": {
+        "boundary_passage": "oefening aan. Het klinkt eenmaal."
+      },
+      "besluit": {
+        "boundary_passage": "oefening aan. Het klinkt"
+      },
+      "onderbouwing": "Beide passages zijn exacte substrings rondom dezelfde zekere buitenste grens en voldoen aan het contract. De kortere passage bevat voldoende context; het verschil in passageomvang verandert geen oordeel op beide assen.",
+      "opgelost": true
+    },
+    {
+      "id": "T12",
+      "velden": [
+        "boundary_passage"
+      ],
+      "referentie_A": {
+        "boundary_passage": "het werkblad. Laat de opening"
+      },
+      "referentie_B": {
+        "boundary_passage": "het werkblad. Laat de opening vrij!"
+      },
+      "besluit": {
+        "boundary_passage": "het werkblad. Laat de opening"
+      },
+      "onderbouwing": "Beide passages zijn exacte substrings rondom dezelfde zekere buitenste grens. Het contract schrijft geen passageomvang voor; de kortere passage lokaliseert de grens voldoende en laat beide asoordelen intact.",
+      "opgelost": true
+    },
+    {
+      "id": "T17",
+      "velden": [
+        "sentence_status",
+        "boundary_passage",
+        "automation_rationale"
+      ],
+      "referentie_A": {
+        "sentence_status": "pass",
+        "boundary_passage": null,
+        "automation_rationale": "Het expliciet ingeleide woordcitaat bevat geen interne zinseindpunctuatie en creëert geen mogelijke zinsgrens. De pass berust op deze ononderbroken structuur, niet op automatische ontleding van de waarmee-bijzin."
+      },
+      "referentie_B": {
+        "sentence_status": "review_required",
+        "boundary_passage": "‘nu beginnen’ waarmee een luisteroefening",
+        "automation_rationale": "Het citaatvervolg met ‘waarmee’ valt onder het expliciete besluit over waar-plus-voorzetselvervolgen. Het vaststellen van die aansluiting vraagt interpretatie van de samenhang; het ontbreken van zinseindpunctuatie in het citaat bewijst die aansluiting niet automatisch."
+      },
+      "besluit": {
+        "normative_sentence_status": "pass",
+        "sentence_status": "review_required",
+        "status": "review_required",
+        "boundary_passage": "‘nu beginnen’ waarmee een luisteroefening"
+      },
+      "onderbouwing": "Het eerste aanvullende besluit omvat een titel/citaat met voortzetting via waar + voorzetsel wanneer de samenhang en woordrollen inhoudelijk moeten worden vastgesteld; het stelt geen interne zinseindpunctuatie als voorwaarde. Het algemene besluit bevestigt deze beperking voor citaatvervolgen die grammaticale interpretatie vereisen. Hier moet ‘waarmee’ inhoudelijk worden verbonden met de aanwijzing als middel om de oefening te openen: dat ondersteunt normatief één formulering, maar automatisch review_required. A introduceert met de afwezigheid van interne zinseindpunctuatie een uitzondering die het contract voor deze categorie niet geeft.",
+      "opgelost": true
+    },
+    {
+      "id": "T18",
+      "velden": [
+        "reason_category"
+      ],
+      "referentie_A": {
+        "reason_category": "nieuw_zinsbegin"
+      },
+      "referentie_B": {
+        "reason_category": "citaat_haakjes"
+      },
+      "besluit": {
+        "reason_category": "nieuw_zinsbegin"
+      },
+      "onderbouwing": "Beide categorieën benoemen aanwezige tekstkenmerken en het contract legt geen voorrang tussen categorieën vast. Voor deze adjudicatie krijgt de directe grond voor fail voorrang: de gewone punt buiten de haakjes met een duidelijk nieuw zinsbegin. De haakjescontext blijft expliciet in de motivering behouden; het verschil betreft categorisering, niet de grens of beide asoordelen.",
+      "opgelost": true
+    },
+    {
+      "ids": [
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T09",
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22",
+        "T23",
+        "T24"
+      ],
+      "velden": [
+        "rationale",
+        "automation_rationale"
+      ],
+      "type": "overige_redactionele_verschillen",
+      "besluit": "De overige verschillen in motivering leveren geen afzonderlijk inhoudelijk geschil op.",
+      "onderbouwing": "Buiten het afzonderlijk beslechte automatische oordeel bij T17 beschrijven de referenties verenigbare gronden voor hun labels. De formuleringen bij T20 verschillen in stelligheid over het antecedent van ‘die’; een inhoudelijk samenhangende betrekkelijke lezing ondersteunt normatief pass, terwijl de vereiste interpretatie automatisch review_required houdt. Compactheid en begrijpelijkheid blijven bij alle zinsstructurele passes afzonderlijk open; er wordt nergens een totale INT-01-pass toegekend.",
+      "opgelost": true
+    }
+  ],
+  "onopgeloste_disputen": []
+}

@@ -1,0 +1,14 @@
+De onafhankelijke eerste bijdrage B is opgeleverd in [onderzoek-b](/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b):
+
+- `aanvulling-b-v1.md` — Q1–Q6, vervangteksten en besluitpunten.
+- `casusregister-b-v1.md` — 18 gevallen met G/T/H.
+- `proefverwachtingen-b-v1.json`
+- `proef-b-v1.py`
+- `proefuitkomsten-b-v1.json`
+- `bewijsmanifest-b-v1.json`
+
+**Geverifieerd:** 16 service-uitkomsten en 3 promptvarianten; exitstatus 0. Het ASTRA-paar krijgt identieke reviewuitkomsten. De adapter neemt INT-03 alleen op bij de onderzochte juridische contextvariant.
+
+Open blijven DBT §4.3, UI-/opslagbewijs en daadwerkelijke kwaliteitswinst. Volgende overdracht: A ontvangt dit pakket en levert zijn volledige v1 voor kruisreview. Geen gezamenlijke afronding geclaimd.
+
+SHA-256 manifest: `048cea04005ba8ee8ec285665bc88385d9e28209bd99f74a8f59bcecf57bbe92`.

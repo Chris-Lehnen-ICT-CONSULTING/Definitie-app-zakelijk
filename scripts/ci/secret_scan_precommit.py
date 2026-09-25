@@ -38,11 +38,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import secret_scan_gate
 
-#: Vaste wachttijden voor de tool. Lokale feedback op de index moet kort blijven;
-#: de volledige modus fetcht en scant twee keer en krijgt daarom dezelfde ruimte
-#: als de CI-gate zelf.
+#: Vaste wachttijden per git- of toolaanroep. Lokale feedback op de index moet
+#: kort blijven. De volledige modus fetcht en scant twee keer met de gitleaks-build
+#: van pre-commit (stdlib-regex); die is trager dan de RE2-releasebinary van de
+#: CI-gate (300 s) en krijgt daarom een ruimere, nog steeds vaste grens (DEF-770).
 _TIMEOUT_STAGED = 60
-_TIMEOUT_FULL = 300
+_TIMEOUT_FULL = 600
 
 #: De configuratie die in de repository-root wordt verwacht.
 _CONFIG_NAAM = ".gitleaks.toml"

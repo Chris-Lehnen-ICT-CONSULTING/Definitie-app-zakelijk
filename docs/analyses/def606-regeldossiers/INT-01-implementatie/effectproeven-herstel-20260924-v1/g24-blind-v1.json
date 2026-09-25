@@ -1,0 +1,430 @@
+{
+  "dossiers": [
+    {
+      "id": "G01",
+      "stratum": "gewone kern",
+      "begrip": "verplaatsingsbericht",
+      "organisatorische_context": [
+        "De fictieve publieke Dienst Materiaalcirculatie beheert gedeelde hulpmiddelen voor wijkwerkplaatsen.",
+        "Het dossier beschrijft uitsluitend de interne administratieve werkwijze van deze proeforganisatie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G01-P01",
+          "tekst": "De Dienst Materiaalcirculatie beheert gedeelde hulpmiddelen voor zes fictieve wijkwerkplaatsen. Wanneer een hulpmiddel daadwerkelijk van de ene werkplaats naar de andere is gebracht, maakt de ontvangende medewerker een verplaatsingsbericht aan. Het bericht legt vast welk hulpmiddel is verplaatst, uit welke werkplaats het kwam en welke werkplaats het heeft ontvangen. Deze drie gegevens zijn nodig om de voorraadlocatie bij te werken. Een voorgenomen verplaatsing hoort in de planning en levert nog geen verplaatsingsbericht op. Het tijdstip van invoer, de kleur van het gebruikte scherm en een optionele toelichting helpen medewerkers bij hun werk, maar bepalen niet om welk administratief bericht het gaat. De dienst toont berichten standaard in een dagoverzicht. Tijdens oefeningen mag hetzelfde bericht op papier worden vastgelegd; het medium verandert de betekenis niet. De teamleider bespreekt opvallende verplaatsingen tijdens het maandelijkse magazijnoverleg.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Het gaat om de administratieve vastlegging van een uitgevoerde verplaatsing tussen werkplaatsen. Behoud het onderscheid met planning en de koppeling tussen hulpmiddel, herkomst en ontvangstlocatie.",
+      "doelgroep": "Magazijnmedewerkers en beheerders van wijkwerkplaatsen zonder specialistische administratieve opleiding.",
+      "beschermde_kenmerken": [
+        "Administratieve vastlegging",
+        "Daadwerkelijk uitgevoerde verplaatsing tussen twee werkplaatsen",
+        "Identificatie van het hulpmiddel",
+        "Vastlegging van zowel de oorspronkelijke als de ontvangende werkplaats"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Een uitsluitend voorgenomen verplaatsing levert nog geen verplaatsingsbericht op."
+      ]
+    },
+    {
+      "id": "G02",
+      "stratum": "noodzakelijke bijzin",
+      "begrip": "aansluitverzoek",
+      "organisatorische_context": [
+        "Het fictieve publieke Bureau Buurtritten verdeelt aanvragen voor vervoer naar gezamenlijke voorzieningen.",
+        "Dit dossier betreft een interne categorie aanvragen, zonder aanspraken buiten de proeforganisatie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G02-P01",
+          "tekst": "Het Bureau Buurtritten verwerkt aanvragen voor vervoer naar gezamenlijke voorzieningen. Medewerkers gebruiken de categorie aansluitverzoek uitsluitend voor een aanvraag waarbij de gewenste aankomsttijd afhangt van een andere rit die al in hetzelfde planningssysteem is bevestigd. Die afhankelijkheid moet uit de aanvraag blijken: zonder aansluiting op die bevestigde rit vervalt het doel van de aangevraagde aankomsttijd. Een overeenkomstige bestemming of toevallig gelijke vertrektijd is onvoldoende. Ook een verwijzing naar een nog onbevestigd ritidee voldoet niet aan deze interne categorie. De aanvraag kan telefonisch worden genoteerd of via een formulier binnenkomen. Het bureau gebruikt op het scherm een kettingsymbool en behandelt zulke aanvragen meestal in de ochtend. Symbool en behandeltijd zijn werkafspraken, geen kenmerken van de categorie. De planner controleert de verwijzing naar de bevestigde rit voordat hij de aanvraag aan een route toevoegt. De categorie zegt op zichzelf niets over toewijzing.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De afbakening berust op de afhankelijkheidsrelatie tussen de gewenste aankomsttijd en een andere, reeds bevestigde rit. Een verkorte formulering moet die relatie en de bevestigingsstatus herkenbaar behouden.",
+      "doelgroep": "Medewerkers die vervoersaanvragen registreren en planners die de aanvragen indelen.",
+      "beschermde_kenmerken": [
+        "Aanvraag voor vervoer",
+        "Gewenste aankomsttijd is afhankelijk van aansluiting op een andere rit",
+        "De andere rit is al bevestigd in hetzelfde planningssysteem",
+        "De afhankelijkheid blijkt uit de aanvraag"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Alleen dezelfde bestemming of vertrektijd is onvoldoende.",
+        "Een verwijzing naar een onbevestigd ritidee voldoet niet.",
+        "De categorie houdt op zichzelf geen toewijzing in."
+      ]
+    },
+    {
+      "id": "G03",
+      "stratum": "noodzakelijke naam",
+      "begrip": "spiegelinschrijving",
+      "organisatorische_context": [
+        "De fictieve publieke Archiefdienst Wolkenwaard oefent het herstellen van dossierindexen.",
+        "Registerbenamingen hebben binnen deze oefenomgeving een vastgelegde onderscheidende functie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G03-P01",
+          "tekst": "De Archiefdienst Wolkenwaard gebruikt twee gescheiden registers tijdens herstelproeven. Het Register Eerste Vastlegging bevat de oorspronkelijke inschrijvingen. Het Register Tegenlicht bevat de daarvan overgenomen inschrijvingen waarmee medewerkers herstelprocedures oefenen. Binnen deze werkwijze mag een inschrijving alleen spiegelinschrijving heten als zij uit het Register Eerste Vastlegging is overgenomen in het Register Tegenlicht en daarbij dezelfde dossiercode heeft behouden. De twee registernamen wijzen concrete administraties aan; het zijn geen vrije omschrijvingen van functies. Een kopie in een persoonlijke oefenmap of een overname in omgekeerde richting valt buiten deze categorie. De schermkop van het doelregister is paars en het oefenteam gebruikt doorgaans een dubbele monitor. Deze inrichting kan veranderen. De spiegelinschrijving krijgt een eigen invoertijd, zodat de oefenleider kan zien wanneer de overname plaatsvond. Die invoertijd hoeft niet gelijk te zijn aan die van het oorspronkelijke record.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Behoud de richting van overname, de identiteit van beide benoemde registers en het behoud van de dossiercode. Het gaat niet om willekeurige kopieën of om een generieke combinatie van bron- en doelregister.",
+      "doelgroep": "Archiefmedewerkers die herstelproeven voorbereiden en uitvoeren.",
+      "beschermde_kenmerken": [
+        "Overname van een inschrijving",
+        "Overname vanuit het aangewezen bronregister naar het aangewezen doelregister",
+        "De dossiercode blijft gelijk"
+      ],
+      "beschermde_namen": [
+        "Register Eerste Vastlegging",
+        "Register Tegenlicht"
+      ],
+      "beschermde_negaties": [
+        "Een kopie in een persoonlijke oefenmap valt buiten de categorie.",
+        "Overname in omgekeerde richting valt buiten de categorie."
+      ]
+    },
+    {
+      "id": "G04",
+      "stratum": "limitatieve opsomming",
+      "begrip": "herstelgrond",
+      "organisatorische_context": [
+        "Het fictieve publieke Loket Terreinkaarten verwerkt aanvragen voor interne terreinplattegronden.",
+        "De herstelprocedure betreft de volledigheid en technische leesbaarheid van aanvraagpakketten."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G04-P01",
+          "tekst": "Het Loket Terreinkaarten controleert binnengekomen aanvraagpakketten voordat een tekenaar eraan werkt. Voor het terugleggen van een pakket gebruikt het loket drie herstelgronden: een ontbrekende terreincode, een onleesbaar kaartbestand of het ontbreken van een contactkanaal voor terugkoppeling. Deze opsomming is gesloten. Eén van deze omstandigheden is voldoende; meerdere kunnen tegelijk worden geregistreerd. Een medewerker mag geen vierde grond toevoegen onder een algemene noemer zoals overige onvolledigheid. Een ongebruikelijke kaartkleur, een beknopte toelichting of een drukke planning vormt dus geen herstelgrond. De medewerker vermeldt welke van de drie omstandigheden is aangetroffen, zodat de aanvragende afdeling gericht kan aanvullen. Het loket gebruikt daarvoor momenteel selectievakjes in een groen formulier. De formulierkleur en de volgorde van de vakjes zijn niet bepalend. Een herstelgrond betreft het aanvraagpakket en zegt niets over de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "De categorie omvat uitsluitend de drie genoemde omstandigheden. Behoud dat elke omstandigheid afzonderlijk voldoende is en dat de opsomming geen voorbeeldenverzameling vormt.",
+      "doelgroep": "Loketmedewerkers en medewerkers van afdelingen die terreinplattegronden aanvragen.",
+      "beschermde_kenmerken": [
+        "Grond voor het terugleggen van een aanvraagpakket ter aanvulling",
+        "Ontbrekende terreincode",
+        "Onleesbaar kaartbestand",
+        "Ontbrekend contactkanaal voor terugkoppeling",
+        "Gesloten opsomming met drie alternatieven",
+        "Een enkele genoemde omstandigheid is voldoende; samenloop is mogelijk"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "Andere omstandigheden vormen geen herstelgrond.",
+        "De gronden hoeven niet alle drie tegelijk aanwezig te zijn.",
+        "Een herstelgrond is geen inhoudelijk oordeel over het terreinontwerp."
+      ]
+    },
+    {
+      "id": "G05",
+      "stratum": "vaktaal/doelgroep",
+      "begrip": "nulpaar",
+      "organisatorische_context": [
+        "Het fictieve publieke Meetbureau Binnenlucht beheert sensoren in gezamenlijke gebouwen.",
+        "De bron richt zich op nieuwe gebouwbeheerders die metingen uitvoeren zonder opleiding in meettechniek."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G05-P01",
+          "tekst": "Het Meetbureau Binnenlucht laat gebouwbeheerders controleren of een sensor tijdens een meetronde verschuift in zijn aanwijzing. In de technische werkinstructie heet het gebruikte hulpmiddel een nulpaar. Daarvoor wordt met dezelfde sensor tweemaal dezelfde afgesloten referentiecapsule gemeten: eenmaal direct vóór en eenmaal direct na de meetronde. De twee uitkomsten worden samen bewaard. Hun verschil maakt een verandering van de sensorrespons tijdens die ronde zichtbaar. Met nul wordt hier de vaste vergelijkingsbasis bedoeld; de uitkomsten hoeven niet het getal nul te zijn. De referentiecapsule bevat een stabiel proefmengsel en wordt niet gebruikt om de gebouwlucht te bemonsteren. Nieuwe gebouwbeheerders kennen termen als drift en referentiemeting vaak nog niet. De instructie moet daarom begrijpelijk blijven zonder die voorkennis. Het bureau bewaart de capsule gewoonlijk in een blauwe koffer en drukt de uitkomsten standaard naast elkaar af. Die presentatie is niet vereist.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Laat voor beginnende gebouwbeheerders begrijpelijk blijven welke twee uitkomsten bij elkaar horen, hoe ze zijn verkregen en waarvoor hun vergelijking dient. De vakterm 'nul' mag niet als een vereiste numerieke uitkomst worden uitgelegd.",
+      "doelgroep": "Beginnende gebouwbeheerders zonder opleiding in meettechniek.",
+      "beschermde_kenmerken": [
+        "Twee samen bewaarde meetuitkomsten",
+        "Dezelfde sensor en dezelfde afgesloten referentiecapsule",
+        "Een meting direct vóór en een meting direct na dezelfde meetronde",
+        "Vergelijking maakt verandering van de sensoraanwijzing tijdens de ronde zichtbaar"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "De meetuitkomsten hoeven niet nul te zijn.",
+        "De referentiecapsule wordt niet gebruikt voor het bemonsteren van gebouwlucht."
+      ]
+    },
+    {
+      "id": "G06",
+      "stratum": "risico betekenisverlies bij inkorten",
+      "begrip": "routepauze",
+      "organisatorische_context": [
+        "Het fictieve publieke Bureau Zaalverdeling verdeelt aanvragen voor gedeelde vergaderruimten.",
+        "De beschreven status bestaat uitsluitend binnen het interne aanvraagproces van de proeforganisatie."
+      ],
+      "juridische_context": [],
+      "wettelijke_basis": [],
+      "bronpassages": [
+        {
+          "id": "G06-P01",
+          "tekst": "Het Bureau Zaalverdeling verdeelt aanvragen voor gedeelde vergaderruimten automatisch over behandelteams. Een routepauze wordt door een medewerker ingesteld wanneer de opgegeven locatie nog niet eenduidig aan een beheergebied kan worden gekoppeld. Alleen de automatische toedeling van die aanvraag wordt dan tijdelijk onderbroken. De aanvraag blijft ontvangen, behoudt haar oorspronkelijke ontvangsttijd en mag ondertussen handmatig worden onderzocht en aangevuld. De status is geen afwijzing, trekt de aanvraag niet in en blokkeert geen handmatige behandeling. Zodra een medewerker het beheergebied heeft vastgesteld, heft die medewerker de routepauze op en kan de automatische toedeling worden hervat. Er geldt geen vaste duur. Het scherm toont tijdens de pauze een zandlopertje; teamleiders bekijken de betrokken aanvragen meestal op vrijdag. Deze presentatie en overlegdag zijn niet bepalend. Verkorting tot een algemene behandelstop zou het onderscheid tussen automatische toedeling en inhoudelijke werkzaamheden wegnemen.",
+          "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+        }
+      ],
+      "bedoelde_betekenis": "Behoud de beperkte reikwijdte van de onderbreking en de aanleiding ervoor. De aanvraag blijft bestaan met haar oorspronkelijke ontvangsttijd, terwijl handmatige behandeling mogelijk blijft; opheffing volgt op vaststelling van het beheergebied door een medewerker.",
+      "doelgroep": "Medewerkers die aanvragen behandelen en teamleiders die de verdeling bewaken.",
+      "beschermde_kenmerken": [
+        "Door een medewerker ingestelde tijdelijke onderbreking",
+        "Onderbreking betreft uitsluitend automatische toedeling van één aanvraag",
+        "Aanleiding is een nog niet eenduidige koppeling van de locatie aan een beheergebied",
+        "Behoud van de ontvangen aanvraag en haar oorspronkelijke ontvangsttijd",
+        "Opheffing door een medewerker na vaststelling van het beheergebied"
+      ],
+      "beschermde_namen": [],
+      "beschermde_negaties": [
+        "De routepauze is geen afwijzing.",
+        "De routepauze trekt de aanvraag niet in.",
+        "De routepauze blokkeert geen handmatige behandeling.",
+        "Er geldt geen vaste duur."
+      ]
+    }
+  ],
+  "teksten": [
+    {
+      "id": "B01",
+      "dossier_id": "G01",
+      "ruwe_tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+      "opgeschoonde_kandidaat": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen."
+    },
+    {
+      "id": "B02",
+      "dossier_id": "G02",
+      "ruwe_tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan",
+      "opgeschoonde_kandidaat": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan."
+    },
+    {
+      "id": "B03",
+      "dossier_id": "G01",
+      "ruwe_tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+      "opgeschoonde_kandidaat": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen."
+    },
+    {
+      "id": "B04",
+      "dossier_id": "G05",
+      "ruwe_tekst": "tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft",
+      "opgeschoonde_kandidaat": "Tweetal samen bewaarde meetuitkomsten van één sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen, en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft."
+    },
+    {
+      "id": "B05",
+      "dossier_id": "G05",
+      "ruwe_tekst": "samenhorend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na één meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde toont",
+      "opgeschoonde_kandidaat": "Samenhorend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na één meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde toont."
+    },
+    {
+      "id": "B06",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Omstandigheid aan een aanvraagpakket voor een terreinplattegrond die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt en die zich beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en andere kenmerken van het pakket of de inhoudelijke bruikbaarheid van het terreinontwerp buiten beschouwing blijven",
+      "opgeschoonde_kandidaat": "Omstandigheid aan een aanvraagpakket voor een terreinplattegrond die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt en die zich beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en andere kenmerken van het pakket of de inhoudelijke bruikbaarheid van het terreinontwerp buiten beschouwing blijven."
+    },
+    {
+      "id": "B07",
+      "dossier_id": "G01",
+      "ruwe_tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+      "opgeschoonde_kandidaat": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen."
+    },
+    {
+      "id": "B08",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen",
+      "opgeschoonde_kandidaat": "Vastgestelde omstandigheid in een aanvraagpakket voor een terreinplattegrond die bestaat uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één van deze drie omstandigheden volstaat om het pakket terug te leggen bij de aanvragende afdeling en andere omstandigheden buiten deze gesloten opsomming vallen."
+    },
+    {
+      "id": "B09",
+      "dossier_id": "G06",
+      "ruwe_tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie niet eenduidig aan een beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag tijdelijk is onderbroken zonder vaste duur, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven tot de medewerker het beheergebied heeft vastgesteld en de status opheft",
+      "opgeschoonde_kandidaat": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie niet eenduidig aan een beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag tijdelijk is onderbroken zonder vaste duur, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven tot de medewerker het beheergebied heeft vastgesteld en de status opheft."
+    },
+    {
+      "id": "B10",
+      "dossier_id": "G03",
+      "ruwe_tekst": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd",
+      "opgeschoonde_kandidaat": "Inschrijving in het Register Tegenlicht die uit het Register Eerste Vastlegging is overgenomen met behoud van dezelfde dossiercode en met een eigen invoertijd."
+    },
+    {
+      "id": "B11",
+      "dossier_id": "G03",
+      "ruwe_tekst": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd",
+      "opgeschoonde_kandidaat": "Inschrijving in het Register Tegenlicht die is overgenomen uit het Register Eerste Vastlegging met behoud van dezelfde dossiercode en met een eigen invoertijd."
+    },
+    {
+      "id": "B12",
+      "dossier_id": "G03",
+      "ruwe_tekst": "Inschrijving die vanuit het Register Eerste Vastlegging met behoud van dezelfde dossiercode is overgenomen in het Register Tegenlicht en daarbij een eigen invoertijd krijgt",
+      "opgeschoonde_kandidaat": "Inschrijving die vanuit het Register Eerste Vastlegging met behoud van dezelfde dossiercode is overgenomen in het Register Tegenlicht en daarbij een eigen invoertijd krijgt."
+    },
+    {
+      "id": "B13",
+      "dossier_id": "G06",
+      "ruwe_tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld",
+      "opgeschoonde_kandidaat": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam onderbroken is met behoud van de oorspronkelijke ontvangsttijd en van de mogelijkheid tot handmatig onderzoek en aanvulling, en die door een medewerker wordt opgeheven zodra het beheergebied is vastgesteld."
+    },
+    {
+      "id": "B14",
+      "dossier_id": "G02",
+      "ruwe_tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel overeenkomstige bestemming, een toevallig gelijke vertrektijd of een verwijzing naar een onbevestigd ritidee niet volstaat",
+      "opgeschoonde_kandidaat": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel overeenkomstige bestemming, een toevallig gelijke vertrektijd of een verwijzing naar een onbevestigd ritidee niet volstaat."
+    },
+    {
+      "id": "B15",
+      "dossier_id": "G03",
+      "ruwe_tekst": "Inschrijving die vanuit het Register Eerste Vastlegging is overgenomen in het Register Tegenlicht met behoud van dezelfde dossiercode en met een eigen invoertijd die afwijkt van die van het oorspronkelijke record",
+      "opgeschoonde_kandidaat": "Inschrijving die vanuit het Register Eerste Vastlegging is overgenomen in het Register Tegenlicht met behoud van dezelfde dossiercode en met een eigen invoertijd die afwijkt van die van het oorspronkelijke record."
+    },
+    {
+      "id": "B16",
+      "dossier_id": "G06",
+      "ruwe_tekst": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft",
+      "opgeschoonde_kandidaat": "Status van een aanvraag voor een gedeelde vergaderruimte die een medewerker instelt zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling aan een behandelteam tijdelijk is onderbroken, de aanvraag ontvangen blijft met haar oorspronkelijke ontvangsttijd en handmatig onderzoek en aanvulling mogelijk blijven, en die zonder vaste duur voortduurt totdat een medewerker het beheergebied heeft vastgesteld en de status opheft."
+    },
+    {
+      "id": "B17",
+      "dossier_id": "G01",
+      "ruwe_tekst": "administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen",
+      "opgeschoonde_kandidaat": "Administratief bericht dat door de ontvangende medewerker wordt aangemaakt nadat een gedeeld hulpmiddel feitelijk van de ene wijkwerkplaats naar de andere is gebracht, en dat vastlegt welk hulpmiddel is verplaatst, uit welke wijkwerkplaats het afkomstig is en welke wijkwerkplaats het heeft ontvangen."
+    },
+    {
+      "id": "B18",
+      "dossier_id": "G04",
+      "ruwe_tekst": "omstandigheid aan een binnengekomen aanvraagpakket die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt, uitsluitend bestaand uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en geen andere omstandigheid als zodanig geldt",
+      "opgeschoonde_kandidaat": "Omstandigheid aan een binnengekomen aanvraagpakket die het terugleggen ervan bij de aanvragende afdeling rechtvaardigt, uitsluitend bestaand uit een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij één aangetroffen omstandigheid volstaat en geen andere omstandigheid als zodanig geldt."
+    },
+    {
+      "id": "B19",
+      "dossier_id": "G02",
+      "ruwe_tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan",
+      "opgeschoonde_kandidaat": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarin de gewenste aankomsttijd blijkens de aanvraag afhangt van aansluiting op een andere, in hetzelfde planningssysteem reeds bevestigde rit, waarbij een enkel gelijke bestemming of gelijke vertrektijd en een verwijzing naar een onbevestigde rit niet volstaan."
+    },
+    {
+      "id": "B20",
+      "dossier_id": "G05",
+      "ruwe_tekst": "samenhangend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft",
+      "opgeschoonde_kandidaat": "Samenhangend tweetal meetuitkomsten van dezelfde sensor aan dezelfde afgesloten referentiecapsule met een stabiel proefmengsel, waarvan de ene uitkomst direct vóór en de andere direct na dezelfde meetronde is verkregen en waarvan het onderlinge verschil een verandering van de sensoraanwijzing tijdens die ronde weergeeft."
+    },
+    {
+      "id": "B21",
+      "dossier_id": "G04",
+      "ruwe_tekst": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft",
+      "opgeschoonde_kandidaat": "Vastgestelde omstandigheid aan een binnengekomen aanvraagpakket voor een terreinplattegrond die het terugleggen van dat pakket ter aanvulling rechtvaardigt, beperkt tot een ontbrekende terreincode, een onleesbaar kaartbestand of een ontbrekend contactkanaal voor terugkoppeling, waarbij elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd en de inhoudelijke bruikbaarheid van het aangevraagde terreinontwerp buiten beschouwing blijft."
+    },
+    {
+      "id": "B22",
+      "dossier_id": "G06",
+      "ruwe_tekst": "Status van een aanvraag voor een gedeelde vergaderruimte, door een medewerker ingesteld zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag zonder vaste duur is onderbroken en de aanvraag ontvangen blijft met behoud van haar oorspronkelijke ontvangsttijd en met handmatig onderzoek, aanvulling en behandeling die mogelijk blijven tot de medewerker die het beheergebied vaststelt de onderbreking opheft",
+      "opgeschoonde_kandidaat": "Status van een aanvraag voor een gedeelde vergaderruimte, door een medewerker ingesteld zolang de opgegeven locatie nog niet eenduidig aan één beheergebied is gekoppeld, waarbij uitsluitend de automatische toedeling van die aanvraag zonder vaste duur is onderbroken en de aanvraag ontvangen blijft met behoud van haar oorspronkelijke ontvangsttijd en met handmatig onderzoek, aanvulling en behandeling die mogelijk blijven tot de medewerker die het beheergebied vaststelt de onderbreking opheft."
+    },
+    {
+      "id": "B23",
+      "dossier_id": "G02",
+      "ruwe_tekst": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat",
+      "opgeschoonde_kandidaat": "Aanvraag voor vervoer naar een gezamenlijke voorziening waarvan de gewenste aankomsttijd blijkens de aanvraag afhangt van een in hetzelfde planningssysteem reeds bevestigde rit, waarbij enkel een overeenkomstige bestemming, een gelijke vertrektijd of een verwijzing naar een onbevestigde rit niet volstaat."
+    },
+    {
+      "id": "B24",
+      "dossier_id": "G05",
+      "ruwe_tekst": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont",
+      "opgeschoonde_kandidaat": "Samenhorend tweetal meetuitkomsten dat ontstaat doordat dezelfde sensor dezelfde afgesloten referentiecapsule met een stabiel proefmengsel tweemaal meet, eenmaal direct vóór en eenmaal direct na één meetronde, en dat als eenheid wordt bewaard zodat het verschil tussen beide uitkomsten de verandering van de sensoraanwijzing tijdens die ronde toont."
+    }
+  ],
+  "paren": [
+    {
+      "paar_id": "P01",
+      "dossier_id": "G05",
+      "herhaling": 2,
+      "X": "B24",
+      "Y": "B20"
+    },
+    {
+      "paar_id": "P02",
+      "dossier_id": "G06",
+      "herhaling": 2,
+      "X": "B22",
+      "Y": "B16"
+    },
+    {
+      "paar_id": "P03",
+      "dossier_id": "G02",
+      "herhaling": 1,
+      "X": "B02",
+      "Y": "B19"
+    },
+    {
+      "paar_id": "P04",
+      "dossier_id": "G05",
+      "herhaling": 1,
+      "X": "B04",
+      "Y": "B05"
+    },
+    {
+      "paar_id": "P05",
+      "dossier_id": "G03",
+      "herhaling": 1,
+      "X": "B15",
+      "Y": "B11"
+    },
+    {
+      "paar_id": "P06",
+      "dossier_id": "G04",
+      "herhaling": 2,
+      "X": "B06",
+      "Y": "B21"
+    },
+    {
+      "paar_id": "P07",
+      "dossier_id": "G06",
+      "herhaling": 1,
+      "X": "B09",
+      "Y": "B13"
+    },
+    {
+      "paar_id": "P08",
+      "dossier_id": "G01",
+      "herhaling": 2,
+      "X": "B03",
+      "Y": "B01"
+    },
+    {
+      "paar_id": "P09",
+      "dossier_id": "G04",
+      "herhaling": 1,
+      "X": "B08",
+      "Y": "B18"
+    },
+    {
+      "paar_id": "P10",
+      "dossier_id": "G02",
+      "herhaling": 2,
+      "X": "B14",
+      "Y": "B23"
+    },
+    {
+      "paar_id": "P11",
+      "dossier_id": "G01",
+      "herhaling": 1,
+      "X": "B07",
+      "Y": "B17"
+    },
+    {
+      "paar_id": "P12",
+      "dossier_id": "G03",
+      "herhaling": 2,
+      "X": "B12",
+      "Y": "B10"
+    }
+  ]
+}

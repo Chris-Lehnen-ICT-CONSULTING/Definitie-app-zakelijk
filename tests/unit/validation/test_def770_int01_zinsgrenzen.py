@@ -116,12 +116,13 @@ SEGMENTATIEGEVALLEN = [
     ),
     # Afkorting die ook zinslot kan zijn: functie niet zeker (EB03).
     ("enz-slot-EB03", "Object met gegevens enz. Het wordt geregistreerd.", 0, 1),
-    # Ingesloten citaat/titel: geen zekere grens, wel zichtbaar onzeker.
+    # Ingesloten citaat/titel: leestekens binnen het citaat vormen geen grens
+    # van de buitenste zin (T17-herstel, def770-int01/2); haakjes blijven onzeker.
     (
         "ingesloten-citaat",
         "nota met de titel “Beleid. Uitvoering” van de minister.",
         0,
-        1,
+        0,
     ),
     (
         "ingesloten-vraagtitel",
@@ -150,10 +151,20 @@ SEGMENTATIEGEVALLEN = [
 ]
 
 
+#: Citaatbeleid (herstel-20260924-v1/algemeen-citaatbesluit-v1.md, contract
+#: /8): een kleine-lettervoortzetting na een citaatslot is altijd onzeker. De
+#: oorspronkelijke tuple in SEGMENTATIEGEVALLEN blijft als historische
+#: verwachting staan; dit is de geldende (zeker, onzeker).
+CITAATBESLUIT = {"ingesloten-vraagtitel": (0, 1)}
+
+
 class TestSegmentatie:
     @pytest.mark.parametrize(
         ("tekst", "zeker", "onzeker"),
-        [pytest.param(t, z, o, id=i) for i, t, z, o in SEGMENTATIEGEVALLEN],
+        [
+            pytest.param(t, *CITAATBESLUIT.get(i, (z, o)), id=i)
+            for i, t, z, o in SEGMENTATIEGEVALLEN
+        ],
     )
     def test_functionele_zinsgrenzen(self, tekst, zeker, onzeker):
         seg = _segmenteer(tekst)
@@ -162,7 +173,14 @@ class TestSegmentatie:
         assert len(seg.onzekere_grenzen) == onzeker, seg
 
     def test_opsomming_met_opsommingstekens_is_onzeker_niet_zeker(self):
-        seg = _segmenteer("sanctie bestaande uit:\n- gevangenisstraf\n- geldboete")
+        """T/m /8 verwachtte deze test ook voor de ingeleide lijst een onzekere
+        grens. Contract /9 (logs/def770-citaatbeleid/astra-acceptatie-v1.md,
+        T15): de inleidende dubbele punt geldt voor het hele aaneengesloten
+        blok, dus die lijst is één formulering. Zonder inleiding mag de
+        lijststructuur niet stil wegvallen."""
+        ingeleid = _segmenteer("sanctie bestaande uit:\n- gevangenisstraf\n- geldboete")
+        assert not ingeleid.zekere_grenzen and not ingeleid.onzekere_grenzen
+        seg = _segmenteer("sanctie bestaande uit\n- gevangenisstraf\n- geldboete")
         assert not seg.zekere_grenzen
         assert seg.onzekere_grenzen, "lijststructuur mag niet stil wegvallen"
 

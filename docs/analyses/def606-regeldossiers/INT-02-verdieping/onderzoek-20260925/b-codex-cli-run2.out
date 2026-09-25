@@ -1,0 +1,10 @@
+Opgeleverd: 26 reviewpunten, inclusief normvergelijking, G/T/H, alle besluitpunten en bewijscontrole. Eerdere onderzoeksversies zijn ongewijzigd.
+
+- [Review B op A](review-b-op-a-v1.md)  
+  SHA-256: `706ed0faa2cb01040776523aabf7d4c7397b656c6c9014481c8833e1433b8aeb`
+- [Vindplaatscorrectie](review-b-op-a-v1-erratum.md)  
+  SHA-256: `881bad5e52a7dd19fa016c1fd04bae7d0974b2e9d99a65f990d08231420736d1`
+- [Manifest B v2](manifest-b-v2.json) — alle 27 opgenomen bestanden gecontroleerd.  
+  SHA-256: `3fd4555ae24ebca9409393baa0836ec91381f1bb68842f113f8c785a4429fa7e`
+
+Volgende bijdrage: A’s ontvangen review op B puntgewijs verwerken; daarna op verzoek de synthese controleren. Het gezamenlijke onderzoek is nog niet afgerond.

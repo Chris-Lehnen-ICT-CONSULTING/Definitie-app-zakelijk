@@ -1,0 +1,18 @@
+{
+  "status": "awaiting_explicit_budget_approval",
+  "requested_cumulative_cap_usd": 8.1,
+  "current_cap_usd": 6.5,
+  "already_spent_usd": 5.7146,
+  "run_max_usd": 2.3439,
+  "max_cumulative_usd": 8.0585,
+  "files": [
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-manifest-v1.json",
+      "sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-tokentelling-v1.json",
+      "sha256": "76560d4e8acd0e8af9c1c6286dbd85c2a7e33c7d41fe900947c19069d07ce9f0"
+    }
+  ]
+}

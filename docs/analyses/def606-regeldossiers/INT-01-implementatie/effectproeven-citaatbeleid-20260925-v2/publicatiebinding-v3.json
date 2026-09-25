@@ -1,0 +1,355 @@
+{
+  "app_source": "86b2c0b20a2913484256b931e6e3c7848391ed13",
+  "skills_source": "2fa72640f6cd48d0d9e5fc9e08fd19942b05a979",
+  "redaction": "publicatie-redactie-v1.json",
+  "files": [
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/besluitbinding-v1.json",
+      "sha256": "fbba5774de808668c8d6f36cae7b11e049292658a8f90042d43ff0ef9f27a1ef"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/bronbinding-v1.json",
+      "sha256": "54229e4cdf86049963176d5a9f8efd91c58aed8f0269445367d2ef514ee9201f"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/bronfreeze-v1.json",
+      "sha256": "4bdb6d9554f8414989f087f68c67b4cfd685a009c23d1e9aac4a09d5a127dc69"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/g24-evaluator-controle-v1.json",
+      "sha256": "f504ff3780748bd074a0e1f873dd125b93ae2aea78e1f838a8a95b0e56e0b363"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/g24-evaluator-v1.json",
+      "sha256": "3b3416351427fcc6fd21995742a6ade9cfc7efedae8f1f4441827b159fb4d325"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/maker-verzegeling-v1.json",
+      "sha256": "b39fe5cd33f816373597d38ebf92d484a794d5f2f9a172350497c43010ba80be"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/referentie-contract-v1.md",
+      "sha256": "0a5390359a1eb66b9b8e8f1cb9e402777175181d273d76b3902547088f1d0170"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-adjudicatie-v1.json",
+      "sha256": "21298996147af405a6c35b8fdad685e534f4aa692de35361a2d8a06b460fbb8d"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-eerste-oordelen-verzegeling-v1.json",
+      "sha256": "29e63462a03adabf2225534dc187a00f009cf2de8c0187f7a48f7d9cc3841764"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-gevallen-v1.json",
+      "sha256": "f0aedf52399d8a5b3d74d346fecbdfb370b36300fe2294a7f4a4633179e416f6"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-onafhankelijke-bewijsreview-v1.md",
+      "sha256": "7491c15e9562479e4181843d15a9e0c7272389429f31e4c87a51c9cdee7b6cf7"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-rapport-v1.md",
+      "sha256": "a049493ef1a9f596d2d56f2fc8c6728396e9578a6f94de0efa8dd14531c1f25a"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-referentie-A-v1.json",
+      "sha256": "245bdc993a4048dcfdd7f24de055bcb1d13e447282830fc6610848d76f0ec232"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-referentie-B-v1.json",
+      "sha256": "0029b34ea63c6e7779856aa3ca636a509858e5a60414c1b33e49bc2d0420c433"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-referenties-verzegeling-v1.json",
+      "sha256": "eb9d76f309ee3fba9c5f79760a0068ac8109aabbc4d3a43a042080370ef7cb5b"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-resultaat-nieuw-v1.json",
+      "sha256": "d8eaa80387cf30c32523ed06baf24e70c00a6caf56958a6089d199744b69fd2a"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-resultaat-oud-v1.json",
+      "sha256": "5bebc6b099823118d2c9f43f184da5b604316d27da7c255a04f0818de9aad8ea"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v1/t24-vergelijking-v1.json",
+      "sha256": "9d145f6c8942fe50ef6c74c4ac63f76e40b435e840218885d868de10e8fc16e8"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/bronbinding-v1.json",
+      "sha256": "f13486e0ea20102f08a371d3db33d5d729dad8cbee1f850e70ee6dd732fdfc26"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/bronfreeze-v1.json",
+      "sha256": "6e59891993966bff7b687d4d950f1eef5e1250678f9c1be6ae5a59032929b64b"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/correctie-bronbinding-v1.json",
+      "sha256": "a94fb32fd5c3e9a2c12668d39c0cec43c2a4a1e4dc242771685238e24c5ef0ef"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/eindstand-v2.md",
+      "sha256": "7d66bcc50d66618e38c12fae1d6d18cb712a0f361fd9ebeee0d8849d70fc31b7"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/g24-behoudbinding-contract10-v1.json",
+      "sha256": "993d64a91584681d79229d3ecd272cedfd7356d1dd3e5ff93aca7e99363a6573"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/g24-behoudbinding-v1.json",
+      "sha256": "f1c48703398a3438c4591374e5d38ca0686f352e7eece22cf1c2c164bec14d33"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/g24-evaluator-contract10-v1.json",
+      "sha256": "099aaea681da3ad2ed5e22da7624ee273a572aa0a9f617af22341d9cbd31f5e2"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/g24-evaluator-v1.json",
+      "sha256": "c1ef401500077e154c10d90b5e020d50b54340517296ad580f1d5956edbad6b6"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/maker-verzegeling-v1.json",
+      "sha256": "e1f4d6eb851335fe17d6ebc1c0cfbb540b9b28c4fc266a893261864adfb701ab"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/publicatie-redactie-v1.json",
+      "sha256": "e808c4017b5d7c4d7d184ba08592f9749f621a57d152bb29939f3ee5b14dc400"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/referentie-contract-v1.md",
+      "sha256": "0a5390359a1eb66b9b8e8f1cb9e402777175181d273d76b3902547088f1d0170"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/rollenbinding-v1.json",
+      "sha256": "e254425e3588a0b420b668aa34516d9902002b6ead6980ef1bbca8bbeb0004e9"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-adjudicatie-v1.json",
+      "sha256": "085a0612b550962c9219cbe46c17634d49d5bd9544055025ca9d8b2cd43cb998"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-eerste-oordelen-verzegeling-v1.json",
+      "sha256": "637f1e2fda71e7e6c7c33867af09ecc3a445ea59f7d0bf58664a045e94abe317"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-gevallen-v1.json",
+      "sha256": "91bdd44016bfa4ff4eb1745c395c26c934e3ef7dac3895a042b2cb5b6412effe"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-onafhankelijke-bewijsreview-v1.md",
+      "sha256": "2b0a8e766af97c5bfffa07b22bbed81b96cfd71269beb339ebae952b710400c1"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-rapport-v1.md",
+      "sha256": "4085f5ad256768b321c961617393c55a9d7fa6559987600add21e2c57995e943"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-referentie-A-v1.json",
+      "sha256": "be6a54336f06d0b92c7a82a0e6efb81709edc823b5e880f9cc55f33ad6ebe8f3"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-referentie-B-v1.json",
+      "sha256": "fb51c176758b0ba05e3bb913056cfeac7710c626c71394a4d4b73fa1e22f2b1d"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-referenties-verzegeling-v1.json",
+      "sha256": "a29e177a8a662dd8ec11430eef62eb2597b12e61ec54505817b0732b9679383f"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-resultaat-nieuw-v1.json",
+      "sha256": "d4190b70eff9462aad974188d8a31443488d673e2ba2ab40d41fdfa64b7c7a7d"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-resultaat-oud-v1.json",
+      "sha256": "0513d2b729de9b5db5499caddab0ad35f1d3aa5e645f7fcbadf9922b49fbd377"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/t24-vergelijking-v1.json",
+      "sha256": "fb0a036b534abb23ad1b758829e49e73886cfc8ee534aee03734313a92ace723"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-acceptatie-v1.md",
+      "sha256": "7491c15e9562479e4181843d15a9e0c7272389429f31e4c87a51c9cdee7b6cf7"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-acceptatie-v2.md",
+      "sha256": "2b0a8e766af97c5bfffa07b22bbed81b96cfd71269beb339ebae952b710400c1"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-correctiereview-v2.md",
+      "sha256": "517ab73408cb42732a0b47d7ec64d012791aab3eca8892f743ea234d8f08f22c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-correctiereview-v3.md",
+      "sha256": "bca20b50bb7d3d5f8b1736a41d2de07c60f6b227ad3c6d6635d879e940f7c649"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-correctiereview-v4.md",
+      "sha256": "49326636854a3cd71a926f0ec3c7dc1263d330c5c930baebe205c5f5e250527c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-gate-review-v1.md",
+      "sha256": "4d907e0e56d6ca7191fa28a1879aae91ef39bc0d6de685dda88676746214c2da"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-oplevercheck-v1.md",
+      "sha256": "f0d29e37341147b09f80f46c76a34f983b0d16e8bb60c753858e73334ea29f65"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/astra-review-v1.md",
+      "sha256": "b4b1cac66929a46a46c4153550a0f275f41839c75d964e521ba2ddc0d4a4b2a6"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/bundelbinding-v4.json",
+      "sha256": "812fc42c8fbcf4ce85a98101b9ff274750648952d8b906c24dfa6d0cc6e4b16a"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/bundeltests-v4.txt",
+      "sha256": "fb4fc15fb21a575c67fb5fdedd53e0cd991af655e9058c06ec5562b5b50a12d2"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/claude-resultaat-v1.md",
+      "sha256": "d6b0a757840e9272cf7f4a760424b697dca863ced7f18e3bbf217930d2aa6acc"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/claude-resultaat-v2.md",
+      "sha256": "e0d5b48b0c690c2057bfdc12ce730a2b94cd8a3f2798add76860c4d658eff4d8"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/claude-resultaat-v3.md",
+      "sha256": "3e3ff5568f88b0745d108fe4bc21d6567ac9cd63d1e533da47d73b83db119548"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/claude-resultaat-v4.md",
+      "sha256": "b72d23ce4a649b08199ad3a84636cc223b852042c631cc61ea5f7a61e06952ea"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v3-inventaris-geredigeerd.json",
+      "sha256": "0cd3e3637f7ad100e787016a7cd0d3773b4083b2142baaa91bda5e5021bc0901"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v3-junit-geredigeerd.xml",
+      "sha256": "cce4962c7387e5dbfbb4a6fbacd02996c017c3c9a77026959a66ff389941adb2"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v4-inventaris-geredigeerd.json",
+      "sha256": "f78ce548447d08eb7efdef169a65cc9f847bfcb477e603669c9a8600f9bdeb08"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/finale-unit-v4-junit-geredigeerd.xml",
+      "sha256": "cefa81de9714b37025f558b36c30b2cc479d35beb9a3169f33af9bb8c73e8940"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/gate-basereproductie-v1.json",
+      "sha256": "67881c76fd9bbffb0af41167f596f87e72f18a11e2e36952fa886c351bf45b69"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/green-v1.xml",
+      "sha256": "2b4e62cf697090645e6bf14ff3100c9cddab16ede7a4079f40002980e3bffcbf"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/green-v2.xml",
+      "sha256": "9ecf194caff71d65b63c70a15f3b53e1e061abbeb1fdbdf374eaf9a8b87d4289"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/green-v3.xml",
+      "sha256": "10ff4e53b1a81ed3bf8386f1596f1cec123c5c470fe38f2c2daaec89294a6958"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/green-v4.xml",
+      "sha256": "dacf3b4e4deedc3af814985fc530382f216c0f1510ef40e8c263a29ff72be96c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/integratie-v4.xml",
+      "sha256": "0c6981235ed021cbfec2fc7d6ad060ad3b601f33fe754151909fce909290abf3"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/lint-v4.txt",
+      "sha256": "2a171d89e11178328d68a8433806e56c6a2f3b067c2e3263e7ea6fd56574a031"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/make-test-finaal-v3.txt",
+      "sha256": "fba5c22533e88d340274161b79221c673a192f5aeedb9aa8852b3425a22c6799"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/make-test-finaal-v4.txt",
+      "sha256": "7d3b19be24902b8c02c9c78c8572806b22054a6b205f3c3b19002a8de60fd81c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/perftracker-base-v1.txt",
+      "sha256": "8fc0bf00339d37809638f15b4f4a90f494da7db9275f31d6df62940a08384559"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/prompt-red-base-v1.txt",
+      "sha256": "5fbb42cc17203dc2350807bbacd15c56b75c6d1aaf22b7756b9c2f15e6fc7fc1"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/red-v1.xml",
+      "sha256": "2efe3f3f8d8be4ac3d62c3b5b5158ccc1b8c54e9430c9d71ff0ab170d0f9a3bc"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/red-v2.xml",
+      "sha256": "263d2c108f1f4f4e86284ec7710f8203da1fc14241790bd6cb6b3b19d4b9bf7d"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/red-v3.xml",
+      "sha256": "17d1f229948e3f0555696f46923e0d4e6b4f1772992824a5b015cb2a5c01e65e"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/red-v4.xml",
+      "sha256": "fc0e89984283f1bf496cb5c1a0e832cc72274c0b165cf879a0c003312e9173e4"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/regressie-v4.xml",
+      "sha256": "28fdda030c9f5562b5358f70bdf8f3f98d7158f5d81d4859674694fdd22cfbaf"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-app-v1.patch",
+      "sha256": "125614e7587e11e49348124de800a32dace3183c03730f1b5ec4319866cfe64e"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-app-v2.patch",
+      "sha256": "05b375819a7e5156e03bf1fe401ef21eb6985ea6f12c56cd0f528bd6b295fc42"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-app-v3.patch",
+      "sha256": "a9280028b38d011c0040b794894ca9346b47fbdc18c8cbc17dea13f0d8493e3c"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-app-v4.patch",
+      "sha256": "42a0af26c21eacb00ed3fe9bce4f481a8caff07b895989bb352c4a4ae7c50489"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-manifest-v1.json",
+      "sha256": "3fef5c0130e0a763c5e6888a9df57377180ababa062e5a0238bf83b7d7980462"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-manifest-v2.json",
+      "sha256": "d9c24491e248a7c55dcdc0db1b5205542efd7508f233b27d171ebc9eabed3119"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-manifest-v3.json",
+      "sha256": "24e675ff60391878953591c413be6aa2df11bec2565c6eb4d21225a0cb24b94f"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-manifest-v4.json",
+      "sha256": "c8276bd22ba88513dca563dce11801b2221963e893691f172468e6f66bfc84c8"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-skills-v1.patch",
+      "sha256": "e29d54ea6d1e836868e1297fa2e1a8343cd12ab8984cedf6de752d937eb7f399"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-skills-v2.patch",
+      "sha256": "28b993bb8f08c120376611b953710d64fde36f6ce79e06c47e08ff4e01bb874e"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-skills-v3.patch",
+      "sha256": "28b993bb8f08c120376611b953710d64fde36f6ce79e06c47e08ff4e01bb874e"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-citaatbeleid-20260925-v2/technisch-bewijs-v1/review-skills-v4.patch",
+      "sha256": "c547c9e0aad507c3f245dce9e3d05dab0eabeed3f73eb2639fac6b6ef14dee44"
+    }
+  ]
+}

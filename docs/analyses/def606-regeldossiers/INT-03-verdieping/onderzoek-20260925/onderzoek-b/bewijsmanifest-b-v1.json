@@ -1,0 +1,444 @@
+{
+  "versie": "v1",
+  "regel": "INT-03",
+  "datum": "2026-09-25",
+  "onderzoeker": "B",
+  "sessie": "01a0d782-026f-7a70-b451-84c5f82137dd",
+  "actief_model": "gpt-6-astra",
+  "reasoning": "high",
+  "modelbewijs": "Eigen rollout turn_context, niet uitsluitend configuratie",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch": "onderzoek/DEF-772-INT-03-20260925",
+  "eigen_bestanden": [
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/aanvulling-b-v1.md",
+      "sha256": "d791e7f7f216dc9ed04eba475ee781528379ece8e80fbae9f75bce3e2a64bb67",
+      "bytes": 40249
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/casusregister-b-v1.md",
+      "sha256": "aea3ef641838ddaba4950fa9cd93bf9f76a99ae2fbd27cd1e593860541e55c41",
+      "bytes": 12608
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proefverwachtingen-b-v1.json",
+      "sha256": "fde36bc7ccd07689861de150853bed16d7abd51635b11480a3fd9baa9bc30b98",
+      "bytes": 15313
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proef-b-v1.py",
+      "sha256": "f9acbf83b5d10f1bbf7fb78df69e4ab110b116aa0febcdb1be5efa248289422f",
+      "bytes": 5614
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-b/proefuitkomsten-b-v1.json",
+      "sha256": "857d96bb20728ba7cf80755079c4580526ff7a952f1aa730d66b1260b3ac9f2b",
+      "bytes": 27928
+    }
+  ],
+  "bronnen": [
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-03.json",
+      "sha256": "9c917925cbab5ab476f10d66e71573706a75902b3d0ee840f24c4336d4aa22ac",
+      "bytes": 2103
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-03.py",
+      "sha256": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+      "bytes": 4867
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/validators/INT_03.py",
+      "sha256": "3e4b15ead0ec72e58ac506b3738746b7eb113c6786e3172bbe90ff61ecfc0ea1",
+      "bytes": 4867
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-01.json",
+      "sha256": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "bytes": 1767
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/ARAI-05.json",
+      "sha256": "7a526b32a0ef0fb220134e96e31b21fb3108b181766f3c41038a213e67762e8b",
+      "bytes": 1746
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/CON-CIRC-001.json",
+      "sha256": "0b44bfac1c60faf0aacd509c6bd9a896a2f2375dab4bea03a2a3f7def67d5ffb",
+      "bytes": 598
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/judgment_review.py",
+      "sha256": "046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb",
+      "bytes": 9732
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/validation/additional_patterns.py",
+      "sha256": "49c90e38e5f8d09520bba61b4a32fe47f12b6bbc2aba4a42c51fcfb4b117b66b",
+      "bytes": 2579
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/modular_validation_service.py",
+      "sha256": "f2e777c447ed38cbb754f6d811b3ab5e35ca20a0f67ebda01689ac77506d781b",
+      "bytes": 97943
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/validation/interfaces.py",
+      "sha256": "06ea54c753ef714beb4fe9f59318079c1af4b646c624ed9475759254307e1d49",
+      "bytes": 17611
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "bytes": 20357
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_adapter.py",
+      "sha256": "17018b9c20f6360ae881fd4f410a9f988e442cfb744b7b7f23202b82966717d3",
+      "bytes": 17729
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/prompt_orchestrator.py",
+      "sha256": "4a449427aeb38269a32c5835a2f355009c9427a1469383f34aa4a95773010bb5",
+      "bytes": 20434
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/integrity_rules_module.py",
+      "sha256": "a3a94c6a3c61515fc7a9654cc31c1d510fc0796ddce68f38b8dd32d033609979",
+      "bytes": 10583
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modules/base_module.py",
+      "sha256": "776408205dd2406a18e4233a15b27b5ad5fe948829b81e7fc2cbb7c62dd42a7c",
+      "bytes": 9576
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py",
+      "sha256": "bcd71514644d840e7e4210483e8847e0f91873ea3a2ce625060bd8a491579cc8",
+      "bytes": 1900
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_context.py",
+      "sha256": "9f6b26b2bd37f7e332b7e66df1d916239aaeb898c432f21dbb804b686571c21f",
+      "bytes": 14509
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_config.py",
+      "sha256": "af81d17db0904bb68b52cfc7329e38c51c92b5a6632acba6b15895db26eb3175",
+      "bytes": 11806
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/manager.py",
+      "sha256": "8c8807bc7cd565c6a1f7d3632f4a256e8d5f7419a91ac3adbee6150b8032d3d6",
+      "bytes": 16475
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/cached_manager.py",
+      "sha256": "6ff2a795f270570a739d8343318bd55d5fec3e25fa7ae89505138b4d1a6bd3c4",
+      "bytes": 5676
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/json_validator_loader.py",
+      "sha256": "924fe1345e7e5f7f1eaaa03453f70953c5b2866d0e1edc3a079d6ad27b13e320",
+      "bytes": 11608
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/validation_view.py",
+      "sha256": "238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988",
+      "bytes": 37184
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py",
+      "sha256": "0468c8c423b6543099103a15d1276d959c506d6e7aad518c02bde466b35afc31",
+      "bytes": 96515
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/src/export/export_txt.py",
+      "sha256": "ed44a8dd446c1994a30559425ebea1d80cfb82274888b1c4da2a0dc6767e6658",
+      "bytes": 21121
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/tests/offline_bootstrap.py",
+      "sha256": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7",
+      "bytes": 25111
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/tests/fixtures/toetsregels/runtime_cases.yaml",
+      "sha256": "9a67bce634ce76e6b340d3c573470373c8f858a16d92dd003f0d3f4740774f7d",
+      "bytes": 22564
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/config/toetsregels/toetsregels_config.yaml",
+      "sha256": "c9eab346eaed1a584bf139da8c469e883109a87324ba18d3e2cb90237850cbb7",
+      "bytes": 11396
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/config/config.yaml",
+      "sha256": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "bytes": 6835
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-v1.md",
+      "sha256": "b01ecc2c82f105ce5f20373ebe791ddb05c72de415b707a385b4d4b12974d269",
+      "bytes": 3973
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/gevallen.json",
+      "sha256": "c6a91538ac4c1eb2bb56d4747351b9166e086a43b0124b5f82accecfc5aadcda",
+      "bytes": 483
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/uitkomsten.json",
+      "sha256": "a909973dd98c328cf14987f3e861c6e5b209fc5b40e1e15575f8ace7a8fa346f",
+      "bytes": 9618
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-bewijs-v1/claude-review.json",
+      "sha256": "cac75f89a9b5c59c57b65005d0069517f8c2a209f0222f433a0816654d468267",
+      "bytes": 1256
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-07-definitiekwaliteit-dossiers-int-sam.md",
+      "sha256": "0863cc10956b53e8c9df5fa5759bce84eb1b5e462bfc4d0afbd08cc8c0f58da8",
+      "bytes": 81869
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-07-DEF-625-ross-brononderzoek-v1.md",
+      "sha256": "22643405fe6c48be5c45da501cb064e329c7b6ade3aecf8d6849da7af46f637a",
+      "bytes": 11522
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-15-DEF-606-besluit-geen-totaalscore-v1.md",
+      "sha256": "3f7ab1ab9ad06bc297c3037d9ae8ce48cfd65fe91098edd6a73cfef2d5791077",
+      "bytes": 5587
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-17-DEF-606-centraal-regelregister-v1.md",
+      "sha256": "88455ac1fdd2b0fc10864b7b19e0cc64569738dbe3cb0fe2a56985e9235fdaca",
+      "bytes": 9000
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-11-def606-productonderzoek-bewijs/bronnen-en-verificatie-v1.json",
+      "sha256": "0178f6db57f85487f2e212f810e5fc40aae38ccb97c53dee809307099ff95728",
+      "bytes": 473631
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/2026-09-11-def606-productonderzoek-bewijs/proeven-v1.json",
+      "sha256": "5f5f2c3d1cbc49c560f741a024d91354c28f54588ff8d340f570712bc5b01ed7",
+      "bytes": 204198
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/feitenbasis-v1.md",
+      "sha256": "c160479ace16663bc89ebf902e69c1ab7c4f19ad87a0114473eddd82d158662d",
+      "bytes": 12298
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/gedeeld/astra-INT-03-raw-20260925.txt",
+      "sha256": "121c4fbb13c25cbe5847ab774f8eaba6c46b555b69ab01edcef4274df101deae",
+      "bytes": 1334
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/SKILL.md",
+      "sha256": "66d65b3f9292b46a33feec67c11cbdc456fa16a4c5918feee04301af6b808e6d",
+      "bytes": 14294
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/references/werkcontract.md",
+      "sha256": "edaccc86d59903512624dec5af7f6ebcb79471ba2046cbcd9dc0e8586efaa68b",
+      "bytes": 11435
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/references/startopdracht.md",
+      "sha256": "491dbb82bb9c1b89388f6626d650528434b6ed4864541c477fbcc09e7ee31513",
+      "bytes": 9680
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/toetsregel-onderzoek/references/genereren-en-toetsen.md",
+      "sha256": "bc96faf144313f299f3739092b640619a885d87dafc83a97714d2a507810dd85",
+      "bytes": 11106
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/SKILL.md",
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "bytes": 11823
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-toetsregels/reference.md",
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "bytes": 16735
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "bytes": 9921
+    },
+    {
+      "pad": "/Users/chrislehnen/.agents/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "bytes": 20405
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-toetsregels/SKILL.md",
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "bytes": 11823
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-toetsregels/reference.md",
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "bytes": 16735
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "bytes": 9921
+    },
+    {
+      "pad": "/Users/chrislehnen/.claude/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "bytes": 20405
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-toetsregels/SKILL.md",
+      "sha256": "21b4157cff8202000972ffcc319cddd7df8e93b4f48379d54475c33d4c65b51a",
+      "bytes": 11823
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-toetsregels/reference.md",
+      "sha256": "f32521057593540571dfb1a0e6076d98736e1be5ad9e8567c8753e5b6bbabf6f",
+      "bytes": 16735
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-nederlandse-definities/SKILL.md",
+      "sha256": "f8239b09a1ba5eca8aceef4622b0544a74e0f395c2b048837d6d02157e682188",
+      "bytes": 9921
+    },
+    {
+      "pad": "/Users/chrislehnen/Projecten/_claude-global-setup/skills/definitie-nederlandse-definities/reference.md",
+      "sha256": "1be4bfce2563d6fa64117fdc86c7a2210e55a2f4a76b6fc92ff3e2be5c518cf4",
+      "bytes": 20405
+    }
+  ],
+  "gewijzigde_getrackte_bestanden": [],
+  "vastgelegd_utc": "2026-09-25T08:01:48.235098+00:00",
+  "verificatie": {
+    "verwachtingen_hash_gebonden": true,
+    "script_hash_gebonden": true,
+    "casussen": 18,
+    "serviceresultaten": 16,
+    "promptvarianten": 3,
+    "exitstatus": 0,
+    "verwachtingen_vastgelegd_utc": "2026-09-25T07:44:28.382675+00:00",
+    "uitvoering_utc": "2026-09-25T07:45:41.597167+00:00",
+    "alle_runtimeverwachtingen_uitgekomen": true,
+    "beperking": "Geen bewijs van semantische kwaliteit, UI, opslag, generatie of herstel."
+  },
+  "externe_bronnen": [
+    {
+      "url": "https://onzetaal.nl/taalloket/voornaamwoord",
+      "toegang": "Gelezen 25-09-2026 via webtool",
+      "bereik": "Soorten voornaamwoorden, verwijzing binnen/buiten tekst"
+    },
+    {
+      "url": "https://onzetaal.nl/taalloket/betrekkelijk-voornaamwoord",
+      "toegang": "Gelezen 25-09-2026 via webtool",
+      "bereik": "Antecedent als woord, naamwoordgroep, hele zin of ingesloten antecedent"
+    },
+    {
+      "url": "https://taaladvies.net/termen-onderwerp/",
+      "toegang": "Gelezen 25-09-2026 via webtool",
+      "bereik": "Loos onderwerp bij onpersoonlijk werkwoord"
+    },
+    {
+      "url": "https://www.astraonline.nl/index.php/Voornaamwoord-verwijzing_duidelijk",
+      "toegang": "Internal Error / not accessible; aangeleverde lokale raw-bron wel gelezen"
+    },
+    {
+      "url": "https://www.brsolutions.com/wp-content/uploads/2016/10/How-to-Define-Business-Terms-Primer.pdf",
+      "toegang": "Internal Error / not accessible; DBT 4.3 niet gelezen"
+    }
+  ],
+  "linear_bronnen": [
+    {
+      "id": "DEF-772",
+      "url": "https://linear.app/definitie-app/issue/DEF-772/regeldossier-int-03-voornaamwoord-verwijzing-duidelijk",
+      "status": "Backlog",
+      "bijgewerkt": "2026-09-17T08:38:56.301Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-606",
+      "url": "https://linear.app/definitie-app/issue/DEF-606/epic-een-uitvoerbaar-toetsregelcontract-en-53-gedragsbewijs",
+      "status": "In Progress",
+      "bijgewerkt": "2026-09-23T15:57:31.935Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-625",
+      "url": "https://linear.app/definitie-app/issue/DEF-625/story-versioneer-astra-herkomst-afwijkingen-en-driftcontrole",
+      "status": "Backlog",
+      "bijgewerkt": "2026-09-23T20:23:14.327Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-626",
+      "url": "https://linear.app/definitie-app/issue/DEF-626/story-persisteer-append-only-validatiesnapshots-atomair-per",
+      "status": "Backlog",
+      "bijgewerkt": "2026-09-21T07:33:19.517Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-630",
+      "url": "https://linear.app/definitie-app/issue/DEF-630/story-dwing-een-approvalgate-af-voor-vaststellen-overrides-en-alle",
+      "status": "Backlog",
+      "bijgewerkt": "2026-09-21T07:23:03.411Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-638",
+      "url": "https://linear.app/definitie-app/issue/DEF-638/story-implementeer-maximaal-een-validatorgerichte-repair-en-revalidate",
+      "status": "Backlog",
+      "bijgewerkt": "2026-09-21T07:23:03.411Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-766",
+      "url": "https://linear.app/definitie-app/issue/DEF-766/regeldossier-ess-03-instanties-uniek-onderscheidbaar-telbaarheid",
+      "status": "Done",
+      "bijgewerkt": "2026-09-23T16:00:22.535Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-743",
+      "url": "https://linear.app/definitie-app/issue/DEF-743/story-implementeer-con-02-bronbasis-betekenissteun-en-herleidbare",
+      "status": "In Progress",
+      "bijgewerkt": "2026-09-22T15:05:53.937Z",
+      "gelezen": "2026-09-25",
+      "bereik": "Gerichte opdracht-, contract- en eigenaarschapscontrole; geen besluiten afgeleid uit issuestatus."
+    },
+    {
+      "id": "DEF-624",
+      "url": "https://linear.app/definitie-app/issue/DEF-624",
+      "gelezen": "2026-09-25",
+      "bereik": "Resultaatcontract, geen impliciete AI-jury, scorebesluit onderscheiden van latere lokale besluitnotitie. Toolrespons in eigen sessielog; geen issuestatusclaim in dit manifest."
+    }
+  ],
+  "manifest_zelf": "SHA-256 van dit volledige bestand afzonderlijk in de oplevering; geen circulaire zelfhash.",
+  "overdracht": {
+    "aan": "Onderzoeker A via gedeelde onderzoeksmap",
+    "status": "Onafhankelijke eerste v1; geen gezamenlijk afgerond onderzoek",
+    "volgende_actie": "A levert eigen volledige v1 en expliciete kruisreviewopdracht nadat de eerste bijdragen zijn opgeslagen.",
+    "ontbreekt": [
+      "Kruisreviews, verwerking en synthesecontrole",
+      "DBT 4.3 primaire lezing",
+      "Nieuwe variant en werkelijk generatie-/herstel-/gebruikerseffectbewijs",
+      "UI-/opslag-/poortdoorloop voor INT-03"
+    ]
+  }
+}

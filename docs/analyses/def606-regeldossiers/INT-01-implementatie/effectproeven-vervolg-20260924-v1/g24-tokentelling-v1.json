@@ -1,0 +1,48 @@
+{
+  "soort": "DEF-770 G24 count_tokens",
+  "opdracht_ref": "docs/analyses/def606-regeldossiers/INT-01-implementatie/herstel-20260924-v1/vervolg-uitvoeringsplan-v1.md",
+  "manifest_sha256": "4e8d79cc8194fe417fca2f52c74a6ab0dd657cc6e7aff40c85ca981155e7a941",
+  "tijd": "2026-09-24T23:48:54+0200",
+  "tellingen": {
+    "fac8d9c84c8718a49d722d5d8ceab2628404bcc1b661f81f6e43c114720628ee": {
+      "input_tokens": 13451
+    },
+    "e241bd16ca1833049ee700b292c3b1550cda48fad3fb4b45d82b19ee430798db": {
+      "input_tokens": 16989
+    },
+    "a2a92ad968ae8c43c2dd9dec93ce481c3dc73ae2551bb51a325b47ee7b0611e8": {
+      "input_tokens": 13462
+    },
+    "87a215d784c004945e1f2b423922986ffe979c130d0af79e18bc01efd517c7a5": {
+      "input_tokens": 17314
+    },
+    "5a7c0719530122f1b8aad03b30d9d975c387fb4aeb6d2981edae13684409eefe": {
+      "input_tokens": 13502
+    },
+    "308f36919112bc9f0e149a9744f6f5f3155f358aada49a824001d172af125a26": {
+      "input_tokens": 17035
+    },
+    "da0ee44411faef8364feae3c1b7db4482ca0b8ee4ed8e114708edf04dce2f352": {
+      "input_tokens": 14921
+    },
+    "fc7faa653caafc090def4fc69d5a1b2804eaea451dea1622a4b83ca719832874": {
+      "input_tokens": 18187
+    },
+    "32d61d35f83e85263411e65d1ec36b2d2c95f765dc585c0b71ef4848fb66f7bc": {
+      "input_tokens": 14932
+    },
+    "d06c67351b314150b52382c0d73f46dc6a2852f9a1750899cc4c6238bc72d51e": {
+      "input_tokens": 18512
+    },
+    "f4630c2dc7e33eaa1828df10b02a8e763e97f882440b1062cd01ce124403782c": {
+      "input_tokens": 14972
+    },
+    "2a0a99e1cb1b75628705da964297f5dead3438906bf32763380a75a74e206d14": {
+      "input_tokens": 18233
+    }
+  },
+  "max_kosten_usd_totaal": 2.5151,
+  "raming": "per aanroep input x $5/MTok + max_tokens x $25/MTok",
+  "plafond_usd": 5.0,
+  "binnen_plafond": true
+}

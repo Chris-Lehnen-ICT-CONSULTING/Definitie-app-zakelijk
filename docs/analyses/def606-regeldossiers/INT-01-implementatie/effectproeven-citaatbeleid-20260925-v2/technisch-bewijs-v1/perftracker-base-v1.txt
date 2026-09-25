@@ -1,0 +1,41 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____________________ TestGlobalTracker.test_reset_tracker _____________________
+tests/unit/test_performance_tracker.py:291: in test_reset_tracker
+    tracker1 = get_tracker()
+               ^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:475: in get_tracker
+    _tracker = PerformanceTracker()
+               ^^^^^^^^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:63: in __init__
+    self._ensure_schema()
+src/monitoring/performance_tracker.py:68: in _ensure_schema
+    with sqlite3.connect(self.db_path) as conn:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e37pw03o. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+_________________ TestGlobalTracker.test_get_tracker_singleton _________________
+tests/unit/test_performance_tracker.py:282: in test_get_tracker_singleton
+    tracker1 = get_tracker()
+               ^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:475: in get_tracker
+    _tracker = PerformanceTracker()
+               ^^^^^^^^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:63: in __init__
+    self._ensure_schema()
+src/monitoring/performance_tracker.py:68: in _ensure_schema
+    with sqlite3.connect(self.db_path) as conn:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e37pw03o. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.
+=========================== short test summary info ============================
+FAILED tests/unit/test_performance_tracker.py::TestGlobalTracker::test_reset_tracker
+FAILED tests/unit/test_performance_tracker.py::TestGlobalTracker::test_get_tracker_singleton

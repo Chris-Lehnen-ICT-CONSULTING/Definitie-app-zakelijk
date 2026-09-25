@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-25T09:23:14.184685+00:00",
+  "base": "ad4be749b2e38b968a22605f3842e244e6a766b7",
+  "review": "logs/def770-citaatbeleid/astra-correctiereview-v3.md",
+  "contract": "def770-int01/9",
+  "gate": "bronreview akkoord; finale unitgate volgt; geen bronwijzigingen na vrijgave",
+  "files": [
+    {
+      "path": "src/toetsregels/regels/INT-01.json",
+      "sha256": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99"
+    },
+    {
+      "path": "src/domain/int01/zinsgrenzen.py",
+      "sha256": "23e9c0b65d862074b4d5fb1de79c570172ebd0fc9cc00f67c98756550e3644cc"
+    },
+    {
+      "path": "src/domain/int01/opslag.py",
+      "sha256": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f"
+    },
+    {
+      "path": "src/services/validation/evaluators/sentence_boundary.py",
+      "sha256": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ]
+}

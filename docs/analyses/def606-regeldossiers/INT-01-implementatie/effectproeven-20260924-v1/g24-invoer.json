@@ -1,0 +1,206 @@
+[
+  {
+    "id": "G01",
+    "stratum": "gewone kern",
+    "begrip": "bakroutekaart",
+    "organisatorische_context": [
+      "Het fictieve gemeentelijke Materiaalhuis Lommerdam verzorgt oefenmateriaal voor buurtwerkplaatsen.",
+      "De interne logistiek verplaatst herbruikbare bakken tussen werkplekken."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G01-B01",
+        "tekst": "Het Materiaalhuis Lommerdam verdeelt oefenmateriaal over drie buurtwerkplaatsen. Voor iedere interne verplaatsing van een herbruikbare bak maakt de medewerker een bakroutekaart. Daarop staan de vertrekplek, de bestemmingsplek en de geplande volgorde van eventuele tussenplekken. De kaart begeleidt één verplaatsing en wordt bij aankomst afgesloten. Zij beschrijft de route van de bak, niet de inhoud of de voorraadwaarde. Voorraadgegevens staan in een afzonderlijk materiaalregister. Medewerkers gebruiken meestal geel papier, omdat dit in de grijze bakken goed zichtbaar is. Bij papiergebrek mag dezelfde informatie digitaal worden getoond. Het formaat en de kleur zijn daarom geen voorwaarden voor gebruik. Op dinsdagen verzamelt de teamondersteuner afgesloten kaarten voor het werkoverleg. Die bespreking helpt om onhandige looproutes te herkennen, maar verandert de functie van de afzonderlijke kaart niet.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De afbakening moet duidelijk maken welke route-informatie bij één interne bakverplaatsing hoort. Papierkeuze, werkoverleg en voorraadadministratie hebben een andere rol.",
+    "doelgroep": "Medewerkers van buurtwerkplaatsen zonder specialistische logistieke opleiding.",
+    "beschermde_kenmerken": [
+      "Betrekking op één interne verplaatsing van een herbruikbare bak.",
+      "Vermelding van vertrekplek en bestemmingsplek.",
+      "Vermelding van de geplande volgorde van tussenplekken als die er zijn.",
+      "Afsluiting bij aankomst."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "De kaart beschrijft niet de inhoud of de voorraadwaarde van de bak.",
+      "Papierformaat en kleur zijn geen voorwaarden."
+    ]
+  },
+  {
+    "id": "G02",
+    "stratum": "noodzakelijke bijzin",
+    "begrip": "hervatbare aanvraag",
+    "organisatorische_context": [
+      "Het fictieve Publieksatelier Veerhout behandelt aanvragen voor gebruik van gemeentelijke oefenruimten.",
+      "Een interne werkinstructie onderscheidt onvolledige aanvragen naar de reden waarom behandeling stilligt."
+    ],
+    "juridische_context": [
+      "De beschreven status geldt uitsluitend binnen de fictieve administratieve procedure en kent geen externe rechtsgevolgen."
+    ],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G02-B01",
+        "tekst": "Het Publieksatelier Veerhout gebruikt de status hervatbare aanvraag bij reserveringen voor oefenruimten. Deze status mag uitsluitend worden toegekend aan een aanvraag waarvan de behandeling stilligt doordat één gevraagde plattegrond ontbreekt, terwijl alle overige vereiste gegevens aanwezig en gecontroleerd zijn. Zodra die plattegrond binnenkomt, kan dezelfde behandeling zonder nieuwe aanvraag worden voortgezet. Een aanvraag die wacht op een intern capaciteitsbesluit krijgt deze status niet, ook niet als verder alle stukken compleet zijn. Evenmin geldt de status wanneer naast de plattegrond nog een ander vereist gegeven ontbreekt. Het team ziet de status op het scherm als een amberkleurige cirkel. Die kleur is een hulpmiddel voor de werkverdeling en kan bij een schermwijziging worden vervangen. Iedere donderdag bespreekt het team oude dossiers. De duur van het wachten bepaalt op zichzelf niet of een aanvraag hervatbaar is.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De precieze oorzaak van de onderbreking en de volledigheid van de overige gegevens moeten samen behouden blijven. Het gaat niet om iedere aanvraag die later verder behandeld kan worden.",
+    "doelgroep": "Medewerkers die reserveringsaanvragen ontvangen en statussen toekennen.",
+    "beschermde_kenmerken": [
+      "De behandeling van een bestaande aanvraag ligt stil.",
+      "De enige ontbrekende vereiste informatie is één gevraagde plattegrond.",
+      "Alle overige vereiste gegevens zijn aanwezig en gecontroleerd.",
+      "Na ontvangst van de plattegrond kan dezelfde behandeling zonder nieuwe aanvraag doorgaan."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Wachten op een intern capaciteitsbesluit valt niet onder deze status.",
+      "Een aanvraag met nog een ander ontbrekend vereist gegeven valt niet onder deze status.",
+      "De wachttijd bepaalt de status niet."
+    ]
+  },
+  {
+    "id": "G03",
+    "stratum": "noodzakelijke naam",
+    "begrip": "gezamenlijk routeadvies",
+    "organisatorische_context": [
+      "De fictieve gemeente Dwarrelveen bereidt tijdelijke looproutes voor publieke oefendagen voor.",
+      "Twee interne organen hebben vergelijkbare namen maar verschillende taken."
+    ],
+    "juridische_context": [
+      "Een fictieve interne taakafspraak onderscheidt advisering van het nemen van een routebesluit."
+    ],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G03-B01",
+        "tekst": "Voor de publieke oefendagen in Dwarrelveen werken twee interne organen samen: de Kamer voor Toegang en Verblijf en het Bureau voor Routes en Rust. Een gezamenlijk routeadvies ontstaat pas wanneer beide organen dezelfde tekst over een voorgestelde bezoekersroute hebben vastgesteld. De volledige namen zijn nodig om de betrokken organen te onderscheiden van de Kamer voor Tijdelijk Verblijf en het Bureau voor Rust, die andere taken hebben. Een advies van slechts één orgaan wordt als afzonderlijk advies geregistreerd. Het gezamenlijke stuk bevat aandachtspunten voor bereikbaarheid en rustplekken, maar neemt zelf geen besluit over ingebruikname. De coördinator van de oefendag maakt dat besluit later. Adviezen worden doorgaans op woensdag besproken en dragen bovenaan twee beeldmerken. Vergaderdag, beeldmerken en volgorde van ondertekening zijn praktische afspraken; zij bepalen niet of het advies gezamenlijk tot stand is gekomen.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Behoud de gezamenlijke vaststelling van dezelfde adviestekst door precies de twee aangewezen organen. De namen onderscheiden hen van andere organen en de advisering moet herkenbaar blijven als een stap vóór het routebesluit.",
+    "doelgroep": "Secretariaatsmedewerkers en coördinatoren van publieke oefendagen.",
+    "beschermde_kenmerken": [
+      "Het advies betreft een voorgestelde bezoekersroute.",
+      "Beide aangewezen organen hebben dezelfde tekst vastgesteld.",
+      "Een afzonderlijk advies van één orgaan heeft een andere status."
+    ],
+    "beschermde_namen": [
+      "Kamer voor Toegang en Verblijf",
+      "Bureau voor Routes en Rust"
+    ],
+    "beschermde_negaties": [
+      "Het gezamenlijke routeadvies neemt zelf geen besluit over ingebruikname.",
+      "Vaststelling door slechts één van de twee organen volstaat niet."
+    ]
+  },
+  {
+    "id": "G04",
+    "stratum": "limitatieve opsomming",
+    "begrip": "overdrachtsset",
+    "organisatorische_context": [
+      "De fictieve gemeentelijke Baliedienst Rietkom beheert uitleenkasten voor buurtactiviteiten.",
+      "Bij een wisseling van kastbeheerder wordt een vaste verzameling stukken overgedragen."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G04-B01",
+        "tekst": "De Baliedienst Rietkom gebruikt bij iedere wisseling van kastbeheerder een overdrachtsset. De set bestaat uit precies drie onderdelen: een actuele inhoudslijst van de uitleenkast, een overzicht van nog lopende uitleningen en een door de vertrekkende beheerder ingevuld afwijkingenblad. Ook wanneer er geen afwijkingen zijn, blijft het afwijkingenblad verplicht; daarop staat dan dat er geen afwijkingen zijn gemeld. Andere documenten behoren niet tot de set. Een handleiding of welkomstbrief mag wel tegelijk worden meegegeven, maar wordt apart behandeld. De ontvangende beheerder controleert of alle drie de onderdelen betrekking hebben op dezelfde kast en hetzelfde overdrachtsmoment. Gewoonlijk zitten de stukken in een groene map met een elastiek. Digitale overdracht is eveneens mogelijk. De map, de drager en een eventuele persoonlijke toelichting maken geen deel uit van de voorgeschreven samenstelling.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De samenstelling moet gesloten en volledig blijven: alle drie de genoemde onderdelen zijn vereist en hebben betrekking op dezelfde overdracht. Gelijktijdig meegegeven extra materiaal verandert die samenstelling niet.",
+    "doelgroep": "Vrijwillige kastbeheerders en medewerkers van de baliedienst.",
+    "beschermde_kenmerken": [
+      "Precies drie onderdelen.",
+      "Een actuele inhoudslijst van de uitleenkast.",
+      "Een overzicht van nog lopende uitleningen.",
+      "Een door de vertrekkende beheerder ingevuld afwijkingenblad, ook bij afwezigheid van afwijkingen.",
+      "Alle onderdelen betreffen dezelfde kast en hetzelfde overdrachtsmoment."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Andere documenten behoren niet tot de set.",
+      "Het afwijkingenblad mag niet vervallen wanneer geen afwijkingen zijn gemeld.",
+      "De map, de drager en een persoonlijke toelichting behoren niet tot de voorgeschreven samenstelling."
+    ]
+  },
+  {
+    "id": "G05",
+    "stratum": "vaktaal/doelgroep",
+    "begrip": "aansluitverschil",
+    "organisatorische_context": [
+      "Het fictieve gemeentelijke Depot Wolkenwaard leent oefenmaterialen uit.",
+      "Vrijwilligers tellen materialen; depotmedewerkers vergelijken tellingen met de administratie."
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G05-B01",
+        "tekst": "In het Depot Wolkenwaard tellen vrijwilligers aan het einde van een uitleendag hoeveel oefenmaterialen aanwezig zijn. De administratie berekent daarnaast een verwachte hoeveelheid uit de beginstand, geregistreerde uitgiften en geregistreerde terugkomsten. Het team noemt het aantal getelde exemplaren minus die verwachte hoeveelheid het aansluitverschil. Beide aantallen moeten over dezelfde materiaalsoort en hetzelfde afsluitmoment gaan. Een positieve uitkomst betekent dat meer exemplaren zijn geteld dan verwacht; een negatieve uitkomst betekent minder. Nul geeft aan dat de aantallen overeenkomen. Het verschil wordt in exemplaren uitgedrukt, niet in geld. Het is een aanwijzing om registraties of tellingen na te lopen en vormt op zichzelf geen bewijs dat materiaal verloren is. In het vakoverleg spreekt men ook over reconciliatie. Voor vrijwilligers gebruikt het depot gewone telwoorden. Het scherm toont verschillen voorlopig in paars, maar die kleur heeft geen inhoudelijke betekenis.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "Maak het rekenkundige verband begrijpelijk voor vrijwilligers en behoud de richting van de aftrekking, de vergelijkbaarheid van de aantallen en de beperkte betekenis van een gevonden verschil.",
+    "doelgroep": "Vrijwilligers die kunnen tellen en optellen, maar geen administratieve vakopleiding hebben.",
+    "beschermde_kenmerken": [
+      "Geteld aantal minus administratief verwacht aantal.",
+      "De verwachte hoeveelheid volgt uit beginstand, geregistreerde uitgiften en geregistreerde terugkomsten.",
+      "De vergelijking betreft dezelfde materiaalsoort en hetzelfde afsluitmoment.",
+      "Positief betekent meer geteld dan verwacht; negatief betekent minder.",
+      "De eenheid is exemplaren."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "Het verschil wordt niet in geld uitgedrukt.",
+      "Een verschil vormt op zichzelf geen bewijs van verlies."
+    ]
+  },
+  {
+    "id": "G06",
+    "stratum": "risico betekenisverlies bij inkorten",
+    "begrip": "tijdelijke zichtbeperking",
+    "organisatorische_context": [
+      "Het fictieve Servicepunt Merenzoom gebruikt een oefenportaal voor verzonnen publieksdossiers.",
+      "De interne kwaliteitscontrole vergelijkt ontvangen stukken met de koppeling in het portaal."
+    ],
+    "juridische_context": [
+      "De zichtbaarheid in het oefenportaal staat los van de interne inhoudelijke beoordeling.",
+      "De procedure beschrijft geen rechten of verplichtingen buiten de fictieve organisatie."
+    ],
+    "wettelijke_basis": [],
+    "bronpassages": [
+      {
+        "id": "G06-B01",
+        "tekst": "Het Servicepunt Merenzoom kan een tijdelijke zichtbeperking instellen voor één bijlage in het oefenportaal. Dat gebeurt alleen wanneer een controleur een concrete aanwijzing heeft dat de bijlage aan het verkeerde dossier is gekoppeld en die koppeling nog onderzoekt. Tijdens het onderzoek kunnen bezoekers de bijlage niet openen. Bevoegde medewerkers behouden toegang, zodat zij de koppeling kunnen controleren. De overige dossierstukken blijven zichtbaar. De maatregel verwijdert de bijlage niet en zegt niets over de juistheid van haar inhoud of de uitkomst van de aanvraag. Zodra de koppeling is bevestigd of hersteld, eindigt de zichtbeperking. Een teamleider bekijkt openstaande onderzoeken tijdens het ochtendoverleg; dat overleg is geen voorwaarde voor beëindiging. Op het bezoekersscherm verschijnt tijdelijk een grijs vlak. De vorm van die melding kan veranderen zonder dat de maatregel inhoudelijk verandert.",
+        "herkomst": "synthetisch proefdocument, geen echte wet of externe bron"
+      }
+    ],
+    "bedoelde_betekenis": "De beperkte aanleiding, het ene geraakte document, het onderscheid tussen bezoekers en bevoegde medewerkers en de beëindigingsvoorwaarde moeten behouden blijven. Verkorting mag de maatregel niet laten samenvallen met verwijdering, algemene afscherming of inhoudelijke afwijzing.",
+    "doelgroep": "Baliemedewerkers die bezoekers uitleg geven over de beschikbaarheid van dossierbijlagen.",
+    "beschermde_kenmerken": [
+      "De maatregel betreft één bijlage.",
+      "Er is een concrete aanwijzing voor koppeling aan het verkeerde dossier.",
+      "Die koppeling wordt nog onderzocht.",
+      "Bezoekers kunnen de bijlage tijdelijk niet openen.",
+      "Bevoegde medewerkers behouden toegang.",
+      "De maatregel eindigt zodra de koppeling is bevestigd of hersteld."
+    ],
+    "beschermde_namen": [],
+    "beschermde_negaties": [
+      "De overige dossierstukken worden niet afgeschermd.",
+      "De bijlage wordt niet verwijderd.",
+      "De maatregel doet geen uitspraak over de juistheid van de inhoud.",
+      "De maatregel doet geen uitspraak over de uitkomst van de aanvraag.",
+      "Het ochtendoverleg is geen voorwaarde voor beëindiging."
+    ]
+  }
+]

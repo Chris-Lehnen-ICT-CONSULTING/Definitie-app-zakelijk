@@ -1,0 +1,24 @@
+{"gevallen": 13, "match": 13, "mismatch": [], "fouten": []}
+INT02-C01 True [] 
+INT02-C02 True [] 
+INT02-C03 True ['\\bindien\\b'] 
+INT02-C04 True ['\\bindien\\b'] 
+INT02-C05 True [] 
+INT02-C06 True [] 
+INT02-C80 True [] 
+INT02-C81 True ['\\bindien\\b'] 
+INT02-C82 True ['\\btenzij\\b'] 
+INT02-C83 True [] 
+INT02-C84 True ['\\bvoor zover\\b'] 
+INT02-C85 True ['\\balleen als\\b', '\\bop voorwaarde dat\\b'] 
+INT02-C86 True ['\\bindien\\b'] 
+include_examples=True True 9
+    🔹 **INT-02 - Geen beslisregel**
+    - Een definitie bevat geen beslisregels of voorwaarden.
+    - **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'
+      ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+      ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+include_examples=False True 9
+    🔹 **INT-02 - Geen beslisregel**
+    - Een definitie bevat geen beslisregels of voorwaarden.
+    - **Instructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'

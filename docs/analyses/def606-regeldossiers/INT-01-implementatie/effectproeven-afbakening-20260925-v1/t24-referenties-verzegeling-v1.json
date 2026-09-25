@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-25T12:26:23.912355+00:00",
+  "app_run_started": false,
+  "unresolved_disputes": [],
+  "files": {
+    "afbakening-besluit-v1.md": "118a43b391602a3e21f57f2d437f130c46afca7175955e9e4445548ae54f9849",
+    "referentie-contract-v1.md": "d60b4dbb718101ae6b284f42fd33865e9bfca3d1d70accd81a6bc0ba82e740ea",
+    "bronfreeze-v2.json": "4a5b513517a14aa2846c86fbe4f3f6ddcf114a95d9cf197c21cefaff1ea29aac",
+    "t24-gevallen-v1.json": "1403a499f93559ea0fe3e1779017288994fca710ab828209b99f7ac1c55a8b7b",
+    "t24-referentie-A-v1.json": "94669844009c771f4458e4c0adda908a978aa5d364739f785095881f1b3e91dc",
+    "t24-referentie-B-v1.json": "945979a460931b3e56edee3476569f31eb8ca8a33bf77725f53268e97802d1ee",
+    "t24-adjudicatie-v1.json": "ab9247a26f821d2ae9d661fc9fb60eacce8871ebdeb49a40ae718a77ae20e496"
+  }
+}

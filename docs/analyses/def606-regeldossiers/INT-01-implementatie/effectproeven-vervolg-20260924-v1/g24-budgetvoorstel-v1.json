@@ -1,0 +1,16 @@
+{
+  "status": "wacht_op_aanvullend_kostenmandaat",
+  "planned_calls": 24,
+  "model": "claude-opus-5",
+  "max_run_estimate_usd": 2.5151,
+  "spent_usd": 3.71545,
+  "existing_cumulative_limit_usd": 5,
+  "remaining_usd": 1.28455,
+  "max_cumulative_estimate_usd": 6.23055,
+  "proposed_cumulative_limit_usd": 6.5,
+  "proposed_additional_authorization_usd": 1.5,
+  "manifest_sha256": "4e8d79cc8194fe417fca2f52c74a6ab0dd657cc6e7aff40c85ca981155e7a941",
+  "counts_sha256": "717520ee35e483c620f24a5c12a7978f3dce70c67a62c80fffa7e05958d4f4b3",
+  "paid_calls_executed": 0,
+  "note": "count_tokens binnen_plafond vergelijkt met los manifestplafond5, niet cumulatief. Er is nog GEEN budgetgoedkeuring voor run; bestaand restbedrag is onvoldoende."
+}

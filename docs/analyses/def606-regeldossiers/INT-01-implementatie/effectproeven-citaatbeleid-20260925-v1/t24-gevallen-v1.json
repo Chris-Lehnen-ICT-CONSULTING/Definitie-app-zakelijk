@@ -1,0 +1,194 @@
+[
+  {
+    "id": "T01",
+    "stratum": "S1",
+    "begrip": "schaduwreservoir",
+    "tekst": "ondiepe ruimte onder een verhoogde plantenbak voor de tijdelijke opvang van koel regenwater",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met opeenvolgende voorzetselbepalingen."
+  },
+  {
+    "id": "T02",
+    "stratum": "S1",
+    "begrip": "wisselkorrel",
+    "tekst": "korrel die pas van kleur verandert wanneer de omringende vloeistof tweemaal achtereen afkoelt",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Beperkende betrekkelijke bijzin met een ingebedde temporele bijzin."
+  },
+  {
+    "id": "T03",
+    "stratum": "S1",
+    "begrip": "Licht en Luwte",
+    "tekst": "werkplaats met de naam Licht en Luwte waar doorschijnende windschermen worden gemaakt",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevenschikking binnen een naam, gevolgd door een betrekkelijke plaatsbepaling."
+  },
+  {
+    "id": "T04",
+    "stratum": "S1",
+    "begrip": "dubbelwacht",
+    "tekst": "Een dubbelwacht is een meetvoorziening die een trilling registreert en die tegelijk de richting ervan vastlegt. Beide registraties delen één tijdstempel.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevengeschikte betrekkelijke bijzinnen en een afzonderlijke vervolgzinsconstructie."
+  },
+  {
+    "id": "T05",
+    "stratum": "S2",
+    "begrip": "microvak",
+    "tekst": "opbergvak van ca. 2,5 cm breed voor ten hoogste 3 gekleurde meetplaatjes",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Afkortingspunt, decimaal getal en zelfstandig gebruikt cijfer binnen een naamwoordelijke formulering."
+  },
+  {
+    "id": "T06",
+    "stratum": "S2",
+    "begrip": "Veldlus",
+    "tekst": "Een Veldlus is een oefenroute met als naamgever dr. Noor Veld. Langs de route staan 4 draaibare luisterpanelen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Afgekorte titel vóór een persoonsnaam en een cijfer in de vervolgtekst."
+  },
+  {
+    "id": "T07",
+    "stratum": "S2",
+    "begrip": "klankbundel",
+    "tekst": "Een klankbundel is een verzameling korte geluiden voor het nabootsen van tikken, ruis, fluittonen enz.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een puntsgewijs geschreven afkorting staat aan het einde van de tekst."
+  },
+  {
+    "id": "T08",
+    "stratum": "S2",
+    "begrip": "retourcode",
+    "tekst": "tekenreeks voor een terugkerende proefzending, bijv. R7. De laatste positie bevat een cijfer van 0 t/m 9.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Afkortingen met verschillende schrijfwijzen, een alfanumerieke code en een numeriek bereik."
+  },
+  {
+    "id": "T09",
+    "stratum": "S3",
+    "begrip": "mistkam",
+    "tekst": "Een mistkam is een rij dunne draden die zwevende waterdruppels verzamelt.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Voluit geschreven mededeling met een afsluitende punt."
+  },
+  {
+    "id": "T10",
+    "stratum": "S3",
+    "begrip": "echozak",
+    "tekst": "Een echozak is een zachte hoes die een afgespeeld geluid kort laat nagalmen. De opening bepaalt de duur van de nagalm.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee mededelende constructies gescheiden door een punt en een hoofdletter."
+  },
+  {
+    "id": "T11",
+    "stratum": "S3",
+    "begrip": "keuzeveer",
+    "tekst": "Een keuzeveer is een verende wijzer die tussen twee gemarkeerde standen beweegt. Welke stand blijft na het loslaten zichtbaar?",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een mededeling wordt gevolgd door een directe vraag met vraagteken."
+  },
+  {
+    "id": "T12",
+    "stratum": "S3",
+    "begrip": "startschelp",
+    "tekst": "Een startschelp is een hol voorwerp dat bij het openen een korte toon voortbrengt. Laat die toon slechts eenmaal klinken!",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een beschrijvende formulering wordt gevolgd door een gebiedende wijs met uitroepteken."
+  },
+  {
+    "id": "T13",
+    "stratum": "S4",
+    "begrip": "vouwspoor",
+    "tekst": "een **vouwspoor** is een smalle verkleuring\nlangs de plaats waar een vel herhaaldelijk is omgebogen",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Markdownnadruk en een regelomloop binnen een doorlopende grammaticale constructie."
+  },
+  {
+    "id": "T14",
+    "stratum": "S4",
+    "begrip": "rustkom",
+    "tekst": "Een rustkom is een komvormige uitsparing waarin een bewegende knikker tijdelijk blijft liggen.\n\nEen smalle zijopening maakt de uitstroom regelbaar.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een witregel markeert een alineaovergang tussen gepunctueerde tekstgedeelten."
+  },
+  {
+    "id": "T15",
+    "stratum": "S4",
+    "begrip": "laagpakket",
+    "tekst": "samenstel van drie losneembare lagen:\n- een poreuze bovenlaag\n- een gekleurde tussenlaag\n- een gladde onderlaag",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een naamwoordelijke aanloop met dubbele punt wordt uitgewerkt in een opsomming zonder eindpunten."
+  },
+  {
+    "id": "T16",
+    "stratum": "S4",
+    "begrip": "pendelvak",
+    "tekst": "Een pendelvak is een afgebakend deel van een speelbord; een losse schijf beweegt er tussen twee aanslagen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Twee zelfstandige grammaticale constructies zijn verbonden door een puntkomma."
+  },
+  {
+    "id": "T17",
+    "stratum": "S5",
+    "begrip": "terugroepteken",
+    "tekst": "Een terugroepteken is een lichtsignaal met de betekenis ‘kom terug!’, dat verschijnt zodra een oefenwagen zijn keerpunt passeert.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een kort citaat met uitroepteken is ingebed vóór een komma en een vervolgbijzin."
+  },
+  {
+    "id": "T18",
+    "stratum": "S5",
+    "begrip": "nevenring",
+    "tekst": "Een nevenring is een losse ring rond een draaiknop (de ring draait zelf niet mee). Een gekleurde streep geeft de beginstand aan.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een parenthetische mededeling staat binnen de eerste formulering, gevolgd door afzonderlijke vervolgtekst."
+  },
+  {
+    "id": "T19",
+    "stratum": "S5",
+    "begrip": "ademvenster",
+    "tekst": "“Een ademvenster is een korte onderbreking in een gesproken ritme waarin alleen de inademing hoorbaar is.”",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De gehele kern staat tussen aanhalingstekens, met de eindpunt binnen het citaat."
+  },
+  {
+    "id": "T20",
+    "stratum": "S5",
+    "begrip": "luisterkaart",
+    "tekst": "Een luisterkaart is een kaart uit de oefenreeks ‘Wie luistert?’, waarop een geluid door een abstract patroon wordt weergegeven. De achterzijde toont de bijbehorende beweging.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een ingesloten titel bevat een vraagteken en wordt gevolgd door een bijzin en verdere tekst."
+  },
+  {
+    "id": "T21",
+    "stratum": "S6",
+    "begrip": "stiltezoom",
+    "tekst": "",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Lege tekenreeks zonder witruimte of leestekens."
+  },
+  {
+    "id": "T22",
+    "stratum": "S6",
+    "begrip": "kleuranker",
+    "tekst": "Kleuranker",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een los label zonder nadere formulering of eindleesteken."
+  },
+  {
+    "id": "T23",
+    "stratum": "S6",
+    "begrip": "druppeltrap",
+    "tekst": "reeks ondiepe kommetjes die water trapsgewijs doorgeven. het onderste kommetje heeft geen afvoer",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Na een punt begint de vervolgtekst met een kleine letter; afsluitende interpunctie ontbreekt."
+  },
+  {
+    "id": "T24",
+    "stratum": "S6",
+    "begrip": "rimpelmaat",
+    "tekst": "afstand tussen twee opeenvolgende golfranden, gemeten in zqv. langs de binnenzijde van een ronde proefbak",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een onverklaarde afkortingsvorm met punt staat vóór een voortgezette plaatsbepaling."
+  }
+]

@@ -1,0 +1,118 @@
+{
+  "regel": "INT-03",
+  "onderzoeker": "C",
+  "versie": "v2 (fase 2: wederzijdse review, verwerking, herzien advies)",
+  "vervangt": "bewijsmanifest-c-v1.json (blijft staan; sha256 0d18c023823ef7c1a6c3eae0d56ffd0b674c8f1d08d48882264bd797b633029e)",
+  "sessie": {
+    "omgeving": "Claude Code CLI, headless, Mac van Chris; zelfde sessie als fase 1 (90f43917-9578-48d1-ab42-a020077cd7dc)",
+    "model": "claude-fable-5-1",
+    "effort": "xhigh",
+    "onafhankelijkheid": "fase 1 (v1) opgeslagen zonder lezing van onderzoek-a/ of onderzoek-b/; fase 2 na overdracht: onderzoek-a/ en onderzoek-b/ volledig gelezen (hashes hieronder)",
+    "beperkingen": "WebFetch (Taaladvies/Onze Taal) in deze sessie niet toegestaan; ~/.agents/skills niet leesbaar (identieke bron _claude-global-setup/skills gebruikt)"
+  },
+  "datum_utc": "2026-09-25",
+  "leesbasis": {
+    "repository": "/Users/chrislehnen/Projecten/Definitie-app",
+    "branch": "onderzoek/DEF-772-INT-03-20260925",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "werkboom_code": "git status --porcelain src config tests scripts → alleen twee ongetrackte bestanden scripts/testing/nightly_ui_smoke.py en nightly_ui_smoke_extended.py, niet door C aangemaakt (C schreef uitsluitend in onderzoek-c/); geen wijzigingen aan getrackte code, config of tests",
+    "python": ".venv/bin/python 3.13.15"
+  },
+  "eigen_bestanden_sha256": {
+    "fase_1_ongewijzigd": {
+      "aanvulling-c-v1.md": "31f3a53247584abac9722f27ef952af2a38b409de300175b9d18696c2241fbd3",
+      "casusregister-c-v1.md": "0126835e61fd053b9375d6598a2d84eb87213887bfc276245dc0d2290a31a04c",
+      "proefverwachtingen-c-v1.json": "303486856b2a79ff971700a63c91d1eec4ed0bb9bbd63c1701704afc0f6257da",
+      "proef-c-v1.py": "690ffe2d7baaa9af27d0b6a43be75a5d4cfdf92d6e9930802c2434bac63be054",
+      "proefuitkomsten-c-v1.json": "906d4ee7dd959f1ca736af00e96661ecc139e865dec0ff1725211d0cde61c117",
+      "proef-c-v1-run1.log": "f033cc92c88dfb49a759920e14538587e20fb9e05ea2cb932faf765a56910175",
+      "bewijsmanifest-c-v1.json": "0d18c023823ef7c1a6c3eae0d56ffd0b674c8f1d08d48882264bd797b633029e"
+    },
+    "fase_2_nieuw": {
+      "review-c-op-a-v1.md": "2d98f235a10c2d1b1eb6f4408002103ed1ed2154982dbcd28558c7fb71968455",
+      "review-c-op-b-v1.md": "87b215c63e0bcd0e0e18f09efb69864f1740880c5c181fbdfe4bf75b5e61a3d2",
+      "verwerking-c-v1.md": "4a6f6829e4725f67bc7a8b8aa2dcc24aae0f5b1497e4fffe44ece13dab3768a6",
+      "aanvulling-c-v2.md": "ad4af8d155b434b95919d1e318f379445a6b9f484f90a6693cc1ee7a7a55f4ad",
+      "proefverwachtingen-c-v2.json": "bb3ccc4f3f0d12e66a76186637b0ab9840bbc09e27b12527555773e202a9ece0",
+      "proef-c-v2.py": "7cc728b349aa25d608537ce0e45f1ce1f45a158d54b5dd38cc21150898100c7a",
+      "proefuitkomsten-c-v2.json": "2d1e70a670a13d844525636b290eb4a519ac245d821ecde8e99b1e760f3f9bac",
+      "proef-c-v2-run1.log": "dea5c9e5ae3f87732e72f9465a90907937c53d44dee1c9fc8f1af94c419ff870"
+    },
+    "opmerking": "de v1-hashes zijn gelijk aan bewijsmanifest-c-v1.json (v1 ongewijzigd); proef-c-v2-run1.log is een extra uitvoerlog (mag worden verwijderd); dit manifest hasht zichzelf niet"
+  },
+  "proef_fase_2": {
+    "doel": "kwantificering besluitpunt B3/K3/D2: omvang INT-module, INT-03-blok en SAM-module in de prompt",
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "docs/analyses/def606-regeldossiers/INT-03-verdieping/onderzoek-20260925/onderzoek-c/proef-c-v2.py",
+      "/Users/chrislehnen/Projecten/Definitie-app",
+      "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3"
+    ],
+    "cwd": "/Users/chrislehnen/Projecten/Definitie-app",
+    "exit_status": 0,
+    "offline_gate": true,
+    "verwachtingen_vooraf_sha256": "bb3ccc4f3f0d12e66a76186637b0ab9840bbc09e27b12527555773e202a9ece0",
+    "all_match": true,
+    "meting": {
+      "int_module_tekens": 4205,
+      "int_module_zonder_voorbeelden_tekens": 2461,
+      "int_module_rules_count": 9,
+      "int03_blok_tekens": 607,
+      "sam_module_tekens": 3196,
+      "sam_module_rules_count": 8,
+      "int_plus_sam_tekens": 7401,
+      "verschil_met_p05_p06_uit_v1": 6
+    },
+    "scope": "dezelfde JSONBasedRulesModule-instanties als de adapter registreert; geen UI, opslag, live model of normvalidatie"
+  },
+  "gelezen_in_fase_2_sha256": {
+    "gedeeld/processtatus-v2.md": "a93207225cfd3b42219d94b80e160f350dbdfe65b8dbb889ac93d34a3fd688c1",
+    "gedeeld/reviewopdracht-c-v1.md": "dcc801c5e3711cf2b55ec5107ce3f127bac31e9fa0e551ad1d1541fa86ef8bfe",
+    "onderzoek-a/aanvulling-a-v1.md": "3b3bc4e5689258021e067bcef996b0c9d95b1d55a5efe965919d492f71e6f277",
+    "onderzoek-a/review-a-op-b-v1.md": "89fcddd3b7fdb30e4fddba13a0aaf372d5150ebecc928b89d5ab2753e08abcf5",
+    "onderzoek-a/review-a-op-c-v1.md": "d874b37d0bb6f1c20739f10e3c8d800faed50e84393c1b66adac0d77889b431a",
+    "onderzoek-a/proefverwachtingen-a-v1.json": "a084efe82ffd44a272de10d54102459d90f7e1beefc8a56e5759560a6d4edbab",
+    "onderzoek-a/proef-a-v1.py": "6338d9f77ff5c2f193b843002b25dc2c0899e8e0c4be0ba89702f095b482990a",
+    "onderzoek-a/proefuitkomsten-a-v1.json": "0d226514e17674c07041872ba0c43daa0dc8bfe595d5de354a460dec67e199aa",
+    "onderzoek-a/bewijsmanifest-a-v1.json": "b37a4d862d8f4ef05b463044eacf4a722a01f82641c1f9fd922cb2eb940eed78",
+    "onderzoek-b/aanvulling-b-v1.md": "d791e7f7f216dc9ed04eba475ee781528379ece8e80fbae9f75bce3e2a64bb67",
+    "onderzoek-b/casusregister-b-v1.md": "aea3ef641838ddaba4950fa9cd93bf9f76a99ae2fbd27cd1e593860541e55c41",
+    "onderzoek-b/proefverwachtingen-b-v1.json": "fde36bc7ccd07689861de150853bed16d7abd51635b11480a3fd9baa9bc30b98",
+    "onderzoek-b/proef-b-v1.py": "f9acbf83b5d10f1bbf7fb78df69e4ab110b116aa0febcdb1be5efa248289422f",
+    "onderzoek-b/proefuitkomsten-b-v1.json": "857d96bb20728ba7cf80755079c4580526ff7a952f1aa730d66b1260b3ac9f2b",
+    "onderzoek-b/bewijsmanifest-b-v1.json": "048cea04005ba8ee8ec285665bc88385d9e28209bd99f74a8f59bcecf57bbe92",
+    "src/toetsregels/json_validator_loader.py": "924fe1345e7e5f7f1eaaa03453f70953c5b2866d0e1edc3a079d6ad27b13e320",
+    "src/toetsregels/manager.py": "8c8807bc7cd565c6a1f7d3632f4a256e8d5f7419a91ac3adbee6150b8032d3d6",
+    "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+    "src/toetsregels/regels/STR-04.json": "b20aa3285f987c8fa4557cba94d7bdd701250a3295f22b4438d597df2780e460",
+    "src/toetsregels/regels/CON-CIRC-001.json": "0b44bfac1c60faf0aacd509c6bd9a896a2f2375dab4bea03a2a3f7def67d5ffb",
+    "tests/unit/validation/test_json_validators.py": "67ff145e274715e39a6411148432db4ca2b5d83ad080f79af0b6b8d8e6ca6de4",
+    "scripts/detect_orphan_modules.py": "80bb0a4691758e523bc11100cbeeb098e2476c6a1d8bea37c86ac2723eb54ad1"
+  },
+  "hashcontrole_overdracht": "aanvulling-a-v1 3b3bc4e5…, aanvulling-b-v1 d791e7f7…, review-a-op-b 89fcddd3…, review-a-op-c d874b37d… en bewijsmanifest-b 048cea04… komen overeen met gedeeld/processtatus-v2.md; A's proefbestanden komen overeen met bewijsmanifest-a-v1.json; B's proefverwachtingen (fde36bc7…) en proefscript (f9acbf83…) komen overeen met de verwijzingen in proefuitkomsten-b-v1.json",
+  "gelezen_zonder_hash_in_fase_2": [
+    "src/services/prompts/modules/prompt_orchestrator.py (r. 364, 403-476), json_based_rules_module.py (initialize/execute/_format_rule), modular_prompt_adapter.py (registratie), base_module.py (ModuleContext/ModuleOutput) — hashes van de eerste drie in proefuitkomsten-c-v2.json code_hashes en in bewijsmanifest-c-v1.json",
+    "src/services/validation/modular_validation_service.py (severity_for, CON-CIRC-001-mapping r. 159, 739, 771, 1139)",
+    "src/services/validation/evaluators/__init__.py r. 5",
+    "tests/unit/validation/test_json_validator_loader_paths.py r. 1-40; tests/integration/regression/test_regression_suite.py r. 300-330; grep-uitkomsten over tests/ en scripts/ voor json_validator_loader, definitie_validator, IntegrityRulesModule",
+    "_claude-global-setup/skills/definitie-toetsregels/SKILL.md (sectiekoppen r. 25-113)"
+  ],
+  "niet_gelezen_of_niet_toegestaan": {
+    "taaladvies.net/termen-onderwerp/ en onzetaal.nl/taalloket/betrekkelijk-voornaamwoord": "WebFetch niet toegestaan in deze sessie; claims over loos 'het', 'iedereen', 'wie/wat' berusten op B S9 (secundair)",
+    "Ross DBT §4.3": "niet gelezen (door niemand)",
+    "src/toetsregels/regels/INT-06.json": "niet gelezen; A's INT-06-claim niet geverifieerd"
+  },
+  "opgeleverd_fase_2": [
+    "review-c-op-a-v1.md",
+    "review-c-op-b-v1.md",
+    "verwerking-c-v1.md",
+    "aanvulling-c-v2.md",
+    "proefverwachtingen-c-v2.json",
+    "proef-c-v2.py",
+    "proefuitkomsten-c-v2.json",
+    "proef-c-v2-run1.log (extra)",
+    "bewijsmanifest-c-v2.json"
+  ],
+  "status": "fase 2 van C afgerond: reviews op A en B, verwerking van review-a-op-c, herzien advies v2; geen implementatie, geen commits, geen issues, geen andere sessies; synthese (A) en synthesecontrole (B, C) nog niet uitgevoerd; geen gezamenlijke afronding geclaimd"
+}

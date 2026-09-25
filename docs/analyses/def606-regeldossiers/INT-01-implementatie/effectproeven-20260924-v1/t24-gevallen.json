@@ -1,0 +1,194 @@
+[
+  {
+    "id": "T01",
+    "stratum": "S1",
+    "begrip": "bakjesverdeler",
+    "tekst": "hulpmiddel voor de gelijkmatige verdeling van lege kweekbakjes over werktafels",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met opeenvolgende voorzetselbepalingen en zonder afsluitend leesteken."
+  },
+  {
+    "id": "T02",
+    "stratum": "S1",
+    "begrip": "terugkeerfiche",
+    "tekst": "fiche waarmee een bezoeker na een tijdelijke onderbreking toegang krijgt tot dezelfde oefenruimte.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Naamwoordelijke kern met een betrekkelijke bijzin die de functie en reikwijdte bepaalt."
+  },
+  {
+    "id": "T03",
+    "stratum": "S1",
+    "begrip": "afstemmingskring",
+    "tekst": "overleggroep van het Bureau voor Water en Werk en de Kamer voor Rust en Ruimte",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Nevenschikking binnen twee organisatienamen en tussen die namen, met herhaald gebruik van hetzelfde voegwoord."
+  },
+  {
+    "id": "T04",
+    "stratum": "S1",
+    "begrip": "dubbelcontrole",
+    "tekst": "controle waarbij een medewerker de verpakking onderzoekt en een andere medewerker de telling bevestigt",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een noodzakelijke bijzin met twee nevengeschikte deelzinnen en verschillende onderwerpen."
+  },
+  {
+    "id": "T05",
+    "stratum": "S2",
+    "begrip": "kalibratiespoor",
+    "tekst": "markering op 2,5 cm van de rand, aangebracht volgens werkblad nr. 8.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Decimaal getal, maateenheid, afkorting met punt en een nummer aan het einde van de kern."
+  },
+  {
+    "id": "T06",
+    "stratum": "S2",
+    "begrip": "voorbeeldlezing",
+    "tekst": "instructiebijeenkomst onder de titel 'Meten in lagen' van dr. P. Velders",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een geciteerde titel naast een aanspreektitel en een persoonsinitiaal met punten."
+  },
+  {
+    "id": "T07",
+    "stratum": "S2",
+    "begrip": "vaktoewijzing",
+    "tekst": "registratie van de plaatsing van een pakket in een tijdelijk opslagvak, vastgelegd door de T.O.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een letterafkorting met interne punten op de positie van het zinslot."
+  },
+  {
+    "id": "T08",
+    "stratum": "S2",
+    "begrip": "serienotitie",
+    "tekst": "aantekening bij proefreeks 4.2. De bijlagen bevatten tekeningen, meetbladen e.d.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een hiërarchisch nummer naast een zinsgrens en een afsluitende afkorting in de volgende zin."
+  },
+  {
+    "id": "T09",
+    "stratum": "S3",
+    "begrip": "lichtvenster",
+    "tekst": "opening die daglicht doorlaat naar de observatiekamer.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een nominale definitiekern met een afsluitende punt."
+  },
+  {
+    "id": "T10",
+    "stratum": "S3",
+    "begrip": "wisselkaart",
+    "tekst": "kaart voor het overdragen van een werkplek. De ontvanger tekent op de achterzijde.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een nominale kern gevolgd door een zelfstandige mededelende zin met een eigen onderwerp."
+  },
+  {
+    "id": "T11",
+    "stratum": "S3",
+    "begrip": "zoeksein",
+    "tekst": "signaal waarmee een ontbrekend oefenobject wordt gemeld. Waar is het object voor het laatst gezien?",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een mededelende kern gevolgd door een directe vraag met een vraagteken."
+  },
+  {
+    "id": "T12",
+    "stratum": "S3",
+    "begrip": "stoproep",
+    "tekst": "Stop de toevoer! Deze oproep onderbreekt de gezamenlijke proef.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een gebiedende zin met uitroepteken gevolgd door een verklarende mededelende zin."
+  },
+  {
+    "id": "T13",
+    "stratum": "S4",
+    "begrip": "droogrek",
+    "tekst": "rek voor het drogen\nvan beschilderde panelen\nin de oefenwerkplaats",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Visuele regelomloop binnen doorlopende syntactische woordgroepen."
+  },
+  {
+    "id": "T14",
+    "stratum": "S4",
+    "begrip": "avondregister",
+    "tekst": "overzicht van de na sluiting aanwezige oefenmaterialen.\n\nDe dienstleider bewaart het overzicht tot de volgende opening.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een alineaovergang tussen een definitiekern en een zelfstandige gebruiksinstructie."
+  },
+  {
+    "id": "T15",
+    "stratum": "S4",
+    "begrip": "startpakket",
+    "tekst": "pakket met uitsluitend:\n- een routeblad;\n- een telkaart;\n- een blanco verslagvel.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een inleidende woordgroep met dubbele punt en een verticale opsomming met puntkomma's."
+  },
+  {
+    "id": "T16",
+    "stratum": "S4",
+    "begrip": "ruilmoment",
+    "tekst": "tijdstip voor het wisselen van oefenrollen; de begeleider kondigt het begin aan",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een puntkomma tussen een nominale kern en een deel met onderwerp en persoonsvorm."
+  },
+  {
+    "id": "T17",
+    "stratum": "S5",
+    "begrip": "vrijgavecode",
+    "tekst": "code die de melding 'Gereed. Neem de bak mee.' op het oefenscherm laat verschijnen.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een ingebed citaat met interne punten en een gebiedende formulering."
+  },
+  {
+    "id": "T18",
+    "stratum": "S5",
+    "begrip": "reservevak",
+    "tekst": "opslagvak voor ongebruikte oefensets (de blauwe kast blijft buiten gebruik).",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een parenthetische mededeling met een eigen onderwerp en persoonsvorm binnen de kern."
+  },
+  {
+    "id": "T19",
+    "stratum": "S5",
+    "begrip": "schaduwstrook",
+    "tekst": "“strook langs een proefwand die tijdens de meting onbelicht blijft.”",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "De gehele kern staat tussen typografische aanhalingstekens, met de eindpunt binnen het citaat."
+  },
+  {
+    "id": "T20",
+    "stratum": "S5",
+    "begrip": "luisterronde",
+    "tekst": "bespreking van het oefenboek 'Wie hoort erbij?' met deelnemers aan het klankatelier.",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een ingesloten titel met vraagteken wordt gevolgd door een verdere bepaling van dezelfde kern."
+  },
+  {
+    "id": "T21",
+    "stratum": "S6",
+    "begrip": "tussenmelding",
+    "tekst": "",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een leeg tekstveld bij een afzonderlijk opgegeven begrip."
+  },
+  {
+    "id": "T22",
+    "stratum": "S6",
+    "begrip": "oefenstatus",
+    "tekst": "Oefenstatus:",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een los label met dubbele punt zonder daaropvolgende inhoud."
+  },
+  {
+    "id": "T23",
+    "stratum": "S6",
+    "begrip": "luwtepauze",
+    "tekst": "onderbreking van de geluidsproef... daarna opnieuw luisteren",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een beletselteken verbindt een nominale omschrijving met een elliptisch vervolg zonder expliciet onderwerp."
+  },
+  {
+    "id": "T24",
+    "stratum": "S6",
+    "begrip": "koppelstrook",
+    "tekst": "strook voor tijdelijke bundeling. controle volgens zqv. blijft vereist",
+    "herkomst": "synthetisch voor deze proef",
+    "rationale": "Een kleine letter na een punt komt samen voor met een niet toegelichte afkorting en een ontbrekend eindleesteken."
+  }
+]

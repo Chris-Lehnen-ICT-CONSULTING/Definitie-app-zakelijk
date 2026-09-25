@@ -1,0 +1,58 @@
+{
+  "generation_evidence": "../effectproeven-restherstel-20260925-v1/g24-rapport-v1.md",
+  "retained_result": "3parenbeter9gelijk0slechter0nieuwefout;kleineAIproef",
+  "original_generation_commit": "108f38a3933cfe1335908d77a1aaadf0f8f36cc3",
+  "current_commit": "58f70cb1dc1e3f78381f420a716220058a623105",
+  "new_paid_calls": 0,
+  "cumulative_usd": 7.533075,
+  "cap_usd": 8.1,
+  "remaining_usd": 0.566925,
+  "full_prepared_prompts_and_requests": [
+    {
+      "id": "G01",
+      "prompt_equal": true,
+      "api_request_equal": true,
+      "prompt_sha256": "351170b0f364b6e3d53a4b510dea53f960e01ead007fcb831002e93e31a8332f"
+    },
+    {
+      "id": "G02",
+      "prompt_equal": true,
+      "api_request_equal": true,
+      "prompt_sha256": "dc0a933c0fcc35902a9517bed80abbf578898b72966ba026956345d4d249e020"
+    },
+    {
+      "id": "G03",
+      "prompt_equal": true,
+      "api_request_equal": true,
+      "prompt_sha256": "18c61d6490b23a207d2b026e0a071ad716869f6a73cefac1a0d99ed939a60860"
+    },
+    {
+      "id": "G04",
+      "prompt_equal": true,
+      "api_request_equal": true,
+      "prompt_sha256": "b8e07cdca066875c6be32ac6bd0bee97a5cc33637a8553c58fd35bde2615fc2d"
+    },
+    {
+      "id": "G05",
+      "prompt_equal": true,
+      "api_request_equal": true,
+      "prompt_sha256": "9bf3ad03493f9b1ace4c4029ece2a90c892dee0c2f79dcef87d9c173f2ad9b27"
+    },
+    {
+      "id": "G06",
+      "prompt_equal": true,
+      "api_request_equal": true,
+      "prompt_sha256": "13ab2e25a382fcc04790d99a3694ebc9cfd65cf8bd40a9a439e25d2845363a0d"
+    }
+  ],
+  "offline_evaluator": {
+    "inputs": 48,
+    "service_observations": 96,
+    "storage_records": 48,
+    "errors": 0,
+    "load_paths_equal": true,
+    "original_text_preserved": true,
+    "storage_parts_and_status_equal": true,
+    "full_int01_passes": 0
+  }
+}

@@ -248,6 +248,76 @@ def test_ontbrekende_tool_geeft_nonzero(omgeving: _Omgeving) -> None:
     assert uitkomst.exit_code != 0, _diagnose(uitkomst)
 
 
+#: De vaste wachttijden die de entry aan de gate doorgeeft (DEF-770): de
+#: volledige modus krijgt 600 s per git- of toolaanroep, staged blijft 60 s.
+_TIMEOUT_FULL = "600"
+_TIMEOUT_STAGED = "60"
+
+#: Staat naast een kopie van de entry in plaats van de echte gate: legt de
+#: ontvangen argumenten als JSON vast en scant niets.
+_GATE_STUB = (
+    "import json\n\n\ndef main(argumenten):\n"
+    "    print(json.dumps(argumenten))\n    return 0\n"
+)
+
+
+def _gate_argumenten(
+    omgeving: _Omgeving, naam: str, extra: dict[str, str] | None
+) -> tuple[list[str], Path]:
+    """Start een kopie van de echte entry naast de stub en lees de argumenten terug."""
+    basis, _ = gate._nieuwe_basis(omgeving, naam)
+    scripts = basis / "scripts"
+    scripts.mkdir()
+    entry = scripts / _ENTRY.name
+    entry.write_text(_ENTRY.read_text(encoding="utf-8"), encoding="utf-8")
+    (scripts / "secret_scan_gate.py").write_text(_GATE_STUB, encoding="utf-8")
+    voltooid = subprocess.run(
+        [sys.executable, str(entry)],
+        cwd=str(basis),
+        capture_output=True,
+        check=False,
+        shell=False,
+        text=True,
+        timeout=_ENTRY_TIMEOUT,
+        env=_entry_omgeving(_pad_met_tool(omgeving.binary), extra),
+    )
+    assert voltooid.returncode == 0, "de entry bereikte de stub-gate niet."
+    return json.loads(voltooid.stdout), basis.resolve()
+
+
+@pytest.mark.parametrize(
+    ("refpaar", "modus", "timeout"),
+    [
+        pytest.param(True, "full", _TIMEOUT_FULL, id="refpaar-full"),
+        pytest.param(False, "staged", _TIMEOUT_STAGED, id="geen-refpaar-staged"),
+    ],
+)
+def test_entry_geeft_exacte_argumenten_aan_gate(
+    omgeving: _Omgeving, refpaar: bool, modus: str, timeout: str
+) -> None:
+    """Modus en vaste wachttijd volgen uit de omgeving; verder alleen afgeleide paden."""
+    van, naar = "1" * 40, "2" * 40
+    extra = {_ENV_FROM_REF: van, _ENV_TO_REF: naar} if refpaar else None
+
+    argumenten, root = _gate_argumenten(omgeving, f"precommit-args-{modus}", extra)
+
+    verwacht = [
+        "--mode",
+        modus,
+        "--source",
+        str(root),
+        "--config",
+        str(root / _CONFIG_NAAM),
+        "--binary",
+        str(omgeving.binary.resolve()),
+        "--timeout",
+        timeout,
+    ]
+    if refpaar:
+        verwacht += ["--base", van, "--head", naar]
+    assert argumenten == verwacht
+
+
 def _hook_config(entry: Path) -> str:
     """Minimale local-hookconfig die de échte entry start.
 

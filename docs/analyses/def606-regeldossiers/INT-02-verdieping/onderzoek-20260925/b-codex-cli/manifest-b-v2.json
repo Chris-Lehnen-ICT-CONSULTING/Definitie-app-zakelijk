@@ -1,0 +1,184 @@
+{
+  "schema_version": 2,
+  "rule": "INT-02",
+  "project": "DEF",
+  "issue": "DEF-771",
+  "researcher": "B",
+  "phase": "Wederzijdse review: B op A opgeleverd; verwerking ontvangen review en synthesecontrole nog open",
+  "session_id": "01a0d783-365b-7d82-81d3-684fd0e016fc",
+  "start_utc": "2026-09-25T08:04:10.617245+00:00",
+  "end_utc": "2026-09-25T08:23:36.346517+00:00",
+  "head_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "branch_observed": "onderzoek/DEF-772-INT-03-20260925",
+  "model": {
+    "name": "gpt-6-astra",
+    "reasoning_effort": "high",
+    "verification": "Eigen rollout session_meta + turn_context, sessie-ID gelijk aan CODEX_SESSION_ID",
+    "cli_version": "0.157.0",
+    "python_version": "3.13.15",
+    "other_tools": "exec_command; Python standaardbibliotheek; git; Skill-tool analysis-mode; research-dispatch geweigerd, geen delegatie"
+  },
+  "review_tools": "exec_command, apply_patch, Python standaardbibliotheek, git; geen agents of nieuwe CLI-sessies",
+  "python_artifact_audit": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "active_documents": [
+    "onderzoek-b-v2.md",
+    "casusregister-b-v2.md",
+    "review-b-op-a-v1.md",
+    "review-b-op-a-v1-erratum.md"
+  ],
+  "review_contribution": [
+    "review-b-op-a-v1.md",
+    "review-b-op-a-v1-erratum.md"
+  ],
+  "reviewed_A_version": "a-claude-cli/onderzoek-a-v1.md + casusregister/manifest/bewijs; a-cowork/normlezing-coordinator-v1.md + C1",
+  "source_hash_binding": "bewijs/review-bronbinding-v1.json",
+  "review_verification": "bewijs/review-oplevercontrole-v1.json",
+  "preservation": "Alle 13 bestanden uit manifest-b-v1 ongewijzigd; historische B-versies behouden. Nieuwe review/bewijsbestanden. Handoverbestanden volgens sessie-instructie naar lokaal archief verplaatst, handoversectie met herstelkopie opgeruimd.",
+  "read_A_after_release": true,
+  "joint_research_complete": false,
+  "next_handoff": "A verwerkt RB-A-01…26 en erratum per punt. Ontvangstlog meldt inmiddels om 08:21:58Z overdracht van review-a-op-b-v1; volgende bijdrage B is puntgewijze verwerking daarvan. A-review nog niet inhoudelijk gelezen in deze reviewbijdrage. Daarna volledige synthese op verzoek voor één controle.",
+  "limitations": [
+    "Geen appimplementatie, live modelcalls, brede tests of echte UI/opslag/export/gateproef.",
+    "A-proefexit gerapporteerd/afgeleid 0; bronbinding en tellingsaudit onafhankelijk gecontroleerd.",
+    "DBT niet rechtstreeks gelezen; synthetische juridische voorbeelden geen actuele rechtsclaims."
+  ],
+  "file_protection_note": "Schrijfcommando via heredoc geweigerd wegens parseprobleem; nieuw reviewbestand via apply_patch aangemaakt. Bestaande review corrigeren geweigerd door bestandsbescherming; vindplaatscorrectie daarom apart erratum, origineel behouden.",
+  "files": [
+    {
+      "path": ".claude/CLAUDE.md",
+      "bytes": 2,
+      "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+    },
+    {
+      "path": ".claude/handovers/archief/2026-09-25_1004-backup-01a0d783.md",
+      "bytes": 632,
+      "sha256": "2bd12b5de672423190230e68f6d10c9ea571c9e17e05426962481baa5670266b"
+    },
+    {
+      "path": ".claude/handovers/archief/CLAUDE-voor-handoveropruiming-20260925T0804-v1.md",
+      "bytes": 455,
+      "sha256": "2049e81c29ebcffed7b5ba8924d18e4b038566f73709ef0de9c08008848f1b61"
+    },
+    {
+      "path": ".claude/handovers/archief/WIP-snapshot-20260925T080152Z-v1.md",
+      "bytes": 1822,
+      "sha256": "5d5c1027b1a57f30f767b4f8117d5f391518f1e4c01d2bb64aca8b490271775a"
+    },
+    {
+      "path": "bewijs/aanvullende-bronnen-v1.json",
+      "bytes": 4739,
+      "sha256": "af8afa7e0810d0bbb03ca0b7a6e6e431ec772728965c7837d853f6c342172a95"
+    },
+    {
+      "path": "bewijs/bronextracten-v1.md",
+      "bytes": 97418,
+      "sha256": "222c472b876d7a82785554eb50551ab4c3deb009eac8cbed4cb0736408607ded"
+    },
+    {
+      "path": "bewijs/historische-diff-v1.txt",
+      "bytes": 9342,
+      "sha256": "25b52c31fe9efa58a9f9e7e58291eaf46bd3072625b8ea376ac6382616f2d7fa"
+    },
+    {
+      "path": "bewijs/oplevercontrole-v1.json",
+      "bytes": 1171,
+      "sha256": "20a5de71f0d912df45eb71a3b4b5a555de14661c742efe48b30c83b15631ade8"
+    },
+    {
+      "path": "bewijs/proefplan-v1.md",
+      "bytes": 2558,
+      "sha256": "945a7e32406b090a2751c7f5945cd8f6f7fe6f91694696b9b6df7f475561da5a"
+    },
+    {
+      "path": "bewijs/proefuitkomsten-v1.json",
+      "bytes": 9438,
+      "sha256": "874691337ddb57df6b74c1f9c793dec98698bcd8a31e8ef8b90eb13bb9ebd9d2"
+    },
+    {
+      "path": "bewijs/proeven-b-v1.py",
+      "bytes": 6565,
+      "sha256": "ab96c3a1243cdb385d311ad05099adfbc970fd3012e43c28e49aabf864c6a503"
+    },
+    {
+      "path": "bewijs/review-audit-v1.py",
+      "bytes": 1772,
+      "sha256": "8dd6a64a62b93dbb4a4ee49bf6659de251386dcd6b7f4cfc281fdae93e9635b7"
+    },
+    {
+      "path": "bewijs/review-auditplan-v1.md",
+      "bytes": 803,
+      "sha256": "6cfdd8900eaea6cc50360f51c4d4c553e88d30a785a7bd88d736e598c81d5853"
+    },
+    {
+      "path": "bewijs/review-audituitkomsten-v1.json",
+      "bytes": 8444,
+      "sha256": "31ed27875fc5572a3e08ecbe76277bbbb62698da3fa09ac97f50ff7b16bd0c15"
+    },
+    {
+      "path": "bewijs/review-audituitvoering-v1.json",
+      "bytes": 468,
+      "sha256": "b86caec532a8e9700c2afe8e74a25a418fc36768678c6138b99751a37873d18e"
+    },
+    {
+      "path": "bewijs/review-bronbinding-v1.json",
+      "bytes": 2750,
+      "sha256": "7f846184f0b59453dfdfc93857a714f0b649b84e527dca8af575ad4c204056f0"
+    },
+    {
+      "path": "bewijs/review-broncontrole-v1.md",
+      "bytes": 30869,
+      "sha256": "2ce2fedd69d2ee8044f1ff4c2b949b2830b501e467e0eaa110fda126fc12cb48"
+    },
+    {
+      "path": "bewijs/review-oplevercontrole-v1.json",
+      "bytes": 4732,
+      "sha256": "e99cf806f01077d035fe17a3d2677369c4a5ce6aa4a12bf8819badf08d108015"
+    },
+    {
+      "path": "bewijs/toegang-bronnen-v1.json",
+      "bytes": 13141,
+      "sha256": "75898d409bbfcb68e8231b2a824ad4a1c51704b16c2bd96fa874dae678c0f775"
+    },
+    {
+      "path": "bewijs/uitvoering-v1.json",
+      "bytes": 1626,
+      "sha256": "3ae91ec874bb6328393aa2ebaa919dd6058f5dd46fffd0e0afbd50b9145e4c52"
+    },
+    {
+      "path": "casusregister-b-v1.md",
+      "bytes": 15928,
+      "sha256": "03e08a64dad63c829bff7f4910a5f10a065fce12ba7d9790da73cc8eb30453b0"
+    },
+    {
+      "path": "casusregister-b-v2.md",
+      "bytes": 16512,
+      "sha256": "1ad33b10aabd57d5f612035d046a8af4cb5d0333546ca1d6d5afcdaa2683865e"
+    },
+    {
+      "path": "manifest-b-v1.json",
+      "bytes": 4565,
+      "sha256": "fcac4dd19424fac5a1de12deebb79960a39d8f5465618b304f5c80b8a83b0b0a"
+    },
+    {
+      "path": "onderzoek-b-v1.md",
+      "bytes": 59175,
+      "sha256": "b885ed585dfa16062cac342fda6b0d18464059b6b1d5c31ead6ec6edc602cbf7"
+    },
+    {
+      "path": "onderzoek-b-v2.md",
+      "bytes": 59720,
+      "sha256": "8312616f41ed56039530a838e04572155598f7000f09b8333adaaa9e2652474f"
+    },
+    {
+      "path": "review-b-op-a-v1-erratum.md",
+      "bytes": 703,
+      "sha256": "881bad5e52a7dd19fa016c1fd04bae7d0974b2e9d99a65f990d08231420736d1"
+    },
+    {
+      "path": "review-b-op-a-v1.md",
+      "bytes": 34427,
+      "sha256": "706ed0faa2cb01040776523aabf7d4c7397b656c6c9014481c8833e1433b8aeb"
+    }
+  ],
+  "manifest_self_hash": "Manifest bevat alle overige bestanden inclusief verborgen beheersbestanden. Eigen SHA-256 buiten dit bestand in eindbericht wegens zelfreferentie."
+}

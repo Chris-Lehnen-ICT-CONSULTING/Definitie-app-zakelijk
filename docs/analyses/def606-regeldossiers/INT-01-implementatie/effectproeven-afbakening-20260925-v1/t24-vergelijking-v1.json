@@ -1,0 +1,1128 @@
+{
+  "code_commit": "3c2535361be6851a779372926302d1d027897d4b",
+  "cases": 24,
+  "fouten": 0,
+  "status_matches": 24,
+  "automatic_decisions": 18,
+  "automatic_norm_supported": 18,
+  "sentence_statuses": {
+    "pass": 11,
+    "fail": 7,
+    "review_required": 5,
+    "not_evaluated": 1
+  },
+  "both_load_paths_equal": true,
+  "storage_parts_and_status_equal": true,
+  "original_text_preserved": true,
+  "full_INT01_pass": 0,
+  "differences": [],
+  "rows": [
+    {
+      "id": "T01",
+      "tekst": "verstelbare rij lamellen voor het verdelen van schaduw over een kweekbak",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T02",
+      "tekst": "tijdvak waarin een uitgeleend meetinstrument zonder nieuwe afstelling opnieuw kan worden aangesloten",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T03",
+      "tekst": "atelier met de naam Riet en Ruis dat vezels verwerkt tot geluiddempende panelen",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T04",
+      "tekst": "Mand waarvan de bodem alleen sluit wanneer beide draagbeugels omhoogstaan. De beugels vormen samen het sluitmechanisme.",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "beide draagbeugels omhoogstaan. De beugels vormen samen",
+          "context_value": null,
+          "field": null,
+          "position": 73,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T05",
+      "tekst": "kaart met doseerstappen van 0,5 ml voor reservoirs van max. 12 ml.",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T06",
+      "tekst": "indeling van bladglans in 7 niveaus, ontworpen door prof. Elin Veld.",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T07",
+      "tekst": "vak voor kleine werkplaatsmaterialen zoals klemmen, doppen, ringen enz.",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T08",
+      "tekst": "Verhouding tussen de gemeten lichtsterkte om 02.00 uur en die om 23.00 uur. De tabel vermeldt deze verhouding als NI.",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "om 23.00 uur. De tabel vermeldt deze",
+          "context_value": null,
+          "field": null,
+          "position": 74,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T09",
+      "tekst": "Een warmtenest is een geïsoleerde uitsparing waarin een monster langzaam afkoelt.",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T10",
+      "tekst": "Een spoorlint registreert de route van een rollend voorwerp. Elke bocht laat een gekleurde markering achter.",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "een rollend voorwerp. Elke bocht laat een",
+          "context_value": null,
+          "field": null,
+          "position": 59,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T11",
+      "tekst": "Een twijfelpijl wijst naar een nog onbevestigde bestemming. Welke route volgt na bevestiging?",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "nog onbevestigde bestemming. Welke route volgt na",
+          "context_value": null,
+          "field": null,
+          "position": 58,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T12",
+      "tekst": "Een stopveer blokkeert het deksel zodra de spanning wegvalt. Laat de veer vrij!",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "de spanning wegvalt. Laat de veer vrij!",
+          "context_value": null,
+          "field": null,
+          "position": 59,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T13",
+      "tekst": "**buigzame verbinding** tussen twee platen\nwaarmee beide platen vlak op elkaar kunnen worden gelegd",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T14",
+      "tekst": "Een rustbekken is een verbreding waarin stromend mengsel tijdelijk vertraagt.\n\nZwaardere deeltjes verzamelen zich op de bodem.",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "mengsel tijdelijk vertraagt. Zwaardere deeltjes verzamelen zich",
+          "context_value": null,
+          "field": null,
+          "position": 76,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T15",
+      "tekst": "verzameling voor één meetronde, bestaande uit:\n- een afsluitbaar buisje\n- twee blanco stroken\n- een genummerde draaghoes",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T16",
+      "tekst": "Een kantelwacht houdt een schaal horizontaal; bij overbelasting zakt één steunpunt.",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T17",
+      "tekst": "bedrijfsstand waarin een toestel de melding ‘Ik luister.’ toont terwijl de motor stilstaat",
+      "actual": "review_required",
+      "expected": "review_required",
+      "normative": "pass",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "melding ‘Ik luister.’ toont terwijl de motor",
+          "context_value": null,
+          "field": null,
+          "position": 55,
+          "reason": "Zinsgrens onzeker: slotteken vóór een sluitend aanhalingsteken gevolgd door verdere tekst: einde van het citaat of ook van de buitenste zin niet vast te stellen.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T18",
+      "tekst": "Een dubbelhulsel bestaat uit twee losse omhullingen (de binnenste houdt vocht vast). De buitenste laag laat lucht door.",
+      "actual": "fail",
+      "expected": "fail",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_1",
+          "status": "fail",
+          "evidence": "houdt vocht vast). De buitenste laag laat",
+          "context_value": null,
+          "field": null,
+          "position": 83,
+          "reason": "Nieuwe zin: punt gevolgd door een nieuw zinsbegin. INT-01 vraagt één zin.",
+          "action": "Bepaal eerst of de volgende zin afbakening bevat of alleen uitweiding over positionering of vergelijking. Voeg afbakening samen met de eerste zin en plaats alleen uitweiding in de toelichting. Behoud onderscheidende kenmerken, noodzakelijke namen, negaties en de bronbetekenis; maak de betekenis niet smaller of ruimer om korter te formuleren. De app herschrijft de tekst niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T19",
+      "tekst": "“Oppervlak waarop losse vezels tijdens het zeven achterblijven.”",
+      "actual": "pass",
+      "expected": "pass",
+      "normative": "pass",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsstructuur",
+          "status": "pass",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Eén definitieformulering vastgesteld; geen zinsgrens gevonden. Dit zegt niets over compactheid of begrijpelijkheid.",
+          "action": "Geen actie voor de zinsstructuur."
+        },
+        {
+          "id": "broncitaat",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "De hele definitiekern staat tussen aanhalingstekens. Het geciteerde bronmateriaal telt inhoudelijk mee; aanhalingstekens maken meerdere zinnen niet één.",
+          "action": "Beslis bewust: documenteer een afwijking van deze aanbevolen regel voor het letterlijke broncitaat, of stel een brongebonden parafrase voor die de bronbetekenis behoudt. Er is geen automatische vrijstelling en de app parafraseert niet automatisch."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T20",
+      "tekst": "routekaart met de titel ‘Waarheen?’ die bij iedere splitsing twee mogelijke vervolgrichtingen toont.",
+      "actual": "review_required",
+      "expected": "review_required",
+      "normative": "pass",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "de titel ‘Waarheen?’ die bij iedere splitsing",
+          "context_value": null,
+          "field": null,
+          "position": 33,
+          "reason": "Zinsgrens onzeker: slotteken vóór een sluitend aanhalingsteken gevolgd door verdere tekst: einde van het citaat of ook van de buitenste zin niet vast te stellen.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T21",
+      "tekst": "",
+      "actual": "not_evaluated",
+      "expected": "not_evaluated",
+      "normative": "not_evaluated",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": []
+    },
+    {
+      "id": "T22",
+      "tekst": "nevelrand",
+      "actual": "review_required",
+      "expected": "review_required",
+      "normative": "review_required",
+      "match": true,
+      "old_status": "pass",
+      "old_full_pass": true,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "formulering",
+          "status": "review_required",
+          "evidence": "nevelrand",
+          "context_value": null,
+          "field": null,
+          "position": 0,
+          "reason": "Geen definitieformulering vastgesteld: los label zonder verdere formulering: geen bovenbegrip met onderscheidend kenmerk, dus geen definitieformulering vastgesteld.",
+          "action": "Beoordeel of de kern een definitie is of alleen een begripsnaam of label. Een definitie noemt ten minste een bovenbegrip met een onderscheidend kenmerk; de app vult de tekst niet automatisch aan."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T23",
+      "tekst": "bevestiging die langs een rail kan bewegen. bij belasting grijpen twee nokken in de rail",
+      "actual": "review_required",
+      "expected": "review_required",
+      "normative": "fail",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "rail kan bewegen. bij belasting grijpen twee",
+          "context_value": null,
+          "field": null,
+          "position": 42,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    },
+    {
+      "id": "T24",
+      "tekst": "opening voor materiaal van klasse zqv. met een instelbare doorlaat",
+      "actual": "review_required",
+      "expected": "review_required",
+      "normative": "review_required",
+      "match": true,
+      "old_status": "fail",
+      "old_full_pass": false,
+      "load_paths_equal": true,
+      "storage_parts_equal": true,
+      "storage_status_equal": true,
+      "original_text_preserved": true,
+      "full_INT01_pass": false,
+      "actual_parts": [
+        {
+          "id": "zinsgrens_onzeker_1",
+          "status": "review_required",
+          "evidence": "van klasse zqv. met een instelbare doorlaat",
+          "context_value": null,
+          "field": null,
+          "position": 37,
+          "reason": "Zinsgrens onzeker: punt gevolgd door een kleine letter: onbekende afkorting of nieuwe zin zonder hoofdletter.",
+          "action": "Beoordeel of hier een nieuwe zin begint. Is het één formulering, dan voldoet de zinsstructuur; begint hier een tweede zin, behandel die dan als tweede zin."
+        },
+        {
+          "id": "compactheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Compactheid is nog niet inhoudelijk beoordeeld; het aantal zinnen of de lengte bewijst die niet.",
+          "action": "Beoordeel in de integrale expertbeoordeling of elk kenmerk afbakening is of uitweiding over positionering of vergelijking; alleen uitweiding hoort in de toelichting. Noodzakelijke onderscheidende kenmerken, namen en negaties blijven in de kern."
+        },
+        {
+          "id": "begrijpelijkheid",
+          "status": "review_required",
+          "evidence": null,
+          "context_value": null,
+          "field": null,
+          "position": null,
+          "reason": "Begrijpelijkheid is nog niet inhoudelijk beoordeeld. De app legt geen doelgroep vast, dus begrijpelijkheid voor de doelgroep is niet vastgesteld; de registratiecontext is geen doelgroep.",
+          "action": "Beoordeel in de integrale expertbeoordeling of een lezer uit de bedoelde doelgroep de zin in één lezing kan volgen; noem die doelgroep bij het oordeel en verzin er geen."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "base": "108f38a3933cfe1335908d77a1aaadf0f8f36cc3",
+  "base_tree": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/t24-resultaat-nieuw-v1.json.werk/bron",
+  "files": [
+    {
+      "path": "src/monitoring/performance_tracker.py",
+      "sha256": "0b4086fe22f2bd74c1eaf029821c1fe878033fa7c0b0142c1012621f9e51f59c",
+      "base_and_current_identical": true
+    },
+    {
+      "path": "tests/unit/test_performance_tracker.py",
+      "sha256": "4b8157bfc07b1dab1507fb478e9610d3d73277cdd02c08ffccab79f7b028a1ef",
+      "base_and_current_identical": true
+    },
+    {
+      "path": "tests/offline_bootstrap.py",
+      "sha256": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7",
+      "base_and_current_identical": true
+    },
+    {
+      "path": "src/services/prompts/modules/definition_task_module.py",
+      "sha256": "416bc336bd734d6586324ba3e23c931ee6bde341f9a5e51eb949e44fb571c479",
+      "base_and_current_identical": true
+    },
+    {
+      "path": "tests/unit/services/prompts/modules/test_definition_task_transformation.py",
+      "sha256": "ad5e3cb3128811f827d0c411804fc49ea344bb6b16669c1dcc72fc1778df01b8",
+      "base_and_current_identical": true
+    }
+  ],
+  "prompt_log": "prompt-red-base-v1.txt",
+  "prompt_exit": 1,
+  "performance_log": "perftracker-base-v1.txt",
+  "performance_exit": 1,
+  "canonical_gate_pending": true,
+  "explanation": "Direct pytest vanaf repositoryroot veroorzaakt dezelfde twee SQLite offline-gate failures op base; canonical make test gebruikt bewaakte runner met tijdelijke cwd. Prompt red_phase test faalt identiek en valt buiten unitmarker."
+}

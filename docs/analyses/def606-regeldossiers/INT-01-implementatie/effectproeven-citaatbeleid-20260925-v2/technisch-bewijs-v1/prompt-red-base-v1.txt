@@ -1,0 +1,11 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ TestDefinitionTaskTransformation.test_no_negative_commands_in_guide ______
+tests/unit/services/prompts/modules/test_definition_task_transformation.py:243: in test_no_negative_commands_in_guide
+    assert negative_count < 10, (
+E   AssertionError: Guide has 12 negative commands. Should focus on positive construction instructions instead
+E   assert 12 < 10
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+=========================== short test summary info ============================
+FAILED tests/unit/services/prompts/modules/test_definition_task_transformation.py::TestDefinitionTaskTransformation::test_no_negative_commands_in_guide

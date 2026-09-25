@@ -10,6 +10,8 @@ repos:
         name: Ruff linting
         args: [--fix, --exit-non-zero-on-fix]
         types: [python]
+        exclude: ^docs/analyses/  # onderzoeksbewijs (hash-gebonden scripts), geen appcode
+
 
   # Black - Code formatting
   - repo: https://github.com/psf/black
@@ -18,6 +20,8 @@ repos:
       - id: black
         name: Black formatting
         types: [python]
+        exclude: ^docs/analyses/  # onderzoeksbewijs (hash-gebonden scripts), geen appcode
+
 
   # NOTE: isort removed - Ruff handles import sorting via [tool.ruff.lint.isort]
   # Having both caused import splitting conflicts (see DEF-173 analysis)

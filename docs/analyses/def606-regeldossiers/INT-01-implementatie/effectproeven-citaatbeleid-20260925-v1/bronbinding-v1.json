@@ -1,0 +1,65 @@
+{
+  "app_commit": "ad4be749b2e38b968a22605f3842e244e6a766b7",
+  "skills_commit": "e414eee84552b74818233e5c0fc4dacf36cd729a",
+  "archive": {
+    "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-citaatbeleid/bron-citaatbeleid-v1.tar",
+    "sha256": "22683f6ea96d968f899c253f66b6e87da0cec69755ec96c85c9b705946b9e617"
+  },
+  "reviewed_files": [
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/domain/int01/zinsgrenzen.py",
+      "sha256": "3f0e0224e50a8bfeacff9e420b72b411b0c453f7c85b20a6b960b9040d9cbf29"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_herstel_zinsgrenzen.py",
+      "sha256": "9ce34a95bc44fde3f3d0346bff71618c6add4e1ad3492060be97b858a2c9b461"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_int01_zinsgrenzen.py",
+      "sha256": "cdab46b55afe71115ed5032a7ed41df1ccf34a89d4d1f9af3c3ead9890012427"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py",
+      "sha256": "36b7aef0280db3174dce524f5b2d151ddbd85cdb772dc2ccf74558aa63359ab1"
+    },
+    {
+      "repo": "app",
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py",
+      "sha256": "dcbe5ff420a43b9a9a350e9be2cbe77e1e1c489ff92e71d58be32058747c397c"
+    },
+    {
+      "repo": "skills",
+      "path": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-770-int01-skills/skills/definitie-toetsregels/reference.md",
+      "sha256": "899e1fbf0e89687709746a20f66615b30f1c7079aef41b5e3be85e721cab361a"
+    }
+  ],
+  "product_freeze": [
+    {
+      "path": "src/toetsregels/regels/INT-01.json",
+      "sha256": "0578ac1cc9588b66c98f62622f0a6beaad55587ffc17af24b6bfe026bfe94d99"
+    },
+    {
+      "path": "src/domain/int01/zinsgrenzen.py",
+      "sha256": "3f0e0224e50a8bfeacff9e420b72b411b0c453f7c85b20a6b960b9040d9cbf29"
+    },
+    {
+      "path": "src/domain/int01/opslag.py",
+      "sha256": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f"
+    },
+    {
+      "path": "src/services/validation/evaluators/sentence_boundary.py",
+      "sha256": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ],
+  "generation_source_unchanged_from": "108f38a3933cfe1335908d77a1aaadf0f8f36cc3",
+  "unit_gate": "7479passed75skipped1xfail21subtests;exit0",
+  "bundles": "94passed2subtests;exit0;canonical source parity after commit"
+}

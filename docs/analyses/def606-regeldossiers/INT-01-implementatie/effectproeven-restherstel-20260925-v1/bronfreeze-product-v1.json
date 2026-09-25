@@ -1,0 +1,24 @@
+{
+  "frozen_at": "2026-09-25T07:28:13.137352+00:00",
+  "review": "logs/def770-restherstel/astra-review-v2.md",
+  "files": [
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/domain/int01/zinsgrenzen.py",
+      "sha256": "7f1216d3825caec0beca7f405a0931ecf9e7dbd26f8f41b3630e984665574bb0"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/services/prompts/modules/context_awareness_module.py",
+      "sha256": "45e9964778ddeab1729fecb4a1d9ad5ef54dd3e69d5a23a055041fb8462fc105"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/services/prompts/modules/definition_task_module.py",
+      "sha256": "416bc336bd734d6586324ba3e23c931ee6bde341f9a5e51eb949e44fb571c479"
+    },
+    {
+      "path": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ],
+  "policy": "../herstel-20260924-v1/restherstel-titelbesluit-v1.md",
+  "final_commit_binding_required": true
+}

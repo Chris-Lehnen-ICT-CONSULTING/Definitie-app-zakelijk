@@ -1,0 +1,311 @@
+{
+  "tijd_utc": "2026-09-25T08:08:52.407468+00:00",
+  "bewijssoort": "artefactcontrole; geen appaanroep",
+  "commit_actueel": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "commit_p1": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "input_count": 25,
+  "output_count": 25,
+  "input_output_exact": true,
+  "int02_rr": 25,
+  "int02_pass": 0,
+  "int02_violation": 0,
+  "signaalgevallen": [
+    "INT02-C03",
+    "INT02-C04",
+    "INT02-C11",
+    "INT02-C12",
+    "INT02-C17",
+    "INT02-C19",
+    "INT02-C20",
+    "INT02-C24",
+    "INT02-C25",
+    "INT02-C26",
+    "INT02-C29"
+  ],
+  "int10_fail": [
+    "INT02-C03",
+    "INT02-C04",
+    "INT02-C11",
+    "INT02-C17",
+    "INT02-C24",
+    "INT02-C25",
+    "INT02-C26",
+    "INT02-C29"
+  ],
+  "indien_gevallen": [
+    "INT02-C03",
+    "INT02-C04",
+    "INT02-C11",
+    "INT02-C17",
+    "INT02-C24",
+    "INT02-C25",
+    "INT02-C26",
+    "INT02-C29"
+  ],
+  "int01_fail": [
+    "INT02-C01",
+    "INT02-C02",
+    "INT02-C03",
+    "INT02-C04",
+    "INT02-C10",
+    "INT02-C11",
+    "INT02-C12",
+    "INT02-C14",
+    "INT02-C15",
+    "INT02-C16",
+    "INT02-C17",
+    "INT02-C19",
+    "INT02-C20",
+    "INT02-C21",
+    "INT02-C22",
+    "INT02-C24",
+    "INT02-C25",
+    "INT02-C26",
+    "INT02-C27",
+    "INT02-C29"
+  ],
+  "broncontrole": [
+    {
+      "path": "../a-claude-cli/onderzoek-a-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/casusregister-a-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/verwachtingen-a-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proeflog-a-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proef-p1-service.py",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/proef-p2-prompt.py",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p1-invoer.json",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p1-uitkomsten.json",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/bewijs/p2-uitkomsten.json",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../gedeeld/ontvangstlog.txt",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-claude-cli/manifest-a-v1.json",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-cowork/normlezing-coordinator-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-uitkomsten.json",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-run.py",
+      "ongewijzigd": true
+    },
+    {
+      "path": "../a-cowork/bewijs/proef-c1-verwachtingen.json",
+      "ongewijzigd": true
+    }
+  ],
+  "c1": {
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "samenvatting": {
+      "gevallen": 13,
+      "match": 13,
+      "mismatch": [],
+      "fouten": []
+    },
+    "rijen": [
+      {
+        "id": "INT02-C01",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C02",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C03",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C04",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C05",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C06",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C80",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C81",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C82",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\btenzij\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C83",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C84",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bvoor zover\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C85",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      },
+      {
+        "id": "INT02-C86",
+        "status_int02": "review_required",
+        "in_review_required": true,
+        "reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "in_passed_rules": false,
+        "violation": false,
+        "validation_status": "validated",
+        "match": true,
+        "fout": null
+      }
+    ]
+  }
+}

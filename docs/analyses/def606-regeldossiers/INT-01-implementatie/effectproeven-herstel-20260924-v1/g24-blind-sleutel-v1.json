@@ -1,0 +1,223 @@
+{
+  "seed": 12936726009104439362,
+  "teksten": {
+    "B01": {
+      "call_id": "G01__nieuw__h2",
+      "arm": "nieuw",
+      "dossier_id": "G01",
+      "herhaling": 2
+    },
+    "B02": {
+      "call_id": "G02__nieuw__h1",
+      "arm": "nieuw",
+      "dossier_id": "G02",
+      "herhaling": 1
+    },
+    "B03": {
+      "call_id": "G01__oud__h2",
+      "arm": "oud",
+      "dossier_id": "G01",
+      "herhaling": 2
+    },
+    "B04": {
+      "call_id": "G05__oud__h1",
+      "arm": "oud",
+      "dossier_id": "G05",
+      "herhaling": 1
+    },
+    "B05": {
+      "call_id": "G05__nieuw__h1",
+      "arm": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 1
+    },
+    "B06": {
+      "call_id": "G04__nieuw__h2",
+      "arm": "nieuw",
+      "dossier_id": "G04",
+      "herhaling": 2
+    },
+    "B07": {
+      "call_id": "G01__nieuw__h1",
+      "arm": "nieuw",
+      "dossier_id": "G01",
+      "herhaling": 1
+    },
+    "B08": {
+      "call_id": "G04__oud__h1",
+      "arm": "oud",
+      "dossier_id": "G04",
+      "herhaling": 1
+    },
+    "B09": {
+      "call_id": "G06__nieuw__h1",
+      "arm": "nieuw",
+      "dossier_id": "G06",
+      "herhaling": 1
+    },
+    "B10": {
+      "call_id": "G03__oud__h2",
+      "arm": "oud",
+      "dossier_id": "G03",
+      "herhaling": 2
+    },
+    "B11": {
+      "call_id": "G03__oud__h1",
+      "arm": "oud",
+      "dossier_id": "G03",
+      "herhaling": 1
+    },
+    "B12": {
+      "call_id": "G03__nieuw__h2",
+      "arm": "nieuw",
+      "dossier_id": "G03",
+      "herhaling": 2
+    },
+    "B13": {
+      "call_id": "G06__oud__h1",
+      "arm": "oud",
+      "dossier_id": "G06",
+      "herhaling": 1
+    },
+    "B14": {
+      "call_id": "G02__nieuw__h2",
+      "arm": "nieuw",
+      "dossier_id": "G02",
+      "herhaling": 2
+    },
+    "B15": {
+      "call_id": "G03__nieuw__h1",
+      "arm": "nieuw",
+      "dossier_id": "G03",
+      "herhaling": 1
+    },
+    "B16": {
+      "call_id": "G06__oud__h2",
+      "arm": "oud",
+      "dossier_id": "G06",
+      "herhaling": 2
+    },
+    "B17": {
+      "call_id": "G01__oud__h1",
+      "arm": "oud",
+      "dossier_id": "G01",
+      "herhaling": 1
+    },
+    "B18": {
+      "call_id": "G04__nieuw__h1",
+      "arm": "nieuw",
+      "dossier_id": "G04",
+      "herhaling": 1
+    },
+    "B19": {
+      "call_id": "G02__oud__h1",
+      "arm": "oud",
+      "dossier_id": "G02",
+      "herhaling": 1
+    },
+    "B20": {
+      "call_id": "G05__nieuw__h2",
+      "arm": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 2
+    },
+    "B21": {
+      "call_id": "G04__oud__h2",
+      "arm": "oud",
+      "dossier_id": "G04",
+      "herhaling": 2
+    },
+    "B22": {
+      "call_id": "G06__nieuw__h2",
+      "arm": "nieuw",
+      "dossier_id": "G06",
+      "herhaling": 2
+    },
+    "B23": {
+      "call_id": "G02__oud__h2",
+      "arm": "oud",
+      "dossier_id": "G02",
+      "herhaling": 2
+    },
+    "B24": {
+      "call_id": "G05__oud__h2",
+      "arm": "oud",
+      "dossier_id": "G05",
+      "herhaling": 2
+    }
+  },
+  "paren": {
+    "P01": {
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 2
+    },
+    "P02": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G06",
+      "herhaling": 2
+    },
+    "P03": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G02",
+      "herhaling": 1
+    },
+    "P04": {
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 1
+    },
+    "P05": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G03",
+      "herhaling": 1
+    },
+    "P06": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G04",
+      "herhaling": 2
+    },
+    "P07": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G06",
+      "herhaling": 1
+    },
+    "P08": {
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G01",
+      "herhaling": 2
+    },
+    "P09": {
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G04",
+      "herhaling": 1
+    },
+    "P10": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G02",
+      "herhaling": 2
+    },
+    "P11": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G01",
+      "herhaling": 1
+    },
+    "P12": {
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G03",
+      "herhaling": 2
+    }
+  }
+}

@@ -1,0 +1,343 @@
+diff --git a/src/domain/int01/zinsgrenzen.py b/src/domain/int01/zinsgrenzen.py
+index d3627a45a..f74e4aa3b 100644
+--- a/src/domain/int01/zinsgrenzen.py
++++ b/src/domain/int01/zinsgrenzen.py
+@@ -13,7 +13,8 @@ in de passage:
+ 
+ - '.', '?' of '!' gevolgd door witruimte en een nieuw zinsbegin is een grens;
+ - een punt in een afkorting, getal of naaminitiaal is geen grens, ook niet
+-  tussen 'bijv.' en een alfanumerieke code die direct afsluit ('bijv. R7.'); een
++  tussen 'bijv.' en een code of getal dat direct afsluit ('bijv. R7.',
++  'bijv. 12.'); een
+   afkorting die ook een zin kan afsluiten ('enz. Het ...') is onzeker, net
+   als een punt na een woordvorm zonder klinker, ook met hoofdletter ('volgens
+   nvr. Nieuwe ...', 'Chr. Huygens'); de punten van een afkorting die de tekst
+@@ -106,9 +107,10 @@ _OPEN = "review_required"
+ #: punt (met of zonder spatie erna) bereikt de citaatslotroute; een
+ #: alfanumerieke code die direct na 'bijv.' afsluit, maakt die afkortingspunt
+ #: niet onzeker (astra-correctiereview-v2: niet na andere of onbekende
+-#: afkortingen). Een
+-#: opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
+-CONTRACTVERSIE = "def770-int01/9"
++#: afkortingen). /10: voorbeeldgetal (astra-acceptatie-v2, T08) — dezelfde
++#: voorbeeldcontext geldt voor één afsluitend getal na 'bijv.' ('bijv. 12.').
++#: Een opgeslagen uitkomst onder een andere versie geldt niet meer als actueel.
++CONTRACTVERSIE = "def770-int01/10"
+ 
+ #: Sleutel waarmee de service de suggestie bij een tweede zin opbouwt.
+ REDEN_MEERDERE_ZINNEN = "int01_meerdere_zinnen"
+@@ -662,6 +664,9 @@ def _classificeer_afkorting(functie: str, kandidaat: _Kandidaat) -> tuple[str, s
+     if begin == "cijfer":
+         if functie == "verwijzing" or kandidaat.woord.lower() in _VOOR_GETAL:
+             return "geen", ""
++        if _aangekondigd_voorbeeld(kandidaat):
++            # 'bijv. 12. De …': zelfde voorbeeldcontext als 'bijv. R7.'.
++            return "geen", ""
+         return "onzeker", "afkorting gevolgd door een getal: mogelijk nieuw zinsbegin"
+     if functie == "titel" and begin == "hoofd":
+         return "geen", ""
+@@ -681,24 +686,32 @@ def _classificeer_afkorting(functie: str, kandidaat: _Kandidaat) -> tuple[str, s
+         )
+     if functie == "mogelijk_zinslot":
+         return "onzeker", "afkorting die ook een zin kan afsluiten"
+-    if kandidaat.woord.lower() in _VOORBEELDAANKONDIGING and _afsluitende_code(
+-        kandidaat.volgend
+-    ):
++    if _aangekondigd_voorbeeld(kandidaat):
+         # 'bijv. R7. De …': 'bijv.' kondigt zelf een voorbeeld aan; een nieuwe
+         # zin zou alleen uit de code bestaan.
+         return "geen", ""
+     return "onzeker", "afkorting gevolgd door een hoofdletter"
+ 
+ 
+-def _afsluitende_code(volgend: str) -> bool:
+-    """Het vervolg is één alfanumerieke code ('R7') die direct met één
+-    slotteken of het einde van de tekst afsluit ('bijv. R7.', 'bijv. R7').
++def _aangekondigd_voorbeeld(kandidaat: _Kandidaat) -> bool:
++    """De punt hoort bij 'bijv.' en daarna volgt één afsluitend voorbeeld
++    (`_afsluitend_voorbeeld`). Andere of onbekende afkortingen bewijzen geen
++    voorbeeldcontext (astra-correctiereview-v2, R3)."""
++    return kandidaat.woord.lower() in _VOORBEELDAANKONDIGING and (
++        _afsluitend_voorbeeld(kandidaat.volgend)
++    )
++
++
++def _afsluitend_voorbeeld(volgend: str) -> bool:
++    """Het vervolg is één alfanumerieke code ('R7') of één getal ('12', '12.5')
++    dat direct met één slotteken of het einde van de tekst afsluit ('bijv.
++    R7.', 'bijv. 12.', 'bijv. R7').
+ 
+-    Een zin die alleen uit zo'n code bestaat, is geen zin; de afkortingspunt
+-    ervoor is dan intern. De punt na de code wordt zelf als kandidaat
+-    beoordeeld. Volgen na de code nog woorden of een komma ('bijv. R7 bevat
+-    …', 'bijv. R7, R8 …'), dan kan de code een nieuwe zin openen: geen
+-    vrijstelling. Een gewoon woord met hoofdletter ('bijv. De …') of een
++    Een zin die alleen uit zo'n code of getal bestaat, is geen zin; de
++    afkortingspunt ervoor is dan intern. De punt na het voorbeeld wordt zelf
++    als kandidaat beoordeeld. Volgen nog woorden of een komma ('bijv. R7
++    bevat …', 'bijv. 12, 13 …'), dan kan het voorbeeld een nieuwe zin openen:
++    geen vrijstelling. Een gewoon woord met hoofdletter ('bijv. De …') of een
+     afkorting die ook een zin kan afsluiten ('enz. R7.') valt er niet onder."""
+     delen = volgend.split(maxsplit=1)
+     if not delen:
+@@ -707,7 +720,7 @@ def _afsluitende_code(volgend: str) -> bool:
+     kern = token[:-1] if token[-1] in ".?!" else token
+     if len(delen) > 1 and kern == token:
+         return False
+-    return bool(_CODE.fullmatch(kern))
++    return bool(_CODE.fullmatch(kern) or _GETAL.fullmatch(kern))
+ 
+ 
+ def _classificeer_getal(kandidaat: _Kandidaat, tekst: str) -> tuple[str, str]:
+diff --git a/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py b/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
+index 71a6ed7f3..f7c0fa012 100644
+--- a/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_citaatbeleid_zinsgrenzen.py
+@@ -212,5 +212,6 @@ def test_contractversie_na_citaatbeleid_en_citaatcorrectie():
+     """/7 (restherstel) is proefbron geweest; het citaatbeleid verandert de
+     runtime-interpretatie (geen positief citaatvervolg meer), dus /7 → /8. De
+     citaatcorrectie (astra-acceptatie-v1) daarna: /8 → /9
+-    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
+-    assert CONTRACTVERSIE == "def770-int01/9"
++    (test_def770_citaatcorrectie_zinsgrenzen.py). Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
++    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/10"
+diff --git a/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py b/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py
+index 2c5f06231..2c5e919ff 100644
+--- a/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_citaatcorrectie_zinsgrenzen.py
+@@ -433,8 +433,9 @@ def test_uitkomst_onder_contract_8_geldt_niet_als_actueel(gid):
+     assert "contractversie" in gelezen["applied_reason"]
+ 
+ 
+-def test_contractversie_is_9_na_citaatcorrectie():
++def test_contractversie_na_citaatcorrectie_en_voorbeeldgetal():
+     """/8 (citaatbeleid) is proefbron van effectproeven-citaatbeleid-20260925-v1.
+     Deze correctie verandert de runtime-interpretatie (lijstblok, citaatslot met
+-    scheidingsteken, voorbeeldcode na afkorting), dus /8 → /9."""
+-    assert CONTRACTVERSIE == "def770-int01/9"
++    scheidingsteken, voorbeeldcode na afkorting), dus /8 → /9. Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
++    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/10"
+diff --git a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+index e502f9203..2a1783e1a 100644
+--- a/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_herstel_zinsgrenzen.py
+@@ -692,8 +692,9 @@ def test_contractversie_na_titelbeleid_en_restherstel():
+     (test_def770_citaatbeleid_zinsgrenzen.py). De citaatcorrectie
+     (astra-acceptatie-v1: lijstblok, citaatslot met scheidingsteken,
+     voorbeeldcode na afkorting) daarna: /8 → /9
+-    (test_def770_citaatcorrectie_zinsgrenzen.py)."""
+-    assert CONTRACTVERSIE == "def770-int01/9"
++    (test_def770_citaatcorrectie_zinsgrenzen.py). Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
++    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/10"
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -707,6 +708,7 @@ def test_contractversie_na_titelbeleid_en_restherstel():
+         "def770-int01/6",
+         "def770-int01/7",
+         "def770-int01/8",
++        "def770-int01/9",
+     ],
+ )
+ @pytest.mark.parametrize(
+diff --git a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+index e4a5f021e..aa9763906 100644
+--- a/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
++++ b/tests/unit/validation/test_def770_restherstel_zinsgrenzen.py
+@@ -305,5 +305,6 @@ def test_contractversie_na_restherstel_en_citaatbeleid():
+     dus /6 → /7. De afgekeurde voorzetselgroepuitbreiding is geen deel van /7.
+     Het citaatbeleid (algemeen-citaatbesluit-v1) verandert haar opnieuw:
+     /7 → /8 (test_def770_citaatbeleid_zinsgrenzen.py), en de citaatcorrectie
+-    (astra-acceptatie-v1): /8 → /9 (test_def770_citaatcorrectie_zinsgrenzen.py)."""
+-    assert CONTRACTVERSIE == "def770-int01/9"
++    (astra-acceptatie-v1): /8 → /9 (test_def770_citaatcorrectie_zinsgrenzen.py). Het voorbeeldgetal (astra-acceptatie-v2, T08) daarna: /9 → /10
++    (test_def770_voorbeeldgetal_zinsgrenzen.py)."""
++    assert CONTRACTVERSIE == "def770-int01/10"
+diff --git a/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_voorbeeldgetal_zinsgrenzen.py b/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_voorbeeldgetal_zinsgrenzen.py
+new file mode 100644
+index 000000000..ca18a1d2c
+--- /dev/null
++++ b/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/tests/unit/validation/test_def770_voorbeeldgetal_zinsgrenzen.py
+@@ -0,0 +1,179 @@
++"""DEF-770 T08-correctie (contract /10): aangekondigd numeriek voorbeeld.
++
++Bron: logs/def770-citaatbeleid/astra-acceptatie-v2.md, bevinding 3 (LOW). In
++effectproeven-citaatbeleid-20260925-v2 (nu ontwikkelbewijs; alleen gelezen)
++meldt de app bij ‘…, bijv. 12. De achterkant …’ naast de echte grens na ‘12.’
++ook een onzekere grens na ‘bijv.’. Beide referenties en de adjudicatie
++onderbouwen die afkortingspunt als intern.
++
++Oorzaak: de cijferroute in `_classificeer_afkorting` kwam vóór de
++voorbeeldvrijstelling uit /9 (‘bijv. R7.’), die alleen voor een code met
++hoofdletter gold. Herstel: dezelfde, positief ondersteunde voorbeeldcontext
++(alleen ‘bijv.’, gevolgd door één voorbeeld dat direct met een slotteken of
++het tekstenende afsluit) geldt ook voor een getal. Geen algemene vrijstelling
++voor afkorting plus getal: onbekende afkortingen, andere aankondigers en een
++getal met vervolgwoorden blijven onzeker, zoals in het bestaande contract. De
++echte grens na het getal blijft beoordeeld. T17/T24 vallen hier buiten.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++import pytest
++
++from domain.int01.opslag import bouw_beoordeling, lees_beoordeling
++from domain.int01.zinsgrenzen import CONTRACTVERSIE, segmenteer
++from services.validation.modular_validation_service import ModularValidationService
++from toetsregels.manager import get_toetsregel_manager
++
++pytestmark = [pytest.mark.unit]
++
++PROEF = (
++    Path(__file__).resolve().parents[3]
++    / "docs/analyses/def606-regeldossiers/INT-01-implementatie"
++    / "effectproeven-citaatbeleid-20260925-v2"
++)
++#: T08 uit t24-gevallen-v1.json van de v2-proef (gecontroleerd hieronder).
++P2_T08 = (
++    "Kaart waarop elke proefronde een nummer krijgt, bijv. 12. De achterkant biedt "
++    "ruimte voor opmerkingen."
++)
++
++REDEN_GETAL = "afkorting gevolgd door een getal"
++REDEN_GRENS = "getal aan zinseinde gevolgd door een nieuw zinsbegin"
++
++# (id, tekst, [(soort, teken op positie, deel van de passage, deel van de
++# reden)]) — elke verwachte grens; geen andere.
++GEVALLEN = [
++    # Positief aangekondigd numeriek voorbeeld: alleen de echte grens.
++    ("p2-T08", P2_T08, [("zeker", ".", "bijv. 12. De achterkant", REDEN_GRENS)]),
++    ("getal-slot", "kaart met een nummer, bijv. 12.", []),
++    ("getal-einde", "kaart met een nummer, bijv. 12", []),
++    ("getal-decimaal-slot", "kaart met een maat, bijv. 12.5.", []),
++    # Code uit /9 ongewijzigd.
++    ("code-slot", "kaart met een code, bijv. R7.", []),
++    # Negatieve tegenhangers: onzeker zoals in het bestaande contract.
++    (
++        "getal-met-vervolg",
++        "kaart met een nummer, bijv. 12 velden liggen klaar",
++        [("onzeker", ".", "bijv. 12 velden", REDEN_GETAL)],
++    ),
++    (
++        "getal-met-komma",
++        "kaart met een nummer, bijv. 12, 13 en 14",
++        [("onzeker", ".", "bijv. 12, 13", REDEN_GETAL)],
++    ),
++    (
++        "andere-aankondiger",
++        "kaart met een nummer, bv. 12.",
++        [("onzeker", ".", "bv. 12.", REDEN_GETAL)],
++    ),
++    (
++        "onbekende-afkorting",
++        "kaart met een nummer volgens q.z. 12.",
++        [("onzeker", ".", "q.z. 12.", REDEN_GETAL)],
++    ),
++    (
++        "mogelijk-zinslot",
++        "kaarten, borden enz. 12 stuks liggen klaar",
++        [("onzeker", ".", "enz. 12 stuks", REDEN_GETAL)],
++    ),
++    (
++        "mogelijk-zinslot-afsluitend",
++        "kaarten, borden enz. 12.",
++        [("onzeker", ".", "enz. 12.", REDEN_GETAL)],
++    ),
++]
++
++
++@pytest.mark.parametrize(
++    ("tekst", "verwacht"), [pytest.param(t, v, id=i) for i, t, v in GEVALLEN]
++)
++def test_grenzen_met_positie_passage_en_reden(tekst, verwacht):
++    seg = segmenteer(tekst)
++    assert seg is not None
++    gevonden = [("zeker", g) for g in seg.zekere_grenzen] + [
++        ("onzeker", g) for g in seg.onzekere_grenzen
++    ]
++    assert len(gevonden) == len(verwacht), seg
++    for soort, teken, passage, reden in verwacht:
++        assert any(
++            s == soort
++            and tekst[g.positie] == teken
++            and passage in g.passage
++            and reden in g.grond
++            for s, g in gevonden
++        ), (soort, teken, passage, reden, seg)
++
++
++# ── Binding aan de v2-proef (alleen lezen) ──────────────────────────────
++
++
++def _proefcases(naam: str) -> dict[str, dict]:
++    data = json.loads((PROEF / naam).read_text(encoding="utf-8"))
++    cases = data["cases"] if isinstance(data, dict) else data
++    return {case["id"]: case for case in cases}
++
++
++def test_proefbinding_tekst_ongewijzigd():
++    assert _proefcases("t24-gevallen-v1.json")["T08"]["tekst"] == P2_T08
++
++
++def test_ontwikkelregressie_volgt_adjudicatie():
++    """Zinsstatus fail met de grenspassage uit de adjudicatie, en geen andere
++    grens; het label wordt gelezen, niet overschreven."""
++    case = _proefcases("t24-adjudicatie-v1.json")["T08"]
++    seg = segmenteer(P2_T08)
++    assert case["sentence_status"] == "fail"
++    assert [g.passage for g in seg.onzekere_grenzen] == []
++    [grens] = seg.zekere_grenzen
++    assert case["boundary_passage"] in grens.passage
++
++
++# ── Service (beide laadpaden), actualiteit en contract ──────────────────
++
++
++@pytest.fixture(
++    scope="module", params=["toetsregel_manager", "cached_manager (productiepad)"]
++)
++def svc(request) -> ModularValidationService:
++    if request.param.startswith("cached_manager"):
++        from toetsregels.cached_manager import get_cached_toetsregel_manager
++        from toetsregels.rule_cache import get_rule_cache
++
++        get_rule_cache().clear_cache()
++        manager = get_cached_toetsregel_manager()
++    else:
++        manager = get_toetsregel_manager()
++    return ModularValidationService(manager, None, None)
++
++
++@pytest.mark.asyncio
++async def test_service_beide_laadpaden(svc):
++    res = await svc.validate_definition(
++        begrip="Rondekaart", text=P2_T08, ontologische_categorie=None, context={}
++    )
++    assert res["rule_statuses"]["INT-01"] == "fail"
++    detail = res["rule_results"]["INT-01"]
++    assert detail["contract_version"] == CONTRACTVERSIE
++    assert {p["id"]: p["status"] for p in detail["parts"]} == {
++        "zinsgrens_1": "fail",
++        "compactheid": "review_required",
++        "begrijpelijkheid": "review_required",
++    }
++
++
++def test_uitkomst_onder_contract_9_geldt_niet_als_actueel():
++    oud = dict(bouw_beoordeling(P2_T08, 1), contract_version="def770-int01/9")
++    gelezen = lees_beoordeling(oud, P2_T08)
++    assert gelezen["applied"] is False
++    assert "contractversie" in gelezen["applied_reason"]
++
++
++def test_contractversie_is_10_na_voorbeeldgetal():
++    """/9 is proefbron van effectproeven-citaatbeleid-20260925-v2. Deze
++    correctie verandert de runtime-interpretatie (numeriek voorbeeld na
++    ‘bijv.’), dus /9 → /10."""
++    assert CONTRACTVERSIE == "def770-int01/10"

@@ -1,0 +1,215 @@
+{
+  "soort": "DEF-770 G24 nabewerking (offline; geen validatie/enhancement)",
+  "arm": "oud",
+  "manifest_sha256": "57d67ae1258e9c5abbeb8dd25d675d23ff23c6f92f973082b5f982d13eeaa7ce",
+  "script_sha256": "2ec4388d7a60350855ee85dfcef997938eda34f6cc858dd9359569518ef15709",
+  "bron": {
+    "archief": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/bron-oud-26f2374d.tar",
+    "archief_sha256": "e591502086a034c7245c37a3d525393d761c470667db615a95ff4397720525b5",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "commit_uit": "pax-header 'comment' van git archive",
+    "sleutelbestanden_sha256": {
+      "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "src/domain/int01/zinsgrenzen.py": "niet aanwezig",
+      "src/domain/int01/opslag.py": "niet aanwezig",
+      "src/services/validation/evaluators/sentence_boundary.py": "niet aanwezig",
+      "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "src/services/prompts/prompt_service_v2.py": "fd268584bf195fa816386f978832657b2781e016532449e2c8aeda1dc02581ab",
+      "src/services/orchestrators/definition_orchestrator_v2.py": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259",
+      "src/services/ai/anthropic_client.py": "91381bf25cfe3f1be7393b409105cf6a751d897ce7dd9530b32a8ac647e818e1",
+      "src/services/ai/model_router.py": "65e923d9840910c4a5113d344f8e2b2a7f64f9b9b59d966bdf63a97c07235bac",
+      "config/config.yaml": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "tests/offline_bootstrap.py": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7"
+    }
+  },
+  "offline_gate_actief": true,
+  "uitvoermap": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-generaties-v1",
+  "compleet": true,
+  "ontbrekend": [],
+  "rijen": [
+    {
+      "call_id": "G01__oud__h1",
+      "resultaat_sha256": "1adf1f7a1bacb956bc7d4f500a28a471ef3d6aab5b104d837dcb7c3813fe67ac",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt.",
+      "definitie_kern": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin precies één afhalende wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt, onderscheiden van de periode waarin die materialen worden gebruikt"
+    },
+    {
+      "call_id": "G01__oud__h2",
+      "resultaat_sha256": "49a2d0944663eee5513f5a3bbb9029ce53584d51c2998b2abbc89cb989ea5e6b",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt.",
+      "definitie_kern": "Gepland tijdvak met een vastgelegd beginmoment en eindmoment waarin één aangewezen wijkwerkplaats gereserveerde oefenmaterialen bij het magazijn ophaalt"
+    },
+    {
+      "call_id": "G02__oud__h1",
+      "resultaat_sha256": "3cc699ea728a393c37cdeea9e0cf66eda8021cee971becbf36343e1d661860ec",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld.",
+      "definitie_kern": "bericht van een aanvrager van een oefenruimte waarin een gegeven dat bij de oorspronkelijke aanlevering van de aanvraag al was verstrekt maar bij het overnemen van die aanvraag niet is vastgelegd, opnieuw wordt verstrekt en dat aan die aanvraag wordt gekoppeld"
+    },
+    {
+      "call_id": "G02__oud__h2",
+      "resultaat_sha256": "d203d6e0ab525ecc74e803cdeeef6a290545592dd1e86afdd09972996080f3f6",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld.",
+      "definitie_kern": "bericht van een aanvrager van een oefenruimte waarin een gegeven opnieuw wordt verstrekt dat bij de oorspronkelijke aanlevering al was aangeleverd maar bij het overnemen van de aanvraag niet is vastgelegd, en dat aan die eerdere aanvraag wordt gekoppeld"
+    },
+    {
+      "call_id": "G03__oud__h1",
+      "resultaat_sha256": "69e9f8e9606a4675646f34b75b0be15a5fdc96e32c2e695e59fab06b3589d16d",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten.",
+      "definitie_kern": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en de volgorde beschrijft waarin bezoekers tijdens een gesimuleerde loketdag langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten"
+    },
+    {
+      "call_id": "G03__oud__h2",
+      "resultaat_sha256": "3e42f31ffe04f3327207b9257aed4b05c7d78a50136efd9e8df1e522522ba927",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten.",
+      "definitie_kern": "schriftelijke aanbeveling die door de Commissie Toegang en Doorstroming is vastgesteld en die de volgorde beschrijft waarin bezoekers tijdens gesimuleerde loketdagen langs oefenbalies worden geleid, zonder het organiserende team tot uitvoering te verplichten"
+    },
+    {
+      "call_id": "G04__oud__h1",
+      "resultaat_sha256": "91e1acfb02bad141036d358207e3bd7e6bc1974d58f67a039fcb45fbb363850d",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden.",
+      "definitie_kern": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — waarvan de behandelaar er precies één vastlegt bij het afsluiten van een aanvraag voor deelname aan een oefensessie, zonder restcategorie of zelf toegevoegde reden"
+    },
+    {
+      "call_id": "G04__oud__h2",
+      "resultaat_sha256": "e4aea9db97f06986a6c6c918e95f6e4ef47b82e16b6638b9919af22f78062ad1",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt.",
+      "definitie_kern": "Waarde uit een gesloten lijst van drie mogelijkheden — uitvoering voltooid, ingetrokken door de aanvrager, samengevoegd met een andere aanvraag — die de behandelaar bij het afsluiten van een aanvraag voor deelname aan een oefensessie als enige grond voor die afsluiting vastlegt, waarbij uitbreiding met een eigen reden of restcategorie ontbreekt"
+    },
+    {
+      "call_id": "G05__oud__h1",
+      "resultaat_sha256": "3d0f4b27a2050ec913700d92534ead45758b132dfb231ad7c4bddc8e58dac43a",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen.",
+      "definitie_kern": "Tijdsduur tussen het moment waarop de primaire opslag de commit van een wijziging bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van een medewerker en weergavetijd van een zoekscherm buiten deze duur vallen"
+    },
+    {
+      "call_id": "G05__oud__h2",
+      "resultaat_sha256": "0274fdfff2d0d66682ba6888e4fc34dc0a5af0ffd4f1de4cf1980f890c786eb2",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven.",
+      "definitie_kern": "Tijdsduur van een wijziging in een dossier tussen het moment waarop de primaire opslag de commit bevestigt en het moment waarop diezelfde wijziging via de zoekindex opvraagbaar is, waarbij invoertijd van de medewerker en weergavetijd van het zoekscherm buiten beschouwing blijven"
+    },
+    {
+      "call_id": "G06__oud__h1",
+      "resultaat_sha256": "5237bdd6a6191ba15098d9ee93e83836c5f8af74398b8ee3276874fe6695dade",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist.",
+      "definitie_kern": "Toekenning voor één oefenruimte en één geplande oefensessie die na een geslaagde technische controle en zolang de controle van de inventarislijst openstaat uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave een afzonderlijke bevestiging vereist"
+    },
+    {
+      "call_id": "G06__oud__h2",
+      "resultaat_sha256": "103f782e1195e5f78b12cbb13677a683a5443dd291dd688bd0689c546790a7bc",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst.",
+      "definitie_kern": "Toekenning die voor één oefenruimte en één geplande oefensessie geldt, verleend nadat de technische controle is geslaagd terwijl de controle van de inventarislijst nog openstaat, en die uitsluitend het voorbereidingsteam toestaat materiaal klaar te zetten zonder gebruik door deelnemers, en die vervalt bij aanvang van die oefensessie of zodra een technisch gebrek wordt gemeld, waarbij volledige vrijgave pas ontstaat door een afzonderlijke bevestiging na controle van de inventarislijst"
+    }
+  ]
+}

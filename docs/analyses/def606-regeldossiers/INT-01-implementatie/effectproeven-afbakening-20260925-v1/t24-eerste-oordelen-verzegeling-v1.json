@@ -1,0 +1,31 @@
+{
+  "at": "2026-09-25T12:22:50.501865+00:00",
+  "roles": [
+    {
+      "role": "A",
+      "session": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0d881-77e7-78d1-83b9-f41d2fad45c9"
+        }
+      ],
+      "tool_calls": 0,
+      "sha256": "94669844009c771f4458e4c0adda908a978aa5d364739f785095881f1b3e91dc",
+      "file": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/t24-referentie-A-v1.json",
+      "log": "logs/def770-afbakening/referentie-A-sessie-v1.jsonl"
+    },
+    {
+      "role": "B",
+      "session": [
+        {
+          "type": "thread.started",
+          "thread_id": "01a0d881-7808-7592-9017-ed4412d8f9d1"
+        }
+      ],
+      "tool_calls": 0,
+      "sha256": "945979a460931b3e56edee3476569f31eb8ca8a33bf77725f53268e97802d1ee",
+      "file": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-afbakening-20260925-v1/t24-referentie-B-v1.json",
+      "log": "logs/def770-afbakening/referentie-B-sessie-v1.jsonl"
+    }
+  ]
+}

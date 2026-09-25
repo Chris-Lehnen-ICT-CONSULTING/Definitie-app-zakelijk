@@ -1,0 +1,38 @@
+{
+  "at": "2026-09-25T12:16:54.533451+00:00",
+  "product_commit": "3c2535361be6851a779372926302d1d027897d4b",
+  "head": "3c2535361be6851a779372926302d1d027897d4b",
+  "contract": "def770-int01/10",
+  "files": [
+    {
+      "path": "src/toetsregels/regels/INT-01.json",
+      "sha256": "55914032f262b8eb682f29a10d99303050488423f993ae59c258ef3b16c66fc8"
+    },
+    {
+      "path": "src/toetsregels/regels/INT-07.json",
+      "sha256": "e64a427c4b6571e28eec665abd49fd4ec7eeeef0d6d5f717748878def4be78fc"
+    },
+    {
+      "path": "src/domain/int01/zinsgrenzen.py",
+      "sha256": "aac0d0c9f66ba96e0e78b73b8f4ab901eaa5ed837dc0446e2a8c40b4057802b8"
+    },
+    {
+      "path": "src/domain/int01/opslag.py",
+      "sha256": "545a2cb1357c8fa6bcf627d35f307e30f3e7e29a6f3eb840e033733dfeec863f"
+    },
+    {
+      "path": "src/services/validation/evaluators/sentence_boundary.py",
+      "sha256": "aec7e8188c9da34690dc33fb942694569f8049dacb7c215e491a05717e1c0d1b"
+    },
+    {
+      "path": "src/services/prompts/modules/json_based_rules_module.py",
+      "sha256": "c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9"
+    }
+  ],
+  "skills_commit": "263038b7cddcf9742a909bace86a03b2a7f254ad",
+  "review": "logs/def770-afbakening/tekstafstemming-review-v1.md",
+  "archive": "logs/def770-afbakening/bron-afbakening-v1.tar",
+  "archive_sha256": "7fa75fbb10251e638ade1b67a95d6191d01e180f14176ab353c4b73e34b27c35",
+  "reference_contract_sha256": "d60b4dbb718101ae6b284f42fd33865e9bfca3d1d70accd81a6bc0ba82e740ea",
+  "bundle_tests": "96 passed, 2 subtests passed; exit 0"
+}

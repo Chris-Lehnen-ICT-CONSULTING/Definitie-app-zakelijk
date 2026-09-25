@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-25T05:35:26.115225+00:00",
+  "sessions": {
+    "A": "01a0d70b-f2d6-79f0-a0a9-b0f308524c94",
+    "B": "01a0d70b-fd37-7973-846d-96e29abc0732"
+  },
+  "tools_used": false,
+  "files": {
+    "t24-gevallen-v1.json": "550217186cd27a82901754f22d2ceb48b8b2dafb9f54af13b46fb36c4516299c",
+    "t24-referentie-A-v1.json": "3337b37c7e3843a9a5e549c5f189893873a03b9e008a8cdd2271d387247e84ac",
+    "t24-referentie-B-v1.json": "7654bfb1d802a2f82a560492208ac87e2bbfc8d2980d0e0be1162817376dc63d",
+    "referentie-contract-v2.md": "e67b4207f35e9eb18a95d8d91d61517aa9c7471ad4f84154f46a016f31463300"
+  },
+  "structuurwaarschuwingen": []
+}

@@ -1,0 +1,826 @@
+{
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "uitkomsten": [
+    {
+      "id": "INT02-C01",
+      "begrip": "transitie-eis",
+      "tekst": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C02",
+      "begrip": "transitie-eis",
+      "tekst": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "fail",
+        "ARAI-04SUB1": "fail",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "ARAI-04",
+        "ARAI-04SUB1",
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C03",
+      "begrip": "aanvraag",
+      "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "INT-01",
+        "INT-10",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C04",
+      "begrip": "even getal",
+      "tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "fail",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "INT-08",
+        "INT-10",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C05",
+      "begrip": "even getal",
+      "tekst": "Geheel getal dat zonder rest door twee deelbaar is.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "pass",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "fail",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-08"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C06",
+      "begrip": "leeg",
+      "tekst": "",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "pass",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "ESS-CONT-001",
+        "STR-FORM-001",
+        "VAL-EMP-001",
+        "VAL-LEN-001"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C10",
+      "begrip": "stelselmatige dader",
+      "tekst": "persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C11",
+      "begrip": "stelselmatige dader",
+      "tekst": "persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "INT-01",
+        "INT-10",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C12",
+      "begrip": "weigering",
+      "tekst": "besluit waarmee de bevoegde autoriteit een aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager daardoor onevenredig zou worden benadeeld.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\btenzij\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "fail",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "ARAI-04",
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C13",
+      "begrip": "vervallenverklaring",
+      "tekst": "besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "pass",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C14",
+      "begrip": "aangifte",
+      "tekst": "verklaring die een getuige van een strafbaar feit moet afleggen bij de politie.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "fail",
+        "ARAI-04SUB1": "fail",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "ARAI-04",
+        "ARAI-04SUB1",
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C15",
+      "begrip": "aanvraag",
+      "tekst": "verzoek dat de behandelaar binnen zes weken beoordeelt en bij een ontbrekende bijlage afwijst.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C16",
+      "begrip": "verzuimboete",
+      "tekst": "bestuurlijke boete die wordt opgelegd wanneer een aangifte niet tijdig is gedaan.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "fail",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "INT-08",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C17",
+      "begrip": "stemgerechtigd lid",
+      "tekst": "Een lid is stemgerechtigd indien ingeschreven vóór 1 januari.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "ARAI-06",
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "INT-10",
+        "STR-01",
+        "VER-01",
+        "VER-03"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C18",
+      "begrip": "stemgerechtigd lid",
+      "tekst": "lid dat vóór 1 januari van het lopende verenigingsjaar is ingeschreven.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "pass",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "VER-01",
+        "VER-03"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C19",
+      "begrip": "gewaarmerkt document",
+      "tekst": "Een document geldt als gewaarmerkt mits voorzien van handtekening en datum.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bmits\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "ARAI-06",
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "STR-01",
+        "VER-01",
+        "VER-03"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C20",
+      "begrip": "eigen risico",
+      "tekst": "deel van de zorgkosten dat een verzekerde zelf draagt voor zover die kosten onder de basisverzekering vallen.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bvoor zover\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C21",
+      "begrip": "tenzij-clausule",
+      "tekst": "contractbepaling die een uitzondering op een hoofdregel formuleert.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C22",
+      "begrip": "tijdige aangifte",
+      "tekst": "aangifte die binnen vijf werkdagen na het feit is gedaan.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C23",
+      "begrip": "toegang",
+      "tekst": "Toegang:",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "pass",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "ESS-CONT-001",
+        "STR-FORM-001",
+        "VAL-LEN-001"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C24",
+      "begrip": "toegang",
+      "tekst": "Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "INT-01",
+        "INT-10",
+        "SAM-04",
+        "VER-01",
+        "VER-02"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C25",
+      "begrip": "korting",
+      "tekst": "korting: verlaging indien tijdig betaald",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "CON-CIRC-001",
+        "ESS-05",
+        "ESS-CONT-001",
+        "INT-01",
+        "INT-10",
+        "SAM-04",
+        "STR-FORM-001",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C26",
+      "begrip": "identificatieplichtige",
+      "tekst": "Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "fail",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "ARAI-06",
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "INT-08",
+        "INT-10",
+        "STR-01",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C27",
+      "begrip": "leeftijd",
+      "tekst": "aantal volledige jaren tussen de geboortedatum van een persoon en de peildatum.",
+      "context": {},
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "pass",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-01",
+        "ESS-05",
+        "INT-01",
+        "VER-01",
+        "VER-03"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    },
+    {
+      "id": "INT02-C29",
+      "begrip": "aanvraag",
+      "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+      "context": {
+        "organisatorische_context": [
+          "Dienst Justis"
+        ],
+        "juridische_context": [
+          "bestuursrecht"
+        ],
+        "wettelijke_basis": [
+          "Algemene wet bestuursrecht"
+        ]
+      },
+      "int02_status": "review_required",
+      "int02_in_review_required": true,
+      "int02_in_passed": false,
+      "int02_violation": false,
+      "int02_reason": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+      "int02_signals": [
+        "\\bindien\\b"
+      ],
+      "buur_statussen": {
+        "INT-01": "fail",
+        "INT-10": "fail",
+        "ARAI-04": "pass",
+        "ARAI-04SUB1": "pass",
+        "STR-06": "review_required",
+        "INT-08": "pass",
+        "ESS-04": "review_required",
+        "ESS-05": "fail"
+      },
+      "violations": [
+        "CON-CIRC-001",
+        "ESS-05",
+        "INT-01",
+        "INT-10",
+        "VER-01"
+      ],
+      "overall_score": null,
+      "is_acceptable": false
+    }
+  ]
+}

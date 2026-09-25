@@ -1,0 +1,320 @@
+{
+  "bron_generatie": "6c18ce7127f0a785fefdd6bc952175a030be8643",
+  "ai_beoordeeld": true,
+  "aantal_paren": 12,
+  "paaruitkomsten_opgeschoond": {
+    "verslechterd": 4,
+    "gelijk": 6,
+    "onbeslist": 1,
+    "verbeterd": 1
+  },
+  "nieuwe_bron_of_betekenisfouten": [
+    "P01",
+    "P03",
+    "P04",
+    "P05"
+  ],
+  "dossiers": [
+    {
+      "dossier_id": "G01",
+      "paren": [
+        "P11",
+        "P08"
+      ],
+      "ruw_herhalingen": [
+        "gelijk",
+        "gelijk"
+      ],
+      "ruw_dossier": "gelijk",
+      "opgeschoond_herhalingen": [
+        "gelijk",
+        "gelijk"
+      ],
+      "opgeschoond_dossier": "gelijk"
+    },
+    {
+      "dossier_id": "G02",
+      "paren": [
+        "P03",
+        "P10"
+      ],
+      "ruw_herhalingen": [
+        "verslechterd",
+        "verbeterd"
+      ],
+      "ruw_dossier": "onbeslist",
+      "opgeschoond_herhalingen": [
+        "verslechterd",
+        "verbeterd"
+      ],
+      "opgeschoond_dossier": "onbeslist"
+    },
+    {
+      "dossier_id": "G03",
+      "paren": [
+        "P05",
+        "P12"
+      ],
+      "ruw_herhalingen": [
+        "verslechterd",
+        "gelijk"
+      ],
+      "ruw_dossier": "onbeslist",
+      "opgeschoond_herhalingen": [
+        "verslechterd",
+        "gelijk"
+      ],
+      "opgeschoond_dossier": "onbeslist"
+    },
+    {
+      "dossier_id": "G04",
+      "paren": [
+        "P09",
+        "P06"
+      ],
+      "ruw_herhalingen": [
+        "gelijk",
+        "onbeslist"
+      ],
+      "ruw_dossier": "onbeslist",
+      "opgeschoond_herhalingen": [
+        "gelijk",
+        "onbeslist"
+      ],
+      "opgeschoond_dossier": "onbeslist"
+    },
+    {
+      "dossier_id": "G05",
+      "paren": [
+        "P04",
+        "P01"
+      ],
+      "ruw_herhalingen": [
+        "verslechterd",
+        "verslechterd"
+      ],
+      "ruw_dossier": "verslechterd",
+      "opgeschoond_herhalingen": [
+        "verslechterd",
+        "verslechterd"
+      ],
+      "opgeschoond_dossier": "verslechterd"
+    },
+    {
+      "dossier_id": "G06",
+      "paren": [
+        "P07",
+        "P02"
+      ],
+      "ruw_herhalingen": [
+        "gelijk",
+        "gelijk"
+      ],
+      "ruw_dossier": "gelijk",
+      "opgeschoond_herhalingen": [
+        "gelijk",
+        "gelijk"
+      ],
+      "opgeschoond_dossier": "gelijk"
+    }
+  ],
+  "paren": [
+    {
+      "paar_id": "P01",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B24 behoudt met 'als eenheid wordt bewaard' de gezamenlijke bewaring die Y=B20 met 'samenhangend' niet vastlegt. De concretere beschrijving van het tweemaal meten ondersteunt de doelgroep; er ontstaat geen aangetoonde verslechtering. Y biedt geen inhoudelijke verbetering tegenover X.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": true,
+      "toelichting_foutvergelijking": "Bij Y ontbreekt het beschermde bewaarvereiste uit G05-P01. X behoudt daarnaast sensor, capsule, meetmomenten en vergelijkingsdoel; de extra lengte is functioneel.",
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 2,
+      "ruw_oud_naar_nieuw": "verslechterd",
+      "opgeschoond_oud_naar_nieuw": "verslechterd",
+      "nieuwe_bron_of_betekenisfout": true
+    },
+    {
+      "paar_id": "P02",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B22 en Y=B16 behouden dezelfde beschermde inhoud van G06. X benoemt handmatige behandeling explicieter; Y bewaart die ruimte door uitsluitend automatische toedeling te onderbreken. Geen richting toont een inhoudelijke verbetering of relevante verslechtering.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Geen aangetoonde bron- of betekenisfout aan beide zijden. De redactionele overlap bij X rechtvaardigt geen inhoudelijke winstclaim voor Y.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G06",
+      "herhaling": 2,
+      "ruw_oud_naar_nieuw": "gelijk",
+      "opgeschoond_oud_naar_nieuw": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P03",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B19 behoudt de afhankelijkheid van aansluiting op een andere bevestigde rit; X=B02 vermeldt slechts algemene ritafhankelijkheid. Y herstelt daarmee beschermde betekenis zonder aangetoonde nieuwe fout of verslechtering. X biedt geen inhoudelijke winst tegenover Y.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": true,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Bij X ontbreekt de specifieke aansluitrelatie uit G02-P01. De onhandige slotnevenschikking komt in beide voor, maar veroorzaakt geen aantoonbare nieuwe fout bij Y.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G02",
+      "herhaling": 1,
+      "ruw_oud_naar_nieuw": "verslechterd",
+      "opgeschoond_oud_naar_nieuw": "verslechterd",
+      "nieuwe_bron_of_betekenisfout": true
+    },
+    {
+      "paar_id": "P04",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B04 bewaart expliciet de gezamenlijke bewaring; Y=B05 noemt alleen samenhorigheid. De overige beschermde meetvoorwaarden blijven bij X behouden zonder relevante verslechtering. Y biedt geen inhoudelijke verbetering tegenover X.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": true,
+      "toelichting_foutvergelijking": "'samen bewaarde meetuitkomsten' in X behoudt het vereiste uit G05-P01 dat 'samenhorend tweetal' in Y niet impliceert. Geen nieuwe bronfout bij X aangetroffen.",
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G05",
+      "herhaling": 1,
+      "ruw_oud_naar_nieuw": "verslechterd",
+      "opgeschoond_oud_naar_nieuw": "verslechterd",
+      "nieuwe_bron_of_betekenisfout": true
+    },
+    {
+      "paar_id": "P05",
+      "ruw": "Y_beter",
+      "opgeschoond": "Y_beter",
+      "reden": "Y=B11 behoudt een eigen invoertijd zonder verplichte afwijking; X=B15 vernauwt de categorie door zo'n afwijking te eisen. Y verwijdert de fout met behoud van namen, richting en dossiercode. X biedt geen inhoudelijke verbetering tegenover Y.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": true,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "G03-P01 zegt 'hoeft niet gelijk te zijn'; X zegt 'die afwijkt'. De niet-ondersteunde verplichting en betekenisvernauwing ontbreken bij Y; er ontstaat geen aangetoonde verslechtering.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G03",
+      "herhaling": 1,
+      "ruw_oud_naar_nieuw": "verslechterd",
+      "opgeschoond_oud_naar_nieuw": "verslechterd",
+      "nieuwe_bron_of_betekenisfout": true
+    },
+    {
+      "paar_id": "P06",
+      "ruw": "onbeslist",
+      "opgeschoond": "onbeslist",
+      "reden": "X=B06 behoudt het aanvullingsdoel impliciet; Y=B21 maakt dit expliciet zonder daarmee zelfstandig inhoudelijke winst te tonen. De registratiepassage bij Y kan ondersteunde uitleg of een extra verplichting zijn. Daardoor is niet eenduidig te beslissen tussen gelijkwaardigheid en een inhoudelijk nadeel van Y.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Bij X is geen betekenisomissie vastgesteld. Bij Y blijft 'elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd' een mogelijke bron- en betekenisfout, geen bewezen fout; false betekent hier dus geen vastgestelde nieuwe fout, niet dat het risico is opgelost.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G04",
+      "herhaling": 2,
+      "ruw_oud_naar_nieuw": "onbeslist",
+      "opgeschoond_oud_naar_nieuw": "onbeslist",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P07",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B09 maakt ontvangen blijven en geen vaste duur expliciet. Y=B13 bewaart deze inhoud impliciet via de oorspronkelijke ontvangsttijd, handmatige mogelijkheden en opheffing zodra het beheergebied vaststaat. Geen richting levert een aangetoonde inhoudelijke verbetering of verslechtering.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Beide behouden de beperkte onderbreking en beschermde statusgevolgen van G06-P01. Expliciete tegenover voldoende impliciete verwoording is hier geen foutverschil.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G06",
+      "herhaling": 1,
+      "ruw_oud_naar_nieuw": "gelijk",
+      "opgeschoond_oud_naar_nieuw": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P08",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B03 en Y=B01 zijn binnen elk stadium tekstueel identiek. Geen richting bevat een inhoudelijke verandering.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Alle beschermde kenmerken van G01-P01 blijven behouden; geen aangetoonde bron- of betekenisfouten.",
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G01",
+      "herhaling": 2,
+      "ruw_oud_naar_nieuw": "gelijk",
+      "opgeschoond_oud_naar_nieuw": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P09",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B08 en Y=B18 behouden de gesloten drie alternatieven, het herstelgerichte terugleggen en de toereikendheid van één grond zonder samenloop uit te sluiten. De extra dossierverwoording bij X en 'binnengekomen' bij Y leveren geen aangetoonde inhoudelijke winst of verslechtering.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Het doel ter aanvulling is bij beide contextueel impliciet behouden. De door A gestelde gedeelde betekenisomissie is niet vastgesteld; ook geen andere bron- of betekenisfout aangetroffen.",
+      "X_arm": "oud",
+      "Y_arm": "nieuw",
+      "dossier_id": "G04",
+      "herhaling": 1,
+      "ruw_oud_naar_nieuw": "gelijk",
+      "opgeschoond_oud_naar_nieuw": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P10",
+      "ruw": "X_beter",
+      "opgeschoond": "X_beter",
+      "reden": "X=B14 behoudt aansluiting op een andere bevestigde rit; Y=B23 laat de soort afhankelijkheid onbepaald. X herstelt daarmee beschermde betekenis zonder aangetoonde nieuwe fout of relevante verslechtering. Y biedt geen inhoudelijke verbetering tegenover X.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": true,
+      "toelichting_foutvergelijking": "De specifieke aansluitrelatie uit G02-P01 ontbreekt bij Y. De kleine grammaticale oneffenheid van X blijft zichtbaar, maar belemmert de doelgroepbegrijpelijkheid niet aantoonbaar en introduceert geen nieuwe bron- of betekenisfout.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G02",
+      "herhaling": 2,
+      "ruw_oud_naar_nieuw": "verbeterd",
+      "opgeschoond_oud_naar_nieuw": "verbeterd",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P11",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "Y=B17 voegt 'feitelijk' toe aan X=B07. 'Nadat ... is gebracht' vereist bij X al uitvoering, zodat geen nieuwe inhoud wordt beschermd. Geen richting levert een relevante verslechtering.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Beide sluiten uitsluitend planning uit en behouden alle registratiegegevens uit G01-P01. Extra nadruk is geen inhoudelijke verbetering; één extra woord vormt hier geen compactheidstekort.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G01",
+      "herhaling": 1,
+      "ruw_oud_naar_nieuw": "gelijk",
+      "opgeschoond_oud_naar_nieuw": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false
+    },
+    {
+      "paar_id": "P12",
+      "ruw": "gelijk",
+      "opgeschoond": "gelijk",
+      "reden": "X=B12 en Y=B10 behouden dezelfde registeridentiteiten, overnamerichting, dossiercode en eigen invoertijd. Woordvolgorde en formulering van de invoertijd leveren in geen richting een inhoudelijke verbetering of verslechtering.",
+      "nieuwe_bron_of_betekenisfout_X_tov_Y": false,
+      "nieuwe_bron_of_betekenisfout_Y_tov_X": false,
+      "toelichting_foutvergelijking": "Beide volgen G03-P01 zonder een verplicht afwijkende tijdwaarde te eisen. Geen aangetoonde bron- of betekenisfout.",
+      "X_arm": "nieuw",
+      "Y_arm": "oud",
+      "dossier_id": "G03",
+      "herhaling": 2,
+      "ruw_oud_naar_nieuw": "gelijk",
+      "opgeschoond_oud_naar_nieuw": "gelijk",
+      "nieuwe_bron_of_betekenisfout": false
+    }
+  ],
+  "onopgeloste_disputen": [
+    "B21, ruw en opgeschoond: niet eenduidig vastgesteld of 'elke aangetroffen omstandigheid afzonderlijk wordt geregistreerd' slechts bronondersteunde herkenbare vermelding beschrijft of een aanvullende verplichte registratie invoert. Bronsteun en betekenisbehoud blijven onzeker.",
+    "P06, ruw en opgeschoond: de onzekerheid bij B21 verhindert een definitieve keuze tussen gelijkwaardigheid en een inhoudelijk nadeel van Y. Het paar blijft onbeslist; het explicieter benoemde aanvullingsdoel is op zichzelf geen winst."
+  ],
+  "criterium_gehaald": false
+}

@@ -1,0 +1,30 @@
+{
+  "sealed_at": "2026-09-25T08:01:51.371173+00:00",
+  "session": "01a0d78f-416d-7781-b6ab-00515c44cf0d",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "tools_used": false,
+  "mapping_shared": false,
+  "files": [
+    {
+      "path": "logs/def770-restherstel/g24-adjudicatie-v1.json",
+      "sha256": "6a7d17c85b5d41aa69b56d4113d7869b3689367eb6c79b7ca62a73ac237bf850"
+    },
+    {
+      "path": "logs/def770-restherstel/g24-adjudicatie-opdracht-v1.md",
+      "sha256": "caa29b7d6871a910ce854213d8f8775896d6ce1d11d4ad0e521606424ce1fc8f"
+    },
+    {
+      "path": "logs/def770-restherstel/g24-adjudicatie-sessie-v1.jsonl",
+      "sha256": "2efa94fa7b8dca793a2eab45312c8df6093248f281f741c20ff38cae7eed6bab"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-blind-v1.json",
+      "sha256": "a78c30f6880777d764a0c75504f9165961dcee89fda9b6b9adbd99faf5fae856"
+    },
+    {
+      "path": "docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-restherstel-20260925-v1/g24-eerste-oordelen-verzegeling-v1.json",
+      "sha256": "af2b339a4f97a6a6bbc83e9ab327f6c56adf6852aaf5a4f854a9bdf47e85c1cf"
+    }
+  ]
+}
