@@ -1,0 +1,46 @@
+{
+  "generation_commit": "ad45a0a8af1026822d5d3ed942ca986edd11988d",
+  "final_code_commit": "23cc51bfddc5ee9393dea52e6a52a55b3e65615d",
+  "six_actual_full_prompts_and_api_requests_and_source_receipts_equal": [
+    {
+      "id": "G01",
+      "prompt_sha256": "17fb372a397e9c1f816ddea1751403e73cc8c0beeb474df963615bc0947a645c",
+      "request_sha256": "da0ee44411faef8364feae3c1b7db4482ca0b8ee4ed8e114708edf04dce2f352"
+    },
+    {
+      "id": "G02",
+      "prompt_sha256": "7e292b6cfc7be9cf0e3ed4992dd2aaa2adff9ae00fe8cd84d98403f895249930",
+      "request_sha256": "fc7faa653caafc090def4fc69d5a1b2804eaea451dea1622a4b83ca719832874"
+    },
+    {
+      "id": "G03",
+      "prompt_sha256": "597b8d4ee0863e401e2ce0197c03a564d75a43493eb47d3621793274e67283a4",
+      "request_sha256": "32d61d35f83e85263411e65d1ec36b2d2c95f765dc585c0b71ef4848fb66f7bc"
+    },
+    {
+      "id": "G04",
+      "prompt_sha256": "7531471867d26e2f78bf933e5d2eb1d45f13f6b16272816005778e2979b7a071",
+      "request_sha256": "d06c67351b314150b52382c0d73f46dc6a2852f9a1750899cc4c6238bc72d51e"
+    },
+    {
+      "id": "G05",
+      "prompt_sha256": "c9d41893ed9507380fbc8e48bc06c5f620b3c9dd5cf584a0203232ec45c33fe2",
+      "request_sha256": "f4630c2dc7e33eaa1828df10b02a8e763e97f882440b1062cd01ce124403782c"
+    },
+    {
+      "id": "G06",
+      "prompt_sha256": "93549a88d9df402ab5267ca622259674565c9a8297aa047617a07d347d6ab52b",
+      "request_sha256": "2a0a99e1cb1b75628705da964297f5dead3438906bf32763380a75a74e206d14"
+    }
+  ],
+  "evaluator_texts": 48,
+  "service_observations": 96,
+  "both_load_paths_equal": true,
+  "storage_parts_and_status_equal": true,
+  "original_text_preserved": true,
+  "full_INT01_pass": 0,
+  "rule_statuses": {
+    "review_required": 48
+  },
+  "scope": "Generated output applies to unchanged generation requests; /6 app evaluation measured separately, not an independent content verdict."
+}

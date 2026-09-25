@@ -1,0 +1,213 @@
+{
+  "soort": "DEF-770 G24 nabewerking (offline; geen validatie/enhancement)",
+  "arm": "oud",
+  "manifest_sha256": "4e8d79cc8194fe417fca2f52c74a6ab0dd657cc6e7aff40c85ca981155e7a941",
+  "script_sha256": "2ec4388d7a60350855ee85dfcef997938eda34f6cc858dd9359569518ef15709",
+  "bron": {
+    "archief": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/logs/def770-effectproeven/bron-oud-26f2374d.tar",
+    "archief_sha256": "e591502086a034c7245c37a3d525393d761c470667db615a95ff4397720525b5",
+    "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "commit_uit": "pax-header 'comment' van git archive",
+    "sleutelbestanden_sha256": {
+      "src/toetsregels/regels/INT-01.json": "b77084c56bd867bdbedbdac897e93a35a26c315b3e910ff08cae2d4dc21fb706",
+      "src/domain/int01/zinsgrenzen.py": "niet aanwezig",
+      "src/domain/int01/opslag.py": "niet aanwezig",
+      "src/services/validation/evaluators/sentence_boundary.py": "niet aanwezig",
+      "src/services/prompts/modules/json_based_rules_module.py": "307e4c78b55abb748f2f10654425140cd3f23f917934cbf8f9a1fdd6fa42f22b",
+      "src/services/prompts/prompt_service_v2.py": "fd268584bf195fa816386f978832657b2781e016532449e2c8aeda1dc02581ab",
+      "src/services/orchestrators/definition_orchestrator_v2.py": "ec44f5eb4fc6bd7d413902869ff3c342a5f2b8176d22d7fdab9e22d96a9d7259",
+      "src/services/ai/anthropic_client.py": "91381bf25cfe3f1be7393b409105cf6a751d897ce7dd9530b32a8ac647e818e1",
+      "src/services/ai/model_router.py": "65e923d9840910c4a5113d344f8e2b2a7f64f9b9b59d966bdf63a97c07235bac",
+      "config/config.yaml": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "tests/offline_bootstrap.py": "35f86d8fac2d2c4ab31db695c2b69efe7d2e13ea184a57e2939bc85393ebb1a7"
+    }
+  },
+  "offline_gate_actief": true,
+  "uitvoermap": "/Users/chrislehnen/.codex/worktrees/ac84/Definitie-app/docs/analyses/def606-regeldossiers/INT-01-implementatie/effectproeven-vervolg-20260924-v1/g24-generaties-v1",
+  "compleet": true,
+  "ontbrekend": [],
+  "rijen": [
+    {
+      "call_id": "G01__oud__h1",
+      "resultaat_sha256": "ef4db77ee43dc5a7d3e12e81fcef4d6decea524ced3bf21927a93c2bb70b1831",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten.",
+      "definitie_kern": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten"
+    },
+    {
+      "call_id": "G01__oud__h2",
+      "resultaat_sha256": "620b8aee25de3fe817e8803655a9c90847960dc6dffafa93f26a9b2fabc87481",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten.",
+      "definitie_kern": "Verplaatsbare bak op de centrale sorteertafel waarin reeds gebruikte routekaarten tijdelijk liggen totdat een medewerker ze aan een volgende demonstratieronde toewijst, onderscheiden van het voorraadrek met ongebruikte kaarten en van het herstelvak met beschadigde kaarten"
+    },
+    {
+      "call_id": "G02__oud__h1",
+      "resultaat_sha256": "eb2835cf99e70ea441f54c8228149e4c276d5f1cc49dc83009e4cf304100d34d",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Geregistreerd verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, waarbij uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding van het planningssysteem dat een tijdvakkeuze ontbrak",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Geregistreerd verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, waarbij uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding van het planningssysteem dat een tijdvakkeuze ontbrak.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Geregistreerd verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, waarbij uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding van het planningssysteem dat een tijdvakkeuze ontbrak.",
+      "definitie_kern": "Geregistreerd verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, waarbij uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onterechte melding van het planningssysteem dat een tijdvakkeuze ontbrak"
+    },
+    {
+      "call_id": "G02__oud__h2",
+      "resultaat_sha256": "3e7cca0d0f349734493a3b1c14818668325261dfcc6d21f9e71f532fb70407a9",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten op grond van een onjuiste melding van het planningssysteem dat een tijdvakkeuze ontbrak",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten op grond van een onjuiste melding van het planningssysteem dat een tijdvakkeuze ontbrak.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten op grond van een onjuiste melding van het planningssysteem dat een tijdvakkeuze ontbrak.",
+      "definitie_kern": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat blijkens het gebeurtenissenoverzicht van diezelfde aanvraag is gesloten op grond van een onjuiste melding van het planningssysteem dat een tijdvakkeuze ontbrak"
+    },
+    {
+      "call_id": "G03__oud__h1",
+      "resultaat_sha256": "07154d8dab82bfc629d42e71273e0005a58e2e1d02c8319a41b59194ad6a1eb2",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "code die het register Inname en Teruggave bij elke bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en blijvend naar één overdrachtsgebeurtenis verwijst",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Code die het register Inname en Teruggave bij elke bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en blijvend naar één overdrachtsgebeurtenis verwijst.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Code die het register Inname en Teruggave bij elke bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en blijvend naar één overdrachtsgebeurtenis verwijst.",
+      "definitie_kern": "code die het register Inname en Teruggave bij elke bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en blijvend naar één overdrachtsgebeurtenis verwijst"
+    },
+    {
+      "call_id": "G03__oud__h2",
+      "resultaat_sha256": "66214b2a6fbfc0c565377537457ab0a3b51d0979168782af3d1c01242503908b",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "code die het register Inname en Teruggave bij iedere bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis blijft verwijzen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Code die het register Inname en Teruggave bij iedere bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis blijft verwijzen.",
+      "opschoonregels": [
+        "capitalized_first_letter",
+        "added_period"
+      ],
+      "definitie_origineel": "Code die het register Inname en Teruggave bij iedere bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis blijft verwijzen.",
+      "definitie_kern": "code die het register Inname en Teruggave bij iedere bevestigde overdracht van een oefendossier tussen werktafels aanmaakt, die binnen dat register uniek is en naar één overdrachtsgebeurtenis blijft verwijzen"
+    },
+    {
+      "call_id": "G04__oud__h1",
+      "resultaat_sha256": "45621ee8623c83323b7060bb263d918be2bf8047b0dd240109459607d0a6ce11",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Door een baliemedewerker vóór de toewijzing van oefenmateriaal uitgevoerde wijziging in een oefenaanvraag die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Door een baliemedewerker vóór de toewijzing van oefenmateriaal uitgevoerde wijziging in een oefenaanvraag die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Door een baliemedewerker vóór de toewijzing van oefenmateriaal uitgevoerde wijziging in een oefenaanvraag die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd.",
+      "definitie_kern": "Door een baliemedewerker vóór de toewijzing van oefenmateriaal uitgevoerde wijziging in een oefenaanvraag die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd"
+    },
+    {
+      "call_id": "G04__oud__h2",
+      "resultaat_sha256": "3e96252ff64bd3ba7dd86b98f1e2e7ce505d5417268b93f53202391d64618eb4",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd.",
+      "definitie_kern": "Wijziging die een baliemedewerker vóór de toewijzing van oefenmateriaal in een oefenaanvraag aanbrengt en die uitsluitend bestaat uit het verwijderen van overtollige spaties uit de materiaalcode, het wijzigen van de weergavetaal van het ontvangstbericht of het uitschakelen van een tweede afdruk van datzelfde ontvangstbericht, waarbij de oude en de nieuwe veldwaarde worden vastgelegd"
+    },
+    {
+      "call_id": "G05__oud__h1",
+      "resultaat_sha256": "7c6cae39519e482c3f239fba825bebff9e9c1c304cad30a39c98f5661b014b0f",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer en die groepering vasthoudt tot vrijgave, die plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer en die groepering vasthoudt tot vrijgave, die plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer en die groepering vasthoudt tot vrijgave, die plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen.",
+      "definitie_kern": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten van oefensensoren groepeert per cyclusnummer en die groepering vasthoudt tot vrijgave, die plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel zodra de ingestelde wachttijd verstrijkt waarbij de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen"
+    },
+    {
+      "call_id": "G05__oud__h2",
+      "resultaat_sha256": "591add75b2779f2eb91aa9ef169018b1fdc6eec58d135d2821e91803cb84bfc1",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met eenzelfde cyclusnummer bijeenhoudt tot vrijgave van die cyclus, waarbij vrijgave plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met eenzelfde cyclusnummer bijeenhoudt tot vrijgave van die cyclus, waarbij vrijgave plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met eenzelfde cyclusnummer bijeenhoudt tot vrijgave van die cyclus, waarbij vrijgave plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen.",
+      "definitie_kern": "Tijdelijke geheugenruimte die binnenkomende gegevenspakketten met eenzelfde cyclusnummer bijeenhoudt tot vrijgave van die cyclus, waarbij vrijgave plaatsvindt zodra alle voor die cyclus verwachte pakketten aanwezig zijn dan wel de ingestelde wachttijd verstrijkt en de aanwezige verzameling een onvolledigheidsmarkering krijgt, en waarin pakketten zonder cyclusnummer niet worden opgenomen"
+    },
+    {
+      "call_id": "G06__oud__h1",
+      "resultaat_sha256": "0a787d9ef4ac0de312df2fd898f7572b1ffbc9c694d1da76f4869008ae777516",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, en die uitsluitend overdracht van een kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, en die uitsluitend overdracht van een kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, en die uitsluitend overdracht van een kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+      "definitie_kern": "Status van een synthetisch dossier die wordt toegekend na een geslaagde volledigheidscontrole en tijdens de nog lopende consistentiecontrole, en die uitsluitend overdracht van een kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld"
+    },
+    {
+      "call_id": "G06__oud__h2",
+      "resultaat_sha256": "aec4ae21c84083b4605efd47644acfafdff4ace275fc024755aabcad5301e587",
+      "stop_reason": "end_turn",
+      "ruwe_tekst": "Status van een synthetische dossierkopie die wordt toegekend na een geslaagde volledigheidscontrole en tijdens een nog lopende consistentiecontrole, en die uitsluitend overdracht van die kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld",
+      "soort": "definitie",
+      "code": null,
+      "reden": null,
+      "opgeschoonde_kandidaat": "Status van een synthetische dossierkopie die wordt toegekend na een geslaagde volledigheidscontrole en tijdens een nog lopende consistentiecontrole, en die uitsluitend overdracht van die kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+      "opschoonregels": [
+        "added_period"
+      ],
+      "definitie_origineel": "Status van een synthetische dossierkopie die wordt toegekend na een geslaagde volledigheidscontrole en tijdens een nog lopende consistentiecontrole, en die uitsluitend overdracht van die kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld.",
+      "definitie_kern": "Status van een synthetische dossierkopie die wordt toegekend na een geslaagde volledigheidscontrole en tijdens een nog lopende consistentiecontrole, en die uitsluitend overdracht van die kopie aan de interne controletafel toelaat en vervalt zodra een tegenstrijdigheid is vastgesteld"
+    }
+  ]
+}

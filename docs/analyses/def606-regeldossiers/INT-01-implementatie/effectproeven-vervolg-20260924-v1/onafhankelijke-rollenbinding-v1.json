@@ -1,0 +1,66 @@
+{
+  "utc": "2026-09-25T05:43:48.061483+00:00",
+  "roles": {
+    "g24-beoordeling-A": {
+      "session": "01a0d700-f263-7250-87e2-ecfda80babc0",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "log": "logs/def770-vervolg/g24-beoordeling-A-sessie-v1.jsonl",
+      "log_sha256": "7145e6fe7caa6622fbb6d109af449a206b51a7a802e2e577c09ec4bd9c29af97",
+      "tools_used": false,
+      "opdracht_sha256": "326d5e0d6ac808aeb7857a6af88b455cf1037fdbcfa21f7e9dcc6c8a32ecae42",
+      "output_sha256": "6fd3d1d5a2b66ea121d06b015870d2e97ba2d112319e88fe781ad8b5bdf62b0f"
+    },
+    "g24-beoordeling-B": {
+      "session": "01a0d701-04c9-7dc3-906f-54a72325d964",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "log": "logs/def770-vervolg/g24-beoordeling-B-sessie-v1.jsonl",
+      "log_sha256": "8f283f5771b98ed1b6f1392c7e30ef5b13e3399befa9aaedcb1ae9a29f8c6945",
+      "tools_used": false,
+      "opdracht_sha256": "77b49c98f4f9f56692a1438f23af28329c622b0ac64ef16e87bf7ed2feabb253",
+      "output_sha256": "e06230c913dcf8ecd8b26abb2dc3bd94923ce40927f7b96f8646880ef4dfe715"
+    },
+    "g24-adjudicatie": {
+      "session": "01a0d708-089f-7ce3-9a0c-428b5b22f399",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "log": "logs/def770-vervolg/g24-adjudicatie-sessie-v1.jsonl",
+      "log_sha256": "ca07538e7ce977e3e300069bfbd04c4e3dcc8e13117ec5bd8572b470d57d5d02",
+      "tools_used": false,
+      "opdracht_sha256": "4a0c474f02cc1fba6f0e7bb973ae1f31fe8fb258b44e554ae613f90c3bebb69e",
+      "output_sha256": "1d0e006c61d1c49f83de93b2ae0dafd5f5aebc2b30833fd0d61748795b027e80"
+    },
+    "t24-referentie-A": {
+      "session": "01a0d70b-f2d6-79f0-a0a9-b0f308524c94",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "log": "logs/def770-vervolg/t24-referentie-A-sessie-v1.jsonl",
+      "log_sha256": "53b789c015369d9e8d9b0258a85869f16d680e433c0e750060a33e3b8bb86a33",
+      "tools_used": false,
+      "opdracht_sha256": "9ce2410a343859ec1c484349fa333d8d05be2f071efe0383e3ba4abeb0459ec3",
+      "output_sha256": "3337b37c7e3843a9a5e549c5f189893873a03b9e008a8cdd2271d387247e84ac"
+    },
+    "t24-referentie-B": {
+      "session": "01a0d70b-fd37-7973-846d-96e29abc0732",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "log": "logs/def770-vervolg/t24-referentie-B-sessie-v1.jsonl",
+      "log_sha256": "064843b5da1a6ef981dd6669452b4248dbfa3f9fd73ff281c9b014eab2001185",
+      "tools_used": false,
+      "opdracht_sha256": "d5ba3f543026ad4405d515b8c476b5c4c68d54a38057eecc36a345dffbe3bbd0",
+      "output_sha256": "7654bfb1d802a2f82a560492208ac87e2bbfc8d2980d0e0be1162817376dc63d"
+    },
+    "t24-adjudicatie": {
+      "session": "01a0d70f-dc94-7563-9a8f-6f86757ba045",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "log": "logs/def770-vervolg/t24-adjudicatie-sessie-v1.jsonl",
+      "log_sha256": "77272a0e218e2d9f9a65349e8810163e140b5edf8f1d14771521e7cce4d47cd0",
+      "tools_used": false,
+      "opdracht_sha256": "e598410315d9114acec00d2877d6285fd75f60974234273262242cae40f58769",
+      "output_sha256": "3365a47fbfcd87fead675c420cc81f9d77ced9d10a4bc62e1c4ea953f523d808"
+    }
+  },
+  "scope": "Nieuwe onafhankelijke CLI-sessies; afzonderlijke eerste oordelen en adjudicatie; geen menselijke validatie."
+}

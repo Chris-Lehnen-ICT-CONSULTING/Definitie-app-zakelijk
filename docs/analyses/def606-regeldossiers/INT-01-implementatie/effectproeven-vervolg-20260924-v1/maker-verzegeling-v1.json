@@ -1,0 +1,16 @@
+{
+  "utc": "2026-09-24T21:00:45.614214+00:00",
+  "maker_session": "01a0d535-0354-7213-81dc-9b6d9eb850a4",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "tools_used": false,
+  "no_nonempty_previous_case_reused": true,
+  "t24": 24,
+  "g24_dossiers": 6,
+  "quarantined_until_source_freeze": true,
+  "files": {
+    "maker-v1.json": "c14397d3a96e77c053567d44fed07abfdceb18ef01d8d6787a75fdb4ca5390dd",
+    "maker-opdracht-v1.md": "776d9be96c85730aa7b638893aba8b3276ce327ce667dd578d9c196a55c537ad",
+    "maker-sessie-v1.jsonl": "bfb2bf21ad55dbb010136af481e1b7f740d9cb56cf7e5ca304baeec8853aa7ac"
+  }
+}

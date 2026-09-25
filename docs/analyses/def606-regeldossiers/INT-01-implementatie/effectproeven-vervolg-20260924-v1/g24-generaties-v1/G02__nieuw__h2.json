@@ -1,0 +1,64 @@
+{
+  "call_id": "G02__nieuw__h2",
+  "request_sha256": "fc7faa653caafc090def4fc69d5a1b2804eaea451dea1622a4b83ca719832874",
+  "manifest_sha256": "4e8d79cc8194fe417fca2f52c74a6ab0dd657cc6e7aff40c85ca981155e7a941",
+  "counts_sha256": "717520ee35e483c620f24a5c12a7978f3dce70c67a62c80fffa7e05958d4f4b3",
+  "goedkeuring_sha256": "6de2c34cd55c0f655b7497b4187994d028119ee16a2ff00136fe544d4ee2c451",
+  "geteld_input_tokens": 18187,
+  "tijd": "2026-09-25T07:17:17+0200",
+  "duur_s": 2.621,
+  "bericht_id": "msg_011CfPbDmEodgZ1kLQiDMeff",
+  "model": "claude-opus-5",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 18187,
+    "output_tokens": 154,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    },
+    "server_tool_use": null,
+    "service_tier": "standard"
+  },
+  "tekst": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat wordt vastgelegd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onjuiste melding van het planningssysteem dat de deelnemer geen tijdvak had gekozen",
+  "ruwe_response": {
+    "id": "msg_011CfPbDmEodgZ1kLQiDMeff",
+    "container": null,
+    "content": [
+      {
+        "citations": null,
+        "text": "Verzoek van een deelnemer om een gesloten oefenaanvraag voor een begeleide wandelproef opnieuw in de werkvoorraad te plaatsen, dat wordt vastgelegd wanneer uit het gebeurtenissenoverzicht van diezelfde aanvraag blijkt dat de sluiting berustte op een onjuiste melding van het planningssysteem dat de deelnemer geen tijdvak had gekozen",
+        "type": "text"
+      }
+    ],
+    "model": "claude-opus-5",
+    "role": "assistant",
+    "stop_details": null,
+    "stop_reason": "end_turn",
+    "stop_sequence": null,
+    "type": "message",
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "inference_geo": "global",
+      "input_tokens": 18187,
+      "output_tokens": 154,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": null,
+      "service_tier": "standard"
+    },
+    "diagnostics": null
+  }
+}

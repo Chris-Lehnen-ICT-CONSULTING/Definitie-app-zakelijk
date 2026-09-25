@@ -1,0 +1,14 @@
+{
+  "utc": "2026-09-25T05:26:54.921205+00:00",
+  "sessions": {
+    "A": "01a0d700-f263-7250-87e2-ecfda80babc0",
+    "B": "01a0d701-04c9-7dc3-906f-54a72325d964"
+  },
+  "tools_used": false,
+  "blinding_key_not_shared": true,
+  "files": {
+    "g24-blind-v1.json": "c718144608a26487c4e4804fc64a401a477f7346de5de1f09019fb61b23d0769",
+    "g24-beoordeling-A-v1.json": "6fd3d1d5a2b66ea121d06b015870d2e97ba2d112319e88fe781ad8b5bdf62b0f",
+    "g24-beoordeling-B-v1.json": "e06230c913dcf8ecd8b26abb2dc3bd94923ce40927f7b96f8646880ef4dfe715"
+  }
+}

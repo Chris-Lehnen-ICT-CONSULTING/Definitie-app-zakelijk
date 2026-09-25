@@ -1,0 +1,10 @@
+{
+  "call_id": "G01__oud__h1",
+  "request_sha256": "fac8d9c84c8718a49d722d5d8ceab2628404bcc1b661f81f6e43c114720628ee",
+  "manifest_sha256": "4e8d79cc8194fe417fca2f52c74a6ab0dd657cc6e7aff40c85ca981155e7a941",
+  "counts_sha256": "717520ee35e483c620f24a5c12a7978f3dce70c67a62c80fffa7e05958d4f4b3",
+  "goedkeuring_sha256": "6de2c34cd55c0f655b7497b4187994d028119ee16a2ff00136fe544d4ee2c451",
+  "plafond_usd": 2.78455,
+  "tijd": "2026-09-25T07:16:34+0200",
+  "status": "verzonden; onbeslist zolang er geen resultaat is"
+}
