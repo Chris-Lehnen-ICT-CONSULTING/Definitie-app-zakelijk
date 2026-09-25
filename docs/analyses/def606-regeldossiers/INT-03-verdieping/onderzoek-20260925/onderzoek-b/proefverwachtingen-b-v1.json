@@ -1,0 +1,324 @@
+{
+  "versie": "v1",
+  "vastgelegd_utc": "2026-09-25T07:44:28.382675+00:00",
+  "commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "normstatus": "Interpretatie/voorstel B; ASTRA-paar bronverwachting; geen Chris-besluit",
+  "uitvoerscope": "Alleen huidige service manager/cache en promptbouw; G/T/H-normverwachtingen zijn geen gemeten modeluitkomsten",
+  "gevallen": [
+    {
+      "id": "INT03-B-E01",
+      "begrip": "context",
+      "tekst": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+      "bedoeling": "De gebeurtenis wordt begrepen.",
+      "G": "Behoud die gebeurtenis; relatieve die-zinnen toegestaan.",
+      "T": "Voldoet aan INT-03 volgens ASTRA-voorbeeld; geen oordeel over overige regels.",
+      "H": "Geen herstel.",
+      "grond": "ASTRA JUIST(ER), aangeleverde raw-bron",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-B-E02",
+      "begrip": "context",
+      "tekst": "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+      "bedoeling": "De gebeurtenis wordt begrepen; het benoemt dat niet eenduidig.",
+      "G": "Genereer die gebeurtenis, niet het.",
+      "T": "Voldoet niet volgens ASTRA-paar; kandidaten geheel en gebeurtenis met afwijkend grammaticaal geslacht.",
+      "H": "Alleen met gegeven bedoeling het vervangen door die gebeurtenis; behoud rest.",
+      "grond": "ASTRA ONJUIST, aangeleverde raw-bron",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdie\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-B-E03",
+      "begrip": "regeling",
+      "tekst": "regeling waarbij deze afspraak geldt",
+      "bedoeling": "Deze afspraak is niet geïdentificeerd.",
+      "G": "Vraag welke afspraak; verzin geen inhoud.",
+      "T": "Voldoet niet als losstaande definitie: deze afspraak heeft geen identificerende grond; herstelgrond ontbreekt afzonderlijk.",
+      "H": "Stop en vraag welke afspraak bedoeld is.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, INT-04, ARAI-05, CON-CIRC-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": [
+          "\\bdeze\\b",
+          "\\bwaarbij\\b",
+          "\\b(deze|dit|die|daarvan)\\b(?!\\s+(begrip|definitie|regel))"
+        ]
+      }
+    },
+    {
+      "id": "INT03-B-E04",
+      "begrip": "instrument",
+      "tekst": "instrument voor een besluit nadat het is vastgesteld",
+      "bedoeling": "Bedoeld is het besluit; ook instrument is onzijdig.",
+      "G": "Benoem het besluit expliciet.",
+      "T": "Voldoet niet: het kan instrument of besluit betekenen.",
+      "H": "Alleen bij bevestigde bedoeling: nadat het besluit is vastgesteld.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, CON-02",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      }
+    },
+    {
+      "id": "INT03-B-E05",
+      "begrip": "driehoek",
+      "tekst": "veelhoek met drie zijden",
+      "bedoeling": "Driezijdige veelhoek.",
+      "G": "Behoud deze kern.",
+      "T": "Voldoet aan INT-03 na vaststelling dat verwijzende voornaamwoorden ontbreken; alternatief niet van toepassing vraagt productkeuze.",
+      "H": "Geen herstel.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      }
+    },
+    {
+      "id": "INT03-B-E06",
+      "begrip": "pijl",
+      "tekst": "teken dat een richting aangeeft",
+      "bedoeling": "Dat verwijst naar teken.",
+      "G": "Behoud relatieve bijzin.",
+      "T": "Voldoet: dat → teken.",
+      "H": "Geen herstel.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, INT-01",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      }
+    },
+    {
+      "id": "INT03-B-E07",
+      "begrip": "kennisgeving",
+      "tekst": "bericht van een medewerker aan een leidinggevende over zijn besluit",
+      "bedoeling": "Zijn kan de medewerker of de leidinggevende aanduiden.",
+      "G": "Vraag wiens besluit of gebruik gegeven bedoeling.",
+      "T": "Voldoet niet wegens twee plausibele bezitters; bedoelde bezitter nog onbekend.",
+      "H": "Geen automatische keuze; vraag wiens besluit.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      }
+    },
+    {
+      "id": "INT03-B-E08",
+      "begrip": "verzending",
+      "tekst": "handeling waarbij, zodra deze gereed is, de aanvraag wordt verzonden",
+      "bedoeling": "Deze wijst vooruit naar de aanvraag.",
+      "G": "Vooruitverwijzing mag als ondubbelzinnig; voorkeur heldere volgorde.",
+      "T": "Beoordeling nodig: grammaticale vooruitverwijzing is geen overtreding op zichzelf; handeling/aanvraag moeten worden afgewogen.",
+      "H": "Bij bevestigde bedoeling voorstel: handeling waarbij de aanvraag wordt verzonden zodra de aanvraag gereed is; controleer geen nieuwe betekenis.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, INT-01, INT-02",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E09",
+      "begrip": "aanvraag",
+      "tekst": "verzoek waarbij deze schriftelijk wordt ingediend",
+      "bedoeling": "Deze zou naar het lemma aanvraag verwijzen, niet grammaticaal naar het onzijdige verzoek.",
+      "G": "Formuleer zelfstandig: schriftelijk ingediend verzoek, mits betekenis gelijk.",
+      "T": "Onder voorgestelde norm voldoet niet als het losse lemma het ontbrekende antecedent moet leveren; alternatief lemma meetellen is expliciet normbesluit.",
+      "H": "Geen blinde vervanging door aanvraag vanwege CON-CIRC-001; herformuleren na betekeniscontrole.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, CON-CIRC-001, STR-02",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E10",
+      "begrip": "regenperiode",
+      "tekst": "periode waarin het regent",
+      "bedoeling": "Het is onpersoonlijk, geen te zoeken ding.",
+      "G": "Behoud onpersoonlijk het.",
+      "T": "Geen INT-03-overtreding; niet kunstmatig antecedent eisen.",
+      "H": "Geen herstel.",
+      "grond": "Taalkundige uitzondering als voorstel; afzonderlijke bronverdieping nog nodig",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E11",
+      "begrip": "toegangsrecht",
+      "tekst": "recht voor iedereen op toegang",
+      "bedoeling": "Iedereen duidt een bereik aan, geen vooraf genoemd zelfstandig naamwoord.",
+      "G": "Behoud als universeel bereik werkelijk bedoeld is.",
+      "T": "Geen afkeur alleen wegens ontbreken eerder zelfstandig naamwoord; bereik en bronbetekenis controleren.",
+      "H": "Geen fictief antecedent toevoegen.",
+      "grond": "Onze Taal noemt onbepaalde voornaamwoorden; toepassing INT-03 is voorstel",
+      "geraakte_regels": "INT-03, CON-02, ESS-05",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E12",
+      "begrip": "machtiging",
+      "tekst": "toestemming waarmee deze een aanvraag indient",
+      "bedoeling": "Bronpassage noemt vertegenwoordiger; kern noemt deze persoon niet.",
+      "G": "Gebruik alleen bevestigde actor, behoud bronpassage apart.",
+      "T": "Losse kern voldoet niet; bron kan bedoeling aantonen maar repareert de kern niet.",
+      "H": "Voorstel met vertegenwoordiger uitsluitend wanneer bron dat ondersteunt.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, ARAI-05, CON-02",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E13",
+      "begrip": "overdracht",
+      "tekst": "handeling van een medewerker aan een collega waarbij deze vertrekt",
+      "bedoeling": "Niet gegeven wie vertrekt.",
+      "G": "Vraag of medewerker of collega vertrekt.",
+      "T": "Voldoet niet wegens beide plausibele antecedenten; herstelbedoeling ontbreekt.",
+      "H": "Geen keuze op basis van dichtstbijzijnde woord.",
+      "grond": "Synthetische herneming historische N; historische N behoudt eigen identiteit",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E14",
+      "begrip": "leeg",
+      "tekst": "",
+      "bedoeling": "Geen definitie aangeboden.",
+      "G": "Vraag definitietekst/benodigde inhoud.",
+      "T": "Niet beoordeeld wegens ontbrekend toetsobject; geen inhoudelijke pass of fail INT-03.",
+      "H": "Geen herstel van verzonnen definitie.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, VAL-EMP-001",
+      "uitvoeren": true,
+      "verwacht_huidig": {
+        "status": "review_required",
+        "reden": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+        "signalen": []
+      }
+    },
+    {
+      "id": "INT03-B-E15",
+      "begrip": "bericht",
+      "tekst": "bericht van een medewerker over zijn besluit",
+      "bedoeling": "Bron zegt besluit medewerker; gebruikersbedoeling zegt besluit leidinggevende.",
+      "G": "Stop op bron-/bedoelingsconflict.",
+      "T": "Verwijzing in tekst kan duidelijk zijn; betekenisconflict afzonderlijk, niet automatisch INT-03-fail.",
+      "H": "Geen wijziging totdat conflict is opgehelderd.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, CON-02",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E16",
+      "begrip": "verzoeker",
+      "tekst": "persoon die een aanvraag indient",
+      "bedoeling": "Die verwijst naar persoon; hypothetische evaluator noemt die fout.",
+      "G": "Behoud correcte tekst.",
+      "T": "Voldoet; hypothetische fail is evaluatorfout, geen generatieovertreding.",
+      "H": "Herstel evaluator/signaalduiding, niet de definitie.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, INT-01",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E17",
+      "begrip": "vertegenwoordiger",
+      "tekst": "persoon die namens een aanvrager diens aanvraag indient",
+      "bedoeling": "Diens hoort bij aanvrager.",
+      "G": "Behoud rolrelatie en bezitsrelatie.",
+      "T": "Voldoet indien diens ondubbelzinnig aanvrager aanduidt; geen herstel tot vertegenwoordigersaanvraag.",
+      "H": "Verwerp voorstel dat aanvrager vervangt door vertegenwoordiger; betekenisverlies.",
+      "grond": "Onderzoeksinterpretatie B van ASTRA; synthetisch, nog onafhankelijk te beoordelen",
+      "geraakte_regels": "INT-03, CON-02, CON-CIRC-001",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    },
+    {
+      "id": "INT03-B-E18",
+      "begrip": "pijl",
+      "tekst": "teken dat een richting aangeeft",
+      "bedoeling": "Synthetische technische fout vóór inhoudelijk oordeel.",
+      "G": "Bestaande kandidaat behouden.",
+      "T": "Technische fout, geen pass/fail; afzonderlijk van E06 omdat de uitvoervoorwaarde verschilt.",
+      "H": "Stop; herstart beoordeling pas na technisch herstel.",
+      "grond": "Ontworpen foutcontract, niet geïnjecteerd in deze proef",
+      "geraakte_regels": "INT-03",
+      "uitvoeren": false,
+      "verwacht_huidig": null
+    }
+  ],
+  "promptverwachtingen": {
+    "contexten": [
+      {
+        "id": "zonder_context",
+        "base_context": {},
+        "adapter_int03": false
+      },
+      {
+        "id": "juridische_context",
+        "base_context": {
+          "juridisch": [
+            "synthetisch onderzoeksdomein"
+          ]
+        },
+        "adapter_int03": true
+      },
+      {
+        "id": "organisatorische_context",
+        "base_context": {
+          "organisatorisch": [
+            "synthetische organisatie"
+          ]
+        },
+        "adapter_int03": false
+      }
+    ],
+    "module_int03_alle_contexten": true,
+    "zelfde_moduleblok_alle_contexten": true,
+    "voorbeelden": true,
+    "compact_mode": false
+  },
+  "effectcriteria_vooraf": {
+    "G": "Minder ambigue verwijzingen zonder correcte die/dat, bronkenmerken, rollen of bereik te verliezen.",
+    "T": "ASTRA-paar onderscheiden bij inhoudelijk oordeel; geen signaal als foutbewijs; geen stil pass zonder signalen.",
+    "H": "Alleen bevestigde referent verduidelijken, maximaal één voorgestelde poging; geen betekenisverlies.",
+    "behoud": "E01/E05/E06/E10/E11/E16 niet foutief afkeuren; E14/E18 nooit inhoudelijk goedkeuren.",
+    "vergelijking": "Huidige en nieuwe variant op dezelfde 18 scenario’s; minimaal 6 nog te ontwerpen blind gehouden gevallen door onafhankelijke beoordelaar vóór uitvoering vastleggen.",
+    "beperking": "Nieuwe variant, model- en gebruikersproeven ontbreken; deze uitvoering meet alleen nulmeting van bestaande code."
+  }
+}
