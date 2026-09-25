@@ -623,6 +623,30 @@ class TestAcceptatieEnStop:
             _t8(_omgeving8(provider), tmp_path, pad, nieuw=False)
         assert len(provider.aanroepen) == 2
 
+    def test_hervatting_na_crash_voor_de_gevalregistratie_start_niets(
+        self, monkeypatch, tmp_path
+    ):
+        """R8-02: stappen afgesloten, proces weg vóór registreer_geval."""
+        provider = _R8Provider()
+        pad = _gevallenbestand(tmp_path, 3)
+
+        class _CrashError(Exception):
+            pass
+
+        def _crash(*_a, **_k):
+            raise _CrashError
+
+        with monkeypatch.context() as m:
+            m.setattr(gb.Grootboek, "registreer_geval", _crash)
+            with pytest.raises(_CrashError):
+                _t8(_omgeving8(provider), tmp_path, pad)
+        assert provider.stappen == ["beoordeling", "verificatie"]
+        assert _soort(tmp_path, "geval") == []
+        with pytest.raises(gb.BudgetSchendingError, match="gevaluitkomst"):
+            _t8(_omgeving8(provider), tmp_path, pad, nieuw=False)
+        assert provider.stappen == ["beoordeling", "verificatie"]
+        assert len(_soort(tmp_path, "reservering")) == 2
+
     def test_onnodige_weigering_is_geen_acceptatie(self, tmp_path):
         provider = _R8Provider(uitkomsten={"completeness": "unsupported"})
         with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
@@ -849,6 +873,16 @@ class TestVerifierOnly:
             _v8(_omgeving8(provider), tmp_path, pad, ontwikkeling=False)
         assert provider.aanroepen == []
         assert not _opslag8(tmp_path).grootboek.exists()
+
+    def test_freezes_v_en_t_delen_de_promptbinding_niet_de_groep(self, tmp_path):
+        omg, proef = _omgeving8(_R8Provider()), runner.PROEVEN["R8"]
+        v, t = (runner.freezevelden(omg, proef, g) for g in ("v", "t"))
+        assert set(v) == set(t)
+        assert {k for k in v if v[k] != t[k]} == {"groep"}
+        # Een V-freeze geldt nooit voor T (groepsbinding blijft).
+        with pytest.raises(gb.BudgetSchendingError, match="groep"):
+            runner.controleer_freeze(_freeze_v(omg, tmp_path, proef), omg, proef, "t",
+                                     dataset_sha256="a" * 64, herhaal_ids=[])  # fmt: skip
 
     def test_t_eind_na_v_met_een_eigen_freeze_per_eindgroep(self, tmp_path):
         """De geplande keten: V (freeze groep v), dan T (freeze groep t)."""

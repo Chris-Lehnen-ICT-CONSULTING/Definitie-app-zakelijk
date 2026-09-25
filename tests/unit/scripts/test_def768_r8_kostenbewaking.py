@@ -209,18 +209,25 @@ class TestKostenreservering:
 
     def test_lopende_stand_telt_grens_werkelijk_en_crash(self, tmp_path):
         boek = _boek(tmp_path)
-        a = _stap(boek, "ontwikkeling", "ontwikkeling|D0|1", 0)
-        boek.sluit(
-            a["seq"], "voltooid", netwerk_gestart=True, kosten_werkelijk_nusd=50_000_000
-        )
-        b = _stap(boek, "ontwikkeling", "ontwikkeling|D0|1", 1)
-        boek.sluit(b["seq"], "technisch", netwerk_gestart=True)  # timeout, geen usage
-        _stap(boek, "ontwikkeling", "ontwikkeling|D1|1", 0)  # crash: nooit gesloten
+        for i, poging in enumerate(("ontwikkeling|D0|1", "ontwikkeling|D1|1")):
+            a = _stap(boek, "ontwikkeling", poging, 0)
+            if i == 0:
+                boek.sluit(a["seq"], "voltooid", netwerk_gestart=True,
+                           kosten_werkelijk_nusd=50_000_000)  # fmt: skip
+                b = _stap(boek, "ontwikkeling", poging, 1)
+                boek.sluit(b["seq"], "voltooid", netwerk_gestart=True,
+                           kosten_werkelijk_nusd=60_000_000)  # fmt: skip
+                boek.registreer_geval("ontwikkeling", poging, geaccepteerd=True,
+                                      reden="synthetisch")  # fmt: skip
+            else:
+                # Timeout zonder usage, daarna crash: stap 2 nooit gesloten.
+                boek.sluit(a["seq"], "technisch", netwerk_gestart=True)
+                _stap(boek, "ontwikkeling", poging, 1)
         stand = gb.Grootboek.open(boek.pad, gb.R8).kostenstand()
-        assert stand["gereserveerd_nusd"] == 315_000_000 * 2 + 375_000_000
-        assert stand["werkelijk_bekend_nusd"] == 50_000_000
-        # Werkelijk waar bekend (50M), anders de grens (375M timeout, 315M crash).
-        assert stand["lopend_nusd"] == 50_000_000 + 375_000_000 + 315_000_000
+        assert stand["gereserveerd_nusd"] == (315_000_000 + 375_000_000) * 2
+        assert stand["werkelijk_bekend_nusd"] == 110_000_000
+        # Werkelijk waar bekend (110M), anders de grens (315M timeout, 375M crash).
+        assert stand["lopend_nusd"] == 110_000_000 + 315_000_000 + 375_000_000
 
     def test_werkelijke_overschrijding_telt_met_haar_werkelijke_bedrag(self, tmp_path):
         boek = _boek(tmp_path)
@@ -371,6 +378,33 @@ class TestStopEnVolgorde:
         _v_klaar_na_ontwikkeling(boek)
         eigen_freeze = {**_binding(), "freeze_sha256": "e" * 64}
         _stap(boek, "t_eind", "t_eind|R1|1", 0, binding=eigen_freeze)
+
+    @pytest.mark.parametrize(
+        "venster", ["na_reservering", "na_afsluiting", "modelfout"]
+    )
+    def test_onvolledige_poging_blokkeert_elke_volgende_poging(self, tmp_path, venster):
+        """Crash vóór registreer_geval: geen stille hervatting met een volgende poging."""
+        boek = _boek(tmp_path)
+        eerste = _stap(boek, "ontwikkeling", "ontwikkeling|D0|1", 0)
+        if venster == "na_afsluiting":
+            boek.sluit(eerste["seq"], "voltooid", netwerk_gestart=True)
+            tweede = _stap(boek, "ontwikkeling", "ontwikkeling|D0|1", 1)
+            boek.sluit(tweede["seq"], "voltooid", netwerk_gestart=True)
+        elif venster == "modelfout":
+            boek.sluit(eerste["seq"], "modelfout", netwerk_gestart=True)
+        heropend = gb.Grootboek.open(boek.pad, gb.R8)
+        totaal = heropend.samenvatting()["totaal"]
+        with pytest.raises(gb.BudgetSchendingError, match="gevaluitkomst"):
+            heropend.controleer_fasestart("ontwikkeling")
+        with pytest.raises(gb.BudgetSchendingError, match="gevaluitkomst"):
+            _stap(heropend, "ontwikkeling", "ontwikkeling|D1|1", 0)
+        assert heropend.samenvatting()["totaal"] == totaal
+
+    def test_tweede_stap_van_de_lopende_poging_blijft_toegestaan(self, tmp_path):
+        boek = _boek(tmp_path)
+        eerste = _stap(boek, "ontwikkeling", "ontwikkeling|D0|1", 0)
+        boek.sluit(eerste["seq"], "voltooid", netwerk_gestart=True)
+        _stap(boek, "ontwikkeling", "ontwikkeling|D0|1", 1)
 
     def test_fasestart_vooraf_toetsbaar(self, tmp_path):
         boek = _boek(tmp_path)

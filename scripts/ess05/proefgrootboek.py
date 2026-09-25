@@ -904,8 +904,26 @@ class Grootboek:
             record.update({"task_type": task_type, "kosten_grens_nusd": kosten_grens})
         return self._voeg_toe(record)
 
-    def controleer_fasestart(self, fase: str) -> None:
-        """R8: stopregel en fasevolgorde; ook vooraf door de runner te toetsen."""
+    def _open_poging(self, behalve: str | None) -> str | None:
+        """Een gestarte poging zonder duurzame gevaluitkomst (crash, onderbreking)."""
+        geregistreerd = {g["poging"] for g in self._gevallen()}
+        return next(
+            (
+                r["poging"]
+                for r in self._reserveringen()
+                if r.get("poging") not in (None, behalve, *geregistreerd)
+            ),
+            None,
+        )
+
+    def controleer_fasestart(self, fase: str, poging: str | None = None) -> None:
+        """R8: stopregel en fasevolgorde; ook vooraf door de runner te toetsen.
+
+        Een eerder gestarte poging zonder gevaluitkomst (crash na reservering of
+        na afsluiting, vóór `registreer_geval`) stopt de proef net als een
+        niet-geaccepteerd geval; alleen de lopende `poging` zelf mag haar
+        volgende stap reserveren. Geen hervatting of reparatie.
+        """
         identiteit = self.identiteit
         if identiteit.fasestappen is None:
             return
@@ -915,6 +933,14 @@ class Grootboek:
             msg = (
                 f"proef gestopt na niet-geaccepteerd geval {geweigerd['poging']!r} "
                 f"({geweigerd['reden']}); geen verdere modelstap"
+            )
+            raise BudgetSchendingError(msg)
+        open_poging = self._open_poging(poging)
+        if identiteit.stop_bij_eerste_fout and open_poging is not None:
+            msg = (
+                f"proef gestopt: poging {open_poging!r} is gestart zonder duurzame "
+                "gevaluitkomst (onderbroken vóór registratie); geen hervatting en "
+                "geen volgende poging"
             )
             raise BudgetSchendingError(msg)
         for voorganger in (identiteit.fasevolgorde or {}).get(fase, ()):
@@ -940,7 +966,7 @@ class Grootboek:
         if kb is None or identiteit.fasestappen is None:
             msg = f"{identiteit.proef_id} heeft geen kostenbewaking met fasestappen"
             raise BudgetSchendingError(msg)
-        self.controleer_fasestart(fase)
+        self.controleer_fasestart(fase, poging)
         if not poging:
             msg = f"fase {fase!r} vereist een meerstapspoging (poging en stap)"
             raise BudgetSchendingError(msg)
