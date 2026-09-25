@@ -1,0 +1,22 @@
+{
+  "regel": "INT-03",
+  "onderzoeker": "C (Claude Code CLI, claude-fable-5-1, effort xhigh)",
+  "datum": "2026-09-25",
+  "fase": "2 — gerichte meting voor besluitpunt K3/B3/D2 (INT-instructies in elke prompt)",
+  "leesbasis_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "vastgelegd_voor_uitvoering": true,
+  "doel": "Kwantificeer wat optie (a) 'hele INT-module altijd' en optie (b) 'alleen INT-03 contextvrij' aan promptlengte kosten, zodat het verschil tussen A (smal eerst), B (D2: alleen INT-03) en C (B3: hele module) op feiten rust. Gebruik dezelfde module-instanties als de adapter registreert.",
+  "afgeleide_verwachting": "Uit proef-c-v1 (P05 → P06) volgt dat integrity_rules + sam_rules samen 7.407 tekens toevoegen (35.907 − 28.500). Verwacht: INT-module (9 regels, met voorbeelden) tussen 3.000 en 6.000 tekens; INT-03-blok alleen tussen 400 en 800 tekens; INT + SAM samen 7.407 ± 50 tekens (zelfde begrip 'context', zelfde metadata als proef-c-v1).",
+  "verwachtingen": {
+    "int_module_tekens_min": 3000,
+    "int_module_tekens_max": 6000,
+    "int03_blok_tekens_min": 400,
+    "int03_blok_tekens_max": 800,
+    "int_plus_sam_tekens": 7407,
+    "int_plus_sam_tolerantie": 50,
+    "int_module_rules_count": 9,
+    "sam_module_rules_count": 8,
+    "int_module_zonder_voorbeelden_kleiner": true
+  },
+  "geen_normclaim": "Deze meting zegt niets over modelnaleving of kwaliteit; alleen over promptomvang onder de kap van 60.000 tekens (PromptComponentConfig.max_prompt_length)."
+}

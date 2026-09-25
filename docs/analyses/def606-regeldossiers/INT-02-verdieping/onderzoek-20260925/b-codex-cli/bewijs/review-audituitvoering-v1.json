@@ -1,0 +1,10 @@
+{
+  "commando": "python3 bewijs/review-audit-v1.py",
+  "exitstatus": 0,
+  "tool": "exec_command",
+  "bewijssoort": "lokale artefactcontrole, geen app- of modelproef",
+  "uitkomsten": "review-audituitkomsten-v1.json",
+  "stderr_opmerking": "git: confstr() failed with code 5; fallback /tmp; git rev-parse slaagde",
+  "verwachtingen": "review-auditplan-v1.md",
+  "resultaat": "Alle vooraf verwachte tellingen en bronbindingen bevestigd. Geen wijzigingen in A-bronnen."
+}

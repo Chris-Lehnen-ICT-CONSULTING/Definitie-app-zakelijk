@@ -1,0 +1,162 @@
+[
+  {
+    "id": "INT02-C01",
+    "begrip": "transitie-eis",
+    "tekst": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C02",
+    "begrip": "transitie-eis",
+    "tekst": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C03",
+    "begrip": "aanvraag",
+    "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C04",
+    "begrip": "even getal",
+    "tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C05",
+    "begrip": "even getal",
+    "tekst": "Geheel getal dat zonder rest door twee deelbaar is.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C06",
+    "begrip": "leeg",
+    "tekst": "",
+    "context": {}
+  },
+  {
+    "id": "INT02-C10",
+    "begrip": "stelselmatige dader",
+    "tekst": "persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C11",
+    "begrip": "stelselmatige dader",
+    "tekst": "persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C12",
+    "begrip": "weigering",
+    "tekst": "besluit waarmee de bevoegde autoriteit een aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager daardoor onevenredig zou worden benadeeld.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C13",
+    "begrip": "vervallenverklaring",
+    "tekst": "besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C14",
+    "begrip": "aangifte",
+    "tekst": "verklaring die een getuige van een strafbaar feit moet afleggen bij de politie.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C15",
+    "begrip": "aanvraag",
+    "tekst": "verzoek dat de behandelaar binnen zes weken beoordeelt en bij een ontbrekende bijlage afwijst.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C16",
+    "begrip": "verzuimboete",
+    "tekst": "bestuurlijke boete die wordt opgelegd wanneer een aangifte niet tijdig is gedaan.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C17",
+    "begrip": "stemgerechtigd lid",
+    "tekst": "Een lid is stemgerechtigd indien ingeschreven vóór 1 januari.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C18",
+    "begrip": "stemgerechtigd lid",
+    "tekst": "lid dat vóór 1 januari van het lopende verenigingsjaar is ingeschreven.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C19",
+    "begrip": "gewaarmerkt document",
+    "tekst": "Een document geldt als gewaarmerkt mits voorzien van handtekening en datum.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C20",
+    "begrip": "eigen risico",
+    "tekst": "deel van de zorgkosten dat een verzekerde zelf draagt voor zover die kosten onder de basisverzekering vallen.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C21",
+    "begrip": "tenzij-clausule",
+    "tekst": "contractbepaling die een uitzondering op een hoofdregel formuleert.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C22",
+    "begrip": "tijdige aangifte",
+    "tekst": "aangifte die binnen vijf werkdagen na het feit is gedaan.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C23",
+    "begrip": "toegang",
+    "tekst": "Toegang:",
+    "context": {}
+  },
+  {
+    "id": "INT02-C24",
+    "begrip": "toegang",
+    "tekst": "Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C25",
+    "begrip": "korting",
+    "tekst": "korting: verlaging indien tijdig betaald",
+    "context": {}
+  },
+  {
+    "id": "INT02-C26",
+    "begrip": "identificatieplichtige",
+    "tekst": "Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart",
+    "context": {}
+  },
+  {
+    "id": "INT02-C27",
+    "begrip": "leeftijd",
+    "tekst": "aantal volledige jaren tussen de geboortedatum van een persoon en de peildatum.",
+    "context": {}
+  },
+  {
+    "id": "INT02-C29",
+    "begrip": "aanvraag",
+    "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+    "context": {
+      "organisatorische_context": [
+        "Dienst Justis"
+      ],
+      "juridische_context": [
+        "bestuursrecht"
+      ],
+      "wettelijke_basis": [
+        "Algemene wet bestuursrecht"
+      ]
+    }
+  }
+]

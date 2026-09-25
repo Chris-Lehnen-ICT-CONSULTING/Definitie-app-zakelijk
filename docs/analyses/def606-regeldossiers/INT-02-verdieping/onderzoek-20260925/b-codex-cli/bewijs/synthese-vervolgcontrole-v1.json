@@ -1,0 +1,167 @@
+{
+  "utc": "2026-09-25T09:03:06.184469+00:00",
+  "bewijssoort": "Gerichte documentcontrole en verificatie ontvangen CO-C1-run2; geen nieuwe appproef door B",
+  "head": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+  "bronnen": [
+    {
+      "pad": "../gedeeld/gezamenlijke-synthese-v2.md",
+      "sha256": "f80feaf473014a10979b0673fe5281ff4a2c1acff7017ebb48561468cce7523e"
+    },
+    {
+      "pad": "../gedeeld/besluitnotitie-chris-v2.md",
+      "sha256": "8d2c0487fcca63fabe9a9a9245eeda9fd21b8c8ed7bc6eee23908710c6319789"
+    },
+    {
+      "pad": "../gedeeld/gezamenlijk-casusregister-v2.md",
+      "sha256": "d4de995a1633fdfb555a46b21f0426315a3781febf3f5d70ac9f500dfbfaab9b"
+    },
+    {
+      "pad": "../a-cowork/verwerking-synthesecontrole-a-v1.md",
+      "sha256": "a164aa6bf29491e57fcfc869cfc7e0d9adf7152703505616ac482e67215d968c"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-run2.sh",
+      "sha256": "a5ab445db11d1f9386238b2fa40059101a5dd37f5cdc89cdace4d41822eaf3b9"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-run2.log",
+      "sha256": "986cc4c522cc62c43d7199d3f3f0ffae82127ced355d9ee0147a8ba56686d04e"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-uitvoering-run2.json",
+      "sha256": "3cb7f179e3d7b18208deb797c000f923966acd6fdad26f74aae8d8eca98b080c"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-uitkomsten-run1.json",
+      "sha256": "25a333e75d91169fe636ef2419b9b4a352550a2cde00db2cfea14205b87ce26b"
+    },
+    {
+      "pad": "../a-cowork/bewijs/proef-c1-uitkomsten.json",
+      "sha256": "8cdd45caf9df571d6d446c3909ee88dd2097d0aae7f7a40527debf1f0b1a4c2d"
+    },
+    {
+      "pad": "synthesecontrole-b-v1.md",
+      "sha256": "f226f7f50a536eddf42ee7048814eb0d43f159ed7796da50b2546db33ded5907"
+    }
+  ],
+  "review_sha256": "e222aaad8267f229178946c71d3a2214b60f10b384498c10013b53a09e7edd49",
+  "SC_punten": [
+    "SC-01",
+    "SC-02",
+    "SC-03",
+    "SC-04",
+    "SC-05",
+    "SC-06",
+    "SC-07",
+    "SC-08",
+    "SC-09",
+    "SC-10",
+    "SC-11",
+    "SC-12",
+    "SC-13",
+    "SC-14",
+    "SC-15",
+    "SC-16",
+    "SC-17",
+    "SC-18",
+    "SC-19",
+    "SC-20",
+    "SC-21"
+  ],
+  "materiele_punten_open": [],
+  "redactioneel": [
+    "E1: S-v2 regel 88 conditionele VN-tak expliciteren",
+    "E2: R-v2 regel 77 C25 beperken tot criteriumlezing"
+  ],
+  "CO_C1": {
+    "run1_hash_gelijk_oude_bronbinding": true,
+    "run1_sha256": "25a333e75d91169fe636ef2419b9b4a352550a2cde00db2cfea14205b87ce26b",
+    "toetsing_run1_run2_gelijk": true,
+    "prompt_rendering_run1_run2_gelijk": true,
+    "run2_exit_status": 0,
+    "run2_commit": "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3",
+    "summary": {
+      "gevallen": 13,
+      "match": 13,
+      "mismatch": [],
+      "fouten": []
+    },
+    "door_B_opnieuw_uitgevoerd": false
+  },
+  "oude_bestanden_ongewijzigd": [
+    "bewijs/aanvullende-bronnen-v1.json",
+    "bewijs/bronextracten-v1.md",
+    "bewijs/historische-diff-v1.txt",
+    "bewijs/oplevercontrole-v1.json",
+    "bewijs/proefplan-v1.md",
+    "bewijs/proefuitkomsten-v1.json",
+    "bewijs/proeven-b-v1.py",
+    "bewijs/review-audit-v1.py",
+    "bewijs/review-auditplan-v1.md",
+    "bewijs/review-audituitkomsten-v1.json",
+    "bewijs/review-audituitvoering-v1.json",
+    "bewijs/review-bronbinding-v1.json",
+    "bewijs/review-broncontrole-v1.md",
+    "bewijs/review-oplevercontrole-v1.json",
+    "bewijs/synthese-bronbinding-v1.json",
+    "bewijs/synthese-oplevercontrole-v1.json",
+    "bewijs/toegang-bronnen-v1.json",
+    "bewijs/uitvoering-v1.json",
+    "bewijs/verwerk-review-v1.py",
+    "bewijs/verwerking-bronbinding-v1.json",
+    "bewijs/verwerking-broncontrole-v1.md",
+    "bewijs/verwerking-oplevercontrole-v1.json",
+    "casusregister-b-v1.md",
+    "casusregister-b-v2.md",
+    "casusregister-b-v3.md",
+    "manifest-b-v1.json",
+    "manifest-b-v2.json",
+    "manifest-b-v3.json",
+    "onderzoek-b-v1.md",
+    "onderzoek-b-v2.md",
+    "onderzoek-b-v3.md",
+    "review-b-op-a-v1-erratum.md",
+    "review-b-op-a-v1.md",
+    "synthesecontrole-b-v1.md",
+    "verwerking-b-v1.md"
+  ],
+  "beheercontrole": [
+    {
+      "path": ".claude/CLAUDE.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/2026-09-25_1004-backup-01a0d783.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/2026-09-25_1036-backup-01a0d783.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/CLAUDE-handoversectie-20260925T1036-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/CLAUDE-voor-handoveropruiming-20260925T0804-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/WIP-snapshot-20260925T080152Z-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/WIP-snapshot-20260925T082355Z-v1.md",
+      "ongewijzigd": true
+    },
+    {
+      "path": ".claude/handovers/archief/WIP-snapshot-20260925T083528Z-v1.md",
+      "ongewijzigd": true
+    }
+  ],
+  "skill_rejections": [
+    "research-dispatch: mogelijk agentstart",
+    "requesting-code-review: mogelijk reviewerstart"
+  ],
+  "afhandeling": "Niet omzeild; bestaande inhoudelijke werkwijze zelfstandig toegepast."
+}
