@@ -76,7 +76,15 @@ Grond: `{field, ref, quote, start, end}`.
   - een `int`-index bij een contextlijst;
   - een bestaand bron-ID bij `bron`.
 - `quote`, `start` en `end` zijn samen `null`, of samen een exact citaat in de tekst waarnaar de grond verwijst, met dezelfde positieregel.
-- Een grond op een onbekende bedoeling (`None`), een onbekend bron-ID, een index buiten de lijst of een citaat dat niet op zijn positie staat, geeft `error` met foutcategorie `invalid_citation`.
+- De tekst waarnaar de grond verwijst, moet gevuld zijn, ook zonder grondcitaat. Bij de volgende gronden volgt `error` met foutcategorie `invalid_citation`:
+  - een onbekende bedoeling (`None`);
+  - een leeg begrip of een begrip met alleen witruimte;
+  - een lege bron of een bron met alleen witruimte;
+  - een onbekend bron-ID;
+  - een index buiten de lijst;
+  - een citaat dat niet op zijn positie staat.
+
+  Zo kan lege bewijsvoering geen pass of fail dragen. Dit is een v1-correctie na review; de norm verandert er niet door.
 
 Volgorde van controle: eerst de volledige structuur (`invalid_output`), dan alle citaten en gronden (`invalid_citation`), dan de samenhang (`invalid_output`).
 
@@ -136,6 +144,8 @@ Er is geen score of cijfer: het document heeft geen scoreveld en een `score`-vel
 - `{ontbrekende of strijdige betekenisgrond}` = `reason` en `{reikwijdtegrond}` = `scope_reason`, beide zonder afsluitende punt; `{één vraag}` = `question`.
 - `{kern/context}`: "kern", "context" of "kern en context".
 
+De plaatshouders worden in één doorgang ingevuld, en alleen in het oorspronkelijke sjabloon. Een ingevoegde waarde wordt nooit opnieuw geïnterpreteerd. Een citaat, grond, reden of vraag die zelf bijvoorbeeld `{grond}` of `{één vraag}` bevat, verschijnt daardoor letterlijk en onveranderd in de melding. Dit is een v1-correctie na review.
+
 Bij fail blijft een open vraag zichtbaar in `Beoordelingsdocument.vraag`. De melding blijft het VN-sjabloon; er wordt geen extra meldtekst verzonnen.
 
 ## Versiebinding en replay
@@ -159,7 +169,7 @@ De gerapporteerde modelversie staat in `Uitvoering` en maakt deel uit van het do
 `toets_actualiteit` volgt deze volgorde:
 1. De actuele kern of context ontbreekt → NE.
 2. Er is geen document → nog niet beoordeeld.
-3. Het document is een technische fout, of **niet herleidbaar** → `error`. Herleidbaar betekent: de onderdelen worden opnieuw via hun constructors gevalideerd en `beoordeel` levert op de eigen invoer, de uit de binding afgeleide configuratie, de uitvoering en het oordeel exact hetzelfde document op. Een direct samengesteld document, een gewijzigde status, melding, invoer of binding, of een corrupte `oordeel_json` wordt zo nooit stil actueel.
+3. Het document is een technische fout, of **niet herleidbaar** → `error`. Herleidbaar betekent: de onderdelen worden opnieuw via hun constructors gevalideerd en `beoordeel` levert op de eigen invoer, de uit de binding afgeleide configuratie, de uitvoering en het oordeel exact hetzelfde document op. Een direct samengesteld document, een gewijzigde status, melding, invoer of binding, of een corrupte `oordeel_json` wordt zo nooit stil actueel. Een `oordeel_json` die niet te decoderen is, geeft `error` en breekt de aanroep niet af. Voorbeelden: ongeldige JSON, een getal boven de cijferlimiet van `int` (`ValueError`) of nesting die te diep is voor de decoder (`RecursionError`). Alleen die decoderfouten worden afgevangen; er is geen catch-all.
 4. De binding wijkt af van `bereken_binding(invoer, configuratie)` → historisch.
 5. Anders → het bewaarde oordeel.
 

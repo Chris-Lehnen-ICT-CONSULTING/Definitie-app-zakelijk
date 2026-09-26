@@ -1,0 +1,7 @@
+# DEF-835 WP1 — commitlint-correctie v1
+
+Jij bent dezelfde Claude Code CLI-uitvoerder. Voer deze opdracht zelf uit; start geen agents, reviewers of extra CLI-sessies. Werkboom /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2, branch feature/DEF-835-int02-o2. Scope: uitsluitend tests/unit/domain/test_def835_int02_contract.py en nieuwe bewijsbestanden in docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2.
+
+De coördinator verifieerde 297 passed, Ruff in .venv schoon, Black schoon. De echte commit-hook vond echter 3x ISC004 bij de impliciete stringconcatenaties in LETTERLIJKE_MELDINGEN op regels1150–1152,1157–1159,1164–1170. De hook zegt: wrap implicitly concatenated strings in parentheses. Reproduceer deze echte hook met pre-commit run ruff --files tests/unit/domain/test_def835_int02_contract.py, bewaar output. Corrigeer exact de drie stringgroepen met expliciete haakjes, zonder waarden/verwachtingen/testselectie te veranderen. Wijzig geen lintconfig/regels/versies. Deze bestaande lintfailure is het rode bewijs; geen extra gedragstest nodig voor louter haakjes.
+
+Draai dezelfde Ruff-precommithook, Black-check en de hele WP1-testmodule. Rapporteer letterlijke resultaten en hash in wp1-claude-commitlint-v1.md. Bewaar logs met vrije nieuwe namen. Geen commit/push; de coördinator commit daarna opnieuw. Bestaande gestagede wijzigingen horen bij de correctieronde; niet resetten, niet verwijderen, niet buiten scope werken. Actions blijven uit. Stop na deze kleine fix.

@@ -486,19 +486,25 @@ def _controleer_structuur(uitvoer: Any) -> None:
 
 
 def _grondbron(grond: dict[str, Any], invoer: Int02Invoer) -> str:
-    """De exacte tekst waarnaar een grond verwijst; anders niet herleidbaar."""
+    """De exacte tekst waarnaar een grond verwijst; anders niet herleidbaar.
+
+    Ook zonder grondcitaat moet die tekst gevuld zijn: een onbekende
+    bedoeling, een leeg of alleen-witruimte begrip en een lege bron kunnen
+    geen oordeel dragen (review WP1 P2-1).
+    """
     veld, ref = grond["field"], grond["ref"]
     if veld in _SCALAIRE_GRONDEN:
         tekst = getattr(invoer, veld)
-        _citaat(tekst is not None)  # een onbekende bedoeling kan geen grond zijn
-        return tekst
-    if veld == "bron":
+    elif veld == "bron":
         teksten = {b.id: b.tekst for b in invoer.bronnen}
         _citaat(ref in teksten)
-        return teksten[ref]
-    waarden = getattr(invoer, veld)
-    _citaat(0 <= ref < len(waarden))
-    return waarden[ref]
+        tekst = teksten[ref]
+    else:
+        waarden = getattr(invoer, veld)
+        _citaat(0 <= ref < len(waarden))
+        tekst = waarden[ref]
+    _citaat(_gevuld(tekst))
+    return tekst
 
 
 def _controleer_citaten(uitvoer: dict[str, Any], invoer: Int02Invoer) -> None:
@@ -570,37 +576,59 @@ def _eerste(passages: list[dict[str, Any]], functies: frozenset[str]) -> dict:
     )
 
 
+def _vul(sjabloon: str, waarden: dict[str, str]) -> str:
+    """Vul de plaatshouders van het sjabloon in één doorgang.
+
+    Alleen het oorspronkelijke sjabloon wordt gescand; ingevoegde waarden
+    (citaat, grond, reden, vraag) worden nooit opnieuw geïnterpreteerd, ook
+    niet als zij zelf '{grond}' of '{één vraag}' bevatten (review WP1 P2-2).
+    """
+    patroon = re.compile("|".join(re.escape(sleutel) for sleutel in waarden))
+    return patroon.sub(lambda treffer: waarden[treffer.group(0)], sjabloon)
+
+
 def _status_en_melding(uitvoer: dict[str, Any]) -> tuple[str, str | None, str]:
     verdict = uitvoer["verdict"]
     if verdict == "pass":
         p = _eerste(uitvoer["passages"], BESCHRIJVEND)
-        melding = (
-            MELDING_V.replace("{passage}", p["quote"])
-            .replace("{criterium/afleiding/kenmerk}", _FUNCTIELABEL[p["function"]])
-            .replace("{grond}", _grondtekst(p["ground"]))
+        melding = _vul(
+            MELDING_V,
+            {
+                "{passage}": p["quote"],
+                "{criterium/afleiding/kenmerk}": _FUNCTIELABEL[p["function"]],
+                "{grond}": _grondtekst(p["ground"]),
+            },
         )
         return "pass", None, melding
     if verdict == "fail":
         p = _eerste(uitvoer["passages"], GEBREK)
         discretie = p["function"] == "discretionary_decision_rule"
-        melding = (
-            MELDING_VN.replace("{passage}", p["quote"])
-            .replace(
-                "{handeling/afweging}", "een afweging" if discretie else "een handeling"
-            )
-            .replace("{grond}", _grondtekst(p["ground"]))
+        melding = _vul(
+            MELDING_VN,
+            {
+                "{passage}": p["quote"],
+                "{handeling/afweging}": (
+                    "een afweging" if discretie else "een handeling"
+                ),
+                "{grond}": _grondtekst(p["ground"]),
+            },
         )
         if discretie:
-            melding += " " + MELDING_VN_DISCRETIE.replace("{citaat}", p["quote"])
+            melding += " " + _vul(MELDING_VN_DISCRETIE, {"{citaat}": p["quote"]})
         return "fail", None, melding
     if verdict == "insufficient_information":
-        melding = MELDING_O.replace(
-            "{ontbrekende of strijdige betekenisgrond}",
-            _zonder_slotpunt(uitvoer["reason"]),
-        ).replace("{één vraag}", uitvoer["question"])
+        melding = _vul(
+            MELDING_O,
+            {
+                "{ontbrekende of strijdige betekenisgrond}": _zonder_slotpunt(
+                    uitvoer["reason"]
+                ),
+                "{één vraag}": uitvoer["question"],
+            },
+        )
         return "review_required", "insufficient_information", melding
-    melding = MELDING_NVT.replace(
-        "{reikwijdtegrond}", _zonder_slotpunt(uitvoer["scope_reason"])
+    melding = _vul(
+        MELDING_NVT, {"{reikwijdtegrond}": _zonder_slotpunt(uitvoer["scope_reason"])}
     )
     return "not_applicable", None, melding
 
@@ -750,10 +778,17 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
             document.oordeel_json is None or isinstance(document.oordeel_json, str),
             "oordeel_json is tekst of None",
         )
-        opnieuw = beoordeel(
-            invoer, binding.configuratie(), document.oordeel, uitvoering
-        )
-    except (Int02ContractError, json.JSONDecodeError):
+    except Int02ContractError:
+        return False
+    try:
+        oordeel = document.oordeel
+    except (ValueError, RecursionError):
+        # Niet te decoderen: ongeldige JSON (JSONDecodeError), een getal boven
+        # de cijferlimiet van int of te diepe nesting (review WP1 P2-3).
+        return False
+    try:
+        opnieuw = beoordeel(invoer, binding.configuratie(), oordeel, uitvoering)
+    except Int02ContractError:
         return False
     return opnieuw == document
 

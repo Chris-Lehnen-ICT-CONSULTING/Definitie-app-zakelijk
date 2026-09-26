@@ -35,6 +35,7 @@ de discretievariant aan de VN-melding.
 from __future__ import annotations
 
 import copy
+import dataclasses
 import hashlib
 import json
 import re
@@ -1102,3 +1103,118 @@ def test_contractdocument_legt_versies_en_exacte_meldingen_vast():
         NVT,
     ):
         assert verplicht in tekst, verplicht
+
+
+# --- Reviewcorrecties v1 (wp1-codex-review-v1.md, P2 1-3) ------------------------
+# De verwachte meldingen hieronder zijn letterlijk uitgeschreven, zonder
+# dezelfde vervangingslogica als de implementatie.
+
+
+@pytest.mark.parametrize("leeg", ["", " \t\n"], ids=["leeg", "witruimte"])
+@pytest.mark.parametrize("veld", ["begrip", "bron"])
+@pytest.mark.parametrize("case_id", ["C112", "C105"], ids=["pass", "fail"])
+def test_lege_grondtekst_draagt_geen_oordeel(case_id, veld, leeg):
+    geval = _geval(case_id)
+    if veld == "begrip":
+        geval["invoer"]["begrip"] = leeg
+        grond = _grond("begrip")
+    else:
+        geval["invoer"]["bronnen"] = [{"id": "B1", "tekst": leeg}]
+        grond = _grond("bron", "B1")
+    geval["modelrespons"]["passages"][0]["ground"] = grond
+    doc = _beoordeel(geval["invoer"], geval["modelrespons"])
+    assert (doc.status, doc.foutcategorie, doc.melding) == (
+        "error",
+        "invalid_citation",
+        E,
+    )
+    assert doc.oordeel is None
+    replay = toets_actualiteit(doc, maak_invoer(**geval["invoer"]), _configuratie())
+    assert replay.status == "error"
+
+
+def _met_eigen_kern(case_id: str, kern: str):
+    """Het hele kerncitaat als passage, met ongeciteerde kerngrond."""
+    geval = _geval(case_id)
+    geval["invoer"]["kern"] = kern
+    geval["modelrespons"]["passages"][0].update(
+        {"quote": kern, "start": 0, "end": len(kern), "ground": _grond("kern")}
+    )
+    return _beoordeel(geval["invoer"], geval["modelrespons"])
+
+
+LETTERLIJKE_MELDINGEN = {
+    "pass": (
+        "C112",
+        "Veld met {criterium/afleiding/kenmerk} en {grond}.",
+        (
+            "INT-02 — Voldoet. 'Veld met {criterium/afleiding/kenmerk} en {grond}.' "
+            "beschrijft een criterium; grond: de kern. Andere toetsregels zijn hiermee "
+            "niet beoordeeld."
+        ),
+    ),
+    "fail-handeling": (
+        "C105",
+        "De medewerker vult {grond} en {handeling/afweging} in.",
+        (
+            "INT-02 — Voldoet niet. 'De medewerker vult {grond} en {handeling/afweging} "
+            "in.' schrijft een handeling voor in plaats van het begrip af te bakenen. "
+            "Grond: de kern. De tekst is ongewijzigd."
+        ),
+    ),
+    "fail-discretie": (
+        "C101",
+        "De autoriteit beslist over {grond} naar eigen {citaat}.",
+        (
+            "INT-02 — Voldoet niet. 'De autoriteit beslist over {grond} naar eigen "
+            "{citaat}.' schrijft een afweging voor in plaats van het begrip af te "
+            "bakenen. Grond: de kern. De tekst is ongewijzigd. Deze passage functioneert "
+            "als discretionaire beslisregel voor het handelen: 'De autoriteit beslist "
+            "over {grond} naar eigen {citaat}.'. Dat is onder de gekozen INT-02-norm "
+            "geen beschrijvende afbakening van dit begrip. Het enkele beschrijven van "
+            "een bevoegdheid of besluit is geen overtreding."
+        ),
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    ("case_id", "kern", "verwacht"),
+    list(LETTERLIJKE_MELDINGEN.values()),
+    ids=list(LETTERLIJKE_MELDINGEN),
+)
+def test_melding_laat_plaatshouders_in_citaat_ongemoeid(case_id, kern, verwacht):
+    doc = _met_eigen_kern(case_id, kern)
+    assert doc.melding == verwacht
+
+
+def test_melding_laat_plaatshouder_in_reden_ongemoeid():
+    geval = _geval("C107")
+    geval["modelrespons"].update(
+        {
+            "reason": "De betekenis van {één vraag} is onbekend.",
+            "question": "Wat betekent dit veld?",
+        }
+    )
+    doc = _beoordeel(geval["invoer"], geval["modelrespons"])
+    assert doc.melding == (
+        "INT-02 — Onvoldoende informatie. De betekenis van {één vraag} is onbekend. "
+        "Vraag: Wat betekent dit veld?"
+    )
+    assert doc.melding.count("?") == 1
+
+
+@pytest.mark.parametrize(
+    "inhoud",
+    ["1" * 5000, "[" * 100_000 + "]" * 100_000, "[" * 100_000],
+    ids=["getal-boven-cijferlimiet", "geldig-te-diep", "ongeldig-te-diep"],
+)
+def test_niet_decodeerbaar_oordeel_geeft_bij_replay_error(inhoud):
+    geval = _geval("C112")
+    doc = _beoordeel(geval["invoer"], geval["modelrespons"])
+    replay = toets_actualiteit(
+        dataclasses.replace(doc, oordeel_json=inhoud),
+        maak_invoer(**geval["invoer"]),
+        _configuratie(),
+    )
+    assert (replay.status, replay.reden, replay.melding) == ("error", None, E)
