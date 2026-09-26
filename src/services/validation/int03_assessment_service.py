@@ -304,7 +304,11 @@ class Int03AssessmentService:
         model_router: Any | None = None,
         norm: Mapping[str, str] | None = None,
         timeout_seconds: int = 60,
-        max_tokens: int = 1200,
+        # Outputtokenbudget: Chris (26-09-2026) max 5000, ter vervanging van de
+        # eerdere opdracht max 2500 (was 1200; van 2500 is geen livemeting
+        # gedaan). Alleen dit budget; provider/model, norm, prompt en het
+        # afkapbeleid (`truncated_response`) blijven gelijk.
+        max_tokens: int = 5000,
         max_input_chars: int = 4000,
         max_total_input_chars: int = 12000,
         cache_size: int = 64,

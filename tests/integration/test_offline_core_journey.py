@@ -466,6 +466,11 @@ def _bewijs_int03_pass_op_bevroren_antwoord(
     assert (
         oproepen[0].temperature == 0.0
     ), f"INT-03: temperature {oproepen[0].temperature}"
+    # Outputtokenlimiet (Chris, 26-09-2026: max 5000, vervangt max 2500): het
+    # budget bereikt via de echte AIServiceV2 ongewijzigd de providergrens.
+    assert (
+        oproepen[0].max_tokens == 5000
+    ), f"INT-03: outputbudget {oproepen[0].max_tokens} i.p.v. 5000"
 
 
 def _bewijs_opgeslagen_rij(
