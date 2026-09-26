@@ -9,7 +9,7 @@ netwerk en zonder betaalde calls:
   configuratie en de freeze binden de verifierroute, het model, de
   verificatieprompt en haar tokengrens;
 * ronde 7 is gesloten voor echte calls (de oude R7-freeze hoort bij de
-  eenstaps-`/13`-software); alleen de geregistreerde R10 staat open;
+  eenstaps-`/13`-software) en geen enkele ronde staat open;
 * een echte tweestaps-T-fase wordt vóór grootboek en netwerk geweigerd, ook
   als een (niet-geregistreerde) ronde in de test open zou staan;
 * offline krijgt de tweede fase een eigen reservering (niet meer geweigerd
@@ -171,11 +171,11 @@ class TestBinding:
 
 
 class TestGeenEchteCalls:
-    def test_alleen_de_goedgekeurde_r10_staat_open_voor_echte_calls(self):
-        # R10 (besluit Chris 26-09, ronde10-herproefgoedkeuring-v1.json) is de
-        # enige open ronde; R1–R7, de gestopte R8 en R9 (inhoudelijke stop op
-        # R720) blijven gesloten. De besluiten blijven gepind.
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R10"]
+    def test_geen_ronde_staat_open_voor_echte_calls(self):
+        # R10 (besluit Chris 26-09) is na de inhoudelijke stop op R720 (C3)
+        # gesloten, net als R1–R7, de gestopte R8 en R9. De besluiten blijven
+        # gepind.
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
         assert runner.PROEVEN["R10"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R9"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R8"].budgetbesluit_sha256 is not None

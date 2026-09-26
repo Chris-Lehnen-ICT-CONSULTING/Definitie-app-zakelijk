@@ -466,8 +466,9 @@ class TestDroogR4:
         # verificatieprompt); zo past zij niet meer op de eenstaps-/13-freeze.
         # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
         # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
-        assert droog["freezevelden"]["prompt_version"] == "ess05-assess/16"
+        # assess/17 + verify/4 (R10-C3): gesloten bewijsroute per claim; T/13 gelijk.
+        assert droog["freezevelden"]["prompt_version"] == "ess05-assess/17"
         assert droog["freezevelden"]["verification_prompt_version"] == (
-            "ess05-verify/3"
+            "ess05-verify/4"
         )
         assert droog["freezevelden"]["code_sha256"] == runner.code_sha256()

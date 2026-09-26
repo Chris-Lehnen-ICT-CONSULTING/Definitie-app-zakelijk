@@ -329,7 +329,10 @@ _ANTWOORDSTRUCTUUR = (
     "bij inference alleen door de claims in premises. Steunt een deelzin op een "
     "gegeven dat daar niet in staat, ook als het elders in het materiaal staat, neem "
     "dat gegeven dan eerst op als eigen claim met bewijsplaats en als premisse, of "
-    "splits de claim of laat de deelzin weg.\n"
+    "splits de claim of laat de deelzin weg. Een bewijsplaats draagt alleen de woorden "
+    "binnen haar citaat, niet wat in de zin ervoor of erna staat; gaat de uitspraak "
+    "verder dan het citaat, citeer dan ook dat deel als bewijsplaats van deze claim of "
+    "laat het weg.\n"
     "- Een bewijsplaats verwijst naar één materiaal-id en sha256 uit <materiaal>, met "
     "in quote een exact, aaneengesloten fragment uit de oorspronkelijke tekst van dat "
     "materiaal; een XML-escape zoals &amp; staat voor één teken. Geef geen posities: "
@@ -570,7 +573,10 @@ class Ess05AssessmentService:
     #: /16 (R9-bewijsherstel): toetsinstructie ongewijzigd; elke deelzin van een
     #: claim wordt gedragen door haar eigen bewijsplaatsen of premissen, anders
     #: een eigen claim als premisse, splitsen of weglaten (R9-R720, claim C5).
-    PROMPT_VERSION = "ess05-assess/16"
+    #: /17 (R10-C3-herstel): toetsinstructie ongewijzigd; een bewijsplaats draagt
+    #: alleen de woorden binnen haar citaat, niet de zin ervoor of erna; wat
+    #: verder gaat, wordt mee geciteerd of weggelaten (R10-R720, claim C3).
+    PROMPT_VERSION = "ess05-assess/17"
     TASK_TYPE = "validation"
 
     def __init__(

@@ -1,0 +1,486 @@
+{
+ "schema": "def768-ess05-r10-callrecord-uittreksel/1",
+ "bron": {
+  "callrecord": "reports/DEF-768-AI-20260926-R10/ontwikkeling-20260926T104115270789Z/calls/001-ontwikkeling-R720.json",
+  "callrecord_sha256": "c4f8be4093eb76349c6d09ba18f25569d22c1942d907afef569b328ef245a975",
+  "ontwikkelselectie": "reports/DEF-768-AI-20260926-R9/ontwikkelselectie-v1.json",
+  "ontwikkelselectie_sha256": "4e11ebe579ba9852217951fdf21466dc3131f2ba925f49fb7114b242eef3439d",
+  "inhoudscontrole": "logs/def768/ronde10-r720-inhoudscontrole-result-v1.md",
+  "inhoudscontrole_sha256": "353944a1969738b986853f6cbce858b75fbdcf93063c47958e236883c93f4fd5",
+  "prompt_version": "ess05-assess/16",
+  "verification_prompt_version": "ess05-verify/3"
+ },
+ "fout": "NO-GO (onafhankelijke auteur): materiaalclaim C3 stelt mede dat de drie zelfstandige soorten onderling worden vergeleken, met alleen E7 als bewijsplaats; E7 noemt alleen de drie soorten, de vergelijking staat in de daaropvolgende, niet-geciteerde bronzin. De verifier vulde die zin aan ('de bron zegt daarnaast ...') en keurde C3 volledig goed.",
+ "geval": {
+  "id": "R720",
+  "doel": "Een expliciet gedragen zelfstandige kandidaat onderscheiden, maar een nieuw onbevestigd modelvoorstel open houden.",
+  "parafrase": false,
+  "begrip": "lusretour",
+  "tekst": "transportgang die via baan Neral naar de oorspronkelijke laadplaats terugkeert",
+  "toelichting": null,
+  "categorie": null,
+  "context": {
+   "organisatorische_context": [
+    "Zerfali Omloopzaal"
+   ],
+   "juridische_context": [],
+   "wettelijke_basis": []
+  },
+  "bronnen": [
+   {
+    "provider": "documents",
+    "doc_id": "synthetisch-R720",
+    "title": "Synthetische domeinafspraak Zerfali Omloopzaal",
+    "snippet": "Zerfali Omloopzaal kent precies drie zelfstandige soorten transportgangen: lusretour, lusafvoer en dwarsterugloop. Zij vormen samen de volledige keuze tussen transportgangen en worden onderling vergeleken. Een lusretour gebruikt baan Neral en eindigt op de oorspronkelijke laadplaats. Een lusafvoer gebruikt baan Neral en eindigt op een andere plaats dan de oorspronkelijke laadplaats. Een dwarsterugloop gebruikt uitsluitend baan Dovar en eindigt op de oorspronkelijke laadplaats. Neral en Dovar zijn verschillende banen; een dwarsterugloop passeert Neral niet."
+   }
+  ],
+  "buren": [
+   {
+    "term": "lusafvoer",
+    "definitie": "transportgang die baan Neral gebruikt en op een andere plaats dan de oorspronkelijke laadplaats eindigt",
+    "herkomst": "gebruiker",
+    "bevestigd": true
+   },
+   {
+    "term": "dwarsterugloop",
+    "definitie": "transportgang die uitsluitend baan Dovar gebruikt en op de oorspronkelijke laadplaats eindigt",
+    "herkomst": "model",
+    "bevestigd": false
+   }
+  ],
+  "verwacht": "review_required",
+  "verwacht_per_buur": [
+   {
+    "term": "lusafvoer",
+    "distinction": "distinguished",
+    "dragend_citaat": "naar de oorspronkelijke laadplaats terugkeert",
+    "ontbrekend_kenmerk": null,
+    "grond": "Lusafvoer eindigt elders en voldoet daarom niet aan de vereiste terugkeer."
+   },
+   {
+    "term": "dwarsterugloop",
+    "distinction": "distinguished",
+    "dragend_citaat": "via baan Neral",
+    "ontbrekend_kenmerk": null,
+    "grond": "Dwarsterugloop gebruikt uitsluitend Dovar en passeert Neral niet. De bron draagt zowel haar zelfstandige status als haar relevantie voor deze vergelijking."
+   }
+  ],
+  "grond": "De kern onderscheidt beide soorten inhoudelijk. De tweede buur is een nieuw onbevestigd modelvoorstel, waardoor review_required blijft gelden ondanks de volledige en ondubbelzinnige kandidaatbeschrijving.",
+  "toegestane_vraag": "Moet het modelvoorstel dwarsterugloop als relevante buur worden bevestigd?"
+ },
+ "geval_sha256": "33c1497b18dbf733ce1fb6bbc90d134bf16036b3043f2041b32873d29719e071",
+ "raw_response": "{\n  \"schema_version\": \"ess05-answer/1\",\n  \"genus_evidence\": \"E1\",\n  \"core_features\": [{\"id\": \"F1\", \"evidence\": \"E2\"}, {\"id\": \"F2\", \"evidence\": \"E3\"}],\n  \"evidence\": [\n    {\"id\": \"E1\", \"material_id\": \"definition\", \"material_sha256\": \"7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4\", \"quote\": \"transportgang\"},\n    {\"id\": \"E2\", \"material_id\": \"definition\", \"material_sha256\": \"7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4\", \"quote\": \"via baan Neral\"},\n    {\"id\": \"E3\", \"material_id\": \"definition\", \"material_sha256\": \"7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4\", \"quote\": \"naar de oorspronkelijke laadplaats terugkeert\"},\n    {\"id\": \"E4\", \"material_id\": \"neighbour:gebruiker:4e576abf821e\", \"material_sha256\": \"aefe0c5f5e483eb1119e74f2533ecd2b5383d2edcbaa8212c9df42ec39d1ba84\", \"quote\": \"op een andere plaats dan de oorspronkelijke laadplaats eindigt\"},\n    {\"id\": \"E5\", \"material_id\": \"neighbour:model:19a4c2e48748\", \"material_sha256\": \"e8d4e624ea823ba41462e7616d2781e729478c53bb5bedb92c220c304b3b50b6\", \"quote\": \"uitsluitend baan Dovar gebruikt\"},\n    {\"id\": \"E6\", \"material_id\": \"source:doc:synthetisch-R720\", \"material_sha256\": \"c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798\", \"quote\": \"Neral en Dovar zijn verschillende banen; een dwarsterugloop passeert Neral niet.\"},\n    {\"id\": \"E7\", \"material_id\": \"source:doc:synthetisch-R720\", \"material_sha256\": \"c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798\", \"quote\": \"Zerfali Omloopzaal kent precies drie zelfstandige soorten transportgangen: lusretour, lusafvoer en dwarsterugloop.\"}\n  ],\n  \"claims\": [\n    {\"id\": \"C1\", \"role\": \"material\", \"text\": \"De kern noemt als bovenbegrip 'transportgang'.\", \"evidence\": [\"E1\"], \"premises\": []},\n    {\"id\": \"C2\", \"role\": \"material\", \"text\": \"De kern noemt als inhoudelijke kenmerken het gebruik van baan Neral en het terugkeren naar de oorspronkelijke laadplaats.\", \"evidence\": [\"E2\", \"E3\"], \"premises\": []},\n    {\"id\": \"C3\", \"role\": \"material\", \"text\": \"De bron legt vast dat lusretour, lusafvoer en dwarsterugloop de drie zelfstandige soorten transportgangen in Zerfali Omloopzaal zijn die onderling worden vergeleken.\", \"evidence\": [\"E7\"], \"premises\": []},\n    {\"id\": \"C4\", \"role\": \"material\", \"text\": \"Een lusafvoer eindigt volgens de beschrijving op een andere plaats dan de oorspronkelijke laadplaats.\", \"evidence\": [\"E4\"], \"premises\": []},\n    {\"id\": \"C5\", \"role\": \"inference\", \"text\": \"Het kenmerk 'naar de oorspronkelijke laadplaats terugkeert' grenst de gevallen van lusafvoer af, omdat die juist elders eindigen en daarmee niet onder de kern vallen.\", \"evidence\": [], \"premises\": [\"C2\", \"C4\"]},\n    {\"id\": \"C6\", \"role\": \"material\", \"text\": \"Een dwarsterugloop gebruikt volgens de beschrijving uitsluitend baan Dovar.\", \"evidence\": [\"E5\"], \"premises\": []},\n    {\"id\": \"C7\", \"role\": \"material\", \"text\": \"De bron legt vast dat Neral en Dovar verschillende banen zijn en dat een dwarsterugloop Neral niet passeert.\", \"evidence\": [\"E6\"], \"premises\": []},\n    {\"id\": \"C8\", \"role\": \"inference\", \"text\": \"Het kenmerk 'via baan Neral' grenst de gevallen van dwarsterugloop af, omdat die Neral niet passeren en dus niet onder de kern vallen.\", \"evidence\": [], \"premises\": [\"C2\", \"C6\", \"C7\"]}\n  ],\n  \"reason_claims\": [\"C1\", \"C2\", \"C3\"],\n  \"neighbours\": [\n    {\"neighbour_id\": \"gebruiker:4e576abf821e\", \"distinction\": \"distinguished\", \"feature_evidence\": \"E3\", \"reason_claims\": [\"C4\", \"C5\"], \"missing_feature_claim\": null, \"uncertainty_claim\": null},\n    {\"neighbour_id\": \"model:19a4c2e48748\", \"distinction\": \"distinguished\", \"feature_evidence\": \"E2\", \"reason_claims\": [\"C6\", \"C7\", \"C8\"], \"missing_feature_claim\": null, \"uncertainty_claim\": null}\n  ],\n  \"proposals\": [],\n  \"question\": null\n}",
+ "raw_response_sha256": "a3028d96d07edbbe7a4d019e9dc5225d10638babadef3c88344597f94beb6690",
+ "verification_raw_response": "{\n  \"schema_version\": \"ess05-verification/1\",\n  \"candidate_hash\": \"0b5a264e7b63d30ae409918ae7ae33b0edca9576b58788278e7bfe3cf2a9d029\",\n  \"checks\": [\n    {\n      \"item\": \"core_features\",\n      \"outcome\": \"supported\",\n      \"finding\": \"F1 ('via baan Neral') en F2 ('naar de oorspronkelijke laadplaats terugkeert') zijn beide inhoudelijke kenmerken naast het bovenbegrip 'transportgang'; de lijst is terecht niet leeg.\"\n    },\n    {\n      \"item\": \"feature:F1\",\n      \"outcome\": \"supported\",\n      \"finding\": \"'via baan Neral' staat letterlijk in de kern (definition, pos. 18-32) en noemt een inhoudelijk kenmerk (gebruikte baan).\"\n    },\n    {\n      \"item\": \"feature:F2\",\n      \"outcome\": \"supported\",\n      \"finding\": \"'naar de oorspronkelijke laadplaats terugkeert' staat letterlijk in de kern (definition, pos. 33-78) en noemt een inhoudelijk kenmerk (eindpunt).\"\n    },\n    {\n      \"item\": \"claim:C1\",\n      \"outcome\": \"supported\",\n      \"finding\": \"E1 citeert 'transportgang' aan het begin van de kern; dat is inderdaad het bovenbegrip.\"\n    },\n    {\n      \"item\": \"claim:C2\",\n      \"outcome\": \"supported\",\n      \"finding\": \"E2 en E3 dragen beide deelzinnen: baangebruik Neral en terugkeer naar de oorspronkelijke laadplaats staan letterlijk in de kern.\"\n    },\n    {\n      \"item\": \"claim:C3\",\n      \"outcome\": \"supported\",\n      \"finding\": \"E7 citeert de bronzin over 'precies drie zelfstandige soorten transportgangen'; de bron zegt daarnaast dat zij onderling worden vergeleken, zodat de claim volledig gedragen is.\"\n    },\n    {\n      \"item\": \"claim:C4\",\n      \"outcome\": \"supported\",\n      \"finding\": \"E4 citeert letterlijk uit de beschrijving van lusafvoer dat deze 'op een andere plaats dan de oorspronkelijke laadplaats eindigt'.\"\n    },\n    {\n      \"item\": \"claim:C5\",\n      \"outcome\": \"supported\",\n      \"finding\": \"Uit C2 (kern eist terugkeer naar de oorspronkelijke laadplaats) en C4 (lusafvoer eindigt elders) volgt dat gevallen van lusafvoer buiten de kern vallen; geen aanvullende premisse nodig.\"\n    },\n    {\n      \"item\": \"claim:C6\",\n      \"outcome\": \"supported\",\n      \"finding\": \"E5 citeert letterlijk 'uitsluitend baan Dovar gebruikt' uit de beschrijving van dwarsterugloop.\"\n    },\n    {\n      \"item\": \"claim:C7\",\n      \"outcome\": \"supported\",\n      \"finding\": \"E6 citeert letterlijk de bronzin dat Neral en Dovar verschillende banen zijn en een dwarsterugloop Neral niet passeert.\"\n    },\n    {\n      \"item\": \"claim:C8\",\n      \"outcome\": \"supported\",\n      \"finding\": \"Uit C2 (kern eist gebruik van baan Neral), C6 en C7 (dwarsterugloop gebruikt uitsluitend Dovar en passeert Neral niet) volgt dat gevallen van dwarsterugloop buiten de kern vallen.\"\n    },\n    {\n      \"item\": \"neighbour:gebruiker:4e576abf821e\",\n      \"outcome\": \"supported\",\n      \"finding\": \"Terecht distinguished: het aangehaalde kernfragment E3 ('naar de oorspronkelijke laadplaats terugkeert') draagt zelf de afgrenzing tegenover lusafvoer, die volgens beschrijving en bron elders eindigt.\"\n    },\n    {\n      \"item\": \"neighbour:model:19a4c2e48748\",\n      \"outcome\": \"supported\",\n      \"finding\": \"Terecht distinguished: E2 ('via baan Neral') draagt zelf de afgrenzing, want een dwarsterugloop gebruikt uitsluitend Dovar en passeert Neral volgens de bron niet; dat het begrip onbevestigd is, verandert het oordeel niet.\"\n    },\n    {\n      \"item\": \"completeness\",\n      \"outcome\": \"supported\",\n      \"finding\": \"Beide aangeleverde verwante begrippen zijn precies één keer beoordeeld, de bron over de drie zelfstandige soorten is meegenomen, geen kenmerk vernauwt de betekenis en er is geen onterecht unclear; ontbreken van voorstel en vraag is bij twee distinguished-uitkomsten terecht.\"\n    }\n  ]\n}",
+ "verification_raw_response_sha256": "695932cc1923ad9f66d21307ba826aaf736add788e6b3112ab98ebf8d5cef2be",
+ "beoordelingsdocument": {
+  "assessed_at": "2026-09-26T10:41:30.736539+00:00",
+  "attribution": {
+   "attempts_observed": 1,
+   "cached": false,
+   "model": "claude-opus-5",
+   "provider": "anthropic",
+   "retries_observed": 0,
+   "stop_reason": "end_turn",
+   "task_type": "validation",
+   "tokens_used": 5367
+  },
+  "concept": {
+   "claims": [
+    {
+     "evidence": [
+      "E1"
+     ],
+     "id": "C1",
+     "premises": [],
+     "role": "material",
+     "text": "De kern noemt als bovenbegrip 'transportgang'."
+    },
+    {
+     "evidence": [
+      "E2",
+      "E3"
+     ],
+     "id": "C2",
+     "premises": [],
+     "role": "material",
+     "text": "De kern noemt als inhoudelijke kenmerken het gebruik van baan Neral en het terugkeren naar de oorspronkelijke laadplaats."
+    },
+    {
+     "evidence": [
+      "E7"
+     ],
+     "id": "C3",
+     "premises": [],
+     "role": "material",
+     "text": "De bron legt vast dat lusretour, lusafvoer en dwarsterugloop de drie zelfstandige soorten transportgangen in Zerfali Omloopzaal zijn die onderling worden vergeleken."
+    },
+    {
+     "evidence": [
+      "E4"
+     ],
+     "id": "C4",
+     "premises": [],
+     "role": "material",
+     "text": "Een lusafvoer eindigt volgens de beschrijving op een andere plaats dan de oorspronkelijke laadplaats."
+    },
+    {
+     "evidence": [],
+     "id": "C5",
+     "premises": [
+      "C2",
+      "C4"
+     ],
+     "role": "inference",
+     "text": "Het kenmerk 'naar de oorspronkelijke laadplaats terugkeert' grenst de gevallen van lusafvoer af, omdat die juist elders eindigen en daarmee niet onder de kern vallen."
+    },
+    {
+     "evidence": [
+      "E5"
+     ],
+     "id": "C6",
+     "premises": [],
+     "role": "material",
+     "text": "Een dwarsterugloop gebruikt volgens de beschrijving uitsluitend baan Dovar."
+    },
+    {
+     "evidence": [
+      "E6"
+     ],
+     "id": "C7",
+     "premises": [],
+     "role": "material",
+     "text": "De bron legt vast dat Neral en Dovar verschillende banen zijn en dat een dwarsterugloop Neral niet passeert."
+    },
+    {
+     "evidence": [],
+     "id": "C8",
+     "premises": [
+      "C2",
+      "C6",
+      "C7"
+     ],
+     "role": "inference",
+     "text": "Het kenmerk 'via baan Neral' grenst de gevallen van dwarsterugloop af, omdat die Neral niet passeren en dus niet onder de kern vallen."
+    }
+   ],
+   "core_features": [
+    {
+     "evidence": "E2",
+     "id": "F1"
+    },
+    {
+     "evidence": "E3",
+     "id": "F2"
+    }
+   ],
+   "evidence": [
+    {
+     "end": 13,
+     "id": "E1",
+     "material_id": "definition",
+     "material_sha256": "7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4",
+     "quote": "transportgang",
+     "start": 0
+    },
+    {
+     "end": 32,
+     "id": "E2",
+     "material_id": "definition",
+     "material_sha256": "7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4",
+     "quote": "via baan Neral",
+     "start": 18
+    },
+    {
+     "end": 78,
+     "id": "E3",
+     "material_id": "definition",
+     "material_sha256": "7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4",
+     "quote": "naar de oorspronkelijke laadplaats terugkeert",
+     "start": 33
+    },
+    {
+     "end": 103,
+     "id": "E4",
+     "material_id": "neighbour:gebruiker:4e576abf821e",
+     "material_sha256": "aefe0c5f5e483eb1119e74f2533ecd2b5383d2edcbaa8212c9df42ec39d1ba84",
+     "quote": "op een andere plaats dan de oorspronkelijke laadplaats eindigt",
+     "start": 41
+    },
+    {
+     "end": 49,
+     "id": "E5",
+     "material_id": "neighbour:model:19a4c2e48748",
+     "material_sha256": "e8d4e624ea823ba41462e7616d2781e729478c53bb5bedb92c220c304b3b50b6",
+     "quote": "uitsluitend baan Dovar gebruikt",
+     "start": 18
+    },
+    {
+     "end": 562,
+     "id": "E6",
+     "material_id": "source:doc:synthetisch-R720",
+     "material_sha256": "c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798",
+     "quote": "Neral en Dovar zijn verschillende banen; een dwarsterugloop passeert Neral niet.",
+     "start": 482
+    },
+    {
+     "end": 114,
+     "id": "E7",
+     "material_id": "source:doc:synthetisch-R720",
+     "material_sha256": "c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798",
+     "quote": "Zerfali Omloopzaal kent precies drie zelfstandige soorten transportgangen: lusretour, lusafvoer en dwarsterugloop.",
+     "start": 0
+    }
+   ],
+   "genus_evidence": "E1",
+   "neighbours": [
+    {
+     "distinction": "distinguished",
+     "feature_evidence": "E3",
+     "missing_feature_claim": null,
+     "neighbour_id": "gebruiker:4e576abf821e",
+     "reason_claims": [
+      "C4",
+      "C5"
+     ],
+     "uncertainty_claim": null
+    },
+    {
+     "distinction": "distinguished",
+     "feature_evidence": "E2",
+     "missing_feature_claim": null,
+     "neighbour_id": "model:19a4c2e48748",
+     "reason_claims": [
+      "C6",
+      "C7",
+      "C8"
+     ],
+     "uncertainty_claim": null
+    }
+   ],
+   "proposals": [],
+   "question": null,
+   "reason_claims": [
+    "C1",
+    "C2",
+    "C3"
+   ],
+   "schema_version": "ess05-concept/1"
+  },
+  "concept_derivation": {
+   "answer_schema_version": "ess05-answer/1",
+   "concept_hash": "0b5a264e7b63d30ae409918ae7ae33b0edca9576b58788278e7bfe3cf2a9d029",
+   "material": {
+    "context": "6df31d56450cbd67b42f83e1a97af527149a813ed7d43b041445b12b1a1df312",
+    "definition": "7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4",
+    "neighbour:gebruiker:4e576abf821e": "aefe0c5f5e483eb1119e74f2533ecd2b5383d2edcbaa8212c9df42ec39d1ba84",
+    "neighbour:model:19a4c2e48748": "e8d4e624ea823ba41462e7616d2781e729478c53bb5bedb92c220c304b3b50b6",
+    "source:doc:synthetisch-R720": "c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798"
+   },
+   "raw_response_sha256": "a3028d96d07edbbe7a4d019e9dc5225d10638babadef3c88344597f94beb6690"
+  },
+  "contract_version": "ess05/2",
+  "elapsed_seconds": 15.465,
+  "error": null,
+  "fingerprint": "c824539cc52c6726943b7fcd51db1a1f046487e60c8cb426f2ff133a23553909",
+  "input": {
+   "buren": [
+    {
+     "bevestigd": true,
+     "definitie": "transportgang die baan Neral gebruikt en op een andere plaats dan de oorspronkelijke laadplaats eindigt",
+     "herkomst": "gebruiker",
+     "id": "gebruiker:4e576abf821e",
+     "term": "lusafvoer"
+    },
+    {
+     "bevestigd": false,
+     "definitie": "transportgang die uitsluitend baan Dovar gebruikt en op de oorspronkelijke laadplaats eindigt",
+     "herkomst": "model",
+     "id": "model:19a4c2e48748",
+     "term": "dwarsterugloop"
+    }
+   ],
+   "deadline_seconds": 60,
+   "intentie": {
+    "betekenisverduidelijking": null,
+    "categorie": null,
+    "toelichting": null,
+    "verduidelijking": null
+   },
+   "materiaal": {
+    "context": "6df31d56450cbd67b42f83e1a97af527149a813ed7d43b041445b12b1a1df312",
+    "definition": "7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4",
+    "neighbour:gebruiker:4e576abf821e": "aefe0c5f5e483eb1119e74f2533ecd2b5383d2edcbaa8212c9df42ec39d1ba84",
+    "neighbour:model:19a4c2e48748": "e8d4e624ea823ba41462e7616d2781e729478c53bb5bedb92c220c304b3b50b6",
+    "source:doc:synthetisch-R720": "c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798"
+   },
+   "max_passage_chars": 8000,
+   "max_tokens": 3000,
+   "neighbour_status": [
+    [
+     "gebruiker:4e576abf821e",
+     true
+    ],
+    [
+     "model:19a4c2e48748",
+     false
+    ]
+   ],
+   "prompt_sha256": "245d144eb41bff347052a4bfbf1134c5a701e810beb76f48203b9ad4c109a1a2",
+   "rejected_terms": [],
+   "uitgesloten_termen": []
+  },
+  "judgment": {
+   "lacks_differentia": false,
+   "neighbours": [
+    {
+     "distinction": "distinguished",
+     "distinguishing_feature_quote": "naar de oorspronkelijke laadplaats terugkeert",
+     "missing_feature": null,
+     "neighbour_id": "gebruiker:4e576abf821e",
+     "reason": "Een lusafvoer eindigt volgens de beschrijving op een andere plaats dan de oorspronkelijke laadplaats. [beschrijving verwant begrip: “op een andere plaats dan de oorspronkelijke laadplaats eindigt”] Gevolgtrekking: Het kenmerk 'naar de oorspronkelijke laadplaats terugkeert' grenst de gevallen van lusafvoer af, omdat die juist elders eindigen en daarmee niet onder de kern vallen.",
+     "uncertainty": null
+    },
+    {
+     "distinction": "distinguished",
+     "distinguishing_feature_quote": "via baan Neral",
+     "missing_feature": null,
+     "neighbour_id": "model:19a4c2e48748",
+     "reason": "Een dwarsterugloop gebruikt volgens de beschrijving uitsluitend baan Dovar. [beschrijving verwant begrip: “uitsluitend baan Dovar gebruikt”] De bron legt vast dat Neral en Dovar verschillende banen zijn en dat een dwarsterugloop Neral niet passeert. [bron doc:synthetisch-R720: “Neral en Dovar zijn verschillende banen; een dwarsterugloop passeert Neral niet.”] Gevolgtrekking: Het kenmerk 'via baan Neral' grenst de gevallen van dwarsterugloop af, omdat die Neral niet passeren en dus niet onder de kern vallen.",
+     "uncertainty": null
+    }
+   ],
+   "proposed_neighbours": [],
+   "question": null,
+   "reason": "De kern noemt als bovenbegrip 'transportgang'. [definitie: “transportgang”] De kern noemt als inhoudelijke kenmerken het gebruik van baan Neral en het terugkeren naar de oorspronkelijke laadplaats. [definitie: “via baan Neral”; definitie: “naar de oorspronkelijke laadplaats terugkeert”] De bron legt vast dat lusretour, lusafvoer en dwarsterugloop de drie zelfstandige soorten transportgangen in Zerfali Omloopzaal zijn die onderling worden vergeleken. [bron doc:synthetisch-R720: “Zerfali Omloopzaal kent precies drie zelfstandige soorten transportgangen: lusretour, lusafvoer en dwarsterugloop.”]"
+  },
+  "norm_sha256": "af550b2cc5868a6dad6ed951d4fc867a86f1b16fa283181941ac355833ac93e4",
+  "prompt_version": "ess05-assess/16",
+  "raw_response": "{\n  \"schema_version\": \"ess05-answer/1\",\n  \"genus_evidence\": \"E1\",\n  \"core_features\": [{\"id\": \"F1\", \"evidence\": \"E2\"}, {\"id\": \"F2\", \"evidence\": \"E3\"}],\n  \"evidence\": [\n    {\"id\": \"E1\", \"material_id\": \"definition\", \"material_sha256\": \"7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4\", \"quote\": \"transportgang\"},\n    {\"id\": \"E2\", \"material_id\": \"definition\", \"material_sha256\": \"7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4\", \"quote\": \"via baan Neral\"},\n    {\"id\": \"E3\", \"material_id\": \"definition\", \"material_sha256\": \"7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4\", \"quote\": \"naar de oorspronkelijke laadplaats terugkeert\"},\n    {\"id\": \"E4\", \"material_id\": \"neighbour:gebruiker:4e576abf821e\", \"material_sha256\": \"aefe0c5f5e483eb1119e74f2533ecd2b5383d2edcbaa8212c9df42ec39d1ba84\", \"quote\": \"op een andere plaats dan de oorspronkelijke laadplaats eindigt\"},\n    {\"id\": \"E5\", \"material_id\": \"neighbour:model:19a4c2e48748\", \"material_sha256\": \"e8d4e624ea823ba41462e7616d2781e729478c53bb5bedb92c220c304b3b50b6\", \"quote\": \"uitsluitend baan Dovar gebruikt\"},\n    {\"id\": \"E6\", \"material_id\": \"source:doc:synthetisch-R720\", \"material_sha256\": \"c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798\", \"quote\": \"Neral en Dovar zijn verschillende banen; een dwarsterugloop passeert Neral niet.\"},\n    {\"id\": \"E7\", \"material_id\": \"source:doc:synthetisch-R720\", \"material_sha256\": \"c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798\", \"quote\": \"Zerfali Omloopzaal kent precies drie zelfstandige soorten transportgangen: lusretour, lusafvoer en dwarsterugloop.\"}\n  ],\n  \"claims\": [\n    {\"id\": \"C1\", \"role\": \"material\", \"text\": \"De kern noemt als bovenbegrip 'transportgang'.\", \"evidence\": [\"E1\"], \"premises\": []},\n    {\"id\": \"C2\", \"role\": \"material\", \"text\": \"De kern noemt als inhoudelijke kenmerken het gebruik van baan Neral en het terugkeren naar de oorspronkelijke laadplaats.\", \"evidence\": [\"E2\", \"E3\"], \"premises\": []},\n    {\"id\": \"C3\", \"role\": \"material\", \"text\": \"De bron legt vast dat lusretour, lusafvoer en dwarsterugloop de drie zelfstandige soorten transportgangen in Zerfali Omloopzaal zijn die onderling worden vergeleken.\", \"evidence\": [\"E7\"], \"premises\": []},\n    {\"id\": \"C4\", \"role\": \"material\", \"text\": \"Een lusafvoer eindigt volgens de beschrijving op een andere plaats dan de oorspronkelijke laadplaats.\", \"evidence\": [\"E4\"], \"premises\": []},\n    {\"id\": \"C5\", \"role\": \"inference\", \"text\": \"Het kenmerk 'naar de oorspronkelijke laadplaats terugkeert' grenst de gevallen van lusafvoer af, omdat die juist elders eindigen en daarmee niet onder de kern vallen.\", \"evidence\": [], \"premises\": [\"C2\", \"C4\"]},\n    {\"id\": \"C6\", \"role\": \"material\", \"text\": \"Een dwarsterugloop gebruikt volgens de beschrijving uitsluitend baan Dovar.\", \"evidence\": [\"E5\"], \"premises\": []},\n    {\"id\": \"C7\", \"role\": \"material\", \"text\": \"De bron legt vast dat Neral en Dovar verschillende banen zijn en dat een dwarsterugloop Neral niet passeert.\", \"evidence\": [\"E6\"], \"premises\": []},\n    {\"id\": \"C8\", \"role\": \"inference\", \"text\": \"Het kenmerk 'via baan Neral' grenst de gevallen van dwarsterugloop af, omdat die Neral niet passeren en dus niet onder de kern vallen.\", \"evidence\": [], \"premises\": [\"C2\", \"C6\", \"C7\"]}\n  ],\n  \"reason_claims\": [\"C1\", \"C2\", \"C3\"],\n  \"neighbours\": [\n    {\"neighbour_id\": \"gebruiker:4e576abf821e\", \"distinction\": \"distinguished\", \"feature_evidence\": \"E3\", \"reason_claims\": [\"C4\", \"C5\"], \"missing_feature_claim\": null, \"uncertainty_claim\": null},\n    {\"neighbour_id\": \"model:19a4c2e48748\", \"distinction\": \"distinguished\", \"feature_evidence\": \"E2\", \"reason_claims\": [\"C6\", \"C7\", \"C8\"], \"missing_feature_claim\": null, \"uncertainty_claim\": null}\n  ],\n  \"proposals\": [],\n  \"question\": null\n}",
+  "raw_response_sha256": "a3028d96d07edbbe7a4d019e9dc5225d10638babadef3c88344597f94beb6690",
+  "rejected": [],
+  "renderer_version": "ess05-render/1",
+  "schema_version": "ess05-concept/1",
+  "status": "assessed",
+  "verification": {
+   "candidate_hash": "0b5a264e7b63d30ae409918ae7ae33b0edca9576b58788278e7bfe3cf2a9d029",
+   "checks": [
+    {
+     "finding": "F1 ('via baan Neral') en F2 ('naar de oorspronkelijke laadplaats terugkeert') zijn beide inhoudelijke kenmerken naast het bovenbegrip 'transportgang'; de lijst is terecht niet leeg.",
+     "item": "core_features",
+     "outcome": "supported"
+    },
+    {
+     "finding": "'via baan Neral' staat letterlijk in de kern (definition, pos. 18-32) en noemt een inhoudelijk kenmerk (gebruikte baan).",
+     "item": "feature:F1",
+     "outcome": "supported"
+    },
+    {
+     "finding": "'naar de oorspronkelijke laadplaats terugkeert' staat letterlijk in de kern (definition, pos. 33-78) en noemt een inhoudelijk kenmerk (eindpunt).",
+     "item": "feature:F2",
+     "outcome": "supported"
+    },
+    {
+     "finding": "E1 citeert 'transportgang' aan het begin van de kern; dat is inderdaad het bovenbegrip.",
+     "item": "claim:C1",
+     "outcome": "supported"
+    },
+    {
+     "finding": "E2 en E3 dragen beide deelzinnen: baangebruik Neral en terugkeer naar de oorspronkelijke laadplaats staan letterlijk in de kern.",
+     "item": "claim:C2",
+     "outcome": "supported"
+    },
+    {
+     "finding": "E7 citeert de bronzin over 'precies drie zelfstandige soorten transportgangen'; de bron zegt daarnaast dat zij onderling worden vergeleken, zodat de claim volledig gedragen is.",
+     "item": "claim:C3",
+     "outcome": "supported"
+    },
+    {
+     "finding": "E4 citeert letterlijk uit de beschrijving van lusafvoer dat deze 'op een andere plaats dan de oorspronkelijke laadplaats eindigt'.",
+     "item": "claim:C4",
+     "outcome": "supported"
+    },
+    {
+     "finding": "Uit C2 (kern eist terugkeer naar de oorspronkelijke laadplaats) en C4 (lusafvoer eindigt elders) volgt dat gevallen van lusafvoer buiten de kern vallen; geen aanvullende premisse nodig.",
+     "item": "claim:C5",
+     "outcome": "supported"
+    },
+    {
+     "finding": "E5 citeert letterlijk 'uitsluitend baan Dovar gebruikt' uit de beschrijving van dwarsterugloop.",
+     "item": "claim:C6",
+     "outcome": "supported"
+    },
+    {
+     "finding": "E6 citeert letterlijk de bronzin dat Neral en Dovar verschillende banen zijn en een dwarsterugloop Neral niet passeert.",
+     "item": "claim:C7",
+     "outcome": "supported"
+    },
+    {
+     "finding": "Uit C2 (kern eist gebruik van baan Neral), C6 en C7 (dwarsterugloop gebruikt uitsluitend Dovar en passeert Neral niet) volgt dat gevallen van dwarsterugloop buiten de kern vallen.",
+     "item": "claim:C8",
+     "outcome": "supported"
+    },
+    {
+     "finding": "Terecht distinguished: het aangehaalde kernfragment E3 ('naar de oorspronkelijke laadplaats terugkeert') draagt zelf de afgrenzing tegenover lusafvoer, die volgens beschrijving en bron elders eindigt.",
+     "item": "neighbour:gebruiker:4e576abf821e",
+     "outcome": "supported"
+    },
+    {
+     "finding": "Terecht distinguished: E2 ('via baan Neral') draagt zelf de afgrenzing, want een dwarsterugloop gebruikt uitsluitend Dovar en passeert Neral volgens de bron niet; dat het begrip onbevestigd is, verandert het oordeel niet.",
+     "item": "neighbour:model:19a4c2e48748",
+     "outcome": "supported"
+    },
+    {
+     "finding": "Beide aangeleverde verwante begrippen zijn precies één keer beoordeeld, de bron over de drie zelfstandige soorten is meegenomen, geen kenmerk vernauwt de betekenis en er is geen onterecht unclear; ontbreken van voorstel en vraag is bij twee distinguished-uitkomsten terecht.",
+     "item": "completeness",
+     "outcome": "supported"
+    }
+   ],
+   "schema_version": "ess05-verification/1"
+  },
+  "verification_attribution": {
+   "attempts_observed": 1,
+   "cached": false,
+   "model": "claude-opus-5",
+   "provider": "anthropic",
+   "retries_observed": 0,
+   "stop_reason": "end_turn",
+   "task_type": "ess05_verification",
+   "tokens_used": 9010
+  },
+  "verification_elapsed_seconds": 15.267,
+  "verification_input": {
+   "candidate_hash": "0b5a264e7b63d30ae409918ae7ae33b0edca9576b58788278e7bfe3cf2a9d029",
+   "deadline_seconds": 60,
+   "materiaal": {
+    "context": "6df31d56450cbd67b42f83e1a97af527149a813ed7d43b041445b12b1a1df312",
+    "definition": "7b1323176bf187765452db878d72b245f9809e62dd5ed278e395fc2fd36b28f4",
+    "neighbour:gebruiker:4e576abf821e": "aefe0c5f5e483eb1119e74f2533ecd2b5383d2edcbaa8212c9df42ec39d1ba84",
+    "neighbour:model:19a4c2e48748": "e8d4e624ea823ba41462e7616d2781e729478c53bb5bedb92c220c304b3b50b6",
+    "source:doc:synthetisch-R720": "c213ce8c0cb603f2fd92301ae795d818a7103d743e88885f6d719966efe3d798"
+   },
+   "max_tokens": 3000,
+   "prompt_sha256": "4de42db11609b2f4986f94c57bdfac0a415766c4b3576eb23b0c33ba963c8331",
+   "required_checks": [
+    "core_features",
+    "feature:F1",
+    "feature:F2",
+    "claim:C1",
+    "claim:C2",
+    "claim:C3",
+    "claim:C4",
+    "claim:C5",
+    "claim:C6",
+    "claim:C7",
+    "claim:C8",
+    "neighbour:gebruiker:4e576abf821e",
+    "neighbour:model:19a4c2e48748",
+    "completeness"
+   ]
+  },
+  "verification_prompt_version": "ess05-verify/3",
+  "verification_raw_response_sha256": "695932cc1923ad9f66d21307ba826aaf736add788e6b3112ab98ebf8d5cef2be",
+  "verification_schema_version": "ess05-verification/1",
+  "verified_at": "2026-09-26T10:41:46.005144+00:00"
+ }
+}

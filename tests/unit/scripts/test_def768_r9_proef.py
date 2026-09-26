@@ -85,11 +85,11 @@ CONTRACT = {
     "concept_schema_version": "ess05-concept/1",
     "verification_schema_version": "ess05-verification/1",
 }
-#: De huidige code (R9-bewijsherstel): alleen beide promptversies verschillen.
+#: De huidige code (R10-C3-herstel): alleen beide promptversies verschillen.
 HUIDIG_CONTRACT = {
     **CONTRACT,
-    "prompt_version": "ess05-assess/16",
-    "verification_prompt_version": "ess05-verify/3",
+    "prompt_version": "ess05-assess/17",
+    "verification_prompt_version": "ess05-verify/4",
 }
 V = "validation"
 W = "ess05_verification"
@@ -316,8 +316,8 @@ class TestRegistratie:
         assert dict(proef.contract) == CONTRACT
 
     def test_r8_en_r9_gesloten_met_behouden_besluit(self):
-        # Alleen R10 (eigen besluit, 26-09) staat open.
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R10"]
+        # Ook R10 is na zijn inhoudelijke stop (C3) gesloten: geen ronde staat open.
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
         r9 = runner.PROEVEN["R9"]
         assert (r9.budgetbesluit_sha256, dict(r9.contract)) == (
             BESLUIT9_SHA256,

@@ -268,9 +268,40 @@ class TestKeten:
         assert "ongestaafde deelzin maakt de claim unsupported" in verificatie
         assert "splits de claim of laat de deelzin weg" in beoordeling
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
+        # Huidige code (R10-C3-herstel); de R9-regels hierboven blijven erin.
         assert (doc["prompt_version"], doc["verification_prompt_version"]) == (
-            "ess05-assess/16",
-            "ess05-verify/3",
+            "ess05-assess/17",
+            "ess05-verify/4",
+        )
+
+
+class TestBewijsrouteVerify4:
+    """Het ongewijzigde R9-concept onder `ess05-verify/4` (invoerstructuur, geen
+    gedragsbewijs): de gesloten route van C5 bevat exact C1 en C4, en geen
+    element van die route draagt het eindpunt van dwarsterugloop."""
+
+    def test_route_van_c5_is_exact_haar_premissen_zonder_het_eindpunt(self):
+        from domain.ess05.bewijs import Ess05Concept
+        from services.validation.ess05_verification_service import (
+            bouw_verificatieprompt,
+        )
+
+        concept = FIXTURE["beoordelingsdocument"]["concept"]
+        _, gebruiker = bouw_verificatieprompt(
+            "<materiaal/>", Ess05Concept(concept), norm={}, toetsinstructie="T."
+        )
+        (blok,) = re.findall(r"<bewijsroutes>\n(.*?)\n</bewijsroutes>", gebruiker, re.S)
+        routes = {r["claim"]: r for r in json.loads(html.unescape(blok))}
+        teksten = {c["id"]: c["text"] for c in concept["claims"]}
+        c5 = routes["C5"]
+        assert (c5["rol"], c5["uitspraak"]) == ("inference", teksten["C5"])
+        assert c5["gesloten_bewijsroute"] == [
+            {"premisse": p, "uitspraak": teksten[p]} for p in ("C1", "C4")
+        ]
+        assert not any(
+            "dwarsterugloop" in s["uitspraak"].lower()
+            and "laadplaats" in s["uitspraak"]
+            for s in c5["gesloten_bewijsroute"]
         )
 
 
@@ -314,5 +345,5 @@ class TestHistorischeBinding:
         huidig = self._replay(self._binding())
         deel = _onderscheid(huidig)
         assert "historisch en geldt niet als actueel oordeel" in deel["reason"]
-        assert "'ess05-assess/16'" in deel["reason"]
+        assert "'ess05-assess/17'" in deel["reason"]
         assert "semantisch geverifieerd" not in deel["reason"]

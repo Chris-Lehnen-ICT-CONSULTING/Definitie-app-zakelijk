@@ -405,10 +405,10 @@ class TestR8Registratie:
             assert runner.PROEVEN[naam].echt_toegestaan is False
             assert runner.PROEVEN[naam].budgetbesluit_sha256 is None
         # R8 gesloten, zijn besluit blijft gepind; R9 is na zijn inhoudelijke
-        # stop ook gesloten; alleen R10 (eigen besluit) staat open.
+        # stop ook gesloten, R10 na de zijne (C3); geen ronde staat open.
         assert runner.PROEVEN["R8"].echt_toegestaan is False
         assert runner.PROEVEN["R8"].budgetbesluit_sha256 == BUDGETBESLUIT_SHA256
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R10"]
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
 
     @besluit_nodig
     def test_budgetbesluit_past_op_de_proefidentiteit(self):
@@ -849,8 +849,9 @@ class TestVerifierOnly:
         assert velden["groep"] == "v"
         # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
         # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
-        assert velden["prompt_version"] == "ess05-assess/16"
-        assert velden["verification_prompt_version"] == "ess05-verify/3"
+        # assess/17 + verify/4 (R10-C3): gesloten bewijsroute per claim; T/13 gelijk.
+        assert velden["prompt_version"] == "ess05-assess/17"
+        assert velden["verification_prompt_version"] == "ess05-verify/4"
         assert {"system_prompt_sha256", "norm_sha256"} <= set(velden)
 
     def test_goed_vrijgegeven_en_fout_gedetecteerd(self, tmp_path):

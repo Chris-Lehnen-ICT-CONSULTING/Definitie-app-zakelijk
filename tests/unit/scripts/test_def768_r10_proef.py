@@ -12,11 +12,19 @@ oorspronkelijke kader van USD 25 blijft.
 - het budgetbesluit is gepind en draagt het oorspronkelijke 68/25-besluit, het
   R9-besluit en de payloadtoestemming (alle op hash gepind) mee;
 - het kostenkader telt de werkelijke R8- én R9-kosten uit hun grootboeken mee;
-- de code draagt de gereviewde contractidentiteit (`ess05-assess/16`,
+- R10 legt de gereviewde contractidentiteit vast (`ess05-assess/16`,
   `ess05-verify/3`, `ess05-answer/1`), ook in de freeze;
 - de ontwikkelinvoer is exact de R9-selectie (alleen R720);
 - V7: de zes R8-items ongewijzigd behalve hun verificatieprompthash (verify/3),
   plus V-N4 = het ongewijzigde R9-R720-concept met foutdrager `claim:C5`.
+
+Na de inhoudelijke stop op R720 (26-09, NO-GO op claim C3) is R10 gesloten,
+ook via de geregistreerde route. Besluit, contract (`/16`, `/3`) en V7 blijven
+historisch gepind; de code draagt sinds het C3-herstel `ess05-assess/17` en
+`ess05-verify/4`, dus R10 past niet meer op de huidige code. De offline
+mechaniektests draaien daarom op een kopie van R10 met de huidige
+contractidentiteit (`_r10`); V7 bindt de verify/3-prompt en wordt onder verify/4
+geweigerd. De V-mechaniek draait op een onder de huidige code herbouwde V7.
 
 Providergrens is een fake; bewijst runnermechaniek, geen modelkwaliteit.
 Geen netwerk, geen echte of betaalde call.
@@ -32,6 +40,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -101,7 +110,13 @@ CONTRACT10 = {
     "concept_schema_version": "ess05-concept/1",
     "verification_schema_version": "ess05-verification/1",
 }
-OUDE_RONDES = ("R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9")
+#: De huidige code (R10-C3-herstel): alleen beide promptversies verschillen.
+HUIDIG_CONTRACT = {
+    **CONTRACT10,
+    "prompt_version": "ess05-assess/17",
+    "verification_prompt_version": "ess05-verify/4",
+}
+OUDE_RONDES = ("R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10")
 V = "validation"
 W = "ess05_verification"
 
@@ -128,6 +143,8 @@ def _stand(pad: Path) -> str | None:
 
 
 def _r10(**anders) -> runner.Proef:
+    """R10-kopie met de huidige contractidentiteit (het echte R10 blijft /16 + /3)."""
+    anders.setdefault("contract", MappingProxyType(HUIDIG_CONTRACT))
     return dataclasses.replace(runner.PROEVEN["R10"], **anders)
 
 
@@ -248,6 +265,13 @@ def _v_gevallen(tmp_path) -> list[dict]:
 
 def _v7() -> dict:
     return json.loads(V7.read_text(encoding="utf-8"))
+
+
+def _v7_huidig(tmp_path: Path) -> tuple[Path, list[dict]]:
+    """V7 opnieuw gebouwd onder de huidige code (alleen de prompthashes wijken af)."""
+    pad = tmp_path / "v7-huidig.json"
+    assert mk10.main(["--doel", str(pad)]) == 0
+    return pad, json.loads(pad.read_text(encoding="utf-8"))["items"]
 
 
 def _foutdragers(items) -> dict[str, dict[str, str]]:
@@ -392,7 +416,8 @@ class TestRegistratie:
     def test_r10_geregistreerd_met_eigen_opslag_invoer_en_besluit(self):
         proef = runner.PROEVEN["R10"]
         assert proef.identiteit is gb.R10
-        assert (proef.echt_toegestaan, proef.freeze_vereist) == (True, True)
+        # Gesloten na de inhoudelijke stop op R720 (C3); de registratie blijft.
+        assert (proef.echt_toegestaan, proef.freeze_vereist) == (False, True)
         assert proef.opslag.root == R10_MAP
         # Ontwikkeling: exact de oorspronkelijke R9-selectie (alleen R720).
         assert proef.t_ontwikkelinvoer_sha256 == R9_SELECTIE_SHA256
@@ -410,8 +435,13 @@ class TestRegistratie:
         )
         assert dict(proef.contract) == CONTRACT10
 
-    def test_alleen_r10_open_oude_besluiten_en_contracten_behouden(self):
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R10"]
+    def test_geen_ronde_open_besluiten_en_contracten_behouden(self):
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
+        r10 = runner.PROEVEN["R10"]
+        assert (r10.budgetbesluit_sha256, dict(r10.contract)) == (
+            BESLUIT10_SHA256,
+            CONTRACT10,
+        )
         r9, r8 = runner.PROEVEN["R9"], runner.PROEVEN["R8"]
         assert (r9.budgetbesluit_sha256, r8.budgetbesluit_sha256) == (
             BESLUIT9_SHA256,
@@ -425,7 +455,8 @@ class TestRegistratie:
         def verboden(**_kw):
             raise AssertionError(f"geen live omgeving voor gesloten {naam}")
 
-        voor = [_stand(m / "callgrootboek.jsonl") for m in (R8_MAP, R9_MAP)]
+        mappen = (R8_MAP, R9_MAP, R10_MAP)
+        voor = [_stand(m / "callgrootboek.jsonl") for m in mappen]
         monkeypatch.setattr(runner, "live_omgeving", verboden)
         pad = _gevallenbestand(tmp_path, 1)
         with pytest.raises(SystemExit) as fout:
@@ -433,7 +464,7 @@ class TestRegistratie:
                          str(pad), "--echt"])  # fmt: skip
         assert fout.value.code == 2
         assert "gesloten" in capsys.readouterr().err
-        assert [_stand(m / "callgrootboek.jsonl") for m in (R8_MAP, R9_MAP)] == voor
+        assert [_stand(m / "callgrootboek.jsonl") for m in mappen] == voor
 
     @pytest.mark.parametrize("naam", OUDE_RONDES)
     def test_oude_ronde_gesloten_programmatisch(self, naam):
@@ -444,7 +475,7 @@ class TestRegistratie:
             runner._controleer_opslag(omg, proef.opslag, proef)
         assert provider.aanroepen == []
 
-    @pytest.mark.parametrize("naam", ["R8", "R9"])
+    @pytest.mark.parametrize("naam", ["R8", "R9", "R10"])
     def test_heropende_kopie_van_een_oude_ronde_start_niets(self, tmp_path, naam):
         provider = _R8Provider()
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
@@ -462,9 +493,12 @@ class TestRegistratie:
         assert not (tmp_path / "x" / "callgrootboek.jsonl").exists()
 
     @besluiten_nodig
-    def test_cli_echt_r10_bouwt_de_live_omgeving_op_productiegrenzen(
+    def test_cli_echt_bouwt_de_live_omgeving_op_productiegrenzen(
         self, monkeypatch, tmp_path
     ):
+        # Hypothetisch open R10 met de huidige code: de productiegrenzen
+        # (3000 tokens, 60 s) blijven; gestopt vóór client, grootboek en netwerk.
+        monkeypatch.setitem(runner.PROEVEN, "R10", _r10(echt_toegestaan=True))
         gebouwd = {}
         voor = _stand(R10_MAP / "callgrootboek.jsonl")
 
@@ -488,14 +522,18 @@ class TestRegistratie:
         assert _stand(R10_MAP / "callgrootboek.jsonl") == voor
 
     @besluiten_nodig
-    def test_echte_poorten_open_via_de_geregistreerde_route(self):
+    def test_geregistreerde_route_dicht_op_sluiting_en_contract(self):
+        # Alleen de sluiting en het historische contract houden R10 dicht; het
+        # besluit, de grenzen en de kostenroute passen nog.
         proef = runner.PROEVEN["R10"]
         omg = dataclasses.replace(_omgeving8(_R8Provider()), echt=True)
-        runner._controleer_opslag(omg, proef.opslag, proef)
+        with pytest.raises(gb.BudgetSchendingError, match="gesloten"):
+            runner._controleer_opslag(omg, proef.opslag, proef)
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner._controleer_contract(omg, proef)
         runner._controleer_goedkeuring(omg, proef)
         runner._controleer_productiegrenzen(omg, proef)
         runner._controleer_kostenroute(omg, proef)
-        runner._controleer_contract(omg, proef)
         assert runner._besluit_voor(omg, proef) == BESLUIT10_SHA256
 
     def test_echt_buiten_de_canonieke_opslag_geweigerd(self, tmp_path):
@@ -503,7 +541,7 @@ class TestRegistratie:
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
         pad = _gevallenbestand(tmp_path, 1)
         with pytest.raises(gb.BudgetSchendingError, match="canonieke"):
-            _t10(omg, tmp_path, pad, proef=runner.PROEVEN["R10"])
+            _t10(omg, tmp_path, pad, proef=_r10(echt_toegestaan=True))
         assert provider.aanroepen == []
         assert not _opslag10(tmp_path).grootboek.exists()
 
@@ -622,10 +660,17 @@ class TestBudgetbesluit:
 
 
 class TestContract:
-    def test_code_draagt_de_r10_contractidentiteit(self):
+    def test_r10_contract_historisch_de_code_draagt_het_huidige(self):
         omg = _omgeving8(_R8Provider())
-        assert runner.contractidentiteit(omg) == CONTRACT10
-        runner._controleer_contract(omg, runner.PROEVEN["R10"])
+        assert dict(runner.PROEVEN["R10"].contract) == CONTRACT10
+        assert runner.contractidentiteit(omg) == HUIDIG_CONTRACT
+        assert {k for k in CONTRACT10 if CONTRACT10[k] != HUIDIG_CONTRACT[k]} == {
+            "prompt_version",
+            "verification_prompt_version",
+        }
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner._controleer_contract(omg, runner.PROEVEN["R10"])
+        runner._controleer_contract(omg, _r10())
 
     @pytest.mark.parametrize(
         ("doel", "naam", "waarde"),
@@ -650,10 +695,10 @@ class TestContract:
 
     def test_freeze_pint_het_contract_voor_v_en_t(self):
         omg = _omgeving8(_R8Provider())
-        v, t = (runner.freezevelden(omg, runner.PROEVEN["R10"], g) for g in ("v", "t"))
+        v, t = (runner.freezevelden(omg, _r10(), g) for g in ("v", "t"))
         for velden in (v, t):
             assert velden["proef_id"] == R10_ID
-            assert {k: velden[k] for k in CONTRACT10} == CONTRACT10
+            assert {k: velden[k] for k in HUIDIG_CONTRACT} == HUIDIG_CONTRACT
         assert {k for k in v if v[k] != t[k]} == {"groep"}
 
     def test_r9_freeze_geldt_niet_voor_r10(self, tmp_path):
@@ -662,7 +707,7 @@ class TestContract:
         pad.write_text(json.dumps(runner.freezevelden(omg, runner.PROEVEN["R9"], "t")),
                        encoding="utf-8")  # fmt: skip
         with pytest.raises(gb.BudgetSchendingError, match="proef_id"):
-            runner.controleer_freeze(pad, omg, runner.PROEVEN["R10"], "t",
+            runner.controleer_freeze(pad, omg, _r10(), "t",
                                      dataset_sha256="a" * 64, herhaal_ids=[])  # fmt: skip
 
 
@@ -693,7 +738,7 @@ class TestFasegrenzen:
         provider = _R8Provider()
         pad = _gevallenbestand(tmp_path, 1)
         with pytest.raises(gb.BudgetSchendingError, match="T-ontwikkelselectie"):
-            _t10(_omgeving8(provider), tmp_path, pad, proef=runner.PROEVEN["R10"])
+            _t10(_omgeving8(provider), tmp_path, pad, proef=_r10())
         assert provider.aanroepen == []
 
     def test_acht_v_items_boven_de_fasecap_geweigerd(self, tmp_path):
@@ -784,9 +829,16 @@ class TestV7Maker:
     @r9_bronnen_nodig
     @v7_nodig
     def test_vastgelegde_v7_reproduceerbaar_en_gepind(self, tmp_path):
+        assert _sha(V7) == runner.R10_V_INVOER_SHA256
         doel = tmp_path / "v7.json"
         assert mk10.main(["--doel", str(doel)]) == 0
-        assert _sha(doel) == _sha(V7) == runner.R10_V_INVOER_SHA256
+        # Sinds verify/4 (C3-herstel) verschilt alleen de prompthash per item;
+        # de rest is de bevroren V7 (de herkomst noemt het huidige contract).
+        nieuw, vast = json.loads(doel.read_text(encoding="utf-8")), _v7()
+        assert nieuw["herkomst"]["contract"] == HUIDIG_CONTRACT
+        assert vast["herkomst"]["contract"] == CONTRACT10
+        for n, v in zip(nieuw["items"], vast["items"], strict=True):
+            assert {k for k in n if n[k] != v[k]} == {"verificatieprompt_sha256"}
 
     @r9_bronnen_nodig
     def test_doel_wordt_nooit_overschreven(self, tmp_path):
@@ -861,17 +913,18 @@ class TestV7Invoer:
                 {k: v for k, v in o.items() if k != "verificatieprompt_sha256"}
             )
 
-    def test_prompthash_hoort_bij_verify_3(self):
+    def test_prompthash_hoort_bij_de_historische_verify_3(self):
+        """V7 bindt verify/3; onder de huidige code (verify/4) wijkt elke hash af."""
         from services.validation.ess05_assessment_service import laad_ess05_norm
 
         norm = laad_ess05_norm()
         for item in _v7()["items"]:
             _, _, regels = mig.verificatiemateriaal(item["geval"], norm)
             system, user = mig._verificatieprompt(item["concept"], regels, norm)
-            assert "in deze bewijsroute ongestaafde deelzin" in system
+            assert "<bewijsroutes>" in user
             assert (
                 hashlib.sha256((system + "\n␞\n" + user).encode()).hexdigest()
-                == item["verificatieprompt_sha256"]
+                != item["verificatieprompt_sha256"]
             )
 
     def test_v_n4_is_het_ongewijzigde_r9_concept(self):
@@ -924,29 +977,32 @@ class TestV7Invoer:
         assert herkomst["contract"] == CONTRACT10
         assert data["schema"] == mig.INVOERSCHEMA
 
-    def test_runner_bindt_v7_opnieuw_aan_de_huidige_code(self):
-        items = runner.valideer_v_invoer(_v7(), _omgeving8(_R8Provider()))
-        assert [v.sleutel for v in items] == [
-            f"verificatie_alleen|{i}|1"
-            for i in ("V-N1", "V-N2", "V-N3", "V-P1", "V-P2", "V-P3", "V-N4")
-        ]
+    def test_runner_weigert_v7_onder_de_huidige_code(self):
+        with pytest.raises(pi.InvoerfoutError, match="verificatieprompt wijkt af"):
+            runner.valideer_v_invoer(_v7(), _omgeving8(_R8Provider()))
 
-    def test_droog_v7_onder_r10(self, tmp_path):
-        code = runner.main(["--proef", "R10", "--fase", "verificatie_alleen",
-                            "--gevallen", str(V7), "--uitmap", str(tmp_path),
-                            "--droog"])  # fmt: skip
-        assert code == 0
-        (bestand,) = tmp_path.glob("droog-verificatie_alleen-*/droogrun.json")
-        droog = json.loads(bestand.read_text(encoding="utf-8"))
-        assert (droog["proef_id"], droog["geplande_calls"]) == (R10_ID, 7)
-        grens = gb.R10.kostenbewaking.bytegrens[W]
-        assert all(i["payload_bytes"] <= grens for i in droog["items"])
-        freeze = droog["freezevelden"]
-        assert (freeze["groep"], freeze["proef_id"]) == ("v", R10_ID)
-        assert {k: freeze[k] for k in CONTRACT10} == CONTRACT10
-        assert not list(tmp_path.rglob("*.jsonl"))
+    @pytest.mark.parametrize(
+        ("fase", "pad"), [("verificatie_alleen", V7), ("ontwikkeling", R9_SELECTIE)]
+    )
+    def test_droog_geregistreerde_r10_weigert_op_het_contract(
+        self, tmp_path, fase, pad
+    ):
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner.main(["--proef", "R10", "--fase", fase, "--gevallen", str(pad),
+                         "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
+        assert not list(tmp_path.rglob("*"))
 
-    def test_droog_r9_selectie_onder_r10(self, tmp_path):
+    def test_droog_v7_onder_huidige_code_geweigerd(self, monkeypatch, tmp_path):
+        monkeypatch.setitem(runner.PROEVEN, "R10", _r10())
+        with pytest.raises(pi.InvoerfoutError, match="verificatieprompt wijkt af"):
+            runner.main(["--proef", "R10", "--fase", "verificatie_alleen",
+                         "--gevallen", str(V7), "--uitmap", str(tmp_path),
+                         "--droog"])  # fmt: skip
+        assert not list(tmp_path.rglob("*"))
+
+    def test_droog_r9_selectie_onder_r10(self, monkeypatch, tmp_path):
+        # Materiaalcompatibiliteit onder de huidige code (kopie met huidig contract).
+        monkeypatch.setitem(runner.PROEVEN, "R10", _r10())
         code = runner.main(["--proef", "R10", "--fase", "ontwikkeling", "--gevallen",
                             str(R9_SELECTIE), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
         assert code == 0
@@ -956,26 +1012,27 @@ class TestV7Invoer:
         assert (droog["proef_id"], droog["geplande_calls"]) == (R10_ID, 1)
         assert [i["sleutel"] for i in droog["items"]] == ["ontwikkeling|R720|1"]
 
-    def test_r8_v_invoer_geweigerd_voor_r10(self, tmp_path):
+    def test_r8_v_invoer_geweigerd_voor_r10(self, monkeypatch, tmp_path):
+        monkeypatch.setitem(runner.PROEVEN, "R10", _r10())
         with pytest.raises(gb.BudgetSchendingError, match="verifier-only-invoer"):
             runner.main(["--proef", "R10", "--fase", "verificatie_alleen", "--gevallen",
                          str(R8_VINVOER), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
         assert not list(tmp_path.rglob("*"))
 
     def test_v7_zeven_items_c5_afgewezen_geaccepteerd(self, tmp_path):
-        items = _v7()["items"]
+        pad, items = _v7_huidig(tmp_path)
         provider = _R8Provider(uitkomsten=_foutdragers(items))
-        uitkomst = _v10(_omgeving8(provider), tmp_path, V7)
+        uitkomst = _v10(_omgeving8(provider), tmp_path, pad)
         assert provider.stappen == ["verificatie"] * 7
         assert [g["geaccepteerd"] for g in _v_gevallen(tmp_path)] == [True] * 7
         assert uitkomst["aanroepen_gestart"] == 7
         assert uitkomst["grootboek_na"]["netwerk_gestart"] == 2 + 7
 
     def test_vrijgegeven_c5_stopt_de_proef(self, tmp_path):
-        items = _v7()["items"]
+        pad, items = _v7_huidig(tmp_path)
         provider = _R8Provider(uitkomsten=_foutdragers(items[:6]))
         with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
-            _v10(_omgeving8(provider), tmp_path, V7)
+            _v10(_omgeving8(provider), tmp_path, pad)
         assert provider.stappen == ["verificatie"] * 7
         gevallen = _v_gevallen(tmp_path)
         assert [g["geaccepteerd"] for g in gevallen] == [True] * 6 + [False]

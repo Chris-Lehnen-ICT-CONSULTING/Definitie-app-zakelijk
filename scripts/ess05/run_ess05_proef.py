@@ -77,14 +77,20 @@ verifier gaf een ongestaafde deelzin vrij. Het contract blijft historisch op
 
 Ronde 10 (`--proef R10`, DEF-768-AI-20260926-R10, gerichte proef na het
 R9-bewijsherstel; besluit Chris 26-09,
-`logs/def768/ronde10-herproefgoedkeuring-v1.json`) is de enige open ronde: 65
+`logs/def768/ronde10-herproefgoedkeuring-v1.json`) was open voor echte calls: 65
 modelstappen (ontwikkeling alleen R720 uit de R9-selectie, verificatie_alleen
 op V7 = de zes R8-controles opnieuw gebonden aan verify/3 plus het ongewijzigde
 R9-C5-concept, `maak_r10_verificatie_invoer.py`; t_eind, t_herhaling), reserve
 0, cumulatief 427, routerplafond USD 24,722355 binnen het kader van USD 25
 inclusief de werkelijke R8- en R9-kosten. Het besluit draagt het
 oorspronkelijke 68/25-besluit, het R9-besluit en de payloadtoestemming (alle op
-hash gepind) mee; het contract is `ess05-assess/16`/`ess05-verify/3`.
+hash gepind) mee; het contract is `ess05-assess/16`/`ess05-verify/3`. R10 is
+gesloten na de inhoudelijke stop op R720 (26-09,
+`reports/DEF-768-AI-20260926-R10/inhoudelijke-stop-v1.json`): de verifier droeg
+een deelzin van C3 met de ongeciteerde bronzin na E7. Contract en V7 blijven
+historisch gepind; de code draagt sinds het C3-herstel `ess05-assess/17`/
+`ess05-verify/4`. Er is geen open ronde; een nieuwe proef vereist een eigen
+besluit, een nieuwe V-invoer en een eigen registratie.
 
 Voorbeeld (droog, offline):
 
@@ -565,14 +571,16 @@ PROEVEN = {
         payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
         contract=R9_CONTRACT,
     ),
-    # Ronde 10: open binnen het gepinde besluit (65 modelstappen, plafond USD
-    # 24,722355, cumulatief 427, reserve 0); R1–R9 gesloten. Ontwikkeling is
-    # exact de R9-selectie (alleen R720); V is V7. Zelfde payloadtoestemming.
+    # Ronde 10: geregistreerd binnen het gepinde besluit (65 modelstappen,
+    # plafond USD 24,722355, cumulatief 427, reserve 0). Ontwikkeling is exact
+    # de R9-selectie (alleen R720); V is V7. Zelfde payloadtoestemming. Gesloten
+    # na de inhoudelijke stop op R720 (26-09, C3); besluit, contract en V7
+    # blijven historisch gepind. R1–R10 zijn gesloten.
     "R10": Proef(
         "R10",
         gb.R10,
         Proefopslag(R10_UITMAP),
-        True,
+        False,
         True,
         t_ontwikkelinvoer_sha256=R9_T_ONTWIKKELINVOER_SHA256,
         v_invoer_sha256=R10_V_INVOER_SHA256,
@@ -3317,10 +3325,10 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R9 zijn gesloten voor echte calls; R10 "
-            f"({gb.R10.proef_id}, opslag {PROEVEN['R10'].opslag.root}, "
-            "cumulatief met R1 t/m R9 max 427) is open binnen het gepinde besluit "
-            "(65 modelstappen, max USD 24,722355, reserve 0)"
+            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R10 "
+            f"({gb.R10.proef_id}, opslag {PROEVEN['R10'].opslag.root}) stopte "
+            "inhoudelijk op R720 en blijft historisch gepind; een nieuwe proef "
+            "vereist een eigen besluit en registratie"
         ),
     )
     p.add_argument(

@@ -157,7 +157,8 @@ def test_versie_is_verhoogd():
     # (`ess05-concept/1`); de toetsinstructie (T/13) blijft bytegelijk.
     # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
     # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
-    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/16"
+    # assess/17 + verify/4 (R10-C3): gesloten bewijsroute per claim; T/13 gelijk.
+    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/17"
 
 
 def test_norm_blijft_ongewijzigd():
