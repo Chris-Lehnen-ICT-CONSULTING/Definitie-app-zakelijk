@@ -96,6 +96,13 @@ runtime_contract:
     # deelbevinding, compactheid en begrijpelijkheid blijven open. Geen cijfer
     # (score_policy excluded_from_score) en geen zelfstandige blokkade.
     - "sentence_boundary"
+    # DEF-772 (INT-03): AI-beoordeling van voornaamwoord-verwijzingen — code
+    # toetst binding (term, tekst, context, toelichting; prompt/norm/model),
+    # gesloten structuur en citaatbestaan in de definitie; de AI beoordeelt
+    # taalfunctie, antecedent en plausibele lezingen. Geen cijfer
+    # (score_policy excluded_from_score), advisory-ernst, geen eigen poort;
+    # 'pass' zonder verwijzend woord uitsluitend ná de inhoudelijke controle.
+    - "pronoun_reference_assessment"
 
   required_inputs:
     - "definition_text"

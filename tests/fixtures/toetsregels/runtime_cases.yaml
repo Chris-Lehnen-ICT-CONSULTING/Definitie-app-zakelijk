@@ -382,15 +382,31 @@ INT-02:
     tekst: "korting: verlaging indien tijdig betaald"
 
 INT-03:
-  required_fields: [herkenbaar_patronen]
-  issue: DEF-624
+  # DEF-772 (WP3): AI-verwijzingsbeoordeling (evaluator
+  # pronoun_reference_assessment, judgment + automated, excluded_from_score).
+  # Zonder voorbereide beoordeling (geen dienst) is de uitkomst expliciet
+  # open; een signaalwoord in de zin bewijst geen onduidelijke verwijzing en
+  # geen signaal is geen goedkeuring (K7 pas na de LLM-controle). De
+  # patronen zijn zoekhulp in het detail; de failure branch steunt er niet op.
+  required_fields: []
+  issue: DEF-772
   reden: >
-    voornaamwoord-antecedentresolutie vergt woordsoortanalyse; het
-    patroon vuurt ook op het eigen goede voorbeeld. Contract:
-    judgment_review, dus review_required in plaats van pass.
+    verwijzingsduidelijkheid is een inhoudelijk oordeel (DEF-772, K2 T-c);
+    het patroon vuurt ook op het eigen goede voorbeeld ('die') en miste de
+    ASTRA-fout ('het'). Sinds de AI-beoordeling geeft de app dat oordeel zelf
+    op de ongewijzigde definitietekst (term ondersteunend, context en
+    toelichting alleen betekenisgrond); het tekstpad van deze matrix levert
+    geen dienst en dan is 'niet beoordeeld' het contractuele antwoord. Het
+    gedrag mét beoordeling staat in test_def772_int03_evaluator.py.
   probe:
     begrip: regeling
     tekst: "regeling waarbij deze afspraak geldt"
+  # Signaalwoordprobe onder de gedeelde matrixsleutel 'bronwoord': 'het'
+  # zonder antecedent (synthese-v2 §1, fout voorbeeld) — zonder beoordeling
+  # geen violation en geen pass.
+  bronwoord:
+    begrip: voorziening
+    tekst: "voorziening waardoor het kan worden voortgezet"
 
 INT-04:
   required_fields: [herkenbaar_patronen]

@@ -47,8 +47,10 @@ wat de journey "zou moeten" doen.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -60,7 +62,11 @@ import yaml
 from domain.ontological_categories import OntologischeCategorie
 from tests.integration.functionality.conftest import (
     DEFINITIE_TEKST,
+    INT03_ANTECEDENT,
+    INT03_SOORT,
+    INT03_VERWIJZEND_WOORD,
     bevroren_omgeving,
+    int03_definitie_uit_prompt,
     lees_opgeslagen_definitie,
 )
 
@@ -133,16 +139,27 @@ WIJZIGINGSREDEN = "synthetische acceptatiewijziging: tekst aangescherpt"
 #: definitie (een foutpositief); zij stelt één zin vast als deelbevinding en
 #: laat compactheid en begrijpelijkheid open (`review_required`). Eén regel
 #: minder gefaald, één meer open; 33/29/4/16 → 32/29/3/17.
+#: DEF-772: INT-03 is een AI-beoordeling van voornaamwoord-verwijzingen via
+#: dezelfde bevroren providergrens. In de bevroren zin verwijst het enige
+#: verwijzende woord 'die' eenduidig naar 'proefdefinitie' (betrekkelijke
+#: bijzin met eenduidig antecedent, K6); het bevroren antwoord is dat
+#: onderbouwde `pass`/`clear`-oordeel met het letterlijke antecedent
+#: (`int03_bevroren_antwoord`). INT-03 was open (verwijssignalen zonder
+#: oordeel) en is nu geslaagd: één regel meer geslaagd, één minder open;
+#: 32/29/3/17 → 33/30/3/16. Zonder dat antwoord (de generieke definitietekst
+#: of een lege respons als modeluitvoer, of zonder INT-03-routing) is INT-03
+#: een technische fout — 16 open, 1 `error` — de oorspronkelijke CI-fout op
+#: PR #482; zie `test_int03_bevroren_antwoord_discrimineert`.
 VERWACHTE_DEKKING: dict[str, float | int] = {
-    "evaluated": 32,
-    "passed": 29,
+    "evaluated": 33,
+    "passed": 30,
     "failed": 3,
-    "review_required": 17,
+    "review_required": 16,
     "not_evaluated": 4,
     "error": 0,
     "not_applicable": 0,
     "total": 53,
-    "coverage_ratio": 0.6038,
+    "coverage_ratio": 0.6226,
 }
 #: DEF-622 (B-06): CON-01 draagt geen cijfer, dus de totaalscore is niet
 #: beschikbaar — `None`, nooit 0.0.
@@ -159,6 +176,7 @@ VERWACHTE_GESLAAGDE_REGELS = [
     "CON-CIRC-001",
     "DUP_01",
     "ESS-CONT-001",
+    "INT-03",
     "INT-04",
     "INT-07",
     "INT-08",
@@ -392,6 +410,62 @@ def _bewijs_validatie(validatie: Any) -> None:
         sorted(overtreding["code"] for overtreding in validatie["violations"])
         == VERWACHTE_GEFAALDE_REGELS
     ), "validatie: gefaalde regels wijken af"
+
+
+def _bewijs_int03_pass_op_bevroren_antwoord(
+    validatie: Any, oproepen: list[Any], *, tekst: str
+) -> None:
+    """INT-03 slaagt op grond van het bevroren, aan `tekst` gebonden antwoord.
+
+    De providergrens heeft precies één INT-03-prompt gezien met exact deze
+    tekst als enige bewijsplaats; de dienst heeft het antwoord door de
+    codecontrole gehaald (niets afgewezen) en de uitkomst is het onderbouwde
+    `pass`/`clear`-oordeel: 'die' met het letterlijke antecedent
+    'proefdefinitie' — geen technische fout, geen open vraag.
+    """
+    assert (
+        validatie["rule_statuses"]["INT-03"] == "pass"
+    ), f"INT-03: status is {validatie['rule_statuses'].get('INT-03')!r}"
+    assert validatie["evaluation_coverage"]["error"] == 0, (
+        "INT-03: de dekking telt een technische fout: "
+        f"{validatie['evaluation_coverage']}"
+    )
+    document = validatie["rule_results"]["INT-03"]["assessment"]
+    assert (
+        document["status"] == "assessed"
+    ), f"INT-03: beoordeling is {document['status']!r} ({document.get('error')})"
+    assert document["rejected"] == [], f"INT-03: afgewezen: {document['rejected']}"
+    assert (
+        document["input"]["text_sha256"] == hashlib.sha256(tekst.encode()).hexdigest()
+    ), "INT-03: beoordeling is niet aan de getoetste tekst gebonden"
+    oordeel = document["judgment"]
+    assert oordeel["verdict"] == "pass", f"INT-03: verdict is {oordeel['verdict']!r}"
+    assert oordeel["status"] == "pass", f"INT-03: {oordeel['status']!r}"
+    assert oordeel["finding"] == "clear", f"INT-03: {oordeel['finding']!r}"
+    assert oordeel["question"] is None, f"INT-03: vraag {oordeel['question']!r}"
+    [verwijzing] = oordeel["references"]
+    assert (
+        verwijzing["word"] == INT03_VERWIJZEND_WOORD
+    ), f"INT-03: verwijzend woord {verwijzing['word']!r}"
+    assert verwijzing["status"] == "clear", f"INT-03: {verwijzing['status']!r}"
+    assert (
+        verwijzing["passage"] in tekst
+    ), f"INT-03: passage staat niet in de tekst: {verwijzing['passage']!r}"
+    [kandidaat] = verwijzing["candidates"]
+    assert (
+        kandidaat["quote"] == INT03_ANTECEDENT
+    ), f"INT-03: antecedent {kandidaat['quote']!r} i.p.v. {INT03_ANTECEDENT!r}"
+    assert (
+        f"{INT03_ANTECEDENT} {INT03_VERWIJZEND_WOORD}" in tekst
+    ), "INT-03: het antecedent staat niet direct vóór het verwijzende woord"
+
+    assert len(oproepen) == 1, f"INT-03: {len(oproepen)} beoordelingsprompts i.p.v. 1"
+    assert (
+        int03_definitie_uit_prompt(oproepen[0].prompt) == tekst
+    ), "INT-03: de prompt draagt niet exact de getoetste tekst"
+    assert (
+        oproepen[0].temperature == 0.0
+    ), f"INT-03: temperature {oproepen[0].temperature}"
 
 
 def _bewijs_opgeslagen_rij(
@@ -830,6 +904,117 @@ async def test_discriminatoren_bewaken_elke_stap(
         AssertionError, match=r"^generatie: opgeschoonde tekst wijkt af"
     ):
         _bewijs_generatie(lege_respons, omgeving.client.oproepen, BEGRIP_DISCRIMINATOR)
+
+
+async def test_int03_bevroren_antwoord_discrimineert(
+    bevroren_omgeving,  # noqa: F811
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """INT-03 slaagt dankzij het bevroren antwoord, niet dankzij een vangnet.
+
+    DEF-772: dezelfde echte toetsroute als de journey (`ValidationOrchestratorV2`
+    → `Int03AssessmentService` → providergrens) op dezelfde tekst. Zonder
+    geldig antwoord — de generieke definitietekst als modeluitvoer, een lege
+    respons, of helemaal geen INT-03-routing (precies wat de grens vóór deze
+    routing deed: de CI-fout op PR #482) — is INT-03 een technische fout, telt
+    de dekking één `error` en valt de dekkingsassertie van de journey. Mét het
+    bevroren antwoord is INT-03 `pass` met een aan exact deze tekst gebonden,
+    door code geverifieerd `clear`-oordeel met het letterlijke antecedent. Een
+    technische fout is dus nooit de gewenste uitkomst en de verwachting kan
+    niet zonder het antwoord slagen. Alleen het antwoord op, of de herkenning
+    van, de INT-03-prompt wordt vervangen; prompt, dienst, validatie en dekking
+    zijn productiecode.
+    """
+    from services.service_factory import ServiceAdapter
+    from services.validation.interfaces import ValidationContext
+
+    omgeving = bevroren_omgeving
+    _spiegel_gatepolicy(omgeving.werkmap)
+    grens = sys.modules[type(omgeving.client).__module__]
+    bevroren_antwoord = grens.int03_bevroren_antwoord
+    bevroren_herkenning = grens.is_int03_beoordelingsprompt
+    orchestrator = omgeving.container.validation_orchestrator()
+    context = ValidationContext(
+        metadata={
+            "organisatorische_context": [ORGANISATORISCH],
+            "juridische_context": [JURIDISCH],
+            "wettelijke_basis": [WETTELIJK],
+        }
+    )
+
+    def _int03_prompts() -> list[Any]:
+        """Elke providerprompt die exact de getoetste tekst als bewijsplaats draagt,
+        ongeacht of de grens haar als INT-03 herkende."""
+        return [
+            oproep
+            for oproep in omgeving.client.oproepen
+            if int03_definitie_uit_prompt(oproep.prompt) == VERWACHTE_DEFINITIE
+        ]
+
+    # --- zonder geldig antwoord op uitsluitend de INT-03-prompt --------------
+    # Eerst, op een lege dienstcache: `Int03AssessmentService` (één instantie
+    # per container) onthoudt alleen gelukte beoordelingen, dus elke variant
+    # bereikt aantoonbaar de grens met precies één INT-03-prompt.
+    varianten: list[tuple[str, str, Any]] = [
+        (
+            "generieke definitietekst als modeluitvoer",
+            "int03_bevroren_antwoord",
+            lambda _p: DEFINITIE_TEKST,
+        ),
+        ("lege respons", "int03_bevroren_antwoord", lambda _p: ""),
+        # Zonder herkenning valt de prompt terug op het generieke antwoordboek
+        # (de definitietekst): het gedrag van de grens vóór DEF-772.
+        ("zonder INT-03-routing", "is_int03_beoordelingsprompt", lambda _p: False),
+    ]
+    for etiket, naam, vervanging in varianten:
+        omgeving.zet_modus("geldig")  # wist oproepen en AI-cache
+        monkeypatch.setattr(grens, "int03_bevroren_antwoord", bevroren_antwoord)
+        monkeypatch.setattr(grens, "is_int03_beoordelingsprompt", bevroren_herkenning)
+        monkeypatch.setattr(grens, naam, vervanging)
+        defect = await orchestrator.validate_text(
+            BEGRIP, VERWACHTE_DEFINITIE, CATEGORIE, context
+        )
+        assert (
+            len(_int03_prompts()) == 1
+        ), f"{etiket}: {len(_int03_prompts())} INT-03-prompts i.p.v. 1"
+        assert (
+            defect["rule_statuses"]["INT-03"] == "error"
+        ), f"{etiket}: INT-03 is {defect['rule_statuses'].get('INT-03')!r}"
+        document = defect["rule_results"]["INT-03"]["assessment"]
+        assert (
+            document["status"] == "error"
+        ), f"{etiket}: beoordeling is {document['status']!r}"
+        assert document["judgment"] is None, f"{etiket}: toch een oordeel"
+        assert (
+            defect["evaluation_coverage"]["error"] == 1
+        ), f"{etiket}: dekking {defect['evaluation_coverage']}"
+        with pytest.raises(AssertionError, match=r"^validatie: dekking wijkt af"):
+            _bewijs_validatie(defect)
+        with pytest.raises(AssertionError, match=r"^INT-03: status is 'error'"):
+            _bewijs_int03_pass_op_bevroren_antwoord(
+                defect, _int03_prompts(), tekst=VERWACHTE_DEFINITIE
+            )
+
+    # --- mét het bevroren antwoord: de journeyroute -------------------------
+    monkeypatch.setattr(grens, "int03_bevroren_antwoord", bevroren_antwoord)
+    monkeypatch.setattr(grens, "is_int03_beoordelingsprompt", bevroren_herkenning)
+    omgeving.zet_modus("geldig")
+    adapter = ServiceAdapter(omgeving.container)
+    respons = await adapter.generate_definition(
+        begrip=BEGRIP, context_dict=CONTEXT, categorie=CATEGORIE
+    )
+    _bewijs_generatie(respons, omgeving.client.oproepen, BEGRIP)
+    _bewijs_validatie(respons.validation_result)
+    _bewijs_int03_pass_op_bevroren_antwoord(
+        respons.validation_result,
+        omgeving.client.oproepen_van(INT03_SOORT),
+        tekst=VERWACHTE_DEFINITIE,
+    )
+    assert omgeving.client.oproepen_van(INT03_SOORT) == _int03_prompts()
+    document = respons.validation_result["rule_results"]["INT-03"]["assessment"]
+    assert (
+        document["attribution"]["cached"] is False
+    ), "INT-03: de beoordeling kwam uit de dienstcache, niet van de grens"
 
 
 class _SynthetischeInjectieError(RuntimeError):

@@ -51,15 +51,15 @@
     }
   ],
   "runtime_contract": {
-    "evaluator": "judgment_review",
+    "evaluator": "pronoun_reference_assessment",
     "required_inputs": [
       "definition_text"
     ],
     "executability": "judgment",
-    "automation_status": "review_required",
+    "automation_status": "automated",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "voornaamwoord-antecedentresolutie vergt woordsoortanalyse; het patroon vuurt ook op het eigen goede voorbeeld.",
-    "example_pair_issue": "DEF-624"
+    "example_pair_reason": "Verwijzingsduidelijkheid is een inhoudelijk oordeel (antecedent, taalfunctie, plausibele lezingen); sinds DEF-772 geeft de app dat oordeel via de AI-verwijzingsbeoordeling op de ongewijzigde definitie, met citaatcontrole in code en 'pass' zonder verwijzend woord uitsluitend na die controle. Het paar hangt af van die beoordeling en is geen deterministische regressiecase; de signaalpatronen zijn zoekhulp en vuren ook op het goede voorbeeld ('die').",
+    "example_pair_issue": "DEF-772"
   }
 }

@@ -20,9 +20,14 @@ Wat deze tests bewijzen:
   laag-precisiesignaal toegevoegd;
 - beide laadpaden (ToetsregelManager en CachedToetsregelManager → RuleCache)
   leveren hetzelfde record;
-- het runtimecontract is in deze tussenstap ongewijzigd: elke uitkomst is
-  `review_required` met de toetsvraag als reden, nooit pass/fail, nooit een
-  cijfer, ook zonder enig signaalwoord (K7 pas na de LLM-controle in WP3).
+- het runtimecontract wijst sinds WP3 (K2 T-c) de eigen verwijzingsevaluator
+  aan (`pronoun_reference_assessment`, automatisch, `excluded_from_score`):
+  zonder voorbereide beoordeling — zoals in deze directe service-aanroepen —
+  is elke uitkomst expliciet "niet beoordeeld" (`review_required`), nooit
+  pass/fail, nooit een cijfer, ook zonder enig signaalwoord; `pass` met de
+  K7-motivering ontstaat uitsluitend ná een inhoudelijke beoordeling. De
+  signalen uit `herkenbaar_patronen` reizen als zoekhulp mee in het
+  gestructureerde `rule_results`-blok.
 
 Ruiswaarschuwing (K4(iii), bewust gedocumenteerd): 'het' vuurt ook als
 lidwoord en loos 'het', 'dat' ook als voegwoord, 'zijn' ook als werkwoord,
@@ -30,9 +35,9 @@ lidwoord en loos 'het', 'dat' ook als voegwoord, 'zijn' ook als werkwoord,
 oordeel; geen treffer is geen goedkeuring. Deze tests trekken geen
 semantische conclusie uit regexdekking.
 
-Wat ze niet bewijzen: de LLM-beoordeling (WP3), de 13→12-verschuiving van de
-reviewregeltelling en de INT-03-runtimefixture (WP3, atomair met de
-evaluator), UI/opslag (WP4) en kwaliteitswinst (WP6).
+Wat ze niet bewijzen: de inhoudelijke kwaliteit van de LLM-beoordeling
+(WP6), UI/opslag/export (WP4). De vier uitkomstcategorieën, de binding en
+het niet-blokkeren staan in `test_def772_int03_evaluator.py`.
 """
 
 from __future__ import annotations
@@ -381,7 +386,8 @@ class TestSignaaldekking:
 
     def test_geen_signaalwoord_geeft_lege_signalen(self):
         # Geen treffer is géén goedkeuring: K7 ('pass' met motivering n.v.t.)
-        # komt pas ná de LLM-controle in WP3, nooit op een lege patroonlijst.
+        # komt uitsluitend ná de LLM-controle, nooit op een lege patroonlijst
+        # (zie TestRuntimecontractWP3).
         assert _fragmenten("veelhoek met precies drie zijden") == []
 
 
@@ -429,7 +435,7 @@ class TestBeideLaadpaden:
 
 
 # ---------------------------------------------------------------------------
-# Runtimecontract: in WP2 ongewijzigd (activatie in WP3, atomair met evaluator)
+# Runtimecontract: sinds WP3 de eigen verwijzingsevaluator (K2 T-c)
 # ---------------------------------------------------------------------------
 
 
@@ -442,22 +448,31 @@ def svc(request, _verse_cache) -> ModularValidationService:
     return ModularValidationService(manager, None, None)
 
 
-async def _int03(svc: ModularValidationService, tekst: str) -> tuple[dict, dict]:
-    res = await svc.validate_definition(begrip=TERM, text=tekst)
-    item = next(r for r in res["review_required"] if r["rule_id"] == "INT-03")
-    return res, item
+async def _int03(
+    svc: ModularValidationService, tekst: str, context: dict | None = None
+) -> tuple[dict, dict]:
+    """(volledig resultaat, het gestructureerde INT-03-blok in `rule_results`)."""
+    res = await svc.validate_definition(
+        begrip=TERM, text=tekst, context=dict(context or {})
+    )
+    return res, res["rule_results"]["INT-03"]
 
 
-class TestRuntimecontractOngewijzigd:
-    def test_contract_blijft_judgment_review_zonder_score(self):
+def _review_item(res: dict) -> dict:
+    return next(r for r in res["review_required"] if r["rule_id"] == "INT-03")
+
+
+class TestRuntimecontractWP3:
+    def test_contract_wijst_de_verwijzingsevaluator_aan_zonder_score(self):
         record = build_rule_record("INT-03", _ruw())
-        assert record.evaluator is EvaluatorType.JUDGMENT_REVIEW
+        assert record.evaluator is EvaluatorType.PRONOUN_REFERENCE_ASSESSMENT
+        # De term is ondersteunend; alleen de definitietekst is vereist.
         assert record.required_inputs == (RequiredInput.DEFINITION_TEXT,)
         assert record.executability is Executability.JUDGMENT
-        assert record.automation_status is AutomationStatus.REVIEW_REQUIRED
+        assert record.automation_status is AutomationStatus.AUTOMATED
         assert record.score_policy is ScorePolicy.EXCLUDED_FROM_SCORE
         assert record.example_pair_policy is ExamplePairPolicy.REVIEW_POLICY
-        assert record.example_pair_issue == "DEF-624"
+        assert record.example_pair_issue == "DEF-772"
         assert record.counts_toward_score is False
 
     @pytest.mark.asyncio
@@ -475,28 +490,30 @@ class TestRuntimecontractOngewijzigd:
             "testgeval-b",
         ],
     )
-    async def test_elk_voorbeeld_blijft_open_met_de_toetsvraag_als_reden(
-        self, svc, tekst
-    ):
-        res, item = await _int03(svc, tekst)
+    async def test_elk_voorbeeld_zonder_beoordeling_is_expliciet_open(self, svc, tekst):
+        # Directe service-aanroep zonder voorbereide beoordeling: expliciet
+        # niet beoordeeld — geen stil pass, geen inhoudelijke afkeur, geen cijfer.
+        res, detail = await _int03(svc, tekst)
         assert res["rule_statuses"]["INT-03"] == "review_required"
         assert "INT-03" not in res["passed_rules"]
         assert not any(v.get("code") == "INT-03" for v in res["violations"])
-        # Geen cijfer (excluded_from_score); een gestructureerd
-        # `rule_results`-blok komt pas met de WP3-evaluator (ESS-03-patroon).
-        assert "INT-03" not in res["detailed_scores"]
-        assert item["reason"] == TOETSVRAAG_K1
+        assert detail["status"] == "review_required"
+        assert detail["score"] is None
+        assert "niet beoordeeld" in detail["parts"][0]["reason"]
+        assert "niet beoordeeld" in _review_item(res)["reason"]
 
     @pytest.mark.asyncio
     async def test_signalen_komen_uitsluitend_uit_het_record(self, svc):
         # Geen samengevoegd Python-patroon meer in de signalen: wat de
-        # runtime meldt, staat letterlijk in `herkenbaar_patronen`.
-        _, item = await _int03(svc, "handeling waarna deze afspraak daarmee geldt")
-        assert item["signals"]
-        assert set(item["signals"]) <= set(_patronen())
-        assert item["signals"] == _patronen_die_vuren(
+        # runtime meldt, staat letterlijk in `herkenbaar_patronen`. De
+        # signalen zijn zoekhulp in het detail, geen oordeel.
+        res, detail = await _int03(svc, "handeling waarna deze afspraak daarmee geldt")
+        assert detail["signals"]
+        assert set(detail["signals"]) <= set(_patronen())
+        assert detail["signals"] == _patronen_die_vuren(
             "handeling waarna deze afspraak daarmee geldt"
         )
+        assert _review_item(res)["signals"] == detail["signals"]
 
     @pytest.mark.asyncio
     async def test_astra_fout_meldt_het_als_signaal_en_astra_goed_niet(self, svc):
@@ -506,12 +523,40 @@ class TestRuntimecontractOngewijzigd:
         assert r"\bhet\b" not in goed["signals"]
 
     @pytest.mark.asyncio
-    async def test_zonder_signaalwoord_geen_pass(self, svc):
-        # K7 hoort bij WP3: pas na de LLM-controle 'pass' met motivering
-        # n.v.t. — nooit op een lege patroonlijst.
-        res, item = await _int03(svc, "veelhoek met precies drie zijden")
+    async def test_zonder_signaalwoord_en_zonder_beoordeling_geen_pass(self, svc):
+        # K7 ontstaat nooit op een lege patroonlijst: zonder inhoudelijke
+        # beoordeling blijft de regel expliciet open.
+        res, detail = await _int03(svc, "veelhoek met precies drie zijden")
         assert res["rule_statuses"]["INT-03"] == "review_required"
-        assert item["signals"] == []
+        assert detail["signals"] == []
+        assert "INT-03" not in res["passed_rules"]
+
+    @pytest.mark.asyncio
+    async def test_pass_ontstaat_pas_na_inhoudelijke_beoordeling(self, svc):
+        # K7: dezelfde tekst als hierboven, nu mét een (synthetische)
+        # modelbeoordeling — dan pas 'pass' met exact de afgesproken motivering.
+        from domain.int03.contract import (
+            BEVINDING_GEEN_VERWIJZEND_WOORD,
+            MOTIVERING_GEEN_VERWIJZEND_WOORD,
+        )
+        from tests.fixtures.def772_fakes import BINDING, bouw_int03_beoordeling
+
+        tekst = "veelhoek met precies drie zijden"
+        context = {
+            "record_text": tekst,
+            "int03_assessment": bouw_int03_beoordeling(
+                TERM, tekst, {}, None, scenario="no_word"
+            ),
+            "int03_binding": BINDING.als_dict(),
+        }
+        res, detail = await _int03(svc, tekst, context)
+        assert res["rule_statuses"]["INT-03"] == "pass"
+        assert "INT-03" in res["passed_rules"]
+        assert detail["parts"][0]["reason"] == MOTIVERING_GEEN_VERWIJZEND_WOORD
+        assert detail["review"]["assessment"]["finding"] == (
+            BEVINDING_GEEN_VERWIJZEND_WOORD
+        )
+        assert detail["score"] is None
 
 
 # ---------------------------------------------------------------------------

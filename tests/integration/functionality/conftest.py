@@ -30,6 +30,10 @@ from typing import Any
 import pytest
 
 from domain.ess03.contract import LOCATIE_TERM, VERDICT_INSUFFICIENT
+from domain.int03.contract import (
+    VERDICT_PASS as INT03_VERDICT_PASS,
+    VERWIJZING_DUIDELIJK,
+)
 from services.ai.base_client import ChatMessage, ChatResponse
 
 # --------------------------------------------------------------------------
@@ -131,6 +135,107 @@ def ess03_bevroren_antwoord(prompt: str) -> str:
     return json.dumps(antwoord, ensure_ascii=False)
 
 
+#: DEF-772: de validatie roept sinds INT-03 de providergrens ook aan voor de
+#: AI-beoordeling van voornaamwoord-verwijzingen (`Int03AssessmentService`).
+#: Die prompt is te herkennen aan de vaste definitieregel uit
+#: `bouw_beoordelingsprompt` (`services.validation.int03_assessment_service`):
+#: de definitie is daar de enige bewijsplaats voor citaten. Wijzigt de prompt,
+#: dan herkent de grens haar niet meer en faalt de journey luid (technische
+#: fout), nooit stil een pass.
+INT03_SOORT = "int03"
+_INT03_DEFINITIEREGEL = re.compile(
+    r"^Definitie \([^)]*enige bewijsplaats voor citaten\): (?P<tekst>.*)$",
+    re.MULTILINE,
+)
+#: Het enige verwijzende woord in `DEFINITIE_TEKST` en zijn antecedent: het
+#: betrekkelijk voornaamwoord 'die' opent een betrekkelijke bijzin direct na de
+#: naamwoordgroep 'proefdefinitie' ("… proefdefinitie die het begrip
+#: beschrijft …") en verwijst daar eenduidig naar; er is geen andere
+#: naamwoordgroep die als antecedent kan worden gelezen. Volgens de norm
+#: (K6, zie de systeemprompt van `Int03AssessmentService`) voldoet een
+#: betrekkelijke bijzin met een eenduidig antecedent: status `clear`,
+#: verdict `pass`.
+INT03_VERWIJZEND_WOORD = "die"
+INT03_ANTECEDENT = "proefdefinitie"
+_INT03_ANTECEDENTREGEL = re.compile(
+    rf"\b{re.escape(INT03_ANTECEDENT)}\s+{re.escape(INT03_VERWIJZEND_WOORD)}\b"
+)
+
+
+def is_int03_beoordelingsprompt(prompt: str) -> bool:
+    """Is dit de gebruikersprompt van de INT-03-beoordeling (DEF-772)?"""
+    return _INT03_DEFINITIEREGEL.search(prompt) is not None
+
+
+def int03_definitie_uit_prompt(prompt: str) -> str | None:
+    """De te toetsen definitie zoals zij als gegevens in de INT-03-prompt staat."""
+    treffer = _INT03_DEFINITIEREGEL.search(prompt)
+    return treffer.group("tekst").strip() if treffer else None
+
+
+def _int03_passage(tekst: str) -> str:
+    """Een letterlijk fragment (hooguit vijf woorden) rond het verwijzende woord."""
+    woorden = tekst.split()
+    for index, woord in enumerate(woorden):
+        if re.sub(r"[^\w]", "", woord).lower() == INT03_VERWIJZEND_WOORD:
+            return " ".join(woorden[max(0, index - 2) : index + 3])
+    return ""
+
+
+def int03_bevroren_antwoord(prompt: str) -> str:
+    """Het bevroren INT-03-antwoord voor de bevroren definitie: `pass`/`clear`.
+
+    Eén inhoudelijk onderbouwd oordeel voor exact de bevroren zin: 'die'
+    verwijst eenduidig naar 'proefdefinitie' (zie `INT03_ANTECEDENT`). De vorm
+    volgt het contract (`domain.int03.contract.structuurfout_modeluitvoer` en
+    `valideer_oordeel`): exact vijf velden, geen vraag bij `pass`, één
+    verwijzing met status `clear` waarvan woord, passage en het
+    antecedentcitaat letterlijk in de verzonden definitie staan — gelezen uit
+    de prompt, zodat de citaatcontrole van de dienst ze accepteert. Staat de
+    bevroren constructie ('proefdefinitie die') niet in de te toetsen tekst,
+    dan heeft de grens daarvoor geen oordeel en geeft zij een lege respons: de
+    dienst meldt dan een technische fout — zichtbaar, nooit een stil pass en
+    nooit een verzonnen antecedent.
+    """
+    tekst = int03_definitie_uit_prompt(prompt) or ""
+    passage = _int03_passage(tekst)
+    if not passage or _INT03_ANTECEDENTREGEL.search(tekst) is None:
+        return ""
+    antwoord: dict[str, Any] = {
+        "verdict": INT03_VERDICT_PASS,
+        "reason": (
+            "Bevroren proefantwoord: het enige verwijzende woord is het "
+            "betrekkelijk voornaamwoord 'die'. Het opent een betrekkelijke bijzin "
+            "direct na de naamwoordgroep 'proefdefinitie' en verwijst daar "
+            "eenduidig naar; geen andere naamwoordgroep in de definitie kan als "
+            "antecedent worden gelezen."
+        ),
+        "references": [
+            {
+                "word": INT03_VERWIJZEND_WOORD,
+                "passage": passage,
+                "status": VERWIJZING_DUIDELIJK,
+                "reading": (
+                    "antecedent 'proefdefinitie': de naamwoordgroep direct vóór de "
+                    "betrekkelijke bijzin; één plausibele lezing"
+                ),
+                "candidates": [
+                    {
+                        "quote": INT03_ANTECEDENT,
+                        "reason": (
+                            "naamwoordgroep direct vóór de betrekkelijke bijzin die "
+                            "'die' opent; getal en rol passen"
+                        ),
+                    }
+                ],
+            }
+        ],
+        "question": None,
+        "uncertainty": None,
+    }
+    return json.dumps(antwoord, ensure_ascii=False)
+
+
 def verwachte_termen(soort: str, aantal: int) -> list[str]:
     """De exacte lijst die de parser uit een geldig antwoord moet halen."""
     prefix = _TERM_PREFIX[soort]
@@ -162,6 +267,8 @@ def _ontleed_prompt(prompt: str) -> tuple[str | None, int]:
     """Bepaal soort en gevraagd aantal uit de prompt van de productiecode."""
     if is_ess03_beoordelingsprompt(prompt):
         return ESS03_SOORT, 0
+    if is_int03_beoordelingsprompt(prompt):
+        return INT03_SOORT, 0
     laag = prompt.lower()
     for soort, markering in _SOORT_MARKERINGEN:
         if markering in laag:
@@ -214,7 +321,9 @@ class BevrorenAIClient:
 
     De ESS-03-beoordelingsprompt (DEF-766, soort ``ess03``) krijgt in ``geldig``
     en ``tekort`` het gesloten antwoord uit `ess03_bevroren_antwoord`; in
-    ``leeg`` een lege respons, die de dienst als technische fout meldt.
+    ``leeg`` een lege respons, die de dienst als technische fout meldt. De
+    INT-03-beoordelingsprompt (DEF-772, soort ``int03``) idem met
+    `int03_bevroren_antwoord` (`pass`/`clear` voor de bevroren definitie).
     """
 
     def __init__(self, modus: str = "geldig") -> None:
@@ -260,6 +369,8 @@ class BevrorenAIClient:
             tekst = ""
         elif soort == ESS03_SOORT:
             tekst = ess03_bevroren_antwoord(prompt)
+        elif soort == INT03_SOORT:
+            tekst = int03_bevroren_antwoord(prompt)
         elif self.modus == "tekort":
             tekst = _antwoordtekst(soort, max(gevraagd - 1, 0)) if soort else ""
         else:

@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     from services.synonym_orchestrator import SynonymOrchestrator
     from services.synonym_suggester import SynonymSuggester
     from services.validation.ess03_assessment_service import Ess03AssessmentService
+    from services.validation.int03_assessment_service import Int03AssessmentService
     from services.validation.interfaces import ValidationOrchestratorInterface
     from services.validation.source_assessment_service import SourceAssessmentService
     from services.web_lookup.synonym_service import JuridischeSynoniemService
@@ -328,6 +329,25 @@ class ServiceContainer:
             "Ess03AssessmentService", self._instances["ess03_assessment_service"]
         )
 
+    def int03_assessment_service(self) -> "Int03AssessmentService":
+        """De AI-verwijzingsbeoordeling voor INT-03 (DEF-772), singleton.
+
+        Zelfde opzet als de telbaarheidsbeoordeling: op de gedeelde AIServiceV2
+        en de ModelRouter (taak `validation`); één instantie (en één interne
+        cache) voor editor en generatie.
+        """
+        if "int03_assessment_service" not in self._instances:
+            from services.validation.int03_assessment_service import (
+                Int03AssessmentService,
+            )
+
+            self._instances["int03_assessment_service"] = Int03AssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "Int03AssessmentService", self._instances["int03_assessment_service"]
+        )
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -397,6 +417,8 @@ class ServiceContainer:
                 source_assessment_service=self.source_assessment_service(),
                 # DEF-766: gedeelde AI-telbaarheidsbeoordeling (ESS-03)
                 ess03_assessment_service=self.ess03_assessment_service(),
+                # DEF-772: gedeelde AI-verwijzingsbeoordeling (INT-03)
+                int03_assessment_service=self.int03_assessment_service(),
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 
