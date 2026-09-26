@@ -1,0 +1,30 @@
+[0;34m🔍 Running pre-commit checks...[0m
+Running standard pre-commit checks...
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...................................................Passed
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409.......................Passed
+[INFO] Checking merge-conflict files only.
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...............................(no files to check)Skipped
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409...(no files to check)Skipped
+[feature/DEF-771-int02-contract-o1 6a5fc3051] fix(DEF-771): Integreer main en herstel INT-03-resultaatschema

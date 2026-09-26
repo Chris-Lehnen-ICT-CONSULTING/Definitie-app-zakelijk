@@ -1,0 +1,85 @@
+COMMANDO
+/bin/zsh -lc "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -B - <<'PY'
+import sys,json,copy
+from pathlib import Path
+app=Path('/Users/chrislehnen/Projecten/Definitie-app')
+sys.path.insert(0,str(app/'tests'))
+import offline_bootstrap
+offline_bootstrap.install()
+from jsonschema import Draft202012Validator
+s=json.loads((app/'docs/architectuur/contracts/schemas/validation_result.schema.json').read_text())
+Draft202012Validator.check_schema(s)
+full=Draft202012Validator(s); part=Draft202012Validator(s['properties']['rule_results'])
+base={'version':'2.2.0','overall_score':0.0,'is_acceptable':False,'violations':[],'passed_rules':[],'detailed_scores':{},'system':{'correlation_id':'00000000-0000-4000-8000-000000000000'},'validation_status':'validated'}
+r={'status':'review_required','score':None,'fingerprint':None,'parts':[{'id':'proef','status':'review_required','reason':'synthetisch','action':'beoordeel'}]}
+cases=[]
+for status in ['pass','fail','review_required','not_evaluated','error','not_applicable']:
+ v=copy.deepcopy(r);v['status']=v['parts'][0]['status']=status
+ cases.append(('bestaand '+status,{'INT-01':v},True))
+for ass in [None,{'status':'assessed'}]:
+ cases.append(('INT03 '+str(ass),{'INT-03':dict(r,assessment=ass,signals=['die'])},True))
+for key,value in [('signals','die'),('signals',[1]),('signals',None),('assessment','assessed'),('assessment',[]),('onbekend',1)]:
+ v=dict(r,assessment=None,signals=[]);v[key]=value
+ cases.append(('INT03 ongeldig '+key+str(value),{'INT-03':v},False))
+for code in ['INT-02','INT-01','CON-01','ESS-03']:
+ for key,value in [('signals',[]),('assessment',None),('onbekend',1)]:
+  cases.append((code+' extra '+key,{code:dict(r,**{key:value})},False))
+for name,rr,expected in cases:
+ a=not list(full.iter_errors(dict(base,rule_results=rr)));b=not list(part.iter_errors(rr))
+ assert (a,b)==(expected,expected),(name,a,b,expected)
+print('Schema geheel en rule_results-deelschema:',len(cases),'gevallen elk, alle verwachtingen bevestigd; geen resolver-/netwerkaanroep nodig.')
+PY"
+UITVOER
+Schema geheel en rule_results-deelschema: 26 gevallen elk, alle verwachtingen bevestigd; geen resolver-/netwerkaanroep nodig.
+
+EXITSTATUS=0
+
+COMMANDO
+/bin/zsh -lc "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -B - <<'PY'
+from pathlib import Path
+import ast,subprocess,json,hashlib,re
+u=Path('docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering')
+def g(*args):return subprocess.check_output(['git',*args])
+p='src/services/prompts/modules/json_based_rules_module.py'
+def norm(blob,key):
+ t=ast.parse(blob)
+ return next(ast.literal_eval(v) for n in ast.walk(t) if isinstance(n,ast.Dict) for k,v in zip(n.keys,n.values) if isinstance(k,ast.Constant) and k.value==key and isinstance(v,ast.Constant))
+h=g('show','HEAD:'+p);m=g('show','076c916671e4e7e9f2843d22669df38eeb79e170:'+p)
+syn=(u.parent/'gezamenlijke-synthese-v5.md').read_text()
+exact=next(l[2:] for l in syn.splitlines() if l.startswith('> Beschrijf wat het begrip is'))
+print('INT02 G synthese letterlijk:',norm(h,'INT-02')==exact,'INT03 main letterlijk:',norm(h,'INT-03')==norm(m,'INT-03'))
+# New-side patch blobs must match committed content, not just working reports.
+patch=(u/'vervolg-schema-correctie-v1.diff').read_text()
+for block in patch.split('diff --git ')[1:]:
+ path=block.splitlines()[0].split(' b/',1)[1]
+ sha=re.search(r'"'^index '"\\w+\\.\\.(\\w+)',block,re.M)[1]
+ current=g('rev-parse','HEAD:'+path).decode().strip()
+ print('B1/B2 patch HEAD-identiek',path,current.startswith(sha))
+# Shared schema body preserves original constraints, apart from intended closure relocation.
+path='docs/architectuur/contracts/schemas/validation_result.schema.json'
+old=json.loads(g('show','5ee0e9b52'));new=json.loads(g('show','HEAD:'+path))
+a=old['properties']['rule_results']['additionalProperties'];b=new['properties']['rule_results']['"'$defs'"']['regeluitkomst'].copy()
+a.pop('additionalProperties');b.pop('"'$anchor'"');print('gedeelde regeluitkomst identiek:',a==b)
+print('keten JSON exact v3:',(u/'vervolg-integratie-keten-v1.json').read_bytes()==(u/'vervolg-keten-replay-v3.json').read_bytes())
+print('ketenlog einde:',(u/'vervolg-integratie-keten-v1.log').read_text()[-100:])
+PY"
+UITVOER
+INT02 G synthese letterlijk: True INT03 main letterlijk: True
+B1/B2 patch HEAD-identiek docs/architectuur/contracts/schemas/validation_result.schema.json True
+B1/B2 patch HEAD-identiek docs/architectuur/contracts/validation_result_contract.md True
+B1/B2 patch HEAD-identiek src/services/validation/interfaces.py True
+B1/B2 patch HEAD-identiek tests/unit/services/orchestrators/test_def772_int03_wrappers.py True
+B1/B2 patch HEAD-identiek tests/unit/validation/test_def771_int02_o1.py True
+gedeelde regeluitkomst identiek: True
+keten JSON exact v3: True
+ketenlog einde: _met_toetsresultaten_zonder_gate": {
+    "bevat_int02": true
+   }
+  }
+ },
+ "exitstatus": 0
+}
+exit=0
+
+
+EXITSTATUS=0
