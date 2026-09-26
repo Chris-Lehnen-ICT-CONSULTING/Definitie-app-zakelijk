@@ -304,7 +304,10 @@ class Int03AssessmentService:
         model_router: Any | None = None,
         norm: Mapping[str, str] | None = None,
         timeout_seconds: int = 60,
-        max_tokens: int = 1200,
+        # Outputtokenbudget: Chris (26-09-2026) "pas de tokenlimiet aan naar max
+        # 2500" (was 1200). Alleen dit budget; provider/model, norm, prompt en
+        # het afkapbeleid (`truncated_response`) blijven gelijk.
+        max_tokens: int = 2500,
         max_input_chars: int = 4000,
         max_total_input_chars: int = 12000,
         cache_size: int = 64,

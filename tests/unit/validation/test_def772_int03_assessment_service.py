@@ -230,7 +230,9 @@ async def test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model():
     assert call["temperature"] == 0.0
     assert "model" not in call or call["model"] is None
     assert call["system_prompt"]
-    assert call["max_tokens"] <= 1500
+    # Outputtokenlimiet: Chris (26-09-2026) "pas de tokenlimiet aan naar max
+    # 2500" — het standaardbudget van de dienst is exact wat de AI-laag krijgt.
+    assert call["max_tokens"] == 2500
     assert call["timeout_seconds"] <= 60
     # Opt-ins tegen ruwe cache onder de validatie en verborgen retry-stapeling.
     assert call["use_cache"] is False
@@ -387,6 +389,43 @@ async def test_afgekapt_antwoord_is_truncated_response():
     assert d["status"] == "error"
     assert d["error"]["type"] == "truncated_response"
     assert d["attribution"]["stop_reason"] == "max_tokens"
+    # Het gemelde budget is het werkelijk gebruikte standaardbudget (2500),
+    # niet het oude 1200; afkappen blijft een technische fout, geen tolerantie.
+    assert "max_tokens=2500" in d["error"]["message"]
+    assert "1200" not in d["error"]["message"]
+
+
+# --- outputtokenlimiet (Chris, 26-09-2026: "pas de tokenlimiet aan naar max 2500") ---
+
+
+async def test_standaardbudget_2500_wordt_aan_de_ai_laag_doorgegeven():
+    """Zonder expliciet budget stuurt de dienst exact 2500 outputtokens mee;
+    provider/model (taakrouting), norm en prompt veranderen niet mee."""
+    service, ai = _service(_uitvoer())
+    d = (await _assess(service)).als_dict()
+    (call,) = ai.calls
+    assert call["max_tokens"] == 2500
+    assert call["task_type"] == "validation"
+    assert "model" not in call or call["model"] is None
+    assert d["status"] == "assessed"
+    assert d["norm_sha256"] == service.norm_sha256
+
+
+async def test_expliciet_budget_1200_blijft_als_parameter_gelden():
+    """Een bewust meegegeven 1200 (de eerste WP6-meetopzet) blijft exact het
+    budget van die aanroep én van de afkapmelding — de default overschrijft
+    geen expliciete parameter."""
+    service, ai = _service(_uitvoer(), max_tokens=1200)
+    await _assess(service)
+    assert ai.calls[0]["max_tokens"] == 1200
+
+    afgekapt, _ = _service(
+        _uitvoer(), metadata={"stop_reason": "max_tokens"}, max_tokens=1200
+    )
+    d = (await _assess(afgekapt)).als_dict()
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "truncated_response"
+    assert "max_tokens=1200" in d["error"]["message"]
 
 
 async def test_te_lange_invoer_is_technische_fout_zonder_aanroep():
