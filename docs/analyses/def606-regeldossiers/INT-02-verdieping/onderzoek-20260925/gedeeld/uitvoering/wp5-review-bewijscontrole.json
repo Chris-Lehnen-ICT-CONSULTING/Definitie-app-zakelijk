@@ -1,0 +1,379 @@
+{
+  "zip_changes": {
+    "definitie-toetsregels": {
+      "changed": [
+        "definitie-toetsregels/SKILL.md",
+        "definitie-toetsregels/reference.md",
+        "definitie-toetsregels/references/int02-beslisregel.md"
+      ],
+      "deleted": [],
+      "matches_sources": {
+        "definitie-toetsregels/SKILL.md": true,
+        "definitie-toetsregels/reference.md": true,
+        "definitie-toetsregels/references/int02-beslisregel.md": true
+      }
+    },
+    "definitie-nederlandse-definities": {
+      "changed": [
+        "definitie-nederlandse-definities/SKILL.md",
+        "definitie-nederlandse-definities/reference.md",
+        "definitie-nederlandse-definities/references/int02-beslisregel.md"
+      ],
+      "deleted": [],
+      "matches_sources": {
+        "definitie-nederlandse-definities/SKILL.md": true,
+        "definitie-nederlandse-definities/reference.md": true,
+        "definitie-nederlandse-definities/references/int02-beslisregel.md": true
+      }
+    }
+  },
+  "contract_sha256": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+  "copy_equal": true,
+  "literal_contract_source_lines": {
+    "> Een definitie beschrijft wat": true,
+    "> Beschrijf wat": true,
+    "**T-tekst": true,
+    "**Reviewerhulp": true,
+    "**Appmeldingen": true,
+    "Diagnose vóór advies:": true,
+    "Voor INT-02 betreft H": true,
+    "**Veldrollen.": true
+  },
+  "case_rows_equal": {
+    "C10": true,
+    "C05": true,
+    "C19": true,
+    "C53": true,
+    "C112": true,
+    "C113": true,
+    "C116": true,
+    "C02": true,
+    "C12": true,
+    "C52": true,
+    "C105": true,
+    "C114": true,
+    "C16": true,
+    "C24": true,
+    "C55": true,
+    "C58": true,
+    "C107": true
+  },
+  "replay_summary": {
+    "g_gerenderd": {
+      "include_examples=True": true,
+      "include_examples=False": true
+    },
+    "uitvoeringen": 36,
+    "match": 36,
+    "mismatch": [],
+    "citaatfouten": []
+  },
+  "replay_exit": 0,
+  "replay_hashes_match": {
+    "src/services/validation/evaluators/judgment_review.py": true,
+    "src/services/validation/modular_validation_service.py": true,
+    "src/services/prompts/modules/json_based_rules_module.py": true,
+    "src/toetsregels/regels/INT-02.json": true,
+    "script": true,
+    "historische_verwachtingen": true
+  },
+  "logs": {
+    "wp1-red-contracttest.log": {
+      "summary": [
+        "==================== 7 failed, 1 passed, 6 errors in 0.82s =====================",
+        "# exitstatus: 1"
+      ],
+      "passed_lines": 0
+    },
+    "wp1-na-formattering-verificatie.log": {
+      "summary": [
+        "# exitstatus 1: 0",
+        "# exitstatus 2: 0",
+        "# exitstatus 3: 0",
+        "# exitstatus 4a: 0",
+        "# exitstatus 4b (cmp canoniek): 0",
+        "# exitstatus 4c (cmp kopie): 0"
+      ],
+      "passed_lines": 0
+    },
+    "wp2-red-promptnorm.log": {
+      "summary": [
+        "============================== 4 failed in 0.66s ===============================",
+        "# exitstatus: 1"
+      ],
+      "passed_lines": 0
+    },
+    "wp2-green-promptnorm-v2.log": {
+      "summary": [
+        "============================== 6 passed in 0.59s ===============================",
+        "# exitstatus 1: 0",
+        "# exitstatus 2: 0",
+        "# exitstatus 3: 0",
+        "# exitstatus 4: 0",
+        "# exitstatus 5a: 0"
+      ],
+      "passed_lines": 0
+    },
+    "wp3-red.log": {
+      "summary": [
+        "# exitstatus: 1"
+      ],
+      "passed_lines": 0
+    },
+    "wp3-transport-red-v2.log": {
+      "summary": [
+        "========================= 7 failed, 26 passed in 1.09s =========================",
+        "# exitstatus: 1"
+      ],
+      "passed_lines": 0
+    },
+    "wp3-transport-green-v2.log": {
+      "summary": [
+        "exit=0"
+      ],
+      "passed_lines": 146
+    },
+    "wp4-red.log": {
+      "summary": [
+        "exit=1",
+        "exit=0"
+      ],
+      "passed_lines": 4
+    },
+    "wp4-red-probestatus.log": {
+      "summary": [
+        "exit=0"
+      ],
+      "passed_lines": 0
+    },
+    "wp4-green.log": {
+      "summary": [
+        "exit=0"
+      ],
+      "passed_lines": 437
+    },
+    "wp4-green-probestatus.log": {
+      "summary": [
+        "exit=0"
+      ],
+      "passed_lines": 0
+    },
+    "wp5-green.log": {
+      "summary": [
+        "exit=0"
+      ],
+      "passed_lines": 57
+    },
+    "wp5-pytest-volledig.log": {
+      "summary": [
+        "67 failed, 8212 passed, 114 skipped, 24 xfailed, 3397 warnings, 21 subtests passed in 619.51s (0:10:19)",
+        "EXITSTATUS=1"
+      ],
+      "passed_lines": 0
+    },
+    "wp5-basis-failures.log": {
+      "summary": [
+        "66 failed, 1 passed, 6 warnings in 43.24s",
+        "EXITSTATUS=1"
+      ],
+      "passed_lines": 0
+    },
+    "wp5-basis-security-bestanden.log": {
+      "summary": [
+        "========================= 3 failed, 41 passed in 0.98s =========================",
+        "EXITSTATUS=1"
+      ],
+      "passed_lines": 0
+    }
+  },
+  "failures": {
+    "head": 67,
+    "base": 66,
+    "common": 66,
+    "head_only": [
+      "tests.integration.security.test_security_comprehensive.TestSecurityIntegration::test_security_decorator"
+    ],
+    "different_first_line": {
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_backwards_compatibility_noted": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md"
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_configuration_documented": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/TECHNICAL_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md"
+      ],
+      "tests.integration.performance.test_def90_validation_lazy_loading.TestPerformanceRegressionValidation::test_orchestrator_init_under_400ms_with_both_lazy": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_no_broken_internal_links": [
+        "AssertionError: Verplichte bron(nen) ontbreken: ['/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/TECHNICAL_ARCHITECTURE.md']",
+        "AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/README.md']"
+      ],
+      "tests.integration.performance.test_def90_validation_lazy_loading.TestServiceContainerIntegration::test_container_orchestrator_has_lazy_validation": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.test_ui_integration.TestUIServiceIntegratie::test_tabbed_interface_binds_real_service_adapter": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.test_ui_integration.TestUIServiceIntegratie::test_broken_service_binding_falls_back_and_is_detected": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.performance.test_validation_performance_baseline::test_adapter_kapt_blokkerende_regel_af": [
+        "AssertionError: Timeout protection failed: de adapter liet een regel die 3.0s blokkeert 3.01s doorlopen in plaats van af te kappen binnen 2.0s. rode advisory-repro (testdispositie-eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): adaptertimeout is nooit gebouwd en is niet productiebedraad; trigger is vrijgegeven productbedrading of een timeoutcontract voor ValidationModuleAdapter",
+        "AssertionError: Timeout protection failed: de adapter liet een regel die 3.0s blokkeert 3.00s doorlopen in plaats van af te kappen binnen 2.0s. rode advisory-repro (testdispositie-eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): adaptertimeout is nooit gebouwd en is niet productiebedraad; trigger is vrijgegeven productbedrading of een timeoutcontract voor ValidationModuleAdapter"
+      ],
+      "tests.integration.performance.test_def90_validation_lazy_loading.TestServiceContainerIntegration::test_container_validation_orchestrator_method": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.regression.test_regression_suite.TestImportStructure::test_package_init_files": [
+        "AssertionError: Ontbrekende __init__.py bestanden in 13 van 65 mappen: ['analysis', 'cache', 'models', 'orchestration', 'api', 'UNKNOWN.egg-info', 'pages', 'reports', 'ui/services', 'database/migrations', 'services/policies', 'services/prompts', 'ui/components/tabs']",
+        "AssertionError: Ontbrekende __init__.py bestanden in 8 van 60 mappen: ['models', 'api', 'pages', 'ui/services', 'database/migrations', 'services/policies', 'services/prompts', 'ui/components/tabs']"
+      ],
+      "tests.unit.test_config_system.TestConfigManager::test_environment_detection": [
+        "tests.offline_bootstrap.OfflineGateError: .env op '/Users/chrislehnen/Projecten/Definitie-app/.env' ligt buiten de tijdelijke sessieroot; de omgeving van de ontwikkelaar mag een test niet beïnvloeden",
+        "tests.offline_bootstrap.OfflineGateError: .env op '/private/tmp/def771-wp1-basis-1790361228/.env' ligt buiten de tijdelijke sessieroot; de omgeving van de ontwikkelaar mag een test niet beïnvloeden"
+      ],
+      "tests.integration.regression.test_regression_suite.TestRegressionSpecific::test_logs_import_resolution": [
+        "AssertionError: verplichte module ontbreekt: logs.application.log_definitie (verwacht onder /Users/chrislehnen/Projecten/Definitie-app/logs/application)",
+        "AssertionError: verplichte module ontbreekt: logs.application.log_definitie (verwacht onder /private/tmp/def771-wp1-basis-1790361228/logs/application)"
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_document_sizes_acceptable": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/ENTERPRISE_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md"
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_coverage_in_solution_architecture": [
+        "AssertionError: SOLUTION_ARCHITECTURE.md not found at /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md",
+        "AssertionError: SOLUTION_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md"
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_adr_references": [
+        "AssertionError: PER-007 ADR niet gevonden op ['/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md', '/Users/chrislehnen/Projecten/Definitie-app/docs/archief/ADR-PER-007-presentation-data-separation.md'] en de terugvalbron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md",
+        "AssertionError: PER-007 ADR niet gevonden op ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md', '/private/tmp/def771-wp1-basis-1790361228/docs/archief/ADR-PER-007-presentation-data-separation.md'] en de terugvalbron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md"
+      ],
+      "tests.integration.regression.test_regression_suite.TestRegressionSpecific::test_modern_service_encoding_fix": [
+        "AssertionError: verwachte bronbestanden ontbreken: ['/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_generator.py']",
+        "AssertionError: verwachte bronbestanden ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/src/services/unified_definition_generator.py']"
+      ],
+      "tests.smoke.test_ui_smoke::test_ui_mode[new]": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_cross_references_between_docs": [
+        "AssertionError: Verplichte bron(nen) ontbreken: ['/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/TECHNICAL_ARCHITECTURE.md']",
+        "AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']"
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_validation_rules_preserved": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/TECHNICAL_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md"
+      ],
+      "tests.integration.performance.test_per007_performance.TestPerformance::test_concurrent_processing_performance": [
+        "AssertionError: Concurrent processing too slow: 0.56ms",
+        "AssertionError: Concurrent processing too slow: 0.61ms"
+      ],
+      "tests.integration.performance.test_performance_comprehensive.TestCachePerformance::test_cache_scalability_binnen_twee_seconden": [
+        "AssertionError: Cache scalability test too slow: 2.437s",
+        "AssertionError: Cache scalability test too slow: 2.304s"
+      ],
+      "tests.integration.regression.test_validation_orchestrator_v2_regression::test_validation_orchestrator_v2": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.performance.test_validation_performance_baseline::test_concurrent_validation_scaling": [
+        "AssertionError: Concurrent 5: 0.0083s exceeds expected 0.0029s (baseline 0.0024s). rode repro (eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): de oorspronkelijke schaalverwachting elapsed <= baseline * (1 + 0.5 * (n - 1) / 10) heeft geen dekkende productcode; trigger is een productbesluit over schalen van gelijktijdige validatie",
+        "AssertionError: Concurrent 5: 0.0086s exceeds expected 0.0025s (baseline 0.0021s). rode repro (eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): de oorspronkelijke schaalverwachting elapsed <= baseline * (1 + 0.5 * (n - 1) / 10) heeft geen dekkende productcode; trigger is een productbesluit over schalen van gelijktijdige validatie"
+      ],
+      "tests.integration.test_history_removal.TestHistoryTabRemoval::test_tab_configuration_excludes_history": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_migration_status_documented": [
+        "AssertionError: Verplichte bron(nen) ontbreken: ['/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/TECHNICAL_ARCHITECTURE.md']",
+        "AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']"
+      ],
+      "tests.integration.performance.test_def66_lazy_loading.TestPerformanceRegression::test_tabbed_interface_reuses_prewarmed_container_and_repository": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.smoke.test_ui_smoke::test_ui_mode[legacy]": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.test_history_removal.TestApplicationFunctionality::test_definition_generation_flow": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_astra_compliance_maintained": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/ENTERPRISE_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md"
+      ],
+      "tests.unit.test_performance_tracker.TestGlobalTracker::test_get_tracker_singleton": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_implementation_files_documented": [
+        "AssertionError: TECHNICAL_ARCHITECTURE.md not found at /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/TECHNICAL_ARCHITECTURE.md",
+        "AssertionError: TECHNICAL_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md"
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_frontmatter_present_in_canonical_docs": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/ENTERPRISE_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md"
+      ],
+      "tests.integration.performance.test_per007_performance.TestPerformance::test_end_to_end_flow_performance": [
+        "AssertionError: ContextFormatter ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06",
+        "AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06"
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_archive_structure": [
+        "AssertionError: Archive directory not found at /Users/chrislehnen/Projecten/Definitie-app/docs/archief/2025-09-architectuur-consolidatie",
+        "AssertionError: Archive directory not found at /private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie"
+      ],
+      "tests.integration.test_history_removal.TestHistoryTabRemoval::test_no_history_in_tab_rendering": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance::test_per007_workflows_documented": [
+        "AssertionError: Verplichte bron ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/SOLUTION_ARCHITECTURE.md",
+        "AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md"
+      ],
+      "tests.integration.test_history_removal.TestPerformanceImprovement::test_memory_usage": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.regression.test_regression_suite.TestNederlandseCommentaren::test_function_documentation_completeness": [
+        "AssertionError: Te veel ongedocumenteerde functies: 211/648, eerste tien: ['api/feature_status_api.py:lifespan', 'api/feature_status_api.py:get_feature_status (no Dutch)', 'api/feature_status_api.py:get_feature_summary (no Dutch)', 'api/feature_status_api.py:get_epic_status (no Dutch)', 'api/feature_status_api.py:get_features_by_status (no Dutch)', 'cli/performance_cli.py:performance (no Dutch)', 'cli/performance_cli.py:status (no Dutch)', 'cli/performance_cli.py:baselines (no Dutch)', 'config/__init__.py:get_api_config', 'config/__init__.py:get_cache_config']",
+        "AssertionError: Te veel ongedocumenteerde functies: 211/646, eerste tien: ['api/feature_status_api.py:lifespan', 'api/feature_status_api.py:get_feature_status (no Dutch)', 'api/feature_status_api.py:get_feature_summary (no Dutch)', 'api/feature_status_api.py:get_epic_status (no Dutch)', 'api/feature_status_api.py:get_features_by_status (no Dutch)', 'cli/performance_cli.py:performance (no Dutch)', 'cli/performance_cli.py:status (no Dutch)', 'cli/performance_cli.py:baselines (no Dutch)', 'config/__init__.py:get_api_config', 'config/__init__.py:get_cache_config']"
+      ],
+      "tests.integration.test_per007_acceptance.TestAcceptanceCriteria::test_ac1_ui_preview_never_used_as_source": [
+        "AssertionError: ContextFormatter ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/src/services/ui/formatters.py (AC1, dispositie DEF-519)",
+        "AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py (AC1, dispositie DEF-519)"
+      ],
+      "tests.integration.test_history_removal.TestHistoryTabRemoval::test_tabbed_interface_loads_without_history": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation::test_canonical_docs_exist": [
+        "AssertionError: Canonical document ENTERPRISE_ARCHITECTURE.md not found at /Users/chrislehnen/Projecten/Definitie-app/docs/architectuur/ENTERPRISE_ARCHITECTURE.md",
+        "AssertionError: Canonical document ENTERPRISE_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md"
+      ],
+      "tests.integration.test_history_removal.TestHistoryTabRemoval::test_no_broken_navigation_references": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.performance.test_per007_performance.TestPerformance::test_ui_formatting_performance": [
+        "AssertionError: ContextFormatter ontbreekt: /Users/chrislehnen/Projecten/Definitie-app/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06",
+        "AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06"
+      ],
+      "tests.unit.test_performance_tracker.TestGlobalTracker::test_reset_tracker": [
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-yqnqwfgk. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.",
+        "tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar."
+      ],
+      "tests.integration.test_per007_acceptance.TestAcceptanceCriteria::test_ac7_separation_of_concerns_validated": [
+        "AssertionError: UI-laagbestanden ontbreken: ['/Users/chrislehnen/Projecten/Definitie-app/src/ui/formatters.py', '/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/context_display.py']",
+        "AssertionError: UI-laagbestanden ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/src/ui/formatters.py', '/private/tmp/def771-wp1-basis-1790361228/src/ui/components/context_display.py']"
+      ]
+    }
+  }
+}
