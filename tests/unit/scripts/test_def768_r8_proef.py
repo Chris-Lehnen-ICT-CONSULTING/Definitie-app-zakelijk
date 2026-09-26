@@ -405,10 +405,10 @@ class TestR8Registratie:
             assert runner.PROEVEN[naam].echt_toegestaan is False
             assert runner.PROEVEN[naam].budgetbesluit_sha256 is None
         # R8 gesloten, zijn besluit blijft gepind; R9 is na zijn inhoudelijke
-        # stop ook gesloten, dus geen ronde staat open.
+        # stop ook gesloten; alleen R10 (eigen besluit) staat open.
         assert runner.PROEVEN["R8"].echt_toegestaan is False
         assert runner.PROEVEN["R8"].budgetbesluit_sha256 == BUDGETBESLUIT_SHA256
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R10"]
 
     @besluit_nodig
     def test_budgetbesluit_past_op_de_proefidentiteit(self):

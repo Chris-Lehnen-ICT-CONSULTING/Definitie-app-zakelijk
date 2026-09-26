@@ -73,7 +73,18 @@ vastgelegde prompt- en antwoordcontractidentiteit (`contract`), die ook in de
 freeze van beide eindgroepen staat. R9 is gesloten na de inhoudelijke stop op
 R720 (26-09, `reports/DEF-768-AI-20260926-R9/inhoudelijke-stop-v1.json`): de
 verifier gaf een ongestaafde deelzin vrij. Het contract blijft historisch op
-`ess05-assess/15`/`ess05-verify/2` gepind; geen ronde staat open.
+`ess05-assess/15`/`ess05-verify/2` gepind.
+
+Ronde 10 (`--proef R10`, DEF-768-AI-20260926-R10, gerichte proef na het
+R9-bewijsherstel; besluit Chris 26-09,
+`logs/def768/ronde10-herproefgoedkeuring-v1.json`) is de enige open ronde: 65
+modelstappen (ontwikkeling alleen R720 uit de R9-selectie, verificatie_alleen
+op V7 = de zes R8-controles opnieuw gebonden aan verify/3 plus het ongewijzigde
+R9-C5-concept, `maak_r10_verificatie_invoer.py`; t_eind, t_herhaling), reserve
+0, cumulatief 427, routerplafond USD 24,722355 binnen het kader van USD 25
+inclusief de werkelijke R8- en R9-kosten. Het besluit draagt het
+oorspronkelijke 68/25-besluit, het R9-besluit en de payloadtoestemming (alle op
+hash gepind) mee; het contract is `ess05-assess/16`/`ess05-verify/3`.
 
 Voorbeeld (droog, offline):
 
@@ -403,6 +414,31 @@ R9_CONTRACT = MappingProxyType(
         "verification_schema_version": "ess05-verification/1",
     }
 )
+#: Ronde 10 (gerichte proef na het R9-bewijsherstel): eigen rapportroot,
+#: grootboek, anker, slot en freezes.
+R10_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260926-R10"
+#: Ronde 10: V7 (maak_r10_verificatie_invoer.py): de zes R8-items, alleen hun
+#: verificatieprompthash opnieuw berekend (verify/3), plus V-N4 = het
+#: ongewijzigde R9-R720-concept met foutdrager claim:C5.
+R10_V_INVOER_SHA256 = "4eee1c703894d572c5c4a32664abfc5c3203d14bcf5ba994f51e06e5abf63c4d"
+#: Ronde 10: het besluit van Chris ("ja", 26-09), gepind op pad en hash.
+R10_BUDGETBESLUIT = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde10-herproefgoedkeuring-v1.json"
+)
+R10_BUDGETBESLUIT_SHA256 = (
+    "7ca9ca3ec1c864c86a50f5b27ba51ef262174e6840dba2dd310afde04b0157a8"
+)
+#: Ronde 10: de gereviewde contractidentiteit van het R9-bewijsherstel
+#: (a832315d9); een run op andere code start niets (`_controleer_contract`).
+R10_CONTRACT = MappingProxyType(
+    {
+        "prompt_version": "ess05-assess/16",
+        "verification_prompt_version": "ess05-verify/3",
+        "answer_schema_version": "ess05-answer/1",
+        "concept_schema_version": "ess05-concept/1",
+        "verification_schema_version": "ess05-verification/1",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -528,6 +564,23 @@ PROEVEN = {
         payloadtoestemming=R9_PAYLOADTOESTEMMING,
         payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
         contract=R9_CONTRACT,
+    ),
+    # Ronde 10: open binnen het gepinde besluit (65 modelstappen, plafond USD
+    # 24,722355, cumulatief 427, reserve 0); R1–R9 gesloten. Ontwikkeling is
+    # exact de R9-selectie (alleen R720); V is V7. Zelfde payloadtoestemming.
+    "R10": Proef(
+        "R10",
+        gb.R10,
+        Proefopslag(R10_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R9_T_ONTWIKKELINVOER_SHA256,
+        v_invoer_sha256=R10_V_INVOER_SHA256,
+        budgetbesluit=R10_BUDGETBESLUIT,
+        budgetbesluit_sha256=R10_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R10_CONTRACT,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -707,16 +760,25 @@ def _nusd(waarde: Any) -> Decimal | None:
         return None
 
 
-def _grondproef(proef: Proef) -> Proef:
-    """De geregistreerde voorganger wiens besluit het kader van deze ronde draagt."""
-    grond = next(
-        (p for p in PROEVEN.values() if p.identiteit is proef.identiteit.voorganger),
-        None,
-    )
-    if grond is None or grond.identiteit.kostenbewaking is None:
-        msg = f"ronde {proef.naam}: geen voorganger met budgetbesluit als kader"
-        raise gb.BudgetSchendingError(msg)
-    return grond
+def _kaderketen(proef: Proef) -> tuple[Proef, ...]:
+    """De geregistreerde voorgangers binnen het kader, nieuwste eerst.
+
+    Van de directe voorganger tot en met de grond: de eerste voorganger onder
+    kostenbewaking zonder eigen kostenkader, wiens besluit het oorspronkelijke
+    kader draagt (R9: R8; R10: R9, R8).
+    """
+    keten: list[Proef] = []
+    for vorige in gb.voorgangerketen(proef.identiteit):
+        geregistreerd = next(
+            (p for p in PROEVEN.values() if p.identiteit is vorige), None
+        )
+        if geregistreerd is None or vorige.kostenbewaking is None:
+            break
+        keten.append(geregistreerd)
+        if vorige.kostenkader_nusd is None:
+            return tuple(keten)
+    msg = f"ronde {proef.naam}: geen voorganger met budgetbesluit als kader"
+    raise gb.BudgetSchendingError(msg)
 
 
 def _controleer_payloadtoestemming(proef: Proef, grond: Proef) -> None:
@@ -745,16 +807,19 @@ def _controleer_payloadtoestemming(proef: Proef, grond: Proef) -> None:
 
 
 def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
-    """R9: het besluit draagt het oorspronkelijke kader van de voorganger (R8).
+    """R9/R10: het besluit draagt het oorspronkelijke kader van de grond (R8).
 
-    Het oorspronkelijke besluit en de payloadtoestemming moeten zelf gepind en
-    geldig zijn; het R8-verbruik plus deze ronde blijft binnen hun 68 stappen
-    en USD 25. De werkelijke R8-kosten toetst `gb.controleer_cumulatief` tegen
-    het R8-grootboek.
+    Het oorspronkelijke besluit, de besluiten van de rondes ertussen en de
+    payloadtoestemming moeten zelf gepind en geldig zijn. Het besluit noemt per
+    voorganger binnen het kader zijn verbruik (`r8_…`, `r9_…`); samen met deze
+    ronde exact USD 25 en binnen de 68 stappen. De werkelijke kosten toetst
+    `gb.controleer_cumulatief` tegen hun grootboeken.
     """
     identiteit = proef.identiteit
-    grond = _grondproef(proef)
-    controleer_budgetbesluit(grond)
+    keten = _kaderketen(proef)
+    grond = keten[-1]
+    for vorige in keten:
+        controleer_budgetbesluit(vorige)
     _controleer_payloadtoestemming(proef, grond)
     g, kader = grond.identiteit, identiteit.kostenkader_nusd
     afwijkend = []
@@ -762,22 +827,27 @@ def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
         kader != g.kostenbewaking.plafond_nusd
     ):
         afwijkend.append("oorspronkelijk_kostenbudget_usd")
-    verbruik = _nusd(data.get("r8_verbruik_usd"))
-    if verbruik is None or verbruik + identiteit.kostenbewaking.plafond_nusd != kader:
-        afwijkend.append("r8_verbruik_usd")
+    usd = [f"{p.naam.lower()}_verbruik_usd" for p in keten]
+    bedragen = [_nusd(data.get(sleutel)) for sleutel in usd]
+    if (
+        None in bedragen
+        or sum(bedragen) + identiteit.kostenbewaking.plafond_nusd != kader
+    ):
+        afwijkend += usd
     if data.get("oorspronkelijk_extra_budget") != g.totaal_max:
         afwijkend.append("oorspronkelijk_extra_budget")
     if data.get("oorspronkelijk_cumulatief_plafond") != g.cumulatief_max:
         afwijkend.append("oorspronkelijk_cumulatief_plafond")
-    stappen = data.get("r8_verbruik_modelstappen")
-    if (
-        not isinstance(stappen, int)
-        or isinstance(stappen, bool)
-        or stappen < 0
-        or stappen + identiteit.totaal_max > g.totaal_max
-        or data.get("historisch_verbruik") != g.cumulatief_max - g.totaal_max + stappen
+    sleutels = [f"{p.naam.lower()}_verbruik_modelstappen" for p in keten]
+    stappen = [data.get(sleutel) for sleutel in sleutels]
+    if not all(
+        isinstance(s, int) and not isinstance(s, bool) and s >= 0 for s in stappen
+    ) or (
+        sum(stappen) + identiteit.totaal_max > g.totaal_max
+        or data.get("historisch_verbruik")
+        != g.cumulatief_max - g.totaal_max + sum(stappen)
     ):
-        afwijkend.append("r8_verbruik_modelstappen")
+        afwijkend += sleutels
     return afwijkend
 
 
@@ -3247,15 +3317,16 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R9 zijn gesloten voor echte calls; R9 "
-            f"({gb.R9.proef_id}, opslag {PROEVEN['R9'].opslag.root}) stopte "
-            "inhoudelijk op R720; een nieuwe proef vereist een eigen besluit"
+            "R1 (standaard) t/m R9 zijn gesloten voor echte calls; R10 "
+            f"({gb.R10.proef_id}, opslag {PROEVEN['R10'].opslag.root}, "
+            "cumulatief met R1 t/m R9 max 427) is open binnen het gepinde besluit "
+            "(65 modelstappen, max USD 24,722355, reserve 0)"
         ),
     )
     p.add_argument(
         "--gevallen",
         type=Path,
-        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8/R9)",
+        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R10)",
     )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
@@ -3298,7 +3369,7 @@ def _parser() -> argparse.ArgumentParser:
         "--max-tokens-t",
         type=int,
         default=None,
-        help="standaard: R8/R9 de productiegrens (3000, ook voor de verifier); oudere rondes 1500",
+        help="standaard: R8 t/m R10 de productiegrens (3000, ook de verifier); oudere 1500",
     )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"
