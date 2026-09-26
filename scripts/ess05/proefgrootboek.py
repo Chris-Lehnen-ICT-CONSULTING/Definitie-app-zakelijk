@@ -569,7 +569,12 @@ R12 = Proefidentiteit(
     proef_id="DEF-768-AI-20260926-R12",
     fasecaps={"verificatie_alleen": 2, "ontwikkeling": 2},
     reserve_max=0,
-    eindgroepen=(Eindgroep("v", frozenset({"verificatie_alleen"}), 0),),
+    # R12-01: ook R720 is een eindgroep (eigen freeze en dataset), zodat de
+    # gedeelde codebinding haar code en configuratie aan die van V bindt.
+    eindgroepen=(
+        Eindgroep("v", frozenset({"verificatie_alleen"}), 0),
+        Eindgroep("o", frozenset({"ontwikkeling"}), 0),
+    ),
     bindingsvelden=R11.bindingsvelden,
     voorganger=R11,
     cumulatief_max=369,

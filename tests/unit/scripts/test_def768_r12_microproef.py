@@ -134,11 +134,11 @@ def _soort(tmp_path: Path, soort: str) -> list[dict]:
     return [r for r in regels if r["soort"] == soort]
 
 
-def _freeze(omg, tmp_path: Path, proef) -> Path:
-    pad = tmp_path / "freeze-v.json"
+def _freeze(omg, tmp_path: Path, proef, groep: str = "v") -> Path:
+    pad = tmp_path / f"freeze-{groep}.json"
     if not pad.exists():
         pad.write_text(
-            json.dumps(runner.freezevelden(omg, proef, "v")), encoding="utf-8"
+            json.dumps(runner.freezevelden(omg, proef, groep)), encoding="utf-8"
         )
     return pad
 
@@ -160,8 +160,14 @@ def _v12(omg, tmp_path, pad, *, proef=None, nieuw=True):
     )
 
 
-def _t12(omg, tmp_path, pad, *, nieuw=False, **kw):
+_O_FREEZE = object()  # standaard: een verse o-freeze uit de huidige omgeving
+
+
+def _t12(omg, tmp_path, pad, *, nieuw=False, freeze=_O_FREEZE, **kw):
     keten = _keten12(tmp_path) if nieuw else _bestaande_keten12(tmp_path)
+    proef = _r12(t_ontwikkelinvoer_sha256=_sha(pad))
+    if freeze is _O_FREEZE:  # R12-01: ook R720 hangt aan een freeze
+        freeze = _freeze(omg, tmp_path, proef, "o")
     return asyncio.run(
         runner.voer_t_fase(
             omg,
@@ -169,7 +175,8 @@ def _t12(omg, tmp_path, pad, *, nieuw=False, **kw):
             gevallenpad=pad,
             uitmap=tmp_path / "uit",
             opslag=_opslag12(tmp_path),
-            proef=_r12(t_ontwikkelinvoer_sha256=_sha(pad)),
+            proef=proef,
+            freeze=freeze,
             voorganger_opslag=keten,
             nieuw_grootboek=nieuw,
             **kw,
@@ -214,8 +221,11 @@ class TestIdentiteit:
             "ontwikkeling": ("verificatie_alleen",),
         }
         assert (r12.stop_bij_eerste_fout, r12.gedeelde_codebinding) == (True, True)
-        # Alleen de V-eindgroep (met freeze); geen T-eind of T-herhaling.
-        assert [g.naam for g in r12.eindgroepen] == ["v"]
+        # V én R720 elk een eindgroep met freeze (R12-01); geen T-eind of T-herhaling.
+        assert [(g.naam, set(g.fases), g.herhaal_aantal) for g in r12.eindgroepen] == [
+            ("v", {"verificatie_alleen"}, 0),
+            ("o", {"ontwikkeling"}, 0),
+        ]
         assert "t_eind" not in r12.fasecaps and "t_herhaling" not in r12.fasecaps
 
     def test_zelfde_model_tokens_en_bytegrenzen_lokaal_plafond_1_44(self):
@@ -570,8 +580,9 @@ class TestVolgordeEnStop:
         # Hetzelfde geval opnieuw: overgeslagen (één sleutel = één poging).
         opnieuw = _t12(omg, tmp_path, _gevallenbestand(tmp_path, 1, "zelfde.json"))
         assert opnieuw["aanroepen_gestart"] == 0
-        # Een nieuw ontwikkelgeval: fasecap (vóór reservering en netwerk).
-        with pytest.raises(gb.BudgetSchendingError, match="fasecap ontwikkeling"):
+        # Een nieuw ontwikkelbestand: sinds R12-01 al geweigerd op de eindbinding
+        # (andere dataset), vóór fasecap, reservering en netwerk.
+        with pytest.raises(gb.BudgetSchendingError, match="eindbinding van de eerste"):
             _t12(omg, tmp_path, _gevallenbestand(tmp_path, 2, "tweede.json"))
         assert len(provider.stappen) == 4
         assert len(_reserveringen(tmp_path)) == 4
@@ -618,6 +629,153 @@ class TestVolgordeEnStop:
                 technische_herhalingen=(geval["poging"],),
             ))  # fmt: skip
         assert len(_reserveringen(tmp_path)) == 1
+
+
+# --- R12-01: R720 aan dezelfde code en configuratie als V --------------------------------
+
+_BINDING_V = {
+    "dataset_sha256": "a" * 64,
+    "herhaal_ids": [],
+    "code_sha256": "b" * 64,
+    "config_sha256": "c" * 64,
+    "freeze_sha256": "d" * 64,
+}
+
+
+def _v_geaccepteerd_in_grootboek(tmp_path: Path) -> gb.Grootboek:
+    """Twee geaccepteerde V-gevallen, gebonden aan code b… en configuratie c…."""
+    boek = gb.Grootboek.nieuw(_opslag12(tmp_path).grootboek, gb.R12)
+    for naam in ("V-N4", "V-N5"):
+        poging = f"verificatie_alleen|{naam}|1"
+        res = boek.reserveer("verificatie_alleen", f"{poging}/verificatie",
+                             invoer_sha256="a" * 64, poging=poging,
+                             stap="verificatie", vorige_stap=None, task_type=W,
+                             binding=_BINDING_V)  # fmt: skip
+        boek.sluit(res["seq"], "voltooid", netwerk_gestart=True)
+        boek.registreer_geval("verificatie_alleen", poging, geaccepteerd=True,
+                              reden="test")  # fmt: skip
+    return boek
+
+
+def _o_binding(**anders) -> dict:
+    binding = {**_BINDING_V, "dataset_sha256": "e" * 64, "freeze_sha256": "1" * 64}
+    binding.update(anders)
+    return binding
+
+
+def _drift(monkeypatch, soort: str) -> None:
+    """Code- of configuratiedrift ná de V-fase (labels en contract gelijk)."""
+    if soort == "code":
+        monkeypatch.setattr(runner, "code_sha256", lambda: "f" * 64)
+    else:
+        echt = runner.effectieve_config
+        monkeypatch.setattr(
+            runner, "effectieve_config", lambda omg: {**echt(omg), "drift": 1}
+        )
+
+
+class TestR720Codebinding:
+    """R12-01 (review): R720 gebruikt vóór reservering en netwerk dezelfde bevroren
+    code- en effectieve-configuratiebinding als de voorafgaande V-fase."""
+
+    def test_grootboek_zonder_binding_geweigerd(self, tmp_path):
+        """De reproductie uit de review: geen binding werd stil aanvaard."""
+        boek = _v_geaccepteerd_in_grootboek(tmp_path)
+        boek.controleer_fasestart("ontwikkeling")
+        with pytest.raises(gb.BudgetSchendingError, match="eindbinding"):
+            boek.controleer_binding("ontwikkeling", "e" * 64, None)
+
+    @pytest.mark.parametrize(
+        ("anders", "veld"),
+        [({"code_sha256": "f" * 64}, "code_sha256"),
+         ({"config_sha256": "9" * 64}, "config_sha256")],
+    )  # fmt: skip
+    def test_grootboek_weigert_code_of_configuratiedrift(self, tmp_path, anders, veld):
+        boek = _v_geaccepteerd_in_grootboek(tmp_path)
+        with pytest.raises(gb.BudgetSchendingError, match=veld):
+            boek.controleer_binding("ontwikkeling", "e" * 64, _o_binding(**anders))
+
+    def test_grootboek_staat_gelijke_binding_toe(self, tmp_path):
+        boek = _v_geaccepteerd_in_grootboek(tmp_path)
+        assert boek.controleer_binding("ontwikkeling", "e" * 64, _o_binding()) == (
+            _o_binding()
+        )
+
+    def test_historische_ontwikkelfases_ongewijzigd(self):
+        for identiteit in (gb.R8, gb.R9, gb.R10, gb.R11):
+            assert identiteit.eindgroep("ontwikkeling") is None
+
+    def _na_v(self, tmp_path):
+        pad, items = _v_invoer(tmp_path, ("fout", "fout"))
+        provider = _R8Provider(uitkomsten=_foutdragers(items))
+        omg = _omgeving8(provider)
+        _v12(omg, tmp_path, pad)
+        assert len(provider.stappen) == 2
+        return omg, provider, _gevallenbestand(tmp_path, 1)
+
+    def test_gelijke_binding_r720_bindt_aan_v(self, tmp_path):
+        omg, provider, pad = self._na_v(tmp_path)
+        _t12(omg, tmp_path, pad)
+        assert provider.stappen == ["verificatie"] * 2 + ["beoordeling", "verificatie"]
+        bindingen = [r["binding"] for r in _soort(tmp_path, "reservering")]
+        assert all(b is not None for b in bindingen)
+        for veld in ("code_sha256", "config_sha256"):
+            assert len({b[veld] for b in bindingen}) == 1, veld
+        # R720 heeft een eigen dataset en een eigen freeze (groep o).
+        assert bindingen[2]["dataset_sha256"] == _sha(pad)
+        assert bindingen[2]["freeze_sha256"] != bindingen[0]["freeze_sha256"]
+
+    @pytest.mark.parametrize(
+        ("soort", "veld"), [("code", "code_sha256"), ("config", "config_sha256")]
+    )
+    def test_drift_met_passende_freeze_door_het_grootboek_geweigerd(
+        self, monkeypatch, tmp_path, soort, veld
+    ):
+        """Ook een freeze die de drift zelf vastlegt, opent R720 niet."""
+        omg, provider, pad = self._na_v(tmp_path)
+        _drift(monkeypatch, soort)
+        with pytest.raises(gb.BudgetSchendingError, match=f"{veld}.*gedeelde"):
+            _t12(omg, tmp_path, pad)
+        assert len(provider.stappen) == 2
+        assert len(_reserveringen(tmp_path)) == 2
+
+    @pytest.mark.parametrize(
+        ("soort", "veld"),
+        [("code", "code_sha256"), ("config", "effectieve_config_sha256")],
+    )
+    def test_drift_na_de_freeze_door_de_freeze_geweigerd(
+        self, monkeypatch, tmp_path, soort, veld
+    ):
+        omg, provider, pad = self._na_v(tmp_path)
+        freeze = _freeze(omg, tmp_path, _r12(t_ontwikkelinvoer_sha256=_sha(pad)), "o")
+        _drift(monkeypatch, soort)
+        with pytest.raises(gb.BudgetSchendingError, match=f"past niet.*{veld}"):
+            _t12(omg, tmp_path, pad, freeze=freeze)
+        assert len(provider.stappen) == 2
+        assert len(_reserveringen(tmp_path)) == 2
+
+    def test_zonder_freeze_geweigerd(self, tmp_path):
+        omg, provider, pad = self._na_v(tmp_path)
+        with pytest.raises(gb.BudgetSchendingError, match="--freeze is verplicht"):
+            _t12(omg, tmp_path, pad, freeze=None)
+        assert len(provider.stappen) == 2
+
+    @pytest.mark.parametrize("groep", ["v", "t"])
+    def test_verkeerde_freeze_geweigerd(self, tmp_path, groep):
+        omg, provider, pad = self._na_v(tmp_path)
+        verkeerd = _freeze(omg, tmp_path, _r12(), groep)
+        with pytest.raises(gb.BudgetSchendingError, match="groep"):
+            _t12(omg, tmp_path, pad, freeze=verkeerd)
+        assert len(provider.stappen) == 2
+        assert len(_reserveringen(tmp_path)) == 2
+
+    def test_onleesbare_freeze_geweigerd(self, tmp_path):
+        omg, provider, pad = self._na_v(tmp_path)
+        kapot = tmp_path / "kapot.json"
+        kapot.write_text("{", encoding="utf-8")
+        with pytest.raises(gb.BudgetSchendingError, match="onleesbaar"):
+            _t12(omg, tmp_path, pad, freeze=kapot)
+        assert len(provider.stappen) == 2
 
 
 # --- de echte R12-invoer: V-N4 dan V-N5 (offline, fake verifier) ------------------------
@@ -710,6 +868,13 @@ class TestEchteInvoer:
             (bestand,) = (tmp_path / "o").glob("droog-ontwikkeling-*/droogrun.json")
             droog = json.loads(bestand.read_text(encoding="utf-8"))
             assert [i["sleutel"] for i in droog["items"]] == ["ontwikkeling|R720|1"]
+            # R12-01: ook R720 krijgt freezevelden (groep o, eigen dataset) met
+            # exact de code, configuratie en prompts van de V-freeze.
+            o = droog["freezevelden"]
+            assert (o["groep"], o["proef_id"]) == ("o", R12_ID)
+            assert (o["dataset_sha256"], o["herhaal_ids"]) == (R9_SELECTIE_SHA256, [])
+            verschil = {k for k in o if o[k] != freeze.get(k)}
+            assert verschil == {"groep", "dataset_sha256"}
         assert not list(tmp_path.rglob("*.jsonl"))
 
 

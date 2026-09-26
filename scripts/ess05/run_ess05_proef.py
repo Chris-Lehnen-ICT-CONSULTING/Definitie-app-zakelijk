@@ -1373,7 +1373,8 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
         "code_sha256": code_sha256(),
         "effectieve_config_sha256": pi.sha_json(effectieve_config(omg)),
     }
-    if groep in ("t", "v"):  # R8: V bevriest op dezelfde T-code en -configuratie
+    # R8: V bevriest op dezelfde T-code en -configuratie; R12-01: R720 (o) ook.
+    if groep in ("t", "v", "o"):
         velden["prompt_version"] = omg.dienst.PROMPT_VERSION
         velden["verification_prompt_version"] = (
             omg.dienst.verification_service.PROMPT_VERSION
@@ -2333,9 +2334,10 @@ async def voer_t_fase(
     _controleer_ontwikkelinvoer(proef, fase, gevallenpad)
     groep = proef.identiteit.eindgroep(fase)
     data = json.loads(Path(gevallenpad).read_text(encoding="utf-8"))
-    # De eindfase legt de voorafgekozen herhaal_ids al vast (eindbinding).
+    # De eindfase legt de voorafgekozen herhaal_ids al vast (eindbinding); een
+    # eindgroep zonder herhalingen (R12: R720) heeft er geen.
     gevallen, herhaal = pi.valideer_gevallenbestand(
-        data, herhaal_vereist=groep is not None
+        data, herhaal_vereist=groep is not None and groep.herhaal_aantal > 0
     )
     bestand_sha = _sha_bestand(gevallenpad)
     code_sha = code_sha256()
@@ -3448,8 +3450,10 @@ async def droogrun(
         }
     else:
         norm = laad_ess05_norm()
+        eindgroep = proef.identiteit.eindgroep(fase)
         gevallen, herhaal = pi.valideer_gevallenbestand(
-            data, herhaal_vereist=proef.identiteit.eindgroep(fase) is not None
+            data,
+            herhaal_vereist=eindgroep is not None and eindgroep.herhaal_aantal > 0,
         )
         _vooraftoets_r8_t(omg_d, proef, fase, gevallen, herhaal)
         for sleutel, geval in plan_t(fase, gevallen, herhaal):
