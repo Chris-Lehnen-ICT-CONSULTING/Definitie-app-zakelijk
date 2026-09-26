@@ -106,8 +106,21 @@ contract is `ess05-assess/17`/`ess05-verify/4`.
 Sinds `ess05-answer/2` (genest, citaat-eerst; R11-C10-voorstel v2) draagt de
 code `ess05-assess/18`/`ess05-verify/4` met antwoordschema `ess05-answer/2`.
 Het gepinde R11-contract (answer/1) weigert daardoor fail-closed, naast het
-gestopte R11-grootboek; R11 is niet gemigreerd. Voor answer/2 is geen proef
-geregistreerd.
+gestopte R11-grootboek; R11 is niet gemigreerd.
+
+Ronde 12 (`--proef R12`, DEF-768-AI-20260926-R12, kleine beslissende
+praktijkvergelijking; besluit Chris 26-09, "Ja akkoord",
+`logs/def768/answer2-microproef-goedkeuring-v1.json`, vastgelegd in
+`logs/def768/ronde12-microproef-budgetbesluit-v1.json`): maximaal 4
+modelstappen in vaste volgorde. Eerst `verificatie_alleen` op V-N4 (R9-C5) en
+daarna V-N5 (R10-C3), de ongewijzigde V8-concepten
+(`maak_r12_verificatie_invoer.py`); pas als beide `unsupported` op hun eigen
+foutdrager krijgen, `ontwikkeling` op R720 uit de R9-selectie (beoordeling +
+verificatie). Geen t_eind, t_herhaling of G; reserve 0, geen retry, stop bij
+de eerste mislukking; cumulatief 369. Lokaal plafond USD 1,44 (de volledige
+stapbegroting van deze vier stappen) binnen de kaderrest USD 24,427230 van het
+USD 25-kader (`kaderrest_nusd`). Het contract is `ess05-assess/18`/
+`ess05-verify/4` met `ess05-answer/2`.
 
 Voorbeeld (droog, offline):
 
@@ -487,6 +500,33 @@ R11_CONTRACT = MappingProxyType(
         "verification_schema_version": "ess05-verification/1",
     }
 )
+#: Ronde 12 (kleine beslissende praktijkvergelijking): eigen rapportroot,
+#: grootboek, anker, slot en freeze.
+R12_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260926-R12"
+#: Ronde 12: V-N4 (R9-C5) en daarna V-N5 (R10-C3), ongewijzigd uit V8
+#: (maak_r12_verificatie_invoer.py).
+R12_V_INVOER_SHA256 = "4a9474c57a7547ca91783f06247759929401f9f27e55fdb8cb835fdfb559f85a"
+#: Ronde 12: het besluit, afgeleid uit het goedkeuringsbewijs van Chris ("Ja
+#: akkoord", 26-09, answer2-microproef-goedkeuring-v1.json), gepind op pad en hash.
+R12_BUDGETBESLUIT = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde12-microproef-budgetbesluit-v1.json"
+)
+R12_BUDGETBESLUIT_SHA256 = (
+    "356ef64c1bce4c26dbe1e35355d04d5367d2695c0c73529673e2ba2e2a9da04a"
+)
+#: Ronde 12: de gereviewde contractidentiteit van answer/2 (33a0ee798).
+R12_CONTRACT = MappingProxyType(
+    {
+        "prompt_version": "ess05-assess/18",
+        "verification_prompt_version": "ess05-verify/4",
+        "answer_schema_version": "ess05-answer/2",
+        "concept_schema_version": "ess05-concept/1",
+        "verification_schema_version": "ess05-verification/1",
+    }
+)
+#: Ronde 12: USD 25 − werkelijke R8–R11-kosten (USD 0,572770); het lokale
+#: plafond (USD 1,44) ligt daar bewust onder.
+R12_KADERREST_NUSD = 24_427_230_000
 
 
 @dataclass(frozen=True)
@@ -517,6 +557,10 @@ class Proef:
     #: alleen geldig als het gepinde besluit deze verruiming exact noemt; 0 =
     #: geen verruiming, en dan mag het besluit er ook geen noemen.
     kaderverruiming_modelstappen: int = 0
+    #: R12: het resterende kader (USD 25 − werkelijke kosten van de voorgangers)
+    #: wanneer het eigen plafond daar bewust onder ligt; het besluit noemt die
+    #: rest exact. None = het plafond ís de rest (R9–R11).
+    kaderrest_nusd: int | None = None
 
 
 PROEVEN = {
@@ -654,6 +698,25 @@ PROEVEN = {
         payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
         contract=R11_CONTRACT,
         kaderverruiming_modelstappen=3,
+    ),
+    # Ronde 12: kleine beslissende praktijkvergelijking binnen het gepinde
+    # besluit (4 modelstappen: eerst V-N4 en V-N5, daarna alleen R720; plafond
+    # USD 1,44, cumulatief 369, reserve 0). Ontwikkeling is exact de
+    # R9-selectie; V is de R12-selectie uit V8. Zelfde payloadtoestemming.
+    "R12": Proef(
+        "R12",
+        gb.R12,
+        Proefopslag(R12_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R9_T_ONTWIKKELINVOER_SHA256,
+        v_invoer_sha256=R12_V_INVOER_SHA256,
+        budgetbesluit=R12_BUDGETBESLUIT,
+        budgetbesluit_sha256=R12_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R12_CONTRACT,
+        kaderrest_nusd=R12_KADERREST_NUSD,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -886,8 +949,10 @@ def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
     payloadtoestemming moeten zelf gepind en geldig zijn. Het besluit noemt per
     voorganger binnen het kader zijn verbruik (`r8_…`, `r9_…`, `r10_…`); samen
     met deze ronde exact USD 25 en binnen de 68 stappen, of binnen 68 plus de
-    geregistreerde verruiming (`_verruimingsafwijkingen`). De werkelijke kosten
-    toetst `gb.controleer_cumulatief` tegen hun grootboeken.
+    geregistreerde verruiming (`_verruimingsafwijkingen`). Met een geregistreerde
+    kaderrest (R12) is het verbruik plus die rest exact USD 25 en ligt het eigen
+    plafond er niet boven (`_kaderrestafwijkingen`). De werkelijke kosten toetst
+    `gb.controleer_cumulatief` tegen hun grootboeken.
     """
     identiteit = proef.identiteit
     keten = _kaderketen(proef)
@@ -903,10 +968,12 @@ def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
         afwijkend.append("oorspronkelijk_kostenbudget_usd")
     usd = [f"{p.naam.lower()}_verbruik_usd" for p in keten]
     bedragen = [_nusd(data.get(sleutel)) for sleutel in usd]
-    if (
-        None in bedragen
-        or sum(bedragen) + identiteit.kostenbewaking.plafond_nusd != kader
-    ):
+    rest = (
+        proef.kaderrest_nusd
+        if proef.kaderrest_nusd is not None
+        else identiteit.kostenbewaking.plafond_nusd
+    )
+    if None in bedragen or sum(bedragen) + rest != kader:
         afwijkend += usd
     if data.get("oorspronkelijk_extra_budget") != g.totaal_max:
         afwijkend.append("oorspronkelijk_extra_budget")
@@ -923,7 +990,29 @@ def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
         != g.cumulatief_max - g.totaal_max + sum(stappen)
     ):
         afwijkend += sleutels
-    return afwijkend + _verruimingsafwijkingen(proef, g, data)
+    return (
+        afwijkend
+        + _verruimingsafwijkingen(proef, g, data)
+        + _kaderrestafwijkingen(proef, data)
+    )
+
+
+def _kaderrestafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
+    """R12: een plafond onder het resterende kader, gebonden aan één besluit.
+
+    Zonder geregistreerde kaderrest noemt het besluit er geen (de exacte regel
+    van R9–R11 blijft). Met kaderrest noemt het besluit die exact en ligt het
+    eigen plafond er niet boven; een lager plafond verruimt dus nooit iets.
+    """
+    rest = proef.kaderrest_nusd
+    if rest is None:
+        return ["kaderrest_usd"] if "kaderrest_usd" in data else []
+    afwijkend = []
+    if _nusd(data.get("kaderrest_usd")) != rest:
+        afwijkend.append("kaderrest_usd")
+    if proef.identiteit.kostenbewaking.plafond_nusd > rest:
+        afwijkend.append("kaderrest:plafond")
+    return afwijkend
 
 
 _VERRUIMINGSVELDEN = (
@@ -3433,16 +3522,18 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R11 "
-            f"({gb.R11.proef_id}, opslag {PROEVEN['R11'].opslag.root}, "
-            "cumulatief met R1 t/m R10 max 430) is open binnen het gepinde besluit "
-            "(66 modelstappen, max USD 24,529390, reserve 0)"
+            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R11 is "
+            "gestopt en weigert op zijn contract; R12 "
+            f"({gb.R12.proef_id}, opslag {PROEVEN['R12'].opslag.root}, "
+            "cumulatief met R1 t/m R11 max 369) is open binnen het gepinde besluit "
+            "(4 modelstappen: 2 verificatie_alleen, dan 2 ontwikkeling; max USD "
+            "1,44, reserve 0)"
         ),
     )
     p.add_argument(
         "--gevallen",
         type=Path,
-        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R11)",
+        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R12)",
     )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
@@ -3485,7 +3576,7 @@ def _parser() -> argparse.ArgumentParser:
         "--max-tokens-t",
         type=int,
         default=None,
-        help="standaard: R8 t/m R11 de productiegrens (3000, ook de verifier); oudere 1500",
+        help="standaard: R8 t/m R12 de productiegrens (3000, ook de verifier); oudere 1500",
     )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"

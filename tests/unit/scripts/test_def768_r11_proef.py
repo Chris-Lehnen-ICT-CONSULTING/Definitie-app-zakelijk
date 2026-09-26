@@ -430,7 +430,10 @@ class TestRegistratie:
         assert proef.kaderverruiming_modelstappen == 3
 
     def test_alleen_r11_open_en_draagt_als_enige_een_verruiming(self):
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R11"]
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
+            "R11",
+            "R12",
+        ]
         assert {
             n: p.kaderverruiming_modelstappen
             for n, p in runner.PROEVEN.items()

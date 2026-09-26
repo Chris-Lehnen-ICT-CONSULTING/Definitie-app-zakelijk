@@ -408,7 +408,10 @@ class TestR8Registratie:
         # stop ook gesloten, R10 na de zijne (C3); alleen R11 staat open.
         assert runner.PROEVEN["R8"].echt_toegestaan is False
         assert runner.PROEVEN["R8"].budgetbesluit_sha256 == BUDGETBESLUIT_SHA256
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R11"]
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
+            "R11",
+            "R12",
+        ]
 
     @besluit_nodig
     def test_budgetbesluit_past_op_de_proefidentiteit(self):

@@ -105,6 +105,16 @@ uitsluitend aan het gepinde R11-besluit gebonden (runner). Het routerplafond is
 USD 24,529390; het kostenkader (USD 25) telt de lopende kosten van R8, R9 én
 R10 uit hun grootboeken mee.
 
+`R12` (DEF-768-AI-20260926-R12, kleine beslissende praktijkvergelijking;
+besluit Chris 26-09, `logs/def768/answer2-microproef-goedkeuring-v1.json`)
+volgt dezelfde regels met maximaal 4 modelstappen in omgekeerde fasevolgorde:
+eerst 2 verifier-only (R9-C5, dan R10-C3), pas daarna 2 ontwikkeling (alleen
+R720: beoordeling + verificatie); geen T-eind of T-herhaling, reserve 0,
+stop bij de eerste fout; samen met R11 t/m R1 nooit boven 369 (365 werkelijke
++ 4). Het lokale routerplafond is USD 1,44, de volledige stapbegroting van
+precies deze vier stappen; het kostenkader (USD 25) telt de lopende kosten van
+R8 t/m R11 uit hun grootboeken mee.
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -145,6 +155,7 @@ __all__ = [
     "R9",
     "R10",
     "R11",
+    "R12",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -275,7 +286,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R11` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R12` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -545,7 +556,37 @@ R11 = Proefidentiteit(
     stop_bij_eerste_fout=True,
     kostenkader_nusd=25_000_000_000,
 )
-_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11)}
+#: Ronde 12 (besluit Chris 26-09, "Ja akkoord" op een kleine beslissende
+#: praktijkvergelijking, answer2-microproef-goedkeuring-v1.json): max 4
+#: modelstappen — eerst 2 verifier-only (R9-C5, dan R10-C3, de oorspronkelijke
+#: concepten uit V8), pas daarna 2 ontwikkeling (alleen R720 × 2); geen T-eind
+#: of T-herhaling, reserve 0, stop bij de eerste fout; samen met R11 t/m R1
+#: nooit boven 369 (365 werkelijke + 4). Zelfde model, tarief, bytegrenzen en
+#: productiegrens als R8. Lokaal plafond USD 1,44 = de volledige stapbegroting
+#: van precies deze vier stappen (2 × 0,375 + 0,315 + 0,375; `begroting_nusd`),
+#: binnen de kaderrest USD 24,427230 (USD 25 − werkelijke R8–R11-kosten).
+R12 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260926-R12",
+    fasecaps={"verificatie_alleen": 2, "ontwikkeling": 2},
+    reserve_max=0,
+    eindgroepen=(Eindgroep("v", frozenset({"verificatie_alleen"}), 0),),
+    bindingsvelden=R11.bindingsvelden,
+    voorganger=R11,
+    cumulatief_max=369,
+    modelstappen_per_geval=2,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=1_440_000_000),
+    fasestappen={
+        "verificatie_alleen": (_VERIFICATIE,),
+        "ontwikkeling": (_BEOORDELING, _VERIFICATIE),
+    },
+    fasevolgorde={"verificatie_alleen": (), "ontwikkeling": ("verificatie_alleen",)},
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+)
+_IDENTITEITEN = {
+    i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12)
+}
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
 _GEDEELDE_BINDING = ("code_sha256", "config_sha256")
@@ -569,7 +610,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R11"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R12"
         raise BudgetSchendingError(msg)
     return identiteit
 

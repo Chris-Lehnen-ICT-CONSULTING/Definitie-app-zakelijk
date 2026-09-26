@@ -175,7 +175,10 @@ class TestGeenEchteCalls:
         # R10 (besluit Chris 26-09) is na de inhoudelijke stop op R720 (C3)
         # gesloten, net als R1–R7, de gestopte R8 en R9; alleen R11 (eigen
         # besluit, 26-09) is open. De besluiten blijven gepind.
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R11"]
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
+            "R11",
+            "R12",
+        ]
         assert runner.PROEVEN["R11"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R10"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R9"].budgetbesluit_sha256 is not None

@@ -535,8 +535,11 @@ class TestGeenOudeGoedkeuring:
         # stop gesloten (R10 na C3), alleen R11 is open — geen oude goedkeuring.
         for naam in ("R8", "R9", "R10", "R11"):
             assert runner.PROEVEN[naam].identiteit.modelstappen_per_geval == 2
-        assert set(runner.PROEVEN) == {*oud, "R8", "R9", "R10", "R11"}
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R11"]
+        assert set(runner.PROEVEN) == {*oud, "R8", "R9", "R10", "R11", "R12"}
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
+            "R11",
+            "R12",
+        ]
 
     def test_geregistreerde_open_r7_weigert_een_echte_tweestapsrun(
         self, tmp_path, monkeypatch
