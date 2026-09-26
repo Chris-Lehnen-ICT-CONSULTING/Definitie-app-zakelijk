@@ -10,7 +10,7 @@ is geen belemmering: de term is ondersteunend); zonder dienst is de
 beoordeling expliciet `unavailable`; een dienstfout is een technische fout —
 nooit stil een pass. Ook de DI-keten (DefinitionOrchestratorV2,
 ServiceContainer) injecteert de dienst werkelijk. Het resultaatcontract
-(2.1.0) krijgt geen nieuw top-level veld: de payload reist in `rule_results`.
+(2.2.0) krijgt geen nieuw top-level veld: de payload reist in `rule_results`.
 
 Reviewcorrecties (review-codex-wp3-v1, dispositie v3): op de recordroute is
 de actuele recordtoelichting gezaghebbend — ook leeggemaakt — boven
@@ -98,8 +98,9 @@ async def test_validate_text_verkrijgt_verse_beoordeling_met_binding():
     )
     assert doorgegeven["attribution"]["model"] == "fake-int03-model"
     assert service.received["int03_binding"] == BINDING.als_dict()
-    # Geen nieuw extern veld: het contract blijft 2.1.0.
-    assert result["version"] == CONTRACT_VERSION == "2.1.0"
+    # Geen nieuw top-level veld: de actuele contractversie is 2.2.0 (DEF-771);
+    # die beschrijft ook assessment/signals in rule_results['INT-03'].
+    assert result["version"] == CONTRACT_VERSION == "2.2.0"
     assert "int03_assessment" not in result
 
 

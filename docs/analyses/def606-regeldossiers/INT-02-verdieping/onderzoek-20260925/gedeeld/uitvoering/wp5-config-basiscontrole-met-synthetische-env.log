@@ -1,0 +1,23 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________________ TestConfigManager.test_environment_detection _________________
+tests/unit/test_config_system.py:44: in test_environment_detection
+    config_manager = ConfigManager()
+                     ^^^^^^^^^^^^^^^
+src/config/config_manager.py:463: in __init__
+    self._load_configuration()
+src/config/config_manager.py:478: in _load_configuration
+    load_project_dotenv()
+src/config/dotenv_loader.py:84: in load_project_dotenv
+    load_dotenv(env_path, override=False)
+tests/offline_bootstrap.py:505: in _gate_load
+    _controleer(dotenv_path if dotenv_path is not None else kwargs.get("stream"))
+tests/offline_bootstrap.py:499: in _controleer
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: .env op '/private/tmp/def771-wp1-basis-1790361228/.env' ligt buiten de tijdelijke sessieroot; de omgeving van de ontwikkelaar mag een test niet beïnvloeden
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+=========================== short test summary info ============================
+FAILED tests/unit/test_config_system.py::TestConfigManager::test_environment_detection
+
+EXITSTATUS=1

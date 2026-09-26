@@ -1,0 +1,38 @@
+{
+  "/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/INT-02.json": {
+    "sha256": "0992ede76ad4c409e0166a853da55a85dab1b242c30852fab7b87f08bc3cd3df",
+    "regels": 52
+  },
+  "/Users/chrislehnen/Projecten/Definitie-app/tests/unit/validation/test_def771_int02_contract.py": {
+    "sha256": "35618f56a520cdd355261d696b4c95efe78aa64a5eaf125ba00740d842106d14",
+    "regels": 192
+  },
+  "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/SKILL.md": {
+    "sha256": "849570fc631291c5e57db73ba34b3dc8b9b248f91993b8e7bba0a01db6ef76bc",
+    "regels": 123
+  },
+  "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/reference.md": {
+    "sha256": "a9db142b835f40694dd16d9873f4bd5ba42bfe217b27d1e0ea412c4522c14116",
+    "regels": 201
+  },
+  "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md": {
+    "sha256": "235c584234218420cf33275031e589047404b6957ddfe13e1efa893eb7bf5b9a",
+    "regels": 162
+  },
+  "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/SKILL.md": {
+    "sha256": "0cea845bd3f5076915c65433fb2d80ff0aaf35a540490a27c91dce0cd3d47035",
+    "regels": 99
+  },
+  "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/reference.md": {
+    "sha256": "9b3ce1fb2199aec86c62791cf5ab5118568a57fe3bcf6cd559a4d799f289c6f2",
+    "regels": 289
+  },
+  "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/references/int02-beslisregel.md": {
+    "sha256": "235c584234218420cf33275031e589047404b6957ddfe13e1efa893eb7bf5b9a",
+    "regels": 162
+  },
+  "/Users/chrislehnen/Projecten/Definitie-app/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py": {
+    "sha256": "3028e9eefacd32df32e2d7480071390f75246b4b630e2206671c09a224c32852",
+    "regels": 235
+  }
+}

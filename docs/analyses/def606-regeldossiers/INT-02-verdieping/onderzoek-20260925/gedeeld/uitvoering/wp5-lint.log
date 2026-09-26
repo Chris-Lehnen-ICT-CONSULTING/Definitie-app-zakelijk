@@ -1,0 +1,7 @@
+$ ruff check tests/unit/services/orchestrators/test_def766_ess03_wrappers.py tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py tests/unit/validation/test_validation_readiness.py
+All checks passed!
+exit=0
+$ black --check tests/unit/services/orchestrators/test_def766_ess03_wrappers.py tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py tests/unit/validation/test_validation_readiness.py
+All done! ✨ 🍰 ✨
+3 files would be left unchanged.
+exit=0

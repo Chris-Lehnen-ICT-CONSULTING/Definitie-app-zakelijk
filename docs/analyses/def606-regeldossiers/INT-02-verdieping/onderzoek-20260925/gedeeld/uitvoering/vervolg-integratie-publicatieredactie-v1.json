@@ -1,0 +1,12 @@
+{
+  "bron": "vervolg-integratie-pytest-v1.xml",
+  "publicatie": "vervolg-integratie-pytest-publicatie-v1.xml",
+  "vervangingen": {
+    "_OUDE_OPENAI_KEY": 3,
+    "_PROJECT_OPENAI_KEY": 3,
+    "_ANTHROPIC_KEY": 3
+  },
+  "bron_sha256": "c542672752ae7c192a4b8e52e63138d6240a01f0d6d4a33245f3754d31f77013",
+  "publicatie_sha256": "d5470d43c55b17280444ffe86e7bc9a8d7900fa74815e1c76ffade1310351bba",
+  "toelichting": "Uitsluitend expliciet verzonnen testwaarden uit DEF-583-fixture afgeschermd; originele XML behouden. Suite-attributen en aantallen testgevallen gelijk."
+}

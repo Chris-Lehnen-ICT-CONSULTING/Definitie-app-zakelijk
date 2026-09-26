@@ -1,0 +1,12 @@
+(cwd /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills)
+$ ./scripts/export-skills-for-cowork.sh definitie-toetsregels definitie-nederlandse-definities
+✅ definitie-toetsregels → cowork-exports/definitie-toetsregels.zip
+✅ definitie-nederlandse-definities → cowork-exports/definitie-nederlandse-definities.zip
+
+════════════════════════════════════════════════
+  2 skill(s) geëxporteerd naar: cowork-exports/
+  Upload via: Claude Desktop → Customize → Skills → +
+
+  Tip: draai --diff om te zien welke nog ontbreken in Cowork
+════════════════════════════════════════════════
+exit=0

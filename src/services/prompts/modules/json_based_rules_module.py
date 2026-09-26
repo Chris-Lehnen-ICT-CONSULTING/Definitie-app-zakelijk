@@ -453,7 +453,33 @@ class JSONBasedRulesModule(BasePromptModule):
                 "vastgelegd, veronderstel er dan geen; de registratiecontext is geen "
                 "doelgroep. Verzin geen context of bron"
             ),
-            "INT-02": "Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
+            # DEF-771 (B4): G uit synthese v5 §3 na SC-C-02; zelfde norm als
+            # INT-02.json en het skillcontract def771-int02/2.
+            "INT-02": (
+                "Beschrijf wat het begrip is met de kenmerken die bepalen wat ertoe "
+                "behoort. Een noodzakelijk criterium, een voorwaarde, een "
+                "uitzondering of een deterministische afleiding hoort in de kern, ook"
+                " als de bron die voorwaardelijk formuleert; 'indien', 'mits', "
+                "'tenzij', 'alleen als' en 'voor zover' zijn toegestaan wanneer zij "
+                "zo'n criterium dragen — laat het criterium niet weg en verzwak het "
+                "niet. Gebruik geen handelingsvoorschrift of behandelprocedure als "
+                "definitiekern en geen discretionaire beslisregel die een actor "
+                "voorschrijft wat te doen of af te wegen. Een kwalitatief of "
+                "constitutief kenmerk waarvoor menselijke beoordeling nodig is, mag "
+                "worden beschreven; dat is op zichzelf geen beslisregel. Ook een "
+                "verplichting, bevoegdheid, beslissing, procedure of rechtsgevolg mag"
+                " als begripskenmerk worden beschreven, zonder de uitvoering ervan "
+                "voor te schrijven. Beoordeel de functie; verwijder een constitutief "
+                "oordeel niet om een afweging uit de tekst te laten verdwijnen. "
+                "Behoud noodzakelijkheid, voldoende voorwaarden, bereik, negatie, "
+                "aantallen en termijnen; verzin geen criterium om een afweging te "
+                "vervangen en geen bron of context. Lever uitsluitend de "
+                "definitiekern als één zin, zonder vraag, bronverantwoording, "
+                "onzekerheidsmelding of toelichting. Geef bij ontbrekende maar niet "
+                "strijdige betekenisgrond alleen een voorlopige kern voor zover de "
+                "beschikbare grond die draagt. Leg bij strijdige grond geen betwiste "
+                "betekenis stil in de kern vast."
+            ),
             # DEF-772: één norm voor genereren en toetsen (G), ASTRA-getrouw
             # (K1(a)): geen "dezelfde zin"-eis en geen woordsoorteis; ook 'het',
             # 'dat' en bezit; een duidelijke bijzin of vooruitverwijzing is

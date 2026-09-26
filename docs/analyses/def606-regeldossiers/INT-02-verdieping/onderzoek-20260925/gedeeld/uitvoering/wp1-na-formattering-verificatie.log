@@ -1,0 +1,44 @@
+# WP1 verificatie na Black-formattering — 2026-09-25T21:07:06Z
+# app HEAD 0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d; skills HEAD 1e27a2da7668437423af3962cce48af5f1bc591b; beide met ongecommitte WP1-wijzigingen
+
+## 1. commando: DEF771_SKILLS_ROOT=/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_contract.py tests/unit/validation/test_v2_golden_int_more.py -v -ra -p no:cacheprovider
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=2892894863
+rootdir: /Users/chrislehnen/Projecten/Definitie-app
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 18 items
+
+tests/unit/validation/test_def771_int02_contract.py ..............       [ 77%]
+tests/unit/validation/test_v2_golden_int_more.py ....                    [100%]
+
+============================== 18 passed in 0.70s ==============================
+# exitstatus 1: 0
+## 2. commando: .venv/bin/python -m ruff check tests/unit/validation/test_def771_int02_contract.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py
+All checks passed!
+# exitstatus 2: 0
+## 3. commando: .venv/bin/python -m black --check tests/unit/validation/test_def771_int02_contract.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+# exitstatus 3: 0
+## 4. reproductie: .venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py /tmp/def771-wp1-reproductie-1790370428 ; cmp met canoniek contract en kopie
+/tmp/def771-wp1-reproductie-1790370428/definitie-toetsregels/references/int02-beslisregel.md 163 regels
+# exitstatus 4a: 0
+# exitstatus 4b (cmp canoniek): 0
+# exitstatus 4c (cmp kopie): 0
+## 5. SHA-256
+235c584234218420cf33275031e589047404b6957ddfe13e1efa893eb7bf5b9a  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md
+235c584234218420cf33275031e589047404b6957ddfe13e1efa893eb7bf5b9a  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/references/int02-beslisregel.md
+0992ede76ad4c409e0166a853da55a85dab1b242c30852fab7b87f08bc3cd3df  src/toetsregels/regels/INT-02.json
+b67048cbdf2aeeee31e93020d69653b429df62ae8eb83cb3ccb387286bd17373  tests/unit/validation/test_def771_int02_contract.py
+34a54fadecdb659a77f4f24e1e906b80e08759ab17fe584ccaa58112947639a0  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py
+a9db142b835f40694dd16d9873f4bd5ba42bfe217b27d1e0ea412c4522c14116  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/reference.md
+849570fc631291c5e57db73ba34b3dc8b9b248f91993b8e7bba0a01db6ef76bc  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/SKILL.md
+9b3ce1fb2199aec86c62791cf5ab5118568a57fe3bcf6cd559a4d799f289c6f2  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/reference.md
+0cea845bd3f5076915c65433fb2d80ff0aaf35a540490a27c91dce0cd3d47035  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/SKILL.md

@@ -1,0 +1,13 @@
+# WP1 zonder skillbron — 2026-09-25T18:33:00Z
+# commando: env -u DEF771_SKILLS_ROOT .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_contract.py -ra -p no:cacheprovider
+ssss..s.sss.ss                                                           [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:155: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:140: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [3] tests/unit/validation/test_def771_int02_contract.py:162: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [2] tests/unit/validation/test_def771_int02_contract.py:180: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:169: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:133: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:144: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+4 passed, 10 skipped in 0.62s
+# exitstatus: 0

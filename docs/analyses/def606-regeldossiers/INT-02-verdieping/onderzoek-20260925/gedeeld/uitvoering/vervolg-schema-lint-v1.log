@@ -1,0 +1,16 @@
+$ ruff check src/services/validation/interfaces.py tests/unit/services/orchestrators/test_def772_int03_wrappers.py tests/unit/validation/test_def771_int02_o1.py
+All checks passed!
+exit=0
+$ black --check src/services/validation/interfaces.py tests/unit/services/orchestrators/test_def772_int03_wrappers.py tests/unit/validation/test_def771_int02_o1.py
+All done! ✨ 🍰 ✨
+3 files would be left unchanged.
+exit=0
+$ python -m json.tool schema
+exit=0
+$ make lint
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+410 files would be left unchanged.
+exit=0

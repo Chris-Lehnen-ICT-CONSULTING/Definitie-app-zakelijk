@@ -176,7 +176,7 @@ def _basisresultaat(**overrides: Any) -> dict[str, Any]:
     return resultaat
 
 
-def test_contractversie_is_verhoogd_naar_2_1_0() -> None:
+def test_contractversie_is_verhoogd_naar_2_2_0() -> None:
     # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
     # rule_results toe en maakt overall_score nullable; 1.4.0 (DEF-743) voegt
     # source_assessment toe (de volledige AI-bronbeoordeling van CON-02).
@@ -184,7 +184,8 @@ def test_contractversie_is_verhoogd_naar_2_1_0() -> None:
     # afwezige status betekent niet langer "validated" (SemVer-major).
     # 2.1.0 (DEF-766, additief): resultaatstatus not_applicable en
     # ess03_assessment (de AI-telbaarheidsbeoordeling van ESS-03).
-    assert CONTRACT_VERSION == "2.1.0"
+    # 2.2.0 (DEF-771, additief): deeluitkomststatus not_evaluated.
+    assert CONTRACT_VERSION == "2.2.0"
     statussen = _schema()["properties"]["rule_statuses"]["additionalProperties"]
     assert "not_applicable" in statussen["enum"]
     assert (
