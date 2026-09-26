@@ -1,0 +1,14 @@
+$ ruff check src/services/prompts/modules/json_based_rules_module.py
+All checks passed!
+exit=0
+$ black --check src/services/prompts/modules/json_based_rules_module.py
+All done! ✨ 🍰 ✨
+1 file would be left unchanged.
+exit=0
+$ make lint
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+410 files would be left unchanged.
+exit=0

@@ -1,0 +1,204 @@
+# WP2 RED — 2026-09-25T21:09:28Z
+# app HEAD 0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d + WP1-werkboom; module sha256 c5b464ee79e5bea853b6cf446468b95b63b49f380d92ba1f98cd4e9559cbeae9 (gelijk aan HEAD)
+# commando: .venv/bin/python -m pytest tests/unit/services/prompts/test_def771_int02_promptnorm.py -v -ra -p no:cacheprovider
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=3063930280
+rootdir: /Users/chrislehnen/Projecten/Definitie-app
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 4 items
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py FFFF         [100%]
+
+=================================== FAILURES ===================================
+______________ test_int02_voorbeelden_volgen_de_instelling[False] ______________
+
+include_examples = False
+
+    @pytest.mark.parametrize("include_examples", [True, False])
+    def test_int02_voorbeelden_volgen_de_instelling(include_examples):
+>       regels = _int02_sectie(include_examples).splitlines()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+include_examples = False
+
+    def _int02_sectie(include_examples: bool) -> str:
+        module = JSONBasedRulesModule("INT", "integrity_rules", "INT", "🔒", "INT", 70)
+        module.initialize({"include_examples": include_examples})
+        context = ModuleContext(
+            begrip="stelselmatige dader",
+            enriched_context=EnrichedContext(
+                base_context={"juridisch": ["Strafrecht"]},
+                sources=[],
+                expanded_terms={},
+                confidence_scores={},
+                metadata={},
+            ),
+            config=UnifiedGeneratorConfig(),
+            shared_state={},
+        )
+        output = module.execute(context)
+        assert output.success
+>       assert OUDE_INSTRUCTIE not in output.content
+E       assert "Vermijd voo...'alleen als'" not in '### 🔒 INT:\...nbare kennis'
+E         
+E         "Vermijd voorwaarde...nzij', 'alleen als'" is contained here:
+E           ructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'
+E           🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**
+E           - Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+E           - **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin
+E           🔹 **INT-04 - Lidwoord-verwijzing duidelijk**...
+E         
+E         ...Full output truncated (17 lines hidden), use '-vv' to show
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:81: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+______________ test_int02_voorbeelden_volgen_de_instelling[True] _______________
+
+include_examples = True
+
+    @pytest.mark.parametrize("include_examples", [True, False])
+    def test_int02_voorbeelden_volgen_de_instelling(include_examples):
+>       regels = _int02_sectie(include_examples).splitlines()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+include_examples = True
+
+    def _int02_sectie(include_examples: bool) -> str:
+        module = JSONBasedRulesModule("INT", "integrity_rules", "INT", "🔒", "INT", 70)
+        module.initialize({"include_examples": include_examples})
+        context = ModuleContext(
+            begrip="stelselmatige dader",
+            enriched_context=EnrichedContext(
+                base_context={"juridisch": ["Strafrecht"]},
+                sources=[],
+                expanded_terms={},
+                confidence_scores={},
+                metadata={},
+            ),
+            config=UnifiedGeneratorConfig(),
+            shared_state={},
+        )
+        output = module.execute(context)
+        assert output.success
+>       assert OUDE_INSTRUCTIE not in output.content
+E       assert "Vermijd voo...'alleen als'" not in '### 🔒 INT:\...dsdocument X'
+E         
+E         "Vermijd voorwaarde...nzij', 'alleen als'" is contained here:
+E           ructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'
+E             ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+E             ✅ stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.
+E             ✅ even getal: Geheel getal dat zonder rest door twee deelbaar is.
+E             ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken....
+E         
+E         ...Full output truncated (37 lines hidden), use '-vv' to show
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:81: AssertionError
+__________ test_int02_sectie_bevat_exacte_g_en_een_zin_contract[True] __________
+
+include_examples = True
+
+    @pytest.mark.parametrize("include_examples", [True, False])
+    def test_int02_sectie_bevat_exacte_g_en_een_zin_contract(include_examples):
+>       sectie = _int02_sectie(include_examples)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+include_examples = True
+
+    def _int02_sectie(include_examples: bool) -> str:
+        module = JSONBasedRulesModule("INT", "integrity_rules", "INT", "🔒", "INT", 70)
+        module.initialize({"include_examples": include_examples})
+        context = ModuleContext(
+            begrip="stelselmatige dader",
+            enriched_context=EnrichedContext(
+                base_context={"juridisch": ["Strafrecht"]},
+                sources=[],
+                expanded_terms={},
+                confidence_scores={},
+                metadata={},
+            ),
+            config=UnifiedGeneratorConfig(),
+            shared_state={},
+        )
+        output = module.execute(context)
+        assert output.success
+>       assert OUDE_INSTRUCTIE not in output.content
+E       assert "Vermijd voo...'alleen als'" not in '### 🔒 INT:\...dsdocument X'
+E         
+E         "Vermijd voorwaarde...nzij', 'alleen als'" is contained here:
+E           ructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'
+E             ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+E             ✅ stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.
+E             ✅ even getal: Geheel getal dat zonder rest door twee deelbaar is.
+E             ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken....
+E         
+E         ...Full output truncated (37 lines hidden), use '-vv' to show
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:81: AssertionError
+_________ test_int02_sectie_bevat_exacte_g_en_een_zin_contract[False] __________
+
+include_examples = False
+
+    @pytest.mark.parametrize("include_examples", [True, False])
+    def test_int02_sectie_bevat_exacte_g_en_een_zin_contract(include_examples):
+>       sectie = _int02_sectie(include_examples)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+include_examples = False
+
+    def _int02_sectie(include_examples: bool) -> str:
+        module = JSONBasedRulesModule("INT", "integrity_rules", "INT", "🔒", "INT", 70)
+        module.initialize({"include_examples": include_examples})
+        context = ModuleContext(
+            begrip="stelselmatige dader",
+            enriched_context=EnrichedContext(
+                base_context={"juridisch": ["Strafrecht"]},
+                sources=[],
+                expanded_terms={},
+                confidence_scores={},
+                metadata={},
+            ),
+            config=UnifiedGeneratorConfig(),
+            shared_state={},
+        )
+        output = module.execute(context)
+        assert output.success
+>       assert OUDE_INSTRUCTIE not in output.content
+E       assert "Vermijd voo...'alleen als'" not in '### 🔒 INT:\...nbare kennis'
+E         
+E         "Vermijd voorwaarde...nzij', 'alleen als'" is contained here:
+E           ructie:** Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'
+E           🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**
+E           - Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+E           - **Instructie:** Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin
+E           🔹 **INT-04 - Lidwoord-verwijzing duidelijk**...
+E         
+E         ...Full output truncated (17 lines hidden), use '-vv' to show
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py:81: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_voorbeelden_volgen_de_instelling[False]
+FAILED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_voorbeelden_volgen_de_instelling[True]
+FAILED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_sectie_bevat_exacte_g_en_een_zin_contract[True]
+FAILED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_sectie_bevat_exacte_g_en_een_zin_contract[False]
+============================== 4 failed in 0.66s ===============================
+# exitstatus: 1

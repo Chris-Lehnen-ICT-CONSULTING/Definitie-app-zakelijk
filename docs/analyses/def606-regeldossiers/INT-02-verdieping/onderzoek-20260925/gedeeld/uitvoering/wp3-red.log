@@ -1,0 +1,654 @@
+# WP3 RED — 2026-09-25T21:22:03Z
+# app HEAD 0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d + WP1/WP2-werkboom; productiebestanden WP3 nog ongewijzigd:
+046ab1df7d2d80997c58f6bf44a482f9dfbed85e08624ae863a0b091ddb278eb  src/services/validation/evaluators/judgment_review.py
+2686e21ef85fc2e377d46d7b9e9fc56dfa5e8a492ddc8d0113edf036a784c4cc  src/services/validation/modular_validation_service.py
+238b6b4a0d1e092d8a1e7ea846402c4d3ed5bbf6e41c3283e4722d3a671b0988  src/ui/components/validation_view.py
+0992ede76ad4c409e0166a853da55a85dab1b242c30852fab7b87f08bc3cd3df  src/toetsregels/regels/INT-02.json
+# commando: DEF771_SKILLS_ROOT=/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_o1.py tests/unit/ui/test_def771_int02_validation_view.py tests/unit/validation/test_def771_int02_contract.py -q -ra -p no:cacheprovider
+FFFFFFFFFFFFFFFFFFFFFFFFFFF..FF.F....F...                                [100%]
+=================================== FAILURES ===================================
+_ test_zonder_signaal_exacte_waarschuwing[beslisregel: Algoritme waarvoor oordeelsvorming nodig is.] _
+
+tekst = 'beslisregel: Algoritme waarvoor oordeelsvorming nodig is.'
+
+    @pytest.mark.parametrize("tekst", [C13, C59, C105, FUNCTIE])
+    def test_zonder_signaal_exacte_waarschuwing(tekst):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert _signalen(uitkomst) == []
+>       assert uitkomst.reason == (
+            f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} {ZONDER_SIGNAAL}"
+        )
+E       AssertionError: assert 'Bakenen de r...functioneren?' == 'INT-02 — Toe... of afweging.'
+E         
+E         - INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.
+E         + Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?
+
+tests/unit/validation/test_def771_int02_o1.py:141: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+_ test_evaluator_niet_uitgevoerd[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-False-context] _
+
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+context = False, grond = 'context'
+
+    @pytest.mark.parametrize(
+        ("tekst", "context", "grond"),
+        [
+            ("", True, "kern"),
+            ("Toegang:", True, "kern"),
+            (C50, False, "context"),
+            ("", False, "kern en context"),
+        ],
+    )
+    def test_evaluator_niet_uitgevoerd(tekst, context, grond):
+        uitkomst = _evalueer(tekst, context=context)
+>       assert uitkomst.status is ResultStatus.NOT_EVALUATED
+E       AssertionError: assert <ResultStatus.REVIEW_REQUIRED: 'review_required'> is <ResultStatus.NOT_EVALUATED: 'not_evaluated'>
+E        +  where <ResultStatus.REVIEW_REQUIRED: 'review_required'> = EvaluationOutcome(status=<ResultStatus.REVIEW_REQUIRED: 'review_required'>, score=None, findings=(), pattern_hits=(), ...ndelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', metadata={'signals': ['\\bindien\\b']}).status
+E        +  and   <ResultStatus.NOT_EVALUATED: 'not_evaluated'> = ResultStatus.NOT_EVALUATED
+
+tests/unit/validation/test_def771_int02_o1.py:184: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-signalen1-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld] _
+
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+signalen = ['\\bindien\\b']
+passage = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+>       assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x10df733d0>('INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? ')
+E        +    where <built-in method startswith of str object at 0x10df733d0> = 'Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?'.startswith
+
+tests/unit/validation/test_def771_int02_o1.py:129: AssertionError
+__________________ test_evaluator_niet_uitgevoerd[-True-kern] __________________
+
+tekst = '', context = True, grond = 'kern'
+
+    @pytest.mark.parametrize(
+        ("tekst", "context", "grond"),
+        [
+            ("", True, "kern"),
+            ("Toegang:", True, "kern"),
+            (C50, False, "context"),
+            ("", False, "kern en context"),
+        ],
+    )
+    def test_evaluator_niet_uitgevoerd(tekst, context, grond):
+        uitkomst = _evalueer(tekst, context=context)
+>       assert uitkomst.status is ResultStatus.NOT_EVALUATED
+E       AssertionError: assert <ResultStatus.REVIEW_REQUIRED: 'review_required'> is <ResultStatus.NOT_EVALUATED: 'not_evaluated'>
+E        +  where <ResultStatus.REVIEW_REQUIRED: 'review_required'> = EvaluationOutcome(status=<ResultStatus.REVIEW_REQUIRED: 'review_required'>, score=None, findings=(), pattern_hits=(), ...he afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', metadata={}).status
+E        +  and   <ResultStatus.NOT_EVALUATED: 'not_evaluated'> = ResultStatus.NOT_EVALUATED
+
+tests/unit/validation/test_def771_int02_o1.py:184: AssertionError
+_ test_service_niet_uitgevoerd[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context] _
+
+casus = 'C56'
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+context = {}, grond = 'context'
+
+    @pytest.mark.parametrize(
+        ("casus", "tekst", "context", "grond"),
+        [("C06", "", CONTEXT, "kern"), ("C23", "Toegang:", CONTEXT, "kern"),
+         ("C56", C50, {}, "context")],
+    )
+    async def test_service_niet_uitgevoerd(casus, tekst, context, grond):
+        status, item, uitkomst = await _service(tekst, context)
+>       assert status == ResultStatus.NOT_EVALUATED.value, casus
+E       AssertionError: C56
+E       assert 'review_required' == 'not_evaluated'
+E         
+E         - not_evaluated
+E         + review_required
+
+tests/unit/validation/test_def771_int02_o1.py:204: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Verplichting die een partij moet nakomen.-signalen6-Verplichting die een partij moet nakomen] _
+
+tekst = 'Verplichting die een partij moet nakomen.', signalen = ['\\bmoet\\b']
+passage = 'Verplichting die een partij moet nakomen'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+>       assert sorted(_signalen(uitkomst)) == sorted(signalen)
+E       AssertionError: assert [] == ['\\bmoet\\b']
+E         
+E         Right contains one more item: '\\bmoet\\b'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:127: AssertionError
+_ test_zonder_signaal_exacte_waarschuwing[Voorwerp dat dient als ondersteuning.] _
+
+tekst = 'Voorwerp dat dient als ondersteuning.'
+
+    @pytest.mark.parametrize("tekst", [C13, C59, C105, FUNCTIE])
+    def test_zonder_signaal_exacte_waarschuwing(tekst):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert _signalen(uitkomst) == []
+>       assert uitkomst.reason == (
+            f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} {ZONDER_SIGNAAL}"
+        )
+E       AssertionError: assert 'Bakenen de r...functioneren?' == 'INT-02 — Toe... of afweging.'
+E         
+E         - INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.
+E         + Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?
+
+tests/unit/validation/test_def771_int02_o1.py:141: AssertionError
+__________ test_service_met_context_geeft_passagehulp_zonder_oordeel ___________
+
+    async def test_service_met_context_geeft_passagehulp_zonder_oordeel():
+        status, item, _ = await _service(C50, CONTEXT)
+        assert status == ResultStatus.REVIEW_REQUIRED.value
+>       assert HULP.replace("{zinsdeel}", C50[:-1]) in item["reason"]
+E       assert "INT-02 — Nog te beoordelen. Beschrijft de passage 'Persoon die als stelselmatige dader geldt indien hij in de vijf ja...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." in 'Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?'
+E        +  where "INT-02 — Nog te beoordelen. Beschrijft de passage 'Persoon die als stelselmatige dader geldt indien hij in de vijf ja...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." = <built-in method replace of str object at 0xa4ff44900>('{zinsdeel}', 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld')
+E        +    where <built-in method replace of str object at 0xa4ff44900> = "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk of afgeleid feit, of schrijft zij voor wat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord.".replace
+
+tests/unit/validation/test_def771_int02_o1.py:212: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.-signalen3-eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken] _
+
+tekst = 'transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.'
+signalen = ['\\bmoet\\b']
+passage = 'eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+>       assert sorted(_signalen(uitkomst)) == sorted(signalen)
+E       AssertionError: assert [] == ['\\bmoet\\b']
+E         
+E         Right contains one more item: '\\bmoet\\b'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:127: AssertionError
+_ test_zonder_signaal_exacte_waarschuwing[De medewerker laat de aanvrager toe.] _
+
+tekst = 'De medewerker laat de aanvrager toe.'
+
+    @pytest.mark.parametrize("tekst", [C13, C59, C105, FUNCTIE])
+    def test_zonder_signaal_exacte_waarschuwing(tekst):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert _signalen(uitkomst) == []
+>       assert uitkomst.reason == (
+            f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} {ZONDER_SIGNAAL}"
+        )
+E       AssertionError: assert 'Bakenen de r...functioneren?' == 'INT-02 — Toe... of afweging.'
+E         
+E         - INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.
+E         + Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?
+
+tests/unit/validation/test_def771_int02_o1.py:141: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven.-signalen2-Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven] _
+
+tekst = 'Lid dat stemgerechtigd is alleen als het vóór 1 januari is ingeschreven.'
+signalen = ['\\balleen als\\b']
+passage = 'Lid dat stemgerechtigd is alleen als het vóór 1 januari is ingeschreven'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+>       assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x10df733d0>('INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? ')
+E        +    where <built-in method startswith of str object at 0x10df733d0> = 'Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?'.startswith
+
+tests/unit/validation/test_def771_int02_o1.py:129: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Getal dat even is indien het zonder rest door twee deelbaar is.-signalen0-Getal dat even is indien het zonder rest door twee deelbaar is] _
+
+tekst = 'Getal dat even is indien het zonder rest door twee deelbaar is.'
+signalen = ['\\bindien\\b']
+passage = 'Getal dat even is indien het zonder rest door twee deelbaar is'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+>       assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x10df733d0>('INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? ')
+E        +    where <built-in method startswith of str object at 0x10df733d0> = 'Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?'.startswith
+
+tests/unit/validation/test_def771_int02_o1.py:129: AssertionError
+_ test_zonder_signaal_exacte_waarschuwing[besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.] _
+
+tekst = 'besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.'
+
+    @pytest.mark.parametrize("tekst", [C13, C59, C105, FUNCTIE])
+    def test_zonder_signaal_exacte_waarschuwing(tekst):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert _signalen(uitkomst) == []
+>       assert uitkomst.reason == (
+            f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} {ZONDER_SIGNAAL}"
+        )
+E       AssertionError: assert 'Bakenen de r...functioneren?' == 'INT-02 — Toe... of afweging.'
+E         
+E         - INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.
+E         + Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?
+
+tests/unit/validation/test_def771_int02_o1.py:141: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.-signalen5-Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is] _
+
+tekst = 'Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.'
+signalen = ['\\bnaar\\s+eigen\\s+inzicht\\b', '\\bkan\\b[^.!?;\\n]*\\bbesluiten\\b']
+passage = 'Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+>       assert sorted(_signalen(uitkomst)) == sorted(signalen)
+E       AssertionError: assert [] == ['\\bkan\\b[^...s+inzicht\\b']
+E         
+E         Right contains 2 more items, first extra item: '\\bkan\\b[^.!?;\\n]*\\bbesluiten\\b'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:127: AssertionError
+___________ test_service_niet_uitgevoerd[C23-Toegang:-context1-kern] ___________
+
+casus = 'C23', tekst = 'Toegang:'
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(
+        ("casus", "tekst", "context", "grond"),
+        [("C06", "", CONTEXT, "kern"), ("C23", "Toegang:", CONTEXT, "kern"),
+         ("C56", C50, {}, "context")],
+    )
+    async def test_service_niet_uitgevoerd(casus, tekst, context, grond):
+        status, item, uitkomst = await _service(tekst, context)
+>       assert status == ResultStatus.NOT_EVALUATED.value, casus
+E       AssertionError: C23
+E       assert 'review_required' == 'not_evaluated'
+E         
+E         - not_evaluated
+E         + review_required
+
+tests/unit/validation/test_def771_int02_o1.py:204: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht-signalen4-maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht] _
+
+tekst = 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht'
+signalen = ['\\bnaar\\s+eigen\\s+inzicht\\b', '\\bredelijk\\s+acht\\b']
+passage = 'maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
+            (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+>       assert sorted(_signalen(uitkomst)) == sorted(signalen)
+E       AssertionError: assert [] == ['\\bnaar\\s+...k\\s+acht\\b']
+E         
+E         Right contains 2 more items, first extra item: '\\bnaar\\s+eigen\\s+inzicht\\b'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:127: AssertionError
+______________ test_posities_in_getoetste_kern_zonder_broncitaat _______________
+
+    def test_posities_in_getoetste_kern_zonder_broncitaat():
+        uitkomst = _evalueer(C04, raw=f"Definitie: {C04}")
+>       assert _passages(uitkomst, C04) == [(C04[:-1], 0, len(C04) - 1)]
+E       AssertionError: assert [] == [('Getal dat ...r is', 0, 62)]
+E         
+E         Right contains one more item: ('Getal dat even is indien het zonder rest door twee deelbaar is', 0, 62)
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:168: AssertionError
+_______________ test_service_niet_uitgevoerd[C06--context0-kern] _______________
+
+casus = 'C06', tekst = ''
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(
+        ("casus", "tekst", "context", "grond"),
+        [("C06", "", CONTEXT, "kern"), ("C23", "Toegang:", CONTEXT, "kern"),
+         ("C56", C50, {}, "context")],
+    )
+    async def test_service_niet_uitgevoerd(casus, tekst, context, grond):
+        status, item, uitkomst = await _service(tekst, context)
+>       assert status == ResultStatus.NOT_EVALUATED.value, casus
+E       AssertionError: C06
+E       assert 'review_required' == 'not_evaluated'
+E         
+E         - not_evaluated
+E         + review_required
+
+tests/unit/validation/test_def771_int02_o1.py:204: AssertionError
+__________________________ test_record_s1_en_leeshulp __________________________
+
+    def test_record_s1_en_leeshulp():
+        assert RUW["herkenbaar_patronen"][:7] == [
+            r"\bindien\b",
+            r"\bmits\b",
+            r"\balleen als\b",
+            r"\btenzij\b",
+            r"\bvoor zover\b",
+            r"\bop voorwaarde dat\b",
+            r"\bin geval dat\b",
+        ]
+>       assert RUW["herkenbaar_patronen"][7:] == S1
+E       AssertionError: assert [] == ['\\bvan\\s+o...ent\\s+te\\b']
+E         
+E         Right contains 6 more items, first extra item: '\\bvan\\s+oordeel\\s+is\\b'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:103: AssertionError
+______________ test_evaluator_niet_uitgevoerd[Toegang:-True-kern] ______________
+
+tekst = 'Toegang:', context = True, grond = 'kern'
+
+    @pytest.mark.parametrize(
+        ("tekst", "context", "grond"),
+        [
+            ("", True, "kern"),
+            ("Toegang:", True, "kern"),
+            (C50, False, "context"),
+            ("", False, "kern en context"),
+        ],
+    )
+    def test_evaluator_niet_uitgevoerd(tekst, context, grond):
+        uitkomst = _evalueer(tekst, context=context)
+>       assert uitkomst.status is ResultStatus.NOT_EVALUATED
+E       AssertionError: assert <ResultStatus.REVIEW_REQUIRED: 'review_required'> is <ResultStatus.NOT_EVALUATED: 'not_evaluated'>
+E        +  where <ResultStatus.REVIEW_REQUIRED: 'review_required'> = EvaluationOutcome(status=<ResultStatus.REVIEW_REQUIRED: 'review_required'>, score=None, findings=(), pattern_hits=(), ...he afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', metadata={}).status
+E        +  and   <ResultStatus.NOT_EVALUATED: 'not_evaluated'> = ResultStatus.NOT_EVALUATED
+
+tests/unit/validation/test_def771_int02_o1.py:184: AssertionError
+________________ test_onzekere_grens_citeert_de_volledige_kern _________________
+
+    def test_onzekere_grens_citeert_de_volledige_kern():
+        tekst = "Handeling die moet volgen\nen verder gaat."
+>       assert [p for p, _, _ in _passages(_evalueer(tekst), tekst)] == [tekst[:-1]]
+E       AssertionError: assert [] == ['Handeling d... verder gaat']
+E         
+E         Right contains one more item: 'Handeling die moet volgen\nen verder gaat'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:163: AssertionError
+_________________ test_markergrenzen_kan_besluiten_en_dient_te _________________
+
+    def test_markergrenzen_kan_besluiten_en_dient_te():
+        assert _signalen(_evalueer("Orgaan dat kan optreden. Het college mag besluiten.")) == []
+>       assert _signalen(_evalueer("Taak die de ambtenaar dient te verrichten.")) == [
+            r"\bdient\s+te\b"
+        ]
+E       AssertionError: assert [] == ['\\bdient\\s+te\\b']
+E         
+E         Right contains one more item: '\\bdient\\s+te\\b'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:148: AssertionError
+________________ test_herhaalde_passage_blijft_onderscheidbaar _________________
+
+    def test_herhaalde_passage_blijft_onderscheidbaar():
+        tekst = "handeling die moet volgen, handeling die moet volgen"
+>       assert _passages(_evalueer(tekst), tekst) == [
+            ("handeling die moet volgen", 0, 25),
+            ("handeling die moet volgen", 27, 52),
+        ]
+E       AssertionError: assert [] == [('handeling ...gen', 27, 52)]
+E         
+E         Right contains 2 more items, first extra item: ('handeling die moet volgen', 0, 25)
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:155: AssertionError
+____________ test_evaluator_niet_uitgevoerd[-False-kern en context] ____________
+
+tekst = '', context = False, grond = 'kern en context'
+
+    @pytest.mark.parametrize(
+        ("tekst", "context", "grond"),
+        [
+            ("", True, "kern"),
+            ("Toegang:", True, "kern"),
+            (C50, False, "context"),
+            ("", False, "kern en context"),
+        ],
+    )
+    def test_evaluator_niet_uitgevoerd(tekst, context, grond):
+        uitkomst = _evalueer(tekst, context=context)
+>       assert uitkomst.status is ResultStatus.NOT_EVALUATED
+E       AssertionError: assert <ResultStatus.REVIEW_REQUIRED: 'review_required'> is <ResultStatus.NOT_EVALUATED: 'not_evaluated'>
+E        +  where <ResultStatus.REVIEW_REQUIRED: 'review_required'> = EvaluationOutcome(status=<ResultStatus.REVIEW_REQUIRED: 'review_required'>, score=None, findings=(), pattern_hits=(), ...he afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', metadata={}).status
+E        +  and   <ResultStatus.NOT_EVALUATED: 'not_evaluated'> = ResultStatus.NOT_EVALUATED
+
+tests/unit/validation/test_def771_int02_o1.py:184: AssertionError
+__________________ test_open_int02_reden_letterlijk_zichtbaar __________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c4319b0>
+
+    async def test_open_int02_reden_letterlijk_zichtbaar(monkeypatch):
+        result, shown = await _render(monkeypatch, CONTEXT, "def771")
+        redenen = {r["rule_id"]: r["reason"] for r in result["review_required"]}
+>       assert redenen["INT-02"].startswith("INT-02 — Toetsvraag:")
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x10c3a7bb0>('INT-02 — Toetsvraag:')
+E        +    where <built-in method startswith of str object at 0x10c3a7bb0> = 'Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?'.startswith
+
+tests/unit/ui/test_def771_int02_validation_view.py:53: AssertionError
+______________ test_niet_uitgevoerde_int02_toont_geen_reviewtekst ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c48e970>
+
+    async def test_niet_uitgevoerde_int02_toont_geen_reviewtekst(monkeypatch):
+        result, shown = await _render(monkeypatch, {}, "def771b")
+>       assert result["rule_statuses"]["INT-02"] == "not_evaluated"
+E       AssertionError: assert 'review_required' == 'not_evaluated'
+E         
+E         - not_evaluated
+E         + review_required
+
+tests/unit/ui/test_def771_int02_validation_view.py:64: AssertionError
+________________ test_record_is_gebonden_aan_de_contractversie _________________
+
+    def test_record_is_gebonden_aan_de_contractversie():
+>       assert _record()["contractversie"] == CONTRACTVERSIE
+E       AssertionError: assert 'def771-int02/1' == 'def771-int02/2'
+E         
+E         - def771-int02/2
+E         ?              ^
+E         + def771-int02/1
+E         ?              ^
+
+tests/unit/validation/test_def771_int02_contract.py:106: AssertionError
+________ test_skill_md_bevat_gericht_int02_blok[definitie-toetsregels] _________
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+skill = 'definitie-toetsregels'
+
+    @pytest.mark.parametrize(
+        "skill", ["definitie-toetsregels", "definitie-nederlandse-definities"]
+    )
+    def test_skill_md_bevat_gericht_int02_blok(skills: Path, skill: str):
+        tekst = (skills / skill / "SKILL.md").read_text("utf-8")
+        blok = tekst.split("\n## INT-02 — begripscriterium tegenover beslisregel\n", 1)
+        assert len(blok) == 2
+        blok = blok[1].split("\n## ", 1)[0]
+        assert "(references/int02-beslisregel.md)" in blok
+>       assert CONTRACTVERSIE in blok
+E       AssertionError: assert 'def771-int02/2' in '\nLees bij genereren of toetsen het [gedeelde INT-02-contract](references/int02-beslisregel.md) (contractversie `def7... de losse INT02Validator is geen bewijs van de actieve uitvoering. Skilladvies is geen opgeslagen expertbeoordeling.\n'
+
+tests/unit/validation/test_def771_int02_contract.py:192: AssertionError
+___ test_skill_md_bevat_gericht_int02_blok[definitie-nederlandse-definities] ___
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+skill = 'definitie-nederlandse-definities'
+
+    @pytest.mark.parametrize(
+        "skill", ["definitie-toetsregels", "definitie-nederlandse-definities"]
+    )
+    def test_skill_md_bevat_gericht_int02_blok(skills: Path, skill: str):
+        tekst = (skills / skill / "SKILL.md").read_text("utf-8")
+        blok = tekst.split("\n## INT-02 — begripscriterium tegenover beslisregel\n", 1)
+        assert len(blok) == 2
+        blok = blok[1].split("\n## ", 1)[0]
+        assert "(references/int02-beslisregel.md)" in blok
+>       assert CONTRACTVERSIE in blok
+E       AssertionError: assert 'def771-int02/2' in '\nLees bij formuleren het [gedeelde INT-02-contract](references/int02-beslisregel.md) (byte-identieke, versiegebonden... de losse INT02Validator is geen bewijs van de actieve uitvoering. Skilladvies is geen opgeslagen expertbeoordeling.\n'
+
+tests/unit/validation/test_def771_int02_contract.py:192: AssertionError
+____________ test_contract_draagt_versie_en_datum_gelijk_aan_record ____________
+
+contract = '# INT-02 — begripscriterium tegenover beslisregel\n\n**Contractversie:** `def771-int02/1` · **Datum:** 25 september 2...ule`/`.py`-restanten (DEF-830); DBT §4.2 lezen (DEF-625); CON-01-uitzondering op DEF-831 (Chris beslist in DEF-831).\n'
+
+    def test_contract_draagt_versie_en_datum_gelijk_aan_record(contract: str):
+        versie = re.search(r"\*\*Contractversie:\*\* `([^`]+)`", contract)
+        assert versie is not None
+>       assert versie.group(1) == CONTRACTVERSIE == _record()["contractversie"]
+E       AssertionError: assert 'def771-int02/1' == 'def771-int02/2'
+E         
+E         - def771-int02/2
+E         ?              ^
+E         + def771-int02/1
+E         ?              ^
+
+tests/unit/validation/test_def771_int02_contract.py:134: AssertionError
+__________ test_record_bewaart_astra_paar_review_policy_en_evaluator ___________
+
+    def test_record_bewaart_astra_paar_review_policy_en_evaluator():
+        data = _record()
+        contract = data["runtime_contract"]
+        assert data["goede_voorbeelden"][0] == ASTRA_JUIST
+        assert data["foute_voorbeelden"][0] == ASTRA_ONJUIST
+        assert contract["example_pair_policy"] == "review_policy"
+        assert contract["evaluator"] == "judgment_review"
+        assert contract["score_policy"] == "excluded_from_score"
+        # WP3 (K-9): context is vereiste invoer; zonder context niet uitgevoerd.
+>       assert contract["required_inputs"] == ["definition_text", "context_lists"]
+E       AssertionError: assert ['definition_text'] == ['definition_...ontext_lists']
+E         
+E         Right contains one more item: 'context_lists'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_contract.py:95: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[beslisregel: Algoritme waarvoor oordeelsvorming nodig is.]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-False-context]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-signalen1-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-True-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Verplichting die een partij moet nakomen.-signalen6-Verplichting die een partij moet nakomen]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[Voorwerp dat dient als ondersteuning.]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_service_met_context_geeft_passagehulp_zonder_oordeel
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.-signalen3-eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[De medewerker laat de aanvrager toe.]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven.-signalen2-Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Getal dat even is indien het zonder rest door twee deelbaar is.-signalen0-Getal dat even is indien het zonder rest door twee deelbaar is]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.-signalen5-Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C23-Toegang:-context1-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht-signalen4-maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_posities_in_getoetste_kern_zonder_broncitaat
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C06--context0-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_record_s1_en_leeshulp
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Toegang:-True-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_onzekere_grens_citeert_de_volledige_kern
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_markergrenzen_kan_besluiten_en_dient_te
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_herhaalde_passage_blijft_onderscheidbaar
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-False-kern en context]
+FAILED tests/unit/ui/test_def771_int02_validation_view.py::test_open_int02_reden_letterlijk_zichtbaar
+FAILED tests/unit/ui/test_def771_int02_validation_view.py::test_niet_uitgevoerde_int02_toont_geen_reviewtekst
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_record_is_gebonden_aan_de_contractversie
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_skill_md_bevat_gericht_int02_blok[definitie-toetsregels]
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_skill_md_bevat_gericht_int02_blok[definitie-nederlandse-definities]
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_contract_draagt_versie_en_datum_gelijk_aan_record
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_record_bewaart_astra_paar_review_policy_en_evaluator
+# exitstatus: 1

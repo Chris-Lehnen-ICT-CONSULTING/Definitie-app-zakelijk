@@ -1,0 +1,34 @@
+(cwd /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills)
+$ git merge --no-commit --no-ff 770de55ece429fec826c9d53fd873a109ed8e670
+warning: Cannot merge binary files: cowork-exports/definitie-nederlandse-definities.zip (HEAD vs. 770de55ece429fec826c9d53fd873a109ed8e670)
+Auto-merging cowork-exports/definitie-nederlandse-definities.zip
+CONFLICT (content): Merge conflict in cowork-exports/definitie-nederlandse-definities.zip
+warning: Cannot merge binary files: cowork-exports/definitie-toetsregels.zip (HEAD vs. 770de55ece429fec826c9d53fd873a109ed8e670)
+Auto-merging cowork-exports/definitie-toetsregels.zip
+CONFLICT (content): Merge conflict in cowork-exports/definitie-toetsregels.zip
+Auto-merging skills/definitie-nederlandse-definities/SKILL.md
+CONFLICT (content): Merge conflict in skills/definitie-nederlandse-definities/SKILL.md
+Auto-merging skills/definitie-nederlandse-definities/reference.md
+CONFLICT (content): Merge conflict in skills/definitie-nederlandse-definities/reference.md
+Auto-merging skills/definitie-toetsregels/SKILL.md
+CONFLICT (content): Merge conflict in skills/definitie-toetsregels/SKILL.md
+Auto-merging skills/definitie-toetsregels/reference.md
+CONFLICT (content): Merge conflict in skills/definitie-toetsregels/reference.md
+Automatic merge failed; fix conflicts and then commit the result.
+exit=1
+$ git status --porcelain --untracked-files=no
+UU cowork-exports/definitie-nederlandse-definities.zip
+UU cowork-exports/definitie-toetsregels.zip
+M  cowork-exports/nederlandse-definities.zip
+M  cowork-exports/toetsregels.zip
+UU skills/definitie-nederlandse-definities/SKILL.md
+UU skills/definitie-nederlandse-definities/reference.md
+UU skills/definitie-toetsregels/SKILL.md
+UU skills/definitie-toetsregels/reference.md
+$ git diff --name-only --diff-filter=U
+cowork-exports/definitie-nederlandse-definities.zip
+cowork-exports/definitie-toetsregels.zip
+skills/definitie-nederlandse-definities/SKILL.md
+skills/definitie-nederlandse-definities/reference.md
+skills/definitie-toetsregels/SKILL.md
+skills/definitie-toetsregels/reference.md

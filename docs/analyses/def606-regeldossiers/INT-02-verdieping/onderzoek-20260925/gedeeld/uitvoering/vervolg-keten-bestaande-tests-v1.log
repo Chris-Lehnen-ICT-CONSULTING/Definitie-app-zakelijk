@@ -1,0 +1,69 @@
+$ .venv/bin/python -m pytest tests/unit/ui/test_def771_int02_validation_view.py tests/unit/services/test_def622_readback_en_export.py tests/unit/services/test_def622_koppelingen_export_readback.py tests/unit/services/policies/test_approval_gate_policy.py tests/unit/ui/test_def622_expert_review_contextcontract.py -p no:cacheprovider -q -rA
+...................                                                      [100%]
+=============================== warnings summary ===============================
+tests/unit/services/test_def622_readback_en_export.py: 3 warnings
+tests/unit/services/test_def622_koppelingen_export_readback.py: 8 warnings
+tests/unit/ui/test_def622_expert_review_contextcontract.py: 4 warnings
+  /Users/chrislehnen/Projecten/Definitie-app/src/database/definitie_crud.py:374: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(
+
+tests/unit/services/test_def622_readback_en_export.py: 3 warnings
+tests/unit/services/test_def622_koppelingen_export_readback.py: 7 warnings
+tests/unit/ui/test_def622_expert_review_contextcontract.py: 3 warnings
+  /Users/chrislehnen/Projecten/Definitie-app/src/database/definitie_crud.py:2574: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    cursor = conn.execute(query, params + where_params)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_ TestReadback.test_beoordeling_reist_mee_naar_validatie_en_vervalt_bij_wijziging _
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=3f63161b-d41f-4653-bf26-1c3fbbcb9d82)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=30d18792-df34-4c7d-a932-12bebbccb185)
+____________________ test_policy_defaults_when_missing_yaml ____________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.policies.approval_gate_policy:approval_gate_policy.py:141 Approval gate config not found at /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-f5_wukry/tempfiles/pytest-of-chrislehnen/pytest-0/test_policy_defaults_when_miss0/does_not_exist.yaml - using defaults
+_ TestReadbackTekstbasis.test_cleaning_verandert_de_tekstbasis_van_de_binding_niet _
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=719cf3f4-3be9-415b-9fd3-1bf7a3f72c16)
+______ TestReadbackTekstbasis.test_gate_en_domeinreadback_oordelen_gelijk ______
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=ea31ed03-e708-4f78-bf93-de9290ea4638)
+_ TestExportContractvelden.test_verlopen_beoordeling_blijft_verlopen_met_echte_validatie _
+------------------------------ Captured log call -------------------------------
+WARNING  services.data_aggregation_service:data_aggregation_service.py:578 Export: aanvullende data probeerde contractvelden te vervangen; recordwaarden behouden voor versie
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c016fac8-0364-4f34-b0ec-ba7bf2836ffc)
+_ TestExportContractvelden.test_exportuitvoer_draagt_dezelfde_contractvelden_als_de_validator _
+------------------------------ Captured log call -------------------------------
+WARNING  services.data_aggregation_service:data_aggregation_service.py:578 Export: aanvullende data probeerde contractvelden te vervangen; recordwaarden behouden voor id, versie, context_review, organisatorische_context, context_dict.organisatorisch
+_ TestExportContractvelden.test_expliciete_legacytekst_krijgt_dezelfde_tekstbasis _
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=4d51f258-5413-4119-98a7-ec1093cff669)
+_ TestExportContractvelden.test_aanvullende_exportdata_vervangt_geen_contractvelden _
+------------------------------ Captured log call -------------------------------
+WARNING  services.data_aggregation_service:data_aggregation_service.py:578 Export: aanvullende data probeerde contractvelden te vervangen; recordwaarden behouden voor id, versie, context_review, context_dict.organisatorisch
+________________ test_verouderd_snapshot_wordt_niet_vastgelegd _________________
+------------------------------ Captured log call -------------------------------
+WARNING  database.definitie_crud:definitie_crud.py:539 set_context_review geweigerd: definitie 3 is versie 2, beoordeeld is versie 1
+=========================== short test summary info ============================
+PASSED tests/unit/services/test_def622_readback_en_export.py::TestReadback::test_beoordeling_reist_mee_naar_validatie_en_vervalt_bij_wijziging
+PASSED tests/unit/services/test_def622_readback_en_export.py::TestReadback::test_lijsten_en_beoordeling_komen_terug
+PASSED tests/unit/services/test_def622_readback_en_export.py::TestExportAansluiting::test_export_valideert_met_opgeslagen_context_en_beoordeling
+PASSED tests/unit/ui/test_def771_int02_validation_view.py::test_open_int02_reden_letterlijk_zichtbaar
+PASSED tests/unit/ui/test_def771_int02_validation_view.py::test_niet_uitgevoerde_int02_toont_geen_reviewtekst
+PASSED tests/unit/services/policies/test_approval_gate_policy.py::test_policy_merge_and_ttl
+PASSED tests/unit/services/policies/test_approval_gate_policy.py::test_policy_defaults_when_missing_yaml
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestReadbackTekstbasis::test_definitiezin_is_de_tekstbasis
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestReadbackTekstbasis::test_cleaning_verandert_de_tekstbasis_van_de_binding_niet
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestReadbackTekstbasis::test_gate_en_domeinreadback_oordelen_gelijk
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestExportContractvelden::test_export_leest_het_record_een_keer
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestExportContractvelden::test_verlopen_beoordeling_blijft_verlopen_met_echte_validatie
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestExportContractvelden::test_exportuitvoer_draagt_dezelfde_contractvelden_als_de_validator
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestExportContractvelden::test_expliciete_legacytekst_krijgt_dezelfde_tekstbasis
+PASSED tests/unit/services/test_def622_koppelingen_export_readback.py::TestExportContractvelden::test_aanvullende_exportdata_vervangt_geen_contractvelden
+PASSED tests/unit/ui/test_def622_expert_review_contextcontract.py::test_verouderd_snapshot_wordt_niet_vastgelegd
+PASSED tests/unit/ui/test_def622_expert_review_contextcontract.py::test_open_naamsignaal_is_zichtbaar_met_uitleg
+PASSED tests/unit/ui/test_def622_expert_review_contextcontract.py::test_beoordeling_vervalt_na_tekstwijziging
+PASSED tests/unit/ui/test_def622_expert_review_contextcontract.py::test_vastleggen_bewaart_beoordeling_ververst_versie_en_maakt_vaststelbaar
+exit=0

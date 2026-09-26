@@ -1,0 +1,67 @@
+[0;34m🔍 Running pre-commit checks...[0m
+Running standard pre-commit checks...
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...................................................Passed
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409.......................Passed
+Ruff linting......................................................(no files to check)Skipped
+Black formatting..................................................(no files to check)Skipped
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code..................................(no files to check)Skipped
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)................................(no files to check)Skipped
+Check forbidden patterns (streamlit in services)..................(no files to check)Skipped
+Check Streamlit anti-patterns (DEF-56 lessons)....................(no files to check)Skipped
+Warn on large files (>500 LOC)....................................(no files to check)Skipped
+Validate juridische_synoniemen.yaml...............................(no files to check)Skipped
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409...(no files to check)Skipped
+[feature/DEF-771-int02-contract-o1 5cf24c12c] docs(DEF-771): Leg onafhankelijke review en eindbewijs vast
+ 37 files changed, 48918 insertions(+)
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2-vervolgissue-concept-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2-vervolgissue-publicatie-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-app-concept-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-app-publicatie-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-skills-concept-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-skills-publicatie-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering-v4.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1-run3.json
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1-run3.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v5.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-correctie-r1-opdracht-claude.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-opdracht-codex-review-v2.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-r1-correctiereview-codex.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-failures.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-failures.xml
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-security-bestanden.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-security-volgorde.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-codex-review-r1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-codex-review-v2.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-eindverificatie-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-falende-nodeids.txt
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-loginherstel-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-na-r1-publicatie-v1.xml
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-na-r1.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-volledig-publicatie-v1.xml
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-volledig.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-commit.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-green.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-lint.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-red.log
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-bewijscontrole.json
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-diagnose-passages-na-r1.json
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-diagnose-passages-voor-r1.json
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-reviewdispositie-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-reviewdispositie-v2.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-testbevindingen-v1.md
+ create mode 100644 docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp6-bewijs-publicatieredactie-v1.md

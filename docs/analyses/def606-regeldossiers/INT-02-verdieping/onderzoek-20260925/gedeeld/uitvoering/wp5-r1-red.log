@@ -1,0 +1,230 @@
+$ .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_o1.py -p no:cacheprovider -q -rA
+F...........F.F.....F....F....F...                                       [100%]
+=================================== FAILURES ===================================
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid.-signalen8-Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid] _
+
+tekst = 'Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid.'
+signalen = ['\\bmoet\\b']
+passage = 'Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            # Het termlabel hoort bij de dragende zin (R1: geen ':'-grens).
+            (C02, [r"\bmoet\b"], C02[:-1]),
+            (C83, S1[1:3], C83),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+            (TUSSENZIN, [r"\bmoet\b"], TUSSENZIN[:-1]),
+            (OPSOMMING, [r"\bmoet\b"], OPSOMMING[:-1]),
+            (INGEBED, [r"\bindien\b"], INGEBED[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+        assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+>       assert HULP.replace("{zinsdeel}", passage) in reden
+E       assert "INT-02 — Nog te beoordelen. Beschrijft de passage 'Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." in 'INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zond...l ook passages zonder signaalwoord. Positie in de getoetste kern: 0–38 (tekenposities, nulgebaseerd, einde exclusief).'
+E        +  where "INT-02 — Nog te beoordelen. Beschrijft de passage 'Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." = <built-in method replace of str object at 0x736400300>('{zinsdeel}', 'Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid')
+E        +    where <built-in method replace of str object at 0x736400300> = "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk of afgeleid feit, of schrijft zij voor wat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord.".replace
+
+tests/unit/validation/test_def771_int02_o1.py:142: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht-signalen4-passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht] _
+
+tekst = 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht'
+signalen = ['\\bnaar\\s+eigen\\s+inzicht\\b', '\\bredelijk\\s+acht\\b']
+passage = 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            # Het termlabel hoort bij de dragende zin (R1: geen ':'-grens).
+            (C02, [r"\bmoet\b"], C02[:-1]),
+            (C83, S1[1:3], C83),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+            (TUSSENZIN, [r"\bmoet\b"], TUSSENZIN[:-1]),
+            (OPSOMMING, [r"\bmoet\b"], OPSOMMING[:-1]),
+            (INGEBED, [r"\bindien\b"], INGEBED[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+        assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+>       assert HULP.replace("{zinsdeel}", passage) in reden
+E       assert "INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht op...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." in 'INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zond...ook passages zonder signaalwoord. Positie in de getoetste kern: 20–100 (tekenposities, nulgebaseerd, einde exclusief).'
+E        +  where "INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht op...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." = <built-in method replace of str object at 0x736400300>('{zinsdeel}', 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht')
+E        +    where <built-in method replace of str object at 0x736400300> = "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk of afgeleid feit, of schrijft zij voor wat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord.".replace
+
+tests/unit/validation/test_def771_int02_o1.py:142: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.-signalen3-transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken] _
+
+tekst = 'transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.'
+signalen = ['\\bmoet\\b']
+passage = 'transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            # Het termlabel hoort bij de dragende zin (R1: geen ':'-grens).
+            (C02, [r"\bmoet\b"], C02[:-1]),
+            (C83, S1[1:3], C83),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+            (TUSSENZIN, [r"\bmoet\b"], TUSSENZIN[:-1]),
+            (OPSOMMING, [r"\bmoet\b"], OPSOMMING[:-1]),
+            (INGEBED, [r"\bindien\b"], INGEBED[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+        assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+>       assert HULP.replace("{zinsdeel}", passage) in reden
+E       assert "INT-02 — Nog te beoordelen. Beschrijft de passage 'transitie-eis: eis die een organisatie moet ondersteunen om migrat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." in 'INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zond...ook passages zonder signaalwoord. Positie in de getoetste kern: 15–130 (tekenposities, nulgebaseerd, einde exclusief).'
+E        +  where "INT-02 — Nog te beoordelen. Beschrijft de passage 'transitie-eis: eis die een organisatie moet ondersteunen om migrat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." = <built-in method replace of str object at 0x736400300>('{zinsdeel}', 'transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken')
+E        +    where <built-in method replace of str object at 0x736400300> = "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk of afgeleid feit, of schrijft zij voor wat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord.".replace
+
+tests/unit/validation/test_def771_int02_o1.py:142: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag.-signalen9-Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag] _
+
+tekst = 'Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag.'
+signalen = ['\\bindien\\b']
+passage = 'Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            # Het termlabel hoort bij de dragende zin (R1: geen ':'-grens).
+            (C02, [r"\bmoet\b"], C02[:-1]),
+            (C83, S1[1:3], C83),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+            (TUSSENZIN, [r"\bmoet\b"], TUSSENZIN[:-1]),
+            (OPSOMMING, [r"\bmoet\b"], OPSOMMING[:-1]),
+            (INGEBED, [r"\bindien\b"], INGEBED[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+        assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+>       assert HULP.replace("{zinsdeel}", passage) in reden
+E       assert "INT-02 — Nog te beoordelen. Beschrijft de passage 'Persoon die, indien het inkomen lager is dan de grens, recht heeft...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." in 'INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zond... ook passages zonder signaalwoord. Positie in de getoetste kern: 13–53 (tekenposities, nulgebaseerd, einde exclusief).'
+E        +  where "INT-02 — Nog te beoordelen. Beschrijft de passage 'Persoon die, indien het inkomen lager is dan de grens, recht heeft...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." = <built-in method replace of str object at 0x736400300>('{zinsdeel}', 'Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag')
+E        +    where <built-in method replace of str object at 0x736400300> = "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk of afgeleid feit, of schrijft zij voor wat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord.".replace
+
+tests/unit/validation/test_def771_int02_o1.py:142: AssertionError
+________________ test_herhaalde_passage_blijft_onderscheidbaar _________________
+
+    def test_herhaalde_passage_blijft_onderscheidbaar():
+        # Binnen één volledige zin delen de markers één vraag (R1).
+        tekst = "handeling die moet volgen, handeling die moet volgen"
+>       assert _passages(_evalueer(tekst), tekst) == [(tekst, 0, 52)]
+E       AssertionError: assert [('handeling ...gen', 27, 52)] == [('handeling ...lgen', 0, 52)]
+E         
+E         At index 0 diff: ('handeling die moet volgen', 0, 25) != ('handeling die moet volgen, handeling die moet volgen', 0, 52)
+E         Left contains one more item: ('handeling die moet volgen', 27, 52)
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:171: AssertionError
+_ test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Handeling die moet, na toestemming van de rechter, worden verricht.-signalen7-Handeling die moet, na toestemming van de rechter, worden verricht] _
+
+tekst = 'Handeling die moet, na toestemming van de rechter, worden verricht.'
+signalen = ['\\bmoet\\b']
+passage = 'Handeling die moet, na toestemming van de rechter, worden verricht'
+
+    @pytest.mark.parametrize(
+        ("tekst", "signalen", "passage"),
+        [
+            (C04, [r"\bindien\b"], C04[:-1]),
+            (C50, [r"\bindien\b"], C50[:-1]),
+            (C54, [r"\balleen als\b"], C54[:-1]),
+            # Het termlabel hoort bij de dragende zin (R1: geen ':'-grens).
+            (C02, [r"\bmoet\b"], C02[:-1]),
+            (C83, S1[1:3], C83),
+            (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
+            (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+            (TUSSENZIN, [r"\bmoet\b"], TUSSENZIN[:-1]),
+            (OPSOMMING, [r"\bmoet\b"], OPSOMMING[:-1]),
+            (INGEBED, [r"\bindien\b"], INGEBED[:-1]),
+        ],
+    )
+    def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
+        uitkomst = _evalueer(tekst)
+        assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
+        assert uitkomst.score is None
+        assert sorted(_signalen(uitkomst)) == sorted(signalen)
+        reden = uitkomst.reason or ""
+        assert reden.startswith(f"INT-02 — Toetsvraag: {INT02.get('toetsvraag')} ")
+>       assert HULP.replace("{zinsdeel}", passage) in reden
+E       assert "INT-02 — Nog te beoordelen. Beschrijft de passage 'Handeling die moet, na toestemming van de rechter, worden verricht...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." in 'INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zond...l ook passages zonder signaalwoord. Positie in de getoetste kern: 0–18 (tekenposities, nulgebaseerd, einde exclusief).'
+E        +  where "INT-02 — Nog te beoordelen. Beschrijft de passage 'Handeling die moet, na toestemming van de rechter, worden verricht...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord." = <built-in method replace of str object at 0x736400300>('{zinsdeel}', 'Handeling die moet, na toestemming van de rechter, worden verricht')
+E        +    where <built-in method replace of str object at 0x736400300> = "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk of afgeleid feit, of schrijft zij voor wat...oud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord.".replace
+
+tests/unit/validation/test_def771_int02_o1.py:142: AssertionError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_posities_in_getoetste_kern_zonder_broncitaat
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-True-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Getal dat even is indien het zonder rest door twee deelbaar is.-signalen0-Getal dat even is indien het zonder rest door twee deelbaar is]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Verplichting die een partij moet nakomen.-signalen6-Verplichting die een partij moet nakomen]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven.-signalen2-Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-signalen1-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-False-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_record_s1_en_leeshulp
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-False-kern en context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_markergrenzen_kan_besluiten_en_dient_te
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[beslisregel: Algoritme waarvoor oordeelsvorming nodig is.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.-signalen5-Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[Voorwerp dat dient als ondersteuning.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_onzekere_grens_citeert_de_volledige_kern
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[De medewerker laat de aanvrager toe.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Toegang:-True-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_met_context_geeft_passagehulp_zonder_oordeel
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid.-signalen8-Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht-signalen4-passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.-signalen3-transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag.-signalen9-Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_herhaalde_passage_blijft_onderscheidbaar
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Handeling die moet, na toestemming van de rechter, worden verricht.-signalen7-Handeling die moet, na toestemming van de rechter, worden verricht]
+exit=1

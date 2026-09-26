@@ -1,0 +1,46 @@
+# inhoud /tmp/def771_zipcontrole.py:
+"""Vergelijk de twee geregenereerde ZIP's met de skillbron en met de main-ZIP."""
+
+import io
+import subprocess
+import sys
+import zipfile
+from pathlib import Path
+
+MAIN = "770de55ece429fec826c9d53fd873a109ed8e670"
+fout = 0
+
+
+def leden(data):
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        return {i.filename: z.read(i) for i in z.infolist() if not i.is_dir()}
+
+
+def main_blob(pad):
+    return subprocess.run(["git", "show", f"{MAIN}:{pad}"], capture_output=True, check=True).stdout
+
+
+for skill in ("definitie-toetsregels", "definitie-nederlandse-definities"):
+    zp = f"cowork-exports/{skill}.zip"
+    nu = leden(Path(zp).read_bytes())
+    getrackt = subprocess.run(["git", "ls-files", f"skills/{skill}"], capture_output=True, text=True, check=True).stdout.split()
+    bron = {p[len("skills/"):]: Path(p).read_bytes() for p in getrackt}
+    gelijk = nu == bron
+    fout += not gelijk
+    oud = leden(main_blob(zp))
+    anders = sorted(k for k in set(nu) | set(oud) if nu.get(k) != oud.get(k))
+    print(f"{zp}: leden={len(nu)} gelijk_aan_bron={gelijk} verschil_met_main={anders}")
+
+for alias in ("toetsregels", "nederlandse-definities"):
+    zp = f"cowork-exports/{alias}.zip"
+    namen = leden(Path(zp).read_bytes())
+    heeft = [k for k in namen if k.endswith("int02-beslisregel.md")]
+    print(f"{zp} (inkomend main, niet in opdracht): int02-contract aanwezig={bool(heeft)}")
+sys.exit(1 if fout else 0)
+(cwd /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills)
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python /tmp/def771_zipcontrole.py
+cowork-exports/definitie-toetsregels.zip: leden=13 gelijk_aan_bron=True verschil_met_main=['definitie-toetsregels/SKILL.md', 'definitie-toetsregels/reference.md', 'definitie-toetsregels/references/int02-beslisregel.md']
+cowork-exports/definitie-nederlandse-definities.zip: leden=13 gelijk_aan_bron=True verschil_met_main=['definitie-nederlandse-definities/SKILL.md', 'definitie-nederlandse-definities/reference.md', 'definitie-nederlandse-definities/references/int02-beslisregel.md']
+cowork-exports/toetsregels.zip (inkomend main, niet in opdracht): int02-contract aanwezig=False
+cowork-exports/nederlandse-definities.zip (inkomend main, niet in opdracht): int02-contract aanwezig=False
+exit=0

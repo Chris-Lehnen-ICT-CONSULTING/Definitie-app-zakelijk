@@ -1,0 +1,142 @@
+# WP3 transport RED v2 (na gerichte subschema-validatie; v1: wp3-transport-red.log) — 2026-09-25T22:31:32Z
+# productiebestanden nog ongewijzigd:
+fa1e5d93c48617cba714af9ac3d97652f5287e3dba427a29c42975eee08f0e32  src/services/validation/modular_validation_service.py
+06ea54c753ef714beb4fe9f59318079c1af4b646c624ed9475759254307e1d49  src/services/validation/interfaces.py
+065e725c1786155e647674c93ad37eaf04da7fdb76518a85c0cb64aeb2030ec5  docs/architectuur/contracts/schemas/validation_result.schema.json
+# commando: .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_o1.py tests/unit/ui/test_def771_int02_validation_view.py -v -ra -p no:cacheprovider
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=1241067466
+rootdir: /Users/chrislehnen/Projecten/Definitie-app
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 33 items
+
+tests/unit/ui/test_def771_int02_validation_view.py .F                    [  6%]
+tests/unit/validation/test_def771_int02_o1.py .F...............FF...FF.. [ 84%]
+F....                                                                    [100%]
+
+=================================== FAILURES ===================================
+______________ test_niet_uitgevoerde_int02_toont_geen_reviewtekst ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10bbba330>
+
+    async def test_niet_uitgevoerde_int02_toont_geen_reviewtekst(monkeypatch):
+        result, shown = await _render(monkeypatch, {}, "def771b")
+        assert result["rule_statuses"]["INT-02"] == "not_evaluated"
+        assert not any(t.startswith("INT-02") for t in shown["text"])
+        # De exacte NE-melding is wél zichtbaar, via de bestaande weergave van
+        # deeluitkomsten (waarschuwing, geen fout en geen reviewvraag).
+>       assert "**INT-02** · ⏸️ Niet beoordeeld" in "\n".join(shown["markdown"])
+E       AssertionError: assert '**INT-02** · ⏸️ Niet beoordeeld' in '**Totaalscore:** niet beschikbaar — de app toont per regel het oordeel en de beoordelingsdekking, geen cijfer (DEF-74...uitgevoerd (geen beoordeling aangeleverd)_\n**INT-01** · 🟠 Nog te beoordelen — zonder cijfer (uitkomst met motivering)'
+E        +  where '**Totaalscore:** niet beschikbaar — de app toont per regel het oordeel en de beoordelingsdekking, geen cijfer (DEF-74...uitgevoerd (geen beoordeling aangeleverd)_\n**INT-01** · 🟠 Nog te beoordelen — zonder cijfer (uitkomst met motivering)' = <built-in method join of str object at 0x102f4cbe8>(['**Totaalscore:** niet beschikbaar — de app toont per regel het oordeel en de beoordelingsdekking, geen cijfer (DEF-7...rd (geen beoordeling aangeleverd)_', '**ESS-03** · 🟠 Nog te beoordelen — zonder cijfer (uitkomst met motivering)', ...])
+E        +    where <built-in method join of str object at 0x102f4cbe8> = '\n'.join
+
+tests/unit/ui/test_def771_int02_validation_view.py:73: AssertionError
+________ test_ne_reist_publiek_mee_in_rule_results[C06--context0-kern] _________
+
+casus = 'C06', tekst = ''
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_reist_publiek_mee_in_rule_results(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       detail = resultaat["rule_results"]["INT-02"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'INT-02'
+
+tests/unit/validation/test_def771_int02_o1.py:255: KeyError
+_ test_ne_reist_publiek_mee_in_rule_results[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context] _
+
+casus = 'C56'
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+context = {}, grond = 'context'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_reist_publiek_mee_in_rule_results(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       detail = resultaat["rule_results"]["INT-02"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'INT-02'
+
+tests/unit/validation/test_def771_int02_o1.py:255: KeyError
+_ test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context] _
+
+casus = 'C56'
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+context = {}, grond = 'context'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.1.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.1.0
+E         ?   ^
+
+tests/unit/validation/test_def771_int02_o1.py:272: AssertionError
+__ test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern] ___
+
+casus = 'C23', tekst = 'Toegang:'
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.1.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.1.0
+E         ?   ^
+
+tests/unit/validation/test_def771_int02_o1.py:272: AssertionError
+______ test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern] _______
+
+casus = 'C06', tekst = ''
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.1.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.1.0
+E         ?   ^
+
+tests/unit/validation/test_def771_int02_o1.py:272: AssertionError
+____ test_ne_reist_publiek_mee_in_rule_results[C23-Toegang:-context1-kern] _____
+
+casus = 'C23', tekst = 'Toegang:'
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_reist_publiek_mee_in_rule_results(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       detail = resultaat["rule_results"]["INT-02"]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'INT-02'
+
+tests/unit/validation/test_def771_int02_o1.py:255: KeyError
+=========================== short test summary info ============================
+FAILED tests/unit/ui/test_def771_int02_validation_view.py::test_niet_uitgevoerde_int02_toont_geen_reviewtekst
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C06--context0-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C23-Toegang:-context1-kern]
+========================= 7 failed, 26 passed in 1.09s =========================
+# exitstatus: 1

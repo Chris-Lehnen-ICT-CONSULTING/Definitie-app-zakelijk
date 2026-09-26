@@ -374,12 +374,18 @@ INT-02:
   required_fields: [herkenbaar_patronen]
   issue: DEF-624
   reden: >
-    het gedocumenteerde paar verschilt uitsluitend in het modale
-    werkwoord moet, wat de norm van ARAI-04 is; beslisregel-herkenning
-    blijft daarnaast een inhoudelijk oordeel.
+    DEF-771: de brede norm vraagt of een passage een kenmerk beschrijft of
+    voorschrijft wat iemand moet doen of afwegen. Dat hangt af van de
+    functie (C24/C25): "indien tijdig betaald" is een criterium bij de
+    criteriumlezing en een voorschrift bij een bewezen behandelinstructie.
+    Het signaalwoord beslist dat niet; de beoordeling blijft menselijk.
   probe:
     begrip: korting
     tekst: "korting: verlaging indien tijdig betaald"
+    # Zonder context is INT-02 niet uitgevoerd; context laat de open
+    # beoordeling werkelijk draaien.
+    context:
+      organisatorische_context: [Synthetische Organisatie]
 
 INT-03:
   # DEF-772 (WP3): AI-verwijzingsbeoordeling (evaluator

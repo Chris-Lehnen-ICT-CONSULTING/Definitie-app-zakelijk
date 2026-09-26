@@ -1,0 +1,10 @@
+All checks passed!
+ruff exit=0
+All done! ✨ 🍰 ✨
+black exit=0
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+405 files would be left unchanged.
+make lint exit=0

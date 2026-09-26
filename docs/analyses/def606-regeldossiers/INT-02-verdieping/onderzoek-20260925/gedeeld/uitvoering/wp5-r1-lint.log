@@ -1,0 +1,14 @@
+$ ruff check src/services/validation/evaluators/judgment_review.py tests/unit/validation/test_def771_int02_o1.py
+All checks passed!
+exit=0
+$ black --check src/services/validation/evaluators/judgment_review.py tests/unit/validation/test_def771_int02_o1.py
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+exit=0
+$ make lint
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+405 files would be left unchanged.
+exit=0

@@ -19,6 +19,10 @@ from types import MappingProxyType
 from typing import Any
 
 from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
+from services.validation.evaluators.judgment_review import (
+    int02_niet_uitgevoerd,
+    int02_niet_uitgevoerd_uitkomst,
+)
 from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
 from services.validation.evaluators.registry import get_default_registry
 from services.validation.evaluators.sentence_boundary import (
@@ -1459,6 +1463,14 @@ class ModularValidationService:
         beschikbaar = self._available_inputs(ctx)
         ontbrekend = missing_inputs(record, beschikbaar)
         if ontbrekend:
+            # DEF-771: INT-02 geeft de exacte NE-melding (kern en/of context).
+            if record.rule_id.upper() == "INT-02":
+                melding = int02_niet_uitgevoerd(
+                    ctx.cleaned_text,
+                    RequiredInput.CONTEXT_LISTS not in ontbrekend,
+                )
+                if melding:
+                    return int02_niet_uitgevoerd_uitkomst(melding, record)
             namen = ", ".join(sorted(item.value for item in ontbrekend))
             return EvaluationOutcome.not_evaluated(
                 f"vereiste invoer ontbreekt: {namen}"
@@ -1619,7 +1631,13 @@ class ModularValidationService:
         """
         rule_statuses[code] = outcome.status.value
 
-        if rule_results is not None and geen_cijfer:
+        # DEF-771 (contract 2.2.0): een niet-uitgevoerde regel met een eigen
+        # deeluitkomst (INT-02: de exacte NE-melding) reist publiek mee.
+        ne_met_deeluitkomst = (
+            outcome.status is ResultStatus.NOT_EVALUATED
+            and "rule_result" in outcome.metadata
+        )
+        if rule_results is not None and (geen_cijfer or ne_met_deeluitkomst):
             self._boek_rule_result(code, outcome, rule_results)
 
         if outcome.status is ResultStatus.PASS:

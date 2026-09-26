@@ -1,0 +1,353 @@
+# WP1 RED — 2026-09-25T18:29:44Z
+# cwd: /Users/chrislehnen/Projecten/Definitie-app
+# app HEAD: 0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d
+# skills HEAD: 1e27a2da7668437423af3962cce48af5f1bc591b
+# commando: DEF771_SKILLS_ROOT=/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills .venv/bin/python -m pytest tests/unit/validation/test_def771_int02_contract.py -v -ra -p no:cacheprovider
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=2630572811
+rootdir: /Users/chrislehnen/Projecten/Definitie-app
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 14 items
+
+tests/unit/validation/test_def771_int02_contract.py FFEEFFFFEFEE.E       [100%]
+
+==================================== ERRORS ====================================
+____ ERROR at setup of test_contract_bevat_voorbeelden_per_groep[Positief] _____
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    @pytest.fixture(scope="module")
+    def contract(skills: Path) -> str:
+>       return (skills / CONTRACT).read_text(encoding="utf-8")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+______ ERROR at setup of test_contract_bevat_n_g_t_h_en_geen_herstelroute ______
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    @pytest.fixture(scope="module")
+    def contract(skills: Path) -> str:
+>       return (skills / CONTRACT).read_text(encoding="utf-8")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+___ ERROR at setup of test_contract_draagt_versie_en_datum_gelijk_aan_record ___
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    @pytest.fixture(scope="module")
+    def contract(skills: Path) -> str:
+>       return (skills / CONTRACT).read_text(encoding="utf-8")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+____ ERROR at setup of test_contract_bevat_voorbeelden_per_groep[Negatief] _____
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    @pytest.fixture(scope="module")
+    def contract(skills: Path) -> str:
+>       return (skills / CONTRACT).read_text(encoding="utf-8")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+______ ERROR at setup of test_contract_bevat_voorbeelden_per_groep[Grens] ______
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    @pytest.fixture(scope="module")
+    def contract(skills: Path) -> str:
+>       return (skills / CONTRACT).read_text(encoding="utf-8")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+_ ERROR at setup of test_record_teksten_staan_letterlijk_in_het_canonieke_contract _
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    @pytest.fixture(scope="module")
+    def contract(skills: Path) -> str:
+>       return (skills / CONTRACT).read_text(encoding="utf-8")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+=================================== FAILURES ===================================
+___ test_skill_md_bevat_gericht_int02_blok[definitie-nederlandse-definities] ___
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+skill = 'definitie-nederlandse-definities'
+
+    @pytest.mark.parametrize(
+        "skill", ["definitie-toetsregels", "definitie-nederlandse-definities"]
+    )
+    def test_skill_md_bevat_gericht_int02_blok(skills: Path, skill: str):
+        tekst = (skills / skill / "SKILL.md").read_text("utf-8")
+        blok = tekst.split("\n## INT-02 — begripscriterium tegenover beslisregel\n", 1)
+>       assert len(blok) == 2
+E       assert 1 == 2
+E        +  where 1 = len(['---\nname: nederlandse-definities\ndescription: "Schrijf of formuleer een Nederlandse definitie volgens ISO 704/1087...act bij aangeleverde bronnen); 0.2 — ALG-131 — ALG-329 progressive disclosure — DEF-744 contextvermelding (CON-01)*\n'])
+
+tests/unit/validation/test_def771_int02_contract.py:186: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+________________ test_record_is_gebonden_aan_de_contractversie _________________
+
+    def test_record_is_gebonden_aan_de_contractversie():
+>       assert _record()["contractversie"] == CONTRACTVERSIE
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'contractversie'
+
+tests/unit/validation/test_def771_int02_contract.py:108: KeyError
+_______________________ test_reference_zinnen_vervangen ________________________
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    def test_reference_zinnen_vervangen(skills: Path):
+        toetsregels = (skills / "definitie-toetsregels/reference.md").read_text("utf-8")
+>       assert f"| INT-02 | Geen beslisregel | midden | {REF_TOETSREGELS} |" in toetsregels
+E       AssertionError: assert '| INT-02 | Geen beslisregel | midden | Beschrijf begripscriteria en onderbouwde afleidingen; geef geen actorvoorschri...n; een bevoegdheid, beslissing of rechtsgevolg als kenmerk beschrijven mag. N/G/T/H: references/int02-beslisregel.md |' in '# Toetsregels — Volledige Referentie\n\n> On-demand referentie bij de skill `definitie-toetsregels`. Bevat de volledi...ie: `src/services/orchestrators/validation_orchestrator_v2.py`\n- Cache (TTL 1 uur): `src/toetsregels/rule_cache.py`\n'
+
+tests/unit/validation/test_def771_int02_contract.py:171: AssertionError
+_____________ test_record_draagt_exacte_teksten_uit_synthese_par6 ______________
+
+    def test_record_draagt_exacte_teksten_uit_synthese_par6():
+        data = _record()
+>       assert data["uitleg"] == UITLEG
+E       AssertionError: assert 'Een definiti... voorwaarden.' == 'Een definiti... overtreding.'
+E         
+E         - Een definitie beschrijft het begrip met kenmerken die bepalen wat ertoe behoort; zij is geen handelingsvoorschrift of procedure voor een actor en bevat geen discretionaire beslisregel. Criteria, voorwaarden en deterministische afleidingen zijn toegestaan, ook in voorwaardelijke vorm. Een bevoegdheid, beslissing, procedure of constitutief rechtsgevolg als begripskenmerk beschrijven is op zichzelf geen overtreding.
+E         + Een definitie bevat geen beslisregels of voorwaarden.
+
+tests/unit/validation/test_def771_int02_contract.py:80: AssertionError
+_______ test_record_voegt_uitsluitend_de_functievoorbeelden_uit_par6_toe _______
+
+    def test_record_voegt_uitsluitend_de_functievoorbeelden_uit_par6_toe():
+        data = _record()
+>       assert data["goede_voorbeelden"] == [ASTRA_JUIST, C10, C05]
+E       AssertionError: assert ['transitie-e...jk te maken.'] == ['transitie-e...deelbaar is.']
+E         
+E         Right contains 2 more items, first extra item: 'stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_contract.py:103: AssertionError
+________ test_skill_md_bevat_gericht_int02_blok[definitie-toetsregels] _________
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+skill = 'definitie-toetsregels'
+
+    @pytest.mark.parametrize(
+        "skill", ["definitie-toetsregels", "definitie-nederlandse-definities"]
+    )
+    def test_skill_md_bevat_gericht_int02_blok(skills: Path, skill: str):
+        tekst = (skills / skill / "SKILL.md").read_text("utf-8")
+        blok = tekst.split("\n## INT-02 — begripscriterium tegenover beslisregel\n", 1)
+>       assert len(blok) == 2
+E       assert 1 == 2
+E        +  where 1 = len(['---\nname: toetsregels\ndescription: "Valideer en score een definitie tegen de 53 toetsregels (9 categorieën); gener...re: regeltabellen + detail → reference.md) — DEF-744 (CON-01 contextvermelding: uitkomst per treffer, geen cijfer)*\n'])
+
+tests/unit/validation/test_def771_int02_contract.py:186: AssertionError
+______________ test_kopie_in_nederlandse_definities_is_bytegelijk ______________
+
+skills = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills')
+
+    def test_kopie_in_nederlandse_definities_is_bytegelijk(skills: Path):
+>       assert (skills / KOPIE).read_bytes() == (skills / CONTRACT).read_bytes()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def771_int02_contract.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:625: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/references/int02-beslisregel.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/references/int02-beslisregel.md'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+=========================== short test summary info ============================
+ERROR tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_voorbeelden_per_groep[Positief]
+ERROR tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_n_g_t_h_en_geen_herstelroute
+ERROR tests/unit/validation/test_def771_int02_contract.py::test_contract_draagt_versie_en_datum_gelijk_aan_record
+ERROR tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_voorbeelden_per_groep[Negatief]
+ERROR tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_voorbeelden_per_groep[Grens]
+ERROR tests/unit/validation/test_def771_int02_contract.py::test_record_teksten_staan_letterlijk_in_het_canonieke_contract
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_skill_md_bevat_gericht_int02_blok[definitie-nederlandse-definities]
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_record_is_gebonden_aan_de_contractversie
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_reference_zinnen_vervangen
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_record_draagt_exacte_teksten_uit_synthese_par6
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_record_voegt_uitsluitend_de_functievoorbeelden_uit_par6_toe
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_skill_md_bevat_gericht_int02_blok[definitie-toetsregels]
+FAILED tests/unit/validation/test_def771_int02_contract.py::test_kopie_in_nederlandse_definities_is_bytegelijk
+==================== 7 failed, 1 passed, 6 errors in 0.82s =====================
+# exitstatus: 1

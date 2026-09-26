@@ -14,6 +14,9 @@ Twaalf regels hebben geen betrouwbare automatische toets:
   passagehulp: een getal, termijn of signaalwoord bewijst geen toetsbaarheid
   en het ontbreken ervan is geen gebrek — kwalitatieve criteria kunnen
   volstaan. De regel was al reviewplichtig (`excluded_from_score`).
+- DEF-771: INT-02 draagt een eigen passagehulp (O1): toetsvraag, per passage
+  een neutrale vraag met citaat en positie in de getoetste kern; zonder kern
+  of context `not_evaluated`. Signalen blijven leeshulp (B3).
 
 ESS-03 (telbaarheid) liep hier van 18 tot 21 september 2026 (DEF-766, eerste
 uitvoeringsfase); sinds het besluit van 19/21 september beoordeelt de app die
@@ -50,15 +53,124 @@ from __future__ import annotations
 
 import re
 
+from domain.int01.zinsgrenzen import segmenteer
 from services.validation.evaluators.base import (
     EvaluationDeps,
     EvaluationOutcome,
 )
 from services.validation.types_internal import EvaluationContext
-from toetsregels.runtime_contract import EvaluatorType, RuleRecord
+from toetsregels.runtime_contract import (
+    EvaluatorType,
+    RequiredInput,
+    ResultStatus,
+    RuleRecord,
+)
 from validation.additional_patterns import get_additional_patterns
 
-__all__ = ["JudgmentReviewEvaluator"]
+__all__ = [
+    "JudgmentReviewEvaluator",
+    "int02_niet_uitgevoerd",
+    "int02_niet_uitgevoerd_uitkomst",
+]
+
+# DEF-771: exacte meldingen uit synthese v5 §4 (skillcontract def771-int02/2).
+_INT02_HULP = (
+    "INT-02 — Nog te beoordelen. Beschrijft de passage '{zinsdeel}' een kenmerk "
+    "of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg "
+    "de functie vast met grond uit de kern, de bevestigde bedoeling of een "
+    "bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is "
+    "geen oordeel; beoordeel ook passages zonder signaalwoord."
+)
+_INT02_ZONDER_SIGNAAL = (
+    "INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of "
+    "afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op "
+    "begripscriterium/afleiding tegenover voorschrift of afweging."
+)
+_INT02_NE = (
+    "INT-02 — Niet uitgevoerd: {kern/context} ontbreekt. Er is geen inhoudelijk "
+    "oordeel."
+)
+#: Alleen een termlabel zoals 'Toegang:' is geen definitiekern (C23).
+_LABEL_ZONDER_KERN = re.compile(r"[^:.!?;\n]{1,80}:")
+
+
+def int02_niet_uitgevoerd(kern: str | None, context_aanwezig: bool) -> str | None:
+    """De exacte NE-melding bij lege kern, los label of ontbrekende context."""
+    tekst = (kern or "").strip()
+    kern_ontbreekt = not tekst or bool(_LABEL_ZONDER_KERN.fullmatch(tekst))
+    ontbreekt = [
+        naam
+        for naam, weg in (("kern", kern_ontbreekt), ("context", not context_aanwezig))
+        if weg
+    ]
+    if not ontbreekt:
+        return None
+    return _INT02_NE.replace("{kern/context}", " en ".join(ontbreekt))
+
+
+def int02_niet_uitgevoerd_uitkomst(
+    melding: str, record: RuleRecord
+) -> EvaluationOutcome:
+    """`not_evaluated` met de NE-melding als publieke deeluitkomst (contract 2.2.0).
+
+    Zonder oordeel: score en vingerafdruk null, geen review. De contractversie
+    komt uit het actieve INT-02-record. De service boekt `rule_result` in
+    `rule_results`, zodat de melding de gebruiker bereikt.
+    """
+    grond = melding.split("Niet uitgevoerd: ", 1)[1].split(" ontbreekt.", 1)[0]
+    detail = {
+        "status": "not_evaluated",
+        "score": None,
+        "contract_version": record.get("contractversie"),
+        "fingerprint": None,
+        "parts": [
+            {
+                "id": "invoer",
+                "status": "not_evaluated",
+                "evidence": None,
+                "context_value": None,
+                "field": None,
+                "position": None,
+                "reason": melding,
+                "action": f"Lever de ontbrekende {grond} aan en toets opnieuw.",
+            }
+        ],
+        "review": None,
+    }
+    return EvaluationOutcome(
+        status=ResultStatus.NOT_EVALUATED,
+        reason=melding,
+        metadata={"rule_result": detail},
+    )
+
+
+def _int02_passage(kern: str, start: int, einde: int) -> tuple[int, int]:
+    """De volledige dragende zin rond een treffer, als (start, einde) in `kern`.
+
+    Grenzen: uitsluitend zekere zinsgrenzen van de INT-01-segmentatie. Een
+    komma, puntkomma of dubbele punt is geen grens: een tussenzin, opsomming
+    of ingebed criterium hoort bij de dragende zin (review WP5, R1). Bij een
+    onzekere zinsgrens, of als alleen het markerwoord overblijft, wordt de
+    volledige kern geciteerd.
+    """
+    segmentatie = segmenteer(kern)
+    if segmentatie is None or segmentatie.onzekere_grenzen:
+        return _bijgesneden(kern, 0, len(kern))
+    grenzen = {grens.positie for grens in segmentatie.zekere_grenzen}
+    begin = max((g + 1 for g in grenzen if g < start), default=0)
+    eind = min((g for g in grenzen if g >= einde), default=len(kern))
+    passage = _bijgesneden(kern, begin, eind)
+    if kern[passage[0] : passage[1]].casefold() == kern[start:einde].casefold():
+        return _bijgesneden(kern, 0, len(kern))
+    return passage
+
+
+def _bijgesneden(kern: str, begin: int, eind: int) -> tuple[int, int]:
+    while begin < eind and kern[begin].isspace():
+        begin += 1
+    while eind > begin and (kern[eind - 1].isspace() or kern[eind - 1] in ".!?;:,"):
+        eind -= 1
+    return begin, eind
 
 
 class JudgmentReviewEvaluator:
@@ -79,7 +191,51 @@ class JudgmentReviewEvaluator:
             reden = self._ess02_reden(ctx, signalen)
         elif code == "ESS-04":
             reden = self._ess04_reden(record, ctx, signalen)
+        elif code == "INT-02":
+            niet_uitgevoerd = int02_niet_uitgevoerd(
+                ctx.cleaned_text, deps.has(RequiredInput.CONTEXT_LISTS)
+            )
+            if niet_uitgevoerd:
+                return int02_niet_uitgevoerd_uitkomst(niet_uitgevoerd, record)
+            reden = self._int02_reden(toetsvraag, ctx, deps)
         return EvaluationOutcome.review_required(reden, signals=signalen)
+
+    @staticmethod
+    def _int02_reden(
+        toetsvraag: str, ctx: EvaluationContext, deps: EvaluationDeps
+    ) -> str:
+        """DEF-771 (B2/B3, O1): toetsvraag plus per passage de neutrale vraag.
+
+        Signalen zijn leeshulp: een treffer is nooit 'voldoet niet', geen
+        treffer nooit 'voldoet'. Het citaat komt uit de getoetste kern
+        (`cleaned_text`) en de positie slaat op diezelfde tekst; wijkt die af
+        van de aangeleverde tekst, dan staat dat erbij. Meerdere markers in één
+        zin delen één vraag; gelijke zinnen op andere posities niet.
+        """
+        kern = ctx.cleaned_text or ""
+        reden = f"INT-02 — Toetsvraag: {toetsvraag}"
+        patronen = deps.pattern_cache.get("__judgment__INT-02") or []
+        spans = sorted(
+            {
+                _int02_passage(kern, hit.start(), hit.end())
+                for patroon in patronen
+                for hit in patroon.finditer(kern)
+            }
+        )
+        if not spans:
+            return f"{reden} {_INT02_ZONDER_SIGNAAL}"
+        for start, einde in spans:
+            reden += (
+                f" {_INT02_HULP.replace('{zinsdeel}', kern[start:einde])} Positie in "
+                f"de getoetste kern: {start}–{einde} (tekenposities, nulgebaseerd, "
+                "einde exclusief)."
+            )
+        if kern != ctx.raw_text:
+            reden += (
+                " De posities gelden voor de getoetste kern, die afwijkt van de "
+                "aangeleverde tekst."
+            )
+        return reden
 
     @classmethod
     def _ess01_reden(cls, ctx: EvaluationContext, signalen: tuple[str, ...]) -> str:

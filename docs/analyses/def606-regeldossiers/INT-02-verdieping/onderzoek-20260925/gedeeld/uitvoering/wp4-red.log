@@ -1,0 +1,40 @@
+$ .venv/bin/python -m pytest tests/unit/validation/test_v2_golden_int_more.py::test_int02_no_decision_rules_fail -p no:cacheprovider -q -rA
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________________ test_int02_no_decision_rules_fail _______________________
+
+    @pytest.mark.asyncio
+    async def test_int02_no_decision_rules_fail():
+        svc = ModularValidationService(get_toetsregel_manager(), None, None)
+        res = await svc.validate_definition(
+            begrip="toegang",
+            text="Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.",
+            ontologische_categorie=None,
+            context={},
+        )
+        # INT-02 is sinds DEF-624 een oordeelregel; het voorwaardelijke patroon
+        # is een reviewersignaal, geen bewijs van een beslisregel.
+        review = {r["rule_id"]: r for r in res.get("review_required", [])}
+>       assert "INT-02" in review, res
+E       AssertionError: {'acceptance_gate': {'acceptable': False, 'gates_failed': ['critical_violations=5', 'overall_score_unavailable', 'juri...tion_coverage': {'coverage_ratio': 0.6038, 'error': 0, 'evaluated': 32, 'failed': 7, ...}, 'is_acceptable': False, ...}
+E       assert 'INT-02' in {'ARAI-03': {'category': 'taal', 'reason': 'Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorde...eling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig.', 'rule_id': 'ESS-02', 'signals': []}, ...}
+
+tests/unit/validation/test_v2_golden_int_more.py:21: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_v2_golden_int_more.py::test_int02_no_decision_rules_fail
+exit=1
+
+$ .venv/bin/python -m pytest tests/unit/validation/test_rule_runtime_matrix.py -k INT-02 -p no:cacheprovider -q -rA
+....                                                                     [100%]
+==================================== PASSES ====================================
+_______ TestMatrixVolledigheid.test_geen_stil_genegeerde_velden[INT-02] ________
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+=========================== short test summary info ============================
+PASSED tests/unit/validation/test_rule_runtime_matrix.py::TestMatrixVolledigheid::test_geen_stil_genegeerde_velden[INT-02]
+PASSED tests/unit/validation/test_rule_runtime_matrix.py::TestMatrixVolledigheid::test_entry_contract[INT-02]
+PASSED tests/unit/validation/test_rule_runtime_matrix.py::TestReachability::test_niet_scorende_regel_is_echt_onbereikbaar[cached_manager (productiepad)-INT-02]
+PASSED tests/unit/validation/test_rule_runtime_matrix.py::TestReachability::test_niet_scorende_regel_is_echt_onbereikbaar[toetsregel_manager-INT-02]
+exit=0
