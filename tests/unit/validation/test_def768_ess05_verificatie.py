@@ -360,8 +360,9 @@ class TestBindingEnCache:
 
     def test_versies(self):
         # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
-        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
-        assert Ess05VerificationService.PROMPT_VERSION == "ess05-verify/2"
+        # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/16"
+        assert Ess05VerificationService.PROMPT_VERSION == "ess05-verify/3"
         assert Ess05VerificationService.TASK_TYPE == "ess05_verification"
 
     @pytest.mark.asyncio

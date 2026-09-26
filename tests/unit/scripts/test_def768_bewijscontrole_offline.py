@@ -171,10 +171,11 @@ class TestBinding:
 
 
 class TestGeenEchteCalls:
-    def test_alleen_de_goedgekeurde_r9_staat_open_voor_echte_calls(self):
-        # R9 (herproefbesluit Chris 26-09, ronde9-herproefgoedkeuring-v1.json)
-        # is de enige open ronde; R1–R7 en de gestopte R8 blijven gesloten.
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R9"]
+    def test_geen_ronde_staat_open_voor_echte_calls(self):
+        # R9 (herproefbesluit Chris 26-09) is na de inhoudelijke stop op R720
+        # gesloten; R1–R7 en de gestopte R8 blijven gesloten. De besluiten
+        # blijven gepind.
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
         assert runner.PROEVEN["R9"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R8"].budgetbesluit_sha256 is not None
 

@@ -136,7 +136,8 @@ async def _assess(stap1):
 
 class TestPromptcontract:
     def test_versie_en_ongewijzigde_toetsinstructie(self):
-        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
+        # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/16"
         assert _sha(_TOETSINSTRUCTIE) == T13_SHA256
 
     def test_prompt_vraagt_citaat_zonder_posities(self):

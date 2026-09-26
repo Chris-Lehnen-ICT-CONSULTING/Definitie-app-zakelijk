@@ -63,14 +63,17 @@ voor echte calls; zijn besluit blijft gepind als grond onder R9.
 
 Ronde 9 (`--proef R9`, DEF-768-AI-20260926-R9, gerichte herproef na het
 R8-offsetherstel; besluit Chris 26-09,
-`logs/def768/ronde9-herproefgoedkeuring-v1.json`) is de enige open ronde: 64
+`logs/def768/ronde9-herproefgoedkeuring-v1.json`) was open voor echte calls: 64
 modelstappen (ontwikkeling alleen R720, verificatie_alleen op de ongewijzigde
 R8-V-invoer, t_eind, t_herhaling), reserve 0, cumulatief 424, routerplafond
 USD 24,901265 binnen het kader van USD 25 inclusief de werkelijke R8-kosten.
 Het besluit draagt het oorspronkelijke 68/25-besluit en de payloadtoestemming
 (beide op hash gepind) mee. Een run toetst vóór grootboek en netwerk ook de
 vastgelegde prompt- en antwoordcontractidentiteit (`contract`), die ook in de
-freeze van beide eindgroepen staat.
+freeze van beide eindgroepen staat. R9 is gesloten na de inhoudelijke stop op
+R720 (26-09, `reports/DEF-768-AI-20260926-R9/inhoudelijke-stop-v1.json`): de
+verifier gaf een ongestaafde deelzin vrij. Het contract blijft historisch op
+`ess05-assess/15`/`ess05-verify/2` gepind; geen ronde staat open.
 
 Voorbeeld (droog, offline):
 
@@ -507,14 +510,16 @@ PROEVEN = {
         budgetbesluit=R8_BUDGETBESLUIT,
         budgetbesluit_sha256=R8_BUDGETBESLUIT_SHA256,
     ),
-    # Ronde 9: open binnen het gepinde herproefbesluit (64 modelstappen,
-    # plafond USD 24,901265, cumulatief 424, reserve 0); R1–R8 gesloten. De
-    # V-invoer is ongewijzigd die van R8 (zelfde bestandshash).
+    # Ronde 9: geregistreerd binnen het herproefbesluit (64 modelstappen,
+    # plafond USD 24,901265, cumulatief 424, reserve 0); de V-invoer is die van
+    # R8. Gesloten na de inhoudelijke stop op R720 (26-09, inhoudelijke-stop-
+    # v1.json); besluit en contract blijven historisch gepind. Een nieuwe proef
+    # vereist een eigen besluit en een eigen registratie.
     "R9": Proef(
         "R9",
         gb.R9,
         Proefopslag(R9_UITMAP),
-        True,
+        False,
         True,
         t_ontwikkelinvoer_sha256=R9_T_ONTWIKKELINVOER_SHA256,
         v_invoer_sha256=R8_V_INVOER_SHA256,
@@ -3242,10 +3247,9 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R8 zijn gesloten voor echte calls; R9 "
-            f"({gb.R9.proef_id}, gerichte herproef, opslag {PROEVEN['R9'].opslag.root}, "
-            "cumulatief met R1 t/m R8 max 424) is open binnen het gepinde "
-            "herproefbesluit (64 modelstappen, max USD 24,901265, reserve 0)"
+            "R1 (standaard) t/m R9 zijn gesloten voor echte calls; R9 "
+            f"({gb.R9.proef_id}, opslag {PROEVEN['R9'].opslag.root}) stopte "
+            "inhoudelijk op R720; een nieuwe proef vereist een eigen besluit"
         ),
     )
     p.add_argument(

@@ -495,7 +495,8 @@ class TestOntwikkelcorrectiePrompt:
         # /3 ontwikkelcorrectie; /4 ronde 2 (zie TestRonde2Prompt).
         # /14: ADR-003, gesloten `/2`-antwoord; toetsinstructie ongewijzigd.
         # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
-        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
+        # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/16"
 
     def test_citaatinstructie_vraagt_een_aaneengesloten_fragment_met_zelfcontrole(
         self,

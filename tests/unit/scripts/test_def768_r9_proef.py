@@ -16,6 +16,14 @@ R8 (USD 0,098735) + R9 binnen het oorspronkelijke kader van USD 25 blijft.
 - de ontwikkelinvoer is uitsluitend R720, exact uit de R8-selectie; de
   V-invoer is ongewijzigd die van R8.
 
+Na de inhoudelijke stop op R720 (26-09, NO-GO op claim C5) is R9 gesloten,
+ook via de geregistreerde route. Besluit en contract blijven historisch gepind
+op `/15` en `/2`; de code draagt sinds het R9-bewijsherstel `ess05-assess/16`
+en `ess05-verify/3`, dus R9 past niet meer op de huidige code. De offline
+mechaniektests draaien daarom op een kopie van R9 met de huidige
+contractidentiteit (`_r9`); de bevroren R8-V-invoer bindt de verify/2-prompt
+en wordt onder verify/3 geweigerd.
+
 Providergrens is een fake; bewijst runnermechaniek, geen modelkwaliteit.
 Geen netwerk, geen echte of betaalde call.
 """
@@ -28,6 +36,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -76,6 +85,12 @@ CONTRACT = {
     "concept_schema_version": "ess05-concept/1",
     "verification_schema_version": "ess05-verification/1",
 }
+#: De huidige code (R9-bewijsherstel): alleen beide promptversies verschillen.
+HUIDIG_CONTRACT = {
+    **CONTRACT,
+    "prompt_version": "ess05-assess/16",
+    "verification_prompt_version": "ess05-verify/3",
+}
 V = "validation"
 W = "ess05_verification"
 
@@ -98,6 +113,8 @@ def _stand(pad: Path) -> str | None:
 
 
 def _r9(**anders) -> runner.Proef:
+    """R9-kopie met de huidige contractidentiteit (het echte R9 blijft /15 + /2)."""
+    anders.setdefault("contract", MappingProxyType(HUIDIG_CONTRACT))
     return dataclasses.replace(runner.PROEVEN["R9"], **anders)
 
 
@@ -285,7 +302,8 @@ class TestRegistratie:
     def test_r9_geregistreerd_met_eigen_opslag_invoer_en_besluit(self):
         proef = runner.PROEVEN["R9"]
         assert proef.identiteit is gb.R9
-        assert (proef.echt_toegestaan, proef.freeze_vereist) == (True, True)
+        # Gesloten na de inhoudelijke stop op R720; de registratie blijft staan.
+        assert (proef.echt_toegestaan, proef.freeze_vereist) == (False, True)
         assert proef.opslag.root == R9_MAP
         assert proef.t_ontwikkelinvoer_sha256 == runner.R9_T_ONTWIKKELINVOER_SHA256
         # Ongewijzigde V-invoer van R8: dezelfde bestandshash.
@@ -297,8 +315,13 @@ class TestRegistratie:
         assert proef.payloadtoestemming_sha256 == TOESTEMMING_SHA256
         assert dict(proef.contract) == CONTRACT
 
-    def test_alleen_r9_open_r8_gesloten_met_behouden_besluit(self):
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R9"]
+    def test_geen_ronde_open_r8_en_r9_gesloten_met_behouden_besluit(self):
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
+        r9 = runner.PROEVEN["R9"]
+        assert (r9.budgetbesluit_sha256, dict(r9.contract)) == (
+            BESLUIT9_SHA256,
+            CONTRACT,
+        )
         r8 = runner.PROEVEN["R8"]
         assert r8.echt_toegestaan is False
         # Het oorspronkelijke 68/25-besluit blijft gepind (grond onder R9).
@@ -330,10 +353,35 @@ class TestRegistratie:
         assert "gesloten" in capsys.readouterr().err
         assert _stand(R8_MAP / "callgrootboek.jsonl") == voor
 
+    def test_r9_gesloten_ook_via_de_geregistreerde_route(self):
+        provider = _R8Provider()
+        omg = dataclasses.replace(_omgeving8(provider), echt=True)
+        r9 = runner.PROEVEN["R9"]
+        with pytest.raises(gb.BudgetSchendingError, match="gesloten"):
+            runner._controleer_opslag(omg, r9.opslag, r9)
+        assert provider.aanroepen == []
+
+    def test_cli_echt_r9_geweigerd_zonder_omgeving(self, monkeypatch, tmp_path, capsys):
+        def verboden(**_kw):
+            raise AssertionError("geen live omgeving voor gesloten R9")
+
+        voor = _stand(R9_MAP / "callgrootboek.jsonl")
+        monkeypatch.setattr(runner, "live_omgeving", verboden)
+        pad = _gevallenbestand(tmp_path, 1)
+        with pytest.raises(SystemExit) as fout:
+            runner.main(["--proef", "R9", "--fase", "ontwikkeling", "--gevallen",
+                         str(pad), "--echt"])  # fmt: skip
+        assert fout.value.code == 2
+        assert "gesloten" in capsys.readouterr().err
+        assert _stand(R9_MAP / "callgrootboek.jsonl") == voor
+
     @besluiten_nodig
-    def test_cli_echt_r9_bouwt_de_live_omgeving_op_productiegrenzen(
+    def test_cli_echt_bouwt_de_live_omgeving_op_productiegrenzen(
         self, monkeypatch, tmp_path
     ):
+        # Hypothetisch open R9 met de huidige code: de productiegrenzen
+        # (3000 tokens, 60 s) blijven; gestopt vóór client, grootboek en netwerk.
+        monkeypatch.setitem(runner.PROEVEN, "R9", _r9(echt_toegestaan=True))
         gebouwd = {}
         voor = _stand(R9_MAP / "callgrootboek.jsonl")
 
@@ -357,14 +405,18 @@ class TestRegistratie:
         assert _stand(R9_MAP / "callgrootboek.jsonl") == voor
 
     @besluiten_nodig
-    def test_echte_poorten_open_via_de_geregistreerde_route(self):
+    def test_geregistreerde_route_dicht_op_sluiting_en_contract(self):
+        # Alleen de sluiting en het historische contract houden R9 dicht; het
+        # besluit, de grenzen en de kostenroute passen nog.
         proef = runner.PROEVEN["R9"]
         omg = dataclasses.replace(_omgeving8(_R8Provider()), echt=True)
-        runner._controleer_opslag(omg, proef.opslag, proef)
+        with pytest.raises(gb.BudgetSchendingError, match="gesloten"):
+            runner._controleer_opslag(omg, proef.opslag, proef)
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner._controleer_contract(omg, proef)
         runner._controleer_goedkeuring(omg, proef)
         runner._controleer_productiegrenzen(omg, proef)
         runner._controleer_kostenroute(omg, proef)
-        runner._controleer_contract(omg, proef)
         assert runner._besluit_voor(omg, proef) == BESLUIT9_SHA256
 
     def test_echt_buiten_de_canonieke_opslag_geweigerd(self, tmp_path):
@@ -372,7 +424,7 @@ class TestRegistratie:
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
         pad = _gevallenbestand(tmp_path, 1)
         with pytest.raises(gb.BudgetSchendingError, match="canonieke"):
-            _t9(omg, tmp_path, pad, proef=runner.PROEVEN["R9"])
+            _t9(omg, tmp_path, pad, proef=_r9(echt_toegestaan=True))
         assert provider.aanroepen == []
         assert not _opslag9(tmp_path).grootboek.exists()
 
@@ -449,10 +501,17 @@ class TestBudgetbesluit:
 
 
 class TestContract:
-    def test_code_draagt_de_vastgelegde_contractidentiteit(self):
+    def test_r9_contract_historisch_de_code_draagt_het_huidige(self):
         omg = _omgeving8(_R8Provider())
-        assert runner.contractidentiteit(omg) == CONTRACT
-        runner._controleer_contract(omg, runner.PROEVEN["R9"])
+        assert dict(runner.PROEVEN["R9"].contract) == CONTRACT
+        assert runner.contractidentiteit(omg) == HUIDIG_CONTRACT
+        assert {k for k in CONTRACT if CONTRACT[k] != HUIDIG_CONTRACT[k]} == {
+            "prompt_version",
+            "verification_prompt_version",
+        }
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner._controleer_contract(omg, runner.PROEVEN["R9"])
+        runner._controleer_contract(omg, _r9())
 
     @pytest.mark.parametrize(
         ("doel", "naam", "waarde"),
@@ -476,10 +535,10 @@ class TestContract:
 
     def test_freeze_pint_het_antwoordcontract_voor_v_en_t(self):
         omg = _omgeving8(_R8Provider())
-        v, t = (runner.freezevelden(omg, runner.PROEVEN["R9"], g) for g in ("v", "t"))
+        v, t = (runner.freezevelden(omg, _r9(), g) for g in ("v", "t"))
         for velden in (v, t):
             assert velden["proef_id"] == R9_ID
-            assert {k: velden[k] for k in CONTRACT} == CONTRACT
+            assert {k: velden[k] for k in HUIDIG_CONTRACT} == HUIDIG_CONTRACT
         # V en T onderling gebonden: alleen de groep verschilt.
         assert {k for k in v if v[k] != t[k]} == {"groep"}
 
@@ -689,26 +748,38 @@ class TestOfflineRuns:
         assert uitkomst["aanroepen_gestart"] == 6
 
     @pytest.mark.skipif(not R8_VINVOER.is_file(), reason="R8-V-invoer ontbreekt")
-    def test_droog_ongewijzigde_verificatie_invoer_onder_r9(self, tmp_path):
-        """Materiaalcompatibiliteit: de bevroren R8-invoer bindt opnieuw aan de
-        huidige code (materiaal, concept, verificatieprompt byte-gelijk)."""
+    @pytest.mark.skipif(not R9_SELECTIE.is_file(), reason="R9-selectie ontbreekt")
+    @pytest.mark.parametrize(
+        ("fase", "pad"),
+        [("verificatie_alleen", R8_VINVOER), ("ontwikkeling", R9_SELECTIE)],
+    )
+    def test_droog_geregistreerde_r9_weigert_op_het_contract(self, tmp_path, fase, pad):
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner.main(["--proef", "R9", "--fase", fase, "--gevallen", str(pad),
+                         "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
+        assert not list(tmp_path.rglob("*"))
+
+    @pytest.mark.skipif(not R8_VINVOER.is_file(), reason="R8-V-invoer ontbreekt")
+    def test_droog_r8_verificatie_invoer_hoort_bij_verify_2(
+        self, monkeypatch, tmp_path
+    ):
+        """Onder de huidige code weigert de runner de bevroren invoer: haar
+        verificatieprompthashes horen bij verify/2. Een nieuwe proef vraagt een
+        nieuwe V-invoer (materiaal en concepten ongewijzigd)."""
         assert _sha(R8_VINVOER) == R8_VINVOER_SHA256
-        code = runner.main(["--proef", "R9", "--fase", "verificatie_alleen",
-                            "--gevallen", str(R8_VINVOER), "--uitmap", str(tmp_path),
-                            "--droog"])  # fmt: skip
-        assert code == 0
-        (bestand,) = tmp_path.glob("droog-verificatie_alleen-*/droogrun.json")
-        droog = json.loads(bestand.read_text(encoding="utf-8"))
-        assert (droog["proef_id"], droog["geplande_calls"]) == (R9_ID, 6)
-        grens = gb.R9.kostenbewaking.bytegrens[W]
-        assert all(i["payload_bytes"] <= grens for i in droog["items"])
-        freeze = droog["freezevelden"]
-        assert (freeze["groep"], freeze["proef_id"]) == ("v", R9_ID)
-        assert {k: freeze[k] for k in CONTRACT} == CONTRACT
-        assert not list(tmp_path.rglob("*.jsonl"))
+        monkeypatch.setitem(runner.PROEVEN, "R9", _r9())
+        with pytest.raises(
+            runner.pi.InvoerfoutError, match="verificatieprompt wijkt af"
+        ):
+            runner.main(["--proef", "R9", "--fase", "verificatie_alleen",
+                         "--gevallen", str(R8_VINVOER), "--uitmap", str(tmp_path),
+                         "--droog"])  # fmt: skip
+        assert not list(tmp_path.rglob("*"))
 
     @pytest.mark.skipif(not R9_SELECTIE.is_file(), reason="R9-selectie ontbreekt")
-    def test_droog_vastgelegde_r9_ontwikkelselectie(self, tmp_path):
+    def test_droog_vastgelegde_r9_ontwikkelselectie(self, monkeypatch, tmp_path):
+        # Materiaalcompatibiliteit onder de huidige code (kopie met huidig contract).
+        monkeypatch.setitem(runner.PROEVEN, "R9", _r9())
         code = runner.main(["--proef", "R9", "--fase", "ontwikkeling", "--gevallen",
                             str(R9_SELECTIE), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
         assert code == 0

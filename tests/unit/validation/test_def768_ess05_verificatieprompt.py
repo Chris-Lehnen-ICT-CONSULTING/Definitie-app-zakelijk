@@ -181,4 +181,5 @@ def test_correcte_niet_onderscheidende_concepten_houden_hun_kenmerkitem(ondersch
 
 
 def test_promptversie_verhoogd():
-    assert Ess05VerificationService.PROMPT_VERSION == "ess05-verify/2"
+    # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+    assert Ess05VerificationService.PROMPT_VERSION == "ess05-verify/3"

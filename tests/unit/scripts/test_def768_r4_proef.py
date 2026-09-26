@@ -465,8 +465,9 @@ class TestDroogR4:
         # ADR-003: de droge freeze volgt de actuele tweestaps-T (/14 plus
         # verificatieprompt); zo past zij niet meer op de eenstaps-/13-freeze.
         # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
-        assert droog["freezevelden"]["prompt_version"] == "ess05-assess/15"
+        # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+        assert droog["freezevelden"]["prompt_version"] == "ess05-assess/16"
         assert droog["freezevelden"]["verification_prompt_version"] == (
-            "ess05-verify/2"
+            "ess05-verify/3"
         )
         assert droog["freezevelden"]["code_sha256"] == runner.code_sha256()

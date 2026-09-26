@@ -530,12 +530,12 @@ class TestGeenOudeGoedkeuring:
         oud = ("R1", "R2", "R3", "R4", "R5", "R6", "R7")
         assert {runner.PROEVEN[n].identiteit.modelstappen_per_geval for n in oud} == {1}
         # R8 (livevervolg) en R9 (gerichte herproef, 26-09) zijn eigen
-        # tweestapsidentiteiten met een eigen budgetbesluit; alleen R9 staat
-        # open (R8 is na zijn stop gesloten), geen oude goedkeuring.
+        # tweestapsidentiteiten met een eigen budgetbesluit; beide zijn na hun
+        # stop gesloten (R9 na de inhoudelijke stop op R720), geen oude goedkeuring.
         assert runner.PROEVEN["R8"].identiteit.modelstappen_per_geval == 2
         assert runner.PROEVEN["R9"].identiteit.modelstappen_per_geval == 2
         assert set(runner.PROEVEN) == {*oud, "R8", "R9"}
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R9"]
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
 
     def test_geregistreerde_open_r7_weigert_een_echte_tweestapsrun(
         self, tmp_path, monkeypatch

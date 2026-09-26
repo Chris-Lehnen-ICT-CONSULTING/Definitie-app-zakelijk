@@ -221,14 +221,17 @@ _VERIFICATIE_INSTRUCTIE = (
     "opzichte van dít verwante begrip? Een andere goede reden elders in de kern redt een "
     "niet-dragend citaat niet. Bij not_distinguished en unclear hoort geen afgrenzend "
     "citaat; toets dan of het ontbrekende kenmerk of de onzekerheid klopt.\n"
-    "4. claim:<id>: is de uitspraak gedragen door het materiaal, met het juiste "
-    "onderwerp, de juiste relaties, modaliteit, reikwijdte en alternatieven? Een citaat "
-    "dat letterlijk bestaat, draagt een uitspraak nog niet. Een gevolgtrekking "
-    "(inference) moet uit haar premissen volgen. Een afwezigheidsclaim "
-    "(absence_in_supplied_material) toets je tegen het volledige aangeleverde "
-    "materiaal: klopt het dat het materiaal dit niet vastlegt? Afwezigheid van "
-    "informatie bewijst geen ontkenning. Een onjuiste deelzin maakt de claim "
-    "unsupported.\n"
+    "4. claim:<id>: is elke deelzin van de uitspraak gedragen door haar opgegeven "
+    "bewijsroute, met het juiste onderwerp, de juiste relaties, modaliteit, reikwijdte "
+    "en alternatieven? Een materiaalclaim (material) toets je tegen haar eigen "
+    "bewijsplaatsen. Een citaat dat letterlijk bestaat, draagt een uitspraak nog niet. "
+    "Een gevolgtrekking (inference) moet met elke deelzin volgen uit de claims in haar "
+    "premises; vul geen ontbrekende premisse aan uit ander materiaal, andere claims of "
+    "algemene kennis, ook niet als de deelzin volgens het materiaal waar is. Een "
+    "afwezigheidsclaim (absence_in_supplied_material) toets je tegen het volledige "
+    "aangeleverde materiaal: klopt het dat het materiaal dit niet vastlegt? "
+    "Afwezigheid van informatie bewijst geen ontkenning. Een onjuiste of in deze "
+    "bewijsroute ongestaafde deelzin maakt de claim unsupported.\n"
     "5. completeness: zijn relevante gegevens gemist? Zijn alle aangeleverde verwante "
     "begrippen volledig vergeleken, is omgegaan met gevallen van het begrip en van "
     "verwante begrippen en met overlap, is de betekenis niet vernauwd en is geen "
@@ -345,7 +348,11 @@ class Ess05VerificationService:
     #: /2 (reviewcorrectie BC-02/BC-03): kenmerkclassificatie gescheiden van de
     #: afgrenzing van een distinguished-buurcitaat; controle-items als ge-escapete
     #: JSON-lijst in `<controle-items>`.
-    PROMPT_VERSION = "ess05-verify/2"
+    #: /3 (R9-bewijsherstel): een claim wordt per deelzin getoetst tegen haar
+    #: eigen bewijsroute (material: eigen bewijsplaatsen; inference: alleen haar
+    #: premissen); geen ontbrekende premisse aanvullen, ook niet als de deelzin
+    #: waar is; een ongestaafde deelzin is unsupported (R9-R720, claim C5).
+    PROMPT_VERSION = "ess05-verify/3"
     TASK_TYPE = "ess05_verification"
 
     def __init__(

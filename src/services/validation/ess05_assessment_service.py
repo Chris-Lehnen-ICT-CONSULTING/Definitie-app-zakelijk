@@ -324,7 +324,12 @@ _ANTWOORDSTRUCTUUR = (
     "claims, evidence is leeg. role absence_in_supplied_material: iets staat niet in het "
     "aangeleverde materiaal; evidence en premises zijn leeg en je verzint geen citaat. "
     "Afwezigheid van informatie is geen ontkenning. Elke claim en elke bewijsplaats "
-    "wordt gebruikt; zet geen losse tekst buiten claims.\n"
+    "wordt gebruikt; zet geen losse tekst buiten claims. Elke deelzin van een claim "
+    "wordt gedragen door die claim zelf: bij material door haar eigen bewijsplaatsen, "
+    "bij inference alleen door de claims in premises. Steunt een deelzin op een "
+    "gegeven dat daar niet in staat, ook als het elders in het materiaal staat, neem "
+    "dat gegeven dan eerst op als eigen claim met bewijsplaats en als premisse, of "
+    "splits de claim of laat de deelzin weg.\n"
     "- Een bewijsplaats verwijst naar één materiaal-id en sha256 uit <materiaal>, met "
     "in quote een exact, aaneengesloten fragment uit de oorspronkelijke tekst van dat "
     "materiaal; een XML-escape zoals &amp; staat voor één teken. Geef geen posities: "
@@ -562,7 +567,10 @@ class Ess05AssessmentService:
     #: (`ess05-answer/1`) geeft per bewijsplaats alleen materiaal, hash en het
     #: exacte citaat; de app leidt de plaats af bij precies één letterlijke
     #: treffer (R720: zeven letterlijke citaten, alle posities fout geteld).
-    PROMPT_VERSION = "ess05-assess/15"
+    #: /16 (R9-bewijsherstel): toetsinstructie ongewijzigd; elke deelzin van een
+    #: claim wordt gedragen door haar eigen bewijsplaatsen of premissen, anders
+    #: een eigen claim als premisse, splitsen of weglaten (R9-R720, claim C5).
+    PROMPT_VERSION = "ess05-assess/16"
     TASK_TYPE = "validation"
 
     def __init__(

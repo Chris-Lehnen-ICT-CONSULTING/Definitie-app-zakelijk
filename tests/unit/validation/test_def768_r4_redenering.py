@@ -156,7 +156,8 @@ def test_versie_is_verhoogd():
     # /14 (ADR-003): alleen het uitvoertemplate naar het gesloten concept
     # (`ess05-concept/1`); de toetsinstructie (T/13) blijft bytegelijk.
     # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
-    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/15"
+    # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/16"
 
 
 def test_norm_blijft_ongewijzigd():

@@ -157,7 +157,15 @@ class TestVastgelegdeR8Invoer:
             mig.main(["--doel", str(doel), "--controlelijst", str(tmp_path / "l.md")])
             == 0
         )
-        assert _sha(doel) == _sha(R8_VINVOER)
+        # Sinds verify/3 (R9-bewijsherstel) verschilt alleen de prompthash per
+        # item; geval, materiaal, concept en controles blijven de bevroren R8-invoer.
+        nieuw = json.loads(doel.read_text(encoding="utf-8"))
+        vast = json.loads(R8_VINVOER.read_text(encoding="utf-8"))
+        assert {k for k in nieuw if k != "items"} == {k for k in vast if k != "items"}
+        assert all(nieuw[k] == vast[k] for k in vast if k != "items")
+        assert len(nieuw["items"]) == len(vast["items"]) == 6
+        for n, v in zip(nieuw["items"], vast["items"], strict=True):
+            assert {k for k in n if n[k] != v[k]} == {"verificatieprompt_sha256"}
 
 
 # --- runner: registratie, productiegrenzen, kostenroute ------------------------------------
@@ -396,10 +404,11 @@ class TestR8Registratie:
         for naam in ("R1", "R2", "R3", "R4", "R5", "R6", "R7"):
             assert runner.PROEVEN[naam].echt_toegestaan is False
             assert runner.PROEVEN[naam].budgetbesluit_sha256 is None
-        # R8 gesloten, zijn besluit blijft gepind; alleen R9 staat open.
+        # R8 gesloten, zijn besluit blijft gepind; R9 is na zijn inhoudelijke
+        # stop ook gesloten, dus geen ronde staat open.
         assert runner.PROEVEN["R8"].echt_toegestaan is False
         assert runner.PROEVEN["R8"].budgetbesluit_sha256 == BUDGETBESLUIT_SHA256
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R9"]
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
 
     @besluit_nodig
     def test_budgetbesluit_past_op_de_proefidentiteit(self):
@@ -839,8 +848,9 @@ class TestVerifierOnly:
         )
         assert velden["groep"] == "v"
         # /15 (R8-offsetherstel): antwoord zonder posities; T/13 ongewijzigd.
-        assert velden["prompt_version"] == "ess05-assess/15"
-        assert velden["verification_prompt_version"] == "ess05-verify/2"
+        # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
+        assert velden["prompt_version"] == "ess05-assess/16"
+        assert velden["verification_prompt_version"] == "ess05-verify/3"
         assert {"system_prompt_sha256", "norm_sha256"} <= set(velden)
 
     def test_goed_vrijgegeven_en_fout_gedetecteerd(self, tmp_path):
@@ -978,17 +988,15 @@ class TestVerifierOnly:
         assert v["binding"]["freeze_sha256"] != _sha(freeze_t)
 
     @pytest.mark.skipif(not R8_VINVOER.is_file(), reason="R8-V-invoer ontbreekt")
-    def test_droog_echte_verificatie_invoer(self, tmp_path):
-        code = runner.main(["--proef", "R8", "--fase", "verificatie_alleen", "--gevallen",
-                            str(R8_VINVOER), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
-        assert code == 0
-        (bestand,) = tmp_path.glob("droog-verificatie_alleen-*/droogrun.json")
-        droog = json.loads(bestand.read_text(encoding="utf-8"))
-        assert (droog["proef_id"], droog["geplande_calls"]) == (R8_ID, 6)
-        grens = gb.R8.kostenbewaking.bytegrens[W]
-        assert all(i["payload_bytes"] <= grens for i in droog["items"])
-        assert droog["freezevelden"]["groep"] == "v"
-        assert not list(tmp_path.rglob("*.jsonl"))
+    def test_droog_echte_verificatie_invoer_hoort_bij_verify_2(self, tmp_path):
+        # De bevroren R8-V-invoer bindt de verify/2-prompt; onder verify/3
+        # (R9-bewijsherstel) weigert de runner haar vóór elke uitvoer.
+        with pytest.raises(
+            runner.pi.InvoerfoutError, match="verificatieprompt wijkt af"
+        ):
+            runner.main(["--proef", "R8", "--fase", "verificatie_alleen", "--gevallen",
+                         str(R8_VINVOER), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
+        assert not list(tmp_path.rglob("*"))
 
     @pytest.mark.skipif(not R8_SELECTIE.is_file(), reason="R8-selectie ontbreekt")
     def test_droog_echte_ontwikkelselectie(self, tmp_path):
