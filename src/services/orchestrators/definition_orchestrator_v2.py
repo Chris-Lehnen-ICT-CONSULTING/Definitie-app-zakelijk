@@ -143,6 +143,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         source_assessment_service: Any | None = None,
         # DEF-766: AI-telbaarheidsbeoordeling (ESS-03); idem
         ess03_assessment_service: Any | None = None,
+        # DEF-772: AI-verwijzingsbeoordeling (INT-03); idem
+        int03_assessment_service: Any | None = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -196,6 +198,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         self._source_assessment_service = source_assessment_service
         # DEF-766: telbaarheidsbeoordeling; idem
         self._ess03_assessment_service = ess03_assessment_service
+        # DEF-772: verwijzingsbeoordeling; idem
+        self._int03_assessment_service = int03_assessment_service
 
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
@@ -270,6 +274,25 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         return self._ess03_assessment_service
 
     @property
+    def int03_assessment_service(self) -> Any:
+        """De AI-verwijzingsbeoordeling voor INT-03 (DEF-772), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam. Een
+        aanroeper kan een eigen dienst injecteren (tests: fake-AI-grens).
+        """
+        if self._int03_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.int03_assessment_service import (
+                Int03AssessmentService,
+            )
+
+            self._int03_assessment_service = Int03AssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._int03_assessment_service
+
+    @property
     def validation_service(self) -> "ValidationOrchestratorInterface":
         """
         Lazy-load ValidationOrchestratorV2 on first access (DEF-90 performance optimization).
@@ -333,6 +356,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 source_assessment_service=self.source_assessment_service,
                 # DEF-766: idem voor de telbaarheidsbeoordeling (ESS-03).
                 ess03_assessment_service=self.ess03_assessment_service,
+                # DEF-772: idem voor de verwijzingsbeoordeling (INT-03).
+                int03_assessment_service=self.int03_assessment_service,
             )
 
             logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")
@@ -1342,6 +1367,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ess03_assessment": self._beoordeling_uit(
                         raw_validation, "ess03_assessment"
                     ),
+                    # DEF-772: de AI-verwijzingsbeoordeling (INT-03) van exact
+                    # de definitieve kandidaat, vóór opslag op het record.
+                    "int03_assessment": self._int03_beoordeling_uit(raw_validation),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
                     "web_lookup_status": web_lookup_status,
@@ -1932,6 +1960,21 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     def _bronbeoordeling_uit(cls, raw_validation: Any) -> dict[str, Any] | None:
         """De door de wrapper verkregen bronbeoordeling (contract 1.4.0), of None."""
         return cls._beoordeling_uit(raw_validation, "source_assessment")
+
+    @staticmethod
+    def _int03_beoordeling_uit(raw_validation: Any) -> dict[str, Any] | None:
+        """De door de wrapper verkregen INT-03-beoordeling (DEF-772), of None.
+
+        Het contract (2.1.0) kent geen top-level sleutel voor INT-03: het
+        document reist in `rule_results["INT-03"]["assessment"]`. Alleen een
+        echt object telt; anders is er geen beoordeling en wordt er geen
+        verzonnen.
+        """
+        detail = ensure_dict(
+            ensure_dict(safe_dict_get(raw_validation, "rule_results", {})).get("INT-03")
+        )
+        beoordeling = detail.get("assessment")
+        return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
 
     @staticmethod
     def _beoordeling_uit(raw_validation: Any, sleutel: str) -> dict[str, Any] | None:

@@ -1,34 +1,49 @@
 {
   "id": "INT_03",
   "naam": "Voornaamwoord-verwijzing duidelijk",
-  "uitleg": "Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
-  "toelichting": "Voornaamwoorden als 'deze', 'dit', 'die', 'daarvan' enzovoort verwijzen naar een antecedent. In een definitie moet altijd in dezelfde zin of zinsdeel staan welk zelfstandig naamwoord bedoeld is, zodat de definitie zelfstandig en eenduidig leesbaar blijft.",
-  "toetsvraag": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
+  "uitleg": "Voor ieder voornaamwoord in de definitie is voor de lezer duidelijk waarnaar het verwijst.",
+  "toelichting": "Voornaamwoorden en voornaamwoordelijke bijwoorden ('het', 'hij', 'zij', 'die', 'dat', 'dit', 'deze', 'zijn', 'haar', 'hun', 'diens', 'daarvan', 'waarbij' …) verwijzen naar iets in de definitie. Bepaal eerst of een woord verwijzend gebruikt is: een lidwoord, loos 'het' of het voegwoord 'dat' verwijst niet. De lezer moet zonder context eenduidig kunnen vaststellen welk antecedent bedoeld is; dat mag een naamwoordgroep of grotere tekstinhoud zijn. Een betrekkelijke bijzin waarvan het antecedent eenduidig is ('persoon die …') voldoet; plaatsing direct na een naamwoord is niet voldoende als een ander naamwoord ook als antecedent kan worden gelezen. Meerdere naamwoorden bewijzen nog geen ambiguïteit: motiveer welke lezingen werkelijk plausibel zijn. Bij meer kandidaten: herhaal het bedoelde zelfstandig naamwoord ('die gebeurtenis', niet 'het') of herformuleer, met behoud van betekenis. Context, bronnen, toelichting of het lemma vervangen een ontbrekende verwijzing niet.",
+  "toetsvraag": "Welke verwijzend gebruikte woorden bevat de definitie en naar welk antecedent verwijst elk daarvan? Is dat voor de lezer zonder context eenduidig, of zijn er meer kandidaten of geen antecedent? Onderscheid onduidelijkheid van een nog ontbrekende beoordeling of ontbrekende herstelgrond.",
   "herkenbaar_patronen": [
-    "\\bdeze\\b",
-    "\\bdit\\b",
-    "\\bdie\\b",
-    "\\bdaarvan\\b",
+    "\\bdeze\\b(?!\\s+(begrip|definitie|regel))",
+    "\\bdit\\b(?!\\s+(begrip|definitie|regel))",
+    "\\bdie\\b(?!\\s+(begrip|definitie|regel))",
+    "\\bdaarvan\\b(?!\\s+(begrip|definitie|regel))",
     "\\bdaarbij\\b",
     "\\bwaarvan\\b",
     "\\bwaarmee\\b",
-    "\\binzienelijk maken\\b",
     "\\bwaarbij\\b",
-    "\\bin het kader\\b"
+    "\\bhet\\b",
+    "\\bdat\\b",
+    "\\bhij\\b",
+    "\\bzij\\b",
+    "\\bhem\\b",
+    "\\bdiens\\b",
+    "\\bzijn\\b",
+    "\\bhaar\\b",
+    "\\bhun\\b",
+    "\\bervan\\b",
+    "\\bhiervan\\b",
+    "\\bdaarmee\\b"
   ],
   "goede_voorbeelden": [
-    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd."
+    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+    "persoon die wordt verdacht van een strafbaar feit",
+    "teken dat een richting aangeeft"
   ],
   "foute_voorbeelden": [
-    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd."
+    "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+    "handeling van een medewerker aan een collega waarbij deze vertrekt",
+    "verplichting van de werkgever om de werknemer over haar rechten te informeren",
+    "voorziening waardoor het kan worden voortgezet"
   ],
   "prioriteit": "hoog",
   "aanbeveling": "verplicht",
-  "geldigheid": "gehele definitie",
+  "geldigheid": "alle",
   "status": "definitief",
-  "type": "interne structuur",
+  "type": "term",
   "thema": "interne kwaliteit van de definitie",
-  "brondocument": "ASTRA",
+  "brondocument": "ASTRA (Ross, DBT 4.3)",
   "relatie": [
     {
       "fulltext": "Voornaamwoord-verwijzing duidelijk",
@@ -36,15 +51,15 @@
     }
   ],
   "runtime_contract": {
-    "evaluator": "judgment_review",
+    "evaluator": "pronoun_reference_assessment",
     "required_inputs": [
       "definition_text"
     ],
     "executability": "judgment",
-    "automation_status": "review_required",
+    "automation_status": "automated",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "voornaamwoord-antecedentresolutie vergt woordsoortanalyse; het patroon vuurt ook op het eigen goede voorbeeld.",
-    "example_pair_issue": "DEF-624"
+    "example_pair_reason": "Verwijzingsduidelijkheid is een inhoudelijk oordeel (antecedent, taalfunctie, plausibele lezingen); sinds DEF-772 geeft de app dat oordeel via de AI-verwijzingsbeoordeling op de ongewijzigde definitie, met citaatcontrole in code en 'pass' zonder verwijzend woord uitsluitend na die controle. Het paar hangt af van die beoordeling en is geen deterministische regressiecase; de signaalpatronen zijn zoekhulp en vuren ook op het goede voorbeeld ('die').",
+    "example_pair_issue": "DEF-772"
   }
 }

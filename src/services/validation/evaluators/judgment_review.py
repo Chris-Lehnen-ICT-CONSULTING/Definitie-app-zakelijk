@@ -1,12 +1,12 @@
 """Oordeelregels: expliciet reviewplichtig, nooit stil geslaagd (DEF-624).
 
-Dertien regels hebben geen betrouwbare automatische toets:
+Twaalf regels hebben geen betrouwbare automatische toets:
 
 - besluit DEF-624 (acht regels): ARAI-03, ESS-01, ESS-04, INT-02, INT-06,
   STR-03, STR-05 en STR-06;
 - SAM-01, dat naast een oordeel ook de begrippenverzameling nodig heeft en
   daarom `definition_repository` als vereiste invoer declareert;
-- projectuitbreiding: INT-03, STR-08 en STR-09;
+- projectuitbreiding: STR-08 en STR-09;
 - DEF-750: ESS-02 (betekenisniveau en aard). Een markerwoord, precies één
   categoriehit of meerdere categoriewoorden bewijzen niets over de
   bedoelde betekenis; de regel draagt `score_policy: no_score`;
@@ -21,28 +21,32 @@ Dertien regels hebben geen betrouwbare automatische toets:
 ESS-03 (telbaarheid) liep hier van 18 tot 21 september 2026 (DEF-766, eerste
 uitvoeringsfase); sinds het besluit van 19/21 september beoordeelt de app die
 regel zelf via de AI-telbaarheidsbeoordeling
-(`services.validation.evaluators.countability_assessment`).
+(`services.validation.evaluators.countability_assessment`). INT-03
+(voornaamwoord-verwijzing) liep hier tot 25 september 2026 (DEF-772 WP2,
+projectuitbreiding); sinds besluit K2 T-c van die datum beoordeelt de app
+die regel zelf via de AI-verwijzingsbeoordeling
+(`services.validation.evaluators.pronoun_reference_assessment`).
 
 Hun patronen blijven bruikbaar als *signaal* — ze wijzen de reviewer waar
-te kijken — maar ze zijn geen *bewijs*: bij alle dertien vuren de eigen
+te kijken — maar ze zijn geen *bewijs*: bij alle twaalf vuren de eigen
 patronen ook op het gedocumenteerde goede voorbeeld, of missen ze het
 gedocumenteerde foute voorbeeld volledig.
 
-Dát het er dertien zijn wordt bewaakt door
+Dát het er twaalf zijn wordt bewaakt door
 `tests/unit/validation/test_rule_runtime_matrix.py::TestAfgeleideTelling`:
 die klasse leidt de klasseverdeling uit de records af en faalt zodra het
 aantal `review_required`-regels verschuift. Zij legt alleen die telling
-vast — niet de identiteit van de dertien regels hierboven. Een canonieke,
+vast — niet de identiteit van de twaalf regels hierboven. Een canonieke,
 hardgecodeerde lijst en de bijbehorende semantische dekking komen met
 Batch 2 via DEF-623; die tests staan tot dan geparkeerd buiten `main`.
 
 Daarom levert deze evaluator altijd `review_required`. Die uitkomst telt
 niet mee in de kwaliteitsscore en wordt nooit als pass genormaliseerd; hij
 verschijnt apart in de evaluatiedekking. Een algemene AI-jury voor deze
-dertien regels is bewust níet ingevoerd: dat vraagt per regel een
+twaalf regels is bewust níet ingevoerd: dat vraagt per regel een
 afzonderlijk besluit over prompt- en modelversie, goldset, privacy, kosten
-en foutbeleid (ADR-001) — zoals voor CON-02 (DEF-743) en ESS-03 (DEF-766)
-genomen is.
+en foutbeleid (ADR-001) — zoals voor CON-02 (DEF-743), ESS-03 (DEF-766) en
+INT-03 (DEF-772) genomen is.
 """
 
 from __future__ import annotations

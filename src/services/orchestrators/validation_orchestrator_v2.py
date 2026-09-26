@@ -15,6 +15,7 @@ from typing import Any
 
 from domain.context.normalisatie import canoniseer_contextlijst
 from domain.ess03 import contract as ess03_contract
+from domain.int03 import contract as int03_contract
 from domain.sources.contract import (
     beoordeling_niet_beschikbaar,
     beoordeling_technische_fout,
@@ -135,6 +136,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         cleaning_service: CleaningServiceInterface | None = None,
         source_assessment_service: Any | None = None,
         ess03_assessment_service: Any | None = None,
+        int03_assessment_service: Any | None = None,
     ) -> None:
         if validation_service is None:
             msg = "validation_service is vereist"
@@ -147,6 +149,9 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # DEF-766: de AI-telbaarheidsbeoordeling (ESS-03) is standaard
         # onderdeel van elke validatie met term en tekst; idem.
         self.ess03_assessment_service = ess03_assessment_service
+        # DEF-772: de AI-verwijzingsbeoordeling (INT-03) is standaard
+        # onderdeel van elke validatie met tekst; idem.
+        self.int03_assessment_service = int03_assessment_service
 
     async def validate_text(
         self,
@@ -215,6 +220,13 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if telbaarheid is not None:
                     context_dict["ess03_assessment"] = telbaarheid
+                # DEF-772: idem voor de verwijzingsbeoordeling (INT-03); de
+                # payload reist via de evaluator in `rule_results`.
+                verwijzingen = await self._beoordeel_verwijzingen(
+                    begrip, text, context_dict, correlation_id
+                )
+                if verwijzingen is not None:
+                    context_dict["int03_assessment"] = verwijzingen
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
@@ -291,6 +303,13 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if telbaarheid is not None:
                     context_dict["ess03_assessment"] = telbaarheid
+                # DEF-772: de verwijzingsbeoordeling bindt aan dezelfde
+                # recordtekst, contextlijsten en de toelichting van het record.
+                verwijzingen = await self._beoordeel_verwijzingen(
+                    definition.begrip, recordtekst, context_dict, correlation_id
+                )
+                if verwijzingen is not None:
+                    context_dict["int03_assessment"] = verwijzingen
 
                 text = definition.definitie
 
@@ -521,6 +540,111 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 _vingerafdruk(), "unknown", f"{type(exc).__name__}: {exc}"
             )
 
+    async def _beoordeel_verwijzingen(
+        self,
+        begrip: str,
+        tekst: str,
+        context_dict: dict[str, Any],
+        correlation_id: str,
+    ) -> dict[str, Any] | None:
+        """De standaard AI-verwijzingsbeoordeling voor exact deze validatie (DEF-772).
+
+        Een door de aanroeper meegegeven `int03_assessment` wordt weggegooid:
+        zij is nooit een kortere weg naar een positief oordeel. Volgorde,
+        fail-closed: (1) zonder (niet-lege) tekst geen AI-aanroep en geen
+        beoordeling (`None`: de evaluator meldt `not_evaluated`); een lege term
+        is geen belemmering (de term is ondersteunend); (2) zonder
+        geïnjecteerde dienst is de beoordeling expliciet `unavailable`; (3) een
+        fout bij het bepalen van de binding, een fout in de dienst of een
+        dienst die geen document geeft is een technische fout — nooit stil een
+        pass, en bij een bindingsfout ook geen modelaanroep; daarbij worden
+        alleen foutsoort en uitzonderingstype vastgelegd, nooit de
+        uitzonderingstekst (R2). De toelichting komt uit de context
+        (`toelichting_uit_context`);
+        op de recordroute heeft `_verrijk_met_toelichting` daar de
+        recordwaarde gezaghebbend gemaakt (R1). De actuele binding gaat als
+        `int03_binding` mee naar de evaluator.
+        """
+        context_dict.pop("int03_assessment", None)
+        if not str(tekst or "").strip():
+            return None
+        toelichting = int03_contract.toelichting_uit_context(context_dict)
+
+        def _vingerafdruk() -> str:
+            return int03_contract.bereken_int03_vingerafdruk(
+                begrip, tekst, context_dict, toelichting
+            )
+
+        if self.int03_assessment_service is None:
+            logger.warning(
+                "DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft "
+                "open (correlation_id=%s)",
+                correlation_id,
+            )
+            return int03_contract.beoordeling_niet_beschikbaar(
+                _vingerafdruk(),
+                "geen INT-03-beoordelingsdienst beschikbaar; AI-beoordeling niet "
+                "uitgevoerd",
+            )
+        binding = getattr(self.int03_assessment_service, "binding", None)
+        if callable(binding):
+            try:
+                context_dict["int03_binding"] = binding().als_dict()
+            except Exception as exc:
+                # Zonder actuele binding kan geen beoordeling als actueel
+                # gelden: technische fout, geen modelaanroep. Alleen het
+                # uitzonderingstype; de tekst bereikt log noch document (R2).
+                logger.error(
+                    "DEF-772: beoordelingsbinding niet bepaald (correlation_id=%s): %s",
+                    correlation_id,
+                    type(exc).__name__,
+                )
+                return int03_contract.beoordeling_technische_fout(
+                    _vingerafdruk(),
+                    "unknown",
+                    f"{type(exc).__name__} bij het bepalen van de INT-03-"
+                    "beoordelingsbinding (uitzonderingstekst niet opgenomen)",
+                )
+        try:
+            assessment = await self.int03_assessment_service.assess(
+                begrip,
+                tekst,
+                context_dict,
+                toelichting=toelichting,
+                correlation_id=correlation_id,
+            )
+            document = (
+                assessment.als_dict() if hasattr(assessment, "als_dict") else assessment
+            )
+        except Exception as exc:
+            # Alleen het uitzonderingstype: de tekst kan invoer of
+            # credentialfragmenten dragen en bereikt log noch document.
+            logger.error(
+                "DEF-772: verwijzingsbeoordeling mislukt (correlation_id=%s): %s",
+                correlation_id,
+                type(exc).__name__,
+            )
+            return int03_contract.beoordeling_technische_fout(
+                _vingerafdruk(),
+                "unknown",
+                f"{type(exc).__name__} in de INT-03-beoordelingsdienst "
+                "(uitzonderingstekst niet opgenomen)",
+            )
+        if not isinstance(document, dict):
+            soort = type(document).__name__
+            logger.error(
+                "DEF-772: beoordelingsdienst gaf %s terug in plaats van een document "
+                "(correlation_id=%s)",
+                soort,
+                correlation_id,
+            )
+            return int03_contract.beoordeling_technische_fout(
+                _vingerafdruk(),
+                "unknown",
+                f"beoordelingsdienst gaf {soort} terug in plaats van een document",
+            )
+        return document
+
     @staticmethod
     def _met_beoordelingen(
         result: ValidationResult,
@@ -633,8 +757,31 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 f"Failed to enrich definition metadata: {type(e).__name__}: {e}",
                 extra={"begrip": getattr(definition, "begrip", "unknown")},
             )
+        # Ná het 'definition'-blok: dat blok laat een lege recordwaarde staan.
+        self._verrijk_met_toelichting(enriched, definition)
 
         return enriched
+
+    @staticmethod
+    def _verrijk_met_toelichting(
+        enriched: dict[str, Any], definition: Definition
+    ) -> None:
+        """De toelichting van het record is gezaghebbend op de recordroute
+        (DEF-772, reviewbevinding R1) — op beide vindplaatsen die
+        `toelichting_uit_context`/`intentie_uit_context` lezen (top-level
+        `toelichting` en `definition.toelichting`), en óók wanneer het record
+        haar niet (meer) draagt. Anders blijft een verouderde aanroeperwaarde
+        de betekenisgrond, de vingerafdruk en de dienstcache bepalen, en geldt
+        een oude beoordeling voor een gewijzigde of leeggemaakte toelichting.
+        """
+        toelichting = definition.toelichting
+        if isinstance(toelichting, str) and toelichting.strip():
+            enriched["toelichting"] = toelichting
+            return
+        enriched.pop("toelichting", None)
+        blok = enriched.get("definition")
+        if isinstance(blok, dict):
+            blok.pop("toelichting", None)
 
     @staticmethod
     def _verrijk_met_ess03_velden(

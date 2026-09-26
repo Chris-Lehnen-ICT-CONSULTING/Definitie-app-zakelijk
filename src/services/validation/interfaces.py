@@ -70,7 +70,10 @@ from services.interfaces import Definition
 # 2.2.0 (DEF-771): additief — een deeluitkomst in rule_results (parts.status)
 # mag `not_evaluated` zijn. INT-02 levert zo bij ontbrekende kern of context
 # de exacte NE-melding als deeluitkomst (score en fingerprint null, geen
-# oordeel). Geen nieuw veld; geen bestaande status van betekenis veranderd.
+# oordeel). Die NE-uitbreiding voegt geen veld toe en verandert geen bestaande
+# status van betekenis. Daarnaast beschrijft 2.2.0 de bestaande
+# INT-03-runtimevelden `assessment` en `signals` in rule_results['INT-03']
+# (DEF-772, integratie met main); andere regels dragen ze niet.
 CONTRACT_VERSION = "2.2.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
@@ -270,6 +273,10 @@ class RuleResult(TypedDict):
     fingerprint: str | None
     parts: list[RuleResultPart]
     review: dict[str, Any] | None
+    # DEF-772 (beschreven in 2.2.0): alleen rule_results['INT-03'] — het
+    # beoordelingsdocument (of None) en de vurende patronen (zoekhulp).
+    assessment: NotRequired[dict[str, Any] | None]
+    signals: NotRequired[list[str]]
 
 
 class ReviewRequirement(TypedDict):

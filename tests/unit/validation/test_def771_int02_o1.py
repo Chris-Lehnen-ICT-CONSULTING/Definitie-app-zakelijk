@@ -23,12 +23,14 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
 from services.validation.evaluators.base import EvaluationDeps
 from services.validation.evaluators.judgment_review import JudgmentReviewEvaluator
-from services.validation.interfaces import CONTRACT_VERSION
+from services.validation.interfaces import CONTRACT_VERSION, ValidationContext
 from services.validation.modular_validation_service import ModularValidationService
 from services.validation.result_contract import neem_contractvelden_over
 from services.validation.types_internal import EvaluationContext
+from tests.fixtures.def772_fakes import FakeInt03Assessor
 from toetsregels.manager import get_toetsregel_manager
 from toetsregels.runtime_contract import RequiredInput, ResultStatus, build_rule_record
 
@@ -301,3 +303,77 @@ async def test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven():
     assert set(zonder["rule_results"]) - {"INT-02"} == set(met["rule_results"])
     _valideer_rule_results(met)
     _valideer_rule_results(zonder)
+
+
+# Contract 2.2.0 beschrijft ook de bestaande INT-03-runtimevelden `assessment`
+# (beoordelingsdocument of null) en `signals` (patroonlijst) in
+# rule_results['INT-03']; andere regels krijgen die velden niet en onbekende
+# velden blijven overal afgewezen (DEF-771/DEF-772, integratie met main).
+RULE_RESULTS = Draft202012Validator(SCHEMA["properties"]["rule_results"])
+
+
+async def _met_int03_beoordeling(scenario):
+    orch = ValidationOrchestratorV2(
+        ModularValidationService(get_toetsregel_manager(), None, None),
+        int03_assessment_service=FakeInt03Assessor(scenario=scenario),
+    )
+    return await orch.validate_text(
+        "proef", C50, context=ValidationContext(metadata=CONTEXT)
+    )
+
+
+def _fouten(rule_results):
+    return list(RULE_RESULTS.iter_errors(json.loads(json.dumps(rule_results))))
+
+
+@pytest.mark.parametrize("bron", ["zonder_dienst", "pass", "fail"])
+async def test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema(bron):
+    if bron == "zonder_dienst":
+        resultaat = await _publiek(C50, CONTEXT)
+        assert resultaat["rule_results"]["INT-03"]["assessment"] is None
+    else:
+        resultaat = await _met_int03_beoordeling(bron)
+        assessment = resultaat["rule_results"]["INT-03"]["assessment"]
+        assert assessment["status"] == "assessed"
+    assert resultaat["rule_results"]["INT-03"]["signals"]
+    assert _fouten(resultaat["rule_results"]) == []
+    # INT-02 blijft een open beoordeling met passagehulp, zonder deeluitkomst.
+    item = next(r for r in resultaat["review_required"] if r["rule_id"] == "INT-02")
+    assert HULP.replace("{zinsdeel}", C50[:-1]) in item["reason"]
+    assert "INT-02" not in resultaat["rule_results"]
+
+
+@pytest.mark.parametrize(
+    ("veld", "waarde"),
+    [
+        ("signals", "\\bdie\\b"),
+        ("signals", [1]),
+        ("signals", None),
+        ("assessment", "beoordeeld"),
+        ("assessment", ["assessed"]),
+    ],
+)
+async def test_int03_velden_hebben_expliciete_typen(veld, waarde):
+    resultaat = await _met_int03_beoordeling("pass")
+    rule_results = resultaat["rule_results"]
+    assert _fouten(rule_results) == []
+    rule_results["INT-03"][veld] = waarde
+    assert _fouten(rule_results)
+
+
+async def test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen():
+    met = await _met_int03_beoordeling("pass")
+    ne = await _publiek(C50, {})
+    assert _fouten(met["rule_results"]) == []
+    assert _fouten(ne["rule_results"]) == []
+    for rule_results, regel, veld, waarde in (
+        (met["rule_results"], "INT-03", "onbekend", 1),
+        (ne["rule_results"], "INT-02", "signals", []),
+        (ne["rule_results"], "INT-02", "assessment", None),
+    ):
+        kopie = json.loads(json.dumps(rule_results))
+        kopie[regel][veld] = waarde
+        assert _fouten(kopie), (regel, veld)
+    # De INT-02-NE-uitkomst zelf is ongewijzigd.
+    (onderdeel,) = ne["rule_results"]["INT-02"]["parts"]
+    assert onderdeel["reason"] == NE.replace("{kern/context}", "context")

@@ -97,8 +97,10 @@ _ACCEPTATIE_BLOKKEERDERS: frozenset[str] = frozenset({"DUP_01"})
 # (per onderdeel status, passage en reden) en krijgt geen regelcijfer. Anders
 # dan `no_score` maakt zo een regel de totaalscore niet onbeschikbaar; haar
 # scorepolicy blijft `excluded_from_score`, dus geen zelfstandige blokkade.
+# DEF-772: INT-03 idem — de AI-verwijzingsbeoordeling levert haar uitkomst
+# (inclusief het beoordelingsdocument) in `rule_results`, zonder cijfer.
 _EVALUATORS_MET_DEELUITKOMST: frozenset[EvaluatorType] = frozenset(
-    {EvaluatorType.SENTENCE_BOUNDARY}
+    {EvaluatorType.SENTENCE_BOUNDARY, EvaluatorType.PRONOUN_REFERENCE_ASSESSMENT}
 )
 
 

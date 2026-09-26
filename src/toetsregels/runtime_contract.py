@@ -117,6 +117,9 @@ class EvaluatorType(StrEnum):
     # DEF-770: functionele zinsgrenzen (INT-01) als deelbevinding; compactheid
     # en begrijpelijkheid blijven een open onderdeel.
     SENTENCE_BOUNDARY = "sentence_boundary"
+    # DEF-772: AI-beoordeling van voornaamwoord-verwijzingen (code toetst
+    # binding, gesloten structuur en citaatbestaan in de definitie), INT-03.
+    PRONOUN_REFERENCE_ASSESSMENT = "pronoun_reference_assessment"
 
 
 class ExamplePairPolicy(StrEnum):

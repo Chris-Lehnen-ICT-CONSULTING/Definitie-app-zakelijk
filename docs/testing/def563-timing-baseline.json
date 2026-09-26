@@ -568,12 +568,12 @@
       "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563."
     },
     "tests/integration/test_export_levels_comprehensive.py::TestLargeDataset::test_large_export_performance": {
-      "source_sha256": "5b2e07c4fc61f7ffa1cb8502103ce1aad69cc6ad826d909f7b6dc5887dfb71d6",
+      "source_sha256": "0f2198b701d363f2f34ebfc49783af51558fca8a885fdf4e073257c45add2cad",
       "comparisons": [
         "duration < 10.0"
       ],
       "status": "unreviewed",
-      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Herbinding DEF-770 (24-09-2026): alleen de bestandshash is bijgewerkt; de tijdsvergelijking en de AST van deze functie zijn gelijk aan base 26f2374d, de module kreeg andere exportassertions in TestExportLevelsFormats (veldaantallen en int01_beoordeling). Geen timingbeoordeling."
+      "reason": "Bestaande kandidaat; geen oordeel over timinggevoeligheid of verwijderbaarheid. Eigenaar DEF-563. Herbinding DEF-770 (24-09-2026): alleen de bestandshash is bijgewerkt; de tijdsvergelijking en de AST van deze functie zijn gelijk aan base 26f2374d, de module kreeg andere exportassertions in TestExportLevelsFormats (veldaantallen en int01_beoordeling). Geen timingbeoordeling. Herbinding DEF-772 (26-09-2026): idem, alleen de bestandshash; de tijdsvergelijking en de AST van deze functie zijn gelijk aan base 245ae000 (functiehash f423410d ongewijzigd, alleen zes regels verschoven), de module kreeg andere exportassertions in TestExportLevelsFormats (veldaantallen 28/39 en int03_beoordeling). Geen timingbeoordeling."
     },
     "tests/integration/test_history_removal.py::TestPerformanceImprovement::test_import_time": {
       "source_sha256": "4fe4f438d9ee03fd75a0552369b3878ae618d55d99713590c4dba1b1e27a94ca",
@@ -999,6 +999,15 @@
       ],
       "status": "retain-risk",
       "reason": "DEF-766 (22-09-2026, R6 correctieronde 2 punt B): contractgrens met krappe marge. De nabewerking van de echte AIServiceV2-route blokkeert 0,6 s in een werkthread; deadline 0,2 s; de dienst moet vóór 0,45 s terugkeren (zonder de opt-in `offload_postprocessing` pas na 0,6 s). Marge boven de deadline 0,25 s, onder de ongefixte duur 0,15 s; gemeten 0,201-0,202 s (5 herhalingen). Op een zwaar belaste runner kan de wake-up na de deadline de 0,45 s overschrijden. Behouden; bij een valse failure de grens hooguit tot <0,55 s oprekken (moet onder 0,6 s blijven om te discrimineren) of vervangen door een deterministisch signaal uit de werkthread."
+    },
+    "tests/unit/validation/test_def772_int03_assessment_service.py::test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model": {
+      "source_sha256": "dccde87fbd50523dcacf0122f52da3febed70a0577d6ad6088a2013ba26c0f13",
+      "comparisons": [
+        "call['timeout_seconds'] <= 60",
+        "d['elapsed_seconds'] >= 0"
+      ],
+      "status": "deterministic",
+      "reason": "DEF-772 (26-09-2026): twee vergelijkingen, beide zonder runnergevoeligheid. `call['timeout_seconds'] <= 60` vergelijkt de configuratiewaarde die de INT-03-dienst als kwarg aan de AI-laag doorgeeft (`Int03AssessmentService`, default 60 s) met de afgesproken bovengrens; geen klok en geen meting, alleen door de naamregex (`_seconds`) als kandidaat gezien — dezelfde situatie als de ESS-03-tegenhanger. `d['elapsed_seconds'] >= 0` is een ondergrens per constructie: de dienst schrijft `round(time.perf_counter() - start, 3)` (monotone klok, nooit negatief) in het document en de assertie bewijst uitsluitend dat het veld als niet-negatief getal aanwezig is; belasting kan de waarde alleen verhogen. Geen bovengrens, geen sleep. Grens behouden."
     }
   }
 }

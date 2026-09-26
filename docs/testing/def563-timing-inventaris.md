@@ -58,6 +58,20 @@ en zijn geen runnergarantie. Daarmee staat de inventaris op **151
 kandidaatvergelijkingen op 121 locaties**, waarvan **114 locaties
 onbeoordeeld** (ongewijzigd) en 7 beoordeeld.
 
+## DEF-772 — 26 september 2026
+
+De INT-03-AI-beoordeling (DEF-772 WP3) voegde één nieuwe kandidaat toe met
+twee vergelijkingen; de preflight meldde die terecht als `nieuw` (exit 1). De
+kandidaat is inhoudelijk beoordeeld en met status en reden in de baseline
+opgenomen; de test zelf is niet gewijzigd en er is geen grens opgerekt.
+
+| Locatie | Vergelijking | Status | Kern van de reden |
+| --- | --- | --- | --- |
+| `test_def772_int03_assessment_service.py::test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model` | `call['timeout_seconds'] <= 60`; `d['elapsed_seconds'] >= 0` | deterministic | De eerste is een configuratiewaarde (kwarg aan de AI-laag, default 60 s), geen klok — als de ESS-03-tegenhanger. De tweede is een ondergrens per constructie: de dienst schrijft `round(perf_counter() - start, 3)` (monotoon, nooit negatief); belasting verhoogt alleen. Geen bovengrens, geen sleep. |
+
+Daarmee staat de inventaris op **153 kandidaatvergelijkingen op 122
+locaties**, waarvan **114 locaties onbeoordeeld** (ongewijzigd) en 8 beoordeeld.
+
 ## Actuele inventaris en bronbinding
 
 Na deze vier vervangingen blijven **146 kandidaatvergelijkingen op 116

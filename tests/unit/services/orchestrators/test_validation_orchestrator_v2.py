@@ -25,9 +25,14 @@ def _aanroep(mock_validation_service) -> dict:
     return mock_validation_service.validate_definition.call_args.kwargs
 
 
-def _zonder_ess03(context: dict) -> dict:
-    """De doorgegeven context zonder het ESS-03-document (DEF-766)."""
-    return {k: v for k, v in context.items() if k != "ess03_assessment"}
+def _zonder_beoordelingen(context: dict) -> dict:
+    """De doorgegeven context zonder de standaard verkregen beoordelingen
+    (DEF-766: `ess03_assessment`; DEF-772: `int03_assessment`)."""
+    return {
+        k: v
+        for k, v in context.items()
+        if k not in ("ess03_assessment", "int03_assessment")
+    }
 
 
 class TestValidationOrchestratorV2:
@@ -112,16 +117,18 @@ class TestValidationOrchestratorV2:
         # `unavailable`-document mee (nooit stil een pass); en het expliciete
         # categorieargument reist als betekenisclaim mee in dezelfde context
         # (R2) — anders bereikt het de beoordeling en de vingerafdruk niet.
+        # DEF-772: idem voor INT-03 (`int03_assessment`, `unavailable`).
         kwargs = _aanroep(mock_validation_service)
         assert kwargs["begrip"] == "test_begrip"
         assert kwargs["text"] == "test text"
         assert kwargs["ontologische_categorie"] == "PROCES"
-        assert _zonder_ess03(kwargs["context"]) == {
+        assert _zonder_beoordelingen(kwargs["context"]) == {
             "profile": "standard",
             "record_text": "test text",
             "ontologische_categorie": "PROCES",
         }
         assert kwargs["context"]["ess03_assessment"]["status"] == "unavailable"
+        assert kwargs["context"]["int03_assessment"]["status"] == "unavailable"
 
     @pytest.mark.asyncio
     async def test_validate_text_without_context(
@@ -136,13 +143,15 @@ class TestValidationOrchestratorV2:
 
         # Verify service was called without caller context. DEF-622: alleen de
         # exacte invoertekst reist als `record_text` mee (CON-01-binding);
-        # DEF-766: plus het expliciete `unavailable`-document van ESS-03.
+        # DEF-766/772: plus de expliciete `unavailable`-documenten van ESS-03
+        # en INT-03.
         kwargs = _aanroep(mock_validation_service)
         assert kwargs["begrip"] == "test_begrip"
         assert kwargs["text"] == "test text"
         assert kwargs["ontologische_categorie"] is None
-        assert _zonder_ess03(kwargs["context"]) == {"record_text": "test text"}
+        assert _zonder_beoordelingen(kwargs["context"]) == {"record_text": "test text"}
         assert kwargs["context"]["ess03_assessment"]["status"] == "unavailable"
+        assert kwargs["context"]["int03_assessment"]["status"] == "unavailable"
 
     @pytest.mark.asyncio
     async def test_validate_text_with_cleaning(
@@ -157,11 +166,13 @@ class TestValidationOrchestratorV2:
         mock_cleaning_service.clean_text.assert_not_called()
 
         # Validatortransport en reviewbinding gebruiken dezelfde originele tekst.
+        # DEF-772: zonder INT-03-dienst reist een expliciet `unavailable` mee.
         kwargs = _aanroep(mock_validation_service)
         assert kwargs["begrip"] == "test_begrip"
         assert kwargs["text"] == "dirty text"
         assert kwargs["ontologische_categorie"] is None
-        assert _zonder_ess03(kwargs["context"]) == {"record_text": "dirty text"}
+        assert _zonder_beoordelingen(kwargs["context"]) == {"record_text": "dirty text"}
+        assert kwargs["context"]["int03_assessment"]["status"] == "unavailable"
 
     @pytest.mark.asyncio
     async def test_validate_definition(self, orchestrator, mock_validation_service):

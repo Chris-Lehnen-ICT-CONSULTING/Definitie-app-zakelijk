@@ -119,11 +119,14 @@ def _vereist_bronbeoordeling(rule_id: str) -> bool:
     bronbeoordelingsdienst en bronnen aanwezig zijn) maar `judgment` (het
     oordeel over gezag en betekenissteun is geen tekstpatroon). DEF-766: ESS-03
     idem, met de telbaarheidsbeoordeling op kandidaat, bedoelde betekenis,
-    context en bronnen. Deze matrix draait zonder dienst en zonder bronnen;
+    context en bronnen. DEF-772: INT-03 idem, met de verwijzingsbeoordeling op
+    de ongewijzigde definitietekst (term ondersteunend, context/toelichting
+    alleen betekenisgrond). Deze matrix draait zonder dienst en zonder bronnen;
     daar levert zo'n regel per contract een expliciet open onderdeel
     (`review_required`) op — nooit `pass`, nooit een violation op een bron-,
-    code- of uniciteitswoord. Het gedrag mét beoordeling staat in
-    `test_def743_source_evidence_evaluator.py` en `test_def766_ess03_evaluator.py`.
+    code-, uniciteits- of signaalwoord. Het gedrag mét beoordeling staat in
+    `test_def743_source_evidence_evaluator.py`, `test_def766_ess03_evaluator.py`
+    en `test_def772_int03_evaluator.py`.
     """
     record = RECORDS[rule_id]
     return (
@@ -503,14 +506,18 @@ class TestRepositoryregelsZonderRepository:
 
 
 class TestBronbeoordelingsregelsZonderBronnen:
-    """Automatische AI-oordeelregels (DEF-743 CON-02, DEF-766 ESS-03).
+    """Automatische AI-oordeelregels (DEF-743 CON-02, DEF-766 ESS-03, DEF-772 INT-03).
 
     Deze matrix meet het tekstpad: geen bronnen, geen beoordelingsdienst.
     Een regel met `executability: judgment` + `automated` levert daar per
     contract `review_required` op — expliciet open, nooit `pass` en nooit een
-    violation op een bron-, code- of uniciteitswoord in de zin (de oude
-    CON-02- en ESS-03-fout). Het gedrag mét beoordeling staat in
-    `test_def743_source_evidence_evaluator.py` en `test_def766_ess03_evaluator.py`.
+    violation op een bron-, code-, uniciteits- of signaalwoord in de zin (de
+    oude CON-02- en ESS-03-fout; voor INT-03 is een signaalwoord zoekhulp,
+    geen oordeel, en is geen signaal geen goedkeuring — K7 pas na de
+    LLM-controle). De fixture-sleutel `bronwoord` draagt voor INT-03 de
+    signaalwoordprobe. Het gedrag mét beoordeling staat in
+    `test_def743_source_evidence_evaluator.py`, `test_def766_ess03_evaluator.py`
+    en `test_def772_int03_evaluator.py`.
     """
 
     @pytest.mark.parametrize("rule_id", AUTOMATISCH_BRONBEOORDELING_IDS, ids=str)
@@ -540,8 +547,9 @@ class TestBronbeoordelingsregelsZonderBronnen:
 
     def test_er_is_ten_minste_een_bronbeoordelingsregel(self):
         # DEF-766: ESS-03 kwam erbij (AI-telbaarheidsbeoordeling).
-        assert AUTOMATISCH_BRONBEOORDELING_IDS == ["CON-02", "ESS-03"], (
-            "de AI-oordeelklasse is vastgepind op CON-02 en ESS-03: "
+        # DEF-772: INT-03 kwam erbij (AI-verwijzingsbeoordeling, WP3).
+        assert AUTOMATISCH_BRONBEOORDELING_IDS == ["CON-02", "ESS-03", "INT-03"], (
+            "de AI-oordeelklasse is vastgepind op CON-02, ESS-03 en INT-03: "
             f"{AUTOMATISCH_BRONBEOORDELING_IDS}"
         )
 
@@ -573,8 +581,12 @@ class TestAfgeleideTelling:
         # `review_required` naar `automated` via de AI-telbaarheidsbeoordeling
         # (`countability_assessment`, geen cijfer, niet blokkerend);
         # 35/14/4 → 36/13/4.
-        "automated": 36,
-        "review_required": 13,
+        # DEF-772 (WP3): INT-03 ging van `review_required` (judgment_review,
+        # patroonsignaal) naar `automated` via de AI-verwijzingsbeoordeling
+        # (`pronoun_reference_assessment`, excluded_from_score, niet
+        # blokkerend, K7 pas na de LLM-controle); 36/13/4 → 37/12/4.
+        "automated": 37,
+        "review_required": 12,
         "not_evaluated": 4,
     }
 

@@ -19,6 +19,7 @@ from typing import Any, cast
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 from domain.int01.opslag import exportregels
+from domain.int03.opslag import exportregels as int03_exportregels
 from export.export_txt import bronbewijs_regels
 from services.data_aggregation_service import (
     DataAggregationService,
@@ -178,8 +179,8 @@ class ExportLevel(Enum):
     """Export detail levels - hoeveel velden worden geëxporteerd."""
 
     BASIS = "basis"  # 17 velden: definitie + voorbeelden
-    UITGEBREID = "uitgebreid"  # 25 velden: + metadata, process, users
-    COMPLEET = "compleet"  # 37 velden: alle database velden
+    UITGEBREID = "uitgebreid"  # 28 velden: + metadata, process, users, beoordelingen
+    COMPLEET = "compleet"  # 39 velden: alle database velden + beoordelingen
 
 
 # Field configuration per export level
@@ -229,6 +230,7 @@ EXPORT_LEVEL_FIELDS = {
             "ketenpartners",  # + Team info
             "bronbewijs",  # + DEF-743: opgeslagen bronbewijs (compact JSON)
             "int01_beoordeling",  # + DEF-770: INT-01-deeluitkomst (compact JSON)
+            "int03_beoordeling",  # + DEF-772: INT-03-beoordeling (compact JSON)
         ],
         "voorbeelden": [
             "voorkeursterm",
@@ -273,6 +275,7 @@ EXPORT_LEVEL_FIELDS = {
             "export_destinations",
             "bronbewijs",  # DEF-743: opgeslagen bronbewijs (compact JSON)
             "int01_beoordeling",  # DEF-770: INT-01-deeluitkomst (compact JSON)
+            "int03_beoordeling",  # DEF-772: INT-03-beoordeling (compact JSON)
         ],
         "voorbeelden": [
             "voorkeursterm",
@@ -537,6 +540,10 @@ class ExportService:
                 # DEF-770: opgeslagen INT-01-deeluitkomst met binding en
                 # `applied`; None = niet opgeslagen (nooit stil geslaagd).
                 "int01_beoordeling": export_data.int01_beoordeling,
+                # DEF-772: opgeslagen INT-03-beoordeling, herbonden aan het
+                # record en de actuele binding (`applied`/historisch met reden,
+                # verwijzingen, herkomst AI); None = niet opgeslagen.
+                "int03_beoordeling": export_data.int03_beoordeling,
             },
             "bronnen": {
                 "bronnen": export_data.bronnen,
@@ -605,6 +612,7 @@ class ExportService:
             "created_at",
             "updated_at",
             "int01_beoordeling",  # DEF-770: gebonden INT-01-deeluitkomst (JSON)
+            "int03_beoordeling",  # DEF-772: gebonden INT-03-beoordeling (JSON)
         ]
 
         # Schrijf CSV
@@ -640,6 +648,8 @@ class ExportService:
                 # DEF-770: dezelfde compacte JSON als de bulk-CSV, met binding
                 # en `applied`; leeg = geen opgeslagen uitkomst.
                 "int01_beoordeling": export_data.int01_beoordeling or "",
+                # DEF-772: idem voor de INT-03-beoordeling.
+                "int03_beoordeling": export_data.int03_beoordeling or "",
             }
 
             writer.writerow(_veilige_rij(_celwaarden(row)))
@@ -791,9 +801,10 @@ class ExportService:
             # dict in JSON, compacte JSON-string in CSV/Excel (zie
             # `_celwaarde`), leesbaar in TXT.
             return export_data.bronbewijs
-        if field == "int01_beoordeling":
-            # DEF-770: geen recordkolom maar de opgeslagen deeluitkomst.
-            return export_data.int01_beoordeling or ""
+        if field in ("int01_beoordeling", "int03_beoordeling"):
+            # DEF-770/DEF-772: geen recordkolom maar de opgeslagen (INT-01)
+            # resp. herbonden (INT-03) beoordeling; leeg = niet opgeslagen.
+            return getattr(export_data, field) or ""
         return value or ""
 
     def _build_export_row(
@@ -1014,6 +1025,15 @@ class ExportService:
             "toelichting": "Toelichting",
             "bronbewijs": "Bronbewijs (CON-02)",
             "int01_beoordeling": "Zinsgrenzen (INT-01)",
+            "int03_beoordeling": "Verwijzingen (INT-03)",
+        }
+        # Dict-velden met een leesbare regelweergave (zelfde regels als de
+        # individuele TXT-export): bronbewijs (DEF-743), INT-01 (DEF-770),
+        # INT-03 (DEF-772).
+        leesbare_dictvelden = {
+            "bronbewijs": bronbewijs_regels,
+            "int01_beoordeling": exportregels,
+            "int03_beoordeling": int03_exportregels,
         }
 
         # Format each definition
@@ -1027,16 +1047,10 @@ class ExportService:
 
                     label = field_labels.get(field, field.replace("_", " ").title())
 
-                    if field == "bronbewijs" and isinstance(value, dict):
-                        # DEF-743: leesbaar bronbewijs (zelfde regels als de
-                        # individuele TXT-export).
+                    regels_van = leesbare_dictvelden.get(field)
+                    if regels_van is not None and isinstance(value, dict):
                         lines.append(f"{label}:")
-                        lines.extend(f"  {regel}" for regel in bronbewijs_regels(value))
-                        lines.append("")
-                        continue
-                    if field == "int01_beoordeling" and isinstance(value, dict):
-                        lines.append(f"{label}:")
-                        lines.extend(f"  {regel}" for regel in exportregels(value))
+                        lines.extend(f"  {regel}" for regel in regels_van(value))
                         lines.append("")
                         continue
 
