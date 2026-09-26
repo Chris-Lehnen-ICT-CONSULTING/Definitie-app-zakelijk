@@ -178,6 +178,7 @@ class TestGeenEchteCalls:
         assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
             "R11",
             "R12",
+            "R13",
         ]
         assert runner.PROEVEN["R11"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R10"].budgetbesluit_sha256 is not None

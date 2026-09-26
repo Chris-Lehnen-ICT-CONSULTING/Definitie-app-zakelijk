@@ -433,6 +433,7 @@ class TestRegistratie:
         assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
             "R11",
             "R12",
+            "R13",
         ]
         assert {
             n: p.kaderverruiming_modelstappen

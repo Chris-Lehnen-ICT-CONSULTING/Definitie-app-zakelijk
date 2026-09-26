@@ -115,6 +115,14 @@ stop bij de eerste fout; samen met R11 t/m R1 nooit boven 369 (365 werkelijke
 precies deze vier stappen; het kostenkader (USD 25) telt de lopende kosten van
 R8 t/m R11 uit hun grootboeken mee.
 
+`R13` (DEF-768-AI-20260926-R13, vijf herkenbare gevallen; besluit Chris 26-09,
+"Go", `logs/def768/herkenbare-gevallen-goedkeuring-v1.json`) kent alleen
+ontwikkeling: 5 onafhankelijke gevallen × 2 stappen = 10, reserve 0; samen met
+R12 t/m R1 nooit boven 376 (366 werkelijke + 10); lokaal plafond USD 3,45.
+Onder `stop_alleen_technisch` draagt elk geval naast `geaccepteerd`
+(inhoudelijk) ook `technisch_afgerond`; alleen een technisch niet-afgerond
+geval of een open poging stopt de proef.
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -156,6 +164,7 @@ __all__ = [
     "R10",
     "R11",
     "R12",
+    "R13",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -286,7 +295,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R12` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R13` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -313,6 +322,9 @@ class Proefidentiteit:
     #: R9: gezamenlijk routerbudget (nUSD) met de voorgangers onder
     #: kostenbewaking: hun lopende kosten plus het eigen plafond; None = geen.
     kostenkader_nusd: int | None = None
+    #: R13: de stopregel telt alleen een technisch niet-afgerond geval (plus
+    #: een open poging); een inhoudelijk niet-geaccepteerd geval stopt niet.
+    stop_alleen_technisch: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "fasecaps", MappingProxyType(dict(self.fasecaps)))
@@ -589,8 +601,34 @@ R12 = Proefidentiteit(
     stop_bij_eerste_fout=True,
     kostenkader_nusd=25_000_000_000,
 )
+#: Ronde 13 (besluit Chris 26-09, "Go" op vijf herkenbare gevallen,
+#: herkenbare-gevallen-goedkeuring-v1.json): max 10 modelstappen — 5
+#: onafhankelijke ontwikkelgevallen × (beoordeling + verificatie), reserve 0;
+#: samen met R12 t/m R1 nooit boven 376 (366 werkelijke + 10). Zelfde model,
+#: tarief, bytegrenzen en productiegrens als R8. Lokaal plafond USD 3,45 = de
+#: volledige stapbegroting (5 × 0,69), onder de harde grens USD 4 en binnen de
+#: kaderrest USD 24,324085. Vijf onafhankelijke gevallen: een inhoudelijke
+#: mismatch of appafkeuring stopt de reeks niet, een technische fout, een
+#: bewakingsweigering of een open poging wel (`stop_alleen_technisch`).
+R13 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260926-R13",
+    fasecaps={"ontwikkeling": 10},
+    reserve_max=0,
+    eindgroepen=(Eindgroep("o", frozenset({"ontwikkeling"}), 0),),
+    bindingsvelden=R12.bindingsvelden,
+    voorganger=R12,
+    cumulatief_max=376,
+    modelstappen_per_geval=2,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=3_450_000_000),
+    fasestappen={"ontwikkeling": (_BEOORDELING, _VERIFICATIE)},
+    fasevolgorde={"ontwikkeling": ()},
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+    stop_alleen_technisch=True,
+)
 _IDENTITEITEN = {
-    i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12)
+    i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13)
 }
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
@@ -615,7 +653,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R12"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R13"
         raise BudgetSchendingError(msg)
     return identiteit
 
@@ -915,7 +953,7 @@ class Grootboek:
             extra = {
                 "kosten": self.kostenstand(),
                 "gevallen": gevallen,
-                "gestopt": any(not g["geaccepteerd"] for g in self._gevallen()),
+                "gestopt": self._stopgeval() is not None,
             }
         return {
             **extra,
@@ -1081,6 +1119,20 @@ class Grootboek:
             None,
         )
 
+    def _stopgeval(self) -> dict[str, Any] | None:
+        """Het eerste geval dat de proef stopt: niet geaccepteerd, of onder
+        `stop_alleen_technisch` (R13) alleen een technisch niet-afgerond geval."""
+        if self.identiteit.stop_alleen_technisch:
+            return next(
+                (
+                    g
+                    for g in self._gevallen()
+                    if g.get("technisch_afgerond") is not True
+                ),
+                None,
+            )
+        return next((g for g in self._gevallen() if not g["geaccepteerd"]), None)
+
     def controleer_fasestart(self, fase: str, poging: str | None = None) -> None:
         """R8: stopregel en fasevolgorde; ook vooraf door de runner te toetsen.
 
@@ -1093,7 +1145,7 @@ class Grootboek:
         if identiteit.fasestappen is None:
             return
         gevallen = self._gevallen()
-        geweigerd = next((g for g in gevallen if not g["geaccepteerd"]), None)
+        geweigerd = self._stopgeval()
         if identiteit.stop_bij_eerste_fout and geweigerd is not None:
             msg = (
                 f"proef gestopt na niet-geaccepteerd geval {geweigerd['poging']!r} "
@@ -1164,16 +1216,27 @@ class Grootboek:
         geaccepteerd: bool,
         reden: str,
         details: Mapping[str, Any] | None = None,
+        technisch_afgerond: bool | None = None,
     ) -> dict[str, Any]:
         """Leg de uitkomst van één geval duurzaam vast (R8-stopregel en volgorde).
 
         Alleen na volledig afgesloten stappen en eenmalig; een geaccepteerd
         geval heeft al zijn stappen gebruikt. Een niet-geaccepteerd geval stopt
-        de proef (zie `_controleer_kosten_en_volgorde`).
+        de proef (zie `_controleer_kosten_en_volgorde`); onder
+        `stop_alleen_technisch` (R13) is `technisch_afgerond` verplicht en stopt
+        alleen een technisch niet-afgerond geval.
         """
         stappen = (self.identiteit.fasestappen or {}).get(fase)
         if stappen is None:
             msg = f"{self.identiteit.proef_id} registreert geen gevallen in {fase!r}"
+            raise BudgetSchendingError(msg)
+        if self.identiteit.stop_alleen_technisch != isinstance(
+            technisch_afgerond, bool
+        ):
+            msg = (
+                f"geval {poging!r}: technisch_afgerond hoort bij "
+                f"stop_alleen_technisch ({self.identiteit.proef_id})"
+            )
             raise BudgetSchendingError(msg)
         eigen = [
             r
@@ -1196,17 +1259,18 @@ class Grootboek:
                 f"{len(stappen)} stappen"
             )
             raise BudgetSchendingError(msg)
-        return self._voeg_toe(
-            {
-                "soort": "geval",
-                "fase": fase,
-                "poging": poging,
-                "geaccepteerd": bool(geaccepteerd),
-                "reden": reden,
-                "seqs": [r["seq"] for r in eigen],
-                "details": dict(details or {}),
-            }
-        )
+        record = {
+            "soort": "geval",
+            "fase": fase,
+            "poging": poging,
+            "geaccepteerd": bool(geaccepteerd),
+            "reden": reden,
+            "seqs": [r["seq"] for r in eigen],
+            "details": dict(details or {}),
+        }
+        if technisch_afgerond is not None:
+            record["technisch_afgerond"] = technisch_afgerond
+        return self._voeg_toe(record)
 
     def _controleer_stap(
         self,

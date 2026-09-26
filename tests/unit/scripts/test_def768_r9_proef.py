@@ -321,6 +321,7 @@ class TestRegistratie:
         assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
             "R11",
             "R12",
+            "R13",
         ]
         r9 = runner.PROEVEN["R9"]
         assert (r9.budgetbesluit_sha256, dict(r9.contract)) == (

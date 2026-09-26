@@ -411,6 +411,7 @@ class TestR8Registratie:
         assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
             "R11",
             "R12",
+            "R13",
         ]
 
     @besluit_nodig

@@ -122,6 +122,17 @@ stapbegroting van deze vier stappen) binnen de kaderrest USD 24,427230 van het
 USD 25-kader (`kaderrest_nusd`). Het contract is `ess05-assess/18`/
 `ess05-verify/4` met `ess05-answer/2`.
 
+Ronde 13 (`--proef R13`, DEF-768-AI-20260926-R13, vijf herkenbare gevallen;
+besluit Chris 26-09, "Go", `logs/def768/herkenbare-gevallen-goedkeuring-v1.json`,
+vastgelegd in `logs/def768/ronde13-herkenbare-gevallen-budgetbesluit-v1.json`):
+alleen `ontwikkeling` op de vooraf vastgelegde gevallen H1–H5
+(`reports/DEF-768-AI-20260926-R13/herkenbare-gevallen-v1.json`, met freeze),
+elk exact eenmaal door beoordeling + verificatie; max 10 modelstappen, reserve
+0, geen retry, cumulatief 376. Een inhoudelijke mismatch of appafkeuring stopt
+de reeks niet; een technische fout, bewakingsweigering of open poging wel
+(`stop_alleen_technisch`). Lokaal plafond USD 3,45 binnen de kaderrest USD
+24,324085; zelfde contract als R12.
+
 Voorbeeld (droog, offline):
 
     .venv/bin/python scripts/ess05/run_ess05_proef.py --fase ontwikkeling \\
@@ -527,6 +538,26 @@ R12_CONTRACT = MappingProxyType(
 #: Ronde 12: USD 25 − werkelijke R8–R11-kosten (USD 0,572770); het lokale
 #: plafond (USD 1,44) ligt daar bewust onder.
 R12_KADERREST_NUSD = 24_427_230_000
+#: Ronde 13 (vijf herkenbare gevallen): eigen rapportroot, grootboek, anker,
+#: slot en freeze; de vooraf vastgelegde gevallen H1–H5 staan erin.
+R13_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260926-R13"
+R13_T_ONTWIKKELINVOER_SHA256 = (
+    "b212b826ef51dce8c20b5a587e57389b13e3d24ab6d590e5dcfec7e60493841b"
+)
+#: Ronde 13: het besluit, afgeleid uit het goedkeuringsbewijs van Chris ("Go",
+#: 26-09, herkenbare-gevallen-goedkeuring-v1.json), gepind op pad en hash.
+R13_BUDGETBESLUIT = (
+    PROJECT_ROOT
+    / "logs"
+    / "def768"
+    / "ronde13-herkenbare-gevallen-budgetbesluit-v1.json"
+)
+R13_BUDGETBESLUIT_SHA256 = (
+    "e64c0b6ba74855905dd7c34bc356967fc53d3b18a537639079d5f65794fe4458"
+)
+#: Ronde 13: USD 25 − werkelijke R8–R12-kosten (USD 0,675915); het lokale
+#: plafond (USD 3,45) ligt daar bewust onder.
+R13_KADERREST_NUSD = 24_324_085_000
 
 
 @dataclass(frozen=True)
@@ -717,6 +748,24 @@ PROEVEN = {
         payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
         contract=R12_CONTRACT,
         kaderrest_nusd=R12_KADERREST_NUSD,
+    ),
+    # Ronde 13: vijf herkenbare, onafhankelijke gevallen (H1–H5) binnen het
+    # gepinde besluit (10 modelstappen, plafond USD 3,45, cumulatief 376,
+    # reserve 0). Zelfde contract en payloadtoestemming als R12; alleen hier
+    # stopt een inhoudelijke mismatch of appafkeuring de reeks niet.
+    "R13": Proef(
+        "R13",
+        gb.R13,
+        Proefopslag(R13_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R13_T_ONTWIKKELINVOER_SHA256,
+        budgetbesluit=R13_BUDGETBESLUIT,
+        budgetbesluit_sha256=R13_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R12_CONTRACT,
+        kaderrest_nusd=R13_KADERREST_NUSD,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -1232,6 +1281,29 @@ def _t_acceptatie(record: dict[str, Any], *, volledig: bool) -> tuple[bool, str]
     return True, "beide stappen voltooid, oordeel vrijgegeven, status correct" + (
         " en elk buurlabel correct" if volledig else ""
     )
+
+
+def _t_technisch_afgerond(record: dict[str, Any]) -> tuple[bool, str]:
+    """R13: is het geval technisch correct afgelopen, ongeacht de inhoud?
+
+    Een inhoudelijke mismatch of een afkeuring door de bestaande appcontroles
+    (`modelfout`, bv. malformed_response zonder verifierstap of een
+    verifierweigering) is een geldige, gelogde uitkomst. Een bewakingsweigering,
+    een fout buiten de dienst of een technische transportfout niet: die stoppen
+    de reeks via de stopregel van het grootboek (`stop_alleen_technisch`).
+    """
+    statussen = [s["afsluitstatus"] for s in record["reserveringen"]]
+    if record["transport"]["bewakingsweigering"]:
+        return False, "bewakingsweigering"
+    if record["fout"] is not None:
+        return False, f"technische fout buiten de dienst ({record['fout']})"
+    soort = ((record["beoordelingsdocument"] or {}).get("error") or {}).get("type")
+    if soort in _TECHNISCHE_FOUTEN or any(
+        s not in ("voltooid", "modelfout") for s in statussen
+    ):
+        return False, f"technische fout ({soort}; stappen {statussen})"
+    appcontrole = f", appcontrole {soort}" if soort else ""
+    return True, f"technisch afgerond (stappen {statussen}{appcontrole})"
 
 
 def _stop_bij_bewaking(sleutel: str, schending: str | None, *fouten: Any) -> None:
@@ -2213,10 +2285,19 @@ async def _t_call(
         },
     }
     kb = boek.identiteit.kostenbewaking
-    acceptatie = None
+    acceptatie = stop = None
     if kb is not None and poging.gereserveerd:
         geaccepteerd, reden = _t_acceptatie(record, volledig=fase != "ontwikkeling")
-        acceptatie = {"geaccepteerd": geaccepteerd, "reden": reden}
+        acceptatie = stop = {"geaccepteerd": geaccepteerd, "reden": reden}
+        if boek.identiteit.stop_alleen_technisch:
+            # R13: alleen een technisch niet-afgerond geval stopt; de inhoud telt apart.
+            afgerond, technisch = _t_technisch_afgerond(record)
+            acceptatie = {
+                "geaccepteerd": geaccepteerd,
+                "reden": f"{technisch}; inhoud: {reden}",
+                "technisch_afgerond": afgerond,
+            }
+            stop = {"geaccepteerd": afgerond, "reden": technisch}
         record["acceptatie"] = acceptatie
     naam = f"{eerste_seq:03d}" if eerste_seq is not None else "geen-reservering"
     bestand = f"{naam}-{fase}-{geval['id']}.json"
@@ -2240,6 +2321,7 @@ async def _t_call(
         "latentie_s": record["latentie_s"],
         "duur_s": duur,
         "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
+        "technisch_afgerond": (acceptatie or {}).get("technisch_afgerond"),
     }
     if annulering is not None:
         raise annulering
@@ -2247,7 +2329,7 @@ async def _t_call(
         resultaat,
         sleutel,
         poging.schending,
-        acceptatie,
+        stop,
         (document or {}).get("error"),
         fout,
     )
@@ -3531,7 +3613,10 @@ def _parser() -> argparse.ArgumentParser:
             f"({gb.R12.proef_id}, opslag {PROEVEN['R12'].opslag.root}, "
             "cumulatief met R1 t/m R11 max 369) is open binnen het gepinde besluit "
             "(4 modelstappen: 2 verificatie_alleen, dan 2 ontwikkeling; max USD "
-            "1,44, reserve 0)"
+            "1,44, reserve 0); R13 "
+            f"({gb.R13.proef_id}, opslag {PROEVEN['R13'].opslag.root}, "
+            "cumulatief max 376) is open voor vijf onafhankelijke ontwikkelgevallen "
+            "(10 modelstappen, max USD 3,45, reserve 0)"
         ),
     )
     p.add_argument(
@@ -3580,7 +3665,7 @@ def _parser() -> argparse.ArgumentParser:
         "--max-tokens-t",
         type=int,
         default=None,
-        help="standaard: R8 t/m R12 de productiegrens (3000, ook de verifier); oudere 1500",
+        help="standaard: R8 t/m R13 de productiegrens (3000, ook de verifier); oudere 1500",
     )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"
