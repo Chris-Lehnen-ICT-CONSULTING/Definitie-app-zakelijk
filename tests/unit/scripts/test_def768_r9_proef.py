@@ -18,11 +18,11 @@ R8 (USD 0,098735) + R9 binnen het oorspronkelijke kader van USD 25 blijft.
 
 Na de inhoudelijke stop op R720 (26-09, NO-GO op claim C5) is R9 gesloten,
 ook via de geregistreerde route. Besluit en contract blijven historisch gepind
-op `/15` en `/2`; de code draagt sinds het R9-bewijsherstel `ess05-assess/16`
-en `ess05-verify/3`, dus R9 past niet meer op de huidige code. De offline
-mechaniektests draaien daarom op een kopie van R9 met de huidige
-contractidentiteit (`_r9`); de bevroren R8-V-invoer bindt de verify/2-prompt
-en wordt onder verify/3 geweigerd.
+op `/15` en `/2`; de code draagt sinds het R10-C3-herstel `ess05-assess/17`
+en `ess05-verify/4` (daarvoor /16 en /3), dus R9 past niet meer op de huidige
+code. De offline mechaniektests draaien daarom op een kopie van R9 met de
+huidige contractidentiteit (`_r9`); de bevroren R8-V-invoer bindt de
+verify/2-prompt en wordt onder de huidige verify-versie geweigerd.
 
 Providergrens is een fake; bewijst runnermechaniek, geen modelkwaliteit.
 Geen netwerk, geen echte of betaalde call.
