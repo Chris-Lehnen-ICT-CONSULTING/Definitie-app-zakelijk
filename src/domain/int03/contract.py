@@ -503,25 +503,30 @@ def _kandidatenfout(index: int, item: Mapping[str, Any]) -> str | None:
     return None
 
 
-def _verwijzingenfout(geparsed: Mapping[str, Any]) -> str | None:
-    """Per verwijzing exact vijf velden, tekstvelden niet leeg (reading mag
+def _verwijzingsfout(index: int, item: Any) -> str | None:
+    """Eén verwijzing: exact vijf velden, tekstvelden niet leeg (reading mag
     leeg), status uit de gesloten set, kandidaten passend bij de status."""
+    if not isinstance(item, Mapping):
+        return f"references[{index}] is geen object"
+    if set(item) != _VERWIJZINGSVELDEN:
+        return (
+            f"references[{index}] heeft niet exact de velden word, passage, "
+            "status, reading en candidates"
+        )
+    for veld in ("word", "passage", "reading"):
+        if not isinstance(item[veld], str):
+            return f"references[{index}].{veld} moet tekst zijn"
+    if not _tekst(item["word"]) or not _tekst(item["passage"]):
+        return f"references[{index}]: word en passage mogen niet leeg zijn"
+    if item["status"] not in VERWIJZINGSSTATUSSEN:
+        return f"references[{index}].status is onbekend (niet uit de gesloten set)"
+    return _kandidatenfout(index, item)
+
+
+def _verwijzingenfout(geparsed: Mapping[str, Any]) -> str | None:
+    """De eerste afwijkende verwijzing bepaalt de melding (`_verwijzingsfout`)."""
     for index, item in enumerate(geparsed["references"]):
-        if not isinstance(item, Mapping):
-            return f"references[{index}] is geen object"
-        if set(item) != _VERWIJZINGSVELDEN:
-            return (
-                f"references[{index}] heeft niet exact de velden word, passage, "
-                "status, reading en candidates"
-            )
-        for veld in ("word", "passage", "reading"):
-            if not isinstance(item[veld], str):
-                return f"references[{index}].{veld} moet tekst zijn"
-        if not _tekst(item["word"]) or not _tekst(item["passage"]):
-            return f"references[{index}]: word en passage mogen niet leeg zijn"
-        if item["status"] not in VERWIJZINGSSTATUSSEN:
-            return f"references[{index}].status is onbekend (niet uit de gesloten set)"
-        fout = _kandidatenfout(index, item)
+        fout = _verwijzingsfout(index, item)
         if fout is not None:
             return fout
     return None
