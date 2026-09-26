@@ -137,32 +137,36 @@ def herbind_r8_item(item: Mapping[str, Any], norm: Mapping[str, str]) -> dict:
     return uit
 
 
-def _historisch_oordeel(doc: Mapping[str, Any]) -> dict[str, Any]:
-    checks = [
-        c for c in doc["verification"]["checks"] if c.get("item") == N4_FOUTDRAGER
-    ]
+def historisch_oordeel(
+    doc: Mapping[str, Any], foutdrager: str = N4_FOUTDRAGER
+) -> dict[str, Any]:
+    """Het echte verifieroordeel over de foutdrager, ongewijzigd (geen herlabeling)."""
+    checks = [c for c in doc["verification"]["checks"] if c.get("item") == foutdrager]
     if len(checks) != 1:
-        msg = f"geen eenduidig historisch verifieroordeel over {N4_FOUTDRAGER}"
+        msg = f"geen eenduidig historisch verifieroordeel over {foutdrager}"
         raise MakerfoutError(msg)
     return {
-        "item": N4_FOUTDRAGER,
+        "item": foutdrager,
         "outcome": checks[0]["outcome"],
         "finding": checks[0].get("finding"),
         "verification_raw_response_sha256": doc["verification_raw_response_sha256"],
     }
 
 
-def n4_item(
+def herafgeleid_concept(
     record: Mapping[str, Any],
     geval: Mapping[str, Any],
-    bron: Mapping[str, Any],
-    norm: Mapping[str, str] | None = None,
+    norm: Mapping[str, str],
+    ronde: str,
 ) -> dict[str, Any]:
-    """V-N4: het bewaarde R9-concept, alleen na exacte herafleiding uit het ruwe antwoord."""
-    from domain.ess05.contract import valideer_antwoord
-    from services.validation.ess05_assessment_service import laad_ess05_norm
+    """Het bewaarde concept van een echt callrecord, alleen na exacte herafleiding.
 
-    norm = laad_ess05_norm() if norm is None else norm
+    Ruw antwoord, geval en materiaal moeten bij de vastgelegde hashes horen, en
+    de afleiding uit het ruwe antwoord moet exact het bewaarde concept en zijn
+    hash opleveren; anders geen item (geen reparatie).
+    """
+    from domain.ess05.contract import valideer_antwoord
+
     doc = record["beoordelingsdocument"]
     ruw = record["ruw_antwoord"]
     afleiding = doc["concept_derivation"]
@@ -172,14 +176,14 @@ def n4_item(
         == doc["raw_response_sha256"]
         == afleiding["raw_response_sha256"]
     ):
-        msg = "R9: het ruwe antwoord hoort niet bij de vastgelegde hashes"
+        msg = f"{ronde}: het ruwe antwoord hoort niet bij de vastgelegde hashes"
         raise MakerfoutError(msg)
     if pi.sha_json(geval) != record["geval_sha256"]:
-        msg = "R9: het geval uit de ontwikkelselectie is niet dat van het callrecord"
+        msg = f"{ronde}: het geval uit de ontwikkelselectie is niet dat van het callrecord"
         raise MakerfoutError(msg)
     materiaal, buren, _ = mig.verificatiemateriaal(geval, norm)
     if {m: _sha(t) for m, t in materiaal.items()} != afleiding["material"]:
-        msg = "R9: het materiaal wijkt af van de materiaalhashes van de afleiding"
+        msg = f"{ronde}: het materiaal wijkt af van de materiaalhashes van de afleiding"
         raise MakerfoutError(msg)
     afgeleid, fouten = valideer_antwoord(json.loads(ruw), materiaal, buren)
     concept = doc["concept"]
@@ -188,8 +192,22 @@ def n4_item(
         or afgeleid.data != concept
         or afgeleid.hash != afleiding["concept_hash"]
     ):
-        msg = f"R9: het bewaarde concept is niet de afleiding uit het ruwe antwoord ({fouten})"
+        msg = f"{ronde}: het bewaarde concept is niet de afleiding uit het ruwe antwoord ({fouten})"
         raise MakerfoutError(msg)
+    return concept
+
+
+def n4_item(
+    record: Mapping[str, Any],
+    geval: Mapping[str, Any],
+    bron: Mapping[str, Any],
+    norm: Mapping[str, str] | None = None,
+) -> dict[str, Any]:
+    """V-N4: het bewaarde R9-concept, alleen na exacte herafleiding uit het ruwe antwoord."""
+    from services.validation.ess05_assessment_service import laad_ess05_norm
+
+    norm = laad_ess05_norm() if norm is None else norm
+    concept = herafgeleid_concept(record, geval, norm, "R9")
     c5 = [c for c in concept["claims"] if c["id"] == _N4_CLAIM]
     if (
         len(c5) != 1
@@ -240,7 +258,7 @@ def maak_verificatie_invoer(
         "prompt_version": doc["prompt_version"],
         "verification_prompt_version": doc["verification_prompt_version"],
         "concept_derivation": doc["concept_derivation"],
-        "historisch_verifieroordeel": _historisch_oordeel(doc),
+        "historisch_verifieroordeel": historisch_oordeel(doc),
         "ontwikkelselectie": {"pad": _rel(R9_SELECTIE), "sha256": R9_SELECTIE_SHA256},
         "inhoudscontrole": {
             "pad": _rel(INHOUDSCONTROLE),

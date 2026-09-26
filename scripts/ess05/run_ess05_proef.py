@@ -89,8 +89,19 @@ gesloten na de inhoudelijke stop op R720 (26-09,
 `reports/DEF-768-AI-20260926-R10/inhoudelijke-stop-v1.json`): de verifier droeg
 een deelzin van C3 met de ongeciteerde bronzin na E7. Contract en V7 blijven
 historisch gepind; de code draagt sinds het C3-herstel `ess05-assess/17`/
-`ess05-verify/4`. Er is geen open ronde; een nieuwe proef vereist een eigen
-besluit, een nieuwe V-invoer en een eigen registratie.
+`ess05-verify/4`.
+
+Ronde 11 (`--proef R11`, DEF-768-AI-20260926-R11, gerichte proef na het
+R10-C3-herstel; besluit Chris 26-09, "akkoord",
+`logs/def768/ronde11-herproefgoedkeuring-v1.json`) is de enige open ronde: 66
+modelstappen (ontwikkeling alleen R720 uit de R9-selectie, verificatie_alleen
+op V8 = V7 opnieuw gebonden aan verify/4 plus het ongewijzigde R10-C3-concept,
+`maak_r11_verificatie_invoer.py`; t_eind, t_herhaling), reserve 0, cumulatief
+430, routerplafond USD 24,529390 binnen het kader van USD 25 inclusief de
+werkelijke R8-, R9- en R10-kosten. Het aantal stappen gaat exact 3 boven het
+oorspronkelijke kader (68 → 71); die verruiming (`kaderverruiming_modelstappen`)
+geldt alleen voor R11 en alleen als het gepinde besluit haar exact noemt. Het
+contract is `ess05-assess/17`/`ess05-verify/4`.
 
 Voorbeeld (droog, offline):
 
@@ -445,6 +456,31 @@ R10_CONTRACT = MappingProxyType(
         "verification_schema_version": "ess05-verification/1",
     }
 )
+#: Ronde 11 (gerichte proef na het R10-C3-herstel): eigen rapportroot,
+#: grootboek, anker, slot en freezes.
+R11_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260926-R11"
+#: Ronde 11: V8 (maak_r11_verificatie_invoer.py): de zeven V7-items, alleen hun
+#: verificatieprompthash opnieuw berekend (verify/4), plus V-N5 = het
+#: ongewijzigde R10-R720-concept met foutdrager claim:C3.
+R11_V_INVOER_SHA256 = "d25bae233b6cc35760c8e86ae3d83b35b262ad0bcc1fa9cb4e864d40fec30164"
+#: Ronde 11: het besluit van Chris ("akkoord", 26-09), gepind op pad en hash.
+R11_BUDGETBESLUIT = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde11-herproefgoedkeuring-v1.json"
+)
+R11_BUDGETBESLUIT_SHA256 = (
+    "b7396db9b2940709ee064f36682b1df46d6c820b62769f07156822a0d16c0b14"
+)
+#: Ronde 11: de gereviewde contractidentiteit van het R10-C3-herstel
+#: (657bf67c8); een run op andere code start niets (`_controleer_contract`).
+R11_CONTRACT = MappingProxyType(
+    {
+        "prompt_version": "ess05-assess/17",
+        "verification_prompt_version": "ess05-verify/4",
+        "answer_schema_version": "ess05-answer/1",
+        "concept_schema_version": "ess05-concept/1",
+        "verification_schema_version": "ess05-verification/1",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -471,6 +507,10 @@ class Proef:
     payloadtoestemming_sha256: str | None = None
     #: R9: vastgelegde prompt- en antwoordcontractidentiteit (`contractidentiteit`).
     contract: Mapping[str, str] | None = None
+    #: R11: modelstappen boven het oorspronkelijke kader van de grond (R8: 68),
+    #: alleen geldig als het gepinde besluit deze verruiming exact noemt; 0 =
+    #: geen verruiming, en dan mag het besluit er ook geen noemen.
+    kaderverruiming_modelstappen: int = 0
 
 
 PROEVEN = {
@@ -589,6 +629,25 @@ PROEVEN = {
         payloadtoestemming=R9_PAYLOADTOESTEMMING,
         payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
         contract=R10_CONTRACT,
+    ),
+    # Ronde 11: open binnen het gepinde besluit (66 modelstappen, plafond USD
+    # 24,529390, cumulatief 430, reserve 0); R1–R10 gesloten. Ontwikkeling is
+    # exact de R9-selectie (alleen R720); V is V8. Zelfde payloadtoestemming.
+    # Als enige ronde 3 modelstappen boven het oorspronkelijke kader (71).
+    "R11": Proef(
+        "R11",
+        gb.R11,
+        Proefopslag(R11_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R9_T_ONTWIKKELINVOER_SHA256,
+        v_invoer_sha256=R11_V_INVOER_SHA256,
+        budgetbesluit=R11_BUDGETBESLUIT,
+        budgetbesluit_sha256=R11_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R11_CONTRACT,
+        kaderverruiming_modelstappen=3,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -773,7 +832,7 @@ def _kaderketen(proef: Proef) -> tuple[Proef, ...]:
 
     Van de directe voorganger tot en met de grond: de eerste voorganger onder
     kostenbewaking zonder eigen kostenkader, wiens besluit het oorspronkelijke
-    kader draagt (R9: R8; R10: R9, R8).
+    kader draagt (R9: R8; R10: R9, R8; R11: R10, R9, R8).
     """
     keten: list[Proef] = []
     for vorige in gb.voorgangerketen(proef.identiteit):
@@ -815,13 +874,14 @@ def _controleer_payloadtoestemming(proef: Proef, grond: Proef) -> None:
 
 
 def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
-    """R9/R10: het besluit draagt het oorspronkelijke kader van de grond (R8).
+    """R9–R11: het besluit draagt het oorspronkelijke kader van de grond (R8).
 
     Het oorspronkelijke besluit, de besluiten van de rondes ertussen en de
     payloadtoestemming moeten zelf gepind en geldig zijn. Het besluit noemt per
-    voorganger binnen het kader zijn verbruik (`r8_…`, `r9_…`); samen met deze
-    ronde exact USD 25 en binnen de 68 stappen. De werkelijke kosten toetst
-    `gb.controleer_cumulatief` tegen hun grootboeken.
+    voorganger binnen het kader zijn verbruik (`r8_…`, `r9_…`, `r10_…`); samen
+    met deze ronde exact USD 25 en binnen de 68 stappen, of binnen 68 plus de
+    geregistreerde verruiming (`_verruimingsafwijkingen`). De werkelijke kosten
+    toetst `gb.controleer_cumulatief` tegen hun grootboeken.
     """
     identiteit = proef.identiteit
     keten = _kaderketen(proef)
@@ -851,11 +911,44 @@ def _kaderafwijkingen(proef: Proef, data: Mapping[str, Any]) -> list[str]:
     if not all(
         isinstance(s, int) and not isinstance(s, bool) and s >= 0 for s in stappen
     ) or (
-        sum(stappen) + identiteit.totaal_max > g.totaal_max
+        sum(stappen) + identiteit.totaal_max
+        > g.totaal_max + proef.kaderverruiming_modelstappen
         or data.get("historisch_verbruik")
         != g.cumulatief_max - g.totaal_max + sum(stappen)
     ):
         afwijkend += sleutels
+    return afwijkend + _verruimingsafwijkingen(proef, g, data)
+
+
+_VERRUIMINGSVELDEN = (
+    "goedgekeurde_verruiming_modelaanroepen",
+    "nieuw_gezamenlijk_modelaanroepen_max",
+    "nieuw_cumulatief_plafond",
+)
+
+
+def _verruimingsafwijkingen(
+    proef: Proef, grond: gb.Proefidentiteit, data: Mapping[str, Any]
+) -> list[str]:
+    """R11: een verruiming boven het oorspronkelijke kader, gebonden aan één besluit.
+
+    Zonder geregistreerde verruiming mag het besluit geen verruimingsveld
+    noemen (geen algemene budgetverruiming via een besluit). Met verruiming n
+    noemt het besluit exact n, het nieuwe gezamenlijke maximum (68 + n) en het
+    nieuwe cumulatieve plafond (427 + n), dat ook de grens van de identiteit is.
+    Het oorspronkelijke 68/427 blijft als historie in eigen velden staan.
+    """
+    n = proef.kaderverruiming_modelstappen
+    if not n:
+        return [f"verruiming:{k}" for k in _VERRUIMINGSVELDEN if k in data]
+    verwacht = (n, grond.totaal_max + n, grond.cumulatief_max + n)
+    afwijkend = [
+        f"verruiming:{k}"
+        for k, v in zip(_VERRUIMINGSVELDEN, verwacht, strict=True)
+        if data.get(k) != v
+    ]
+    if proef.identiteit.cumulatief_max != grond.cumulatief_max + n:
+        afwijkend.append("verruiming:cumulatief_max")
     return afwijkend
 
 
@@ -3325,16 +3418,16 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R10 "
-            f"({gb.R10.proef_id}, opslag {PROEVEN['R10'].opslag.root}) stopte "
-            "inhoudelijk op R720 en blijft historisch gepind; een nieuwe proef "
-            "vereist een eigen besluit en registratie"
+            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R11 "
+            f"({gb.R11.proef_id}, opslag {PROEVEN['R11'].opslag.root}, "
+            "cumulatief met R1 t/m R10 max 430) is open binnen het gepinde besluit "
+            "(66 modelstappen, max USD 24,529390, reserve 0)"
         ),
     )
     p.add_argument(
         "--gevallen",
         type=Path,
-        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R10)",
+        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R11)",
     )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
@@ -3377,7 +3470,7 @@ def _parser() -> argparse.ArgumentParser:
         "--max-tokens-t",
         type=int,
         default=None,
-        help="standaard: R8 t/m R10 de productiegrens (3000, ook de verifier); oudere 1500",
+        help="standaard: R8 t/m R11 de productiegrens (3000, ook de verifier); oudere 1500",
     )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"

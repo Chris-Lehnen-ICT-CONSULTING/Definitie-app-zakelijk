@@ -316,8 +316,8 @@ class TestRegistratie:
         assert dict(proef.contract) == CONTRACT
 
     def test_r8_en_r9_gesloten_met_behouden_besluit(self):
-        # Ook R10 is na zijn inhoudelijke stop (C3) gesloten: geen ronde staat open.
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
+        # Ook R10 is na zijn inhoudelijke stop (C3) gesloten; alleen R11 is open.
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R11"]
         r9 = runner.PROEVEN["R9"]
         assert (r9.budgetbesluit_sha256, dict(r9.contract)) == (
             BESLUIT9_SHA256,

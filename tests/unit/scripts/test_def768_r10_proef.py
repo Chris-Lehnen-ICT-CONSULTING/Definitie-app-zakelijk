@@ -435,8 +435,9 @@ class TestRegistratie:
         )
         assert dict(proef.contract) == CONTRACT10
 
-    def test_geen_ronde_open_besluiten_en_contracten_behouden(self):
-        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == []
+    def test_r10_dicht_besluiten_en_contracten_behouden(self):
+        # Alleen R11 (eigen besluit na het C3-herstel) is open; zie de R11-tests.
+        assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == ["R11"]
         r10 = runner.PROEVEN["R10"]
         assert (r10.budgetbesluit_sha256, dict(r10.contract)) == (
             BESLUIT10_SHA256,

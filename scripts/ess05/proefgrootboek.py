@@ -96,6 +96,15 @@ T-eind en 16 T-herhaling, reserve 0; samen met R9 t/m R1 nooit boven 427
 (362 werkelijke + 65). Het routerplafond is USD 24,722355; het kostenkader
 (USD 25) telt de lopende kosten van R8 én R9 uit hun grootboeken mee.
 
+`R11` (DEF-768-AI-20260926-R11, gerichte proef na het R10-C3-herstel; besluit
+Chris 26-09, `logs/def768/ronde11-herproefgoedkeuring-v1.json`) volgt dezelfde
+regels met 2 ontwikkeling (alleen R720 × 2), 8 verifier-only, 40 T-eind en 16
+T-herhaling, reserve 0; samen met R10 t/m R1 nooit boven 430 (364 werkelijke +
+66). Dat is 3 boven het oorspronkelijke kader van 427; die verruiming is
+uitsluitend aan het gepinde R11-besluit gebonden (runner). Het routerplafond is
+USD 24,529390; het kostenkader (USD 25) telt de lopende kosten van R8, R9 én
+R10 uit hun grootboeken mee.
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -135,6 +144,7 @@ __all__ = [
     "R8",
     "R9",
     "R10",
+    "R11",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -265,7 +275,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R10` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R11` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -505,7 +515,37 @@ R10 = Proefidentiteit(
     stop_bij_eerste_fout=True,
     kostenkader_nusd=25_000_000_000,
 )
-_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10)}
+#: Ronde 11 (besluit Chris 26-09, "akkoord" op c3-herstel-vervolgproef-
+#: voorstel-v1): gerichte proef na het R10-C3-herstel, max 66 modelstappen — 2
+#: ontwikkeling (alleen R720 × 2), 8 verifier-only (V7 plus het ongewijzigde
+#: R10-C3-concept), 40 T-eind (20 × 2) en 16 T-herhaling (8 × 2), reserve 0;
+#: samen met R10 t/m R1 nooit boven 430 (364 werkelijke + 66), expliciet 3
+#: boven het oorspronkelijke 427. Zelfde model, tarief, bytegrenzen en
+#: productiegrens als R8; plafond USD 24,529390 = kader USD 25 − werkelijke
+#: R8- (0,098735), R9- (0,178910) en R10-kosten (0,192965). Begroting
+#: 23,010 USD (`begroting_nusd`).
+R11 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260926-R11",
+    fasecaps={
+        "ontwikkeling": 2,
+        "verificatie_alleen": 8,
+        "t_eind": 40,
+        "t_herhaling": 16,
+    },
+    reserve_max=0,
+    eindgroepen=R10.eindgroepen,
+    bindingsvelden=R10.bindingsvelden,
+    voorganger=R10,
+    cumulatief_max=430,
+    modelstappen_per_geval=2,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=24_529_390_000),
+    fasestappen=R10.fasestappen,
+    fasevolgorde=R10.fasevolgorde,
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+)
+_IDENTITEITEN = {i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11)}
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
 _GEDEELDE_BINDING = ("code_sha256", "config_sha256")
@@ -529,7 +569,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R10"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R11"
         raise BudgetSchendingError(msg)
     return identiteit
 
@@ -1317,7 +1357,7 @@ def controleer_cumulatief(
 def _controleer_kostenkader(
     identiteit: Proefidentiteit, boeken: tuple[Grootboek, ...]
 ) -> None:
-    """R9/R10: lopende kosten van de voorgangers onder kostenbewaking + eigen plafond.
+    """R9–R11: lopende kosten van de voorgangers onder kostenbewaking + eigen plafond.
 
     Werkelijk waar de usage bekend is, anders de stapgrens (`kostenstand`);
     zo blijven de rondes samen binnen het oorspronkelijke kader.
