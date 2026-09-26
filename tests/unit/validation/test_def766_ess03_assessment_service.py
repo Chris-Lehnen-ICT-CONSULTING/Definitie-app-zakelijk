@@ -388,6 +388,12 @@ async def test_citaat_met_escaped_tekens_wordt_teruggezet():
             "question",
         ),
         ("[]", "geen kaal (volledig) JSON-object"),
+        # DEF-768 A2-01: diepe JSON uit de gedeelde parser is misvormd, geen exception.
+        pytest.param(
+            '{"verdict": ' + "[" * 10000 + "0" + "]" * 10000 + "}",
+            "geen kaal (volledig) JSON-object",
+            id="diepe-json",
+        ),
     ],
 )
 async def test_misvormd_antwoord_is_technische_fout_nooit_oordeel(antwoord, fragment):

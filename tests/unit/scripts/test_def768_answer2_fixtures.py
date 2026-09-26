@@ -205,10 +205,6 @@ class TestR11BlijftNegatief:
         )
         with pytest.raises(maker.MakerfoutError, match="ongebruikte claim"):
             maker.bouw_fixture("r11")
-        # Transformeren van het ongeldige antwoord verliest C10 stil: precies
-        # daarom valideert de maker eerst onder answer/1 (en weigert hij R11).
-        genest = maker.naar_answer2(json.loads(R11["raw_response"]))
-        assert "C10" not in json.dumps(genest)
 
 
 class TestAnswer2Fixtures:

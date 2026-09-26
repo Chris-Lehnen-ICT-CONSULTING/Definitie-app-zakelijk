@@ -21,6 +21,7 @@ import json
 
 import pytest
 
+from domain import modeluitvoer
 from domain.ess05 import bewijs
 
 pytestmark = [pytest.mark.unit]
@@ -696,6 +697,74 @@ class TestBinding:
         assert "niet afgeleid uit de bewaarde ruwe respons" in self._afwijzing(
             oud, binding
         )
+
+    def test_diepe_ruwe_respons_wordt_bij_replay_geweigerd(self):
+        """A2-01: ook de replay leest via de gedeelde parser; geen exception."""
+        binding = self._binding()
+        document = copy.deepcopy(self._document(binding))
+        ruw = '{"schema_version": "ess05-answer/2", "reason": ' + _diep(10000) + "}"
+        document["raw_response"] = ruw
+        document["raw_response_sha256"] = _sha(ruw)
+        document["concept_derivation"]["raw_response_sha256"] = _sha(ruw)
+        assert "niet afgeleid uit de bewaarde ruwe respons" in self._afwijzing(
+            document, binding
+        )
+
+
+def _diep(n: int, kern: str = "0") -> str:
+    return "[" * n + kern + "]" * n
+
+
+class TestDiepeRuweJson:
+    """A2-01: ruwe JSON die dieper nest dan de parsergrens is geen JSON-object.
+
+    De test met 5000 claimniveaus hierboven gaat uit van een al opgebouwd
+    Python-object; deze tests beginnen bij de ruwe tekst, waar `json.loads`
+    zelf al een RecursionError kan geven.
+    """
+
+    @pytest.mark.parametrize(
+        "ruw",
+        [
+            '{"schema_version":"ess05-answer/2","reason":' + _diep(10000) + "}",
+            '{"a": ' * 10000 + "0" + "}" * 10000,
+            '```json\n{"reason": ' + _diep(10000) + "}\n```",
+        ],
+        ids=["lijsten-review-a2-01", "objecten", "codeblok"],
+    )
+    def test_recursiediepte_is_geen_json_object(self, ruw):
+        assert modeluitvoer.parse_modeluitvoer(ruw) is None
+
+    def test_grens_is_exact(self):
+        grens = modeluitvoer.MAX_JSON_DIEPTE
+        # Het omringende object telt als eerste niveau.
+        op_de_grens = '{"a": ' + _diep(grens - 1) + "}"
+        erboven = '{"a": ' + _diep(grens) + "}"
+        assert modeluitvoer.parse_modeluitvoer(op_de_grens) is not None
+        assert modeluitvoer.parse_modeluitvoer(erboven) is None
+        # Ook de lengte van een lijst of object telt niet mee, alleen de nesting.
+        breed = json.dumps({"a": [[0] * 5000], "b": {str(i): i for i in range(5000)}})
+        assert modeluitvoer.parse_modeluitvoer(breed) is not None
+
+    def test_diepste_geldige_antwoord_blijft_onder_de_grens(self):
+        """De grens weigert geen afgesproken answer/2; de claimgrens meldt zelf."""
+
+        def keten(diepte):
+            claim = KERNCLAIM
+            for i in range(diepte - 1):
+                claim = inf(f"Stap {i}.", claim)
+            return claim
+
+        ruw = antwoord()
+        ruw["neighbours"][0]["reason"].append(keten(bewijs.MAX_CLAIMDIEPTE))
+        geparsed = modeluitvoer.parse_modeluitvoer(json.dumps(ruw))
+        assert geparsed == ruw
+        concept, fouten = leid_af(geparsed)
+        assert fouten == [] and concept is not None
+
+        ruw["neighbours"][0]["reason"][-1] = keten(bewijs.MAX_CLAIMDIEPTE + 1)
+        geparsed = modeluitvoer.parse_modeluitvoer(json.dumps(ruw))
+        assert "te diep genest" in structuurfout(geparsed)
 
 
 CONTEXT = {

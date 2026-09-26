@@ -11,6 +11,7 @@ inhoudelijke kwaliteit van een model.
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 import pytest
@@ -678,3 +679,58 @@ class TestRonde2ParserBlijftStreng:
         _, svc = _service(kapot)
         doc = (await _assess(svc)).als_dict()
         assert doc["error"]["type"] == "malformed_response"
+
+
+def _diep(n: int) -> str:
+    return "[" * n + "0" + "]" * n
+
+
+class TestDiepeRuweJson:
+    """A2-01: diepe ruwe JSON is een misvormd antwoord, nooit een exception.
+
+    10000 niveaus laten `json.loads` zelf een RecursionError geven; 900
+    niveaus parsen wel, maar braken de verificatiestap (deepcopy van het
+    geparste antwoord). Beide horen gestructureerd te weigeren.
+    """
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("n", [10000, 900], ids=["recursie", "parseerbaar"])
+    async def test_stap1_weigert_met_behoud_van_raw_en_hash(self, n):
+        ruw = '{"schema_version": "ess05-answer/2", "reason": ' + _diep(n) + "}"
+        ai, svc = _service(ruw, ruw)
+        doc = (await _assess(svc)).als_dict()
+        assert (doc["status"], doc["error"]["type"], doc["error"]["phase"]) == (
+            "error",
+            "malformed_response",
+            "assessment",
+        )
+        assert doc["raw_response"] == ruw
+        assert doc["raw_response_sha256"] == hashlib.sha256(ruw.encode()).hexdigest()
+        assert doc["judgment"] is None and doc["verification"] is None
+        assert len(ai.calls) == 1  # geen verificatie, geen retry
+        # Niet gecachet: een tweede beoordeling gaat opnieuw naar het model.
+        await _assess(svc)
+        assert len(ai.calls) == 2
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("n", [10000, 900], ids=["recursie", "parseerbaar"])
+    async def test_verificatiestap_weigert_zonder_oordeel(self, n):
+        def antwoord(prompt):
+            spec = _uitvoer(BUREN_E05)
+            return antwoord_uit_concept(
+                concept_uit_spec(spec, materiaal_uit_prompt(prompt))
+            )
+
+        diep = '{"schema_version": "ess05-verification/1", "claims": ' + _diep(n) + "}"
+        ai, svc = _service(antwoord, diep)
+        doc = (await _assess(svc)).als_dict()
+        assert (doc["status"], doc["error"]["type"], doc["error"]["phase"]) == (
+            "error",
+            "malformed_response",
+            "verification",
+        )
+        assert doc["judgment"] is None and doc["verification"] is None
+        assert doc["verification_raw_response_sha256"] == (
+            hashlib.sha256(diep.encode()).hexdigest()
+        )
+        assert len(ai.calls) == 2  # één beoordeling, één verificatie, geen retry
