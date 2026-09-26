@@ -59,6 +59,15 @@ C105 = "De medewerker laat de aanvrager toe."
 BEVOEGDHEID = "Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is."
 PLICHT = "Verplichting die een partij moet nakomen."
 FUNCTIE = "Voorwerp dat dient als ondersteuning."
+# R1 (review WP5): een tussenzin, opsomming of ingebed criterium mag de
+# dragende zin niet afkappen.
+TUSSENZIN = "Handeling die moet, na toestemming van de rechter, worden verricht."
+OPSOMMING = (
+    "Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid."
+)
+INGEBED = (
+    "Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag."
+)
 
 S1 = [
     r"\bvan\s+oordeel\s+is\b",
@@ -117,10 +126,14 @@ def test_record_s1_en_leeshulp():
         (C04, [r"\bindien\b"], C04[:-1]),
         (C50, [r"\bindien\b"], C50[:-1]),
         (C54, [r"\balleen als\b"], C54[:-1]),
-        (C02, [r"\bmoet\b"], C02[len("transitie-eis: ") : -1]),
-        (C83, S1[1:3], C83[len("passende maatregel: ") :]),
+        # Het termlabel hoort bij de dragende zin (R1: geen ':'-grens).
+        (C02, [r"\bmoet\b"], C02[:-1]),
+        (C83, S1[1:3], C83),
         (BEVOEGDHEID, S1[1:2] + S1[3:4], BEVOEGDHEID[:-1]),
         (PLICHT, [r"\bmoet\b"], PLICHT[:-1]),
+        (TUSSENZIN, [r"\bmoet\b"], TUSSENZIN[:-1]),
+        (OPSOMMING, [r"\bmoet\b"], OPSOMMING[:-1]),
+        (INGEBED, [r"\bindien\b"], INGEBED[:-1]),
     ],
 )
 def test_signaal_geeft_neutrale_vraag_met_passage_en_positie(tekst, signalen, passage):
@@ -157,10 +170,14 @@ def test_markergrenzen_kan_besluiten_en_dient_te():
 
 
 def test_herhaalde_passage_blijft_onderscheidbaar():
+    # Binnen één volledige zin delen de markers één vraag (R1).
     tekst = "handeling die moet volgen, handeling die moet volgen"
+    assert _passages(_evalueer(tekst), tekst) == [(tekst, 0, 52)]
+    # In verschillende zekere zinnen houdt elke passage een eigen positie.
+    tekst = "Handeling die moet volgen. Handeling die moet volgen."
     assert _passages(_evalueer(tekst), tekst) == [
-        ("handeling die moet volgen", 0, 25),
-        ("handeling die moet volgen", 27, 52),
+        ("Handeling die moet volgen", 0, 25),
+        ("Handeling die moet volgen", 27, 52),
     ]
 
 

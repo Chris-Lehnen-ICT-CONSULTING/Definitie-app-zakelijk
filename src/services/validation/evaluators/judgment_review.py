@@ -141,17 +141,18 @@ def int02_niet_uitgevoerd_uitkomst(
 
 
 def _int02_passage(kern: str, start: int, einde: int) -> tuple[int, int]:
-    """Het dragende zinsdeel rond een treffer, als (start, einde) in `kern`.
+    """De volledige dragende zin rond een treffer, als (start, einde) in `kern`.
 
-    Grenzen: zekere zinsgrenzen van de INT-01-segmentatie en ',', ';' of ':'
-    gevolgd door witruimte. Bij een onzekere zinsgrens, of als alleen het
-    markerwoord overblijft, wordt de volledige kern geciteerd.
+    Grenzen: uitsluitend zekere zinsgrenzen van de INT-01-segmentatie. Een
+    komma, puntkomma of dubbele punt is geen grens: een tussenzin, opsomming
+    of ingebed criterium hoort bij de dragende zin (review WP5, R1). Bij een
+    onzekere zinsgrens, of als alleen het markerwoord overblijft, wordt de
+    volledige kern geciteerd.
     """
     segmentatie = segmenteer(kern)
     if segmentatie is None or segmentatie.onzekere_grenzen:
         return _bijgesneden(kern, 0, len(kern))
     grenzen = {grens.positie for grens in segmentatie.zekere_grenzen}
-    grenzen |= {m.start() for m in re.finditer(r"[,;:](?=\s)", kern)}
     begin = max((g + 1 for g in grenzen if g < start), default=0)
     eind = min((g for g in grenzen if g >= einde), default=len(kern))
     passage = _bijgesneden(kern, begin, eind)
@@ -205,7 +206,7 @@ class JudgmentReviewEvaluator:
         treffer nooit 'voldoet'. Het citaat komt uit de getoetste kern
         (`cleaned_text`) en de positie slaat op diezelfde tekst; wijkt die af
         van de aangeleverde tekst, dan staat dat erbij. Meerdere markers in één
-        passage delen één vraag; gelijke passages op andere posities niet.
+        zin delen één vraag; gelijke zinnen op andere posities niet.
         """
         kern = ctx.cleaned_text or ""
         reden = f"INT-02 — Toetsvraag: {toetsvraag}"
