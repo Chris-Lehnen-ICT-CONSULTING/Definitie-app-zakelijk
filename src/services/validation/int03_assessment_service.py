@@ -121,6 +121,39 @@ def _normhash(norm: Mapping[str, str]) -> str:
     ).hexdigest()
 
 
+def actuele_binding() -> Beoordelingsbinding | None:
+    """De actuele INT-03-beoordelingsbinding uit code, regelrecord en configuratie
+    — zonder dienstinstantie en zonder netwerk (DEF-772 WP4, export/replay).
+
+    Promptversie uit de code, norm uit het actieve regelrecord, provider en
+    model uit de `ModelRouter` van de actieve configuratie (taak `validation`).
+    `None` wanneer die niet te bepalen zijn (alleen het uitzonderingstype
+    wordt gelogd): de replay benoemt dan een onbekende binding en past geen
+    opgeslagen beoordeling toe — nooit een verzonnen binding.
+    """
+    try:
+        from services.ai.model_router import ModelRouter
+
+        norm_sha256 = _normhash(laad_int03_norm())
+        provider, model = ModelRouter.from_config().get_model(
+            Int03AssessmentService.TASK_TYPE
+        )
+    except Exception as exc:
+        logger.warning(
+            "INT-03: actuele beoordelingsbinding niet te bepalen: %s",
+            type(exc).__name__,
+        )
+        return None
+    if not model:
+        return None
+    return Beoordelingsbinding(
+        prompt_version=Int03AssessmentService.PROMPT_VERSION,
+        norm_sha256=norm_sha256,
+        provider=str(provider) if provider else None,
+        model=str(model),
+    )
+
+
 def _sha256(tekst: str | None) -> str | None:
     return (
         hashlib.sha256(tekst.encode("utf-8")).hexdigest()

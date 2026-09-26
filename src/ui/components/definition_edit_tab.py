@@ -230,6 +230,9 @@ class DefinitionEditTab:
                     # DEF-766: telbaarheid (ESS-03) van het opgeslagen record,
                     # replay op de kandidaat zoals nu bewerkt.
                     self._render_ess03_section(definition)
+                    # DEF-772: verwijzingen (INT-03) van het opgeslagen record,
+                    # idem replay op de kandidaat zoals nu bewerkt.
+                    self._render_int03_section(definition)
                     # DEF-808: opgegeven bronmetadata aanvullen op de
                     # documentbronnen van het opgeslagen record.
                     self._render_bronmetadata_section(definition)
@@ -1174,6 +1177,43 @@ class DefinitionEditTab:
         return beoordeling if isinstance(beoordeling, dict) else None
 
     @staticmethod
+    def _sessiebeoordeling_int03() -> dict[str, Any] | None:
+        """De INT-03-beoordeling uit de laatste toetsing in deze sessie, of None.
+
+        DEF-772: `int03_assessment` in het genormaliseerde resultaat, anders
+        het document dat de evaluator in `raw_v2["rule_results"]["INT-03"]`
+        zette. Alleen een object wordt doorgegeven; binding en status
+        beoordeelt de servicelaag.
+        """
+        from services.definition_edit_service import int03_document_uit_resultaat
+
+        laatste = SessionStateManager.get_value("edit_last_validation")
+        if not isinstance(laatste, dict):
+            return None
+        beoordeling = laatste.get("int03_assessment")
+        if beoordeling is None:
+            beoordeling = int03_document_uit_resultaat(_als_dict(laatste.get("raw_v2")))
+        return beoordeling if isinstance(beoordeling, dict) else None
+
+    @staticmethod
+    def _int03_binding() -> Any | None:
+        """De actuele INT-03-beoordelingsbinding uit de gecachte dienst — zonder
+        netwerk (promptversie/norm uit code en regelrecord, provider/model uit
+        de ModelRouter). None wanneer de dienst niet beschikbaar is; de replay
+        benoemt dat dan expliciet en past geen opgeslagen beoordeling toe."""
+        try:
+            from ui.cached_services import get_cached_service_container
+
+            return get_cached_service_container().int03_assessment_service().binding()
+        except Exception as e:
+            logger.warning(
+                "INT-03-beoordelingsbinding niet beschikbaar: %s: %s",
+                type(e).__name__,
+                e,
+            )
+            return None
+
+    @staticmethod
     def _sessieverduidelijking(def_id: Any) -> str | None:
         """De ESS-03-verduidelijking zoals nu in de editor staat.
 
@@ -1323,6 +1363,7 @@ class DefinitionEditTab:
                     "generation_prompt_data",
                     "ess03_assessment",
                     "ess03_verduidelijking",
+                    "int03_assessment",
                 )
                 if meta.get(sleutel) is not None
             },
@@ -1378,6 +1419,53 @@ class DefinitionEditTab:
                 )
         except (KeyError, TypeError, AttributeError, ValueError) as e:
             logger.warning("ESS-03-sectie kon niet worden getoond: %s", e)
+
+    def _render_int03_section(self, definition: Any) -> None:
+        """INT-03 (verwijzingen) van het opgeslagen record: replay van de
+        opgeslagen AI-beoordeling op de kandidaat zoals nu in de editor staat.
+
+        Geen AI-aanroep. Zo ziet de gebruiker de laatste uitkomst (voldoet,
+        voldoet — niet van toepassing, voldoet niet met woord/passage/
+        kandidaten, onvoldoende informatie met de ene vraag, of technisch
+        probleem) én of zij nog bij de huidige tekst, term, context en
+        toelichting en de actuele prompt/norm/model hoort; een gewijzigde
+        kandidaat maakt haar zichtbaar historisch. 'Valideren' levert een
+        verse beoordeling (DEF-772).
+        """
+        try:
+            from services.definition_edit_service import int03_uitkomst_van_definition
+            from ui.components.validation_view import render_rule_results
+
+            meta = dict(getattr(definition, "metadata", None) or {})
+            opgeslagen = meta.get("int03_assessment")
+            kandidaat = self._kandidaat_uit_formulier(definition)
+            with st.expander(
+                "🔗 Verwijzingen (INT-03) — opgeslagen AI-beoordeling", expanded=False
+            ):
+                if opgeslagen is None:
+                    st.caption(
+                        "Nog geen INT-03-beoordeling opgeslagen bij dit record. "
+                        "'Valideren' voert de AI-beoordeling uit; 'Opslaan' legt haar "
+                        "vast zolang zij bij de opgeslagen kandidaat hoort."
+                    )
+                    return
+                render_rule_results(
+                    {
+                        "INT-03": int03_uitkomst_van_definition(
+                            kandidaat,
+                            binding=self._int03_binding(),
+                            assessment=opgeslagen,
+                        )
+                    }
+                )
+                st.caption(
+                    "Herkomst: AI-beoordeling (geen deskundigenoordeel, geen "
+                    "vaststelling). Een negatieve uitkomst blokkeert vaststellen of "
+                    "exporteren niet en wijzigt de tekst niet; herstel volgt alleen "
+                    "op verzoek."
+                )
+        except (KeyError, TypeError, AttributeError, ValueError) as e:
+            logger.warning("INT-03-sectie kon niet worden getoond: %s", e)
 
     # ------------------------------------------------------------------
     # DEF-808: opgegeven bronmetadata aanvullen op het opgeslagen record
@@ -2134,6 +2222,24 @@ class DefinitionEditTab:
                 f"{result['ess03_assessment_reason']}."
             )
 
+    @staticmethod
+    def _meld_int03_beoordeling_bij_opslaan(
+        result: dict[str, Any], sessiebeoordeling: dict[str, Any] | None
+    ) -> None:
+        """DEF-772: wat er bij Opslaan met de INT-03-sessiebeoordeling is gebeurd —
+        opgeslagen als actuele beoordeling, of benoemd waarom niet (nooit stil)."""
+        if result.get("int03_assessment_persisted"):
+            st.success(
+                "✅ INT-03-beoordeling (verwijzingen) van de laatste toetsing "
+                "opgeslagen bij de actuele kandidaat (herkenbaar als AI-beoordeling; "
+                "geen vaststelling, geen blokkade)."
+            )
+        elif sessiebeoordeling is not None and result.get("int03_assessment_reason"):
+            st.warning(
+                "⚠️ INT-03-beoordeling van de laatste toetsing niet opgeslagen: "
+                f"{result['int03_assessment_reason']}."
+            )
+
     def _save_definition(self) -> None:
         """Save the edited definition."""
         try:
@@ -2189,6 +2295,8 @@ class DefinitionEditTab:
             sessiebeoordeling = self._sessiebeoordeling()
             # DEF-766: idem voor de ESS-03-beoordeling van de laatste toetsing.
             sessiebeoordeling_ess03 = self._sessiebeoordeling_ess03()
+            # DEF-772: idem voor de INT-03-beoordeling van de laatste toetsing.
+            sessiebeoordeling_int03 = self._sessiebeoordeling_int03()
             # R5: de actuele ESS-03-verduidelijking van de kandidaat reist
             # expliciet mee — ook bewust leeg — en wordt eigen recordwaarde;
             # zonder veld in deze sessie blijft de opgeslagen waarde staan.
@@ -2226,6 +2334,8 @@ class DefinitionEditTab:
                 ess03_assessment=sessiebeoordeling_ess03,
                 ess03_binding=self._ess03_binding(),
                 categoriekeuze=categoriekeuze,
+                int03_assessment=sessiebeoordeling_int03,
+                int03_binding=self._int03_binding(),
             )
 
             if result["success"]:
@@ -2233,6 +2343,9 @@ class DefinitionEditTab:
                 self._meld_bronbeoordeling_bij_opslaan(result, sessiebeoordeling)
                 self._meld_ess03_beoordeling_bij_opslaan(
                     result, sessiebeoordeling_ess03
+                )
+                self._meld_int03_beoordeling_bij_opslaan(
+                    result, sessiebeoordeling_int03
                 )
 
                 # Show validation results if available
@@ -2448,6 +2561,7 @@ class DefinitionEditTab:
         from services.definition_edit_service import (
             herbind_ess03_in_validatieresultaat,
             herbind_int01_in_validatieresultaat,
+            herbind_int03_in_validatieresultaat,
         )
 
         kandidaat = self._kandidaat_uit_formulier(definition)
@@ -2457,6 +2571,11 @@ class DefinitionEditTab:
         # DEF-770: INT-01 alleen voor exact de getoetste formuliertekst.
         herbonden = herbind_int01_in_validatieresultaat(
             herbonden, kandidaat.definitie or ""
+        )
+        # DEF-772: INT-03 alleen voor exact de getoetste term, tekst, context
+        # en toelichting én de actuele prompt/norm/model; anders historisch.
+        herbonden = herbind_int03_in_validatieresultaat(
+            herbonden, kandidaat, binding=self._int03_binding()
         )
         if herbonden is v2:
             return results

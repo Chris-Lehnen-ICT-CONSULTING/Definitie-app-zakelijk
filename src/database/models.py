@@ -20,6 +20,7 @@ from domain.int01.opslag import (
     INT01_BEOORDELING_HISTORY_KEY,
     lees_beoordeling,
 )
+from domain.int03.opslag import INT03_ASSESSMENT_HISTORY_KEY, INT03_ASSESSMENT_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -628,6 +629,33 @@ class DefinitieRecord:
         """De append-only lijst van vervangen ESS-03-beoordelingen (oud → nieuw)."""
         registratie = self.get_generatieregistratie() or {}
         historie = registratie.get(ESS03_ASSESSMENT_HISTORY_KEY)
+        if not isinstance(historie, list):
+            return []
+        return [deepcopy(h) for h in historie if isinstance(h, dict)]
+
+    # ------------------------------------ INT-03-beoordeling (DEF-772)
+
+    def get_int03_assessment(self) -> dict[str, Any] | None:
+        """De actuele AI-verwijzingsbeoordeling (INT-03), of None (afwezig/misvormd).
+
+        Bewaard onder `int03_assessment` in de generatieregistratie: geen
+        schemawijziging. Alleen een object met een vingerafdruk telt; of het
+        document nog bij dít record hoort, bepaalt de replay van het contract
+        (`domain.int03.contract.beoordeel_verwijzingen`), niet deze lezer.
+        """
+        registratie = self.get_generatieregistratie() or {}
+        beoordeling = registratie.get(INT03_ASSESSMENT_KEY)
+        if (
+            not isinstance(beoordeling, dict)
+            or not str(beoordeling.get("fingerprint") or "").strip()
+        ):
+            return None
+        return deepcopy(beoordeling)
+
+    def get_int03_assessment_history(self) -> list[dict[str, Any]]:
+        """De append-only lijst van vervangen INT-03-beoordelingen (oud → nieuw)."""
+        registratie = self.get_generatieregistratie() or {}
+        historie = registratie.get(INT03_ASSESSMENT_HISTORY_KEY)
         if not isinstance(historie, list):
             return []
         return [deepcopy(h) for h in historie if isinstance(h, dict)]
