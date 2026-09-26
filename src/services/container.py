@@ -752,7 +752,11 @@ class ServiceContainer:
             # Use existing repository instance
             repo = self.repository()
             self._lazy_instances["data_aggregation_service"] = DataAggregationService(
-                cast("DefinitieRepository", repo)  # DEF-439: zie workflow-service
+                cast("DefinitieRepository", repo),  # DEF-439: zie workflow-service
+                # DEF-772: de export bindt de opgeslagen INT-03-beoordeling aan
+                # dezelfde actuele binding als editor en generatie (lazy: de
+                # dienst wordt pas bij de eerste export aangemaakt).
+                int03_binding=lambda: self.int03_assessment_service().binding(),
             )
             logger.info("⚡ DataAggregationService lazy-loaded")
         return cast(

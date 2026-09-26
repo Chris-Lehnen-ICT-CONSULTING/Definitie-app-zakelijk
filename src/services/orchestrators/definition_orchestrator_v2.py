@@ -1367,6 +1367,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ess03_assessment": self._beoordeling_uit(
                         raw_validation, "ess03_assessment"
                     ),
+                    # DEF-772: de AI-verwijzingsbeoordeling (INT-03) van exact
+                    # de definitieve kandidaat, vóór opslag op het record.
+                    "int03_assessment": self._int03_beoordeling_uit(raw_validation),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
                     "web_lookup_status": web_lookup_status,
@@ -1957,6 +1960,21 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     def _bronbeoordeling_uit(cls, raw_validation: Any) -> dict[str, Any] | None:
         """De door de wrapper verkregen bronbeoordeling (contract 1.4.0), of None."""
         return cls._beoordeling_uit(raw_validation, "source_assessment")
+
+    @staticmethod
+    def _int03_beoordeling_uit(raw_validation: Any) -> dict[str, Any] | None:
+        """De door de wrapper verkregen INT-03-beoordeling (DEF-772), of None.
+
+        Het contract (2.1.0) kent geen top-level sleutel voor INT-03: het
+        document reist in `rule_results["INT-03"]["assessment"]`. Alleen een
+        echt object telt; anders is er geen beoordeling en wordt er geen
+        verzonnen.
+        """
+        detail = ensure_dict(
+            ensure_dict(safe_dict_get(raw_validation, "rule_results", {})).get("INT-03")
+        )
+        beoordeling = detail.get("assessment")
+        return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
 
     @staticmethod
     def _beoordeling_uit(raw_validation: Any, sleutel: str) -> dict[str, Any] | None:

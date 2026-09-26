@@ -333,6 +333,7 @@ _UITKOMSTLABEL: dict[str, str] = {
 _HERKOMSTLABEL: dict[str, str] = {
     "source_assessment": "AI-beoordeling",
     "ess03_assessment": "AI-beoordeling",
+    "int03_assessment": "AI-beoordeling",
     "source_review": "deskundige uitzondering",
 }
 
@@ -502,6 +503,10 @@ def render_rule_results(rule_results: dict[str, Any]) -> None:
         for part in detail.get("parts") or []:
             if isinstance(part, dict):
                 _render_deeluitkomst(part, label_override=inhoudelijk)
+        # DEF-772: de verwijzingen van een toegepaste INT-03-beoordeling als
+        # eigen regels (woord, passage, antecedent of kandidaten, vraag).
+        for regel in _int03_verwijzingsregels(code, detail):
+            st.markdown(regel)
         review = detail.get("review")
         if isinstance(review, dict):
             for regel in _review_regels(review):
@@ -513,6 +518,62 @@ def render_rule_results(rule_results: dict[str, Any]) -> None:
 #: DEF-766 (R9): een uitgevoerde AI-uitkomst 'onvoldoende informatie' is een
 #: inhoudelijke uitkomst met precies één vraag — geen generiek open punt.
 _LABEL_ONVOLDOENDE_INFORMATIE = "❓ Onvoldoende informatie"
+
+#: DEF-772 (K7): een toegepaste INT-03-beoordeling zonder verwijzend woord is
+#: een afgeronde 'voldoet' met exact deze betekenis — geen gewone pass en
+#: geen open punt.
+_LABEL_GEEN_VOORNAAMWOORD = "✅ Voldoet — niet van toepassing (geen voornaamwoord)"
+
+#: Per-woordstatus van een INT-03-verwijzing (contract `domain.int03`).
+_VERWIJZINGSLABEL: dict[str, str] = {
+    "clear": "eenduidig antecedent",
+    "ambiguous": "meer plausibele lezingen",
+    "no_antecedent": "geen antecedent in de definitie",
+    "non_referring": "niet verwijzend gebruikt",
+    "undetermined": "nog te beoordelen",
+}
+
+
+def _int03_verwijzingsregels(code: str, detail: dict[str, Any]) -> list[str]:
+    """De gestructureerde verwijzingen van een tóegepaste INT-03-beoordeling.
+
+    Per aangewezen woord: het woord, de passage, de status en — bij een
+    eenduidig antecedent — de lezing, bij meer lezingen de kandidaten met
+    hun reden; daarna de ene gerichte vraag. Een historische, niet
+    toegepaste of mislukte beoordeling levert niets: haar oude verwijzingen
+    worden nooit als actueel getoond.
+    """
+    if code != "INT-03":
+        return []
+    beoordeling = _als_dict(_als_dict(detail.get("review")).get("assessment"))
+    if beoordeling.get("applied") is not True:
+        return []
+    oordeel = _als_dict(_als_dict(detail.get("assessment")).get("judgment"))
+    regels: list[str] = []
+    for verwijzing in oordeel.get("references") or []:
+        if not isinstance(verwijzing, dict):
+            continue
+        status = str(verwijzing.get("status") or "")
+        regel = (
+            f"🔎 Verwijzend woord '{verwijzing.get('word')}' in "
+            f"“{verwijzing.get('passage')}” — {_VERWIJZINGSLABEL.get(status, status)}"
+        )
+        lezing = str(verwijzing.get("reading") or "").strip()
+        if lezing:
+            regel += f": {lezing}"
+        regels.append(regel)
+        kandidaten = [
+            f"'{k.get('quote')}' ({k.get('reason')})"
+            for k in verwijzing.get("candidates") or []
+            if isinstance(k, dict)
+        ]
+        if kandidaten:
+            regels.append(f"- Kandidaten: {', '.join(kandidaten)}")
+    vraag = str(beoordeling.get("question") or "").strip()
+    if vraag:
+        regels.append(f"❓ Vraag: {vraag}")
+    return regels
+
 
 #: DEF-820 (K2): een verwijzende formulering zonder aangeleverde afspraak
 #: levert vrijwel altijd deze vraag op. De gebruiker hoort te weten dat de
@@ -527,17 +588,25 @@ _HULP_ONVOLDOENDE_INFORMATIE = (
 
 
 def _inhoudelijk_label(detail: dict[str, Any]) -> str | None:
-    """Het inhoudelijke label van een toegepaste AI-uitkomst die technisch een
-    open status draagt (`review_required`): 'Onvoldoende informatie'. None
-    voor alle andere gevallen — dan geldt het statuslabel (een niet-toegepaste,
-    historische of niet-beschikbare beoordeling blijft 'Nog te beoordelen')."""
+    """Het inhoudelijke label van een toegepaste AI-uitkomst: 'Onvoldoende
+    informatie' bij een technisch open status (`review_required`) met een
+    vraag; 'Voldoet — niet van toepassing (geen voornaamwoord)' (DEF-772, K7)
+    bij een pass zonder verwijzend woord. None voor alle andere gevallen —
+    dan geldt het statuslabel (een niet-toegepaste, historische of
+    niet-beschikbare beoordeling blijft 'Nog te beoordelen')."""
     beoordeling = _als_dict(_als_dict(detail.get("review")).get("assessment"))
+    if beoordeling.get("applied") is not True:
+        return None
     if (
         detail.get("status") == "review_required"
-        and beoordeling.get("applied") is True
         and beoordeling.get("verdict") == "insufficient_information"
     ):
         return _LABEL_ONVOLDOENDE_INFORMATIE
+    if (
+        detail.get("status") == "pass"
+        and beoordeling.get("finding") == "no_referring_word"
+    ):
+        return _LABEL_GEEN_VOORNAAMWOORD
     return None
 
 
@@ -547,7 +616,10 @@ def _render_deeluitkomst(
     """Eén onderdeel: kop (label + herkomst + aanleiding + positie), reden en vervolgstap."""
     deelstatus = str(part.get("status") or "")
     kop = _UITKOMSTLABEL.get(deelstatus, deelstatus)
-    if label_override and deelstatus == "review_required":
+    if label_override and (
+        deelstatus == "review_required"
+        or (deelstatus == "pass" and label_override == _LABEL_GEEN_VOORNAAMWOORD)
+    ):
         kop = label_override
     herkomst = _HERKOMSTLABEL.get(str(part.get("field") or ""))
     if herkomst:
