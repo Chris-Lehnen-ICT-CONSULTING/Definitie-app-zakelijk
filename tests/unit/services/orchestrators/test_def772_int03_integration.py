@@ -299,10 +299,10 @@ async def test_productieroute_bouwt_de_echte_dienst_op_de_gedeelde_ai_service(
     assert call["use_cache"] is False
     assert call["max_attempts"] == 1
     assert call["max_retries"] == 0
-    # Outputtokenlimiet (Chris, 26-09-2026: max 2500): de echte productie-
-    # constructie (orchestrator → dienst zonder expliciet budget) stuurt 2500
-    # naar de AI-laag; geen verborgen oude 1200 op deze route.
-    assert call["max_tokens"] == 2500
+    # Outputtokenlimiet (Chris, 26-09-2026: max 5000, vervangt max 2500): de
+    # echte productieconstructie (orchestrator → dienst zonder expliciet budget)
+    # stuurt 5000 naar de AI-laag; geen verborgen oud budget op deze route.
+    assert call["max_tokens"] == 5000
     assert uit.record.definitie in call["prompt"]
     assert laad_int03_norm()["uitleg"] in call["system_prompt"]
 
@@ -370,12 +370,13 @@ def test_container_deelt_een_dienst_met_orchestrator_en_validatiewrapper(
     assert container.validation_orchestrator().int03_assessment_service is dienst
 
 
-async def test_container_dienst_stuurt_outputbudget_2500_naar_de_ai_laag(
+async def test_container_dienst_stuurt_outputbudget_5000_naar_de_ai_laag(
     monkeypatch,
 ):
     """De tweede productieconstructie (`ServiceContainer.int03_assessment_service`,
-    zonder expliciet budget) geeft bij een echte beoordeling exact 2500
-    outputtokens aan de gedeelde AI-service door (Chris, 26-09-2026)."""
+    zonder expliciet budget) geeft bij een echte beoordeling exact 5000
+    outputtokens aan de gedeelde AI-service door (Chris, 26-09-2026: max 5000
+    vervangt max 2500)."""
     from services.container import ServiceContainer
     from toetsregels.rule_cache import get_rule_cache
 
@@ -392,6 +393,6 @@ async def test_container_dienst_stuurt_outputbudget_2500_naar_de_ai_laag(
         BEGRIP, DEFINITIE_MET_DIE, {"organisatorische_context": ["Testregistratie"]}
     )
     (call,) = ai.int03_calls
-    assert call["max_tokens"] == 2500
+    assert call["max_tokens"] == 5000
     assert call["task_type"] == "validation"
     assert beoordeling.status == "assessed"

@@ -230,9 +230,10 @@ async def test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model():
     assert call["temperature"] == 0.0
     assert "model" not in call or call["model"] is None
     assert call["system_prompt"]
-    # Outputtokenlimiet: Chris (26-09-2026) "pas de tokenlimiet aan naar max
-    # 2500" — het standaardbudget van de dienst is exact wat de AI-laag krijgt.
-    assert call["max_tokens"] == 2500
+    # Outputtokenlimiet: Chris (26-09-2026) max 5000 (vervangt de eerdere
+    # opdracht max 2500; van 2500 is geen livemeting gedaan) — het standaard-
+    # budget van de dienst is exact wat de AI-laag krijgt.
+    assert call["max_tokens"] == 5000
     assert call["timeout_seconds"] <= 60
     # Opt-ins tegen ruwe cache onder de validatie en verborgen retry-stapeling.
     assert call["use_cache"] is False
@@ -389,22 +390,24 @@ async def test_afgekapt_antwoord_is_truncated_response():
     assert d["status"] == "error"
     assert d["error"]["type"] == "truncated_response"
     assert d["attribution"]["stop_reason"] == "max_tokens"
-    # Het gemelde budget is het werkelijk gebruikte standaardbudget (2500),
-    # niet het oude 1200; afkappen blijft een technische fout, geen tolerantie.
-    assert "max_tokens=2500" in d["error"]["message"]
+    # Het gemelde budget is het werkelijk gebruikte standaardbudget (5000),
+    # niet een oud budget (1200/2500); afkappen blijft een technische fout,
+    # geen tolerantie.
+    assert "max_tokens=5000" in d["error"]["message"]
     assert "1200" not in d["error"]["message"]
+    assert "2500" not in d["error"]["message"]
 
 
-# --- outputtokenlimiet (Chris, 26-09-2026: "pas de tokenlimiet aan naar max 2500") ---
+# --- outputtokenlimiet (Chris, 26-09-2026: max 5000, vervangt max 2500) ---
 
 
-async def test_standaardbudget_2500_wordt_aan_de_ai_laag_doorgegeven():
-    """Zonder expliciet budget stuurt de dienst exact 2500 outputtokens mee;
+async def test_standaardbudget_5000_wordt_aan_de_ai_laag_doorgegeven():
+    """Zonder expliciet budget stuurt de dienst exact 5000 outputtokens mee;
     provider/model (taakrouting), norm en prompt veranderen niet mee."""
     service, ai = _service(_uitvoer())
     d = (await _assess(service)).als_dict()
     (call,) = ai.calls
-    assert call["max_tokens"] == 2500
+    assert call["max_tokens"] == 5000
     assert call["task_type"] == "validation"
     assert "model" not in call or call["model"] is None
     assert d["status"] == "assessed"
