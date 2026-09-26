@@ -2497,10 +2497,11 @@ def _v_status(resultaat: Any, netwerk: bool, afbraak: str) -> str:
 def _v_acceptatie(
     v: _VItem, resultaat: Any, status: str, schending: str | None
 ) -> tuple[bool, str]:
-    """Goed item: vrijgave. Fout item: semantische weigering op een foutdrager.
+    """Goed item: vrijgave. Fout item: `unsupported` op een aangewezen foutdrager.
 
-    Een schemaweigering, een weigering elders of een vrijgave van een fout item
-    is geen detectie; een weigering van een goed item is een onnodige weigering.
+    Een schemaweigering, een weigering elders, alleen `undetermined` op de
+    foutdrager (onzekerheid, R11-01) of een vrijgave van een fout item is geen
+    detectie; een weigering van een goed item is een onnodige weigering.
     """
     from domain.ess05.contract import FOUT_SEMANTISCH
 
@@ -2520,11 +2521,19 @@ def _v_acceptatie(
         return False, f"onnodige weigering van een goed item ({resultaat.fout})"
     if resultaat.goedgekeurd:
         return False, "fout item vrijgegeven: bekende fout niet gedetecteerd"
-    geraakt = sorted(
-        {b["item"] for b in resultaat.uitkomst.bevindingen}
-        & set(v.item["foutdragende_items"])
-    )
+    foutdragers = set(v.item["foutdragende_items"])
+    per_foutdrager = {
+        b["item"]: b["outcome"]
+        for b in resultaat.uitkomst.bevindingen
+        if b["item"] in foutdragers
+    }
+    geraakt = sorted(i for i, o in per_foutdrager.items() if o == "unsupported")
     if resultaat.fout != FOUT_SEMANTISCH or not geraakt:
+        if per_foutdrager:
+            return False, (
+                f"foutdrager niet unsupported ({per_foutdrager}): onzekerheid "
+                "is geen directe detectie"
+            )
         return False, "semantische weigering buiten de foutdragende items"
     return True, f"bekende fout gedetecteerd op {geraakt}"
 

@@ -991,6 +991,104 @@ class TestV8Invoer:
         (geval,) = _v_gevallen(tmp_path)
         assert "schemaweigering" in geval["reden"]
 
+    # R11-01: alleen `unsupported` op de foutdrager is een directe detectie.
+    @pytest.mark.parametrize("anders", [{}, {"completeness": "unsupported"}])
+    @pytest.mark.parametrize(
+        ("index", "foutdrager"), [(6, "claim:C5"), (7, "claim:C3")]
+    )
+    def test_undetermined_op_de_foutdrager_stopt_duurzaam(
+        self, tmp_path, v8, index, foutdrager, anders
+    ):
+        pad = tmp_path / "v8.json"
+        item = v8["items"][index]
+        assert item["foutdragende_items"] == [foutdrager]
+        uitkomsten = _foutdragers(v8["items"])
+        uitkomsten[item["concept_hash"]] = {foutdrager: "undetermined", **anders}
+        provider = _R8Provider(uitkomsten=uitkomsten)
+        with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
+            _v11(_omgeving8(provider), tmp_path, pad)
+        assert provider.stappen == ["verificatie"] * (index + 1)
+        laatste = _v_gevallen(tmp_path)[-1]
+        assert laatste["geaccepteerd"] is False
+        assert laatste["poging"] == f"verificatie_alleen|{item['id']}|1"
+        assert "unsupported" in laatste["reden"]
+        # Duurzaam: een nieuwe aanroep op hetzelfde grootboek start niets meer,
+        # ook niet met een correcte verifier.
+        herstart = _R8Provider(uitkomsten=_foutdragers(v8["items"]))
+        with pytest.raises(gb.BudgetSchendingError, match="gestopt"):
+            asyncio.run(runner.voer_v_fase(
+                _omgeving8(herstart), gevallenpad=pad, uitmap=tmp_path / "uit",
+                opslag=_opslag11(tmp_path), proef=_r11(v_invoer_sha256=_sha(pad)),
+                freeze=tmp_path / "freeze-v.json",
+                voorganger_opslag=_bestaande_keten11(tmp_path), nieuw_grootboek=False,
+            ))  # fmt: skip
+        assert herstart.stappen == []
+
+
+def _acceptatie(soort, foutdragers, checks, *, fout=None, status="voltooid"):
+    """`_v_acceptatie` op een minimaal item en verificatieresultaat (R11-01)."""
+    from types import SimpleNamespace
+
+    from domain.ess05.contract import FOUT_SEMANTISCH
+
+    bevindingen = tuple(
+        {"item": i, "outcome": o, "finding": "f"}
+        for i, o in checks.items()
+        if o != "supported"
+    )
+    resultaat = SimpleNamespace(
+        goedgekeurd=not bevindingen and fout is None,
+        fout=fout or (FOUT_SEMANTISCH if bevindingen else None),
+        uitkomst=SimpleNamespace(bevindingen=bevindingen),
+    )
+    v = SimpleNamespace(item={"soort": soort, "foutdragende_items": foutdragers})
+    return runner._v_acceptatie(v, resultaat, status, None)
+
+
+class TestAcceptatiepoort:
+    """R11-01: een fout item is alleen gedetecteerd bij `unsupported` op een
+    aangewezen foutdrager; `undetermined` is onzekerheid, geen detectie."""
+
+    @pytest.mark.parametrize("foutdrager", ["claim:C5", "claim:C3"])
+    @pytest.mark.parametrize(
+        ("checks", "verwacht"),
+        [
+            ({"F": "unsupported"}, True),
+            ({"F": "unsupported", "completeness": "undetermined"}, True),
+            ({"F": "undetermined"}, False),
+            ({"F": "undetermined", "completeness": "unsupported"}, False),
+            ({"F": "undetermined", "claim:C1": "unsupported"}, False),
+            ({"completeness": "unsupported"}, False),
+            ({}, False),
+        ],
+    )
+    def test_fout_item(self, foutdrager, checks, verwacht):
+        checks = {foutdrager if k == "F" else k: o for k, o in checks.items()}
+        geaccepteerd, reden = _acceptatie("fout", [foutdrager], checks)
+        assert geaccepteerd is verwacht, reden
+        if verwacht:
+            assert reden == f"bekende fout gedetecteerd op {[foutdrager]}"
+
+    def test_undetermined_reden_noemt_de_foutdrager(self):
+        geaccepteerd, reden = _acceptatie(
+            "fout", ["claim:C3"], {"claim:C3": "undetermined"}
+        )
+        assert geaccepteerd is False
+        assert "claim:C3" in reden and "undetermined" in reden
+
+    @pytest.mark.parametrize(
+        ("checks", "verwacht"),
+        [({}, True), ({"claim:C1": "unsupported"}, False)],
+    )
+    def test_goed_item(self, checks, verwacht):
+        assert _acceptatie("goed", [], checks)[0] is verwacht
+
+    @pytest.mark.parametrize("fout", ["malformed_response", "candidate_hash_mismatch"])
+    def test_schemaweigering_blijft_geen_detectie(self, fout):
+        geaccepteerd, reden = _acceptatie("fout", ["claim:C3"], {}, fout=fout)
+        assert geaccepteerd is False
+        assert "schemaweigering" in reden
+
 
 @v8_nodig
 @r10_bronnen_nodig
