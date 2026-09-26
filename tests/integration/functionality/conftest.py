@@ -187,7 +187,7 @@ def ess05_bevroren_antwoord(prompt: str) -> str:
         "proposed_neighbours": [],
         "question": None,
     }
-    # Modelantwoord `ess05-answer/1`: citaten zonder posities (R8-offsetherstel).
+    # Modelantwoord `ess05-answer/2`: genest, citaat-eerst, zonder ID's en posities.
     antwoord = antwoord_uit_spec(spec, materiaal_uit_prompt(prompt))
     return json.dumps(antwoord, ensure_ascii=False)
 

@@ -552,6 +552,12 @@ class Ess05Beoordelingsbinding:
     ESS-05-eigen type: de ESS-03-`Beoordelingsbinding` blijft ongewijzigd.
     Bindt beoordelings- en verificatieprompt, concept-, verificatie- en
     rendererversie, norm en beide provider/model-identiteiten.
+
+    `answer_schema_version` bepaalt met welke antwoordversie de replay het
+    concept opnieuw afleidt (`concept_derivation`). Het is geen documentveld en
+    staat daarom niet in `als_dict`; de actuele binding is answer/2, een
+    historisch answer/1-document geldt alleen onder een binding die die
+    versie expliciet noemt.
     """
 
     prompt_version: str
@@ -564,6 +570,7 @@ class Ess05Beoordelingsbinding:
     schema_version: str = CONCEPTSCHEMA
     verification_schema_version: str = VERIFICATIESCHEMA
     renderer_version: str = RENDERERVERSIE
+    answer_schema_version: str = ANTWOORDSCHEMA
 
     def als_dict(self) -> dict[str, str | None]:
         return {
@@ -581,10 +588,13 @@ class Ess05Beoordelingsbinding:
 
     @classmethod
     def uit_dict(cls, waarde: Any) -> Ess05Beoordelingsbinding | None:
-        """Fail-closed: exact de bindingsvelden, versies en norm als tekst."""
+        """Fail-closed: exact de bindingsvelden, versies en norm als tekst.
+
+        De antwoordversie staat niet in het document en is dus de actuele.
+        """
         if not isinstance(waarde, Mapping):
             return None
-        velden = set(cls.__dataclass_fields__)
+        velden = set(cls.__dataclass_fields__) - {"answer_schema_version"}
         if set(waarde) != velden:
             return None
         verplicht = velden - {
@@ -730,16 +740,25 @@ def valideer_concept(
 
 
 def valideer_antwoord(
-    ruw: Any, materiaal: Mapping[str, str], buren: Iterable[Buur]
+    ruw: Any,
+    materiaal: Mapping[str, str],
+    buren: Iterable[Buur],
+    *,
+    schema: str = ANTWOORDSCHEMA,
 ) -> tuple[Ess05Concept | None, list[dict[str, Any]]]:
-    """Leid het concept af uit het modelantwoord (`ANTWOORDSCHEMA`). Fail-closed.
+    """Leid het concept af uit het modelantwoord in precies `schema`. Fail-closed.
 
-    De app bepaalt elke bewijsplaats zelf, alleen bij precies één letterlijke
-    treffer in het aangewezen materiaal; daarna gelden dezelfde vaste controles
-    als bij `valideer_concept`. Geen reparatie, geen herinterpretatie van een
+    Standaard het actuele answer/2 (genest, citaat-eerst); de app kent de ID's
+    toe, voegt identieke citaten en claims samen en bepaalt elke bewijsplaats
+    zelf, alleen bij precies één letterlijke treffer in het aangewezen
+    materiaal; daarna gelden dezelfde vaste controles als bij
+    `valideer_concept`. Het historische answer/1 alleen als die versie
+    expliciet is gevraagd. Geen reparatie, geen herinterpretatie van een
     antwoord in een ander schema.
     """
-    return bewijs.valideer_antwoord(ruw, materiaal, {b.id: b.definitie for b in buren})
+    return bewijs.valideer_antwoord(
+        ruw, materiaal, {b.id: b.definitie for b in buren}, schema=schema
+    )
 
 
 def _filter_voorstellen(
@@ -1001,12 +1020,14 @@ def _afleidingsafwijzing(
     assessment: Mapping[str, Any],
     materiaal: Mapping[str, str],
     buren: tuple[Buur, ...],
+    antwoordschema: str,
 ) -> str | None:
     """Waarom het opgeslagen concept niet de afleiding van de ruwe respons is, of None.
 
     De ruwe respons moet ongewijzigd bewaard zijn (hash), de afleidingsbinding
-    moet exact bij respons, huidig materiaal en concept horen, en opnieuw
-    afleiden uit die respons moet exact het opgeslagen concept geven.
+    moet exact bij de gebonden antwoordversie, respons, huidig materiaal en
+    concept horen, en opnieuw afleiden uit die respons, met precies die
+    antwoordversie, moet exact het opgeslagen concept geven.
     """
     ruw = assessment.get("raw_response")
     ruwhash = assessment.get("raw_response_sha256")
@@ -1016,7 +1037,7 @@ def _afleidingsafwijzing(
         return "ruwe respons ontbreekt of hoort niet bij raw_response_sha256"
     concept = assessment.get("concept")
     verwacht = {
-        "answer_schema_version": ANTWOORDSCHEMA,
+        "answer_schema_version": antwoordschema,
         "raw_response_sha256": ruwhash,
         "material": materiaalhashes(materiaal),
         "concept_hash": bewijs.concepthash(concept),
@@ -1029,7 +1050,9 @@ def _afleidingsafwijzing(
     )
     if afwijkend:
         return f"afleidingsbinding wijkt af ({', '.join(afwijkend)})"
-    afgeleid, _ = valideer_antwoord(parse_modeluitvoer(ruw), materiaal, buren)
+    afgeleid, _ = valideer_antwoord(
+        parse_modeluitvoer(ruw), materiaal, buren, schema=antwoordschema
+    )
     if afgeleid is None or dict(afgeleid.data) != concept:
         return "opgeslagen concept is niet afgeleid uit de bewaarde ruwe respons"
     return None
@@ -1042,15 +1065,17 @@ def _geverifieerd_oordeel(
     *,
     begrip: str,
     uitgesloten_termen: Iterable[str],
+    antwoordschema: str,
 ) -> tuple[GevalideerdOnderscheid | None, str, dict[str, Any] | None]:
     """(oordeel, reden-als-niet, verificatiesamenvatting) opnieuw uit het document.
 
     Het opgeslagen `judgment` is alleen weergave: replay leidt het oordeel
     opnieuw af uit concept + verificatie. Ontbreekt of faalt de verificatie,
     dan is er geen toepasbaar oordeel. Het concept moet bovendien exact de
-    afleiding zijn van de bewaarde ruwe respons op dit materiaal.
+    afleiding zijn van de bewaarde ruwe respons op dit materiaal, in de
+    gebonden antwoordversie.
     """
-    reden = _afleidingsafwijzing(assessment, materiaal, buren)
+    reden = _afleidingsafwijzing(assessment, materiaal, buren, antwoordschema)
     if reden is not None:
         return None, f"beoordeling zonder gebonden afleiding: {reden}", None
     concept, fouten = valideer_concept(assessment.get("concept"), materiaal, buren)
@@ -1116,7 +1141,13 @@ def _valideer_beoordeling(
         samenvatting.update({"reason": reden, "historical": binding is not None})
         return None, samenvatting
     oordeel, reden, verificatie = _geverifieerd_oordeel(
-        assessment, materiaal, buren, begrip=begrip, uitgesloten_termen=uitgesloten
+        assessment,
+        materiaal,
+        buren,
+        begrip=begrip,
+        uitgesloten_termen=uitgesloten,
+        # Na de actualiteitscontrole is er altijd een binding.
+        antwoordschema=binding.answer_schema_version if binding else ANTWOORDSCHEMA,
     )
     samenvatting["verification"] = verificatie
     if oordeel is None:

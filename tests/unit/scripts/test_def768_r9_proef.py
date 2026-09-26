@@ -85,11 +85,12 @@ CONTRACT = {
     "concept_schema_version": "ess05-concept/1",
     "verification_schema_version": "ess05-verification/1",
 }
-#: De huidige code (R10-C3-herstel): alleen beide promptversies verschillen.
+#: De huidige code (answer/2): beide promptversies en het antwoordschema verschillen.
 HUIDIG_CONTRACT = {
     **CONTRACT,
-    "prompt_version": "ess05-assess/17",
+    "prompt_version": "ess05-assess/18",
     "verification_prompt_version": "ess05-verify/4",
+    "answer_schema_version": "ess05-answer/2",
 }
 V = "validation"
 W = "ess05_verification"
@@ -509,6 +510,7 @@ class TestContract:
         assert {k for k in CONTRACT if CONTRACT[k] != HUIDIG_CONTRACT[k]} == {
             "prompt_version",
             "verification_prompt_version",
+            "answer_schema_version",
         }
         with pytest.raises(gb.BudgetSchendingError, match="contract"):
             runner._controleer_contract(omg, runner.PROEVEN["R9"])
@@ -519,7 +521,7 @@ class TestContract:
         [
             ("services.validation.ess05_assessment_service.Ess05AssessmentService",
              "PROMPT_VERSION", "ess05-assess/14"),
-            ("domain.ess05.bewijs", "ANTWOORDSCHEMA", "ess05-answer/2"),
+            ("domain.ess05.bewijs", "ANTWOORDSCHEMA", "ess05-answer/1"),
             ("domain.ess05.bewijs", "CONCEPTSCHEMA", "ess05-concept/2"),
         ],
     )  # fmt: skip
@@ -792,7 +794,7 @@ class TestOfflineRuns:
         assert all(i["payload_bytes"] <= grens for i in droog["items"])
 
     def test_droog_weigert_andere_contractcode(self, monkeypatch, tmp_path):
-        monkeypatch.setattr("domain.ess05.bewijs.ANTWOORDSCHEMA", "ess05-answer/2")
+        monkeypatch.setattr("domain.ess05.bewijs.ANTWOORDSCHEMA", "ess05-answer/1")
         pad = _gevallenbestand(tmp_path, 1)
         with pytest.raises(gb.BudgetSchendingError, match="contract"):
             asyncio.run(runner.droogrun("ontwikkeling", pad, tmp_path,

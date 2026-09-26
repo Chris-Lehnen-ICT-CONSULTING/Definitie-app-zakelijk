@@ -163,13 +163,19 @@ def herafgeleid_concept(
 
     Ruw antwoord, geval en materiaal moeten bij de vastgelegde hashes horen, en
     de afleiding uit het ruwe antwoord moet exact het bewaarde concept en zijn
-    hash opleveren; anders geen item (geen reparatie).
+    hash opleveren; anders geen item (geen reparatie). De echte R9/R10-
+    antwoorden zijn historisch `ess05-answer/1`: de afleiding gebruikt die
+    vastgelegde versie expliciet, nooit het actuele antwoordschema.
     """
+    from domain.ess05.bewijs import ANTWOORDSCHEMA_1
     from domain.ess05.contract import valideer_antwoord
 
     doc = record["beoordelingsdocument"]
     ruw = record["ruw_antwoord"]
     afleiding = doc["concept_derivation"]
+    if afleiding.get("answer_schema_version") != ANTWOORDSCHEMA_1:
+        msg = f"{ronde}: de afleiding is geen historisch {ANTWOORDSCHEMA_1}-antwoord"
+        raise MakerfoutError(msg)
     if not (
         _sha(ruw)
         == record["ruw_antwoord_sha256"]
@@ -185,7 +191,9 @@ def herafgeleid_concept(
     if {m: _sha(t) for m, t in materiaal.items()} != afleiding["material"]:
         msg = f"{ronde}: het materiaal wijkt af van de materiaalhashes van de afleiding"
         raise MakerfoutError(msg)
-    afgeleid, fouten = valideer_antwoord(json.loads(ruw), materiaal, buren)
+    afgeleid, fouten = valideer_antwoord(
+        json.loads(ruw), materiaal, buren, schema=ANTWOORDSCHEMA_1
+    )
     concept = doc["concept"]
     if (
         afgeleid is None

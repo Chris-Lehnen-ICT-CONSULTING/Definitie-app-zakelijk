@@ -14,6 +14,11 @@ reparatie; oude `/1`-antwoorden worden niet als nieuw antwoord gelezen.
 
 Grens: deze tests bewijzen deterministische binding, geen semantische
 juistheid van de citaten.
+
+Sinds `ess05-answer/2` (genest, citaat-eerst) is answer/1 historisch: de
+afleidingstests hieronder draaien bewust met de expliciete versie
+`ANTWOORDSCHEMA_1` (regressie van de plaatsbepaling). De replaytests gebruiken
+het actuele, geneste antwoord; zie ook `test_def768_ess05_answer2.py`.
 """
 
 from __future__ import annotations
@@ -25,10 +30,9 @@ from pathlib import Path
 
 import pytest
 
+from domain.ess05 import bewijs
 from domain.ess05.bewijs import (
-    ANTWOORDSCHEMA,
     CONCEPTSCHEMA,
-    valideer_antwoord,
     valideer_concept,
 )
 from domain.ess05.contract import (
@@ -37,12 +41,22 @@ from domain.ess05.contract import (
 )
 from domain.modeluitvoer import parse_modeluitvoer
 from tests.fixtures.def768_fakes import (
-    antwoord_uit_concept,
+    antwoord1_uit_concept,
     bouw_document,
     verificatie_voor,
 )
 
 pytestmark = [pytest.mark.unit]
+
+#: Historisch plat antwoord: de afleidingstests toetsen die versie expliciet.
+ANTWOORDSCHEMA = bewijs.ANTWOORDSCHEMA_1
+#: Het actuele antwoord (replay van nieuwe documenten).
+LIVE_ANTWOORDSCHEMA = bewijs.ANTWOORDSCHEMA
+
+
+def valideer_antwoord(antwoord, materiaal, buren):
+    return bewijs.valideer_antwoord(antwoord, materiaal, buren, schema=ANTWOORDSCHEMA)
+
 
 ROOT = Path(__file__).resolve().parents[3]
 R8 = json.loads(
@@ -75,7 +89,7 @@ def _sha(tekst: str) -> str:
 
 def _nieuw() -> dict:
     """Dezelfde modelkeuzes (id, materiaal, hash, citaat) in `ess05-answer/1`."""
-    return antwoord_uit_concept(RUW)
+    return antwoord1_uit_concept(RUW)
 
 
 def _redenen(fouten) -> list[str]:
@@ -300,7 +314,7 @@ class TestReplaybinding:
             "material",
             "concept_hash",
         }
-        assert afleiding["answer_schema_version"] == ANTWOORDSCHEMA
+        assert afleiding["answer_schema_version"] == LIVE_ANTWOORDSCHEMA
         assert document["raw_response_sha256"] == _sha(document["raw_response"])
         assert afleiding["raw_response_sha256"] == document["raw_response_sha256"]
         assert afleiding["material"] == document["input"]["materiaal"]
@@ -308,10 +322,11 @@ class TestReplaybinding:
             afleiding["concept_hash"]
             == document["verification_input"]["candidate_hash"]
         )
-        # De ruwe respons bevat geen posities; het concept wel (afgeleid).
+        # De ruwe respons bevat geen posities en geen ID's; het concept wel (afgeleid).
         antwoord = parse_modeluitvoer(document["raw_response"])
-        assert antwoord["schema_version"] == ANTWOORDSCHEMA
-        assert all("start" not in e for e in antwoord["evidence"])
+        assert antwoord["schema_version"] == LIVE_ANTWOORDSCHEMA
+        assert '"start"' not in document["raw_response"]
+        assert '"id"' not in document["raw_response"]
 
     def test_gewijzigde_ruwe_respons_wordt_niet_toegepast(self):
         document = _document()
@@ -350,7 +365,8 @@ class TestReplaybinding:
 
     def test_verificatie_van_een_ander_concept_wordt_niet_toegepast(self):
         document = _document()
-        antwoord = parse_modeluitvoer(document["raw_response"])
-        # De verifier moet het exact afgeleide concept toetsen, niet het antwoord.
+        # De verifier moet het exact afgeleide concept toetsen, niet een
+        # antwoordvorm ervan (hier: het platte antwoord zonder posities).
+        antwoord = antwoord1_uit_concept(document["concept"])
         document["verification"] = verificatie_voor(antwoord)
         assert "verificatie" in _afwijzing(document)

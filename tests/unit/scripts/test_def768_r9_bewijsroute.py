@@ -21,6 +21,13 @@ een correcte premissenketen blijft vrijgegeven; het oude document blijft
 historisch) en dat de nieuwe regel in beide prompts staat. Ze bewijzen NIET
 dat een echt model de regel volgt: dat vraagt een nieuwe betaalde proef.
 De sluiting van R9 zelf toetst `test_def768_r9_proef.py`.
+
+Sinds `ess05-answer/2` (assess/18) weigert de live keten het echte, platte
+answer/1-antwoord (`test_def768_answer2_fixtures.py`). De ketentests voeren
+daarom de synthetische answer/2-transformatie van precies dit antwoord
+(`answer2_uit_r9_r720_v1.json`, geen modeluitvoer); het afgeleide concept is
+het historische modulo bewijs-ID's, met dezelfde claims C1–C5. Het historische
+document zelf speelt alleen af onder zijn oude binding met expliciet answer/1.
 """
 
 from __future__ import annotations
@@ -58,6 +65,15 @@ FIXTURE = json.loads(
 )
 #: Het historische conceptoordeel waarvan de verifier elk item goedkeurde.
 HISTORISCH_CONCEPT = "9faab46592a6aeab83589b18f689e456ab2e96c0fa7b3750e06054844e5f46cf"
+#: Synthetisch getransformeerd (answer/2), geen modeluitvoer.
+A2 = json.loads(
+    (ROOT / "tests/fixtures/ess05/answer2_uit_r9_r720_v1.json").read_text(
+        encoding="utf-8"
+    )
+)
+ANTWOORD2 = A2["raw_response"]
+#: Het uit ANTWOORD2 afgeleide concept (historisch modulo bewijs-ID's).
+AFGELEID_CONCEPT = A2["afgeleid_concept_hash"]
 _CONCEPTBLOK = re.compile(
     r'<conceptoordeel candidate_hash="([0-9a-f]{64})">\n(.*?)\n</conceptoordeel>', re.S
 )
@@ -140,10 +156,17 @@ def _callrecord(tmp_path: Path) -> dict:
 
 
 def _aangepast(bewerk) -> str:
-    """Het echte antwoord, met een gerichte bewerking van de claims/bewijsplaatsen."""
-    antwoord = json.loads(FIXTURE["raw_response"])
+    """Het answer/2-antwoord, met een gerichte bewerking van een inline claim."""
+    antwoord = json.loads(ANTWOORD2)
     bewerk(antwoord)
     return json.dumps(antwoord, ensure_ascii=False)
+
+
+def _c5(antwoord: dict) -> dict:
+    """C5 staat inline als tweede reden bij de tweede buur (dwarsterugloop)."""
+    c5 = antwoord["neighbours"][1]["reason"][1]
+    assert c5["role"] == "inference" and "gedeelde eindpunt" in c5["text"]
+    return c5
 
 
 class TestEchteFixture:
@@ -184,14 +207,14 @@ class TestKeten:
     def test_historisch_volledig_oordeel_geeft_c5_vrij(self, tmp_path):
         """Reproductie van het defect: de keten vertrouwt het verifieroordeel;
         bij volledig supported gaat de ongestaafde deelzin mee (zoals in R9)."""
-        provider = _EchteR720(FIXTURE["raw_response"], _historisch_oordeel)
+        provider = _EchteR720(ANTWOORD2, _historisch_oordeel)
         uitkomst = _draai(tmp_path, provider)
         (resultaat,) = uitkomst["resultaten"]
         assert resultaat["geaccepteerd"] is True
         record = _callrecord(tmp_path)
         assert record["beoordelingsdocument"]["verification_input"][
             "candidate_hash"
-        ] == (HISTORISCH_CONCEPT)
+        ] == (AFGELEID_CONCEPT)
 
     def test_ongestaafde_deelzin_blokkeert_zonder_herstel_of_retry(self, tmp_path):
         """Wat `ess05-verify/3` vraagt: een ware maar in deze bewijsroute
@@ -203,7 +226,7 @@ class TestKeten:
                 kandidaat, concept, **{"claim:C5": "unsupported"}
             )
 
-        provider = _EchteR720(FIXTURE["raw_response"], verifier)
+        provider = _EchteR720(ANTWOORD2, verifier)
         with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
             _draai(tmp_path, provider)
         assert provider.stappen == ["beoordeling", "verificatie"]  # geen retry
@@ -212,8 +235,8 @@ class TestKeten:
         assert doc["error"]["type"] == "semantic_verification_failed"
         assert doc["judgment"] is None
         # Geen stil herstel: exact de ruwe respons en het afgeleide concept.
-        assert doc["raw_response"] == FIXTURE["raw_response"]
-        assert doc["verification_input"]["candidate_hash"] == HISTORISCH_CONCEPT
+        assert doc["raw_response"] == ANTWOORD2
+        assert doc["verification_input"]["candidate_hash"] == AFGELEID_CONCEPT
         (geval,) = _soort(tmp_path, "geval")
         assert geval["geaccepteerd"] is False
         assert len(_soort(tmp_path, "reservering")) == 2
@@ -221,20 +244,20 @@ class TestKeten:
     def test_correcte_premissenketen_blijft_vrijgegeven(self, tmp_path):
         """Het gedeelde eindpunt met een eigen materiaalclaim als premisse."""
 
+        eindpunt = (
+            "Dwarsterugloop eindigt volgens de beschrijving op de "
+            "oorspronkelijke laadplaats."
+        )
+
         def bewerk(antwoord):
-            antwoord["evidence"].append({
-                "id": "E8", "material_id": "neighbour:model:19a4c2e48748",
-                "material_sha256": next(e["material_sha256"] for e in antwoord["evidence"]
-                                        if e["id"] == "E5"),
-                "quote": "op de oorspronkelijke laadplaats eindigt",
-            })  # fmt: skip
-            c5 = next(c for c in antwoord["claims"] if c["id"] == "C5")
-            c5["premises"] = ["C1", "C4", "C6"]
-            antwoord["claims"].insert(antwoord["claims"].index(c5), {
-                "id": "C6", "role": "material",
-                "text": "Dwarsterugloop eindigt volgens de beschrijving op de "
-                        "oorspronkelijke laadplaats.",
-                "evidence": ["E8"], "premises": [],
+            c5 = _c5(antwoord)
+            buurcitaat = c5["premises"][1]["quotes"][0]
+            assert buurcitaat["material_id"] == "neighbour:model:19a4c2e48748"
+            c5["premises"].append({
+                "role": "material",
+                "quotes": [{**buurcitaat,
+                            "quote": "op de oorspronkelijke laadplaats eindigt"}],
+                "text": eindpunt,
             })  # fmt: skip
 
         provider = _EchteR720(
@@ -243,12 +266,15 @@ class TestKeten:
         (resultaat,) = _draai(tmp_path, provider)["resultaten"]
         assert resultaat["geaccepteerd"] is True
         concept = _callrecord(tmp_path)["beoordelingsdocument"]["concept"]
-        c5 = next(c for c in concept["claims"] if c["id"] == "C5")
-        assert c5["premises"] == ["C1", "C4", "C6"]
+        teksten = {c["id"]: c["text"] for c in concept["claims"]}
+        gevolg = next(c for c in concept["claims"] if "gedeelde eindpunt" in c["text"])
+        # De nieuwe premisse krijgt vóór de gevolgtrekking haar eigen ID.
+        assert gevolg["premises"][:2] == ["C1", "C4"]
+        assert teksten[gevolg["premises"][2]] == eindpunt
 
     def test_claim_zonder_overbodige_bijzin_blijft_vrijgegeven(self, tmp_path):
         def bewerk(antwoord):
-            c5 = next(c for c in antwoord["claims"] if c["id"] == "C5")
+            c5 = _c5(antwoord)
             c5["text"] = c5["text"].split(";")[0] + "."
 
         provider = _EchteR720(
@@ -260,7 +286,7 @@ class TestKeten:
     def test_beide_prompts_dragen_de_bewijsrouteregel(self, tmp_path):
         """Positieve promptgrens (geen gedragsbewijs): de verifier krijgt de
         premissenregel, de toetser de draag-, splits- of weglaatregel."""
-        provider = _EchteR720(FIXTURE["raw_response"], _historisch_oordeel)
+        provider = _EchteR720(ANTWOORD2, _historisch_oordeel)
         _draai(tmp_path, provider)
         beoordeling, verificatie = provider.systemen
         assert "vul geen ontbrekende premisse aan" in verificatie
@@ -268,9 +294,9 @@ class TestKeten:
         assert "ongestaafde deelzin maakt de claim unsupported" in verificatie
         assert "splits de claim of laat de deelzin weg" in beoordeling
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
-        # Huidige code (R10-C3-herstel); de R9-regels hierboven blijven erin.
+        # Huidige code (answer/2); de R9-regels hierboven blijven erin.
         assert (doc["prompt_version"], doc["verification_prompt_version"]) == (
-            "ess05-assess/17",
+            "ess05-assess/18",
             "ess05-verify/4",
         )
 
@@ -335,15 +361,23 @@ class TestHistorischeBinding:
         return dataclasses.replace(omg.dienst.binding(), **anders)
 
     def test_oude_vrijgave_geldt_alleen_onder_de_oude_binding(self):
-        """Onder /15 + /2 speelt het historische, geverifieerde oordeel af; onder
-        de huidige binding is het historisch en geen actueel oordeel."""
+        """Onder /15 + /2 met expliciet answer/1 speelt het historische,
+        geverifieerde oordeel af; onder de huidige binding is het historisch en
+        geen actueel oordeel."""
         oud = self._replay(self._binding(prompt_version="ess05-assess/15",
-                                         verification_prompt_version="ess05-verify/2"))  # fmt: skip
+                                         verification_prompt_version="ess05-verify/2",
+                                         answer_schema_version="ess05-answer/1"))  # fmt: skip
         deel = _onderscheid(oud)
         assert oud.status == FIXTURE["geval"]["verwacht"] == "review_required"
         assert "semantisch geverifieerd" in deel["reason"]
+        # Zonder de expliciete historische antwoordversie geldt het niet.
+        zonder = self._replay(self._binding(prompt_version="ess05-assess/15",
+                                            verification_prompt_version="ess05-verify/2"))  # fmt: skip
+        assert "afleidingsbinding wijkt af (answer_schema_version)" in (
+            _onderscheid(zonder)["reason"]
+        )
         huidig = self._replay(self._binding())
         deel = _onderscheid(huidig)
         assert "historisch en geldt niet als actueel oordeel" in deel["reason"]
-        assert "'ess05-assess/17'" in deel["reason"]
+        assert "'ess05-assess/18'" in deel["reason"]
         assert "semantisch geverifieerd" not in deel["reason"]

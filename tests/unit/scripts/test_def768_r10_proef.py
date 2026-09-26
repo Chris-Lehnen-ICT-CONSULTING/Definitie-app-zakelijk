@@ -110,11 +110,12 @@ CONTRACT10 = {
     "concept_schema_version": "ess05-concept/1",
     "verification_schema_version": "ess05-verification/1",
 }
-#: De huidige code (R10-C3-herstel): alleen beide promptversies verschillen.
+#: De huidige code (answer/2): beide promptversies en het antwoordschema verschillen.
 HUIDIG_CONTRACT = {
     **CONTRACT10,
-    "prompt_version": "ess05-assess/17",
+    "prompt_version": "ess05-assess/18",
     "verification_prompt_version": "ess05-verify/4",
+    "answer_schema_version": "ess05-answer/2",
 }
 OUDE_RONDES = ("R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10")
 V = "validation"
@@ -668,6 +669,7 @@ class TestContract:
         assert {k for k in CONTRACT10 if CONTRACT10[k] != HUIDIG_CONTRACT[k]} == {
             "prompt_version",
             "verification_prompt_version",
+            "answer_schema_version",
         }
         with pytest.raises(gb.BudgetSchendingError, match="contract"):
             runner._controleer_contract(omg, runner.PROEVEN["R10"])
@@ -680,7 +682,7 @@ class TestContract:
              "PROMPT_VERSION", "ess05-assess/15"),
             ("services.validation.ess05_verification_service.Ess05VerificationService",
              "PROMPT_VERSION", "ess05-verify/2"),
-            ("domain.ess05.bewijs", "ANTWOORDSCHEMA", "ess05-answer/2"),
+            ("domain.ess05.bewijs", "ANTWOORDSCHEMA", "ess05-answer/1"),
         ],
     )  # fmt: skip
     def test_andere_code_voor_grootboek_geweigerd(

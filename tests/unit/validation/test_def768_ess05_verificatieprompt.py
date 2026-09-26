@@ -133,7 +133,7 @@ def test_gewone_ids_staan_exact_als_items_in_het_blok():
     _, prompt = _prompts(concept)
     items = _items_uit_prompt(prompt)
     assert items == list(verplichte_controles(concept))
-    assert items[:2] == ["core_features", "feature:F0"]
+    assert items[:2] == ["core_features", "feature:F1"]
     assert f"neighbour:{BUREN[0].id}" in items
     assert items[-1] == "completeness"
 
@@ -176,7 +176,7 @@ def test_correcte_niet_onderscheidende_concepten_houden_hun_kenmerkitem(ondersch
     concept = _concept(concept_uit_spec(_spec(onderscheid), MATERIAAL))
     _, prompt = _prompts(concept)
     items = _items_uit_prompt(prompt)
-    assert "feature:F0" in items
+    assert "feature:F1" in items
     assert f"neighbour:{BUREN[0].id}" in items
 
 

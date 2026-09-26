@@ -31,6 +31,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -155,7 +156,19 @@ def _soort(tmp_path: Path, soort: str) -> list[dict]:
     return [r for r in regels if r["soort"] == soort]
 
 
+#: Het gepinde R11-contract (assess/17 + verify/4, answer/1). Sinds answer/2
+#: draagt de code een ander contract: de echte R11-registratie weigert dan
+#: fail-closed; R11 blijft bovendien gestopt in zijn grootboek.
+R11_CONTRACT = {
+    **CONTRACT10,
+    "prompt_version": "ess05-assess/17",
+    "verification_prompt_version": "ess05-verify/4",
+}
+
+
 def _r11(**anders) -> runner.Proef:
+    """R11-kopie met de huidige contractidentiteit (het echte R11 blijft /17, answer/1)."""
+    anders.setdefault("contract", MappingProxyType(HUIDIG_CONTRACT))
     return dataclasses.replace(runner.PROEVEN["R11"], **anders)
 
 
@@ -412,7 +425,7 @@ class TestRegistratie:
             TOESTEMMING,
             TOESTEMMING_SHA256,
         )
-        assert dict(proef.contract) == HUIDIG_CONTRACT
+        assert dict(proef.contract) == R11_CONTRACT
         # De enige ronde met een verruiming boven het oorspronkelijke kader.
         assert proef.kaderverruiming_modelstappen == 3
 
@@ -493,14 +506,16 @@ class TestRegistratie:
         assert _stand(R11_MAP / "callgrootboek.jsonl") == voor
 
     @besluiten_nodig
-    def test_echte_poorten_open_via_de_geregistreerde_route(self):
+    def test_echte_poorten_open_behalve_het_contract_onder_answer2(self):
         proef = runner.PROEVEN["R11"]
         omg = dataclasses.replace(_omgeving8(_R8Provider()), echt=True)
         runner._controleer_opslag(omg, proef.opslag, proef)
         runner._controleer_goedkeuring(omg, proef)
         runner._controleer_productiegrenzen(omg, proef)
         runner._controleer_kostenroute(omg, proef)
-        runner._controleer_contract(omg, proef)
+        # De code draagt answer/2: de gepinde R11-registratie weigert fail-closed.
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner._controleer_contract(omg, proef)
         assert runner._besluit_voor(omg, proef) == runner.R11_BUDGETBESLUIT_SHA256
 
     def test_echt_buiten_de_canonieke_opslag_geweigerd(self, tmp_path):
@@ -643,10 +658,28 @@ class TestBudgetbesluit:
 
 
 class TestContract:
-    def test_code_draagt_de_r11_contractidentiteit(self):
+    def test_r11_contract_historisch_de_code_weigert_de_echte_r11(self):
+        """answer/2: de echte R11-registratie weigert fail-closed (niet gemigreerd)."""
         omg = _omgeving8(_R8Provider())
         assert runner.contractidentiteit(omg) == HUIDIG_CONTRACT
-        runner._controleer_contract(omg, runner.PROEVEN["R11"])
+        assert {k for k in R11_CONTRACT if R11_CONTRACT[k] != HUIDIG_CONTRACT[k]} == {
+            "prompt_version",
+            "answer_schema_version",
+        }
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            runner._controleer_contract(omg, runner.PROEVEN["R11"])
+        runner._controleer_contract(omg, _r11())
+
+    def test_echte_r11_start_niets_onder_answer2(self, tmp_path):
+        provider = _R8Provider()
+        pad = _gevallenbestand(tmp_path, 1)
+        proef = dataclasses.replace(
+            runner.PROEVEN["R11"], t_ontwikkelinvoer_sha256=_sha(pad)
+        )
+        with pytest.raises(gb.BudgetSchendingError, match="contract"):
+            _t11(_omgeving8(provider), tmp_path, pad, proef=proef)
+        assert provider.aanroepen == []
+        assert not _opslag11(tmp_path).grootboek.exists()
 
     def test_andere_verifyversie_voor_grootboek_geweigerd(self, monkeypatch, tmp_path):
         monkeypatch.setattr(
@@ -662,7 +695,7 @@ class TestContract:
 
     def test_freeze_pint_het_contract_voor_v_en_t(self):
         omg = _omgeving8(_R8Provider())
-        v, t = (runner.freezevelden(omg, runner.PROEVEN["R11"], g) for g in "vt")
+        v, t = (runner.freezevelden(omg, _r11(), g) for g in "vt")
         for velden in (v, t):
             assert velden["proef_id"] == R11_ID
             assert {k: velden[k] for k in HUIDIG_CONTRACT} == HUIDIG_CONTRACT
@@ -800,9 +833,15 @@ class TestV8Maker:
     @v8_nodig
     def test_vastgelegde_v8_reproduceerbaar_en_gepind(self, tmp_path):
         _, nieuw = _v8_bouw(tmp_path)
-        assert (tmp_path / "v8.json").read_bytes() == V8.read_bytes()
         assert _sha(V8) == runner.R11_V_INVOER_SHA256
+        # Sinds answer/2 noemt de herkomst het huidige contract; al het andere,
+        # ook elk item (verify/4 ongewijzigd), is exact de bevroren V8.
+        vast = json.loads(V8.read_text(encoding="utf-8"))
+        assert vast["herkomst"]["contract"] == R11_CONTRACT
         assert nieuw["herkomst"]["contract"] == HUIDIG_CONTRACT
+        nieuw["herkomst"]["contract"] = R11_CONTRACT
+        tekst = json.dumps(nieuw, ensure_ascii=False, indent=2) + "\n"
+        assert tekst.encode("utf-8") == V8.read_bytes()
 
     @r10_bronnen_nodig
     def test_doel_wordt_nooit_overschreven(self, tmp_path):
@@ -1093,7 +1132,9 @@ class TestAcceptatiepoort:
 @v8_nodig
 @r10_bronnen_nodig
 class TestDroog:
-    def test_droog_v8_onder_r11(self, tmp_path):
+    def test_droog_v8_onder_r11(self, monkeypatch, tmp_path):
+        # Mechaniek onder de huidige code (kopie met huidig contract).
+        monkeypatch.setitem(runner.PROEVEN, "R11", _r11())
         code = runner.main(["--proef", "R11", "--fase", "verificatie_alleen",
                             "--gevallen", str(V8), "--uitmap", str(tmp_path),
                             "--droog"])  # fmt: skip
@@ -1108,7 +1149,8 @@ class TestDroog:
         assert {k: freeze[k] for k in HUIDIG_CONTRACT} == HUIDIG_CONTRACT
         assert not list(tmp_path.rglob("*.jsonl"))
 
-    def test_droog_r9_selectie_onder_r11(self, tmp_path):
+    def test_droog_r9_selectie_onder_r11(self, monkeypatch, tmp_path):
+        monkeypatch.setitem(runner.PROEVEN, "R11", _r11())
         code = runner.main(["--proef", "R11", "--fase", "ontwikkeling", "--gevallen",
                             str(R9_SELECTIE), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
         assert code == 0

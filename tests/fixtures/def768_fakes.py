@@ -32,9 +32,11 @@ from typing import Any
 from domain.ess03.contract import Intentie
 from domain.ess05.bewijs import (
     ANTWOORDSCHEMA,
+    ANTWOORDSCHEMA_1,
     CONCEPTSCHEMA,
     VERIFICATIESCHEMA,
     Ess05Concept,
+    valideer_antwoord as _leid_af,
     verplichte_controles,
 )
 from domain.ess05.contract import (
@@ -51,6 +53,7 @@ from domain.ess05.contract import (
     materiaalhashes,
     normaliseer_buren,
     pas_verificatie_toe,
+    valideer_antwoord,
     valideer_concept,
 )
 
@@ -167,7 +170,30 @@ def concept_uit_spec(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> d
     distinction, distinguishing_feature_quote, missing_feature, reason,
     uncertainty), `proposed_neighbours` (term, source_id, quote, reason),
     `question`; optioneel `core_feature_quotes`.
+
+    Een geldig concept komt terug zoals de app het uit het geneste antwoord
+    afleidt (ID's in gebruiksvolgorde, identieke claims samengevoegd), zodat
+    concept, antwoord en verificatie exact bij elkaar horen. Een ongeldig
+    concept blijft letterlijk: testmateriaal voor een weigering.
     """
+    return zoals_afgeleid(_spec_concept(spec, materiaal), materiaal)
+
+
+def zoals_afgeleid(concept: Mapping[str, Any], materiaal: Mapping[str, str]) -> dict:
+    """Het concept zoals de app het uit `antwoord_uit_concept` afleidt, of ongewijzigd.
+
+    De buren komen uit het materiaal (`neighbour:<id>` → beschrijving).
+    """
+    buren = {
+        locatie.removeprefix("neighbour:"): tekst or None
+        for locatie, tekst in materiaal.items()
+        if locatie.startswith("neighbour:")
+    }
+    afgeleid, _ = _leid_af(antwoord_uit_concept(concept), materiaal, buren)
+    return afgeleid.als_dict() if afgeleid is not None else dict(concept)
+
+
+def _spec_concept(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> dict:
     kern = materiaal["definition"]
     concept: dict[str, Any] = {
         "schema_version": CONCEPTSCHEMA,
@@ -208,16 +234,114 @@ def concept_uit_spec(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> d
     return concept
 
 
-def antwoord_uit_concept(concept: Mapping[str, Any]) -> dict:
-    """Hetzelfde oordeel als modelantwoord (`ANTWOORDSCHEMA`): bewijsplaatsen
-    met materiaal-id, hash en citaat, zonder posities (die leidt de app af)."""
+def antwoord1_uit_concept(concept: Mapping[str, Any]) -> dict:
+    """Historisch plat modelantwoord (`ANTWOORDSCHEMA_1`): bewijsplaatsen met
+    materiaal-id, hash en citaat, zonder posities (die leidt de app af)."""
     antwoord = deepcopy(dict(concept))
-    antwoord["schema_version"] = ANTWOORDSCHEMA
+    antwoord["schema_version"] = ANTWOORDSCHEMA_1
     antwoord["evidence"] = [
         {k: e[k] for k in ("id", "material_id", "material_sha256", "quote")}
         for e in concept["evidence"]
     ]
     return antwoord
+
+
+def antwoord_uit_concept(concept: Mapping[str, Any]) -> dict:
+    """Hetzelfde oordeel als actueel modelantwoord (`ANTWOORDSCHEMA`, genest):
+    elke claim inline op haar gebruiksplaats, citaten en premissen vóór de
+    tekst, geen ID's en geen posities (die leidt de app af).
+
+    Een verwijzing die het concept niet gebruikt, valt daarbij weg; voor een
+    ongeldig concept is het antwoord dus geen getrouwe weergave. Een extra veld
+    bovenaan of in een buur of voorstel (zoals een oud `/1`-veld) gaat wel
+    letterlijk mee: dat blijft een structuurfout in het antwoord.
+    """
+
+    def extra(item: Mapping[str, Any], velden: set[str]) -> dict[str, Any]:
+        return {k: deepcopy(v) for k, v in item.items() if k not in velden}
+
+    bewijs = {e["id"]: e for e in concept["evidence"]}
+    claims = {c["id"]: c for c in concept["claims"]}
+
+    def citaat(ref: str | None) -> dict | None:
+        if ref is None:
+            return None
+        return {k: bewijs[ref][k] for k in ("material_id", "material_sha256", "quote")}
+
+    def claim(ref: str | None) -> dict | None:
+        if ref is None:
+            return None
+        c = claims[ref]
+        if c["role"] == "material":
+            return {
+                "role": c["role"],
+                "quotes": [citaat(e) for e in c["evidence"]],
+                "text": c["text"],
+            }
+        if c["role"] == "inference":
+            return {
+                "role": c["role"],
+                "premises": [claim(p) for p in c["premises"]],
+                "text": c["text"],
+            }
+        return {"role": c["role"], "text": c["text"]}
+
+    vraag = concept["question"]
+    return {
+        "schema_version": ANTWOORDSCHEMA,
+        "genus_quote": citaat(concept["genus_evidence"]),
+        "core_features": [citaat(k["evidence"]) for k in concept["core_features"]],
+        "reason": [claim(r) for r in concept["reason_claims"]],
+        "neighbours": [
+            {
+                "neighbour_id": b["neighbour_id"],
+                "distinction": b["distinction"],
+                "feature_quote": citaat(b["feature_evidence"]),
+                "reason": [claim(r) for r in b["reason_claims"]],
+                "missing_feature": claim(b["missing_feature_claim"]),
+                "uncertainty": claim(b["uncertainty_claim"]),
+                **extra(b, _BUURVELDEN),
+            }
+            for b in concept["neighbours"]
+        ],
+        "proposals": [
+            {
+                "term": p["term"],
+                "source_quote": citaat(p["source_evidence"]),
+                "reason": [claim(r) for r in p["reason_claims"]],
+                **extra(p, _VOORSTELVELDEN),
+            }
+            for p in concept["proposals"]
+        ],
+        "question": (
+            None
+            if vraag is None
+            else {"text": vraag["text"], "claims": [claim(r) for r in vraag["claims"]]}
+        ),
+        **extra(concept, _CONCEPTVELDEN),
+    }
+
+
+_CONCEPTVELDEN = {
+    "schema_version",
+    "genus_evidence",
+    "core_features",
+    "evidence",
+    "claims",
+    "reason_claims",
+    "neighbours",
+    "proposals",
+    "question",
+}
+_BUURVELDEN = {
+    "neighbour_id",
+    "distinction",
+    "feature_evidence",
+    "reason_claims",
+    "missing_feature_claim",
+    "uncertainty_claim",
+}
+_VOORSTELVELDEN = {"id", "term", "source_evidence", "reason_claims"}
 
 
 def antwoord_uit_spec(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> dict:
@@ -305,10 +429,17 @@ def bouw_document(
         if concept is not None
         else concept_uit_spec(spec or {}, materiaal)
     )
+    antwoord = antwoord_uit_concept(ruw)
+    gevalideerd, fouten = valideer_concept(ruw, materiaal, actief)
+    if gevalideerd is not None:
+        # Zoals de dienst: het concept is de afleiding uit het antwoord (ID's
+        # in gebruiksvolgorde). Een geldig concept gaat daarbij niet verloren.
+        gevalideerd, fouten = valideer_antwoord(antwoord, materiaal, actief)
+        assert gevalideerd is not None, fouten
+        ruw = gevalideerd.als_dict()
     verificatie_ruw = (verificatie or verificatie_voor)(ruw)
     oordeel = None
     rejected: list[dict[str, Any]] = []
-    gevalideerd, fouten = valideer_concept(ruw, materiaal, actief)
     if verificatie is None:
         assert gevalideerd is not None, fouten
     if gevalideerd is not None:
@@ -320,9 +451,9 @@ def bouw_document(
             uitgesloten_termen=uitgesloten,
         )
     hashes = materiaalhashes(materiaal)
-    # Zoals de dienst: de ongewijzigde ruwe respons (antwoord zonder posities)
-    # en de binding van het daaruit afgeleide concept.
-    ruwe_respons = json.dumps(antwoord_uit_concept(ruw), ensure_ascii=False)
+    # Zoals de dienst: de ongewijzigde ruwe respons (genest antwoord, zonder
+    # ID's en posities) en de binding van het daaruit afgeleide concept.
+    ruwe_respons = json.dumps(antwoord, ensure_ascii=False)
     ruwe_hash = _sha(ruwe_respons)
     return {
         "contract_version": CONTRACTVERSIE,

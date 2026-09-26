@@ -15,8 +15,8 @@ De dienst:
    structuur (kernkenmerken, bewijsplaatsen, claims, buren, voorstellen,
    vraag), met de norm uit het actieve ESS-05-regelrecord, de toetsinstructie
    en al het materiaal als XML-escaped **gegevens**;
-3. leidt uit het antwoord (`ess05-answer/1`: citaten zonder posities) het
-   concept af en controleert het fail-closed
+3. leidt uit het antwoord (`ess05-answer/2`: genest en citaat-eerst, zonder
+   ID's en posities) het concept af en controleert het fail-closed
    (`domain.ess05.contract.valideer_antwoord`): afwijkende vorm is
    `malformed_response`, één niet-letterlijk, dubbelzinnig of anderszins
    niet-verifieerbaar citaat maakt het hele antwoord `unverifiable_evidence`;
@@ -50,7 +50,7 @@ from xml.sax.saxutils import escape, quoteattr
 from domain.context.contract import CONTEXT_VELDEN
 from domain.context.normalisatie import canoniseer_contextlijst
 from domain.ess03.contract import Intentie
-from domain.ess05.bewijs import ANTWOORDSCHEMA, Ess05Concept
+from domain.ess05.bewijs import ANTWOORDSCHEMA, MAX_CLAIMDIEPTE, Ess05Concept
 from domain.ess05.contract import (
     CONTRACTVERSIE,
     FASE_BEOORDELING,
@@ -302,69 +302,77 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
     )
 
 
-#: Het gesloten `/2`-antwoord (ADR-003). De toetsinstructie en regels hierboven
-#: noemen de velden van eerdere versies; deze afbeelding koppelt ze aan de
-#: gesloten structuur, zonder de betekenis van die instructies te wijzigen.
+#: Het gesloten `/2`-antwoord (ADR-003) in de geneste vorm `ess05-answer/2`
+#: (R11-C10-voorstel v2). De toetsinstructie en regels hierboven noemen de
+#: velden van eerdere versies; deze afbeelding koppelt ze aan de gesloten
+#: structuur, zonder de betekenis van die instructies te wijzigen.
 _ANTWOORDSTRUCTUUR = (
-    "Antwoordstructuur (ess05/2). De namen hierboven horen zo bij de velden:\n"
+    f"Antwoordstructuur (ess05/2, antwoord {ANTWOORDSCHEMA}). De namen hierboven "
+    "horen zo bij de velden:\n"
     "- lacks_differentia is geen uitvoerveld meer: de app leidt het af uit "
     "core_features. Neem in core_features alleen inhoudelijke kenmerken van de kern "
-    "op, elk met één letterlijk kernfragment; is lacks_differentia volgens de "
+    "op, elk als één letterlijk kerncitaat; is lacks_differentia volgens de "
     "instructie true, dan is core_features een lege lijst. Je hoeft niet alle "
     "kenmerken op te sommen; één werkelijk kenmerk volstaat. Het bovenbegrip mag je "
-    "apart aanwijzen in genus_evidence.\n"
-    "- reason (van het geheel) is reason_claims; reason per verwant begrip is daar "
-    "reason_claims; missing_feature is missing_feature_claim; uncertainty is "
-    "uncertainty_claim; distinguishing_feature_quote is feature_evidence; "
-    "proposed_neighbours is proposals, met source_id en quote samen als "
-    "source_evidence; question is question.text.\n"
-    "- Elke inhoudelijke uitspraak is een claim met een eigen id. role material: de "
-    "uitspraak geeft weer wat in het materiaal staat en verwijst in evidence naar "
-    "bewijsplaatsen. role inference: een gevolgtrekking; premises verwijst naar eerdere "
-    "claims, evidence is leeg. role absence_in_supplied_material: iets staat niet in het "
-    "aangeleverde materiaal; evidence en premises zijn leeg en je verzint geen citaat. "
-    "Afwezigheid van informatie is geen ontkenning. Elke claim en elke bewijsplaats "
-    "wordt gebruikt; zet geen losse tekst buiten claims. Elke deelzin van een claim "
-    "wordt gedragen door die claim zelf: bij material door haar eigen bewijsplaatsen, "
-    "bij inference alleen door de claims in premises. Steunt een deelzin op een "
-    "gegeven dat daar niet in staat, ook als het elders in het materiaal staat, neem "
-    "dat gegeven dan eerst op als eigen claim met bewijsplaats en als premisse, of "
-    "splits de claim of laat de deelzin weg. Een bewijsplaats draagt alleen de woorden "
-    "binnen haar citaat, niet wat in de zin ervoor of erna staat; gaat de uitspraak "
-    "verder dan het citaat, citeer dan ook dat deel als bewijsplaats van deze claim of "
-    "laat het weg.\n"
-    "- Een bewijsplaats verwijst naar één materiaal-id en sha256 uit <materiaal>, met "
-    "in quote een exact, aaneengesloten fragment uit de oorspronkelijke tekst van dat "
-    "materiaal; een XML-escape zoals &amp; staat voor één teken. Geef geen posities: "
-    "de app bepaalt de plaats zelf en aanvaardt een citaat alleen als het precies één "
-    "keer letterlijk in dat materiaal staat. Staat je fragment er vaker, kies dan een "
-    "langer aaneengesloten fragment dat er precies één keer staat. Een kernfragment "
-    "(core_features, genus_evidence, feature_evidence) komt uit het materiaal "
-    "definition; source_evidence uit een materiaal source:….\n"
-    "- Per verwant begrip: distinguished heeft feature_evidence en geen "
-    "missing_feature_claim; not_distinguished heeft missing_feature_claim en geen "
-    "feature_evidence; unclear heeft geen feature_evidence.\n\n"
-    "Antwoord uitsluitend met één JSON-object en niets anders, exact deze velden:\n"
+    "apart citeren in genus_quote.\n"
+    "- reason (van het geheel en per verwant begrip) is een lijst claims; "
+    "missing_feature en uncertainty zijn elk één claim of null; "
+    "distinguishing_feature_quote is feature_quote; proposed_neighbours is "
+    "proposals, met source_id en quote samen als source_quote; question is "
+    "question.text.\n"
+    "- Elke inhoudelijke uitspraak is een claim, precies op de plaats waar je haar "
+    "gebruikt; er zijn geen id's en geen verwijzingen. Schrijf in elke claim eerst "
+    "wat haar draagt en pas daarna de tekst. role material: eerst quotes, de "
+    "citaten die de uitspraak dragen, dan text, die alleen weergeeft wat in die "
+    "citaten staat. role inference: eerst premises, de volledige claims waarop de "
+    "gevolgtrekking steunt (zelf weer claims in deze vorm), dan text. role "
+    "absence_in_supplied_material: iets staat niet in het aangeleverde materiaal; "
+    "alleen role en text, en je verzint geen citaat. Afwezigheid van informatie is "
+    "geen ontkenning. Gebruik je dezelfde uitspraak op meer plaatsen, herhaal dan "
+    "exact dezelfde claim; zet geen losse tekst buiten claims. Elke deelzin van een "
+    "claim wordt gedragen door die claim zelf: bij material door haar eigen citaten, "
+    "bij inference alleen door haar premises. Steunt een deelzin op een gegeven dat "
+    "daar niet in staat, ook als het elders in het materiaal staat, neem dat "
+    "gegeven dan eerst op als eigen claim met citaat in premises, of splits de claim "
+    "of laat de deelzin weg. Een citaat draagt alleen de woorden binnen het citaat, "
+    "niet wat in de zin ervoor of erna staat; gaat de uitspraak verder dan het "
+    "citaat, citeer dan ook dat deel in de quotes van deze claim of laat het weg. "
+    f"Nest claims hoogstens {MAX_CLAIMDIEPTE} niveaus diep.\n"
+    "- Een citaat noemt één materiaal-id en sha256 uit <materiaal>, met in quote een "
+    "exact, aaneengesloten fragment uit de oorspronkelijke tekst van dat materiaal; "
+    "een XML-escape zoals &amp; staat voor één teken. Geef geen posities: de app "
+    "bepaalt de plaats zelf en aanvaardt een citaat alleen als het precies één keer "
+    "letterlijk in dat materiaal staat. Staat je fragment er vaker, kies dan een "
+    "langer aaneengesloten fragment dat er precies één keer staat. Een kerncitaat "
+    "(core_features, genus_quote, feature_quote) komt uit het materiaal definition; "
+    "source_quote uit een materiaal source:….\n"
+    "- Per verwant begrip: distinguished heeft feature_quote en geen "
+    "missing_feature; not_distinguished heeft missing_feature en geen "
+    "feature_quote; unclear heeft geen feature_quote.\n\n"
+    "Antwoord uitsluitend met één JSON-object en niets anders, exact deze velden; "
+    "<citaat> en <claim> staan eronder:\n"
     "{\n"
     f'  "schema_version": "{ANTWOORDSCHEMA}",\n'
-    '  "genus_evidence": "<bewijs-id> of null",\n'
-    '  "core_features": [{"id": "F1", "evidence": "<bewijs-id>"}],\n'
-    '  "evidence": [{"id": "E1", "material_id": "<materiaal-id>", '
-    '"material_sha256": "<sha256>", '
-    '"quote": "exact fragment dat één keer in dat materiaal staat"}],\n'
-    '  "claims": [{"id": "C1", '
-    '"role": "material|inference|absence_in_supplied_material", '
-    '"text": "korte afgebakende uitspraak", "evidence": ["E1"], "premises": []}],\n'
-    '  "reason_claims": ["C1"],\n'
+    '  "genus_quote": <citaat> of null,\n'
+    '  "core_features": [<citaat>],\n'
+    '  "reason": [<claim>],\n'
     '  "neighbours": [{"neighbour_id": "<id>", '
     '"distinction": "distinguished|not_distinguished|unclear", '
-    '"feature_evidence": "<bewijs-id> of null", "reason_claims": ["C1"], '
-    '"missing_feature_claim": "<claim-id> of null", '
-    '"uncertainty_claim": "<claim-id> of null"}],\n'
-    '  "proposals": [{"id": "P1", "term": "...", '
-    '"source_evidence": "<bewijs-id> of null", "reason_claims": ["C1"]}],\n'
-    '  "question": {"text": "precies één vraag", "claims": []} of null\n'
-    "}"
+    '"feature_quote": <citaat> of null, "reason": [<claim>], '
+    '"missing_feature": <claim> of null, "uncertainty": <claim> of null}],\n'
+    '  "proposals": [{"term": "...", "source_quote": <citaat> of null, '
+    '"reason": [<claim>]}],\n'
+    '  "question": {"text": "precies één vraag", "claims": [<claim>]} of null\n'
+    "}\n"
+    '<citaat> is {"material_id": "<materiaal-id>", "material_sha256": "<sha256>", '
+    '"quote": "exact fragment dat één keer in dat materiaal staat"}\n'
+    "<claim> is precies één van deze drie, met de velden in deze volgorde:\n"
+    '{"role": "material", "quotes": [<citaat>], '
+    '"text": "korte uitspraak, alleen wat in deze quotes staat"}\n'
+    '{"role": "inference", "premises": [<claim>], '
+    '"text": "korte gevolgtrekking, alleen uit deze premises"}\n'
+    '{"role": "absence_in_supplied_material", '
+    '"text": "wat niet in het aangeleverde materiaal staat"}'
 )
 
 
@@ -576,7 +584,11 @@ class Ess05AssessmentService:
     #: /17 (R10-C3-herstel): toetsinstructie ongewijzigd; een bewijsplaats draagt
     #: alleen de woorden binnen haar citaat, niet de zin ervoor of erna; wat
     #: verder gaat, wordt mee geciteerd of weggelaten (R10-R720, claim C3).
-    PROMPT_VERSION = "ess05-assess/17"
+    #: /18 (R11-C10-voorstel v2): toetsinstructie ongewijzigd; het antwoord is
+    #: `ess05-answer/2`, genest en citaat-eerst: elke claim inline op haar
+    #: gebruiksplaats, citaten en premissen vóór de tekst, geen ID's; de app
+    #: kent de ID's toe (R11-R720: ongebruikte, niet gedragen claim C10).
+    PROMPT_VERSION = "ess05-assess/18"
     TASK_TYPE = "validation"
 
     def __init__(

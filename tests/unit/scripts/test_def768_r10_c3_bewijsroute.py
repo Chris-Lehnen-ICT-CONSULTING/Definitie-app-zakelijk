@@ -24,6 +24,14 @@ blokkeert zonder herstel of retry; volledig bewijs en een C3 zonder extra
 deelzin blijven vrijgegeven; het oude document blijft historisch) en de
 invoerstructuur die de verifier nu krijgt. Ze bewijzen NIET dat een echt model
 C3 afwijst of de draagregel volgt: dat vraagt een nieuwe betaalde proef.
+
+Sinds `ess05-answer/2` (assess/18) weigert de live keten het echte, platte
+answer/1-antwoord (`test_def768_answer2_fixtures.py`). De keten- en
+route-invoertests voeren daarom de synthetische answer/2-transformatie van
+precies dit antwoord (`answer2_uit_r10_r720_v1.json`, geen modeluitvoer); het
+afgeleide concept is het historische modulo bewijs-ID's, met dezelfde claims
+C1–C8. Het historische document zelf speelt alleen af onder zijn oude binding
+met expliciet answer/1.
 """
 
 from __future__ import annotations
@@ -74,6 +82,15 @@ VOLGZIN = (
     "Zij vormen samen de volledige keuze tussen transportgangen en worden "
     "onderling vergeleken."
 )
+#: Synthetisch getransformeerd (answer/2), geen modeluitvoer.
+A2 = json.loads(
+    (ROOT / "tests/fixtures/ess05/answer2_uit_r10_r720_v1.json").read_text(
+        encoding="utf-8"
+    )
+)
+ANTWOORD2 = A2["raw_response"]
+#: Het uit ANTWOORD2 afgeleide concept (historisch modulo bewijs-ID's).
+AFGELEID_CONCEPT = A2["afgeleid_concept_hash"]
 _CONCEPTBLOK = re.compile(
     r'<conceptoordeel candidate_hash="([0-9a-f]{64})">\n(.*?)\n</conceptoordeel>', re.S
 )
@@ -86,6 +103,12 @@ def _sha(tekst: str) -> str:
 
 def _historisch_concept() -> str:
     return FIXTURE["beoordelingsdocument"]["concept_derivation"]["concept_hash"]
+
+
+def _e7() -> dict:
+    """De historische bewijsplaats E7 (het enige citaat van C3)."""
+    concept = FIXTURE["beoordelingsdocument"]["concept"]
+    return next(e for e in concept["evidence"] if e["id"] == "E7")
 
 
 def _historische_checks(**anders: str) -> list[dict]:
@@ -167,21 +190,25 @@ def _callrecord(tmp_path: Path) -> dict:
 
 
 def _aangepast(bewerk) -> str:
-    """Het echte antwoord, met een gerichte bewerking van claims/bewijsplaatsen."""
-    antwoord = json.loads(FIXTURE["raw_response"])
+    """Het answer/2-antwoord, met een gerichte bewerking van een inline claim."""
+    antwoord = json.loads(ANTWOORD2)
     bewerk(antwoord)
     return json.dumps(antwoord, ensure_ascii=False)
 
 
+def _c3(antwoord: dict) -> dict:
+    """C3 staat inline als derde reden van het geheel."""
+    c3 = antwoord["reason"][2]
+    assert c3["role"] == "material" and "onderling" in c3["text"]
+    return c3
+
+
 def _met_volgzin(antwoord) -> None:
-    """Volledig bewijs: de volgzin als eigen bewijsplaats E8 van C3."""
-    e7 = next(e for e in antwoord["evidence"] if e["id"] == "E7")
-    antwoord["evidence"].append({
-        "id": "E8", "material_id": BRON, "material_sha256": e7["material_sha256"],
-        "quote": VOLGZIN,
-    })  # fmt: skip
-    c3 = next(c for c in antwoord["claims"] if c["id"] == "C3")
-    c3["evidence"] = ["E7", "E8"]
+    """Volledig bewijs: de volgzin als tweede citaat van C3."""
+    c3 = _c3(antwoord)
+    (e7,) = c3["quotes"]
+    assert e7["material_id"] == BRON
+    c3["quotes"].append({**e7, "quote": VOLGZIN})
 
 
 def _routes(gebruiker: str) -> dict[str, dict]:
@@ -230,11 +257,11 @@ class TestKeten:
     def test_historisch_volledig_oordeel_geeft_c3_vrij(self, tmp_path):
         """Reproductie van het defect: de keten vertrouwt het verifieroordeel;
         bij volledig supported gaat de ongestaafde deelzin mee (zoals in R10)."""
-        provider = _EchteR720(FIXTURE["raw_response"], _historisch_oordeel)
+        provider = _EchteR720(ANTWOORD2, _historisch_oordeel)
         (resultaat,) = _draai(tmp_path, provider)["resultaten"]
         assert resultaat["geaccepteerd"] is True
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
-        assert doc["verification_input"]["candidate_hash"] == _historisch_concept()
+        assert doc["verification_input"]["candidate_hash"] == AFGELEID_CONCEPT
 
     def test_ongestaafde_deelzin_blokkeert_zonder_herstel_of_retry(self, tmp_path):
         def verifier(kandidaat, concept):
@@ -242,7 +269,7 @@ class TestKeten:
                 kandidaat, concept, **{"claim:C3": "unsupported"}
             )
 
-        provider = _EchteR720(FIXTURE["raw_response"], verifier)
+        provider = _EchteR720(ANTWOORD2, verifier)
         with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
             _draai(tmp_path, provider)
         assert provider.stappen == ["beoordeling", "verificatie"]  # geen retry
@@ -250,8 +277,8 @@ class TestKeten:
         assert doc["status"] == "error"
         assert doc["error"]["type"] == "semantic_verification_failed"
         assert doc["judgment"] is None
-        assert doc["raw_response"] == FIXTURE["raw_response"]  # geen stil herstel
-        assert doc["verification_input"]["candidate_hash"] == _historisch_concept()
+        assert doc["raw_response"] == ANTWOORD2  # geen stil herstel
+        assert doc["verification_input"]["candidate_hash"] == AFGELEID_CONCEPT
         (geval,) = _soort(tmp_path, "geval")
         assert geval["geaccepteerd"] is False
         assert len(_soort(tmp_path, "reservering")) == 2
@@ -262,14 +289,15 @@ class TestKeten:
         assert resultaat["geaccepteerd"] is True
         concept = _callrecord(tmp_path)["beoordelingsdocument"]["concept"]
         c3 = next(c for c in concept["claims"] if c["id"] == "C3")
-        assert c3["evidence"] == ["E7", "E8"]
+        citaten = {e["id"]: e["quote"] for e in concept["evidence"]}
+        assert [citaten[e] for e in c3["evidence"]] == [_e7()["quote"], VOLGZIN]
         # De verifier ziet de volgzin nu in de gesloten route van C3.
         route = _routes(provider.gebruikers[1])["C3"]["gesloten_bewijsroute"]
         assert [r["citaat"] for r in route][-1] == VOLGZIN
 
     def test_c3_zonder_extra_deelzin_blijft_vrijgegeven(self, tmp_path):
         def bewerk(antwoord):
-            c3 = next(c for c in antwoord["claims"] if c["id"] == "C3")
+            c3 = _c3(antwoord)
             c3["text"] = c3["text"].replace(" die onderling worden vergeleken", "")
             assert "onderling" not in c3["text"]
 
@@ -282,7 +310,7 @@ class TestBewijsrouteInvoer:
     """De invoerstructuur van `ess05-verify/4` (gegevens, geen gedragsbewijs)."""
 
     def _gebruiker(self, tmp_path, antwoord=None) -> str:
-        provider = _EchteR720(antwoord or FIXTURE["raw_response"], _historisch_oordeel)
+        provider = _EchteR720(antwoord or ANTWOORD2, _historisch_oordeel)
         _draai(tmp_path, provider)
         assert provider.stappen == ["beoordeling", "verificatie"]
         return provider.gebruikers[1]
@@ -292,15 +320,15 @@ class TestBewijsrouteInvoer:
     ):
         gebruiker = self._gebruiker(tmp_path)
         c3 = _routes(gebruiker)["C3"]
-        e7 = next(
-            e
-            for e in FIXTURE["beoordelingsdocument"]["concept"]["evidence"]
-            if e["id"] == "E7"
-        )
+        e7 = _e7()
+        # Het afgeleide bewijs-ID van het historische E7-citaat.
+        concept = _callrecord(tmp_path)["beoordelingsdocument"]["concept"]
+        (plaats,) = [e for e in concept["evidence"] if e["quote"] == e7["quote"]]
+        assert (plaats["start"], plaats["end"]) == (e7["start"], e7["end"])
         assert c3["rol"] == "material"
         assert c3["uitspraak"].endswith("die onderling worden vergeleken.")
         assert c3["gesloten_bewijsroute"] == [
-            {"bewijs": "E7", "materiaal": BRON, "citaat": e7["quote"]}
+            {"bewijs": plaats["id"], "materiaal": BRON, "citaat": e7["quote"]}
         ]
         # De volgzin staat wél in het volledige materiaal (voor andere items),
         # maar niet in de route van C3.
@@ -370,7 +398,7 @@ class TestBewijsrouteInvoer:
 
     def test_verifier_en_toetser_krijgen_de_route_regel(self, tmp_path):
         """Positieve promptgrens (geen gedragsbewijs)."""
-        provider = _EchteR720(FIXTURE["raw_response"], _historisch_oordeel)
+        provider = _EchteR720(ANTWOORD2, _historisch_oordeel)
         _draai(tmp_path, provider)
         beoordeling, verificatie = provider.systemen
         assert "<bewijsroutes>" in verificatie
@@ -382,7 +410,7 @@ class TestBewijsrouteInvoer:
         assert "niet wat in de zin ervoor of erna staat" in beoordeling
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
         assert (doc["prompt_version"], doc["verification_prompt_version"]) == (
-            "ess05-assess/17",
+            "ess05-assess/18",
             "ess05-verify/4",
         )
 
@@ -418,10 +446,17 @@ class TestHistorischeBinding:
 
     def test_oude_vrijgave_geldt_alleen_onder_de_oude_binding(self):
         oud = self._replay(self._binding(prompt_version="ess05-assess/16",
-                                         verification_prompt_version="ess05-verify/3"))  # fmt: skip
+                                         verification_prompt_version="ess05-verify/3",
+                                         answer_schema_version="ess05-answer/1"))  # fmt: skip
         assert oud.status == FIXTURE["geval"]["verwacht"] == "review_required"
         assert "semantisch geverifieerd" in _onderscheid(oud)["reason"]
+        # Zonder de expliciete historische antwoordversie geldt het niet.
+        zonder = self._replay(self._binding(prompt_version="ess05-assess/16",
+                                            verification_prompt_version="ess05-verify/3"))  # fmt: skip
+        assert "afleidingsbinding wijkt af (answer_schema_version)" in (
+            _onderscheid(zonder)["reason"]
+        )
         deel = _onderscheid(self._replay(self._binding()))
         assert "historisch en geldt niet als actueel oordeel" in deel["reason"]
-        assert "'ess05-assess/17'" in deel["reason"]
+        assert "'ess05-assess/18'" in deel["reason"]
         assert "semantisch geverifieerd" not in deel["reason"]

@@ -264,7 +264,7 @@ class TestModeluitvoer:
             lambda c: c["neighbours"][0].update(neighbour_id="gebruiker:verzonnen"),
             lambda c: c["neighbours"][0].update(distinction="maybe"),
             lambda c: c["neighbours"][0].update(feature_evidence=None),
-            lambda c: c["neighbours"][0].update(missing_feature_claim="C-reden"),
+            lambda c: c["neighbours"][0].update(missing_feature_claim="C1"),
             lambda c: c["neighbours"][0].update(extra="veld"),
             lambda c: c.update(core_features=[]),  # afgeleid true naast distinguished
         ],
@@ -385,7 +385,7 @@ class TestModeluitvoer:
         for verificatie in (
             None,
             verificatie_voor(concept, uitkomsten={"completeness": "unsupported"}),
-            verificatie_voor(concept, uitkomsten={"claim:C-reden": "undetermined"}),
+            verificatie_voor(concept, uitkomsten={"claim:C1": "undetermined"}),
             verificatie_voor(concept, candidate_hash="0" * 64),
         ):
             oordeel, uitkomst, _ = pas_verificatie_toe(

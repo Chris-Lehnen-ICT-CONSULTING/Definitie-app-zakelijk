@@ -227,7 +227,7 @@ async def test_r712_vorm_lege_profielverwijzing_door_vaste_structuur_aanvaard():
 async def test_r712_vorm_lege_profielverwijzing_na_afwijzing_geen_oordeel():
     scenario = _Scenario(
         _kenmerkspec(LEGE_VERWIJZING),
-        afgekeurd={"core_features": "unsupported", "feature:F0": "unsupported"},
+        afgekeurd={"core_features": "unsupported", "feature:F1": "unsupported"},
     )
     ai, doc, uitkomst = await _toets(scenario, PROFIEL)
     assert [c["task_type"] for c in ai.calls] == ["validation", "ess05_verification"]
@@ -260,7 +260,7 @@ def _parafrase(concept: dict[str, Any]) -> dict[str, Any]:
 @pytest.mark.asyncio
 async def test_r719_vorm_afgekeurde_parafrase_verschijnt_nergens():
     scenario = _Scenario(
-        _buurspec(), wijzig=_parafrase, afgekeurd={"claim:C-reden": "unsupported"}
+        _buurspec(), wijzig=_parafrase, afgekeurd={"claim:C1": "unsupported"}
     )
     _, doc, uitkomst = await _toets(scenario)
     assert (doc["status"], doc["error"]["type"]) == ("error", FOUT_SEMANTISCH)
@@ -274,7 +274,9 @@ async def test_r719_vorm_positief_vaste_weergave_zonder_nieuwe_zin():
     _, doc, uitkomst = await _toets(scenario)
     assert uitkomst["status"] == STATUS_PASS
     claim = scenario.concept["claims"][0]
-    citaat = scenario.concept["evidence"][0]["quote"]
+    (citaat,) = [
+        e["quote"] for e in scenario.concept["evidence"] if e["id"] in claim["evidence"]
+    ]
     # Vaste rendering: exact de gecontroleerde claimtekst met het letterlijke
     # citaat; het totaaloordeel bevat geen andere, ongecontroleerde tekst.
     tekst = claim["text"].rstrip(".")

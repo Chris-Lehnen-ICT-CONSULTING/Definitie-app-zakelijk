@@ -103,6 +103,12 @@ oorspronkelijke kader (68 → 71); die verruiming (`kaderverruiming_modelstappen
 geldt alleen voor R11 en alleen als het gepinde besluit haar exact noemt. Het
 contract is `ess05-assess/17`/`ess05-verify/4`.
 
+Sinds `ess05-answer/2` (genest, citaat-eerst; R11-C10-voorstel v2) draagt de
+code `ess05-assess/18`/`ess05-verify/4` met antwoordschema `ess05-answer/2`.
+Het gepinde R11-contract (answer/1) weigert daardoor fail-closed, naast het
+gestopte R11-grootboek; R11 is niet gemigreerd. Voor answer/2 is geen proef
+geregistreerd.
+
 Voorbeeld (droog, offline):
 
     .venv/bin/python scripts/ess05/run_ess05_proef.py --fase ontwikkeling \\

@@ -17,17 +17,28 @@ Een beoordeling verloopt in twee stappen:
    verplichte, unieke dekking en de juiste kandidaat-hash; alleen alles
    `supported` geeft vrijgave.
 
-Het model levert het concept als **antwoord** (`ANTWOORDSCHEMA`): dezelfde
-gesloten structuur, maar per bewijsplaats alleen materiaal-ID, materiaalhash
-en het exacte citaat. `valideer_antwoord` leidt begin en eind af, uitsluitend
-bij precies één letterlijke treffer in het aangewezen materiaal (R8-offset-
-herstel: tekens tellen door het model is geen betrouwbare basis). Het
+Het model levert het concept als **antwoord** (`ANTWOORDSCHEMA`,
+`ess05-answer/2`): genest en citaat-eerst. Elke claim staat inline op de plaats
+waar ze wordt gebruikt; bij material eerst de citaten (materiaal-ID,
+materiaalhash, exact citaat), dan de tekst; bij inference eerst de geneste
+premisseclaims, dan de tekst. Kern-, genus- en kenmerkcitaten staan ook inline.
+Er zijn geen ID's en geen verwijzingen, dus ook geen losse of ongebruikte
+claim of bewijsplaats. `valideer_antwoord` leidt daar deterministisch het
+concept uit af: ID's in volgorde van eerste gebruik, identieke citaten en
+identieke claims samengevoegd, en begin en eind uitsluitend bij precies één
+letterlijke treffer in het aangewezen materiaal (R8-offsetherstel). Het
 resultaat is een gewoon `CONCEPTSCHEMA`-concept; een antwoord in een ander
-schema, met posities, of met een niet-letterlijk, dubbelzinnig of aan ander
-materiaal ontleend citaat wordt geweigerd, nooit gerepareerd.
+schema, met onbekende of verkeerd geordende velden, te diep genest, of met een
+niet-letterlijk, dubbelzinnig of aan ander materiaal ontleend citaat wordt
+geweigerd, nooit gerepareerd.
 
-Grens: een bestaand citaat bewijst geen dragende gevolgtrekking. Deze module
-claimt geen semantische juistheid; dat oordeel ligt bij de verifier.
+Het platte `ess05-answer/1` (`ANTWOORDSCHEMA_1`, R8–R11) blijft alleen via die
+expliciete versie afleidbaar, voor de replay van historische documenten; de
+actuele binding aanvaardt het niet.
+
+Grens: een bestaand citaat bewijst geen dragende gevolgtrekking, en de nesting
+bewijst niet dat een claimtekst binnen haar citaten of premissen blijft. Deze
+module claimt geen semantische juistheid; dat oordeel ligt bij de verifier.
 """
 
 from __future__ import annotations
@@ -42,7 +53,9 @@ from typing import Any
 
 __all__ = [
     "ANTWOORDSCHEMA",
+    "ANTWOORDSCHEMA_1",
     "CONCEPTSCHEMA",
+    "MAX_CLAIMDIEPTE",
     "RENDERERVERSIE",
     "ROLLEN",
     "UITKOMSTEN",
@@ -58,9 +71,15 @@ __all__ = [
 
 #: Versie van het gesloten conceptschema (eerste stap).
 CONCEPTSCHEMA = "ess05-concept/1"
-#: Versie van het modelantwoord van de eerste stap: bewijsplaatsen zonder
-#: posities; de app leidt ze af (`valideer_antwoord`).
-ANTWOORDSCHEMA = "ess05-answer/1"
+#: Versie van het modelantwoord van de eerste stap: genest en citaat-eerst,
+#: zonder ID's en posities; de app leidt het concept af (`valideer_antwoord`).
+ANTWOORDSCHEMA = "ess05-answer/2"
+#: Historisch plat antwoord (bewijsplaatsen en claims met ID's, zonder
+#: posities); alleen afleidbaar als deze versie expliciet is gevraagd.
+ANTWOORDSCHEMA_1 = "ess05-answer/1"
+#: Maximale nesting van claims in een answer/2-antwoord: een claim op een
+#: gebruiksplaats is niveau 1, haar premissen niveau 2, enzovoort.
+MAX_CLAIMDIEPTE = 4
 #: Versie van het gesloten verificatieschema (tweede stap).
 VERIFICATIESCHEMA = "ess05-verification/1"
 #: Versie van de vaste weergave van gecontroleerde claims.
@@ -688,7 +707,7 @@ def valideer_concept(
     return Ess05Concept(deepcopy(dict(ruw))), []
 
 
-# --- het modelantwoord: bewijsplaatsen afleiden ------------------------------------------
+# --- het historische platte antwoord (answer/1) en de plaatsbepaling ---------------------
 
 
 def _antwoordbewijsveldfout(item: Mapping[str, Any], pad: str) -> str | None:
@@ -709,12 +728,12 @@ def _antwoordbewijsveldfout(item: Mapping[str, Any], pad: str) -> str | None:
 
 
 def _antwoordvormfout(antwoord: Any) -> str | None:
-    """Alleen wat het antwoord van het concept onderscheidt: schema en bewijsvelden."""
+    """answer/1: alleen wat het antwoord van het concept onderscheidt (schema, bewijs)."""
     fout = _exacte_velden(antwoord, _CONCEPTVELDEN, "antwoord")
     if fout:
         return fout
-    if antwoord["schema_version"] != ANTWOORDSCHEMA:
-        return f"schema_version moet {ANTWOORDSCHEMA!r} zijn"
+    if antwoord["schema_version"] != ANTWOORDSCHEMA_1:
+        return f"schema_version moet {ANTWOORDSCHEMA_1!r} zijn"
     return _lijstfout(
         antwoord["evidence"],
         _ANTWOORDBEWIJSVELDEN,
@@ -788,12 +807,284 @@ def _ontsnap(antwoord: Mapping[str, Any]) -> dict[str, Any]:
     return kopie
 
 
+# --- het geneste antwoord (answer/2): ID's toekennen en samenvoegen -------------------
+
+_ANTWOORD2VELDEN = frozenset(
+    {
+        "schema_version",
+        "genus_quote",
+        "core_features",
+        "reason",
+        "neighbours",
+        "proposals",
+        "question",
+    }
+)
+_CITAATVELDEN = frozenset({"material_id", "material_sha256", "quote"})
+_BUUR2VELDEN = frozenset(
+    {
+        "neighbour_id",
+        "distinction",
+        "feature_quote",
+        "reason",
+        "missing_feature",
+        "uncertainty",
+    }
+)
+_VOORSTEL2VELDEN = frozenset({"term", "source_quote", "reason"})
+#: Per rol exact deze velden in deze volgorde: citaten en premissen vóór de tekst.
+_CLAIMVOLGORDE: dict[str, tuple[str, ...]] = {
+    ROL_MATERIAAL: ("role", "quotes", "text"),
+    ROL_GEVOLGTREKKING: ("role", "premises", "text"),
+    ROL_AFWEZIGHEID: ("role", "text"),
+}
+
+
+class _AntwoordvormError(ValueError):
+    """Structuurfout in een answer/2-antwoord; wordt een `structuurfout`."""
+
+
+def _sleutel(waarde: Mapping[str, Any]) -> str:
+    return json.dumps(waarde, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _unescape(waarde: Any) -> Any:
+    return unescape(waarde) if isinstance(waarde, str) else waarde
+
+
+def _lijst(waarde: Any, pad: str) -> list[Any]:
+    if not isinstance(waarde, list):
+        raise _AntwoordvormError(f"{pad} moet een lijst zijn")
+    return waarde
+
+
+def _uniek(ids: list[str], pad: str) -> list[str]:
+    if len(ids) != len(set(ids)):
+        raise _AntwoordvormError(f"{pad}: dubbel citaat of dubbele claim in één lijst")
+    return ids
+
+
+class _Vlakmaker:
+    """answer/2 → platte conceptvorm, ID's in volgorde van eerste gebruik.
+
+    Een identiek citaat (materiaal, hash, citaat) is één bewijsplaats; een
+    identieke claim (rol, tekst en dezelfde citaten of premissen) is één claim.
+    Een claim krijgt haar ID pas na haar citaten en premissen, zodat een
+    premisse altijd een eerdere claim is.
+    """
+
+    def __init__(self) -> None:
+        self.bewijs: list[dict[str, Any]] = []
+        self.claims: list[dict[str, Any]] = []
+        self._bewijs_ids: dict[str, str] = {}
+        self._claim_ids: dict[str, str] = {}
+
+    def citaat(self, item: Any, pad: str) -> str:
+        fout = _exacte_velden(item, _CITAATVELDEN, pad) or _eerste(
+            (
+                (
+                    lambda: not _tekst(item["material_id"]),
+                    f"{pad}.material_id ontbreekt",
+                ),
+                (
+                    lambda: not _tekst(item["material_sha256"]),
+                    f"{pad}.material_sha256 ontbreekt",
+                ),
+                (
+                    lambda: not isinstance(item["quote"], str) or not item["quote"],
+                    f"{pad}.quote ontbreekt",
+                ),
+            )
+        )
+        if fout:
+            raise _AntwoordvormError(fout)
+        plaats = {
+            "material_id": item["material_id"],
+            "material_sha256": item["material_sha256"],
+            "quote": unescape(item["quote"]),
+        }
+        sleutel = _sleutel(plaats)
+        if sleutel not in self._bewijs_ids:
+            self._bewijs_ids[sleutel] = f"E{len(self.bewijs) + 1}"
+            self.bewijs.append({"id": self._bewijs_ids[sleutel], **plaats})
+        return self._bewijs_ids[sleutel]
+
+    def optioneel_citaat(self, item: Any, pad: str) -> str | None:
+        return None if item is None else self.citaat(item, pad)
+
+    def claim(self, item: Any, pad: str, diepte: int = 1) -> str:
+        if diepte > MAX_CLAIMDIEPTE:
+            raise _AntwoordvormError(
+                f"{pad}: claims te diep genest (maximaal {MAX_CLAIMDIEPTE} niveaus)"
+            )
+        if not isinstance(item, Mapping):
+            raise _AntwoordvormError(f"{pad} is geen object")
+        rol = item.get("role")
+        volgorde = _CLAIMVOLGORDE.get(rol) if isinstance(rol, str) else None
+        if volgorde is None:
+            raise _AntwoordvormError(f"{pad}: onbekende role {item.get('role')!r}")
+        if tuple(item) != volgorde:
+            raise _AntwoordvormError(
+                f"{pad} heeft niet exact de velden {list(volgorde)} in de afgesproken "
+                f"volgorde (gegeven: {list(item)})"
+            )
+        if not _tekst(item["text"]):
+            raise _AntwoordvormError(f"{pad}.text ontbreekt")
+        bewijs: list[str] = []
+        premissen: list[str] = []
+        if item["role"] == ROL_MATERIAAL:
+            citaten = _lijst(item["quotes"], f"{pad}.quotes")
+            if not citaten:
+                raise _AntwoordvormError(f"{pad}: een materiaalclaim heeft een citaat")
+            bewijs = _uniek(
+                [self.citaat(c, f"{pad}.quotes[{i}]") for i, c in enumerate(citaten)],
+                f"{pad}.quotes",
+            )
+        elif item["role"] == ROL_GEVOLGTREKKING:
+            genest = _lijst(item["premises"], f"{pad}.premises")
+            if not genest:
+                raise _AntwoordvormError(f"{pad}: een gevolgtrekking heeft premissen")
+            premissen = _uniek(
+                [
+                    self.claim(p, f"{pad}.premises[{i}]", diepte + 1)
+                    for i, p in enumerate(genest)
+                ],
+                f"{pad}.premises",
+            )
+        inhoud = {
+            "role": item["role"],
+            "text": item["text"],
+            "evidence": bewijs,
+            "premises": premissen,
+        }
+        sleutel = _sleutel(inhoud)
+        if sleutel not in self._claim_ids:
+            self._claim_ids[sleutel] = f"C{len(self.claims) + 1}"
+            self.claims.append({"id": self._claim_ids[sleutel], **inhoud})
+        return self._claim_ids[sleutel]
+
+    def optionele_claim(self, item: Any, pad: str) -> str | None:
+        return None if item is None else self.claim(item, pad)
+
+    def claimlijst(self, items: Any, pad: str) -> list[str]:
+        return _uniek(
+            [self.claim(c, f"{pad}[{i}]") for i, c in enumerate(_lijst(items, pad))],
+            pad,
+        )
+
+    def buur(self, item: Any, pad: str) -> dict[str, Any]:
+        fout = _exacte_velden(item, _BUUR2VELDEN, pad)
+        if fout:
+            raise _AntwoordvormError(fout)
+        return {
+            "neighbour_id": item["neighbour_id"],
+            "distinction": item["distinction"],
+            "feature_evidence": self.optioneel_citaat(
+                item["feature_quote"], f"{pad}.feature_quote"
+            ),
+            "reason_claims": self.claimlijst(item["reason"], f"{pad}.reason"),
+            "missing_feature_claim": self.optionele_claim(
+                item["missing_feature"], f"{pad}.missing_feature"
+            ),
+            "uncertainty_claim": self.optionele_claim(
+                item["uncertainty"], f"{pad}.uncertainty"
+            ),
+        }
+
+    def voorstel(self, item: Any, pad: str, nummer: int) -> dict[str, Any]:
+        fout = _exacte_velden(item, _VOORSTEL2VELDEN, pad)
+        if fout:
+            raise _AntwoordvormError(fout)
+        return {
+            "id": f"P{nummer}",
+            "term": _unescape(item["term"]),
+            "source_evidence": self.optioneel_citaat(
+                item["source_quote"], f"{pad}.source_quote"
+            ),
+            "reason_claims": self.claimlijst(item["reason"], f"{pad}.reason"),
+        }
+
+    def vraag(self, item: Any) -> dict[str, Any] | None:
+        if item is None:
+            return None
+        fout = _exacte_velden(item, _VRAAGVELDEN, "question")
+        if fout:
+            raise _AntwoordvormError(fout)
+        return {
+            "text": item["text"],
+            "claims": self.claimlijst(item["claims"], "question.claims"),
+        }
+
+
+def _vlak_antwoord(antwoord: Any) -> dict[str, Any]:
+    """De platte conceptvorm (nog zonder posities) van een answer/2-antwoord.
+
+    Alleen structuur: typen, gesloten en geordende velden, nestingdiepte, geen
+    ID's. Labelregels, verwijzingen en citaten volgen op het platte concept.
+    """
+    if not isinstance(antwoord, Mapping):
+        raise _AntwoordvormError("antwoord is geen object")
+    # Eerst de versie: een antwoord in een ander schema krijgt die melding.
+    if antwoord.get("schema_version") != ANTWOORDSCHEMA:
+        raise _AntwoordvormError(f"schema_version moet {ANTWOORDSCHEMA!r} zijn")
+    fout = _exacte_velden(antwoord, _ANTWOORD2VELDEN, "antwoord")
+    if fout:
+        raise _AntwoordvormError(fout)
+    maker = _Vlakmaker()
+    genus = maker.optioneel_citaat(antwoord["genus_quote"], "genus_quote")
+    kenmerken = [
+        {"id": f"F{i + 1}", "evidence": maker.citaat(c, f"core_features[{i}]")}
+        for i, c in enumerate(_lijst(antwoord["core_features"], "core_features"))
+    ]
+    reden = maker.claimlijst(antwoord["reason"], "reason")
+    buren = [
+        maker.buur(b, f"neighbours[{i}]")
+        for i, b in enumerate(_lijst(antwoord["neighbours"], "neighbours"))
+    ]
+    voorstellen = [
+        maker.voorstel(p, f"proposals[{i}]", i + 1)
+        for i, p in enumerate(_lijst(antwoord["proposals"], "proposals"))
+    ]
+    vraag = maker.vraag(antwoord["question"])
+    return {
+        "schema_version": CONCEPTSCHEMA,
+        "genus_evidence": genus,
+        "core_features": kenmerken,
+        "evidence": maker.bewijs,
+        "claims": maker.claims,
+        "reason_claims": reden,
+        "neighbours": buren,
+        "proposals": voorstellen,
+        "question": vraag,
+    }
+
+
+def _vlak(antwoord: Any, schema: str) -> tuple[Any, str | None]:
+    """(platte vorm, None) of (None, structuurfout) voor precies deze antwoordversie."""
+    if schema == ANTWOORDSCHEMA:
+        try:
+            return _vlak_antwoord(antwoord), None
+        except _AntwoordvormError as exc:
+            return None, str(exc)
+    if schema == ANTWOORDSCHEMA_1:
+        if isinstance(antwoord, Mapping):
+            antwoord = _ontsnap(antwoord)
+        return antwoord, _antwoordvormfout(antwoord)
+    return None, f"onbekend antwoordschema {schema!r}"
+
+
 def valideer_antwoord(
     antwoord: Any,
     materiaal: Mapping[str, str],
     buren: Mapping[str, str | None],
+    *,
+    schema: str = ANTWOORDSCHEMA,
 ) -> tuple[Ess05Concept | None, list[dict[str, Any]]]:
-    """Leid uit een `ANTWOORDSCHEMA`-antwoord het concept af en valideer het.
+    """Leid uit een antwoord in precies `schema` het concept af en valideer het.
+
+    Standaard het actuele `ANTWOORDSCHEMA` (answer/2); het historische
+    `ANTWOORDSCHEMA_1` alleen als die versie expliciet is gevraagd. Een
+    antwoord in een andere versie wordt nooit herkend of omgezet.
 
     (concept, []) of (None, fouten); fail-closed, zonder reparatie. Volgorde
     zoals `valideer_concept`: eerst structuur (`reason == "structuurfout"`),
@@ -801,19 +1092,17 @@ def valideer_antwoord(
     treffer in het aangewezen materiaal met de juiste hash — en daarna de
     overige vaste controles op het afgeleide concept.
     """
-    if isinstance(antwoord, Mapping):
-        antwoord = _ontsnap(antwoord)
-    fout = _antwoordvormfout(antwoord)
+    vlak, fout = _vlak(antwoord, schema)
     if fout is None:
         # Structuur- en verwijzingscontrole vóór de plaatsbepaling: dezelfde
         # prioriteit als bij een concept; de voorlopige posities gaan nergens heen.
-        voorlopig = _als_concept(antwoord, {})
+        voorlopig = _als_concept(vlak, {})
         fout = _vormfout(voorlopig) or _verwijzingsfout(voorlopig, buren)
     if fout is not None:
         return None, [{"reason": "structuurfout", "detail": fout}]
     begin: dict[str, int] = {}
     fouten: list[dict[str, Any]] = []
-    for item in antwoord["evidence"]:
+    for item in vlak["evidence"]:
         positie, reden = _plaatsbepaling(item, materiaal)
         if reden is not None:
             fouten.append(
@@ -823,7 +1112,7 @@ def valideer_antwoord(
             begin[item["id"]] = positie
     if fouten:
         return None, fouten
-    return valideer_concept(_als_concept(antwoord, begin), materiaal, buren)
+    return valideer_concept(_als_concept(vlak, begin), materiaal, buren)
 
 
 # --- verificatie -----------------------------------------------------------------------
