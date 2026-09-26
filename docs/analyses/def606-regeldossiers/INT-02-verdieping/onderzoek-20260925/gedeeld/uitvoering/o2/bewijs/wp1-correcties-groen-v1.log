@@ -1,0 +1,18 @@
+# DEF-835 WP1 reviewcorrecties v1 - GREEN
+# tijdstip: 2026-09-26T21:45:31Z
+# werkboom: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+# branch: feature/DEF-835-int02-o2  HEAD: 314b817aabcaaa9f5a00d74a7633155ec74b799c
+# SHA-256 van de beoordeelde bestanden:
+#   7c581491801ded0b0ab20e46ef54c8c477d930480dc93dc1fbe40256e8e961cb  src/domain/int02/__init__.py
+#   4791cc0692dcc12981c6529b9a7446cce5f440cec72f9fc767f972dc19c39896  src/domain/int02/contract.py
+#   b0b53eb8b8910a800b7757c64c1476cbed69ca599619d85b8808d7dd1713e1f5  tests/unit/domain/test_def835_int02_contract.py
+#   e18adb97279fa0fe75889df3541186c9341051c33348d1dd848526867239867d  tests/fixtures/def835_int02_ontwerpgevallen.json
+#   6e00cdef89c9d11680d80249ef3934ac53f08b39a1bbf4e7140b2eac18c32bf4  docs/architectuur/contracts/int02_assessment_contract_v1.md
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def835_int02_contract.py -o addopts= -q -ra
+# --- uitvoer ---
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+.................................                                        [100%]
+177 passed in 0.59s
+# --- einde uitvoer ---
+# exitcode: 0
