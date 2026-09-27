@@ -116,9 +116,23 @@ def _buurdeel(
     )
     ontbrekend = None
     if item.get("missing_feature"):
+        # answer/3: de route van missing_feature bevat de kern én een drager van
+        # het kenmerk; hier de beschrijving van het verwante begrip (indien er één is).
         ontbrekend = f"C-m{index}"
+        drager = f"neighbour:{item['neighbour_id']}"
+        dragerbewijs = []
+        if materiaal.get(drager):
+            dragerbewijs = [f"E-d{index}"]
+            concept["evidence"].append(
+                _plaats(f"E-d{index}", materiaal, drager, materiaal[drager])
+            )
         concept["claims"].append(
-            _claim(ontbrekend, "material", item["missing_feature"], ["E-kern"])
+            _claim(
+                ontbrekend,
+                "material",
+                item["missing_feature"],
+                ["E-kern", *dragerbewijs],
+            )
         )
     onzeker = None
     if item.get("uncertainty"):
@@ -342,6 +356,38 @@ _BUURVELDEN = {
     "uncertainty_claim",
 }
 _VOORSTELVELDEN = {"id", "term", "source_evidence", "reason_claims"}
+
+
+_KANDIDAAT = ("definition", "context", "meaning")
+
+
+def als_answer3(ruw: str) -> str:
+    """Synthetisch (R13-herstel): een historisch answer/2-antwoord als answer/3.
+
+    Alleen `schema_version` wordt het actuele schema, en een top-level
+    materiaalclaim met een citaat buiten definitie, context of betekenis
+    verhuist ongewijzigd naar het begin van de reden van de eerste buur (daar
+    horen vergelijkingen onder answer/3). Die claims moeten achteraan staan,
+    zodat alle claim- en bewijs-ID's gelijk blijven; anders volgt een fout.
+    Geen modeluitvoer; tekst, citaten en premissen blijven letterlijk.
+    """
+    antwoord = json.loads(ruw)
+    reden = antwoord["reason"]
+    buiten = [
+        i
+        for i, claim in enumerate(reden)
+        if claim["role"] == "material"
+        and any(q["material_id"] not in _KANDIDAAT for q in claim["quotes"])
+    ]
+    if buiten != list(range(len(reden) - len(buiten), len(reden))):
+        msg = f"te verplaatsen top-level claims staan niet achteraan: {buiten}"
+        raise ValueError(msg)
+    if buiten:
+        antwoord["reason"] = reden[: buiten[0]]
+        eerste = antwoord["neighbours"][0]
+        eerste["reason"] = [*(reden[i] for i in buiten), *eerste["reason"]]
+    antwoord["schema_version"] = ANTWOORDSCHEMA
+    return json.dumps(antwoord, ensure_ascii=False)
 
 
 def antwoord_uit_spec(spec: Mapping[str, Any], materiaal: Mapping[str, str]) -> dict:

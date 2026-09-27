@@ -129,7 +129,7 @@ def test_versie_is_verhoogd_na_r2_01():
     # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
     # assess/17 + verify/4 (R10-C3): gesloten bewijsroute per claim; T/13 gelijk.
     # assess/18 (answer/2): genest, citaat-eerst antwoord; T/13 gelijk.
-    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/18"
+    assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/19"
 
 
 def test_echte_e05_prompt_eist_geen_afwezigheidsbewijs():

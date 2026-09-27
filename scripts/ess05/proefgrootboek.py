@@ -123,6 +123,14 @@ Onder `stop_alleen_technisch` draagt elk geval naast `geaccepteerd`
 (inhoudelijk) ook `technisch_afgerond`; alleen een technisch niet-afgerond
 geval of een open poging stopt de proef.
 
+`R14` (DEF-768-AI-20260927-R14, herproef na het R13-herstel; opdracht Chris
+27-09, `logs/def768/r13-herstel-gebruikersopdracht-v1.json`) volgt dezelfde
+regels als R13 met twee onafhankelijke fases: 2 verifier-only (twee gerichte
+negatieven) en 10 ontwikkeling (H1–H5 × 2), geen fasevolgorde, reserve 0;
+samen met R13 t/m R1 nooit boven 388 (376 werkelijke + 12); lokaal plafond USD
+4,20 (de volledige stapbegroting). Ook de V-stap draagt `technisch_afgerond`:
+een inhoudelijk gemiste negatief stopt de vijf gevallen niet.
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -165,6 +173,7 @@ __all__ = [
     "R11",
     "R12",
     "R13",
+    "R14",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -295,7 +304,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R13` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R14` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -627,8 +636,40 @@ R13 = Proefidentiteit(
     kostenkader_nusd=25_000_000_000,
     stop_alleen_technisch=True,
 )
+#: Ronde 14 (opdracht Chris 27-09, "Ok kun je het nu wel fixen?",
+#: r13-herstel-gebruikersopdracht-v1.json): herproef na het R13-herstel. Max 12
+#: modelstappen in twee onafhankelijke fases: 2 verifier-only (de twee gerichte
+#: negatieven) en 10 ontwikkeling (H1–H5 × beoordeling + verificatie); geen
+#: fasevolgorde, reserve 0; samen met R13 t/m R1 nooit boven 388 (376
+#: werkelijke + 12). Zelfde model, tarief, bytegrenzen en productiegrens als R8.
+#: Lokaal plafond USD 4,20 = de volledige stapbegroting (2 × 0,375 + 5 × 0,69),
+#: onder de grens USD 5 en binnen de kaderrest USD 23,330410. Zoals R13 stopt
+#: alleen een technisch niet-afgerond geval of een open poging.
+R14 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260927-R14",
+    fasecaps={"verificatie_alleen": 2, "ontwikkeling": 10},
+    reserve_max=0,
+    eindgroepen=(
+        Eindgroep("v", frozenset({"verificatie_alleen"}), 0),
+        Eindgroep("o", frozenset({"ontwikkeling"}), 0),
+    ),
+    bindingsvelden=R13.bindingsvelden,
+    voorganger=R13,
+    cumulatief_max=388,
+    modelstappen_per_geval=2,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=4_200_000_000),
+    fasestappen={
+        "verificatie_alleen": (_VERIFICATIE,),
+        "ontwikkeling": (_BEOORDELING, _VERIFICATIE),
+    },
+    fasevolgorde={"verificatie_alleen": (), "ontwikkeling": ()},
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+    stop_alleen_technisch=True,
+)
 _IDENTITEITEN = {
-    i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13)
+    i.proef_id: i for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14)
 }
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
@@ -653,7 +694,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R13"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R14"
         raise BudgetSchendingError(msg)
     return identiteit
 

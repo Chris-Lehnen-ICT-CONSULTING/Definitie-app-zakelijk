@@ -27,6 +27,10 @@ from domain.ess05 import bewijs
 pytestmark = [pytest.mark.unit]
 
 ANTWOORD2 = "ess05-answer/2"
+#: Sinds het R13-herstel is answer/3 actueel: dezelfde geneste vorm plus
+#: routedekking (`test_def768_ess05_answer3_dekking.py`). Deze suite toetst de
+#: vorm onder de expliciete answer/2-versie; "live" betekent hier ACTUEEL.
+ACTUEEL = "ess05-answer/3"
 ANTWOORD1 = "ess05-answer/1"
 
 KERN = "transportgang die via baan Neral naar de oorspronkelijke laadplaats terugkeert"
@@ -105,14 +109,20 @@ def structuurfout(ruw, **kw) -> str:
 
 
 class TestVersies:
-    def test_actueel_schema_is_answer2_en_answer1_blijft_expliciet(self):
-        assert bewijs.ANTWOORDSCHEMA == ANTWOORD2
+    def test_actueel_schema_is_answer3_answer2_en_answer1_blijven_expliciet(self):
+        assert bewijs.ANTWOORDSCHEMA == ACTUEEL
+        assert bewijs.ANTWOORDSCHEMA_2 == ANTWOORD2
         assert bewijs.ANTWOORDSCHEMA_1 == ANTWOORD1
         assert bewijs.CONCEPTSCHEMA == "ess05-concept/1"
         assert bewijs.VERIFICATIESCHEMA == "ess05-verification/1"
 
-    def test_standaard_is_answer2(self):
-        concept, fouten = bewijs.valideer_antwoord(antwoord(), MATERIAAL, BUREN)
+    def test_standaard_is_answer3_answer2_alleen_expliciet(self):
+        assert "schema_version moet 'ess05-answer/3' zijn" in structuurfout(
+            antwoord(), schema=ACTUEEL
+        )
+        concept, fouten = bewijs.valideer_antwoord(
+            antwoord(schema_version=ACTUEEL), MATERIAAL, BUREN
+        )
         assert fouten == [] and concept is not None
 
     def test_answer1_antwoord_wordt_live_geweigerd(self):
@@ -621,7 +631,7 @@ class TestBinding:
         from domain.ess05.contract import Ess05Beoordelingsbinding
 
         binding = self._binding()
-        assert binding.answer_schema_version == ANTWOORD2
+        assert binding.answer_schema_version == ACTUEEL
         assert set(binding.als_dict()) == self.BINDINGSVELDEN
         assert Ess05Beoordelingsbinding.uit_dict(binding.als_dict()) == binding
 
@@ -668,14 +678,14 @@ class TestBinding:
         )
         return oud
 
-    def test_live_document_is_answer2_en_wordt_toegepast(self):
+    def test_live_document_is_answer3_en_wordt_toegepast(self):
         from domain.modeluitvoer import parse_modeluitvoer
 
         binding = self._binding()
         document = self._document(binding)
-        assert document["concept_derivation"]["answer_schema_version"] == ANTWOORD2
+        assert document["concept_derivation"]["answer_schema_version"] == ACTUEEL
         assert parse_modeluitvoer(document["raw_response"])["schema_version"] == (
-            ANTWOORD2
+            ACTUEEL
         )
         assert self._afwijzing(document, binding) is None
 
@@ -693,7 +703,7 @@ class TestBinding:
     def test_answer1_ruw_met_answer2_label_wordt_niet_toegepast(self):
         binding = self._binding()
         oud = self._als_answer1(self._document(binding))
-        oud["concept_derivation"]["answer_schema_version"] = ANTWOORD2
+        oud["concept_derivation"]["answer_schema_version"] = ACTUEEL
         assert "niet afgeleid uit de bewaarde ruwe respons" in self._afwijzing(
             oud, binding
         )
@@ -792,8 +802,8 @@ class TestPromptcontract:
             Ess05AssessmentService,
         )
 
-        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/18"
-        assert '"schema_version": "ess05-answer/2"' in _ANTWOORDSTRUCTUUR
+        assert Ess05AssessmentService.PROMPT_VERSION == "ess05-assess/19"
+        assert f'"schema_version": "{ACTUEEL}"' in _ANTWOORDSTRUCTUUR
         for veld in (
             '"genus_quote"',
             '"core_features"',

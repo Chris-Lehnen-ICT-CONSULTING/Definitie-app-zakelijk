@@ -85,12 +85,12 @@ CONTRACT = {
     "concept_schema_version": "ess05-concept/1",
     "verification_schema_version": "ess05-verification/1",
 }
-#: De huidige code (answer/2): beide promptversies en het antwoordschema verschillen.
+#: De huidige code (answer/3): beide promptversies en het antwoordschema verschillen.
 HUIDIG_CONTRACT = {
     **CONTRACT,
-    "prompt_version": "ess05-assess/18",
+    "prompt_version": "ess05-assess/19",
     "verification_prompt_version": "ess05-verify/4",
-    "answer_schema_version": "ess05-answer/2",
+    "answer_schema_version": "ess05-answer/3",
 }
 V = "validation"
 W = "ess05_verification"
@@ -322,6 +322,7 @@ class TestRegistratie:
             "R11",
             "R12",
             "R13",
+            "R14",
         ]
         r9 = runner.PROEVEN["R9"]
         assert (r9.budgetbesluit_sha256, dict(r9.contract)) == (

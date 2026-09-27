@@ -20,6 +20,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -64,6 +65,12 @@ except ModuleNotFoundError:  # pragma: no cover - alleen tijdens RED
     mk12 = None
 
 R12_ID = "DEF-768-AI-20260926-R12"
+#: Het bij R12 gepinde contract (assess/18, answer/2); sinds answer/3 historisch.
+R12_CONTRACT_GEPIND = {
+    **HUIDIG_CONTRACT,
+    "prompt_version": "ess05-assess/18",
+    "answer_schema_version": "ess05-answer/2",
+}
 R12_MAP = ROOT / "reports" / R12_ID
 R11_MAP = ROOT / "reports" / "DEF-768-AI-20260926-R11"
 V12 = R12_MAP / "verificatie-invoer-v1.json"
@@ -123,6 +130,9 @@ def _opslag12(tmp_path: Path) -> runner.Proefopslag:
 
 
 def _r12(**anders) -> runner.Proef:
+    # Mechaniek op de huidige code (zoals `_r11`); het gepinde R12-contract
+    # (answer/2) weigert sinds answer/3 fail-closed.
+    anders.setdefault("contract", MappingProxyType(HUIDIG_CONTRACT))
     return dataclasses.replace(runner.PROEVEN["R12"], **anders)
 
 
@@ -361,7 +371,7 @@ class TestRegistratie:
             TOESTEMMING_SHA256,
         )
         # Het huidige contract (answer/2), geen verruiming, expliciete kaderrest.
-        assert dict(proef.contract) == HUIDIG_CONTRACT
+        assert dict(proef.contract) == R12_CONTRACT_GEPIND
         assert proef.kaderverruiming_modelstappen == 0
         assert proef.kaderrest_nusd == KADERREST_NUSD
 
@@ -371,12 +381,13 @@ class TestRegistratie:
             "R11",
             "R12",
             "R13",
+            "R14",
         ]
         r11 = runner.PROEVEN["R11"]
         assert dict(r11.contract) == R11_CONTRACT
         assert r11.kaderverruiming_modelstappen == 3
         assert all(p.kaderrest_nusd is None for n, p in runner.PROEVEN.items()
-                   if n not in ("R12", "R13"))  # fmt: skip
+                   if n not in ("R12", "R13", "R14"))  # fmt: skip
 
     def test_kopie_van_r12_start_geen_echte_call(self):
         provider = _R8Provider()
@@ -386,14 +397,16 @@ class TestRegistratie:
         assert provider.aanroepen == []
 
     @besluiten_nodig
-    def test_echte_poorten_van_r12_open(self):
+    def test_echte_poorten_van_r12_weigeren_sinds_answer3_op_het_contract(self):
+        """R12 blijft geregistreerd, maar het gepinde answer/2-contract weigert."""
         proef = runner.PROEVEN["R12"]
         omg = dataclasses.replace(_omgeving8(_R8Provider()), echt=True)
         runner._controleer_opslag(omg, proef.opslag, proef)
         runner._controleer_goedkeuring(omg, proef)
         runner._controleer_productiegrenzen(omg, proef)
         runner._controleer_kostenroute(omg, proef)
-        runner._controleer_contract(omg, proef)
+        with pytest.raises(gb.BudgetSchendingError, match="contractidentiteit"):
+            runner._controleer_contract(omg, proef)
         assert runner._besluit_voor(omg, proef) == BESLUIT12_SHA256
 
     @besluiten_nodig
@@ -844,7 +857,9 @@ class TestEchteInvoer:
                          str(V8), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
         assert not list(tmp_path.rglob("*"))
 
-    def test_droog_r12_invoer_en_r9_selectie(self, tmp_path):
+    def test_droog_r12_invoer_en_r9_selectie(self, monkeypatch, tmp_path):
+        # Mechaniek onder de huidige code (kopie met huidig contract), zoals R11.
+        monkeypatch.setitem(runner.PROEVEN, "R12", _r12())
         code = runner.main(["--proef", "R12", "--fase", "verificatie_alleen",
                             "--gevallen", str(V12), "--uitmap", str(tmp_path / "v"),
                             "--droog"])  # fmt: skip
@@ -892,7 +907,13 @@ class TestMaker:
     def test_vastgelegde_invoer_reproduceerbaar_en_gepind(self, tmp_path):
         doel = tmp_path / "v12.json"
         assert mk12.main(["--doel", str(doel)]) == 0
-        assert doel.read_bytes() == V12.read_bytes()
+        # Sinds answer/3 legt de maker het huidige contract vast; verder
+        # reproduceert hij de gepinde (answer/2-)invoer exact.
+        nieuw = json.loads(doel.read_text(encoding="utf-8"))
+        oud = json.loads(V12.read_text(encoding="utf-8"))
+        assert nieuw["herkomst"].pop("contract") == HUIDIG_CONTRACT
+        assert oud["herkomst"].pop("contract") == R12_CONTRACT_GEPIND
+        assert nieuw == oud
         assert _sha(V12) == runner.R12_V_INVOER_SHA256 == V12_SHA256
         assert _sha(V8) == V8_SHA256  # V8 alleen gelezen
 
@@ -908,7 +929,7 @@ class TestMaker:
             ("claim:C3", "supported"),
         ]
         assert data["herkomst"]["r11_verificatie_invoer"]["sha256"] == V8_SHA256
-        assert data["herkomst"]["contract"] == HUIDIG_CONTRACT
+        assert data["herkomst"]["contract"] == R12_CONTRACT_GEPIND
 
     @v12_nodig
     def test_invoer_bindt_aan_de_huidige_code(self):

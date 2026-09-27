@@ -9,6 +9,8 @@
   posities, buurlabels en gebruik).
 - De semantische negatieven R9-C5 en R10-C3 blijven in de offline tweestappen-
   keten staan: een verifierstub met `unsupported` blokkeert zonder herstel.
+  Sinds answer/3 (assess/19) is de afleiding hier expliciet historisch
+  (`schema=ANTWOORDSCHEMA_2`); de live keten krijgt `als_answer3(...)`.
 - Omvang: alleen tekens en bytes, geen tokenclaim.
 
 Wat dit NIET bewijst: dat een echt model onder answer/2 het schema volgt,
@@ -24,7 +26,7 @@ import sys
 
 import pytest
 
-from tests.fixtures.def768_fakes import verificatie_voor
+from tests.fixtures.def768_fakes import als_answer3, verificatie_voor
 from tests.unit.scripts.test_def768_ess05_proefrunner import ROOT, _FakeProvider
 from tests.unit.scripts.test_def768_r8_proef import _omgeving8
 from tests.unit.scripts.test_def768_r10_c3_bewijsroute import (
@@ -242,7 +244,10 @@ class TestAnswer2Fixtures:
         historisch = bron["beoordelingsdocument"]["concept"]
         materiaal, buren = _materiaal(bron["geval"])
         concept, fouten = valideer_antwoord(
-            json.loads(A2[ronde]["raw_response"]), materiaal, buren
+            json.loads(A2[ronde]["raw_response"]),
+            materiaal,
+            buren,
+            schema=bewijs.ANTWOORDSCHEMA_2,
         )
         assert fouten == []
         nieuw = concept.als_dict()
@@ -258,7 +263,10 @@ class TestAnswer2Fixtures:
     def test_r9_c5_blijft_de_gevolgtrekking_op_c1_en_c4(self):
         materiaal, buren = _materiaal(R9["geval"])
         concept, _ = valideer_antwoord(
-            json.loads(A2["r9"]["raw_response"]), materiaal, buren
+            json.loads(A2["r9"]["raw_response"]),
+            materiaal,
+            buren,
+            schema=bewijs.ANTWOORDSCHEMA_2,
         )
         c5 = next(c for c in concept.data["claims"] if c["id"] == "C5")
         assert (c5["role"], c5["premises"]) == ("inference", ["C1", "C4"])
@@ -266,7 +274,10 @@ class TestAnswer2Fixtures:
     def test_r10_c3_blijft_material_op_alleen_het_e7_citaat(self):
         materiaal, buren = _materiaal(R10["geval"])
         concept, _ = valideer_antwoord(
-            json.loads(A2["r10"]["raw_response"]), materiaal, buren
+            json.loads(A2["r10"]["raw_response"]),
+            materiaal,
+            buren,
+            schema=bewijs.ANTWOORDSCHEMA_2,
         )
         historisch = R10["beoordelingsdocument"]["concept"]
         e7 = next(e for e in historisch["evidence"] if e["id"] == "E7")
@@ -317,7 +328,7 @@ class TestOmvang:
         system, user = prompt.teksten
         bytes_ = runner._payloadbytes(omg, "t", omg.dienst._max_tokens, system, user)
         assert bytes_ <= grens[omg.dienst.TASK_TYPE]
-        assert "ess05-answer/2" in system
+        assert bewijs.ANTWOORDSCHEMA in system
 
 
 def _volledig(kandidaat, concept):
@@ -333,49 +344,58 @@ def _met(**uitkomsten):
     return verifier
 
 
+#: Live geldt answer/3: de offline keten krijgt de answer/2-fixture via
+#: `als_answer3` (schema actueel, top-level bronclaims naar de reden van de
+#: eerste buur; claim- en bewijs-ID's gelijk). Synthetisch, geen modeluitvoer.
+LIVE = {r: als_answer3(A2[r]["raw_response"]) for r in ("r9", "r10")}
+
+
+def _live_concepthash(ronde: str) -> str:
+    materiaal, buren = _materiaal(UITTREKSEL[ronde]["geval"])
+    concept, fouten = valideer_antwoord(json.loads(LIVE[ronde]), materiaal, buren)
+    assert concept is not None, fouten
+    return concept.hash
+
+
 class TestOfflineKeten:
     """De echte runnerketen (stap 1 + verifier-stap), offline, met stubs."""
 
-    def test_answer2_r10_volledig_supported_wordt_vrijgegeven(self, tmp_path):
-        provider = _EchteR720(A2["r10"]["raw_response"], _volledig)
+    def test_answer3_r10_volledig_supported_wordt_vrijgegeven(self, tmp_path):
+        provider = _EchteR720(LIVE["r10"], _volledig)
         (resultaat,) = _draai(tmp_path, provider)["resultaten"]
         assert resultaat["geaccepteerd"] is True
         assert provider.stappen == ["beoordeling", "verificatie"]
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
-        assert doc["raw_response"] == A2["r10"]["raw_response"]  # onveranderd
-        assert doc["concept_derivation"]["answer_schema_version"] == "ess05-answer/2"
-        assert doc["prompt_version"] == "ess05-assess/18"
-        assert doc["concept_derivation"]["concept_hash"] == (
-            A2["r10"]["afgeleid_concept_hash"]
+        assert doc["raw_response"] == LIVE["r10"]  # onveranderd
+        assert doc["concept_derivation"]["answer_schema_version"] == (
+            bewijs.ANTWOORDSCHEMA
         )
+        assert doc["prompt_version"] == "ess05-assess/19"
+        assert doc["concept_derivation"]["concept_hash"] == _live_concepthash("r10")
 
     def test_r10_c3_unsupported_blokkeert_zonder_herstel(self, tmp_path):
         import proefgrootboek as gb
 
-        provider = _EchteR720(
-            A2["r10"]["raw_response"], _met(**{"claim:C3": "unsupported"})
-        )
+        provider = _EchteR720(LIVE["r10"], _met(**{"claim:C3": "unsupported"}))
         with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
             _draai(tmp_path, provider)
         assert provider.stappen == ["beoordeling", "verificatie"]
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
         assert doc["error"]["type"] == "semantic_verification_failed"
         assert doc["judgment"] is None
-        assert doc["raw_response"] == A2["r10"]["raw_response"]
+        assert doc["raw_response"] == LIVE["r10"]
 
     def test_r9_c5_unsupported_blokkeert_zonder_herstel(self, tmp_path):
         import proefgrootboek as gb
 
-        provider = _EchteR720(
-            A2["r9"]["raw_response"], _met(**{"claim:C5": "unsupported"})
-        )
+        provider = _EchteR720(LIVE["r9"], _met(**{"claim:C5": "unsupported"}))
         with pytest.raises(gb.BudgetSchendingError, match="niet geaccepteerd"):
             _draai(tmp_path, provider)
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
         assert doc["error"]["type"] == "semantic_verification_failed"
 
     def test_geneste_premissen_komen_als_route_bij_de_verifier(self, tmp_path):
-        provider = _EchteR720(A2["r9"]["raw_response"], _volledig)
+        provider = _EchteR720(LIVE["r9"], _volledig)
         _draai(tmp_path, provider)
         routes = _routes(provider.gebruikers[1])
         teksten = {

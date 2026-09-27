@@ -32,9 +32,20 @@ schema, met onbekende of verkeerd geordende velden, te diep genest, of met een
 niet-letterlijk, dubbelzinnig of aan ander materiaal ontleend citaat wordt
 geweigerd, nooit gerepareerd.
 
-Het platte `ess05-answer/1` (`ANTWOORDSCHEMA_1`, R8–R11) blijft alleen via die
-expliciete versie afleidbaar, voor de replay van historische documenten; de
-actuele binding aanvaardt het niet.
+`ess05-answer/3` (R13-herstel) eist daarbovenop dat elke plaats haar eigen
+route draagt (`_dekkingsfout`): de reden van het geheel steunt alleen op
+materiaal van de kandidaat (definitie, context, bedoelde betekenis); per
+verwant begrip bevat de route van `missing_feature` een kerncitaat én een
+citaat dat het ontbrekende kenmerk draagt, en die van elke gevolgtrekking
+direct in de buurreden een kerncitaat én materiaal van de buurkant (bron,
+buurbeschrijving of afwezigheid). Vergelijkingen staan dus bij het verwante
+begrip; de verifier hoeft geen ontbrekende kant van een vergelijking op te
+merken, die weigert de code.
+
+Het platte `ess05-answer/1` (`ANTWOORDSCHEMA_1`, R8–R11) en het geneste
+`ess05-answer/2` zonder routedekking (`ANTWOORDSCHEMA_2`, R12–R13) blijven
+alleen via die expliciete versie afleidbaar, voor de replay van historische
+documenten; de actuele binding aanvaardt ze niet.
 
 Grens: een bestaand citaat bewijst geen dragende gevolgtrekking, en de nesting
 bewijst niet dat een claimtekst binnen haar citaten of premissen blijft. Deze
@@ -54,6 +65,7 @@ from typing import Any
 __all__ = [
     "ANTWOORDSCHEMA",
     "ANTWOORDSCHEMA_1",
+    "ANTWOORDSCHEMA_2",
     "CONCEPTSCHEMA",
     "MAX_CLAIMDIEPTE",
     "RENDERERVERSIE",
@@ -73,7 +85,12 @@ __all__ = [
 CONCEPTSCHEMA = "ess05-concept/1"
 #: Versie van het modelantwoord van de eerste stap: genest en citaat-eerst,
 #: zonder ID's en posities; de app leidt het concept af (`valideer_antwoord`).
-ANTWOORDSCHEMA = "ess05-answer/2"
+#: answer/3 (R13-herstel): de vorm van answer/2 plus plaatsgebonden
+#: routedekking (`_dekkingsfout`).
+ANTWOORDSCHEMA = "ess05-answer/3"
+#: Historisch genest antwoord (R12/R13) zonder routedekking; alleen afleidbaar
+#: als deze versie expliciet is gevraagd.
+ANTWOORDSCHEMA_2 = "ess05-answer/2"
 #: Historisch plat antwoord (bewijsplaatsen en claims met ID's, zonder
 #: posities); alleen afleidbaar als deze versie expliciet is gevraagd.
 ANTWOORDSCHEMA_1 = "ess05-answer/1"
@@ -1016,17 +1033,18 @@ class _Vlakmaker:
         }
 
 
-def _vlak_antwoord(antwoord: Any) -> dict[str, Any]:
-    """De platte conceptvorm (nog zonder posities) van een answer/2-antwoord.
+def _vlak_antwoord(antwoord: Any, schema: str) -> dict[str, Any]:
+    """De platte conceptvorm (nog zonder posities) van een genest antwoord.
 
     Alleen structuur: typen, gesloten en geordende velden, nestingdiepte, geen
     ID's. Labelregels, verwijzingen en citaten volgen op het platte concept.
+    answer/2 en answer/3 hebben dezelfde vorm; `schema` is de gevraagde versie.
     """
     if not isinstance(antwoord, Mapping):
         raise _AntwoordvormError("antwoord is geen object")
     # Eerst de versie: een antwoord in een ander schema krijgt die melding.
-    if antwoord.get("schema_version") != ANTWOORDSCHEMA:
-        raise _AntwoordvormError(f"schema_version moet {ANTWOORDSCHEMA!r} zijn")
+    if antwoord.get("schema_version") != schema:
+        raise _AntwoordvormError(f"schema_version moet {schema!r} zijn")
     fout = _exacte_velden(antwoord, _ANTWOORD2VELDEN, "antwoord")
     if fout:
         raise _AntwoordvormError(fout)
@@ -1061,9 +1079,9 @@ def _vlak_antwoord(antwoord: Any) -> dict[str, Any]:
 
 def _vlak(antwoord: Any, schema: str) -> tuple[Any, str | None]:
     """(platte vorm, None) of (None, structuurfout) voor precies deze antwoordversie."""
-    if schema == ANTWOORDSCHEMA:
+    if schema in (ANTWOORDSCHEMA, ANTWOORDSCHEMA_2):
         try:
-            return _vlak_antwoord(antwoord), None
+            return _vlak_antwoord(antwoord, schema), None
         except _AntwoordvormError as exc:
             return None, str(exc)
     if schema == ANTWOORDSCHEMA_1:
@@ -1071,6 +1089,77 @@ def _vlak(antwoord: Any, schema: str) -> tuple[Any, str | None]:
             antwoord = _ontsnap(antwoord)
         return antwoord, _antwoordvormfout(antwoord)
     return None, f"onbekend antwoordschema {schema!r}"
+
+
+#: answer/3: materiaal dat de kandidaat zelf beschrijft. De reden van het
+#: geheel steunt alleen hierop; elke vergelijking staat bij het verwante begrip.
+_KANDIDAATMATERIAAL = frozenset({_DEFINITIE, "context", "meaning"})
+#: Merkteken in een route voor een afwezigheidsclaim (geen citaat).
+_AFWEZIG = "afwezigheid"
+
+
+def _is_buurkant(locatie: str) -> bool:
+    return locatie.startswith((_BRONPREFIX, _BUURPREFIX)) or locatie == _AFWEZIG
+
+
+def _is_kenmerkdrager(locatie: str) -> bool:
+    return locatie.startswith((_BRONPREFIX, _BUURPREFIX)) or locatie == "meaning"
+
+
+def _dekkingsfout(ruw: Mapping[str, Any]) -> str | None:
+    """answer/3: draagt elke plaats haar eigen route? Fail-closed, geen reparatie.
+
+    De route van een claim is de verzameling materiaal-ID's van haar citaten en
+    die van al haar premissen (recursief); een afwezigheidsclaim telt als
+    `_AFWEZIG`. Welke woorden een claim gebruikt, toetst de code niet: dat blijft
+    bij de verifier. De code eist alleen dat de route beide kanten bevat die de
+    plaats nodig heeft.
+    """
+    claims = {c["id"]: c for c in ruw["claims"]}
+    bron = {e["id"]: e["material_id"] for e in ruw["evidence"]}
+
+    def route(ref: str) -> set[str]:
+        claim = claims[ref]
+        locaties = {bron[e] for e in claim["evidence"]}
+        if claim["role"] == ROL_AFWEZIGHEID:
+            locaties.add(_AFWEZIG)
+        for premisse in claim["premises"]:
+            locaties |= route(premisse)
+        return locaties
+
+    for ref in ruw["reason_claims"]:
+        buiten = route(ref) - _KANDIDAATMATERIAAL
+        if buiten:
+            return (
+                f"reason van het geheel: claim {ref!r} steunt op {sorted(buiten)}; "
+                "zij steunt alleen op definitie, context of bedoelde betekenis, een "
+                "vergelijking staat bij het verwante begrip"
+            )
+    for buur in ruw["neighbours"]:
+        pad = f"neighbour {buur['neighbour_id']!r}"
+        ontbrekend = buur["missing_feature_claim"]
+        if ontbrekend is not None:
+            locaties = route(ontbrekend)
+            if _DEFINITIE not in locaties or not any(
+                _is_kenmerkdrager(x) for x in locaties
+            ):
+                return (
+                    f"{pad}: missing_feature {ontbrekend!r} steunt op "
+                    f"{sorted(locaties)}; vereist is een citaat uit de definitie én "
+                    "een citaat uit een bron, de buurbeschrijving of de bedoelde "
+                    "betekenis dat het kenmerk draagt"
+                )
+        for ref in buur["reason_claims"]:
+            if claims[ref]["role"] != ROL_GEVOLGTREKKING:
+                continue
+            locaties = route(ref)
+            if _DEFINITIE not in locaties or not any(_is_buurkant(x) for x in locaties):
+                return (
+                    f"{pad}: gevolgtrekking {ref!r} in reason steunt op "
+                    f"{sorted(locaties)}; vereist is een citaat uit de definitie én "
+                    "materiaal van de buurkant (bron, buurbeschrijving of afwezigheid)"
+                )
+    return None
 
 
 def valideer_antwoord(
@@ -1098,6 +1187,8 @@ def valideer_antwoord(
         # prioriteit als bij een concept; de voorlopige posities gaan nergens heen.
         voorlopig = _als_concept(vlak, {})
         fout = _vormfout(voorlopig) or _verwijzingsfout(voorlopig, buren)
+        if fout is None and schema == ANTWOORDSCHEMA:
+            fout = _dekkingsfout(voorlopig)
     if fout is not None:
         return None, [{"reason": "structuurfout", "detail": fout}]
     begin: dict[str, int] = {}

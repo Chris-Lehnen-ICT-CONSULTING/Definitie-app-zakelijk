@@ -133,6 +133,21 @@ de reeks niet; een technische fout, bewakingsweigering of open poging wel
 (`stop_alleen_technisch`). Lokaal plafond USD 3,45 binnen de kaderrest USD
 24,324085; zelfde contract als R12.
 
+Sinds het R13-herstel draagt de code `ess05-assess/19`/`ess05-verify/4` met
+antwoordschema `ess05-answer/3` (plaatsgebonden routedekking vóór de
+verifier). De gepinde R12- en R13-contracten (answer/2) weigeren daardoor
+fail-closed; hun grootboeken en resultaten blijven ongewijzigd.
+
+Ronde 14 (`--proef R14`, DEF-768-AI-20260927-R14, herproef na het R13-herstel;
+opdracht Chris 27-09, `logs/def768/r13-herstel-gebruikersopdracht-v1.json`,
+vastgelegd in `logs/def768/ronde14-herproef-budgetbesluit-v1.json`): twee
+onafhankelijke fases zonder volgorde. `ontwikkeling` op dezelfde H1–H5 als R13
+(zelfde bestand en hash), `verificatie_alleen` op twee gerichte, synthetisch
+afgeleide negatieven (`maak_r14_verificatie_invoer.py`). Max 12 modelstappen,
+reserve 0, geen retry, cumulatief 388; lokaal plafond USD 4,20 binnen de
+kaderrest USD 23,330410. Zoals R13 stopt alleen een technisch niet-afgerond
+geval (ook in V); het contract is het actuele (answer/3).
+
 Voorbeeld (droog, offline):
 
     .venv/bin/python scripts/ess05/run_ess05_proef.py --fase ontwikkeling \\
@@ -558,6 +573,33 @@ R13_BUDGETBESLUIT_SHA256 = (
 #: Ronde 13: USD 25 − werkelijke R8–R12-kosten (USD 0,675915); het lokale
 #: plafond (USD 3,45) ligt daar bewust onder.
 R13_KADERREST_NUSD = 24_324_085_000
+#: Ronde 14 (herproef na het R13-herstel): eigen rapportroot, grootboek, anker,
+#: slot en freezes (v en o). Ontwikkeling is exact de R13-invoer H1–H5.
+R14_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260927-R14"
+#: Ronde 14: V-N6 (H2, missing_feature) en V-N7 (H3, buurgevolgtrekking),
+#: synthetisch afgeleid uit de echte R13-antwoorden (maak_r14_verificatie_invoer.py).
+R14_V_INVOER_SHA256 = "233fcbf0da84f897792c1e355c71d08eda237faabd92e3935950b8fd00609689"
+#: Ronde 14: het besluit, afgeleid uit de opdracht van Chris ("Ok kun je het nu
+#: wel fixen?", 27-09, r13-herstel-gebruikersopdracht-v1.json), gepind op pad en hash.
+R14_BUDGETBESLUIT = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde14-herproef-budgetbesluit-v1.json"
+)
+R14_BUDGETBESLUIT_SHA256 = (
+    "5fd8af4b2e37dd5107e454c08a4956415d40d107101d6ae0ac10aa238f0b0c32"
+)
+#: Ronde 14: de contractidentiteit van het R13-herstel (answer/3).
+R14_CONTRACT = MappingProxyType(
+    {
+        "prompt_version": "ess05-assess/19",
+        "verification_prompt_version": "ess05-verify/4",
+        "answer_schema_version": "ess05-answer/3",
+        "concept_schema_version": "ess05-concept/1",
+        "verification_schema_version": "ess05-verification/1",
+    }
+)
+#: Ronde 14: USD 25 − werkelijke R8–R13-kosten (USD 1,669590); het lokale
+#: plafond (USD 4,20) ligt daar bewust onder.
+R14_KADERREST_NUSD = 23_330_410_000
 
 
 @dataclass(frozen=True)
@@ -766,6 +808,25 @@ PROEVEN = {
         payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
         contract=R12_CONTRACT,
         kaderrest_nusd=R13_KADERREST_NUSD,
+    ),
+    # Ronde 14: herproef na het R13-herstel binnen het gepinde besluit (12
+    # modelstappen: 2 verifier-only, 10 ontwikkeling; plafond USD 4,20,
+    # cumulatief 388, reserve 0). Ontwikkeling is de R13-invoer; V zijn de twee
+    # gerichte negatieven. Zelfde payloadtoestemming; actueel contract.
+    "R14": Proef(
+        "R14",
+        gb.R14,
+        Proefopslag(R14_UITMAP),
+        True,
+        True,
+        t_ontwikkelinvoer_sha256=R13_T_ONTWIKKELINVOER_SHA256,
+        v_invoer_sha256=R14_V_INVOER_SHA256,
+        budgetbesluit=R14_BUDGETBESLUIT,
+        budgetbesluit_sha256=R14_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R14_CONTRACT,
+        kaderrest_nusd=R14_KADERREST_NUSD,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -1304,6 +1365,24 @@ def _t_technisch_afgerond(record: dict[str, Any]) -> tuple[bool, str]:
         return False, f"technische fout ({soort}; stappen {statussen})"
     appcontrole = f", appcontrole {soort}" if soort else ""
     return True, f"technisch afgerond (stappen {statussen}{appcontrole})"
+
+
+def _v_technisch_afgerond(
+    schending: str | None, fout: str | None, status: str
+) -> tuple[bool, str]:
+    """R14: is de verifier-only-stap technisch correct afgelopen, ongeacht de inhoud?
+
+    Een gemiste of onnodige detectie en een schemaweigering (`modelfout`) zijn
+    geldige, gelogde uitkomsten. Een bewakingsweigering, een fout buiten de
+    dienst of een technische afsluiting niet (zie `_t_technisch_afgerond`).
+    """
+    if schending:
+        return False, "bewakingsweigering"
+    if fout is not None:
+        return False, f"technische fout buiten de dienst ({fout})"
+    if status not in ("voltooid", "modelfout"):
+        return False, f"technische fout (stap {status})"
+    return True, f"technisch afgerond (stap {status})"
 
 
 def _stop_bij_bewaking(sleutel: str, schending: str | None, *fouten: Any) -> None:
@@ -2804,10 +2883,19 @@ async def _v_call(
     for stap in stappen:
         stap["attributie"] = dict(resultaat.attributie) if resultaat else None
     status = stappen[-1]["afsluitstatus"] if stappen else "niet_verzonden"
-    acceptatie = None
+    acceptatie = stop = None
     if stappen:
         geaccepteerd, reden = _v_acceptatie(v, resultaat, status, poging.schending)
-        acceptatie = {"geaccepteerd": geaccepteerd, "reden": reden}
+        acceptatie = stop = {"geaccepteerd": geaccepteerd, "reden": reden}
+        if boek.identiteit.stop_alleen_technisch:
+            # R14: alleen een technisch niet-afgeronde stap stopt; de inhoud telt apart.
+            afgerond, technisch = _v_technisch_afgerond(poging.schending, fout, status)
+            acceptatie = {
+                "geaccepteerd": geaccepteerd,
+                "reden": f"{technisch}; inhoud: {reden}",
+                "technisch_afgerond": afgerond,
+            }
+            stop = {"geaccepteerd": afgerond, "reden": technisch}
     system, user = v.prompt
     record = {
         "schema": "def768-ess05-verifiercall/1",
@@ -2861,10 +2949,11 @@ async def _v_call(
         "duur_s": duur,
         "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
         "status_correct": (acceptatie or {}).get("geaccepteerd"),
+        "technisch_afgerond": (acceptatie or {}).get("technisch_afgerond"),
     }
     if annulering is not None:
         raise annulering
-    _stop_met_resultaat(resultaat, v.sleutel, poging.schending, acceptatie, fout)
+    _stop_met_resultaat(resultaat, v.sleutel, poging.schending, stop, fout)
     logger.info("%s: %s %.1fs", v.sleutel, (acceptatie or {}).get("reden"), duur)
     return resultaat
 
@@ -3608,21 +3697,18 @@ def _parser() -> argparse.ArgumentParser:
         choices=tuple(PROEVEN),
         default=STANDAARD_PROEF.naam,
         help=(
-            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R11 is "
-            "gestopt en weigert op zijn contract; R12 "
-            f"({gb.R12.proef_id}, opslag {PROEVEN['R12'].opslag.root}, "
-            "cumulatief met R1 t/m R11 max 369) is open binnen het gepinde besluit "
-            "(4 modelstappen: 2 verificatie_alleen, dan 2 ontwikkeling; max USD "
-            "1,44, reserve 0); R13 "
-            f"({gb.R13.proef_id}, opslag {PROEVEN['R13'].opslag.root}, "
-            "cumulatief max 376) is open voor vijf onafhankelijke ontwikkelgevallen "
-            "(10 modelstappen, max USD 3,45, reserve 0)"
+            "R1 (standaard) t/m R10 zijn gesloten voor echte calls; R11 t/m R13 "
+            "weigeren op hun contract (answer/1, answer/2); R14 "
+            f"({gb.R14.proef_id}, opslag {PROEVEN['R14'].opslag.root}, "
+            "cumulatief max 388) is open voor de herproef na het R13-herstel "
+            "(2 verificatie_alleen en 10 ontwikkeling, onafhankelijk; max USD "
+            "4,20, reserve 0)"
         ),
     )
     p.add_argument(
         "--gevallen",
         type=Path,
-        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R12)",
+        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R14)",
     )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
@@ -3665,7 +3751,7 @@ def _parser() -> argparse.ArgumentParser:
         "--max-tokens-t",
         type=int,
         default=None,
-        help="standaard: R8 t/m R13 de productiegrens (3000, ook de verifier); oudere 1500",
+        help="standaard: R8 t/m R14 de productiegrens (3000, ook de verifier); oudere 1500",
     )
     p.add_argument(
         "--totaal-deadline", type=float, default=None, help="seconden voor deze aanroep"

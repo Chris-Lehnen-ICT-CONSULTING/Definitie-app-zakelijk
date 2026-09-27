@@ -14,7 +14,7 @@
   },
   "transformatie": {
     "script": "scripts/ess05/maak_answer2_fixtures.py",
-    "script_sha256": "365b500c0a3ef7e5410384432146189ff47f6df12d49bd379394ddf6d25ae483"
+    "script_sha256": "146bc1743dd635a2bc300b0cf1deae24ea2e53b9aaed6e9b5392dfca8f1aecc0"
   },
   "answer_schema_version": "ess05-answer/2",
   "geval_sha256": "33c1497b18dbf733ce1fb6bbc90d134bf16036b3043f2041b32873d29719e071",

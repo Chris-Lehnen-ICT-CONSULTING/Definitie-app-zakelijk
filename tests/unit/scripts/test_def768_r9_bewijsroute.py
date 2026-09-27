@@ -44,8 +44,13 @@ from pathlib import Path
 
 import pytest
 
+from domain.ess05.contract import valideer_antwoord
 from services.ai.base_client import ChatResponse
-from tests.fixtures.def768_fakes import is_verificatievraag, verificatie_voor
+from tests.fixtures.def768_fakes import (
+    als_answer3,
+    is_verificatievraag,
+    verificatie_voor,
+)
 from tests.unit.scripts.test_def768_ess05_proefrunner import ROOT, _FakeProvider
 from tests.unit.scripts.test_def768_r8_proef import _omgeving8
 from tests.unit.scripts.test_def768_r9_proef import _keten9, _opslag9, _soort
@@ -54,6 +59,7 @@ pytestmark = [pytest.mark.unit]
 
 sys.path.insert(0, str(ROOT / "scripts" / "ess05"))
 
+import migreer_r7_naar_v2 as mig
 import proefgrootboek as gb
 import proefinvoer as pi
 import run_ess05_proef as runner
@@ -71,9 +77,21 @@ A2 = json.loads(
         encoding="utf-8"
     )
 )
-ANTWOORD2 = A2["raw_response"]
-#: Het uit ANTWOORD2 afgeleide concept (historisch modulo bewijs-ID's).
-AFGELEID_CONCEPT = A2["afgeleid_concept_hash"]
+#: Sinds answer/3 (R13-herstel) de synthetische answer/3-weergave van precies dit
+#: antwoord (`als_answer3`): schema actueel, een top-level bronclaim verhuisd
+#: naar de reden van de eerste buur; claim- en bewijs-ID's gelijk.
+ANTWOORD2 = als_answer3(A2["raw_response"])
+
+
+def _afgeleid_concept() -> str:
+    """Hash van het concept dat de app uit ANTWOORD2 afleidt (eigen afleiding)."""
+    materiaal, buren, _ = mig.verificatiemateriaal(FIXTURE["geval"])
+    concept, fouten = valideer_antwoord(json.loads(ANTWOORD2), materiaal, buren)
+    assert concept is not None, fouten
+    return concept.hash
+
+
+AFGELEID_CONCEPT = _afgeleid_concept()
 _CONCEPTBLOK = re.compile(
     r'<conceptoordeel candidate_hash="([0-9a-f]{64})">\n(.*?)\n</conceptoordeel>', re.S
 )
@@ -296,7 +314,7 @@ class TestKeten:
         doc = _callrecord(tmp_path)["beoordelingsdocument"]
         # Huidige code (answer/2); de R9-regels hierboven blijven erin.
         assert (doc["prompt_version"], doc["verification_prompt_version"]) == (
-            "ess05-assess/18",
+            "ess05-assess/19",
             "ess05-verify/4",
         )
 
@@ -379,5 +397,5 @@ class TestHistorischeBinding:
         huidig = self._replay(self._binding())
         deel = _onderscheid(huidig)
         assert "historisch en geldt niet als actueel oordeel" in deel["reason"]
-        assert "'ess05-assess/18'" in deel["reason"]
+        assert "'ess05-assess/19'" in deel["reason"]
         assert "semantisch geverifieerd" not in deel["reason"]

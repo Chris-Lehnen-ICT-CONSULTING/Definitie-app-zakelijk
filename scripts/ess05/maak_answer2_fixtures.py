@@ -223,7 +223,10 @@ def bouw_fixture(ronde: str) -> str:
         raise MakerfoutError(msg)
     antwoord2 = naar_answer2(json.loads(ruw1))
     ruw2 = json.dumps(antwoord2, ensure_ascii=False, indent=2)
-    afgeleid, fouten = valideer_antwoord(json.loads(ruw2), materiaal, buren)
+    # Sinds answer/3 historisch: expliciet onder answer/2 afgeleid.
+    afgeleid, fouten = valideer_antwoord(
+        json.loads(ruw2), materiaal, buren, schema=bewijs.ANTWOORDSCHEMA_2
+    )
     if afgeleid is None or zonder_ids(afgeleid.data) != zonder_ids(historisch.data):
         msg = f"{ronde}: de answer/2-afleiding wijkt af van het concept ({fouten})"
         raise MakerfoutError(msg)
@@ -245,7 +248,7 @@ def bouw_fixture(ronde: str) -> str:
             "script": SCRIPT,
             "script_sha256": _sha((PROJECT_ROOT / SCRIPT).read_bytes()),
         },
-        "answer_schema_version": bewijs.ANTWOORDSCHEMA,
+        "answer_schema_version": bewijs.ANTWOORDSCHEMA_2,
         "geval_sha256": uittreksel["geval_sha256"],
         "raw_response": ruw2,
         "raw_response_sha256": _sha(ruw2.encode("utf-8")),

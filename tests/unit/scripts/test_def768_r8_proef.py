@@ -412,6 +412,7 @@ class TestR8Registratie:
             "R11",
             "R12",
             "R13",
+            "R14",
         ]
 
     @besluit_nodig
@@ -855,7 +856,7 @@ class TestVerifierOnly:
         # assess/16 + verify/3 (R9-bewijsherstel): deelzin per bewijsroute; T/13 gelijk.
         # assess/17 + verify/4 (R10-C3): gesloten bewijsroute per claim; T/13 gelijk.
         # assess/18 (answer/2): genest, citaat-eerst antwoord; T/13 gelijk.
-        assert velden["prompt_version"] == "ess05-assess/18"
+        assert velden["prompt_version"] == "ess05-assess/19"
         assert velden["verification_prompt_version"] == "ess05-verify/4"
         assert {"system_prompt_sha256", "norm_sha256"} <= set(velden)
 

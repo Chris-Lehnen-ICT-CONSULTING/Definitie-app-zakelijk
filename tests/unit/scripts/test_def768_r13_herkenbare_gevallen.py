@@ -17,6 +17,7 @@ import asyncio
 import dataclasses
 import json
 from pathlib import Path
+from types import MappingProxyType
 
 import pytest
 
@@ -34,6 +35,7 @@ from tests.unit.scripts.test_def768_r10_proef import (
 from tests.unit.scripts.test_def768_r11_proef import _r10_boek
 from tests.unit.scripts.test_def768_r12_microproef import (
     BESLUIT12,
+    R12_CONTRACT_GEPIND,
     _keten12,
     _r11_boek,
 )
@@ -122,10 +124,15 @@ def _vijf(tmp_path: Path, n: int = 5, naam="vijf.json") -> Path:
     return pad
 
 
+def _r13(**anders) -> runner.Proef:
+    anders.setdefault("contract", MappingProxyType(HUIDIG_CONTRACT))
+    return dataclasses.replace(runner.PROEVEN["R13"], **anders)
+
+
 def _t13(omg, tmp_path, pad, *, nieuw=True, proef=None):
-    proef = proef or dataclasses.replace(
-        runner.PROEVEN["R13"], t_ontwikkelinvoer_sha256=_sha(pad)
-    )
+    # Mechaniek op de huidige code; het gepinde R13-contract (answer/2) weigert
+    # sinds answer/3 fail-closed.
+    proef = proef or _r13(t_ontwikkelinvoer_sha256=_sha(pad))
     freeze = tmp_path / "freeze-o.json"
     if not freeze.exists():
         freeze.write_text(
@@ -245,14 +252,14 @@ class TestRegistratie:
             TOESTEMMING,
             TOESTEMMING_SHA256,
         )
-        assert dict(proef.contract) == HUIDIG_CONTRACT
+        assert dict(proef.contract) == R12_CONTRACT_GEPIND
         assert proef.kaderverruiming_modelstappen == 0
         assert proef.kaderrest_nusd == KADERREST_NUSD
 
-    def test_alleen_r13_stopt_alleen_technisch(self):
+    def test_alleen_r13_en_r14_stoppen_alleen_technisch(self):
         assert [
             n for n, p in runner.PROEVEN.items() if p.identiteit.stop_alleen_technisch
-        ] == ["R13"]
+        ] == ["R13", "R14"]
 
     @besluiten_nodig
     def test_besluit_gebonden_aan_goedkeuring_en_past_op_r13(self):
@@ -496,7 +503,10 @@ class TestEchteInvoer:
                 for veld in ("dragend_citaat", "ontbrekend_kenmerk"):
                     assert v[veld] is None or v[veld] in invoer, (geval["id"], veld)
 
-    def test_droog_vijf_gevallen_tien_stappen_met_freezevelden(self, tmp_path):
+    def test_droog_vijf_gevallen_tien_stappen_met_freezevelden(
+        self, monkeypatch, tmp_path
+    ):
+        monkeypatch.setitem(runner.PROEVEN, "R13", _r13())
         code = runner.main(["--proef", "R13", "--fase", "ontwikkeling", "--gevallen",
                             str(GEVALLEN), "--uitmap", str(tmp_path), "--droog"])  # fmt: skip
         assert code == 0

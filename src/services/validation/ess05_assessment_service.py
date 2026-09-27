@@ -320,6 +320,17 @@ _ANTWOORDSTRUCTUUR = (
     "distinguishing_feature_quote is feature_quote; proposed_neighbours is "
     "proposals, met source_id en quote samen als source_quote; question is "
     "question.text.\n"
+    "- Waar een claim staat, bepaalt wat haar route moet bevatten; de route is "
+    "haar citaten plus die van al haar premises. De reason van het geheel beschrijft "
+    "alleen de kandidaat zelf: elke claim daarin (ook elke premise) citeert alleen "
+    "uit definition, context of meaning, zonder afwezigheidsclaim; elke vergelijking "
+    "met een verwant begrip staat bij dat begrip. Bij een verwant begrip bevat de "
+    "route van missing_feature een citaat uit definition én een citaat uit een "
+    "bron, de beschrijving van het verwante begrip of meaning dat het ontbrekende "
+    "kenmerk draagt; de route van elke inference die direct in reason van dat "
+    "begrip staat, bevat een citaat uit definition én een citaat uit een bron of "
+    "een beschrijving van een verwant begrip, of een afwezigheidsclaim. De app "
+    "weigert een antwoord dat hier niet aan voldoet.\n"
     "- Elke inhoudelijke uitspraak is een claim, precies op de plaats waar je haar "
     "gebruikt; er zijn geen id's en geen verwijzingen. Schrijf in elke claim eerst "
     "wat haar draagt en pas daarna de tekst. role material: eerst quotes, de "
@@ -376,6 +387,15 @@ _ANTWOORDSTRUCTUUR = (
 )
 
 
+#: assess/19 (R13-H5): appstatus als gegeven, niet als te bewijzen materiaal.
+_APPSTATUS_GEEN_BUREN = (
+    "Appstatus (gegeven, geen materiaal): er is geen deskundige bevestiging dat de "
+    "vergelijkingsruimte leeg is; de app houdt het onderscheid daarom open en stelt "
+    "zelf de vraag naar verwante begrippen. Dit is geen uitspraak die je in een claim "
+    "onderbouwt."
+)
+
+
 def _attr(naam: str, waarde: Any) -> str:
     return f" {naam}={quoteattr(str(waarde))}" if waarde not in (None, "") else ""
 
@@ -408,8 +428,13 @@ def _invoerregels(
     *,
     buren: tuple[Buur, ...],
     intentie: Intentie | None,
+    appstatus: bool = False,
 ) -> list[str]:
-    """De gebonden invoer als gegevens: kern, betekenis, context, buren, bronnen, materiaal."""
+    """De gebonden invoer als gegevens: kern, betekenis, context, buren, bronnen, materiaal.
+
+    `appstatus` (alleen de beoordelingsprompt): zonder buren ook de appstatus
+    van de vergelijkingsruimte als gegeven, gescheiden van het materiaal.
+    """
     contexten = contexten or {}
     intentie = intentie or Intentie()
     regels = [
@@ -454,6 +479,11 @@ def _invoerregels(
             "alleen een verwant begrip voor als het materiaal het draagt, anders geen "
             "voorstel."
         )
+        if appstatus:
+            # Alleen in de beoordelingsprompt: de verifierinvoer (verify/4) blijft
+            # byte-gelijk. Zonder buren en met een geldige leegbevestiging start de
+            # app geen aanroep (nulcall), dus hier ontbreekt die bevestiging altijd.
+            regels.append(_APPSTATUS_GEEN_BUREN)
     regels.append("")
     if bronnen:
         regels.append(
@@ -492,7 +522,13 @@ def bouw_beoordelingsprompt(
 ) -> tuple[str, str]:
     """(systeemprompt, gebruikersprompt) — deterministisch, materiaal als gegevens."""
     regels = _invoerregels(
-        begrip, tekst, contexten, bronnen, buren=tuple(buren), intentie=intentie
+        begrip,
+        tekst,
+        contexten,
+        bronnen,
+        buren=tuple(buren),
+        intentie=intentie,
+        appstatus=True,
     )
     regels += ["", "Geef nu het JSON-object."]
     return _systeemprompt(norm), "\n".join(regels)
@@ -588,7 +624,13 @@ class Ess05AssessmentService:
     #: `ess05-answer/2`, genest en citaat-eerst: elke claim inline op haar
     #: gebruiksplaats, citaten en premissen vóór de tekst, geen ID's; de app
     #: kent de ID's toe (R11-R720: ongebruikte, niet gedragen claim C10).
-    PROMPT_VERSION = "ess05-assess/18"
+    #: /19 (R13-herstel): toetsinstructie ongewijzigd; het antwoord is
+    #: `ess05-answer/3` met plaatsgebonden routedekking die de code afdwingt
+    #: (reden van het geheel alleen kandidaatmateriaal; buurconclusie en
+    #: missing_feature met kerncitaat én buurkant); zonder buren staat de
+    #: appstatus (geen deskundige leegbevestiging) als gegeven in de invoer
+    #: (R13: H2 C5/C13, H3 C7, H5 C3).
+    PROMPT_VERSION = "ess05-assess/19"
     TASK_TYPE = "validation"
 
     def __init__(
