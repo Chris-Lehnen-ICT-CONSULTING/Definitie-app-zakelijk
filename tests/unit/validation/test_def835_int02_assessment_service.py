@@ -18,11 +18,13 @@ bewezen: dat een model de juiste functie, passage of vraag kiest (WP4).
 from __future__ import annotations
 
 import asyncio
+import copy
 import dataclasses
 import json
 import logging
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -35,8 +37,10 @@ from domain.int02.contract import (
     maak_invoer,
     toets_actualiteit,
 )
+from services.ai.anthropic_client import AnthropicClient
 from services.ai.base_client import AIConnectionClientError, ChatResponse
 from services.ai.model_router import ModelRouter
+from services.ai.openai_client import OpenAIClient
 from services.ai_service_v2 import AIServiceV2
 from services.interfaces import (
     AIGenerationResult,
@@ -151,10 +155,28 @@ def _onvoldoende_uitvoer():
 
 
 class FakeRouter:
-    def __init__(self, provider=PROVIDER, model=MODEL, fout=None):
+    """Routergrens met dezelfde publieke vorm als `ModelRouter`.
+
+    Correctie F2: naast `get_model` ook de capability-policy
+    (`accepts_temperature`, `thinking_default_on`) die het verzendbeleid van
+    de bestaande adapter bepaalt, zodat een policywijziging testbaar is.
+    """
+
+    def __init__(
+        self,
+        provider=PROVIDER,
+        model=MODEL,
+        fout=None,
+        temperature=True,
+        thinking=False,
+        beleidsfout=None,
+    ):
         self.provider = provider
         self.model = model
         self.fout = fout
+        self.temperature = temperature
+        self.thinking = thinking
+        self.beleidsfout = beleidsfout
         self.calls: list[str] = []
 
     def get_model(self, task_type):
@@ -163,15 +185,30 @@ class FakeRouter:
             raise self.fout
         return self.provider, self.model
 
+    def accepts_temperature(self, model, provider=None):
+        if self.beleidsfout is not None:
+            raise self.beleidsfout
+        return self.temperature
+
+    def thinking_default_on(self, model, provider=None):
+        if self.beleidsfout is not None:
+            raise self.beleidsfout
+        return self.thinking
+
 
 class Hang:
     """Uitkomst die nooit terugkomt (deadline-test)."""
 
 
 class FakeAI:
-    """AI-grens: per aanroep de volgende geplande uitkomst, alle kwargs vastgelegd."""
+    """AI-grens: per aanroep de volgende geplande uitkomst, alle kwargs vastgelegd.
 
-    def __init__(self, *uitkomsten, model=None, cached=False, stop_reason=None):
+    Correctie F1: standaard meldt de fake een afgeronde stopreden
+    (`end_turn`, zoals de Anthropic-adapter); `stop_reason=None` laat de
+    reden weg, zoals de bestaande OpenAI-adapter doet.
+    """
+
+    def __init__(self, *uitkomsten, model=None, cached=False, stop_reason="end_turn"):
         self.uitkomsten = list(uitkomsten)
         self.calls: list[dict] = []
         self.model = model
@@ -689,7 +726,9 @@ async def test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata():
     uitvoering = doc.uitvoering
     assert uitvoering.actor == "ai"
     assert uitvoering.status == "completed"
-    assert uitvoering.transportpogingen == 1
+    # Herijkt (review F3): de interface meldt het aantal pogingen niet; de
+    # eerdere 1 was de beginwaarde van de logteller, geen meting.
+    assert uitvoering.transportpogingen == ONBEKEND
     assert isinstance(uitvoering.duur_ms, int) and uitvoering.duur_ms >= 0
     assert uitvoering.tijdstip != ONBEKEND
     # AIServiceInterface meldt geen providerversie, geen in/uit-tokens en geen kosten.
@@ -935,7 +974,9 @@ class _Provider:
 
     provider_name = PROVIDER
 
-    def __init__(self, *uitkomsten, gerapporteerd_model=None, stop_reason=None):
+    def __init__(self, *uitkomsten, gerapporteerd_model=None, stop_reason="end_turn"):
+        # Correctie F1: standaard een afgeronde stopreden, zoals de
+        # Anthropic-adapter die in `ChatResponse.stop_reason` doorgeeft.
         self.uitkomsten = list(uitkomsten)
         self.calls: list[dict] = []
         self.gerapporteerd_model = gerapporteerd_model
@@ -990,7 +1031,9 @@ async def test_echte_ai_laag_verbindingsfout_geeft_een_poging_ondanks_retryconfi
     assert len(provider.calls) == 1
     assert resultaat.status == "error"
     assert resultaat.document.foutcategorie == "transport"
-    assert resultaat.document.uitvoering.transportpogingen == 1
+    # Herijkt (review F3): het ene providercall is hierboven aan de netwerkgrens
+    # gemeten; de dienst zelf kan dat via de interface niet vaststellen.
+    assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
 
 
 async def test_echte_ai_laag_geen_ruwe_cache_ondanks_use_cache_true():
@@ -1083,3 +1126,193 @@ async def test_norm_is_een_snapshot_bij_constructie(monkeypatch):
     # Pas een nieuwe instantie leest de (gewijzigde) norm opnieuw.
     nieuw = await _dienst(FakeAI(_fail_uitvoer())).assess(_invoer())
     assert nieuw.document.binding.normhash == ander.normhash
+
+
+# --- correcties na review wp2-codex-review-v1 (eerst rood) ----------------------
+
+# F1: alleen een aantoonbaar afgerond antwoord kan een oordeel dragen.
+
+
+async def test_f1_ontbrekende_stopreden_is_geen_oordeel_en_wordt_niet_gecachet():
+    ai = FakeAI(_fail_uitvoer(), _fail_uitvoer(), stop_reason=None)
+    dienst = _dienst(ai)
+    eerste = await dienst.assess(_invoer())
+    tweede = await dienst.assess(_invoer())
+    assert eerste.status == "error"
+    assert eerste.document.foutcategorie == "invalid_output"
+    assert eerste.reden == "unconfirmed_completion"
+    assert eerste.document.oordeel is None
+    assert tweede.gecachet is False
+    assert len(ai.calls) == 2
+
+
+@pytest.mark.parametrize("reden", ["refusal", "pause_turn", "tool_use", "iets_nieuws"])
+async def test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel(reden):
+    resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason=reden)).assess(
+        _invoer()
+    )
+    assert resultaat.status == "error"
+    assert resultaat.reden == "unconfirmed_completion"
+    assert resultaat.stop_reason == reden
+
+
+async def test_f1_openai_afkapreden_length_is_afgekapt():
+    resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason="length")).assess(
+        _invoer()
+    )
+    assert resultaat.status == "error"
+    assert resultaat.reden == "truncated_response"
+
+
+class _OpenAISDK:
+    """Fake OpenAI-SDK aan de netwerkgrens; de adapter zelf is echt."""
+
+    def __init__(self, finish_reason):
+        self.finish_reason = finish_reason
+        self.calls = 0
+        self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
+
+    def with_options(self, **kwargs):
+        assert kwargs == {"max_retries": 0}
+        return self
+
+    async def create(self, **kwargs):
+        self.calls += 1
+        bericht = SimpleNamespace(content=json.dumps(_fail_uitvoer()))
+        return SimpleNamespace(
+            choices=[
+                SimpleNamespace(message=bericht, finish_reason=self.finish_reason)
+            ],
+            usage=SimpleNamespace(total_tokens=800),
+            model=kwargs["model"],
+        )
+
+
+def _openai_dienst(sdk: _OpenAISDK):
+    client = OpenAIClient(api_key="offline-testsleutel-zonder-netwerk")
+    client._sdk_voor_deze_loop = lambda: sdk
+    router = FakeRouter(provider="openai", model="gpt-4.1")
+    ai = AIServiceV2(
+        rate_limit_config=RateLimitConfig(max_retries=3, backoff_factor=1.0),
+        use_cache=True,
+        ai_client=client,
+        model_router=router,
+    )
+    return _dienst(ai, router, profiel=_profiel(provider="openai", model="gpt-4.1"))
+
+
+async def test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel():
+    sdk = _OpenAISDK("length")
+    dienst = _openai_dienst(sdk)
+    eerste = await dienst.assess(_invoer())
+    tweede = await dienst.assess(_invoer())
+    assert eerste.status == "error"
+    assert eerste.document.oordeel is None
+    # De adapter geeft finish_reason niet door: niet aantoonbaar afgerond.
+    assert eerste.reden == "unconfirmed_completion"
+    assert tweede.gecachet is False
+    assert sdk.calls == 2
+
+
+async def test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt():
+    # Ook finish_reason "stop" bereikt de dienst niet: bewuste beperking.
+    resultaat = await _openai_dienst(_OpenAISDK("stop")).assess(_invoer())
+    assert resultaat.status == "error"
+    assert resultaat.reden == "unconfirmed_completion"
+
+
+# F2: het effectieve capability-beleid van de router zit in de binding.
+
+
+def _router_met_beleid():
+    config = copy.deepcopy(ModelRouter._DEFAULT_CONFIG)
+    provider, model = ModelRouter(copy.deepcopy(config)).get_model("validation")
+    config["capabilities"] = {
+        provider: {
+            "temperature": {"model_families": [model]},
+            "thinking_default_on": {"model_families": [model]},
+        }
+    }
+    return config, ModelRouter(config), provider, model
+
+
+async def test_f2_gewijzigd_beleid_bij_zelfde_model_geen_cache_en_historisch():
+    config, router, provider, model = _router_met_beleid()
+    adapter = AnthropicClient(api_key="offline-testsleutel", model_router=router)
+    oud_beleid = repr(adapter._verzendbeleid(model, 0.0))
+    profiel = _profiel(provider=provider, model=model)
+    ai = FakeAI(_fail_uitvoer(), _fail_uitvoer())
+    dienst = _dienst(ai, router, profiel=profiel)
+    oud = await dienst.assess(_invoer())
+    for beleid in config["capabilities"][provider].values():
+        beleid["model_families"].clear()
+    # Het echte verzendbeleid van de bestaande adapter is werkelijk veranderd.
+    assert repr(adapter._verzendbeleid(model, 0.0)) != oud_beleid
+    assert router.get_model("validation") == (provider, model)
+    nieuw = await dienst.assess(_invoer())
+    assert nieuw.gecachet is False
+    assert len(ai.calls) == 2
+    vers = await _dienst(FakeAI(_fail_uitvoer()), router, profiel=profiel).assess(
+        _invoer()
+    )
+    assert vers.document.binding != oud.document.binding
+    actueel = toets_actualiteit(
+        oud.document, _invoer(), vers.document.binding.configuratie()
+    )
+    assert actueel.reden == "historical"
+
+
+@pytest.mark.parametrize(
+    ("veld", "waarde"), [("temperature", False), ("thinking", True)]
+)
+async def test_f2_elk_beleidsonderdeel_verandert_de_binding(veld, waarde):
+    basis = await _dienst(FakeAI(_fail_uitvoer())).assess(_invoer())
+    router = FakeRouter(**{veld: waarde})
+    ander = await _dienst(FakeAI(_fail_uitvoer()), router).assess(_invoer())
+    assert ander.status == "fail"
+    assert ander.document.binding != basis.document.binding
+
+
+class _RouterZonderBeleid:
+    def get_model(self, task_type):
+        return PROVIDER, MODEL
+
+
+@pytest.mark.parametrize(
+    "router",
+    [
+        FakeRouter(beleidsfout=RuntimeError("GEHEIM-BELEID-7Q")),
+        FakeRouter(temperature="ja"),
+        FakeRouter(thinking=None),
+        _RouterZonderBeleid(),
+    ],
+    ids=["fout", "geen-bool-temperature", "geen-bool-thinking", "geen-beleid"],
+)
+async def test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default(router, caplog):
+    ai = FakeAI()
+    with caplog.at_level(logging.DEBUG):
+        resultaat = await _dienst(ai, router).assess(_invoer())
+    _assert_geblokkeerd(resultaat, ai, "router_policy_unavailable")
+    assert "GEHEIM-BELEID-7Q" not in caplog.text
+    assert "GEHEIM-BELEID-7Q" not in repr(resultaat)
+
+
+# F3: geen transportpoging rapporteren die niet is vastgesteld.
+
+
+async def test_f3_wachten_op_capaciteit_geeft_nul_providercalls_en_geen_verzonnen_poging():
+    provider = _Provider()
+    ai = _echte_ai(provider)
+    ai._get_client().rate_limiter.semaphore = asyncio.Semaphore(0)
+    resultaat = await _dienst(ai, budget=_budget(deadline_seconden=0.03)).assess(
+        _invoer()
+    )
+    assert resultaat.reden == "timeout"
+    assert provider.calls == []
+    assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
+
+
+async def test_f3_uitzondering_van_de_ai_laag_geeft_onbekend_aantal_pogingen():
+    resultaat = await _dienst(FakeAI(AIServiceError("x"))).assess(_invoer())
+    assert resultaat.status == "error"
+    assert resultaat.document.uitvoering.transportpogingen == ONBEKEND

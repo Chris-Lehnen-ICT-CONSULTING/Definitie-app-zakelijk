@@ -20,18 +20,28 @@ nulgebaseerd, einde exclusief.
 
 Volgorde. Kern of context ontbreekt → `not_evaluated` zonder aanroep.
 Ontbrekend profiel of budget, ongekwalificeerd profiel, router onbeschikbaar
-of afwijkend van het profiel, te lange of niet-codeerbare invoer → geen
-aanroep; WP1-uitvoering `not_executed` (review_required / not_assessed) met de
-servicereden. Transportfouten → `failed` (timeout/transport/provider) en dus
-`error`. Antwoordfouten (afgekapt, te lang, misvormd, dubbele sleutels,
+of afwijkend van het profiel, onbekend capability-beleid, te lange of
+niet-codeerbare invoer → geen aanroep; WP1-uitvoering `not_executed`
+(review_required / not_assessed) met de servicereden. Transportfouten →
+`failed` (timeout/transport/provider) en dus `error`. Antwoordfouten
+(afgekapt, niet aantoonbaar afgerond, te lang, misvormd, dubbele sleutels,
 ongeldig volgens WP1) → `completed` zonder geldige uitvoer en dus `error`.
+
+Afronding (review F1). Alleen een door de AI-laag gemelde afgeronde
+stopreden (`end_turn`, `stop`) kan een oordeel dragen. Een gemelde afkapping
+(`max_tokens`, `length`) is `truncated_response`; een ontbrekende of andere
+reden is `unconfirmed_completion`. De bestaande OpenAI-adapter geeft
+`finish_reason` niet door; die route levert daardoor nooit een inhoudelijk
+oordeel zolang die metadata ontbreekt.
 
 Grenzen van de attributie. `AIGenerationResult.model` is bij `AIServiceV2`
 het *aangevraagde* model; het door de provider gemelde model en de provider
 zelf reizen niet mee. De modelcontrole na de aanroep vergelijkt dus alleen de
 door de AI-dienst gemelde ID met het profiel en is geen attestatie van de
 echte provider. `Uitvoering.modelversie`, in/uit-tokens en kosten blijven
-daarom `unknown`.
+daarom `unknown`. Het aantal transportpogingen meldt de interface evenmin:
+na een (poging tot) aanroep is het `unknown`; alleen bij een blokkade vóór de
+aanroep staat vast dat het 0 is (review F3).
 
 Budget. `Budget` begrenst tokens, tekens en duur. Het is geen monetair budget
 en geeft geen kostengarantie; kosten worden niet gemeten.
@@ -44,8 +54,12 @@ in de binding van elk document.
 
 Cache. Begrensde LRU per instantie. Sleutel: de volledige WP1-binding
 (invoerhashes, norm, promptversie, routeringshash over taak, routeruitkomst,
-profiel en budget, gevraagde provider/model) plus de hash van de gerenderde
-prompt. Alleen een voltooid, door WP1 geaccepteerd oordeel wordt onthouden;
+effectief capability-beleid van de geïnjecteerde router, profiel en budget,
+gevraagde provider/model) plus de hash van de gerenderde prompt. Het beleid
+(`accepts_temperature`, `thinking_default_on`) bepaalt in de bestaande
+Anthropic-adapter of `temperature` en `thinking` worden meegestuurd (review
+F2); het wordt per aanroep bij de router opgevraagd en nooit aangevuld met een
+default. Alleen een voltooid, door WP1 geaccepteerd oordeel wordt onthouden;
 fouten en blokkades nooit.
 
 Logging. De dienstlogger logt alleen servicereden, uitzonderingstype en
@@ -88,11 +102,7 @@ from domain.int02.contract import (
     bereken_binding,
     ontbrekende_invoer,
 )
-from services.validation.ess03_assessment_service import (
-    _foutsoort,
-    _Pogingenteller,
-    _stop_reason,
-)
+from services.validation.ess03_assessment_service import _foutsoort, _stop_reason
 from toetsregels.runtime_contract import lees_regelbestand
 
 logger = logging.getLogger(__name__)
@@ -164,6 +174,12 @@ _FOUTCATEGORIE = {
     "rate_limit": "transport",
     "connection": "transport",
 }
+#: Door de AI-laag gemelde stopredenen (review F1). Alleen een afgeronde reden
+#: kan een oordeel dragen; een ontbrekende of andere reden niet.
+_AFGEROND = frozenset({"end_turn", "stop"})  # Anthropic resp. OpenAI
+_AFGEKAPT = frozenset({"max_tokens", "length"})  # Anthropic resp. OpenAI
+#: Capability-policy van de router die het verzendbeleid bepaalt (review F2).
+_BELEIDSVRAGEN = ("accepts_temperature", "thinking_default_on")
 
 
 class Int02ServiceConfigError(ValueError):
@@ -503,6 +519,16 @@ class _Aanroep:
     correlation_id: str | None
 
 
+@dataclass(frozen=True)
+class _Route:
+    """Routeruitkomst voor TASK_TYPE: (provider, model) en het effectieve
+    capability-beleid voor dat model; None = niet vastgesteld."""
+
+    sleutel: tuple[str, str] | None = None
+    beleid: tuple[tuple[str, bool], ...] | None = None
+    fouttype: str | None = None
+
+
 def _nu() -> str:
     return datetime.now(UTC).isoformat()
 
@@ -554,7 +580,7 @@ class Int02AssessmentService:
             msg = "invoer moet een Int02Invoer zijn"
             raise Int02ContractError(msg)
         promptversie = PROMPT_VERSION
-        route, routefout = self._route()
+        route = self._route()
         aanroep = _Aanroep(
             invoer=invoer,
             configuratie=self._configuratie(route, promptversie),
@@ -567,7 +593,8 @@ class Int02AssessmentService:
         profiel, budget = self._profiel, self._budget
         if blokkade is not None or profiel is None or budget is None:
             reden = blokkade or "profile_missing"  # het tweede deel vernauwt alleen
-            fouttype = routefout if reden == "router_unavailable" else None
+            routefout = reden in ("router_unavailable", "router_policy_unavailable")
+            fouttype = route.fouttype if routefout else None
             return self._niet_uitgevoerd(aanroep, reden, fouttype)
 
         systeem, data = bouw_int02_prompt(invoer, self._norm)
@@ -586,25 +613,41 @@ class Int02AssessmentService:
 
     # --- vóór de aanroep ------------------------------------------------------
 
-    def _route(self) -> tuple[tuple[str, str] | None, str | None]:
-        """(provider, model) van de router voor TASK_TYPE, of (None, fouttype)."""
-        try:
-            provider, model = self._model_router.get_model(TASK_TYPE)
-        except Exception as exc:
-            return None, type(exc).__name__
-        if not (_gevuld(provider) and _gevuld(model)):
-            return None, None
-        return (provider, model), None
+    def _route(self) -> _Route:
+        """Model en capability-beleid van de geïnjecteerde router (review F2).
 
-    def _configuratie(
-        self, route: tuple[str, str] | None, promptversie: str
-    ) -> Configuratie:
+        Het beleid komt uit de bestaande publieke routerfuncties
+        `accepts_temperature` en `thinking_default_on`; een ontbrekende
+        functie, een fout of een niet-booleaanse uitkomst laat het beleid
+        onbekend (None) en wordt nooit met een default aangevuld.
+        """
+        router = self._model_router
+        try:
+            provider, model = router.get_model(TASK_TYPE)
+        except Exception as exc:
+            return _Route(fouttype=type(exc).__name__)
+        if not (_gevuld(provider) and _gevuld(model)):
+            return _Route()
+        sleutel = (provider, model)
+        try:
+            beleid = tuple(
+                (vraag, getattr(router, vraag)(model, provider=provider))
+                for vraag in _BELEIDSVRAGEN
+            )
+        except Exception as exc:
+            return _Route(sleutel=sleutel, fouttype=type(exc).__name__)
+        if not all(isinstance(waarde, bool) for _, waarde in beleid):
+            return _Route(sleutel=sleutel)
+        return _Route(sleutel=sleutel, beleid=beleid)
+
+    def _configuratie(self, route: _Route, promptversie: str) -> Configuratie:
         """WP1-configuratie; provider/model zijn het gevraagde profiel of unknown."""
         profiel, budget = self._profiel, self._budget
         routeringshash = _sha256_json(
             {
                 "task_type": TASK_TYPE,
-                "router": list(route) if route is not None else None,
+                "router": list(route.sleutel) if route.sleutel is not None else None,
+                "beleid": dict(route.beleid) if route.beleid is not None else None,
                 "profiel": asdict(profiel) if profiel is not None else None,
                 "budget": asdict(budget) if budget is not None else None,
             }
@@ -618,9 +661,7 @@ class Int02AssessmentService:
             normversie=self._norm.normversie,
         )
 
-    def _blokkade(
-        self, route: tuple[str, str] | None, invoer: Int02Invoer
-    ) -> str | None:
+    def _blokkade(self, route: _Route, invoer: Int02Invoer) -> str | None:
         profiel, budget = self._profiel, self._budget
         if profiel is None:
             return "profile_missing"
@@ -628,10 +669,12 @@ class Int02AssessmentService:
             return "budget_missing"
         if profiel.kwalificatie is None:
             return "profile_unqualified"
-        if route is None:
+        if route.sleutel is None:
             return "router_unavailable"
-        if route != (profiel.provider, profiel.model):
+        if route.sleutel != (profiel.provider, profiel.model):
             return "router_mismatch"
+        if route.beleid is None:
+            return "router_policy_unavailable"
         waarden = _invoerwaarden(invoer)
         if (
             any(len(w) > budget.max_invoertekens_veld for w in waarden)
@@ -669,34 +712,32 @@ class Int02AssessmentService:
         """Precies één transportpoging; daarna strikte controles en WP1."""
         systeem, data, prompt_sha256 = prompt
         tijdstip = _nu()
-        teller = _Pogingenteller()
         start = self._klok()
         try:
-            with teller:
-                async with asyncio.timeout(budget.deadline_seconden):
-                    antwoord = await self._ai_service.generate_definition(
-                        prompt=data,
-                        system_prompt=systeem,
-                        task_type=TASK_TYPE,
-                        # Gecontroleerde override: het profielmodel, dat hierboven
-                        # gelijk is bevonden aan de routeruitkomst.
-                        model=profiel.model,
-                        temperature=0.0,
-                        max_tokens=budget.max_uitvoertokens,
-                        timeout_seconds=budget.deadline_seconden,
-                        # Opt-ins (DEF-766): geen ruwe cache, één poging, geen
-                        # SDK-retries, geen blokkerende tokenraming, nabewerking
-                        # als onderbreekbaar await-punt.
-                        use_cache=False,
-                        max_attempts=1,
-                        max_retries=0,
-                        token_estimate="heuristic",
-                        offload_postprocessing=True,
-                    )
+            async with asyncio.timeout(budget.deadline_seconden):
+                antwoord = await self._ai_service.generate_definition(
+                    prompt=data,
+                    system_prompt=systeem,
+                    task_type=TASK_TYPE,
+                    # Gecontroleerde override: het profielmodel, dat hierboven
+                    # gelijk is bevonden aan de routeruitkomst.
+                    model=profiel.model,
+                    temperature=0.0,
+                    max_tokens=budget.max_uitvoertokens,
+                    timeout_seconds=budget.deadline_seconden,
+                    # Opt-ins (DEF-766): geen ruwe cache, één poging, geen
+                    # SDK-retries, geen blokkerende tokenraming, nabewerking
+                    # als onderbreekbaar await-punt.
+                    use_cache=False,
+                    max_attempts=1,
+                    max_retries=0,
+                    token_estimate="heuristic",
+                    offload_postprocessing=True,
+                )
         except Exception as exc:
             reden = _foutsoort(exc)
             uitvoering = self._uitvoering(
-                "failed", tijdstip, teller, start, _FOUTCATEGORIE.get(reden, "provider")
+                "failed", tijdstip, start, _FOUTCATEGORIE.get(reden, "provider")
             )
             return self._afronden(
                 aanroep,
@@ -715,7 +756,6 @@ class Int02AssessmentService:
         uitvoering = self._uitvoering(
             "failed" if categorie else "completed",
             tijdstip,
-            teller,
             start,
             categorie,
             duur,
@@ -734,12 +774,16 @@ class Int02AssessmentService:
         self,
         status: str,
         tijdstip: str,
-        teller: _Pogingenteller,
         start: float,
         foutcategorie: str | None,
         duur: float | None = None,
     ) -> Uitvoering:
-        """Gemeten metadata; niet gemeld is `unknown` (model, tokens, kosten)."""
+        """Gemeten metadata (tijdstip, duur); niet gemeld is `unknown`.
+
+        Het aantal transportpogingen, de modelversie, tokens en kosten meldt
+        de AI-interface niet; zij blijven `unknown` (review F3: een
+        logteller die bij één begint is geen meting van een providercall).
+        """
         if duur is None:
             duur = self._klok() - start
         return Uitvoering(
@@ -747,7 +791,7 @@ class Int02AssessmentService:
             status=status,
             foutcategorie=foutcategorie,
             tijdstip=tijdstip,
-            transportpogingen=teller.attributie()["attempts_observed"],
+            transportpogingen=ONBEKEND,
             duur_ms=max(0, round(duur * 1000)),
         )
 
@@ -857,8 +901,12 @@ def _controleer_antwoord(
         return "provider", "model_mismatch", None
     if bool(getattr(antwoord, "cached", False)):
         return "transport", "raw_cache_used", None
-    if _stop_reason(antwoord) == "max_tokens":
+    stop_reason = _stop_reason(antwoord)
+    if stop_reason in _AFGEKAPT:
         return None, "truncated_response", None
+    if stop_reason not in _AFGEROND:
+        # Ontbrekend of onbekend: niet aantoonbaar afgerond (review F1).
+        return None, "unconfirmed_completion", None
     tekst = getattr(antwoord, "text", None)
     if not isinstance(tekst, str) or not tekst.strip():
         return None, "malformed_response", None
