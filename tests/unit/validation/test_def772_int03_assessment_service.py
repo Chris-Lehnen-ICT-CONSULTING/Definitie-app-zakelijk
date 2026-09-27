@@ -32,8 +32,11 @@ from domain.int03.contract import (
     VERDICT_INSUFFICIENT,
     VERDICT_PASS,
     VERWIJZING_MEERDUIDIG,
+    VERWIJZING_NIET_VERWIJZEND,
     VERWIJZING_ONBESLIST,
+    Beoordelingsbinding,
     bereken_int03_vingerafdruk,
+    valideer_beoordeling,
 )
 from services.interfaces import (
     AIGenerationResult,
@@ -94,6 +97,22 @@ GEEN_WOORD_UITVOER = {
     "references": [],
     "question": None,
     "uncertainty": None,
+}
+
+#: Lidwoord 'de' uit TEKST als niet-verwijzend element (DEF-836).
+NIET_VERWIJZEND = {
+    "word": "de",
+    "passage": "de omgeving van een gebeurtenis",
+    "status": VERWIJZING_NIET_VERWIJZEND,
+    "reading": "lidwoord, verwijst niet",
+    "candidates": [],
+}
+
+#: Waargenomen foutpatroon (DEF-836): sjabloonplaceholder als eerste object.
+PLACEHOLDER_UITVOER = {
+    **GEEN_WOORD_UITVOER,
+    "verdict": f"{VERDICT_PASS}|{VERDICT_FAIL}|{VERDICT_INSUFFICIENT}",
+    "reason": "korte onderbouwing (twee tot vier zinnen)",
 }
 
 
@@ -216,6 +235,53 @@ def test_prompt_zonder_toelichting_en_context_is_deterministisch():
     assert a == b
 
 
+async def test_formaatinstructie_bereikt_de_ai_grens_direct_voor_het_sjabloon():
+    # DEF-836 (besluitnotitie-v3 §4): de formele leverinstructie staat in de
+    # systeemprompt die de AI-laag krijgt, direct vóór het uitvoerblok.
+    service, ai = _service(_uitvoer())
+    await _assess(service)
+    systeem = ai.calls[0]["system_prompt"]
+    for kernzin in (
+        "Lever precies één definitief JSON-object.",
+        "Neem geen conceptobject, placeholder, correctiebericht of tweede object op.",
+        "ook bij `non_referring`.",
+        (
+            "Gebruik bij `non_referring` en `no_antecedent` `candidates: []`; "
+            "laat het veld niet weg."
+        ),
+        "Controleer vóór verzending",
+    ):
+        assert systeem.count(kernzin) == 1, kernzin
+    begin = systeem.index("Lever precies één definitief JSON-object.")
+    slot = "niet in plaats van een inhoudelijk oordeel."
+    einde = systeem.index(slot) + len(slot)
+    uitvoerblok = systeem.index("Antwoord uitsluitend met één JSON-object")
+    assert systeem.index("Herschrijf de definitie niet.") < begin < einde
+    assert systeem[einde:uitvoerblok].strip() == ""
+
+
+async def test_oordeel_onder_vorige_promptversie_is_historisch():
+    # DEF-836: de gewijzigde prompt maakt oordelen onder int03-assess/1
+    # historisch; de norm (en dus de normhash) blijft ongewijzigd.
+    service, _ = _service(_uitvoer())
+    doc = (await _assess(service)).als_dict()
+    # FakeAI rapporteert een ander model dan de router; bind daaraan.
+    binding = Beoordelingsbinding(
+        **{**service.binding().als_dict(), "model": doc["attribution"]["model"]}
+    )
+    actueel, _ = valideer_beoordeling(doc, _vingerafdruk(), TEKST, binding=binding)
+    assert actueel is not None
+    doc["prompt_version"] = "int03-assess/1"
+    oordeel, samenvatting = valideer_beoordeling(
+        doc, _vingerafdruk(), TEKST, binding=binding
+    )
+    assert oordeel is None
+    assert samenvatting["historical"] is True
+    assert service.norm_sha256 == (
+        "d2f0cc1c834f36b264f2c82a496e0ff3108aa358e8bc65f518870c6179d3bb2d"
+    )
+
+
 # --- hoofdroute -------------------------------------------------------------------
 
 
@@ -294,6 +360,13 @@ async def test_antwoord_in_codeblok_wordt_geaccepteerd():
     assert d["status"] == "assessed"
 
 
+async def test_niet_verwijzend_met_lege_kandidatenlijst_is_geldig():
+    service, _ = _service({**GEEN_WOORD_UITVOER, "references": [NIET_VERWIJZEND]})
+    d = (await _assess(service)).als_dict()
+    assert d["status"] == "assessed"
+    assert d["judgment"]["verdict"] == VERDICT_PASS
+
+
 # --- fail-closed parsing ---------------------------------------------------------
 
 
@@ -309,6 +382,17 @@ async def test_antwoord_in_codeblok_wordt_geaccepteerd():
         json.dumps({**GEEN_WOORD_UITVOER, "question": "Wie?"}),
         json.dumps(_uitvoer(question="Wie? En wat?")),
         json.dumps(_uitvoer(verdict=VERDICT_PASS)),
+        json.dumps(PLACEHOLDER_UITVOER)
+        + "\n\nIk corrigeer het antwoord:\n"
+        + json.dumps(GEEN_WOORD_UITVOER),
+        json.dumps(
+            {
+                **GEEN_WOORD_UITVOER,
+                "references": [
+                    {k: v for k, v in NIET_VERWIJZEND.items() if k != "candidates"}
+                ],
+            }
+        ),
     ],
     ids=[
         "geen-json",
@@ -320,6 +404,8 @@ async def test_antwoord_in_codeblok_wordt_geaccepteerd():
         "pass-met-vraag",
         "fail-met-twee-vragen",
         "verdict-strookt-niet",
+        "placeholder-correctieproza-tweede-object",
+        "niet-verwijzend-zonder-candidates",
     ],
 )
 async def test_misvormd_antwoord_is_technische_fout(antwoord):

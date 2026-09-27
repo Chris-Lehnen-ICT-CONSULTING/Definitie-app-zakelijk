@@ -162,6 +162,21 @@ def _sha256(tekst: str | None) -> str | None:
     )
 
 
+#: Formele leverinstructie, letterlijk uit DEF-836 besluitnotitie-v3 §4; staat
+#: direct vóór het uitvoerblok. Wijzigt geen norm, contract of parser.
+_FORMAATINSTRUCTIE = (
+    "Lever precies één definitief JSON-object. Neem geen conceptobject, "
+    "placeholder, correctiebericht of tweede object op. Gebruik voor `verdict` "
+    "uitsluitend `pass`, `fail` of `insufficient_information`. Elk element van "
+    "`references` bevat altijd alle vijf velden `word`, `passage`, `status`, "
+    "`reading` en `candidates`, ook bij `non_referring`. Gebruik bij "
+    "`non_referring` en `no_antecedent` `candidates: []`; laat het veld niet "
+    "weg. Controleer vóór verzending dat het volledige antwoord aan deze "
+    "structuur voldoet. Zet een uitleg over de antwoordstructuur niet in plaats "
+    "van een inhoudelijk oordeel."
+)
+
+
 def _systeemprompt(norm: Mapping[str, str]) -> str:
     return (
         "Je bent een toetser van juridische en bestuurlijke begripsdefinities voor "
@@ -220,6 +235,7 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
         "reason zijn jouw interpretatie en mogen een ingesloten antecedent benoemen.\n"
         "- Geef geen cijfer, geen percentage en geen zelfgerapporteerd "
         "vertrouwenspercentage. Herschrijf de definitie niet.\n\n"
+        f"{_FORMAATINSTRUCTIE}\n\n"
         "Antwoord uitsluitend met één JSON-object en niets anders (geen tekst ervoor of "
         "erna, geen extra velden). Exact deze vijf velden:\n"
         "{\n"
@@ -294,7 +310,9 @@ class Int03AssessmentService:
     """Verkrijgt de AI-beoordeling van voornaamwoord-verwijzingen (INT-03)."""
 
     #: /1: eerste promptversie (DEF-772 WP3, K1(a)/K6/K7).
-    PROMPT_VERSION = "int03-assess/1"
+    #: /2: formele leverinstructie vóór het uitvoerblok (DEF-836); oordelen
+    #:     onder /1 worden daarmee historisch.
+    PROMPT_VERSION = "int03-assess/2"
     TASK_TYPE = "validation"
 
     def __init__(
