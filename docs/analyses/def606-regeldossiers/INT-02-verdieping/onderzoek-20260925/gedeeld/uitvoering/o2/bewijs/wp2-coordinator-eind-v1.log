@@ -1,0 +1,16 @@
+# sha256 dda9d274e3b7a93973f9df0bc3de0b422fe4d96d1766beb536162914a68c049e src/services/validation/int02_assessment_service.py
+# sha256 ca82cce18816e1f5b714678a5234596a536abb26ee202d56437d94a5173a0c1b tests/unit/validation/test_def835_int02_assessment_service.py
+# sha256 2efcd7ae505a58f2b93731b36fd763c718f073776745e7a28944dc4967426a0b tests/unit/services/prompts/test_def835_int02_prompt.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/services/prompts/test_def835_int02_prompt.py tests/unit/domain/test_def835_int02_contract.py tests/unit/validation/test_def771_int02_o1.py tests/unit/validation/test_def771_int02_contract.py tests/unit/services/prompts/test_def771_int02_promptnorm.py tests/unit/validation/test_def772_int03_assessment_service.py tests/unit/validation/test_def772_int03_evaluator.py tests/unit/validation/test_def766_ess03_assessment_service.py tests/unit/validation/test_def766_ess03_correcties_service.py tests/unit/validation/test_def766_ess03_truncation.py tests/unit/test_ai_service_v2_batch.py tests/unit/test_ai_service_v2_routing.py tests/unit/services/test_def766_ai_route_optins.py tests/unit/services/test_def766_ess03_eventloop_transport.py tests/unit/test_model_router.py -o addopts= -q -ra
+........................................................................ [ 11%]
+........................................................................ [ 23%]
+........................................................................ [ 34%]
+........................................................................ [ 46%]
+........................................................................ [ 58%]
+........................................................................ [ 69%]
+........................................................................ [ 81%]
+........................................................................ [ 92%]
+............................................                             [100%]
+620 passed in 4.01s
+
+# exitcode: 0

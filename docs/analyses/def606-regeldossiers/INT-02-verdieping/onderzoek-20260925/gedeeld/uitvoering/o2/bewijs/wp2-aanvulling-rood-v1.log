@@ -1,0 +1,195 @@
+# DEF-835 WP2 aanvullende tests RED (tegen ongewijzigde stub 0ee28d80) — 2026-09-27T07:48:18Z
+# HEAD b56e0e225e65eac00ad73239900d2e6c1bfc2422; stub-sha256 0ee28d808282daedf53ffca41143a8c0bb980911edec17a7f6ab655ba41a3add
+# commando: .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py -o addopts= -q -ra -k <aanvullingen>
+
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+___________ test_oneindigheid_in_het_antwoord_is_malformed[infinity] ___________
+
+constante = 'Infinity'
+
+    @pytest.mark.parametrize(
+        "constante", ["Infinity", "-Infinity"], ids=["infinity", "min-infinity"]
+    )
+    async def test_oneindigheid_in_het_antwoord_is_malformed(constante):
+        tekst = json.dumps(_fail_uitvoer()).replace('"none"', constante, 1)
+>       resultaat = await _dienst(FakeAI(tekst)).assess(_invoer())
+                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1028: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_assessment_service.py:209: in _dienst
+    return Int02AssessmentService(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10db93e00>
+ai_service = <test_def835_int02_assessment_service.FakeAI object at 0x10db934d0>
+model_router = <test_def835_int02_assessment_service.FakeRouter object at 0x10da9cf50>
+kwargs = {'budget': Budget(max_uitvoertokens=800, deadline_seconden=5.0, max_invoertekens_veld=2000, max_invoertekens_totaal=60...xture-offline-1', provider='fakeprovider', model='fake-int02-model', kwalificatie='testfixture; geen kwaliteitsclaim')}
+
+    def __init__(self, ai_service: Any, model_router: Any, **kwargs: Any) -> None:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:98: NotImplementedError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+__________________ test_norm_is_een_snapshot_bij_constructie ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c2b2b10>
+
+    async def test_norm_is_een_snapshot_bij_constructie(monkeypatch):
+>       oorspronkelijk = laad_int02_norm()
+                         ^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1077: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pad = None
+
+    def laad_int02_norm(pad: Any = None) -> Int02Norm:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:89: NotImplementedError
+___________________ test_antwoordgrens_geldt_voor_het_parsen ___________________
+
+    async def test_antwoordgrens_geldt_voor_het_parsen():
+        # Te lang én misvormd: de grens wint, er wordt niet eerst geparst.
+        tekst = "[" * 5000
+>       resultaat = await _dienst(
+            FakeAI(tekst), budget=_budget(max_antwoordtekens=100)
+        ).assess(_invoer())
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1056: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_assessment_service.py:209: in _dienst
+    return Int02AssessmentService(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10da9f110>
+ai_service = <test_def835_int02_assessment_service.FakeAI object at 0x10da9e350>
+model_router = <test_def835_int02_assessment_service.FakeRouter object at 0x10daba8b0>
+kwargs = {'budget': Budget(max_uitvoertokens=800, deadline_seconden=5.0, max_invoertekens_veld=2000, max_invoertekens_totaal=60...xture-offline-1', provider='fakeprovider', model='fake-int02-model', kwalificatie='testfixture; geen kwaliteitsclaim')}
+
+    def __init__(self, ai_service: Any, model_router: Any, **kwargs: Any) -> None:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:98: NotImplementedError
+_______ test_snapshot_bewaart_exacte_tekst_terwijl_de_log_die_niet_bevat _______
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10db93620>
+
+    async def test_snapshot_bewaart_exacte_tekst_terwijl_de_log_die_niet_bevat(caplog):
+        kern = f"Aanvraag die {GEHEIM} bevat."
+        invoer = _invoer(kern=kern)
+        with caplog.at_level(logging.DEBUG):
+>           resultaat = await _dienst(FakeAI("geen json")).assess(invoer)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1066: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_assessment_service.py:209: in _dienst
+    return Int02AssessmentService(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10da9f390>
+ai_service = <test_def835_int02_assessment_service.FakeAI object at 0x10da9ec10>
+model_router = <test_def835_int02_assessment_service.FakeRouter object at 0x10dabb360>
+kwargs = {'budget': Budget(max_uitvoertokens=800, deadline_seconden=5.0, max_invoertekens_veld=2000, max_invoertekens_totaal=60...xture-offline-1', provider='fakeprovider', model='fake-int02-model', kwalificatie='testfixture; geen kwaliteitsclaim')}
+
+    def __init__(self, ai_service: Any, model_router: Any, **kwargs: Any) -> None:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:98: NotImplementedError
+_________ test_oneindigheid_in_het_antwoord_is_malformed[min-infinity] _________
+
+constante = '-Infinity'
+
+    @pytest.mark.parametrize(
+        "constante", ["Infinity", "-Infinity"], ids=["infinity", "min-infinity"]
+    )
+    async def test_oneindigheid_in_het_antwoord_is_malformed(constante):
+        tekst = json.dumps(_fail_uitvoer()).replace('"none"', constante, 1)
+>       resultaat = await _dienst(FakeAI(tekst)).assess(_invoer())
+                          ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1028: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_assessment_service.py:209: in _dienst
+    return Int02AssessmentService(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10dc642b0>
+ai_service = <test_def835_int02_assessment_service.FakeAI object at 0x10dabbe10>
+model_router = <test_def835_int02_assessment_service.FakeRouter object at 0x10bf0d5b0>
+kwargs = {'budget': Budget(max_uitvoertokens=800, deadline_seconden=5.0, max_invoertekens_veld=2000, max_invoertekens_totaal=60...xture-offline-1', provider='fakeprovider', model='fake-int02-model', kwalificatie='testfixture; geen kwaliteitsclaim')}
+
+    def __init__(self, ai_service: Any, model_router: Any, **kwargs: Any) -> None:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:98: NotImplementedError
+___________ test_te_diepe_nesting_is_malformed_en_geen_uitzondering ____________
+
+    async def test_te_diepe_nesting_is_malformed_en_geen_uitzondering():
+        tekst = '{"verdict": ' + "[" * 200000 + "]" * 200000 + "}"
+        budget = _budget(max_antwoordtekens=1000000)
+>       resultaat = await _dienst(FakeAI(tekst), budget=budget).assess(_invoer())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1048: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_assessment_service.py:209: in _dienst
+    return Int02AssessmentService(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10dc64b00>
+ai_service = <test_def835_int02_assessment_service.FakeAI object at 0x10dabbbb0>
+model_router = <test_def835_int02_assessment_service.FakeRouter object at 0x10dc53130>
+kwargs = {'budget': Budget(max_uitvoertokens=800, deadline_seconden=5.0, max_invoertekens_veld=2000, max_invoertekens_totaal=60...xture-offline-1', provider='fakeprovider', model='fake-int02-model', kwalificatie='testfixture; geen kwaliteitsclaim')}
+
+    def __init__(self, ai_service: Any, model_router: Any, **kwargs: Any) -> None:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:98: NotImplementedError
+______ test_getal_boven_de_cijferlimiet_is_malformed_en_geen_uitzondering ______
+
+    async def test_getal_boven_de_cijferlimiet_is_malformed_en_geen_uitzondering():
+        uitvoer = _fail_uitvoer()
+        tekst = json.dumps(uitvoer).replace(
+            f'"start": {uitvoer["passages"][0]["start"]}', '"start": ' + "9" * 5000, 1
+        )
+        budget = _budget(max_antwoordtekens=100000)
+>       resultaat = await _dienst(FakeAI(tekst), budget=budget).assess(_invoer())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1040: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_assessment_service.py:209: in _dienst
+    return Int02AssessmentService(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10beedfd0>
+ai_service = <test_def835_int02_assessment_service.FakeAI object at 0x10beeda30>
+model_router = <test_def835_int02_assessment_service.FakeRouter object at 0x10dc48050>
+kwargs = {'budget': Budget(max_uitvoertokens=800, deadline_seconden=5.0, max_invoertekens_veld=2000, max_invoertekens_totaal=60...xture-offline-1', provider='fakeprovider', model='fake-int02-model', kwalificatie='testfixture; geen kwaliteitsclaim')}
+
+    def __init__(self, ai_service: Any, model_router: Any, **kwargs: Any) -> None:
+>       raise NotImplementedError
+E       NotImplementedError
+
+src/services/validation/int02_assessment_service.py:98: NotImplementedError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_oneindigheid_in_het_antwoord_is_malformed[infinity]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_norm_is_een_snapshot_bij_constructie
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_antwoordgrens_geldt_voor_het_parsen
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_snapshot_bewaart_exacte_tekst_terwijl_de_log_die_niet_bevat
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_oneindigheid_in_het_antwoord_is_malformed[min-infinity]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_te_diepe_nesting_is_malformed_en_geen_uitzondering
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_getal_boven_de_cijferlimiet_is_malformed_en_geen_uitzondering
+7 failed, 106 deselected in 0.70s
+# exitcode: 1

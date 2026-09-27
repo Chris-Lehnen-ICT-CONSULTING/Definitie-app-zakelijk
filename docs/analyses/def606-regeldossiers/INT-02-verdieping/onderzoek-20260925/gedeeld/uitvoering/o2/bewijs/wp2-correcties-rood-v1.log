@@ -1,0 +1,447 @@
+# DEF-835 WP2 correcties F1/F2/F3 — RED op ongewijzigde dienst — 2026-09-27T08:10:29Z
+# HEAD 0e336c6c4b40fd53d4a1ef3c2283f6a99691510f; branch feature/DEF-835-int02-o2
+# sha256 e2ab9f9aef0fbc536179481b10063373cab4b6adc3d7c22bb2cc630ff5154174  src/services/validation/int02_assessment_service.py
+# sha256 ca82cce18816e1f5b714678a5234596a536abb26ee202d56437d94a5173a0c1b  tests/unit/validation/test_def835_int02_assessment_service.py
+# sha256 2efcd7ae505a58f2b93731b36fd763c718f073776745e7a28944dc4967426a0b  tests/unit/services/prompts/test_def835_int02_prompt.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/services/prompts/test_def835_int02_prompt.py -o addopts= -q -ra
+
+..............................................................F...F..... [ 38%]
+...F......F...F.F..F....F....F...F.............F......F.......F......... [ 77%]
+............F.F..FF......F...........F....                               [100%]
+=================================== FAILURES ===================================
+_ test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[geen-bool-temperature] _
+
+router = <test_def835_int02_assessment_service.FakeRouter object at 0x10cb9a8b0>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10cd030e0>
+
+    @pytest.mark.parametrize(
+        "router",
+        [
+            FakeRouter(beleidsfout=RuntimeError("GEHEIM-BELEID-7Q")),
+            FakeRouter(temperature="ja"),
+            FakeRouter(thinking=None),
+            _RouterZonderBeleid(),
+        ],
+        ids=["fout", "geen-bool-temperature", "geen-bool-thinking", "geen-beleid"],
+    )
+    async def test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default(router, caplog):
+        ai = FakeAI()
+        with caplog.at_level(logging.DEBUG):
+            resultaat = await _dienst(ai, router).assess(_invoer())
+>       _assert_geblokkeerd(resultaat, ai, "router_policy_unavailable")
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+resultaat = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761')
+ai = <test_def835_int02_assessment_service.FakeAI object at 0x10cdb77a0>
+reden = 'router_policy_unavailable'
+
+    def _assert_geblokkeerd(resultaat, ai, reden):
+>       assert ai.calls == []
+E       AssertionError: assert [{'max_attemp...-model', ...}] == []
+E         
+E         Left contains one more item: {'max_attempts': 1, 'max_retries': 0, 'max_tokens': 800, 'model': 'fake-int02-model', ...}
+E         Use -v to get more diff
+
+tests/unit/validation/test_def835_int02_assessment_service.py:351: AssertionError
+_ test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[geen-bool-thinking] _
+
+router = <test_def835_int02_assessment_service.FakeRouter object at 0x10cb9a780>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10ccfca50>
+
+    @pytest.mark.parametrize(
+        "router",
+        [
+            FakeRouter(beleidsfout=RuntimeError("GEHEIM-BELEID-7Q")),
+            FakeRouter(temperature="ja"),
+            FakeRouter(thinking=None),
+            _RouterZonderBeleid(),
+        ],
+        ids=["fout", "geen-bool-temperature", "geen-bool-thinking", "geen-beleid"],
+    )
+    async def test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default(router, caplog):
+        ai = FakeAI()
+        with caplog.at_level(logging.DEBUG):
+            resultaat = await _dienst(ai, router).assess(_invoer())
+>       _assert_geblokkeerd(resultaat, ai, "router_policy_unavailable")
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+resultaat = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761')
+ai = <test_def835_int02_assessment_service.FakeAI object at 0x10ce518b0>
+reden = 'router_policy_unavailable'
+
+    def _assert_geblokkeerd(resultaat, ai, reden):
+>       assert ai.calls == []
+E       AssertionError: assert [{'max_attemp...-model', ...}] == []
+E         
+E         Left contains one more item: {'max_attempts': 1, 'max_retries': 0, 'max_tokens': 800, 'model': 'fake-int02-model', ...}
+E         Use -v to get more diff
+
+tests/unit/validation/test_def835_int02_assessment_service.py:351: AssertionError
+__ test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[iets_nieuws] __
+
+reden = 'iets_nieuws'
+
+    @pytest.mark.parametrize("reden", ["refusal", "pause_turn", "tool_use", "iets_nieuws"])
+    async def test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel(reden):
+        resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason=reden)).assess(
+            _invoer()
+        )
+>       assert resultaat.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1154: AssertionError
+_ test_f3_wachten_op_capaciteit_geeft_nul_providercalls_en_geen_verzonnen_poging _
+
+    async def test_f3_wachten_op_capaciteit_geeft_nul_providercalls_en_geen_verzonnen_poging():
+        provider = _Provider()
+        ai = _echte_ai(provider)
+        ai._get_client().rate_limiter.semaphore = asyncio.Semaphore(0)
+        resultaat = await _dienst(ai, budget=_budget(deadline_seconden=0.03)).assess(
+            _invoer()
+        )
+        assert resultaat.reden == "timeout"
+        assert provider.calls == []
+>       assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
+E       AssertionError: assert 1 == 'unknown'
+E        +  where 1 = Uitvoering(actor='ai', status='failed', foutcategorie='timeout', tijdstip='2026-09-27T08:10:30.816090+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=32, kosten='unknown', modelversie='unknown').transportpogingen
+E        +    where Uitvoering(actor='ai', status='failed', foutcategorie='timeout', tijdstip='2026-09-27T08:10:30.816090+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=32, kosten='unknown', modelversie='unknown') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...out. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.', vraag=None, foutcategorie='timeout', oordeel_json=None).uitvoering
+E        +      where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...out. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.', vraag=None, foutcategorie='timeout', oordeel_json=None) = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...='fixture-offline-1', task_type='validation', uitzonderingstype='TimeoutError', stop_reason=None, antwoord_sha256=None).document
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1312: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:818 INT-02: beoordeling mislukt (timeout; TimeoutError)
+____ test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[refusal] ____
+
+reden = 'refusal'
+
+    @pytest.mark.parametrize("reden", ["refusal", "pause_turn", "tool_use", "iets_nieuws"])
+    async def test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel(reden):
+        resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason=reden)).assess(
+            _invoer()
+        )
+>       assert resultaat.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1154: AssertionError
+______ test_f3_uitzondering_van_de_ai_laag_geeft_onbekend_aantal_pogingen ______
+
+    async def test_f3_uitzondering_van_de_ai_laag_geeft_onbekend_aantal_pogingen():
+        resultaat = await _dienst(FakeAI(AIServiceError("x"))).assess(_invoer())
+        assert resultaat.status == "error"
+>       assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
+E       AssertionError: assert 1 == 'unknown'
+E        +  where 1 = Uitvoering(actor='ai', status='failed', foutcategorie='transport', tijdstip='2026-09-27T08:10:30.880986+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=0, kosten='unknown', modelversie='unknown').transportpogingen
+E        +    where Uitvoering(actor='ai', status='failed', foutcategorie='transport', tijdstip='2026-09-27T08:10:30.880986+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=0, kosten='unknown', modelversie='unknown') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...t. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.', vraag=None, foutcategorie='transport', oordeel_json=None).uitvoering
+E        +      where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...t. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.', vraag=None, foutcategorie='transport', oordeel_json=None) = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...fixture-offline-1', task_type='validation', uitzonderingstype='AIServiceError', stop_reason=None, antwoord_sha256=None).document
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1318: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:818 INT-02: beoordeling mislukt (connection; AIServiceError)
+_____ test_f1_ontbrekende_stopreden_is_geen_oordeel_en_wordt_niet_gecachet _____
+
+    async def test_f1_ontbrekende_stopreden_is_geen_oordeel_en_wordt_niet_gecachet():
+        ai = FakeAI(_fail_uitvoer(), _fail_uitvoer(), stop_reason=None)
+        dienst = _dienst(ai)
+        eerste = await dienst.assess(_invoer())
+        tweede = await dienst.assess(_invoer())
+>       assert eerste.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1141: AssertionError
+____ test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt _____
+
+    async def test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt():
+        # Ook finish_reason "stop" bereikt de dienst niet: bewuste beperking.
+        resultaat = await _openai_dienst(_OpenAISDK("stop")).assess(_invoer())
+>       assert resultaat.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1220: AssertionError
+___ test_echte_ai_laag_verbindingsfout_geeft_een_poging_ondanks_retryconfig ____
+
+    async def test_echte_ai_laag_verbindingsfout_geeft_een_poging_ondanks_retryconfig():
+        provider = _Provider(AIConnectionClientError("x"), _fail_uitvoer())
+        resultaat = await _dienst(_echte_ai(provider)).assess(_invoer())
+        assert len(provider.calls) == 1
+        assert resultaat.status == "error"
+        assert resultaat.document.foutcategorie == "transport"
+        # Herijkt (review F3): het ene providercall is hierboven aan de netwerkgrens
+        # gemeten; de dienst zelf kan dat via de interface niet vaststellen.
+>       assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
+E       AssertionError: assert 1 == 'unknown'
+E        +  where 1 = Uitvoering(actor='ai', status='failed', foutcategorie='transport', tijdstip='2026-09-27T08:10:30.971704+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=0, kosten='unknown', modelversie='unknown').transportpogingen
+E        +    where Uitvoering(actor='ai', status='failed', foutcategorie='transport', tijdstip='2026-09-27T08:10:30.971704+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=0, kosten='unknown', modelversie='unknown') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...t. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.', vraag=None, foutcategorie='transport', oordeel_json=None).uitvoering
+E        +      where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...t. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.', vraag=None, foutcategorie='transport', oordeel_json=None) = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...fixture-offline-1', task_type='validation', uitzonderingstype='AIServiceError', stop_reason=None, antwoord_sha256=None).document
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1036: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    utils.async_api:async_api.py:285 API call failed after 1 attempts
+ERROR    utils.async_api:async_api.py:212 API call failed: x
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 0.333 gt 0.1 (Severity: error)
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:818 INT-02: beoordeling mislukt (connection; AIServiceError)
+_______ test_f2_elk_beleidsonderdeel_verandert_de_binding[thinking-True] _______
+
+veld = 'thinking', waarde = True
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"), [("temperature", False), ("thinking", True)]
+    )
+    async def test_f2_elk_beleidsonderdeel_verandert_de_binding(veld, waarde):
+        basis = await _dienst(FakeAI(_fail_uitvoer())).assess(_invoer())
+        router = FakeRouter(**{veld: waarde})
+        ander = await _dienst(FakeAI(_fail_uitvoer()), router).assess(_invoer())
+        assert ander.status == "fail"
+>       assert ander.document.binding != basis.document.binding
+E       assert Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a') != Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a')
+E        +  where Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}').binding
+E        +    where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}') = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761').document
+E        +  and   Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}').binding
+E        +    where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}') = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761').document
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1273: AssertionError
+________ test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel ________
+
+    async def test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel():
+        sdk = _OpenAISDK("length")
+        dienst = _openai_dienst(sdk)
+        eerste = await dienst.assess(_invoer())
+        tweede = await dienst.assess(_invoer())
+>       assert eerste.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1209: AssertionError
+_________________ test_f1_openai_afkapreden_length_is_afgekapt _________________
+
+    async def test_f1_openai_afkapreden_length_is_afgekapt():
+        resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason="length")).assess(
+            _invoer()
+        )
+>       assert resultaat.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1163: AssertionError
+_______ test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[fout] _______
+
+router = <test_def835_int02_assessment_service.FakeRouter object at 0x10caab9d0>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10cd91d50>
+
+    @pytest.mark.parametrize(
+        "router",
+        [
+            FakeRouter(beleidsfout=RuntimeError("GEHEIM-BELEID-7Q")),
+            FakeRouter(temperature="ja"),
+            FakeRouter(thinking=None),
+            _RouterZonderBeleid(),
+        ],
+        ids=["fout", "geen-bool-temperature", "geen-bool-thinking", "geen-beleid"],
+    )
+    async def test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default(router, caplog):
+        ai = FakeAI()
+        with caplog.at_level(logging.DEBUG):
+            resultaat = await _dienst(ai, router).assess(_invoer())
+>       _assert_geblokkeerd(resultaat, ai, "router_policy_unavailable")
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+resultaat = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761')
+ai = <test_def835_int02_assessment_service.FakeAI object at 0x10d18b9a0>
+reden = 'router_policy_unavailable'
+
+    def _assert_geblokkeerd(resultaat, ai, reden):
+>       assert ai.calls == []
+E       AssertionError: assert [{'max_attemp...-model', ...}] == []
+E         
+E         Left contains one more item: {'max_attempts': 1, 'max_retries': 0, 'max_tokens': 800, 'model': 'fake-int02-model', ...}
+E         Use -v to get more diff
+
+tests/unit/validation/test_def835_int02_assessment_service.py:351: AssertionError
+_____ test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata ______
+
+    async def test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata():
+        ai = FakeAI(_fail_uitvoer())
+        norm = laad_int02_norm()
+        invoer = _invoer()
+        resultaat = await _dienst(ai).assess(invoer, correlation_id="c-1")
+        doc = resultaat.document
+        assert resultaat.status == "fail"
+        assert resultaat.melding.startswith(f"INT-02 — Voldoet niet. '{PASSAGE}'")
+        assert doc.oordeel == _fail_uitvoer()
+        assert doc.invoer == invoer
+        assert resultaat.reden is None
+        assert resultaat.gecachet is False
+        assert resultaat.task_type == "validation"
+        assert resultaat.profiel_id == "fixture-offline-1"
+        assert resultaat.promptversie == PROMPT_VERSION
+        assert len(resultaat.prompt_sha256) == 64
+        assert len(resultaat.antwoord_sha256) == 64
+        assert resultaat.uitzonderingstype is None
+        binding = doc.binding
+        assert binding.provider == PROVIDER
+        assert binding.model == MODEL
+        assert binding.normversie == NORMVERSIE
+        assert binding.normhash == norm.normhash
+        assert binding.promptversie == PROMPT_VERSION
+        uitvoering = doc.uitvoering
+        assert uitvoering.actor == "ai"
+        assert uitvoering.status == "completed"
+        # Herijkt (review F3): de interface meldt het aantal pogingen niet; de
+        # eerdere 1 was de beginwaarde van de logteller, geen meting.
+>       assert uitvoering.transportpogingen == ONBEKEND
+E       AssertionError: assert 1 == 'unknown'
+E        +  where 1 = Uitvoering(actor='ai', status='completed', foutcategorie=None, tijdstip='2026-09-27T08:10:31.230333+00:00', transportpogingen=1, invoertokens='unknown', uitvoertokens='unknown', duur_ms=0, kosten='unknown', modelversie='unknown').transportpogingen
+
+tests/unit/validation/test_def835_int02_assessment_service.py:731: AssertionError
+_____ test_f2_elk_beleidsonderdeel_verandert_de_binding[temperature-False] _____
+
+veld = 'temperature', waarde = False
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"), [("temperature", False), ("thinking", True)]
+    )
+    async def test_f2_elk_beleidsonderdeel_verandert_de_binding(veld, waarde):
+        basis = await _dienst(FakeAI(_fail_uitvoer())).assess(_invoer())
+        router = FakeRouter(**{veld: waarde})
+        ander = await _dienst(FakeAI(_fail_uitvoer()), router).assess(_invoer())
+        assert ander.status == "fail"
+>       assert ander.document.binding != basis.document.binding
+E       assert Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a') != Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a')
+E        +  where Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}').binding
+E        +    where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}') = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761').document
+E        +  and   Binding(contractversie='def835-int02-assessment/1', normversie='def771-int02/2', normhash='df1ff9a992ac059820240aa8ff2...0a9eeff2528a777741dd44110f74659ac687', bronnen_hash='59c2873c57123bef0a584363db09ab2763d6cabab8265c9827af0f8ef173353a') = Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}').binding
+E        +    where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='aanvraag', kern='Aanvraag ...passage schrijft de behandelaar een handeling voor.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}') = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761').document
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1273: AssertionError
+___ test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[tool_use] ____
+
+reden = 'tool_use'
+
+    @pytest.mark.parametrize("reden", ["refusal", "pause_turn", "tool_use", "iets_nieuws"])
+    async def test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel(reden):
+        resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason=reden)).assess(
+            _invoer()
+        )
+>       assert resultaat.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1154: AssertionError
+___ test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[geen-beleid] ____
+
+router = <test_def835_int02_assessment_service._RouterZonderBeleid object at 0x10c9a6f90>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10d15a6d0>
+
+    @pytest.mark.parametrize(
+        "router",
+        [
+            FakeRouter(beleidsfout=RuntimeError("GEHEIM-BELEID-7Q")),
+            FakeRouter(temperature="ja"),
+            FakeRouter(thinking=None),
+            _RouterZonderBeleid(),
+        ],
+        ids=["fout", "geen-bool-temperature", "geen-bool-thinking", "geen-beleid"],
+    )
+    async def test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default(router, caplog):
+        ai = FakeAI()
+        with caplog.at_level(logging.DEBUG):
+            resultaat = await _dienst(ai, router).assess(_invoer())
+>       _assert_geblokkeerd(resultaat, ai, "router_policy_unavailable")
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1295: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+resultaat = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761')
+ai = <test_def835_int02_assessment_service.FakeAI object at 0x10cf7cec0>
+reden = 'router_policy_unavailable'
+
+    def _assert_geblokkeerd(resultaat, ai, reden):
+>       assert ai.calls == []
+E       AssertionError: assert [{'max_attemp...-model', ...}] == []
+E         
+E         Left contains one more item: {'max_attempts': 1, 'max_retries': 0, 'max_tokens': 800, 'model': 'fake-int02-model', ...}
+E         Use -v to get more diff
+
+tests/unit/validation/test_def835_int02_assessment_service.py:351: AssertionError
+______ test_f2_gewijzigd_beleid_bij_zelfde_model_geen_cache_en_historisch ______
+
+    async def test_f2_gewijzigd_beleid_bij_zelfde_model_geen_cache_en_historisch():
+        config, router, provider, model = _router_met_beleid()
+        adapter = AnthropicClient(api_key="offline-testsleutel", model_router=router)
+        oud_beleid = repr(adapter._verzendbeleid(model, 0.0))
+        profiel = _profiel(provider=provider, model=model)
+        ai = FakeAI(_fail_uitvoer(), _fail_uitvoer())
+        dienst = _dienst(ai, router, profiel=profiel)
+        oud = await dienst.assess(_invoer())
+        for beleid in config["capabilities"][provider].values():
+            beleid["model_families"].clear()
+        # Het echte verzendbeleid van de bestaande adapter is werkelijk veranderd.
+        assert repr(adapter._verzendbeleid(model, 0.0)) != oud_beleid
+        assert router.get_model("validation") == (provider, model)
+        nieuw = await dienst.assess(_invoer())
+>       assert nieuw.gecachet is False
+E       AssertionError: assert True is False
+E        +  where True = Int02Beoordeling(document=Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='...stype=None, stop_reason='end_turn', antwoord_sha256='4022304329c320639be38f15811d0a5208c87101bdefb369b39609136cc79761').gecachet
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1253: AssertionError
+__ test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[pause_turn] ___
+
+reden = 'pause_turn'
+
+    @pytest.mark.parametrize("reden", ["refusal", "pause_turn", "tool_use", "iets_nieuws"])
+    async def test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel(reden):
+        resultaat = await _dienst(FakeAI(_fail_uitvoer(), stop_reason=reden)).assess(
+            _invoer()
+        )
+>       assert resultaat.status == "error"
+E       AssertionError: assert 'fail' == 'error'
+E         
+E         - error
+E         + fail
+
+tests/unit/validation/test_def835_int02_assessment_service.py:1154: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[geen-bool-temperature]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[geen-bool-thinking]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[iets_nieuws]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f3_wachten_op_capaciteit_geeft_nul_providercalls_en_geen_verzonnen_poging
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[refusal]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f3_uitzondering_van_de_ai_laag_geeft_onbekend_aantal_pogingen
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_ontbrekende_stopreden_is_geen_oordeel_en_wordt_niet_gecachet
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_echte_ai_laag_verbindingsfout_geeft_een_poging_ondanks_retryconfig
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_elk_beleidsonderdeel_verandert_de_binding[thinking-True]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_openai_afkapreden_length_is_afgekapt
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[fout]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_elk_beleidsonderdeel_verandert_de_binding[temperature-False]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[tool_use]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default[geen-beleid]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_gewijzigd_beleid_bij_zelfde_model_geen_cache_en_historisch
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_onbekende_of_niet_afgeronde_stopreden_is_geen_oordeel[pause_turn]
+19 failed, 167 passed in 1.58s
+# exitcode: 1
