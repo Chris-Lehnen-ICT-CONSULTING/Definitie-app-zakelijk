@@ -194,6 +194,8 @@ T_FASES = ("ontwikkeling", "t_eind", "t_herhaling")
 G_FASES = ("g_ontwikkeling", "g")
 #: R8: alleen de verificatiestap op bevroren, gemigreerde concepten.
 V_FASES = ("verificatie_alleen",)
+#: R15: lokale controles, elk één afzonderlijke verificatieaanroep per pakket.
+L_FASES = ("lokale_verificatie",)
 BASISCOMMIT = "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3"
 #: Buitenste annuleringsmarge boven de dienstdeadline (s).
 MARGE_S = 10
@@ -217,6 +219,9 @@ _CODEBESTANDEN = (
     # R8-offsetherstel: modeluitvoerparser van transport en ESS-05-replay.
     "src/domain/modeluitvoer.py",
     "src/services/validation/ess05_verification_service.py",
+    # R15 (fase A bewijsisolatie): lokaal controlepakket en lokale verificatie.
+    "src/domain/ess05/lokale_controle.py",
+    "src/services/validation/ess05_local_verification_service.py",
     "src/domain/ess03/contract.py",
     "src/domain/context/contract.py",
     "src/domain/context/normalisatie.py",
@@ -600,6 +605,40 @@ R14_CONTRACT = MappingProxyType(
 #: Ronde 14: USD 25 − werkelijke R8–R13-kosten (USD 1,669590); het lokale
 #: plafond (USD 4,20) ligt daar bewust onder.
 R14_KADERREST_NUSD = 23_330_410_000
+#: Ronde 15 (fase A bewijsisolatie): eigen rapportroot, grootboek, anker, slot
+#: en freeze (l). Invoer: de vier vooraf vastgelegde lokale controles.
+R15_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R15"
+R15_L_INVOER_SHA256 = "823cd361884823f777fa4cb1d6343aefc164de08884437649887720460fdc14c"
+#: Ronde 15: het besluit, afgeleid uit de opdracht van Chris ("Akkoord om het
+#: zo op te pakken", 27-09, isolatie-gebruikersopdracht-v1.json), gepind.
+R15_BUDGETBESLUIT = (
+    PROJECT_ROOT
+    / "logs"
+    / "def768"
+    / "ronde15-lokale-verificatie-budgetbesluit-v1.json"
+)
+R15_BUDGETBESLUIT_SHA256 = (
+    "c290321ce66cbde67062334aa9c5d342d2eb2b73e2d63f39ede44397d1f90e93"
+)
+#: Ronde 15: de lokale contractversies en systeemprompts per rol, naast het
+#: ongewijzigde productcontract; een tekstwijziging zonder versiebump weigert.
+R15_LOKAAL_CONTRACT = MappingProxyType(
+    {
+        "local_verification_prompt_version": "ess05-local-verify/1",
+        "local_packet_schema_version": "ess05-local-packet/1",
+        "local_verification_schema_version": "ess05-local-verification/1",
+        "local_system_prompt_material_sha256": (
+            "aae27b45fe3c432603cdf1e7c8a0e3dd3ae755e118590ec442887dbaebd2b8d8"
+        ),
+        "local_system_prompt_inference_sha256": (
+            "ab2a99285dfa71db963ecd35f72f96cabe4b6976952330c279d9d1c67794b227"
+        ),
+    }
+)
+#: Ronde 15: USD 25 − werkelijke R8–R14-kosten (USD 2,770040).
+R15_KADERREST_NUSD = 22_229_960_000
+#: Ronde 15: de kop van het afgesloten R14-grootboek (11 calls, 0 open).
+R14_KOP_SHA256 = "62ed0d58a055ef5d1e379c48a5df9a9e308e47ed063377429859a8c04a83987b"
 
 
 @dataclass(frozen=True)
@@ -634,6 +673,12 @@ class Proef:
     #: wanneer het eigen plafond daar bewust onder ligt; het besluit noemt die
     #: rest exact. None = het plafond ís de rest (R9–R11).
     kaderrest_nusd: int | None = None
+    #: R15: vastgelegde lokale invoer (sha256 van het bestand).
+    l_invoer_sha256: str | None = None
+    #: R15: de lokale contractversies (`lokale_contractidentiteit`).
+    lokaal_contract: Mapping[str, str] | None = None
+    #: R15: de verwachte kop van het grootboek van de directe voorganger.
+    voorganger_kop_sha256: str | None = None
 
 
 PROEVEN = {
@@ -828,6 +873,26 @@ PROEVEN = {
         contract=R14_CONTRACT,
         kaderrest_nusd=R14_KADERREST_NUSD,
     ),
+    # Ronde 15: fase A bewijsisolatie binnen het gepinde besluit (4 lokale
+    # controles, plafond USD 1,50, cumulatief 391, reserve 0). Productcontract
+    # ongewijzigd (answer/3, verify/4); daarnaast het lokale contract en de kop
+    # van het R14-grootboek.
+    "R15": Proef(
+        "R15",
+        gb.R15,
+        Proefopslag(R15_UITMAP),
+        True,
+        True,
+        budgetbesluit=R15_BUDGETBESLUIT,
+        budgetbesluit_sha256=R15_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R14_CONTRACT,
+        kaderrest_nusd=R15_KADERREST_NUSD,
+        l_invoer_sha256=R15_L_INVOER_SHA256,
+        lokaal_contract=R15_LOKAAL_CONTRACT,
+        voorganger_kop_sha256=R14_KOP_SHA256,
+    ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
 STANDAARD_PROEF = PROEVEN["R1"]
@@ -841,6 +906,8 @@ def _controleer_ontwikkelinvoer(proef: Proef, fase: str, pad: Path) -> None:
         verwacht, soort = proef.g_ontwikkelinvoer_sha256, "G-ontwikkelinvoer"
     elif fase in V_FASES:
         verwacht, soort = proef.v_invoer_sha256, "verifier-only-invoer"
+    elif fase in L_FASES:
+        verwacht, soort = proef.l_invoer_sha256, "lokale invoer"
     else:
         return
     if verwacht is None or _sha_bestand(pad) != verwacht:
@@ -1168,6 +1235,57 @@ def contractidentiteit(omg: Omgeving) -> dict[str, str]:
         "concept_schema_version": bewijs.CONCEPTSCHEMA,
         "verification_schema_version": bewijs.VERIFICATIESCHEMA,
     }
+
+
+def lokale_contractidentiteit() -> dict[str, str]:
+    """R15: lokale prompt- en schemaversies plus de systeemprompts per rol."""
+    from domain.ess05.bewijs import ROL_GEVOLGTREKKING, ROL_MATERIAAL
+    from domain.ess05.lokale_controle import LOKAAL_VERIFICATIESCHEMA, PAKKETSCHEMA
+    from services.validation.ess05_local_verification_service import (
+        Ess05LocalVerificationService,
+        lokale_systeemprompt,
+    )
+
+    return {
+        "local_verification_prompt_version": Ess05LocalVerificationService.PROMPT_VERSION,
+        "local_packet_schema_version": PAKKETSCHEMA,
+        "local_verification_schema_version": LOKAAL_VERIFICATIESCHEMA,
+        "local_system_prompt_material_sha256": _sha_tekst(
+            lokale_systeemprompt(ROL_MATERIAAL)
+        ),
+        "local_system_prompt_inference_sha256": _sha_tekst(
+            lokale_systeemprompt(ROL_GEVOLGTREKKING)
+        ),
+    }
+
+
+def _controleer_lokaal_contract(proef: Proef) -> None:
+    """R15: de code draagt exact de vastgelegde lokale versies (vóór alles)."""
+    if proef.lokaal_contract is None:
+        return
+    werkelijk = lokale_contractidentiteit()
+    vast = dict(proef.lokaal_contract)
+    if {k: werkelijk.get(k) for k in vast} != vast:
+        msg = (
+            f"ronde {proef.naam}: lokale contractidentiteit {werkelijk} is niet de "
+            f"vastgelegde {vast} — geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
+
+
+def _controleer_voorgangerkop(
+    proef: Proef, voorganger: tuple[gb.Grootboek, ...] | None
+) -> None:
+    """R15: het grootboek van de directe voorganger staat exact op de vastgelegde kop."""
+    if proef.voorganger_kop_sha256 is None:
+        return
+    kop = voorganger[0].samenvatting()["kop_sha256"] if voorganger else None
+    if kop != proef.voorganger_kop_sha256:
+        msg = (
+            f"ronde {proef.naam}: voorgangergrootboek staat op kop {kop}, "
+            f"vastgelegd is {proef.voorganger_kop_sha256} — geen call gestart"
+        )
+        raise gb.BudgetSchendingError(msg)
 
 
 def _controleer_contract(omg: Omgeving, proef: Proef) -> None:
@@ -1524,8 +1642,9 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
         "code_sha256": code_sha256(),
         "effectieve_config_sha256": pi.sha_json(effectieve_config(omg)),
     }
-    # R8: V bevriest op dezelfde T-code en -configuratie; R12-01: R720 (o) ook.
-    if groep in ("t", "v", "o"):
+    # R8: V bevriest op dezelfde T-code en -configuratie; R12-01: R720 (o) ook;
+    # R15: de lokale controles (l) ook, plus hun lokale contract.
+    if groep in ("t", "v", "o", "l"):
         velden["prompt_version"] = omg.dienst.PROMPT_VERSION
         velden["verification_prompt_version"] = (
             omg.dienst.verification_service.PROMPT_VERSION
@@ -1534,6 +1653,8 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
         velden["norm_sha256"] = omg.dienst.norm_sha256
         if proef.contract is not None:  # R9; freezes van R8 en ouder ongewijzigd
             velden.update(contractidentiteit(omg))
+        if groep == "l":
+            velden.update(lokale_contractidentiteit())
     else:
         velden["g_actueel_instructie_sha256"] = _sha_tekst(pi.huidige_g_instructie())
     return velden
@@ -3069,6 +3190,411 @@ async def voer_v_fase(
     return samenvatting
 
 
+# --- L (R15: lokale controles, fase A bewijsisolatie) ---------------------------------------
+
+#: Vooraf vastgelegde verwachting per soort lokale controle.
+_L_VERWACHT = {"negatief": "unsupported", "positief": "supported"}
+
+
+@dataclass(frozen=True)
+class _LItem:
+    """Eén vooraf vastgelegde lokale controle, opnieuw gebonden aan de huidige code."""
+
+    sleutel: str
+    item: dict[str, Any]
+    pakket: Any
+    prompt: tuple[str, str]
+
+
+def _l_pakket(spec: Mapping[str, Any], materiaal, buurtermen) -> Any:
+    from domain.ess05 import lokale_controle as lc
+
+    if spec.get("rol") == "material":
+        refs = [
+            lc.Citaatverwijzing(c["material_id"], c["start"], c["end"])
+            for c in spec["citaten"]
+        ]
+        return lc.bouw_materiaalpakket(
+            spec["uitspraak"], refs, materiaal, buurtermen=buurtermen
+        )
+    if spec.get("rol") == "inference":
+        return lc.bouw_gevolgtrekkingspakket(spec["uitspraak"], spec["premissen"])
+    msg = f"onbekende rol {spec.get('rol')!r} in de lokale invoer"
+    raise pi.InvoerfoutError(msg)
+
+
+def valideer_l_invoer(data: Any, omg: Omgeving) -> list[_LItem]:
+    """De lokale invoer, volledig opnieuw gebonden vóór grootboek en netwerk.
+
+    Per item: gevalhash en materiaalhashes; het pakket opnieuw opgebouwd uit
+    de specificatie en gelijk aan het vastgelegde pakket, zijn hash en (bij
+    material) zijn citaatbinding; de promptshash van de huidige code; de
+    verwachting die bij de soort hoort. Unieke ID's en unieke pakketten.
+    """
+    from domain.ess05.lokale_controle import PakketfoutError
+    from services.validation.ess05_local_verification_service import (
+        bouw_lokale_prompt,
+    )
+    from services.validation.ess05_verification_service import prompthash
+
+    if (
+        not isinstance(data, dict)
+        or data.get("schema") != "def768-ess05-lokale-invoer/1"
+        or not isinstance(data.get("items"), list)
+        or not data["items"]
+    ):
+        msg = "lokale invoer heeft niet het schema def768-ess05-lokale-invoer/1"
+        raise pi.InvoerfoutError(msg)
+    ids = [item.get("id") for item in data["items"]]
+    hashes = [item.get("pakket_hash") for item in data["items"]]
+    if len(set(ids)) != len(ids) or len(set(hashes)) != len(hashes):
+        msg = f"lokale invoer heeft dubbele ids of pakketten: {ids}"
+        raise pi.InvoerfoutError(msg)
+    uit = []
+    for item in data["items"]:
+        naam = item["id"]
+        geval = item["geval"]
+        if pi.sha_json(geval) != item["geval_sha256"]:
+            msg = f"{naam}: geval wijkt af van geval_sha256"
+            raise pi.InvoerfoutError(msg)
+        materiaal, buren, _ = mig.verificatiemateriaal(geval, omg.norm)
+        if {m: _sha_tekst(t) for m, t in materiaal.items()} != item["materiaal_sha256"]:
+            msg = f"{naam}: materiaal wijkt af van de bevroren materiaalhashes"
+            raise pi.InvoerfoutError(msg)
+        try:
+            pakket = _l_pakket(
+                item["specificatie"], materiaal, {b.id: b.term for b in buren}
+            )
+        except PakketfoutError as exc:
+            msg = f"{naam}: pakket niet op te bouwen ({exc})"
+            raise pi.InvoerfoutError(msg) from exc
+        if (
+            dict(pakket.inhoud) != item["pakket"]
+            or pakket.hash != item["pakket_hash"]
+            or pakket.binding.get("citaten") != item["binding"].get("citaten")
+        ):
+            msg = f"{naam}: pakket wijkt af van het vastgelegde pakket of zijn binding"
+            raise pi.InvoerfoutError(msg)
+        system, user = bouw_lokale_prompt(pakket)
+        if prompthash(system, user) != item["prompt_sha256"]:
+            msg = f"{naam}: lokale prompt wijkt af van de bevroren invoer"
+            raise pi.InvoerfoutError(msg)
+        if _L_VERWACHT.get(item.get("soort")) != item.get("verwacht"):
+            msg = f"{naam}: soort en verwachting horen niet bij elkaar"
+            raise pi.InvoerfoutError(msg)
+        uit.append(_LItem(f"lokale_verificatie|{naam}|1", item, pakket, (system, user)))
+    return uit
+
+
+def _l_acceptatie(
+    li: _LItem, resultaat: Any, status: str, schending: str | None
+) -> tuple[bool, str]:
+    """De vooraf vastgelegde uitkomst, exact; een fout is nooit een uitkomst."""
+    if schending:
+        return False, f"bewakingsweigering: {schending}"
+    if resultaat is None:
+        return False, f"runtimefout zonder verificatieresultaat ({status})"
+    if resultaat.fout is not None:
+        return False, f"geen uitkomst: {resultaat.fout} ({status})"
+    verwacht = li.item["verwacht"]
+    if resultaat.uitkomst == verwacht:
+        return True, f"verwachte uitkomst {verwacht}"
+    return False, f"uitkomst {resultaat.uitkomst}, verwacht {verwacht}"
+
+
+def _l_technisch_afgerond(
+    schending: str | None, fout: str | None, status: str, resultaat: Any
+) -> tuple[bool, str]:
+    """Zoals `_v_technisch_afgerond`; een providerweigering stopt eveneens."""
+    if resultaat is not None and resultaat.fout == "refusal":
+        return False, "weigering door de provider"
+    return _v_technisch_afgerond(schending, fout, status)
+
+
+async def _l_call(
+    omg: Omgeving,
+    boek: gb.Grootboek,
+    dienst: Any,
+    *,
+    fase: str,
+    li: _LItem,
+    bestand_sha: str,
+    binding: dict[str, Any] | None,
+    code_sha: str,
+    config_sha: str,
+    callmap: Path,
+    besluit: str | None = None,
+) -> dict[str, Any]:
+    """Eén lokale controle: één reservering, één afzonderlijk verzoek."""
+    from services.validation.ess05_verification_service import aanroepgrens
+
+    poging = gb.Stappenpoging(
+        boek,
+        fase=fase,
+        poging=li.sleutel,
+        stappen=((dienst.TASK_TYPE, "verificatie"),),
+        invoer_sha256=bestand_sha,
+        binding=binding,
+        details={
+            "item": li.item["id"],
+            "pakket_hash": li.pakket.hash,
+            "prompt_sha256": li.item["prompt_sha256"],
+            "code_sha256": code_sha,
+            "config_sha256": config_sha,
+            **({"budgetbesluit_sha256": besluit} if besluit else {}),
+        },
+    )
+    resultaat, fout, afbraak = None, None, "afgebroken"
+    annulering: asyncio.CancelledError | None = None
+    start = time.perf_counter()
+    try:
+        with aanroepgrens(poging.stap):
+            resultaat = await asyncio.wait_for(
+                dienst.verifieer(li.pakket), timeout=_buitenste_deadline(omg, 1)
+            )
+    except TimeoutError:
+        fout = "buitenste deadline verstreken; aanroep geannuleerd"
+    except Exception as exc:
+        fout = gb.scrub(f"{type(exc).__name__}: {exc}")
+        afbraak = "niet_verzonden"
+    except asyncio.CancelledError as exc:
+        fout = "aanroep geannuleerd; wordt na registratie doorgegeven"
+        annulering = exc
+    finally:
+        statussen = [
+            _v_status(resultaat, omg.netwerk_gestart(r), afbraak)
+            for _, _, r in poging.gereserveerd
+        ]
+        gesloten = _sluit_met_statussen(omg, boek, poging, statussen)
+    duur = round(time.perf_counter() - start, 3)
+    stappen = _stapregistratie(omg, gesloten, None)
+    for stap in stappen:
+        stap["attributie"] = dict(resultaat.attributie) if resultaat else None
+    status = stappen[-1]["afsluitstatus"] if stappen else "niet_verzonden"
+    acceptatie = stop = None
+    if stappen:
+        geaccepteerd, reden = _l_acceptatie(li, resultaat, status, poging.schending)
+        afgerond, technisch = _l_technisch_afgerond(
+            poging.schending, fout, status, resultaat
+        )
+        acceptatie = {
+            "geaccepteerd": geaccepteerd,
+            "reden": f"{technisch}; inhoud: {reden}",
+            "technisch_afgerond": afgerond,
+        }
+        stop = {"geaccepteerd": afgerond, "reden": technisch}
+    system, user = li.prompt
+    record = {
+        "schema": "def768-ess05-lokalecall/1",
+        "fase": fase,
+        "sleutel": li.sleutel,
+        "seq": stappen[0]["seq"] if stappen else None,
+        "item_id": li.item["id"],
+        "soort": li.item["soort"],
+        "verwacht": li.item["verwacht"],
+        "bereik": "alleen deze lokale controle; geen volledig geverifieerd concept",
+        "herkomst": li.item["herkomst"],
+        "invoerbestand_sha256": bestand_sha,
+        "geval_sha256": li.item["geval_sha256"],
+        "pakket_hash": li.pakket.hash,
+        "binding": li.item["binding"],
+        "afsluitstatus": status,
+        "fout": fout,
+        "duur_s": duur,
+        "prompt": {
+            "system": system,
+            "user": user,
+            "sha256": li.item["prompt_sha256"],
+            "komt_overeen_met_dienst": bool(resultaat)
+            and resultaat.invoer.get("prompt_sha256") == li.item["prompt_sha256"],
+        },
+        "ruw_antwoord": stappen[0]["ruw_antwoord"] if stappen else None,
+        "lokale_verificatie": (
+            {
+                "uitkomst": resultaat.uitkomst,
+                "bevinding": resultaat.bevinding,
+                "fout": resultaat.fout,
+                "melding": resultaat.melding,
+                "ruw": dict(resultaat.ruw) if resultaat.ruw else None,
+                "raw_response_sha256": resultaat.raw_hash,
+                "verified_at": resultaat.verified_at,
+                "invoer": dict(resultaat.invoer),
+                "attributie": dict(resultaat.attributie),
+            }
+            if resultaat is not None
+            else None
+        ),
+        "reserveringen": stappen,
+        "tokens": _tokens(stappen),
+        "latentie_s": {
+            "verificatie": round(resultaat.verstreken, 3) if resultaat else None
+        },
+        "kosten": {"usd": _totaalkosten(stappen), "per_stap": "zie reserveringen"},
+        "acceptatie": acceptatie,
+    }
+    naam = f"{record['seq']:03d}" if record["seq"] is not None else "geen-reservering"
+    bestand = f"{naam}-{fase}-{li.item['id']}.json"
+    gb.schrijf_nieuw(callmap / bestand, record, geheimen=omg.geheimen)
+    if acceptatie is not None:
+        boek.registreer_geval(
+            fase, li.sleutel, details={"callrecord": bestand}, **acceptatie
+        )
+    uitkomst = {
+        "sleutel": li.sleutel,
+        "id": li.item["id"],
+        "soort": li.item["soort"],
+        "verwacht": li.item["verwacht"],
+        "gekregen": resultaat.uitkomst if resultaat else None,
+        "afsluitstatus": status,
+        "reserveringen": len(stappen),
+        "kosten_usd": record["kosten"]["usd"],
+        "tokens": record["tokens"],
+        "latentie_s": record["latentie_s"],
+        "duur_s": duur,
+        "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
+        "status_correct": (acceptatie or {}).get("geaccepteerd"),
+        "technisch_afgerond": (acceptatie or {}).get("technisch_afgerond"),
+    }
+    if annulering is not None:
+        raise annulering
+    _stop_met_resultaat(uitkomst, li.sleutel, poging.schending, stop, fout)
+    logger.info("%s: %s %.1fs", li.sleutel, (acceptatie or {}).get("reden"), duur)
+    return uitkomst
+
+
+def lokale_dienst(omg: Omgeving) -> Any:
+    """De lokale verifier op dezelfde AI-laag, route en grenzen als de verifier."""
+    from services.validation.ess05_local_verification_service import (
+        Ess05LocalVerificationService,
+    )
+
+    return Ess05LocalVerificationService.voor_verifier(
+        omg.ai, omg.dienst.verification_service, model_router=omg.router
+    )
+
+
+async def voer_l_fase(
+    omg: Omgeving,
+    *,
+    gevallenpad: Path,
+    uitmap: Path,
+    opslag: Proefopslag,
+    proef: Proef,
+    fase: str = "lokale_verificatie",
+    freeze: Path | None = None,
+    voorganger_opslag: Proefopslag | Sequence[Proefopslag] | None = None,
+    nieuw_grootboek: bool = False,
+    technische_herhalingen: Sequence[str] = (),
+    max_calls: int | None = None,
+    totaal_deadline: float | None = None,
+) -> dict[str, Any]:
+    """R15: de vastgelegde lokale controles, elk één afzonderlijk verzoek."""
+    _fase_van(proef, fase, L_FASES)
+    _controleer_opslag(omg, opslag, proef)
+    _controleer_registratie(omg, proef)
+    _controleer_productiegrenzen(omg, proef)
+    _controleer_kostenroute(omg, proef)
+    _controleer_contract(omg, proef)
+    _controleer_lokaal_contract(proef)
+    besluit = _besluit_voor(omg, proef)
+    if technische_herhalingen:
+        msg = "technische herhaling in de lokale fase is niet vastgelegd"
+        raise gb.BudgetSchendingError(msg)
+    _controleer_ontwikkelinvoer(proef, fase, gevallenpad)
+    items = valideer_l_invoer(
+        json.loads(Path(gevallenpad).read_text(encoding="utf-8")), omg
+    )
+    dienst = lokale_dienst(omg)
+    for li in items:
+        bytes_ = _payloadbytes(omg, "t_verificatie", dienst.max_tokens, *li.prompt)
+        _controleer_bytegrens(proef, dienst.TASK_TYPE, li.sleutel, bytes_)
+    bestand_sha = _sha_bestand(gevallenpad)
+    code_sha = code_sha256()
+    config = effectieve_config(omg)
+    config_sha = pi.sha_json(config)
+    binding = _eindbinding(
+        omg,
+        proef,
+        proef.identiteit.eindgroep(fase),
+        freeze,
+        dataset_sha256=bestand_sha,
+        herhaal_ids=[],
+        code_sha256=code_sha,
+        config_sha256=config_sha,
+    )
+    deadline = _Deadline(totaal_deadline)
+    with gb.Proefslot(opslag.slot):
+        vorige = _lees_voorganger(omg, proef, voorganger_opslag)
+        if omg.echt:
+            _controleer_voorgangerkop(proef, vorige)
+        boek = _grootboek(opslag, nieuw_grootboek, proef)
+        boek.controleer_fasestart(fase)
+        boek.controleer_binding(fase, bestand_sha, binding)  # vóór elke call
+        voor = boek.samenvatting()
+        selectie, overgeslagen = _selecteer(
+            [(li.sleutel, li) for li in items], boek, ()
+        )
+        if max_calls is not None:
+            selectie = selectie[:max_calls]
+        _controleer_plan(boek, fase, len(selectie), False, 1)
+        _controleer_kostenplan(boek, fase, len(selectie))
+        voorganger = _controleer_voorganger(boek, vorige, len(selectie))
+        runmap = _nieuwe_map(uitmap, fase)
+        resultaten, niet_gestart = [], 0
+        try:
+            for _sleutel, li, _technisch in selectie:
+                if not deadline.past(_buitenste_deadline(omg, 1)):
+                    niet_gestart += 1
+                    continue
+                try:
+                    resultaten.append(
+                        await _l_call(
+                            omg,
+                            boek,
+                            dienst,
+                            fase=fase,
+                            li=li,
+                            bestand_sha=bestand_sha,
+                            binding=binding,
+                            code_sha=code_sha,
+                            config_sha=config_sha,
+                            callmap=runmap / "calls",
+                            besluit=besluit,
+                        )
+                    )
+                except GevalGestoptError as exc:
+                    resultaten.append(exc.resultaat)
+                    raise
+        finally:
+            samenvatting = _samenvatting(
+                omg,
+                boek,
+                voor,
+                fase=fase,
+                invoer=gevallenpad,
+                bestand_sha=bestand_sha,
+                resultaten=resultaten,
+                overgeslagen=overgeslagen,
+                niet_gestart=niet_gestart,
+                routes=[],
+                technisch=(),
+                config=config,
+            )
+            samenvatting["grootboek"] = str(opslag.grootboek)
+            samenvatting["eindbinding"] = binding
+            samenvatting["voorganger_grootboek"] = voorganger
+            samenvatting["budgetbesluit_sha256"] = besluit
+            samenvatting["lokaal_contract"] = lokale_contractidentiteit()
+            samenvatting["bereik"] = (
+                "lokale controles per afzonderlijk pakket; geen generatie, geen "
+                "globale controle, geen volledig geverifieerd concept"
+            )
+            gb.schrijf_nieuw(
+                runmap / "samenvatting.json", samenvatting, geheimen=omg.geheimen
+            )
+    return samenvatting
+
+
 # --- G --------------------------------------------------------------------------------------
 
 
@@ -3546,8 +4072,9 @@ async def droogrun(
     if max_tokens_t is None:
         max_tokens_t = _standaard_max_tokens(proef)
     kb = proef.identiteit.kostenbewaking
-    _fase_van(proef, fase, (*T_FASES, *G_FASES, *V_FASES))
+    _fase_van(proef, fase, (*T_FASES, *G_FASES, *V_FASES, *L_FASES))
     _controleer_ontwikkelinvoer(proef, fase, pad)
+    _controleer_lokaal_contract(proef)
     omg_d = droogomgeving(
         timeout=timeout,
         max_tokens_t=max_tokens_t,
@@ -3578,6 +4105,26 @@ async def droogrun(
                 }
             )
         extra: dict[str, Any] = {"norm_sha256": pi.sha_json(omg_d.norm)}
+    elif fase in L_FASES:
+        dienst = lokale_dienst(omg_d)
+        for li in valideer_l_invoer(data, omg_d):
+            system, user = li.prompt
+            bytes_ = _payloadbytes(
+                omg_d, "t_verificatie", dienst.max_tokens, system, user
+            )
+            _controleer_bytegrens(proef, dienst.TASK_TYPE, li.sleutel, bytes_)
+            items.append(
+                {
+                    "sleutel": li.sleutel,
+                    "soort": li.item["soort"],
+                    "verwacht": li.item["verwacht"],
+                    "prompt": {"system": system, "user": user},
+                    "prompt_sha256": li.item["prompt_sha256"],
+                    "pakket_hash": li.pakket.hash,
+                    "payload_bytes": bytes_,
+                }
+            )
+        extra = {"lokaal_contract": lokale_contractidentiteit()}
     elif fase == "g_ontwikkeling":
         prompts = await g_prompts(data, alleen_actueel=True)
         for sleutel, item in plan_g_ontwikkeling(prompts):
@@ -3690,7 +4237,9 @@ def _parser() -> argparse.ArgumentParser:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     p.add_argument(
-        "--fase", required=True, choices=("nulcall", *T_FASES, *V_FASES, *G_FASES)
+        "--fase",
+        required=True,
+        choices=("nulcall", *T_FASES, *V_FASES, *L_FASES, *G_FASES),
     )
     p.add_argument(
         "--proef",
@@ -3702,13 +4251,19 @@ def _parser() -> argparse.ArgumentParser:
             f"({gb.R14.proef_id}, opslag {PROEVEN['R14'].opslag.root}, "
             "cumulatief max 388) is open voor de herproef na het R13-herstel "
             "(2 verificatie_alleen en 10 ontwikkeling, onafhankelijk; max USD "
-            "4,20, reserve 0)"
+            "4,20, reserve 0); R15 "
+            f"({gb.R15.proef_id}, opslag {PROEVEN['R15'].opslag.root}, "
+            "cumulatief max 391) is de lokale verificatie van fase A "
+            "(4 lokale_verificatie, max USD 1,50, reserve 0)"
         ),
     )
     p.add_argument(
         "--gevallen",
         type=Path,
-        help="gevallenbestand (T-fases, nulcall) of verifier-only-invoer (R8 t/m R14)",
+        help=(
+            "gevallenbestand (T-fases, nulcall), verifier-only-invoer (R8 t/m "
+            "R14) of lokale invoer (R15)"
+        ),
     )
     p.add_argument(
         "--g-invoer", type=Path, help="G-invoerbestand (fases g, g_ontwikkeling)"
@@ -3856,6 +4411,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.fase in V_FASES:
         uitkomst = asyncio.run(
             voer_v_fase(omg, fase=args.fase, gevallenpad=pad, **gemeen)
+        )
+    elif args.fase in L_FASES:
+        uitkomst = asyncio.run(
+            voer_l_fase(omg, fase=args.fase, gevallenpad=pad, **gemeen)
         )
     else:
         uitkomst = asyncio.run(

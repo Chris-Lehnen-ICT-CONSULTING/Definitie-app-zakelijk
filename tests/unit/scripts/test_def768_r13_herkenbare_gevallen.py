@@ -256,10 +256,10 @@ class TestRegistratie:
         assert proef.kaderverruiming_modelstappen == 0
         assert proef.kaderrest_nusd == KADERREST_NUSD
 
-    def test_alleen_r13_en_r14_stoppen_alleen_technisch(self):
+    def test_alleen_r13_r14_en_r15_stoppen_alleen_technisch(self):
         assert [
             n for n, p in runner.PROEVEN.items() if p.identiteit.stop_alleen_technisch
-        ] == ["R13", "R14"]
+        ] == ["R13", "R14", "R15"]
 
     @besluiten_nodig
     def test_besluit_gebonden_aan_goedkeuring_en_past_op_r13(self):

@@ -413,6 +413,7 @@ class TestR8Registratie:
             "R12",
             "R13",
             "R14",
+            "R15",
         ]
 
     @besluit_nodig
