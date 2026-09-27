@@ -1,0 +1,11 @@
+# WP3-R1 GREEN v2 — na SIM401-aanpassing (metadata.get("record_text", ctx.raw_text); gelijke semantiek). v1 hoort bij de vorige evaluatorhash. HEAD d3fc53eaed14e6a303605146b7e5f8b9ea3cef5e tijdstip 2026-09-27T22:24:10Z
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py -o addopts= -p no:cacheprovider -q -ra
+# sha256:
+#   effb899daf4eb61aa5c3b2ef0eec3949735090abc2c8d32185fe2fdb3b9a92bd  src/services/validation/evaluators/decision_rule_assessment.py
+#   b6cc73787a4618b9b99964350f8ae87b2b0f82dcef8528f5ff8d43f74d99981e  tests/unit/validation/test_def835_int02_evaluator.py
+#   712f5e527bd33a5ff3fecf13192b2a22ed67356208ac645ceb06b522f496369d  tests/integration/contracts/test_validation_result_schema.py
+........................................................................ [ 60%]
+...............................................                          [100%]
+119 passed in 0.98s
+
+# exitcode: 0

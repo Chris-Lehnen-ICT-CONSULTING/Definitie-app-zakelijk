@@ -1,0 +1,91 @@
+# In-memory mutaties (geen repo-wijziging) tegen tests/unit/validation/test_def835_int02_evaluator.py. HEAD 2be81c577653f8efbab6fa2c3794598556d32d13 tijdstip 2026-09-27T22:14:54Z
+## script /tmp/wp3_mutatie.py:
+import sys, pytest
+sys.path[:0] = ["src", "."]
+import services.validation.evaluators.decision_rule_assessment as m
+from domain.int02.contract import Actualiteit, Beoordelingsdocument
+orig_toets, orig_label = m.toets_actualiteit, m._actualiteit_label
+mutaties = {
+ "negeert-binding": ("toets_actualiteit", lambda d, i, c: Actualiteit(d.status, d.reden, d.melding) if isinstance(d, Beoordelingsdocument) and d.status != "error" else orig_toets(d, i, c)),
+ "label-altijd-current": ("_actualiteit_label", lambda a: "current"),
+}
+naam = sys.argv[1]
+attr, waarde = mutaties[naam]
+setattr(m, attr, waarde)
+rc = pytest.main(["tests/unit/validation/test_def835_int02_evaluator.py", "-o", "addopts=", "-q", "-p", "no:cacheprovider", "-p", "no:randomly"])
+print("MUTATIE", naam, "exit", int(rc))
+## mutatie negeert-binding
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestPuurEnSynchroon::test_wp1_toets_actualiteit_krijgt_exact_de_huidige_invoer
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[kern-witruimte]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[begrip]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[bedoeling]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[context]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[bron]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[normhash]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[normversie]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[promptversie]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[routeringshash]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[provider]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[model]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-lege-kern]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-witruimte]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-los-label]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-geen-context]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-beide]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[fout-als-pass]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[pass-als-fail]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[oordeel-vervangen]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[oordeel-corrupt]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[direct-samengesteld]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestGeenMutatie::test_alle_zes_statussen_zijn_gedekt
+23 failed, 47 passed, 1 warning in 0.50s
+MUTATIE negeert-binding exit 1
+## mutatie label-altijd-current
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_zonder_oordeel_open_en_nooit_pass[afwezig]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_zonder_oordeel_open_en_nooit_pass[none]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_niet_uitgevoerd_wp1_document_is_nog_te_beoordelen
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_zonder_actuele_configuratie_geen_actueel_oordeel
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[kern-witruimte]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[begrip]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[bedoeling]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[context]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[bron]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[normhash]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[normversie]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[promptversie]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[routeringshash]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[provider]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietBeoordeeldEnHistorisch::test_gewijzigd_bindingsveld_maakt_oordeel_historisch[model]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-lege-kern]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-witruimte]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-los-label]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-geen-context]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[met-oordeel-beide]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[kaal-lege-kern]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[kaal-witruimte]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[kaal-los-label]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[kaal-geen-context]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestNietUitgevoerd::test_ontbrekende_invoer_geeft_exacte_ne[kaal-beide]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_wp1_foutdocument_is_error_zonder_oordeel[transport-mislukt]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_wp1_foutdocument_is_error_zonder_oordeel[ongeldig-antwoord]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_wp1_foutdocument_is_error_zonder_oordeel[verzonnen-citaat]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_onbekend_documenttype_is_error[dict]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_onbekend_documenttype_is_error[tekst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_onbekend_documenttype_is_error[lijst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_onbekend_documenttype_is_error[getal]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_onbekend_documenttype_is_error[wp2-omhulsel]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[fout-als-pass]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[pass-als-fail]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[oordeel-vervangen]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[oordeel-corrupt]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_gesaboteerd_document_draagt_nooit_pass_of_fail[direct-samengesteld]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[configuratie-als-dict]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[configuratie-als-tekst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[context-als-tekst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[context-met-getal]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[bedoeling-als-getal]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[bronnen-als-tekst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[bron-zonder-tekst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_ongeldige_metadata_wordt_netjes_een_fout[bron-dubbel-id]
+46 failed, 24 passed, 1 warning in 0.66s
+MUTATIE label-altijd-current exit 1
