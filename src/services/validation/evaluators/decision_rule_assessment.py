@@ -13,6 +13,7 @@ Metadata-aansluiting (`EvaluationContext.metadata`):
 
 - `record_text` (str): de exacte kern; zonder `record_text` de aangeleverde
   tekst (`raw_text`), zoals INT-03, zodat de binding bij het record hoort;
+  een aanwezige waarde die geen tekst is, is ongeldige metadata (`error`);
 - `organisatorische_context`, `juridische_context`, `wettelijke_basis`:
   lijst/tuple van teksten; afwezig of None is leeg;
 - `int02_bedoeling`: tekst, of None/afwezig (expliciet onbekend);
@@ -107,8 +108,9 @@ class DecisionRuleAssessmentEvaluator:
         self, record: RuleRecord, ctx: EvaluationContext, deps: EvaluationDeps
     ) -> EvaluationOutcome:
         metadata = ctx.metadata if isinstance(ctx.metadata, dict) else {}
-        recordtekst = metadata.get("record_text")
-        kern = recordtekst if isinstance(recordtekst, str) else ctx.raw_text
+        # Terugval op raw_text alleen bij een ontbrekende sleutel; een aanwezige
+        # niet-tekst gaat naar de WP1-validatie en wordt `error` (WP3-R1).
+        kern = metadata.get("record_text", ctx.raw_text)
         signalen = _signalen(record, kern if isinstance(kern, str) else "", deps)
         try:
             invoer = _huidige_invoer(ctx, metadata, kern)

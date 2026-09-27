@@ -868,6 +868,20 @@ class TestFoutEnOngeldig:
     }
 
     @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+        _assert_fout(_evalueer(md, tekst=kern))
+
+    @pytest.mark.parametrize(
         "over", ONGELDIGE_METADATA.values(), ids=ONGELDIGE_METADATA
     )
     def test_ongeldige_metadata_wordt_netjes_een_fout(self, over):
