@@ -135,7 +135,8 @@ async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
     # 2.1.0 (additief: not_applicable, ess03_assessment); DEF-771: 2.2.0
     # (additief: not_evaluated als deeluitkomst). De bronbeoordeling
     # (1.4.0-veld) reist ongewijzigd mee.
-    assert result["version"] == CONTRACT_VERSION == "2.2.0"
+    # DEF-835: 2.3.0 (additief: assessment/signals ook voor INT-02).
+    assert result["version"] == CONTRACT_VERSION == "2.3.0"
 
 
 async def test_aanroeper_beoordeling_is_nooit_een_kortere_weg():
