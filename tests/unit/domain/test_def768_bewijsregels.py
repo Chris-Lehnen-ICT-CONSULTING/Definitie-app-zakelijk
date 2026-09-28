@@ -1206,9 +1206,15 @@ class TestOnderwerpbinding:
         )  # fmt: skip
         assert _bepaal(ruw, invoer).uitkomst == "pass"
 
-    def test_citaat_met_beide_begrippen_gaat_naar_de_semantische_controle(self):
-        # R16-H-01: geen verbod op een tweede begripsnaam. De naam is alleen een
-        # tekstanker; of de passage inhoudelijk over uitleen gaat, toetst de controle.
+    def test_uitleeneenheid_legitimeert_geen_verhuureenheid_ernaast(self):
+        """v6 (omgekeerd t.o.v. v5, Codex-review deel A bevinding 2): de passage
+        Uitleen + Verhuur raakt twee eenheden. Een toegestane Uitleen-eenheid maakt
+        de eenheid die alleen verhuur noemt niet tot doelbewijs: onderwerpfout.
+
+        Het positieve geval (één eenheid die beide namen noemt, gaat door naar de
+        semantische controle) staat in test_def768_bewijseenheden.py::
+        TestOnderwerp::test_eenheid_met_beide_namen_gaat_door.
+        """
         beide = UITLEENPASSAGE + " " + VERHUURPASSAGE_A
         ruw = _vervang(
             _interpretatie_a(),
@@ -1216,9 +1222,19 @@ class TestOnderwerpbinding:
             "doel",
             _a("K4", "doel", "bevestigd", [(BRON, beide)]),
         )
-        interpretatie = _valideer(ruw, _invoer())
-        doel = _eenheden(interpretatie, _invoer())["doel"].pakket.inhoud
-        assert beide in {c["citaat"] for c in doel["citaten"]}
+        invoer = _invoer()
+        k4 = next(
+            a
+            for a in naar_eenheden(ruw, invoer)["antwoorden"]
+            if (a["kenmerk_id"], a["onderwerp"]) == ("K4", "doel")
+        )
+        teksten = [
+            invoer.materiaal[r.material_id][r.start : r.end]
+            for r in (invoer.eenheden()[u] for u in k4["citaten"])
+        ]
+        assert teksten == [UITLEENPASSAGE, VERHUURPASSAGE_A]
+        fout = _fout(ruw, invoer)
+        assert fout.soort == "onderwerpfout" and "verhuur" in fout.melding
 
     def test_samengestelde_begripsnaam_is_niet_de_kortere_naam(self):
         # R16-H-01: 'uitleenovereenkomst' is geen vermelding van 'uitleen' (geen
