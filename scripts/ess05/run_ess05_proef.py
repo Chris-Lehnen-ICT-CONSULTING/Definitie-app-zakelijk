@@ -150,7 +150,7 @@ geval (ook in V); het contract is het actuele (answer/3).
 
 Ronde 16 (`--proef R16`, DEF-768-AI-20260928-R16, mechanismeproef bewijsregels;
 opdracht Chris 28-09, `logs/def768/bewijsregels-gebruikersopdracht-v1.json`,
-vastgelegd in `logs/def768/ronde16-bewijsregels-budgetbesluit-v1.json`): alleen
+vastgelegd in `logs/def768/ronde16-bewijsregels-budgetbesluit-v2.json`): alleen
 `bewijsregels` op A/B/C (`maak_r16_bewijsregel_invoer.py`), elk exact eenmaal:
 één broninterpretatie op de beoordelingsroute en ten hoogste drie geïsoleerde
 controles (`ess05-bewijsregels/3`). Max 12 modelstappen, reserve 0, geen retry,
@@ -660,12 +660,13 @@ R16_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R16"
 R16_B_INVOER_SHA256 = "11730986c6e5faf4afedb811426fae26856c234bb96315efb3bb9b3b30111cd2"
 #: Ronde 16: het besluit, afgeleid uit de opdracht van Chris ("ga hier mee
 #: verder", 28-09, bewijsregels-gebruikersopdracht-v1.json) en het startmandaat
-#: (max 12 appcalls / USD 4,50), gepind op pad en hash.
+#: (max 12 appcalls / USD 4,50), gepind op pad en hash. v2 corrigeert alleen
+#: het vastleggingstijdstip en de vastlegger van v1 (R16-01); v1 blijft historie.
 R16_BUDGETBESLUIT = (
-    PROJECT_ROOT / "logs" / "def768" / "ronde16-bewijsregels-budgetbesluit-v1.json"
+    PROJECT_ROOT / "logs" / "def768" / "ronde16-bewijsregels-budgetbesluit-v2.json"
 )
 R16_BUDGETBESLUIT_SHA256 = (
-    "adc10038d73ea0d45115f50f4cdca743c22bdc83488598db9f8001d3d68f439f"
+    "0ed01e3616a54396f764ecf4a7747665825dd94a662f14e48d09ac798bcfa18f"
 )
 #: Ronde 16: regel-, schema-, render- en interpretatiepromptversies plus de
 #: systeemprompthash; een tekstwijziging zonder versiebump weigert.

@@ -65,7 +65,8 @@ B16_SHA256 = "11730986c6e5faf4afedb811426fae26856c234bb96315efb3bb9b3b30111cd2"
 LOGS = ROOT / "logs" / "def768"
 OPDRACHT = LOGS / "bewijsregels-gebruikersopdracht-v1.json"
 MANDAAT = LOGS / "bewijsregels-start-en-mandaat-v1.md"
-BESLUIT16 = LOGS / "ronde16-bewijsregels-budgetbesluit-v1.json"
+BESLUIT16 = LOGS / "ronde16-bewijsregels-budgetbesluit-v2.json"
+BESLUIT16_SHA256 = "0ed01e3616a54396f764ecf4a7747665825dd94a662f14e48d09ac798bcfa18f"
 #: De echte R15-stand: vier betaalde stappen, USD 0,066325.
 R15_KOSTEN_NUSD = 66_325_000
 #: USD 25 − werkelijke R8–R15-kosten (2,836365).
@@ -467,6 +468,7 @@ class TestRegistratie:
 
     @besluit_nodig
     def test_besluit_gebonden_aan_opdracht_mandaat_en_past_op_r16(self):
+        assert _sha(BESLUIT16) == BESLUIT16_SHA256 == runner.R16_BUDGETBESLUIT_SHA256
         data = json.loads(BESLUIT16.read_text(encoding="utf-8"))
         bron = json.loads(OPDRACHT.read_text(encoding="utf-8"))
         assert data["bron_sha256"] == _sha(OPDRACHT)
