@@ -230,7 +230,14 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
         "inhoud in de definitie in aanmerking komt (lege kandidatenlijst, met "
         "motivering in reading); undetermined uitsluitend bij semantische twijfel "
         "of ontbrekende betekenisgrond die alleen met een gerichte vraag te "
-        "beslechten is.\n\n"
+        "beslechten is. Onderbouw iedere kandidaat in reading of candidates[].reason "
+        "met een korte uitleg van de gevolgde lezing van de volledige "
+        "zinsconstructie. Benoem daarbij wie welke handeling verricht en welke "
+        "relatie de verwijzing uitdrukt. Maak zichtbaar welke woorden of constructie "
+        "deze lezing ondersteunen en welke aanname eventueel nodig is. Beoordeel "
+        "ieder verwijzend woord afzonderlijk en betrek alle tekstsignalen, ook "
+        "herhaalde naamwoorden. De bestaande regels voor toegestane betekenisgrond "
+        "en voor clear, ambiguous, no_antecedent en undetermined blijven gelden.\n\n"
         "Uitkomsten (verdict):\n"
         f"- {VERDICT_PASS}: elk verwijzend woord is clear, of de definitie bevat "
         "geen verwijzend woord (alle woorden non_referring of lege lijst).\n"
@@ -314,7 +321,8 @@ class Int03AssessmentService:
     #:     `ANTWOORDSCHEMA_SHA256`, inclusief eigenschapsvolgorde) en het
     #:     formaatslot `_FORMAATSLOT` (DEF-836 P1); oordelen onder /1 en /2
     #:     worden historisch. Norm en contract blijven gelijk.
-    PROMPT_VERSION = "int03-assess/3"
+    #: /4: onderbouwingsinstructie aan het einde van stap 3 (DEF-836 P2); /3 historisch.
+    PROMPT_VERSION = "int03-assess/4"
     TASK_TYPE = "validation"
 
     def __init__(

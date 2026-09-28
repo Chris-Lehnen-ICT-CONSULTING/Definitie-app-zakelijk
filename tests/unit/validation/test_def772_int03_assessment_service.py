@@ -289,8 +289,8 @@ async def test_schema_en_formaatslot_bereiken_de_ai_grens():
 
 
 async def test_oordeel_onder_vorige_promptversie_is_historisch():
-    # DEF-836: de gewijzigde prompt maakt oordelen onder int03-assess/1 en /2
-    # historisch; de norm (en dus de normhash) blijft ongewijzigd.
+    # DEF-836: de gewijzigde prompt maakt oordelen onder int03-assess/1, /2 en
+    # (P2) /3 historisch; de norm (en dus de normhash) blijft ongewijzigd.
     service, _ = _service(_uitvoer())
     doc = (await _assess(service)).als_dict()
     # FakeAI rapporteert een ander model dan de router; bind daaraan.
@@ -299,8 +299,8 @@ async def test_oordeel_onder_vorige_promptversie_is_historisch():
     )
     actueel, _ = valideer_beoordeling(doc, _vingerafdruk(), TEKST, binding=binding)
     assert actueel is not None
-    assert binding.prompt_version == "int03-assess/3"
-    for vorige in ("int03-assess/1", "int03-assess/2"):
+    assert binding.prompt_version == "int03-assess/4"
+    for vorige in ("int03-assess/1", "int03-assess/2", "int03-assess/3"):
         oordeel, samenvatting = valideer_beoordeling(
             {**doc, "prompt_version": vorige}, _vingerafdruk(), TEKST, binding=binding
         )
@@ -764,3 +764,30 @@ async def test_zonder_cache_elke_keer_naar_het_model():
     await _assess(service)
     await _assess(service)
     assert len(ai.calls) == 2
+
+
+async def test_cachetreffer_onder_3_vervangt_geen_beoordeling_onder_4(monkeypatch):
+    # DEF-836 P2: een gecachet /3-oordeel vervangt de /4-aanroep niet en is onder
+    # de actieve /4-binding historisch; /4 zelf wordt wel hergebruikt.
+    service, ai = _service(_uitvoer(), _uitvoer(), _uitvoer())
+    with monkeypatch.context() as m:
+        m.setattr(Int03AssessmentService, "PROMPT_VERSION", "int03-assess/3")
+        oud = (await _assess(service)).als_dict()
+    nieuw = (await _assess(service)).als_dict()
+    herhaald = (await _assess(service)).als_dict()
+    assert len(ai.calls) == 2
+    assert (oud["prompt_version"], nieuw["prompt_version"]) == (
+        "int03-assess/3",
+        "int03-assess/4",
+    )
+    assert nieuw["attribution"]["cached"] is False
+    assert herhaald["attribution"]["cached"] is True
+    binding = Beoordelingsbinding(
+        **{**service.binding().als_dict(), "model": nieuw["attribution"]["model"]}
+    )
+    geldig, _ = valideer_beoordeling(nieuw, _vingerafdruk(), TEKST, binding=binding)
+    assert geldig is not None
+    historisch, samenvatting = valideer_beoordeling(
+        oud, _vingerafdruk(), TEKST, binding=binding
+    )
+    assert historisch is None and samenvatting["historical"] is True
