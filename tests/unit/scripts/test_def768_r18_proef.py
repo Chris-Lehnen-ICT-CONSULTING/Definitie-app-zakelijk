@@ -290,6 +290,12 @@ def _records(tmp_path: Path, fase: str = "interpretatie") -> list[dict]:
     ]
 
 
+def _samenvatting_i(tmp_path: Path) -> dict:
+    """De samenvatting van de (enige) interpretatierun, ook als die stopte."""
+    (pad,) = sorted((tmp_path / "uit").glob("interpretatie-*/samenvatting.json"))
+    return json.loads(pad.read_text(encoding="utf-8"))
+
+
 def _grootboekregels(tmp_path: Path, soort: str) -> list[dict]:
     pad = _opslag18(tmp_path).grootboek
     if not pad.exists():
@@ -713,19 +719,155 @@ class TestInterpretatieFase:
             "A": False, "C": True, "D": True, "E": True,
         }  # fmt: skip
 
-    def test_blind_hergebruik_in_d_is_kritiek_maar_stopt_niet(self, tmp_path):
+    def test_blind_hergebruik_in_d_stopt_voor_de_volgende_aanroep(self, tmp_path):
+        """Correctie B1 (aanvulling C1): een kritieke run stopt R18A direct."""
+
         def antwoord(naam, _n, verg):
             ruw = _d_juist(verg, ("Uitleen:",)) if naam == "D" else _juist(naam, verg)
             return json.dumps(ruw, ensure_ascii=False)
 
         provider = _R18Provider(_items(), antwoord=antwoord)
-        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        assert uit["aanroepen_gestart"] == 12
-        d = [r for r in _records(tmp_path) if r["item_id"] == "D"]
-        assert {r["runoordeel"]["categorie"] for r in d} == {"kritiek"}
-        assert d[0]["runoordeel"]["kritiek"] == ["pass/fail bij M-b onwaar"]
+        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
+            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        # A1–A3, C1–C3 en D1: de kritieke D1 is de laatste aanroep.
+        assert len(provider.berichten) == 7
+        assert dict(provider.per_item) == {"A": 3, "C": 3, "D": 1}
+        records = _records(tmp_path)
+        assert [r["sleutel"] for r in records][-1] == "interpretatie|D|1"
+        assert records[-1]["runoordeel"]["categorie"] == "kritiek"
+        assert records[-1]["runoordeel"]["kritiek"] == ["pass/fail bij M-b onwaar"]
+        uit = _samenvatting_i(tmp_path)
+        assert uit["aanroepen_gestart"] == 7
+        assert uit["stop"] == {
+            "run": "interpretatie|D|1",
+            "reden": uit["stop"]["reden"],
+            "niet_gestart": 5,
+        }
+        assert "kritieke run" in uit["stop"]["reden"]
+        assert "M-b onwaar" in uit["stop"]["reden"]
         assert uit["proefoordeel"]["oordeel"] == "afgekeurd"
-        assert len(uit["proefoordeel"]["kritiek"]) == 3
+        assert uit["grootboek_na"]["inhoudelijke_stop"] == [
+            {"fase": "interpretatie", "poging": "interpretatie|D|1",
+             "reden": uit["stop"]["reden"]}
+        ]  # fmt: skip
+
+    def test_na_een_kritieke_run_vertrekt_geen_aanroep_meer(self, tmp_path):
+        """Duurzaam: ook een herstart (nieuw proces, bestaand grootboek) start niets."""
+
+        def antwoord(naam, _n, verg):
+            ruw = _d_juist(verg, ("Uitleen:",)) if naam == "D" else _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        omg = _omgeving8(provider)
+        pad = _i_invoer(tmp_path)
+        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
+            _i18(omg, tmp_path, pad)
+        (geval,) = [g for g in _grootboekregels(tmp_path, "geval")
+                    if g["poging"] == "interpretatie|D|1"]  # fmt: skip
+        assert "kritieke run" in geval["inhoudelijke_stop"]
+        assert geval["details"]["niet_gestart"] == 5
+        for _ in range(2):
+            with pytest.raises(gb.BudgetSchendingError, match="gestopt"):
+                _i18(omg, tmp_path, pad, nieuw=False)
+        assert len(provider.berichten) == 7
+        assert len(_grootboekregels(tmp_path, "reservering")) == 7
+        # Ook het grootboek zelf weigert elke volgende reservering in de fase.
+        boek = gb.Grootboek.open(_opslag18(tmp_path).grootboek, gb.R18)
+        with pytest.raises(gb.BudgetSchendingError, match="gestopt"):
+            boek.controleer_fasestart("interpretatie")
+
+    def test_kritieke_laatste_run_stopt_zonder_resterende_aanroepen(self, tmp_path):
+        def antwoord(naam, n, verg):
+            if naam == "E" and n == 3:
+                ruw = _e(verg, ("bevestigd", ["Uitleen:"]))
+            else:
+                ruw = _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
+            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert len(provider.berichten) == 12
+        stop = _samenvatting_i(tmp_path)["stop"]
+        assert (stop["run"], stop["niet_gestart"]) == ("interpretatie|E|3", 0)
+
+    def test_m_d_afkeur_stopt_zodra_elf_niet_meer_haalbaar_is(self, tmp_path):
+        """Deel C: 'Ook bij M-d ≤ 8/12 stopt de proef' — na de vierde M-d-misser."""
+
+        def antwoord(naam, n, verg):
+            if naam == "C" or (naam == "D" and n == 1):
+                return "geen json"
+            return json.dumps(_juist(naam, verg), ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        with pytest.raises(gb.BudgetSchendingError, match="M-d"):
+            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert len(provider.berichten) == 7
+        uit = _samenvatting_i(tmp_path)
+        assert (uit["stop"]["run"], uit["stop"]["niet_gestart"]) == (
+            "interpretatie|D|1",
+            5,
+        )
+        assert uit["proefoordeel"]["kritiek"] == []
+        assert uit["proefoordeel"]["oordeel"] == "afgekeurd"
+
+    def test_m_d_afkeur_telt_ook_runs_uit_een_eerdere_start(self, tmp_path):
+        """De M-d-telling komt uit het grootboek, niet alleen uit dit proces."""
+
+        def antwoord(naam, n, verg):
+            if naam == "C" or (naam == "D" and n == 1):
+                return "geen json"
+            return json.dumps(_juist(naam, verg), ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        omg = _omgeving8(provider)
+        pad = _i_invoer(tmp_path)
+        _i18(omg, tmp_path, pad, max_calls=5)  # A1–A3, C1, C2: nog geen afkeur
+        with pytest.raises(gb.BudgetSchendingError, match="M-d"):
+            _i18(omg, tmp_path, pad, nieuw=False)
+        assert len(provider.berichten) == 7
+
+    def test_stop_in_r18a_laat_r18b_uitvoerbaar(self, tmp_path):
+        """De inhoudelijke stop geldt voor de eigen fase (aanvulling C1)."""
+
+        def antwoord(naam, _n, verg):
+            ruw = _d_juist(verg, ("Uitleen:",)) if naam == "D" else _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        omg = _omgeving8(provider)
+        i_pad = _i_invoer(tmp_path)
+        l_pad, _ = _l_invoer(tmp_path)
+        proef = dataclasses.replace(
+            runner.PROEVEN["R18"],
+            i_invoer_sha256=_sha(i_pad),
+            l_invoer_sha256=_sha(l_pad),
+        )
+        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
+            _i18(omg, tmp_path, i_pad, proef=proef)
+        uit = asyncio.run(
+            runner.voer_l_fase(omg, gevallenpad=l_pad, uitmap=tmp_path / "uit",
+                               opslag=_opslag18(tmp_path), proef=proef,
+                               freeze=_freeze(omg, tmp_path, proef, "l"),
+                               voorganger_opslag=_bestaande_keten18(tmp_path))
+        )  # fmt: skip
+        assert uit["aanroepen_gestart"] == 6
+        assert uit["grootboek_na"]["per_fase"] == {
+            "interpretatie": 7,
+            "lokale_verificatie": 6,
+        }
+
+    def test_inhoudelijke_stop_alleen_voor_r18(self, tmp_path):
+        boek = _r17_boek(tmp_path)
+        assert gb.R18.inhoudelijke_stop is True
+        assert [
+            n for n, p in runner.PROEVEN.items() if p.identiteit.inhoudelijke_stop
+        ] == ["R18"]
+        with pytest.raises(gb.BudgetSchendingError, match="inhoudelijke stop"):
+            boek.registreer_geval("bewijsregels", "bewijsregels|A|1",
+                                  geaccepteerd=False, reden="x",
+                                  technisch_afgerond=True, stop="kritiek")  # fmt: skip
 
     def test_weggevallen_voorwaarde_in_e_is_kritiek(self, tmp_path):
         def antwoord(naam, n, verg):
@@ -736,14 +878,18 @@ class TestInterpretatieFase:
             return json.dumps(ruw, ensure_ascii=False)
 
         provider = _R18Provider(_items(), antwoord=antwoord)
-        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
+            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert len(provider.berichten) == 11
         (e2,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|2"]
         assert e2["score"]["m_d"]["uitkomst"] == "review_required"
         assert e2["score"]["m_d"]["ok"] is True
         assert e2["runoordeel"]["m_d_telt"] is False
         assert e2["runoordeel"]["kritiek"] == ["E: voorwaarde weggevallen"]
-        assert uit["proefoordeel"]["e_voorwaarde_behouden"] == [2, 3]
+        uit = _samenvatting_i(tmp_path)
+        assert uit["proefoordeel"]["e_voorwaarde_behouden"] == [1, 2]
         assert uit["proefoordeel"]["oordeel"] == "afgekeurd"
+        assert uit["stop"]["niet_gestart"] == 1
 
     def test_f7_is_apart_niet_geslaagd_en_niet_kritiek(self, tmp_path):
         def antwoord(naam, n, verg):

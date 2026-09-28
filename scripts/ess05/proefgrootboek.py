@@ -169,6 +169,7 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
+import copy
 import fcntl
 import hashlib
 import json
@@ -370,6 +371,10 @@ class Proefidentiteit:
     #: geaccepteerd zijn: de dienst stopt vast bij de eerste geldigheidsfout of
     #: afgewezen controle. Nooit meer stappen en nooit een stap overslaan.
     vroege_stop_toegestaan: bool = False
+    #: R18 (aanvulling C1): een geval kan de eigen fase inhoudelijk stoppen
+    #: (deel C: kritieke run of M-d-afkeur), duurzaam in het gevalrecord; de
+    #: stop weigert elke volgende reservering in die fase, ook na een herstart.
+    inhoudelijke_stop: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "fasecaps", MappingProxyType(dict(self.fasecaps)))
@@ -802,6 +807,7 @@ R18 = Proefidentiteit(
     stop_bij_eerste_fout=True,
     kostenkader_nusd=25_000_000_000,
     stop_alleen_technisch=True,
+    inhoudelijke_stop=True,
 )
 _IDENTITEITEN = {
     i.proef_id: i
@@ -1101,6 +1107,14 @@ class Grootboek:
     def _gevallen(self) -> list[dict[str, Any]]:
         return [r for r in self._records if r["soort"] == "geval"]
 
+    def gevallen(self, fase: str | None = None) -> list[dict[str, Any]]:
+        """Kopieën van de geregistreerde gevallen (alleen lezen), eventueel per fase."""
+        return [
+            copy.deepcopy(g)
+            for g in self._gevallen()
+            if fase is None or g["fase"] == fase
+        ]
+
     def kostenstand(self) -> dict[str, int]:
         """Lopende kosten: werkelijk waar de usage bekend is, anders de grens.
 
@@ -1151,6 +1165,12 @@ class Grootboek:
                 "gevallen": gevallen,
                 "gestopt": self._stopgeval() is not None,
             }
+            if self.identiteit.inhoudelijke_stop:
+                extra["inhoudelijke_stop"] = [
+                    {"fase": g["fase"], "poging": g["poging"], "reden": stop}
+                    for g in self._gevallen()
+                    if (stop := g.get("inhoudelijke_stop"))
+                ]
         return {
             **extra,
             "proef_id": self.identiteit.proef_id,
@@ -1315,15 +1335,23 @@ class Grootboek:
             None,
         )
 
-    def _stopgeval(self) -> dict[str, Any] | None:
+    def _stopgeval(self, fase: str | None = None) -> dict[str, Any] | None:
         """Het eerste geval dat de proef stopt: niet geaccepteerd, of onder
-        `stop_alleen_technisch` (R13) alleen een technisch niet-afgerond geval."""
+        `stop_alleen_technisch` (R13) alleen een technisch niet-afgerond geval.
+
+        R18 (`inhoudelijke_stop`): ook een geval met een inhoudelijke stop, maar
+        alleen voor zijn eigen fase (`fase` None: elke fase).
+        """
         if self.identiteit.stop_alleen_technisch:
             return next(
                 (
                     g
                     for g in self._gevallen()
                     if g.get("technisch_afgerond") is not True
+                    or (
+                        g.get("inhoudelijke_stop")
+                        and (fase is None or g["fase"] == fase)
+                    )
                 ),
                 None,
             )
@@ -1341,7 +1369,13 @@ class Grootboek:
         if identiteit.fasestappen is None:
             return
         gevallen = self._gevallen()
-        geweigerd = self._stopgeval()
+        geweigerd = self._stopgeval(fase)
+        if geweigerd is not None and geweigerd.get("inhoudelijke_stop"):
+            msg = (
+                f"fase {geweigerd['fase']!r} gestopt na {geweigerd['poging']!r}: "
+                f"{geweigerd['inhoudelijke_stop']}; geen verdere modelstap"
+            )
+            raise BudgetSchendingError(msg)
         if identiteit.stop_bij_eerste_fout and geweigerd is not None:
             msg = (
                 f"proef gestopt na niet-geaccepteerd geval {geweigerd['poging']!r} "
@@ -1413,6 +1447,7 @@ class Grootboek:
         reden: str,
         details: Mapping[str, Any] | None = None,
         technisch_afgerond: bool | None = None,
+        stop: str | None = None,
     ) -> dict[str, Any]:
         """Leg de uitkomst van één geval duurzaam vast (R8-stopregel en volgorde).
 
@@ -1420,11 +1455,24 @@ class Grootboek:
         geval heeft al zijn stappen gebruikt. Een niet-geaccepteerd geval stopt
         de proef (zie `_controleer_kosten_en_volgorde`); onder
         `stop_alleen_technisch` (R13) is `technisch_afgerond` verplicht en stopt
-        alleen een technisch niet-afgerond geval.
+        alleen een technisch niet-afgerond geval. `stop` (R18, alleen met
+        `inhoudelijke_stop`): de reden waarom dit geval zijn fase inhoudelijk
+        stopt; nooit bij een geaccepteerd geval.
         """
         stappen = (self.identiteit.fasestappen or {}).get(fase)
         if stappen is None:
             msg = f"{self.identiteit.proef_id} registreert geen gevallen in {fase!r}"
+            raise BudgetSchendingError(msg)
+        if stop is not None and (
+            not self.identiteit.inhoudelijke_stop
+            or geaccepteerd
+            or not isinstance(stop, str)
+            or not stop
+        ):
+            msg = (
+                f"geval {poging!r}: een inhoudelijke stop past niet bij "
+                f"{self.identiteit.proef_id} of bij een geaccepteerd geval"
+            )
             raise BudgetSchendingError(msg)
         if self.identiteit.stop_alleen_technisch != isinstance(
             technisch_afgerond, bool
@@ -1467,6 +1515,8 @@ class Grootboek:
         }
         if technisch_afgerond is not None:
             record["technisch_afgerond"] = technisch_afgerond
+        if stop is not None:
+            record["inhoudelijke_stop"] = stop
         return self._voeg_toe(record)
 
     def _controleer_stap(

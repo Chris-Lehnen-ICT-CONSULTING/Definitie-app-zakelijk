@@ -4514,6 +4514,41 @@ def _i_score(stap: Any, ii: _IItem) -> tuple[dict[str, Any] | None, str | None]:
         return None, gb.scrub(f"{type(exc).__name__}: {exc}")
 
 
+def _i_runs(boek: gb.Grootboek, fase: str) -> list[dict[str, Any]]:
+    """Het runoordeel van elke geregistreerde run van de fase, uit het grootboek.
+
+    Zo telt het proefoordeel (en de M-d-stop) ook runs uit een eerdere start.
+    """
+    return [
+        {"sleutel": g["poging"], **g["details"]["runoordeel"]}
+        for g in boek.gevallen(fase)
+        if isinstance(g.get("details", {}).get("runoordeel"), dict)
+    ]
+
+
+def _i_stopreden(
+    sleutel: str, runoordeel: Mapping[str, Any], boek: gb.Grootboek, fase: str
+) -> str | None:
+    """Deel C (aanvulling C1): stopt deze run de fase inhoudelijk?
+
+    Een kritieke run stopt; anders stopt een M-d-afkeur (`proefoordeel`
+    afgekeurd over alle runs van de fase plus deze, met de ontbrekende runs
+    als mogelijk juist).
+    """
+    if runoordeel["kritiek"]:
+        return f"kritieke run {sleutel}: " + "; ".join(runoordeel["kritiek"])
+    oordeel = bs.proefoordeel(
+        [*_i_runs(boek, fase), {"sleutel": sleutel, **runoordeel}]
+    )
+    if oordeel["oordeel"] == "afgekeurd":
+        return (
+            f"M-d-afkeur na {sleutel}: {oordeel['m_d_juist']} juist van "
+            f"{oordeel['runs']} runs; {bs.M_D_MIN} van {bs.RUNS_VERWACHT} is niet "
+            "meer haalbaar (deel C: bij M-d ≤ 8 stopt de proef)"
+        )
+    return None
+
+
 async def _i_call(
     omg: Omgeving,
     boek: gb.Grootboek,
@@ -4527,8 +4562,13 @@ async def _i_call(
     config_sha: str,
     callmap: Path,
     besluit: str | None = None,
+    resterend: int = 0,
 ) -> dict[str, Any]:
-    """Eén run: één interpretatieaanroep (`interpreteer`), gescoord tegen het orakel."""
+    """Eén run: één interpretatieaanroep (`interpreteer`), gescoord tegen het orakel.
+
+    `resterend`: de geplande runs na deze; bij een inhoudelijke stop blijven
+    die niet-gestart en worden ze in grootboek en samenvatting genoemd.
+    """
     from services.validation.ess05_verification_service import aanroepgrens
 
     poging = gb.Stappenpoging(
@@ -4577,7 +4617,7 @@ async def _i_call(
     score, scorerfout = _i_score(stap, ii)
     runoordeel = bs.runoordeel(score, ii.item["orakel"])
     dienstuitkomst = _i_dienstuitkomst(stap)
-    acceptatie = stop = None
+    acceptatie = stop = inhoudelijk = None
     if stappen:
         afgerond, technisch = _i_technisch_afgerond(
             poging.schending, fout, statussen, stap
@@ -4589,6 +4629,10 @@ async def _i_call(
             "technisch_afgerond": afgerond,
         }
         stop = {"geaccepteerd": afgerond, "reden": technisch}
+        if afgerond:
+            inhoudelijk = _i_stopreden(ii.sleutel, runoordeel, boek, fase)
+            if inhoudelijk is not None:
+                stop = {"geaccepteerd": False, "reden": inhoudelijk}
     system, user = ii.prompt
     registratie = dict(stap.registratie) if stap is not None else None
     record = {
@@ -4635,13 +4679,19 @@ async def _i_call(
         "tokens": _tokens(stappen),
         "kosten": {"usd": _totaalkosten(stappen), "per_stap": "zie reserveringen"},
         "acceptatie": acceptatie,
+        "inhoudelijke_stop": (
+            {"reden": inhoudelijk, "niet_gestart": resterend} if inhoudelijk else None
+        ),
     }
     naam = f"{record['seq']:03d}" if record["seq"] is not None else "geen-reservering"
     bestand = f"{naam}-{fase}-{ii.item['id']}-{ii.herhaling}.json"
     gb.schrijf_nieuw(callmap / bestand, record, geheimen=omg.geheimen)
     if acceptatie is not None:
+        details: dict[str, Any] = {"callrecord": bestand, "runoordeel": runoordeel}
+        if inhoudelijk:
+            details["niet_gestart"] = resterend
         boek.registreer_geval(
-            fase, ii.sleutel, details={"callrecord": bestand}, **acceptatie
+            fase, ii.sleutel, details=details, stop=inhoudelijk, **acceptatie
         )
     uitkomst = {
         "sleutel": ii.sleutel,
@@ -4657,6 +4707,11 @@ async def _i_call(
         "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
         "status_correct": (acceptatie or {}).get("geaccepteerd"),
         "technisch_afgerond": (acceptatie or {}).get("technisch_afgerond"),
+        "stop": (
+            {"run": ii.sleutel, "reden": inhoudelijk, "niet_gestart": resterend}
+            if inhoudelijk
+            else None
+        ),
     }
     if annulering is not None:
         raise annulering
@@ -4682,9 +4737,12 @@ async def voer_i_fase(
 ) -> dict[str, Any]:
     """R18A: elke run (geval × herhaling) exact eenmaal; alleen `interpreteer`.
 
-    Geen retry, geen cache, geen technische herhaling. Een kritieke run stopt
-    de proef niet (alleen techniek of weigering stopt); het proefoordeel volgt
-    achteraf uit alle runs (`bewijsscorer.proefoordeel`).
+    Geen retry, geen cache, geen technische herhaling. Stop (deel C,
+    aanvulling C1): na een kritieke run of een M-d-afkeur vertrekt er in deze
+    fase geen volgende aanroep; de stop staat duurzaam in het grootboek
+    (`inhoudelijke_stop`) en in de samenvatting (`stop`: run, reden,
+    niet-gestarte aanroepen). Techniek of weigering stopt zoals voorheen. Het
+    proefoordeel telt alle geregistreerde runs van de fase.
     """
     _fase_van(proef, fase, I_FASES)
     _controleer_opslag(omg, opslag, proef)
@@ -4746,6 +4804,12 @@ async def voer_i_fase(
                 if not deadline.past(_buitenste_deadline(omg, len(_I_STAPPEN))):
                     niet_gestart += 1
                     continue
+                # Alle geplande runs van de invoer die na deze nog niet gestart zijn.
+                resterend = sum(
+                    1
+                    for x in items
+                    if x.sleutel != ii.sleutel and not boek.poging_gestart(x.sleutel)
+                )
                 try:
                     resultaten.append(
                         await _i_call(
@@ -4760,6 +4824,7 @@ async def voer_i_fase(
                             config_sha=config_sha,
                             callmap=runmap / "calls",
                             besluit=besluit,
+                            resterend=resterend,
                         )
                     )
                 except GevalGestoptError as exc:
@@ -4789,8 +4854,10 @@ async def voer_i_fase(
             samenvatting["budgetbesluit_sha256"] = besluit
             samenvatting["lokaal_contract"] = lokale_contractidentiteit()
             samenvatting["bewijsregel_contract"] = bewijsregel_contractidentiteit()
-            samenvatting["proefoordeel"] = bs.proefoordeel(
-                [{"sleutel": r["sleutel"], **r["runoordeel"]} for r in resultaten]
+            # Over alle geregistreerde runs van de fase (ook van een eerdere start).
+            samenvatting["proefoordeel"] = bs.proefoordeel(_i_runs(boek, fase))
+            samenvatting["stop"] = next(
+                (r["stop"] for r in resultaten if r.get("stop")), None
             )
             samenvatting["bereik"] = (
                 "interpretatieproef: alleen de interpretatiestap op vier vooraf "
