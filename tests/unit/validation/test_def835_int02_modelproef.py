@@ -13,6 +13,7 @@ Niet bewezen: gedrag van de echte provider of kwaliteit van het model.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import importlib.util
 import json
@@ -20,6 +21,7 @@ import logging
 import os
 import socket
 import sys
+import time
 from pathlib import Path
 
 import httpx
@@ -74,11 +76,19 @@ def _sha(data: bytes) -> str:
 
 
 def _usage(**over):
+    """Usage in de vorm van de geïnstalleerde SDK (`anthropic.types.Usage`)."""
     usage = {
         "input_tokens": 1500,
         "output_tokens": 400,
+        "cache_creation": {
+            "ephemeral_1h_input_tokens": 0,
+            "ephemeral_5m_input_tokens": 0,
+        },
         "cache_creation_input_tokens": 0,
         "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "output_tokens_details": {"thinking_tokens": 0},
+        "server_tool_use": None,
         "service_tier": "standard",
     }
     usage.update(over)
@@ -206,6 +216,13 @@ async def test_voorbereiding_maakt_pending_manifest_zonder_netwerk(tmp_path):
     assert identiteit["prijzen_per_token"]["output"] == pytest.approx(0.000025)
     assert [g["id"] for g in identiteit["gevallen"]] == list(IDS)
     assert identiteit["normhash"] == laad_int02_norm().normhash
+    # R2: de effectieve SDK-transportconfiguratie hoort bij de identiteit.
+    assert identiteit["transport"] == {
+        "basis_url": "https://api.anthropic.com",
+        "anthropic_version": "2023-06-01",
+        "authenticatie": "x-api-key",
+        "headernamen": STANDAARDHEADERNAMEN,
+    }
     assert data["identiteit_sha256"] == m.hash_json(identiteit)
     # Zonder expliciet payloaddoel wordt niets anders geschreven.
     assert sorted(p.name for p in tmp_path.iterdir()) == ["manifest.json"]
@@ -351,6 +368,11 @@ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
         assert telling["body"] == {k: body[k] for k in velden if k in body}
         for header in ("x-api-key", "anthropic-version"):
             assert telling["headers"][header] == inferentie["headers"][header]
+        # R2: telling en inference delen exact de authenticatiecontext.
+        assert "authorization" not in telling["headers"]
+        assert "authorization" not in inferentie["headers"]
+        assert sorted(inferentie["headers"]) == STANDAARDHEADERNAMEN
+        assert set(telling["headers"]) <= set(STANDAARDHEADERNAMEN)
     assert Path.cwd() == ROOT
     assert data["stopreden"] is None
     assert data["tellingen"] == {"inferenties": 3, "telverzoeken": 3}
@@ -362,8 +384,11 @@ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
         assert geval["meting"]["usage"] == {"input_tokens": 1500, "output_tokens": 400}
         assert geval["meting"]["geschatte_invoertokens"] == 1200
         assert geval["meting"]["gerapporteerd_model"] == "claude-opus-5"
+        assert geval["meting"]["inference_geo"] == "global"
+        assert geval["meting"]["service_tier"] == "standard"
     kosten = 3 * (1500 * 0.000005 + 400 * 0.000025)
     assert data["kosten_usd_berekend"] == pytest.approx(kosten)
+    assert data["kosten_onzeker"] == []
     tekst = resultaat.read_text("utf-8")
     assert json.loads(tekst) == data
     assert SLEUTEL not in tekst
@@ -424,6 +449,45 @@ def _met_foute_positie():
         (_bericht("{}", usage=_usage(service_tier="priority")), "kostenvariant"),
         (_bericht("{}", usage=_usage(service_tier=...)), "kostenvariant"),
         (_bericht("{}", usage=_usage(onbekend_veld=1)), "kostenvariant"),
+        (_bericht("{}", usage=_usage(inference_geo="us")), "kostenvariant"),
+        (_bericht("{}", usage=_usage(inference_geo="onbekend")), "kostenvariant"),
+        (_bericht("{}", usage=_usage(inference_geo=...)), "kostenvariant"),
+        (_bericht("{}", usage=_usage(inference_geo=None)), "kostenvariant"),
+        (
+            _bericht(
+                "{}",
+                usage=_usage(output_tokens_details={"thinking_tokens": 0, "x": 1}),
+            ),
+            "kostenvariant",
+        ),
+        (
+            _bericht(
+                "{}", usage=_usage(output_tokens_details={"thinking_tokens": 401})
+            ),
+            "kostenvariant",
+        ),
+        (
+            _bericht("{}", usage=_usage(output_tokens_details="veel")),
+            "kostenvariant",
+        ),
+        (
+            _bericht(
+                "{}",
+                usage=_usage(
+                    server_tool_use={"web_search_requests": 1, "web_fetch_requests": 0}
+                ),
+            ),
+            "kostenvariant",
+        ),
+        (
+            _bericht(
+                "{}",
+                usage=_usage(
+                    cache_creation={"ephemeral_5m_input_tokens": 0, "iets": 0}
+                ),
+            ),
+            "kostenvariant",
+        ),
         (_bericht("{}", usage=_usage(output_tokens=6001)), "usage_boven_limiet"),
         (_bericht(_fixtureantwoord("C105"), stop="max_tokens"), "truncated_response"),
         (_bericht(_met_foute_positie()), "invalid_citation"),
@@ -435,6 +499,15 @@ def _met_foute_positie():
         "priority",
         "geen-tier",
         "onbekend-veld",
+        "geo-us",
+        "geo-onbekend",
+        "geo-ontbreekt",
+        "geo-null",
+        "details-extra-veld",
+        "details-boven-totaal",
+        "details-geen-object",
+        "servertool-gebruikt",
+        "cache-creation-onbekend-veld",
         "boven-limiet",
         "afgekapt",
         "ongeldig-citaat",
@@ -491,11 +564,44 @@ async def test_te_hoge_invoerschatting_stopt_voor_inferentie(tmp_path, manifest)
 # --- de waarnemer aan de httpx-grens ------------------------------------------------
 
 
-def _verzoek(body: dict, **headers) -> httpx.Request:
+STANDAARD_URL = "https://api.anthropic.com/v1/messages"
+#: Headernamen die de geïnstalleerde SDK (0.107.1) zonder envopties verstuurt.
+STANDAARDHEADERNAMEN = [
+    "accept",
+    "accept-encoding",
+    "anthropic-version",
+    "connection",
+    "content-length",
+    "content-type",
+    "host",
+    "user-agent",
+    "x-api-key",
+    "x-stainless-arch",
+    "x-stainless-async",
+    "x-stainless-lang",
+    "x-stainless-os",
+    "x-stainless-package-version",
+    "x-stainless-read-timeout",
+    "x-stainless-retry-count",
+    "x-stainless-runtime",
+    "x-stainless-runtime-version",
+    "x-stainless-timeout",
+]
+
+
+def _verzoek(body: dict, url: str = STANDAARD_URL, **headers) -> httpx.Request:
+    standaard = {
+        "x-api-key": SLEUTEL,
+        "anthropic-version": "2023-06-01",
+        "accept": "application/json",
+        "content-type": "application/json",
+        "user-agent": "AsyncAnthropic/Python 0.107.1",
+        "x-stainless-retry-count": "0",
+    }
     return httpx.Request(
         "POST",
-        "https://api.anthropic.com/v1/messages",
-        headers={"x-api-key": SLEUTEL, **headers},
+        url,
+        headers={**standaard, **headers},
         content=json.dumps(body).encode(),
     )
 
@@ -521,17 +627,29 @@ def _waarnemer(provider, **over):
     )
 
 
+PAYLOAD = "payload_niet_toegestaan"
+TRANSPORT = "transport_niet_toegestaan"
+BESTEMMING = "onverwachte_bestemming"
+
+
 @pytest.mark.parametrize(
-    ("body", "headers"),
+    ("body", "url", "headers", "reden"),
     [
-        ({**BODY, "tools": []}, {}),
-        ({**BODY, "stream": True}, {}),
-        ({**BODY, "max_tokens": 6001}, {}),
-        ({**BODY, "model": "claude-fable-5"}, {}),
-        ({**BODY, "thinking": {"type": "enabled", "budget_tokens": 10}}, {}),
+        ({**BODY, "tools": []}, STANDAARD_URL, {}, PAYLOAD),
+        ({**BODY, "stream": True}, STANDAARD_URL, {}, PAYLOAD),
+        ({**BODY, "max_tokens": 6001}, STANDAARD_URL, {}, PAYLOAD),
+        ({**BODY, "model": "claude-fable-5"}, STANDAARD_URL, {}, PAYLOAD),
+        (
+            {**BODY, "thinking": {"type": "enabled", "budget_tokens": 10}},
+            STANDAARD_URL,
+            {},
+            PAYLOAD,
+        ),
         (
             {**BODY, "system": [{"type": "text", "text": "s", "cache_control": {}}]},
+            STANDAARD_URL,
             {},
+            PAYLOAD,
         ),
         (
             {
@@ -544,10 +662,24 @@ def _waarnemer(provider, **over):
                     }
                 ],
             },
+            STANDAARD_URL,
             {},
+            PAYLOAD,
         ),
-        (BODY, {"anthropic-beta": "iets"}),
-        (BODY, {"x-stainless-retry-count": "1"}),
+        (BODY, STANDAARD_URL, {"anthropic-beta": "iets"}, TRANSPORT),
+        (BODY, STANDAARD_URL, {"x-stainless-retry-count": "1"}, TRANSPORT),
+        # R2: poort, gebruikerinfo en headerdrift aan de verzendgrens.
+        (BODY, "https://api.anthropic.com:8443/v1/messages", {}, BESTEMMING),
+        (
+            BODY,
+            "https://gebruiker:geheim@api.anthropic.com/v1/messages",
+            {},
+            BESTEMMING,
+        ),
+        (BODY, STANDAARD_URL, {"authorization": "Bearer SYNTHETISCH"}, TRANSPORT),
+        (BODY, STANDAARD_URL, {"anthropic-version": "2099-01-01"}, TRANSPORT),
+        (BODY, STANDAARD_URL, {"x-extra": "1"}, TRANSPORT),
+        (BODY, STANDAARD_URL, {"host": "proxy.example"}, TRANSPORT),
     ],
     ids=[
         "tools",
@@ -559,16 +691,22 @@ def _waarnemer(provider, **over):
         "cache-bericht",
         "beta",
         "retry",
+        "poort-8443",
+        "gebruikerinfo",
+        "authorization",
+        "api-versie",
+        "extra-header",
+        "host-header",
     ],
 )
-async def test_waarnemer_weigert_niet_toegestane_payload(body, headers):
+async def test_waarnemer_weigert_niet_toegestaan_verzoek(body, url, headers, reden):
     provider = NepProvider()
     waarnemer = _waarnemer(provider)
     waarnemer.huidig = "C105"
     with pytest.raises(m.ProefStopError):
-        await waarnemer.handle_async_request(_verzoek(body, **headers))
+        await waarnemer.handle_async_request(_verzoek(body, url, **headers))
     assert provider.verzoeken == []
-    assert waarnemer.stopreden == "payload_niet_toegestaan"
+    assert waarnemer.stopreden == reden
 
 
 async def test_waarnemer_weigert_hashmismatch_en_budget_voor_verzending():
@@ -612,3 +750,160 @@ async def test_tellimiet_stopt_voor_telverzoek():
         await waarnemer.handle_async_request(_verzoek(BODY))
     assert waarnemer.stopreden == "tellimiet"
     assert provider.verzoeken == []
+
+
+# --- correcties na review: R1 model, R2 transport, provider-usage, deadline ------------
+
+
+@pytest.mark.parametrize(
+    "model",
+    ["ander-model", "claude-opus-5-20260101", "claude-opus-5-latest", "", 123, ...],
+    ids=["ander", "revisie", "alias", "leeg", "geen-tekst", "ontbreekt"],
+)
+async def test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten(
+    tmp_path, manifest, model
+):
+    # Minimale usage (optionele SDK-velden weggelaten): de modelbinding staat
+    # hier los van de usagecontrole, zoals in de reviewreproductie.
+    kaal = {"input_tokens": 1500, "output_tokens": 400, "service_tier": "standard"}
+    antwoorden = [_bericht(_fixtureantwoord(i), usage=dict(kaal)) for i in IDS]
+    for antwoord in antwoorden:
+        antwoord["model"] = model
+        if model is ...:
+            del antwoord["model"]
+    provider = NepProvider(antwoorden)
+    data, _ = await _live(tmp_path, manifest, provider)
+    assert len(provider.inferenties()) == 1
+    assert data["tellingen"] == {"inferenties": 1, "telverzoeken": 1}
+    assert data["stopreden"] == "model_afwijkend"
+    [geval] = data["gevallen"]
+    assert geval["status"] == "error"
+    assert geval["document"]["oordeel"] is None
+    gemeld = model if isinstance(model, str) else None
+    assert geval["meting"]["gerapporteerd_model"] == gemeld
+    assert geval["meting"]["usage"] == {"input_tokens": 1500, "output_tokens": 400}
+    assert geval["meting"]["kosten_usd"] is None
+    assert data["kosten_usd_berekend"] is None
+    assert data["kosten_onzeker"] == ["C105"]
+
+
+_REVIEWDRIFT = {
+    "ANTHROPIC_BASE_URL": "https://api.anthropic.com:8443",
+    "ANTHROPIC_CUSTOM_HEADERS": (
+        "anthropic-version: 2099-01-01\nAuthorization: Bearer SYNTHETIC-REVIEW"
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "omgeving",
+    [
+        _REVIEWDRIFT,
+        {"ANTHROPIC_BASE_URL": "https://api.anthropic.com:8443"},
+        {"ANTHROPIC_BASE_URL": "https://gebruiker:geheim@api.anthropic.com"},
+        {"ANTHROPIC_BASE_URL": "http://api.anthropic.com"},
+        {"ANTHROPIC_BASE_URL": "https://api.anthropic.com/proxy"},
+        {"ANTHROPIC_BASE_URL": "https://proxy.example"},
+        {"ANTHROPIC_CUSTOM_HEADERS": "anthropic-version: 2099-01-01"},
+        {"ANTHROPIC_CUSTOM_HEADERS": "Authorization: Bearer SYNTHETIC"},
+        {"ANTHROPIC_CUSTOM_HEADERS": "X-Extra: 1"},
+    ],
+    ids=[
+        "review-8443-auth",
+        "poort",
+        "gebruikerinfo",
+        "http",
+        "pad",
+        "andere-host",
+        "versieheader",
+        "authheader",
+        "extra-header",
+    ],
+)
+async def test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending(
+    tmp_path, manifest, monkeypatch, caplog, omgeving
+):
+    caplog.set_level(logging.DEBUG)
+    for naam, waarde in omgeving.items():
+        monkeypatch.setenv(naam, waarde)
+    provider = NepProvider()
+    gelezen = []
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _live(
+            tmp_path,
+            manifest,
+            provider,
+            sleutel=lambda: gelezen.append(1) or SLEUTEL,
+        )
+    assert fout.value.reden == "transportconfig_niet_toegestaan"
+    assert provider.verzoeken == []
+    assert gelezen == []
+    assert not (tmp_path / "resultaat.json").exists()
+    assert "SYNTHETIC" not in caplog.text
+    assert "geheim" not in caplog.text
+
+
+async def test_r2_voorbereiding_weigert_transportdrift(tmp_path, monkeypatch):
+    for naam, waarde in _REVIEWDRIFT.items():
+        monkeypatch.setenv(naam, waarde)
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await m.voorbereid(tmp_path / "manifest.json")
+    assert fout.value.reden == "transportconfig_niet_toegestaan"
+    assert not (tmp_path / "manifest.json").exists()
+
+
+@pytest.mark.parametrize(
+    "omgeving",
+    [
+        {"ANTHROPIC_BASE_URL": "https://api.anthropic.com"},
+        {"ANTHROPIC_AUTH_TOKEN": "SYNTHETISCH-TOKEN"},
+    ],
+    ids=["standaard-basis-expliciet", "authtoken-genegeerd-bij-api-key"],
+)
+async def test_r2_equivalente_standaardconfiguratie_blijft_toegestaan(
+    tmp_path, manifest, monkeypatch, omgeving
+):
+    for naam, waarde in omgeving.items():
+        monkeypatch.setenv(naam, waarde)
+    provider = NepProvider()
+    data, _ = await _live(tmp_path, manifest, provider)
+    assert data["stopreden"] is None
+    assert all("authorization" not in v["headers"] for v in provider.verzoeken)
+
+
+async def test_actuele_sdk_usage_details_worden_niet_opgeteld(tmp_path, manifest):
+    usage = _usage(output_tokens_details={"thinking_tokens": 37})
+    provider = NepProvider([_bericht(_fixtureantwoord(i), usage=usage) for i in IDS])
+    data, _ = await _live(tmp_path, manifest, provider)
+    assert data["stopreden"] is None
+    assert len(provider.inferenties()) == 3
+    # output_tokens is het inclusieve facturatietotaal; details tellen niet op.
+    kosten = 3 * (1500 * 0.000005 + 400 * 0.000025)
+    assert data["kosten_usd_berekend"] == pytest.approx(kosten)
+    assert data["gevallen"][0]["meting"]["thinking_tokens"] == 37
+
+
+async def test_deadline_breekt_hangende_inferentie_af_zonder_vervolgcall(
+    tmp_path, caplog
+):
+    caplog.set_level(logging.DEBUG)
+    grens = m.Limieten(deadline_seconden=0.05)
+    manifest = tmp_path / "manifest.json"
+    await m.voorbereid(manifest, limieten=grens)
+
+    async def hangt(request):
+        await asyncio.sleep(30)  # wordt na 0,05 s afgebroken
+        raise AssertionError(GEHEIM)
+
+    provider = NepProvider([hangt, _bericht("{}"), _bericht("{}")])
+    start = time.monotonic()
+    data, resultaat = await _live(tmp_path, manifest, provider, limieten=grens)
+    assert time.monotonic() - start < 5
+    assert data["stopreden"] == "timeout"
+    assert data["tellingen"] == {"inferenties": 1, "telverzoeken": 1}
+    assert len(provider.inferenties()) == 1
+    [geval] = data["gevallen"]
+    assert geval["status"] == "error"
+    assert geval["meting"]["fouttype"] == "CancelledError"
+    assert GEHEIM not in resultaat.read_text("utf-8")
+    assert SLEUTEL not in caplog.text

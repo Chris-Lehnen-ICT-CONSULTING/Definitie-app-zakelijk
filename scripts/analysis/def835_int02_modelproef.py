@@ -20,8 +20,15 @@ apart, door een mens opgesteld akkoordbestand dat exact dat manifest bindt;
 de runner maakt nooit zelf een akkoord. Live herberekent eerst offline de
 identiteit en weigert bij elke afwijking vóór een sleutel wordt gelezen.
 
+Binding (correcties na review). Het gerapporteerde model moet exact
+`claude-opus-5` zijn, anders stopt de proef en bereikt het antwoord de keten
+niet. De SDK-transportconfiguratie (basis-URL, env-headers, authenticatie)
+moet de standaard zijn; afwijking wordt vóór verzending geweigerd. Tier en
+geografie worden pas na het antwoord gecontroleerd (`CONTROLEMOMENTEN`).
+
 Grenzen. Tokenmeting is een schatting; berekende kosten (gemelde usage ×
-routerprijzen) zijn geen factuurgarantie. Monitoring en cache van de keten
+routerprijzen) zijn geen factuurgarantie; zonder betrouwbare prijs blijven
+ze onbekend. Monitoring en cache van de keten
 schrijven in een tijdelijke werkmap. Provider-foutteksten worden niet
 gelogd of bewaard: alleen type en categorie. Geen retentieclaim over de
 provider. Fixture: alleen het veld `invoer` van C105, C107 en C112.
@@ -116,7 +123,46 @@ TOEGESTANE_VELDEN = frozenset(
     {"model", "max_tokens", "messages", "system", "thinking", "temperature"}
 )
 TELVELDEN = ("model", "system", "messages", "thinking")
-DOORGEGEVEN_HEADERS = frozenset({"x-api-key", "anthropic-version", "user-agent"})
+#: Goedgekeurde API-versie en authenticatie: de SDK-default, zonder envopties.
+API_VERSIE = "2023-06-01"
+BASIS_URL = f"https://{API_HOST}"
+#: Headernamen die anthropic 0.107.1 zonder envopties verstuurt; alles
+#: daarbuiten (Authorization, beta, eigen headers) wordt geweigerd.
+SDK_HEADERS = frozenset(
+    {
+        "accept",
+        "accept-encoding",
+        "anthropic-version",
+        "connection",
+        "content-length",
+        "content-type",
+        "host",
+        "user-agent",
+        "x-api-key",
+        "x-stainless-arch",
+        "x-stainless-async",
+        "x-stainless-lang",
+        "x-stainless-os",
+        "x-stainless-package-version",
+        "x-stainless-read-timeout",
+        "x-stainless-retry-count",
+        "x-stainless-runtime",
+        "x-stainless-runtime-version",
+        "x-stainless-timeout",
+    }
+)
+VASTE_HEADERS = {
+    "host": API_HOST,
+    "anthropic-version": API_VERSIE,
+    "accept": "application/json",
+    "content-type": "application/json",
+    "x-stainless-retry-count": "0",
+}
+DOORGEGEVEN_HEADERS = frozenset(
+    {"x-api-key", "anthropic-version", "user-agent", "accept"}
+)
+#: Velden van `anthropic.types.Usage` (SDK 0.107.1). `output_tokens` is het
+#: inclusieve facturatietotaal; `output_tokens_details` telt niet op.
 USAGE_VELDEN = frozenset(
     {
         "input_tokens",
@@ -124,10 +170,36 @@ USAGE_VELDEN = frozenset(
         "cache_creation_input_tokens",
         "cache_read_input_tokens",
         "cache_creation",
+        "inference_geo",
+        "output_tokens_details",
         "server_tool_use",
         "service_tier",
     }
 )
+_SUBVELDEN = {
+    "cache_creation": frozenset(
+        {"ephemeral_1h_input_tokens", "ephemeral_5m_input_tokens"}
+    ),
+    "server_tool_use": frozenset({"web_fetch_requests", "web_search_requests"}),
+}
+#: Standaardprijs geldt alleen voor aantoonbaar global uitgevoerde inference.
+STANDAARD_GEO = "global"
+#: Wat vóór verzending wordt afgedwongen en wat pas na het antwoord blijkt.
+CONTROLEMOMENTEN = {
+    "voor_verzending": [
+        "SDK-configuratie: standaard HTTPS-eindpunt, geen env-headers of andere auth",
+        "bestemming, headers, API-versie en payloadvelden per verzoek",
+        "payloadhash tegen het manifest",
+        "harde limieten tellingen en inferenties",
+        "provider-tokenschatting en budgetreservering",
+    ],
+    "na_antwoord": [
+        "gerapporteerd model exact het proefmodel",
+        "service_tier standard (niet vooraf gepind in het verzoek)",
+        "inference_geo global",
+        "usagevorm, cache- en servertoolgebruik, tokenlimieten, budget",
+    ],
+}
 _FOUTTYPE = re.compile(r"[a-z_]{1,64}")
 #: Loggers die ruwe provider-uitzonderingen of payloads kunnen tonen.
 _STILLE_LOGGERS = (
@@ -224,6 +296,29 @@ def _niet_nul(waarde: Any) -> bool:
     return True
 
 
+def _vorm(waarde: Any, velden: frozenset[str]) -> bool:
+    """None, of een object met alleen bekende velden en gehele waarden."""
+    if waarde is None:
+        return True
+    return (
+        isinstance(waarde, dict)
+        and set(waarde) <= velden
+        and all(_geheel(v) for v in waarde.values())
+    )
+
+
+def _standaard_basis(url: httpx.URL) -> bool:
+    return (
+        url.scheme == "https"
+        and url.host == API_HOST
+        and url.port is None
+        and url.userinfo == b""
+        and url.path in ("", "/")
+        and url.query == b""
+        and url.fragment == ""
+    )
+
+
 def _bevat_sleutel(waarde: Any, sleutel: str) -> bool:
     if isinstance(waarde, dict):
         return sleutel in waarde or any(
@@ -260,8 +355,18 @@ class Waarnemer(httpx.AsyncBaseTransport):
         self.besteed_usd = 0.0
         self.stopreden: str | None = None
         self.opgevangen: dict[str, bytes] = {}
+        self.headernamen: set[str] = set()
         self.metingen: dict[str, dict[str, Any]] = {}
         self.antwoorden: dict[str, str] = {}
+
+    @property
+    def kosten_onzeker(self) -> list[str]:
+        """Verstuurde inferenties zonder betrouwbaar berekende kosten."""
+        return [
+            geval
+            for geval, meting in self.metingen.items()
+            if meting.get("verstuurd") and meting.get("kosten_usd") is None
+        ]
 
     def _stop(self, reden: str) -> NoReturn:
         self.stopreden = self.stopreden or reden
@@ -295,20 +400,26 @@ class Waarnemer(httpx.AsyncBaseTransport):
 
     def _controleer(self, request: httpx.Request, body: bytes) -> dict[str, Any]:
         url = request.url
-        if (request.method, url.scheme, url.host, url.path, url.query) != (
-            "POST",
-            "https",
-            API_HOST,
-            BERICHTEN,
-            b"",
+        if not (
+            request.method == "POST"
+            and _standaard_basis(url.copy_with(path="/"))
+            and url.path == BERICHTEN
         ):
             self._stop("onverwachte_bestemming")
+        namen = set(request.headers.keys())
+        if not (
+            namen <= SDK_HEADERS
+            and {"host", "anthropic-version", "x-api-key"} <= namen
+            and all(
+                request.headers[k] == v for k, v in VASTE_HEADERS.items() if k in namen
+            )
+        ):
+            self._stop("transport_niet_toegestaan")
+        self.headernamen |= namen
         payload = _json(body)
         berichten = payload.get("messages") if isinstance(payload, dict) else None
         toegestaan = (
             isinstance(payload, dict)
-            and "anthropic-beta" not in request.headers
-            and request.headers.get("x-stainless-retry-count", "0") == "0"
             and set(payload) <= TOEGESTANE_VELDEN
             and payload.get("model") == MODEL
             and payload.get("max_tokens") == self.limieten.max_uitvoertokens
@@ -333,6 +444,8 @@ class Waarnemer(httpx.AsyncBaseTransport):
         verzoek = httpx.Request(
             "POST",
             request.url.copy_with(path=TELLEN),
+            # Na de headercontrole is x-api-key de enige authenticatie; die
+            # gaat identiek mee, zodat telling en inference één context delen.
             headers={
                 k: v for k, v in request.headers.items() if k in DOORGEGEVEN_HEADERS
             },
@@ -358,13 +471,18 @@ class Waarnemer(httpx.AsyncBaseTransport):
         self, request: httpx.Request, meting: dict[str, Any]
     ) -> httpx.Response:
         self.inferenties += 1  # telt vóór verzending: ook een mislukte call
+        meting["verstuurd"] = True
+        meting["kosten_usd"] = None  # pas gezet na betrouwbare boeking
         start = time.monotonic()
         try:
             antwoord = await self._binnen.handle_async_request(request)  # type: ignore[union-attr]
             inhoud = await antwoord.aread()
-        except Exception as exc:
+        except BaseException as exc:
+            # Ook afbreken door een deadline (CancelledError) wordt vastgelegd;
+            # de reden komt dan van de dienst (timeout).
             meting["fouttype"] = type(exc).__name__
-            self.stopreden = self.stopreden or "transportfout"
+            if isinstance(exc, Exception):
+                self.stopreden = self.stopreden or "transportfout"
             raise
         finally:
             meting["duur_ms"] = round((time.monotonic() - start) * 1000)
@@ -381,11 +499,17 @@ class Waarnemer(httpx.AsyncBaseTransport):
             blokken = (
                 data.get("content") if isinstance(data.get("content"), list) else []
             )
-            meting["gerapporteerd_model"] = data.get("model")
+            model = data.get("model")
+            meting["gerapporteerd_model"] = model if isinstance(model, str) else None
             meting["stop_reason"] = data.get("stop_reason")
             meting["inhoudsblokken"] = [
                 b.get("type") if isinstance(b, dict) else None for b in blokken
             ]
+            if model != MODEL:
+                # R1: exact het proefmodel; geen prefix of alias. Het antwoord
+                # bereikt de keten niet (geen oordeel) en krijgt geen Opus-prijs.
+                self._tokens(data.get("usage"), meting)
+                self._stop("model_afwijkend")
             reden = self._boek(data.get("usage"), meting)
             if reden is None and set(meting["inhoudsblokken"]) - {"text"}:
                 reden = "onverwacht_inhoudsblok"
@@ -393,30 +517,60 @@ class Waarnemer(httpx.AsyncBaseTransport):
             self.stopreden = self.stopreden or reden
         return antwoord
 
-    def _boek(self, usage: Any, meting: dict[str, Any]) -> str | None:
-        """Boek de gemelde usage; een afwijking stopt verdere calls."""
+    @staticmethod
+    def _tokens(usage: Any, meting: dict[str, Any]) -> tuple[int, int] | None:
+        """Registreer de gemelde in-/uitvoertokens (zonder prijs)."""
         if not isinstance(usage, dict):
-            return "usage_ontbreekt"
+            return None
         invoer, uitvoer = usage.get("input_tokens"), usage.get("output_tokens")
         if not (_geheel(invoer) and _geheel(uitvoer)):
-            return "usage_ontbreekt"
-        kosten = invoer * self._prijzen["input"] + uitvoer * self._prijzen["output"]
-        self.besteed_usd += kosten
+            return None
         meting["usage"] = {"input_tokens": invoer, "output_tokens": uitvoer}
-        meting["kosten_usd"] = kosten
+        return invoer, uitvoer
+
+    def _boek(self, usage: Any, meting: dict[str, Any]) -> str | None:
+        """Boek de gemelde usage; een afwijking stopt verdere calls.
+
+        Alleen standaardgebruik (tier standard, geo global, geen cache of
+        servertools, bekende vorm) krijgt een prijs; anders blijven de kosten
+        onbekend (`kosten_usd` None).
+        """
+        tokens = self._tokens(usage, meting)
+        if tokens is None:
+            return "usage_ontbreekt"
+        invoer, uitvoer = tokens
         meting["service_tier"] = usage.get("service_tier")
+        geo = usage.get("inference_geo")
+        meting["inference_geo"] = geo if isinstance(geo, str) else None
+        details = usage.get("output_tokens_details")
+        denken = details.get("thinking_tokens") if isinstance(details, dict) else None
+        if isinstance(details, dict):
+            meting["thinking_tokens"] = denken
         onbekend = sorted(set(usage) - USAGE_VELDEN)
         if onbekend:
             meting["onbekende_usagevelden"] = onbekend
         if (
             onbekend
             or usage.get("service_tier") != "standard"
+            or geo != STANDAARD_GEO
             or usage.get("cache_creation_input_tokens") not in (None, 0)
             or usage.get("cache_read_input_tokens") not in (None, 0)
+            or not all(_vorm(usage.get(k), v) for k, v in _SUBVELDEN.items())
             or _niet_nul(usage.get("cache_creation"))
             or _niet_nul(usage.get("server_tool_use"))
+            or not (
+                details is None
+                or (
+                    set(details) == {"thinking_tokens"}
+                    and _geheel(denken)
+                    and denken <= uitvoer
+                )
+            )
         ):
             return "kostenvariant"
+        kosten = invoer * self._prijzen["input"] + uitvoer * self._prijzen["output"]
+        self.besteed_usd += kosten
+        meting["kosten_usd"] = kosten
         grens = self.limieten
         if (
             invoer > grens.max_geschatte_invoertokens
@@ -536,9 +690,23 @@ def _bouw_dienst(
     # De adapter bouwt zijn SDK-client uit `_sdk_opties`; alleen hier wordt
     # de httpx-client van de waarnemer toegevoegd.
     adapter._sdk_opties["http_client"] = http
-    adapter._client = AsyncAnthropic(**adapter._sdk_opties)
-    if adapter._client._client is not http or adapter._client.max_retries != 0:
+    sdk = adapter._client = AsyncAnthropic(**adapter._sdk_opties)
+    if sdk._client is not http or sdk.max_retries != 0:
         raise ProefGeweigerdError("sdk_interceptie_onbetrouwbaar")
+    # R2: de SDK leest ANTHROPIC_BASE_URL en ANTHROPIC_CUSTOM_HEADERS uit de
+    # omgeving. Alleen de standaardconfiguratie met x-api-key is toegestaan;
+    # dit gebeurt vóór verzending en (live) vóór het lezen van de sleutel,
+    # omdat de dry-run dezelfde omgeving eerst doorloopt.
+    if not (
+        _standaard_basis(sdk.base_url)
+        and not sdk._custom_headers
+        and not sdk._custom_query
+        and sdk.auth_token is None
+        and sdk.credentials is None
+        and sdk.custom_auth is None
+        and sdk.api_key == sleutel
+    ):
+        raise ProefGeweigerdError("transportconfig_niet_toegestaan")
     ai = AIServiceV2(
         rate_limit_config=RateLimitConfig(
             requests_per_minute=grens.max_inferentie,
@@ -648,6 +816,12 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
             "accepts_temperature": router.accepts_temperature(model, provider=provider),
             "thinking_default_on": router.thinking_default_on(model, provider=provider),
         },
+        "transport": {
+            "basis_url": BASIS_URL,
+            "anthropic_version": API_VERSIE,
+            "authenticatie": "x-api-key",
+            "headernamen": sorted(waarnemer.headernamen),
+        },
         "normhash": norm.normhash,
         "t_tekst_sha256": _sha(T_TEKST.encode("utf-8")),
         "bestanden": {pad: _sha((REPO / pad).read_bytes()) for pad in KETENBESTANDEN},
@@ -703,6 +877,7 @@ async def voorbereid(
         "aangemaakt": _nu(),
         "claim": CLAIM,
         "akkoordvelden": list(AKKOORDVELDEN),
+        "controlemomenten": CONTROLEMOMENTEN,
         "identiteit_sha256": hash_json(identiteit),
         "identiteit": identiteit,
     }
@@ -863,7 +1038,13 @@ async def voer_live_uit(
             "inferenties": waarnemer.inferenties,
             "telverzoeken": waarnemer.telverzoeken,
         },
-        "kosten_usd_berekend": waarnemer.besteed_usd,
+        # Onbekend (None) zodra één verstuurde inferentie geen betrouwbare
+        # prijs heeft (modelafwijking, kostenvariant, fout, geen usage).
+        "kosten_usd_berekend": (
+            None if waarnemer.kosten_onzeker else waarnemer.besteed_usd
+        ),
+        "kosten_usd_bekend_deel": waarnemer.besteed_usd,
+        "kosten_onzeker": waarnemer.kosten_onzeker,
         "gevallen": resultaten,
     }
     data = json.loads(json.dumps(data, ensure_ascii=False))
