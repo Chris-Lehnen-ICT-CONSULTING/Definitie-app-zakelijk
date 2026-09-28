@@ -31,7 +31,11 @@ Dit is uitsluitend een delta. Alles wat hier niet staat, is gelijk aan [v5](ess0
 
 ## Gewijzigd: prompt /4
 
-- Paragraaf 5 heet nu "bewijs". Het materiaal (behalve definitie en context) staat genummerd in de prompt als `[Un] <zin>`. Positieve antwoorden noemen minstens één eenheidsnummer. Hergebruik staat er expliciet: "Hetzelfde nummer mag bij zoveel antwoorden staan als het draagt". Een eenheid die alleen een ander begrip noemt, is geen bewijs. Wijst een eenheid terug naar een eerdere, dan noemt het model beide.
+- Paragraaf 5 heet nu "bewijs". Het materiaal (behalve definitie en context) staat genummerd in de prompt als `[Un] <zin>`. Positieve antwoorden noemen minstens één eenheidsnummer. Hergebruik staat er expliciet: "Hetzelfde nummer mag bij zoveel antwoorden staan als het draagt". Wijst een eenheid terug naar een eerdere, dan noemt het model beide.
+- De prompt scheidt de inhoudelijke instructie van de deterministische controle:
+  - **Instructie (altijd):** kies alleen een eenheid die inhoudelijk over het onderwerp gaat en het kenmerk draagt; "een eenheid die alleen een ander begrip noemt is geen bewijs, ook niet naast een eenheid die wel over het onderwerp gaat".
+  - **Controle (beperkter):** "Dit geldt altijd, ook waar de app het niet zelf controleert: de app weigert zo'n eenheid alleen automatisch in een bron die meer dan één van de begrippen noemt; elders toetst alleen de latere inhoudelijke controle je keuze."
+  - Dit sluit aan op het negatieve anker hierboven. Buiten die bronnen (bijvoorbeeld een bron die alleen het andere begrip noemt) is de keuze niet deterministisch afgedwongen.
 - Kern (paragraaf 1): een letterlijk citaat dat maar één keer in de definitie voorkomt. De dubbelzinnige zin "precies één keer" (R17) is verwijderd.
 - Deelgroepen (paragraaf 3) noemen eenheden. Het schema toont `"citaten": ["U<n>"]`.
 

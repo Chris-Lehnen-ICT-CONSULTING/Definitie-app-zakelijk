@@ -334,6 +334,22 @@ class TestPromptV4:
         assert "precies één keer" not in system  # R17: twee betekenissen verwijderd
         assert '"citaten": ["U<n>"]' in system
 
+    def test_inhoudelijke_instructie_los_van_de_deterministische_controle(self):
+        # Codex-review deel A, bevinding 4: de instructie blijft absoluut; de prompt
+        # zegt apart dat de app haar maar deels automatisch afdwingt.
+        system = bs.interpretatiesysteemprompt()
+        assert (
+            "Kies alleen een eenheid die inhoudelijk over dat onderwerp gaat en het "
+            "kenmerk draagt; een eenheid die alleen een ander begrip noemt is geen "
+            "bewijs, ook niet naast een eenheid die wel over het onderwerp gaat."
+        ) in system
+        assert (
+            "Dit geldt altijd, ook waar de app het niet zelf controleert: de app "
+            "weigert zo'n eenheid alleen automatisch in een bron die meer dan één "
+            "van de begrippen noemt; elders toetst alleen de latere inhoudelijke "
+            "controle je keuze."
+        ) in system
+
 
 class TestInterpreteer:
     def test_een_aanroep_geen_controle(self):
