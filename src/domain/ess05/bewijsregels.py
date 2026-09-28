@@ -125,7 +125,6 @@ _BEREIKVELDEN = frozenset({"citaat", "reden"})
 _ANTWOORDVELDEN = frozenset(
     {"kenmerk_id", "onderwerp", "toestand", "voorwaarden", "context", "citaten"}
 )
-_CITAATVELDEN = frozenset({"material_id", "citaat"})
 
 
 def regelcontract() -> dict[str, str]:
@@ -296,21 +295,24 @@ def _noemt(tekst: str, term: str) -> bool:
 def _onderwerpbinding(
     invoer: Vergelijkingsinvoer, ref: Citaatverwijzing, term: str, pad: str
 ) -> None:
-    """Tekstanker (contract v5): noemt een bron meer dan één geregistreerd begrip,
-    dan noemt een citaat het eigen onderwerp als heel woord. Een andere
-    begripsnaam mag erbij staan. Dit bewijst geen inhoudelijke betrekking; die
-    toetst de semantische controle."""
+    """Negatief anker (contract v6): noemt een bron meer dan één geregistreerd
+    begrip, dan is een eenheid die een ander begrip noemt en het eigen onderwerp
+    niet, geen bewijs voor dat onderwerp. Een eenheid zonder begripsnaam of met
+    beide namen gaat door; inhoudelijke betrekking toetst de semantische
+    controle."""
     if not ref.material_id.startswith(_BRONPREFIX):
         return
     bron = invoer.materiaal[ref.material_id]
     termen = list(dict.fromkeys([invoer.term, *(t for _, t in invoer.buren)]))
-    genoemd = [t for t in termen if _noemt(bron, t)]
-    citaat = bron[ref.start : ref.end]
-    if len(genoemd) >= 2 and not _noemt(citaat, term):
+    if sum(_noemt(bron, t) for t in termen) < 2:
+        return
+    eenheid = bron[ref.start : ref.end]
+    anderen = [t for t in termen if t != term and _noemt(eenheid, t)]
+    if anderen and not _noemt(eenheid, term):
         raise _fout(
             "onderwerpfout",
-            f"{pad}: {ref.material_id!r} noemt de begrippen {genoemd}; een citaat "
-            f"voor {term!r} noemt {term!r} niet (citaat {citaat[:80]!r})",
+            f"{pad}: de eenheid noemt {anderen} en niet {term!r}; zij is geen bewijs "
+            f"voor {term!r} (eenheid {eenheid[:80]!r})",
         )
 
 
@@ -321,20 +323,22 @@ def _citaten(
     pad: str,
     term: str,
 ) -> tuple[Citaatverwijzing, ...]:
-    refs = []
-    for nummer, item in enumerate(_lijst(ruw, pad), start=1):
-        citaat = _velden(item, _CITAATVELDEN, f"{pad}[{nummer}]")
-        mid = _tekstveld(citaat["material_id"], f"{pad}[{nummer}].material_id")
-        tekst = _tekstveld(citaat["citaat"], f"{pad}[{nummer}].citaat")
-        if mid in invoer.materiaal and mid not in toegestaan:
+    """v6: bewijs is een lijst eenheidsnummers; hergebruik over antwoorden mag."""
+    eenheden = invoer.eenheden()
+    refs: list[Citaatverwijzing] = []
+    for nummer, uid in enumerate(_lijst(ruw, pad), start=1):
+        if not isinstance(uid, str) or uid not in eenheden:
+            raise _fout("citaatfout", f"{pad}[{nummer}]: onbekende eenheid {uid!r}")
+        ref = eenheden[uid]
+        if ref.material_id not in toegestaan:
             raise _fout(
                 "onderwerpfout",
-                f"{pad}[{nummer}]: materiaal {mid!r} hoort niet bij dit onderwerp "
-                f"(toegestaan: {list(toegestaan)})",
+                f"{pad}[{nummer}]: {uid} uit {ref.material_id!r} hoort niet bij dit "
+                f"onderwerp (toegestaan: {list(toegestaan)})",
             )
-        ref = _plaats(invoer.materiaal, mid, tekst, f"{pad}[{nummer}]")
-        _onderwerpbinding(invoer, ref, term, f"{pad}[{nummer}]")
-        refs.append(ref)
+        _onderwerpbinding(invoer, ref, term, f"{pad}[{nummer}] ({uid})")
+        if ref not in refs:
+            refs.append(ref)
     return tuple(refs)
 
 
