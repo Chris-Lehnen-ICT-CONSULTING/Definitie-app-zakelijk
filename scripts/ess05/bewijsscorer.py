@@ -23,15 +23,17 @@ de plancode is overgenomen, met deze afwijkingen:
   een van beide, anders draagt het feit niet. Alleen context zonder vereiste
   eenheid draagt niet; zonder antwoord of zonder bewijs ook niet (in de
   plancode vacuüm waar). Het oude veld `eenheden` is een orakelfout.
-- Voorwaarde (aanvulling C2 op het plan, Codex-review B2): geen woordzoeking
-  maar een status. `behouden` alleen bij (a) een doelvoorwaarde of (b) een
-  voor het doel bevestigd `buiten_kern`-kenmerk met de frase, zonder
-  markering (`MARKERINGEN`) in dezelfde tekstwaarde; `ontkend` bij een
-  markering in een doelvoorwaarde of `buiten_kern`-kenmerk; `handmatig_beoordelen`
-  als de frase alleen elders of niet eenduidig staat (bv. buiten bereik, een
-  niet-bevestigd kenmerk, of een doelvoorwaarde naast een onvoorwaardelijk
-  gelijk antwoord, zoals `bewijsregels._onverwerkte_voorwaarden`);
-  `weggevallen` als de frase nergens staat.
+- Voorwaarde (aanvulling C2 op het plan, Codex-review B2; aanvulling v2,
+  Codex-hercontrole B2-rest): geen woordzoeking maar een status. `behouden`
+  alleen via het schemaveld: een doelvoorwaarde met de frase die met een
+  voorwaardelijke aanhef begint (`AANHEF`), zonder markering (`MARKERINGEN`),
+  niet opgeheven, én `bepaal` geeft `error/buiten_bereik`. `ontkend` bij een
+  markering in een doelvoorwaarde of `buiten_kern`-kenmerk. Een
+  `buiten_kern`-kenmerk (M-kenmerk) met de frase geeft nooit automatisch
+  behouden maar `handmatig_beoordelen`, net als een vermelding elders of
+  zonder aanhef, of een doelvoorwaarde naast een onvoorwaardelijk gelijk
+  antwoord (zoals `bewijsregels._onverwerkte_voorwaarden`); `weggevallen` als
+  de frase nergens staat.
 - F7 apart (deel C: niet geslaagd, niet kritiek): `m_b_dragend_ok_zonder_f7`
   en `m_c_dragend_ok_zonder_f7` laten de feiten met een F7-afwijking buiten
   beschouwing; de plansleutels blijven streng.
@@ -56,6 +58,7 @@ from typing import Any
 from domain.ess05 import bewijsregels as br
 
 __all__ = [
+    "AANHEF",
     "BUURBESCHRIJVING",
     "MARKERINGEN",
     "VOORWAARDESTATUSSEN",
@@ -129,7 +132,7 @@ def _voorwaarden(a: Mapping[str, Any]) -> list[str]:
     return [v for v in _lijst(a.get("voorwaarden")) if isinstance(v, str)]
 
 
-#: Aanvulling C2: ontkennende of opheffende markeringen (hele woorden, zonder
+#: Aanvulling C2/v2: ontkennende of opheffende markeringen (hele woorden, zonder
 #: hoofdletteronderscheid) in dezelfde tekstwaarde als de voorwaardefrase.
 MARKERINGEN = (
     "ook zonder",
@@ -140,7 +143,24 @@ MARKERINGEN = (
     "geen",
     "ongeacht",
     "altijd",
+    "onafhankelijk",
+    "irrelevant",
+    "optioneel",
 )
+#: Aanvulling v2 (B2-rest): de voorwaardelijke aanhef waarmee een doelvoorwaarde
+#: begint (na witruimte, zonder hoofdletteronderscheid).
+AANHEF = (
+    "bij ",
+    "alleen bij ",
+    "uitsluitend bij ",
+    "in geval van ",
+    "als ",
+    "wanneer ",
+    "indien ",
+    "mits ",
+)
+#: Aanvulling v2: alleen de onverwerkte voorwaardelijke doeleis geeft behouden.
+_BEHOUDEN_UITKOMST = ("error", "buiten_bereik")
 VOORWAARDESTATUSSEN = ("behouden", "ontkend", "handmatig_beoordelen", "weggevallen")
 
 
@@ -167,16 +187,21 @@ def _teksten(waarde: Any, pad: str = "") -> list[tuple[str, str]]:
     return []
 
 
-def _voorwaardestatus(ruw: Any, frase: str) -> tuple[str, list[dict[str, Any]]]:
-    """Aanvulling C2 (Codex-review B2): behouden, ontkend, handmatig of weggevallen.
+def _voorwaardestatus(
+    ruw: Any, frase: str, uitkomst: tuple[str | None, str | None]
+) -> tuple[str, list[dict[str, Any]]]:
+    """Aanvulling C2/v2 (Codex-review B2, hercontrole B2-rest): behouden,
+    ontkend, handmatig of weggevallen.
 
-    Behouden is alleen (a) een doelantwoord met een voorwaarde die de frase
-    bevat, of (b) een `buiten_kern`-kenmerk waarvan kenmerk of waarde de frase
-    bevat en dat voor het doel bevestigd is; beide zonder markering en (a) niet
-    opgeheven door een onvoorwaardelijk gelijk doelantwoord. Een markering in
-    een voorwaarde van een doelantwoord of in een `buiten_kern`-kenmerk maakt
-    de voorwaarde ontkend, ook naast een correcte vermelding. Komt de frase
-    elders of niet eenduidig voor: handmatig beoordelen; nergens: weggevallen.
+    Behouden is alleen een doelantwoord met een voorwaarde die de frase bevat,
+    met een voorwaardelijke aanhef begint (`AANHEF`), geen markering bevat en
+    niet opgeheven is door een onvoorwaardelijk gelijk doelantwoord, terwijl
+    `bepaal` `error/buiten_bereik` geeft. Een markering in een doelvoorwaarde
+    of `buiten_kern`-kenmerk maakt de voorwaarde ontkend, ook naast een
+    correcte vermelding. Een `buiten_kern`-kenmerk met de frase geeft nooit
+    automatisch behouden: handmatig beoordelen (ook naast een correcte
+    doelvoorwaarde; conservatief). Komt de frase elders of niet eenduidig voor:
+    handmatig beoordelen; nergens: weggevallen.
     """
     f = frase.casefold()
     antwoorden = _objecten(ruw, "antwoorden")
@@ -204,13 +229,8 @@ def _voorwaardestatus(ruw: Any, frase: str) -> tuple[str, list[dict[str, Any]]]:
                 pad = f"antwoorden[{i}].voorwaarden[{j}]"
                 gezien.add(pad)
                 schoon = not vermeld(pad, v, "doelvoorwaarde")["markering"]
-                a_ok = a_ok or (schoon and not opgeheven(a))
-    bevestigd = {
-        a.get("kenmerk_id")
-        for _, a in doel
-        if isinstance(a.get("kenmerk_id"), str) and a.get("toestand") == "bevestigd"
-    }
-    b_ok = False
+                aanhef = v.lstrip().casefold().startswith(AANHEF)
+                a_ok = a_ok or (schoon and aanhef and not opgeheven(a))
     for i, m in enumerate(
         _lijst(ruw.get("buiten_kern")) if isinstance(ruw, Mapping) else []
     ):
@@ -221,15 +241,15 @@ def _voorwaardestatus(ruw: Any, frase: str) -> tuple[str, list[dict[str, Any]]]:
             if tekst is not None and f in tekst.casefold():
                 pad = f"buiten_kern[{i}].{k}"
                 gezien.add(pad)
-                schoon = not vermeld(pad, tekst, "m_kenmerk")["markering"]
-                m_id = m.get("id")
-                b_ok = b_ok or (schoon and isinstance(m_id, str) and m_id in bevestigd)
+                vermeld(pad, tekst, "m_kenmerk")
     for pad, tekst in _teksten(ruw):
         if pad not in gezien and f in tekst.casefold():
             vermeld(pad, tekst, "elders")
     if any(v["markering"] for v in vermeldingen if v["plek"] != "elders"):
         return "ontkend", vermeldingen
-    if a_ok or b_ok:
+    if any(v["plek"] == "m_kenmerk" for v in vermeldingen):
+        return "handmatig_beoordelen", vermeldingen
+    if a_ok and uitkomst == _BEHOUDEN_UITKOMST:
         return "behouden", vermeldingen
     if vermeldingen:
         return "handmatig_beoordelen", vermeldingen
@@ -399,7 +419,9 @@ def scoor(
     zonder_f7 = [f for f in dragende if not f["f7"]]
     voorwaarde = orakel.get("voorwaarde")
     status, vermeldingen = (
-        _voorwaardestatus(ruw, voorwaarde) if voorwaarde else (None, None)
+        _voorwaardestatus(ruw, voorwaarde, (uitkomst, fout))
+        if voorwaarde
+        else (None, None)
     )
     return {
         "m_a": {"items": len(positief), "fouten": _diagnose(ruw, invoer)},
@@ -517,7 +539,8 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     Afgekeurd bij één kritieke run of M-d ≤ 8, ook met de ontbrekende runs en
     de handmatig te beoordelen runs erbij (aanvulling C2: die kunnen juist
     blijken); onvolledig onder 12 runs; geslaagd bij M-d ≥ 11, M-c en M-b
-    12/12 en elke E-run met behouden voorwaarde; anders wacht de proef op de
+    12/12 en elke E-run met automatisch behouden voorwaarde (aanvulling v2:
+    een handmatig te beoordelen run telt niet mee); anders wacht de proef op de
     handmatige beoordeling (als 11 dan nog haalbaar is) of op het F7-besluit
     van Chris, of is het tussengebied (analyseren, geen nieuwe ronde zonder
     besluit).

@@ -14,18 +14,20 @@ gescoord met `bewijsscorer` tegen een vooraf vastgelegd orakel.
   blind hergebruik van de Uitleen-eenheid, ontkenning en de herhaalde zin.
 - **E** — SYNTHETISCH, GEEN MODELUITVOER: A met de bron uit het plan, waarin
   uitleen alleen "bij storing" kosteloos is. Toetst of de voorwaarde behouden
-  blijft. Aanvulling op het orakel (`voorwaarde_vereist_voor`): een
-  toegestane uitkomst telt alleen als de voorwaardestatus `behouden` is
-  (aanvulling C2), en volgens deel C geldt dat voor elke uitkomst van E.
+  blijft. Orakel (aanvulling v2, Codex-hercontrole B2-rest): alleen
+  `error/buiten_bereik` met de voorwaardestatus `behouden` is juist; een
+  M-kenmerk met de frase is nooit automatisch behouden.
 
 Orakelstructuur (aanvulling C3,
 `docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md`,
 Codex-review B3/B4): per feit `vereist` (minstens één genoemde eenheid) en
 `toegestaan` (context die erbij mag staan). Bij D is de betaalzin vereist en
 zijn de Uitleen-/Verhuur-zin en de buurbeschrijving alleen context; de
-buurbeschrijving noemt geen vergoeding (F7 blijft open). Schema `/3`; de
-invoer is het nieuwe bestand `bewijsregel-invoer-v2.json` (`-v1` blijft
-ongewijzigd staan en is onder deze structuur ongeldig).
+buurbeschrijving noemt geen vergoeding (F7 blijft open). Schema `/4`
+(aanvulling v2,
+`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v2.md`);
+de invoer is het nieuwe bestand `bewijsregel-invoer-v3.json` (`-v1` en `-v2`
+blijven ongewijzigd staan; de runner weigert ze).
 
 Het orakel gaat nooit naar het model. Binding: de berekende
 contractidentiteit (`Ess05BewijsregelService.contractidentiteit()`) en per
@@ -66,8 +68,9 @@ __all__ = [
     "vergelijkingsinvoer",
 ]
 
-#: /3 (aanvulling C3): orakelfeiten met `vereist`/`toegestaan` in plaats van `eenheden`.
-INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/3"
+#: /3 (aanvulling C3): orakelfeiten met `vereist`/`toegestaan` in plaats van `eenheden`;
+#: /4 (aanvulling v2): E-orakel alleen `error/buiten_bereik`.
+INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/4"
 LABEL = mk16.LABEL
 HERHALINGEN = 3
 AUTEUR = "Claude Code CLI-uitvoerder, sessie 1f2d8472-4293-490d-b22f-60e829ec17d8"
@@ -78,21 +81,22 @@ PLAN = (
     / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1.md"
 )
 PLAN_SHA256 = "4b7dec58bed0479163c72ccf75d4d3af1df9213deca7ce4a37c1ecb4fb06c0e3"
-#: De aanvulling na de Codex-review van deel B (C1–C3); gaat vóór het plan.
+#: De aanvulling na de Codex-hercontrole (B2-rest; C2 v2, E-orakel, invoer -v3);
+#: gaat vóór het plan en aanvulling v1 (C1–C3, a81e6af1…4f3b), die blijven staan.
 AANVULLING = (
     PROJECT_ROOT
     / "docs"
     / "plans"
-    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v2.md"
 )
-AANVULLING_SHA256 = "a81e6af1314e7a01b9773c30ca87ca54069a0e333f192f370002d0a6d1324f3b"
+AANVULLING_SHA256 = "3c409857a29f908000c098652378507230ca4e7d29331ad8bf6c51a39c2258e2"
 R17_INVOER = (
     PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R17" / "bewijsregel-invoer-v1.json"
 )
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
-#: Aanvulling C3: een nieuw bestand; `bewijsregel-invoer-v1.json` blijft staan.
+#: Aanvulling v2: een nieuw bestand; `-v1` en `-v2` blijven staan.
 DOEL = (
-    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v2.json"
+    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v3.json"
 )
 #: Velden die voor A en C exact uit de R17-invoer komen.
 R17_VELDEN = (
@@ -183,14 +187,15 @@ ORAKELS: dict[str, dict[str, Any]] = {
         "kenmerken": {},
         "dragend": [],
         "voorwaarde": "storing",
-        "uitkomst": ["error/buiten_bereik", "review_required"],
-        "voorwaarde_vereist_voor": ["error/buiten_bereik", "review_required"],
+        "uitkomst": ["error/buiten_bereik"],
+        "voorwaarde_vereist_voor": ["error/buiten_bereik"],
         "toelichting": (
-            "review_required en error/buiten_bereik tellen alleen als juist wanneer "
-            "de voorwaarde behouden is (aanvulling C2: een doelvoorwaarde of een "
-            "voor het doel bevestigd M-kenmerk met de frase, zonder markering); "
-            "weggevallen is kritiek, ontkend is kritiek tenzij error/buiten_bereik, "
-            "niet eenduidig is handmatig_beoordelen (niet geslaagd, niet kritiek)"
+            "alleen error/buiten_bereik met een automatisch behouden voorwaarde is "
+            "juist (aanvulling v2: een doelvoorwaarde met de frase en een "
+            "voorwaardelijke aanhef, zonder markering, niet opgeheven); een "
+            "M-kenmerk met de frase is nooit automatisch behouden maar "
+            "handmatig_beoordelen (niet geslaagd, niet kritiek, telt niet); "
+            "weggevallen is kritiek, ontkend is kritiek tenzij error/buiten_bereik"
         ),
     },
 }
@@ -201,7 +206,8 @@ _VARIANTEN = {
     ),
     "E": (
         "uitleen alleen bij storing kosteloos: de voorwaarde moet behouden blijven "
-        "(buiten bereik of als betekeniskenmerk)"
+        "(als doelvoorwaarde met voorwaardelijke aanhef, uitkomst "
+        "error/buiten_bereik)"
     ),
 }
 

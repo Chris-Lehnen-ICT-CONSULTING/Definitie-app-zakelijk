@@ -92,10 +92,14 @@ from services.validation.ess05_bewijsregel_service import (
 
 R18_ID = "DEF-768-AI-20260928-R18"
 R18_MAP = ROOT / "reports" / R18_ID
-#: Aanvulling C3 (Codex-review B3/B4): de invoer -v2 (schema /3, vereist/toegestaan).
-I18 = R18_MAP / "bewijsregel-invoer-v2.json"
+#: Aanvulling v2 (Codex-hercontrole B2-rest): de invoer -v3 (schema /4, E-orakel
+#: alleen error/buiten_bereik).
+I18 = R18_MAP / "bewijsregel-invoer-v3.json"
 L18 = R18_MAP / "lokale-invoer-v1.json"
-I18_SHA256 = "fab905cc9d81f803401ebb35409ade36ce63fb6fd4162adfbb55153c78978932"
+I18_SHA256 = "21c1ad911cbe13b02c377c2799f17b4e0475f9e9a006d39f87ec96f2bc5a09ac"
+#: De tweede invoer (schema /3, E ook review_required): blijft staan, wordt geweigerd.
+I18_V2 = R18_MAP / "bewijsregel-invoer-v2.json"
+I18_V2_SHA256 = "fab905cc9d81f803401ebb35409ade36ce63fb6fd4162adfbb55153c78978932"
 #: De eerste invoer (schema /2, orakelveld `eenheden`): blijft staan, wordt geweigerd.
 I18_V1 = R18_MAP / "bewijsregel-invoer-v1.json"
 I18_V1_SHA256 = "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
@@ -898,6 +902,49 @@ class TestInterpretatieFase:
         assert e1["runoordeel"]["categorie"] == "kritiek"
         assert e1["acceptatie"]["geaccepteerd"] is False
 
+    def test_codex_hercontrole_drie_e_runs_stoppen_als_kritiek(self, tmp_path):
+        """B2-rest: 'storing is optioneel' als bevestigd M-kenmerk in alle E-runs gaf
+        12/12 geslaagd; nu ontkend en kritiek bij E1, de proef afgekeurd."""
+
+        def antwoord(naam, n, verg):
+            if naam == "E":
+                ruw = _e_met_m(verg, "storing is optioneel")
+            else:
+                ruw = _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        with pytest.raises(gb.BudgetSchendingError, match="ontkend of opgeheven"):
+            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert len(provider.berichten) == 10
+        uit = _samenvatting_i(tmp_path)
+        assert uit["proefoordeel"]["oordeel"] == "afgekeurd"
+        assert uit["proefoordeel"]["e_voorwaarde_behouden"] == [0, 1]
+
+    def test_m_kenmerk_zonder_markering_in_alle_e_runs_wacht_niet_geslaagd(
+        self, tmp_path
+    ):
+        """Regel 2: het M-kenmerkpad geeft nooit automatisch behouden; handmatig
+        stopt niet, telt niet voor 11/12 en niet voor 3/3 behouden."""
+
+        def antwoord(naam, n, verg):
+            if naam == "E":
+                ruw = _e_met_m(verg, "alleen bij storing")
+            else:
+                ruw = _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
+        oordeel = uit["proefoordeel"]
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert oordeel["m_d_juist"] == 9
+        assert oordeel["e_voorwaarde_behouden"] == [0, 3]
+        assert [h["sleutel"] for h in oordeel["handmatig_beoordelen"]] == [
+            f"interpretatie|E|{n}" for n in (1, 2, 3)
+        ]
+
     def test_handmatige_e_run_stopt_niet_en_staat_apart(self, tmp_path):
         def antwoord(naam, n, verg):
             if naam == "E" and n == 2:
@@ -934,7 +981,8 @@ class TestInterpretatieFase:
         assert len(provider.berichten) == 11
         (e2,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|2"]
         assert e2["score"]["m_d"]["uitkomst"] == "review_required"
-        assert e2["score"]["m_d"]["ok"] is True
+        # Aanvulling v2: review_required is voor E geen toegestane uitkomst meer.
+        assert e2["score"]["m_d"]["ok"] is False
         assert e2["runoordeel"]["m_d_telt"] is False
         assert e2["runoordeel"]["kritiek"] == ["E: voorwaarde weggevallen"]
         uit = _samenvatting_i(tmp_path)
@@ -1250,7 +1298,7 @@ class TestEchteInvoer:
         assert len(items) == 12
 
     def test_v1_blijft_staan_maar_wordt_geweigerd(self, tmp_path):
-        """Aanvulling C3: de runner pint -v2; -v1 weigert op hash, schema en orakel."""
+        """Aanvulling C3/v2: de runner pint -v3; -v1 weigert op hash, schema en orakel."""
         assert _sha(I18_V1) == I18_V1_SHA256 != runner.R18_I_INVOER_SHA256
         data = json.loads(I18_V1.read_text(encoding="utf-8"))
         omg = _omgeving8(_BewijsProvider())
@@ -1265,6 +1313,20 @@ class TestEchteInvoer:
         assert provider.berichten == []
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
             asyncio.run(runner.droogrun("interpretatie", I18_V1, tmp_path,
+                                        proef=runner.PROEVEN["R18"]))  # fmt: skip
+
+    def test_v2_blijft_staan_maar_wordt_geweigerd(self, tmp_path):
+        """Aanvulling v2: de runner pint -v3; -v2 weigert op schema en hash."""
+        assert _sha(I18_V2) == I18_V2_SHA256 != runner.R18_I_INVOER_SHA256
+        data = json.loads(I18_V2.read_text(encoding="utf-8"))
+        with pytest.raises(pi.InvoerfoutError, match="schema"):
+            runner.valideer_i_invoer(data, _omgeving8(_BewijsProvider()))
+        provider = _R18Provider(_items())
+        with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
+            _i18(_omgeving8(provider), tmp_path, I18_V2, proef=runner.PROEVEN["R18"])
+        assert provider.berichten == []
+        with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
+            asyncio.run(runner.droogrun("interpretatie", I18_V2, tmp_path,
                                         proef=runner.PROEVEN["R18"]))  # fmt: skip
 
     def test_droog_i_fase_zonder_netwerk_en_zonder_grootboek(self, tmp_path):
@@ -1327,14 +1389,11 @@ class TestRunoordeel:
         o = bs.runoordeel(score, ORAKEL_A)
         assert (o["categorie"], o["kritiek"]) == ("niet_geslaagd", [])
 
-    @pytest.mark.parametrize(
-        ("uitkomst", "fout"), [("review_required", None), ("error", "buiten_bereik")]
-    )
-    def test_e_telt_alleen_met_behouden_voorwaarde(self, uitkomst, fout):
+    def test_e_telt_alleen_met_behouden_voorwaarde(self):
         orakel = mk18.ORAKELS["E"]
         md = {
-            "uitkomst": uitkomst,
-            "fout": fout,
+            "uitkomst": "error",
+            "fout": "buiten_bereik",
             "verwacht": orakel["uitkomst"],
             "ok": True,
         }
@@ -1355,6 +1414,16 @@ class TestRunoordeel:
             False,
             [],
         )
+
+    @pytest.mark.parametrize("status", ["behouden", "handmatig_beoordelen"])
+    def test_e_review_required_telt_nooit(self, status):
+        """Aanvulling v2: review_required is voor E geen juiste uitkomst meer."""
+        orakel = mk18.ORAKELS["E"]
+        assert "review_required" not in orakel["uitkomst"]
+        md = {"uitkomst": "review_required", "fout": None,
+              "verwacht": orakel["uitkomst"], "ok": False}  # fmt: skip
+        o = bs.runoordeel(_score(m_d=md, voorwaarde_status=status), orakel)
+        assert o["m_d_telt"] is False and o["categorie"] != "geslaagd"
 
     @pytest.mark.parametrize(
         ("uitkomst", "fout", "categorie"),
