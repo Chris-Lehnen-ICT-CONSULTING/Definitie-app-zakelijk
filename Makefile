@@ -282,13 +282,14 @@ test-secret-scan: check-python
 		echo "Deze tests installeren niets en slaan zichzelf nooit over."; \
 		exit 1; \
 	fi
-	@# De zeven suites staan hier vast: geen variabele, dus geen luik waarmee de
+	@# De acht suites staan hier vast: geen variabele, dus geen luik waarmee de
 	@# selectie via de omgeving of de commandoregel kan krimpen. Ze liggen buiten
 	@# `testpaths`, vandaar de expliciete opsomming. Alleen deze aanroep krijgt een
 	@# lege PYTEST_ADDOPTS/PYTEST_PLUGINS; geïnstalleerde plugins, pytest-config en
 	@# timeout blijven ongewijzigd.
 	@PYTEST_ADDOPTS= PYTEST_PLUGINS= $(PY) -m pytest -q \
 		scripts/ci/test_secret_scan_canary.py \
+		scripts/ci/test_secret_scan_def835_metadata.py \
 		scripts/ci/test_secret_scan_exceptions.py \
 		scripts/ci/test_secret_scan_gate.py \
 		scripts/ci/test_secret_scan_gate_errors.py \

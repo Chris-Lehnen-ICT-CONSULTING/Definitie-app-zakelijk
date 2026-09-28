@@ -1,0 +1,8 @@
+# DEF-835 modelproef GROEN v2 (na aanscherping tel-verzoek-assertie; runner ongewijzigd t.o.v. manifest) — 2026-09-28T09:47:50Z
+$ shasum -a 256 scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+d131ed34c68f28230fb981655540789789458d0dda334d77417ef9578e563c89  scripts/analysis/def835_int02_modelproef.py
+46b98cd1966d98fed795604756a3a87dd5027f9a01d27c1e02887d06aad25bc3  tests/unit/validation/test_def835_int02_modelproef.py
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -p no:cacheprovider --tb=short
+........................................                                 [100%]
+40 passed in 2.46s
+exit=0

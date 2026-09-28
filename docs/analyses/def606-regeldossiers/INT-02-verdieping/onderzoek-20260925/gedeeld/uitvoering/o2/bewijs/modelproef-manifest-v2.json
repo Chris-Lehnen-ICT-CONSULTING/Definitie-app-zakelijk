@@ -1,0 +1,144 @@
+{
+  "soort": "def835-int02-modelproef-manifest/1",
+  "toestemming": "pending",
+  "aangemaakt": "2026-09-28T10:04:16.349404+00:00",
+  "claim": "Experimentele technische proef van de INT-02-keten op drie synthetische ontwikkelgevallen; geen inhoudelijke modelkwalificatie, geen DEF-815-kwaliteitsclaim. Kosten = gemelde usage x routerprijzen; geen factuurgarantie.",
+  "akkoordvelden": [
+    "soort",
+    "manifest_sha256",
+    "profiel_id",
+    "experimenteel",
+    "geen_def815_kwalificatie",
+    "live_verzending_toegestaan",
+    "akkoord_door",
+    "akkoord_op",
+    "akkoord_bron"
+  ],
+  "controlemomenten": {
+    "voor_verzending": [
+      "SDK-configuratie: standaard HTTPS-eindpunt, geen env-headers of andere auth",
+      "bestemming, headers, API-versie en payloadvelden per verzoek",
+      "payloadhash tegen het manifest",
+      "harde limieten tellingen en inferenties",
+      "provider-tokenschatting en budgetreservering"
+    ],
+    "na_antwoord": [
+      "gerapporteerd model exact het proefmodel",
+      "service_tier standard (niet vooraf gepind in het verzoek)",
+      "inference_geo global",
+      "usagevorm, cache- en servertoolgebruik, tokenlimieten, budget"
+    ]
+  },
+  "identiteit_sha256": "74aa689581ad22f79679d4e820a2a27b101e918dad312e974b6f88517d7bd576",
+  "identiteit": {
+    "profiel": {
+      "profiel_id": "def835-technische-proef-opus5-v1",
+      "provider": "anthropic",
+      "model": "claude-opus-5",
+      "task_type": "validation",
+      "promptversie": "def835-int02-prompt/1",
+      "experimenteel": true,
+      "def815_kwalificatie": false
+    },
+    "limieten": {
+      "max_inferentie": 3,
+      "max_telverzoeken": 3,
+      "max_uitvoertokens": 6000,
+      "max_geschatte_invoertokens": 16000,
+      "deadline_seconden": 120.0,
+      "totale_looptijd_seconden": 600.0,
+      "budget_usd": 1.0
+    },
+    "dienstbudget": {
+      "max_invoertekens_veld": 2000,
+      "max_invoertekens_totaal": 6000,
+      "max_antwoordtekens": 24000
+    },
+    "prijzen_per_token": {
+      "input": 5e-06,
+      "output": 2.5e-05
+    },
+    "router": {
+      "uitkomst": [
+        "anthropic",
+        "claude-opus-5"
+      ],
+      "accepts_temperature": false,
+      "thinking_default_on": true
+    },
+    "transport": {
+      "basis_url": "https://api.anthropic.com",
+      "anthropic_version": "2023-06-01",
+      "authenticatie": "x-api-key",
+      "headernamen": [
+        "accept",
+        "accept-encoding",
+        "anthropic-version",
+        "connection",
+        "content-length",
+        "content-type",
+        "host",
+        "user-agent",
+        "x-api-key",
+        "x-stainless-arch",
+        "x-stainless-async",
+        "x-stainless-lang",
+        "x-stainless-os",
+        "x-stainless-package-version",
+        "x-stainless-read-timeout",
+        "x-stainless-retry-count",
+        "x-stainless-runtime",
+        "x-stainless-runtime-version",
+        "x-stainless-timeout"
+      ]
+    },
+    "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+    "t_tekst_sha256": "e6505d5016b2295fc5e980f3429fcf5a89ac5e90528be01d4b27a556c8dee0d1",
+    "bestanden": {
+      "config/config.yaml": "cea06b4acdff70b96181fe8de4aa41e20915dec7d493afc8aad3d6237477d6cf",
+      "src/toetsregels/regels/INT-02.json": "fd9bde156367745633cf9bd25d0f96bfb6c117690378f317147cf2dee6b9afd5",
+      "tests/fixtures/def835_int02_ontwerpgevallen.json": "e18adb97279fa0fe75889df3541186c9341051c33348d1dd848526867239867d",
+      "src/domain/int02/contract.py": "4791cc0692dcc12981c6529b9a7446cce5f440cec72f9fc767f972dc19c39896",
+      "src/services/validation/int02_assessment_service.py": "dda9d274e3b7a93973f9df0bc3de0b422fe4d96d1766beb536162914a68c049e",
+      "src/services/validation/ess03_assessment_service.py": "9e2000b2b258e20ae165de182461b063bd60777440df806823526f3a932e72ac",
+      "src/toetsregels/runtime_contract.py": "e138b83c40188996e3d1b3850e1f0721f9094e6ce15d717e157fd13d160f3d1b",
+      "src/services/ai_service_v2.py": "c2acc444dbd3687c2a99af2808804f35d1c153cfe20bd0a79c73d445b22a3c4c",
+      "src/utils/async_api.py": "f014876b16b76f889cf92faff1d89c3753b4ef0734624e8c45bcb6092841ff93",
+      "src/services/ai/anthropic_client.py": "91381bf25cfe3f1be7393b409105cf6a751d897ce7dd9530b32a8ac647e818e1",
+      "src/services/ai/base_client.py": "3251923430af8e7fb655fe2c5c53b90aed83a49251e052d809fdbb42286eaef2",
+      "src/services/ai/model_router.py": "65e923d9840910c4a5113d344f8e2b2a7f64f9b9b59d966bdf63a97c07235bac",
+      "scripts/analysis/def835_int02_modelproef.py": "61ce9c5c187faab7e278540060cb2a25fe9017a921ded81fad1ee93e7badfe7a"
+    },
+    "versies": {
+      "python": "3.13.15",
+      "anthropic": "0.107.1",
+      "httpx": "0.28.1"
+    },
+    "gevallen": [
+      {
+        "id": "C105",
+        "invoer_sha256": "e4f6148d455bfbb87964adde6c0b0f596ac714c9c4c950b6b326de8f8de65fc3",
+        "systeemprompt_sha256": "270aab4f26ea20c5d2c9ae6a6dcdb4aa23b17db6b286ebeddff96bc8ac985092",
+        "dataprompt_sha256": "f7e271d5a087fa96767c4b8613a094c3e835cb69a41e2a499118bd9b59434e9d",
+        "payload_sha256": "e2a8d9a68498110ed05865de644c5531bbeb097cae64ea14697e8f299fbd4537",
+        "payload_bytes": 7973
+      },
+      {
+        "id": "C107",
+        "invoer_sha256": "795634542de6130b3722ebcfb903e1891b79028346d241e8d7991ac87749dd91",
+        "systeemprompt_sha256": "270aab4f26ea20c5d2c9ae6a6dcdb4aa23b17db6b286ebeddff96bc8ac985092",
+        "dataprompt_sha256": "33614b0741364ce2a0a807beef93036fcb136c468d35dc1b113bcc265ba8b05e",
+        "payload_sha256": "c6266a4402852c0c96c7dea5fba43ddbf306abcf444d2304f5cc848c3d03941d",
+        "payload_bytes": 8027
+      },
+      {
+        "id": "C112",
+        "invoer_sha256": "7ea4c91bed88f3e6bc48984d22577b68ea2f5360468dda7e18ae754fd3b6454f",
+        "systeemprompt_sha256": "270aab4f26ea20c5d2c9ae6a6dcdb4aa23b17db6b286ebeddff96bc8ac985092",
+        "dataprompt_sha256": "32e7cc794e2967c7d5800216d89f3af3477d6ce89208209927bdc02f8571669a",
+        "payload_sha256": "3d0a2e2548cf40a0172329f3305bbbbf6db8752dd9cbfbfc376bbcfd5fb80527",
+        "payload_bytes": 8043
+      }
+    ]
+  }
+}

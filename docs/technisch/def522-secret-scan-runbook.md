@@ -98,9 +98,9 @@ Gebruik voor triage het bestaande incidentproces, met alleen geautoriseerd
 materiaal en zonder ruwe secretinhoud te publiceren. Persoonlijke of operationele
 gegevens (UI-sessies, `.env`, de database) horen daar niet bij.
 
-## De twee uitzonderingen in `.gitleaks.toml`
+## De drie uitzonderingen in `.gitleaks.toml`
 
-Beide gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
+Alle drie gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
 exact pad **én** exacte inhoud, plus rationale, eigenaar (Chris Lehnen) en
 reviewdatum.
 
@@ -113,14 +113,24 @@ reviewdatum.
    ingetrokken, en het is niet het fingerprintformaat dat de gepinde Gitleaks nu
    schrijft. De regexes verdragen precies één optioneel voorafgaand regeleinde,
    omdat de tool dat scheidingsteken meelevert bij elke regel na de eerste.
+3. **Eén bronhashregel in twee DEF-835-manifesten** — `generic-api-key`,
+   uitsluitend de twee exacte paden `modelproef-manifest-v1.json` en
+   `modelproef-manifest-v2.json` onder
+   `docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/`,
+   en één exacte, volledige JSON-regel: de SHA-256 van `src/utils/async_api.py`,
+   geen sleutel. Geen map, prefix of glob; dezelfde tolerantie voor één
+   voorafgaand regeleinde als bij 2. Eigenaar Chris Lehnen (DEF-835);
+   herbeoordelen op 2026-12-28, of eerder als de bronhash of de manifestroute
+   wijzigt.
 
 Valkuil bij wijzigen: een globale allowlist met `paths` wordt toegepast als
 pad-skip vóórdat de inhoud wordt bekeken, en `condition` weegt daar niet mee —
 het pad alleen zou dan een vrijbrief zijn. Alleen via `targetRules` hangt de
 uitzondering aan de regel zelf en geldt de AND-voorwaarde echt.
 
-Beide worden bewaakt door `scripts/ci/test_secret_scan_exceptions.py` en
-`scripts/ci/test_secret_scan_metadata.py`, die meelopen in
+Ze worden bewaakt door `scripts/ci/test_secret_scan_exceptions.py`,
+`scripts/ci/test_secret_scan_metadata.py` en
+`scripts/ci/test_secret_scan_def835_metadata.py`, die meelopen in
 `make test-secret-scan`.
 
 ## Tagconflict

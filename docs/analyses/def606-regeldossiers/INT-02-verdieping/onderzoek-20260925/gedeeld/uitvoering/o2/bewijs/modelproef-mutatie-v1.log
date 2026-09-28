@@ -1,0 +1,12 @@
+# DEF-835 modelproef mutatiematrix — 2026-09-28T09:42:44Z
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-mutatie-v1.py $PWD
+M1-logs-niet-stil: exit=1 GEDOOD | FAILED ::test_fout_telt_mee_zonder_retry_en_zonder_ruwe_tekst[_transportfout-ConnectError]
+M2-telling-pas-na-succes: exit=1 GEDOOD | FAILED ::test_afwijking_stopt_verdere_calls[geen-tier] - assert 0 == 1
+M3-geen-servicetiercontrole: exit=1 GEDOOD | FAILED ::test_afwijking_stopt_verdere_calls[priority] - AssertionError: asser...
+M4-geen-identiteitscontrole: exit=1 GEDOOD | FAILED ::test_live_weigert_bij_gewijzigde_identiteit - Failed: DID NOT RAISE ...
+M5-akkoord-truthy: exit=1 GEDOOD | FAILED ::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[live_verzending_toegestaan]
+M6-geen-tellimiet: exit=0 OVERLEEFT | ......................................                                   [100%]
+M7-geen-cachecontrole: exit=0 OVERLEEFT | ......................................                                   [100%]
+M8-geen-hashbinding-transport: exit=1 GEDOOD | FAILED ::test_waarnemer_weigert_hashmismatch_en_budget_voor_verzending - Fail...
+gedood 6/8
+exit=1

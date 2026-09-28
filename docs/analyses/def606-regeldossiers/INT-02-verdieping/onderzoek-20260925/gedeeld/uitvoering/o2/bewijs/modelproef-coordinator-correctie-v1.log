@@ -1,0 +1,9 @@
+HEAD 979ca0585100d94b613829d924c6d8bba4f24f1b
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -p no:cacheprovider --tb=short
+........................................................................ [ 96%]
+...                                                                      [100%]
+75 passed in 3.27s
+
+exit=0
+Manifest v2 bronafwijkingen: []
+Manifest SHA256: 54c75b43b2b55a132e58a896f2d5d909bebf97b521a26ff0d77bb783a0df35c8

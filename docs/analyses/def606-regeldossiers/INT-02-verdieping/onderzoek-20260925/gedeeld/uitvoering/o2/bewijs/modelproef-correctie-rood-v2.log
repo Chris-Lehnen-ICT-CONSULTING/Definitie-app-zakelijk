@@ -1,0 +1,272 @@
+# DEF-835 modelproef CORRECTIE RED v2 (R1-test met minimale usage; runner ongewijzigd op HEAD) — 2026-09-28T10:01:09Z
+$ git rev-parse HEAD; git diff --stat HEAD -- scripts/analysis/def835_int02_modelproef.py
+dff713fd45a2c87b6d3b646e500e108b5cd61b03
+(leeg = runner gelijk aan HEAD)
+$ shasum -a 256 scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+d131ed34c68f28230fb981655540789789458d0dda334d77417ef9578e563c89  scripts/analysis/def835_int02_modelproef.py
+8bfe28f0d77d67ee1d542616f7cd76684ac8818c3778d9cafbb74997bd0ee564  tests/unit/validation/test_def835_int02_modelproef.py
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -p no:cacheprovider --tb=line -rf
+FFF.......FFFF...FF.FFFFFFF.F.F.F...FF..F.....F...FF..FF.FF..FFF..F..... [ 96%]
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert 'kostenvariant' == 'truncated_response'
+      
+      - truncated_response
+      + kostenvariant
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (truncated_response; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:520: AssertionError: assert 'kostenvariant' == 'truncated_response'
+E   AssertionError: assert 'kostenvariant' is None
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:863: AssertionError: assert 'kostenvariant' is None
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:699: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: c544736c) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:824: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: 55e5d2c6) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:824: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+E   AssertionError: assert 'kostenvariant' == 'usage_boven_limiet'
+      
+      - usage_boven_limiet
+      + kostenvariant
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:520: AssertionError: assert 'kostenvariant' == 'usage_boven_limiet'
+E   assert 3 == 1
+     +  where 3 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f35f3f0>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:769: assert 3 == 1
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: 8925f86e) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:824: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+E   AssertionError: assert 'payload_niet_toegestaan' == 'transport_niet_toegestaan'
+      
+      - transport_niet_toegestaan
+      ? ^^ ^^^ ^^
+      + payload_niet_toegestaan
+      ? ^ ^^ ^^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:702: AssertionError: assert 'payload_niet_toegestaan' == 'transport_niet_toegestaan'
+E   assert 3 == 1
+     +  where 3 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f3bc7d0>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:769: assert 3 == 1
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: 80aad8a2) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:824: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+E   KeyError: 'fouttype'
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (timeout; TimeoutError)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:900: KeyError: 'fouttype'
+E   AssertionError: assert 'onverwachte_bestemming' == 'transportcon...et_toegestaan'
+      
+      - transportconfig_niet_toegestaan
+      + onverwachte_bestemming
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:831: AssertionError: assert 'onverwachte_bestemming' == 'transportcon...et_toegestaan'
+E   assert 3 == 1
+     +  where 3 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f40cde0>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:769: assert 3 == 1
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:699: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:842: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+E   AssertionError: assert 'kostenvariant' == 'invalid_citation'
+      
+      - invalid_citation
+      + kostenvariant
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_citation; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:520: AssertionError: assert 'kostenvariant' == 'invalid_citation'
+E   assert 1 == 3
+     +  where 1 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f4242f0>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:430: assert 1 == 3
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:699: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+E   AssertionError: assert 'kostenvariant' is None
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:871: AssertionError: assert 'kostenvariant' is None
+E   AssertionError: assert 'onverwachte_bestemming' == 'transportcon...et_toegestaan'
+      
+      - transportconfig_niet_toegestaan
+      + onverwachte_bestemming
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:831: AssertionError: assert 'onverwachte_bestemming' == 'transportcon...et_toegestaan'
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: e0a23cf3) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:824: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+E   assert 3 == 1
+     +  where 3 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f424050>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:769: assert 3 == 1
+E   AssertionError: assert 'onverwachte_bestemming' == 'transportcon...et_toegestaan'
+      
+      - transportconfig_niet_toegestaan
+      + onverwachte_bestemming
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:831: AssertionError: assert 'onverwachte_bestemming' == 'transportcon...et_toegestaan'
+E   KeyError: 'transport'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:220: KeyError: 'transport'
+E   AssertionError: assert ['/v1/message.../v1/messages'] == ['/v1/message.../v1/messages']
+      
+      Right contains 4 more items, first extra item: '/v1/messages/count_tokens'
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: 87b70e30) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:352: AssertionError: assert ['/v1/message.../v1/messages'] == ['/v1/message.../v1/messages']
+E   AssertionError: assert 'payload_niet_toegestaan' == 'transport_niet_toegestaan'
+      
+      - transport_niet_toegestaan
+      ? ^^ ^^^ ^^
+      + payload_niet_toegestaan
+      ? ^ ^^ ^^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:702: AssertionError: assert 'payload_niet_toegestaan' == 'transport_niet_toegestaan'
+E   AssertionError: assert 'kostenvariant' is None
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:863: AssertionError: assert 'kostenvariant' is None
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:699: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:699: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:699: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefStopError'>
+E   assert 3 == 1
+     +  where 3 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f425af0>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:769: assert 3 == 1
+E   assert 3 == 1
+     +  where 3 = len([{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}])
+     +    where [{'body': {'max_tokens': 6000, 'messages': [{'content': '{\n  "invoer": {\n    "begrip": "toelating",\n    "kern": "De... 'gzip, deflate, br', 'anthropic-version': '2023-06-01', 'connection': 'keep-alive', ...}, 'pad': '/v1/messages', ...}] = inferenties()
+     +      where inferenties = <tests.unit.validation.test_def835_int02_modelproef.NepProvider object at 0x10f4246b0>.inferenties
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:769: assert 3 == 1
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: fe3f6b0b) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:824: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[afgekapt]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_equivalente_standaardconfiguratie_blijft_toegestaan[standaard-basis-expliciet]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[extra-header]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[versieheader]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[review-8443-auth]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[boven-limiet]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[ander]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[gebruikerinfo]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[retry]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[leeg]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[authheader]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_deadline_breekt_hangende_inferentie_af_zonder_vervolgcall
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[andere-host]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[ontbreekt]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[api-versie]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_voorbereiding_weigert_transportdrift
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[ongeldig-citaat]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_semantisch_ander_oordeel_is_bevinding_zonder_herhaling
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[authorization]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_actuele_sdk_usage_details_worden_niet_opgeteld
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[http]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[poort]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[revisie]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[pad]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_voorbereiding_maakt_pending_manifest_zonder_netwerk
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[beta]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_equivalente_standaardconfiguratie_blijft_toegestaan[authtoken-genegeerd-bij-api-key]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[host-header]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[poort-8443]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[gebruikerinfo]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[alias]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[geen-tekst]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[extra-header]
+34 failed, 41 passed in 3.49s
+exit=1
