@@ -105,7 +105,7 @@ def _beoordeel(ai, invoer):
 
 class TestDrieVarianten:
     def test_a_open_na_een_interpretatie_en_drie_controles(self):
-        ai = _SpyAI(_interpretatie_a())
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_a(), _invoer()))
         resultaat = _beoordeel(ai, _invoer())
         assert resultaat.uitkomst == "review_required"
         assert [a["task_type"] for a in ai.aanroepen] == [
@@ -119,8 +119,9 @@ class TestDrieVarianten:
         assert resultaat.aanroepen == 4
 
     def test_b_ontbrekende_dekking_error_na_een_aanroep_zonder_controles(self):
-        ai = _SpyAI(_interpretatie_a())
-        resultaat = _beoordeel(ai, _invoer(onvolledig={BRON}))
+        invoer = _invoer(onvolledig={BRON})
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_a(), invoer))
+        resultaat = _beoordeel(ai, invoer)
         assert (resultaat.uitkomst, resultaat.fout.soort) == (
             "error",
             "dekking_ontbreekt",
@@ -128,8 +129,9 @@ class TestDrieVarianten:
         assert len(ai.aanroepen) == 1 and resultaat.controles == ()
 
     def test_c_pass_na_een_interpretatie_en_drie_controles(self):
-        ai = _SpyAI(_interpretatie_c())
-        resultaat = _beoordeel(ai, _invoer(BRON_C, BUUR_C))
+        invoer = _invoer(BRON_C, BUUR_C)
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_c(), invoer))
+        resultaat = _beoordeel(ai, invoer)
         assert resultaat.uitkomst == "pass"
         assert len(ai.aanroepen) == 4
         assert "duur" in resultaat.tekst and br.BEREIKZIN in resultaat.tekst
@@ -137,7 +139,7 @@ class TestDrieVarianten:
 
 class TestInterpretatieverzoek:
     def test_een_aanroep_op_de_beoordelingsroute_zonder_cache_of_retry(self):
-        ai = _SpyAI(_interpretatie_a())
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_a(), _invoer()))
         _beoordeel(ai, _invoer())
         eerste = ai.aanroepen[0]
         assert (eerste["task_type"], eerste["temperature"], eerste["use_cache"],
@@ -146,17 +148,27 @@ class TestInterpretatieverzoek:
         )  # fmt: skip
 
     def test_prompt_bevat_materiaal_en_buren_maar_geen_verwachting(self):
-        ai = _SpyAI(_interpretatie_a())
-        _beoordeel(ai, _invoer(onvolledig={BRON}))
+        invoer = _invoer(onvolledig={BRON})
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_a(), invoer))
+        _beoordeel(ai, invoer)
         prompt = ai.aanroepen[0]["prompt"]
-        for tekst in (DEFINITIE, BRON_A, BUUR_A, BUUR, "verhuur"):
+        for tekst in (DEFINITIE, BUUR_A, BUUR, "verhuur"):
             assert tekst in prompt
+        # v6 (prompt /4): de bron staat volledig in de prompt, per zin genummerd.
+        bronzinnen = [
+            (u, BRON_A[r.start : r.end])
+            for u, r in invoer.eenheden().items()
+            if r.material_id == BRON
+        ]
+        assert " ".join(z for _, z in bronzinnen) == BRON_A
+        for uid, zin in bronzinnen:
+            assert f"[{uid}] {zin}" in prompt
         assert 'omvang="uittreksel"' in prompt
         for verboden in ("review_required", "verwacht", "pass", "fail", "unsupported"):
             assert verboden not in prompt
 
     def test_controle_ziet_alleen_zijn_eigen_onderwerp(self):
-        ai = _SpyAI(_interpretatie_a())
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_a(), _invoer()))
         _beoordeel(ai, _invoer())
         kern, doel, buur = (a["prompt"] for a in ai.aanroepen[1:])
         assert DEFINITIE in kern and BRON_A not in kern and BUUR_A not in kern
@@ -179,7 +191,7 @@ class TestInterpretatieverzoek:
             gezien.append(task_type)
             yield
 
-        ai = _SpyAI(_interpretatie_c())
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_c(), _invoer(BRON_C, BUUR_C)))
         with aanroepgrens(grens):
             _beoordeel(ai, _invoer(BRON_C, BUUR_C))
         assert gezien == ["validation", *["ess05_verification"] * 3]
@@ -205,7 +217,7 @@ class TestStructureleWeigering:
     def test_ontbrekend_bewijsdoel_error_zonder_een_enkele_controle(self):
         ruw = copy.deepcopy(_interpretatie_a())
         ruw["antwoorden"] = _zonder(ruw["antwoorden"], "K1", BUUR)
-        ai = _SpyAI(ruw)
+        ai = _SpyAI(dt.naar_eenheden(ruw, _invoer()))
         resultaat = _beoordeel(ai, _invoer())
         assert (resultaat.uitkomst, resultaat.fout.soort) == (
             "error",
@@ -216,7 +228,7 @@ class TestStructureleWeigering:
     def test_vrij_conclusieveld_error(self):
         ruw = copy.deepcopy(_interpretatie_a())
         ruw["conclusie"] = "het materiaal beschrijft geen verhuurgeval buiten uitleen"
-        resultaat = _beoordeel(_SpyAI(ruw), _invoer())
+        resultaat = _beoordeel(_SpyAI(dt.naar_eenheden(ruw, _invoer())), _invoer())
         assert (resultaat.uitkomst, resultaat.fout.soort) == ("error", "schemafout")
 
     @pytest.mark.parametrize(
@@ -225,11 +237,12 @@ class TestStructureleWeigering:
     def test_afgewezen_premisse_laat_de_conclusie_vallen_en_stopt(
         self, afgewezen, aanroepen
     ):
+        invoer = _invoer(BRON_C, BUUR_C)
         ai = _SpyAI(
-            _interpretatie_c(),
+            dt.naar_eenheden(_interpretatie_c(), invoer),
             controle=lambda naam: "unsupported" if naam == afgewezen else "supported",
         )
-        resultaat = _beoordeel(ai, _invoer(BRON_C, BUUR_C))
+        resultaat = _beoordeel(ai, invoer)
         assert (resultaat.uitkomst, resultaat.fout.soort) == (
             "error", "semantische_controle_mislukt",
         )  # fmt: skip
@@ -237,15 +250,19 @@ class TestStructureleWeigering:
         assert resultaat.regels is None and "Geen oordeel" in resultaat.tekst
 
     def test_undetermined_is_geen_supported(self):
-        ai = _SpyAI(_interpretatie_c(), controle=lambda naam: "undetermined")
-        resultaat = _beoordeel(ai, _invoer(BRON_C, BUUR_C))
+        invoer = _invoer(BRON_C, BUUR_C)
+        ai = _SpyAI(
+            dt.naar_eenheden(_interpretatie_c(), invoer),
+            controle=lambda naam: "undetermined",
+        )
+        resultaat = _beoordeel(ai, invoer)
         assert resultaat.uitkomst == "error" and len(ai.aanroepen) == 2
 
     def test_voorwaardelijke_doeleis_buiten_bereik_zonder_een_enkele_controle(self):
         # K4-rest (v3): het reviewertegenvoorbeeld wordt geen pass, ook als elk
         # controleverzoek supported zou zeggen; er volgt geen controle.
         k4 = domeintest.TestK4VoorwaardelijkeDoeleis()
-        ai = _SpyAI(k4._ruw())
+        ai = _SpyAI(dt.naar_eenheden(k4._ruw(), k4._invoer()))
         resultaat = _beoordeel(ai, k4._invoer())
         assert (resultaat.uitkomst, resultaat.fout.soort) == ("error", "buiten_bereik")
         assert len(ai.aanroepen) == 1 and resultaat.controles == ()
@@ -255,7 +272,7 @@ class TestStructureleWeigering:
         # K3: tekstdekking slaagt; alleen de fragmentcontrole kan het verlies zien.
         k3 = domeintest.TestK3Tekstdekking()
         afgewezen = _SpyAI(
-            k3._verlies(),
+            dt.naar_eenheden(k3._verlies(), k3._invoer()),
             controle=lambda n: "unsupported" if n == "kern" else "supported",
         )
         resultaat = _beoordeel(afgewezen, k3._invoer())
@@ -265,7 +282,10 @@ class TestStructureleWeigering:
 
 class TestTransportEnVorm:
     def test_transportfout_bij_interpretatie_error_na_een_aanroep(self):
-        ai = _SpyAI(_interpretatie_a(), fout=TimeoutError("te laat"))
+        ai = _SpyAI(
+            dt.naar_eenheden(_interpretatie_a(), _invoer()),
+            fout=TimeoutError("te laat"),
+        )
         resultaat = _beoordeel(ai, _invoer())
         assert resultaat.uitkomst == "error" and len(ai.aanroepen) == 1
 
@@ -280,7 +300,9 @@ class TestTransportEnVorm:
         invoer = br.Vergelijkingsinvoer(
             term="uitleen", materiaal={BUUR: BUUR_A}, buren=((BUUR, "verhuur"),)
         )
-        ai = _SpyAI(_interpretatie_a())
+        # Zonder definitie volgt geen aanroep; de spy-interpretatie is omgezet
+        # tegen de standaardinvoer (de invoer hier heeft geen bron).
+        ai = _SpyAI(dt.naar_eenheden(_interpretatie_a(), _invoer()))
         assert _beoordeel(ai, invoer).uitkomst == "error"
         assert ai.aanroepen == []
 
@@ -348,7 +370,9 @@ class TestClientpad:
                 tekst = (
                     _controleantwoord(user)
                     if "<controlepakket" in user
-                    else json.dumps(_interpretatie_c())
+                    else json.dumps(
+                        dt.naar_eenheden(_interpretatie_c(), _invoer(BRON_C, BUUR_C))
+                    )
                 )
                 return ChatResponse(text=tekst, tokens_used=10, model=model)
 

@@ -116,8 +116,13 @@ def _historisch(naam: str) -> dict:
 
 
 def _gecorrigeerd(naam: str) -> dict:
-    """SYNTHETISCH: alleen elk broncitaat → de benoemde passage van zijn onderwerp."""
+    """SYNTHETISCH: alleen elk broncitaat → de benoemde passage van zijn onderwerp.
+
+    v6: plus schema /3, omdat de tests de citaten daarna met `naar_eenheden`
+    naar eenheden omzetten (het historische record zelf blijft schema /2).
+    """
     ruw = copy.deepcopy(_historisch(naam))
+    ruw["schema_version"] = br.INTERPRETATIESCHEMA
     passage = {"doel": UITLEEN, BUUR_ID: VERHUUR["C" if naam == "C" else "A"]}
     for a in ruw["antwoorden"]:
         for c in a["citaten"]:
@@ -145,22 +150,17 @@ class TestHistorischOngewijzigd:
 
     @pytest.mark.parametrize("naam", ["A", "B", "C"])
     def test_historisch_antwoord_is_error_na_een_aanroep(self, naam):
+        # v6: het historische antwoord (schema /2) is onder schema /3 een
+        # schemafout; nog steeds één aanroep en geen enkele controle.
         ai = _SpyAI(_historisch(naam))
         resultaat = _beoordeel(ai, _invoer(naam))
-        assert (resultaat.uitkomst, resultaat.fout.soort) == ("error", "onderwerpfout")
+        assert (resultaat.uitkomst, resultaat.fout.soort) == ("error", "schemafout")
         assert len(ai.aanroepen) == 1 and resultaat.controles == ()
 
-    def test_c_losse_teruggaafzin_zonder_uitleen_is_onderwerpfout(self):
-        # Het C-gebrek uit de review: B2 zonder binding aan 'Uitleen'.
-        ruw = _gecorrigeerd("C")
-        k4 = next(a for a in ruw["antwoorden"]
-                  if (a["kenmerk_id"], a["onderwerp"]) == ("K4", "doel"))  # fmt: skip
-        k4["citaten"] = [
-            {"material_id": BRON_ID,
-             "citaat": "de medewerker geeft de apparatuur daarna terug"}
-        ]  # fmt: skip
-        fout = br.bepaal(ruw, _invoer("C")).fout
-        assert fout.soort == "onderwerpfout" and "uitleen" in fout.melding
+    # v6: test_c_losse_teruggaafzin_zonder_uitleen_is_onderwerpfout vervalt; een
+    # eenheid zonder begripsnaam gaat door naar de controle, gedekt door
+    # test_def768_bewijseenheden.py::TestOnderwerp::
+    # test_eenheid_zonder_begripsnaam_gaat_door_naar_de_controle.
 
 
 @records_nodig
@@ -168,31 +168,27 @@ class TestSynthetischGecorrigeerd:
     """SYNTHETISCH gecorrigeerde binding; controles gestubd op supported."""
 
     def test_a_open_na_vier_aanroepen(self):
-        ai = _SpyAI(_gecorrigeerd("A"))
+        ai = _SpyAI(dt.naar_eenheden(_gecorrigeerd("A"), _invoer("A")))
         resultaat = _beoordeel(ai, _invoer("A"))
         assert (resultaat.uitkomst, resultaat.fout) == ("review_required", None)
         assert len(ai.aanroepen) == 4
         assert (_aspect(resultaat.regels, "kosten").aspect,
                 _aspect(resultaat.regels, "kosten").reden) == ("onbeslist", "onbekend")  # fmt: skip
 
-    def test_a_herhaald_kort_citaat_blijft_citaatfout(self):
-        # Unieke vindplaats niet versoepeld: 'aan een medewerker' staat drie keer.
-        ruw = _gecorrigeerd("A")
-        k3 = next(a for a in ruw["antwoorden"]
-                  if (a["kenmerk_id"], a["onderwerp"]) == ("K3", "doel"))  # fmt: skip
-        k3["citaten"] = [{"material_id": BRON_ID, "citaat": "aan een medewerker"}]
-        assert br.bepaal(ruw, _invoer("A")).fout.soort == "citaatfout"
+    # v6: test_a_herhaald_kort_citaat_blijft_citaatfout vervalt; eenheden zijn
+    # uniek door nummering, gedekt door test_def768_bewijseenheden.py::
+    # TestEenheden::test_herhaalde_tekst_in_twee_zinnen_is_niet_dubbelzinnig.
 
     def test_verhuurteruggave_is_geen_uitleenbewijs(self):
         ruw = _gecorrigeerd("A")
         k4 = next(a for a in ruw["antwoorden"]
                   if (a["kenmerk_id"], a["onderwerp"]) == ("K4", "doel"))  # fmt: skip
         k4["citaten"] = [{"material_id": BRON_ID, "citaat": VERHUUR["A"]}]
-        fout = br.bepaal(ruw, _invoer("A")).fout
+        fout = br.bepaal(dt.naar_eenheden(ruw, _invoer("A")), _invoer("A")).fout
         assert fout.soort == "onderwerpfout" and "verhuur" in fout.melding
 
     def test_b_blijft_dekking_ontbreekt_nadat_de_binding_klopt(self):
-        ai = _SpyAI(_gecorrigeerd("B"))
+        ai = _SpyAI(dt.naar_eenheden(_gecorrigeerd("B"), _invoer("B")))
         resultaat = _beoordeel(ai, _invoer("B"))
         assert (resultaat.uitkomst, resultaat.fout.soort) == (
             "error",
@@ -201,7 +197,7 @@ class TestSynthetischGecorrigeerd:
         assert len(ai.aanroepen) == 1
 
     def test_c_pass_en_onbekende_teruggave_blijft_onbekend(self):
-        ai = _SpyAI(_gecorrigeerd("C"))
+        ai = _SpyAI(dt.naar_eenheden(_gecorrigeerd("C"), _invoer("C")))
         resultaat = _beoordeel(ai, _invoer("C"))
         assert resultaat.uitkomst == "pass" and len(ai.aanroepen) == 4
         teruggave = _aspect(resultaat.regels, "teruggave")
@@ -209,7 +205,9 @@ class TestSynthetischGecorrigeerd:
 
     def test_c_doelpakket_draagt_volledige_lokale_bron_en_context(self):
         invoer = _invoer("C")
-        interpretatie = br.valideer_interpretatie(_gecorrigeerd("C"), invoer)
+        interpretatie = br.valideer_interpretatie(
+            dt.naar_eenheden(_gecorrigeerd("C"), invoer), invoer
+        )
         eenheden = {e.naam: e for e in br.controle_eenheden(interpretatie, invoer)}
         doel = eenheden["doel"].pakket.inhoud
         volledig = {
@@ -274,7 +272,10 @@ class TestBepalingTegenoverVoorval:
     def test_doelcontrole_krijgt_passage_en_bepalingseis(self, bron, uitkomst):
         tekst = getattr(self, bron)
         pakketten: list[str] = []
-        ai = _SpyAI(self._ruw(tekst), controle=self._stub(pakketten))
+        ai = _SpyAI(
+            dt.naar_eenheden(self._ruw(tekst), dt._invoer(tekst)),
+            controle=self._stub(pakketten),
+        )
         origineel = ai.generate_definition
 
         async def spy(**kwargs):
@@ -297,21 +298,23 @@ class TestInterpretatieprompt:
     def test_promptversie_en_regelversie_opgehoogd(self):
         identiteit = bs.Ess05BewijsregelService.contractidentiteit()
         assert identiteit["interpretation_prompt_version"] == (
-            "ess05-interpretatie-prompt/3"
+            "ess05-interpretatie-prompt/4"
         )
-        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/5"
-        assert identiteit["interpretation_schema_version"] == "ess05-interpretatie/2"
+        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/6"
+        assert identiteit["interpretation_schema_version"] == "ess05-interpretatie/3"
         assert identiteit["render_version"] == "ess05-bewijsregels-render/2"
 
-    def test_prompt_vraagt_benoemde_unieke_passage_en_bepaling(self):
+    def test_prompt_vraagt_eenheden_en_bepaling(self):
+        # v6 (prompt /4): bewijs via eenheden in plaats van een benoemde, unieke
+        # passage; de dubbelzinnige zin 'precies één keer' is weg (R17).
         prompt = bs.interpretatiesysteemprompt()
-        assert "precies één keer" in prompt
-        assert "'Uitleen: …'" in prompt
+        assert "precies één keer" not in prompt
+        assert "genummerde eenheden [U1], [U2]" in prompt
         assert "bepaling" in prompt
         assert "een enkel voorval of een voorwaardelijke afspraak is geen bepaling" in (
             prompt
         )
         assert "(het kenmerk geldt voor elk geval van dat onderwerp)" not in prompt
-        # R16-H-01 (prompt /3): geen verbod op een tweede begripsnaam; naam is anker.
+        # R16-H-01: geen verbod op een tweede begripsnaam; v6: negatief anker.
         assert "zonder de naam van een ander begrip" not in prompt
-        assert "de naam alleen is geen bewijs" in prompt
+        assert "een eenheid die alleen een ander begrip noemt is geen bewijs" in prompt

@@ -160,6 +160,16 @@ def naar_eenheden(ruw, invoer):
     return ruw
 
 
+def _bepaal(ruw, invoer):
+    """br.bepaal na omzetting van vooraf vastgelegde citaten naar eenheden (v6)."""
+    return br.bepaal(naar_eenheden(ruw, invoer), invoer)
+
+
+def _valideer(ruw, invoer):
+    """br.valideer_interpretatie na omzetting naar eenheden (v6)."""
+    return br.valideer_interpretatie(naar_eenheden(ruw, invoer), invoer)
+
+
 def _doelantwoorden():
     return [
         _a("K1", "doel", "bevestigd", [(BRON, DOELCITAAT)]),
@@ -205,8 +215,8 @@ def _vervang(ruw, kenmerk, onderwerp, *nieuw):
 
 def _fout(ruw, invoer) -> br.BewijsregelfoutError:
     with pytest.raises(br.BewijsregelfoutError) as fout:
-        br.valideer_interpretatie(ruw, invoer)
-    uitkomst = br.bepaal(ruw, invoer)
+        _valideer(ruw, invoer)
+    uitkomst = _bepaal(ruw, invoer)
     assert uitkomst.uitkomst == "error"
     assert uitkomst.fout.soort == fout.value.soort
     return fout.value
@@ -221,7 +231,7 @@ def _aspect(uitkomst, kenmerk, buur=0):
 
 class TestDrieVarianten:
     def test_a_kosten_onbekend_geeft_geldig_open_oordeel(self):
-        uitkomst = br.bepaal(_interpretatie_a(), _invoer())
+        uitkomst = _bepaal(_interpretatie_a(), _invoer())
         assert (uitkomst.uitkomst, uitkomst.fout) == ("review_required", None)
         (buur,) = uitkomst.buren
         assert buur.oordeel == "open"
@@ -247,7 +257,7 @@ class TestDrieVarianten:
         assert "K2" in str(fout) and BUUR in str(fout)
 
     def test_c_afgrenzing_op_duur_kosten_blijven_onbekend(self):
-        uitkomst = br.bepaal(_interpretatie_c(), _invoer(BRON_C, BUUR_C))
+        uitkomst = _bepaal(_interpretatie_c(), _invoer(BRON_C, BUUR_C))
         assert uitkomst.uitkomst == "pass"
         assert uitkomst.buren[0].oordeel == "onderscheiden"
         duur, kosten = _aspect(uitkomst, "duur"), _aspect(uitkomst, "kosten")
@@ -307,7 +317,7 @@ class TestK1GeldigheidVoorInhoud:
         volledig = br.Vergelijkingsinvoer(
             term=invoer.term, materiaal=invoer.materiaal, buren=invoer.buren
         )
-        assert br.bepaal(ruw, volledig).uitkomst == "fail"
+        assert _bepaal(ruw, volledig).uitkomst == "fail"
         assert _fout(ruw, invoer).soort == "dekking_ontbreekt"
 
     def test_buiten_bereik_gaat_voor_een_bewezen_afgrenzing(self):
@@ -349,7 +359,7 @@ class TestK2GeenFailZonderBewijs:
     def test_betaalde_buur_met_onbekende_duur_is_open_geen_fail(self):
         bron = ("Uitleen: apparatuur tijdelijk en kosteloos ter beschikking. Verhuur: "
                 "apparatuur tegen betaling ter beschikking.")  # fmt: skip
-        uitkomst = br.bepaal(
+        uitkomst = _bepaal(
             self._ruw(
                 _a("K1", BUUR, "onbesproken"),
                 _a(
@@ -369,7 +379,7 @@ class TestK2GeenFailZonderBewijs:
         bron = ("Uitleen: apparatuur tijdelijk en kosteloos ter beschikking. Verhuur: "
                 "apparatuur tegen betaling ter beschikking. Verhuur is tijdelijk. "
                 "Verhuur is permanent.")  # fmt: skip
-        uitkomst = br.bepaal(
+        uitkomst = _bepaal(
             self._ruw(
                 _a("K1", BUUR, "bevestigd", [(BRON, "Verhuur is tijdelijk.")]),
                 _a("K1", BUUR, "ontkend", [(BRON, "Verhuur is permanent.")]),
@@ -389,7 +399,7 @@ class TestK2GeenFailZonderBewijs:
         bron = ("Uitleen: apparatuur tijdelijk en kosteloos ter beschikking. Verhuur: "
                 "apparatuur tijdelijk en tegen betaling ter beschikking.")  # fmt: skip
         verhuur = "Verhuur: apparatuur tijdelijk en tegen betaling"
-        uitkomst = br.bepaal(
+        uitkomst = _bepaal(
             self._ruw(
                 _a("K1", BUUR, "bevestigd", [(BRON, verhuur)]),
                 _a("M1", BUUR, "ontkend", [(BRON, verhuur)]),
@@ -433,11 +443,11 @@ class TestK3Tekstdekking:
 
     def test_woorddekking_slaagt_ook_bij_een_verloren_beperking(self):
         # Bewijst dat tekstdekking geen semantische volledigheid certificeert.
-        interpretatie = br.valideer_interpretatie(self._verlies(), self._invoer())
+        interpretatie = _valideer(self._verlies(), self._invoer())
         assert [k.waarde for k in interpretatie.kern] == ["keurt aanvragen goed"]
 
     def test_kerncontrole_toetst_het_fragment_niet_de_volledigheid(self):
-        interpretatie = br.valideer_interpretatie(self._verlies(), self._invoer())
+        interpretatie = _valideer(self._verlies(), self._invoer())
         eenheden = {
             e.naam: e for e in br.controle_eenheden(interpretatie, self._invoer())
         }
@@ -525,7 +535,7 @@ class TestK4Buurgroepen:
             _a("K1", "G2", "bevestigd", [(BRON, "Verhuur is soms tijdelijk")]),
             _a("M1", "G2", "ontkend", [(BRON, "Verhuur gebeurt altijd tegen betaling")]),
         ])  # fmt: skip
-        uitkomst = br.bepaal(ruw, self._invoer())
+        uitkomst = _bepaal(ruw, self._invoer())
         assert uitkomst.uitkomst == "fail"
         (buur,) = uitkomst.buren
         assert buur.oordeel == "niet_onderscheiden"
@@ -585,11 +595,11 @@ class TestK4Buurgroepen:
                 ),
             ],
         )
-        uitkomst = br.bepaal(ruw, self._invoer(bron))
+        uitkomst = _bepaal(ruw, self._invoer(bron))
         # Het storingsgeval ligt binnen de hele kern en buiten de doelbetekenis.
         assert uitkomst.uitkomst == "fail"
         assert "verhuur bij storing" in br.render(uitkomst)
-        interpretatie = br.valideer_interpretatie(ruw, self._invoer(bron))
+        interpretatie = _valideer(ruw, self._invoer(bron))
         eenheden = {
             e.naam: e for e in br.controle_eenheden(interpretatie, self._invoer(bron))
         }
@@ -707,7 +717,7 @@ class TestK4VoorwaardelijkeDoeleis:
         )  # fmt: skip
 
     def test_tegenvoorbeeld_wordt_nooit_pass(self):
-        uitkomst = br.bepaal(self._ruw(), self._invoer())
+        uitkomst = _bepaal(self._ruw(), self._invoer())
         assert uitkomst.uitkomst != "pass"
         assert uitkomst.uitkomst == "error"
         assert uitkomst.fout.soort == "buiten_bereik"
@@ -716,7 +726,7 @@ class TestK4VoorwaardelijkeDoeleis:
         fout = _fout(self._ruw(), self._invoer())
         assert "M1 (toestemming: vereist)" in fout.melding
         assert "bij storing" in fout.melding and self.EIS in fout.melding
-        tekst = br.render(br.bepaal(self._ruw(), self._invoer()))
+        tekst = br.render(_bepaal(self._ruw(), self._invoer()))
         assert "bij storing" in tekst and self.EIS in tekst
         assert "Dit zegt niets over de definitie" in tekst
 
@@ -726,7 +736,7 @@ class TestK4VoorwaardelijkeDoeleis:
         ruw = _vervang(
             self._ruw(), "M1", "doel", _a("M1", "doel", "bevestigd", [(BRON, self.EIS)])
         )
-        uitkomst = br.bepaal(ruw, self._invoer())
+        uitkomst = _bepaal(ruw, self._invoer())
         assert uitkomst.uitkomst == "fail"
         groepen = {g.id: g.oordeel for g in uitkomst.buren[0].groepen}
         assert groepen["G2"] == "tegengeval"
@@ -784,7 +794,7 @@ class TestRoloverlap:
                 _a("K1", "G2", "bevestigd", [(BRON, self.OVERLAP)]),
             ],
         )  # fmt: skip
-        uitkomst = br.bepaal(ruw, self._invoer(self.BRON_SPLITS))
+        uitkomst = _bepaal(ruw, self._invoer(self.BRON_SPLITS))
         assert uitkomst.uitkomst == "pass"
         assert {g.id: g.oordeel for g in uitkomst.buren[0].groepen} == {
             self.WERKNEMER: "onbeslist",
@@ -802,7 +812,7 @@ class TestRoloverlap:
             groepen,
             [_a("K1", "G1", "bevestigd", [(BRON, "Sommige werknemers hebben een lening.")])],
         )  # fmt: skip
-        uitkomst = br.bepaal(ruw, self._invoer(bron))
+        uitkomst = _bepaal(ruw, self._invoer(bron))
         assert uitkomst.uitkomst == "review_required"
 
 
@@ -839,7 +849,7 @@ class TestN2Tegenmodel:
         ruw = self._ruw(
             _a("K1", BUUR, "ontkend", [(BUURMATERIAAL, "permanent ter beschikking")])
         )
-        assert br.bepaal(ruw, self._invoer()).uitkomst == "pass"
+        assert _bepaal(ruw, self._invoer()).uitkomst == "pass"
 
     @pytest.mark.parametrize(
         "veld", ["conclusie", "geldig", "geldige_afgrenzing", "uitkomst"]
@@ -851,7 +861,7 @@ class TestN2Tegenmodel:
         assert fout.soort == "schemafout" and veld in str(fout)
 
     def test_onbesproken_duur_levert_nooit_een_insluitingsconclusie(self):
-        uitkomst = br.bepaal(self._ruw(_a("K1", BUUR, "onbesproken")), self._invoer())
+        uitkomst = _bepaal(self._ruw(_a("K1", BUUR, "onbesproken")), self._invoer())
         assert uitkomst.uitkomst == "review_required"
         tekst = br.render(uitkomst).casefold()
         for verboden in ("valt binnen", "geen geval buiten", "buiten uitleen"):
@@ -879,7 +889,7 @@ class TestDekking:
         assert fout.soort == "kerndekking_onvolledig" and "'of'" in str(fout)
 
     def test_onbesproken_bindt_het_volledige_relevante_materiaal(self):
-        interpretatie = br.valideer_interpretatie(_interpretatie_a(), _invoer())
+        interpretatie = _valideer(_interpretatie_a(), _invoer())
         eenheden = {e.naam: e for e in br.controle_eenheden(interpretatie, _invoer())}
         citaten = eenheden[f"buur:{BUUR}"].pakket.inhoud["citaten"]
         volledig = {c["citaat"] for c in citaten if c["omvang"] == OMVANG_VOLLEDIG}
@@ -887,7 +897,7 @@ class TestDekking:
         assert any(c["omvang"] == OMVANG_FRAGMENT for c in citaten)
 
     def test_elk_feit_noemt_zijn_eigen_citaat(self):
-        interpretatie = br.valideer_interpretatie(_interpretatie_a(), _invoer())
+        interpretatie = _valideer(_interpretatie_a(), _invoer())
         eenheden = {e.naam: e for e in br.controle_eenheden(interpretatie, _invoer())}
         pakket = eenheden[f"buur:{BUUR}"].pakket
         uitspraak = pakket.inhoud["uitspraak"]
@@ -912,10 +922,13 @@ class TestDekking:
         )  # fmt: skip
         assert _fout(ruw, _invoer()).soort == "schemafout"
 
-    def test_niet_letterlijk_citaat_geweigerd(self):
+    @pytest.mark.parametrize("eenheid", ["U99", "kortstondig ter beschikking"])
+    def test_onbekende_eenheid_geweigerd(self, eenheid):
+        # v6 (vervangt test_niet_letterlijk_citaat_geweigerd): bewijs is een
+        # eenheidsnummer; een onbekend nummer of vrije tekst is een citaatfout.
         ruw = _vervang(
             _interpretatie_a(), "K1", BUUR,
-            _a("K1", BUUR, "bevestigd", [(BUURMATERIAAL, "kortstondig ter beschikking")]),
+            {**_a("K1", BUUR, "bevestigd"), "citaten": [eenheid]},
         )  # fmt: skip
         assert _fout(ruw, _invoer()).soort == "citaatfout"
 
@@ -930,8 +943,8 @@ class TestDekking:
             *(_a(k, "doel", "onbesproken") for k in ("K1", "K2", "K3", "K4")),
             *(a for a in ruw["antwoorden"] if a["onderwerp"] == BUUR),
         ]
-        assert br.bepaal(ruw, invoer).uitkomst == "review_required"
-        interpretatie = br.valideer_interpretatie(ruw, invoer)
+        assert _bepaal(ruw, invoer).uitkomst == "review_required"
+        interpretatie = _valideer(ruw, invoer)
         namen = [e.naam for e in br.controle_eenheden(interpretatie, invoer)]
         assert "doel" not in namen
 
@@ -955,7 +968,7 @@ class TestKennisstanden:
     )  # fmt: skip
     def test_drie_kennisstanden_blijven_uit_elkaar(self, antwoord, aspect, uitkomst):
         ruw = _vervang(_interpretatie_a(), "K2", BUUR, antwoord)
-        resultaat = br.bepaal(ruw, _invoer(buur=BUUR_BETAALD))
+        resultaat = _bepaal(ruw, _invoer(buur=BUUR_BETAALD))
         assert _aspect(resultaat, "kosten").aspect == aspect
         assert resultaat.uitkomst == uitkomst
 
@@ -969,7 +982,7 @@ class TestKennisstanden:
             BUUR,
             _a("K2", BUUR, "ontkend", [(BUURMATERIAAL, "tegen betaling")]),
         )
-        uitkomst = br.bepaal(ruw, _invoer(buur=BUUR_BETAALD, definitie=definitie))
+        uitkomst = _bepaal(ruw, _invoer(buur=BUUR_BETAALD, definitie=definitie))
         assert "kosteloos" not in definitie
         assert uitkomst.uitkomst == "pass"
         assert _aspect(uitkomst, "kosten").aspect == "afgrenzend"
@@ -984,7 +997,7 @@ class TestKennisstanden:
             _a("K2", BUUR, "bevestigd", [(BUURMATERIAAL, "kosteloos aan een medewerker")]),
             _a("K2", BUUR, "ontkend", [(BRON, "Verhuur is altijd betaald.")]),
         )  # fmt: skip
-        uitkomst = br.bepaal(ruw, _invoer(bron=bron, buur=buur))
+        uitkomst = _bepaal(ruw, _invoer(bron=bron, buur=buur))
         assert _aspect(uitkomst, "kosten").reden == "conflict"
         assert uitkomst.uitkomst == "review_required"
         assert "tegenstrijdig" in br.render(uitkomst)
@@ -995,11 +1008,22 @@ class TestKennisstanden:
 
 class TestOnderwerpEnContext:
     def test_doelbetekenis_mag_de_definitie_niet_als_bron_gebruiken(self):
+        # v6 (vervangen): definitie en context hebben geen eenheden, dus zijn ze
+        # niet als bewijs te noemen; een eenheid uit de buurbeschrijving als
+        # doelbewijs blijft een onderwerpfout.
+        invoer = _invoer(BRON_C, BUUR_C)
+        eenheden = invoer.eenheden()
+        assert {r.material_id for r in eenheden.values()}.isdisjoint(
+            {"definition", "context"}
+        )
+        buureenheid = next(
+            u for u, r in eenheden.items() if r.material_id == BUURMATERIAAL
+        )
         ruw = _vervang(
             _interpretatie_c(), "K1", "doel",
-            _a("K1", "doel", "bevestigd", [("definition", "tijdelijk")]),
+            {**_a("K1", "doel", "bevestigd"), "citaten": [buureenheid]},
         )  # fmt: skip
-        assert _fout(ruw, _invoer(BRON_C, BUUR_C)).soort == "onderwerpfout"
+        assert _fout(ruw, invoer).soort == "onderwerpfout"
 
     def test_beschrijving_van_een_andere_buur_geweigerd(self):
         ander = "neighbour:gebruiker:verkoop"
@@ -1035,7 +1059,7 @@ class TestOnderwerpEnContext:
         assert fout.soort == "buiten_bereik"
         assert "alleen voor vaste medewerkers" in fout.melding
         assert DOELCITAAT in fout.melding and "K1 (duur: tijdelijk)" in fout.melding
-        tekst = br.render(br.bepaal(ruw, _invoer(BRON_C, BUUR_C)))
+        tekst = br.render(_bepaal(ruw, _invoer(BRON_C, BUUR_C)))
         assert "alleen voor vaste medewerkers" in tekst
 
     def test_voorwaardelijke_ontkenning_in_doel_ook_buiten_bereik(self):
@@ -1054,7 +1078,7 @@ class TestOnderwerpEnContext:
             _a("K1", "doel", "bevestigd", [(BRON, TERUGGAVE_DOEL)],
                voorwaarden=["alleen voor vaste medewerkers"]),
         )  # fmt: skip
-        uitkomst = br.bepaal(ruw, _invoer(BRON_C, BUUR_C))
+        uitkomst = _bepaal(ruw, _invoer(BRON_C, BUUR_C))
         assert uitkomst.uitkomst == "pass"
         assert _aspect(uitkomst, "duur").aspect == "afgrenzend"
 
@@ -1071,7 +1095,7 @@ class TestOnderwerpEnContext:
             _a("K4", BUUR, "ontkend", [(BUURMATERIAAL, "die de apparatuur daarna teruggeeft")]),
         )  # fmt: skip
         ruw = _vervang(ruw, "K4", "doel", _a("K4", "doel", "onbesproken"))
-        uitkomst = br.bepaal(ruw, _invoer())
+        uitkomst = _bepaal(ruw, _invoer())
         assert _aspect(uitkomst, "duur").aspect == "gedeeld"
         assert _aspect(uitkomst, "teruggave").reden == "doelbetekenis_niet_vastgesteld"
         assert uitkomst.uitkomst == "review_required"
@@ -1090,7 +1114,7 @@ class TestFailEnWeergave:
         )  # fmt: skip
         ruw = _ruw({"bovenbegrip": "ter beschikking stellen van apparatuur",
                     "kenmerken": []}, [])  # fmt: skip
-        uitkomst = br.bepaal(ruw, invoer)
+        uitkomst = _bepaal(ruw, invoer)
         assert uitkomst.uitkomst == "fail"
         assert "geen kenmerk" in br.render(uitkomst)
 
@@ -1100,17 +1124,17 @@ class TestFailEnWeergave:
             (_interpretatie_c(), _invoer(BRON_C, BUUR_C)),
             (_interpretatie_a(), _invoer(onvolledig={BRON})),
         ):
-            tekst = br.render(br.bepaal(ruw, invoer))
+            tekst = br.render(_bepaal(ruw, invoer))
             assert br.BEREIKZIN in tekst
             assert "valt binnen" not in tekst.casefold()
 
     def test_open_zegt_alleen_wat_het_materiaal_niet_vaststelt(self):
-        tekst = br.render(br.bepaal(_interpretatie_a(), _invoer()))
+        tekst = br.render(_bepaal(_interpretatie_a(), _invoer()))
         assert "geen ontkenning" in tekst
         assert "geen uitspraak over andere mogelijke verschillen" in tekst
 
     def test_error_noemt_geen_oordeel_over_de_definitie(self):
-        tekst = br.render(br.bepaal(_interpretatie_a(), _invoer(onvolledig={BRON})))
+        tekst = br.render(_bepaal(_interpretatie_a(), _invoer(onvolledig={BRON})))
         assert tekst.startswith("Geen oordeel")
 
 
@@ -1128,21 +1152,18 @@ VERHUURPASSAGE_A = (
 
 class TestOnderwerpbinding:
     """Een bron die ook een ander geregistreerd begrip noemt (uitleen én verhuur):
-    een broncitaat noemt zijn eigen onderwerp als heel woord (tekstanker, v5).
-    Een tweede begripsnaam mag; de naam bewijst geen inhoudelijke betrekking.
+    v6 (negatief anker): een eenheid die alleen een ander begrip noemt, is geen
+    bewijs; een eenheid zonder begripsnaam of met beide namen gaat door naar de
+    controle. De naam bewijst geen inhoudelijke betrekking.
 
     Reviewerbevinding R16 (bewijsregels-r16-uitvoerreview-result-v1.md, punt 1 en 2):
     dezelfde woorden staan onder Uitleen en onder Verhuur; `material_id + citaat`
     bindt de bedoelde vindplaats niet aan haar onderwerp.
     """
 
-    def test_herhaald_kort_citaat_blijft_citaatfout(self):
-        # Geen eerste treffer kiezen, geen versoepeling van de unieke vindplaats.
-        ruw = _vervang(
-            _interpretatie_a(), "K3", "doel",
-            _a("K3", "doel", "bevestigd", [(BRON, "aan een medewerker")]),
-        )  # fmt: skip
-        assert _fout(ruw, _invoer()).soort == "citaatfout"
+    # v6: test_herhaald_kort_citaat_blijft_citaatfout vervalt; eenheden zijn uniek
+    # door nummering, gedekt door test_def768_bewijseenheden.py::TestEenheden::
+    # test_herhaalde_tekst_in_twee_zinnen_is_niet_dubbelzinnig.
 
     def test_verhuurteruggave_is_geen_uitleenbewijs(self):
         ruw = _vervang(
@@ -1152,22 +1173,38 @@ class TestOnderwerpbinding:
         fout = _fout(ruw, _invoer())
         assert fout.soort == "onderwerpfout" and "verhuur" in fout.melding
 
-    def test_losse_teruggaafzin_zonder_onderwerp_geweigerd(self):
-        # C: de teruggaafzin staat letterlijk maar één keer, maar zonder 'Uitleen'.
+    def test_losse_teruggaafzin_zonder_begripsnaam_gaat_naar_de_controle(self):
+        # v6 (omgekeerd t.o.v. v5): een eenheid zonder begripsnaam weigert de code
+        # niet (negatief anker); of zij over uitleen gaat, toetst de semantische
+        # controle. Hier staat de teruggaafzin als eigen zin, zonder 'Uitleen'.
+        los = "De medewerker geeft de apparatuur daarna terug."
+        bron = BRON_C.replace(
+            "aan een medewerker; de medewerker geeft", "aan een medewerker. De medewerker geeft"
+        )  # fmt: skip
+        invoer = _invoer(bron, BUUR_C)
         ruw = _vervang(
             _interpretatie_c(), "K4", "doel",
-            _a("K4", "doel", "bevestigd",
-               [(BRON, "de medewerker geeft de apparatuur daarna terug")]),
+            _a("K4", "doel", "bevestigd", [(BRON, los)]),
         )  # fmt: skip
-        fout = _fout(ruw, _invoer(BRON_C, BUUR_C))
-        assert fout.soort == "onderwerpfout" and "uitleen" in fout.melding
+        assert _bepaal(ruw, invoer).uitkomst == "pass"
+        doel = _eenheden(_valideer(ruw, invoer), invoer)["doel"].pakket.inhoud
+        assert los in {c["citaat"] for c in doel["citaten"]}
 
-    def test_benoemde_passage_bindt_onderwerp_en_verwijzing(self):
+    def test_uitleenzin_met_puntkomma_is_een_eenheid(self):
+        # v6 (vervangt test_benoemde_passage_bindt_onderwerp_en_verwijzing): de
+        # Uitleen-zin met ';' is één eenheid, dus onderwerp en verwijzing
+        # ('de medewerker') zitten samen in hetzelfde bewijs.
+        invoer = _invoer(BRON_C, BUUR_C)
+        tekst = {
+            u: invoer.materiaal[r.material_id][r.start : r.end]
+            for u, r in invoer.eenheden().items()
+        }
+        (uid,) = [u for u, t in tekst.items() if t == UITLEENPASSAGE]
         ruw = _vervang(
             _interpretatie_c(), "K4", "doel",
-            _a("K4", "doel", "bevestigd", [(BRON, UITLEENPASSAGE)]),
+            {**_a("K4", "doel", "bevestigd"), "citaten": [uid]},
         )  # fmt: skip
-        assert br.bepaal(ruw, _invoer(BRON_C, BUUR_C)).uitkomst == "pass"
+        assert _bepaal(ruw, invoer).uitkomst == "pass"
 
     def test_citaat_met_beide_begrippen_gaat_naar_de_semantische_controle(self):
         # R16-H-01: geen verbod op een tweede begripsnaam. De naam is alleen een
@@ -1179,7 +1216,7 @@ class TestOnderwerpbinding:
             "doel",
             _a("K4", "doel", "bevestigd", [(BRON, beide)]),
         )
-        interpretatie = br.valideer_interpretatie(ruw, _invoer())
+        interpretatie = _valideer(ruw, _invoer())
         doel = _eenheden(interpretatie, _invoer())["doel"].pakket.inhoud
         assert beide in {c["citaat"] for c in doel["citaten"]}
 
@@ -1211,7 +1248,7 @@ class TestOnderwerpbinding:
                     [(BRON, "Uitleenovereenkomst: tijdelijk recht op gebruik.")])],
             )  # fmt: skip
 
-        assert br.valideer_interpretatie(ruw("Uitleen: apparatuur tijdelijk"), invoer)
+        assert _valideer(ruw("Uitleen: apparatuur tijdelijk"), invoer)
         fout = _fout(ruw("Uitleenovereenkomst: tijdelijk recht"), invoer)
         assert fout.soort == "onderwerpfout" and "'uitleen'" in fout.melding
 
@@ -1227,16 +1264,36 @@ class TestOnderwerpbinding:
             "Uitleen: de medewerker geeft de apparatuur terug. Verhuur: de medewerker "
             "geeft de apparatuur niet terug."
         )
-        kort = _doelcitaat(_interpretatie_a(), "de medewerker geeft de apparatuur")
-        assert _fout(kort, _invoer(bron)).soort == "citaatfout"
+        # v6 (aangepast): geen kort, dubbelzinnig fragment meer; elke zin is een
+        # eigen eenheid, dus de ontkenning gaat altijd met haar zin mee.
+        invoer = _invoer(bron)
+        zinnen = [
+            invoer.materiaal[r.material_id][r.start : r.end]
+            for r in invoer.eenheden().values()
+            if r.material_id == BRON
+        ]
+        assert zinnen == [
+            "Uitleen: de medewerker geeft de apparatuur terug.",
+            "Verhuur: de medewerker geeft de apparatuur niet terug.",
+        ]
         verkeerd = _doelcitaat(
             _interpretatie_a(), "Verhuur: de medewerker geeft de apparatuur niet terug."
         )
-        assert _fout(verkeerd, _invoer(bron)).soort == "onderwerpfout"
+        assert _fout(verkeerd, invoer).soort == "onderwerpfout"
         goed = _doelcitaat(
             _interpretatie_a(), "Uitleen: de medewerker geeft de apparatuur terug."
         )
-        assert br.valideer_interpretatie(goed, _invoer(bron)) is not None
+        doel = _eenheden(_valideer(goed, invoer), invoer)["doel"].pakket.inhoud
+        assert [
+            c["citaat"] for c in doel["citaten"] if c["omvang"] == OMVANG_FRAGMENT
+        ] == ["Uitleen: de medewerker geeft de apparatuur terug."]
+        # Staat de ontkenning in de eigen zin, dan ziet de code haar niet, maar
+        # krijgt de controle haar letterlijk (of het model weigert: niet bewezen).
+        ontkend = "Uitleen: de medewerker geeft de apparatuur niet terug."
+        bron_niet = ontkend + " Verhuur: de medewerker geeft de apparatuur terug."
+        ruw = _doelcitaat(_interpretatie_a(), ontkend)
+        doel = _eenheden(_valideer(ruw, _invoer(bron_niet)), _invoer(bron_niet))
+        assert ontkend in {c["citaat"] for c in doel["doel"].pakket.inhoud["citaten"]}
 
     def test_herhaalde_woorden_met_voorwaarde_gaan_letterlijk_naar_de_controle(self):
         # De code ziet de voorwaarde niet als het model haar weglaat; de doelcontrole
@@ -1250,16 +1307,23 @@ class TestOnderwerpbinding:
             _interpretatie_a(),
             "Uitleen: bij storing geeft de medewerker de apparatuur terug.",
         )
-        interpretatie = br.valideer_interpretatie(ruw, _invoer(bron))
+        interpretatie = _valideer(ruw, _invoer(bron))
         doel = _eenheden(interpretatie, _invoer(bron))["doel"].pakket.inhoud
         assert any("bij storing" in c["citaat"] for c in doel["citaten"])
         assert "geen voorwaardelijke afspraak" in doel["uitspraak"]
+        # v6 (aangepast): de eenheid is de hele zin, dus de voorwaarde gaat mee.
+        fragmenten = [
+            c["citaat"] for c in doel["citaten"] if c["omvang"] == OMVANG_FRAGMENT
+        ]
+        assert fragmenten == [
+            "Uitleen: bij storing geeft de medewerker de apparatuur terug."
+        ]
 
     def test_bron_met_een_begrip_vraagt_geen_naam(self):
         # Grens van de regel: noemt de bron geen ander geregistreerd begrip, dan
         # bindt het materiaal zelf het onderwerp (de controle toetst de rest).
         ruw = _doelcitaat(_interpretatie_a(), "stelt apparatuur tijdelijk en kosteloos")
-        assert br.bepaal(ruw, _invoer(UITLEENPASSAGE)).uitkomst == "review_required"
+        assert _bepaal(ruw, _invoer(UITLEENPASSAGE)).uitkomst == "review_required"
 
 
 def _doelcitaat(ruw, citaat):
@@ -1287,7 +1351,7 @@ class TestControlescope:
     """
 
     def _pakket(self, ruw, invoer, naam):
-        interpretatie = br.valideer_interpretatie(ruw, invoer)
+        interpretatie = _valideer(ruw, invoer)
         return _eenheden(interpretatie, invoer)[naam].pakket.inhoud
 
     def test_doelpakket_draagt_volledige_bron_en_vastgelegde_context(self):
