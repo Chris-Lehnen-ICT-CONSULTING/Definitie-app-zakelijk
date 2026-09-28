@@ -82,6 +82,13 @@ R17_VELDEN = (
     "onvolledig",
 )
 TERUGGAAFZIN = "de medewerker geeft de apparatuur daarna terug"
+# De maker leest de git-ignored R17-invoer en -reproductie (zoals R16/R17-tests).
+pytestmark.append(
+    pytest.mark.skipif(
+        not (R17_INVOER.is_file() and REPRODUCTIE.is_dir()),
+        reason="git-ignored R17-invoer of -reproductie ontbreekt",
+    )
+)
 
 
 def _sha(pad) -> str:
@@ -321,6 +328,7 @@ class TestSchrijven:
         assert mk18.DOEL == R18_INVOER
 
 
+@pytest.mark.skipif(not R18_INVOER.is_file(), reason="git-ignored R18-invoer ontbreekt")
 class TestVastgelegdeInvoer:
     def test_vastgelegde_invoer_gelijk_aan_de_maker(self, invoer):
         tekst = R18_INVOER.read_text(encoding="utf-8")

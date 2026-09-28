@@ -6,7 +6,8 @@ hergebruik, E met en zonder voorwaarde, onzin, F7). Aanvulling van de
 opdracht: de scorer geeft ook bij ongeldige modeluitvoer (niet-dict
 antwoorden, niet-lijst citaten, onbekende eenheid, …) nooit een exception.
 
-A komt exact uit de gepinde R17-invoer; D en E zijn SYNTHETISCH, GEEN
+A is exact het geval van R17-item A (H3, inline; gelijkheid met de git-ignored
+R17-invoer in `TestBron`); D en E zijn SYNTHETISCH, GEEN
 MODELUITVOER (bronteksten uit het plan). Alle interpretaties hier zijn
 vooraf opgesteld, geen modeluitvoer. Geen netwerk.
 """
@@ -20,6 +21,7 @@ import sys
 import pytest
 
 from tests.unit.scripts.test_def768_ess05_proefrunner import ROOT
+from tests.unit.scripts.test_def768_r16_bewijsregelproef import H3
 
 pytestmark = [pytest.mark.unit]
 
@@ -114,10 +116,9 @@ KERN = {
 
 
 def _geval(bron: str | None = None) -> dict:
-    """R17-item A (gepind), desgewenst met een andere bronsnippet (D/E)."""
-    data = json.loads(R17_INVOER.read_text(encoding="utf-8"))
-    (a,) = [i for i in data["items"] if i["id"] == "A"]
-    geval = copy.deepcopy(a["geval"])
+    """Het geval van R17-item A (H3, inline: de R17-invoer is git-ignored; gelijkheid
+    zie TestBron), desgewenst met een andere bronsnippet (D/E)."""
+    geval = copy.deepcopy(H3)
     if bron is not None:
         geval["bronnen"][0]["snippet"] = bron
     return geval
@@ -633,3 +634,11 @@ class TestKenmerkherkenning:
         assert score["m_b_dragend_ok"] is True
         assert score["m_c_dragend_ok"] is True
         assert score["m_d"]["ok"] is True
+
+
+@pytest.mark.skipif(not R17_INVOER.is_file(), reason="git-ignored R17-invoer ontbreekt")
+class TestBron:
+    def test_inline_geval_is_exact_r17_item_a(self):
+        data = json.loads(R17_INVOER.read_text(encoding="utf-8"))
+        (a,) = [i for i in data["items"] if i["id"] == "A"]
+        assert _geval() == a["geval"]
