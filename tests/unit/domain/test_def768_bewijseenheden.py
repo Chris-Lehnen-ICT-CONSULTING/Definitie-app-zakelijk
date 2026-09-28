@@ -204,3 +204,84 @@ class TestDiagnose:
 
     def test_geldige_interpretatie_heeft_geen_diagnose(self):
         assert br.bewijsdiagnose(_ruw_a(), _invoer()) == ()
+
+    # --- robuustheid tegen ongeldige modeluitvoer (Codex-review deel A, bevinding 1) ---
+
+    @staticmethod
+    def _soorten(ruw):
+        return [(d.pad, d.soort) for d in br.bewijsdiagnose(ruw, _invoer())]
+
+    @pytest.mark.parametrize("veld", ["antwoorden", "buurgroepen"])
+    @pytest.mark.parametrize("waarde", [1, {}, "U1", None])
+    def test_niet_lijst_container_is_zelf_een_diagnose(self, veld, waarde):
+        # Review-voorbeelden: `antwoorden: 1` en `buurgroepen: 1` gaven TypeError.
+        ruw = {**_ruw_a(), veld: waarde}
+        assert (veld, "schemafout") in self._soorten(ruw)
+
+    @pytest.mark.parametrize("veld", ["antwoorden", "buurgroepen"])
+    def test_ontbrekende_container_is_zelf_een_diagnose(self, veld):
+        ruw = {k: v for k, v in _ruw_a().items() if k != veld}
+        assert (veld, "schemafout") in self._soorten(ruw)
+
+    @pytest.mark.parametrize("waarde", [{}, "", None, 0, "U1", {"U1": 1}])
+    def test_onbesproken_met_niet_lijst_citaten_is_schemafout(self, waarde):
+        # Review-voorbeeld: onbesproken met `citaten: {}` gaf een lege diagnose.
+        ruw = copy.deepcopy(_ruw_a())
+        ruw["antwoorden"][5]["citaten"] = waarde  # K2/verhuur, onbesproken
+        assert self._soorten(ruw) == [("antwoorden[6]", "schemafout")]
+
+    @pytest.mark.parametrize("waarde", ["U3", {"U3": 1}, None, 3])
+    def test_positief_met_niet_lijst_citaten_is_schemafout(self, waarde):
+        ruw = copy.deepcopy(_ruw_a())
+        ruw["antwoorden"][0]["citaten"] = waarde  # K1/doel, bevestigd
+        assert self._soorten(ruw) == [("antwoorden[1]", "schemafout")]
+
+    @pytest.mark.parametrize("onderwerp", [["doel"], {"doel": 1}, None, 7])
+    def test_ongeldig_of_ontbrekend_onderwerp_is_schemafout(self, onderwerp):
+        ruw = copy.deepcopy(_ruw_a())
+        if onderwerp is None:
+            del ruw["antwoorden"][0]["onderwerp"]
+        else:
+            ruw["antwoorden"][0]["onderwerp"] = onderwerp
+        assert self._soorten(ruw) == [("antwoorden[1]", "schemafout")]
+
+    def test_onbekende_toestand_is_schemafout(self):
+        ruw = copy.deepcopy(_ruw_a())
+        ruw["antwoorden"][0]["toestand"] = ["bevestigd"]
+        assert self._soorten(ruw) == [("antwoorden[1]", "schemafout")]
+
+    @pytest.mark.parametrize(
+        "groep",
+        [
+            {"id": ["G1"], "buur": BUUR, "citaten": [U_VERHUUR]},
+            {"buur": BUUR, "citaten": [U_VERHUUR]},
+            {"id": "G1", "buur": [BUUR], "citaten": [U_VERHUUR]},
+            {"id": "G1", "citaten": [U_VERHUUR]},
+            {"id": "G1", "buur": "doel", "citaten": [U_VERHUUR]},
+            {"id": "G1", "buur": BUUR, "citaten": "U4"},
+            {"id": "G1", "buur": BUUR, "citaten": []},
+            "geen object",
+        ],
+    )
+    def test_ongeldige_buurgroep_is_schemafout_zonder_exception(self, groep):
+        ruw = {**copy.deepcopy(_ruw_a()), "buurgroepen": [groep]}
+        assert self._soorten(ruw) == [("buurgroepen[1]", "schemafout")]
+
+    def test_antwoord_over_een_ongeldige_groep_geeft_geen_exception(self):
+        ruw = copy.deepcopy(_ruw_a())
+        ruw["buurgroepen"] = [{"id": ["G1"], "buur": BUUR, "citaten": [U_VERHUUR]}]
+        ruw["antwoorden"].append(
+            {**ruw["antwoorden"][4], "onderwerp": "G1", "citaten": [U_VERHUUR]}
+        )
+        assert self._soorten(ruw) == [
+            ("antwoorden[9]", "schemafout"),
+            ("buurgroepen[1]", "schemafout"),
+        ]
+
+    def test_geldige_buurgroep_geeft_geen_diagnose(self):
+        ruw = copy.deepcopy(_ruw_a())
+        ruw["buurgroepen"] = [{"id": "G1", "buur": BUUR, "citaten": [U_VERHUUR]}]
+        ruw["antwoorden"].append(
+            {**ruw["antwoorden"][4], "onderwerp": "G1", "citaten": [U_VERHUUR]}
+        )
+        assert self._soorten(ruw) == []

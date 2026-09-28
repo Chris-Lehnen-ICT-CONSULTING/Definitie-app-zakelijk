@@ -694,49 +694,87 @@ def bewijsdiagnose(ruw: Any, invoer: Vergelijkingsinvoer) -> tuple[Diagnose, ...
 
     Uitsluitend voor evaluatie van een proef: het productiepad blijft
     `valideer_interpretatie` (eerste fout is `error`). Controleert per item:
-    verplichte eenheid bij een positieve toestand, bekende eenheid, toegestaan
-    materiaal en het negatieve anker.
+    geldig onderwerp en toestand, `citaten` als lijst, verplichte eenheid bij een
+    positieve toestand (en geen bij `onbesproken`), bekende eenheid, toegestaan
+    materiaal en het negatieve anker. Een ontbrekende of niet-lijst `antwoorden`
+    of `buurgroepen` is zelf een diagnose. Nooit een exception.
+
+    Grens: een lege diagnose betekent alleen dat deze bewijscontroles niets
+    vonden; zij is geen schemagoedkeuring (kern, velden, dekking en samenhang
+    toetst alleen `valideer_interpretatie`).
     """
     if not isinstance(ruw, Mapping):
         return (Diagnose("interpretatie", "schemafout", "geen object"),)
     termen = invoer.termen()
-    groepen = {
-        g.get("id"): g.get("buur")
-        for g in ruw.get("buurgroepen") or []
-        if isinstance(g, Mapping)
-    }
     uit: list[Diagnose] = []
 
-    def toets(pad: str, onderwerp: Any, toestand: Any, citaten: Any) -> None:
-        buur = None if onderwerp == DOEL else groepen.get(onderwerp, onderwerp)
-        try:
-            if buur is not None and buur not in termen:
-                raise _fout("schemafout", f"{pad}: onbekend onderwerp {onderwerp!r}")
-            if toestand != _ONBESPROKEN and not citaten:
-                raise _fout("schemafout", f"{pad}: {toestand} zonder eenheid")
-            if toestand == _ONBESPROKEN and citaten:
-                raise _fout("schemafout", f"{pad}: onbesproken met eenheden")
-            _citaten(
-                invoer,
-                citaten or [],
-                invoer.relevant(buur),
-                f"{pad}.citaten",
-                invoer.term if buur is None else termen[buur],
-            )
-        except BewijsregelfoutError as exc:
-            uit.append(Diagnose(pad, exc.soort, exc.melding))
+    def lijst(veld: str) -> list[Any]:
+        waarde = ruw.get(veld)
+        if isinstance(waarde, list):
+            return waarde
+        uit.append(Diagnose(veld, "schemafout", f"{veld} is geen lijst"))
+        return []
 
-    for nummer, a in enumerate(ruw.get("antwoorden") or [], start=1):
+    antwoorden, buurgroepen = lijst("antwoorden"), lijst("buurgroepen")
+    # Alleen groepen met een tekst-ID en een geregistreerde buur zijn aanspreekbaar.
+    groepen = {
+        g["id"]: g["buur"]
+        for g in buurgroepen
+        if isinstance(g, Mapping)
+        and isinstance(g.get("id"), str)
+        and g["id"].strip()
+        and isinstance(g.get("buur"), str)
+        and g["buur"] in termen
+    }
+
+    def toets(pad: str, buur: str | None, toestand: Any, citaten: Any) -> None:
+        if not isinstance(citaten, list):
+            raise _fout("schemafout", f"{pad}.citaten is geen lijst")
+        if toestand == _ONBESPROKEN and citaten:
+            raise _fout("schemafout", f"{pad}: onbesproken met eenheden")
+        if toestand != _ONBESPROKEN and not citaten:
+            raise _fout("schemafout", f"{pad}: {toestand} zonder eenheid")
+        _citaten(
+            invoer,
+            citaten,
+            invoer.relevant(buur),
+            f"{pad}.citaten",
+            invoer.term if buur is None else termen[buur],
+        )
+
+    def antwoord(pad: str, a: Any) -> None:
         if not isinstance(a, Mapping):
-            uit.append(Diagnose(f"antwoorden[{nummer}]", "schemafout", "geen object"))
-            continue
-        toets(f"antwoorden[{nummer}]", a.get("onderwerp"), a.get("toestand"),
-              a.get("citaten"))  # fmt: skip
-    for nummer, g in enumerate(ruw.get("buurgroepen") or [], start=1):
-        if isinstance(g, Mapping):
-            toets(
-                f"buurgroepen[{nummer}]", g.get("buur"), "bevestigd", g.get("citaten")
-            )
+            raise _fout("schemafout", f"{pad} is geen object")
+        onderwerp, toestand = a.get("onderwerp"), a.get("toestand")
+        if not isinstance(onderwerp, str):
+            raise _fout("schemafout", f"{pad}: onderwerp {onderwerp!r} is geen tekst")
+        buur = None if onderwerp == DOEL else groepen.get(onderwerp, onderwerp)
+        if buur is not None and buur not in termen:
+            raise _fout("schemafout", f"{pad}: onbekend onderwerp {onderwerp!r}")
+        if not isinstance(toestand, str) or toestand not in _BUURNIVEAU:
+            raise _fout("schemafout", f"{pad}: onbekende toestand {toestand!r}")
+        toets(pad, buur, toestand, a.get("citaten"))
+
+    def groep(pad: str, g: Any) -> None:
+        if not isinstance(g, Mapping):
+            raise _fout("schemafout", f"{pad} is geen object")
+        gid, buur = g.get("id"), g.get("buur")
+        if not isinstance(gid, str) or not gid.strip():
+            raise _fout("schemafout", f"{pad}: id {gid!r} is geen niet-lege tekst")
+        if not isinstance(buur, str) or buur not in termen:
+            raise _fout("schemafout", f"{pad}: onbekende buur {buur!r}")
+        toets(pad, buur, _BEVESTIGD, g.get("citaten"))
+
+    for soort, items, controle in (
+        ("antwoorden", antwoorden, antwoord),
+        ("buurgroepen", buurgroepen, groep),
+    ):
+        for nummer, item in enumerate(items, start=1):
+            pad = f"{soort}[{nummer}]"
+            try:
+                controle(pad, item)
+            except BewijsregelfoutError as exc:
+                uit.append(Diagnose(pad, exc.soort, exc.melding))
     return tuple(uit)
 
 
