@@ -19,10 +19,15 @@ de plancode is overgenomen, met deze afwijkingen:
   exception uit `bepaal` zelf wordt `m_d.fout = "exception:<type>"`.
 - M-b vraagt bij een orakel met eenheden minstens één genoemde eenheid; zonder
   antwoord of zonder bewijs draagt het feit niet (in de plancode vacuüm waar).
-- `voorwaarde_behouden` telt ook een voorwaarde die het model buiten bereik
-  plaatst of als kenmerklabel noemt; een voorwaardelijk doelantwoord naast een
-  onvoorwaardelijk antwoord met dezelfde toestand telt niet (dan voegt de
-  voorwaarde niets toe, zoals `bewijsregels._onverwerkte_voorwaarden`).
+- Voorwaarde (aanvulling C2 op het plan, Codex-review B2): geen woordzoeking
+  maar een status. `behouden` alleen bij (a) een doelvoorwaarde of (b) een
+  voor het doel bevestigd `buiten_kern`-kenmerk met de frase, zonder
+  markering (`MARKERINGEN`) in dezelfde tekstwaarde; `ontkend` bij een
+  markering in een doelvoorwaarde of `buiten_kern`-kenmerk; `handmatig_beoordelen`
+  als de frase alleen elders of niet eenduidig staat (bv. buiten bereik, een
+  niet-bevestigd kenmerk, of een doelvoorwaarde naast een onvoorwaardelijk
+  gelijk antwoord, zoals `bewijsregels._onverwerkte_voorwaarden`);
+  `weggevallen` als de frase nergens staat.
 - F7 apart (deel C: niet geslaagd, niet kritiek): `m_b_dragend_ok_zonder_f7`
   en `m_c_dragend_ok_zonder_f7` laten de feiten met een F7-afwijking buiten
   beschouwing; de plansleutels blijven streng.
@@ -31,13 +36,15 @@ Een ongeldig orakel is geen modeluitvoer maar een invoerfout: `controleer_orakel
 weigert het vóór elke aanroep (`OrakelfoutError`).
 
 Acceptatie volgens deel C van het plan (taak B3): `runoordeel` deelt één run
-in (geslaagd, kritiek, f7, niet_geslaagd, geen_interpretatie), `proefoordeel`
-telt de runs van een interpretatieproef en geeft het eindoordeel.
+in (geslaagd, kritiek, handmatig_beoordelen, f7, niet_geslaagd,
+geen_interpretatie), `proefoordeel` telt de runs van een interpretatieproef en
+geeft het eindoordeel.
 """
 
 from __future__ import annotations
 
 import dataclasses
+import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -46,6 +53,8 @@ from domain.ess05 import bewijsregels as br
 
 __all__ = [
     "BUURBESCHRIJVING",
+    "MARKERINGEN",
+    "VOORWAARDESTATUSSEN",
     "OrakelfoutError",
     "controleer_orakel",
     "proefoordeel",
@@ -113,39 +122,111 @@ def _voorwaarden(a: Mapping[str, Any]) -> list[str]:
     return [v for v in _lijst(a.get("voorwaarden")) if isinstance(v, str)]
 
 
-def _voorwaarde_behouden(ruw: Any, frase: str) -> bool:
+#: Aanvulling C2: ontkennende of opheffende markeringen (hele woorden, zonder
+#: hoofdletteronderscheid) in dezelfde tekstwaarde als de voorwaardefrase.
+MARKERINGEN = (
+    "ook zonder",
+    "ook buiten",
+    "ongeacht of",
+    "zonder",
+    "niet",
+    "geen",
+    "ongeacht",
+    "altijd",
+)
+VOORWAARDESTATUSSEN = ("behouden", "ontkend", "handmatig_beoordelen", "weggevallen")
+
+
+def _markeringen(tekst: str) -> list[str]:
+    """Alle markeringen in de tekst (ook overlappende: 'ook zonder' en 'zonder')."""
+    t = tekst.casefold()
+    return sorted(
+        m for m in MARKERINGEN if re.search(r"(?<!\w)" + re.escape(m) + r"(?!\w)", t)
+    )
+
+
+def _teksten(waarde: Any, pad: str = "") -> list[tuple[str, str]]:
+    """Alle tekstwaarden in een willekeurige structuur, met hun pad."""
+    if isinstance(waarde, str):
+        return [(pad, waarde)]
+    if isinstance(waarde, Mapping):
+        return [
+            t
+            for k, v in waarde.items()
+            for t in _teksten(v, f"{pad}.{k}" if pad else str(k))
+        ]
+    if isinstance(waarde, list):
+        return [t for i, v in enumerate(waarde) for t in _teksten(v, f"{pad}[{i}]")]
+    return []
+
+
+def _voorwaardestatus(ruw: Any, frase: str) -> tuple[str, list[dict[str, Any]]]:
+    """Aanvulling C2 (Codex-review B2): behouden, ontkend, handmatig of weggevallen.
+
+    Behouden is alleen (a) een doelantwoord met een voorwaarde die de frase
+    bevat, of (b) een `buiten_kern`-kenmerk waarvan kenmerk of waarde de frase
+    bevat en dat voor het doel bevestigd is; beide zonder markering en (a) niet
+    opgeheven door een onvoorwaardelijk gelijk doelantwoord. Een markering in
+    een voorwaarde van een doelantwoord of in een `buiten_kern`-kenmerk maakt
+    de voorwaarde ontkend, ook naast een correcte vermelding. Komt de frase
+    elders of niet eenduidig voor: handmatig beoordelen; nergens: weggevallen.
+    """
     f = frase.casefold()
-    doel = [a for a in _objecten(ruw, "antwoorden") if a.get("onderwerp") == br.DOEL]
+    antwoorden = _objecten(ruw, "antwoorden")
+    doel = [(i, a) for i, a in enumerate(antwoorden) if a.get("onderwerp") == br.DOEL]
+    vermeldingen: list[dict[str, Any]] = []
+
+    def vermeld(pad: str, tekst: str, plek: str) -> dict[str, Any]:
+        v = {"pad": pad, "tekst": tekst, "plek": plek, "markering": _markeringen(tekst)}
+        vermeldingen.append(v)
+        return v
 
     def opgeheven(a: Mapping[str, Any]) -> bool:
         return any(
             b.get("kenmerk_id") == a.get("kenmerk_id")
             and b.get("toestand") == a.get("toestand")
             and not _voorwaarden(b)
-            for b in doel
+            for _, b in doel
         )
 
-    in_doel = any(
-        any(f in v.casefold() for v in _voorwaarden(a)) and not opgeheven(a)
-        for a in doel
-    )
-    m_ids = {
-        m["id"]
-        for m in _objecten(ruw, "buiten_kern")
-        if isinstance(m.get("id"), str)
-        and any(f in (_tekst(m.get(k)) or "").casefold() for k in ("kenmerk", "waarde"))
+    gezien: set[str] = set()
+    a_ok = False
+    for i, a in doel:
+        for j, v in enumerate(_lijst(a.get("voorwaarden"))):
+            if isinstance(v, str) and f in v.casefold():
+                pad = f"antwoorden[{i}].voorwaarden[{j}]"
+                gezien.add(pad)
+                schoon = not vermeld(pad, v, "doelvoorwaarde")["markering"]
+                a_ok = a_ok or (schoon and not opgeheven(a))
+    bevestigd = {
+        a.get("kenmerk_id")
+        for _, a in doel
+        if isinstance(a.get("kenmerk_id"), str) and a.get("toestand") == "bevestigd"
     }
-    als_kenmerk = any(
-        isinstance(a.get("kenmerk_id"), str)
-        and a["kenmerk_id"] in m_ids
-        and a.get("toestand") == "bevestigd"
-        for a in doel
-    )
-    buiten_bereik = any(
-        any(f in (_tekst(b.get(k)) or "").casefold() for k in ("citaat", "reden"))
-        for b in _objecten(ruw, "buiten_bereik")
-    )
-    return in_doel or als_kenmerk or buiten_bereik
+    b_ok = False
+    for i, m in enumerate(
+        _lijst(ruw.get("buiten_kern")) if isinstance(ruw, Mapping) else []
+    ):
+        if not isinstance(m, Mapping):
+            continue
+        for k in ("kenmerk", "waarde"):
+            tekst = _tekst(m.get(k))
+            if tekst is not None and f in tekst.casefold():
+                pad = f"buiten_kern[{i}].{k}"
+                gezien.add(pad)
+                schoon = not vermeld(pad, tekst, "m_kenmerk")["markering"]
+                m_id = m.get("id")
+                b_ok = b_ok or (schoon and isinstance(m_id, str) and m_id in bevestigd)
+    for pad, tekst in _teksten(ruw):
+        if pad not in gezien and f in tekst.casefold():
+            vermeld(pad, tekst, "elders")
+    if any(v["markering"] for v in vermeldingen if v["plek"] != "elders"):
+        return "ontkend", vermeldingen
+    if a_ok or b_ok:
+        return "behouden", vermeldingen
+    if vermeldingen:
+        return "handmatig_beoordelen", vermeldingen
+    return "weggevallen", vermeldingen
 
 
 def _uitkomst(
@@ -276,6 +357,9 @@ def scoor(
     dragende = [f for f in feiten if f["dragend"]]
     zonder_f7 = [f for f in dragende if not f["f7"]]
     voorwaarde = orakel.get("voorwaarde")
+    status, vermeldingen = (
+        _voorwaardestatus(ruw, voorwaarde) if voorwaarde else (None, None)
+    )
     return {
         "m_a": {"items": len(positief), "fouten": _diagnose(ruw, invoer)},
         "m_b_dragend_ok": all(f["draagt"] for f in dragende),
@@ -288,9 +372,9 @@ def scoor(
             "verwacht": list(orakel["uitkomst"]),
             "ok": _uitkomst_toegestaan(uitkomst, fout, orakel["uitkomst"]),
         },
-        "voorwaarde_behouden": (
-            _voorwaarde_behouden(ruw, voorwaarde) if voorwaarde else None
-        ),
+        "voorwaarde_behouden": status == "behouden" if voorwaarde else None,
+        "voorwaarde_status": status,
+        "voorwaarde_vermeldingen": vermeldingen,
         "f7_afwijkingen": f7,
         "feiten": feiten,
     }
@@ -315,8 +399,13 @@ def runoordeel(
       (`voorwaarde_vereist_voor`; zonder dat veld: elke uitkomst van een orakel
       met voorwaarde, deel C bij E).
     - Kritiek: `pass`/`fail` terwijl M-c of M-b op de dragende kenmerken onwaar
-      is (F7-feiten buiten beschouwing), of een weggevallen voorwaarde.
+      is (F7-feiten buiten beschouwing); bij E (aanvulling C2) een weggevallen
+      voorwaarde, of een ontkende/opgeheven voorwaarde tenzij de uitkomst
+      `error/buiten_bereik` is.
+    - Handmatig beoordelen (C2): een voorwaarde die niet eenduidig behouden is;
+      niet geslaagd, niet kritiek, M-d telt niet.
     - F7: apart, niet geslaagd en niet kritiek.
+    - Volgorde: kritiek > handmatig_beoordelen > f7 > geslaagd > niet_geslaagd.
     """
     voorwaarde = orakel.get("voorwaarde")
     if score is None:
@@ -327,7 +416,9 @@ def runoordeel(
             "m_b_dragend_ok": False,
             "m_c_dragend_ok": False,
             "voorwaarde_behouden": False if voorwaarde else None,
+            "voorwaarde_status": None,
             "kritiek": [],
+            "handmatig": [],
             "f7": [],
         }
     md = score["m_d"]
@@ -337,19 +428,28 @@ def runoordeel(
     vereist = orakel.get(
         "voorwaarde_vereist_voor", orakel["uitkomst"] if voorwaarde else []
     )
-    behouden = score["voorwaarde_behouden"]
+    status = score["voorwaarde_status"] if voorwaarde else None
+    behouden = status == "behouden" if voorwaarde else None
     m_d_telt = bool(md["ok"]) and (gekregen not in vereist or behouden is True)
-    kritiek = []
+    kritiek, handmatig = [], []
     if md["uitkomst"] in ("pass", "fail"):
         if not score["m_c_dragend_ok_zonder_f7"]:
             kritiek.append("pass/fail bij M-c onwaar")
         if not score["m_b_dragend_ok_zonder_f7"]:
             kritiek.append("pass/fail bij M-b onwaar")
-    if voorwaarde and behouden is not True:
+    if voorwaarde and status == "weggevallen":
         kritiek.append("E: voorwaarde weggevallen")
+    elif voorwaarde and status == "ontkend" and gekregen != "error/buiten_bereik":
+        kritiek.append("E: voorwaarde ontkend of opgeheven")
+    elif voorwaarde and status == "handmatig_beoordelen":
+        handmatig.append("E: voorwaarde niet eenduidig behouden")
+    elif voorwaarde and status not in VOORWAARDESTATUSSEN:
+        kritiek.append(f"E: onbekende voorwaardestatus {status!r}")
     f7 = list(score["f7_afwijkingen"])
     if kritiek:
         categorie = "kritiek"
+    elif handmatig:
+        categorie = "handmatig_beoordelen"
     elif f7:
         categorie = "f7"
     elif m_d_telt and score["m_b_dragend_ok"] and score["m_c_dragend_ok"]:
@@ -363,7 +463,9 @@ def runoordeel(
         "m_b_dragend_ok": bool(score["m_b_dragend_ok"]),
         "m_c_dragend_ok": bool(score["m_c_dragend_ok"]),
         "voorwaarde_behouden": behouden,
+        "voorwaarde_status": status,
         "kritiek": kritiek,
+        "handmatig": handmatig,
         "f7": f7,
     }
 
@@ -371,11 +473,13 @@ def runoordeel(
 def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     """Eindoordeel over de runs (elk een `runoordeel` plus `sleutel`), deel C.
 
-    Afgekeurd bij één kritieke run of M-d ≤ 8 (ook met de ontbrekende runs
-    erbij); onvolledig onder 12 runs;
-    geslaagd bij M-d ≥ 11, M-c en M-b 12/12 en elke E-run met behouden
-    voorwaarde; anders wacht een F7-afwijking op het besluit van Chris, of is
-    het tussengebied (analyseren, geen nieuwe ronde zonder besluit).
+    Afgekeurd bij één kritieke run of M-d ≤ 8, ook met de ontbrekende runs en
+    de handmatig te beoordelen runs erbij (aanvulling C2: die kunnen juist
+    blijken); onvolledig onder 12 runs; geslaagd bij M-d ≥ 11, M-c en M-b
+    12/12 en elke E-run met behouden voorwaarde; anders wacht de proef op de
+    handmatige beoordeling (als 11 dan nog haalbaar is) of op het F7-besluit
+    van Chris, of is het tussengebied (analyseren, geen nieuwe ronde zonder
+    besluit).
     """
     n = len(runs)
     m_d = sum(1 for r in runs if r["m_d_telt"])
@@ -388,16 +492,24 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         for r in runs
         if r["kritiek"]
     ]
+    handmatig = [
+        {"sleutel": r["sleutel"], "redenen": list(r["handmatig"])}
+        for r in runs
+        if r["handmatig"]
+    ]
     f7 = [
         {"sleutel": r["sleutel"], "afwijkingen": list(r["f7"])} for r in runs if r["f7"]
     ]
     # Onder 12 runs telt M-d ≤ 8 pas als ook de ontbrekende runs dat niet redden.
-    if kritiek or m_d + max(0, RUNS_VERWACHT - n) <= M_D_AFKEUR:
+    haalbaar = m_d + max(0, RUNS_VERWACHT - n) + len(handmatig)
+    if kritiek or haalbaar <= M_D_AFKEUR:
         oordeel = "afgekeurd"
     elif n < RUNS_VERWACHT:
         oordeel = "onvolledig"
     elif m_d >= M_D_MIN and m_c == n and m_b == n and e_ok == len(e_runs):
         oordeel = "geslaagd"
+    elif handmatig and m_d + len(handmatig) >= M_D_MIN:
+        oordeel = "wacht_op_handmatige_beoordeling"
     elif f7:
         oordeel = "wacht_op_f7_besluit"
     else:
@@ -411,6 +523,7 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "m_b_dragend": m_b,
         "e_voorwaarde_behouden": [e_ok, len(e_runs)],
         "kritiek": kritiek,
+        "handmatig_beoordelen": handmatig,
         "f7": f7,
         "categorieen": dict(sorted(Counter(r["categorie"] for r in runs).items())),
         "grens": _GRENS,

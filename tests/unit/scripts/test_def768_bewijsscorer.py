@@ -509,18 +509,21 @@ class TestVoorwaarde:
         )
         assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_behouden"] is True
 
-    def test_m_kenmerk_niet_bevestigd_behoudt_niets(self):
+    def test_m_kenmerk_niet_bevestigd_is_handmatig(self):
+        """Aanvulling C2: de frase staat er, maar niet eenduidig als (a) of (b)."""
         invoer = _invoer(E_BRON)
         ruw = _e(
             invoer,
             ("bevestigd", ["Uitleen:"]),
             buiten_kern=[{"id": "M1", "kenmerk": "aanleiding", "waarde": "storing"}],
         )
-        assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_behouden"] is False
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_behouden"] is False
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
 
-    def test_in_buiten_bereik(self):
-        """Afwijking van de plancode: een voorwaarde die het model buiten bereik
-        plaatst, is niet weggevallen (anders telt een juiste run als kritiek)."""
+    def test_in_buiten_bereik_is_handmatig(self):
+        """Aanvulling C2: alleen buiten bereik is geen (a) of (b) → handmatig
+        beoordelen; geen automatisch succes en niet automatisch kritiek."""
         invoer = _invoer(E_BRON)
         ruw = _e(
             invoer,
@@ -537,11 +540,12 @@ class TestVoorwaarde:
             "error",
             "buiten_bereik",
         )
-        assert score["voorwaarde_behouden"] is True
+        assert score["voorwaarde_behouden"] is False
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
 
-    def test_opgeheven_door_een_onvoorwaardelijk_antwoord(self):
-        """Afwijking van de plancode: naast een onvoorwaardelijk gelijk antwoord voegt
-        de voorwaarde niets toe (zoals `_onverwerkte_voorwaarden`): weggevallen."""
+    def test_opgeheven_door_een_onvoorwaardelijk_antwoord_is_handmatig(self):
+        """Naast een onvoorwaardelijk gelijk antwoord voegt de voorwaarde niets toe
+        (zoals `_onverwerkte_voorwaarden`): niet eenduidig (a) → handmatig."""
         invoer = _invoer(E_BRON)
         ruw = _e(invoer, ("bevestigd", ["Uitleen:"]))
         ruw["antwoorden"].append(
@@ -557,11 +561,193 @@ class TestVoorwaarde:
         score = bs.scoor(ruw, invoer, ORAKEL_E)
         assert score["m_d"]["uitkomst"] == "review_required"
         assert score["voorwaarde_behouden"] is False
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
 
     def test_hoofdletterongevoelig(self):
         invoer = _invoer(E_BRON)
         ruw = _e(invoer, ("bevestigd", ["Uitleen:"], ["Bij STORING"]))
         assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_behouden"] is True
+
+
+def _e_met_m(invoer, waarde, *, kenmerk="aanleiding", toestand="bevestigd"):
+    """E met de voorwaarde als M-kenmerk (buiten_kern), met een doelantwoord."""
+    ruw = _e(
+        invoer,
+        ("bevestigd", ["Uitleen:"]),
+        buiten_kern=[{"id": "M1", "kenmerk": kenmerk, "waarde": waarde}],
+    )
+    ruw["antwoorden"].append(
+        {
+            "kenmerk_id": "M1",
+            "onderwerp": "doel",
+            "toestand": toestand,
+            "voorwaarden": [],
+            "context": "zaakcontext",
+            "citaten": [_u(invoer, "Uitleen:")] if toestand != "onbesproken" else [],
+        }
+    )
+    ruw["antwoorden"].append(
+        {
+            "kenmerk_id": "M1",
+            "onderwerp": invoer.buren[0][0],
+            "toestand": "onbesproken",
+            "voorwaarden": [],
+            "context": "zaakcontext",
+            "citaten": [],
+        }
+    )
+    return ruw
+
+
+class TestVoorwaardestatus:
+    """Codex-review deel B, bevinding B2 (aanvulling C2): geen succes op een woordtreffer."""
+
+    def test_codex_reproductie_ook_zonder_storing_slaagt_niet(self):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e_met_m(invoer, "ook zonder storing"), invoer, ORAKEL_E)
+        assert score["m_d"]["uitkomst"] == "review_required"
+        assert score["voorwaarde_behouden"] is False
+        assert score["voorwaarde_status"] == "ontkend"
+        oordeel = bs.runoordeel(score, ORAKEL_E)
+        assert oordeel["categorie"] == "kritiek"
+        assert oordeel["kritiek"] == ["E: voorwaarde ontkend of opgeheven"]
+        assert oordeel["m_d_telt"] is False
+
+    def test_correcte_voorwaarde_in_het_doel_slaagt(self):
+        """(a): een doelantwoord met de voorwaarde, zonder markering."""
+        invoer = _invoer(E_BRON)
+        ruw = _e(invoer, ("bevestigd", ["Uitleen:"], ["bij storing"]))
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "behouden"
+        oordeel = bs.runoordeel(score, ORAKEL_E)
+        assert (oordeel["categorie"], oordeel["m_d_telt"]) == ("geslaagd", True)
+
+    def test_correcte_voorwaarde_als_m_kenmerk_slaagt(self):
+        """(b): een bevestigd M-kenmerk dat de frase als voorwaarde uitdrukt."""
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e_met_m(invoer, "alleen bij storing"), invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "behouden"
+        assert bs.runoordeel(score, ORAKEL_E)["categorie"] == "geslaagd"
+
+    def test_weggevallen_voorwaarde_is_kritiek(self):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"])), invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "weggevallen"
+        assert score["voorwaarde_vermeldingen"] == []
+        oordeel = bs.runoordeel(score, ORAKEL_E)
+        assert oordeel["categorie"] == "kritiek"
+        assert oordeel["kritiek"] == ["E: voorwaarde weggevallen"]
+
+    def test_onduidelijke_formulering_is_handmatig_beoordelen(self):
+        invoer = _invoer(E_BRON)
+        ruw = _e(
+            invoer,
+            ("bevestigd", ["Uitleen:"]),
+            buiten_bereik=[{"citaat": "bij storing", "reden": "voorwaardelijk"}],
+        )
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+        oordeel = bs.runoordeel(score, ORAKEL_E)
+        assert oordeel["categorie"] == "handmatig_beoordelen"
+        assert oordeel["kritiek"] == []
+        assert oordeel["m_d_telt"] is False
+        assert oordeel["handmatig"] == ["E: voorwaarde niet eenduidig behouden"]
+
+    @pytest.mark.parametrize(
+        "voorwaarde",
+        [
+            "zonder storing",
+            "niet bij storing",
+            "geen storing vereist",
+            "ongeacht storing",
+            "ook zonder storing",
+            "ook buiten storing",
+            "altijd, ook bij storing",
+            "ongeacht of er een storing is",
+            "Ook ZONDER storing",
+        ],
+    )
+    def test_markering_in_het_doel_is_ontkend(self, voorwaarde):
+        invoer = _invoer(E_BRON)
+        ruw = _e(invoer, ("bevestigd", ["Uitleen:"], [voorwaarde]))
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "ontkend"
+        assert score["voorwaarde_behouden"] is False
+
+    @pytest.mark.parametrize(
+        "waarde", ["ook zonder storing", "niet bij storing", "altijd, ongeacht storing"]
+    )
+    def test_markering_in_een_m_kenmerk_is_ontkend(self, waarde):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e_met_m(invoer, waarde), invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "ontkend"
+
+    def test_markering_wint_van_een_correcte_vermelding(self):
+        """Eén ontkennende vermelding in (a) of (b) maakt de voorwaarde niet behouden."""
+        invoer = _invoer(E_BRON)
+        ruw = _e_met_m(invoer, "ook zonder storing")
+        (k2,) = [a for a in ruw["antwoorden"]
+                 if a["kenmerk_id"] == "K2" and a["onderwerp"] == "doel"]  # fmt: skip
+        k2["voorwaarden"] = ["bij storing"]
+        assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_status"] == "ontkend"
+
+    def test_markering_elders_ontkent_niet(self):
+        """Een markering in een buiten-bereik-reden ontkent een correcte (a) niet."""
+        invoer = _invoer(E_BRON)
+        ruw = _e(
+            invoer,
+            ("bevestigd", ["Uitleen:"], ["bij storing"]),
+            buiten_bereik=[
+                {
+                    "citaat": "bij storing",
+                    "reden": "wat zonder storing geldt, staat niet in de bron",
+                }
+            ],
+        )
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "behouden"
+        assert score["voorwaarde_vermeldingen"][-1]["markering"] == ["niet", "zonder"]
+        assert [v["plek"] for v in score["voorwaarde_vermeldingen"]] == [
+            "doelvoorwaarde",
+            "elders",
+            "elders",
+        ]
+
+    def test_conservatief_niet_daarbuiten_telt_als_ontkend(self):
+        """Gedocumenteerd risico (aanvulling C2): geen onterecht succes, wel mogelijk
+        een onterechte kritieke run; de inhoudsreviewer ziet de vermelding."""
+        invoer = _invoer(E_BRON)
+        ruw = _e(
+            invoer, ("bevestigd", ["Uitleen:"], ["alleen bij storing, niet daarbuiten"])
+        )
+        assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_status"] == "ontkend"
+
+    def test_woorden_die_een_markering_bevatten_tellen_niet(self):
+        """'nietig' of 'geenszins' is geen losse markering; alleen hele woorden tellen."""
+        invoer = _invoer(E_BRON)
+        ruw = _e(invoer, ("bevestigd", ["Uitleen:"], ["bij storing (altijdgeldig)"]))
+        assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_status"] == "behouden"
+
+    def test_ontkend_met_buiten_bereik_is_niet_kritiek_en_telt_niet(self):
+        md = {"uitkomst": "error", "fout": "buiten_bereik",
+              "verwacht": ORAKEL_E["uitkomst"], "ok": True}  # fmt: skip
+        score = {**bs.scoor(None, _invoer(E_BRON), ORAKEL_E), "m_d": md,
+                 "voorwaarde_status": "ontkend", "voorwaarde_behouden": False}  # fmt: skip
+        oordeel = bs.runoordeel(score, ORAKEL_E)
+        assert (oordeel["categorie"], oordeel["kritiek"], oordeel["m_d_telt"]) == (
+            "niet_geslaagd",
+            [],
+            False,
+        )
+
+    def test_vermeldingen_in_het_record(self):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e_met_m(invoer, "ook zonder storing"), invoer, ORAKEL_E)
+        assert score["voorwaarde_vermeldingen"] == [
+            {"pad": "buiten_kern[0].waarde", "tekst": "ook zonder storing",
+             "plek": "m_kenmerk", "markering": ["ook zonder", "zonder"]}
+        ]  # fmt: skip
+        json.dumps(score)
 
 
 # --- F7 apart van M-b/M-c ---------------------------------------------------------------------

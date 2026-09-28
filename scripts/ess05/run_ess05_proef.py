@@ -4532,8 +4532,9 @@ def _i_stopreden(
     """Deel C (aanvulling C1): stopt deze run de fase inhoudelijk?
 
     Een kritieke run stopt; anders stopt een M-d-afkeur (`proefoordeel`
-    afgekeurd over alle runs van de fase plus deze, met de ontbrekende runs
-    als mogelijk juist).
+    afgekeurd over alle runs van de fase plus deze, met de ontbrekende en de
+    handmatig te beoordelen runs als mogelijk juist). Een run die handmatig
+    beoordeeld moet worden, stopt de fase niet (aanvulling C2).
     """
     if runoordeel["kritiek"]:
         return f"kritieke run {sleutel}: " + "; ".join(runoordeel["kritiek"])

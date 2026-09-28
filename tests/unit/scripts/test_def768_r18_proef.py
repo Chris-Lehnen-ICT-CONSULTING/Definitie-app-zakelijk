@@ -37,6 +37,7 @@ from tests.unit.scripts.test_def768_bewijsscorer import (
     _a_juist,
     _d_juist,
     _e,
+    _e_met_m,
     _ruw,
     _u,
 )
@@ -869,6 +870,47 @@ class TestInterpretatieFase:
                                   geaccepteerd=False, reden="x",
                                   technisch_afgerond=True, stop="kritiek")  # fmt: skip
 
+    def test_e_ook_zonder_storing_stopt_als_kritiek(self, tmp_path):
+        """Codex-reproductie B2 op de fase: geen succes, maar een kritieke stop."""
+
+        def antwoord(naam, n, verg):
+            if naam == "E" and n == 1:
+                ruw = _e_met_m(verg, "ook zonder storing")
+            else:
+                ruw = _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        with pytest.raises(gb.BudgetSchendingError, match="ontkend of opgeheven"):
+            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert len(provider.berichten) == 10
+        (e1,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|1"]
+        assert e1["score"]["voorwaarde_status"] == "ontkend"
+        assert e1["runoordeel"]["categorie"] == "kritiek"
+        assert e1["acceptatie"]["geaccepteerd"] is False
+
+    def test_handmatige_e_run_stopt_niet_en_staat_apart(self, tmp_path):
+        def antwoord(naam, n, verg):
+            if naam == "E" and n == 2:
+                ruw = _e(verg, ("bevestigd", ["Uitleen:"]),
+                         buiten_bereik=[{"citaat": "bij storing", "reden": "voorwaardelijk"}])  # fmt: skip
+            else:
+                ruw = _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
+        (e2,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|2"]
+        assert e2["runoordeel"]["categorie"] == "handmatig_beoordelen"
+        assert e2["acceptatie"]["geaccepteerd"] is False
+        oordeel = uit["proefoordeel"]
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert [h["sleutel"] for h in oordeel["handmatig_beoordelen"]] == [
+            "interpretatie|E|2"
+        ]
+        assert oordeel["kritiek"] == []
+
     def test_weggevallen_voorwaarde_in_e_is_kritiek(self, tmp_path):
         def antwoord(naam, n, verg):
             if naam == "E" and n == 2:
@@ -1220,11 +1262,15 @@ def _score(**over) -> dict:
         "m_c_dragend_ok_zonder_f7": True,
         "m_d": {"uitkomst": "pass", "fout": None, "verwacht": ["pass"], "ok": True},
         "voorwaarde_behouden": None,
+        "voorwaarde_status": None,
+        "voorwaarde_vermeldingen": None,
         "f7_afwijkingen": [],
         "feiten": [],
     }
     for k, v in over.items():
         basis[k] = v
+    if "voorwaarde_status" in over:
+        basis["voorwaarde_behouden"] = over["voorwaarde_status"] == "behouden"
     return basis
 
 
@@ -1265,18 +1311,50 @@ class TestRunoordeel:
             "verwacht": orakel["uitkomst"],
             "ok": True,
         }
-        behouden = bs.runoordeel(_score(m_d=md, voorwaarde_behouden=True), orakel)
-        weg = bs.runoordeel(_score(m_d=md, voorwaarde_behouden=False), orakel)
+        behouden = bs.runoordeel(_score(m_d=md, voorwaarde_status="behouden"), orakel)
+        weg = bs.runoordeel(_score(m_d=md, voorwaarde_status="weggevallen"), orakel)
+        handmatig = bs.runoordeel(
+            _score(m_d=md, voorwaarde_status="handmatig_beoordelen"), orakel
+        )
         assert (behouden["categorie"], behouden["m_d_telt"]) == ("geslaagd", True)
         assert (weg["categorie"], weg["m_d_telt"]) == ("kritiek", False)
         assert weg["kritiek"] == ["E: voorwaarde weggevallen"]
+        assert (
+            handmatig["categorie"],
+            handmatig["m_d_telt"],
+            handmatig["kritiek"],
+        ) == (
+            "handmatig_beoordelen",
+            False,
+            [],
+        )
+
+    @pytest.mark.parametrize(
+        ("uitkomst", "fout", "categorie"),
+        [
+            ("review_required", None, "kritiek"),
+            ("pass", None, "kritiek"),
+            ("error", "schemafout", "kritiek"),
+            ("error", "buiten_bereik", "niet_geslaagd"),
+        ],
+    )
+    def test_ontkende_voorwaarde_kritiek_tenzij_buiten_bereik(
+        self, uitkomst, fout, categorie
+    ):
+        orakel = mk18.ORAKELS["E"]
+        md = {"uitkomst": uitkomst, "fout": fout, "verwacht": orakel["uitkomst"],
+              "ok": f"{uitkomst}/{fout}" in orakel["uitkomst"] or uitkomst in orakel["uitkomst"]}  # fmt: skip
+        o = bs.runoordeel(_score(m_d=md, voorwaarde_status="ontkend"), orakel)
+        assert (o["categorie"], o["m_d_telt"]) == (categorie, False)
+        if categorie == "kritiek":
+            assert o["kritiek"] == ["E: voorwaarde ontkend of opgeheven"]
 
     def test_plan_orakel_e_zonder_vereiste_telt_review_required_ook_niet_zonder(self):
         """Ook zonder het veld voorwaarde_vereist_voor is een weggevallen voorwaarde
         bij E kritiek (deel C)."""
         md = {"uitkomst": "review_required", "fout": None,
               "verwacht": ORAKEL_E["uitkomst"], "ok": True}  # fmt: skip
-        o = bs.runoordeel(_score(m_d=md, voorwaarde_behouden=False), ORAKEL_E)
+        o = bs.runoordeel(_score(m_d=md, voorwaarde_status="weggevallen"), ORAKEL_E)
         assert o["categorie"] == "kritiek"
 
     def test_f7_apart(self):
@@ -1300,8 +1378,10 @@ class TestRunoordeel:
 def _run(categorie="geslaagd", *, m_d=True, m_b=True, m_c=True, e=None, **over):
     return {"sleutel": over.pop("sleutel", "x"), "categorie": categorie,
             "m_d_telt": m_d, "m_b_dragend_ok": m_b, "m_c_dragend_ok": m_c,
-            "voorwaarde_behouden": e, "kritiek": over.pop("kritiek", []),
-            "f7": over.pop("f7", [])}  # fmt: skip
+            "voorwaarde_behouden": e,
+            "voorwaarde_status": None if e is None else ("behouden" if e else "weggevallen"),
+            "kritiek": over.pop("kritiek", []), "f7": over.pop("f7", []),
+            "handmatig": over.pop("handmatig", [])}  # fmt: skip
 
 
 class TestProefoordeel:
@@ -1353,6 +1433,42 @@ class TestProefoordeel:
         assert uit["f7"] == [
             {"sleutel": "a", "afwijkingen": ["kosteloos/verhuur: ['ontkend']"]}
         ]
+
+    def _handmatig(self, runs, *indexen):
+        for i in indexen:
+            runs[i].update(categorie="handmatig_beoordelen", m_d_telt=False,
+                           voorwaarde_behouden=False,
+                           voorwaarde_status="handmatig_beoordelen",
+                           handmatig=["E: voorwaarde niet eenduidig behouden"],
+                           sleutel=f"interpretatie|E|{i - 8}")  # fmt: skip
+        return runs
+
+    def test_handmatige_e_run_apart_en_wacht_op_beoordeling(self):
+        uit = bs.proefoordeel(self._handmatig(self._runs(12), 11))
+        assert uit["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert uit["handmatig_beoordelen"] == [
+            {"sleutel": "interpretatie|E|3",
+             "redenen": ["E: voorwaarde niet eenduidig behouden"]}
+        ]  # fmt: skip
+        assert uit["kritiek"] == []
+        assert uit["m_d_juist"] == 11
+        assert uit["e_voorwaarde_behouden"] == [2, 3]
+        assert uit["categorieen"]["handmatig_beoordelen"] == 1
+
+    def test_handmatige_runs_keuren_niet_automatisch_af(self):
+        """M-d 9 plus 2 handmatige: niet afgekeurd, maar wachten (die kunnen juist
+        blijken); M-d 6 plus 2 handmatige blijft ≤ 8: afgekeurd."""
+        runs = self._handmatig(self._runs(11), 9, 10)
+        assert sum(r["m_d_telt"] for r in runs) == 9
+        uit = bs.proefoordeel(runs)
+        assert uit["oordeel"] == "wacht_op_handmatige_beoordeling"
+        runs = self._handmatig(self._runs(6), 9, 10)
+        assert sum(r["m_d_telt"] for r in runs) == 6
+        assert bs.proefoordeel(runs)["oordeel"] == "afgekeurd"  # 6 + 2 + 0 ≤ 8
+
+    def test_handmatig_zonder_haalbare_elf_is_tussengebied(self):
+        runs = self._handmatig(self._runs(9), 10)  # M-d 9, 1 handmatig: max 10
+        assert bs.proefoordeel(runs)["oordeel"] == "tussengebied"
 
     def test_onvolledig_bij_minder_dan_12_runs(self):
         assert bs.proefoordeel(self._runs(12)[:10])["oordeel"] == "onvolledig"
