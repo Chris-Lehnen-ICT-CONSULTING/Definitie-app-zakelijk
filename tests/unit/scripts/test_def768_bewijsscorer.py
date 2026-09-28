@@ -56,33 +56,36 @@ E_BRON = (
 )
 BUUR = bs.BUURBESCHRIJVING
 
+#: Orakels in de structuur van aanvulling C3 (Codex-review B3/B4): per feit
+#: `vereist` (minstens één genoemde eenheid) en `toegestaan` (context erbij).
 ORAKEL_A = {
     "kenmerken": {
         "tijdelijk": {
-            "doel": {"toestand": ["bevestigd"], "eenheden": ["Uitleen:"]},
-            "verhuur": {"toestand": ["bevestigd"], "eenheden": ["Verhuur:", BUUR]},
+            "doel": {"toestand": ["bevestigd"], "vereist": ["Uitleen:"], "toegestaan": []},
+            "verhuur": {"toestand": ["bevestigd"], "vereist": ["Verhuur:", BUUR],
+                        "toegestaan": []},
         },
         "kosteloos": {
-            "doel": {"toestand": ["bevestigd"], "eenheden": ["Uitleen:"]},
-            "verhuur": {"toestand": ["onbesproken"], "eenheden": [], "f7": ["ontkend"]},
+            "doel": {"toestand": ["bevestigd"], "vereist": ["Uitleen:"], "toegestaan": []},
+            "verhuur": {"toestand": ["onbesproken"], "vereist": [], "toegestaan": [],
+                        "f7": ["ontkend"]},
         },
     },
     "dragend": ["kosteloos"],
     "uitkomst": ["review_required"],
-}
+}  # fmt: skip
 ORAKEL_D = {
     "kenmerken": {
         "kosteloos": {
-            "doel": {"toestand": ["bevestigd"], "eenheden": ["Voor uitleen betaalt"]},
-            "verhuur": {
-                "toestand": ["ontkend"],
-                "eenheden": ["Voor verhuur betaalt", BUUR],
-            },
+            "doel": {"toestand": ["bevestigd"], "vereist": ["Voor uitleen betaalt"],
+                     "toegestaan": ["Uitleen:"]},
+            "verhuur": {"toestand": ["ontkend"], "vereist": ["Voor verhuur betaalt"],
+                        "toegestaan": ["Verhuur:", BUUR]},
         }
     },
     "dragend": ["kosteloos"],
     "uitkomst": ["pass"],
-}
+}  # fmt: skip
 ORAKEL_E = {
     "kenmerken": {},
     "dragend": [],
@@ -748,6 +751,117 @@ class TestVoorwaardestatus:
              "plek": "m_kenmerk", "markering": ["ook zonder", "zonder"]}
         ]  # fmt: skip
         json.dumps(score)
+
+
+# --- orakelstructuur vereist/toegestaan (Codex-review B3/B4, aanvulling C3) -----------------
+
+
+def _d(invoer, doel_k2, verhuur_k2):
+    """D met eigen citaten (prefixen) voor K2 bij doel en bij verhuur."""
+    ruw = _d_juist(invoer, doel_k2)
+    (k2,) = [a for a in ruw["antwoorden"]
+             if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"]  # fmt: skip
+    k2["citaten"] = [_u(invoer, p) for p in verhuur_k2]
+    return ruw
+
+
+def _kosteloos(score, onderwerp):
+    (feit,) = [f for f in score["feiten"]
+               if (f["kernwoord"], f["onderwerp"]) == ("kosteloos", onderwerp)]  # fmt: skip
+    return feit
+
+
+class TestOrakelstructuur:
+    def test_b3_d_alleen_buurbeschrijving_bij_verhuur_niet_geslaagd(self):
+        """Codex-reproductie B3: de buurbeschrijving noemt geen vergoeding."""
+        invoer = _invoer(D_BRON)
+        score = bs.scoor(
+            _d(invoer, ("Voor uitleen betaalt",), (BUUR,)), invoer, ORAKEL_D
+        )
+        assert score["m_d"]["uitkomst"] == "pass"
+        assert _kosteloos(score, "verhuur")["draagt"] is False
+        assert score["m_b_dragend_ok"] is False
+        oordeel = bs.runoordeel(score, ORAKEL_D)
+        assert oordeel["categorie"] != "geslaagd"
+        assert oordeel["kritiek"] == ["pass/fail bij M-b onwaar"]
+
+    def test_b3_d_verhuur_betaalzin_met_context_geslaagd(self):
+        invoer = _invoer(D_BRON)
+        ruw = _d(invoer, ("Voor uitleen betaalt",),
+                 ("Verhuur:", "Voor verhuur betaalt", BUUR))  # fmt: skip
+        score = bs.scoor(ruw, invoer, ORAKEL_D)
+        assert _kosteloos(score, "verhuur")["draagt"] is True
+        assert bs.runoordeel(score, ORAKEL_D)["categorie"] == "geslaagd"
+
+    def test_b4_d_uitleenzin_plus_betaalzin_geslaagd(self):
+        """Codex-reproductie B4: de Uitleen-zin ondersteunt 'de medewerker'."""
+        invoer = _invoer(D_BRON)
+        ruw = _d(
+            invoer, ("Uitleen:", "Voor uitleen betaalt"), ("Voor verhuur betaalt",)
+        )
+        score = bs.scoor(ruw, invoer, ORAKEL_D)
+        assert score["m_d"]["uitkomst"] == "pass"
+        assert _kosteloos(score, "doel")["draagt"] is True
+        assert score["m_b_dragend_ok"] is True
+        assert bs.runoordeel(score, ORAKEL_D)["categorie"] == "geslaagd"
+
+    def test_b4_d_blind_hergebruik_niet_geslaagd(self):
+        """Alleen toegestane context, geen vereiste eenheid: M-b onwaar."""
+        invoer = _invoer(D_BRON)
+        score = bs.scoor(
+            _d(invoer, ("Uitleen:",), ("Voor verhuur betaalt",)), invoer, ORAKEL_D
+        )
+        assert _kosteloos(score, "doel")["draagt"] is False
+        oordeel = bs.runoordeel(score, ORAKEL_D)
+        assert oordeel["categorie"] == "kritiek"
+
+    def test_b4_d_alleen_context_bij_verhuur_niet_geslaagd(self):
+        invoer = _invoer(D_BRON)
+        ruw = _d(invoer, ("Voor uitleen betaalt",), ("Verhuur:", BUUR))
+        assert bs.scoor(ruw, invoer, ORAKEL_D)["m_b_dragend_ok"] is False
+
+    def test_b4_eenheid_buiten_vereist_en_toegestaan_draagt_niet(self):
+        invoer = _invoer(D_BRON)
+        ruw = _d(invoer, ("Voor uitleen betaalt", "Lokale testwerkinstructie"),
+                 ("Voor verhuur betaalt",))  # fmt: skip
+        assert _kosteloos(bs.scoor(ruw, invoer, ORAKEL_D), "doel")["draagt"] is False
+
+    @pytest.mark.parametrize("prefixen", [("Verhuur:",), (BUUR,), ("Verhuur:", BUUR)])
+    def test_a_tijdelijk_verhuur_elk_vereist_prefix_draagt(self, prefixen):
+        invoer = _invoer()
+        ruw = _a_juist(invoer)
+        (k1,) = [a for a in ruw["antwoorden"]
+                 if a["kenmerk_id"] == "K1" and a["onderwerp"] != "doel"]  # fmt: skip
+        k1["citaten"] = [_u(invoer, p) for p in prefixen]
+        score = bs.scoor(ruw, invoer, ORAKEL_A)
+        (feit,) = [f for f in score["feiten"]
+                   if (f["kernwoord"], f["onderwerp"]) == ("tijdelijk", "verhuur")]  # fmt: skip
+        assert feit["draagt"] is True
+
+    @pytest.mark.parametrize(
+        ("wijzig", "melding"),
+        [
+            (lambda v: v.update(eenheden=["Uitleen:"]), "velden"),
+            (lambda v: v.pop("vereist"), "velden"),
+            (lambda v: v.pop("toegestaan"), "velden"),
+            (lambda v: v.update(vereist="Uitleen:"), "vereist"),
+            (lambda v: v.update(toegestaan=[1]), "toegestaan"),
+            (lambda v: v.update(toegestaan=["Voor uitleen betaalt"]), "zowel"),
+            (lambda v: v.update(toestand="bevestigd"), "toestand"),
+            (lambda v: v.update(f7="ontkend"), "f7"),
+        ],
+    )
+    def test_controleer_orakel_weigert_een_onjuiste_feitstructuur(
+        self, wijzig, melding
+    ):
+        orakel = copy.deepcopy(ORAKEL_D)
+        wijzig(orakel["kenmerken"]["kosteloos"]["doel"])
+        with pytest.raises(bs.OrakelfoutError, match=melding):
+            bs.controleer_orakel(orakel, _invoer(D_BRON))
+
+    def test_controleer_orakel_accepteert_de_vier_orakels(self):
+        for orakel, bron in ((ORAKEL_A, None), (ORAKEL_D, D_BRON), (ORAKEL_E, E_BRON)):
+            bs.controleer_orakel(orakel, _invoer(bron) if bron else _invoer())
 
 
 # --- F7 apart van M-b/M-c ---------------------------------------------------------------------

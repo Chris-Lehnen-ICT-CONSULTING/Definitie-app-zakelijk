@@ -58,18 +58,32 @@ R17_MAP = ROOT / "reports" / "DEF-768-AI-20260928-R17"
 R17_INVOER = R17_MAP / "bewijsregel-invoer-v1.json"
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
 REPRODUCTIE = R17_MAP / "oorzakenonderzoek-ess05-v1-reproductie"
-R18_INVOER = ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v1.json"
+R18_MAP = ROOT / "reports" / "DEF-768-AI-20260928-R18"
+#: Aanvulling C3: de invoer met de orakelstructuur vereist/toegestaan.
+R18_INVOER = R18_MAP / "bewijsregel-invoer-v2.json"
+#: De eerste invoer (schema /2, orakelveld `eenheden`): blijft ongewijzigd staan.
+R18_INVOER_V1 = R18_MAP / "bewijsregel-invoer-v1.json"
+R18_INVOER_V1_SHA256 = (
+    "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
+)
+AANVULLING = (
+    ROOT
+    / "docs"
+    / "plans"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md"
+)
 LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
 ORAKEL_C = {
     "kenmerken": {
         "tijdelijk": {
-            "doel": {"toestand": ["bevestigd"], "eenheden": ["Uitleen:"]},
-            "verhuur": {"toestand": ["ontkend"], "eenheden": ["Verhuur:", BUUR]},
+            "doel": {"toestand": ["bevestigd"], "vereist": ["Uitleen:"], "toegestaan": []},
+            "verhuur": {"toestand": ["ontkend"], "vereist": ["Verhuur:", BUUR],
+                        "toegestaan": []},
         }
     },
     "dragend": ["tijdelijk"],
     "uitkomst": ["pass"],
-}
+}  # fmt: skip
 #: Velden die voor A en C exact uit de R17-invoer komen.
 R17_VELDEN = (
     "variant",
@@ -127,7 +141,7 @@ def _gecorrigeerd(naam, vergelijking) -> dict:
 
 class TestVorm:
     def test_schema_contract_en_vier_items(self, invoer):
-        assert invoer["schema"] == "def768-ess05-bewijsregel-invoer/2"
+        assert invoer["schema"] == "def768-ess05-bewijsregel-invoer/3"
         assert [i["id"] for i in invoer["items"]] == ["A", "C", "D", "E"]
         assert invoer["contract"] == Ess05BewijsregelService.contractidentiteit()
 
@@ -195,7 +209,7 @@ class TestAenC:
         assert nieuw["herkomst"]["sha256"] == R17_INVOER_SHA256
         assert nieuw["herkomst"]["oorspronkelijk"] == oud["herkomst"]
 
-    def test_orakels_exact_uit_het_plan(self, invoer):
+    def test_orakels_exact_uit_de_aanvulling(self, invoer):
         assert _items(invoer)["A"]["orakel"] == ORAKEL_A
         assert _items(invoer)["C"]["orakel"] == ORAKEL_C
 
@@ -223,8 +237,11 @@ class TestDenE:
         assert item["buren"] == a["buren"]
         assert LABEL in item["herkomst"]["label"]
 
-    def test_orakel_d_exact_uit_het_plan(self, invoer):
+    def test_orakel_d_exact_uit_de_aanvulling(self, invoer):
+        """C3: betaalzin vereist; Uitleen-/Verhuur-zin en buurbeschrijving alleen context."""
         assert _items(invoer)["D"]["orakel"] == ORAKEL_D
+        verhuur = ORAKEL_D["kenmerken"]["kosteloos"]["verhuur"]
+        assert BUUR not in verhuur["vereist"] and BUUR in verhuur["toegestaan"]
 
     def test_orakel_e_plan_plus_voorwaarderegel(self, invoer):
         orakel = _items(invoer)["E"]["orakel"]
@@ -232,7 +249,12 @@ class TestDenE:
         assert "review_required" in orakel["voorwaarde_vereist_voor"]
         assert set(orakel["voorwaarde_vereist_voor"]) <= set(orakel["uitkomst"])
         assert "review_required" in orakel["toelichting"]
-        assert "voorwaarde_behouden" in orakel["toelichting"]
+        assert "handmatig_beoordelen" in orakel["toelichting"]
+
+    @pytest.mark.parametrize("naam", ["A", "C", "D", "E"])
+    def test_orakel_past_op_de_invoer(self, invoer, naam):
+        item = _items(invoer)[naam]
+        bs.controleer_orakel(item["orakel"], _vergelijking(item))
 
     def test_teruggaafzin_twee_keer_in_d(self):
         assert D_BRON.count(TERUGGAAFZIN) == 2
@@ -248,7 +270,7 @@ class TestDenE:
         ]
         for per_onderwerp in item["orakel"]["kenmerken"].values():
             for verwacht in per_onderwerp.values():
-                for prefix in verwacht["eenheden"]:
+                for prefix in [*verwacht["vereist"], *verwacht["toegestaan"]]:
                     if prefix == BUUR:
                         continue
                     assert sum(t.startswith(prefix) for t in teksten) == 1, prefix
@@ -284,6 +306,24 @@ class TestScoren:
         score = bs.scoor(ruw, vergelijking, item["orakel"])
         assert score["m_d"]["ok"] is True
         assert score["m_b_dragend_ok"] is False
+
+    def test_d_codex_reproducties_met_het_invoerorakel(self, invoer):
+        """B3: alleen de buurbeschrijving bij verhuur draagt niet; B4: Uitleen-zin
+        plus betaalzin draagt wel (met het orakel uit de invoer zelf)."""
+        item = _items(invoer)["D"]
+        vergelijking = _vergelijking(item)
+        alleen_buur = _d_juist(vergelijking)
+        (k2,) = [a for a in alleen_buur["antwoorden"]
+                 if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"]  # fmt: skip
+        k2["citaten"] = [_u(vergelijking, BUUR)]
+        assert (
+            bs.scoor(alleen_buur, vergelijking, item["orakel"])["m_b_dragend_ok"]
+            is False
+        )
+        beide = _d_juist(vergelijking, ("Uitleen:", "Voor uitleen betaalt"))
+        score = bs.scoor(beide, vergelijking, item["orakel"])
+        assert score["m_b_dragend_ok"] is True
+        assert bs.runoordeel(score, item["orakel"])["categorie"] == "geslaagd"
 
     def test_e_juist_met_behouden_voorwaarde(self, invoer):
         item = _items(invoer)["E"]
@@ -325,7 +365,23 @@ class TestSchrijven:
         assert json.loads(doel.read_text(encoding="utf-8")) == invoer
 
     def test_standaarddoel_in_de_r18_map(self):
+        """C3: een nieuw bestand -v2; -v1 wordt nooit overschreven."""
         assert mk18.DOEL == R18_INVOER
+        assert mk18.DOEL != R18_INVOER_V1
+
+    def test_aanvulling_gepind_in_de_herkomst(self, invoer):
+        assert invoer["herkomst"]["aanvulling"] == {
+            "pad": "docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md",
+            "sha256": _sha(AANVULLING),
+        }
+        assert _sha(AANVULLING) == mk18.AANVULLING_SHA256
+
+    def test_afwijkende_aanvulling_is_een_makerfout(self, tmp_path, monkeypatch):
+        vals = tmp_path / "aanvulling.md"
+        vals.write_bytes(AANVULLING.read_bytes() + b" ")
+        monkeypatch.setattr(mk18, "AANVULLING", vals)
+        with pytest.raises(mk18.MakerfoutError, match="gepinde hash"):
+            mk18.maak_bewijsregel_invoer()
 
 
 @pytest.mark.skipif(not R18_INVOER.is_file(), reason="git-ignored R18-invoer ontbreekt")
@@ -333,3 +389,10 @@ class TestVastgelegdeInvoer:
     def test_vastgelegde_invoer_gelijk_aan_de_maker(self, invoer):
         tekst = R18_INVOER.read_text(encoding="utf-8")
         assert tekst == json.dumps(invoer, ensure_ascii=False, indent=2) + "\n"
+
+    @pytest.mark.skipif(not R18_INVOER_V1.is_file(), reason="R18-invoer v1 ontbreekt")
+    def test_v1_ongewijzigd_en_ongeldig_onder_de_nieuwe_orakelstructuur(self):
+        assert _sha(R18_INVOER_V1) == R18_INVOER_V1_SHA256
+        v1 = {i["id"]: i for i in json.loads(R18_INVOER_V1.read_text("utf-8"))["items"]}
+        with pytest.raises(bs.OrakelfoutError, match="velden"):
+            bs.controleer_orakel(v1["D"]["orakel"], _vergelijking(v1["D"]))

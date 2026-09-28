@@ -762,10 +762,12 @@ R17_KADERREST_NUSD = 21_951_255_000
 #: Ronde 17: de kop van het afgesloten R16-grootboek (5 calls, 0 open).
 R16_KOP_SHA256 = "58f5a17ec921d67e66899882441c8629fae9a41476d3485c697cd3614141cee8"
 #: Ronde 18 (plan bewijseenheden, deel B): eigen rapportroot, grootboek, anker,
-#: slot en freezes (i, l). Invoer R18A: A/C/D/E uit maak_r18_bewijsregel_invoer.py;
-#: R18B: zes pakketten uit maak_r18b_lokale_invoer.py.
+#: slot en freezes (i, l). Invoer R18A: A/C/D/E uit maak_r18_bewijsregel_invoer.py,
+#: bestand bewijsregel-invoer-v2.json (aanvulling C3; -v1, sha fe6bd5d1…, is
+#: ongeldig en wordt op deze pin geweigerd); R18B: zes pakketten uit
+#: maak_r18b_lokale_invoer.py.
 R18_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18"
-R18_I_INVOER_SHA256 = "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
+R18_I_INVOER_SHA256 = "fab905cc9d81f803401ebb35409ade36ce63fb6fd4162adfbb55153c78978932"
 R18_L_INVOER_SHA256 = "a36172a04981aef5bc712a77cc51dd9f1846bf7e7c9d16222e0bd4a5ac005b81"
 #: Ronde 18: NOG GEEN budgetbesluit. Het pad ligt vast; het besluit wordt pas
 #: na een "go" van Chris geschreven en daarna hier op hash gepind. Tot dan is de
@@ -4399,8 +4401,9 @@ async def voer_b_fase(
 
 # --- I (R18A: alleen de interpretatie, gescoord) --------------------------------------------
 
-#: R18A-invoer: A/C/D/E met herhalingen en orakel (`maak_r18_bewijsregel_invoer`).
-_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/2"
+#: R18A-invoer: A/C/D/E met herhalingen en orakel (`maak_r18_bewijsregel_invoer`);
+#: /3 (aanvulling C3): orakelfeiten met vereist/toegestaan. /2 (-v1) wordt geweigerd.
+_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/3"
 #: Het label van elk synthetisch item; een niet-synthetisch item draagt het niet.
 _SYNTHETISCH_LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
 #: De ene modelstap van een run: de interpretatie op de beoordelingsroute.

@@ -92,9 +92,13 @@ from services.validation.ess05_bewijsregel_service import (
 
 R18_ID = "DEF-768-AI-20260928-R18"
 R18_MAP = ROOT / "reports" / R18_ID
-I18 = R18_MAP / "bewijsregel-invoer-v1.json"
+#: Aanvulling C3 (Codex-review B3/B4): de invoer -v2 (schema /3, vereist/toegestaan).
+I18 = R18_MAP / "bewijsregel-invoer-v2.json"
 L18 = R18_MAP / "lokale-invoer-v1.json"
-I18_SHA256 = "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
+I18_SHA256 = "fab905cc9d81f803401ebb35409ade36ce63fb6fd4162adfbb55153c78978932"
+#: De eerste invoer (schema /2, orakelveld `eenheden`): blijft staan, wordt geweigerd.
+I18_V1 = R18_MAP / "bewijsregel-invoer-v1.json"
+I18_V1_SHA256 = "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
 LOGS = ROOT / "logs" / "def768"
 BESLUIT18 = LOGS / "ronde18-budgetbesluit-v1.json"
 #: De kop van het afgesloten R17-grootboek (3 calls, 0 open), gelezen 28-09.
@@ -620,6 +624,11 @@ class TestIInvoer:
             (lambda i: i["orakel"]["kenmerken"].update(x={"huur": {"toestand": ["bevestigd"]}}), "orakel"),
             (lambda i: i["orakel"].update(dragend=["onbekend"]), "orakel"),
             (lambda i: i.pop("orakel"), "orakel"),
+            # Aanvulling C3: het oude orakelveld `eenheden` is geen geldige structuur.
+            (lambda i: i["orakel"]["kenmerken"]["kosteloos"]["doel"].update(
+                eenheden=["Voor uitleen betaalt"]), "orakel"),
+            (lambda i: i["orakel"]["kenmerken"]["kosteloos"]["verhuur"].pop("vereist"),
+             "orakel"),
             (lambda i: i.update(label="gewoon"), "label"),
             (lambda i: i.update(synthetisch="ja"), "label"),
         ],
@@ -1239,6 +1248,24 @@ class TestEchteInvoer:
         data = json.loads(I18.read_text(encoding="utf-8"))
         items = runner.valideer_i_invoer(data, _omgeving8(_BewijsProvider()))
         assert len(items) == 12
+
+    def test_v1_blijft_staan_maar_wordt_geweigerd(self, tmp_path):
+        """Aanvulling C3: de runner pint -v2; -v1 weigert op hash, schema en orakel."""
+        assert _sha(I18_V1) == I18_V1_SHA256 != runner.R18_I_INVOER_SHA256
+        data = json.loads(I18_V1.read_text(encoding="utf-8"))
+        omg = _omgeving8(_BewijsProvider())
+        with pytest.raises(pi.InvoerfoutError, match="schema"):
+            runner.valideer_i_invoer(data, omg)
+        data["schema"] = mk18.INVOERSCHEMA
+        with pytest.raises(pi.InvoerfoutError, match="orakel"):
+            runner.valideer_i_invoer(data, omg)
+        provider = _R18Provider(_items())
+        with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
+            _i18(_omgeving8(provider), tmp_path, I18_V1, proef=runner.PROEVEN["R18"])
+        assert provider.berichten == []
+        with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
+            asyncio.run(runner.droogrun("interpretatie", I18_V1, tmp_path,
+                                        proef=runner.PROEVEN["R18"]))  # fmt: skip
 
     def test_droog_i_fase_zonder_netwerk_en_zonder_grootboek(self, tmp_path):
         uit = asyncio.run(

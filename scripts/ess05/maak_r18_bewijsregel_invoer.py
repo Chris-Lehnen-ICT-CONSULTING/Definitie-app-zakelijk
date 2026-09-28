@@ -15,9 +15,17 @@ gescoord met `bewijsscorer` tegen een vooraf vastgelegd orakel.
 - **E** — SYNTHETISCH, GEEN MODELUITVOER: A met de bron uit het plan, waarin
   uitleen alleen "bij storing" kosteloos is. Toetst of de voorwaarde behouden
   blijft. Aanvulling op het orakel (`voorwaarde_vereist_voor`): een
-  toegestane uitkomst telt alleen als `voorwaarde_behouden` waar is;
-  `review_required` alleen met de voorwaarde als M-kenmerk (plan B2), en
-  volgens deel C geldt dat voor elke uitkomst van E.
+  toegestane uitkomst telt alleen als de voorwaardestatus `behouden` is
+  (aanvulling C2), en volgens deel C geldt dat voor elke uitkomst van E.
+
+Orakelstructuur (aanvulling C3,
+`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md`,
+Codex-review B3/B4): per feit `vereist` (minstens één genoemde eenheid) en
+`toegestaan` (context die erbij mag staan). Bij D is de betaalzin vereist en
+zijn de Uitleen-/Verhuur-zin en de buurbeschrijving alleen context; de
+buurbeschrijving noemt geen vergoeding (F7 blijft open). Schema `/3`; de
+invoer is het nieuwe bestand `bewijsregel-invoer-v2.json` (`-v1` blijft
+ongewijzigd staan en is onder deze structuur ongeldig).
 
 Het orakel gaat nooit naar het model. Binding: de berekende
 contractidentiteit (`Ess05BewijsregelService.contractidentiteit()`) en per
@@ -58,7 +66,8 @@ __all__ = [
     "vergelijkingsinvoer",
 ]
 
-INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/2"
+#: /3 (aanvulling C3): orakelfeiten met `vereist`/`toegestaan` in plaats van `eenheden`.
+INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/3"
 LABEL = mk16.LABEL
 HERHALINGEN = 3
 AUTEUR = "Claude Code CLI-uitvoerder, sessie 1f2d8472-4293-490d-b22f-60e829ec17d8"
@@ -69,12 +78,21 @@ PLAN = (
     / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1.md"
 )
 PLAN_SHA256 = "4b7dec58bed0479163c72ccf75d4d3af1df9213deca7ce4a37c1ecb4fb06c0e3"
+#: De aanvulling na de Codex-review van deel B (C1–C3); gaat vóór het plan.
+AANVULLING = (
+    PROJECT_ROOT
+    / "docs"
+    / "plans"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md"
+)
+AANVULLING_SHA256 = "a81e6af1314e7a01b9773c30ca87ca54069a0e333f192f370002d0a6d1324f3b"
 R17_INVOER = (
     PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R17" / "bewijsregel-invoer-v1.json"
 )
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
+#: Aanvulling C3: een nieuw bestand; `bewijsregel-invoer-v1.json` blijft staan.
 DOEL = (
-    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v1.json"
+    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v2.json"
 )
 #: Velden die voor A en C exact uit de R17-invoer komen.
 R17_VELDEN = (
@@ -106,20 +124,31 @@ BRON_E = (
     "informatie over verhuur staat niet in deze werkinstructie."
 )
 _BUUR = bs.BUURBESCHRIJVING
+
+
+def _feit(
+    toestand: str, vereist: Sequence[str] = (), toegestaan: Sequence[str] = (), **f7
+) -> dict[str, Any]:
+    """Eén orakelfeit (aanvulling C3): toestand, vereist bewijs, toegestane context."""
+    return {
+        "toestand": [toestand],
+        "vereist": list(vereist),
+        "toegestaan": list(toegestaan),
+        **{k: list(v) for k, v in f7.items()},
+    }
+
+
 ORAKELS: dict[str, dict[str, Any]] = {
     "A": {
         "kenmerken": {
             "tijdelijk": {
-                "doel": {"toestand": ["bevestigd"], "eenheden": ["Uitleen:"]},
-                "verhuur": {"toestand": ["bevestigd"], "eenheden": ["Verhuur:", _BUUR]},
+                "doel": _feit("bevestigd", ["Uitleen:"]),
+                # Beide dragen tijdelijk: de Verhuur-zin en de buurbeschrijving.
+                "verhuur": _feit("bevestigd", ["Verhuur:", _BUUR]),
             },
             "kosteloos": {
-                "doel": {"toestand": ["bevestigd"], "eenheden": ["Uitleen:"]},
-                "verhuur": {
-                    "toestand": ["onbesproken"],
-                    "eenheden": [],
-                    "f7": ["ontkend"],
-                },
+                "doel": _feit("bevestigd", ["Uitleen:"]),
+                "verhuur": _feit("onbesproken", f7=["ontkend"]),
             },
         },
         "dragend": ["kosteloos"],
@@ -128,8 +157,9 @@ ORAKELS: dict[str, dict[str, Any]] = {
     "C": {
         "kenmerken": {
             "tijdelijk": {
-                "doel": {"toestand": ["bevestigd"], "eenheden": ["Uitleen:"]},
-                "verhuur": {"toestand": ["ontkend"], "eenheden": ["Verhuur:", _BUUR]},
+                "doel": _feit("bevestigd", ["Uitleen:"]),
+                # Beide dragen permanent: de Verhuur-zin en de buurbeschrijving.
+                "verhuur": _feit("ontkend", ["Verhuur:", _BUUR]),
             }
         },
         "dragend": ["tijdelijk"],
@@ -138,14 +168,12 @@ ORAKELS: dict[str, dict[str, Any]] = {
     "D": {
         "kenmerken": {
             "kosteloos": {
-                "doel": {
-                    "toestand": ["bevestigd"],
-                    "eenheden": ["Voor uitleen betaalt"],
-                },
-                "verhuur": {
-                    "toestand": ["ontkend"],
-                    "eenheden": ["Voor verhuur betaalt", _BUUR],
-                },
+                # Codex-review B4: de Uitleen-zin mag erbij (de medewerker).
+                "doel": _feit("bevestigd", ["Voor uitleen betaalt"], ["Uitleen:"]),
+                # Codex-review B3: de buurbeschrijving noemt geen vergoeding.
+                "verhuur": _feit(
+                    "ontkend", ["Voor verhuur betaalt"], ["Verhuur:", _BUUR]
+                ),
             }
         },
         "dragend": ["kosteloos"],
@@ -158,10 +186,11 @@ ORAKELS: dict[str, dict[str, Any]] = {
         "uitkomst": ["error/buiten_bereik", "review_required"],
         "voorwaarde_vereist_voor": ["error/buiten_bereik", "review_required"],
         "toelichting": (
-            "review_required telt alleen als voorwaarde_behouden waar is (de "
-            "voorwaarde als M-kenmerk, plan B2); volgens deel C telt M-d bij E "
-            "alleen als juist wanneer voorwaarde_behouden waar is, dus ook "
-            "error/buiten_bereik; een E-run zonder behouden voorwaarde is kritiek"
+            "review_required en error/buiten_bereik tellen alleen als juist wanneer "
+            "de voorwaarde behouden is (aanvulling C2: een doelvoorwaarde of een "
+            "voor het doel bevestigd M-kenmerk met de frase, zonder markering); "
+            "weggevallen is kritiek, ontkend is kritiek tenzij error/buiten_bereik, "
+            "niet eenduidig is handmatig_beoordelen (niet geslaagd, niet kritiek)"
         ),
     },
 }
@@ -202,7 +231,7 @@ def _controleer_prefixen(naam: str, invoer: Any, orakel: Mapping[str, Any]) -> N
     ]
     for per_onderwerp in orakel["kenmerken"].values():
         for verwacht in per_onderwerp.values():
-            for prefix in verwacht.get("eenheden", []):
+            for prefix in [*verwacht["vereist"], *verwacht["toegestaan"]]:
                 if prefix == _BUUR:
                     continue
                 n = sum(t.startswith(prefix) for t in teksten)
@@ -310,6 +339,7 @@ def maak_bewijsregel_invoer() -> dict[str, Any]:
     from services.validation.ess05_bewijsregel_service import Ess05BewijsregelService
 
     mk10._gepind(PLAN, PLAN_SHA256, "plan")
+    mk10._gepind(AANVULLING, AANVULLING_SHA256, "planaanvulling")
     r17 = json.loads(mk10._gepind(R17_INVOER, R17_INVOER_SHA256, "R17-invoer"))
     if r17.get("schema") != mk16.INVOERSCHEMA:
         msg = f"R17-invoer heeft niet het schema {mk16.INVOERSCHEMA}"
@@ -332,6 +362,7 @@ def maak_bewijsregel_invoer() -> dict[str, Any]:
         "contract": Ess05BewijsregelService.contractidentiteit(),
         "herkomst": {
             "plan": {"pad": mk10._rel(PLAN), "sha256": PLAN_SHA256, "taak": "B2"},
+            "aanvulling": {"pad": mk10._rel(AANVULLING), "sha256": AANVULLING_SHA256},
             "gevallen": {**bron, "overgenomen": ["A", "C"], "velden": list(R17_VELDEN)},
             "scorer": "scripts/ess05/bewijsscorer.py",
             "regels": "scripts/ess05/maak_r18_bewijsregel_invoer.py (moduledocstring)",

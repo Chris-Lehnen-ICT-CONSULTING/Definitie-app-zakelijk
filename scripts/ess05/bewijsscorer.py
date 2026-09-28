@@ -17,8 +17,12 @@ de plancode is overgenomen, met deze afwijkingen:
 - Nooit een exception bij ongeldige modeluitvoer (opdracht): elke structuur
   die niet het verwachte type heeft, telt als niet-dragend en niet-juist; een
   exception uit `bepaal` zelf wordt `m_d.fout = "exception:<type>"`.
-- M-b vraagt bij een orakel met eenheden minstens één genoemde eenheid; zonder
-  antwoord of zonder bewijs draagt het feit niet (in de plancode vacuüm waar).
+- M-b (aanvulling C3 op het plan, Codex-review B3/B4): het orakel scheidt per
+  feit `vereist` (minstens één genoemde eenheid begint met zo'n prefix) van
+  `toegestaan` (context die erbij mag staan); elke genoemde eenheid valt onder
+  een van beide, anders draagt het feit niet. Alleen context zonder vereiste
+  eenheid draagt niet; zonder antwoord of zonder bewijs ook niet (in de
+  plancode vacuüm waar). Het oude veld `eenheden` is een orakelfout.
 - Voorwaarde (aanvulling C2 op het plan, Codex-review B2): geen woordzoeking
   maar een status. `behouden` alleen bij (a) een doelvoorwaarde of (b) een
   voor het doel bevestigd `buiten_kern`-kenmerk met de frase, zonder
@@ -65,6 +69,9 @@ __all__ = [
 BUURBESCHRIJVING = "<buurbeschrijving>"
 _ORAKELVELDEN = frozenset({"kenmerken", "dragend", "uitkomst"})
 _ORAKELOPTIONEEL = frozenset({"voorwaarde", "voorwaarde_vereist_voor", "toelichting"})
+#: Aanvulling C3: per feit verplicht bewijs (`vereist`) apart van context (`toegestaan`).
+_FEITVELDEN = frozenset({"toestand", "vereist", "toegestaan"})
+_FEITOPTIONEEL = frozenset({"f7"})
 
 
 class OrakelfoutError(ValueError):
@@ -229,6 +236,22 @@ def _voorwaardestatus(ruw: Any, frase: str) -> tuple[str, list[dict[str, Any]]]:
     return "weggevallen", vermeldingen
 
 
+def _draagt(
+    teksten: Sequence[str | None], vereist: Sequence[str], toegestaan: Sequence[str]
+) -> bool:
+    """M-b per feit (aanvulling C3): elke genoemde eenheid valt onder `vereist`
+    of `toegestaan`, en bij een niet-lege `vereist` begint minstens één genoemde
+    eenheid met een vereist prefix. Beide leeg: alleen zonder bewijs draagt het."""
+
+    def past(t: str | None, prefixen: Sequence[str]) -> bool:
+        return t is not None and any(t.startswith(p) for p in prefixen)
+
+    alle = [*vereist, *toegestaan]
+    if not all(past(t, alle) for t in teksten):
+        return False
+    return not vereist or any(past(t, vereist) for t in teksten)
+
+
 def _uitkomst(
     ruw: Any, invoer: br.Vergelijkingsinvoer
 ) -> tuple[str | None, str | None]:
@@ -263,6 +286,32 @@ def _diagnose(ruw: Any, invoer: br.Vergelijkingsinvoer) -> list[dict[str, str]]:
         ]
 
 
+def _tekstlijst(waarde: Any) -> bool:
+    return isinstance(waarde, list) and all(isinstance(w, str) and w for w in waarde)
+
+
+def _controleer_feit(pad: str, verwacht: Any) -> None:
+    """Aanvulling C3: {toestand, vereist, toegestaan[, f7]}, elk een lijst tekst."""
+    if not isinstance(verwacht, Mapping):
+        msg = f"{pad}: geen object"
+        raise OrakelfoutError(msg)
+    anders = sorted((set(verwacht) - _FEITOPTIONEEL) ^ _FEITVELDEN)
+    if anders:
+        msg = f"{pad}: onbekende of ontbrekende velden {anders}"
+        raise OrakelfoutError(msg)
+    for veld in sorted(set(verwacht)):
+        if not _tekstlijst(verwacht[veld]):
+            msg = f"{pad}.{veld}: geen lijst van teksten"
+            raise OrakelfoutError(msg)
+    if not verwacht["toestand"]:
+        msg = f"{pad}.toestand: leeg"
+        raise OrakelfoutError(msg)
+    dubbel = sorted(set(verwacht["vereist"]) & set(verwacht["toegestaan"]))
+    if dubbel:
+        msg = f"{pad}: prefix zowel vereist als toegestaan: {dubbel}"
+        raise OrakelfoutError(msg)
+
+
 def controleer_orakel(orakel: Any, invoer: br.Vergelijkingsinvoer) -> None:
     """Het orakel past op de invoer (vóór elke aanroep); anders `OrakelfoutError`."""
     if not isinstance(orakel, Mapping):
@@ -280,9 +329,7 @@ def controleer_orakel(orakel: Any, invoer: br.Vergelijkingsinvoer) -> None:
             raise OrakelfoutError(msg)
         for naam, verwacht in per_onderwerp.items():
             _onderwerp(invoer, naam)
-            if not isinstance(verwacht, Mapping) or not verwacht.get("toestand"):
-                msg = f"orakel.kenmerken.{kernwoord}.{naam}: geen toestand"
-                raise OrakelfoutError(msg)
+            _controleer_feit(f"orakel.kenmerken.{kernwoord}.{naam}", verwacht)
     if not set(orakel["dragend"]) <= set(kenmerken):
         raise OrakelfoutError("orakel.dragend noemt een onbekend kernwoord")
     if not orakel["uitkomst"]:
@@ -328,15 +375,9 @@ def scoor(
                     a["citaten"] if isinstance(a.get("citaten"), list) else [None]
                 )
             ]
-            prefixen = verwacht.get("eenheden", [])
-            if prefixen:
-                draagt = bool(teksten) and all(
-                    t is not None and any(t.startswith(p) for p in prefixen)
-                    for t in teksten
-                )
-            else:
-                draagt = not teksten
-            draagt = draagt and kid is not None
+            draagt = kid is not None and _draagt(
+                teksten, verwacht["vereist"], verwacht["toegestaan"]
+            )
             juist = bool(toestanden) and set(toestanden) <= set(verwacht["toestand"])
             is_f7 = not juist and bool(set(toestanden) & set(verwacht.get("f7", [])))
             if is_f7:
