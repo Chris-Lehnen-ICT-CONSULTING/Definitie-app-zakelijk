@@ -145,6 +145,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         ess03_assessment_service: Any | None = None,
         # DEF-772: AI-verwijzingsbeoordeling (INT-03); idem
         int03_assessment_service: Any | None = None,
+        # DEF-835 WP5a: INT-02-beoordeling (O2); alleen expliciet, geen lazy default
+        int02_assessment_service: Any | None = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -200,6 +202,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         self._ess03_assessment_service = ess03_assessment_service
         # DEF-772: verwijzingsbeoordeling; idem
         self._int03_assessment_service = int03_assessment_service
+        # DEF-835 WP5a: bewust geen lazy property — zonder injectie geen dienst
+        self.int02_assessment_service = int02_assessment_service
 
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
@@ -358,6 +362,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 ess03_assessment_service=self.ess03_assessment_service,
                 # DEF-772: idem voor de verwijzingsbeoordeling (INT-03).
                 int03_assessment_service=self.int03_assessment_service,
+                # DEF-835 WP5a: INT-02 (O2) alleen als hij expliciet is geïnjecteerd.
+                int02_assessment_service=self.int02_assessment_service,
             )
 
             logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")

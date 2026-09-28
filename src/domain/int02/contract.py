@@ -29,7 +29,7 @@ import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, fields
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 
 __all__ = [
     "CONTRACTVERSIE",
@@ -504,7 +504,8 @@ def _grondbron(grond: dict[str, Any], invoer: Int02Invoer) -> str:
         _citaat(0 <= ref < len(waarden))
         tekst = waarden[ref]
     _citaat(_gevuld(tekst))
-    return tekst
+    # _gevuld eist isinstance(tekst, str); anders werpt _citaat hierboven.
+    return cast(str, tekst)
 
 
 def _controleer_citaten(uitvoer: dict[str, Any], invoer: Int02Invoer) -> None:
@@ -710,7 +711,14 @@ def beoordeel(
     _eis(isinstance(uitvoering, Uitvoering), "uitvoering moet een Uitvoering zijn")
     binding = bereken_binding(invoer, configuratie)
 
-    def document(status, melding, reden=None, fout=None, uitvoer=None, vraag=None):
+    def document(
+        status: str,
+        melding: str,
+        reden: str | None = None,
+        fout: str | None = None,
+        uitvoer: dict[str, Any] | None = None,
+        vraag: str | None = None,
+    ) -> Beoordelingsdocument:
         oordeel = None
         if uitvoer is not None:
             oordeel = json.dumps(uitvoer, ensure_ascii=False, sort_keys=True)

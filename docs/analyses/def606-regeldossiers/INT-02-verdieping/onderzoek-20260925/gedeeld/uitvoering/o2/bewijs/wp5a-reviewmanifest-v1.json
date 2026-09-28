@@ -1,0 +1,17 @@
+{
+  "base": "979ca0585100d94b613829d924c6d8bba4f24f1b",
+  "reviewroot": "/private/tmp/def835-wp2-review-20260927",
+  "source_root": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2",
+  "files": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "7faf7380ca1d4a332d0110ddfac53ced9c094223ef533199a87c6229f125f419",
+    "src/services/validation/modular_validation_service.py": "737b86326580d58e0ee86554f2cf42db20c3ac0cf390a237055deb9e7afb9829",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "c75f36bd6f6093b15c4753339c8fe25a858a8a21cbc1dfc8ac72747c686e886b",
+    "tests/unit/validation/test_def835_int02_modular.py": "f8e83149f8bebe82fd3f1238b7da1496eebb9396a3b4ea4b902c1450d55b1810",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9"
+  },
+  "patch": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/wp5a-werkboomdiff-v1.patch",
+  "patch_sha256": "aeaa6dce27700c0b19eaf771a899e7a1362d176a05fc2f418746307f82a57e48",
+  "index_unchanged": true
+}

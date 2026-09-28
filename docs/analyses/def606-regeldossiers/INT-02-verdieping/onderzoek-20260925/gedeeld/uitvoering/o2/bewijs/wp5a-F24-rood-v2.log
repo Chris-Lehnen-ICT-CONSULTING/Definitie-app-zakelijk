@@ -1,0 +1,212 @@
+# DEF-835 WP5a F2-restpunt/F4 RED v2 (uitkomst vóór mechanisme in na-snapshottest) tegen manifest-v3 — 2026-09-28T13:13:16Z
+# HEAD d769276041e619103ace7bc66e65419d480dae99
+# sha256 productie (manifest-v3: validation_orchestrator 1d592767…354e, int02_assessment_service 99f1381e…7b3a):
+1d592767c6d946b924f5eaf617fb76d4aca537b44ab78324bf7628e229ff354e  src/services/orchestrators/validation_orchestrator_v2.py
+99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a  src/services/validation/int02_assessment_service.py
+# sha256 test:
+374698831ff6b39ab5f460080714fb6668bfb9f6b6a1268a249dbd3aa073b3b7  tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+# commando: .venv/bin/python -m pytest tests/unit/services/orchestrators/test_def835_int02_wrappers.py -k 'beleidswijziging_tijdens_modelcall or stabiele_configuratie_blijft or na_snapshot or f4_' -p no:cacheprovider -p no:randomly --tb=short -o addopts='-ra --strict-markers --import-mode=importlib'
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 74 items / 60 deselected / 14 selected
+
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py FF..FFFF [ 57%]
+FFFFFF                                                                   [100%]
+
+=================================== FAILURES ===================================
+__________ test_f2_beleidswijziging_tijdens_modelcall_is_error[tekst] __________
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1004: in test_f2_beleidswijziging_tijdens_modelcall_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+WARNING  toetsregels.manager:manager.py:128 Configuratie bestand niet gevonden: /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-gyvoa16m/tempfiles/pytest-of-chrislehnen/pytest-0/def835_wp5a_wrappers0/toetsregels-manager.json
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=09a90c33-fdce-4e9e-9991-2c29a651c0dc)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=09a90c33-fdce-4e9e-9991-2c29a651c0dc)
+_________ test_f2_beleidswijziging_tijdens_modelcall_is_error[record] __________
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1004: in test_f2_beleidswijziging_tijdens_modelcall_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=dfdbf64d-6bad-4bc4-82e6-fb420fd4e27d)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=dfdbf64d-6bad-4bc4-82e6-fb420fd4e27d)
+____ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[gewijzigd-tekst] _____
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=cad6f333-4fcc-4f47-8849-90adb1d417f7)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=cad6f333-4fcc-4f47-8849-90adb1d417f7)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=0fe23e68-08bc-4551-940e-31cf9516283d
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+____ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[gewijzigd-record] ____
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a6d9cfae-9d63-4423-acd3-fd91ef5e3cf4)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=a6d9cfae-9d63-4423-acd3-fd91ef5e3cf4)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=4ffc2538-a4c2-471e-9a86-4aac000de4c2
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+_______ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[none-tekst] _______
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=196342e5-c1d1-44d4-93ed-f25d3852b521)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=196342e5-c1d1-44d4-93ed-f25d3852b521)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=54d3cfad-cb97-445b-a22d-0fabb31e9d07
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+______ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[none-record] _______
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=5346d8ca-da21-4541-a485-87c1853e9485)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=5346d8ca-da21-4541-a485-87c1853e9485)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=48a4f7c4-a580-47cf-a274-fd897a78db41
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+_______ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[dict-tekst] _______
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8ff1068e-1265-462d-aacc-ebed0c2c3494)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=8ff1068e-1265-462d-aacc-ebed0c2c3494)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=91700400-fc26-42c7-aa39-0e512ee9a3b4
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+______ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[dict-record] _______
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8333e0ca-78fc-4157-b846-937c9848dfde)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=8333e0ca-78fc-4157-b846-937c9848dfde)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=db6d6768-9903-4ec0-8087-ac7f6d640158
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+___ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[uitzondering-tekst] ___
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=4099a941-d24c-4bfb-826d-1f37108f822b)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=4099a941-d24c-4bfb-826d-1f37108f822b)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=91addc90-b23b-4174-971c-3a3ddf557743
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+__ test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[uitzondering-record] ___
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1066: in test_f2_ongeldige_of_afwijkende_na_snapshot_is_error
+    assert detail["status"] == "error"
+E   AssertionError: assert 'pass' == 'error'
+E     
+E     - error
+E     + pass
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=306ab773-a99b-4f0f-9bf2-c88c809b6992)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=306ab773-a99b-4f0f-9bf2-c88c809b6992)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=88d24bc7-f39a-4e5d-85d9-450e5f67cc7f
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+______ test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep[tekst] ______
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1100: in test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep
+    assert resultaat["validation_status"] == "validated"
+E   AssertionError: assert 'validation_unknown' == 'validated'
+E     
+E     - validated
+E     + validation_unknown
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=af00ccce-da78-4fe0-b7a6-935de073d5ab)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=af00ccce-da78-4fe0-b7a6-935de073d5ab)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:286 Validation failed for begrip='toelating', correlation_id='af00ccce-da78-4fe0-b7a6-935de073d5ab': GEHEIME-UITZONDERINGSTEKST-wp5a met invoerfragment
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: GEHEIME-UITZONDERINGSTEKST-wp5a met invoerfragment. begrip=toelating, correlation_id=af00ccce-da78-4fe0-b7a6-935de073d5ab
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/services/orchestrators/validation_orchestrator_v2.py", line 268, in validate_text
+    await self._beoordeel_int02(begrip, context_dict, correlation_id)
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/services/orchestrators/validation_orchestrator_v2.py", line 736, in _beoordeel_int02
+    snapshot = getattr(dienst, "configuratie", None)
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py", line 1082, in configuratie
+    raise RuntimeError(GEHEIM)
+RuntimeError: GEHEIME-UITZONDERINGSTEKST-wp5a met invoerfragment
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+_____ test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep[record] ______
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py:1100: in test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep
+    assert resultaat["validation_status"] == "validated"
+E   AssertionError: assert 'validation_unknown' == 'validated'
+E     
+E     - validated
+E     + validation_unknown
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:540 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=6340b6fe-06b9-4677-a159-5c71e75962f9)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:622 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=6340b6fe-06b9-4677-a159-5c71e75962f9)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:374 Validation failed for definition begrip='toelating', correlation_id='6340b6fe-06b9-4677-a159-5c71e75962f9': GEHEIME-UITZONDERINGSTEKST-wp5a met invoerfragment
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: GEHEIME-UITZONDERINGSTEKST-wp5a met invoerfragment. begrip=toelating, correlation_id=6340b6fe-06b9-4677-a159-5c71e75962f9
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/services/orchestrators/validation_orchestrator_v2.py", line 353, in validate_definition
+    await self._beoordeel_int02(
+        definition.begrip, context_dict, correlation_id
+    )
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/services/orchestrators/validation_orchestrator_v2.py", line 736, in _beoordeel_int02
+    snapshot = getattr(dienst, "configuratie", None)
+  File "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py", line 1082, in configuratie
+    raise RuntimeError(GEHEIM)
+RuntimeError: GEHEIME-UITZONDERINGSTEKST-wp5a met invoerfragment
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+=========================== short test summary info ============================
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_beleidswijziging_tijdens_modelcall_is_error[tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_beleidswijziging_tijdens_modelcall_is_error[record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[gewijzigd-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[gewijzigd-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[none-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[none-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[dict-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[dict-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[uitzondering-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ongeldige_of_afwijkende_na_snapshot_is_error[uitzondering-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep[tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep[record]
+================= 12 failed, 2 passed, 60 deselected in 0.98s ==================
+# exit=1

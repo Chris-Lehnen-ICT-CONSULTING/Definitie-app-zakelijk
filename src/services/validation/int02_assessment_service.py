@@ -83,7 +83,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass, fields, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from domain.int02.contract import (
     DEKKINGEN,
@@ -241,11 +241,13 @@ def laad_int02_norm(pad: Path | None = None) -> Int02Norm:
     normveld of een andere normversie een `Int02ServiceConfigError`.
     """
     record = lees_regelbestand(pad or _REGELRECORD_PAD)
+    # De casts zijn alleen voor de typechecker: `Int02Norm.__post_init__`
+    # weigert elke waarde die geen gevulde tekst is (Int02ServiceConfigError).
     return Int02Norm(
-        normversie=record.get("contractversie"),
-        uitleg=record.get("uitleg"),
-        toelichting=record.get("toelichting"),
-        toetsvraag=record.get("toetsvraag"),
+        normversie=cast(str, record.get("contractversie")),
+        uitleg=cast(str, record.get("uitleg")),
+        toelichting=cast(str, record.get("toelichting")),
+        toetsvraag=cast(str, record.get("toetsvraag")),
     )
 
 
@@ -611,6 +613,18 @@ class Int02AssessmentService:
         self._onthoud(sleutel, resultaat)
         return resultaat
 
+    def configuratie(self) -> Configuratie:
+        """Onafhankelijke snapshot van de actuele WP1-configuratie (DEF-835 WP5a F2).
+
+        Exact wat `assess` op dit moment in de binding zou leggen: norm,
+        promptversie, routering (routeruitkomst en capability-beleid),
+        profiel, budget en gevraagde provider/model. Alleen een routerlookup,
+        geen modelaanroep. Een onveranderlijke, nieuwe `Configuratie` per
+        aanroep; een aanroeper legt haar vóór `assess` vast en toetst het
+        teruggegeven document ertegen.
+        """
+        return self._configuratie(self._route(), PROMPT_VERSION)
+
     # --- vóór de aanroep ------------------------------------------------------
 
     def _route(self) -> _Route:
@@ -735,15 +749,15 @@ class Int02AssessmentService:
                     offload_postprocessing=True,
                 )
         except Exception as exc:
-            reden = _foutsoort(exc)
+            foutsoort = _foutsoort(exc)
             uitvoering = self._uitvoering(
-                "failed", tijdstip, start, _FOUTCATEGORIE.get(reden, "provider")
+                "failed", tijdstip, start, _FOUTCATEGORIE.get(foutsoort, "provider")
             )
             return self._afronden(
                 aanroep,
                 uitvoering,
                 None,
-                reden,
+                foutsoort,
                 prompt_sha256,
                 uitzonderingstype=type(exc).__name__,
             )
@@ -856,7 +870,7 @@ class Int02AssessmentService:
 
     @staticmethod
     def _log(
-        niveau: int, bericht: str, reden: str, aanroep: _Aanroep, *args: str
+        niveau: int, bericht: str, reden: str | None, aanroep: _Aanroep, *args: str
     ) -> None:
         """Alleen reden, uitzonderingstype en correlatie-id; nooit inhoud."""
         logger.log(

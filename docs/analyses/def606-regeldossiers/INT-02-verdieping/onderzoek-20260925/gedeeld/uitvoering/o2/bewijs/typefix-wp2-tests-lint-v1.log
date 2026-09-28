@@ -1,0 +1,21 @@
+# DEF-835 typefix WP2 - bestaande gedragstests en lint
+# tijdstip: 2026-09-28T13:29:36Z  HEAD: d769276041e619103ace7bc66e65419d480dae99
+#   fde833bd7e1eeff1127dde35c0fb1c17cd0e4edd08fd7b93ccbbc634ceaf518c  src/services/validation/int02_assessment_service.py
+## tests: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/services/prompts/test_def835_int02_prompt.py tests/unit/services/orchestrators/test_def835_int02_wrappers.py tests/unit/services/test_def835_int02_container.py tests/unit/validation/test_def835_int02_modular.py -o addopts= -q -ra
+........................................................................ [ 24%]
+........................................................................ [ 49%]
+........................................................................ [ 74%]
+........................................................................ [ 98%]
+...                                                                      [100%]
+291 passed in 2.26s
+# exitcode tests: 0
+## ruff 0.15.17
+All checks passed!
+# exitcode: 0
+## ruff 0.16.5 (hookversie)
+All checks passed!
+# exitcode: 0
+## black, 26.5.1 (compiled: yes)
+All done! ✨ 🍰 ✨
+1 file would be left unchanged.
+# exitcode: 0

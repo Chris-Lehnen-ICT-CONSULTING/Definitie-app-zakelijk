@@ -1,0 +1,120 @@
+{
+  "before": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "d9b0853a961d82fae372785dc988719d6bcde743c1e219157340a7a74d1bac5f",
+    "src/services/validation/modular_validation_service.py": "84a9e330c263afeea519363e1ac692950c93df3c1c15a2634fef5d5d722ab6c2",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "374698831ff6b39ab5f460080714fb6668bfb9f6b6a1268a249dbd3aa073b3b7",
+    "tests/unit/validation/test_def835_int02_modular.py": "ca09aa5220b4e25cc55f8d90831abfc03a69034328b259b11d1227afcb799400",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9",
+    "src/services/validation/int02_assessment_service.py": "fde833bd7e1eeff1127dde35c0fb1c17cd0e4edd08fd7b93ccbbc634ceaf518c",
+    "tests/unit/validation/test_def835_int02_assessment_service.py": "1dcc0f9d99a297d119107b0b936ac302677b9d57c999f58998561f47a8b14e17",
+    "src/domain/int02/contract.py": "6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8"
+  },
+  "after": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "d9b0853a961d82fae372785dc988719d6bcde743c1e219157340a7a74d1bac5f",
+    "src/services/validation/modular_validation_service.py": "84a9e330c263afeea519363e1ac692950c93df3c1c15a2634fef5d5d722ab6c2",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "374698831ff6b39ab5f460080714fb6668bfb9f6b6a1268a249dbd3aa073b3b7",
+    "tests/unit/validation/test_def835_int02_modular.py": "ca09aa5220b4e25cc55f8d90831abfc03a69034328b259b11d1227afcb799400",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9",
+    "src/services/validation/int02_assessment_service.py": "fde833bd7e1eeff1127dde35c0fb1c17cd0e4edd08fd7b93ccbbc634ceaf518c",
+    "tests/unit/validation/test_def835_int02_assessment_service.py": "1dcc0f9d99a297d119107b0b936ac302677b9d57c999f58998561f47a8b14e17",
+    "src/domain/int02/contract.py": "6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8"
+  },
+  "results": [
+    {
+      "cmd": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "no:randomly",
+        "-o",
+        "addopts=",
+        "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+        "tests/unit/validation/test_def835_int02_modular.py",
+        "tests/unit/services/test_def835_int02_container.py",
+        "tests/unit/validation/test_def835_int02_assessment_service.py",
+        "tests/unit/validation/test_def771_int02_o1.py",
+        "tests/unit/validation/test_def771_int02_contract.py",
+        "tests/unit/domain/test_def835_int02_contract.py",
+        "tests/unit/services/prompts/test_def835_int02_prompt.py"
+      ],
+      "exit": 0,
+      "tail": [
+        "........................................................................ [ 27%]",
+        "........................................................................ [ 41%]",
+        "........................................................................ [ 54%]",
+        "........................................................................ [ 68%]",
+        "........................................................................ [ 82%]",
+        "........................................................................ [ 95%]",
+        "......................                                                   [100%]",
+        "526 passed in 3.18s"
+      ]
+    },
+    {
+      "cmd": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "mypy",
+        "src/",
+        "--check-untyped-defs",
+        "--no-incremental"
+      ],
+      "exit": 0,
+      "tail": [
+        "Success: no issues found in 411 source files"
+      ]
+    },
+    {
+      "cmd": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/services/container.py",
+        "src/services/orchestrators/definition_orchestrator_v2.py",
+        "src/services/orchestrators/validation_orchestrator_v2.py",
+        "src/services/validation/modular_validation_service.py",
+        "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+        "tests/unit/validation/test_def835_int02_modular.py",
+        "tests/unit/services/test_def835_int02_container.py",
+        "src/services/validation/int02_assessment_service.py",
+        "tests/unit/validation/test_def835_int02_assessment_service.py",
+        "src/domain/int02/contract.py"
+      ],
+      "exit": 0,
+      "tail": [
+        "All checks passed!"
+      ]
+    },
+    {
+      "cmd": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "black",
+        "--check",
+        "src/services/container.py",
+        "src/services/orchestrators/definition_orchestrator_v2.py",
+        "src/services/orchestrators/validation_orchestrator_v2.py",
+        "src/services/validation/modular_validation_service.py",
+        "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+        "tests/unit/validation/test_def835_int02_modular.py",
+        "tests/unit/services/test_def835_int02_container.py",
+        "src/services/validation/int02_assessment_service.py",
+        "tests/unit/validation/test_def835_int02_assessment_service.py",
+        "src/domain/int02/contract.py"
+      ],
+      "exit": 0,
+      "tail": [
+        "All done! \u2728 \ud83c\udf70 \u2728",
+        "10 files would be left unchanged."
+      ]
+    }
+  ]
+}

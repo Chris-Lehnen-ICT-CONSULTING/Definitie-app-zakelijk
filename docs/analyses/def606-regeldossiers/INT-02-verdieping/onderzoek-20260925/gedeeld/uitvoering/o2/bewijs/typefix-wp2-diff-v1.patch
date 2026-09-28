@@ -1,0 +1,57 @@
+--- docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/typefix-vooraf-v1/src/services/validation/int02_assessment_service.py	2026-09-28 15:23:52
++++ src/services/validation/int02_assessment_service.py	2026-09-28 15:28:55
+@@ -83,7 +83,7 @@
+ from dataclasses import asdict, dataclass, fields, replace
+ from datetime import UTC, datetime
+ from pathlib import Path
+-from typing import Any
++from typing import Any, cast
+ 
+ from domain.int02.contract import (
+     DEKKINGEN,
+@@ -241,11 +241,13 @@
+     normveld of een andere normversie een `Int02ServiceConfigError`.
+     """
+     record = lees_regelbestand(pad or _REGELRECORD_PAD)
++    # De casts zijn alleen voor de typechecker: `Int02Norm.__post_init__`
++    # weigert elke waarde die geen gevulde tekst is (Int02ServiceConfigError).
+     return Int02Norm(
+-        normversie=record.get("contractversie"),
+-        uitleg=record.get("uitleg"),
+-        toelichting=record.get("toelichting"),
+-        toetsvraag=record.get("toetsvraag"),
++        normversie=cast(str, record.get("contractversie")),
++        uitleg=cast(str, record.get("uitleg")),
++        toelichting=cast(str, record.get("toelichting")),
++        toetsvraag=cast(str, record.get("toetsvraag")),
+     )
+ 
+ 
+@@ -747,15 +749,15 @@
+                     offload_postprocessing=True,
+                 )
+         except Exception as exc:
+-            reden = _foutsoort(exc)
++            foutsoort = _foutsoort(exc)
+             uitvoering = self._uitvoering(
+-                "failed", tijdstip, start, _FOUTCATEGORIE.get(reden, "provider")
++                "failed", tijdstip, start, _FOUTCATEGORIE.get(foutsoort, "provider")
+             )
+             return self._afronden(
+                 aanroep,
+                 uitvoering,
+                 None,
+-                reden,
++                foutsoort,
+                 prompt_sha256,
+                 uitzonderingstype=type(exc).__name__,
+             )
+@@ -868,7 +870,7 @@
+ 
+     @staticmethod
+     def _log(
+-        niveau: int, bericht: str, reden: str, aanroep: _Aanroep, *args: str
++        niveau: int, bericht: str, reden: str | None, aanroep: _Aanroep, *args: str
+     ) -> None:
+         """Alleen reden, uitzonderingstype en correlatie-id; nooit inhoud."""
+         logger.log(

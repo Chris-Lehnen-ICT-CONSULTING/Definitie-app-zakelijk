@@ -33,7 +33,9 @@ from domain.int02.contract import (
     MELDING_NIET_BEOORDEELD,
     NORMVERSIE,
     ONBEKEND,
+    Configuratie,
     Int02ContractError,
+    bereken_binding,
     maak_invoer,
     toets_actualiteit,
 )
@@ -302,10 +304,63 @@ def test_taak_is_de_bestaande_routertaak_validation():
     assert "validation" in ModelRouter._DEFAULT_CONFIG["task_tiers"]["critical"]
 
 
-def test_dienst_wordt_niet_door_de_container_aangemaakt():
-    container = (ROOT / "src/services/container.py").read_text(encoding="utf-8")
-    assert "int02_assessment" not in container
-    assert "Int02AssessmentService" not in container
+def test_dienst_wordt_niet_door_de_container_aangemaakt(monkeypatch):
+    """Gedragsguard (DEF-835 WP5a, review F3; was een tekstguard op container.py).
+
+    De normale container bouwt of injecteert de dienst nooit vanzelf en doet
+    geen modelaanroep. Toegestaan is alleen de expliciete factory met
+    verplicht profiel en budget (keyword-only, zonder default).
+    """
+    import inspect
+
+    from services.container import ServiceContainer
+
+    constructies: list[dict] = []
+    origineel = Int02AssessmentService.__init__
+
+    def _tel(self, *args, **kwargs):
+        constructies.append(kwargs)
+        origineel(self, *args, **kwargs)
+
+    monkeypatch.setattr(Int02AssessmentService, "__init__", _tel)
+    ai = FakeAI()
+    container = ServiceContainer.__new__(ServiceContainer)
+    container._instances = {}
+    container._lazy_instances = {}
+    container.use_json_rules = True
+    afhankelijkheden = {
+        "ai_service": ai,
+        "model_router": FakeRouter(),
+        "cleaning_service": object(),
+        "repository": SimpleNamespace(),
+        "web_lookup": None,
+        "synonym_orchestrator": None,
+        "source_assessment_service": object(),
+        "ess03_assessment_service": object(),
+        "int03_assessment_service": object(),
+    }
+    for naam, waarde in afhankelijkheden.items():
+        monkeypatch.setattr(container, naam, lambda w=waarde: w, raising=False)
+    monkeypatch.setattr(ServiceContainer, "rag_service", property(lambda _s: None))
+
+    orchestrator = container.orchestrator()
+    assert orchestrator.int02_assessment_service is None
+    assert orchestrator.validation_service.int02_assessment_service is None
+    assert constructies == []
+
+    handtekening = inspect.signature(container.int02_assessment_service)
+    for naam in ("profiel", "budget"):
+        parameter = handtekening.parameters[naam]
+        assert parameter.kind is inspect.Parameter.KEYWORD_ONLY
+        assert parameter.default is inspect.Parameter.empty
+    with pytest.raises(Int02ServiceConfigError):
+        container.int02_assessment_service(profiel=None, budget=_budget())
+    assert constructies == []
+
+    dienst = container.int02_assessment_service(profiel=_profiel(), budget=_budget())
+    assert isinstance(dienst, Int02AssessmentService)
+    assert len(constructies) == 1
+    assert ai.calls == []
 
 
 async def test_aanroeper_moet_een_int02invoer_leveren():
@@ -1316,3 +1371,96 @@ async def test_f3_uitzondering_van_de_ai_laag_geeft_onbekend_aantal_pogingen():
     resultaat = await _dienst(FakeAI(AIServiceError("x"))).assess(_invoer())
     assert resultaat.status == "error"
     assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
+
+
+# --- F2 (WP5a-review): publieke, onafhankelijke configuratiesnapshot ----------
+#
+# De validatiewrapper legt deze snapshot vóór `assess` vast en toetst het
+# teruggegeven document ertegen. Zij moet dus exact de WP1-configuratie zijn
+# die `assess` bindt (norm, promptversie, routering, profiel, budget,
+# provider/model), zonder modelaanroep en als onveranderlijke kopie.
+
+
+def _snapshot(dienst) -> Configuratie:
+    lees = getattr(dienst, "configuratie", None)
+    if not callable(lees):
+        pytest.fail("Int02AssessmentService.configuratie() ontbreekt")
+    return lees()
+
+
+async def test_f2_snapshot_is_exact_de_configuratie_die_assess_bindt():
+    ai = FakeAI(_fail_uitvoer())
+    dienst = _dienst(ai)
+
+    snapshot = _snapshot(dienst)
+    assert isinstance(snapshot, Configuratie)
+    resultaat = await dienst.assess(_invoer())
+
+    assert resultaat.status == "fail"
+    assert resultaat.document.binding.configuratie() == snapshot
+    assert resultaat.document.binding == bereken_binding(_invoer(), snapshot)
+
+
+async def test_f2_snapshot_ook_bij_blokkade_gelijk_aan_de_binding():
+    # Router onbeschikbaar of profiel ontbreekt: geen aanroep, maar de
+    # snapshot blijft de configuratie van het niet-uitgevoerde document.
+    for dienst in (
+        _dienst(router=FakeRouter(fout=RuntimeError("router weg"))),
+        _dienst(profiel=None),
+    ):
+        snapshot = _snapshot(dienst)
+        resultaat = await dienst.assess(_invoer())
+        assert resultaat.document.uitvoering.status == "not_executed"
+        assert resultaat.document.binding == bereken_binding(_invoer(), snapshot)
+
+
+def test_f2_snapshot_uitlezen_doet_geen_modelaanroep():
+    ai, router = FakeAI(), FakeRouter()
+    dienst = _dienst(ai, router)
+
+    _snapshot(dienst)
+    _snapshot(dienst)
+
+    assert ai.calls == []
+    assert set(router.calls) == {TASK_TYPE}
+
+
+def test_f2_snapshot_bevat_norm_prompt_profiel_budget_en_routering(monkeypatch):
+    basis = _snapshot(_dienst())
+    assert basis.normversie == NORMVERSIE
+    assert basis.normhash == laad_int02_norm().normhash
+    assert basis.promptversie == PROMPT_VERSION
+    assert (basis.provider, basis.model) == (PROVIDER, MODEL)
+
+    andere_norm = dataclasses.replace(laad_int02_norm(), toetsvraag="Andere vraag?")
+    varianten = {
+        "norm": _dienst(norm=andere_norm),
+        "profiel": _dienst(profiel=_profiel(profiel_id="ander-profiel")),
+        "budget": _dienst(budget=_budget(max_uitvoertokens=801)),
+        "routerbeleid": _dienst(router=FakeRouter(thinking=True)),
+        "model": _dienst(
+            router=FakeRouter(model="ander-model"),
+            profiel=_profiel(model="ander-model"),
+        ),
+    }
+    for naam, dienst in varianten.items():
+        assert _snapshot(dienst) != basis, naam
+
+    monkeypatch.setattr(dienstmodule, "PROMPT_VERSION", "def835-int02-prompt/test")
+    assert _snapshot(_dienst()).promptversie == "def835-int02-prompt/test"
+
+
+def test_f2_snapshot_is_een_onveranderlijke_losse_kopie():
+    router = FakeRouter()
+    dienst = _dienst(router=router)
+    eerste = _snapshot(dienst)
+
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        eerste.model = "gemanipuleerd"  # type: ignore[misc]
+    object.__setattr__(eerste, "model", "gemanipuleerd")
+    assert _snapshot(dienst).model == MODEL  # de dienst deelt geen staat
+
+    router.thinking = True  # latere routerwijziging
+    tweede = _snapshot(dienst)
+    assert tweede != _snapshot(_dienst())
+    assert eerste.routeringshash == _snapshot(_dienst()).routeringshash

@@ -1,0 +1,22 @@
+# DEF-835 typefix WP1 - mypy VOOR correctie (rode test)
+# tijdstip: 2026-09-28T13:25:00Z  branch: feature/DEF-835-int02-o2  HEAD: d769276041e619103ace7bc66e65419d480dae99
+#   4791cc0692dcc12981c6529b9a7446cce5f440cec72f9fc767f972dc19c39896  src/domain/int02/contract.py
+#   99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a  src/services/validation/int02_assessment_service.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m mypy src/ --check-untyped-defs --no-incremental
+# --- uitvoer ---
+src/domain/int02/contract.py:507: error: Returning Any from function declared to return "str"  [no-any-return]
+src/domain/int02/contract.py:713: error: Function is missing a type annotation  [no-untyped-def]
+src/domain/int02/contract.py:732: error: Returning Any from function declared to return "Beoordelingsdocument"  [no-any-return]
+src/domain/int02/contract.py:736: error: Returning Any from function declared to return "Beoordelingsdocument"  [no-any-return]
+src/domain/int02/contract.py:738: error: Returning Any from function declared to return "Beoordelingsdocument"  [no-any-return]
+src/domain/int02/contract.py:747: error: Returning Any from function declared to return "Beoordelingsdocument"  [no-any-return]
+src/domain/int02/contract.py:749: error: Returning Any from function declared to return "Beoordelingsdocument"  [no-any-return]
+src/services/validation/int02_assessment_service.py:245: error: Argument "normversie" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:246: error: Argument "uitleg" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:247: error: Argument "toelichting" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:248: error: Argument "toetsvraag" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:765: error: Incompatible types in assignment (expression has type "str | None", variable has type "str")  [assignment]
+src/services/validation/int02_assessment_service.py:829: error: Argument 3 to "_log" of "Int02AssessmentService" has incompatible type "str | None"; expected "str"  [arg-type]
+Found 13 errors in 2 files (checked 411 source files)
+# --- einde uitvoer ---
+# exitcode: 1

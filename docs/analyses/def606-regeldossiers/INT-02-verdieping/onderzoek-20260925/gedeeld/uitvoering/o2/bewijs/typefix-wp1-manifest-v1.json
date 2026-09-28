@@ -1,0 +1,6 @@
+{
+  "file": "src/domain/int02/contract.py",
+  "before": "4791cc0692dcc12981c6529b9a7446cce5f440cec72f9fc767f972dc19c39896",
+  "after": "6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8",
+  "patch": "58567b729f0462ff350a9c5fd7664864cb09bf844496e842e4a3f64517c41d3c"
+}

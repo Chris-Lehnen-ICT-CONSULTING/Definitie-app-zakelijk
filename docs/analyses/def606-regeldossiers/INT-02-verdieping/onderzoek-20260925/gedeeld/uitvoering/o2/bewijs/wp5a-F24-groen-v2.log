@@ -1,0 +1,24 @@
+# DEF-835 WP5a F2-restpunt/F4 GREEN v2 (v1: exit 127, worktree-.venv ontbrak; bewaard) — 2026-09-28T13:14:59Z
+# HEAD d769276041e619103ace7bc66e65419d480dae99
+# sha256:
+d9b0853a961d82fae372785dc988719d6bcde743c1e219157340a7a74d1bac5f  src/services/orchestrators/validation_orchestrator_v2.py
+99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a  src/services/validation/int02_assessment_service.py
+374698831ff6b39ab5f460080714fb6668bfb9f6b6a1268a249dbd3aa073b3b7  tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/services/orchestrators/test_def835_int02_wrappers.py -k 'beleidswijziging_tijdens_modelcall or stabiele_configuratie_blijft or na_snapshot or f4_' -p no:cacheprovider -p no:randomly --tb=short -o addopts='-ra --strict-markers --import-mode=importlib'
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 74 items / 60 deselected / 14 selected
+
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py ........ [ 57%]
+......                                                                   [100%]
+
+====================== 14 passed, 60 deselected in 0.75s =======================
+exit=0
