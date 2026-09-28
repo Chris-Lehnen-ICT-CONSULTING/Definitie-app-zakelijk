@@ -164,6 +164,35 @@ def _b_invoer(tmp_path: Path, items=None) -> tuple[Path, list[dict]]:
     return pad, items
 
 
+_MATERIAAL = re.compile(r'<materiaal id="([^"]+)"[^>]*>(.*?)</materiaal>', re.DOTALL)
+_EENHEID = re.compile(r"^\[(U\d+)\] (.*)$", re.MULTILINE)
+
+
+def _eenheden_uit_prompt(ruw: dict, user: str) -> dict:
+    """v6: kies per vastgelegd citaat de genummerde eenheid uit de prompt waarin het
+    staat, zoals het model dat doet; precies één treffer, anders faalt de test."""
+    eenheden = [
+        (uid, mid, tekst)
+        for mid, inhoud in _MATERIAAL.findall(user)
+        for uid, tekst in _EENHEID.findall(inhoud)
+    ]
+
+    def om(citaten):
+        uit = []
+        for c in citaten:
+            (uid,) = [
+                u for u, m, t in eenheden if m == c["material_id"] and c["citaat"] in t
+            ]
+            uit += [] if uid in uit else [uid]
+        return uit
+
+    for a in ruw["antwoorden"]:
+        a["citaten"] = om(a["citaten"])
+    for g in ruw["buurgroepen"]:
+        g["citaten"] = om(g["citaten"])
+    return ruw
+
+
 def _juiste_interpretatie(user: str) -> str:
     """De vooraf vastgelegde, juiste feiten van de domeintests op dit materiaal."""
     ruw = (
@@ -175,7 +204,8 @@ def _juiste_interpretatie(user: str) -> str:
     tekst = json.dumps(ruw, ensure_ascii=False)
     tekst = tekst.replace(dt.BUURMATERIAAL, f"neighbour:{buur}")
     tekst = tekst.replace(json.dumps(dt.BUUR), json.dumps(buur))
-    return tekst.replace(dt.BRON, BRON_ID)
+    tekst = tekst.replace(dt.BRON, BRON_ID)
+    return json.dumps(_eenheden_uit_prompt(json.loads(tekst), user), ensure_ascii=False)
 
 
 class _BewijsProvider(_FakeProvider):

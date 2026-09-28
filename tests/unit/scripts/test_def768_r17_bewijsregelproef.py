@@ -7,6 +7,10 @@ A/B/C als R16, inhoudelijk ongewijzigd, op de herstelde bewijsregels (v5,
 prompt /3). Max 12 stappen (verwacht 9), plafond USD 4,32, cumulatief 396 + 12
 = 408 binnen 427, kaderrest USD 21,951255, reserve 0, geen retry/cache.
 
+Sinds bewijsregels v6 (prompt /4, schema /3) is R17 historisch gepind op v5 en
+weigert de runner R17 fail-closed (zoals R16); de mechaniek hieronder draait op
+het huidige contract.
+
 Alleen de nieuwe registratiebinding wordt hier getoetst; de bewezen
 domeinlogica en de R16-runnermechaniek niet opnieuw. De provider is een fake;
 geen netwerk, geen echte of betaalde call.
@@ -58,6 +62,7 @@ pytestmark = [pytest.mark.unit]
 sys.path.insert(0, str(ROOT / "scripts" / "ess05"))
 
 import proefgrootboek as gb
+import proefinvoer as pi
 import run_ess05_proef as runner
 
 R17_ID = "DEF-768-AI-20260928-R17"
@@ -140,10 +145,13 @@ def _opslag17(tmp_path: Path) -> runner.Proefopslag:
 
 def _b17(omg, tmp_path, pad):
     boek16, keten = _keten17(tmp_path)
+    # R17-mechaniek op het huidige contract (R17 zelf is op v5 gepind), zoals
+    # _huidig16 bij R16.
     proef = dataclasses.replace(
         runner.PROEVEN["R17"],
         b_invoer_sha256=_sha(pad),
         voorganger_kop_sha256=boek16.samenvatting()["kop_sha256"],
+        bewijsregel_contract=runner.bewijsregel_contractidentiteit(),
     )
     return asyncio.run(
         runner.voer_b_fase(
@@ -258,14 +266,16 @@ class TestRegistratie:
         )
         assert dict(proef.contract) == HUIDIG_CONTRACT
         assert dict(proef.lokaal_contract) == dict(runner.R15_LOKAAL_CONTRACT)
+        # Historisch gepind op v5; de huidige code (v6) draagt dat contract niet meer.
         assert dict(proef.bewijsregel_contract) == R17_CONTRACT
-        assert runner.bewijsregel_contractidentiteit() == R17_CONTRACT
+        assert runner.bewijsregel_contractidentiteit() != R17_CONTRACT
         assert proef.kaderverruiming_modelstappen == 0
         assert proef.kaderrest_nusd == KADERREST17_NUSD
         assert proef.voorganger_kop_sha256 == R16_KOP_SHA256 == runner.R16_KOP_SHA256
         runner._controleer_contract(_omgeving8(_BewijsProvider()), proef)
         runner._controleer_lokaal_contract(proef)
-        runner._controleer_bewijsregel_contract(proef)
+        with pytest.raises(gb.BudgetSchendingError, match="geen call gestart"):
+            runner._controleer_bewijsregel_contract(proef)
 
     def test_r16_registratie_historisch_ongewijzigd(self):
         proef = runner.PROEVEN["R16"]
@@ -279,13 +289,16 @@ class TestRegistratie:
         assert proef.voorganger_kop_sha256 == runner.R15_KOP_SHA256
         assert proef.opslag.root == ROOT / "reports" / "DEF-768-AI-20260928-R16"
 
-    def test_freezegroep_b_bindt_het_r17_contract(self):
+    def test_freezegroep_b_bindt_het_contract_van_de_code(self):
+        # v6: zoals bij R16 bindt de freeze het contract van de code, niet het
+        # gepinde R17-contract; een echte R17-call weigert de runner daarom.
         velden = runner.freezevelden(
             _omgeving8(_BewijsProvider()), runner.PROEVEN["R17"], "b"
         )
         assert (velden["groep"], velden["proef_id"]) == ("b", R17_ID)
-        for sleutel, waarde in R17_CONTRACT.items():
+        for sleutel, waarde in runner.bewijsregel_contractidentiteit().items():
             assert velden[sleutel] == waarde, sleutel
+        assert {k: velden[k] for k in R17_CONTRACT} != R17_CONTRACT
 
     @besluit17_nodig
     def test_besluit_gebonden_aan_opdracht_mandaat_en_past_op_r17(self):
@@ -351,8 +364,19 @@ class TestInvoer:
         import maak_r17_bewijsregel_invoer as mk17
 
         assert _sha(B17) == runner.R17_B_INVOER_SHA256
-        tekst = json.dumps(mk17.maak_bewijsregel_invoer(), ensure_ascii=False, indent=2)
-        assert tekst + "\n" == B17.read_text(encoding="utf-8")
+        data = json.loads(B17.read_text(encoding="utf-8"))
+        assert data["contract"] == R17_CONTRACT
+        # v6: de maker op de huidige code wijkt alleen af in contract en
+        # prompthash (zoals bij R16); de gepinde invoer blijft ongewijzigd.
+        nu = mk17.maak_bewijsregel_invoer()
+        assert nu["contract"] == runner.bewijsregel_contractidentiteit()
+        assert {k: v for k, v in nu.items() if k not in ("contract", "items")} == {
+            k: v for k, v in data.items() if k not in ("contract", "items")
+        }
+        zonder = [{k: v for k, v in i.items() if k != "prompt_sha256"}
+                  for i in data["items"]]  # fmt: skip
+        assert [{k: v for k, v in i.items() if k != "prompt_sha256"}
+                for i in nu["items"]] == zonder  # fmt: skip
 
     def test_gevalinhoud_en_markers_gelijk_aan_r16_alleen_binding_nieuw(self):
         r16 = json.loads(B16.read_text(encoding="utf-8"))
@@ -373,45 +397,42 @@ class TestInvoer:
         for oud, nieuw in zip(r16["items"], r17["items"], strict=True):
             assert oud["prompt_sha256"] != nieuw["prompt_sha256"]
 
-    def test_runner_bindt_de_invoer_opnieuw(self):
+    def test_runner_weigert_de_historische_invoer(self):
+        # v6 (was: test_runner_bindt_de_invoer_opnieuw): R17 is historisch gepind;
+        # de invoer hoort bij v5 en wordt onder de huidige code geweigerd.
         data = json.loads(B17.read_text(encoding="utf-8"))
-        gebonden = runner.valideer_b_invoer(data, _omgeving8(_BewijsProvider()))
-        assert [bi.sleutel for bi in gebonden] == [f"bewijsregels|{n}|1" for n in "ABC"]
+        with pytest.raises(pi.InvoerfoutError, match="ander bewijsregelcontract"):
+            runner.valideer_b_invoer(data, _omgeving8(_BewijsProvider()))
 
-    def test_juiste_interpretatie_geeft_elke_verwachting_in_negen_stappen(
-        self, tmp_path
-    ):
+    def test_geregistreerde_r17_start_geen_call(self, tmp_path):
+        # v6 (was: test_juiste_interpretatie_geeft_elke_verwachting_in_negen_stappen
+        # op de echte invoer): de runner weigert R17 fail-closed, zonder call en
+        # zonder grootboek; de mechaniek staat in TestMechaniek.
         pad = tmp_path / "b17.json"
         pad.write_bytes(B17.read_bytes())
         provider = _BewijsProvider()
-        samenvatting = _b17(_omgeving8(provider), tmp_path, pad)
-        assert len(provider.berichten) == 9 == samenvatting["modelstappen_gestart"]
-        regels = [
-            json.loads(r)
-            for r in _opslag17(tmp_path).grootboek.read_text("utf-8").splitlines()
-        ]
-        gevallen = [r for r in regels if r["soort"] == "geval"]
-        assert [(g["geaccepteerd"], len(g["seqs"])) for g in gevallen] == [
-            (True, 4), (True, 1), (True, 4)
-        ]  # fmt: skip
+        with pytest.raises(gb.BudgetSchendingError, match="bewijsregelcontract"):
+            asyncio.run(
+                runner.voer_b_fase(
+                    _omgeving8(provider),
+                    gevallenpad=pad,
+                    uitmap=tmp_path / "uit",
+                    opslag=_opslag17(tmp_path),
+                    proef=runner.PROEVEN["R17"],
+                    voorganger_opslag=_keten17(tmp_path)[1],
+                    nieuw_grootboek=True,
+                )
+            )
+        assert provider.berichten == []
+        assert not _opslag17(tmp_path).grootboek.exists()
 
-    def test_droog_op_de_geregistreerde_r17(self, tmp_path):
-        code = runner.main(["--proef", "R17", "--fase", "bewijsregels",
-                            "--gevallen", str(B17), "--uitmap", str(tmp_path),
-                            "--droog"])  # fmt: skip
-        assert code == 0
-        (bestand,) = tmp_path.glob("droog-bewijsregels-*/droogrun.json")
-        droog = json.loads(bestand.read_text(encoding="utf-8"))
-        assert droog["proef_id"] == R17_ID
-        assert (droog["geplande_calls"], droog["echte_calls"]) == (3, 0)
-        assert (droog["modelstappen_max"], droog["modelstappen_verwacht"]) == (12, 9)
-        freeze = droog["freezevelden"]
-        assert (freeze["groep"], freeze["dataset_sha256"]) == (
-            "b",
-            runner.R17_B_INVOER_SHA256,
-        )
-        assert droog["bewijsregel_contract"] == R17_CONTRACT
-        assert all(i["payload_bytes"] <= 36_000 for i in droog["items"])
+    def test_droog_op_de_geregistreerde_r17_weigert(self, tmp_path):
+        # v6 (was: test_droog_op_de_geregistreerde_r17): zoals bij R16.
+        with pytest.raises(gb.BudgetSchendingError, match="bewijsregelcontract"):
+            runner.main(["--proef", "R17", "--fase", "bewijsregels",
+                         "--gevallen", str(B17), "--uitmap", str(tmp_path),
+                         "--droog"])  # fmt: skip
+        assert not list(tmp_path.rglob("droogrun.json"))
         assert not list(tmp_path.rglob("*.jsonl"))
 
 
