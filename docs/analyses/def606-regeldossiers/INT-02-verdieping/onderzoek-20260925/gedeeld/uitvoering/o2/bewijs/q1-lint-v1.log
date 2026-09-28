@@ -1,0 +1,22 @@
+# DEF-835 Q1 LINT — 2026-09-28T16:09:14Z
+$ black --check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+Usage: black [OPTIONS] SRC ...
+Try 'black --help' for help.
+
+Error: Invalid value for 'SRC ...': Path 'scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py' does not exist.
+exit=2
+$ ruff check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py   # ruff 0.15.17
+E902 No such file or directory (os error 2)
+--> scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py:1:1
+
+Found 1 error.
+exit=1
+$ ruff format --check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+error: Failed to format scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py: No such file or directory (os error 2)
+exit=2
+$ uvx ruff@0.16.5 check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py   # hookversie
+E902 No such file or directory (os error 2)
+--> scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py:1:1
+
+Found 1 error.
+exit=1

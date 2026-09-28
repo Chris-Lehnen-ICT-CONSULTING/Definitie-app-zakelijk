@@ -1,0 +1,16 @@
+{
+  "soort": "def835-q1-F123-hashmanifest/1",
+  "basis_head": "f9bb9e6973926a3cf768995f5d879f6edfd6322d",
+  "gereviewde_staat": {
+    "scripts/analysis/def835_int02_modelproef.py": "f4d09238998b1233f888eb1c702fa2334eb84b50dcbfd80f32ac53fd879a7f06",
+    "tests/unit/validation/test_def835_int02_modelproef.py": "4a8960ba544aea15220ba2f31f6c8c9ae05731b30ae3101728bd50c0361a0b30",
+    "tests/fixtures/def835_int02_kwalificatie_runner.json": "2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7"
+  },
+  "na_correctie": {
+    "scripts/analysis/def835_int02_modelproef.py": "af59b9e0e2d86d29442a4e17865f8dc42c272ba11cb30e4fcd9ea3f5962373ab",
+    "tests/unit/validation/test_def835_int02_modelproef.py": "111a4ef8b478bc8557806904929426bf2936cac03ca912912cd4f94de81e7eb3",
+    "tests/fixtures/def835_int02_kwalificatie_runner.json": "2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7"
+  },
+  "deltadiff_sha256": "e19b42da86a6db5ff4ffafbe14fbbaad2e421c46c018c0b4dcd8deee3216a58f",
+  "volledige_diff_sha256": "b8b701655f2e183afee07d7bd571992d77fd9a3ba730371322a0d1cb41af4c8d"
+}

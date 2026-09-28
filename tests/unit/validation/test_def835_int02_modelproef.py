@@ -14,15 +14,19 @@ Niet bewezen: gedrag van de echte provider of kwaliteit van het model.
 from __future__ import annotations
 
 import asyncio
+import errno
+import fcntl
 import hashlib
 import importlib.util
 import json
 import logging
 import os
 import socket
+import subprocess
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -907,3 +911,1412 @@ async def test_deadline_breekt_hangende_inferentie_af_zonder_vervolgcall(
     assert geval["meting"]["fouttype"] == "CancelledError"
     assert GEHEIM not in resultaat.read_text("utf-8")
     assert SLEUTEL not in caplog.text
+
+
+# --- Q1: kwalificatieprofiel op een bevroren extern gevallenmanifest -------------------
+#
+# De fixture `def835_int02_kwalificatie_runner.json` is uitsluitend technisch:
+# geen goldset, geen hold-out, willekeurige labels. Zij toetst de runner, nooit
+# het model. Elke fase draait de echte keten met een nep-provider.
+
+KWALFIXTURE = ROOT / "tests" / "fixtures" / "def835_int02_kwalificatie_runner.json"
+KWAL = json.loads(KWALFIXTURE.read_text("utf-8"))
+KWAL_PER_ID = {g["id"]: g for g in KWAL["gevallen"]}
+PER_KERN = {g["invoer"]["kern"]: g["id"] for g in KWAL["gevallen"]}
+FASE_IDS = {
+    fase: [g["id"] for g in KWAL["gevallen"] if g["fase"] == fase]
+    for fase in ("regressie", "ontwikkeling", "holdout")
+}
+LABELMERKTEKENS = [g["label"]["normgrond"] for g in KWAL["gevallen"]]
+KOSTEN_PER_CALL = 1500 * 0.000005 + 400 * 0.000025
+RESERVERING_PER_CALL = 16000 * 0.000005 + 6000 * 0.000025
+OUDE_IDENTITEITSVELDEN = {
+    "profiel",
+    "limieten",
+    "dienstbudget",
+    "prijzen_per_token",
+    "router",
+    "transport",
+    "normhash",
+    "t_tekst_sha256",
+    "bestanden",
+    "versies",
+    "gevallen",
+}
+
+
+def test_kwalificatiefixture_is_zichtbaar_geen_goldset():
+    assert KWAL["technische_testfixture"] is True
+    assert KWAL["goldset"] is False
+    assert "GEEN goldset" in KWAL["gebruik"]
+    assert [len(FASE_IDS[f]) for f in FASE_IDS] == [3, 24, 16]
+    assert FASE_IDS["regressie"] == ["C105", "C107", "C112"]
+    for geval_id in FASE_IDS["regressie"]:
+        assert KWAL_PER_ID[geval_id]["invoer"] == GEVALLEN[geval_id]["invoer"]
+
+
+def _oordeel(invoer: dict, soort: str) -> str:
+    """Geldig WP1-antwoord met het gevraagde verdict (of een citaatfout)."""
+    if soort == "review_required":
+        return json.dumps(
+            {
+                "verdict": "insufficient_information",
+                "passages": [],
+                "reason": "Offline: betekenisgrond ontbreekt.",
+                "question": "Welke bedoeling geldt?",
+                "uncertainty": "decisive",
+                "scope_reason": None,
+                "coverage": "partial",
+            }
+        )
+    kern = invoer["kern"]
+    grond = {"field": "kern", "ref": None, "quote": None, "start": None, "end": None}
+    passage = {
+        "quote": kern,
+        "start": 1 if soort == "citaatfout" else 0,
+        "end": len(kern),
+        "function": "actor_prescription" if soort == "fail" else "criterion",
+        "ground": grond,
+    }
+    return json.dumps(
+        {
+            "verdict": "fail" if soort == "fail" else "pass",
+            "passages": [passage],
+            "reason": "Offline nep-oordeel.",
+            "question": None,
+            "uncertainty": "none",
+            "scope_reason": None,
+            "coverage": "complete",
+        }
+    )
+
+
+class KwalProvider:
+    """Nep-provider: antwoordt per geval volgens het label, tenzij afwijkend.
+
+    Het geval wordt uit de verzonden invoer herkend (de kern), nooit uit een
+    label: het verzoek bevat geen labels. Met `grootboek` wordt bij elk
+    verzoek de dan geldende laatste grootboekregel vastgelegd.
+    """
+
+    def __init__(self, afwijkend=None, *, telling=1200, grootboek=None, usage=None):
+        self.verzoeken: list[dict] = []
+        self.afwijkend = dict(afwijkend or {})
+        self.telling = telling
+        self.grootboek = grootboek
+        self.usage = usage
+        self.boekstand: list[tuple[str, str, dict]] = []
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        invoer = json.loads(body["messages"][0]["content"])["invoer"]
+        geval = PER_KERN[invoer["kern"]]
+        self.verzoeken.append({"pad": request.url.path, "geval": geval, "ruw": request})
+        if self.grootboek is not None:
+            laatste = self.grootboek.read_text("utf-8").splitlines()[-1]
+            self.boekstand.append((request.url.path, geval, json.loads(laatste)))
+        if request.url.path.endswith("/count_tokens"):
+            return httpx.Response(200, json={"input_tokens": self.telling})
+        actie = self.afwijkend.get(geval, KWAL_PER_ID[geval]["label"]["status"])
+        if callable(actie):
+            return actie(request)
+        return httpx.Response(
+            200, json=_bericht(_oordeel(invoer, actie), usage=self.usage)
+        )
+
+    def paden(self):
+        return [v["pad"] for v in self.verzoeken]
+
+    def inferenties(self):
+        return [v["geval"] for v in self.verzoeken if v["pad"] == "/v1/messages"]
+
+    def ruw(self) -> str:
+        return "".join(v["ruw"].content.decode("utf-8") for v in self.verzoeken)
+
+
+class Kwal:
+    def __init__(self, tmp_path: Path, gevallen: Path) -> None:
+        self.tmp = tmp_path
+        self.gevallen = gevallen
+        self.proefmap = tmp_path / "proef"
+        self.manifest = tmp_path / "kwal-manifest.json"
+        self.payloads = tmp_path / "kwal-payloads.json"
+
+    @property
+    def grootboek(self) -> Path:
+        return self.proefmap / "grootboek.jsonl"
+
+    def stand(self) -> dict:
+        boek = m.Grootboek.lees(self.grootboek, _sha(self.manifest.read_bytes()))
+        return boek.stand()
+
+
+def _submap(tmp_path: Path, naam: str) -> Path:
+    pad = tmp_path / naam
+    pad.mkdir()
+    return pad
+
+
+def _gevallenbestand(tmp_path: Path, wijzig=None, naam="gevallen.json") -> Path:
+    data = json.loads(json.dumps(KWAL))
+    if wijzig is not None:
+        wijzig(data)
+    pad = tmp_path / naam
+    pad.write_text(json.dumps(data, ensure_ascii=False), "utf-8")
+    return pad
+
+
+async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+    k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+    await m.voorbereid_kwalificatie(
+        k.gevallen,
+        k.proefmap,
+        k.manifest,
+        payloads_pad=k.payloads,
+        limieten=limieten or m.KWALIFICATIELIMIETEN,
+    )
+    return k
+
+
+def _kwalakkoord(pad: Path, k: Kwal, **over) -> Path:
+    grens = json.loads(k.manifest.read_text("utf-8"))["identiteit"]["limieten"]
+    data = {
+        "soort": m.KWALIFICATIE_AKKOORD_SOORT,
+        "manifest_sha256": _sha(k.manifest.read_bytes()),
+        "gevallenmanifest_sha256": _sha(k.gevallen.read_bytes()),
+        "protocol_sha256": m.PROTOCOL_SHA256,
+        "profiel_id": m.KWALIFICATIE_PROFIEL_ID,
+        "geen_def815_kwalificatie": True,
+        "live_verzending_toegestaan": True,
+        "max_inferenties": grens["max_inferentie"],
+        "max_tokenmetingen": grens["max_telverzoeken"],
+        "budget_usd": grens["budget_usd"],
+        "akkoord_door": "offline testbeoordelaar",
+        "akkoord_op": "2026-09-28",
+        "akkoord_bron": "offline unittest; geen echte toestemming",
+    }
+    data.update(over)
+    data = {k2: v for k2, v in data.items() if v is not ...}
+    pad.write_text(json.dumps(data), "utf-8")
+    return pad
+
+
+async def _fase(k: Kwal, fase: str, provider, *, akkoord=None, **kw):
+    if akkoord is None:
+        akkoord = k.tmp / "kwal-akkoord.json"
+        if not akkoord.exists():
+            _kwalakkoord(akkoord, k)
+    kw.setdefault("sleutel", lambda: SLEUTEL)
+    kw.setdefault("limieten", m.KWALIFICATIELIMIETEN)
+    return await m.voer_kwalificatie_uit(
+        k.manifest,
+        akkoord,
+        k.gevallen,
+        fase,
+        binnen=httpx.MockTransport(provider),
+        **kw,
+    )
+
+
+async def _tot_en_met(k: Kwal, laatste: str) -> None:
+    for fase in ("regressie", "ontwikkeling", "holdout"):
+        data = await _fase(k, fase, KwalProvider())
+        assert data["evaluatie"]["mechanisch_geslaagd"] is True
+        if fase == laatste:
+            return
+
+
+# --- Q1: voorbereiding en freeze --------------------------------------------------------
+
+
+async def test_kwal_voorbereiding_bindt_invoer_labels_splitsing_en_profiel(
+    tmp_path, monkeypatch
+):
+    def geen_sleutel():
+        raise AssertionError("voorbereiding leest geen sleutel")
+
+    monkeypatch.setattr(m, "_lees_sleutel", geen_sleutel)
+    k = await _kwal(tmp_path)
+    data = json.loads(k.manifest.read_text("utf-8"))
+    assert data["soort"] == m.KWALIFICATIE_MANIFEST_SOORT != m.MANIFEST_SOORT
+    assert data["toestemming"] == "pending"
+    identiteit = data["identiteit"]
+    assert data["identiteit_sha256"] == m.hash_json(identiteit)
+    profiel = identiteit["profiel"]
+    assert profiel["profiel_id"] == m.KWALIFICATIE_PROFIEL_ID != m.PROFIEL_ID
+    assert (profiel["provider"], profiel["model"]) == ("anthropic", "claude-opus-5")
+    assert profiel["def815_kwalificatie"] is False
+    assert identiteit["limieten"] == {
+        "max_inferentie": 43,
+        "max_telverzoeken": 43,
+        "max_uitvoertokens": 6000,
+        "max_geschatte_invoertokens": 16000,
+        "deadline_seconden": 120.0,
+        "totale_looptijd_seconden": 6000.0,
+        "budget_usd": 12.0,
+    }
+    assert identiteit["protocol_sha256"] == (
+        "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f"
+    )
+    assert identiteit["gevallenmanifest"]["sha256"] == _sha(k.gevallen.read_bytes())
+    assert identiteit["gevallenmanifest"]["technische_testfixture"] is True
+    assert identiteit["gevallenmanifest"]["freeze"] == KWAL["freeze"]
+    assert identiteit["fasen"] == FASE_IDS
+    assert identiteit["proefmap"] == str(k.proefmap.resolve())
+    assert identiteit["router"]["uitkomst"] == ["anthropic", "claude-opus-5"]
+    assert "scripts/analysis/def835_int02_modelproef.py" in identiteit["bestanden"]
+    per_geval = {g["id"]: g for g in identiteit["gevallen"]}
+    assert list(per_geval) == [g["id"] for g in KWAL["gevallen"]]
+    for geval_id, geval in per_geval.items():
+        bron = KWAL_PER_ID[geval_id]
+        assert geval["fase"] == bron["fase"]
+        assert geval["invoer_sha256"] == m.hash_json(bron["invoer"])
+        assert geval["label_sha256"] == m.hash_json(bron["label"])
+    # Offline: geen proefmap, geen grootboek, alleen manifest en payloads.
+    assert not k.proefmap.exists()
+    assert sorted(p.name for p in tmp_path.iterdir()) == [
+        "gevallen.json",
+        "kwal-manifest.json",
+        "kwal-payloads.json",
+    ]
+    tekst = k.manifest.read_text("utf-8") + k.payloads.read_text("utf-8")
+    assert all(merk not in tekst for merk in LABELMERKTEKENS)
+
+
+async def test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit(tmp_path):
+    een = await _kwal(_submap(tmp_path, "a"))
+
+    def ander_label(data):
+        for geval in data["gevallen"]:
+            if geval["id"] == "TQ-O01":
+                geval["label"] = {"status": "fail", "normgrond": "ANDER-LABEL"}
+
+    twee = await _kwal(_submap(tmp_path, "b"), wijzig=ander_label)
+    i1 = json.loads(een.manifest.read_text("utf-8"))["identiteit"]
+    i2 = json.loads(twee.manifest.read_text("utf-8"))["identiteit"]
+    p1 = [g["payload_sha256"] for g in i1["gevallen"]]
+    p2 = [g["payload_sha256"] for g in i2["gevallen"]]
+    assert p1 == p2  # het verzoek hangt niet van labels af
+    l1 = {g["id"]: g["label_sha256"] for g in i1["gevallen"]}
+    l2 = {g["id"]: g["label_sha256"] for g in i2["gevallen"]}
+    assert [i for i in l1 if l1[i] != l2[i]] == ["TQ-O01"]
+    assert m.hash_json(i1) != m.hash_json(i2)
+    payloads = json.loads(een.payloads.read_text("utf-8"))["gevallen"]
+    for vast in payloads:
+        body = json.loads(vast["payload"])
+        [bericht] = body["messages"]
+        assert json.loads(bericht["content"]) == {
+            "invoer": KWAL_PER_ID[vast["id"]]["invoer"]
+        }
+        assert "TECHNISCH-TESTLABEL" not in vast["payload"]
+        assert "normgrond" not in vast["payload"]
+
+
+def _zet(geval_id, veld, waarde):
+    def wijzig(data):
+        for geval in data["gevallen"]:
+            if geval["id"] == geval_id:
+                geval[veld] = waarde
+
+    return wijzig
+
+
+def _zonder(veld):
+    def wijzig(data):
+        del data[veld]
+
+    return wijzig
+
+
+def _topveld(veld, waarde):
+    def wijzig(data):
+        data[veld] = waarde
+
+    return wijzig
+
+
+def _dubbel(data):
+    data["gevallen"].append(dict(data["gevallen"][5]))
+
+
+def _holdout_naar_ontwikkeling(data):
+    data["gevallen"][-1]["fase"] = "ontwikkeling"
+
+
+_BASISINVOER = KWAL_PER_ID["TQ-O01"]["invoer"]
+
+
+@pytest.mark.parametrize(
+    ("wijzig", "reden"),
+    [
+        (_zonder("freeze"), "freeze_ontbreekt"),
+        (
+            _topveld("freeze", {**KWAL["freeze"], "status": "concept"}),
+            "freeze_ontbreekt",
+        ),
+        (
+            _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+            "freeze_ontbreekt",
+        ),
+        (
+            _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+            "freeze_ontbreekt",
+        ),
+        (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+        (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+        (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+        (_dubbel, "gevallenmanifest_ongeldig"),
+        (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+        (
+            _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+            "gevallenmanifest_ongeldig",
+        ),
+        (
+            _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+            "gevallenmanifest_ongeldig",
+        ),
+        (
+            _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+            "gevallenmanifest_ongeldig",
+        ),
+        (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+        (
+            _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+            "splitsing_ongeldig",
+        ),
+        (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+        (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+        (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+        (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+        (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+    ],
+    ids=[
+        "geen-freeze",
+        "freeze-concept",
+        "freeze-zonder-acceptant",
+        "freeze-datum",
+        "protocol",
+        "oud-manifestsoort",
+        "goldsetvlag",
+        "dubbel-id",
+        "labelstatus",
+        "labelveld",
+        "label-in-invoer",
+        "ne-invoer",
+        "onbekend-gevalveld",
+        "regressie-invoer",
+        "regressie-label",
+        "regressie-fase",
+        "onbekende-fase",
+        "aantallen",
+        "holdoutverdeling",
+    ],
+)
+async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+    tmp_path, wijzig, reden
+):
+    gevallen = _gevallenbestand(tmp_path, wijzig)
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await m.voorbereid_kwalificatie(
+            gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+        )
+    assert fout.value.reden == reden
+    assert not (tmp_path / "manifest.json").exists()
+
+
+async def test_kwal_dryrun_gebruikt_geen_echt_transport(tmp_path, monkeypatch):
+    async def verboden(self, request):
+        raise AssertionError("dry-run verstuurt niets")
+
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", verboden)
+    k = await _kwal(tmp_path)
+    assert json.loads(k.manifest.read_text("utf-8"))["toestemming"] == "pending"
+
+
+async def test_driecasusmodus_identiteitsvorm_ongewijzigd(tmp_path):
+    data = await m.voorbereid(tmp_path / "manifest.json")
+    assert data["soort"] == "def835-int02-modelproef-manifest/1"
+    assert set(data["identiteit"]) == OUDE_IDENTITEITSVELDEN
+    assert m.PROFIEL_ID == "def835-technische-proef-opus5-v1"
+    assert (m.LIMIETEN.max_inferentie, m.LIMIETEN.budget_usd) == (3, 1.0)
+    assert m.AKKOORD_SOORT == "def835-int02-modelproef-akkoord/1"
+
+
+# --- Q1: akkoord, oud mandaat en identiteit ------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "over",
+    [
+        {"manifest_sha256": "0" * 64},
+        {"gevallenmanifest_sha256": "0" * 64},
+        {"protocol_sha256": "0" * 64},
+        {"profiel_id": "def835-technische-proef-opus5-v1"},
+        {"soort": "def835-int02-modelproef-akkoord/1"},
+        {"max_inferenties": 44},
+        {"max_tokenmetingen": ...},
+        {"budget_usd": 13.0},
+        {"live_verzending_toegestaan": "ja"},
+        {"geen_def815_kwalificatie": False},
+        {"akkoord_door": " "},
+        {"akkoord_op": "gisteren"},
+        {"extra": "veld"},
+    ],
+    ids=lambda o: next(iter(o)),
+)
+async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+    tmp_path, over
+):
+    k = await _kwal(tmp_path)
+    provider = KwalProvider()
+    gelezen = []
+    akkoord = _kwalakkoord(tmp_path / "ander-akkoord.json", k, **over)
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(
+            k,
+            "regressie",
+            provider,
+            akkoord=akkoord,
+            sleutel=lambda: gelezen.append(1) or SLEUTEL,
+        )
+    assert fout.value.reden == "akkoord_ongeldig"
+    assert provider.verzoeken == [] and gelezen == []
+    assert not k.proefmap.exists()
+
+
+async def test_kwal_weigert_ontbrekend_akkoord(tmp_path):
+    k = await _kwal(tmp_path)
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, akkoord=tmp_path / "bestaat-niet.json")
+    assert fout.value.reden == "akkoord_ontbreekt"
+    assert provider.verzoeken == []
+    assert not k.proefmap.exists()
+
+
+async def test_kwal_oud_driecallmandaat_telt_nooit_als_kwalificatieakkoord(
+    tmp_path, manifest
+):
+    k = await _kwal(tmp_path)
+    provider = KwalProvider()
+    # (a) Een oud driecallakkoord, zelfs op het nieuwe manifest gericht.
+    oud = _akkoord(tmp_path / "oud-akkoord.json", k.manifest)
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, akkoord=oud)
+    assert fout.value.reden == "akkoord_ongeldig"
+    # (b) Het oude driecasusmanifest met een kwalificatieakkoord erop.
+    oude_k = Kwal(tmp_path, k.gevallen)
+    oude_k.manifest = manifest
+    akkoord = tmp_path / "kwal-op-oud.json"
+    akkoord.write_text(
+        json.dumps(
+            {
+                **json.loads(_kwalakkoord(tmp_path / "hulp.json", k).read_text()),
+                "manifest_sha256": _sha(manifest.read_bytes()),
+            }
+        ),
+        "utf-8",
+    )
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(oude_k, "regressie", provider, akkoord=akkoord)
+    assert fout.value.reden == "akkoord_ongeldig"
+    # (c) Een kwalificatieakkoord opent de oude driecasusmodus niet.
+    oude_provider = NepProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _live(tmp_path, manifest, oude_provider, akkoord=akkoord)
+    assert fout.value.reden == "akkoord_ongeldig"
+    assert provider.verzoeken == [] and oude_provider.verzoeken == []
+    assert not k.proefmap.exists()
+
+
+def _wijzig_invoer(data):
+    for geval in data["gevallen"]:
+        if geval["id"] == "TQ-O02":
+            geval["invoer"] = {**geval["invoer"], "kern": "Andere technische kern."}
+
+
+def _wijzig_label(data):
+    for geval in data["gevallen"]:
+        if geval["id"] == "TQ-O02":
+            geval["label"] = {**geval["label"], "status": "fail"}
+
+
+def _wissel_splitsing(data):
+    """TQ-O01 (pass) en TQ-H01 (pass) wisselen van fase; aantallen blijven."""
+    for geval in data["gevallen"]:
+        if geval["id"] == "TQ-O01":
+            geval["fase"] = "holdout"
+        elif geval["id"] == "TQ-H01":
+            geval["fase"] = "ontwikkeling"
+
+
+def _wijzig_freeze(data):
+    data["freeze"] = {**data["freeze"], "bron": "andere freeze"}
+
+
+@pytest.mark.parametrize(
+    "wijzig",
+    [_wijzig_invoer, _wijzig_label, _wissel_splitsing, _wijzig_freeze],
+    ids=["invoer", "label", "splitsing", "freeze"],
+)
+async def test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord(
+    tmp_path, wijzig
+):
+    k = await _kwal(tmp_path)
+    provider = KwalProvider()
+    # Een akkoord op het oude gevallenbestand past niet meer.
+    oud_akkoord = _kwalakkoord(tmp_path / "akkoord-oud.json", k)
+    data = json.loads(k.gevallen.read_text("utf-8"))
+    wijzig(data)
+    k.gevallen.write_text(json.dumps(data, ensure_ascii=False), "utf-8")
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, akkoord=oud_akkoord)
+    assert fout.value.reden == "akkoord_ongeldig"
+    # Ook een akkoord dat het gewijzigde bestand noemt, past niet bij het manifest.
+    nieuw_akkoord = _kwalakkoord(tmp_path / "akkoord-nieuw.json", k)
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, akkoord=nieuw_akkoord)
+    assert fout.value.reden == "identiteit_gewijzigd"
+    assert provider.verzoeken == []
+    assert not k.proefmap.exists()
+
+
+async def test_kwal_gewijzigde_configuratie_weigert(tmp_path):
+    k = await _kwal(tmp_path)
+    provider = KwalProvider()
+    ander = m.Limieten(**{**m.KWALIFICATIELIMIETEN.__dict__, "deadline_seconden": 90.0})
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, limieten=ander)
+    assert fout.value.reden == "identiteit_gewijzigd"
+    assert provider.verzoeken == []
+
+
+async def test_kwal_testfixture_gaat_nooit_echt_live(tmp_path):
+    k = await _kwal(tmp_path)
+    gelezen = []
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await m.voer_kwalificatie_uit(
+            k.manifest,
+            _kwalakkoord(tmp_path / "akkoord.json", k),
+            k.gevallen,
+            "regressie",
+            sleutel=lambda: gelezen.append(1) or SLEUTEL,
+            binnen=None,
+        )
+    assert fout.value.reden == "testfixture_niet_live"
+    assert gelezen == []
+    assert not k.proefmap.exists()
+
+
+# --- Q1: fasen, grootboek en stops ------------------------------------------------------
+
+
+async def test_kwal_regressiefase_precies_drie_calls_en_duurzaam_grootboek(
+    tmp_path, caplog
+):
+    caplog.set_level(logging.DEBUG)
+    k = await _kwal(tmp_path)
+    provider = KwalProvider(grootboek=k.grootboek)
+    data = await _fase(k, "regressie", provider)
+    # Geen verborgen overgang: alleen de drie regressiegevallen.
+    assert provider.paden() == ["/v1/messages/count_tokens", "/v1/messages"] * 3
+    assert provider.inferenties() == ["C105", "C107", "C112"]
+    assert data["fase"] == "regressie"
+    assert data["stopreden"] is None
+    assert data["tellingen"] == {"inferenties": 3, "telverzoeken": 3}
+    assert data["evaluatie"]["mechanisch_geslaagd"] is True
+    tellers = data["evaluatie"]["tellers"]
+    assert tellers["juist"] == {"teller": 3, "noemer": 3}
+    assert tellers["false_pass"] == {"teller": 0, "noemer": 2}
+    assert tellers["citaatfout"] == {"teller": 0, "noemer": 3}
+    assert data["inhoudelijke_beoordeling"]["status"] == "open"
+    assert "Chris" in data["inhoudelijke_beoordeling"]["beoordelaar"]
+    assert [g["label_status"] for g in data["gevallen"]] == [
+        "fail",
+        "review_required",
+        "pass",
+    ]
+    # Reservering staat vóór elk transport duurzaam in het grootboek.
+    for pad, geval, laatste in provider.boekstand:
+        verwacht = (
+            "tel_reservering"
+            if pad.endswith("count_tokens")
+            else "inferentie_reservering"
+        )
+        assert (laatste["gebeurtenis"], laatste["geval"]) == (verwacht, geval)
+    stand = k.stand()
+    assert stand["inferenties"] == 3 and stand["telverzoeken"] == 3
+    assert stand["besteed_usd"] == pytest.approx(3 * KOSTEN_PER_CALL)
+    assert stand["onzekere_calls"] == []
+    assert stand["fasen"] == {"regressie": True}
+    assert stand["open_fase"] is None
+    resultaat = k.proefmap / "regressie-resultaat.json"
+    assert json.loads(resultaat.read_text("utf-8")) == data
+    bundel = json.loads((k.proefmap / "regressie-bundel.json").read_text("utf-8"))
+    assert [g["id"] for g in bundel["gevallen"]] == ["C105", "C107", "C112"]
+    # Geen labels in verzoeken; geen sleutel of kerntekst in logs of bewijs.
+    assert all(merk not in provider.ruw() for merk in LABELMERKTEKENS)
+    assert "review_required" not in json.dumps(
+        [json.loads(v["ruw"].content)["messages"] for v in provider.verzoeken]
+    )
+    assert SLEUTEL not in caplog.text
+    assert all(g["invoer"]["kern"] not in caplog.text for g in KWAL["gevallen"])
+    assert SLEUTEL not in k.grootboek.read_text("utf-8")
+    assert SLEUTEL not in resultaat.read_text("utf-8")
+
+
+async def test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls(tmp_path):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    provider = KwalProvider()
+    ontwikkeling = await _fase(k, "ontwikkeling", provider)
+    assert provider.inferenties() == FASE_IDS["ontwikkeling"]
+    assert ontwikkeling["evaluatie"]["mechanisch_geslaagd"] is True
+    assert ontwikkeling["cumulatief"]["inferenties"] == 27
+    provider = KwalProvider()
+    holdout = await _fase(k, "holdout", provider)
+    assert provider.inferenties() == FASE_IDS["holdout"]
+    assert holdout["evaluatie"]["mechanisch_geslaagd"] is True
+    assert holdout["evaluatie"]["tellers"]["juist"] == {"teller": 16, "noemer": 16}
+    assert holdout["cumulatief"]["inferenties"] == 43
+    assert holdout["cumulatief"]["telverzoeken"] == 43
+    assert holdout["cumulatief"]["kosten_usd_conservatief"] == pytest.approx(
+        43 * KOSTEN_PER_CALL
+    )
+    stand = k.stand()
+    assert stand["fasen"] == {"regressie": True, "ontwikkeling": True, "holdout": True}
+    # Na de laatste fase is geen enkele fase opnieuw te starten.
+    for fase in ("regressie", "ontwikkeling", "holdout"):
+        provider = KwalProvider()
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+            await _fase(k, fase, provider)
+        assert fout.value.reden in {"proefmap_bestaat", "fase_al_uitgevoerd"}
+        assert provider.verzoeken == []
+
+
+@pytest.mark.parametrize(
+    ("voorafgaand", "fase", "reden"),
+    [
+        (None, "ontwikkeling", "fasevolgorde"),
+        (None, "holdout", "fasevolgorde"),
+        ("regressie", "holdout", "fasevolgorde"),
+        ("regressie", "regressie", "proefmap_bestaat"),
+        ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+        (None, "training", "fase_onbekend"),
+    ],
+)
+async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+    tmp_path, voorafgaand, fase, reden
+):
+    k = await _kwal(tmp_path)
+    if voorafgaand is not None:
+        await _tot_en_met(k, voorafgaand)
+    provider = KwalProvider()
+    gelezen = []
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, fase, provider, sleutel=lambda: gelezen.append(1) or SLEUTEL)
+    assert fout.value.reden == reden
+    assert provider.verzoeken == [] and gelezen == []
+
+
+async def test_kwal_nieuw_akkoord_op_zelfde_manifest_reset_de_administratie_niet(
+    tmp_path,
+):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    tweede = _kwalakkoord(tmp_path / "tweede.json", k, akkoord_door="iemand anders")
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, akkoord=tweede)
+    assert fout.value.reden == "proefmap_bestaat"
+    data = await _fase(k, "ontwikkeling", provider, akkoord=tweede)
+    assert data["tellingen"]["inferenties"] == 24
+    assert data["cumulatief"]["inferenties"] == 27
+
+
+async def test_kwal_onjuiste_regressiestatus_blokkeert_volgende_fase(tmp_path):
+    k = await _kwal(tmp_path)
+    # De historische bevinding: C107 fail in plaats van review_required.
+    provider = KwalProvider({"C107": "fail"})
+    data = await _fase(k, "regressie", provider)
+    assert provider.inferenties() == ["C105", "C107", "C112"]
+    assert data["stopreden"] is None
+    assert data["evaluatie"]["mechanisch_geslaagd"] is False
+    assert data["evaluatie"]["tellers"]["juist"] == {"teller": 2, "noemer": 3}
+    assert k.stand()["fasen"] == {"regressie": False}
+    volgende = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", volgende)
+    assert fout.value.reden == "fasevolgorde"
+    assert volgende.verzoeken == []
+
+
+def _overbelast(request):
+    return httpx.Response(
+        529, json={"type": "error", "error": {"type": "overloaded_error"}}
+    )
+
+
+@pytest.mark.parametrize(
+    ("fase", "afwijkend", "calls", "reden"),
+    [
+        ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+        ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+        ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+        ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+        ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+        ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+    ],
+    ids=[
+        "regressie-false-pass",
+        "regressie-citaat",
+        "ontwikkeling-citaat",
+        "ontwikkeling-false-pass",
+        "ontwikkeling-providerfout",
+        "holdout-false-pass",
+    ],
+)
+async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+    tmp_path, fase, afwijkend, calls, reden
+):
+    k = await _kwal(tmp_path)
+    vorige = {"regressie": None, "ontwikkeling": "regressie", "holdout": "ontwikkeling"}
+    if vorige[fase] is not None:
+        await _tot_en_met(k, vorige[fase])
+    provider = KwalProvider(afwijkend)
+    data = await _fase(k, fase, provider)
+    assert len(provider.inferenties()) == calls  # geen retry, geen vervolgcall
+    assert data["stopreden"] == reden
+    assert data["evaluatie"]["mechanisch_geslaagd"] is False
+    assert k.stand()["fasen"][fase] is False
+    assert k.stand()["open_fase"] is None
+
+
+@pytest.mark.parametrize(
+    ("afwijkend", "geslaagd"),
+    [
+        ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass"}, True),
+        (
+            {"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass", "TQ-O05": "fail"},
+            False,
+        ),
+    ],
+    ids=["21-van-24", "20-van-24"],
+)
+async def test_kwal_ontwikkelcriterium_21_van_24(tmp_path, afwijkend, geslaagd):
+    k = await _kwal(tmp_path)
+    await _tot_en_met(k, "regressie")
+    provider = KwalProvider(afwijkend)
+    data = await _fase(k, "ontwikkeling", provider)
+    assert len(provider.inferenties()) == 24  # alle gevallen gerapporteerd
+    assert data["stopreden"] is None
+    assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
+    tellers = data["evaluatie"]["tellers"]
+    assert tellers["juist"]["noemer"] == 24
+    assert tellers["false_pass"]["teller"] == 1  # onterechte pass op review_required
+    assert tellers["kritieke_false_pass"]["teller"] == 0
+
+
+H_PASS = [i for i in FASE_IDS["holdout"] if KWAL_PER_ID[i]["label"]["status"] == "pass"]
+H_FAIL = [i for i in FASE_IDS["holdout"] if KWAL_PER_ID[i]["label"]["status"] == "fail"]
+H_RR = [
+    i
+    for i in FASE_IDS["holdout"]
+    if KWAL_PER_ID[i]["label"]["status"] == "review_required"
+]
+
+
+@pytest.mark.parametrize(
+    ("afwijkend", "geslaagd"),
+    [
+        ({}, True),
+        ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+        ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+        ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+        ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+        ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+    ],
+    ids=[
+        "alles-juist",
+        "14-van-16",
+        "pass-6-van-8",
+        "rr-2-van-4",
+        "fail-3-van-4",
+        "rr-pass",
+    ],
+)
+async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+    k = await _kwal(tmp_path)
+    await _tot_en_met(k, "ontwikkeling")
+    provider = KwalProvider(afwijkend)
+    data = await _fase(k, "holdout", provider)
+    assert len(provider.inferenties()) == 16
+    assert data["stopreden"] is None
+    assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
+
+
+# --- Q1: limieten en onzekere calls -----------------------------------------------------
+
+
+def _boekregel(k: Kwal, regel: dict) -> None:
+    with k.grootboek.open("a", encoding="utf-8") as bestand:
+        bestand.write(json.dumps(regel) + "\n")
+
+
+async def test_kwal_open_fase_in_grootboek_blokkeert_hergebruik(tmp_path):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    # Een afgebroken proces: fase gestart, reservering zonder boeking en einde.
+    _boekregel(k, {"gebeurtenis": "fase_start", "fase": "ontwikkeling"})
+    _boekregel(
+        k,
+        {
+            "gebeurtenis": "inferentie_reservering",
+            "call": 4,
+            "geval": "TQ-O01",
+            "reservering_usd": RESERVERING_PER_CALL,
+        },
+    )
+    stand = k.stand()
+    assert stand["open_fase"] == "ontwikkeling"
+    assert stand["onzekere_calls"] == [4]
+    assert stand["besteed_usd"] == pytest.approx(
+        3 * KOSTEN_PER_CALL + RESERVERING_PER_CALL
+    )
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", provider)
+    assert fout.value.reden == "grootboek_open"
+    assert provider.verzoeken == []
+
+
+async def test_kwal_mislukte_call_telt_mee_tegen_volle_reservering(tmp_path):
+    k = await _kwal(tmp_path)
+    await _tot_en_met(k, "regressie")
+
+    def transportfout(request):
+        raise httpx.ConnectError(GEHEIM, request=request)
+
+    data = await _fase(k, "ontwikkeling", KwalProvider({"TQ-O01": transportfout}))
+    assert data["stopreden"] == "transportfout"
+    stand = k.stand()
+    assert stand["inferenties"] == 4
+    assert stand["onzekere_calls"] == [4]
+    assert stand["besteed_usd"] == pytest.approx(
+        3 * KOSTEN_PER_CALL + RESERVERING_PER_CALL
+    )
+    assert data["cumulatief"]["kosten_usd_conservatief"] == pytest.approx(
+        stand["besteed_usd"]
+    )
+    assert GEHEIM not in k.grootboek.read_text("utf-8")
+
+
+@pytest.mark.parametrize(
+    "vervalsing",
+    ["ander-manifest", "onbekende-gebeurtenis", "onleesbaar"],
+)
+async def test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert(
+    tmp_path, vervalsing
+):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    regels = k.grootboek.read_text("utf-8").splitlines()
+    if vervalsing == "ander-manifest":
+        kop = json.loads(regels[0])
+        regels[0] = json.dumps({**kop, "manifest_sha256": "0" * 64})
+    elif vervalsing == "onbekende-gebeurtenis":
+        regels.append(json.dumps({"gebeurtenis": "reset", "fase": "regressie"}))
+    else:
+        regels.append("{afgekapt")
+    k.grootboek.write_text("\n".join(regels) + "\n", "utf-8")
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", provider)
+    assert fout.value.reden == "grootboek_ongeldig"
+    assert provider.verzoeken == []
+
+
+async def test_kwal_calllimiet_ontoereikend_bij_verbruikte_calls(tmp_path):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    # Na de afgesloten regressie: extra verbruikte reserveringen (bv. uit
+    # een eerdere afgebroken call) laten minder dan 24 calls over (3+17+24>43).
+    regels = k.grootboek.read_text("utf-8").splitlines()
+    einde = regels.pop()
+    for call in range(4, 21):
+        regels.append(
+            json.dumps(
+                {
+                    "gebeurtenis": "inferentie_reservering",
+                    "call": call,
+                    "geval": "C112",
+                    "fase": "regressie",
+                    "reservering_usd": RESERVERING_PER_CALL,
+                }
+            )
+        )
+    regels.append(einde)
+    k.grootboek.write_text("\n".join(regels) + "\n", "utf-8")
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", provider)
+    assert fout.value.reden == "calllimiet_ontoereikend"
+    assert provider.verzoeken == []
+
+
+async def test_kwal_cumulatief_budget_weigert_voor_de_fase(tmp_path):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    regels = [json.loads(r) for r in k.grootboek.read_text("utf-8").splitlines()]
+    for regel in regels:
+        if regel["gebeurtenis"] == "inferentie_boeking":
+            regel["kosten_usd"] = 2.5  # 7,50 besteed: 24 x 0,23 past niet meer
+    k.grootboek.write_text("".join(json.dumps(r) + "\n" for r in regels), "utf-8")
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", provider)
+    assert fout.value.reden == "budget_ontoereikend"
+    assert provider.verzoeken == []
+
+
+async def test_kwal_budgetplafond_dekt_43_calls_bij_de_voorbereiding(tmp_path):
+    krap = m.Limieten(**{**m.KWALIFICATIELIMIETEN.__dict__, "budget_usd": 9.0})
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await m.voorbereid_kwalificatie(
+            _gevallenbestand(tmp_path),
+            tmp_path / "proef",
+            tmp_path / "m.json",
+            limieten=krap,
+        )
+    assert fout.value.reden == "budget_ontoereikend"
+
+
+async def test_kwal_cumulatieve_looptijd_weigert_voor_de_fase(tmp_path):
+    kort = m.Limieten(
+        **{**m.KWALIFICATIELIMIETEN.__dict__, "totale_looptijd_seconden": 300.0}
+    )
+    k = await _kwal(tmp_path, limieten=kort)
+    provider = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "regressie", provider, limieten=kort)
+    assert fout.value.reden == "looptijd_ontoereikend"  # 3 x 120 s > 300 s
+    assert provider.verzoeken == []
+    assert not k.proefmap.exists()
+
+
+async def test_kwal_tokengrenzen_stoppen_zonder_vervolgcall(tmp_path):
+    k = await _kwal(tmp_path)
+    provider = KwalProvider(telling=16001)
+    data = await _fase(k, "regressie", provider)
+    assert provider.paden() == ["/v1/messages/count_tokens"]
+    assert data["stopreden"] == "invoerschatting_te_hoog"
+    assert k.stand()["telverzoeken"] == 1 and k.stand()["inferenties"] == 0
+    k2 = await _kwal(_submap(tmp_path, "b"))
+    provider = KwalProvider(usage=_usage(output_tokens=6001))
+    data = await _fase(k2, "regressie", provider)
+    assert provider.inferenties() == ["C105"]
+    assert data["stopreden"] == "usage_boven_limiet"
+
+
+async def test_kwal_waarnemer_start_met_cumulatieve_stand(tmp_path):
+    """Budget en calllimiet gelden over runs: de waarnemer erft de stand."""
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    stand = k.stand()
+    waarnemer = m.Waarnemer(
+        modus="live",
+        limieten=m.KWALIFICATIELIMIETEN,
+        binnen=httpx.MockTransport(KwalProvider()),
+        prijzen={"input": 0.000005, "output": 0.000025},
+    )
+    waarnemer.neem_stand_over(stand)
+    assert waarnemer.inferenties == 3 and waarnemer.telverzoeken == 3
+    assert waarnemer.besteed_usd == pytest.approx(stand["besteed_usd"])
+
+
+def test_kwal_cli_voorbereiding(tmp_path):
+    gevallen = _gevallenbestand(tmp_path)
+    code = m.main(
+        [
+            "--kwalificatie",
+            str(gevallen),
+            "--proefmap",
+            str(tmp_path / "proef"),
+            "--manifest",
+            str(tmp_path / "manifest.json"),
+        ]
+    )
+    assert code == 0
+    data = json.loads((tmp_path / "manifest.json").read_text("utf-8"))
+    assert data["soort"] == m.KWALIFICATIE_MANIFEST_SOORT
+    assert not (tmp_path / "proef").exists()
+
+
+# --- Q1-correcties na review: F1 slot, F2 p95, F3 bewijs vóór afronding --------------
+
+#: Houdt in een apart proces een exclusief flock-slot vast tot stdin sluit.
+_SLOTHOUDER = (
+    "import fcntl, os, sys\n"
+    "fd = os.open(sys.argv[1], os.O_RDWR | os.O_CREAT, 0o600)\n"
+    "fcntl.flock(fd, fcntl.LOCK_EX)\n"
+    "print('vast', flush=True)\n"
+    "sys.stdin.readline()\n"
+)
+
+
+def _slot_bezet(slot: Path) -> bool:
+    """Eigen, onafhankelijke descriptor: is het slot nu door een ander bezet?"""
+    fd = os.open(slot, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return True
+    finally:
+        os.close(fd)
+    return False
+
+
+async def test_f1_tweede_proces_met_slot_blokkeert_vervolgfase_voor_transport(
+    tmp_path,
+):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    omgeving = {
+        n: w for n, w in os.environ.items() if not n.endswith(("_API_KEY", "_TOKEN"))
+    }
+    houder = subprocess.Popen(  # vaste interpreter, vast script
+        [sys.executable, "-c", _SLOTHOUDER, str(k.proefmap / m.SLOT_NAAM)],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
+        env=omgeving,
+    )
+    try:
+        assert houder.stdout.readline().strip() == "vast"
+        provider = KwalProvider()
+        gelezen = []
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+            await _fase(
+                k,
+                "ontwikkeling",
+                provider,
+                sleutel=lambda: gelezen.append(1) or SLEUTEL,
+            )
+        assert fout.value.reden == "proefmap_in_gebruik"
+        assert provider.verzoeken == []
+        assert k.stand()["inferenties"] == 3
+        assert k.stand()["open_fase"] is None
+    finally:
+        houder.communicate("\n", timeout=10)
+    assert houder.returncode == 0
+    # Na vrijgave door het andere proces loopt dezelfde fase gewoon.
+    data = await _fase(k, "ontwikkeling", KwalProvider())
+    assert data["cumulatief"]["inferenties"] == 27
+
+
+async def test_f1_slot_vast_van_transport_tot_na_bewijs_en_afronding(
+    tmp_path, monkeypatch
+):
+    k = await _kwal(tmp_path)
+    slot = k.proefmap / m.SLOT_NAAM
+    bij_transport: list[bool] = []
+    bij_bewijs: list[tuple[str, bool, str]] = []
+    provider = KwalProvider()
+
+    def waarnemend(request):
+        bij_transport.append(_slot_bezet(slot))
+        return provider(request)
+
+    origineel = m._schrijf_nieuw
+
+    def schrijf(pad, data):
+        laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
+        bij_bewijs.append((pad.name, _slot_bezet(slot), laatste["gebeurtenis"]))
+        return origineel(pad, data)
+
+    monkeypatch.setattr(m, "_schrijf_nieuw", schrijf)
+    data = await _fase(k, "regressie", waarnemend)
+    assert data["evaluatie"]["mechanisch_geslaagd"] is True
+    assert bij_transport == [True] * 6  # 3 tokenmetingen + 3 inferenties
+    # Bewijs én (sinds de F3-herreview) de afrondingsblokkade, alle onder slot.
+    assert sorted(n for n, _, _ in bij_bewijs) == [
+        "regressie-afronding.open",
+        "regressie-bundel.json",
+        "regressie-resultaat.json",
+    ]
+    # Tijdens de bewijsopslag: slot vast en nog geen fase_einde.
+    assert all(bezet for _, bezet, _ in bij_bewijs)
+    assert all(g != "fase_einde" for _, _, g in bij_bewijs)
+    laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
+    assert laatste["gebeurtenis"] == "fase_einde"
+    assert laatste["bewijs_opgeslagen"] is True
+    assert _slot_bezet(slot) is False  # vrijgegeven na afronding
+
+
+class _Klok:
+    """Gesimuleerde monotone klok: tijd verstrijkt alleen per inferentie."""
+
+    def __init__(self) -> None:
+        self.nu = 0.0
+
+    def monotonic(self) -> float:
+        return self.nu
+
+
+@pytest.mark.parametrize(
+    ("seconden", "geslaagd"),
+    [(90.0, True), (90.001, False)],
+    ids=["p95-90000ms-toegestaan", "p95-90001ms-geweigerd"],
+)
+async def test_f2_holdout_p95_boven_90s_blokkeert_toelating(
+    tmp_path, monkeypatch, seconden, geslaagd
+):
+    k = await _kwal(tmp_path)
+    await _tot_en_met(k, "ontwikkeling")
+    klok = _Klok()
+    provider = KwalProvider()
+
+    def traag(request):
+        if request.url.path == "/v1/messages":
+            klok.nu += seconden
+        return provider(request)
+
+    monkeypatch.setattr(m, "time", SimpleNamespace(monotonic=klok.monotonic))
+    data = await _fase(k, "holdout", traag)
+    assert data["latentie"]["p95_ms"] == round(seconden * 1000)
+    assert data["evaluatie"]["criteria"]["max_p95_ms"] == 90000
+    assert data["evaluatie"]["tellers"]["juist"] == {"teller": 16, "noemer": 16}
+    assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
+    assert ("p95_boven_grens" in data["evaluatie"]["redenen"]) is not geslaagd
+    assert k.stand()["fasen"]["holdout"] is geslaagd
+
+
+def _goede_evaluaties(fase: str) -> list[dict]:
+    return [
+        {
+            "verwacht": KWAL_PER_ID[i]["label"]["status"],
+            "waargenomen": KWAL_PER_ID[i]["label"]["status"],
+            "juist": True,
+            "technische_fout": False,
+            "citaatfout": False,
+            "kritieke_false_pass": False,
+        }
+        for i in FASE_IDS[fase]
+    ]
+
+
+@pytest.mark.parametrize(
+    ("duren", "reden"),
+    [
+        ([90000] * 16, None),
+        ([90000] * 15 + [None], "latentie_onvolledig"),
+        ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+        ([90000] * 15 + [True], "latentie_onvolledig"),
+        ([90000] * 15 + [-1], "latentie_onvolledig"),
+        ([90000] * 15, "latentie_onvolledig"),
+        ([1000] * 15 + [90001], "p95_boven_grens"),
+    ],
+    ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+)
+def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+    uitkomst = m._beoordeel_fase(
+        "holdout", _goede_evaluaties("holdout"), None, True, duren
+    )
+    assert uitkomst["mechanisch_geslaagd"] is (reden is None)
+    assert uitkomst["redenen"] == ([] if reden is None else [reden])
+
+
+def test_f2_p95_grens_geldt_alleen_voor_holdout():
+    for fase in ("regressie", "ontwikkeling"):
+        uitkomst = m._beoordeel_fase(fase, _goede_evaluaties(fase), None, True, [])
+        assert uitkomst["mechanisch_geslaagd"] is True
+    assert m.FASECRITERIA["holdout"]["max_p95_ms"] == 90000
+
+
+@pytest.mark.parametrize(
+    "artefact", ["regressie-resultaat.json", "regressie-bundel.json"]
+)
+async def test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls(
+    tmp_path, monkeypatch, artefact
+):
+    k = await _kwal(tmp_path)
+    origineel = m._schrijf_nieuw
+
+    def faalt(pad, data):
+        if pad.name == artefact:
+            raise OSError("geinjecteerde opslagfout")
+        return origineel(pad, data)
+
+    monkeypatch.setattr(m, "_schrijf_nieuw", faalt)
+    provider = KwalProvider()
+    with pytest.raises(m.ProefStopError) as fout:
+        await _fase(k, "regressie", provider)
+    assert fout.value.reden == "bewijsopslag_mislukt"
+    assert len(provider.inferenties()) == 3
+    monkeypatch.setattr(m, "_schrijf_nieuw", origineel)
+    # Het andere artefact is wel veilig bewaard; niets overschreven of weg.
+    bestanden = {p.name for p in k.proefmap.iterdir()}
+    ander = ({"regressie-resultaat.json", "regressie-bundel.json"} - {artefact}).pop()
+    assert ander in bestanden and artefact not in bestanden
+    laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
+    assert laatste["gebeurtenis"] == "fase_einde"
+    assert laatste["mechanisch_geslaagd"] is False
+    assert laatste["bewijs_opgeslagen"] is False
+    assert laatste["stopreden"] == "bewijsopslag_mislukt"
+    assert k.stand()["fasen"] == {"regressie": False}
+    vervolg = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", vervolg)
+    assert fout.value.reden == "fasevolgorde"
+    assert vervolg.verzoeken == []
+
+
+async def test_f3_mislukte_grootboekafronding_laat_fase_open_en_geblokkeerd(
+    tmp_path, monkeypatch
+):
+    k = await _kwal(tmp_path)
+    origineel = m.Grootboek.schrijf
+
+    def faalt(self, regel):
+        if regel.get("gebeurtenis") == "fase_einde":
+            raise OSError("geinjecteerde grootboekfout")
+        return origineel(self, regel)
+
+    monkeypatch.setattr(m.Grootboek, "schrijf", faalt)
+    provider = KwalProvider()
+    with pytest.raises(OSError, match="grootboekfout"):
+        await _fase(k, "regressie", provider)
+    monkeypatch.setattr(m.Grootboek, "schrijf", origineel)
+    # Het bewijs staat er al; het grootboek meldt geen succes (fase open).
+    assert (k.proefmap / "regressie-resultaat.json").exists()
+    assert (k.proefmap / "regressie-bundel.json").exists()
+    assert k.stand()["open_fase"] == "regressie"
+    assert k.stand()["fasen"] == {}
+    vervolg = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", vervolg)
+    assert fout.value.reden == "grootboek_open"
+    assert vervolg.verzoeken == []
+
+
+# --- F3 (herreview): fout ná flush van de afronding -------------------------------------
+
+
+def _verse_runner():
+    """Een nieuwe, onafhankelijke runnerinstantie (eigen modulenamespace)."""
+    spec = importlib.util.spec_from_file_location("def835_q1_verse_runner", SCRIPT)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module  # dataclasses zoeken hun module hier op
+    spec.loader.exec_module(module)
+    return module
+
+
+def _fsync_faalt_op(pad: Path, *, alleen_na: str | None = None):
+    """os.fsync faalt met EIO voor `pad`, ná een geslaagde write/flush.
+
+    Met `alleen_na` alleen als de laatste regel van `pad` die gebeurtenis is.
+    """
+    origineel = os.fsync
+    geinjecteerd: list[bool] = []
+
+    def fsync(fd):
+        if not geinjecteerd and pad.exists():
+            doel, huidig = pad.stat(), os.fstat(fd)
+            zelfde = (doel.st_dev, doel.st_ino) == (huidig.st_dev, huidig.st_ino)
+            regels = pad.read_text("utf-8").splitlines() if zelfde else []
+            if zelfde and (
+                alleen_na is None
+                or (regels and json.loads(regels[-1])["gebeurtenis"] == alleen_na)
+            ):
+                geinjecteerd.append(True)
+                raise OSError(errno.EIO, "geinjecteerde fsync-fout na flush")
+        return origineel(fd)
+
+    return fsync, geinjecteerd
+
+
+@pytest.mark.parametrize(
+    ("moment", "vervolgreden"),
+    [
+        ("fsync-fase-einde", "afronding_onvolledig"),
+        ("fsync-blokkade", "grootboek_open"),
+        ("opheffen-blokkade", "afronding_onvolledig"),
+    ],
+)
+async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+    tmp_path, monkeypatch, moment, vervolgreden
+):
+    k = await _kwal(tmp_path)
+    blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+    echt_fsync, echt_rename = os.fsync, os.rename
+    if moment == "fsync-fase-einde":
+        fsync, geinjecteerd = _fsync_faalt_op(k.grootboek, alleen_na="fase_einde")
+        monkeypatch.setattr(os, "fsync", fsync)
+    elif moment == "fsync-blokkade":
+        fsync, geinjecteerd = _fsync_faalt_op(blokkade)
+        monkeypatch.setattr(os, "fsync", fsync)
+    else:
+        geinjecteerd = []
+
+        def rename(bron, doel):
+            if Path(bron).resolve() == blokkade.resolve():
+                geinjecteerd.append(True)
+                raise OSError(errno.EIO, "geinjecteerde fout bij opheffen")
+            return echt_rename(bron, doel)
+
+        monkeypatch.setattr(os, "rename", rename)
+    provider = KwalProvider()
+    with pytest.raises(OSError, match="geinjecteerde"):
+        await _fase(k, "regressie", provider)
+    monkeypatch.setattr(os, "fsync", echt_fsync)
+    monkeypatch.setattr(os, "rename", echt_rename)
+    assert geinjecteerd == [True]
+    assert len(provider.inferenties()) == 3
+    assert blokkade.exists()  # de vooraf vastgelegde blokkade staat
+    laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
+    if moment != "fsync-blokkade":
+        # Precies het reviewgeval: de succesregel is al leesbaar.
+        assert laatste["gebeurtenis"] == "fase_einde"
+        assert laatste["mechanisch_geslaagd"] is True
+        assert k.stand()["fasen"] == {"regressie": True}
+    # Een nieuwe runnerinstantie leest het grootboek opnieuw: geen transport.
+    vers = _verse_runner()
+    vervolg = KwalProvider()
+    gelezen = []
+    with pytest.raises(vers.ProefGeweigerdError) as fout:
+        await vers.voer_kwalificatie_uit(
+            k.manifest,
+            k.tmp / "kwal-akkoord.json",
+            k.gevallen,
+            "ontwikkeling",
+            sleutel=lambda: gelezen.append(1) or SLEUTEL,
+            binnen=httpx.MockTransport(vervolg),
+        )
+    assert fout.value.reden == vervolgreden
+    assert vervolg.verzoeken == []
+    assert gelezen == []
+    assert blokkade.exists()  # niets verwijderd; blijvend
+
+
+async def test_f3_geslaagde_afronding_heft_blokkade_atomair_op(tmp_path):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    assert not (k.proefmap / f"regressie{m.AFRONDING_OPEN}").exists()
+    voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
+    assert json.loads(voltooid.read_text("utf-8"))["fase"] == "regressie"
+    data = await _fase(k, "ontwikkeling", KwalProvider())
+    assert data["tellingen"]["inferenties"] == 24
+
+
+async def test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert(tmp_path):
+    k = await _kwal(tmp_path)
+    await _fase(k, "regressie", KwalProvider())
+    # Alleen een succesregel in het grootboek is geen voltooiingsbewijs.
+    voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
+    voltooid.rename(k.tmp / "elders-bewaard.json")
+    vervolg = KwalProvider()
+    with pytest.raises(m.ProefGeweigerdError) as fout:
+        await _fase(k, "ontwikkeling", vervolg)
+    assert fout.value.reden == "afronding_onvolledig"
+    assert vervolg.verzoeken == []

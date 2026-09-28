@@ -1,0 +1,244 @@
+diff --git a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F3-fsync-herstel-v1/def835_int02_modelproef.py.herstel b/scripts/analysis/def835_int02_modelproef.py
+index cd7cc0fcd..571603d23 100644
+--- a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F3-fsync-herstel-v1/def835_int02_modelproef.py.herstel
++++ b/scripts/analysis/def835_int02_modelproef.py
+@@ -257,6 +257,10 @@ GROOTBOEK_SOORT = "def835-int02-kwalificatie-grootboek/1"
+ GROOTBOEK_NAAM = "grootboek.jsonl"
+ #: Slotbestand per proefmap (flock); blijft staan, het slot vervalt met het proces.
+ SLOT_NAAM = "grootboek.slot"
++#: Afrondingsblokkade per fase: `<fase>-afronding.open` staat duurzaam vóór
++#: fase_einde; alleen een geslaagde atomaire rename naar `.voltooid` heft haar op.
++AFRONDING_OPEN = "-afronding.open"
++AFRONDING_VOLTOOID = "-afronding.voltooid"
+ KWALIFICATIE_AKKOORDVELDEN = (
+     "soort",
+     "manifest_sha256",
+@@ -1628,6 +1632,20 @@ def _eis_toelaatbaar(stand: dict[str, Any], fase: str) -> None:
+         raise ProefGeweigerdError("fasevolgorde")
+ 
+ 
++def _eis_afronding_voltooid(proefmap: Path, stand: dict[str, Any]) -> None:
++    """F3: een succesregel in het grootboek alleen is geen voltooide afronding.
++
++    Elke beëindigde fase vraagt een opgeheven blokkade (`.voltooid`); een
++    nog bestaande `.open`-blokkade blokkeert alles, ook als fase_einde al
++    leesbaar is.
++    """
++    if any(proefmap.glob(f"*{AFRONDING_OPEN}")) or any(
++        not (proefmap / f"{fase}{AFRONDING_VOLTOOID}").is_file()
++        for fase in stand["fasen"]
++    ):
++        raise ProefGeweigerdError("afronding_onvolledig")
++
++
+ def _stand_voor_fase(proefmap: Path, manifest_sha: str, fase: str) -> dict[str, Any]:
+     """Alleen lezen: is `fase` nu toelaatbaar, en wat is al verbruikt?"""
+     if fase == FASEN[0]:
+@@ -1647,6 +1665,7 @@ def _stand_voor_fase(proefmap: Path, manifest_sha: str, fase: str) -> dict[str,
+         raise ProefGeweigerdError("fasevolgorde")
+     stand = Grootboek.lees(boekpad, manifest_sha).stand()
+     _eis_toelaatbaar(stand, fase)
++    _eis_afronding_voltooid(proefmap, stand)
+     return stand
+ 
+ 
+@@ -1828,6 +1847,34 @@ def _sluit_fase(
+     geslaagd: bool,
+     bewijs: bool,
+ ) -> None:
++    """Afronding in drie stappen, onder het slot (F3).
++
++    1. `<fase>-afronding.open` exclusief schrijven en fsyncen: vanaf het
++       moment dat dit bestand bestaat (ook bij een fout ná flush) blokkeert
++       het elke volgende fase; lukt het niet, dan volgt geen fase_einde en
++       blijft de fase open.
++    2. fase_einde naar het grootboek. Een fout, ook een fsync-fout nadat de
++       regel al leesbaar is, laat de blokkade staan.
++    3. Opheffen met één `os.rename` naar `.voltooid`: atomair, zonder
++       vervolgstap; faalt de rename, dan blijft de blokkade staan.
++    Niets wordt verwijderd; de blokkade blijft als `.voltooid` bewaard.
++    """
++    proefmap = boek.pad.parent
++    blokkade = proefmap / f"{fase}{AFRONDING_OPEN}"
++    voltooid = proefmap / f"{fase}{AFRONDING_VOLTOOID}"
++    if voltooid.exists():
++        raise ProefStopError("afronding_onvolledig")  # nooit overschrijven
++    _schrijf_nieuw(
++        blokkade,
++        {
++            "fase": fase,
++            "tijd": _nu(),
++            "toelichting": (
++                "Afronding gestart; blokkeert volgende fasen tot deze na een "
++                "geslaagde fase_einde atomair naar .voltooid is hernoemd."
++            ),
++        },
++    )
+     boek.schrijf(
+         {
+             "gebeurtenis": "fase_einde",
+@@ -1838,6 +1885,7 @@ def _sluit_fase(
+             "bewijs_opgeslagen": bewijs,
+         }
+     )
++    os.rename(blokkade, voltooid)
+ 
+ 
+ async def _draai_fase(
+@@ -1944,6 +1992,7 @@ async def voer_kwalificatie_uit(
+                     boek = Grootboek.lees(proefmap / GROOTBOEK_NAAM, manifest_sha)
+                 begin = boek.stand()
+                 _eis_toelaatbaar(begin, fase)
++                _eis_afronding_voltooid(proefmap, begin)
+                 _eis_ruimte(begin, len(identiteit["fasen"][fase]), limieten, prijzen)
+                 waarnemer.neem_stand_over(begin)
+                 waarnemer.grootboek = boek
+diff --git a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F3-fsync-herstel-v1/test_def835_int02_modelproef.py.herstel b/tests/unit/validation/test_def835_int02_modelproef.py
+index cb86a8315..659f933dd 100644
+--- a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F3-fsync-herstel-v1/test_def835_int02_modelproef.py.herstel
++++ b/tests/unit/validation/test_def835_int02_modelproef.py
+@@ -14,6 +14,7 @@ Niet bewezen: gedrag van de echte provider of kwaliteit van het model.
+ from __future__ import annotations
+ 
+ import asyncio
++import errno
+ import fcntl
+ import hashlib
+ import importlib.util
+@@ -2037,7 +2038,9 @@ async def test_f1_slot_vast_van_transport_tot_na_bewijs_en_afronding(
+     data = await _fase(k, "regressie", waarnemend)
+     assert data["evaluatie"]["mechanisch_geslaagd"] is True
+     assert bij_transport == [True] * 6  # 3 tokenmetingen + 3 inferenties
++    # Bewijs én (sinds de F3-herreview) de afrondingsblokkade, alle onder slot.
+     assert sorted(n for n, _, _ in bij_bewijs) == [
++        "regressie-afronding.open",
+         "regressie-bundel.json",
+         "regressie-resultaat.json",
+     ]
+@@ -2194,3 +2197,126 @@ async def test_f3_mislukte_grootboekafronding_laat_fase_open_en_geblokkeerd(
+         await _fase(k, "ontwikkeling", vervolg)
+     assert fout.value.reden == "grootboek_open"
+     assert vervolg.verzoeken == []
++
++
++# --- F3 (herreview): fout ná flush van de afronding -------------------------------------
++
++
++def _verse_runner():
++    """Een nieuwe, onafhankelijke runnerinstantie (eigen modulenamespace)."""
++    spec = importlib.util.spec_from_file_location("def835_q1_verse_runner", SCRIPT)
++    assert spec is not None and spec.loader is not None
++    module = importlib.util.module_from_spec(spec)
++    sys.modules[spec.name] = module  # dataclasses zoeken hun module hier op
++    spec.loader.exec_module(module)
++    return module
++
++
++def _fsync_faalt_op(pad: Path, *, alleen_na: str | None = None):
++    """os.fsync faalt met EIO voor `pad`, ná een geslaagde write/flush.
++
++    Met `alleen_na` alleen als de laatste regel van `pad` die gebeurtenis is.
++    """
++    origineel = os.fsync
++    geinjecteerd: list[bool] = []
++
++    def fsync(fd):
++        if not geinjecteerd and pad.exists():
++            doel, huidig = pad.stat(), os.fstat(fd)
++            zelfde = (doel.st_dev, doel.st_ino) == (huidig.st_dev, huidig.st_ino)
++            regels = pad.read_text("utf-8").splitlines() if zelfde else []
++            if zelfde and (
++                alleen_na is None
++                or (regels and json.loads(regels[-1])["gebeurtenis"] == alleen_na)
++            ):
++                geinjecteerd.append(True)
++                raise OSError(errno.EIO, "geinjecteerde fsync-fout na flush")
++        return origineel(fd)
++
++    return fsync, geinjecteerd
++
++
++@pytest.mark.parametrize(
++    ("moment", "vervolgreden"),
++    [
++        ("fsync-fase-einde", "afronding_onvolledig"),
++        ("fsync-blokkade", "grootboek_open"),
++        ("opheffen-blokkade", "afronding_onvolledig"),
++    ],
++)
++async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
++    tmp_path, monkeypatch, moment, vervolgreden
++):
++    k = await _kwal(tmp_path)
++    blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
++    echt_fsync, echt_rename = os.fsync, os.rename
++    if moment == "fsync-fase-einde":
++        fsync, geinjecteerd = _fsync_faalt_op(k.grootboek, alleen_na="fase_einde")
++        monkeypatch.setattr(os, "fsync", fsync)
++    elif moment == "fsync-blokkade":
++        fsync, geinjecteerd = _fsync_faalt_op(blokkade)
++        monkeypatch.setattr(os, "fsync", fsync)
++    else:
++        geinjecteerd = []
++
++        def rename(bron, doel):
++            if Path(bron).resolve() == blokkade.resolve():
++                geinjecteerd.append(True)
++                raise OSError(errno.EIO, "geinjecteerde fout bij opheffen")
++            return echt_rename(bron, doel)
++
++        monkeypatch.setattr(os, "rename", rename)
++    provider = KwalProvider()
++    with pytest.raises(OSError, match="geinjecteerde"):
++        await _fase(k, "regressie", provider)
++    monkeypatch.setattr(os, "fsync", echt_fsync)
++    monkeypatch.setattr(os, "rename", echt_rename)
++    assert geinjecteerd == [True]
++    assert len(provider.inferenties()) == 3
++    assert blokkade.exists()  # de vooraf vastgelegde blokkade staat
++    laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
++    if moment != "fsync-blokkade":
++        # Precies het reviewgeval: de succesregel is al leesbaar.
++        assert laatste["gebeurtenis"] == "fase_einde"
++        assert laatste["mechanisch_geslaagd"] is True
++        assert k.stand()["fasen"] == {"regressie": True}
++    # Een nieuwe runnerinstantie leest het grootboek opnieuw: geen transport.
++    vers = _verse_runner()
++    vervolg = KwalProvider()
++    gelezen = []
++    with pytest.raises(vers.ProefGeweigerdError) as fout:
++        await vers.voer_kwalificatie_uit(
++            k.manifest,
++            k.tmp / "kwal-akkoord.json",
++            k.gevallen,
++            "ontwikkeling",
++            sleutel=lambda: gelezen.append(1) or SLEUTEL,
++            binnen=httpx.MockTransport(vervolg),
++        )
++    assert fout.value.reden == vervolgreden
++    assert vervolg.verzoeken == []
++    assert gelezen == []
++    assert blokkade.exists()  # niets verwijderd; blijvend
++
++
++async def test_f3_geslaagde_afronding_heft_blokkade_atomair_op(tmp_path):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    assert not (k.proefmap / f"regressie{m.AFRONDING_OPEN}").exists()
++    voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
++    assert json.loads(voltooid.read_text("utf-8"))["fase"] == "regressie"
++    data = await _fase(k, "ontwikkeling", KwalProvider())
++    assert data["tellingen"]["inferenties"] == 24
++
++
++async def test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert(tmp_path):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    # Alleen een succesregel in het grootboek is geen voltooiingsbewijs.
++    voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
++    voltooid.rename(k.tmp / "elders-bewaard.json")
++    vervolg = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", vervolg)
++    assert fout.value.reden == "afronding_onvolledig"
++    assert vervolg.verzoeken == []

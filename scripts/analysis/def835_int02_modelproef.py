@@ -32,6 +32,17 @@ ze onbekend. Monitoring en cache van de keten
 schrijven in een tijdelijke werkmap. Provider-foutteksten worden niet
 gelogd of bewaard: alleen type en categorie. Geen retentieclaim over de
 provider. Fixture: alleen het veld `invoer` van C105, C107 en C112.
+
+Kwalificatieprofiel (Q1, kwalificatieprotocol-v1). Naast de driecasusmodus
+leest `--kwalificatie` een bevroren extern gevallenmanifest (regressie 3,
+ontwikkeling 24, hold-out 16) met labels die nooit in een verzoek komen. Het
+eigen manifest, akkoord en profiel-ID staan los van de driecallproef: een oud
+akkoord of manifest wordt geweigerd. Elke run voert precies één fase uit, in
+vaste volgorde. Een alleen-toevoegend grootboek in de proefmap legt elke
+reservering vóór het transport duurzaam vast; tellers, budget en looptijd
+lopen daarmee door over runs van hetzelfde manifest. Een onafgesloten fase
+blokkeert verdere runs (geen hervatting). De runner beoordeelt alleen de
+hoofdstatus mechanisch; passagegronden beoordeelt Chris.
 """
 
 from __future__ import annotations
@@ -39,10 +50,12 @@ from __future__ import annotations
 import argparse
 import asyncio
 import contextlib
+import fcntl
 import hashlib
 import importlib
 import json
 import logging
+import math
 import os
 import platform
 import re
@@ -50,7 +63,7 @@ import sys
 import tempfile
 import time
 from collections.abc import Callable, Iterator
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any, NoReturn
@@ -231,6 +244,101 @@ class Limieten:
 
 LIMIETEN = Limieten()
 
+# --- kwalificatieprofiel (Q1) -------------------------------------------------------
+
+KWALIFICATIE_PROFIEL_ID = "def835-kwalificatieproef-opus5-v1"
+#: kwalificatieprotocol-v1.md, geaccordeerd op 28-09-2026 (vervolg-akkoord-v1).
+PROTOCOL_SHA256 = "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f"
+GEVALLEN_SOORT = "def835-int02-kwalificatie-gevallen/1"
+KWALIFICATIE_MANIFEST_SOORT = "def835-int02-kwalificatie-manifest/1"
+KWALIFICATIE_AKKOORD_SOORT = "def835-int02-kwalificatie-akkoord/1"
+KWALIFICATIE_RESULTAAT_SOORT = "def835-int02-kwalificatie-resultaat/1"
+GROOTBOEK_SOORT = "def835-int02-kwalificatie-grootboek/1"
+GROOTBOEK_NAAM = "grootboek.jsonl"
+#: Slotbestand per proefmap (flock); blijft staan, het slot vervalt met het proces.
+SLOT_NAAM = "grootboek.slot"
+#: Afrondingsblokkade per fase: `<fase>-afronding.open` staat duurzaam vóór
+#: fase_einde; alleen een geslaagde atomaire rename naar `.voltooid` heft haar op.
+AFRONDING_OPEN = "-afronding.open"
+AFRONDING_VOLTOOID = "-afronding.voltooid"
+KWALIFICATIE_AKKOORDVELDEN = (
+    "soort",
+    "manifest_sha256",
+    "gevallenmanifest_sha256",
+    "protocol_sha256",
+    "profiel_id",
+    "geen_def815_kwalificatie",
+    "live_verzending_toegestaan",
+    "max_inferenties",
+    "max_tokenmetingen",
+    "budget_usd",
+    "akkoord_door",
+    "akkoord_op",
+    "akkoord_bron",
+)
+KWALIFICATIE_CLAIM = (
+    "Kwalificatieproef van het bestaande INT-02-profiel volgens "
+    "kwalificatieprotocol-v1: mechanische vergelijking van de hoofdstatus met "
+    "vooraf bevroren labels. Inhoudelijke passagegronden beoordeelt Chris; geen "
+    "DEF-815-kwalificatie of activering. Kosten = gemelde usage x routerprijzen, "
+    "een onzekere call telt voor de volle reservering; geen providerfactuurplafond."
+)
+FASEN = ("regressie", "ontwikkeling", "holdout")
+LABELSTATUSSEN = frozenset({"pass", "fail", "review_required"})
+#: Mechanische toelatingsgrenzen per fase (protocol §2). `min_juist_per_label`,
+#: `verdeling` en `max_p95_ms` gelden voor de hold-out; een andere verdeling
+#: vraagt een nieuw protocolbesluit en wordt geweigerd. De p95 vereist een
+#: geldige duurmeting voor elk hold-outgeval.
+FASECRITERIA: dict[str, dict[str, Any]] = {
+    "regressie": {
+        "aantal": 3,
+        "min_juist": 3,
+        "min_juist_per_label": {},
+        "max_false_pass": 0,
+        "verdeling": None,
+        "max_p95_ms": None,
+    },
+    "ontwikkeling": {
+        "aantal": 24,
+        "min_juist": 21,
+        "min_juist_per_label": {},
+        "max_false_pass": None,
+        "verdeling": None,
+        "max_p95_ms": None,
+    },
+    "holdout": {
+        "aantal": 16,
+        "min_juist": 14,
+        "min_juist_per_label": {"fail": 4, "pass": 7, "review_required": 3},
+        "max_false_pass": 0,
+        "verdeling": {"fail": 4, "pass": 8, "review_required": 4},
+        "max_p95_ms": 90000,
+    },
+}
+INHOUDELIJK_OPEN = {
+    "status": "open",
+    "beoordelaar": "Chris (acceptatie-eigenaar)",
+    "toelichting": (
+        "Passagegronden, normgrond en relevantie van de vraag zijn niet "
+        "mechanisch vastgesteld; de runner vult hier geen akkoord in."
+    ),
+}
+_MANIFESTVELDEN = frozenset(
+    {"soort", "technische_testfixture", "goldset", "protocol_sha256", "freeze"}
+    | {"gevallen", "gebruik"}
+)
+_FREEZEVELDEN = frozenset({"status", "geaccepteerd_door", "geaccepteerd_op", "bron"})
+_GEVALVELDEN = frozenset({"id", "fase", "familie", "herkomst", "invoer", "label"})
+_LABELVELDEN = frozenset({"status", "reden", "passages", "normgrond"})
+
+#: 43 inferenties en tokenmetingen, 6.000 s en US$12 cumulatief over de fasen.
+KWALIFICATIELIMIETEN = Limieten(
+    max_inferentie=43,
+    max_telverzoeken=43,
+    totale_looptijd_seconden=6000.0,
+    budget_usd=12.0,
+)
+
 
 class ProefGeweigerdError(Exception):
     """De proef start niet (geen verzending); `reden` is een code."""
@@ -329,6 +437,148 @@ def _bevat_sleutel(waarde: Any, sleutel: str) -> bool:
     return False
 
 
+def _bedrag(waarde: Any) -> bool:
+    return (
+        isinstance(waarde, int | float)
+        and not isinstance(waarde, bool)
+        and math.isfinite(waarde)
+        and waarde >= 0
+    )
+
+
+def _reservering(grens: Limieten, prijzen: dict[str, float]) -> float:
+    """Conservatieve kosten van één call bij de tokenmaxima."""
+    return (
+        grens.max_geschatte_invoertokens * prijzen["input"]
+        + grens.max_uitvoertokens * prijzen["output"]
+    )
+
+
+# --- het grootboek van een kwalificatiemandaat ---------------------------------------
+
+
+class Grootboek:
+    """Alleen-toevoegend, duurzaam register van één kwalificatiemanifest.
+
+    Eén JSON-regel per gebeurtenis, na elke regel flush en fsync. Tel- en
+    inferentiereserveringen staan erin vóór het transport; een reservering
+    zonder betrouwbare boeking telt voor het volle gereserveerde bedrag.
+    Borging is procedureel: wie grootboek of proefmap verwijdert, verwijdert
+    bewijs; dat kan de runner niet voorkomen.
+    """
+
+    def __init__(self, pad: Path, regels: list[dict[str, Any]]) -> None:
+        self.pad = pad
+        self.regels = regels
+
+    @classmethod
+    def nieuw(cls, proefmap: Path, manifest_sha: str, akkoord_sha: str) -> Grootboek:
+        """In een zojuist exclusief aangemaakte proefmap, onder het slot."""
+        if (proefmap / GROOTBOEK_NAAM).exists():
+            raise ProefGeweigerdError("grootboek_ongeldig")
+        boek = cls(proefmap / GROOTBOEK_NAAM, [])
+        boek.schrijf(
+            {
+                "gebeurtenis": "mandaat",
+                "soort": GROOTBOEK_SOORT,
+                "manifest_sha256": manifest_sha,
+                "akkoord_sha256": akkoord_sha,
+            }
+        )
+        return boek
+
+    @classmethod
+    def lees(cls, pad: Path, manifest_sha: str) -> Grootboek:
+        try:
+            regels = [json.loads(r) for r in pad.read_text("utf-8").splitlines()]
+        except (OSError, ValueError):
+            raise ProefGeweigerdError("grootboek_ongeldig") from None
+        kop = regels[0] if regels else None
+        if not (
+            isinstance(kop, dict)
+            and kop.get("gebeurtenis") == "mandaat"
+            and kop.get("soort") == GROOTBOEK_SOORT
+            and kop.get("manifest_sha256") == manifest_sha
+        ):
+            raise ProefGeweigerdError("grootboek_ongeldig")
+        boek = cls(pad, regels)
+        boek.stand()  # valideert elke regel
+        return boek
+
+    def schrijf(self, regel: dict[str, Any]) -> None:
+        regel = {"tijd": _nu(), **regel}
+        with self.pad.open("a", encoding="utf-8") as bestand:
+            bestand.write(json.dumps(regel, ensure_ascii=False, sort_keys=True) + "\n")
+            bestand.flush()
+            os.fsync(bestand.fileno())
+        self.regels.append(regel)
+
+    def stand(self) -> dict[str, Any]:
+        """Cumulatieve tellers, conservatieve besteding en fasestatus."""
+        reserveringen: dict[int, float] = {}
+        kosten: dict[int, float | None] = {}
+        stand: dict[str, Any] = {
+            "telverzoeken": 0,
+            "looptijd_seconden": 0.0,
+            "fasen": {},
+            "open_fase": None,
+        }
+        for regel in self.regels[1:]:
+            if not (
+                isinstance(regel, dict)
+                and self._verwerk(regel, stand, reserveringen, kosten)
+            ):
+                raise ProefGeweigerdError("grootboek_ongeldig")
+        stand["inferenties"] = len(reserveringen)
+        stand["onzekere_calls"] = sorted(
+            c for c in reserveringen if kosten.get(c) is None
+        )
+        stand["besteed_usd"] = sum(
+            b if (b := kosten.get(c)) is not None else r
+            for c, r in reserveringen.items()
+        )
+        return stand
+
+    @staticmethod
+    def _verwerk(
+        regel: dict[str, Any],
+        stand: dict[str, Any],
+        reserveringen: dict[int, float],
+        kosten: dict[int, float | None],
+    ) -> bool:
+        soort, fase = regel.get("gebeurtenis"), regel.get("fase")
+        call, duur = regel.get("call"), regel.get("looptijd_seconden")
+        if soort == "tel_reservering":
+            stand["telverzoeken"] += 1
+        elif soort == "inferentie_reservering":
+            if not (_geheel(call) and call not in reserveringen):
+                return False
+            if not _bedrag(regel.get("reservering_usd")):
+                return False
+            reserveringen[call] = float(regel["reservering_usd"])
+        elif soort == "inferentie_boeking":
+            if call not in reserveringen or call in kosten:
+                return False
+            bedrag = regel.get("kosten_usd")
+            kosten[call] = float(bedrag) if _bedrag(bedrag) else None
+        elif soort == "fase_start":
+            if fase not in FASEN or stand["open_fase"] or fase in stand["fasen"]:
+                return False
+            stand["open_fase"] = fase
+        elif soort == "fase_einde":
+            geslaagd = regel.get("mechanisch_geslaagd")
+            if fase != stand["open_fase"] or not isinstance(geslaagd, bool):
+                return False
+            if not _bedrag(duur):
+                return False
+            stand["fasen"][fase] = geslaagd
+            stand["looptijd_seconden"] += float(duur)
+            stand["open_fase"] = None
+        else:
+            return False
+        return True
+
+
 # --- de waarnemer aan de httpx-grens --------------------------------------------
 
 
@@ -358,6 +608,19 @@ class Waarnemer(httpx.AsyncBaseTransport):
         self.headernamen: set[str] = set()
         self.metingen: dict[str, dict[str, Any]] = {}
         self.antwoorden: dict[str, str] = {}
+        #: Kwalificatie: reserveringen en boekingen gaan duurzaam naar hier.
+        self.grootboek: Grootboek | None = None
+
+    def neem_stand_over(self, stand: dict[str, Any]) -> None:
+        """Kwalificatie: tellers en besteding lopen door over runs heen."""
+        self.inferenties = stand["inferenties"]
+        self.telverzoeken = stand["telverzoeken"]
+        self.besteed_usd = stand["besteed_usd"]
+
+    def _registreer(self, regel: dict[str, Any]) -> None:
+        """Vóór een transport: faalt het schrijven, dan volgt geen verzending."""
+        if self.grootboek is not None:
+            self.grootboek.schrijf({"geval": self.huidig, **regel})
 
     @property
     def kosten_onzeker(self) -> list[str]:
@@ -389,14 +652,30 @@ class Waarnemer(httpx.AsyncBaseTransport):
             self._stop("payload_hash_mismatch")
         if await self._tel(request, payload, meting) > grens.max_geschatte_invoertokens:
             self._stop("invoerschatting_te_hoog")
-        reservering = (
-            grens.max_geschatte_invoertokens * self._prijzen["input"]
-            + grens.max_uitvoertokens * self._prijzen["output"]
-        )
+        reservering = _reservering(grens, self._prijzen)
         meting["reservering_usd"] = reservering
         if self.besteed_usd + reservering > grens.budget_usd:
             self._stop("budget_ontoereikend")
-        return await self._verstuur(request, meting)
+        call = self.inferenties + 1
+        self._registreer(
+            {
+                "gebeurtenis": "inferentie_reservering",
+                "call": call,
+                "reservering_usd": reservering,
+            }
+        )
+        try:
+            return await self._verstuur(request, meting)
+        finally:
+            # Ook bij een fout of afbreking; zonder kosten telt de reservering.
+            self._registreer(
+                {
+                    "gebeurtenis": "inferentie_boeking",
+                    "call": call,
+                    "kosten_usd": meting.get("kosten_usd"),
+                    "usage": meting.get("usage"),
+                }
+            )
 
     def _controleer(self, request: httpx.Request, body: bytes) -> dict[str, Any]:
         url = request.url
@@ -452,6 +731,9 @@ class Waarnemer(httpx.AsyncBaseTransport):
             json={k: payload[k] for k in TELVELDEN if k in payload},
         )
         meting["telpayload_sha256"] = _sha(verzoek.content)
+        self._registreer(
+            {"gebeurtenis": "tel_reservering", "tel": self.telverzoeken + 1}
+        )
         self.telverzoeken += 1
         status, data = None, None
         try:
@@ -664,7 +946,11 @@ def _bouw_router() -> Any:
 
 
 def _bouw_dienst(
-    router: Any, waarnemer: Waarnemer, sleutel: str, kwalificatie: str
+    router: Any,
+    waarnemer: Waarnemer,
+    sleutel: str,
+    kwalificatie: str,
+    profiel_id: str = PROFIEL_ID,
 ) -> tuple[Any, httpx.AsyncClient]:
     from anthropic import AsyncAnthropic
 
@@ -722,7 +1008,7 @@ def _bouw_dienst(
     dienst = Int02AssessmentService(
         ai,
         router,
-        profiel=Modelprofiel(PROFIEL_ID, PROVIDER, MODEL, kwalificatie),
+        profiel=Modelprofiel(profiel_id, PROVIDER, MODEL, kwalificatie),
         budget=Budget(
             max_uitvoertokens=grens.max_uitvoertokens,
             deadline_seconden=grens.deadline_seconden,
@@ -740,21 +1026,12 @@ class _Voorbereiding:
     payloads: list[dict[str, str]]
     router: Any
     gevallen: list[tuple[str, Any]]
+    #: Kwalificatie: per geval-ID fase en label (alleen lokale evaluatie).
+    kwalgevallen: dict[str, _Kwalgeval] = field(default_factory=dict)
 
 
-async def _bereken(limieten: Limieten) -> _Voorbereiding:
-    """Offline: vang via de echte keten de exacte payload per geval op."""
-    import anthropic
-
-    from services.validation.int02_assessment_service import (
-        PROMPT_VERSION,
-        T_TEKST,
-        TASK_TYPE,
-        bouw_int02_prompt,
-        laad_int02_norm,
-    )
-
-    router = _bouw_router()
+def _prijzen(router: Any, limieten: Limieten) -> dict[str, float]:
+    """Routerprijzen van het proefmodel; het plafond dekt alle calls vooraf."""
     prijzen = router.get_active_pricing().get(MODEL)
     if not (
         isinstance(prijzen, dict)
@@ -765,15 +1042,22 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
     ):
         raise ProefGeweigerdError("prijs_onbekend")
     prijzen = {"input": prijzen["input"], "output": prijzen["output"]}
-    maximum = limieten.max_inferentie * (
-        limieten.max_geschatte_invoertokens * prijzen["input"]
-        + limieten.max_uitvoertokens * prijzen["output"]
-    )
-    if maximum > limieten.budget_usd:
+    if limieten.max_inferentie * _reservering(limieten, prijzen) > limieten.budget_usd:
         raise ProefGeweigerdError("budget_ontoereikend")
-    gevallen = _lees_gevallen()
+    return prijzen
+
+
+async def _vang(
+    router: Any,
+    limieten: Limieten,
+    gevallen: list[tuple[str, Any]],
+    profiel_id: str,
+) -> Waarnemer:
+    """Dry-run door de echte keten: de exacte payload per geval, zonder netwerk."""
     waarnemer = Waarnemer(modus="dry-run", limieten=limieten)
-    dienst, http = _bouw_dienst(router, waarnemer, DRYRUN_SLEUTEL, DRYRUN_KWALIFICATIE)
+    dienst, http = _bouw_dienst(
+        router, waarnemer, DRYRUN_SLEUTEL, DRYRUN_KWALIFICATIE, profiel_id
+    )
     try:
         with _stil(["services.validation.int02_assessment_service"]):
             for geval_id, invoer in gevallen:
@@ -783,31 +1067,62 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
                     raise ProefGeweigerdError(waarnemer.stopreden or "geen_payload")
     finally:
         await http.aclose()
+    return waarnemer
+
+
+def _gevalhashes(geval_id: str, invoer: Any, waarnemer: Waarnemer) -> dict[str, Any]:
+    from services.validation.int02_assessment_service import (
+        bouw_int02_prompt,
+        laad_int02_norm,
+    )
+
+    systeem, data = bouw_int02_prompt(invoer, laad_int02_norm(NORM_PAD))
+    return {
+        "id": geval_id,
+        "invoer_sha256": hash_json(invoer.als_dict()),
+        "systeemprompt_sha256": _sha(systeem.encode("utf-8")),
+        "dataprompt_sha256": _sha(data.encode("utf-8")),
+        "payload_sha256": _sha(waarnemer.opgevangen[geval_id]),
+        "payload_bytes": len(waarnemer.opgevangen[geval_id]),
+    }
+
+
+def _payloads(gevallen: list[tuple[str, Any]], waarnemer: Waarnemer) -> list[dict]:
+    return [
+        {"id": geval_id, "payload": waarnemer.opgevangen[geval_id].decode("utf-8")}
+        for geval_id, _ in gevallen
+    ]
+
+
+def _profiel(profiel_id: str, **soort: bool) -> dict[str, Any]:
+    from services.validation.int02_assessment_service import PROMPT_VERSION, TASK_TYPE
+
+    return {
+        "profiel_id": profiel_id,
+        "provider": PROVIDER,
+        "model": MODEL,
+        "task_type": TASK_TYPE,
+        "promptversie": PROMPT_VERSION,
+        **soort,
+        "def815_kwalificatie": False,
+    }
+
+
+def _ketenidentiteit(
+    router: Any, prijzen: dict[str, float], limieten: Limieten, waarnemer: Waarnemer
+) -> dict[str, Any]:
+    """Limieten, prijzen, router, transport, norm/T, bronhashes en versies."""
+    import anthropic
+
+    from services.validation.int02_assessment_service import (
+        T_TEKST,
+        TASK_TYPE,
+        laad_int02_norm,
+    )
+
     norm = laad_int02_norm(NORM_PAD)
     provider, model = router.get_model(TASK_TYPE)
-    per_geval = []
-    for geval_id, invoer in gevallen:
-        systeem, data = bouw_int02_prompt(invoer, norm)
-        per_geval.append(
-            {
-                "id": geval_id,
-                "invoer_sha256": hash_json(invoer.als_dict()),
-                "systeemprompt_sha256": _sha(systeem.encode("utf-8")),
-                "dataprompt_sha256": _sha(data.encode("utf-8")),
-                "payload_sha256": _sha(waarnemer.opgevangen[geval_id]),
-                "payload_bytes": len(waarnemer.opgevangen[geval_id]),
-            }
-        )
-    identiteit = {
-        "profiel": {
-            "profiel_id": PROFIEL_ID,
-            "provider": PROVIDER,
-            "model": MODEL,
-            "task_type": TASK_TYPE,
-            "promptversie": PROMPT_VERSION,
-            "experimenteel": True,
-            "def815_kwalificatie": False,
-        },
+    return {
         "limieten": asdict(limieten),
         "dienstbudget": dict(DIENSTBUDGET),
         "prijzen_per_token": prijzen,
@@ -830,19 +1145,178 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
             "anthropic": anthropic.__version__,
             "httpx": httpx.__version__,
         },
-        "gevallen": per_geval,
     }
-    payloads = [
-        {"id": geval_id, "payload": waarnemer.opgevangen[geval_id].decode("utf-8")}
-        for geval_id, _ in gevallen
-    ]
-    return _Voorbereiding(identiteit, payloads, router, gevallen)
+
+
+async def _bereken(limieten: Limieten) -> _Voorbereiding:
+    """Driecasusmodus, offline: de exacte payload per geval via de echte keten."""
+    router = _bouw_router()
+    prijzen = _prijzen(router, limieten)
+    gevallen = _lees_gevallen()
+    waarnemer = await _vang(router, limieten, gevallen, PROFIEL_ID)
+    identiteit = {
+        "profiel": _profiel(PROFIEL_ID, experimenteel=True),
+        **_ketenidentiteit(router, prijzen, limieten, waarnemer),
+        "gevallen": [_gevalhashes(g, invoer, waarnemer) for g, invoer in gevallen],
+    }
+    return _Voorbereiding(identiteit, _payloads(gevallen, waarnemer), router, gevallen)
+
+
+# --- kwalificatie: het bevroren gevallenmanifest ------------------------------------------
+
+
+@dataclass(frozen=True)
+class _Kwalgeval:
+    id: str
+    fase: str
+    invoer: Any
+    label: dict[str, Any]
+
+
+def _bevroren(freeze: Any) -> bool:
+    if not (isinstance(freeze, dict) and set(freeze) == _FREEZEVELDEN):
+        return False
+    try:
+        date.fromisoformat(freeze["geaccepteerd_op"])
+    except (TypeError, ValueError):
+        return False
+    return (
+        freeze["status"] == "bevroren"
+        and _gevuld(freeze["geaccepteerd_door"])
+        and _gevuld(freeze["bron"])
+    )
+
+
+def _kwalgeval(ruw: Any, gezien: set[str]) -> _Kwalgeval:
+    """Eén geval: gesloten velden, geldig label, contractinvoer met kern en context."""
+    from domain.int02.contract import ontbrekende_invoer
+
+    ongeldig = ProefGeweigerdError("gevallenmanifest_ongeldig")
+    if not (
+        isinstance(ruw, dict)
+        and {"id", "fase", "invoer", "label"} <= set(ruw) <= _GEVALVELDEN
+        and _gevuld(ruw["id"])
+        and ruw["id"] not in gezien
+    ):
+        raise ongeldig
+    label = ruw["label"]
+    if not (
+        isinstance(label, dict)
+        and set(label) <= _LABELVELDEN
+        and label.get("status") in LABELSTATUSSEN
+    ):
+        raise ongeldig
+    if ruw["fase"] not in FASEN:
+        raise ProefGeweigerdError("splitsing_ongeldig")
+    try:
+        invoer = lees_invoer(ruw["invoer"])
+    except (TypeError, ValueError):
+        raise ongeldig from None
+    if ontbrekende_invoer(invoer) is not None:
+        raise ongeldig  # NE: geen modelaanroep, dus niet kwalificeerbaar
+    gezien.add(ruw["id"])
+    return _Kwalgeval(ruw["id"], ruw["fase"], invoer, label)
+
+
+def _eis_splitsing(gevallen: list[_Kwalgeval]) -> None:
+    """Aantallen per fase, de drie bekende regressies en de hold-outverdeling."""
+    ontwerp = {
+        g["id"]: g for g in json.loads(FIXTURE_PAD.read_text("utf-8"))["gevallen"]
+    }
+    per_fase = {f: [g for g in gevallen if g.fase == f] for f in FASEN}
+    regressie = per_fase["regressie"]
+    if any(len(per_fase[f]) != FASECRITERIA[f]["aantal"] for f in FASEN) or [
+        g.id for g in regressie
+    ] != list(GEVAL_IDS):
+        raise ProefGeweigerdError("splitsing_ongeldig")
+    for geval in regressie:
+        bekend = ontwerp[geval.id]
+        if (
+            geval.invoer.als_dict() != bekend["invoer"]
+            or geval.label["status"] != bekend["verwacht"]["status"]
+        ):
+            raise ProefGeweigerdError("splitsing_ongeldig")
+    for fase in FASEN:
+        verdeling = FASECRITERIA[fase]["verdeling"]
+        telling = dict.fromkeys(sorted(LABELSTATUSSEN), 0)
+        for geval in per_fase[fase]:
+            telling[geval.label["status"]] += 1
+        if verdeling is not None and telling != verdeling:
+            raise ProefGeweigerdError("verdeling_afwijkend")
+
+
+def _lees_kwalificatiegevallen(
+    pad: Path,
+) -> tuple[bytes, dict[str, Any], list[_Kwalgeval]]:
+    """Het volledige, bevroren externe manifest; weigert elke afwijking."""
+    bron = pad.read_bytes()
+    data = _json(bron)
+    if not (isinstance(data, dict) and data.get("soort") == GEVALLEN_SOORT):
+        raise ProefGeweigerdError("gevallenmanifest_ongeldig")
+    if not _bevroren(data.get("freeze")):
+        raise ProefGeweigerdError("freeze_ontbreekt")
+    if data.get("protocol_sha256") != PROTOCOL_SHA256:
+        raise ProefGeweigerdError("protocol_afwijkend")
+    vlaggen = (data.get("goldset"), data.get("technische_testfixture"))
+    if not (
+        set(data) <= _MANIFESTVELDEN
+        and all(isinstance(v, bool) for v in vlaggen)
+        and vlaggen[0] is not vlaggen[1]
+        and isinstance(data.get("gevallen"), list)
+    ):
+        raise ProefGeweigerdError("gevallenmanifest_ongeldig")
+    gezien: set[str] = set()
+    gevallen = [_kwalgeval(ruw, gezien) for ruw in data["gevallen"]]
+    _eis_splitsing(gevallen)
+    return bron, data, gevallen
+
+
+async def _bereken_kwalificatie(
+    limieten: Limieten, gevallen_pad: Path, proefmap: Path
+) -> _Voorbereiding:
+    """Kwalificatie, offline: identiteit over invoer, labels, splitsing en keten."""
+    bron, data, kwalgevallen = _lees_kwalificatiegevallen(gevallen_pad)
+    router = _bouw_router()
+    prijzen = _prijzen(router, limieten)
+    gevallen = [(g.id, g.invoer) for g in kwalgevallen]
+    waarnemer = await _vang(router, limieten, gevallen, KWALIFICATIE_PROFIEL_ID)
+    identiteit = {
+        "profiel": _profiel(KWALIFICATIE_PROFIEL_ID, kwalificatieproef=True),
+        **_ketenidentiteit(router, prijzen, limieten, waarnemer),
+        "protocol_sha256": PROTOCOL_SHA256,
+        "gevallenmanifest": {
+            "sha256": _sha(bron),
+            "goldset": data["goldset"],
+            "technische_testfixture": data["technische_testfixture"],
+            "freeze": data["freeze"],
+        },
+        "fasen": {f: [g.id for g in kwalgevallen if g.fase == f] for f in FASEN},
+        "criteria": FASECRITERIA,
+        "proefmap": str(proefmap),
+        "gevallen": [
+            {
+                **_gevalhashes(g.id, g.invoer, waarnemer),
+                "fase": g.fase,
+                "label_sha256": hash_json(g.label),
+            }
+            for g in kwalgevallen
+        ],
+    }
+    return _Voorbereiding(
+        identiteit,
+        _payloads(gevallen, waarnemer),
+        router,
+        gevallen,
+        {g.id: g for g in kwalgevallen},
+    )
 
 
 def _schrijf_nieuw(pad: Path, data: Any) -> None:
     """Schrijf alleen naar een nieuw bestand; nooit overschrijven."""
     with pad.open("x", encoding="utf-8") as bestand:
         bestand.write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+        bestand.flush()
+        os.fsync(bestand.fileno())
 
 
 def _eis_nieuw(*paden: Path | None) -> None:
@@ -1063,7 +1537,639 @@ async def voer_live_uit(
     return data
 
 
+# --- kwalificatie: voorbereiding en fasen ---------------------------------------------------
+
+
+async def voorbereid_kwalificatie(
+    gevallen_pad: Path,
+    proefmap: Path,
+    manifest_pad: Path,
+    *,
+    payloads_pad: Path | None = None,
+    limieten: Limieten = KWALIFICATIELIMIETEN,
+) -> dict[str, Any]:
+    """Offline kwalificatiemanifest (pending); geen netwerk, sleutel of proefmap."""
+    gevallen_pad = Path(gevallen_pad).resolve()
+    proefmap = Path(proefmap).resolve()
+    manifest_pad = Path(manifest_pad).resolve()
+    payloads_pad = Path(payloads_pad).resolve() if payloads_pad else None
+    _eis_nieuw(manifest_pad, payloads_pad)
+    if proefmap.exists():
+        raise ProefGeweigerdError("proefmap_bestaat")
+    with _proefomgeving():
+        voorbereiding = await _bereken_kwalificatie(limieten, gevallen_pad, proefmap)
+    identiteit = voorbereiding.identiteit
+    manifest = {
+        "soort": KWALIFICATIE_MANIFEST_SOORT,
+        "toestemming": "pending",
+        "aangemaakt": _nu(),
+        "claim": KWALIFICATIE_CLAIM,
+        "akkoordvelden": list(KWALIFICATIE_AKKOORDVELDEN),
+        "controlemomenten": CONTROLEMOMENTEN,
+        "identiteit_sha256": hash_json(identiteit),
+        "identiteit": identiteit,
+    }
+    _schrijf_nieuw(manifest_pad, manifest)
+    if payloads_pad is not None:
+        _schrijf_nieuw(
+            payloads_pad,
+            {
+                "soort": PAYLOAD_SOORT,
+                "synthetisch": True,
+                "identiteit_sha256": manifest["identiteit_sha256"],
+                "gevallen": voorbereiding.payloads,
+            },
+        )
+    return manifest
+
+
+def _gelijk_getal(waarde: Any, verwacht: Any) -> bool:
+    return _bedrag(waarde) and _bedrag(verwacht) and waarde == verwacht
+
+
+def _controleer_kwalificatieakkoord(
+    akkoord: Any, manifest_bytes: bytes, manifest: Any, gevallen_bytes: bytes
+) -> None:
+    """Nieuw, strikt akkoord; een oud driecallakkoord of -manifest past nooit."""
+    identiteit = manifest.get("identiteit") if isinstance(manifest, dict) else None
+    grens = identiteit.get("limieten") if isinstance(identiteit, dict) else None
+    geldig = (
+        isinstance(akkoord, dict)
+        and isinstance(grens, dict)
+        and tuple(sorted(akkoord)) == tuple(sorted(KWALIFICATIE_AKKOORDVELDEN))
+        and manifest.get("soort") == KWALIFICATIE_MANIFEST_SOORT
+        and manifest.get("toestemming") == "pending"
+        and akkoord["soort"] == KWALIFICATIE_AKKOORD_SOORT
+        and akkoord["manifest_sha256"] == _sha(manifest_bytes)
+        and akkoord["gevallenmanifest_sha256"] == _sha(gevallen_bytes)
+        and akkoord["protocol_sha256"] == PROTOCOL_SHA256
+        and akkoord["profiel_id"] == KWALIFICATIE_PROFIEL_ID
+        and akkoord["geen_def815_kwalificatie"] is True
+        and akkoord["live_verzending_toegestaan"] is True
+        and _gelijk_getal(akkoord["max_inferenties"], grens.get("max_inferentie"))
+        and _gelijk_getal(akkoord["max_tokenmetingen"], grens.get("max_telverzoeken"))
+        and _gelijk_getal(akkoord["budget_usd"], grens.get("budget_usd"))
+        and _gevuld(akkoord["akkoord_door"])
+        and _gevuld(akkoord["akkoord_bron"])
+        and isinstance(akkoord["akkoord_op"], str)
+    )
+    if geldig:
+        try:
+            date.fromisoformat(akkoord["akkoord_op"])
+        except ValueError:
+            geldig = False
+    if not geldig:
+        raise ProefGeweigerdError("akkoord_ongeldig")
+
+
+def _eis_toelaatbaar(stand: dict[str, Any], fase: str) -> None:
+    """Vaste volgorde; elke fase één keer; een open fase blokkeert alles."""
+    if stand["open_fase"] is not None:
+        raise ProefGeweigerdError("grootboek_open")
+    if fase in stand["fasen"]:
+        raise ProefGeweigerdError("fase_al_uitgevoerd")
+    if any(stand["fasen"].get(v) is not True for v in FASEN[: FASEN.index(fase)]):
+        raise ProefGeweigerdError("fasevolgorde")
+
+
+def _eis_afronding_voltooid(proefmap: Path, stand: dict[str, Any]) -> None:
+    """F3: een succesregel in het grootboek alleen is geen voltooide afronding.
+
+    Elke beëindigde fase vraagt een opgeheven blokkade (`.voltooid`); een
+    nog bestaande `.open`-blokkade blokkeert alles, ook als fase_einde al
+    leesbaar is.
+    """
+    if any(proefmap.glob(f"*{AFRONDING_OPEN}")) or any(
+        not (proefmap / f"{fase}{AFRONDING_VOLTOOID}").is_file()
+        for fase in stand["fasen"]
+    ):
+        raise ProefGeweigerdError("afronding_onvolledig")
+
+
+def _stand_voor_fase(proefmap: Path, manifest_sha: str, fase: str) -> dict[str, Any]:
+    """Alleen lezen: is `fase` nu toelaatbaar, en wat is al verbruikt?"""
+    if fase == FASEN[0]:
+        if proefmap.exists():
+            raise ProefGeweigerdError("proefmap_bestaat")
+        return {
+            "inferenties": 0,
+            "telverzoeken": 0,
+            "besteed_usd": 0.0,
+            "onzekere_calls": [],
+            "looptijd_seconden": 0.0,
+            "fasen": {},
+            "open_fase": None,
+        }
+    boekpad = proefmap / GROOTBOEK_NAAM
+    if not boekpad.exists():
+        raise ProefGeweigerdError("fasevolgorde")
+    stand = Grootboek.lees(boekpad, manifest_sha).stand()
+    _eis_toelaatbaar(stand, fase)
+    _eis_afronding_voltooid(proefmap, stand)
+    return stand
+
+
+def _eis_ruimte(
+    stand: dict[str, Any], gepland: int, grens: Limieten, prijzen: dict[str, float]
+) -> None:
+    """Resterende calls, budget en looptijd dekken de hele fase vooraf."""
+    if (
+        stand["inferenties"] + gepland > grens.max_inferentie
+        or stand["telverzoeken"] + gepland > grens.max_telverzoeken
+    ):
+        raise ProefGeweigerdError("calllimiet_ontoereikend")
+    if stand["besteed_usd"] + gepland * _reservering(grens, prijzen) > grens.budget_usd:
+        raise ProefGeweigerdError("budget_ontoereikend")
+    resterend = grens.totale_looptijd_seconden - stand["looptijd_seconden"]
+    if resterend < gepland * grens.deadline_seconden:
+        raise ProefGeweigerdError("looptijd_ontoereikend")
+
+
+def _evalueer(verwacht: str, beoordeling: Any) -> dict[str, Any]:
+    """Alleen lokaal: hoofdstatus tegen het bevroren label."""
+    from domain.int02.contract import FOUT_CITAAT
+
+    status = beoordeling.status
+    fout = status == "error"
+    citaat = fout and beoordeling.document.foutcategorie == FOUT_CITAAT
+    return {
+        "verwacht": verwacht,
+        "waargenomen": status,
+        "juist": status == verwacht,
+        "technische_fout": bool(beoordeling.gecachet) or (fout and not citaat),
+        "citaatfout": citaat,
+        "kritieke_false_pass": verwacht == "fail" and status == "pass",
+    }
+
+
+#: Teller per categorie: (noemer, teller) als functies van (verwacht, waargenomen).
+_TELLERS: dict[str, tuple[Callable[[str, str], bool], Callable[[str, str], bool]]] = {
+    "juist": (lambda v, w: True, lambda v, w: v == w),
+    "false_pass": (lambda v, w: v != "pass", lambda v, w: w == "pass"),
+    "kritieke_false_pass": (lambda v, w: v == "fail", lambda v, w: w == "pass"),
+    "false_fail": (lambda v, w: v != "fail", lambda v, w: w == "fail"),
+    "gemiste_overtreding": (lambda v, w: v == "fail", lambda v, w: w != "fail"),
+    "gepaste_onthouding": (
+        lambda v, w: v == "review_required",
+        lambda v, w: w == "review_required",
+    ),
+    "onterechte_onthouding": (
+        lambda v, w: v != "review_required",
+        lambda v, w: w == "review_required",
+    ),
+    "onzekerheid": (lambda v, w: True, lambda v, w: w == "review_required"),
+}
+
+
+def _tellers(uitkomsten: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    paren = [(u["verwacht"], u["waargenomen"]) for u in uitkomsten]
+    tellers = {}
+    for naam, (noemer, teller) in _TELLERS.items():
+        binnen = [p for p in paren if noemer(*p)]
+        tellers[naam] = {
+            "teller": sum(teller(*p) for p in binnen),
+            "noemer": len(binnen),
+        }
+    for status in sorted(LABELSTATUSSEN):
+        binnen = [p for p in paren if p[0] == status]
+        tellers[f"juist_{status}"] = {
+            "teller": sum(v == w for v, w in binnen),
+            "noemer": len(binnen),
+        }
+    for soort in ("technische_fout", "citaatfout"):
+        tellers[soort] = {
+            "teller": sum(bool(u[soort]) for u in uitkomsten),
+            "noemer": len(uitkomsten),
+        }
+    return tellers
+
+
+def _p95(duren: list[int]) -> int:
+    """Nearest-rank p95 van een niet-lege lijst."""
+    return sorted(duren)[math.ceil(0.95 * len(duren)) - 1]
+
+
+def _beoordeel_fase(
+    fase: str,
+    uitkomsten: list[dict[str, Any]],
+    stopreden: str | None,
+    voltooid: bool,
+    duren: list[Any],
+) -> dict[str, Any]:
+    """Mechanische toelatingsgrenzen; het inhoudelijke oordeel blijft open.
+
+    `duren` bevat per uitgevoerd geval de gemeten `duur_ms`; bij een p95-grens
+    telt alleen een volledige, geldige reeks (anders geen succes).
+    """
+    criteria = FASECRITERIA[fase]
+    tellers = _tellers(uitkomsten)
+    redenen = []
+    if not voltooid or stopreden is not None or len(uitkomsten) != criteria["aantal"]:
+        redenen.append("niet_volledig_uitgevoerd")
+    if tellers["technische_fout"]["teller"] or tellers["citaatfout"]["teller"]:
+        redenen.append("technische_of_citaatfout")
+    if tellers["kritieke_false_pass"]["teller"]:
+        redenen.append("kritieke_false_pass")
+    maximum = criteria["max_false_pass"]
+    if maximum is not None and tellers["false_pass"]["teller"] > maximum:
+        redenen.append("onterechte_goedkeuring")
+    if tellers["juist"]["teller"] < criteria["min_juist"]:
+        redenen.append("te_weinig_juist")
+    for status, minimum in criteria["min_juist_per_label"].items():
+        if tellers[f"juist_{status}"]["teller"] < minimum:
+            redenen.append(f"te_weinig_juist_{status}")
+    grens = criteria["max_p95_ms"]
+    if grens is not None:
+        geldig = [d for d in duren if _geheel(d)]
+        if len(geldig) != len(duren) or len(duren) != criteria["aantal"]:
+            redenen.append("latentie_onvolledig")
+        elif _p95(geldig) > grens:
+            redenen.append("p95_boven_grens")
+    return {
+        "mechanisch_geslaagd": not redenen,
+        "redenen": redenen,
+        "tellers": tellers,
+        "criteria": criteria,
+    }
+
+
+def _latentie(resultaten: list[dict[str, Any]]) -> dict[str, int | None]:
+    duren = [d for r in resultaten if _geheel(d := r["meting"].get("duur_ms"))]
+    if not duren:
+        return {"max_ms": None, "p95_ms": None}
+    return {"max_ms": max(duren), "p95_ms": _p95(duren)}
+
+
+def _maak_proefmap(proefmap: Path) -> None:
+    """Eerste fase: de proefmap bestaat nog niet; aanmaken is exclusief."""
+    try:
+        proefmap.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        raise ProefGeweigerdError("proefmap_bestaat") from None
+
+
+@contextlib.contextmanager
+def _slot(proefmap: Path) -> Iterator[None]:
+    """Exclusief processlot (flock) per proefmap, vóór het lezen van de stand.
+
+    Een tweede uitvoerder wordt geweigerd vóór enig transport. Sluiten van de
+    descriptor, ook door procesafloop, geeft het slot vrij; het slotbestand
+    blijft staan.
+    """
+    fd = os.open(proefmap / SLOT_NAAM, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise ProefGeweigerdError("proefmap_in_gebruik") from None
+        yield
+    finally:
+        os.close(fd)
+
+
+def _publiceer(artefacten: list[tuple[Path, Any]]) -> list[OSError]:
+    """Schrijf elk artefact apart (nooit overschrijven); verzamel fouten."""
+    fouten = []
+    for pad, inhoud in artefacten:
+        try:
+            _schrijf_nieuw(pad, inhoud)
+        except OSError as exc:
+            fouten.append(exc)
+    return fouten
+
+
+def _sluit_fase(
+    boek: Grootboek,
+    fase: str,
+    looptijd: float,
+    stopreden: str | None,
+    *,
+    geslaagd: bool,
+    bewijs: bool,
+) -> None:
+    """Afronding in drie stappen, onder het slot (F3).
+
+    1. `<fase>-afronding.open` exclusief schrijven en fsyncen: vanaf het
+       moment dat dit bestand bestaat (ook bij een fout ná flush) blokkeert
+       het elke volgende fase; lukt het niet, dan volgt geen fase_einde en
+       blijft de fase open.
+    2. fase_einde naar het grootboek. Een fout, ook een fsync-fout nadat de
+       regel al leesbaar is, laat de blokkade staan.
+    3. Opheffen met één `os.rename` naar `.voltooid`: atomair, zonder
+       vervolgstap; faalt de rename, dan blijft de blokkade staan.
+    Niets wordt verwijderd; de blokkade blijft als `.voltooid` bewaard.
+    """
+    proefmap = boek.pad.parent
+    blokkade = proefmap / f"{fase}{AFRONDING_OPEN}"
+    voltooid = proefmap / f"{fase}{AFRONDING_VOLTOOID}"
+    if voltooid.exists():
+        raise ProefStopError("afronding_onvolledig")  # nooit overschrijven
+    _schrijf_nieuw(
+        blokkade,
+        {
+            "fase": fase,
+            "tijd": _nu(),
+            "toelichting": (
+                "Afronding gestart; blokkeert volgende fasen tot deze na een "
+                "geslaagde fase_einde atomair naar .voltooid is hernoemd."
+            ),
+        },
+    )
+    boek.schrijf(
+        {
+            "gebeurtenis": "fase_einde",
+            "fase": fase,
+            "looptijd_seconden": looptijd,
+            "stopreden": stopreden,
+            "mechanisch_geslaagd": geslaagd,
+            "bewijs_opgeslagen": bewijs,
+        }
+    )
+    os.rename(blokkade, voltooid)
+
+
+async def _draai_fase(
+    dienst: Any,
+    waarnemer: Waarnemer,
+    voorbereiding: _Voorbereiding,
+    fase: str,
+    resterend: Callable[[], float],
+) -> tuple[list[dict[str, Any]], str | None]:
+    """Eén fase, sequentieel; stopt direct bij fout of kritieke false-pass."""
+    resultaten: list[dict[str, Any]] = []
+    for geval_id, invoer in voorbereiding.gevallen:
+        if voorbereiding.kwalgevallen[geval_id].fase != fase:
+            continue
+        label = voorbereiding.kwalgevallen[geval_id].label
+        if resterend() < waarnemer.limieten.deadline_seconden:
+            return resultaten, "looptijd_ontoereikend"
+        waarnemer.huidig = geval_id
+        beoordeling = await dienst.assess(
+            invoer, correlation_id=f"def835-kwalificatie-{geval_id}"
+        )
+        evaluatie = _evalueer(label["status"], beoordeling)
+        resultaten.append(
+            {
+                **_samenvatting(geval_id, beoordeling, waarnemer),
+                "fase": fase,
+                "label_status": label["status"],
+                "evaluatie": evaluatie,
+            }
+        )
+        stopreden = waarnemer.stopreden or _stopreden(beoordeling)
+        if stopreden is None and evaluatie["kritieke_false_pass"]:
+            stopreden = "kritieke_false_pass"
+        if stopreden is not None:
+            return resultaten, stopreden
+    return resultaten, None
+
+
+async def voer_kwalificatie_uit(
+    manifest_pad: Path,
+    akkoord_pad: Path,
+    gevallen_pad: Path,
+    fase: str,
+    *,
+    sleutel: Callable[[], str | None] = _lees_sleutel,
+    binnen: httpx.AsyncBaseTransport | None = None,
+    limieten: Limieten = KWALIFICATIELIMIETEN,
+) -> dict[str, Any]:
+    """Precies één kwalificatiefase na akkoord; geen overgang naar de volgende."""
+    start, gestart = time.monotonic(), _nu()
+    if fase not in FASEN:
+        raise ProefGeweigerdError("fase_onbekend")
+    try:
+        akkoord_bytes = Path(akkoord_pad).read_bytes()
+    except FileNotFoundError:
+        raise ProefGeweigerdError("akkoord_ontbreekt") from None
+    manifest_bytes = Path(manifest_pad).read_bytes()
+    gevallen_pad = Path(gevallen_pad).resolve()
+    manifest = _json(manifest_bytes)
+    _controleer_kwalificatieakkoord(
+        _json(akkoord_bytes), manifest_bytes, manifest, gevallen_pad.read_bytes()
+    )
+    manifest_sha, akkoord_sha = _sha(manifest_bytes), _sha(akkoord_bytes)
+    proefmap = Path(manifest["identiteit"]["proefmap"])
+    stand = _stand_voor_fase(proefmap, manifest_sha, fase)
+    with _proefomgeving():
+        voorbereiding = await _bereken_kwalificatie(limieten, gevallen_pad, proefmap)
+        identiteit = voorbereiding.identiteit
+        if identiteit != manifest.get("identiteit") or hash_json(
+            identiteit
+        ) != manifest.get("identiteit_sha256"):
+            raise ProefGeweigerdError("identiteit_gewijzigd")
+        prijzen = identiteit["prijzen_per_token"]
+        _eis_ruimte(stand, len(identiteit["fasen"][fase]), limieten, prijzen)
+        if binnen is None and identiteit["gevallenmanifest"]["technische_testfixture"]:
+            raise ProefGeweigerdError("testfixture_niet_live")
+        api_sleutel = sleutel()
+        if not _gevuld(api_sleutel):
+            raise ProefGeweigerdError("sleutel_ontbreekt")
+        waarnemer = Waarnemer(
+            modus="live",
+            limieten=limieten,
+            binnen=binnen or httpx.AsyncHTTPTransport(retries=0),
+            verwacht={g["id"]: g["payload_sha256"] for g in identiteit["gevallen"]},
+            prijzen=prijzen,
+        )
+        kwalificatie = f"kwalificatieproef:akkoord:{akkoord_sha}:geen-DEF-815"
+        dienst, http = _bouw_dienst(
+            voorbereiding.router,
+            waarnemer,
+            str(api_sleutel),
+            kwalificatie,
+            KWALIFICATIE_PROFIEL_ID,
+        )
+        try:
+            # Vanaf hier kan verzending volgen. Eerst het exclusieve slot, dan
+            # pas de actuele stand; vast tot en met bewijs en afronding (F1).
+            if fase == FASEN[0]:
+                _maak_proefmap(proefmap)
+            with _slot(proefmap):
+                if fase == FASEN[0]:
+                    boek = Grootboek.nieuw(proefmap, manifest_sha, akkoord_sha)
+                else:
+                    boek = Grootboek.lees(proefmap / GROOTBOEK_NAAM, manifest_sha)
+                begin = boek.stand()
+                _eis_toelaatbaar(begin, fase)
+                _eis_afronding_voltooid(proefmap, begin)
+                _eis_ruimte(begin, len(identiteit["fasen"][fase]), limieten, prijzen)
+                waarnemer.neem_stand_over(begin)
+                waarnemer.grootboek = boek
+                boek.schrijf(
+                    {
+                        "gebeurtenis": "fase_start",
+                        "fase": fase,
+                        "akkoord_sha256": akkoord_sha,
+                    }
+                )
+                resultaten: list[dict[str, Any]] = []
+                stopreden: str | None = None
+                voltooid = False
+
+                def resterend() -> float:
+                    verbruikt = begin["looptijd_seconden"] + time.monotonic() - start
+                    return limieten.totale_looptijd_seconden - verbruikt
+
+                try:
+                    async with asyncio.timeout(resterend()):
+                        resultaten, stopreden = await _draai_fase(
+                            dienst, waarnemer, voorbereiding, fase, resterend
+                        )
+                    voltooid = True
+                except TimeoutError:
+                    stopreden = waarnemer.stopreden or "totale_looptijd"
+                except BaseException:
+                    looptijd = round(time.monotonic() - start, 3)
+                    _sluit_fase(
+                        boek,
+                        fase,
+                        looptijd,
+                        "onverwachte_fout",
+                        geslaagd=False,
+                        bewijs=False,
+                    )
+                    raise
+                looptijd = round(time.monotonic() - start, 3)
+                evaluatie = _beoordeel_fase(
+                    fase,
+                    [r["evaluatie"] for r in resultaten],
+                    stopreden,
+                    voltooid,
+                    [r["meting"].get("duur_ms") for r in resultaten],
+                )
+                data = _kwalificatieresultaat(
+                    fase=fase,
+                    manifest=manifest,
+                    hashes=(manifest_sha, akkoord_sha),
+                    tijd=(gestart, looptijd),
+                    stopreden=stopreden,
+                    standen=(begin, boek.stand()),
+                    waarnemer=waarnemer,
+                    evaluatie=evaluatie,
+                    resultaten=resultaten,
+                )
+                fase_ids = set(identiteit["fasen"][fase])
+                bundel = {
+                    "soort": PAYLOAD_SOORT,
+                    "synthetisch": True,
+                    "fase": fase,
+                    "identiteit_sha256": manifest["identiteit_sha256"],
+                    "gevallen": [
+                        p for p in voorbereiding.payloads if p["id"] in fase_ids
+                    ],
+                    "antwoorden": waarnemer.antwoorden,
+                }
+                # F3: eerst het bewijs duurzaam, pas daarna fase_einde.
+                fouten = _publiceer(
+                    [
+                        (proefmap / f"{fase}-bundel.json", bundel),
+                        (proefmap / f"{fase}-resultaat.json", data),
+                    ]
+                )
+                _sluit_fase(
+                    boek,
+                    fase,
+                    looptijd,
+                    "bewijsopslag_mislukt" if fouten else stopreden,
+                    geslaagd=evaluatie["mechanisch_geslaagd"] and not fouten,
+                    bewijs=not fouten,
+                )
+                if fouten:
+                    raise ProefStopError("bewijsopslag_mislukt") from fouten[0]
+        finally:
+            await http.aclose()
+    return data
+
+
+def _kwalificatieresultaat(
+    *,
+    fase: str,
+    manifest: dict[str, Any],
+    hashes: tuple[str, str],
+    tijd: tuple[str, float],
+    stopreden: str | None,
+    standen: tuple[dict[str, Any], dict[str, Any]],
+    waarnemer: Waarnemer,
+    evaluatie: dict[str, Any],
+    resultaten: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Het faseresultaat, opgesteld vóór fase_einde (de fase staat nog open)."""
+    identiteit = manifest["identiteit"]
+    (manifest_sha, akkoord_sha), (gestart, looptijd) = hashes, tijd
+    begin, lopend = standen
+    data = {
+        "soort": KWALIFICATIE_RESULTAAT_SOORT,
+        "claim": KWALIFICATIE_CLAIM,
+        "fase": fase,
+        "manifest_sha256": manifest_sha,
+        "akkoord_sha256": akkoord_sha,
+        "identiteit_sha256": manifest["identiteit_sha256"],
+        "gevallenmanifest_sha256": identiteit["gevallenmanifest"]["sha256"],
+        "technische_testfixture": identiteit["gevallenmanifest"][
+            "technische_testfixture"
+        ],
+        "afronding": (
+            "Opgesteld vóór fase_einde. Het grootboek is leidend: zonder "
+            "fase_einde met bewijs_opgeslagen=true geldt de fase niet als geslaagd."
+        ),
+        "gestart": gestart,
+        "beeindigd": _nu(),
+        "looptijd_seconden": looptijd,
+        "stopreden": stopreden,
+        "tellingen": {
+            "inferenties": lopend["inferenties"] - begin["inferenties"],
+            "telverzoeken": lopend["telverzoeken"] - begin["telverzoeken"],
+        },
+        "cumulatief": {
+            "inferenties": lopend["inferenties"],
+            "telverzoeken": lopend["telverzoeken"],
+            "kosten_usd_conservatief": lopend["besteed_usd"],
+            "onzekere_calls": lopend["onzekere_calls"],
+            "looptijd_seconden": lopend["looptijd_seconden"] + looptijd,
+        },
+        "kosten_onzeker": waarnemer.kosten_onzeker,
+        "evaluatie": evaluatie,
+        "inhoudelijke_beoordeling": INHOUDELIJK_OPEN,
+        "latentie": _latentie(resultaten),
+        "gevallen": resultaten,
+    }
+    return json.loads(json.dumps(data, ensure_ascii=False))
+
+
 # --- CLI ----------------------------------------------------------------------------------
+
+
+def _main_kwalificatie(
+    parser: argparse.ArgumentParser, args: argparse.Namespace
+) -> int:
+    if not args.live:
+        if args.proefmap is None:
+            parser.error("--kwalificatie vereist --proefmap")
+        manifest = asyncio.run(
+            voorbereid_kwalificatie(
+                args.kwalificatie,
+                args.proefmap,
+                args.manifest,
+                payloads_pad=args.payloads,
+            )
+        )
+        logger.info("kwalificatiemanifest (pending): %s", manifest["identiteit_sha256"])
+        return 0
+    if args.akkoord is None or args.fase is None:
+        parser.error("--live --kwalificatie vereist --akkoord en --fase")
+    data = asyncio.run(
+        voer_kwalificatie_uit(args.manifest, args.akkoord, args.kwalificatie, args.fase)
+    )
+    geslaagd = data["evaluatie"]["mechanisch_geslaagd"]
+    logger.info(
+        "fase %s: stopreden %s; mechanisch geslaagd %s; cumulatief %s",
+        data["fase"],
+        data["stopreden"],
+        geslaagd,
+        data["cumulatief"],
+    )
+    return 0 if geslaagd else 3
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1073,12 +2179,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--live", action="store_true", help="echte verzending")
     parser.add_argument("--akkoord", type=Path)
     parser.add_argument("--resultaat", type=Path)
+    parser.add_argument(
+        "--kwalificatie",
+        type=Path,
+        metavar="GEVALLEN",
+        help="bevroren gevallenmanifest: kwalificatieprofiel i.p.v. driecasusmodus",
+    )
+    parser.add_argument("--proefmap", type=Path, help="nieuwe proefmap (voorbereiding)")
+    parser.add_argument("--fase", help="kwalificatiefase: " + ", ".join(FASEN))
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.WARNING, format="%(message)s")
     logger.setLevel(logging.INFO)
     if str(SRC) not in sys.path:
         sys.path.insert(0, str(SRC))
     try:
+        if args.kwalificatie is not None:
+            return _main_kwalificatie(parser, args)
         if not args.live:
             manifest = asyncio.run(
                 voorbereid(args.manifest, payloads_pad=args.payloads)
@@ -1095,6 +2211,9 @@ def main(argv: list[str] | None = None) -> int:
     except ProefGeweigerdError as fout:
         logger.error("geweigerd: %s", fout.reden)
         return 2
+    except ProefStopError as fout:
+        logger.error("gestopt: %s", fout.reden)
+        return 3
     except FileExistsError as fout:
         logger.error("bestaat al, niet overschreven: %s", fout)
         return 2
