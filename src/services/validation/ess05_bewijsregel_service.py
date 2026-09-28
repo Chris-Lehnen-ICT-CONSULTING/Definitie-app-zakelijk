@@ -1,6 +1,6 @@
-"""ESS-05 — broninterpretatie plus gebonden controle voor `ess05-bewijsregels/4` (DEF-768).
+"""ESS-05 — broninterpretatie plus gebonden controle voor `ess05-bewijsregels/5` (DEF-768).
 
-Contract: `docs/technisch/ess05-bewijsregels-contract-v4.md`. Eén beoordeling:
+Contract: `docs/technisch/ess05-bewijsregels-contract-v5.md` (delta op v4). Eén beoordeling:
 
 1. **Interpretatie**: precies één aanroep via `AIServiceInterface.generate_definition`
    op de geconfigureerde ESS-05-beoordelingsroute (`task_type="validation"`, de
@@ -93,9 +93,10 @@ def interpretatiesysteemprompt() -> str:
         "buur of deelgroep de eigen beschrijving, bronnen en bedoelde betekenis. Elk "
         "citaat staat precies één keer in zijn materiaal. Noemt een bron meer dan één "
         "van de begrippen, citeer dan een samenhangende passage die de naam van het "
-        "onderwerp bevat (bijvoorbeeld 'Uitleen: …'), inclusief de zin waar een "
-        "verwijzing als 'de medewerker' naar terugwijst, en zonder de naam van een "
-        "ander begrip. Kort nooit in tot woorden die ook elders staan.\n"
+        "onderwerp als heel woord bevat (bijvoorbeeld 'Uitleen: …'), inclusief de zin "
+        "waar een verwijzing als 'de medewerker' naar terugwijst. Citeer alleen een "
+        "passage die inhoudelijk over dat onderwerp gaat; de naam alleen is geen "
+        "bewijs. Kort nooit in tot woorden die ook elders staan.\n"
         "6. context: algemeen, zaakcontext (alleen in de vastgelegde context) of "
         "andere. voorwaarden alleen bij doel; aan de buurzijde wordt een voorwaarde "
         "een deelgroep.\n\n"
@@ -173,7 +174,8 @@ class Ess05BewijsregelService:
 
     #: /1 (DEF-768 bewijsregels v2): getypeerde feiten, geen oordeel of conclusie.
     #: /2 (R16-herstel): bevestigd = bepaling; benoemde, unieke passage per onderwerp.
-    PROMPT_VERSION = "ess05-interpretatie-prompt/2"
+    #: /3 (R16-H-01): de onderwerpnaam is een tekstanker; een andere naam mag erbij.
+    PROMPT_VERSION = "ess05-interpretatie-prompt/3"
     TASK_TYPE = "validation"  # dezelfde route als Ess05AssessmentService
 
     def __init__(

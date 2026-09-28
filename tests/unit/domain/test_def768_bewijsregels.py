@@ -726,13 +726,12 @@ class TestRoloverlap:
             groepen=groepen,
         )  # fmt: skip
 
-    #: v4: een citaat in deze bron (twee begrippen) noemt alleen zijn eigen onderwerp;
-    #: de overlap staat daarom via het kenmerk, niet via de naam 'lener'.
+    #: Oorspronkelijke fixture (R16-H-01): een geldige overlappassage noemt beide begrippen.
     BRON_SPLITS = (
         "Een lener heeft een actuele lening bij de instelling. Niet elke werknemer heeft "
-        "een lening; een werknemer kan ook een actuele lening bij de instelling hebben."
+        "een lening; een werknemer kan ook lener zijn."
     )
-    OVERLAP = "een werknemer kan ook een actuele lening bij de instelling hebben"
+    OVERLAP = "een werknemer kan ook lener zijn"
 
     def test_overlap_mag_via_splitsing_op_een_kenmerk(self):
         groepen = [
@@ -1092,8 +1091,9 @@ VERHUURPASSAGE_A = (
 
 
 class TestOnderwerpbinding:
-    """Een bron die meer dan één geregistreerd begrip noemt (uitleen én verhuur):
-    een broncitaat moet zijn eigen onderwerp noemen en geen ander begrip.
+    """Een bron die ook een ander geregistreerd begrip noemt (uitleen én verhuur):
+    een broncitaat noemt zijn eigen onderwerp als heel woord (tekstanker, v5).
+    Een tweede begripsnaam mag; de naam bewijst geen inhoudelijke betrekking.
 
     Reviewerbevinding R16 (bewijsregels-r16-uitvoerreview-result-v1.md, punt 1 en 2):
     dezelfde woorden staan onder Uitleen en onder Verhuur; `material_id + citaat`
@@ -1133,7 +1133,9 @@ class TestOnderwerpbinding:
         )  # fmt: skip
         assert br.bepaal(ruw, _invoer(BRON_C, BUUR_C)).uitkomst == "pass"
 
-    def test_citaat_met_beide_begrippen_geweigerd(self):
+    def test_citaat_met_beide_begrippen_gaat_naar_de_semantische_controle(self):
+        # R16-H-01: geen verbod op een tweede begripsnaam. De naam is alleen een
+        # tekstanker; of de passage inhoudelijk over uitleen gaat, toetst de controle.
         beide = UITLEENPASSAGE + " " + VERHUURPASSAGE_A
         ruw = _vervang(
             _interpretatie_a(),
@@ -1141,7 +1143,41 @@ class TestOnderwerpbinding:
             "doel",
             _a("K4", "doel", "bevestigd", [(BRON, beide)]),
         )
-        assert _fout(ruw, _invoer()).soort == "onderwerpfout"
+        interpretatie = br.valideer_interpretatie(ruw, _invoer())
+        doel = _eenheden(interpretatie, _invoer())["doel"].pakket.inhoud
+        assert beide in {c["citaat"] for c in doel["citaten"]}
+
+    def test_samengestelde_begripsnaam_is_niet_de_kortere_naam(self):
+        # R16-H-01: 'uitleenovereenkomst' is geen vermelding van 'uitleen' (geen
+        # prefixverwarring), maar blijft een geldig anker voor zichzelf.
+        overeenkomst = "gebruiker:uitleenovereenkomst"
+        bron = (
+            "Uitleen: apparatuur tijdelijk ter beschikking. "
+            "Uitleenovereenkomst: tijdelijk recht op gebruik."
+        )
+        invoer = br.Vergelijkingsinvoer(
+            term="uitleen",
+            materiaal={
+                "definition": "tijdelijk ter beschikking stellen van apparatuur",
+                BRON: bron,
+                f"neighbour:{overeenkomst}": "overeenkomst over gebruik",
+            },
+            buren=((overeenkomst, "uitleenovereenkomst"),),
+        )
+
+        def ruw(doelcitaat):
+            return _ruw(
+                {"bovenbegrip": "ter beschikking stellen van apparatuur",
+                 "kenmerken": [{"id": "K1", "kenmerk": "duur", "waarde": "tijdelijk",
+                                "citaat": "tijdelijk"}]},
+                [_a("K1", "doel", "bevestigd", [(BRON, doelcitaat)]),
+                 _a("K1", overeenkomst, "bevestigd",
+                    [(BRON, "Uitleenovereenkomst: tijdelijk recht op gebruik.")])],
+            )  # fmt: skip
+
+        assert br.valideer_interpretatie(ruw("Uitleen: apparatuur tijdelijk"), invoer)
+        fout = _fout(ruw("Uitleenovereenkomst: tijdelijk recht"), invoer)
+        assert fout.soort == "onderwerpfout" and "'uitleen'" in fout.melding
 
     def test_buurcitaat_uit_de_uitleenpassage_geweigerd(self):
         ruw = _vervang(

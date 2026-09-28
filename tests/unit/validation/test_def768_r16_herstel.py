@@ -4,7 +4,7 @@ Grondslag: logs/def768/bewijsregels-r16-uitvoerreview-result-v1.md. Twee strikt
 gescheiden soorten invoer:
 
 - **Historisch, ongewijzigd**: de ruwe interpretaties uit de R16-callrecords
-  (reports/, git-ignored; sha256-gepind). Onder v4 blijven zij ongeldig, nu al in
+  (reports/, git-ignored; sha256-gepind). Onder v4/v5 blijven zij ongeldig, nu al in
   de geldigheidsfase (één aanroep, geen controle). De vastgelegde v3-uitslagen
   zelf veranderen niet.
 - **Synthetisch gecorrigeerd**: dezelfde ruwe interpretaties waarin alleen elk
@@ -297,9 +297,9 @@ class TestInterpretatieprompt:
     def test_promptversie_en_regelversie_opgehoogd(self):
         identiteit = bs.Ess05BewijsregelService.contractidentiteit()
         assert identiteit["interpretation_prompt_version"] == (
-            "ess05-interpretatie-prompt/2"
+            "ess05-interpretatie-prompt/3"
         )
-        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/4"
+        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/5"
         assert identiteit["interpretation_schema_version"] == "ess05-interpretatie/2"
         assert identiteit["render_version"] == "ess05-bewijsregels-render/2"
 
@@ -312,3 +312,6 @@ class TestInterpretatieprompt:
             prompt
         )
         assert "(het kenmerk geldt voor elk geval van dat onderwerp)" not in prompt
+        # R16-H-01 (prompt /3): geen verbod op een tweede begripsnaam; naam is anker.
+        assert "zonder de naam van een ander begrip" not in prompt
+        assert "de naam alleen is geen bewijs" in prompt

@@ -1,14 +1,14 @@
-"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/4` (DEF-768).
+"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/5` (DEF-768).
 
-Contract: `docs/technisch/ess05-bewijsregels-contract-v4.md`. Pure domeinlogica,
+Contract: `docs/technisch/ess05-bewijsregels-contract-v5.md` (delta op v4). Pure domeinlogica,
 zonder AI-client, Streamlit of database.
 
 Het model interpreteert bronnen tot getypeerde feiten (`ess05-interpretatie/2`);
 deze module doet de rest, in twee strikt gescheiden fasen:
 
 1. **Geldigheid** (`valideer_interpretatie`): schema, letterlijke citaten per
-   onderwerp (in een bron met meer begrippen benoemt het citaat zijn eigen
-   onderwerp), context, de door de app bepaalde bewijsdoelen, tekstdekking van
+   onderwerp (in een bron met meer begrippen noemt het citaat zijn eigen
+   onderwerp als tekstanker; geen bewijs van inhoudelijke betrekking), context, de door de app bepaalde bewijsdoelen, tekstdekking van
    de kern, consistentie van buurgroepen, ondersteund bereik (een
    voorwaardelijke doeleis is `buiten_bereik`) en dekking van
    `onbesproken`. Elke afwijking is een `BewijsregelfoutError` → `error`, vóór
@@ -66,7 +66,7 @@ __all__ = [
     "valideer_interpretatie",
 ]
 
-BEWIJSREGELVERSIE = "ess05-bewijsregels/4"
+BEWIJSREGELVERSIE = "ess05-bewijsregels/5"
 INTERPRETATIESCHEMA = "ess05-interpretatie/2"
 RENDERVERSIE = "ess05-bewijsregels-render/2"
 DOEL = "doel"
@@ -256,31 +256,29 @@ def _plaats(
 
 
 def _noemt(tekst: str, term: str) -> bool:
-    """Het begrip staat als woord(begin) in de tekst, hoofdletterongevoelig."""
-    return re.search(rf"(?<!\w){re.escape(term)}", tekst, re.IGNORECASE) is not None
+    """Het begrip staat als heel woord in de tekst, hoofdletterongevoelig."""
+    patroon = rf"(?<!\w){re.escape(term)}(?!\w)"
+    return re.search(patroon, tekst, re.IGNORECASE) is not None
 
 
 def _onderwerpbinding(
     invoer: Vergelijkingsinvoer, ref: Citaatverwijzing, term: str, pad: str
 ) -> None:
-    """Noemt een bron meer dan één geregistreerd begrip, dan noemt het citaat het
-    eigen onderwerp en geen ander (contract v4 §3a). Een bron met één begrip
-    bindt het onderwerp zelf; de eis geldt dan niet."""
+    """Tekstanker (contract v5): noemt een bron meer dan één geregistreerd begrip,
+    dan noemt een citaat het eigen onderwerp als heel woord. Een andere
+    begripsnaam mag erbij staan. Dit bewijst geen inhoudelijke betrekking; die
+    toetst de semantische controle."""
     if not ref.material_id.startswith(_BRONPREFIX):
         return
     bron = invoer.materiaal[ref.material_id]
     termen = list(dict.fromkeys([invoer.term, *(t for _, t in invoer.buren)]))
     genoemd = [t for t in termen if _noemt(bron, t)]
-    if len(genoemd) < 2:
-        return
     citaat = bron[ref.start : ref.end]
-    in_citaat = [t for t in termen if _noemt(citaat, t)]
-    if in_citaat != [term]:
+    if len(genoemd) >= 2 and not _noemt(citaat, term):
         raise _fout(
             "onderwerpfout",
             f"{pad}: {ref.material_id!r} noemt de begrippen {genoemd}; een citaat "
-            f"voor {term!r} moet {term!r} noemen en geen ander begrip (citaat "
-            f"{citaat[:80]!r} noemt {in_citaat})",
+            f"voor {term!r} noemt {term!r} niet (citaat {citaat[:80]!r})",
         )
 
 
