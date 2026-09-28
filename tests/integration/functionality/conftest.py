@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -34,7 +35,11 @@ from domain.int03.contract import (
     VERDICT_PASS as INT03_VERDICT_PASS,
     VERWIJZING_DUIDELIJK,
 )
-from services.ai.base_client import ChatMessage, ChatResponse
+from services.ai.base_client import (
+    ChatMessage,
+    ChatResponse,
+    response_schema_sha256,
+)
 
 # --------------------------------------------------------------------------
 # Antwoordboek
@@ -351,6 +356,9 @@ class BevrorenAIClient:
         # Optioneel keyword uit het `AsyncAIClient`-Protocol (DEF-766, opt-in
         # SDK-retries per aanroep); de bevroren grens doet er niets mee.
         max_retries: int | None = None,
+        # DEF-836 P1 (opt-in): het antwoordschema; de bevroren grens bevestigt
+        # het zoals een schema-conforme provider (hash, stopreden, één blok).
+        response_schema: Mapping[str, Any] | None = None,
     ) -> ChatResponse:
         prompt = messages[-1].content if messages else ""
         soort, gevraagd = _ontleed_prompt(prompt)
@@ -376,11 +384,24 @@ class BevrorenAIClient:
         else:
             tekst = _antwoordtekst(soort, gevraagd)
 
+        if response_schema is None:
+            return ChatResponse(
+                text=tekst,
+                tokens_used=len(tekst.split()),
+                model=model,
+                metadata={"bevroren": True, "soort": soort},
+            )
         return ChatResponse(
             text=tekst,
             tokens_used=len(tekst.split()),
             model=model,
-            metadata={"bevroren": True, "soort": soort},
+            metadata={
+                "bevroren": True,
+                "soort": soort,
+                "response_schema_sha256": response_schema_sha256(response_schema),
+                "content_block_types": ["text"],
+            },
+            stop_reason="end_turn",
         )
 
     async def close(self) -> None:

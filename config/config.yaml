@@ -261,3 +261,18 @@ model_routing:
         model_families:
           - "opus-5"
           - "sonnet-5"
+      # DEF-836 P1: native JSON-schema-uitvoer (`output_config.format`) alleen
+      # voor exact deze, expliciet gecontroleerde combinatie: endpoint
+      # (effectieve SDK-base-URL, inclusief ANTHROPIC_BASE_URL), model-ID en
+      # thinking-instelling. Exacte gelijkheid, geen familie- of
+      # substringmatch: claude-opus-5-5 of een onbekend suffix erft niets.
+      # Uitbreiden alleen na een nieuwe, geverifieerde controle.
+      structured_outputs:
+        source: "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
+        # ISO-datum waarop de bron is gelezen (door de coordinator, DEF-836).
+        checked_at: "2026-09-27"
+        endpoints:
+          - "https://api.anthropic.com"
+        models:
+          - "claude-opus-5"
+        thinking: "disabled"

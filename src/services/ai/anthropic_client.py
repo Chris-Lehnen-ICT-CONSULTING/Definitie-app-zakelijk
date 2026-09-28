@@ -7,21 +7,25 @@ Wraps the Anthropic SDK and maps its errors to provider-agnostic types.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, cast
+from urllib.parse import urlsplit
 
 import anthropic
 from anthropic import AsyncAnthropic
-from anthropic.types import MessageParam, ThinkingConfigParam
+from anthropic.types import MessageParam, OutputConfigParam, ThinkingConfigParam
 
 from services.ai.base_client import (
     AIAuthenticationClientError,
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
+    AIStructuredOutputUnsupportedError,
     ChatMessage,
     ChatResponse,
     Eventloopwacht,
     foutketen,
+    response_schema_sha256,
     sanitize_error,
 )
 
@@ -125,6 +129,7 @@ class AnthropicClient:
         max_tokens: int = 300,
         timeout: float | None = None,
         max_retries: int | None = None,
+        response_schema: Mapping[str, Any] | None = None,
     ) -> ChatResponse:
         if not messages:
             raise AIClientError("messages must not be empty")
@@ -167,6 +172,9 @@ class AnthropicClient:
                 )
 
         temperature_param, thinking_param = self._verzendbeleid(model, temperature)
+        output_config, schemahash = self._uitvoerschema(
+            sdk, model, thinking_param, response_schema
+        )
 
         try:
             response = await sdk.messages.create(
@@ -177,6 +185,7 @@ class AnthropicClient:
                 system=system_text,
                 messages=api_messages,
                 timeout=timeout or self._timeout,
+                output_config=output_config,
             )
         except anthropic.RateLimitError as exc:
             logger.warning("Anthropic rate limit hit: %s", sanitize_error(str(exc)))
@@ -204,13 +213,58 @@ class AnthropicClient:
         if response.usage:
             tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
+        metadata: dict[str, Any] = {"provider": "anthropic"}
+        if schemahash is not None:
+            # DEF-836 P1: lokale bevestiging van het werkelijk verzonden schema
+            # en de responsvorm (alleen bloktypen, geen inhoud).
+            metadata["response_schema_sha256"] = schemahash
+            metadata["content_block_types"] = [
+                str(getattr(block, "type", "")) for block in response.content
+            ]
         return ChatResponse(
             text=text,
             tokens_used=tokens_used,
             model=response.model,
-            metadata={"provider": "anthropic"},
+            metadata=metadata,
             stop_reason=_stopreden(response, model, max_tokens, tokens_used),
         )
+
+    def _uitvoerschema(
+        self,
+        sdk: AsyncAnthropic,
+        model: str,
+        thinking_param: ThinkingConfigParam | anthropic.Omit,
+        response_schema: Mapping[str, Any] | None,
+    ) -> tuple[OutputConfigParam | anthropic.Omit, str | None]:
+        """(output_config, lokale schemahash) voor de SDK-aanroep (DEF-836 P1).
+
+        Zonder schema: weglaten, byte-identiek aan het bestaande verzoek. Met
+        schema alleen voor de in de config exact gecontroleerde combinatie
+        van provider, effectieve base-URL van déze SDK-client (dus inclusief
+        een ANTHROPIC_BASE_URL-omleiding), model en thinking-type; anders
+        vóór verzending `AIStructuredOutputUnsupportedError`. De hash blijft
+        lokaal en gaat niet mee in het verzoek.
+        """
+        if response_schema is None:
+            return anthropic.omit, None
+        endpoint = _origin(sdk)
+        thinking = (
+            thinking_param.get("type") if isinstance(thinking_param, dict) else None
+        )
+        if not self._router.supports_structured_outputs(
+            model, provider=self.provider_name, endpoint=endpoint, thinking=thinking
+        ):
+            raise AIStructuredOutputUnsupportedError(
+                "antwoordschema niet ondersteund voor deze combinatie "
+                f"(provider={self.provider_name}, model={model}, "
+                f"endpoint={endpoint or 'onbekend'}, thinking={thinking or 'weggelaten'}); "
+                "niets verzonden"
+            )
+        schema = dict(response_schema)
+        output_config: OutputConfigParam = {
+            "format": {"type": "json_schema", "schema": schema}
+        }
+        return output_config, response_schema_sha256(schema)
 
     def _verzendbeleid(
         self, model: str, temperature: float
@@ -251,6 +305,22 @@ class AnthropicClient:
 
     async def close(self) -> None:
         await self._client.close()
+
+
+def _origin(sdk: Any) -> str | None:
+    """De effectieve origin (``scheme://host[:poort]``) van de SDK-client, of
+    None bij een pad, credentials, query of onleesbare waarde. Leest alleen
+    `base_url`; geen sleutel of headers."""
+    try:
+        delen = urlsplit(str(sdk.base_url))
+        poort = delen.port
+    except (AttributeError, TypeError, ValueError):
+        return None
+    if not delen.scheme or not delen.hostname:
+        return None
+    if delen.path.strip("/") or delen.query or delen.fragment or delen.username:
+        return None
+    return f"{delen.scheme}://{delen.hostname}" + (f":{poort}" if poort else "")
 
 
 def _stopreden(

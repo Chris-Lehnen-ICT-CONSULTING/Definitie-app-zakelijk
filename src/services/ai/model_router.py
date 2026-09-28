@@ -227,3 +227,40 @@ class ModelRouter:
         wordt de parameter weggelaten.
         """
         return self._model_in_capability(model, provider, "thinking_default_on")
+
+    def supports_structured_outputs(
+        self,
+        model: str,
+        provider: str | None = None,
+        *,
+        endpoint: str | None = None,
+        thinking: str | None = None,
+    ) -> bool:
+        """Is native JSON-schema-uitvoer gecontroleerd voor exact deze combinatie?
+
+        DEF-836 P1: leest ``capabilities.<provider>.structured_outputs`` met
+        ``models``, ``endpoints`` en ``thinking``. Bewust exacte gelijkheid en
+        geen ``_model_in_capability``: die matcht op familie, waardoor
+        ``claude-opus-5-5`` of een onbekend suffix zou erven. ``endpoint`` is
+        de effectieve origin van de SDK-client, ``thinking`` het verzonden
+        thinking-type (None = weggelaten). Ontbrekend of malformed beleid
+        geeft False.
+        """
+        node: Any = self._config.get("capabilities")
+        for key in (provider or self.active_provider, "structured_outputs"):
+            if not isinstance(node, dict):
+                return False
+            node = node.get(key)
+        if not isinstance(node, dict):
+            return False
+        models, endpoints = node.get("models"), node.get("endpoints")
+        if not isinstance(models, list) or not isinstance(endpoints, list):
+            return False
+        return (
+            isinstance(model, str)
+            and model in models
+            and isinstance(endpoint, str)
+            and endpoint in endpoints
+            and isinstance(thinking, str)
+            and thinking == node.get("thinking")
+        )

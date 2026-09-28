@@ -25,6 +25,8 @@ import logging
 import pytest
 
 from domain.int03.contract import (
+    ANTWOORDSCHEMA,
+    ANTWOORDSCHEMA_SHA256,
     BEVINDING_GEEN_VERWIJZEND_WOORD,
     BEVINDING_MEERDUIDIG,
     CONTRACTVERSIE,
@@ -38,6 +40,7 @@ from domain.int03.contract import (
     bereken_int03_vingerafdruk,
     valideer_beoordeling,
 )
+from services.ai.base_client import response_schema_sha256
 from services.interfaces import (
     AIGenerationResult,
     AIRateLimitError,
@@ -116,6 +119,22 @@ PLACEHOLDER_UITVOER = {
 }
 
 
+def _transportmetadata(kwargs, overschrijving):
+    """Wat een schema-conforme AI-laag meldt (DEF-836 P1): stopreden, één
+    tekstblok, het gemelde model en de hash van het werkelijk ontvangen schema
+    (alleen als er een schema is meegegeven). `metadata=` overschrijft per test."""
+    metadata = {
+        "stop_reason": "end_turn",
+        "content_block_types": ["text"],
+        "provider_model": "fake-model-1-gemeld",
+    }
+    schema = kwargs.get("response_schema")
+    if schema is not None:
+        metadata["response_schema_sha256"] = response_schema_sha256(schema)
+    metadata.update(overschrijving or {})
+    return metadata
+
+
 class FakeAI:
     """Deterministische AI-grens: geeft per aanroep de volgende geplande uitkomst."""
 
@@ -140,7 +159,7 @@ class FakeAI:
             model="fake-model-1",
             tokens_used=42,
             generation_time=0.01,
-            metadata=dict(self.metadata or {}),
+            metadata=_transportmetadata(kwargs, self.metadata),
         )
 
 
@@ -218,9 +237,21 @@ def test_prompt_draagt_norm_k6_regels_en_materiaal_als_gegevens():
     # Term ondersteunend, context/toelichting alleen betekenisgrond.
     assert "geen antecedent" in systeem.lower()
     assert "gegevens" in systeem.lower()
-    # Gesloten antwoordvorm.
-    for veld in ("verdict", "references", "question", "uncertainty", "candidates"):
-        assert f'"{veld}"' in systeem
+    # Gesloten antwoordvorm: /3 (DEF-836 P1) noemt elk veld met zijn betekenis;
+    # de structuur zelf komt uit het meegegeven antwoordschema.
+    for veld in (
+        "references",
+        "word",
+        "passage",
+        "status",
+        "reading",
+        "candidates",
+        "reason",
+        "verdict",
+        "question",
+        "uncertainty",
+    ):
+        assert systeem.count(f"\n- {veld}: ") == 1, veld
     assert "score" not in systeem.lower().replace("no_score", "")
     # Materiaal.
     assert TEKST in gebruiker
@@ -235,33 +266,30 @@ def test_prompt_zonder_toelichting_en_context_is_deterministisch():
     assert a == b
 
 
-async def test_formaatinstructie_bereikt_de_ai_grens_direct_voor_het_sjabloon():
-    # DEF-836 (besluitnotitie-v3 §4): de formele leverinstructie staat in de
-    # systeemprompt die de AI-laag krijgt, direct vóór het uitvoerblok.
+async def test_schema_en_formaatslot_bereiken_de_ai_grens():
+    # DEF-836 P1: het antwoordschema gaat als opt-in naar de AI-laag; het
+    # formaatslot van /3 vervangt de leverinstructie en het sjabloon van /2.
     service, ai = _service(_uitvoer())
     await _assess(service)
-    systeem = ai.calls[0]["system_prompt"]
-    for kernzin in (
+    call = ai.calls[0]
+    assert call["response_schema"] == ANTWOORDSCHEMA
+    systeem = call["system_prompt"]
+    assert (
+        systeem.count("Lever één beoordeling volgens het meegegeven uitvoerschema") == 1
+    )
+    assert systeem.index("Herschrijf de definitie niet.") < systeem.index(
+        "Betekenis van de velden:"
+    )
+    for oud in (
         "Lever precies één definitief JSON-object.",
-        "Neem geen conceptobject, placeholder, correctiebericht of tweede object op.",
-        "ook bij `non_referring`.",
-        (
-            "Gebruik bij `non_referring` en `no_antecedent` `candidates: []`; "
-            "laat het veld niet weg."
-        ),
         "Controleer vóór verzending",
+        "Antwoord uitsluitend met één JSON-object",
     ):
-        assert systeem.count(kernzin) == 1, kernzin
-    begin = systeem.index("Lever precies één definitief JSON-object.")
-    slot = "niet in plaats van een inhoudelijk oordeel."
-    einde = systeem.index(slot) + len(slot)
-    uitvoerblok = systeem.index("Antwoord uitsluitend met één JSON-object")
-    assert systeem.index("Herschrijf de definitie niet.") < begin < einde
-    assert systeem[einde:uitvoerblok].strip() == ""
+        assert oud not in systeem, oud
 
 
 async def test_oordeel_onder_vorige_promptversie_is_historisch():
-    # DEF-836: de gewijzigde prompt maakt oordelen onder int03-assess/1
+    # DEF-836: de gewijzigde prompt maakt oordelen onder int03-assess/1 en /2
     # historisch; de norm (en dus de normhash) blijft ongewijzigd.
     service, _ = _service(_uitvoer())
     doc = (await _assess(service)).als_dict()
@@ -271,12 +299,13 @@ async def test_oordeel_onder_vorige_promptversie_is_historisch():
     )
     actueel, _ = valideer_beoordeling(doc, _vingerafdruk(), TEKST, binding=binding)
     assert actueel is not None
-    doc["prompt_version"] = "int03-assess/1"
-    oordeel, samenvatting = valideer_beoordeling(
-        doc, _vingerafdruk(), TEKST, binding=binding
-    )
-    assert oordeel is None
-    assert samenvatting["historical"] is True
+    assert binding.prompt_version == "int03-assess/3"
+    for vorige in ("int03-assess/1", "int03-assess/2"):
+        oordeel, samenvatting = valideer_beoordeling(
+            {**doc, "prompt_version": vorige}, _vingerafdruk(), TEKST, binding=binding
+        )
+        assert oordeel is None
+        assert samenvatting["historical"] is True
     assert service.norm_sha256 == (
         "d2f0cc1c834f36b264f2c82a496e0ff3108aa358e8bc65f518870c6179d3bb2d"
     )
@@ -311,6 +340,8 @@ async def test_gegronde_beoordeling_via_taakrouting_zonder_hardcoded_model():
     assert d["norm_sha256"] == service.norm_sha256
     assert d["fingerprint"] == _vingerafdruk()
     assert d["attribution"]["model"] == "fake-model-1"
+    assert d["attribution"]["model_reported"] == "fake-model-1-gemeld"
+    assert d["input"]["response_schema_sha256"] == ANTWOORDSCHEMA_SHA256
     assert d["attribution"]["provider"] == "fakeprovider"
     assert d["attribution"]["task_type"] == "validation"
     assert d["attribution"]["tokens_used"] == 42
@@ -354,10 +385,24 @@ async def test_onvoldoende_informatie_met_precies_een_vraag():
     assert d["judgment"]["question"].endswith("?")
 
 
-async def test_antwoord_in_codeblok_wordt_geaccepteerd():
-    service, _ = _service("```json\n" + json.dumps(_uitvoer()) + "\n```")
+@pytest.mark.parametrize(
+    "omhulling",
+    [("```json\n", "\n```"), ("```\n", "\n```"), ("```JSON ", " ```")],
+    ids=["json-fence", "kale-fence", "hoofdletters-een-regel"],
+)
+async def test_antwoord_in_codeblok_is_technische_fout_zonder_oordeel(omhulling):
+    # DEF-836 R1: in schemamodus telt alleen het kale JSON-object; een
+    # Markdown-codeblok wordt niet uitgepakt (geen reparatie/normalisatie).
+    begin, eind = omhulling
+    omhuld = begin + json.dumps(_uitvoer()) + eind
+    service, ai = _service(omhuld, omhuld)
     d = (await _assess(service)).als_dict()
-    assert d["status"] == "assessed"
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "malformed_response"
+    assert d["judgment"] is None
+    # Een afgewezen antwoord wordt niet gecachet: opnieuw toetsen gaat naar het model.
+    await _assess(service)
+    assert len(ai.calls) == 2
 
 
 async def test_niet_verwijzend_met_lege_kandidatenlijst_is_geldig():
