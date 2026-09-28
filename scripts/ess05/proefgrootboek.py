@@ -144,6 +144,12 @@ R13/R14 stopt alleen een technisch niet-afgeronde controle of een open poging.
 = 12 modelstappen, reserve 0; samen met R15 t/m R1 nooit boven 403 (391
 werkelijke + 12); lokaal plafond USD 4,32 (de volledige stapbegroting).
 
+`R17` (DEF-768-AI-20260928-R17, gerichte echte proef na het offline herstel;
+opdracht Chris 28-09 "go?", `logs/def768/ronde17-gebruikersopdracht-v1.json`)
+is R16 op de herstelde bewijsregels (`ess05-bewijsregels/5`, prompt /3): zelfde
+fase, stappen, stopregels en plafond USD 4,32, voorganger R16; samen met R16
+t/m R1 nooit boven 408 (396 werkelijke + 12).
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -189,6 +195,7 @@ __all__ = [
     "R14",
     "R15",
     "R16",
+    "R17",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -319,7 +326,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R16` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R17` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -744,9 +751,38 @@ R16 = Proefidentiteit(
     stop_alleen_technisch=True,
     vroege_stop_toegestaan=True,
 )
+#: Ronde 17 (opdracht Chris 28-09, "go?", ronde17-gebruikersopdracht-v1.json):
+#: gerichte echte proef na het offline herstel. Dezelfde drie gevallen als R16,
+#: nu op `ess05-bewijsregels/5` en interpretatie-prompt /3. Alles gelijk aan R16
+#: behalve voorganger (R16) en cumulatieve grens: 396 werkelijke + 12 = 408,
+#: binnen 427. Plafond USD 4,32 binnen de kaderrest USD 21,951255.
+R17 = replace(
+    R16,
+    proef_id="DEF-768-AI-20260928-R17",
+    voorganger=R16,
+    cumulatief_max=408,
+)
 _IDENTITEITEN = {
     i.proef_id: i
-    for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15, R16)
+    for i in (
+        R1,
+        R2,
+        R3,
+        R4,
+        R5,
+        R6,
+        R7,
+        R8,
+        R9,
+        R10,
+        R11,
+        R12,
+        R13,
+        R14,
+        R15,
+        R16,
+        R17,
+    )
 }
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
@@ -771,7 +807,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R16"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R17"
         raise BudgetSchendingError(msg)
     return identiteit
 

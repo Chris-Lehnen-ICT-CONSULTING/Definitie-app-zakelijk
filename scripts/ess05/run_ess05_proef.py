@@ -158,6 +158,16 @@ cumulatief 403; lokaal plafond USD 4,32 binnen de kaderrest USD 22,163635. Een
 geval mag vroeg stoppen (geldigheidsfout, afgewezen controle); alleen een
 technisch niet-afgerond geval of een open poging stopt de proef.
 
+Ronde 17 (`--proef R17`, DEF-768-AI-20260928-R17, gerichte echte proef na het
+offline herstel; opdracht Chris 28-09 "go?",
+`logs/def768/ronde17-gebruikersopdracht-v1.json`, vastgelegd in
+`logs/def768/ronde17-bewijsregels-budgetbesluit-v1.json`): R16 op de herstelde
+bewijsregels (`ess05-bewijsregels/5`, interpretatie-prompt /3). Dezelfde
+gevallen A/B/C (`maak_r17_bewijsregel_invoer.py`: gevalinhoud en markers exact
+uit de R16-invoer), elk exact eenmaal; max 12 modelstappen (verwacht 9),
+reserve 0, geen retry, cumulatief 408; plafond USD 4,32 binnen de kaderrest
+USD 21,951255; voorganger het afgesloten R16-grootboek.
+
 Voorbeeld (droog, offline):
 
     .venv/bin/python scripts/ess05/run_ess05_proef.py --fase ontwikkeling \\
@@ -685,6 +695,35 @@ R16_BEWIJSREGEL_CONTRACT = MappingProxyType(
 R16_KADERREST_NUSD = 22_163_635_000
 #: Ronde 16: de kop van het afgesloten R15-grootboek (4 calls, 0 open).
 R15_KOP_SHA256 = "46c51140aa2d7f80a550b77a8684ebbc9d354f817186fa94a7bb7a4fa317f810"
+#: Ronde 17 (gerichte echte proef na het offline herstel): eigen rapportroot,
+#: grootboek, anker, slot en freeze (b). Invoer: A/B/C uit
+#: maak_r17_bewijsregel_invoer.py (gevalinhoud exact die van R16).
+R17_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R17"
+R17_B_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
+#: Ronde 17: het besluit van de coördinator bij het antwoord "go?" van Chris
+#: (28-09, ronde17-gebruikersopdracht-v1.json), gepind op pad en hash.
+R17_BUDGETBESLUIT = (
+    PROJECT_ROOT / "logs" / "def768" / "ronde17-bewijsregels-budgetbesluit-v1.json"
+)
+R17_BUDGETBESLUIT_SHA256 = (
+    "1f825a6daab976b5e4a1a41631a35798fe49ce6a293856a0a456e8e0c0fcfeda"
+)
+#: Ronde 17: de gereviewde bewijsregels (v5, prompt /3; HEAD e7000feaf).
+R17_BEWIJSREGEL_CONTRACT = MappingProxyType(
+    {
+        "bewijsregel_version": "ess05-bewijsregels/5",
+        "interpretation_schema_version": "ess05-interpretatie/2",
+        "render_version": "ess05-bewijsregels-render/2",
+        "interpretation_prompt_version": "ess05-interpretatie-prompt/3",
+        "interpretation_system_prompt_sha256": (
+            "c0f1f856c02da8237fdaaa61d02d84db9788bc9801c72a5737fb25aeb420c687"
+        ),
+    }
+)
+#: Ronde 17: USD 25 − werkelijke R8–R16-kosten (USD 3,048745).
+R17_KADERREST_NUSD = 21_951_255_000
+#: Ronde 17: de kop van het afgesloten R16-grootboek (5 calls, 0 open).
+R16_KOP_SHA256 = "58f5a17ec921d67e66899882441c8629fae9a41476d3485c697cd3614141cee8"
 
 
 @dataclass(frozen=True)
@@ -963,6 +1002,25 @@ PROEVEN = {
         voorganger_kop_sha256=R15_KOP_SHA256,
         b_invoer_sha256=R16_B_INVOER_SHA256,
         bewijsregel_contract=R16_BEWIJSREGEL_CONTRACT,
+    ),
+    # Ronde 17: R16 op de herstelde bewijsregels (v5, prompt /3), eigen besluit,
+    # invoer, kaderrest en de kop van het R16-grootboek; verder gelijk aan R16.
+    "R17": Proef(
+        "R17",
+        gb.R17,
+        Proefopslag(R17_UITMAP),
+        True,
+        True,
+        budgetbesluit=R17_BUDGETBESLUIT,
+        budgetbesluit_sha256=R17_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R14_CONTRACT,
+        kaderrest_nusd=R17_KADERREST_NUSD,
+        lokaal_contract=R15_LOKAAL_CONTRACT,
+        voorganger_kop_sha256=R16_KOP_SHA256,
+        b_invoer_sha256=R17_B_INVOER_SHA256,
+        bewijsregel_contract=R17_BEWIJSREGEL_CONTRACT,
     ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
@@ -4903,7 +4961,9 @@ def _parser() -> argparse.ArgumentParser:
             "(4 lokale_verificatie, max USD 1,50, reserve 0); R16 "
             f"({gb.R16.proef_id}, opslag {PROEVEN['R16'].opslag.root}, "
             "cumulatief max 403) is de mechanismeproef bewijsregels "
-            "(3 gevallen × max 4 stappen in bewijsregels, max USD 4,32, reserve 0)"
+            "(3 gevallen × max 4 stappen in bewijsregels, max USD 4,32, reserve 0); "
+            f"R17 ({gb.R17.proef_id}, opslag {PROEVEN['R17'].opslag.root}, "
+            "cumulatief max 408) is dezelfde proef op bewijsregels/5 en prompt /3"
         ),
     )
     p.add_argument(
@@ -4911,7 +4971,7 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         help=(
             "gevallenbestand (T-fases, nulcall), verifier-only-invoer (R8 t/m "
-            "R14), lokale invoer (R15) of bewijsregelinvoer (R16)"
+            "R14), lokale invoer (R15) of bewijsregelinvoer (R16, R17)"
         ),
     )
     p.add_argument(

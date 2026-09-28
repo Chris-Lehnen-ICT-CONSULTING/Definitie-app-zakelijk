@@ -325,6 +325,7 @@ class TestRegistratie:
             "R14",
             "R15",
             "R16",
+            "R17",
         ]
         r9 = runner.PROEVEN["R9"]
         assert (r9.budgetbesluit_sha256, dict(r9.contract)) == (

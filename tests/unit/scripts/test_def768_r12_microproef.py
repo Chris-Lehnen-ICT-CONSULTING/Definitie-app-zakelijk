@@ -384,12 +384,13 @@ class TestRegistratie:
             "R14",
             "R15",
             "R16",
+            "R17",
         ]
         r11 = runner.PROEVEN["R11"]
         assert dict(r11.contract) == R11_CONTRACT
         assert r11.kaderverruiming_modelstappen == 3
         assert all(p.kaderrest_nusd is None for n, p in runner.PROEVEN.items()
-                   if n not in ("R12", "R13", "R14", "R15", "R16"))  # fmt: skip
+                   if n not in ("R12", "R13", "R14", "R15", "R16", "R17"))  # fmt: skip
 
     def test_kopie_van_r12_start_geen_echte_call(self):
         provider = _R8Provider()
