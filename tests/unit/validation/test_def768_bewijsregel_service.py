@@ -313,6 +313,23 @@ class TestPromptV4:
         assert '"citaten": ["U<n>"]' in system
 
 
+class TestInterpreteer:
+    def test_een_aanroep_geen_controle(self):
+        invoer = dt._invoer()
+        ai = _SpyAI(dt.naar_eenheden(dt._interpretatie_a(), invoer))
+        stap = asyncio.run(_dienst(ai).interpreteer(invoer))
+        assert stap.fout is None and stap.interpretatie is not None
+        assert len(ai.aanroepen) == 1
+        assert stap.registratie["prompt_version"] == "ess05-interpretatie-prompt/4"
+
+    def test_ongeldig_geeft_fout_en_geen_interpretatie(self):
+        invoer = dt._invoer()
+        ruw = dt.naar_eenheden(dt._interpretatie_a(), invoer)
+        ruw["antwoorden"][0]["citaten"] = ["U99"]
+        stap = asyncio.run(_dienst(_SpyAI(ruw)).interpreteer(invoer))
+        assert stap.interpretatie is None and stap.fout.fout.soort == "citaatfout"
+
+
 class TestClientpad:
     def test_provider_krijgt_per_stap_alleen_system_en_eigen_user(self):
         from services.ai.base_client import ChatResponse

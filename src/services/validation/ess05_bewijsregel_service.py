@@ -49,6 +49,7 @@ from services.validation.ess05_verification_service import (
 __all__ = [
     "Bewijsregelresultaat",
     "Ess05BewijsregelService",
+    "Interpretatiestap",
     "bouw_interpretatieprompt",
     "interpretatiesysteemprompt",
 ]
@@ -182,6 +183,15 @@ class Bewijsregelresultaat:
         return (1 if self.interpretatie.get("aangeroepen") else 0) + len(self.controles)
 
 
+@dataclass(frozen=True)
+class Interpretatiestap:
+    """Uitkomst van interpretatie plus geldigheid: óf een interpretatie óf een fout."""
+
+    registratie: Mapping[str, Any]
+    interpretatie: br.Interpretatie | None
+    fout: Bewijsregelresultaat | None
+
+
 class Ess05BewijsregelService:
     """Interpretatie → geldigheid → gebonden controle → regels, per beoordeling."""
 
@@ -247,8 +257,8 @@ class Ess05BewijsregelService:
             controles,
         )
 
-    async def beoordeel(self, invoer: br.Vergelijkingsinvoer) -> Bewijsregelresultaat:
-        """Eén beoordeling; nooit een exception, geen tweede poging."""
+    async def interpreteer(self, invoer: br.Vergelijkingsinvoer) -> Interpretatiestap:
+        """Stap 1 en 2: één interpretatieaanroep plus geldigheid; nooit een exception."""
         system, prompt = bouw_interpretatieprompt(invoer)
         provider, model = self.modelsleutel()
         registratie: dict[str, Any] = {
@@ -257,8 +267,10 @@ class Ess05BewijsregelService:
             "aangeroepen": False,
         }
         if not invoer.materiaal.get("definition"):
-            return self._fout(
-                "schemafout", "de invoer heeft geen definitie", registratie
+            return Interpretatiestap(
+                registratie,
+                None,
+                self._fout("schemafout", "de invoer heeft geen definitie", registratie),
             )
         aanroep = await eenmalige_aanroep(
             self._ai_service,
@@ -286,19 +298,36 @@ class Ess05BewijsregelService:
         if fout is None and aanroep.stop == "refusal":
             fout = ("refusal", "de provider weigerde het verzoek; geen oordeel")
         if fout is not None:
-            return self._fout(fout[0], fout[1], registratie)
+            return Interpretatiestap(
+                registratie, None, self._fout(fout[0], fout[1], registratie)
+            )
         geparsed = parse_modeluitvoer(aanroep.tekst)
         if geparsed is None:
-            return self._fout(
-                "malformed_response",
-                "interpretatie is geen kaal JSON-object",
+            return Interpretatiestap(
                 registratie,
+                None,
+                self._fout(
+                    "malformed_response",
+                    "interpretatie is geen kaal JSON-object",
+                    registratie,
+                ),
             )
         registratie["ruw"] = geparsed
         try:
             interpretatie = br.valideer_interpretatie(_ontsnap(geparsed), invoer)
         except br.BewijsregelfoutError as exc:
-            return self._fout(exc.soort, exc.melding, registratie)
+            return Interpretatiestap(
+                registratie, None, self._fout(exc.soort, exc.melding, registratie)
+            )
+        return Interpretatiestap(registratie, interpretatie, None)
+
+    async def beoordeel(self, invoer: br.Vergelijkingsinvoer) -> Bewijsregelresultaat:
+        """Eén beoordeling; nooit een exception, geen tweede poging."""
+        stap = await self.interpreteer(invoer)
+        if stap.fout is not None:
+            return stap.fout
+        interpretatie, registratie = stap.interpretatie, stap.registratie
+        assert interpretatie is not None  # fout is None
         controles: list[tuple[str, LokaalVerificatieresultaat]] = []
         for eenheid in br.controle_eenheden(interpretatie, invoer):
             resultaat = await self._controle.verifieer(eenheid.pakket)

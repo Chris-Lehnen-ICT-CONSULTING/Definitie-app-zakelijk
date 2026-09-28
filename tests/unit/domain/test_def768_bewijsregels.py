@@ -124,6 +124,42 @@ def _ruw(kern, antwoorden, *, buiten_kern=(), groepen=(), buiten_bereik=()):
     }
 
 
+def naar_eenheden(ruw, invoer):
+    """TESTHULP (geen productiecode): zet vooraf vastgelegde letterlijke citaten
+    ({material_id, citaat}) om naar de eenheden die dat citaat raakt. Het citaat
+    moet precies één keer voorkomen in materiaal mét eenheden; anders faalt de
+    test, zodat een vervallen concept niet stil een andere betekenis krijgt."""
+    eenheden = invoer.eenheden()
+    ruw = copy.deepcopy(ruw)
+
+    def om(lijst):
+        uit = []
+        for c in lijst:
+            if isinstance(c, str):
+                uit.append(c)
+                continue
+            tekst = invoer.materiaal[c["material_id"]]
+            posities = [
+                i for i in range(len(tekst)) if tekst.startswith(c["citaat"], i)
+            ]
+            assert len(posities) == 1, f"legacy-citaat niet eenduidig: {c}"
+            s, e = posities[0], posities[0] + len(c["citaat"])
+            raak = [
+                u
+                for u, r in eenheden.items()
+                if r.material_id == c["material_id"] and r.start < e and s < r.end
+            ]
+            assert raak, f"materiaal zonder eenheden (definitie/context?): {c}"
+            uit += [u for u in raak if u not in uit]
+        return uit
+
+    for a in ruw["antwoorden"]:
+        a["citaten"] = om(a["citaten"])
+    for g in ruw["buurgroepen"]:
+        g["citaten"] = om(g["citaten"])
+    return ruw
+
+
 def _doelantwoorden():
     return [
         _a("K1", "doel", "bevestigd", [(BRON, DOELCITAAT)]),
