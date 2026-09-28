@@ -1,14 +1,16 @@
-"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/5` (DEF-768).
+"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/6` (DEF-768).
 
-Contract: `docs/technisch/ess05-bewijsregels-contract-v5.md` (delta op v4). Pure domeinlogica,
+Contract: `docs/technisch/ess05-bewijsregels-contract-v6.md` (delta op v5). Pure domeinlogica,
 zonder AI-client, Streamlit of database.
 
-Het model interpreteert bronnen tot getypeerde feiten (`ess05-interpretatie/2`);
+Het model interpreteert bronnen tot getypeerde feiten (`ess05-interpretatie/3`);
 deze module doet de rest, in twee strikt gescheiden fasen:
 
-1. **Geldigheid** (`valideer_interpretatie`): schema, letterlijke citaten per
-   onderwerp (in een bron met meer begrippen noemt het citaat zijn eigen
-   onderwerp als tekstanker; geen bewijs van inhoudelijke betrekking), context, de door de app bepaalde bewijsdoelen, tekstdekking van
+1. **Geldigheid** (`valideer_interpretatie`): schema, bewijs per onderwerp via
+   door de app genummerde eenheden (zinnen, `Vergelijkingsinvoer.eenheden`;
+   hergebruik over antwoorden mag), een negatief anker (in een bron met meer
+   begrippen is een eenheid die alleen een ander begrip noemt geen bewijs; geen
+   bewijs van inhoudelijke betrekking), context, de door de app bepaalde bewijsdoelen, tekstdekking van
    de kern, consistentie van buurgroepen, ondersteund bereik (een
    voorwaardelijke doeleis is `buiten_bereik`) en dekking van
    `onbesproken`. Elke afwijking is een `BewijsregelfoutError` → `error`, vóór
@@ -64,10 +66,11 @@ __all__ = [
     "regelcontract",
     "render",
     "valideer_interpretatie",
+    "zinnen",
 ]
 
-BEWIJSREGELVERSIE = "ess05-bewijsregels/5"
-INTERPRETATIESCHEMA = "ess05-interpretatie/2"
+BEWIJSREGELVERSIE = "ess05-bewijsregels/6"
+INTERPRETATIESCHEMA = "ess05-interpretatie/3"
 RENDERVERSIE = "ess05-bewijsregels-render/2"
 DOEL = "doel"
 BEREIKZIN = (
@@ -86,6 +89,23 @@ _CONTEXTMATERIAAL = "context"
 #: Woorden die buiten een kerncitaat mogen vallen (alleen nevenschikking).
 _VRIJE_WOORDEN = frozenset({"en"})
 _WOORD = re.compile(r"\w+")
+#: v6: een zin loopt tot en met . ! ? gevolgd door witruimte, of tot het einde.
+_ZIN = re.compile(r"\S.*?(?:[.!?](?=\s)|\Z)", re.DOTALL)
+#: v6: materiaal zonder bewijseenheden (de kern citeert de definitie letterlijk;
+#: context is nooit bewijs voor een antwoord).
+_ZONDER_EENHEDEN = frozenset({_DEFINITIE, _CONTEXTMATERIAAL})
+
+
+def zinnen(tekst: str) -> tuple[tuple[int, int], ...]:
+    """Halfopen bereiken van de zinnen in `tekst`, zonder omringende witruimte.
+
+    Grens: '.', '!' of '?' gevolgd door witruimte. Afkortingen als 'bijv. een'
+    splitsen dus ook; dat maakt een eenheid korter, nooit onvindbaar.
+    """
+    return tuple(
+        (m.start(), m.start() + len(m.group().rstrip())) for m in _ZIN.finditer(tekst)
+    )
+
 
 _VELDEN = frozenset(
     {
@@ -140,6 +160,18 @@ class Vergelijkingsinvoer:
 
     def termen(self) -> dict[str, str]:
         return dict(self.buren)
+
+    def eenheden(self) -> dict[str, Citaatverwijzing]:
+        """Genummerde bewijseenheden (U1, U2, …): elke zin van elk materiaal
+        behalve definitie en context, in de volgorde van de prompt (gesorteerd
+        materiaal-ID). Prompt en geldigheidscontrole gebruiken deze ene bron."""
+        uit: dict[str, Citaatverwijzing] = {}
+        for mid in sorted(self.materiaal):
+            if mid in _ZONDER_EENHEDEN:
+                continue
+            for start, end in zinnen(self.materiaal[mid]):
+                uit[f"U{len(uit) + 1}"] = Citaatverwijzing(mid, start, end)
+        return uit
 
     def relevant(self, buur: str | None) -> tuple[str, ...]:
         """Relevant materiaal: doel = betekenis + bronnen; buur = eigen beschrijving erbij."""
