@@ -150,6 +150,15 @@ is R16 op de herstelde bewijsregels (`ess05-bewijsregels/5`, prompt /3): zelfde
 fase, stappen, stopregels en plafond USD 4,32, voorganger R16; samen met R16
 t/m R1 nooit boven 408 (396 werkelijke + 12).
 
+`R18` (DEF-768-AI-20260928-R18, interpretatieproef na bewijsregels v6; plan
+`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1.md`, deel B) kent
+twee onafhankelijke fases van elk één modelstap per poging: `interpretatie`
+(R18A: 4 gevallen × 3 herhalingen = 12, beoordelingstaak) en
+`lokale_verificatie` (R18B: 6 lokale controles, verificatietaak); reserve 0;
+samen met R17 t/m R1 nooit boven 417 (399 werkelijke + 18); lokaal plafond USD
+6,03 (de volledige stapbegroting). Alleen een technisch niet-afgeronde stap of
+een open poging stopt. Een budgetbesluit bestaat nog niet (runner).
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -196,6 +205,7 @@ __all__ = [
     "R15",
     "R16",
     "R17",
+    "R18",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -326,7 +336,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R17` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R18` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -762,6 +772,37 @@ R17 = replace(
     voorganger=R16,
     cumulatief_max=408,
 )
+#: Ronde 18 (plan bewijseenheden, deel B; nog geen budgetbesluit): interpretatie-
+#: proef op `ess05-bewijsregels/6`, prompt /4. Twee onafhankelijke fases:
+#: `interpretatie` (R18A, 4 gevallen × 3 herhalingen, alleen `interpreteer`) en
+#: `lokale_verificatie` (R18B, 6 pakketten); max 18 modelstappen, reserve 0;
+#: samen met R17 t/m R1 nooit boven 417 (399 werkelijke + 18), binnen het
+#: oorspronkelijke plafond 427. Zelfde model, tarief, bytegrenzen en
+#: productiegrens als R8. Lokaal plafond USD 6,03 = de volledige stapbegroting
+#: (12 × 0,315 + 6 × 0,375), binnen de kaderrest USD 21,798865.
+R18 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260928-R18",
+    fasecaps={"interpretatie": 12, "lokale_verificatie": 6},
+    reserve_max=0,
+    eindgroepen=(
+        Eindgroep("i", frozenset({"interpretatie"}), 0),
+        Eindgroep("l", frozenset({"lokale_verificatie"}), 0),
+    ),
+    bindingsvelden=R17.bindingsvelden,
+    voorganger=R17,
+    cumulatief_max=417,
+    modelstappen_per_geval=1,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=6_030_000_000),
+    fasestappen={
+        "interpretatie": (_BEOORDELING,),
+        "lokale_verificatie": (_VERIFICATIE,),
+    },
+    fasevolgorde={"interpretatie": (), "lokale_verificatie": ()},
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+    stop_alleen_technisch=True,
+)
 _IDENTITEITEN = {
     i.proef_id: i
     for i in (
@@ -782,6 +823,7 @@ _IDENTITEITEN = {
         R15,
         R16,
         R17,
+        R18,
     )
 }
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
@@ -807,7 +849,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R17"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R18"
         raise BudgetSchendingError(msg)
     return identiteit
 

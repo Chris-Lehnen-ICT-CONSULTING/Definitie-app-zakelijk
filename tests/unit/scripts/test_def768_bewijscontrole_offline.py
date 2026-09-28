@@ -183,6 +183,7 @@ class TestGeenEchteCalls:
             "R15",
             "R16",
             "R17",
+            "R18",
         ]
         assert runner.PROEVEN["R11"].budgetbesluit_sha256 is not None
         assert runner.PROEVEN["R10"].budgetbesluit_sha256 is not None

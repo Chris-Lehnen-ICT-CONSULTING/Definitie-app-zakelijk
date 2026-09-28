@@ -168,6 +168,20 @@ uit de R16-invoer), elk exact eenmaal; max 12 modelstappen (verwacht 9),
 reserve 0, geen retry, cumulatief 408; plafond USD 4,32 binnen de kaderrest
 USD 21,951255; voorganger het afgesloten R16-grootboek.
 
+Ronde 18 (`--proef R18`, DEF-768-AI-20260928-R18, interpretatieproef op
+bewijsregels v6 en prompt /4; plan
+`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1.md`, deel B) is
+geregistreerd ZONDER budgetbesluit: tot een besluit van Chris is geschreven en
+hier op hash gepind, weigert elke echte call vóór client en grootboek, en draait
+elke niet-echte run onder `geen_netwerk`. Twee onafhankelijke fases:
+`interpretatie` (R18A: `maak_r18_bewijsregel_invoer.py`, A/C/D/E × 3
+herhalingen, alleen `interpreteer()`, elke run gescoord met `bewijsscorer`
+tegen zijn orakel, acceptatie per run volgens deel C) en `lokale_verificatie`
+(R18B: `maak_r18b_lokale_invoer.py`, zes pakketten uit de synthetisch
+herbonden R17-interpretaties A en C). Max 18 modelstappen, reserve 0, geen
+retry of cache, cumulatief 399 → max 417 binnen 427; plafond USD 6,03 binnen
+de kaderrest USD 21,798865; voorganger het afgesloten R17-grootboek.
+
 Voorbeeld (droog, offline):
 
     .venv/bin/python scripts/ess05/run_ess05_proef.py --fase ontwikkeling \\
@@ -203,6 +217,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 _SDK_RETRIES_VOORAF_GEZET = "AI_SDK_MAX_RETRIES" in os.environ
 os.environ["AI_SDK_MAX_RETRIES"] = "0"
 
+import bewijsscorer as bs
 import migreer_r7_naar_v2 as mig
 import proefgrootboek as gb
 import proefinvoer as pi
@@ -218,6 +233,8 @@ V_FASES = ("verificatie_alleen",)
 L_FASES = ("lokale_verificatie",)
 #: R16: beperkte bewijsregels, per geval één interpretatie plus ten hoogste drie controles.
 B_FASES = ("bewijsregels",)
+#: R18A: alleen de broninterpretatie (`interpreteer`), per run gescoord.
+I_FASES = ("interpretatie",)
 BASISCOMMIT = "26f2374d302fc66fc0b12ed29dc34585f7c0a5c3"
 #: Buitenste annuleringsmarge boven de dienstdeadline (s).
 MARGE_S = 10
@@ -247,6 +264,8 @@ _CODEBESTANDEN = (
     # R16 (mechanismeproef bewijsregels): regels, interpretatie en controle-eenheden.
     "src/domain/ess05/bewijsregels.py",
     "src/services/validation/ess05_bewijsregel_service.py",
+    # R18: de scorer (M-a…M-d en het oordeel per run) staat in elk callrecord.
+    "scripts/ess05/bewijsscorer.py",
     "src/domain/ess03/contract.py",
     "src/domain/context/contract.py",
     "src/domain/context/normalisatie.py",
@@ -385,6 +404,24 @@ def geen_netwerk() -> Iterator[None]:
     finally:
         socket.socket.connect = oud_connect  # type: ignore[method-assign]
         socket.create_connection = oud_create  # type: ignore[assignment]
+
+
+@contextlib.contextmanager
+def _netwerkgrens(proef: Proef) -> Iterator[None]:
+    """R18: zonder gepind budgetbesluit nooit netwerk, ook niet buiten `--echt`.
+
+    Een echte run weigert dan al in `controleer_budgetbesluit`; deze grens dekt
+    daarnaast elke niet-echte run (bv. een programmatisch gebouwde omgeving met
+    een echte client maar `echt=False`): die draait onder `geen_netwerk`.
+    """
+    if (
+        proef.identiteit.kostenbewaking is not None
+        and proef.budgetbesluit_sha256 is None
+    ):
+        with geen_netwerk():
+            yield
+    else:
+        yield
 
 
 def _nieuwe_map(uitmap: Path, naam: str) -> Path:
@@ -724,6 +761,48 @@ R17_BEWIJSREGEL_CONTRACT = MappingProxyType(
 R17_KADERREST_NUSD = 21_951_255_000
 #: Ronde 17: de kop van het afgesloten R16-grootboek (5 calls, 0 open).
 R16_KOP_SHA256 = "58f5a17ec921d67e66899882441c8629fae9a41476d3485c697cd3614141cee8"
+#: Ronde 18 (plan bewijseenheden, deel B): eigen rapportroot, grootboek, anker,
+#: slot en freezes (i, l). Invoer R18A: A/C/D/E uit maak_r18_bewijsregel_invoer.py;
+#: R18B: zes pakketten uit maak_r18b_lokale_invoer.py.
+R18_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18"
+R18_I_INVOER_SHA256 = "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
+R18_L_INVOER_SHA256 = "a36172a04981aef5bc712a77cc51dd9f1846bf7e7c9d16222e0bd4a5ac005b81"
+#: Ronde 18: NOG GEEN budgetbesluit. Het pad ligt vast; het besluit wordt pas
+#: na een "go" van Chris geschreven en daarna hier op hash gepind. Tot dan is de
+#: hash None en weigert `controleer_budgetbesluit` elke echte call.
+R18_BUDGETBESLUIT = PROJECT_ROOT / "logs" / "def768" / "ronde18-budgetbesluit-v1.json"
+R18_BUDGETBESLUIT_SHA256: str | None = None
+#: Ronde 18: bewijsregels v6, prompt /4 — de berekende contractidentiteit
+#: (`Ess05BewijsregelService.contractidentiteit()`, 28-09), letterlijk gepind.
+R18_BEWIJSREGEL_CONTRACT = MappingProxyType(
+    {
+        "bewijsregel_version": "ess05-bewijsregels/6",
+        "interpretation_schema_version": "ess05-interpretatie/3",
+        "render_version": "ess05-bewijsregels-render/2",
+        "interpretation_prompt_version": "ess05-interpretatie-prompt/4",
+        "interpretation_system_prompt_sha256": (
+            "a18e2e07978cfb1abf25cef1faa518c45c516ac268e8c8f8048572eb52acd465"
+        ),
+    }
+)
+#: Ronde 18: USD 25 − werkelijke R8–R17-kosten (USD 3,201135, uit de grootboeken).
+R18_KADERREST_NUSD = 21_798_865_000
+#: Ronde 18: de kop van het afgesloten R17-grootboek (3 calls, 0 open).
+R17_KOP_SHA256 = "b1fa47de331d578bdc9da38e76583a2b4e63bcecd74730374ad1cbe76b4e171b"
+#: Ronde 18: de verwachte budgetgetallen (opdracht deel B), gecontroleerd tegen
+#: de grootboeken R1–R17 (28-09: 399 calls, R17-kop hierboven). Een besluit moet
+#: er exact op passen; `gb.R18` en `controleer_budgetbesluit` handhaven ze.
+R18_BUDGET = MappingProxyType(
+    {
+        "modelaanroepen": 18,
+        "fasen": MappingProxyType({"interpretatie": 12, "lokale_verificatie": 6}),
+        "historisch_verbruik": 399,
+        "cumulatief_max": 417,
+        "cumulatief_plafond": 427,
+        "kostenplafond_nusd": 6_030_000_000,
+        "kaderrest_nusd": R18_KADERREST_NUSD,
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -768,6 +847,8 @@ class Proef:
     b_invoer_sha256: str | None = None
     #: R16: de bewijsregelversies en interpretatiesysteemprompt (`bewijsregel_contractidentiteit`).
     bewijsregel_contract: Mapping[str, str] | None = None
+    #: R18: vastgelegde interpretatie-invoer (sha256 van het bestand).
+    i_invoer_sha256: str | None = None
 
 
 PROEVEN = {
@@ -1022,6 +1103,27 @@ PROEVEN = {
         b_invoer_sha256=R17_B_INVOER_SHA256,
         bewijsregel_contract=R17_BEWIJSREGEL_CONTRACT,
     ),
+    # Ronde 18: R18A (interpretatie, 12) en R18B (lokale controle, 6) op
+    # bewijsregels v6; eigen invoer, contract, kaderrest en de kop van het
+    # R17-grootboek. Zonder gepind budgetbesluit: geen echte call, geen netwerk.
+    "R18": Proef(
+        "R18",
+        gb.R18,
+        Proefopslag(R18_UITMAP),
+        True,
+        True,
+        budgetbesluit=R18_BUDGETBESLUIT,
+        budgetbesluit_sha256=R18_BUDGETBESLUIT_SHA256,
+        payloadtoestemming=R9_PAYLOADTOESTEMMING,
+        payloadtoestemming_sha256=R9_PAYLOADTOESTEMMING_SHA256,
+        contract=R14_CONTRACT,
+        kaderrest_nusd=R18_KADERREST_NUSD,
+        l_invoer_sha256=R18_L_INVOER_SHA256,
+        lokaal_contract=R15_LOKAAL_CONTRACT,
+        voorganger_kop_sha256=R17_KOP_SHA256,
+        bewijsregel_contract=R18_BEWIJSREGEL_CONTRACT,
+        i_invoer_sha256=R18_I_INVOER_SHA256,
+    ),
 }
 #: Zonder `--proef` altijd ronde 1; nooit stilzwijgend een latere ronde.
 STANDAARD_PROEF = PROEVEN["R1"]
@@ -1039,6 +1141,8 @@ def _controleer_ontwikkelinvoer(proef: Proef, fase: str, pad: Path) -> None:
         verwacht, soort = proef.l_invoer_sha256, "lokale invoer"
     elif fase in B_FASES:
         verwacht, soort = proef.b_invoer_sha256, "bewijsregelinvoer"
+    elif fase in I_FASES:
+        verwacht, soort = proef.i_invoer_sha256, "interpretatie-invoer"
     else:
         return
     if verwacht is None or _sha_bestand(pad) != verwacht:
@@ -1795,8 +1899,10 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
     }
     # R8: V bevriest op dezelfde T-code en -configuratie; R12-01: R720 (o) ook;
     # R15: de lokale controles (l) ook, plus hun lokale contract; R16: de
-    # bewijsregels (b) ook, plus lokaal en bewijsregelcontract.
-    if groep in ("t", "v", "o", "l", "b"):
+    # bewijsregels (b) ook, plus lokaal en bewijsregelcontract; R18: de
+    # interpretaties (i) zoals b, en de lokale controles (l) ook met het
+    # bewijsregelcontract, omdat hun pakketten uit de bewijsregels komen.
+    if groep in ("t", "v", "o", "l", "b", "i"):
         velden["prompt_version"] = omg.dienst.PROMPT_VERSION
         velden["verification_prompt_version"] = (
             omg.dienst.verification_service.PROMPT_VERSION
@@ -1805,9 +1911,11 @@ def freezevelden(omg: Omgeving, proef: Proef, groep: str) -> dict[str, Any]:
         velden["norm_sha256"] = omg.dienst.norm_sha256
         if proef.contract is not None:  # R9; freezes van R8 en ouder ongewijzigd
             velden.update(contractidentiteit(omg))
-        if groep in ("l", "b"):
+        if groep in ("l", "b", "i"):
             velden.update(lokale_contractidentiteit())
-        if groep == "b":
+        if groep in ("b", "i") or (
+            groep == "l" and proef.bewijsregel_contract is not None
+        ):
             velden.update(bewijsregel_contractidentiteit())
     else:
         velden["g_actueel_instructie_sha256"] = _sha_tekst(pi.huidige_g_instructie())
@@ -3654,7 +3762,11 @@ async def voer_l_fase(
     max_calls: int | None = None,
     totaal_deadline: float | None = None,
 ) -> dict[str, Any]:
-    """R15: de vastgelegde lokale controles, elk één afzonderlijk verzoek."""
+    """R15: de vastgelegde lokale controles, elk één afzonderlijk verzoek.
+
+    R18B: ook het bewijsregelcontract (de pakketten komen uit de bewijsregels)
+    en, zonder gepind besluit, geen netwerk (`_netwerkgrens`).
+    """
     _fase_van(proef, fase, L_FASES)
     _controleer_opslag(omg, opslag, proef)
     _controleer_registratie(omg, proef)
@@ -3662,6 +3774,7 @@ async def voer_l_fase(
     _controleer_kostenroute(omg, proef)
     _controleer_contract(omg, proef)
     _controleer_lokaal_contract(proef)
+    _controleer_bewijsregel_contract(proef)
     besluit = _besluit_voor(omg, proef)
     if technische_herhalingen:
         msg = "technische herhaling in de lokale fase is niet vastgelegd"
@@ -3689,7 +3802,7 @@ async def voer_l_fase(
         config_sha256=config_sha,
     )
     deadline = _Deadline(totaal_deadline)
-    with gb.Proefslot(opslag.slot):
+    with _netwerkgrens(proef), gb.Proefslot(opslag.slot):
         vorige = _lees_voorganger(omg, proef, voorganger_opslag)
         if omg.echt:
             _controleer_voorgangerkop(proef, vorige)
@@ -3814,19 +3927,36 @@ def valideer_b_invoer(data: Any, omg: Omgeving) -> list[_BItem]:
     gebonden, niet-definitiemateriaal; de interpretatieprompt van de huidige
     code op de bevroren hash; een consistente, vooraf vastgelegde verwachting.
     """
+    items = _bewijsregelitems(data, omg, "def768-ess05-bewijsregel-invoer/1")
+    uit = []
+    for item, invoer, prompt in items:
+        _b_verwachting(item["id"], item.get("verwacht"))
+        uit.append(_BItem(f"bewijsregels|{item['id']}|1", item, invoer, prompt))
+    return uit
+
+
+def _bewijsregelitems(
+    data: Any, omg: Omgeving, schema: str
+) -> list[tuple[dict[str, Any], Any, tuple[str, str]]]:
+    """Gedeeld door B (R16/R17) en I (R18): schema, contract en per item de binding.
+
+    Het contract van de invoer is dat van de huidige code. Per item:
+    gevalhash en materiaalhashes; precies één buur; onvolledig alleen over
+    gebonden, niet-definitiemateriaal; de interpretatieprompt van de huidige
+    code op de bevroren hash. Geeft (item, vergelijkingsinvoer, prompt).
+    """
     from domain.ess05 import bewijsregels as br
     from services.validation.ess05_bewijsregel_service import bouw_interpretatieprompt
     from services.validation.ess05_verification_service import prompthash
 
     if (
         not isinstance(data, dict)
-        or data.get("schema") != "def768-ess05-bewijsregel-invoer/1"
+        or data.get("schema") != schema
         or not isinstance(data.get("items"), list)
         or not data["items"]
+        or not all(isinstance(item, dict) for item in data["items"])
     ):
-        msg = (
-            "bewijsregelinvoer heeft niet het schema def768-ess05-bewijsregel-invoer/1"
-        )
+        msg = f"bewijsregelinvoer heeft niet het schema {schema}"
         raise pi.InvoerfoutError(msg)
     if data.get("contract") != bewijsregel_contractidentiteit():
         msg = "bewijsregelinvoer hoort bij een ander bewijsregelcontract dan de code"
@@ -3863,8 +3993,7 @@ def valideer_b_invoer(data: Any, omg: Omgeving) -> list[_BItem]:
         if prompthash(system, user) != item["prompt_sha256"]:
             msg = f"{naam}: interpretatieprompt wijkt af van de bevroren invoer"
             raise pi.InvoerfoutError(msg)
-        _b_verwachting(naam, item.get("verwacht"))
-        uit.append(_BItem(f"bewijsregels|{naam}|1", item, invoer, (system, user)))
+        uit.append((item, invoer, (system, user)))
     return uit
 
 
@@ -4261,6 +4390,412 @@ async def voer_b_fase(
                 "mechanismeproef van de beperkte bewijsregels op drie vooraf "
                 "vastgelegde gevallen; geen volledige ESS-05-beoordeling, geen "
                 "productketen"
+            )
+            gb.schrijf_nieuw(
+                runmap / "samenvatting.json", samenvatting, geheimen=omg.geheimen
+            )
+    return samenvatting
+
+
+# --- I (R18A: alleen de interpretatie, gescoord) --------------------------------------------
+
+#: R18A-invoer: A/C/D/E met herhalingen en orakel (`maak_r18_bewijsregel_invoer`).
+_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/2"
+#: Het label van elk synthetisch item; een niet-synthetisch item draagt het niet.
+_SYNTHETISCH_LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
+#: De ene modelstap van een run: de interpretatie op de beoordelingsroute.
+_I_STAPPEN = (("validation", "interpretatie"),)
+
+
+@dataclass(frozen=True)
+class _IItem:
+    """Eén run: een vooraf vastgelegd geval met orakel, en zijn herhalingsnummer."""
+
+    sleutel: str
+    item: dict[str, Any]
+    invoer: Any
+    prompt: tuple[str, str]
+    herhaling: int
+
+
+def valideer_i_invoer(data: Any, omg: Omgeving) -> list[_IItem]:
+    """De R18A-invoer, opnieuw gebonden aan de huidige code; per item N runs.
+
+    Naast de binding van `_bewijsregelitems`: `herhalingen` is een geheel
+    getal ≥ 1, het orakel past op de invoer (`bewijsscorer.controleer_orakel`)
+    en het label klopt met `synthetisch`. Een afwijking is een invoerfout,
+    vóór elke aanroep.
+    """
+    uit = []
+    for item, invoer, prompt in _bewijsregelitems(data, omg, _I_INVOERSCHEMA):
+        naam, herhalingen = item["id"], item.get("herhalingen")
+        if (
+            isinstance(herhalingen, bool)
+            or not isinstance(herhalingen, int)
+            or herhalingen < 1
+        ):
+            msg = f"{naam}: herhalingen {herhalingen!r} is geen geheel getal ≥ 1"
+            raise pi.InvoerfoutError(msg)
+        try:
+            bs.controleer_orakel(item.get("orakel"), invoer)
+        except bs.OrakelfoutError as exc:
+            msg = f"{naam}: orakel past niet op de invoer: {exc}"
+            raise pi.InvoerfoutError(msg) from exc
+        synthetisch = item.get("synthetisch")
+        if not isinstance(synthetisch, bool) or synthetisch != (
+            item.get("label") == _SYNTHETISCH_LABEL
+        ):
+            msg = f"{naam}: label {item.get('label')!r} past niet bij synthetisch={synthetisch!r}"
+            raise pi.InvoerfoutError(msg)
+        uit += [
+            _IItem(f"interpretatie|{naam}|{h}", item, invoer, prompt, h)
+            for h in range(1, herhalingen + 1)
+        ]
+    return uit
+
+
+def _i_fout(stap: Any) -> str | None:
+    return stap.fout.fout.soort if stap is not None and stap.fout is not None else None
+
+
+def _i_status(stap: Any, netwerk: bool, afbraak: str) -> str:
+    """Afsluitstatus van de ene stap: een ontvangen JSON-object is `voltooid`."""
+    if stap is None:
+        return "technisch" if netwerk else afbraak
+    soort = _i_fout(stap)
+    if soort is None or "ruw" in stap.registratie:
+        return "voltooid"
+    if soort in _TECHNISCHE_FOUTEN:
+        return "technisch" if netwerk else "niet_verzonden"
+    return "modelfout"
+
+
+def _i_technisch_afgerond(
+    schending: str | None, fout: str | None, statussen: list[str], stap: Any
+) -> tuple[bool, str]:
+    """Zoals `_b_technisch_afgerond`: alleen techniek of weigering stopt."""
+    if schending:
+        return False, "bewakingsweigering"
+    if fout is not None:
+        return False, f"technische fout buiten de dienst ({fout})"
+    soort = _i_fout(stap)
+    if soort in {*_TECHNISCHE_FOUTEN, "refusal"}:
+        return False, f"technische fout of weigering ({soort})"
+    if any(s not in ("voltooid", "modelfout") for s in statussen):
+        return False, f"technische fout (stappen {statussen})"
+    return True, f"technisch afgerond (stappen {statussen})"
+
+
+def _i_dienstuitkomst(stap: Any) -> dict[str, Any] | None:
+    """De uitkomst die de dienst zonder controles zou geven (regels of fout)."""
+    from domain.ess05 import bewijsregels as br
+
+    if stap is None:
+        return None
+    if stap.fout is not None:
+        return {"uitkomst": stap.fout.uitkomst, "fout": _i_fout(stap)}
+    regels = br.pas_regels_toe(stap.interpretatie)
+    return {
+        "uitkomst": regels.uitkomst,
+        "fout": regels.fout.soort if regels.fout else None,
+    }
+
+
+def _i_score(stap: Any, ii: _IItem) -> tuple[dict[str, Any] | None, str | None]:
+    """Scorer over de geparste uitvoer (ontsnapt zoals de dienst); nooit een exception."""
+    from services.validation.ess05_bewijsregel_service import _ontsnap
+
+    if stap is None or "ruw" not in stap.registratie:
+        return None, None
+    try:
+        ruw = _ontsnap(stap.registratie["ruw"])
+        return bs.scoor(ruw, ii.invoer, ii.item["orakel"]), None
+    except Exception as exc:  # scorerfout is een registratie, geen afbraak
+        return None, gb.scrub(f"{type(exc).__name__}: {exc}")
+
+
+async def _i_call(
+    omg: Omgeving,
+    boek: gb.Grootboek,
+    dienst: Any,
+    *,
+    fase: str,
+    ii: _IItem,
+    bestand_sha: str,
+    binding: dict[str, Any] | None,
+    code_sha: str,
+    config_sha: str,
+    callmap: Path,
+    besluit: str | None = None,
+) -> dict[str, Any]:
+    """Eén run: één interpretatieaanroep (`interpreteer`), gescoord tegen het orakel."""
+    from services.validation.ess05_verification_service import aanroepgrens
+
+    poging = gb.Stappenpoging(
+        boek,
+        fase=fase,
+        poging=ii.sleutel,
+        stappen=_I_STAPPEN,
+        invoer_sha256=bestand_sha,
+        binding=binding,
+        details={
+            "item": ii.item["id"],
+            "herhaling": ii.herhaling,
+            "prompt_sha256": ii.item["prompt_sha256"],
+            "code_sha256": code_sha,
+            "config_sha256": config_sha,
+            **({"budgetbesluit_sha256": besluit} if besluit else {}),
+        },
+    )
+    stap, fout, afbraak = None, None, "afgebroken"
+    annulering: asyncio.CancelledError | None = None
+    start = time.perf_counter()
+    try:
+        with aanroepgrens(poging.stap):
+            stap = await asyncio.wait_for(
+                dienst.interpreteer(ii.invoer),
+                timeout=_buitenste_deadline(omg, len(_I_STAPPEN)),
+            )
+    except TimeoutError:
+        fout = "buitenste deadline verstreken; aanroep geannuleerd"
+    except Exception as exc:
+        fout = gb.scrub(f"{type(exc).__name__}: {exc}")
+        afbraak = "niet_verzonden"
+    except asyncio.CancelledError as exc:
+        fout = "aanroep geannuleerd; wordt na registratie doorgegeven"
+        annulering = exc
+    finally:
+        statussen = [
+            _i_status(stap, omg.netwerk_gestart(r), afbraak)
+            for _, _, r in poging.gereserveerd
+        ]
+        gesloten = _sluit_met_statussen(omg, boek, poging, statussen)
+    duur = round(time.perf_counter() - start, 3)
+    stapinfo = {naam: (taak, _B_ROUTES[taak]) for taak, naam in _I_STAPPEN}
+    stappen = _stapregistratie(omg, gesloten, None, stapinfo=stapinfo)
+    status = stappen[-1]["afsluitstatus"] if stappen else "niet_verzonden"
+    score, scorerfout = _i_score(stap, ii)
+    runoordeel = bs.runoordeel(score, ii.item["orakel"])
+    dienstuitkomst = _i_dienstuitkomst(stap)
+    acceptatie = stop = None
+    if stappen:
+        afgerond, technisch = _i_technisch_afgerond(
+            poging.schending, fout, statussen, stap
+        )
+        geaccepteerd = runoordeel["categorie"] == "geslaagd" and not poging.schending
+        acceptatie = {
+            "geaccepteerd": geaccepteerd,
+            "reden": f"{technisch}; run: {runoordeel['categorie']}",
+            "technisch_afgerond": afgerond,
+        }
+        stop = {"geaccepteerd": afgerond, "reden": technisch}
+    system, user = ii.prompt
+    registratie = dict(stap.registratie) if stap is not None else None
+    record = {
+        "schema": "def768-ess05-interpretatiecall/1",
+        "fase": fase,
+        "sleutel": ii.sleutel,
+        "seq": stappen[0]["seq"] if stappen else None,
+        "item_id": ii.item["id"],
+        "herhaling": ii.herhaling,
+        "synthetisch": ii.item["synthetisch"],
+        "label": ii.item["label"],
+        "bereik": (
+            "alleen de interpretatiestap, gescoord tegen een vooraf vastgelegd "
+            "orakel; geen lokale controle, geen volledige ESS-05-beoordeling"
+        ),
+        "herkomst": ii.item["herkomst"],
+        "invoerbestand_sha256": bestand_sha,
+        "geval_sha256": ii.item["geval_sha256"],
+        "onvolledig": ii.item["onvolledig"],
+        "contract": bewijsregel_contractidentiteit(),
+        "afsluitstatus": status,
+        "fout": fout,
+        "duur_s": duur,
+        "prompt": {
+            "system": system,
+            "user": user,
+            "sha256": ii.item["prompt_sha256"],
+            "komt_overeen_met_dienst": bool(registratie)
+            and registratie.get("prompt_sha256") == ii.item["prompt_sha256"],
+        },
+        "interpretatie": registratie,
+        "dienstuitkomst": dienstuitkomst,
+        "orakel": ii.item["orakel"],
+        "score": score,
+        "scorerfout": scorerfout,
+        "m_d_gelijk_aan_dienst": (
+            score is not None
+            and dienstuitkomst is not None
+            and dienstuitkomst
+            == {"uitkomst": score["m_d"]["uitkomst"], "fout": score["m_d"]["fout"]}
+        ),
+        "runoordeel": runoordeel,
+        "reserveringen": stappen,
+        "tokens": _tokens(stappen),
+        "kosten": {"usd": _totaalkosten(stappen), "per_stap": "zie reserveringen"},
+        "acceptatie": acceptatie,
+    }
+    naam = f"{record['seq']:03d}" if record["seq"] is not None else "geen-reservering"
+    bestand = f"{naam}-{fase}-{ii.item['id']}-{ii.herhaling}.json"
+    gb.schrijf_nieuw(callmap / bestand, record, geheimen=omg.geheimen)
+    if acceptatie is not None:
+        boek.registreer_geval(
+            fase, ii.sleutel, details={"callrecord": bestand}, **acceptatie
+        )
+    uitkomst = {
+        "sleutel": ii.sleutel,
+        "id": ii.item["id"],
+        "herhaling": ii.herhaling,
+        "dienstuitkomst": dienstuitkomst,
+        "runoordeel": runoordeel,
+        "afsluitstatus": status,
+        "reserveringen": len(stappen),
+        "kosten_usd": record["kosten"]["usd"],
+        "tokens": record["tokens"],
+        "duur_s": duur,
+        "geaccepteerd": (acceptatie or {}).get("geaccepteerd"),
+        "status_correct": (acceptatie or {}).get("geaccepteerd"),
+        "technisch_afgerond": (acceptatie or {}).get("technisch_afgerond"),
+    }
+    if annulering is not None:
+        raise annulering
+    _stop_met_resultaat(uitkomst, ii.sleutel, poging.schending, stop, fout)
+    logger.info("%s: %s %.1fs", ii.sleutel, (acceptatie or {}).get("reden"), duur)
+    return uitkomst
+
+
+async def voer_i_fase(
+    omg: Omgeving,
+    *,
+    gevallenpad: Path,
+    uitmap: Path,
+    opslag: Proefopslag,
+    proef: Proef,
+    fase: str = "interpretatie",
+    freeze: Path | None = None,
+    voorganger_opslag: Proefopslag | Sequence[Proefopslag] | None = None,
+    nieuw_grootboek: bool = False,
+    technische_herhalingen: Sequence[str] = (),
+    max_calls: int | None = None,
+    totaal_deadline: float | None = None,
+) -> dict[str, Any]:
+    """R18A: elke run (geval × herhaling) exact eenmaal; alleen `interpreteer`.
+
+    Geen retry, geen cache, geen technische herhaling. Een kritieke run stopt
+    de proef niet (alleen techniek of weigering stopt); het proefoordeel volgt
+    achteraf uit alle runs (`bewijsscorer.proefoordeel`).
+    """
+    _fase_van(proef, fase, I_FASES)
+    _controleer_opslag(omg, opslag, proef)
+    _controleer_registratie(omg, proef)
+    _controleer_productiegrenzen(omg, proef)
+    _controleer_kostenroute(omg, proef)
+    _controleer_contract(omg, proef)
+    _controleer_lokaal_contract(proef)
+    _controleer_bewijsregel_contract(proef)
+    besluit = _besluit_voor(omg, proef)
+    if technische_herhalingen:
+        msg = "technische herhaling in de interpretatiefase is niet vastgelegd"
+        raise gb.BudgetSchendingError(msg)
+    _controleer_ontwikkelinvoer(proef, fase, gevallenpad)
+    items = valideer_i_invoer(
+        json.loads(Path(gevallenpad).read_text(encoding="utf-8")), omg
+    )
+    dienst = bewijsregel_dienst(omg)
+    for ii in items:
+        bytes_ = _payloadbytes(omg, "t", dienst.max_tokens, *ii.prompt)
+        _controleer_bytegrens(proef, dienst.TASK_TYPE, ii.sleutel, bytes_)
+    bestand_sha = _sha_bestand(gevallenpad)
+    code_sha = code_sha256()
+    config = effectieve_config(omg)
+    config_sha = pi.sha_json(config)
+    binding = _eindbinding(
+        omg,
+        proef,
+        proef.identiteit.eindgroep(fase),
+        freeze,
+        dataset_sha256=bestand_sha,
+        herhaal_ids=[],
+        code_sha256=code_sha,
+        config_sha256=config_sha,
+    )
+    deadline = _Deadline(totaal_deadline)
+    with _netwerkgrens(proef), gb.Proefslot(opslag.slot):
+        vorige = _lees_voorganger(omg, proef, voorganger_opslag)
+        if omg.echt:
+            _controleer_voorgangerkop(proef, vorige)
+        boek = _grootboek(opslag, nieuw_grootboek, proef)
+        boek.controleer_fasestart(fase)
+        boek.controleer_binding(fase, bestand_sha, binding)  # vóór elke call
+        voor = boek.samenvatting()
+        selectie, overgeslagen = _selecteer(
+            [(ii.sleutel, ii) for ii in items], boek, ()
+        )
+        if max_calls is not None:
+            selectie = selectie[:max_calls]
+        _controleer_plan(boek, fase, len(selectie), False, len(_I_STAPPEN))
+        _controleer_kostenplan(boek, fase, len(selectie))
+        voorganger = _controleer_voorganger(
+            boek, vorige, len(selectie) * len(_I_STAPPEN)
+        )
+        runmap = _nieuwe_map(uitmap, fase)
+        resultaten, niet_gestart = [], 0
+        try:
+            for _sleutel, ii, _technisch in selectie:
+                if not deadline.past(_buitenste_deadline(omg, len(_I_STAPPEN))):
+                    niet_gestart += 1
+                    continue
+                try:
+                    resultaten.append(
+                        await _i_call(
+                            omg,
+                            boek,
+                            dienst,
+                            fase=fase,
+                            ii=ii,
+                            bestand_sha=bestand_sha,
+                            binding=binding,
+                            code_sha=code_sha,
+                            config_sha=config_sha,
+                            callmap=runmap / "calls",
+                            besluit=besluit,
+                        )
+                    )
+                except GevalGestoptError as exc:
+                    resultaten.append(exc.resultaat)
+                    raise
+        finally:
+            samenvatting = _samenvatting(
+                omg,
+                boek,
+                voor,
+                fase=fase,
+                invoer=gevallenpad,
+                bestand_sha=bestand_sha,
+                resultaten=resultaten,
+                overgeslagen=overgeslagen,
+                niet_gestart=niet_gestart,
+                routes=[],
+                technisch=(),
+                config=config,
+            )
+            samenvatting["modelstappen_gestart"] = sum(
+                r["reserveringen"] for r in resultaten
+            )
+            samenvatting["grootboek"] = str(opslag.grootboek)
+            samenvatting["eindbinding"] = binding
+            samenvatting["voorganger_grootboek"] = voorganger
+            samenvatting["budgetbesluit_sha256"] = besluit
+            samenvatting["lokaal_contract"] = lokale_contractidentiteit()
+            samenvatting["bewijsregel_contract"] = bewijsregel_contractidentiteit()
+            samenvatting["proefoordeel"] = bs.proefoordeel(
+                [{"sleutel": r["sleutel"], **r["runoordeel"]} for r in resultaten]
+            )
+            samenvatting["bereik"] = (
+                "interpretatieproef: alleen de interpretatiestap op vier vooraf "
+                "vastgelegde gevallen × herhalingen, gescoord tegen orakels; geen "
+                "lokale controle, geen volledige ESS-05-beoordeling, geen productketen"
             )
             gb.schrijf_nieuw(
                 runmap / "samenvatting.json", samenvatting, geheimen=omg.geheimen
@@ -4745,7 +5280,7 @@ async def droogrun(
     if max_tokens_t is None:
         max_tokens_t = _standaard_max_tokens(proef)
     kb = proef.identiteit.kostenbewaking
-    _fase_van(proef, fase, (*T_FASES, *G_FASES, *V_FASES, *L_FASES, *B_FASES))
+    _fase_van(proef, fase, (*T_FASES, *G_FASES, *V_FASES, *L_FASES, *B_FASES, *I_FASES))
     _controleer_ontwikkelinvoer(proef, fase, pad)
     _controleer_lokaal_contract(proef)
     _controleer_bewijsregel_contract(proef)
@@ -4828,6 +5363,29 @@ async def droogrun(
                 "geplande_calls telt gevallen; de controleprompts ontstaan pas uit "
                 "de modelinterpretatie en vallen bij de echte run onder de SDK-wacht"
             ),
+        }
+    elif fase in I_FASES:
+        dienst = bewijsregel_dienst(omg_d)
+        for ii in valideer_i_invoer(data, omg_d):
+            system, user = ii.prompt
+            bytes_ = _payloadbytes(omg_d, "t", dienst.max_tokens, system, user)
+            _controleer_bytegrens(proef, dienst.TASK_TYPE, ii.sleutel, bytes_)
+            items.append(
+                {
+                    "sleutel": ii.sleutel,
+                    "herhaling": ii.herhaling,
+                    "synthetisch": ii.item["synthetisch"],
+                    "label": ii.item["label"],
+                    "orakel": ii.item["orakel"],
+                    "prompt": {"system": system, "user": user},
+                    "prompt_sha256": ii.item["prompt_sha256"],
+                    "payload_bytes": bytes_,
+                }
+            )
+        extra = {
+            "lokaal_contract": lokale_contractidentiteit(),
+            "bewijsregel_contract": bewijsregel_contractidentiteit(),
+            "stappen_per_run": [list(s) for s in _I_STAPPEN],
         }
     elif fase == "g_ontwikkeling":
         prompts = await g_prompts(data, alleen_actueel=True)
@@ -4943,7 +5501,15 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--fase",
         required=True,
-        choices=("nulcall", *T_FASES, *V_FASES, *L_FASES, *B_FASES, *G_FASES),
+        choices=(
+            "nulcall",
+            *T_FASES,
+            *V_FASES,
+            *L_FASES,
+            *B_FASES,
+            *I_FASES,
+            *G_FASES,
+        ),
     )
     p.add_argument(
         "--proef",
@@ -4963,7 +5529,11 @@ def _parser() -> argparse.ArgumentParser:
             "cumulatief max 403) is de mechanismeproef bewijsregels "
             "(3 gevallen × max 4 stappen in bewijsregels, max USD 4,32, reserve 0); "
             f"R17 ({gb.R17.proef_id}, opslag {PROEVEN['R17'].opslag.root}, "
-            "cumulatief max 408) is dezelfde proef op bewijsregels/5 en prompt /3"
+            "cumulatief max 408) is dezelfde proef op bewijsregels/5 en prompt /3; "
+            f"R18 ({gb.R18.proef_id}, opslag {PROEVEN['R18'].opslag.root}, "
+            "cumulatief max 417) is de interpretatieproef (12 interpretatie) plus "
+            "de lokale controle (6 lokale_verificatie); geregistreerd zonder "
+            "budgetbesluit, dus --echt weigert"
         ),
     )
     p.add_argument(
@@ -4971,7 +5541,7 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         help=(
             "gevallenbestand (T-fases, nulcall), verifier-only-invoer (R8 t/m "
-            "R14), lokale invoer (R15) of bewijsregelinvoer (R16, R17)"
+            "R14), lokale invoer (R15, R18) of bewijsregelinvoer (R16, R17, R18)"
         ),
     )
     p.add_argument(
@@ -5128,6 +5698,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     elif args.fase in B_FASES:
         uitkomst = asyncio.run(
             voer_b_fase(omg, fase=args.fase, gevallenpad=pad, **gemeen)
+        )
+    elif args.fase in I_FASES:
+        uitkomst = asyncio.run(
+            voer_i_fase(omg, fase=args.fase, gevallenpad=pad, **gemeen)
         )
     else:
         uitkomst = asyncio.run(

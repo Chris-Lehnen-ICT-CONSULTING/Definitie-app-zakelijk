@@ -29,17 +29,29 @@ de plancode is overgenomen, met deze afwijkingen:
 
 Een ongeldig orakel is geen modeluitvoer maar een invoerfout: `controleer_orakel`
 weigert het vóór elke aanroep (`OrakelfoutError`).
+
+Acceptatie volgens deel C van het plan (taak B3): `runoordeel` deelt één run
+in (geslaagd, kritiek, f7, niet_geslaagd, geen_interpretatie), `proefoordeel`
+telt de runs van een interpretatieproef en geeft het eindoordeel.
 """
 
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Mapping
+from collections import Counter
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from domain.ess05 import bewijsregels as br
 
-__all__ = ["BUURBESCHRIJVING", "OrakelfoutError", "controleer_orakel", "scoor"]
+__all__ = [
+    "BUURBESCHRIJVING",
+    "OrakelfoutError",
+    "controleer_orakel",
+    "proefoordeel",
+    "runoordeel",
+    "scoor",
+]
 
 BUURBESCHRIJVING = "<buurbeschrijving>"
 _ORAKELVELDEN = frozenset({"kenmerken", "dragend", "uitkomst"})
@@ -281,4 +293,125 @@ def scoor(
         ),
         "f7_afwijkingen": f7,
         "feiten": feiten,
+    }
+
+
+# --- acceptatie per run en per proef (deel C) ------------------------------------------------
+
+#: Deel C, bij 12 runs: geslaagd vanaf 11 juiste M-d, afgekeurd bij 8 of minder.
+RUNS_VERWACHT, M_D_MIN, M_D_AFKEUR = 12, 11, 8
+_GRENS = (
+    "11/12 geeft een ondergrens van circa 66% (95%, eenzijdig); dit is geen "
+    "productiebetrouwbaarheid"
+)
+
+
+def runoordeel(
+    score: Mapping[str, Any] | None, orakel: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Eén run volgens deel C; `score` is None als er geen interpretatie was.
+
+    - M-d telt alleen als juist met behouden voorwaarde waar het orakel dat eist
+      (`voorwaarde_vereist_voor`; zonder dat veld: elke uitkomst van een orakel
+      met voorwaarde, deel C bij E).
+    - Kritiek: `pass`/`fail` terwijl M-c of M-b op de dragende kenmerken onwaar
+      is (F7-feiten buiten beschouwing), of een weggevallen voorwaarde.
+    - F7: apart, niet geslaagd en niet kritiek.
+    """
+    voorwaarde = orakel.get("voorwaarde")
+    if score is None:
+        return {
+            "categorie": "geen_interpretatie",
+            "gekregen": None,
+            "m_d_telt": False,
+            "m_b_dragend_ok": False,
+            "m_c_dragend_ok": False,
+            "voorwaarde_behouden": False if voorwaarde else None,
+            "kritiek": [],
+            "f7": [],
+        }
+    md = score["m_d"]
+    gekregen = (
+        md["uitkomst"] if md["fout"] is None else f"{md['uitkomst']}/{md['fout']}"
+    )
+    vereist = orakel.get(
+        "voorwaarde_vereist_voor", orakel["uitkomst"] if voorwaarde else []
+    )
+    behouden = score["voorwaarde_behouden"]
+    m_d_telt = bool(md["ok"]) and (gekregen not in vereist or behouden is True)
+    kritiek = []
+    if md["uitkomst"] in ("pass", "fail"):
+        if not score["m_c_dragend_ok_zonder_f7"]:
+            kritiek.append("pass/fail bij M-c onwaar")
+        if not score["m_b_dragend_ok_zonder_f7"]:
+            kritiek.append("pass/fail bij M-b onwaar")
+    if voorwaarde and behouden is not True:
+        kritiek.append("E: voorwaarde weggevallen")
+    f7 = list(score["f7_afwijkingen"])
+    if kritiek:
+        categorie = "kritiek"
+    elif f7:
+        categorie = "f7"
+    elif m_d_telt and score["m_b_dragend_ok"] and score["m_c_dragend_ok"]:
+        categorie = "geslaagd"
+    else:
+        categorie = "niet_geslaagd"
+    return {
+        "categorie": categorie,
+        "gekregen": gekregen,
+        "m_d_telt": m_d_telt,
+        "m_b_dragend_ok": bool(score["m_b_dragend_ok"]),
+        "m_c_dragend_ok": bool(score["m_c_dragend_ok"]),
+        "voorwaarde_behouden": behouden,
+        "kritiek": kritiek,
+        "f7": f7,
+    }
+
+
+def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Eindoordeel over de runs (elk een `runoordeel` plus `sleutel`), deel C.
+
+    Afgekeurd bij één kritieke run of M-d ≤ 8 (ook met de ontbrekende runs
+    erbij); onvolledig onder 12 runs;
+    geslaagd bij M-d ≥ 11, M-c en M-b 12/12 en elke E-run met behouden
+    voorwaarde; anders wacht een F7-afwijking op het besluit van Chris, of is
+    het tussengebied (analyseren, geen nieuwe ronde zonder besluit).
+    """
+    n = len(runs)
+    m_d = sum(1 for r in runs if r["m_d_telt"])
+    m_c = sum(1 for r in runs if r["m_c_dragend_ok"])
+    m_b = sum(1 for r in runs if r["m_b_dragend_ok"])
+    e_runs = [r for r in runs if r["voorwaarde_behouden"] is not None]
+    e_ok = sum(1 for r in e_runs if r["voorwaarde_behouden"] is True)
+    kritiek = [
+        {"sleutel": r["sleutel"], "redenen": list(r["kritiek"])}
+        for r in runs
+        if r["kritiek"]
+    ]
+    f7 = [
+        {"sleutel": r["sleutel"], "afwijkingen": list(r["f7"])} for r in runs if r["f7"]
+    ]
+    # Onder 12 runs telt M-d ≤ 8 pas als ook de ontbrekende runs dat niet redden.
+    if kritiek or m_d + max(0, RUNS_VERWACHT - n) <= M_D_AFKEUR:
+        oordeel = "afgekeurd"
+    elif n < RUNS_VERWACHT:
+        oordeel = "onvolledig"
+    elif m_d >= M_D_MIN and m_c == n and m_b == n and e_ok == len(e_runs):
+        oordeel = "geslaagd"
+    elif f7:
+        oordeel = "wacht_op_f7_besluit"
+    else:
+        oordeel = "tussengebied"
+    return {
+        "oordeel": oordeel,
+        "runs": n,
+        "runs_verwacht": RUNS_VERWACHT,
+        "m_d_juist": m_d,
+        "m_c_dragend": m_c,
+        "m_b_dragend": m_b,
+        "e_voorwaarde_behouden": [e_ok, len(e_runs)],
+        "kritiek": kritiek,
+        "f7": f7,
+        "categorieen": dict(sorted(Counter(r["categorie"] for r in runs).items())),
+        "grens": _GRENS,
     }

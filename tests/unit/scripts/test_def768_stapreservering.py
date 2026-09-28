@@ -547,6 +547,7 @@ class TestGeenOudeGoedkeuring:
             "R15",
             "R16",
             "R17",
+            "R18",
         }
         assert [n for n, p in runner.PROEVEN.items() if p.echt_toegestaan] == [
             "R11",
@@ -556,6 +557,7 @@ class TestGeenOudeGoedkeuring:
             "R15",
             "R16",
             "R17",
+            "R18",
         ]
 
     def test_geregistreerde_open_r7_weigert_een_echte_tweestapsrun(

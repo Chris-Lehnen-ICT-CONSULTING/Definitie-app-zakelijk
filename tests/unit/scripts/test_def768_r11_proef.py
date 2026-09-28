@@ -438,6 +438,7 @@ class TestRegistratie:
             "R15",
             "R16",
             "R17",
+            "R18",
         ]
         assert {
             n: p.kaderverruiming_modelstappen
