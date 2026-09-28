@@ -889,7 +889,15 @@ class TestDekking:
         assert fout.soort == "kerndekking_onvolledig" and "'of'" in str(fout)
 
     def test_onbesproken_bindt_het_volledige_relevante_materiaal(self):
-        interpretatie = _valideer(_interpretatie_a(), _invoer())
+        # v6 (fixture, Codex-review deel A bevinding 3): de buurbeschrijving is één
+        # zin, dus haar eenheid is de volledige tekst. K1/verhuur verwijst daarom
+        # naar de afzonderlijke Verhuur-broneenheid, zodat naast de volledige
+        # teksten (onbesproken K2) ook een fragment in het pakket staat.
+        ruw = _vervang(
+            _interpretatie_a(), "K1", BUUR,
+            _a("K1", BUUR, "bevestigd", [(BRON, VERHUURPASSAGE_A)]),
+        )  # fmt: skip
+        interpretatie = _valideer(ruw, _invoer())
         eenheden = {e.naam: e for e in br.controle_eenheden(interpretatie, _invoer())}
         citaten = eenheden[f"buur:{BUUR}"].pakket.inhoud["citaten"]
         volledig = {c["citaat"] for c in citaten if c["omvang"] == OMVANG_VOLLEDIG}
