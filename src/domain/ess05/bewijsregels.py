@@ -55,12 +55,14 @@ __all__ = [
     "BewijsregelfoutError",
     "Buuroordeel",
     "Controle_eenheid",
+    "Diagnose",
     "Groepsoordeel",
     "Interpretatie",
     "Regelfout",
     "Regeluitkomst",
     "Vergelijkingsinvoer",
     "bepaal",
+    "bewijsdiagnose",
     "controle_eenheden",
     "pas_regels_toe",
     "regelcontract",
@@ -676,6 +678,66 @@ def valideer_interpretatie(ruw: Any, invoer: Vergelijkingsinvoer) -> Interpretat
     )
     _controleer_samenhang(interpretatie)
     return interpretatie
+
+
+@dataclass(frozen=True)
+class Diagnose:
+    """Eén bewijsfout, gevonden zonder bij de eerste te stoppen (alleen evaluatie)."""
+
+    pad: str
+    soort: str
+    melding: str
+
+
+def bewijsdiagnose(ruw: Any, invoer: Vergelijkingsinvoer) -> tuple[Diagnose, ...]:
+    """Alle bewijsfouten per antwoord en deelgroep, zonder te stoppen.
+
+    Uitsluitend voor evaluatie van een proef: het productiepad blijft
+    `valideer_interpretatie` (eerste fout is `error`). Controleert per item:
+    verplichte eenheid bij een positieve toestand, bekende eenheid, toegestaan
+    materiaal en het negatieve anker.
+    """
+    if not isinstance(ruw, Mapping):
+        return (Diagnose("interpretatie", "schemafout", "geen object"),)
+    termen = invoer.termen()
+    groepen = {
+        g.get("id"): g.get("buur")
+        for g in ruw.get("buurgroepen") or []
+        if isinstance(g, Mapping)
+    }
+    uit: list[Diagnose] = []
+
+    def toets(pad: str, onderwerp: Any, toestand: Any, citaten: Any) -> None:
+        buur = None if onderwerp == DOEL else groepen.get(onderwerp, onderwerp)
+        try:
+            if buur is not None and buur not in termen:
+                raise _fout("schemafout", f"{pad}: onbekend onderwerp {onderwerp!r}")
+            if toestand != _ONBESPROKEN and not citaten:
+                raise _fout("schemafout", f"{pad}: {toestand} zonder eenheid")
+            if toestand == _ONBESPROKEN and citaten:
+                raise _fout("schemafout", f"{pad}: onbesproken met eenheden")
+            _citaten(
+                invoer,
+                citaten or [],
+                invoer.relevant(buur),
+                f"{pad}.citaten",
+                invoer.term if buur is None else termen[buur],
+            )
+        except BewijsregelfoutError as exc:
+            uit.append(Diagnose(pad, exc.soort, exc.melding))
+
+    for nummer, a in enumerate(ruw.get("antwoorden") or [], start=1):
+        if not isinstance(a, Mapping):
+            uit.append(Diagnose(f"antwoorden[{nummer}]", "schemafout", "geen object"))
+            continue
+        toets(f"antwoorden[{nummer}]", a.get("onderwerp"), a.get("toestand"),
+              a.get("citaten"))  # fmt: skip
+    for nummer, g in enumerate(ruw.get("buurgroepen") or [], start=1):
+        if isinstance(g, Mapping):
+            toets(
+                f"buurgroepen[{nummer}]", g.get("buur"), "bevestigd", g.get("citaten")
+            )
+    return tuple(uit)
 
 
 # --- fase 2: regels (alleen op een geldige interpretatie) -----------------------------------
