@@ -138,6 +138,12 @@ een inhoudelijk gemiste negatief stopt de vijf gevallen niet.
 werkelijke + 4); lokaal plafond USD 1,50 (de volledige stapbegroting). Zoals
 R13/R14 stopt alleen een technisch niet-afgeronde controle of een open poging.
 
+`R16` (DEF-768-AI-20260928-R16, mechanismeproef bewijsregels; opdracht Chris
+28-09, `logs/def768/bewijsregels-gebruikersopdracht-v1.json`) kent alleen
+`bewijsregels`: 3 gevallen × (1 broninterpretatie + ten hoogste 3 controles)
+= 12 modelstappen, reserve 0; samen met R15 t/m R1 nooit boven 403 (391
+werkelijke + 12); lokaal plafond USD 4,32 (de volledige stapbegroting).
+
 De SDK-wacht laat onder een stapgrens alleen platte-tekstpayload door (model,
 `max_tokens`, thinking uit, tekst-`system`, tekstberichten; geen tools,
 caching of blokken) binnen de bytegrens, en toetst achteraf de usage aan de
@@ -182,6 +188,7 @@ __all__ = [
     "R13",
     "R14",
     "R15",
+    "R16",
     "RESERVE_MAX",
     "TOTAAL_MAX",
     "BewaakteClient",
@@ -312,7 +319,7 @@ class Kostenbewaking:
 class Proefidentiteit:
     """Een vaste proef: id, fasecaps, reserve en eindgroepen.
 
-    Alleen `R1` t/m `R15` hieronder bestaan; een andere identiteit wordt bij
+    Alleen `R1` t/m `R16` hieronder bestaan; een andere identiteit wordt bij
     openen en aanmaken geweigerd (geen vrij configureerbare caps of reset).
     """
 
@@ -342,6 +349,10 @@ class Proefidentiteit:
     #: R13: de stopregel telt alleen een technisch niet-afgerond geval (plus
     #: een open poging); een inhoudelijk niet-geaccepteerd geval stopt niet.
     stop_alleen_technisch: bool = False
+    #: R16: een geval mag met minder stappen dan de vaste reeks inhoudelijk
+    #: geaccepteerd zijn: de dienst stopt vast bij de eerste geldigheidsfout of
+    #: afgewezen controle. Nooit meer stappen en nooit een stap overslaan.
+    vroege_stop_toegestaan: bool = False
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "fasecaps", MappingProxyType(dict(self.fasecaps)))
@@ -702,9 +713,40 @@ R15 = Proefidentiteit(
     kostenkader_nusd=25_000_000_000,
     stop_alleen_technisch=True,
 )
+#: Ronde 16 (opdracht Chris 28-09, "ga hier mee verder",
+#: bewijsregels-gebruikersopdracht-v1.json): mechanismeproef van de beperkte
+#: bewijsregels (`ess05-bewijsregels/3`). Drie gevallen A/B/C, elk één
+#: broninterpretatie (beoordelingstaak) plus ten hoogste drie geïsoleerde
+#: controles (kern, doel, buur; verificatietaak): max 12 modelstappen, reserve
+#: 0; samen met R15 t/m R1 nooit boven 403 (391 werkelijke + 12). Zelfde model,
+#: tarief, bytegrenzen en productiegrens als R8. Lokaal plafond USD 4,32 = de
+#: volledige stapbegroting (3 × (0,315 + 3 × 0,375)), onder de grens USD 4,50
+#: en binnen de kaderrest USD 22,163635. Een geldigheidsfout of afgewezen
+#: controle stopt alleen het eigen geval; alleen een technisch niet-afgeronde
+#: stap of een open poging stopt de proef.
+R16 = Proefidentiteit(
+    proef_id="DEF-768-AI-20260928-R16",
+    fasecaps={"bewijsregels": 12},
+    reserve_max=0,
+    eindgroepen=(Eindgroep("b", frozenset({"bewijsregels"}), 0),),
+    bindingsvelden=R15.bindingsvelden,
+    voorganger=R15,
+    cumulatief_max=403,
+    modelstappen_per_geval=4,
+    kostenbewaking=replace(R8.kostenbewaking, plafond_nusd=4_320_000_000),
+    fasestappen={
+        "bewijsregels": (_BEOORDELING, _VERIFICATIE, _VERIFICATIE, _VERIFICATIE)
+    },
+    fasevolgorde={"bewijsregels": ()},
+    gedeelde_codebinding=True,
+    stop_bij_eerste_fout=True,
+    kostenkader_nusd=25_000_000_000,
+    stop_alleen_technisch=True,
+    vroege_stop_toegestaan=True,
+)
 _IDENTITEITEN = {
     i.proef_id: i
-    for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15)
+    for i in (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15, R16)
 }
 #: Velden die alle eindgroepen delen bij `gedeelde_codebinding`. De freeze is
 #: per eindgroep (`groep` v of t in `freezevelden`) en dus bewust niet gedeeld.
@@ -729,7 +771,7 @@ def begroting_nusd(identiteit: Proefidentiteit) -> int:
 
 def _bekende_identiteit(identiteit: Proefidentiteit) -> Proefidentiteit:
     if _IDENTITEITEN.get(identiteit.proef_id) is not identiteit:
-        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R15"
+        msg = f"onbekende proefidentiteit {identiteit.proef_id!r}; alleen R1 t/m R16"
         raise BudgetSchendingError(msg)
     return identiteit
 
@@ -1329,7 +1371,8 @@ class Grootboek:
         if any(g["poging"] == poging for g in self._gevallen()):
             msg = f"geval {poging!r} is al geregistreerd"
             raise BudgetSchendingError(msg)
-        if geaccepteerd and len(eigen) != len(stappen):
+        vroeg = self.identiteit.vroege_stop_toegestaan and len(eigen) < len(stappen)
+        if geaccepteerd and len(eigen) != len(stappen) and not vroeg:
             msg = (
                 f"geval {poging!r}: geaccepteerd met {len(eigen)} van "
                 f"{len(stappen)} stappen"
