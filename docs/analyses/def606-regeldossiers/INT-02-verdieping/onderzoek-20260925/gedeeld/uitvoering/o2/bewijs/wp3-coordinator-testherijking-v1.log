@@ -1,0 +1,23 @@
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py tests/unit/validation/test_def771_int02_o1.py tests/unit/validation/test_def772_int03_evaluator.py tests/unit/validation/test_evaluator_registry_contract.py tests/unit/validation/test_rule_cache_runtime_contract.py tests/unit/domain/test_def835_int02_contract.py tests/unit/validation/test_validation_readiness.py tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py tests/unit/services/orchestrators/test_def772_int03_wrappers.py tests/unit/services/orchestrators/test_def766_ess03_wrappers.py -o addopts= --import-mode=importlib -q -ra
+# SHA256 b6cc73787a4618b9b99964350f8ae87b2b0f82dcef8528f5ff8d43f74d99981e tests/unit/validation/test_def835_int02_evaluator.py
+# SHA256 712f5e527bd33a5ff3fecf13192b2a22ed67356208ac645ceb06b522f496369d tests/integration/contracts/test_validation_result_schema.py
+# SHA256 020c97cc9513b617fd68ece1bbf57a59514dae55d664be28849b89addc9417b9 tests/unit/validation/test_def771_int02_o1.py
+# SHA256 ab456620976665bb6121d4813cb0a48740e6450c173090714bb061da9f5e075b tests/unit/validation/test_def772_int03_evaluator.py
+# SHA256 c842a8f4aa6e0011d31e092ffbff1793e9f249022d8c03202d424c08eed84857 tests/unit/validation/test_evaluator_registry_contract.py
+# SHA256 f300b4374939162374cb3432fb7d208b25973e68eeda9cff0bfa757d09917712 tests/unit/validation/test_rule_cache_runtime_contract.py
+# SHA256 368401797e216de4cbcdb8373a9815e9d3f338b4116a485fe3c61971a14d7e97 tests/unit/domain/test_def835_int02_contract.py
+# SHA256 044881acd4314c1326276a0f69090ecdd8a5cbcd8719168c484e75d44d8e6221 tests/unit/validation/test_validation_readiness.py
+# SHA256 db5e489bd1a0849fd8a9b16655c31839aa17d550f710870a679f6b2d9f2a329c tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py
+# SHA256 d9390dc293bc652b067ac30abba40f1fba32860b19c8d29d9412d0e5bf785828 tests/unit/services/orchestrators/test_def772_int03_wrappers.py
+# SHA256 91c3c5ef55015abf5e75567d6f288e81219a6f8eabadc59f9d1e7c2ddc14a249 tests/unit/services/orchestrators/test_def766_ess03_wrappers.py
+........................................................................ [ 12%]
+........................................................................ [ 25%]
+........................................................................ [ 38%]
+........................................................................ [ 51%]
+........................................................................ [ 64%]
+........................................................................ [ 77%]
+........................................................................ [ 90%]
+...................................................                      [100%]
+555 passed in 3.04s
+
+# exitcode: 0
