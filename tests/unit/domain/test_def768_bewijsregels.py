@@ -1,8 +1,9 @@
-"""DEF-768 — beperkte ESS-05-bewijsregels (`ess05-bewijsregels/3`), puur domein.
+"""DEF-768 — beperkte ESS-05-bewijsregels (`ess05-bewijsregels/4`), puur domein.
 
-Contract: docs/technisch/ess05-bewijsregels-contract-v3.md (v2 verwerkt de
+Contract: docs/technisch/ess05-bewijsregels-contract-v4.md (v2 verwerkt de
 contractreview logs/def768/bewijsregels-contractreview-result-v1.md, K1–K4; v3
-de K4-rest uit bewijsregels-contractreview-result-v2.md).
+de K4-rest uit bewijsregels-contractreview-result-v2.md; v4 het R16-herstel uit
+bewijsregels-r16-uitvoerreview-result-v1.md: onderwerpbinding en controlescope).
 De interpretaties hier zijn vooraf vastgelegde, gecontroleerde feiten: bewijs
 voor de geldigheidscontroles en afleidingsregels, niet voor modelinterpretatie
 (die toetst de mechanismeproef afzonderlijk).
@@ -50,10 +51,15 @@ BRON_C = (
     "Verdere informatie over verhuur staat niet in deze werkinstructie."
 )
 BUUR_C = "permanent ter beschikking stellen van apparatuur aan een medewerker"
+#: v4: broncitaten in een bron met meer dan één begrip noemen hun onderwerp.
 DOELCITAAT = (
-    "stelt apparatuur tijdelijk en kosteloos ter beschikking aan een medewerker"
+    "Uitleen: de servicedesk stelt apparatuur tijdelijk en kosteloos ter beschikking "
+    "aan een medewerker"
 )
-TERUGGAVE_DOEL = "kosteloos ter beschikking aan een medewerker; de medewerker geeft"
+TERUGGAVE_DOEL = (
+    "Uitleen: de servicedesk stelt apparatuur tijdelijk en kosteloos ter beschikking "
+    "aan een medewerker; de medewerker geeft de apparatuur daarna terug."
+)
 
 
 def _invoer(bron=BRON_A, buur=BUUR_A, *, onvolledig=(), definitie=DEFINITIE, extra=None,
@@ -230,6 +236,8 @@ class TestK1GeldigheidVoorInhoud:
         assert fout.soort == "dekking_ontbreekt"
 
     def test_bewezen_fail_bij_buur_x_plus_ontbrekend_bewijs_bij_buur_y_is_error(self):
+        uitleen = "Uitleen: de servicedesk stelt apparatuur tijdelijk en kosteloos"
+        verhuur = "Verhuur: tijdelijk en tegen betaling"
         definitie = "tijdelijk ter beschikking stellen van apparatuur"
         bron = ("Uitleen: de servicedesk stelt apparatuur tijdelijk en kosteloos ter "
                 "beschikking. Verhuur: tijdelijk en tegen betaling ter beschikking.")  # fmt: skip
@@ -250,10 +258,10 @@ class TestK1GeldigheidVoorInhoud:
              "kenmerken": [{"id": "K1", "kenmerk": "duur", "waarde": "tijdelijk",
                             "citaat": "tijdelijk"}]},
             [
-                _a("K1", "doel", "bevestigd", [(BRON, "tijdelijk en kosteloos")]),
-                _a("M1", "doel", "bevestigd", [(BRON, "tijdelijk en kosteloos")]),
-                _a("K1", BUUR, "bevestigd", [(BRON, "tijdelijk en tegen betaling")]),
-                _a("M1", BUUR, "ontkend", [(BRON, "tijdelijk en tegen betaling")]),
+                _a("K1", "doel", "bevestigd", [(BRON, uitleen)]),
+                _a("M1", "doel", "bevestigd", [(BRON, uitleen)]),
+                _a("K1", BUUR, "bevestigd", [(BRON, verhuur)]),
+                _a("M1", BUUR, "ontkend", [(BRON, verhuur)]),
                 _a("K1", ander, "onbesproken"),
                 _a("M1", ander, "onbesproken"),
             ],
@@ -279,6 +287,7 @@ class TestK1GeldigheidVoorInhoud:
 
 class TestK2GeenFailZonderBewijs:
     DEF = "tijdelijk ter beschikking stellen van apparatuur"
+    UITLEEN = "Uitleen: apparatuur tijdelijk en kosteloos"
 
     def _invoer(self, bron, buurtekst="ter beschikking stellen van apparatuur"):
         return br.Vergelijkingsinvoer(
@@ -293,8 +302,8 @@ class TestK2GeenFailZonderBewijs:
              "kenmerken": [{"id": "K1", "kenmerk": "duur", "waarde": "tijdelijk",
                             "citaat": "tijdelijk"}]},
             [
-                _a("K1", "doel", "bevestigd", [(BRON, "tijdelijk en kosteloos")]),
-                _a("M1", "doel", "bevestigd", [(BRON, "tijdelijk en kosteloos")]),
+                _a("K1", "doel", "bevestigd", [(BRON, self.UITLEEN)]),
+                _a("M1", "doel", "bevestigd", [(BRON, self.UITLEEN)]),
                 *buurantwoorden,
             ],
             buiten_kern=[{"id": "M1", "kenmerk": "kosten", "waarde": "kosteloos"}],
@@ -307,7 +316,12 @@ class TestK2GeenFailZonderBewijs:
         uitkomst = br.bepaal(
             self._ruw(
                 _a("K1", BUUR, "onbesproken"),
-                _a("M1", BUUR, "ontkend", [(BRON, "apparatuur tegen betaling")]),
+                _a(
+                    "M1",
+                    BUUR,
+                    "ontkend",
+                    [(BRON, "Verhuur: apparatuur tegen betaling")],
+                ),
             ),
             self._invoer(bron),
         )
@@ -323,7 +337,12 @@ class TestK2GeenFailZonderBewijs:
             self._ruw(
                 _a("K1", BUUR, "bevestigd", [(BRON, "Verhuur is tijdelijk.")]),
                 _a("K1", BUUR, "ontkend", [(BRON, "Verhuur is permanent.")]),
-                _a("M1", BUUR, "ontkend", [(BRON, "apparatuur tegen betaling")]),
+                _a(
+                    "M1",
+                    BUUR,
+                    "ontkend",
+                    [(BRON, "Verhuur: apparatuur tegen betaling")],
+                ),
             ),
             self._invoer(bron),
         )
@@ -333,10 +352,11 @@ class TestK2GeenFailZonderBewijs:
     def test_tijdelijke_betaalde_buur_is_een_bewezen_tegengeval(self):
         bron = ("Uitleen: apparatuur tijdelijk en kosteloos ter beschikking. Verhuur: "
                 "apparatuur tijdelijk en tegen betaling ter beschikking.")  # fmt: skip
+        verhuur = "Verhuur: apparatuur tijdelijk en tegen betaling"
         uitkomst = br.bepaal(
             self._ruw(
-                _a("K1", BUUR, "bevestigd", [(BRON, "tijdelijk en tegen betaling")]),
-                _a("M1", BUUR, "ontkend", [(BRON, "tijdelijk en tegen betaling")]),
+                _a("K1", BUUR, "bevestigd", [(BRON, verhuur)]),
+                _a("M1", BUUR, "ontkend", [(BRON, verhuur)]),
             ),
             self._invoer(bron),
         )
@@ -421,8 +441,9 @@ class TestK4Buurgroepen:
     DEF = "tijdelijk ter beschikking stellen van apparatuur"
     BRON_K4 = (
         "Uitleen: apparatuur tijdelijk en kosteloos ter beschikking. Verhuur gebeurt "
-        "altijd tegen betaling. Verhuur is soms permanent en soms tijdelijk."
+        "altijd tegen betaling. Verhuur is soms permanent. Verhuur is soms tijdelijk."
     )
+    GEMENGD = "Verhuur is soms permanent. Verhuur is soms tijdelijk."
 
     def _invoer(self, bron=BRON_K4):
         return br.Vergelijkingsinvoer(
@@ -438,10 +459,10 @@ class TestK4Buurgroepen:
              "kenmerken": [{"id": "K1", "kenmerk": "duur", "waarde": "tijdelijk",
                             "citaat": "tijdelijk"}]},
             [
-                _a("K1", "doel", "bevestigd", [(BRON, "tijdelijk en kosteloos")]),
-                _a("M1", "doel", "bevestigd", [(BRON, "tijdelijk en kosteloos")]),
+                _a("K1", "doel", "bevestigd", [(BRON, "Uitleen: apparatuur tijdelijk en kosteloos")]),
+                _a("M1", "doel", "bevestigd", [(BRON, "Uitleen: apparatuur tijdelijk en kosteloos")]),
                 buur_duur,
-                _a("M1", BUUR, "ontkend", [(BRON, "altijd tegen betaling")]),
+                _a("M1", BUUR, "ontkend", [(BRON, "Verhuur gebeurt altijd tegen betaling")]),
                 *groepantwoorden,
             ],
             buiten_kern=[{"id": "M1", "kenmerk": "kosten", "waarde": "kosteloos"}],
@@ -449,20 +470,24 @@ class TestK4Buurgroepen:
         )  # fmt: skip
 
     def _gemengd(self):
-        return _a("K1", BUUR, "gemengd", [(BRON, "soms permanent en soms tijdelijk")])
+        return _a("K1", BUUR, "gemengd", [(BRON, self.GEMENGD)])
 
     def _groepen(self):
         return [
-            _groep("G1", BUUR, "permanente verhuur", [(BRON, "soms permanent")]),
-            _groep("G2", BUUR, "tijdelijke verhuur", [(BRON, "soms tijdelijk")]),
+            _groep(
+                "G1", BUUR, "permanente verhuur", [(BRON, "Verhuur is soms permanent")]
+            ),
+            _groep(
+                "G2", BUUR, "tijdelijke verhuur", [(BRON, "Verhuur is soms tijdelijk")]
+            ),
         ]
 
     def test_tijdelijk_betaald_blijft_tegengeval_ondanks_uitgesloten_permanent(self):
         ruw = self._ruw(self._gemengd(), self._groepen(), [
-            _a("K1", "G1", "ontkend", [(BRON, "soms permanent")]),
-            _a("M1", "G1", "ontkend", [(BRON, "altijd tegen betaling")]),
-            _a("K1", "G2", "bevestigd", [(BRON, "soms tijdelijk")]),
-            _a("M1", "G2", "ontkend", [(BRON, "altijd tegen betaling")]),
+            _a("K1", "G1", "ontkend", [(BRON, "Verhuur is soms permanent")]),
+            _a("M1", "G1", "ontkend", [(BRON, "Verhuur gebeurt altijd tegen betaling")]),
+            _a("K1", "G2", "bevestigd", [(BRON, "Verhuur is soms tijdelijk")]),
+            _a("M1", "G2", "ontkend", [(BRON, "Verhuur gebeurt altijd tegen betaling")]),
         ])  # fmt: skip
         uitkomst = br.bepaal(ruw, self._invoer())
         assert uitkomst.uitkomst == "fail"
@@ -478,23 +503,23 @@ class TestK4Buurgroepen:
 
     def test_gemengd_zonder_beide_kanten_is_inconsistent(self):
         ruw = self._ruw(self._gemengd(), self._groepen()[:1], [
-            _a("K1", "G1", "ontkend", [(BRON, "soms permanent")]),
-            _a("M1", "G1", "ontkend", [(BRON, "altijd tegen betaling")]),
+            _a("K1", "G1", "ontkend", [(BRON, "Verhuur is soms permanent")]),
+            _a("M1", "G1", "ontkend", [(BRON, "Verhuur gebeurt altijd tegen betaling")]),
         ])  # fmt: skip
         assert _fout(ruw, self._invoer()).soort == "inconsistent"
 
     def test_deelgroep_die_uniforme_buurtoestand_tegenspreekt_is_inconsistent(self):
         ruw = self._ruw(self._gemengd(), self._groepen(), [
-            _a("K1", "G1", "ontkend", [(BRON, "soms permanent")]),
-            _a("M1", "G1", "bevestigd", [(BRON, "soms permanent")]),
-            _a("K1", "G2", "bevestigd", [(BRON, "soms tijdelijk")]),
-            _a("M1", "G2", "ontkend", [(BRON, "altijd tegen betaling")]),
+            _a("K1", "G1", "ontkend", [(BRON, "Verhuur is soms permanent")]),
+            _a("M1", "G1", "bevestigd", [(BRON, "Verhuur is soms permanent")]),
+            _a("K1", "G2", "bevestigd", [(BRON, "Verhuur is soms tijdelijk")]),
+            _a("M1", "G2", "ontkend", [(BRON, "Verhuur gebeurt altijd tegen betaling")]),
         ])  # fmt: skip
         assert _fout(ruw, self._invoer()).soort == "inconsistent"
 
     def test_voorwaarde_aan_buurzijde_hoort_in_een_deelgroep(self):
         ruw = self._ruw(
-            _a("K1", BUUR, "ontkend", [(BRON, "soms permanent")], voorwaarden=["bij storing"]),
+            _a("K1", BUUR, "ontkend", [(BRON, "Verhuur is soms permanent")], voorwaarden=["bij storing"]),
             [], [],
         )  # fmt: skip
         assert _fout(ruw, self._invoer()).soort == "schemafout"
@@ -516,7 +541,12 @@ class TestK4Buurgroepen:
                     "bevestigd",
                     [(BRON, "Bij storing is verhuur tijdelijk.")],
                 ),
-                _a("M1", "G1", "ontkend", [(BRON, "altijd tegen betaling")]),
+                _a(
+                    "M1",
+                    "G1",
+                    "ontkend",
+                    [(BRON, "Verhuur gebeurt altijd tegen betaling")],
+                ),
             ],
         )
         uitkomst = br.bepaal(ruw, self._invoer(bron))
@@ -534,7 +564,7 @@ class TestK4Buurgroepen:
     def test_twee_gemengde_kenmerken_expliciet_buiten_bereik(self):
         definitie = "tijdelijk en kosteloos ter beschikking stellen van apparatuur"
         bron = ("Uitleen: tijdelijk en kosteloos ter beschikking. Verhuur is soms "
-                "permanent en soms tijdelijk, soms betaald en soms kosteloos.")  # fmt: skip
+                "permanent en soms tijdelijk. Verhuur is soms betaald en soms kosteloos.")  # fmt: skip
         invoer = br.Vergelijkingsinvoer(
             term="uitleen",
             materiaal={"definition": definitie, BRON: bron, BUURMATERIAAL: "verhuren"},
@@ -552,19 +582,19 @@ class TestK4Buurgroepen:
                 "G1",
                 BUUR,
                 "permanente verhuur",
-                [(BRON, "soms\npermanent".replace("\n", " "))],
+                [(BRON, "Verhuur is soms permanent")],
             ),
-            _groep("G2", BUUR, "betaalde verhuur", [(BRON, "soms betaald")]),
+            _groep("G2", BUUR, "betaalde verhuur", [(BRON, "Verhuur is soms betaald")]),
         ]
         ruw = _ruw(kern, [
             _a("K1", "doel", "bevestigd", [(BRON, "Uitleen: tijdelijk en kosteloos")]),
             _a("K2", "doel", "bevestigd", [(BRON, "Uitleen: tijdelijk en kosteloos")]),
-            _a("K1", BUUR, "gemengd", [(BRON, "soms permanent en soms tijdelijk")]),
-            _a("K2", BUUR, "gemengd", [(BRON, "soms betaald en soms kosteloos")]),
-            _a("K1", "G1", "ontkend", [(BRON, "soms permanent")]),
+            _a("K1", BUUR, "gemengd", [(BRON, "Verhuur is soms permanent en soms tijdelijk")]),
+            _a("K2", BUUR, "gemengd", [(BRON, "Verhuur is soms betaald en soms kosteloos")]),
+            _a("K1", "G1", "ontkend", [(BRON, "Verhuur is soms permanent")]),
             _a("K2", "G1", "onbesproken"),
             _a("K1", "G2", "onbesproken"),
-            _a("K2", "G2", "ontkend", [(BRON, "soms betaald")]),
+            _a("K2", "G2", "ontkend", [(BRON, "Verhuur is soms betaald")]),
         ], groepen=groepen)  # fmt: skip
         assert _fout(ruw, invoer).soort == "buiten_bereik"
 
@@ -576,7 +606,12 @@ class TestK4Buurgroepen:
 
     def test_deelgroep_van_onbekende_buur_geweigerd(self):
         groepen = [
-            _groep("G1", "gebruiker:onbekend", "iets", [(BRON, "soms permanent")])
+            _groep(
+                "G1",
+                "gebruiker:onbekend",
+                "iets",
+                [(BRON, "Verhuur is soms permanent")],
+            )
         ]
         ruw = self._ruw(self._gemengd(), groepen, [])
         assert _fout(ruw, self._invoer()).soort == "schemafout"
@@ -597,7 +632,8 @@ class TestK4VoorwaardelijkeDoeleis:
     BRON_S = (
         "Uitleen: de servicedesk stelt apparatuur tijdelijk ter beschikking. Bij storing "
         "is voor uitleen toestemming van de teamleider vereist. Storingsuitgifte gebeurt "
-        "zonder toestemming. Storingsuitgifte is soms permanent en soms tijdelijk."
+        "zonder toestemming. Storingsuitgifte is soms permanent. Storingsuitgifte is "
+        "soms tijdelijk."
     )
     EIS = "Bij storing is voor uitleen toestemming van de teamleider vereist"
 
@@ -617,19 +653,20 @@ class TestK4VoorwaardelijkeDoeleis:
              "kenmerken": [{"id": "K1", "kenmerk": "duur", "waarde": "tijdelijk",
                             "citaat": "tijdelijk"}]},
             [
-                _a("K1", "doel", "bevestigd", [(BRON, "stelt apparatuur tijdelijk ter")]),
+                _a("K1", "doel", "bevestigd",
+                   [(BRON, "Uitleen: de servicedesk stelt apparatuur tijdelijk ter")]),
                 _a("M1", "doel", "bevestigd", [(BRON, self.EIS)], voorwaarden=["bij storing"]),
-                _a("K1", s, "gemengd", [(BRON, "soms permanent en soms tijdelijk")]),
+                _a("K1", s, "gemengd", [(BRON, "Storingsuitgifte is soms permanent. Storingsuitgifte is soms tijdelijk.")]),
                 _a("M1", s, "ontkend", [zonder]),
-                _a("K1", "G1", "ontkend", [(BRON, "soms permanent")]),
+                _a("K1", "G1", "ontkend", [(BRON, "Storingsuitgifte is soms permanent")]),
                 _a("M1", "G1", "ontkend", [zonder]),
-                _a("K1", "G2", "bevestigd", [(BRON, "soms tijdelijk")]),
+                _a("K1", "G2", "bevestigd", [(BRON, "Storingsuitgifte is soms tijdelijk")]),
                 _a("M1", "G2", "ontkend", [zonder]),
             ],
             buiten_kern=[{"id": "M1", "kenmerk": "toestemming", "waarde": "vereist"}],
             groepen=[
-                _groep("G1", s, "permanente storingsuitgifte", [(BRON, "soms permanent")]),
-                _groep("G2", s, "tijdelijke storingsuitgifte", [(BRON, "soms tijdelijk")]),
+                _groep("G1", s, "permanente storingsuitgifte", [(BRON, "Storingsuitgifte is soms permanent")]),
+                _groep("G2", s, "tijdelijke storingsuitgifte", [(BRON, "Storingsuitgifte is soms tijdelijk")]),
             ],
         )  # fmt: skip
 
@@ -689,24 +726,27 @@ class TestRoloverlap:
             groepen=groepen,
         )  # fmt: skip
 
+    #: v4: een citaat in deze bron (twee begrippen) noemt alleen zijn eigen onderwerp;
+    #: de overlap staat daarom via het kenmerk, niet via de naam 'lener'.
     BRON_SPLITS = (
         "Een lener heeft een actuele lening bij de instelling. Niet elke werknemer heeft "
-        "een lening; een werknemer kan ook lener zijn."
+        "een lening; een werknemer kan ook een actuele lening bij de instelling hebben."
     )
+    OVERLAP = "een werknemer kan ook een actuele lening bij de instelling hebben"
 
     def test_overlap_mag_via_splitsing_op_een_kenmerk(self):
         groepen = [
             _groep("G1", self.WERKNEMER, "werknemer zonder lening",
                    [(BRON, "Niet elke werknemer heeft een lening")]),
             _groep("G2", self.WERKNEMER, "werknemer die ook lener is",
-                   [(BRON, "een werknemer kan ook lener zijn")]),
+                   [(BRON, self.OVERLAP)]),
         ]  # fmt: skip
         ruw = self._ruw(
             _a("K1", self.WERKNEMER, "gemengd", [(BRON, "Niet elke werknemer heeft een lening")]),
             groepen,
             [
                 _a("K1", "G1", "ontkend", [(BRON, "Niet elke werknemer heeft een lening")]),
-                _a("K1", "G2", "bevestigd", [(BRON, "een werknemer kan ook lener zijn")]),
+                _a("K1", "G2", "bevestigd", [(BRON, self.OVERLAP)]),
             ],
         )  # fmt: skip
         uitkomst = br.bepaal(ruw, self._invoer(self.BRON_SPLITS))
@@ -817,7 +857,8 @@ class TestDekking:
         pakket = eenheden[f"buur:{BUUR}"].pakket
         uitspraak = pakket.inhoud["uitspraak"]
         nummers = {c["id"] for c in pakket.inhoud["citaten"]}
-        assert uitspraak.count("(B") == 4  # vier kenmerken, elk met eigen route
+        feiten = uitspraak.split("Volgens de citaten:", 1)[1]
+        assert feiten.count("(B") == 4  # vier kenmerken, elk met eigen route
         assert all(n in uitspraak for n in nummers)
 
     def test_onbesproken_met_eigen_citaten_geweigerd(self):
@@ -1036,3 +1077,187 @@ class TestFailEnWeergave:
     def test_error_noemt_geen_oordeel_over_de_definitie(self):
         tekst = br.render(br.bepaal(_interpretatie_a(), _invoer(onvolledig={BRON})))
         assert tekst.startswith("Geen oordeel")
+
+
+# --- R16-herstel: onderwerpbinding van broncitaten (v4) ----------------------------------------
+
+UITLEENPASSAGE = (
+    "Uitleen: de servicedesk stelt apparatuur tijdelijk en kosteloos ter beschikking "
+    "aan een medewerker; de medewerker geeft de apparatuur daarna terug."
+)
+VERHUURPASSAGE_A = (
+    "Verhuur: de servicedesk stelt apparatuur tijdelijk ter beschikking aan een "
+    "medewerker; de medewerker geeft de apparatuur daarna terug."
+)
+
+
+class TestOnderwerpbinding:
+    """Een bron die meer dan één geregistreerd begrip noemt (uitleen én verhuur):
+    een broncitaat moet zijn eigen onderwerp noemen en geen ander begrip.
+
+    Reviewerbevinding R16 (bewijsregels-r16-uitvoerreview-result-v1.md, punt 1 en 2):
+    dezelfde woorden staan onder Uitleen en onder Verhuur; `material_id + citaat`
+    bindt de bedoelde vindplaats niet aan haar onderwerp.
+    """
+
+    def test_herhaald_kort_citaat_blijft_citaatfout(self):
+        # Geen eerste treffer kiezen, geen versoepeling van de unieke vindplaats.
+        ruw = _vervang(
+            _interpretatie_a(), "K3", "doel",
+            _a("K3", "doel", "bevestigd", [(BRON, "aan een medewerker")]),
+        )  # fmt: skip
+        assert _fout(ruw, _invoer()).soort == "citaatfout"
+
+    def test_verhuurteruggave_is_geen_uitleenbewijs(self):
+        ruw = _vervang(
+            _interpretatie_a(), "K4", "doel",
+            _a("K4", "doel", "bevestigd", [(BRON, VERHUURPASSAGE_A)]),
+        )  # fmt: skip
+        fout = _fout(ruw, _invoer())
+        assert fout.soort == "onderwerpfout" and "verhuur" in fout.melding
+
+    def test_losse_teruggaafzin_zonder_onderwerp_geweigerd(self):
+        # C: de teruggaafzin staat letterlijk maar één keer, maar zonder 'Uitleen'.
+        ruw = _vervang(
+            _interpretatie_c(), "K4", "doel",
+            _a("K4", "doel", "bevestigd",
+               [(BRON, "de medewerker geeft de apparatuur daarna terug")]),
+        )  # fmt: skip
+        fout = _fout(ruw, _invoer(BRON_C, BUUR_C))
+        assert fout.soort == "onderwerpfout" and "uitleen" in fout.melding
+
+    def test_benoemde_passage_bindt_onderwerp_en_verwijzing(self):
+        ruw = _vervang(
+            _interpretatie_c(), "K4", "doel",
+            _a("K4", "doel", "bevestigd", [(BRON, UITLEENPASSAGE)]),
+        )  # fmt: skip
+        assert br.bepaal(ruw, _invoer(BRON_C, BUUR_C)).uitkomst == "pass"
+
+    def test_citaat_met_beide_begrippen_geweigerd(self):
+        beide = UITLEENPASSAGE + " " + VERHUURPASSAGE_A
+        ruw = _vervang(
+            _interpretatie_a(),
+            "K4",
+            "doel",
+            _a("K4", "doel", "bevestigd", [(BRON, beide)]),
+        )
+        assert _fout(ruw, _invoer()).soort == "onderwerpfout"
+
+    def test_buurcitaat_uit_de_uitleenpassage_geweigerd(self):
+        ruw = _vervang(
+            _interpretatie_a(), "K1", BUUR,
+            _a("K1", BUUR, "bevestigd", [(BRON, UITLEENPASSAGE)]),
+        )  # fmt: skip
+        assert _fout(ruw, _invoer()).soort == "onderwerpfout"
+
+    def test_herhaalde_woorden_met_ontkenning(self):
+        bron = (
+            "Uitleen: de medewerker geeft de apparatuur terug. Verhuur: de medewerker "
+            "geeft de apparatuur niet terug."
+        )
+        kort = _doelcitaat(_interpretatie_a(), "de medewerker geeft de apparatuur")
+        assert _fout(kort, _invoer(bron)).soort == "citaatfout"
+        verkeerd = _doelcitaat(
+            _interpretatie_a(), "Verhuur: de medewerker geeft de apparatuur niet terug."
+        )
+        assert _fout(verkeerd, _invoer(bron)).soort == "onderwerpfout"
+        goed = _doelcitaat(
+            _interpretatie_a(), "Uitleen: de medewerker geeft de apparatuur terug."
+        )
+        assert br.valideer_interpretatie(goed, _invoer(bron)) is not None
+
+    def test_herhaalde_woorden_met_voorwaarde_gaan_letterlijk_naar_de_controle(self):
+        # De code ziet de voorwaarde niet als het model haar weglaat; de doelcontrole
+        # krijgt haar wel letterlijk plus de eis 'geen voorwaardelijke afspraak'.
+        # Of het model dan weigert, is modelafhankelijk (niet bewezen).
+        bron = (
+            "Uitleen: bij storing geeft de medewerker de apparatuur terug. Verhuur: de "
+            "medewerker geeft de apparatuur terug."
+        )
+        ruw = _doelcitaat(
+            _interpretatie_a(),
+            "Uitleen: bij storing geeft de medewerker de apparatuur terug.",
+        )
+        interpretatie = br.valideer_interpretatie(ruw, _invoer(bron))
+        doel = _eenheden(interpretatie, _invoer(bron))["doel"].pakket.inhoud
+        assert any("bij storing" in c["citaat"] for c in doel["citaten"])
+        assert "geen voorwaardelijke afspraak" in doel["uitspraak"]
+
+    def test_bron_met_een_begrip_vraagt_geen_naam(self):
+        # Grens van de regel: noemt de bron geen ander geregistreerd begrip, dan
+        # bindt het materiaal zelf het onderwerp (de controle toetst de rest).
+        ruw = _doelcitaat(_interpretatie_a(), "stelt apparatuur tijdelijk en kosteloos")
+        assert br.bepaal(ruw, _invoer(UITLEENPASSAGE)).uitkomst == "review_required"
+
+
+def _doelcitaat(ruw, citaat):
+    """Alle doelantwoorden met één broncitaat (voor bronnen zonder de standaardtekst)."""
+    ruw = copy.deepcopy(ruw)
+    for a in ruw["antwoorden"]:
+        if a["onderwerp"] == "doel":
+            a["citaten"] = [{"material_id": BRON, "citaat": citaat}]
+    return ruw
+
+
+# --- R16-herstel: reikwijdte en domein van de controlepakketten (v4) ------------------------
+
+
+def _eenheden(interpretatie, invoer) -> dict:
+    return {e.naam: e for e in br.controle_eenheden(interpretatie, invoer)}
+
+
+class TestControlescope:
+    """Positieve definitieclaims worden getoetst binnen het gebonden domein.
+
+    Reviewerbevinding R16 punt 2: het doelpakket verloor de volledige lokale
+    bron en de vastgelegde context; het sjabloon claimde 'voor elk geval van
+    uitleen' zonder domeinbeperking.
+    """
+
+    def _pakket(self, ruw, invoer, naam):
+        interpretatie = br.valideer_interpretatie(ruw, invoer)
+        return _eenheden(interpretatie, invoer)[naam].pakket.inhoud
+
+    def test_doelpakket_draagt_volledige_bron_en_vastgelegde_context(self):
+        doel = self._pakket(_interpretatie_a(), _invoer(), "doel")
+        volledig = {
+            c["citaat"] for c in doel["citaten"] if c["omvang"] == OMVANG_VOLLEDIG
+        }
+        assert BRON_A in volledig
+        assert "organisatorische_context: Servicedesk ICT-middelen" in volledig
+
+    def test_context_algemeen_laat_het_vastgelegde_domein_niet_vallen(self):
+        ruw = copy.deepcopy(_interpretatie_a())
+        assert all(a["context"] == "algemeen" for a in ruw["antwoorden"])
+        doel = self._pakket(ruw, _invoer(), "doel")
+        assert any(c["herkomst"] == "context" for c in doel["citaten"])
+        assert "vastgelegde context" in doel["uitspraak"]
+
+    def test_geen_universele_reikwijdte_buiten_het_materiaal(self):
+        for naam in ("doel", f"buur:{BUUR}"):
+            inhoud = self._pakket(_interpretatie_a(), _invoer(), naam)
+            assert "elk geval" not in inhoud["uitspraak"]
+            assert "bepaling" in inhoud["uitspraak"]
+            assert "geen enkel voorval" in inhoud["uitspraak"]
+            assert "niet daarbuiten" in inhoud["uitspraak"]
+
+    def test_onbesproken_blijft_de_strenge_volledigheidscontrole(self):
+        buur = self._pakket(_interpretatie_a(), _invoer(), f"buur:{BUUR}")
+        assert "zegt over verhuur niets over kosten: kosteloos of het tegendeel" in (
+            buur["uitspraak"]
+        )
+        volledig = {
+            c["citaat"] for c in buur["citaten"] if c["omvang"] == OMVANG_VOLLEDIG
+        }
+        assert {BRON_A, BUUR_A} <= volledig
+
+    def test_zonder_positief_feit_geen_bepalingszin(self):
+        # Alleen onbesproken feiten: niets te binden aan een bepaling.
+        ruw = copy.deepcopy(_interpretatie_c())
+        ruw["antwoorden"] = [
+            *_zonder(_zonder(ruw["antwoorden"], "K1", BUUR), "K3", BUUR),
+            _a("K1", BUUR, "onbesproken"),
+            _a("K3", BUUR, "onbesproken"),
+        ]
+        buur = self._pakket(ruw, _invoer(BRON_C, BUUR_C), f"buur:{BUUR}")
+        assert "bepaling" not in buur["uitspraak"]

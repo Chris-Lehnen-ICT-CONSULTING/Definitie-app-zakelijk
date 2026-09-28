@@ -1,4 +1,4 @@
-"""DEF-768 — broninterpretatie plus gebonden controle (`ess05-bewijsregels/3`).
+"""DEF-768 — broninterpretatie plus gebonden controle (`ess05-bewijsregels/4`).
 
 Spy op de echte `AIServiceInterface`-argumenten en, onder de echte AIServiceV2,
 op de providerberichten. Het model is hier een fake: dit bewijst de keten
@@ -157,8 +157,11 @@ class TestInterpretatieverzoek:
         _beoordeel(ai, _invoer())
         kern, doel, buur = (a["prompt"] for a in ai.aanroepen[1:])
         assert DEFINITIE in kern and BRON_A not in kern and BUUR_A not in kern
-        # Het doel citeert alleen zijn eigen bronfragmenten: niets over verhuur.
-        assert BUUR_A not in doel and BRON_A not in doel and "erhuur" not in doel
+        # v4 (R16-herstel): het doel krijgt zijn eigen bron volledig plus de
+        # vastgelegde context, maar geen buurbeschrijving en geen feit over verhuur.
+        uitspraak = re.search(r'"uitspraak": "([^"]*)"', doel).group(1)
+        assert BUUR_A not in doel and BRON_A in doel and "erhuur" not in uitspraak
+        assert "Servicedesk ICT-middelen" in doel
         assert DEFINITIE not in buur
         for prompt in (kern, doel, buur):
             assert "review_required" not in prompt and "pass" not in prompt

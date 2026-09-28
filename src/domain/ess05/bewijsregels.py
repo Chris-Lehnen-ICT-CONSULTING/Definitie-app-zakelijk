@@ -1,13 +1,14 @@
-"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/3` (DEF-768).
+"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/4` (DEF-768).
 
-Contract: `docs/technisch/ess05-bewijsregels-contract-v3.md`. Pure domeinlogica,
+Contract: `docs/technisch/ess05-bewijsregels-contract-v4.md`. Pure domeinlogica,
 zonder AI-client, Streamlit of database.
 
 Het model interpreteert bronnen tot getypeerde feiten (`ess05-interpretatie/2`);
 deze module doet de rest, in twee strikt gescheiden fasen:
 
 1. **Geldigheid** (`valideer_interpretatie`): schema, letterlijke citaten per
-   onderwerp, context, de door de app bepaalde bewijsdoelen, tekstdekking van
+   onderwerp (in een bron met meer begrippen benoemt het citaat zijn eigen
+   onderwerp), context, de door de app bepaalde bewijsdoelen, tekstdekking van
    de kern, consistentie van buurgroepen, ondersteund bereik (een
    voorwaardelijke doeleis is `buiten_bereik`) en dekking van
    `onbesproken`. Elke afwijking is een `BewijsregelfoutError` → `error`, vóór
@@ -19,6 +20,8 @@ deze module doet de rest, in twee strikt gescheiden fasen:
 
 `controle_eenheden` bouwt per onderwerp één lokaal controlepakket uit vaste
 sjablonen (broninterpretatie, geen volledigheids- of afgrenzingscertificaat);
+positieve feiten gelden als bepaling binnen het volledige gebonden materiaal en
+de vastgelegde context, niet daarbuiten;
 `render` drukt alleen het regelresultaat uit.
 
 Grens: tekstdekking is een tekstcontrole, geen bewijs dat de kenmerken het
@@ -63,7 +66,7 @@ __all__ = [
     "valideer_interpretatie",
 ]
 
-BEWIJSREGELVERSIE = "ess05-bewijsregels/3"
+BEWIJSREGELVERSIE = "ess05-bewijsregels/4"
 INTERPRETATIESCHEMA = "ess05-interpretatie/2"
 RENDERVERSIE = "ess05-bewijsregels-render/2"
 DOEL = "doel"
@@ -79,6 +82,7 @@ _BUURNIVEAU = (*_BASIS, _GEMENGD, _DEELS)
 _ENIG = frozenset({_ONBESPROKEN, _GEMENGD, _DEELS})
 _CONTEXTEN = ("algemeen", "zaakcontext", "andere")
 _BETEKENIS = "meaning"
+_CONTEXTMATERIAAL = "context"
 #: Woorden die buiten een kerncitaat mogen vallen (alleen nevenschikking).
 _VRIJE_WOORDEN = frozenset({"en"})
 _WOORD = re.compile(r"\w+")
@@ -251,8 +255,41 @@ def _plaats(
     return Citaatverwijzing(material_id, treffers[0], treffers[0] + len(citaat))
 
 
+def _noemt(tekst: str, term: str) -> bool:
+    """Het begrip staat als woord(begin) in de tekst, hoofdletterongevoelig."""
+    return re.search(rf"(?<!\w){re.escape(term)}", tekst, re.IGNORECASE) is not None
+
+
+def _onderwerpbinding(
+    invoer: Vergelijkingsinvoer, ref: Citaatverwijzing, term: str, pad: str
+) -> None:
+    """Noemt een bron meer dan één geregistreerd begrip, dan noemt het citaat het
+    eigen onderwerp en geen ander (contract v4 §3a). Een bron met één begrip
+    bindt het onderwerp zelf; de eis geldt dan niet."""
+    if not ref.material_id.startswith(_BRONPREFIX):
+        return
+    bron = invoer.materiaal[ref.material_id]
+    termen = list(dict.fromkeys([invoer.term, *(t for _, t in invoer.buren)]))
+    genoemd = [t for t in termen if _noemt(bron, t)]
+    if len(genoemd) < 2:
+        return
+    citaat = bron[ref.start : ref.end]
+    in_citaat = [t for t in termen if _noemt(citaat, t)]
+    if in_citaat != [term]:
+        raise _fout(
+            "onderwerpfout",
+            f"{pad}: {ref.material_id!r} noemt de begrippen {genoemd}; een citaat "
+            f"voor {term!r} moet {term!r} noemen en geen ander begrip (citaat "
+            f"{citaat[:80]!r} noemt {in_citaat})",
+        )
+
+
 def _citaten(
-    invoer: Vergelijkingsinvoer, ruw: Any, toegestaan: Sequence[str], pad: str
+    invoer: Vergelijkingsinvoer,
+    ruw: Any,
+    toegestaan: Sequence[str],
+    pad: str,
+    term: str,
 ) -> tuple[Citaatverwijzing, ...]:
     refs = []
     for nummer, item in enumerate(_lijst(ruw, pad), start=1):
@@ -265,7 +302,9 @@ def _citaten(
                 f"{pad}[{nummer}]: materiaal {mid!r} hoort niet bij dit onderwerp "
                 f"(toegestaan: {list(toegestaan)})",
             )
-        refs.append(_plaats(invoer.materiaal, mid, tekst, f"{pad}[{nummer}]"))
+        ref = _plaats(invoer.materiaal, mid, tekst, f"{pad}[{nummer}]")
+        _onderwerpbinding(invoer, ref, term, f"{pad}[{nummer}]")
+        refs.append(ref)
     return tuple(refs)
 
 
@@ -356,7 +395,13 @@ def _groepen(ruw: Any, invoer: Vergelijkingsinvoer) -> list[Buurgroep]:
                 gid,
                 buur,
                 _tekstveld(g["omschrijving"], f"{pad}.omschrijving"),
-                _citaten(invoer, g["citaten"], invoer.relevant(buur), f"{pad}.citaten"),
+                _citaten(
+                    invoer,
+                    g["citaten"],
+                    invoer.relevant(buur),
+                    f"{pad}.citaten",
+                    termen[buur],
+                ),
             )
         )
     return uit
@@ -424,8 +469,13 @@ def _antwoord(
     else:
         if not citaten_ruw:
             raise _fout("schemafout", f"{pad}: {toestand} vraagt minstens één citaat")
+        buur = buur_van[onderwerp]
         citaten = _citaten(
-            invoer, citaten_ruw, invoer.relevant(buur_van[onderwerp]), f"{pad}.citaten"
+            invoer,
+            citaten_ruw,
+            invoer.relevant(buur),
+            f"{pad}.citaten",
+            invoer.term if buur is None else invoer.termen()[buur],
         )
     return Antwoord(kid, onderwerp, toestand, voorwaarden, a["context"], citaten)
 
@@ -803,18 +853,17 @@ def _feitzin(
         if not bereik:
             return None  # geen materiaal: door de app vastgesteld, niets te controleren
         cite = route.cite(_volledig(invoer, bereik))
-        return f"het volledige geciteerde materiaal {cite} zegt voor {label} niets over {kenmerk} of het tegendeel"
+        return f"het volledige geciteerde materiaal {cite} zegt over {label} niets over {kenmerk} of het tegendeel"
     cite = route.cite(a.citaten)
-    context = " in de vastgelegde context" if a.context == "zaakcontext" else ""
     if a.toestand == _GEMENGD:
         return (
-            f"onder {buurterm} vallen{context} zowel gevallen waarvoor {kenmerk} geldt als "
+            f"onder {buurterm} vallen zowel gevallen waarvoor {kenmerk} geldt als "
             f"gevallen waarvoor het niet geldt {cite}"
         )
     if a.toestand == _DEELS:
         return (
-            f"alleen voor een deel van de gevallen van {buurterm} zegt het materiaal"
-            f"{context} of {kenmerk} geldt {cite}"
+            f"alleen voor een deel van de gevallen van {buurterm} zegt het materiaal "
+            f"of {kenmerk} geldt {cite}"
         )
     ontkenning = " niet" if a.toestand == _ONTKEND else ""
     voorwaarde = (
@@ -822,7 +871,26 @@ def _feitzin(
         if a.voorwaarden
         else ""
     )
-    return f"voor {label} geldt{context} {kenmerk}{ontkenning}{voorwaarde} {cite}"
+    return f"voor {label} geldt {kenmerk}{ontkenning}{voorwaarde} {cite}"
+
+
+def _reikwijdte(route: _Route, invoer: Vergelijkingsinvoer, term: str) -> str:
+    """Kop bij positieve feiten: een bepaling binnen het gebonden domein (v4 §6).
+
+    Cijfert de volledige tekst van elk gebruikt materiaal plus de vastgelegde
+    context, ongeacht het contextveld van het model; claimt niets daarbuiten.
+    """
+    ids = list(dict.fromkeys(r.material_id for r in route.refs))
+    context = _CONTEXTMATERIAAL in invoer.materiaal
+    if context and _CONTEXTMATERIAAL not in ids:
+        ids.append(_CONTEXTMATERIAAL)
+    domein = " en de vastgelegde context" if context else ""
+    return (
+        f"Binnen het gebonden materiaal{domein} {route.cite(_volledig(invoer, ids))}, "
+        f"niet daarbuiten, is elk feit hieronder over {term} een bepaling in dat "
+        "materiaal: geen enkel voorval en geen voorwaardelijke afspraak, tenzij het "
+        "feit zijn voorwaarde zelf noemt"
+    )
 
 
 def _eenheid(
@@ -831,10 +899,13 @@ def _eenheid(
     route: _Route,
     invoer: Vergelijkingsinvoer,
     binding: Mapping[str, Any],
+    kopterm: str | None,
 ) -> Controle_eenheid | None:
+    """kopterm: het onderwerp als de eenheid een positief feit draagt, anders None."""
     if not route.refs:
         return None
-    uitspraak = "Volgens de citaten: " + "; ".join(delen) + "."
+    kop = f"{_reikwijdte(route, invoer, kopterm)}. " if kopterm else ""
+    uitspraak = kop + "Volgens de citaten: " + "; ".join(delen) + "."
     pakket = bouw_materiaalpakket(
         uitspraak,
         route.refs,
@@ -876,27 +947,27 @@ def controle_eenheden(
         binding={**binding, "eenheid": "kern"},
     )
     eenheden = [Controle_eenheid("kern", kern)]
-    route, delen = _Route(), []
+    route, delen, positief = _Route(), [], False
     for k in interpretatie.kenmerken:
         for a in interpretatie.antwoorden_voor(k.id, DOEL):
-            zin = _feitzin(
-                route, interpretatie, k, a, f"elk geval van {invoer.term}", None
-            )
+            positief |= a.toestand != _ONBESPROKEN
+            zin = _feitzin(route, interpretatie, k, a, invoer.term, None)
             if zin:
                 delen.append(zin)
-    if (doel := _eenheid("doel", delen, route, invoer, binding)) is not None:
+    kopterm = invoer.term if positief else None
+    if (doel := _eenheid("doel", delen, route, invoer, binding, kopterm)) is not None:
         eenheden.append(doel)
     for buur, term in invoer.buren:
         route, delen = _Route(), []
+        positief = bool(interpretatie.groepen_van(buur))
         for k in interpretatie.kenmerken:
             for a in interpretatie.antwoorden_voor(k.id, buur):
-                zin = _feitzin(
-                    route, interpretatie, k, a, f"elk geval van {term}", term
-                )
+                positief |= a.toestand != _ONBESPROKEN
+                zin = _feitzin(route, interpretatie, k, a, term, term)
                 if zin:
                     delen.append(zin)
         for g in interpretatie.groepen_van(buur):
-            label = f"elk geval in de deelgroep '{g.omschrijving}' van {term}"
+            label = f"de deelgroep '{g.omschrijving}' van {term}"
             delen.append(
                 f"het materiaal beschrijft de deelgroep '{g.omschrijving}' van {term} "
                 f"{route.cite(g.citaten)}"
@@ -906,7 +977,9 @@ def controle_eenheden(
                     zin = _feitzin(route, interpretatie, k, a, label, term)
                     if zin:
                         delen.append(zin)
-        eenheid = _eenheid(f"buur:{buur}", delen, route, invoer, binding)
+        eenheid = _eenheid(
+            f"buur:{buur}", delen, route, invoer, binding, term if positief else None
+        )
         if eenheid is not None:
             eenheden.append(eenheid)
     return eenheden
