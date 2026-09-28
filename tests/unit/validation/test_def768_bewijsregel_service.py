@@ -26,7 +26,10 @@ from services.validation.ess05_local_verification_service import (
     Ess05LocalVerificationService,
 )
 from services.validation.ess05_verification_service import aanroepgrens
-from tests.unit.domain import test_def768_bewijsregels as domeintest
+from tests.unit.domain import (
+    test_def768_bewijsregels as domeintest,
+    test_def768_bewijsregels as dt,
+)
 from tests.unit.domain.test_def768_bewijsregels import (
     BRON,
     BRON_A,
@@ -280,6 +283,34 @@ class TestTransportEnVorm:
         ai = _SpyAI(_interpretatie_a())
         assert _beoordeel(ai, invoer).uitkomst == "error"
         assert ai.aanroepen == []
+
+
+class TestPromptV4:
+    """Tekstcontrole van prompt /4; bewijst niets over modelgedrag."""
+
+    def test_versies(self):
+        identiteit = bs.Ess05BewijsregelService.contractidentiteit()
+        assert (
+            identiteit["interpretation_prompt_version"]
+            == "ess05-interpretatie-prompt/4"
+        )
+        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/6"
+        assert identiteit["interpretation_schema_version"] == "ess05-interpretatie/3"
+
+    def test_eenheden_genummerd_definitie_en_context_letterlijk(self):
+        _, user = bs.bouw_interpretatieprompt(dt._invoer())
+        assert f"[U1] {dt.BUUR_A}" in user
+        assert "[U2] Uitleen:" in user
+        assert f">{dt.DEFINITIE}</materiaal>" in user
+        assert ">organisatorische_context: Servicedesk ICT-middelen</materiaal>" in user
+
+    def test_hergebruik_en_verplicht_bewijs_expliciet_zonder_dubbelzinnigheid(self):
+        system = bs.interpretatiesysteemprompt()
+        assert "Hetzelfde nummer mag bij zoveel antwoorden staan" in system
+        assert "minstens één eenheidsnummer" in system
+        assert "nooit definitie of context" in system
+        assert "precies één keer" not in system  # R17: twee betekenissen verwijderd
+        assert '"citaten": ["U<n>"]' in system
 
 
 class TestClientpad:
