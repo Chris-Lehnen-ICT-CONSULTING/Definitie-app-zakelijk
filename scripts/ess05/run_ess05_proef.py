@@ -763,12 +763,12 @@ R17_KADERREST_NUSD = 21_951_255_000
 R16_KOP_SHA256 = "58f5a17ec921d67e66899882441c8629fae9a41476d3485c697cd3614141cee8"
 #: Ronde 18 (plan bewijseenheden, deel B): eigen rapportroot, grootboek, anker,
 #: slot en freezes (i, l). Invoer R18A: A/C/D/E uit maak_r18_bewijsregel_invoer.py,
-#: bestand bewijsregel-invoer-v5.json (aanvulling v4, Codex-hercontrole v3
-#: B2-rest-3; -v1, sha fe6bd5d1…, -v2, sha fab905cc…, -v3, sha 21c1ad91…, en
-#: -v4, sha 75c97580…, worden op deze pin en op het schema geweigerd); R18B:
+#: bestand bewijsregel-invoer-v6.json (aanvulling v7, F7 = ja; -v1, sha
+#: fe6bd5d1…, -v2, sha fab905cc…, -v3, sha 21c1ad91…, -v4, sha 75c97580…, en
+#: -v5, sha b2c3c34d…, worden op deze pin en op het schema geweigerd); R18B:
 #: zes pakketten uit maak_r18b_lokale_invoer.py.
 R18_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18"
-R18_I_INVOER_SHA256 = "b2c3c34dbe91d0c8b49746d8438793f3994b098620700ea4cbfe9f4a7619d8c4"
+R18_I_INVOER_SHA256 = "4ff5d48480c42ce6807ddd633452de7a11eb1f472eee185755868b03476cf733"
 R18_L_INVOER_SHA256 = "a36172a04981aef5bc712a77cc51dd9f1846bf7e7c9d16222e0bd4a5ac005b81"
 #: Ronde 18: NOG GEEN budgetbesluit. Het pad ligt vast; het besluit wordt pas
 #: na een "go" van Chris geschreven en daarna hier op hash gepind. Tot dan is de
@@ -4406,9 +4406,10 @@ async def voer_b_fase(
 #: /3 (aanvulling C3): orakelfeiten met vereist/toegestaan; /4 (aanvulling v2):
 #: E-orakel alleen error/buiten_bereik; /5 (aanvulling v3): E-orakel met
 #: voorwaarde_formuleringen; /6 (aanvulling v4): E-orakel zonder formuleringen,
-#: voorwaardeoordeel van Chris. /2 (-v1), /3 (-v2), /4 (-v3) en /5 (-v4) worden
-#: geweigerd.
-_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/6"
+#: voorwaardeoordeel van Chris; /7 (aanvulling v7, F7 = ja): A-orakel met twee
+#: gekoppelde antwoorden (uitkomst_per_toestand), zonder f7-veld. /2 (-v1),
+#: /3 (-v2), /4 (-v3), /5 (-v4) en /6 (-v5) worden geweigerd.
+_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/7"
 #: Het label van elk synthetisch item; een niet-synthetisch item draagt het niet.
 _SYNTHETISCH_LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
 #: De ene modelstap van een run: de interpretatie op de beoordelingsroute.

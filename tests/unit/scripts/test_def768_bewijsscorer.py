@@ -70,12 +70,16 @@ ORAKEL_A = {
         },
         "kosteloos": {
             "doel": {"toestand": ["bevestigd"], "vereist": ["Uitleen:"], "toegestaan": []},
-            "verhuur": {"toestand": ["onbesproken"], "vereist": [], "toegestaan": [],
-                        "f7": ["ontkend"]},
+            # Aanvulling v7 (F7 = ja): verhuur is betaald (ontkend, pass) of het
+            # materiaal zwijgt erover (onbesproken, review_required); beide juist.
+            "verhuur": {"toestand": ["onbesproken", "ontkend"], "vereist": [],
+                        "toegestaan": ["Verhuur:", BUUR],
+                        "uitkomst_per_toestand": {"onbesproken": ["review_required"],
+                                                  "ontkend": ["pass"]}},
         },
     },
     "dragend": ["kosteloos"],
-    "uitkomst": ["review_required"],
+    "uitkomst": ["review_required", "pass"],
 }  # fmt: skip
 ORAKEL_D = {
     "kenmerken": {
@@ -201,6 +205,15 @@ def _a_juist(invoer):
     )
 
 
+def _a_betaald(invoer, citaten=(BUUR,)):
+    """A met F7 = ja (aanvulling v7): kosteloos/verhuur ontkend — verhuur is betaald."""
+    ruw = _a_juist(invoer)
+    (k2,) = [a for a in ruw["antwoorden"]
+             if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"]  # fmt: skip
+    k2.update(toestand="ontkend", citaten=[_u(invoer, p) for p in citaten])
+    return ruw
+
+
 def _d_juist(invoer, kosteloos_doel=("Voor uitleen betaalt",)):
     return _ruw(
         invoer,
@@ -242,13 +255,13 @@ class TestPlangevallen:
         assert score["m_d"] == {
             "uitkomst": "review_required",
             "fout": None,
-            "verwacht": ["review_required"],
+            "verwacht": ["review_required", "pass"],
             "ok": True,
         }
         assert score["m_b_dragend_ok"] is True
         assert score["m_c_dragend_ok"] is True
         assert score["m_a"] == {"items": 7, "fouten": []}
-        assert score["f7_afwijkingen"] == []
+        assert "f7_afwijkingen" not in score
         assert score["voorwaarde_behouden"] is None
 
     def test_a_inleiding_als_bewijs_voor_kosteloos(self):
@@ -320,19 +333,15 @@ class TestPlangevallen:
         assert score_e["m_d"]["ok"] is False
         assert score_e["voorwaarde_behouden"] is False
 
-    def test_f7_verhuur_kosteloos_ontkend(self):
+    def test_a_verhuur_betaald_is_juist(self):
+        """Aanvulling v7 (F7 = ja): kosteloos/verhuur ontkend met pass is juist."""
         invoer = _invoer()
-        ruw = _a_juist(invoer)
-        (k2,) = [
-            a
-            for a in ruw["antwoorden"]
-            if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"
-        ]
-        k2.update(toestand="ontkend", citaten=[_u(invoer, BUUR)])
-        score = bs.scoor(ruw, invoer, ORAKEL_A)
-        assert score["f7_afwijkingen"] == ["kosteloos/verhuur: ['ontkend']"]
+        score = bs.scoor(_a_betaald(invoer), invoer, ORAKEL_A)
+        assert "f7_afwijkingen" not in score
         assert score["m_d"]["uitkomst"] == "pass"
-        assert score["m_d"]["ok"] is False
+        assert score["m_d"]["ok"] is True
+        assert score["m_b_dragend_ok"] is True
+        assert score["m_c_dragend_ok"] is True
 
 
 # --- aanvulling: nooit een exception bij ongeldige modeluitvoer -------------------------------
@@ -1081,7 +1090,20 @@ class TestOrakelstructuur:
             (lambda v: v.update(toegestaan=[1]), "toegestaan"),
             (lambda v: v.update(toegestaan=["Voor uitleen betaalt"]), "zowel"),
             (lambda v: v.update(toestand="bevestigd"), "toestand"),
-            (lambda v: v.update(f7="ontkend"), "f7"),
+            # Aanvulling v7 (F7 = ja): het veld f7 bestaat niet meer.
+            (lambda v: v.update(f7=["ontkend"]), "velden"),
+            (
+                lambda v: v.update(uitkomst_per_toestand={"ontkend": ["pass"]}),
+                "uitkomst_per_toestand",
+            ),
+            (
+                lambda v: v.update(uitkomst_per_toestand={"bevestigd": "pass"}),
+                "uitkomst_per_toestand",
+            ),
+            (
+                lambda v: v.update(uitkomst_per_toestand={"bevestigd": ["fail"]}),
+                "uitkomst_per_toestand",
+            ),
         ],
     )
     def test_controleer_orakel_weigert_een_onjuiste_feitstructuur(
@@ -1097,52 +1119,117 @@ class TestOrakelstructuur:
             bs.controleer_orakel(orakel, _invoer(bron) if bron else _invoer())
 
 
-# --- F7 apart van M-b/M-c ---------------------------------------------------------------------
+# --- F7 = ja: twee juiste antwoorden voor A, gekoppeld aan de uitkomst (aanvulling v7) --------
 
 
-class TestF7:
-    def test_f7_telt_niet_als_bewijs_of_toestandsfout_zonder_f7(self):
-        """Deel C: F7 is niet geslaagd en niet kritiek; de maten zonder F7 blijven waar."""
+def _verhuur_k2(ruw):
+    (k2,) = [a for a in ruw["antwoorden"]
+             if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"]  # fmt: skip
+    return k2
+
+
+class TestF7Ja:
+    """Besluit Chris 29-09-2026 (F7 = ja, "verhuur is altijd betaald"): (a)
+    kosteloos/verhuur ontkend met pass en (b) onbesproken met review_required zijn
+    beide geslaagd; de koppeling toestand ↔ uitkomst is verplicht. Geen aparte
+    F7-categorie, geen wachten op een F7-besluit."""
+
+    @pytest.mark.parametrize(
+        "citaten", [(BUUR,), ("Verhuur:",), ("Verhuur:", BUUR)],
+        ids=["buurbeschrijving", "verhuurzin", "beide"],
+    )  # fmt: skip
+    def test_a_ontkend_met_pass_is_geslaagd(self, citaten):
+        invoer = _invoer()
+        score = bs.scoor(_a_betaald(invoer, citaten), invoer, ORAKEL_A)
+        oordeel = bs.runoordeel(score, ORAKEL_A)
+        assert (oordeel["categorie"], oordeel["m_d_telt"], oordeel["kritiek"]) == (
+            "geslaagd",
+            True,
+            [],
+        )
+
+    def test_a_onbesproken_met_review_required_is_geslaagd(self):
+        invoer = _invoer()
+        score = bs.scoor(_a_juist(invoer), invoer, ORAKEL_A)
+        assert score["m_d"]["uitkomst"] == "review_required"
+        assert bs.runoordeel(score, ORAKEL_A)["categorie"] == "geslaagd"
+
+    def test_a_ontkend_met_review_required_is_niet_geslaagd(self, monkeypatch):
+        monkeypatch.setattr(
+            bs, "_uitkomst", lambda ruw, invoer: ("review_required", None)
+        )
+        invoer = _invoer()
+        score = bs.scoor(_a_betaald(invoer), invoer, ORAKEL_A)
+        assert score["m_c_dragend_ok"] is True
+        assert score["m_d"]["ok"] is False
+        oordeel = bs.runoordeel(score, ORAKEL_A)
+        assert (oordeel["categorie"], oordeel["m_d_telt"], oordeel["kritiek"]) == (
+            "niet_geslaagd",
+            False,
+            [],
+        )
+
+    def test_a_onbesproken_met_pass_is_niet_geslaagd(self, monkeypatch):
+        monkeypatch.setattr(bs, "_uitkomst", lambda ruw, invoer: ("pass", None))
+        invoer = _invoer()
+        score = bs.scoor(_a_juist(invoer), invoer, ORAKEL_A)
+        assert (score["m_b_dragend_ok"], score["m_c_dragend_ok"]) == (True, True)
+        assert score["m_d"]["ok"] is False
+        oordeel = bs.runoordeel(score, ORAKEL_A)
+        assert (oordeel["categorie"], oordeel["m_d_telt"], oordeel["kritiek"]) == (
+            "niet_geslaagd",
+            False,
+            [],
+        )
+
+    @pytest.mark.parametrize(
+        ("citaten", "fout", "m_b"),
+        [(("Uitleen:",), "onderwerpfout", False), ((), "schemafout", True)],
+        ids=["uitleenzin", "zonder-eenheid"],
+    )  # fmt: skip
+    def test_a_ontkend_zonder_eenheid_met_de_buurnaam_is_niet_geslaagd(
+        self, citaten, fout, m_b
+    ):
+        """Toegestaan zijn alleen de Verhuur-zin en de buurbeschrijving; de
+        bewijsregels eisen bij ontkend bovendien een eenheid die 'verhuur' noemt.
+        De Uitleen-zin draagt het feit niet (M-b) en geeft een onderwerpfout;
+        zonder eenheid is het een schemafout. Beide: error, niet geslaagd."""
+        invoer = _invoer()
+        score = bs.scoor(_a_betaald(invoer, citaten), invoer, ORAKEL_A)
+        assert (score["m_d"]["uitkomst"], score["m_d"]["fout"]) == ("error", fout)
+        assert score["m_b_dragend_ok"] is m_b
+        oordeel = bs.runoordeel(score, ORAKEL_A)
+        assert (oordeel["categorie"], oordeel["kritiek"]) == ("niet_geslaagd", [])
+
+    def test_a_bevestigd_bij_verhuur_blijft_een_verkeerde_toestand(self):
         invoer = _invoer()
         ruw = _a_juist(invoer)
-        (k2,) = [
-            a
-            for a in ruw["antwoorden"]
-            if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"
-        ]
-        k2.update(toestand="ontkend", citaten=[_u(invoer, BUUR)])
+        _verhuur_k2(ruw).update(toestand="bevestigd", citaten=[_u(invoer, "Verhuur:")])
         score = bs.scoor(ruw, invoer, ORAKEL_A)
-        assert score["m_b_dragend_ok"] is False
         assert score["m_c_dragend_ok"] is False
-        assert score["m_b_dragend_ok_zonder_f7"] is True
-        assert score["m_c_dragend_ok_zonder_f7"] is True
+        assert bs.runoordeel(score, ORAKEL_A)["categorie"] != "geslaagd"
 
-    def test_zonder_f7_gelijk_als_er_geen_f7_is(self):
+    def test_a_twee_strijdige_toestanden_zijn_niet_juist(self):
+        """M-c: precies één toestand; onbesproken én ontkend tegelijk is niet juist."""
         invoer = _invoer()
         ruw = _a_juist(invoer)
-        (k2,) = [
-            a
-            for a in ruw["antwoorden"]
-            if a["kenmerk_id"] == "K2" and a["onderwerp"] == "doel"
-        ]
-        k2["citaten"] = [_u(invoer, "Lokale testwerkinstructie")]
+        ruw["antwoorden"].append({**_verhuur_k2(ruw), "toestand": "ontkend",
+                                  "citaten": [_u(invoer, BUUR)]})  # fmt: skip
         score = bs.scoor(ruw, invoer, ORAKEL_A)
-        assert score["f7_afwijkingen"] == []
-        assert score["m_b_dragend_ok_zonder_f7"] is False
-        assert score["m_c_dragend_ok_zonder_f7"] is True
+        assert score["m_c_dragend_ok"] is False
+        assert score["m_d"]["ok"] is False
 
-    def test_andere_verkeerde_toestand_is_geen_f7(self):
+    def test_geen_f7_velden_categorie_of_wachtstatus(self):
         invoer = _invoer()
-        ruw = _a_juist(invoer)
-        (k2,) = [
-            a
-            for a in ruw["antwoorden"]
-            if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"
-        ]
-        k2.update(toestand="bevestigd", citaten=[_u(invoer, "Verhuur:")])
-        score = bs.scoor(ruw, invoer, ORAKEL_A)
-        assert score["f7_afwijkingen"] == []
-        assert score["m_c_dragend_ok_zonder_f7"] is False
+        score = bs.scoor(_a_betaald(invoer), invoer, ORAKEL_A)
+        oordeel = bs.runoordeel(score, ORAKEL_A)
+        assert not {"f7_afwijkingen", "m_b_dragend_ok_zonder_f7",
+                    "m_c_dragend_ok_zonder_f7"} & set(score)  # fmt: skip
+        assert all("f7" not in f for f in score["feiten"])
+        assert "f7" not in oordeel
+        proef = bs.proefoordeel([{"sleutel": f"r{i}", **oordeel} for i in range(12)])
+        assert proef["oordeel"] == "geslaagd"
+        assert "f7" not in proef
 
 
 class TestKenmerkherkenning:

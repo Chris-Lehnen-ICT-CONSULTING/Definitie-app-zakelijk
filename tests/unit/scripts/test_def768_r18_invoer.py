@@ -61,8 +61,13 @@ R17_INVOER = R17_MAP / "bewijsregel-invoer-v1.json"
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
 REPRODUCTIE = R17_MAP / "oorzakenonderzoek-ess05-v1-reproductie"
 R18_MAP = ROOT / "reports" / "DEF-768-AI-20260928-R18"
-#: Aanvulling v4 (besluit optie 2): E-orakel zonder lexicale voorwaardevelden.
-R18_INVOER = R18_MAP / "bewijsregel-invoer-v5.json"
+#: Aanvulling v7 (F7 = ja): A-orakel met twee juiste antwoorden, zonder f7-veld.
+R18_INVOER = R18_MAP / "bewijsregel-invoer-v6.json"
+#: De vijfde invoer (schema /6, A-orakel met f7-veld): blijft ongewijzigd staan.
+R18_INVOER_V5 = R18_MAP / "bewijsregel-invoer-v5.json"
+R18_INVOER_V5_SHA256 = (
+    "b2c3c34dbe91d0c8b49746d8438793f3994b098620700ea4cbfe9f4a7619d8c4"
+)
 #: De vierde invoer (schema /5, geregistreerde formuleringen): blijft ongewijzigd staan.
 R18_INVOER_V4 = R18_MAP / "bewijsregel-invoer-v4.json"
 R18_INVOER_V4_SHA256 = (
@@ -87,7 +92,7 @@ AANVULLING = (
     ROOT
     / "docs"
     / "plans"
-    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v4.md"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v7.md"
 )
 LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
 ORAKEL_C = {
@@ -158,7 +163,7 @@ def _gecorrigeerd(naam, vergelijking) -> dict:
 
 class TestVorm:
     def test_schema_contract_en_vier_items(self, invoer):
-        assert invoer["schema"] == "def768-ess05-bewijsregel-invoer/6"
+        assert invoer["schema"] == "def768-ess05-bewijsregel-invoer/7"
         assert [i["id"] for i in invoer["items"]] == ["A", "C", "D", "E"]
         assert invoer["contract"] == Ess05BewijsregelService.contractidentiteit()
 
@@ -229,6 +234,23 @@ class TestAenC:
     def test_orakels_exact_uit_de_aanvulling(self, invoer):
         assert _items(invoer)["A"]["orakel"] == ORAKEL_A
         assert _items(invoer)["C"]["orakel"] == ORAKEL_C
+
+    def test_orakel_a_f7_ja_twee_gekoppelde_antwoorden(self, invoer):
+        """Aanvulling v7 (F7 = ja): kosteloos/verhuur onbesproken ↔ review_required
+        of ontkend ↔ pass; bewijs alleen uit de eenheden met de buurnaam; geen f7."""
+        orakel = _items(invoer)["A"]["orakel"]
+        verhuur = orakel["kenmerken"]["kosteloos"]["verhuur"]
+        assert verhuur == {
+            "toestand": ["onbesproken", "ontkend"],
+            "vereist": [],
+            "toegestaan": ["Verhuur:", BUUR],
+            "uitkomst_per_toestand": {
+                "onbesproken": ["review_required"],
+                "ontkend": ["pass"],
+            },
+        }
+        assert orakel["uitkomst"] == ["review_required", "pass"]
+        assert '"f7"' not in json.dumps(invoer)
 
     def test_afwijkende_r17_invoer_is_een_makerfout(self, tmp_path, monkeypatch):
         vals = tmp_path / "r17.json"
@@ -311,7 +333,21 @@ class TestScoren:
         assert score["m_d"]["ok"] is True
         assert score["m_b_dragend_ok"] is True
         assert score["m_c_dragend_ok"] is True
-        assert score["f7_afwijkingen"] == []
+        assert "f7_afwijkingen" not in score
+
+    def test_a_verhuur_betaald_met_het_invoerorakel(self, invoer):
+        """F7 = ja: de herbonden R17-A met kosteloos/verhuur ontkend (buurbeschrijving)
+        geeft pass en is geslaagd, net als het voorzichtige onbesproken-antwoord."""
+        item = _items(invoer)["A"]
+        vergelijking = _vergelijking(item)
+        ruw = _gecorrigeerd("A", vergelijking)
+        kid = bs._kenmerk_id(ruw, "kosteloos")
+        (k2,) = [a for a in ruw["antwoorden"]
+                 if a["kenmerk_id"] == kid and a["onderwerp"] != br.DOEL]  # fmt: skip
+        k2.update(toestand="ontkend", citaten=[_u(vergelijking, BUUR)])
+        score = bs.scoor(ruw, vergelijking, item["orakel"])
+        assert score["m_d"]["uitkomst"] == "pass"
+        assert bs.runoordeel(score, item["orakel"])["categorie"] == "geslaagd"
 
     def test_d_juist(self, invoer):
         item = _items(invoer)["D"]
@@ -424,18 +460,18 @@ class TestSchrijven:
         assert json.loads(doel.read_text(encoding="utf-8")) == invoer
 
     def test_standaarddoel_in_de_r18_map(self):
-        """Aanvulling v4: een nieuw bestand -v5; -v1 t/m -v4 worden nooit overschreven."""
+        """Aanvulling v7: een nieuw bestand -v6; -v1 t/m -v5 worden nooit overschreven."""
         assert mk18.DOEL == R18_INVOER
         assert mk18.DOEL not in (
-            R18_INVOER_V1, R18_INVOER_V2, R18_INVOER_V3, R18_INVOER_V4
+            R18_INVOER_V1, R18_INVOER_V2, R18_INVOER_V3, R18_INVOER_V4, R18_INVOER_V5
         )  # fmt: skip
 
     def test_schema_opgehoogd(self):
-        assert mk18.INVOERSCHEMA == "def768-ess05-bewijsregel-invoer/6"
+        assert mk18.INVOERSCHEMA == "def768-ess05-bewijsregel-invoer/7"
 
     def test_aanvulling_gepind_in_de_herkomst(self, invoer):
         assert invoer["herkomst"]["aanvulling"] == {
-            "pad": "docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v4.md",
+            "pad": "docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v7.md",
             "sha256": _sha(AANVULLING),
         }
         assert _sha(AANVULLING) == mk18.AANVULLING_SHA256
@@ -487,3 +523,16 @@ class TestVastgelegdeInvoer:
         assert "voorwaarde_formuleringen" in v4["E"]["orakel"]
         with pytest.raises(bs.OrakelfoutError, match="velden"):
             bs.controleer_orakel(v4["E"]["orakel"], _vergelijking(v4["E"]))
+
+    @pytest.mark.skipif(not R18_INVOER_V5.is_file(), reason="R18-invoer v5 ontbreekt")
+    def test_v5_ongewijzigd_en_ongeldig_onder_aanvulling_v7(self):
+        """F7 = ja: het f7-veld van het A-orakel in v5 is nu een orakelfout."""
+        assert _sha(R18_INVOER_V5) == R18_INVOER_V5_SHA256
+        data = json.loads(R18_INVOER_V5.read_text("utf-8"))
+        assert data["schema"] == "def768-ess05-bewijsregel-invoer/6"
+        v5 = {i["id"]: i for i in data["items"]}
+        assert v5["A"]["orakel"]["kenmerken"]["kosteloos"]["verhuur"]["f7"] == [
+            "ontkend"
+        ]
+        with pytest.raises(bs.OrakelfoutError, match="velden"):
+            bs.controleer_orakel(v5["A"]["orakel"], _vergelijking(v5["A"]))

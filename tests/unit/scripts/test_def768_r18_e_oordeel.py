@@ -358,9 +358,10 @@ class TestEindoordeelCli:
                      "--oordeel", str(oordeel), "--doel", str(doel)])  # fmt: skip
         assert not doel.exists()
 
-    def test_standaardinvoer_is_v5(self):
+    def test_standaardinvoer_is_v6(self):
+        """Aanvulling v7 (F7 = ja): de standaard `--invoer` is -v6."""
         assert eo.INVOER == ROOT / "reports" / "DEF-768-AI-20260928-R18" / (
-            "bewijsregel-invoer-v5.json"
+            "bewijsregel-invoer-v6.json"
         )
 
     def test_codex_combinatie_wacht_en_slaagt_alleen_door_chris(self, tmp_path):

@@ -23,10 +23,12 @@ Orakelstructuur (aanvulling C3,
 Codex-review B3/B4): per feit `vereist` (minstens één genoemde eenheid) en
 `toegestaan` (context die erbij mag staan). Bij D is de betaalzin vereist en
 zijn de Uitleen-/Verhuur-zin en de buurbeschrijving alleen context; de
-buurbeschrijving noemt geen vergoeding (F7 blijft open). Schema `/6`
-(aanvulling v4,
-`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v4.md`);
-de invoer is het nieuwe bestand `bewijsregel-invoer-v5.json` (`-v1` t/m `-v4`
+buurbeschrijving noemt geen vergoeding. Bij A (aanvulling v7, F7 = ja: de
+buurnaam draagt betekenis, "verhuur is altijd betaald") zijn voor
+kosteloos/verhuur twee antwoorden juist, gekoppeld aan de uitkomst:
+onbesproken ↔ review_required en ontkend ↔ pass. Schema `/7` (aanvulling v7,
+`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v7.md`);
+de invoer is het nieuwe bestand `bewijsregel-invoer-v6.json` (`-v1` t/m `-v5`
 blijven ongewijzigd staan; de runner weigert ze).
 
 Het orakel gaat nooit naar het model. Binding: de berekende
@@ -71,8 +73,9 @@ __all__ = [
 #: /3 (aanvulling C3): orakelfeiten met `vereist`/`toegestaan` in plaats van `eenheden`;
 #: /4 (aanvulling v2): E-orakel alleen `error/buiten_bereik`;
 #: /5 (aanvulling v3): E-orakel met `voorwaarde_formuleringen`;
-#: /6 (aanvulling v4): E-orakel zonder formuleringen, oordeel van Chris.
-INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/6"
+#: /6 (aanvulling v4): E-orakel zonder formuleringen, oordeel van Chris;
+#: /7 (aanvulling v7, F7 = ja): A-orakel met twee gekoppelde antwoorden, geen f7.
+INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/7"
 LABEL = mk16.LABEL
 HERHALINGEN = 3
 AUTEUR = "Claude Code CLI-uitvoerder, sessie 1f2d8472-4293-490d-b22f-60e829ec17d8"
@@ -83,24 +86,23 @@ PLAN = (
     / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1.md"
 )
 PLAN_SHA256 = "4b7dec58bed0479163c72ccf75d4d3af1df9213deca7ce4a37c1ecb4fb06c0e3"
-#: De aanvulling na de Codex-hercontrole v3 (B2-rest-3; besluit optie 2:
-#: voorwaardeoordeel bij E van Chris, invoer -v5); gaat vóór het plan en de
-#: aanvullingen v1 (a81e6af1…4f3b), v2 (3c409857…58e2) en v3 (3e338a78…079d),
-#: die blijven staan.
+#: De aanvulling met het F7-besluit (F7 = ja, invoer -v6); gaat vóór het plan
+#: en de aanvullingen v1 t/m v6 (v4: 922a63a6…b120, voorwaardeoordeel bij E van
+#: Chris), die blijven staan.
 AANVULLING = (
     PROJECT_ROOT
     / "docs"
     / "plans"
-    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v4.md"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v7.md"
 )
-AANVULLING_SHA256 = "922a63a6b9bcec13bd49bace58554801eb3cd73da15d6bcb0f5cfc184b3ab120"
+AANVULLING_SHA256 = "365973f14814f48db4676164562878ee32630f8065d7f84c943c14baf9403be9"
 R17_INVOER = (
     PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R17" / "bewijsregel-invoer-v1.json"
 )
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
-#: Aanvulling v4: een nieuw bestand; `-v1` t/m `-v4` blijven staan.
+#: Aanvulling v7: een nieuw bestand; `-v1` t/m `-v5` blijven staan.
 DOEL = (
-    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v5.json"
+    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v6.json"
 )
 #: Velden die voor A en C exact uit de R17-invoer komen.
 R17_VELDEN = (
@@ -135,14 +137,13 @@ _BUUR = bs.BUURBESCHRIJVING
 
 
 def _feit(
-    toestand: str, vereist: Sequence[str] = (), toegestaan: Sequence[str] = (), **f7
+    toestand: str, vereist: Sequence[str] = (), toegestaan: Sequence[str] = ()
 ) -> dict[str, Any]:
     """Eén orakelfeit (aanvulling C3): toestand, vereist bewijs, toegestane context."""
     return {
         "toestand": [toestand],
         "vereist": list(vereist),
         "toegestaan": list(toegestaan),
-        **{k: list(v) for k, v in f7.items()},
     }
 
 
@@ -156,11 +157,24 @@ ORAKELS: dict[str, dict[str, Any]] = {
             },
             "kosteloos": {
                 "doel": _feit("bevestigd", ["Uitleen:"]),
-                "verhuur": _feit("onbesproken", f7=["ontkend"]),
+                # Aanvulling v7 (besluit Chris 29-09-2026, F7 = ja: "verhuur is
+                # altijd betaald"): twee juiste antwoorden, elk met zijn eigen
+                # uitkomst. Het materiaal noemt geen kosten van verhuur, dus niets
+                # is vereist; alleen de eenheden met de buurnaam (Verhuur-zin,
+                # buurbeschrijving) mogen als bewijs voor "betaald" staan.
+                "verhuur": {
+                    "toestand": ["onbesproken", "ontkend"],
+                    "vereist": [],
+                    "toegestaan": ["Verhuur:", _BUUR],
+                    "uitkomst_per_toestand": {
+                        "onbesproken": ["review_required"],
+                        "ontkend": ["pass"],
+                    },
+                },
             },
         },
         "dragend": ["kosteloos"],
-        "uitkomst": ["review_required"],
+        "uitkomst": ["review_required", "pass"],
     },
     "C": {
         "kenmerken": {

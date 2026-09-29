@@ -32,15 +32,18 @@ de plancode is overgenomen, met deze afwijkingen:
   De lexicale signalen (markeringen, formuleringslijst, vermeldingen) zijn
   verwijderd, niet als hint bewaard: Chris beoordeelt de volledige uitvoer.
   `eindoordeel` combineert het proefoordeel met het oordeelbestand van Chris.
-- F7 apart (deel C: niet geslaagd, niet kritiek): `m_b_dragend_ok_zonder_f7`
-  en `m_c_dragend_ok_zonder_f7` laten de feiten met een F7-afwijking buiten
-  beschouwing; de plansleutels blijven streng.
+- F7 (aanvulling v7, besluit Chris 29-09-2026: F7 = ja, "verhuur is altijd
+  betaald"): geen aparte F7-route meer. Een orakelfeit mag meer dan één juiste
+  toestand hebben; M-c eist dan precies één toestand uit die lijst. Met
+  `uitkomst_per_toestand` hoort bij elke toestand een eigen juiste uitkomst:
+  M-d is alleen juist als de uitkomst bij de gekozen toestand hoort (A:
+  onbesproken ↔ review_required, ontkend ↔ pass).
 
 Een ongeldig orakel is geen modeluitvoer maar een invoerfout: `controleer_orakel`
 weigert het vóór elke aanroep (`OrakelfoutError`).
 
 Acceptatie volgens deel C van het plan (taak B3): `runoordeel` deelt één run
-in (geslaagd, kritiek, handmatig_beoordelen, f7, niet_geslaagd,
+in (geslaagd, kritiek, handmatig_beoordelen, niet_geslaagd,
 geen_interpretatie), `proefoordeel` telt de runs van een interpretatieproef en
 geeft het automatische oordeel; met E-runs is dat nooit `geslaagd`.
 `eindoordeel` past het oordeel van Chris toe (aanvulling v4, `EINDREGEL`) en
@@ -82,7 +85,8 @@ _ORAKELVELDEN = frozenset({"kenmerken", "dragend", "uitkomst"})
 _ORAKELOPTIONEEL = frozenset({"voorwaarde", "toelichting"})
 #: Aanvulling C3: per feit verplicht bewijs (`vereist`) apart van context (`toegestaan`).
 _FEITVELDEN = frozenset({"toestand", "vereist", "toegestaan"})
-_FEITOPTIONEEL = frozenset({"f7"})
+#: Aanvulling v7 (F7 = ja): per juiste toestand de bijbehorende uitkomst.
+_FEITOPTIONEEL = frozenset({"uitkomst_per_toestand"})
 
 
 class OrakelfoutError(ValueError):
@@ -212,8 +216,10 @@ def _tekstlijst(waarde: Any) -> bool:
     return isinstance(waarde, list) and all(isinstance(w, str) and w for w in waarde)
 
 
-def _controleer_feit(pad: str, verwacht: Any) -> None:
-    """Aanvulling C3: {toestand, vereist, toegestaan[, f7]}, elk een lijst tekst."""
+def _controleer_feit(pad: str, verwacht: Any, uitkomsten: Sequence[str]) -> None:
+    """Aanvulling C3: {toestand, vereist, toegestaan}, elk een lijst tekst; v7:
+    optioneel `uitkomst_per_toestand` — voor precies de toestanden een niet-lege
+    lijst uitkomsten, samen precies de orakeluitkomsten."""
     if not isinstance(verwacht, Mapping):
         msg = f"{pad}: geen object"
         raise OrakelfoutError(msg)
@@ -221,10 +227,22 @@ def _controleer_feit(pad: str, verwacht: Any) -> None:
     if anders:
         msg = f"{pad}: onbekende of ontbrekende velden {anders}"
         raise OrakelfoutError(msg)
-    for veld in sorted(set(verwacht)):
+    for veld in sorted(_FEITVELDEN):
         if not _tekstlijst(verwacht[veld]):
             msg = f"{pad}.{veld}: geen lijst van teksten"
             raise OrakelfoutError(msg)
+    koppeling = verwacht.get("uitkomst_per_toestand")
+    if koppeling is not None and not (
+        isinstance(koppeling, Mapping)
+        and set(koppeling) == set(verwacht["toestand"])
+        and all(_tekstlijst(u) and u for u in koppeling.values())
+        and {u for us in koppeling.values() for u in us} == set(uitkomsten)
+    ):
+        msg = (
+            f"{pad}.uitkomst_per_toestand: niet per toestand een lijst uitkomsten "
+            f"die samen de orakeluitkomsten {list(uitkomsten)} zijn"
+        )
+        raise OrakelfoutError(msg)
     if not verwacht["toestand"]:
         msg = f"{pad}.toestand: leeg"
         raise OrakelfoutError(msg)
@@ -251,7 +269,9 @@ def controleer_orakel(orakel: Any, invoer: br.Vergelijkingsinvoer) -> None:
             raise OrakelfoutError(msg)
         for naam, verwacht in per_onderwerp.items():
             _onderwerp(invoer, naam)
-            _controleer_feit(f"orakel.kenmerken.{kernwoord}.{naam}", verwacht)
+            _controleer_feit(
+                f"orakel.kenmerken.{kernwoord}.{naam}", verwacht, orakel["uitkomst"]
+            )
     if not set(orakel["dragend"]) <= set(kenmerken):
         raise OrakelfoutError("orakel.dragend noemt een onbekend kernwoord")
     if not orakel["uitkomst"]:
@@ -269,8 +289,9 @@ def scoor(
     alle = _objecten(ruw, "antwoorden")
     positief = [a for a in alle if a.get("toestand") != "onbesproken"]
     uitkomst, fout = _uitkomst(ruw, invoer)
+    gekregen = f"{uitkomst}/{fout}" if fout is not None else uitkomst
     feiten: list[dict[str, Any]] = []
-    f7: list[str] = []
+    koppeling_ok = True
     for kernwoord, per_onderwerp in orakel["kenmerken"].items():
         kid = _kenmerk_id(ruw, kernwoord)
         dragend = kernwoord in orakel.get("dragend", [])
@@ -299,10 +320,14 @@ def scoor(
             draagt = kid is not None and _draagt(
                 teksten, verwacht["vereist"], verwacht["toegestaan"]
             )
-            juist = bool(toestanden) and set(toestanden) <= set(verwacht["toestand"])
-            is_f7 = not juist and bool(set(toestanden) & set(verwacht.get("f7", [])))
-            if is_f7:
-                f7.append(f"{kernwoord}/{naam}: {toestanden}")
+            # M-c: precies één toestand, en die is een van de juiste (aanvulling v7).
+            juist = len(toestanden) == 1 and toestanden[0] in verwacht["toestand"]
+            # Aanvulling v7: de uitkomst hoort bij de gekozen toestand.
+            koppeling = verwacht.get("uitkomst_per_toestand")
+            if koppeling is not None:
+                koppeling_ok = (
+                    koppeling_ok and juist and gekregen in koppeling[toestanden[0]]
+                )
             feiten.append(
                 {
                     "kernwoord": kernwoord,
@@ -313,28 +338,24 @@ def scoor(
                     "toestand_juist": juist,
                     "eenheden": teksten,
                     "draagt": draagt,
-                    "f7": is_f7,
                 }
             )
     dragende = [f for f in feiten if f["dragend"]]
-    zonder_f7 = [f for f in dragende if not f["f7"]]
     voorwaarde = orakel.get("voorwaarde")
     return {
         "m_a": {"items": len(positief), "fouten": _diagnose(ruw, invoer)},
         "m_b_dragend_ok": all(f["draagt"] for f in dragende),
         "m_c_dragend_ok": all(f["toestand_juist"] for f in dragende),
-        "m_b_dragend_ok_zonder_f7": all(f["draagt"] for f in zonder_f7),
-        "m_c_dragend_ok_zonder_f7": all(f["toestand_juist"] for f in zonder_f7),
         "m_d": {
             "uitkomst": uitkomst,
             "fout": fout,
             "verwacht": list(orakel["uitkomst"]),
-            "ok": _uitkomst_toegestaan(uitkomst, fout, orakel["uitkomst"]),
+            "ok": _uitkomst_toegestaan(uitkomst, fout, orakel["uitkomst"])
+            and koppeling_ok,
         },
         # Aanvulling v4: nooit automatisch behouden; het oordeel is van Chris.
         "voorwaarde_behouden": False if voorwaarde else None,
         "voorwaarde_status": "handmatig_beoordelen" if voorwaarde else None,
-        "f7_afwijkingen": f7,
         "feiten": feiten,
     }
 
@@ -364,14 +385,13 @@ def runoordeel(
     """Eén run volgens deel C; `score` is None als er geen interpretatie was.
 
     - Kritiek: `pass`/`fail` terwijl M-c of M-b op de dragende kenmerken onwaar
-      is (F7-feiten buiten beschouwing).
+      is (sinds aanvulling v7 zonder F7-uitzondering).
     - E (orakel met `voorwaarde`, aanvulling v4): nooit automatisch geslaagd en
       nooit een lexicale status. Met een juiste uitkomst wacht de run op het
       oordeel van Chris (`handmatig_beoordelen`, `HANDMATIG_E`; niet kritiek,
       stopt niet, M-d telt pas na dat oordeel); anders is hij automatisch
       niet geslaagd. Wat de score over de voorwaarde zegt, telt niet.
-    - F7: apart, niet geslaagd en niet kritiek.
-    - Volgorde: kritiek > handmatig_beoordelen > f7 > geslaagd > niet_geslaagd.
+    - Volgorde: kritiek > handmatig_beoordelen > geslaagd > niet_geslaagd.
     """
     voorwaarde = orakel.get("voorwaarde")
     if score is None:
@@ -385,7 +405,6 @@ def runoordeel(
             "voorwaarde_status": None,
             "kritiek": [],
             "handmatig": [],
-            "f7": [],
         }
     md = score["m_d"]
     gekregen = (
@@ -395,19 +414,16 @@ def runoordeel(
     m_d_telt = bool(md["ok"]) and not voorwaarde
     kritiek, handmatig = [], []
     if md["uitkomst"] in ("pass", "fail"):
-        if not score["m_c_dragend_ok_zonder_f7"]:
+        if not score["m_c_dragend_ok"]:
             kritiek.append("pass/fail bij M-c onwaar")
-        if not score["m_b_dragend_ok_zonder_f7"]:
+        if not score["m_b_dragend_ok"]:
             kritiek.append("pass/fail bij M-b onwaar")
     if voorwaarde and md["ok"] and not kritiek:
         handmatig.append(HANDMATIG_E)
-    f7 = list(score["f7_afwijkingen"])
     if kritiek:
         categorie = "kritiek"
     elif handmatig:
         categorie = "handmatig_beoordelen"
-    elif f7:
-        categorie = "f7"
     elif m_d_telt and score["m_b_dragend_ok"] and score["m_c_dragend_ok"]:
         categorie = "geslaagd"
     else:
@@ -422,7 +438,6 @@ def runoordeel(
         "voorwaarde_status": "handmatig_beoordelen" if voorwaarde else None,
         "kritiek": kritiek,
         "handmatig": handmatig,
-        "f7": f7,
     }
 
 
@@ -435,9 +450,9 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     run die op beoordeling wacht en elke E-run met behouden voorwaarde — dat
     laatste zet alleen `eindoordeel` na het oordeel van Chris (aanvulling v4),
     dus automatisch is een proef met E-runs nooit geslaagd. Anders wacht de
-    proef op de handmatige beoordeling (als 11 dan nog haalbaar is) of op het
-    F7-besluit van Chris, of is het tussengebied (analyseren, geen nieuwe
-    ronde zonder besluit).
+    proef op de handmatige beoordeling (als 11 dan nog haalbaar is) of is het
+    tussengebied (analyseren, geen nieuwe ronde zonder besluit). Sinds
+    aanvulling v7 (F7 = ja) is er geen wachten op een F7-besluit meer.
     """
     n = len(runs)
     m_d = sum(1 for r in runs if r["m_d_telt"])
@@ -455,9 +470,6 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         for r in runs
         if r["handmatig"]
     ]
-    f7 = [
-        {"sleutel": r["sleutel"], "afwijkingen": list(r["f7"])} for r in runs if r["f7"]
-    ]
     # Onder 12 runs telt M-d ≤ 8 pas als ook de ontbrekende runs dat niet redden.
     haalbaar = m_d + max(0, RUNS_VERWACHT - n) + len(handmatig)
     if kritiek or haalbaar <= M_D_AFKEUR:
@@ -474,8 +486,6 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         oordeel = "geslaagd"
     elif handmatig and m_d + len(handmatig) >= M_D_MIN:
         oordeel = "wacht_op_handmatige_beoordeling"
-    elif f7:
-        oordeel = "wacht_op_f7_besluit"
     else:
         oordeel = "tussengebied"
     return {
@@ -488,7 +498,6 @@ def proefoordeel(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "e_voorwaarde_behouden": [e_ok, len(e_runs)],
         "kritiek": kritiek,
         "handmatig_beoordelen": handmatig,
-        "f7": f7,
         "categorieen": dict(sorted(Counter(r["categorie"] for r in runs).items())),
         "grens": _GRENS,
     }
@@ -565,8 +574,6 @@ def _met_oordeel(run: Mapping[str, Any], status: str | None) -> dict[str, Any]:
     )
     if kritiek:
         categorie = "kritiek"
-    elif run["f7"]:
-        categorie = "f7"
     elif behouden and run["m_b_dragend_ok"] and run["m_c_dragend_ok"]:
         categorie = "geslaagd"
     else:

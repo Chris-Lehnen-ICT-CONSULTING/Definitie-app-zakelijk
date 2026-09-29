@@ -34,6 +34,7 @@ from tests.unit.scripts.test_def768_bewijsscorer import (
     ORAKEL_A,
     ORAKEL_D,
     ORAKEL_E,
+    _a_betaald,
     _a_juist,
     _d_juist,
     _e,
@@ -92,11 +93,14 @@ from services.validation.ess05_bewijsregel_service import (
 
 R18_ID = "DEF-768-AI-20260928-R18"
 R18_MAP = ROOT / "reports" / R18_ID
-#: Aanvulling v4 (Codex-hercontrole v3, besluit optie 2): de invoer -v5 (schema
-#: /6, E-orakel zonder lexicale voorwaardevelden; oordeel van Chris).
-I18 = R18_MAP / "bewijsregel-invoer-v5.json"
+#: Aanvulling v7 (F7 = ja): de invoer -v6 (schema /7, A-orakel met twee juiste
+#: antwoorden gekoppeld aan de uitkomst; geen f7-veld).
+I18 = R18_MAP / "bewijsregel-invoer-v6.json"
 L18 = R18_MAP / "lokale-invoer-v1.json"
-I18_SHA256 = "b2c3c34dbe91d0c8b49746d8438793f3994b098620700ea4cbfe9f4a7619d8c4"
+I18_SHA256 = "4ff5d48480c42ce6807ddd633452de7a11eb1f472eee185755868b03476cf733"
+#: De vijfde invoer (schema /6, A-orakel met f7-veld): blijft staan, wordt geweigerd.
+I18_V5 = R18_MAP / "bewijsregel-invoer-v5.json"
+I18_V5_SHA256 = "b2c3c34dbe91d0c8b49746d8438793f3994b098620700ea4cbfe9f4a7619d8c4"
 #: De vierde invoer (schema /5, geregistreerde formuleringen): blijft staan, geweigerd.
 I18_V4 = R18_MAP / "bewijsregel-invoer-v4.json"
 I18_V4_SHA256 = "75c975806704520bd3abee39f7a7525dab2722fad14fde24ad48f676ce92f135"
@@ -705,7 +709,7 @@ class TestInterpretatieFase:
         assert (oordeel["runs"], oordeel["m_d_juist"], oordeel["m_c_dragend"],
                 oordeel["m_b_dragend"]) == (12, 9, 12, 12)  # fmt: skip
         assert oordeel["e_voorwaarde_behouden"] == [0, 3]
-        assert oordeel["kritiek"] == [] and oordeel["f7"] == []
+        assert oordeel["kritiek"] == [] and "f7" not in oordeel
 
     def test_record_met_ruwe_interpretatie_en_scorer(self, tmp_path):
         provider = _R18Provider(_items())
@@ -995,31 +999,27 @@ class TestInterpretatieFase:
         )  # fmt: skip
         assert uit["proefoordeel"]["oordeel"] == "wacht_op_handmatige_beoordeling"
 
-    def test_f7_is_apart_niet_geslaagd_en_niet_kritiek(self, tmp_path):
+    def test_a_verhuur_betaald_is_geslaagd_en_wacht_niet_op_f7(self, tmp_path):
+        """Aanvulling v7 (F7 = ja): A1 en A2 met verhuur betaald (ontkend, pass), A3
+        voorzichtig (onbesproken, review_required): alle drie geslaagd; de proef
+        wacht alleen op het E-oordeel van Chris, niet op een F7-besluit."""
+
         def antwoord(naam, n, verg):
-            ruw = _juist(naam, verg)
-            if naam == "A" and n == 1:
-                (k2,) = [a for a in ruw["antwoorden"]
-                         if a["kenmerk_id"] == "K2" and a["onderwerp"] != "doel"]  # fmt: skip
-                k2.update(toestand="ontkend", citaten=[_u(verg, BUUR)])
+            ruw = _a_betaald(verg) if naam == "A" and n < 3 else _juist(naam, verg)
             return json.dumps(ruw, ensure_ascii=False)
 
         provider = _R18Provider(_items(), antwoord=antwoord)
         uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        (a1,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|A|1"]
-        assert a1["score"]["m_d"]["uitkomst"] == "pass"
-        assert a1["runoordeel"]["categorie"] == "f7"
-        assert a1["runoordeel"]["kritiek"] == []
-        assert a1["acceptatie"]["geaccepteerd"] is False
-        assert uit["proefoordeel"]["f7"] == [
-            {
-                "sleutel": "interpretatie|A|1",
-                "afwijkingen": ["kosteloos/verhuur: ['ontkend']"],
-            }
-        ]
-        assert uit["proefoordeel"]["kritiek"] == []
-        # Aanvulling v4: de E-runs wachten op Chris; dat gaat vóór het F7-besluit.
-        assert uit["proefoordeel"]["oordeel"] == "wacht_op_handmatige_beoordeling"
+        a = {r["sleutel"]: r for r in _records(tmp_path) if "|A|" in r["sleutel"]}
+        for h, uitkomst in ((1, "pass"), (2, "pass"), (3, "review_required")):
+            record = a[f"interpretatie|A|{h}"]
+            assert record["score"]["m_d"]["uitkomst"] == uitkomst
+            assert record["runoordeel"]["categorie"] == "geslaagd"
+            assert record["acceptatie"]["geaccepteerd"] is True
+        oordeel = uit["proefoordeel"]
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert oordeel["m_d_juist"] == 9 and oordeel["kritiek"] == []
+        assert "f7" not in oordeel and "f7" not in oordeel["categorieen"]
 
     def test_onleesbare_uitvoer_is_modelfout_en_geen_stop(self, tmp_path):
         def antwoord(naam, n, verg):
@@ -1324,11 +1324,12 @@ class TestEchteInvoer:
 
     @pytest.mark.parametrize(
         ("pad", "sha"),
-        [(I18_V2, I18_V2_SHA256), (I18_V3, I18_V3_SHA256), (I18_V4, I18_V4_SHA256)],
-        ids=["v2", "v3", "v4"],
-    )
+        [(I18_V2, I18_V2_SHA256), (I18_V3, I18_V3_SHA256), (I18_V4, I18_V4_SHA256),
+         (I18_V5, I18_V5_SHA256)],
+        ids=["v2", "v3", "v4", "v5"],
+    )  # fmt: skip
     def test_oudere_invoer_blijft_staan_maar_wordt_geweigerd(self, tmp_path, pad, sha):
-        """Aanvulling v2–v4: de runner pint -v5; -v2 t/m -v4 weigeren op schema en hash."""
+        """Aanvulling v2–v7: de runner pint -v6; -v2 t/m -v5 weigeren op schema en hash."""
         assert _sha(pad) == sha != runner.R18_I_INVOER_SHA256
         data = json.loads(pad.read_text(encoding="utf-8"))
         with pytest.raises(pi.InvoerfoutError, match="schema"):
@@ -1359,12 +1360,9 @@ def _score(**over) -> dict:
         "m_a": {"items": 0, "fouten": []},
         "m_b_dragend_ok": True,
         "m_c_dragend_ok": True,
-        "m_b_dragend_ok_zonder_f7": True,
-        "m_c_dragend_ok_zonder_f7": True,
         "m_d": {"uitkomst": "pass", "fout": None, "verwacht": ["pass"], "ok": True},
         "voorwaarde_behouden": None,
         "voorwaarde_status": None,
-        "f7_afwijkingen": [],
         "feiten": [],
     }
     for k, v in over.items():
@@ -1383,8 +1381,8 @@ class TestRunoordeel:
     @pytest.mark.parametrize(
         ("maat", "reden"),
         [
-            ("m_c_dragend_ok_zonder_f7", "pass/fail bij M-c onwaar"),
-            ("m_b_dragend_ok_zonder_f7", "pass/fail bij M-b onwaar"),
+            ("m_c_dragend_ok", "pass/fail bij M-c onwaar"),
+            ("m_b_dragend_ok", "pass/fail bij M-b onwaar"),
         ],
     )
     def test_pass_of_fail_zonder_dragend_bewijs_is_kritiek(self, uitkomst, maat, reden):
@@ -1394,7 +1392,7 @@ class TestRunoordeel:
         assert o["categorie"] == "kritiek" and o["kritiek"] == [reden]
 
     def test_review_required_zonder_dragend_bewijs_is_niet_kritiek(self):
-        score = _score(m_b_dragend_ok=False, m_b_dragend_ok_zonder_f7=False,
+        score = _score(m_b_dragend_ok=False,
                        m_d={"uitkomst": "review_required", "fout": None,
                             "verwacht": ["review_required"], "ok": True})  # fmt: skip
         o = bs.runoordeel(score, ORAKEL_A)
@@ -1443,18 +1441,23 @@ class TestRunoordeel:
             [],
         )
 
-    def test_f7_apart(self):
-        score = _score(m_b_dragend_ok=False, m_c_dragend_ok=False,
-                       f7_afwijkingen=["kosteloos/verhuur: ['ontkend']"],
-                       m_d={"uitkomst": "pass", "fout": None,
-                            "verwacht": ["review_required"], "ok": False})  # fmt: skip
+    def test_a_uitkomst_niet_bij_de_toestand_is_niet_geslaagd(self):
+        """Aanvulling v7 (F7 = ja): geen F7-categorie; een uitkomst die niet bij de
+        gekozen toestand hoort, is M-d fout en dus gewoon niet geslaagd."""
+        score = _score(m_d={"uitkomst": "pass", "fout": None,
+                            "verwacht": ["review_required", "pass"], "ok": False})  # fmt: skip
         o = bs.runoordeel(score, ORAKEL_A)
-        assert (o["categorie"], o["kritiek"]) == ("f7", [])
+        assert (o["categorie"], o["kritiek"], o["m_d_telt"]) == (
+            "niet_geslaagd",
+            [],
+            False,
+        )
+        assert "f7" not in o
 
-    def test_f7_met_ander_kritiek_feit_blijft_kritiek(self):
-        score = _score(m_b_dragend_ok=False, m_b_dragend_ok_zonder_f7=False,
-                       f7_afwijkingen=["kosteloos/verhuur: ['ontkend']"])  # fmt: skip
-        assert bs.runoordeel(score, ORAKEL_A)["categorie"] == "kritiek"
+    def test_pass_bij_verkeerde_toestand_op_a_is_kritiek(self):
+        """Geen F7-uitzondering meer: pass met M-c onwaar is kritiek, ook bij A."""
+        score = _score(m_c_dragend_ok=False)
+        assert bs.runoordeel(score, ORAKEL_A)["kritiek"] == ["pass/fail bij M-c onwaar"]
 
     def test_zonder_score_geen_interpretatie(self):
         o = bs.runoordeel(None, ORAKEL_A)
@@ -1466,7 +1469,7 @@ def _run(categorie="geslaagd", *, m_d=True, m_b=True, m_c=True, e=None, **over):
             "m_d_telt": m_d, "m_b_dragend_ok": m_b, "m_c_dragend_ok": m_c,
             "voorwaarde_behouden": e,
             "voorwaarde_status": None if e is None else ("behouden" if e else "weggevallen"),
-            "kritiek": over.pop("kritiek", []), "f7": over.pop("f7", []),
+            "kritiek": over.pop("kritiek", []),
             "handmatig": over.pop("handmatig", [])}  # fmt: skip
 
 
@@ -1510,15 +1513,15 @@ class TestProefoordeel:
         assert uit["e_voorwaarde_behouden"] == [2, 3]
         assert uit["oordeel"] == "afgekeurd"
 
-    def test_f7_wacht_op_besluit(self):
+    def test_geen_wachten_op_een_f7_besluit(self):
+        """Aanvulling v7: een A-run met een verkeerde toestand is gewoon niet
+        geslaagd; de proef valt in het tussengebied, niet in een F7-wachtstatus."""
         runs = self._runs(12)
-        runs[0].update(categorie="f7", m_c_dragend_ok=False, m_d_telt=False,
-                       f7=["kosteloos/verhuur: ['ontkend']"], sleutel="a")  # fmt: skip
+        runs[0].update(categorie="niet_geslaagd", m_c_dragend_ok=False,
+                       m_d_telt=False, sleutel="a")  # fmt: skip
         uit = bs.proefoordeel(runs)
-        assert uit["oordeel"] == "wacht_op_f7_besluit"
-        assert uit["f7"] == [
-            {"sleutel": "a", "afwijkingen": ["kosteloos/verhuur: ['ontkend']"]}
-        ]
+        assert uit["oordeel"] == "tussengebied"
+        assert "f7" not in uit
 
     def _handmatig(self, runs, *indexen):
         for i in indexen:
