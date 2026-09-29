@@ -7,6 +7,7 @@ Wraps the OpenAI SDK and maps its errors to provider-agnostic types.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 from openai import (
@@ -24,6 +25,7 @@ from services.ai.base_client import (
     AIClientError,
     AIConnectionClientError,
     AIRateLimitClientError,
+    AIStructuredOutputUnsupportedError,
     ChatMessage,
     ChatResponse,
     Eventloopwacht,
@@ -80,9 +82,18 @@ class OpenAIClient:
         max_tokens: int = 300,
         timeout: float | None = None,
         max_retries: int | None = None,
+        response_schema: Mapping[str, Any] | None = None,
     ) -> ChatResponse:
         if not messages:
             raise AIClientError("messages must not be empty")
+        if response_schema is not None:
+            # DEF-836 P1: native schema-uitvoer is alleen voor een expliciet
+            # gecontroleerde Anthropic-combinatie vrijgegeven; hier geen stille
+            # terugval naar vrije tekst en geen aanroep.
+            raise AIStructuredOutputUnsupportedError(
+                f"antwoordschema niet ondersteund voor provider openai (model={model}); "
+                "niets verzonden"
+            )
 
         sdk_messages: list[ChatCompletionMessageParam] = [
             {"role": m.role, "content": m.content} for m in messages  # type: ignore[misc]

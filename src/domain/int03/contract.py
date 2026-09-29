@@ -71,6 +71,8 @@ from domain.sources.contract import vind_citaat
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "ANTWOORDSCHEMA",
+    "ANTWOORDSCHEMA_SHA256",
     "ASSESSMENT_STATUSSEN",
     "BASIS_ASSESSMENT",
     "BEVINDINGEN",
@@ -204,6 +206,60 @@ _VERWIJZINGSVELDEN: frozenset[str] = frozenset(
     {"word", "passage", "status", "reading", "candidates"}
 )
 _KANDIDAATVELDEN: frozenset[str] = frozenset({"quote", "reason"})
+
+#: DEF-836 P1: het antwoordschema voor native JSON-schema-uitvoer (Anthropic
+#: `output_config.format`). Dezelfde gesloten velden, enums en nullability
+#: als hierboven; elk object gesloten, elk veld verplicht. Geen nieuwe
+#: semantische eis (geen minimumlengte of -aantal): de lokale controles
+#: blijven gezaghebbend. De eigenschapsvolgorde (references → reason →
+#: verdict → question → uncertainty) is een ontwerpkeuze en hoort bij de
+#: schema-identiteit. DEF-836 P4: per verwijzing staat status als laatste
+#: (word → passage → reading → candidates → status), na de onderbouwing.
+_NUL_OF_TEKST: dict[str, Any] = {"anyOf": [{"type": "string"}, {"type": "null"}]}
+ANTWOORDSCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "references": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "word": {"type": "string"},
+                    "passage": {"type": "string"},
+                    "reading": {"type": "string"},
+                    "candidates": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "quote": {"type": "string"},
+                                "reason": {"type": "string"},
+                            },
+                            "required": ["quote", "reason"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "status": {"type": "string", "enum": list(VERWIJZINGSSTATUSSEN)},
+                },
+                "required": ["word", "passage", "reading", "candidates", "status"],
+                "additionalProperties": False,
+            },
+        },
+        "reason": {"type": "string"},
+        "verdict": {"type": "string", "enum": list(VERDICTS)},
+        "question": _NUL_OF_TEKST,
+        "uncertainty": _NUL_OF_TEKST,
+    },
+    "required": ["references", "reason", "verdict", "question", "uncertainty"],
+    "additionalProperties": False,
+}
+#: Gepinde, eigenschapsvolgorde-gevoelige sha256 van `ANTWOORDSCHEMA`
+#: (`services.ai.base_client.response_schema_sha256`). Hoort bij
+#: beoordelingsversie int03-assess/6 (P4); een ander schema vraagt een nieuwe
+#: versie.
+ANTWOORDSCHEMA_SHA256 = (
+    "8f04da5d652597bdae13e14b5db6165a6018df31180b376d9a06a32e1b358047"
+)
 
 _WHITESPACE = re.compile(r"\s+")
 

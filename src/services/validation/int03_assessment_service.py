@@ -44,9 +44,10 @@ normhash; modelsleutel) levert dezelfde gevalideerde beoordeling zonder
 tweede modelaanroep. Alleen volledig gevalideerde oordelen worden gecachet;
 een technische fout nooit.
 
-De transporthulpen (`parse_modeluitvoer`, pogingenteller, foutsoort,
-stopreden) worden gedeeld met de ESS-03-dienst; ze zijn niet
-INT-03-specifiek.
+De transporthulpen (pogingenteller, foutsoort, stopreden) worden gedeeld met
+de ESS-03-dienst; ze zijn niet INT-03-specifiek. De antwoordparser niet: in
+schemamodus telt uitsluitend het kale JSON-object, zonder een Markdown-codeblok
+uit te pakken (DEF-836 R1); ESS-03 houdt zijn eigen parser.
 """
 
 from __future__ import annotations
@@ -67,15 +68,12 @@ from typing import Any
 from domain.context.contract import CONTEXT_VELDEN
 from domain.context.normalisatie import canoniseer_contextlijst
 from domain.int03.contract import (
+    ANTWOORDSCHEMA,
+    ANTWOORDSCHEMA_SHA256,
     CONTRACTVERSIE,
     VERDICT_FAIL,
     VERDICT_INSUFFICIENT,
     VERDICT_PASS,
-    VERWIJZING_DUIDELIJK,
-    VERWIJZING_GEEN_ANTECEDENT,
-    VERWIJZING_MEERDUIDIG,
-    VERWIJZING_NIET_VERWIJZEND,
-    VERWIJZING_ONBESLIST,
     Beoordelingsbinding,
     GevalideerdOordeel,
     beoordeling_technische_fout,
@@ -83,11 +81,14 @@ from domain.int03.contract import (
     structuurfout_modeluitvoer,
     valideer_oordeel,
 )
+from services.ai.base_client import (
+    AIStructuredOutputUnsupportedError,
+    response_schema_sha256,
+)
 from services.validation.ess03_assessment_service import (
     _foutsoort,
     _Pogingenteller,
     _stop_reason,
-    parse_modeluitvoer,
 )
 from toetsregels.runtime_contract import lees_regelbestand
 
@@ -162,6 +163,36 @@ def _sha256(tekst: str | None) -> str | None:
     )
 
 
+#: DEF-836 P1: het formaatslot van /3, letterlijk uit verwerking-codex-v1.md
+#: ("Exacte vervanging van het formaatslot"). Vervangt de leverinstructie en
+#: het JSON-sjabloon van /2; de structuur komt uit het meegegeven
+#: antwoordschema (`ANTWOORDSCHEMA`). De veldbetekenissen blijven gelijk.
+_FORMAATSLOT = (
+    "Lever één beoordeling volgens het meegegeven uitvoerschema, zonder tekst "
+    "buiten het object of een tweede antwoord. Alle inhoudelijke regels hierboven "
+    "blijven gelden. Geef in de velden de beoordeling van de definitie, geen "
+    "uitleg over JSON of het schema.\n"
+    "\n"
+    "Betekenis van de velden:\n"
+    "- references: de beoordeelde woorden. Elk item bevat word, passage, status, "
+    "reading en candidates.\n"
+    "- word: het letterlijke woord uit de definitie.\n"
+    "- passage: een letterlijk fragment uit de definitie waarin dat woord staat.\n"
+    "- status: de toepasselijke waarde uit het schema volgens de regels hierboven.\n"
+    "- reading: interpretatie van het antecedent, of waarom het woord niet "
+    "verwijzend is.\n"
+    "- candidates: een lijst met per kandidaat quote, een letterlijk fragment uit "
+    "de definitie, en reason, waarom die kandidaat plausibel is. Bij non_referring "
+    "en no_antecedent is de lijst leeg.\n"
+    "- reason: korte inhoudelijke onderbouwing in twee tot vier zinnen.\n"
+    "- verdict: pass, fail of insufficient_information, overeenkomstig de "
+    "verwijzingen.\n"
+    "- question: precies één vraag als één zin eindigend op een vraagteken; "
+    "verplicht bij insufficient_information, optioneel bij fail, anders null.\n"
+    "- uncertainty: resterende onzekerheid, of null."
+)
+
+
 def _systeemprompt(norm: Mapping[str, str]) -> str:
     return (
         "Je bent een toetser van juridische en bestuurlijke begripsdefinities voor "
@@ -190,7 +221,28 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
         "antecedent-eerst is stijlvoorkeur, geen eis. Het losse lemma (de term "
         "boven de definitie) is géén antecedent; staat de term als woord in de "
         "definitie (bijvoorbeeld als genus), dan is dat wél een antecedent.\n"
-        "3. Eenduidigheid: nabijheid alleen is geen bewijs; plaatsing direct na een "
+        "3. Eenduidigheid: Toets eerst per mogelijke lezing of zij grammaticaal "
+        "toelaatbaar is: bepaal het kernwoord van de kandidaat-naamwoordgroep, "
+        "controleer getal en woordgeslacht in samenhang, voor zover het verwijzende "
+        "woord daarvoor gemarkeerd is, en ga na of de constructie (betrekkelijke "
+        "bijzin, persoonlijk of bezittelijk voornaamwoord, voornaamwoordelijk "
+        "bijwoord) die verwijzing toelaat. Een grammaticaal uitgesloten lezing is "
+        "geen kandidaat en telt niet mee voor ambiguous; vermeld haar hooguit in "
+        "reading als uitgesloten, met de grammaticale reden. Verwijst het woord naar "
+        "een naamwoordgroep, dan bepaalt het kernwoord van die groep getal en "
+        "woordgeslacht: dat dit naamwoord de kern van een grotere naamwoordgroep is, "
+        "verder weg staat of met andere woorden een grotere groep vormt, maakt een "
+        "lezing die op getal of woordgeslacht is uitgesloten nooit alsnog "
+        "toelaatbaar. Een grotere tekstinhoud of een ingesloten antecedent is een "
+        "eigen antecedentvorm en geen uitzondering op die eisen: toets zo'n lezing "
+        "binnen haar eigen constructie, zoals een verwijzing naar een hele bewering "
+        "of een verwijzing zonder afzonderlijk naamwoord, en presenteer een "
+        "uitgesloten naamwoordgroep niet als grotere tekstinhoud. Alleen een erkende "
+        "grammaticale uitzondering die de tekst zelf draagt, kan een lezing "
+        "toelaatbaar maken die op getal of woordgeslacht is uitgesloten; benoem dan "
+        "welke uitzondering het is en waarom zij hier geldt. Pas daarna beoordeel je "
+        "de toelaatbare lezingen op plausibiliteit en aantal: "
+        "nabijheid alleen is geen bewijs; plaatsing direct na een "
         "naamwoord volstaat niet als een ander naamwoord ook als antecedent kan "
         "worden gelezen. Meerdere naamwoorden bewijzen nog geen ambiguïteit: benoem "
         "uitsluitend werkelijk plausibele lezingen (getal, genus, rol, zinsbouw). "
@@ -199,7 +251,14 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
         "inhoud in de definitie in aanmerking komt (lege kandidatenlijst, met "
         "motivering in reading); undetermined uitsluitend bij semantische twijfel "
         "of ontbrekende betekenisgrond die alleen met een gerichte vraag te "
-        "beslechten is.\n\n"
+        "beslechten is. Onderbouw iedere kandidaat in reading of candidates[].reason "
+        "met een korte uitleg van de gevolgde lezing van de volledige "
+        "zinsconstructie. Benoem daarbij wie welke handeling verricht en welke "
+        "relatie de verwijzing uitdrukt. Maak zichtbaar welke woorden of constructie "
+        "deze lezing ondersteunen en welke aanname eventueel nodig is. Beoordeel "
+        "ieder verwijzend woord afzonderlijk en betrek alle tekstsignalen, ook "
+        "herhaalde naamwoorden. De bestaande regels voor toegestane betekenisgrond "
+        "en voor clear, ambiguous, no_antecedent en undetermined blijven gelden.\n\n"
         "Uitkomsten (verdict):\n"
         f"- {VERDICT_PASS}: elk verwijzend woord is clear, of de definitie bevat "
         "geen verwijzend woord (alle woorden non_referring of lege lijst).\n"
@@ -220,28 +279,7 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
         "reason zijn jouw interpretatie en mogen een ingesloten antecedent benoemen.\n"
         "- Geef geen cijfer, geen percentage en geen zelfgerapporteerd "
         "vertrouwenspercentage. Herschrijf de definitie niet.\n\n"
-        "Antwoord uitsluitend met één JSON-object en niets anders (geen tekst ervoor of "
-        "erna, geen extra velden). Exact deze vijf velden:\n"
-        "{\n"
-        f'  "verdict": "{VERDICT_PASS}|{VERDICT_FAIL}|{VERDICT_INSUFFICIENT}",\n'
-        '  "reason": "korte onderbouwing (twee tot vier zinnen)",\n'
-        '  "references": [\n'
-        "    {\n"
-        '      "word": "letterlijk woord uit de definitie",\n'
-        '      "passage": "letterlijk fragment uit de definitie met dat woord",\n'
-        f'      "status": "{VERWIJZING_DUIDELIJK}|{VERWIJZING_MEERDUIDIG}|'
-        f"{VERWIJZING_GEEN_ANTECEDENT}|{VERWIJZING_NIET_VERWIJZEND}|"
-        f'{VERWIJZING_ONBESLIST}",\n'
-        '      "reading": "interpretatie: het antecedent, of waarom niet verwijzend",\n'
-        '      "candidates": [{"quote": "letterlijk fragment", "reason": "waarom '
-        'plausibel"}]\n'
-        "    }\n"
-        "  ],\n"
-        '  "question": "precies één vraag als één zin die op een vraagteken eindigt '
-        f"(verplicht bij {VERDICT_INSUFFICIENT}, optioneel bij {VERDICT_FAIL}); "
-        'anders null",\n'
-        '  "uncertainty": "resterende onzekerheid, of null"\n'
-        "}"
+        f"{_FORMAATSLOT}"
     )
 
 
@@ -290,11 +328,24 @@ class Int03Assessment:
         return deepcopy(dict(self.data))
 
 
+#: (vingerafdruk, promptversie, normhash, provider/model, schemahash).
+_Cachesleutel = tuple[str, str, str, str, str]
+
+
 class Int03AssessmentService:
     """Verkrijgt de AI-beoordeling van voornaamwoord-verwijzingen (INT-03)."""
 
     #: /1: eerste promptversie (DEF-772 WP3, K1(a)/K6/K7).
-    PROMPT_VERSION = "int03-assess/1"
+    #: /2: formele leverinstructie vóór het uitvoerblok (DEF-836); oordelen
+    #:     onder /1 worden daarmee historisch.
+    #: /3: native JSON-schema-uitvoer met `ANTWOORDSCHEMA` (vastgepind op
+    #:     `ANTWOORDSCHEMA_SHA256`, inclusief eigenschapsvolgorde) en het
+    #:     formaatslot `_FORMAATSLOT` (DEF-836 P1); oordelen onder /1 en /2
+    #:     worden historisch. Norm en contract blijven gelijk.
+    #: /5: toelaatbaarheidstoets aan het begin van stap 3 (DEF-836 P3); /4 historisch.
+    #: /6: status als laatste veld per verwijzing in `ANTWOORDSCHEMA` (DEF-836
+    #:     P4); prompttekst gelijk aan /5, /5 historisch.
+    PROMPT_VERSION = "int03-assess/6"
     TASK_TYPE = "validation"
 
     def __init__(
@@ -327,9 +378,7 @@ class Int03AssessmentService:
         self._max_input_chars = max(1, int(max_input_chars))
         self._max_total_input_chars = max(1, int(max_total_input_chars))
         self._cache_size = max(0, int(cache_size))
-        self._cache: OrderedDict[tuple[str, str, str, str], dict[str, Any]] = (
-            OrderedDict()
-        )
+        self._cache: OrderedDict[_Cachesleutel, dict[str, Any]] = OrderedDict()
 
     @property
     def norm_sha256(self) -> str:
@@ -408,6 +457,7 @@ class Int03AssessmentService:
             self.PROMPT_VERSION,
             self._norm_sha256,
             f"{provider}/{model}",
+            ANTWOORDSCHEMA_SHA256,
         )
         gecachet = self._cache.get(sleutel)
         if gecachet is not None:
@@ -435,7 +485,7 @@ class Int03AssessmentService:
         *,
         toelichting: str | None,
         fingerprint: str,
-        sleutel: tuple[str, str, str, str],
+        sleutel: _Cachesleutel,
         attributie_basis: Mapping[str, Any],
         correlation_id: str | None,
     ) -> Int03Assessment:
@@ -455,6 +505,7 @@ class Int03AssessmentService:
             "max_input_chars": self._max_input_chars,
             "max_total_input_chars": self._max_total_input_chars,
             "input_chars": totaal,
+            "response_schema_sha256": ANTWOORDSCHEMA_SHA256,
         }
         if te_lang or totaal > self._max_total_input_chars:
             # Veldnamen en tellingen: technische metadata, geen inhoud.
@@ -487,6 +538,19 @@ class Int03AssessmentService:
         invoer["prompt_sha256"] = hashlib.sha256(
             (system_prompt + "\n␞\n" + prompt).encode("utf-8")
         ).hexdigest()
+        if response_schema_sha256(ANTWOORDSCHEMA) != ANTWOORDSCHEMA_SHA256:
+            # Het schema hoort niet (meer) bij deze promptversie: geen aanroep.
+            document = beoordeling_technische_fout(
+                fingerprint,
+                "unsupported_configuration",
+                "antwoordschema wijkt af van de vastgepinde schemarevisie van "
+                f"{self.PROMPT_VERSION}; er is niets verzonden en geen oordeel gegeven.",
+                prompt_version=self.PROMPT_VERSION,
+                norm_sha256=self._norm_sha256,
+                attribution=attributie_basis,
+            )
+            document["input"] = invoer
+            return Int03Assessment(document)
 
         teller = _Pogingenteller()
         start = time.perf_counter()
@@ -509,9 +573,12 @@ class Int03AssessmentService:
                         max_retries=0,
                         token_estimate="heuristic",
                         offload_postprocessing=True,
+                        # DEF-836 P1: native JSON-schema-uitvoer; een niet
+                        # gecontroleerde combinatie faalt vóór verzending.
+                        response_schema=ANTWOORDSCHEMA,
                     )
         except Exception as exc:
-            foutsoort = _foutsoort(exc)
+            foutsoort = _int03_foutsoort(exc)
             # Alleen foutsoort en uitzonderingstype: de uitzonderingstekst van
             # een SDK/transportlaag kan prompt- of credentialfragmenten dragen
             # en blijft buiten log én document.
@@ -540,10 +607,14 @@ class Int03AssessmentService:
         verstreken = time.perf_counter() - start
         ruwe_tekst = getattr(resultaat, "text", None)
         stop_reason = _stop_reason(resultaat)
+        transport = _transportmetadata(resultaat)
+        gemeld = transport.get("provider_model")
         attributie = {
             **attributie_basis,
+            # Gevraagd (router/AI-laag) en door de provider gemeld model apart.
             "model": (getattr(resultaat, "model", None) or attributie_basis["model"])
             or None,
+            "model_reported": gemeld if isinstance(gemeld, str) and gemeld else None,
             "cached": bool(getattr(resultaat, "cached", False)),
             "tokens_used": getattr(resultaat, "tokens_used", None),
             **teller.attributie(),
@@ -551,7 +622,7 @@ class Int03AssessmentService:
         }
         raw_hash = _sha256(ruwe_tekst if isinstance(ruwe_tekst, str) else None)
         oordeel, soort, melding, rejected = self._beoordeel_antwoord(
-            ruwe_tekst, tekst, verstreken, stop_reason=stop_reason
+            ruwe_tekst, tekst, verstreken, stop_reason=stop_reason, transport=transport
         )
         if oordeel is None:
             return self._technische_fout(
@@ -590,9 +661,11 @@ class Int03AssessmentService:
         verstreken: float,
         *,
         stop_reason: str | None = None,
+        transport: Mapping[str, Any] | None = None,
     ) -> tuple[GevalideerdOordeel | None, str | None, str | None, list[dict[str, Any]]]:
-        """Nabewerking: deadline → afkapping → kaal JSON → gesloten structuur →
-        citaten letterlijk in de definitie. (oordeel, foutsoort, melding, rejected)."""
+        """Nabewerking: deadline → verzonden schema → stopreden en responsvorm →
+        kaal JSON → gesloten structuur → citaten letterlijk in de definitie.
+        (oordeel, foutsoort, melding, rejected)."""
         if verstreken > self._timeout_seconds:
             return (
                 None,
@@ -603,19 +676,10 @@ class Int03AssessmentService:
                 ),
                 [],
             )
-        if stop_reason == "max_tokens":
-            return (
-                None,
-                "truncated_response",
-                (
-                    "modelantwoord is afgekapt op het tokenbudget "
-                    f"(stop_reason=max_tokens bij max_tokens={self._max_tokens}); "
-                    "het antwoord is onvolledig en er is geen inhoudelijk oordeel "
-                    "gegeven"
-                ),
-                [],
-            )
-        geparsed = parse_modeluitvoer(ruwe_tekst)
+        transportfout = self._transportfout(stop_reason, transport or {})
+        if transportfout is not None:
+            return None, transportfout[0], transportfout[1], []
+        geparsed = _kaal_json_object(ruwe_tekst)
         if geparsed is None:
             return (
                 None,
@@ -647,6 +711,55 @@ class Int03AssessmentService:
                 rejected,
             )
         return oordeel, None, None, []
+
+    def _transportfout(
+        self, stop_reason: str | None, transport: Mapping[str, Any]
+    ) -> tuple[str, str] | None:
+        """(foutsoort, melding) als het antwoord niet inhoudelijk verwerkt mag
+        worden (DEF-836 P1), anders None. Alleen een antwoord op het werkelijk
+        verzonden, vastgepinde schema, met `end_turn` en precies één
+        tekstblok telt; geen reparatie, normalisatie of extra aanroep."""
+        if transport.get("response_schema_sha256") != ANTWOORDSCHEMA_SHA256:
+            return (
+                "unsupported_configuration",
+                (
+                    "de AI-laag bevestigt niet dat het vastgepinde antwoordschema "
+                    f"van {self.PROMPT_VERSION} is verzonden; er is geen "
+                    "inhoudelijk oordeel gegeven"
+                ),
+            )
+        if stop_reason == "max_tokens":
+            return (
+                "truncated_response",
+                (
+                    "modelantwoord is afgekapt op het tokenbudget "
+                    f"(stop_reason=max_tokens bij max_tokens={self._max_tokens}); "
+                    "het antwoord is onvolledig en er is geen inhoudelijk oordeel "
+                    "gegeven"
+                ),
+            )
+        if stop_reason != "end_turn":
+            gemeld = (
+                stop_reason
+                if stop_reason in _BEKENDE_STOPREDENEN
+                else ("ontbrekend" if stop_reason is None else "onbekend")
+            )
+            return (
+                "malformed_response",
+                (
+                    f"modelantwoord eindigde met stop_reason={gemeld} (verwacht: "
+                    "end_turn); er is geen inhoudelijk oordeel gegeven"
+                ),
+            )
+        if transport.get("content_block_types") != ["text"]:
+            return (
+                "malformed_response",
+                (
+                    "modelantwoord heeft niet precies één tekstblok; er is geen "
+                    "inhoudelijk oordeel gegeven"
+                ),
+            )
+        return None
 
     def _technische_fout(
         self,
@@ -715,12 +828,53 @@ class Int03AssessmentService:
         ]
         return te_lang, sum(len(waarde) for _, waarde in velden)
 
-    def _onthoud(
-        self, sleutel: tuple[str, str, str, str], document: dict[str, Any]
-    ) -> None:
+    def _onthoud(self, sleutel: _Cachesleutel, document: dict[str, Any]) -> None:
         if self._cache_size == 0:
             return
         self._cache[sleutel] = deepcopy(document)
         self._cache.move_to_end(sleutel)
         while len(self._cache) > self._cache_size:
             self._cache.popitem(last=False)
+
+
+#: De stopredenen die de Anthropic-API documenteert; alleen deze worden in een
+#: foutmelding genoemd (geen willekeurige providertekst in melding of log).
+_BEKENDE_STOPREDENEN: frozenset[str] = frozenset(
+    {"end_turn", "max_tokens", "stop_sequence", "tool_use", "pause_turn", "refusal"}
+)
+
+
+def _kaal_json_object(tekst: Any) -> dict[str, Any] | None:
+    """Het JSON-object dat het héle antwoord vormt, of None (DEF-836 R1).
+
+    Anders dan de gedeelde ESS-03-parser wordt een Markdown-codeblok níet
+    uitgepakt: het schema vraagt het kale object, dus een omhulling is een
+    technische fout, geen te repareren vorm. Witruimte rond het object is
+    gewoon JSON.
+    """
+    if not isinstance(tekst, str):
+        return None
+    try:
+        data = json.loads(tekst)
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _transportmetadata(resultaat: Any) -> Mapping[str, Any]:
+    """De additieve transportmetadata van `AIGenerationResult`, of leeg."""
+    metadata = getattr(resultaat, "metadata", None)
+    return metadata if isinstance(metadata, Mapping) else {}
+
+
+def _int03_foutsoort(exc: BaseException) -> str:
+    """Foutsoort van een mislukte aanroep; een schema-weigering vóór verzending
+    (DEF-836 P1, ook verpakt door de AI-laag) is `unsupported_configuration`."""
+    huidig: BaseException | None = exc
+    for _ in range(5):
+        if huidig is None:
+            break
+        if isinstance(huidig, AIStructuredOutputUnsupportedError):
+            return "unsupported_configuration"
+        huidig = huidig.__cause__
+    return _foutsoort(exc)
