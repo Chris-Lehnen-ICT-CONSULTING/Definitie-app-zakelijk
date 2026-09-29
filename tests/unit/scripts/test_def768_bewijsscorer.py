@@ -853,6 +853,8 @@ class TestEindoordeel:
 
 
 PROEF_E = ("interpretatie|E|1", "interpretatie|E|2", "interpretatie|E|3")
+#: Codex-hercontrole v5, B7: de vier uitkomsten die een wachtende E-run niet heeft.
+B7_UITKOMSTEN = ["pass", "fail", "error/ongeldig_schema", None]
 
 
 def _leeg_oordeel() -> dict:
@@ -946,6 +948,33 @@ class TestRunverzameling:
     def test_ongeldige_runs_geweigerd(self, runs):
         with pytest.raises(bs.OordeelfoutError, match="runs"):
             bs.eindoordeel(runs, _leeg_oordeel())
+
+    @pytest.mark.parametrize("gekregen", B7_UITKOMSTEN)
+    def test_codex_b7_wachtende_e_met_andere_uitkomst_geweigerd(self, gekregen):
+        """B7: alleen `gekregen` van elke E-run gewijzigd, drie keer behouden gaf
+        geslaagd, M-d 12, E 3/3."""
+        runs = _proef()
+        for r in runs[9:]:
+            r["gekregen"] = gekregen
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, _oordelen(runs, ["behouden"] * 3))
+
+    def test_wachtende_e_met_kritiek_geweigerd(self):
+        runs = _proef()
+        runs[9] = {**runs[9], "kritiek": ["pass/fail bij M-b onwaar"]}
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, _oordelen(runs, ["behouden"] * 3))
+
+    @pytest.mark.parametrize("gekregen", B7_UITKOMSTEN)
+    def test_met_oordeel_promoveert_alleen_bij_error_buiten_bereik(self, gekregen):
+        (e,) = _e_runs([_v("bij storing")])
+        assert bs._met_oordeel(e, "behouden")["categorie"] == "geslaagd"
+        na = bs._met_oordeel({**e, "gekregen": gekregen}, "behouden")
+        assert (na["categorie"], na["m_d_telt"], na["voorwaarde_behouden"]) == (
+            "niet_geslaagd",
+            False,
+            False,
+        )
 
     def test_geslaagd_vereist_drie_verschillende_beoordeelde_e_runs(self):
         runs = _proef()

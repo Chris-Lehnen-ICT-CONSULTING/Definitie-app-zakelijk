@@ -170,6 +170,18 @@ class TestBestandsrouteWeigert:
             _herschrijf(pad, record)
         self._weigert(tmp_path, calls, "strijdig")
 
+    @pytest.mark.parametrize(
+        "gekregen", ["pass", "fail", "error/ongeldig_schema", None]
+    )
+    def test_codex_b7_andere_uitkomst_via_bestanden_geweigerd(self, tmp_path, gekregen):
+        """B7 via bestanden: `gekregen` van elke E-run gewijzigd, ruwe tekst gelijk."""
+        calls = _run18(tmp_path)
+        for h in (1, 2, 3):
+            pad, record = _record(calls, "E", h)
+            record["runoordeel"]["gekregen"] = gekregen
+            _herschrijf(pad, record)
+        self._weigert(tmp_path, calls, "strijdig")
+
     @pytest.mark.parametrize("veld", ["score", "runoordeel"])
     def test_gewijzigde_niet_e_metadata_geweigerd(self, tmp_path, veld):
         calls = _run18(tmp_path)

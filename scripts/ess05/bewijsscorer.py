@@ -350,6 +350,8 @@ PROEFSLEUTELS = tuple(
     f"interpretatie|{n}|{h}" for n in PROEFITEMS for h in range(1, HERHALINGEN + 1)
 )
 E_SLEUTELS = tuple(s for s in PROEFSLEUTELS if s.split("|")[1] == E_ITEM)
+#: De enige juiste uitkomst van E (orakel); alleen daarmee kan een E-run slagen.
+E_UITKOMST = "error/buiten_bereik"
 _GRENS = (
     "11/12 geeft een ondergrens van circa 66% (95%, eenzijdig); dit is geen "
     "productiebetrouwbaarheid"
@@ -554,9 +556,13 @@ def _met_oordeel(run: Mapping[str, Any], status: str | None) -> dict[str, Any]:
     kritiek = list(run["kritiek"])
     if status == "weggevallen":
         kritiek.append(KRITIEK_WEGGEVALLEN)
-    elif status == "ontkend" and run["gekregen"] != "error/buiten_bereik":
+    elif status == "ontkend" and run["gekregen"] != E_UITKOMST:
         kritiek.append(KRITIEK_ONTKEND)
-    behouden = status == "behouden" and run["categorie"] == "handmatig_beoordelen"
+    behouden = (
+        status == "behouden"
+        and run["categorie"] == "handmatig_beoordelen"
+        and run["gekregen"] == E_UITKOMST
+    )
     if kritiek:
         categorie = "kritiek"
     elif run["f7"]:
@@ -594,6 +600,12 @@ def _strijdig_e(run: Mapping[str, Any]) -> str | None:
         return f"voorwaarde_status {run.get('voorwaarde_status')!r}"
     if wacht != (run.get("handmatig") == [HANDMATIG_E]):
         return "handmatig past niet bij de categorie"
+    # B7 (Codex-hercontrole v5): wachten kan alleen met de juiste uitkomst en
+    # zonder kritiek, zoals `runoordeel` het zet.
+    if wacht and run.get("gekregen") != E_UITKOMST:
+        return f"wacht op het oordeel met uitkomst {run.get('gekregen')!r}"
+    if wacht and run.get("kritiek") != []:
+        return "wacht op het oordeel met kritiek"
     sha = run.get("e_uitvoer_sha256")
     if wacht and not (isinstance(sha, str) and _SHA256.fullmatch(sha)):
         return "wacht op het oordeel zonder e_uitvoer_sha256"
