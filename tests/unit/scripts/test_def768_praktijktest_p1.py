@@ -310,6 +310,26 @@ class TestDroogrun:
             p1.voer_uit(p1.Opdracht(uitmap=tmp_path / "uit", db=bron, records=ids))
         assert list((tmp_path / "uit").iterdir()) == []
 
+    def test_lege_wal_en_shm_toegestaan(self, tmp_path, bron_db, geen_client):
+        # Een read-only opening van een WAL-database laat een lege -wal en een
+        # -shm achter; zonder frames staat alles in het hoofdbestand.
+        bron, ids = bron_db
+        Path(f"{bron}-wal").write_bytes(b"")
+        Path(f"{bron}-shm").write_bytes(b"\0" * 32768)
+        voor = _sha(bron)
+        s = p1.voer_uit(p1.Opdracht(uitmap=tmp_path / "uit", db=bron, records=ids))
+        assert s["fout"] is None and s["aanroepen"]
+        assert _sha(bron) == voor == s["database_sha256_na"]
+
+    def test_wal_met_inhoud_geweigerd_zonder_uitmap(
+        self, tmp_path, bron_db, geen_client
+    ):
+        bron, ids = bron_db
+        Path(f"{bron}-wal").write_bytes(b"frame")
+        with pytest.raises(SystemExit, match="bytekopie niet consistent"):
+            p1.voer_uit(p1.Opdracht(uitmap=tmp_path / "uit", db=bron, records=ids))
+        assert not (tmp_path / "uit").exists()
+
     def test_main_zonder_echt_draait_droog(
         self, tmp_path, bron_db, geen_client, monkeypatch
     ):
@@ -332,6 +352,211 @@ class TestDroogrun:
         citaten = [ruw["kern"]["bovenbegrip"], ruw["kern"]["kenmerken"][0]["citaat"]]
         assert all(definitie.count(c) == 1 for c in citaten)
         assert [a["onderwerp"] for a in ruw["antwoorden"]] == ["doel", "repository:277"]
+
+
+def _v1(tmp_path, teller=None, aanroepen=None, **wijziging) -> tuple[Path, str]:
+    """Een samenvatting zoals de echte v1-run die schreef (3 aanroepen)."""
+    kosten = [52_505_000, 52_505_000, 52_505_000]
+    lijst = (
+        aanroepen
+        if aanroepen is not None
+        else [
+            {"volgnummer": i + 1, "sdk_aanroepen": 1, "kosten_nusd": k}
+            for i, k in enumerate(kosten)
+        ]
+    )
+    samenvatting = {
+        "modus": "echt",
+        "budgetbesluit_sha256": p1.BESLUIT_SHA256,
+        "database_ongewijzigd": True,
+        "fout": None,
+        "teller": teller
+        or {"maximum": 15, "aanroepen": 3, "gestopt": None, "kosten_nusd": sum(kosten)},
+        "records": [{"record_id": r} for r in (277, 365, 278)],
+        "aanroepen": lijst,
+        **wijziging,
+    }
+    pad = tmp_path / "v1" / "samenvatting.json"
+    pad.parent.mkdir(exist_ok=True)
+    pad.write_text(json.dumps(samenvatting), encoding="utf-8")
+    return pad, _sha(pad)
+
+
+class TestHerhaling:
+    """P1-herhaling (v2): alleen het restbudget van het besluit, afgeleid uit v1."""
+
+    def test_restbudget_uit_v1_is_12_aanroepen_en_de_kostenrest(self, tmp_path):
+        rest = p1.restbudget(*_v1(tmp_path))
+        assert rest.aanroepen == 12
+        assert rest.kosten_nusd == 1_000_000_000 - 3 * 52_505_000
+
+    def test_gepinde_v1_samenvatting_geeft_12_indien_aanwezig(self):
+        if not p1.V1_SAMENVATTING.is_file():
+            pytest.skip("logs/ is lokaal (git-ignored); v1-samenvatting niet aanwezig")
+        rest = p1.restbudget()
+        assert (rest.aanroepen, rest.kosten_nusd) == (12, 1_000_000_000 - 157_515_000)
+
+    def test_afwijkende_of_ontbrekende_v1_geweigerd(self, tmp_path):
+        pad, _ = _v1(tmp_path)
+        with pytest.raises(SystemExit, match="wijkt af"):
+            p1.restbudget(pad, "0" * 64)
+        with pytest.raises(SystemExit, match="ontbreekt"):
+            p1.restbudget(tmp_path / "geen.json", "0" * 64)
+
+    @pytest.mark.parametrize(
+        ("wijziging", "melding"),
+        [
+            ({"modus": "droog (stubmodel, netwerk geblokkeerd)"}, "modus"),
+            ({"budgetbesluit_sha256": "0" * 64}, "budgetbesluit"),
+            ({"database_ongewijzigd": False}, "database"),
+            ({"records": [{"record_id": 277}]}, "records"),
+            (
+                {"teller": {"maximum": 15, "aanroepen": 2, "kosten_nusd": 157_515_000}},
+                "aanroepen",
+            ),
+            (
+                {"teller": {"maximum": 15, "aanroepen": 3, "kosten_nusd": 1}},
+                "kosten",
+            ),
+            (
+                {"teller": {"maximum": 16, "aanroepen": 3, "kosten_nusd": 157_515_000}},
+                "maximum",
+            ),
+        ],
+    )
+    def test_inconsistente_v1_geweigerd(self, tmp_path, wijziging, melding):
+        with pytest.raises(SystemExit, match=melding):
+            p1.restbudget(*_v1(tmp_path, **wijziging))
+
+    def test_v1_met_sdk_retry_geweigerd(self, tmp_path):
+        lijst = [
+            {"volgnummer": 1, "sdk_aanroepen": 2, "kosten_nusd": 5},
+            {"volgnummer": 2, "sdk_aanroepen": 1, "kosten_nusd": 5},
+            {"volgnummer": 3, "sdk_aanroepen": 1, "kosten_nusd": 5},
+        ]
+        teller = {"maximum": 15, "aanroepen": 3, "kosten_nusd": 15}
+        with pytest.raises(SystemExit, match="sdk_aanroepen"):
+            p1.restbudget(*_v1(tmp_path, teller=teller, aanroepen=lijst))
+
+    def test_teller_op_restbudget_stopt_bij_12(self):
+        teller, provider = p1.Teller(maximum=12), _TelProvider()
+        client = p1.TellendeClient(provider, teller)
+        for _ in range(12):
+            asyncio.run(_een_aanroep(teller, client))
+        with pytest.raises(p1.PlafondstopError, match="plafond van 12"):
+            asyncio.run(_een_aanroep(teller, client))
+        assert provider.aanroepen == 12
+
+    def test_kostenplafond_volgt_de_rest(self):
+        teller = p1.Teller(eis_kosten=True, plafond_nusd=100_000_000)
+        with (
+            pytest.raises(p1.PlafondstopError, match="kostenplafond"),
+            teller.grens("validation", "a" * 64),
+        ):
+            pass
+        assert teller.aanroepen == []
+
+    def _echt(self, tmp_path, bron_db, uitmap, **extra) -> p1.Opdracht:
+        bron, ids = bron_db
+        besluit = TestBudgetbesluit()._besluit(tmp_path)
+        vorige, vorige_sha = _v1(tmp_path)
+        velden = {
+            "uitmap": uitmap,
+            "echt": True,
+            "db": bron,
+            "records": ids,
+            "besluit": besluit,
+            "besluit_sha256": _sha(besluit),
+            "vorige": vorige,
+            "vorige_sha256": vorige_sha,
+            "echte_uitmap": tmp_path / "echt-p1-v2",
+            **extra,
+        }
+        return p1.Opdracht(**velden)
+
+    def test_echt_naar_andere_uitmap_geweigerd(self, tmp_path, bron_db, geen_client):
+        opdracht = self._echt(tmp_path, bron_db, tmp_path / "echt-p1-v3")
+        with pytest.raises(SystemExit, match="echt-p1-v2"):
+            p1.voer_uit(opdracht)
+        assert not (tmp_path / "echt-p1-v3").exists()
+
+    def test_echt_zonder_v1_samenvatting_geweigerd(
+        self, tmp_path, bron_db, geen_client
+    ):
+        opdracht = self._echt(tmp_path, bron_db, tmp_path / "echt-p1-v2", vorige=None)
+        with pytest.raises(SystemExit, match="restbudget"):
+            p1.voer_uit(opdracht)
+        assert not (tmp_path / "echt-p1-v2").exists()
+
+    def test_echt_bestaande_v2_geweigerd(self, tmp_path, bron_db, geen_client):
+        (tmp_path / "echt-p1-v2").mkdir()
+        opdracht = self._echt(tmp_path, bron_db, tmp_path / "echt-p1-v2")
+        with pytest.raises(SystemExit, match="bestaat al"):
+            p1.voer_uit(opdracht)
+        assert list((tmp_path / "echt-p1-v2").iterdir()) == []
+
+    def test_echt_v2_krijgt_teller_12_en_kostenrest(
+        self, tmp_path, bron_db, monkeypatch
+    ):
+        gezien = {}
+
+        def _client(teller):
+            gezien.update(
+                maximum=teller.maximum,
+                plafond=teller.plafond_nusd,
+                eis_kosten=teller.eis_kosten,
+            )
+            raise RuntimeError("testeinde vóór elke aanroep")
+
+        monkeypatch.setattr(p1, "echte_client", _client)
+        s = p1.voer_uit(self._echt(tmp_path, bron_db, tmp_path / "echt-p1-v2"))
+        rest = 1_000_000_000 - 3 * 52_505_000
+        assert gezien == {"maximum": 12, "plafond": rest, "eis_kosten": True}
+        assert s["aanroepen"] == [] and "testeinde" in s["fout"]
+        assert s["teller"]["maximum"] == 12
+        assert s["teller"]["kostenplafond_nusd"] == rest
+        assert s["restbudget"]["aanroepen"] == 12
+        assert s["restbudget"]["bron_sha256"] == _sha(
+            tmp_path / "v1" / "samenvatting.json"
+        )
+
+    def test_droog_met_v1_draait_op_het_restbudget(
+        self, tmp_path, bron_db, geen_client
+    ):
+        bron, ids = bron_db
+        vorige, vorige_sha = _v1(tmp_path)
+        s = p1.voer_uit(
+            p1.Opdracht(
+                uitmap=tmp_path / "uit",
+                db=bron,
+                records=ids,
+                vorige=vorige,
+                vorige_sha256=vorige_sha,
+            )
+        )
+        assert s["fout"] is None
+        assert s["teller"]["maximum"] == 12
+        assert s["restbudget"]["aanroepen"] == 12
+
+    def test_main_geeft_de_v1_samenvatting_en_de_v2_map_mee(self, monkeypatch):
+        gezien = []
+
+        def _voer_uit(opdracht):
+            gezien.append(opdracht)
+            raise SystemExit(0)
+
+        monkeypatch.setattr(p1, "voer_uit", _voer_uit)
+        with pytest.raises(SystemExit):
+            p1.main(["--echt", "--uitmap", str(p1.HERHAAL_UITMAP)])
+        opdracht = gezien[0]
+        assert opdracht.echt is True
+        assert opdracht.vorige == p1.V1_SAMENVATTING
+        assert opdracht.vorige_sha256 == p1.V1_SAMENVATTING_SHA256
+        assert opdracht.echte_uitmap == p1.HERHAAL_UITMAP
+        assert p1.HERHAAL_UITMAP == ROOT / "logs/def768/echte-test-v1/echt-p1-v2"
+        assert p1.V1_SAMENVATTING_SHA256 == (
+            "203eafc69fdd54d4acf67972e589100d27d347c404839ee43835f11862d20b9a"
+        )
 
 
 def _verboden_ai_regel(naam: str):

@@ -22,6 +22,13 @@ Veiligheid:
   weigert het script vóór er een client bestaat. Zonder `--echt` (`--droog`)
   draait een stubmodel onder een netwerkblokkade.
 - Een bestaande uitvoermap wordt geweigerd: geen tweede poging over uitvoer.
+
+Herhaling (besluit Chris 29-09, na de robuustheidsronde): één echte run naar
+`echt-p1-v2` op het restbudget van hetzelfde besluit. Aanroepen en kosten van
+de echte v1-run komen uit diens gepinde samenvatting (sha256 en onderlinge
+consistentie gecontroleerd); de teller krijgt 15 min het v1-verbruik en het
+kostenplafond USD 1,00 min de v1-kosten. Een echte run naar een andere map,
+of zonder die samenvatting, wordt geweigerd.
 """
 
 from __future__ import annotations
@@ -55,6 +62,11 @@ RECORDS = (277, 365, 278)
 BESLUIT = PROJECT_ROOT / "logs/def768/echte-test-v1/budgetbesluit-p1-v1.json"
 BESLUIT_SHA256 = "5b2c128130b012fb1480b2a351cf3baefca5a977090f17d749894bf4239ab99d"
 UITVOERBASIS = PROJECT_ROOT / "logs/def768/echte-test-v1"
+V1_SAMENVATTING = UITVOERBASIS / "echt-p1-v1" / "samenvatting.json"
+V1_SAMENVATTING_SHA256 = (
+    "203eafc69fdd54d4acf67972e589100d27d347c404839ee43835f11862d20b9a"
+)
+HERHAAL_UITMAP = UITVOERBASIS / "echt-p1-v2"
 REGEL = PROJECT_ROOT / "src/toetsregels/regels/ESS-05.json"
 
 MAX_AANROEPEN = 15
@@ -101,6 +113,7 @@ class Teller:
 
     maximum: int = MAX_AANROEPEN
     eis_kosten: bool = False
+    plafond_nusd: int = PLAFOND_NUSD
     geheimen: tuple[str, ...] = ()
     aanroepen: list[dict[str, Any]] = field(default_factory=list)
     record: int | None = None
@@ -127,8 +140,11 @@ class Teller:
             raise PlafondstopError(f"teller gestopt: {self.gestopt}")
         if len(self.aanroepen) >= self.maximum:
             raise self.stop(f"plafond van {self.maximum} modelaanroepen bereikt")
-        if self.eis_kosten and self.kosten_nusd + STAPMARGE_NUSD > PLAFOND_NUSD:
-            raise self.stop("lokaal kostenplafond USD 1,00 (met stapmarge 0,15)")
+        if self.eis_kosten and self.kosten_nusd + STAPMARGE_NUSD > self.plafond_nusd:
+            raise self.stop(
+                f"lokaal kostenplafond USD {self.plafond_nusd / 1e9:.6f}"
+                " (met stapmarge 0,15)"
+            )
         soort = _soorten().get(task_type)
         if soort is None:
             raise self.stop(f"onverwachte taak {task_type!r}: alleen ESS-05 toegestaan")
@@ -346,16 +362,95 @@ def controleer_besluit(
     return besluit
 
 
+@dataclass(frozen=True)
+class Restbudget:
+    """Wat na de echte v1-run van het besluit over is."""
+
+    aanroepen: int
+    kosten_nusd: int
+    bron: str
+    bron_sha256: str
+
+    def als_dict(self) -> dict[str, Any]:
+        return {
+            "aanroepen": self.aanroepen,
+            "kosten_nusd": self.kosten_nusd,
+            "bron": self.bron,
+            "bron_sha256": self.bron_sha256,
+        }
+
+
+def restbudget(
+    pad: Path = V1_SAMENVATTING, verwacht: str = V1_SAMENVATTING_SHA256
+) -> Restbudget:
+    """Restbudget uit de gepinde v1-samenvatting, of SystemExit bij elke twijfel."""
+    if not Path(pad).is_file():
+        msg = f"v1-samenvatting ontbreekt: {pad}; restbudget onbekend"
+        raise SystemExit(msg)
+    werkelijk = sha256_bestand(Path(pad))
+    if werkelijk != verwacht:
+        msg = f"v1-samenvatting wijkt af (sha256 {werkelijk} ≠ gepind {verwacht})"
+        raise SystemExit(msg)
+    s = json.loads(Path(pad).read_text(encoding="utf-8"))
+    teller = s.get("teller") or {}
+    lijst = s.get("aanroepen") or []
+    kosten = teller.get("kosten_nusd")
+    eisen = [
+        (s.get("modus") == "echt", "modus is niet echt"),
+        (s.get("budgetbesluit_sha256") == BESLUIT_SHA256, "ander budgetbesluit"),
+        (s.get("database_ongewijzigd") is True, "database niet ongewijzigd"),
+        (
+            [r.get("record_id") for r in s.get("records") or []] == list(RECORDS),
+            "andere records",
+        ),
+        (teller.get("maximum") == MAX_AANROEPEN, "ander teller-maximum"),
+        (teller.get("aanroepen") == len(lijst), "teller-aanroepen ≠ aanroepenlijst"),
+        (
+            all(a.get("sdk_aanroepen") == 1 for a in lijst),
+            "sdk_aanroepen ≠ 1 (retry of ontbrekend)",
+        ),
+        (
+            isinstance(kosten, int)
+            and kosten == sum(int(a.get("kosten_nusd") or 0) for a in lijst),
+            "teller-kosten ≠ som van de aanroepkosten",
+        ),
+    ]
+    for ok, reden in eisen:
+        if not ok:
+            msg = f"v1-samenvatting onbruikbaar voor het restbudget: {reden}"
+            raise SystemExit(msg)
+    rest = Restbudget(
+        aanroepen=MAX_AANROEPEN - len(lijst),
+        kosten_nusd=PLAFOND_NUSD - kosten,
+        bron=str(pad),
+        bron_sha256=werkelijk,
+    )
+    if rest.aanroepen <= 0 or rest.kosten_nusd <= STAPMARGE_NUSD:
+        msg = f"geen restbudget over: {rest.aanroepen} aanroepen, {rest.kosten_nusd} n$"
+        raise SystemExit(msg)
+    return rest
+
+
+def controleer_bijbestanden(bron: Path) -> None:
+    """Weiger een WAL met frames: dan staat niet alles in het hoofdbestand.
+
+    Een lege -wal (en de bijbehorende -shm) blijft achter na een read-only
+    opening van een WAL-database; zonder frames is het hoofdbestand volledig.
+    """
+    wal = Path(f"{bron}-wal")
+    if wal.exists() and wal.stat().st_size > 0:
+        msg = f"{wal} bevat frames: bytekopie niet consistent, geweigerd"
+        raise SystemExit(msg)
+
+
 def kopieer_database(bron: Path, doel: Path) -> str:
     """Bytekopie van de database (origineel alleen gelezen); geeft de sha256."""
-    for bijbestand in (Path(f"{bron}-wal"), Path(f"{bron}-shm")):
-        if bijbestand.exists():
-            msg = f"{bijbestand} bestaat: bytekopie niet consistent, geweigerd"
-            raise SystemExit(msg)
+    controleer_bijbestanden(bron)
     voor = sha256_bestand(bron)
     doel.parent.mkdir(parents=True, exist_ok=False)
     shutil.copyfile(bron, doel)
-    if sha256_bestand(doel) != voor:
+    controleer_bijbestanden(bron)
+    if sha256_bestand(doel) != voor or sha256_bestand(bron) != voor:
         msg = "kopie wijkt af van het origineel"
         raise SystemExit(msg)
     return voor
@@ -532,6 +627,11 @@ class Opdracht:
     records: Sequence[int] = RECORDS
     besluit: Path = BESLUIT
     besluit_sha256: str = BESLUIT_SHA256
+    #: v1-samenvatting voor het restbudget; verplicht bij --echt.
+    vorige: Path | None = None
+    vorige_sha256: str = V1_SAMENVATTING_SHA256
+    #: De enige map waarnaar een echte run mag schrijven.
+    echte_uitmap: Path = HERHAAL_UITMAP
 
 
 async def _draai(opdracht: Opdracht, teller: Teller, client: Any) -> list[dict]:
@@ -561,11 +661,31 @@ def voer_uit(opdracht: Opdracht) -> dict[str, Any]:
     besluit = None
     if opdracht.echt:
         besluit = controleer_besluit(opdracht.besluit, opdracht.besluit_sha256)
+        if opdracht.uitmap.resolve() != opdracht.echte_uitmap.resolve():
+            msg = (
+                f"echte run alleen naar {opdracht.echte_uitmap}, niet {opdracht.uitmap}"
+            )
+            raise SystemExit(msg)
+        if opdracht.vorige is None:
+            msg = "echte run zonder v1-samenvatting: restbudget onbekend"
+            raise SystemExit(msg)
+    rest = (
+        restbudget(opdracht.vorige, opdracht.vorige_sha256)
+        if opdracht.vorige is not None
+        else None
+    )
+    controleer_bijbestanden(opdracht.db)
     opdracht.uitmap.mkdir(parents=True, exist_ok=False)
     db_voor = kopieer_database(
         opdracht.db, opdracht.uitmap / "db-kopie" / "definities.db"
     )
     teller = Teller(eis_kosten=opdracht.echt)
+    if rest is not None:
+        teller = Teller(
+            maximum=rest.aanroepen,
+            eis_kosten=opdracht.echt,
+            plafond_nusd=rest.kosten_nusd,
+        )
     start = datetime.now(UTC).isoformat()
     herstel: Callable[[], None] = lambda: None  # noqa: E731
     resultaten: list[dict[str, Any]] = []
@@ -599,11 +719,13 @@ def voer_uit(opdracht: Opdracht) -> dict[str, Any]:
         "database_sha256_voor": db_voor,
         "database_sha256_na": db_na,
         "database_ongewijzigd": db_voor == db_na,
+        "restbudget": rest.als_dict() if rest is not None else None,
         "teller": {
             "maximum": teller.maximum,
             "aanroepen": len(teller.aanroepen),
             "gestopt": teller.gestopt,
             "kosten_nusd": teller.kosten_nusd if opdracht.echt else None,
+            "kostenplafond_nusd": teller.plafond_nusd,
         },
         "fout": fout,
         "records": [_kort(r) for r in resultaten],
@@ -654,6 +776,12 @@ def samenvatting_md(s: dict[str, Any]) -> str:
         ),
         f"- Modelaanroepen: {s['teller']['aanroepen']} van max {s['teller']['maximum']}"
         + (f"; kosten USD {kosten / 1e9:.6f}" if kosten is not None else ""),
+        (
+            f"- Restbudget uit v1: {rest['aanroepen']} aanroepen, USD "
+            f"{rest['kosten_nusd'] / 1e9:.6f} (`{rest['bron_sha256']}`)"
+            if (rest := s.get("restbudget"))
+            else "- Restbudget uit v1: — (volledig besluitbudget)"
+        ),
         f"- Teller gestopt: {s['teller']['gestopt'] or 'nee'}",
         f"- Fout: {s['fout'] or 'geen'}",
         "",
@@ -688,7 +816,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     modus.add_argument("--droog", action="store_true", help="stubmodel (standaard)")
     parser.add_argument("--uitmap", type=Path, required=True)
     args = parser.parse_args(argv)
-    s = voer_uit(Opdracht(uitmap=args.uitmap, echt=args.echt))
+    s = voer_uit(
+        Opdracht(
+            uitmap=args.uitmap,
+            echt=args.echt,
+            vorige=V1_SAMENVATTING,
+            vorige_sha256=V1_SAMENVATTING_SHA256,
+            echte_uitmap=HERHAAL_UITMAP,
+        )
+    )
     print(samenvatting_md(s))
     if not opdracht_ok(s):
         return 1
