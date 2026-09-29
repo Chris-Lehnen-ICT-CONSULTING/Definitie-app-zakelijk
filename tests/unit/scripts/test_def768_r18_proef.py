@@ -21,6 +21,7 @@ import asyncio
 import collections
 import copy
 import dataclasses
+import hashlib
 import json
 import socket
 import sys
@@ -627,10 +628,24 @@ def _geen_live(*_a, **_k):
     )
 
 
+def _grootboekstaat(pad):
+    """(sha256, regels, mtime_ns) van het grootboek, of None als het niet bestaat.
+
+    Sinds de echte R18-run (29-09) bestaat het R18-grootboek; een weigering moet
+    het dan ongewijzigd laten, en mag het niet aanmaken als het nog ontbreekt.
+    """
+    if not pad.exists():
+        return None
+    inhoud = pad.read_bytes()
+    return (hashlib.sha256(inhoud).hexdigest(), inhoud.count(b"\n"),
+            pad.stat().st_mtime_ns)  # fmt: skip
+
+
 class TestGeenNetwerkZonderPassendBesluit:
     """Afwijkende besluithash: weigeren vóór client en grootboek. Niet-echt: nooit
     netwerk, ook met het gepinde besluit. Een echte run met het gepinde besluit
-    wordt hier bewust NIET gestart (die zou het echte R18-grootboek raken)."""
+    wordt hier bewust NIET gestart (die zou het echte R18-grootboek raken).
+    Het grootboek blijft bij elke weigering exact zoals het was."""
 
     @pytest.mark.parametrize("fase", ["interpretatie", "lokale_verificatie"])
     def test_cli_echt_met_afwijkende_hash_weigert_voor_client_en_grootboek(
@@ -639,13 +654,13 @@ class TestGeenNetwerkZonderPassendBesluit:
         monkeypatch.setattr(runner, "live_omgeving", _geen_live)
         monkeypatch.setitem(runner.PROEVEN, "R18", _r18_met_hash(ANDERE_HASH))
         grootboek = runner.PROEVEN["R18"].opslag.grootboek
-        bestond = grootboek.exists()
+        voor = _grootboekstaat(grootboek)
         pad = tmp_path / "invoer.json"
         pad.write_text("{}", encoding="utf-8")
         with pytest.raises(SystemExit):
             runner.main(["--proef", "R18", "--fase", fase, "--gevallen", str(pad),
                          "--echt", "--freeze", str(tmp_path / "f.json")])  # fmt: skip
-        assert grootboek.exists() is bestond is False
+        assert _grootboekstaat(grootboek) == voor
 
     def test_echte_omgeving_i_fase_met_afwijkende_hash_weigert_voor_elke_call(
         self, tmp_path, monkeypatch
@@ -655,6 +670,7 @@ class TestGeenNetwerkZonderPassendBesluit:
         proef = _r18_met_hash(ANDERE_HASH)
         monkeypatch.setitem(runner.PROEVEN, "R18", proef)
         pad = _i_invoer(tmp_path)
+        voor = _grootboekstaat(proef.opslag.grootboek)
         # Zonder de git-ignored logs: "ontbreekt"; met: "wijkt af".
         with pytest.raises(gb.BudgetSchendingError, match=r"wijkt af|ontbreekt"):
             asyncio.run(
@@ -663,7 +679,7 @@ class TestGeenNetwerkZonderPassendBesluit:
                                    freeze=_freeze(omg, tmp_path, proef, "i"))
             )  # fmt: skip
         assert provider.berichten == [] and provider.aanroepen == []
-        assert not proef.opslag.grootboek.exists()
+        assert _grootboekstaat(proef.opslag.grootboek) == voor
         assert not (tmp_path / "uit").exists()
 
     def test_echte_omgeving_l_fase_met_afwijkende_hash_weigert_voor_elke_call(
@@ -674,6 +690,7 @@ class TestGeenNetwerkZonderPassendBesluit:
         proef = _r18_met_hash(ANDERE_HASH)
         monkeypatch.setitem(runner.PROEVEN, "R18", proef)
         pad, _ = _l_invoer(tmp_path)
+        voor = _grootboekstaat(proef.opslag.grootboek)
         with pytest.raises(gb.BudgetSchendingError, match=r"wijkt af|ontbreekt"):
             asyncio.run(
                 runner.voer_l_fase(omg, gevallenpad=pad, uitmap=tmp_path / "uit",
@@ -681,7 +698,7 @@ class TestGeenNetwerkZonderPassendBesluit:
                                    freeze=_freeze(omg, tmp_path, proef, "l"))
             )  # fmt: skip
         assert provider.berichten == [] and provider.aanroepen == []
-        assert not proef.opslag.grootboek.exists()
+        assert _grootboekstaat(proef.opslag.grootboek) == voor
 
     def test_niet_echte_i_run_met_gepind_besluit_draait_onder_geen_netwerk(
         self, tmp_path
@@ -1465,13 +1482,14 @@ class TestEchteInvoer:
                                         proef=runner.PROEVEN["R18"]))  # fmt: skip
 
     def test_droog_i_fase_zonder_netwerk_en_zonder_grootboek(self, tmp_path):
+        voor = _grootboekstaat(runner.PROEVEN["R18"].opslag.grootboek)
         uit = asyncio.run(
             runner.droogrun("interpretatie", I18, tmp_path, proef=runner.PROEVEN["R18"])
         )
         assert uit["echte_calls"] == 0 and uit["geplande_calls"] == 12
         assert uit["freezevelden"]["groep"] == "i"
         assert uit["freezevelden"]["dataset_sha256"] == I18_SHA256
-        assert not runner.PROEVEN["R18"].opslag.grootboek.exists()
+        assert _grootboekstaat(runner.PROEVEN["R18"].opslag.grootboek) == voor
 
 
 # --- runoordeel en proefoordeel (deel C) ------------------------------------------------------
