@@ -14,21 +14,19 @@ gescoord met `bewijsscorer` tegen een vooraf vastgelegd orakel.
   blind hergebruik van de Uitleen-eenheid, ontkenning en de herhaalde zin.
 - **E** — SYNTHETISCH, GEEN MODELUITVOER: A met de bron uit het plan, waarin
   uitleen alleen "bij storing" kosteloos is. Toetst of de voorwaarde behouden
-  blijft. Orakel (aanvulling v2/v3, Codex-hercontrole B2-rest en B2-rest-2):
-  alleen `error/buiten_bereik` met de voorwaardestatus `behouden` is juist;
-  behouden alleen bij een doelvoorwaarde die na normalisatie exact een
-  geregistreerde formulering is (`voorwaarde_formuleringen`); een M-kenmerk
-  met de frase is nooit automatisch behouden.
+  blijft. Orakel (aanvulling v4, Codex-hercontrole B2-rest-3, besluit optie 2):
+  alleen `error/buiten_bereik` is juist; of de voorwaarde behouden is,
+  beoordeelt Chris per run (`r18_e_oordeel.py`), nooit de scorer.
 
 Orakelstructuur (aanvulling C3,
 `docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v1.md`,
 Codex-review B3/B4): per feit `vereist` (minstens één genoemde eenheid) en
 `toegestaan` (context die erbij mag staan). Bij D is de betaalzin vereist en
 zijn de Uitleen-/Verhuur-zin en de buurbeschrijving alleen context; de
-buurbeschrijving noemt geen vergoeding (F7 blijft open). Schema `/5`
-(aanvulling v3,
-`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v3.md`);
-de invoer is het nieuwe bestand `bewijsregel-invoer-v4.json` (`-v1` t/m `-v3`
+buurbeschrijving noemt geen vergoeding (F7 blijft open). Schema `/6`
+(aanvulling v4,
+`docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v4.md`);
+de invoer is het nieuwe bestand `bewijsregel-invoer-v5.json` (`-v1` t/m `-v4`
 blijven ongewijzigd staan; de runner weigert ze).
 
 Het orakel gaat nooit naar het model. Binding: de berekende
@@ -72,8 +70,9 @@ __all__ = [
 
 #: /3 (aanvulling C3): orakelfeiten met `vereist`/`toegestaan` in plaats van `eenheden`;
 #: /4 (aanvulling v2): E-orakel alleen `error/buiten_bereik`;
-#: /5 (aanvulling v3): E-orakel met `voorwaarde_formuleringen`.
-INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/5"
+#: /5 (aanvulling v3): E-orakel met `voorwaarde_formuleringen`;
+#: /6 (aanvulling v4): E-orakel zonder formuleringen, oordeel van Chris.
+INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/6"
 LABEL = mk16.LABEL
 HERHALINGEN = 3
 AUTEUR = "Claude Code CLI-uitvoerder, sessie 1f2d8472-4293-490d-b22f-60e829ec17d8"
@@ -84,23 +83,24 @@ PLAN = (
     / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1.md"
 )
 PLAN_SHA256 = "4b7dec58bed0479163c72ccf75d4d3af1df9213deca7ce4a37c1ecb4fb06c0e3"
-#: De aanvulling na de Codex-hercontrole v2 (B2-rest-2; C2 v3, E-orakel met
-#: formuleringen, invoer -v4); gaat vóór het plan en de aanvullingen v1 (C1–C3,
-#: a81e6af1…4f3b) en v2 (3c409857…58e2), die blijven staan.
+#: De aanvulling na de Codex-hercontrole v3 (B2-rest-3; besluit optie 2:
+#: voorwaardeoordeel bij E van Chris, invoer -v5); gaat vóór het plan en de
+#: aanvullingen v1 (a81e6af1…4f3b), v2 (3c409857…58e2) en v3 (3e338a78…079d),
+#: die blijven staan.
 AANVULLING = (
     PROJECT_ROOT
     / "docs"
     / "plans"
-    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v3.md"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v4.md"
 )
-AANVULLING_SHA256 = "3e338a78daa7334ab2441ee8847cd2e9514fd4ed2fed9fb124ce5d6f9803079d"
+AANVULLING_SHA256 = "922a63a6b9bcec13bd49bace58554801eb3cd73da15d6bcb0f5cfc184b3ab120"
 R17_INVOER = (
     PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R17" / "bewijsregel-invoer-v1.json"
 )
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
-#: Aanvulling v3: een nieuw bestand; `-v1` t/m `-v3` blijven staan.
+#: Aanvulling v4: een nieuw bestand; `-v1` t/m `-v4` blijven staan.
 DOEL = (
-    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v4.json"
+    PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18" / "bewijsregel-invoer-v5.json"
 )
 #: Velden die voor A en C exact uit de R17-invoer komen.
 R17_VELDEN = (
@@ -190,25 +190,17 @@ ORAKELS: dict[str, dict[str, Any]] = {
     "E": {
         "kenmerken": {},
         "dragend": [],
+        # Aanvulling v4 (besluit Chris, optie 2): de bron zegt "bij storing"; de
+        # scorer beoordeelt de voorwaarde niet, Chris wel.
         "voorwaarde": "storing",
         "uitkomst": ["error/buiten_bereik"],
-        "voorwaarde_vereist_voor": ["error/buiten_bereik"],
-        # Aanvulling v3 (besluit Chris, optie 1); de bron zegt "bij storing".
-        "voorwaarde_formuleringen": [
-            "bij storing",
-            "bij een storing",
-            "alleen bij storing",
-            "uitsluitend bij storing",
-            "in geval van storing",
-            "in geval van een storing",
-        ],
         "toelichting": (
-            "alleen error/buiten_bereik met een automatisch behouden voorwaarde is "
-            "juist (aanvulling v3: een doelvoorwaarde die na normalisatie exact een "
-            "van de voorwaarde_formuleringen is, niet opgeheven); elke andere "
-            "vermelding, ook een M-kenmerk met de frase, is handmatig_beoordelen "
-            "(niet geslaagd, niet kritiek, telt niet); weggevallen is kritiek, "
-            "ontkend is kritiek tenzij error/buiten_bereik"
+            "aanvulling v4: het voorwaardeoordeel is altijd van Chris; de scorer "
+            "zet elke E-run met juiste uitkomst (error/buiten_bereik) op "
+            "handmatig_beoordelen en de proef wacht op het oordeel per run "
+            "(behouden, ontkend of weggevallen); een andere uitkomst is automatisch "
+            "niet geslaagd; weggevallen is kritiek, ontkend is kritiek tenzij "
+            "error/buiten_bereik"
         ),
     },
 }
@@ -219,8 +211,7 @@ _VARIANTEN = {
     ),
     "E": (
         "uitleen alleen bij storing kosteloos: de voorwaarde moet behouden blijven "
-        "(als doelvoorwaarde, exact een geregistreerde formulering, uitkomst "
-        "error/buiten_bereik)"
+        "(uitkomst error/buiten_bereik; het voorwaardeoordeel is van Chris)"
     ),
 }
 

@@ -92,11 +92,14 @@ from services.validation.ess05_bewijsregel_service import (
 
 R18_ID = "DEF-768-AI-20260928-R18"
 R18_MAP = ROOT / "reports" / R18_ID
-#: Aanvulling v3 (Codex-hercontrole v2, B2-rest-2): de invoer -v4 (schema /5,
-#: E-orakel met geregistreerde voorwaardeformuleringen).
-I18 = R18_MAP / "bewijsregel-invoer-v4.json"
+#: Aanvulling v4 (Codex-hercontrole v3, besluit optie 2): de invoer -v5 (schema
+#: /6, E-orakel zonder lexicale voorwaardevelden; oordeel van Chris).
+I18 = R18_MAP / "bewijsregel-invoer-v5.json"
 L18 = R18_MAP / "lokale-invoer-v1.json"
-I18_SHA256 = "75c975806704520bd3abee39f7a7525dab2722fad14fde24ad48f676ce92f135"
+I18_SHA256 = "b2c3c34dbe91d0c8b49746d8438793f3994b098620700ea4cbfe9f4a7619d8c4"
+#: De vierde invoer (schema /5, geregistreerde formuleringen): blijft staan, geweigerd.
+I18_V4 = R18_MAP / "bewijsregel-invoer-v4.json"
+I18_V4_SHA256 = "75c975806704520bd3abee39f7a7525dab2722fad14fde24ad48f676ce92f135"
 #: De derde invoer (schema /4, behoud via aanhef): blijft staan, wordt geweigerd.
 I18_V3 = R18_MAP / "bewijsregel-invoer-v3.json"
 I18_V3_SHA256 = "21c1ad911cbe13b02c377c2799f17b4e0475f9e9a006d39f87ec96f2bc5a09ac"
@@ -682,7 +685,9 @@ class TestIInvoer:
 
 
 class TestInterpretatieFase:
-    def test_juiste_interpretaties_twaalf_runs_geslaagd(self, tmp_path):
+    def test_juiste_interpretaties_twaalf_runs_wachten_op_chris(self, tmp_path):
+        """Aanvulling v4: ook met alle juiste interpretaties is de proef nooit
+        automatisch geslaagd; de drie E-runs wachten op het oordeel van Chris."""
         provider = _R18Provider(_items())
         uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
         assert uit["aanroepen_gestart"] == 12
@@ -696,10 +701,10 @@ class TestInterpretatieFase:
         assert {s for s, _ in provider.berichten} == {interpretatiesysteemprompt()}
         assert dict(provider.per_item) == {"A": 3, "C": 3, "D": 3, "E": 3}
         oordeel = uit["proefoordeel"]
-        assert oordeel["oordeel"] == "geslaagd"
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
         assert (oordeel["runs"], oordeel["m_d_juist"], oordeel["m_c_dragend"],
-                oordeel["m_b_dragend"]) == (12, 12, 12, 12)  # fmt: skip
-        assert oordeel["e_voorwaarde_behouden"] == [3, 3]
+                oordeel["m_b_dragend"]) == (12, 9, 12, 12)  # fmt: skip
+        assert oordeel["e_voorwaarde_behouden"] == [0, 3]
         assert oordeel["kritiek"] == [] and oordeel["f7"] == []
 
     def test_record_met_ruwe_interpretatie_en_scorer(self, tmp_path):
@@ -721,14 +726,17 @@ class TestInterpretatieFase:
                 "fout": r["score"]["m_d"]["fout"],
             }
             assert r["m_d_gelijk_aan_dienst"] is True
-            assert r["runoordeel"]["categorie"] == "geslaagd"
+            e = r["item_id"] == "E"
+            assert r["runoordeel"]["categorie"] == (
+                "handmatig_beoordelen" if e else "geslaagd"
+            )
             assert r["orakel"] == mk18.ORAKELS[r["item_id"]]
             assert r["contract"] == runner.bewijsregel_contractidentiteit()
             assert r["prompt"]["komt_overeen_met_dienst"] is True
             assert len(r["reserveringen"]) == 1
             assert r["reserveringen"][0]["task_type"] == V
             assert r["acceptatie"] == {
-                "geaccepteerd": True,
+                "geaccepteerd": not e,
                 "reden": r["acceptatie"]["reden"],
                 "technisch_afgerond": True,
             }
@@ -794,16 +802,19 @@ class TestInterpretatieFase:
         with pytest.raises(gb.BudgetSchendingError, match="gestopt"):
             boek.controleer_fasestart("interpretatie")
 
-    def test_kritieke_laatste_run_stopt_zonder_resterende_aanroepen(self, tmp_path):
+    def test_afkeur_bij_de_laatste_run_stopt_zonder_resterende_aanroepen(
+        self, tmp_path
+    ):
+        """Aanvulling v4: E is niet meer lexicaal kritiek; de laatste run (E3) stopt
+        de proef nog wel deterministisch, hier via de M-d-afkeur (vierde misser)."""
+
         def antwoord(naam, n, verg):
-            if naam == "E" and n == 3:
-                ruw = _e(verg, ("bevestigd", ["Uitleen:"]))
-            else:
-                ruw = _juist(naam, verg)
-            return json.dumps(ruw, ensure_ascii=False)
+            if naam == "C" or (naam == "E" and n == 3):
+                return "geen json"
+            return json.dumps(_juist(naam, verg), ensure_ascii=False)
 
         provider = _R18Provider(_items(), antwoord=antwoord)
-        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
+        with pytest.raises(gb.BudgetSchendingError, match="M-d"):
             _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
         assert len(provider.berichten) == 12
         stop = _samenvatting_i(tmp_path)["stop"]
@@ -886,112 +897,72 @@ class TestInterpretatieFase:
                                   geaccepteerd=False, reden="x",
                                   technisch_afgerond=True, stop="kritiek")  # fmt: skip
 
-    def test_e_ook_zonder_storing_stopt_als_kritiek(self, tmp_path):
-        """Codex-reproductie B2 op de fase: geen succes, maar een kritieke stop."""
+    def _alle_e(self, tmp_path, maak):
+        """Alle drie E-runs met `maak(vergelijking)`; A, C en D juist."""
 
         def antwoord(naam, n, verg):
-            if naam == "E" and n == 1:
-                ruw = _e_met_m(verg, "ook zonder storing")
-            else:
-                ruw = _juist(naam, verg)
-            return json.dumps(ruw, ensure_ascii=False)
-
-        provider = _R18Provider(_items(), antwoord=antwoord)
-        with pytest.raises(gb.BudgetSchendingError, match="ontkend of opgeheven"):
-            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        assert len(provider.berichten) == 10
-        (e1,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|1"]
-        assert e1["score"]["voorwaarde_status"] == "ontkend"
-        assert e1["runoordeel"]["categorie"] == "kritiek"
-        assert e1["acceptatie"]["geaccepteerd"] is False
-
-    def test_codex_hercontrole_drie_e_runs_stoppen_als_kritiek(self, tmp_path):
-        """B2-rest: 'storing is optioneel' als bevestigd M-kenmerk in alle E-runs gaf
-        12/12 geslaagd; nu ontkend en kritiek bij E1, de proef afgekeurd."""
-
-        def antwoord(naam, n, verg):
-            if naam == "E":
-                ruw = _e_met_m(verg, "storing is optioneel")
-            else:
-                ruw = _juist(naam, verg)
-            return json.dumps(ruw, ensure_ascii=False)
-
-        provider = _R18Provider(_items(), antwoord=antwoord)
-        with pytest.raises(gb.BudgetSchendingError, match="ontkend of opgeheven"):
-            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        assert len(provider.berichten) == 10
-        uit = _samenvatting_i(tmp_path)
-        assert uit["proefoordeel"]["oordeel"] == "afgekeurd"
-        assert uit["proefoordeel"]["e_voorwaarde_behouden"] == [0, 1]
-
-    def test_m_kenmerk_zonder_markering_in_alle_e_runs_wacht_niet_geslaagd(
-        self, tmp_path
-    ):
-        """Regel 2: het M-kenmerkpad geeft nooit automatisch behouden; handmatig
-        stopt niet, telt niet voor 11/12 en niet voor 3/3 behouden."""
-
-        def antwoord(naam, n, verg):
-            if naam == "E":
-                ruw = _e_met_m(verg, "alleen bij storing")
-            else:
-                ruw = _juist(naam, verg)
+            ruw = maak(verg) if naam == "E" else _juist(naam, verg)
             return json.dumps(ruw, ensure_ascii=False)
 
         provider = _R18Provider(_items(), antwoord=antwoord)
         uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
         assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
+        return uit
+
+    @pytest.mark.parametrize(
+        "voorwaarden",
+        [["bij afwezigheid van storing"], ["bij storing", "deze voorwaarde is optioneel"],
+         ["bij storing", "als storing ontbreekt"], ["bij storing", "of op verzoek"],
+         ["bij storing"]],
+    )  # fmt: skip
+    def test_e_met_voorwaarde_wacht_op_chris_geen_12_van_12(
+        self, tmp_path, voorwaarden
+    ):
+        """Hercontroles v2/v3 (aanhef en combinaties) en de juiste formulering:
+        de fase wacht op het oordeel van Chris, nooit automatisch 12/12."""
+        uit = self._alle_e(
+            tmp_path, lambda v: _e(v, ("bevestigd", ["Uitleen:"], voorwaarden))
+        )
         oordeel = uit["proefoordeel"]
         assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
-        assert oordeel["m_d_juist"] == 9
-        assert oordeel["e_voorwaarde_behouden"] == [0, 3]
+        assert (oordeel["m_d_juist"], oordeel["e_voorwaarde_behouden"]) == (9, [0, 3])
         assert [h["sleutel"] for h in oordeel["handmatig_beoordelen"]] == [
             f"interpretatie|E|{n}" for n in (1, 2, 3)
         ]
-
-    def test_codex_hercontrole_v2_aanhef_in_alle_e_runs_niet_geslaagd(self, tmp_path):
-        """B2-rest-2: 'bij afwezigheid van storing' in alle E-runs gaf 12/12
-        geslaagd; nu handmatig, geen stop, geen 12/12."""
-
-        def antwoord(naam, n, verg):
-            if naam == "E":
-                ruw = _e(
-                    verg, ("bevestigd", ["Uitleen:"], ["bij afwezigheid van storing"])
-                )
-            else:
-                ruw = _juist(naam, verg)
-            return json.dumps(ruw, ensure_ascii=False)
-
-        provider = _R18Provider(_items(), antwoord=antwoord)
-        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
-        oordeel = uit["proefoordeel"]
-        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
-        assert oordeel["m_d_juist"] == 9
-        assert oordeel["e_voorwaarde_behouden"] == [0, 3]
-
-    def test_handmatige_e_run_stopt_niet_en_staat_apart(self, tmp_path):
-        def antwoord(naam, n, verg):
-            if naam == "E" and n == 2:
-                ruw = _e(verg, ("bevestigd", ["Uitleen:"]),
-                         buiten_bereik=[{"citaat": "bij storing", "reden": "voorwaardelijk"}])  # fmt: skip
-            else:
-                ruw = _juist(naam, verg)
-            return json.dumps(ruw, ensure_ascii=False)
-
-        provider = _R18Provider(_items(), antwoord=antwoord)
-        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
-        (e2,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|2"]
-        assert e2["runoordeel"]["categorie"] == "handmatig_beoordelen"
-        assert e2["acceptatie"]["geaccepteerd"] is False
-        oordeel = uit["proefoordeel"]
-        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
-        assert [h["sleutel"] for h in oordeel["handmatig_beoordelen"]] == [
-            "interpretatie|E|2"
-        ]
         assert oordeel["kritiek"] == []
 
-    def test_weggevallen_voorwaarde_in_e_is_kritiek(self, tmp_path):
+    def test_verwijzend_m_kenmerk_naast_exacte_voorwaarde_wacht(self, tmp_path):
+        """Hercontrole v3: 'geldigheid van deze voorwaarde' = 'optioneel'."""
+
+        def maak(v):
+            ruw = _e_met_m(v, "optioneel", kenmerk="geldigheid van deze voorwaarde")
+            (k2,) = [a for a in ruw["antwoorden"]
+                     if a["kenmerk_id"] == "K2" and a["onderwerp"] == "doel"]  # fmt: skip
+            k2["voorwaarden"] = ["bij storing"]
+            return ruw
+
+        oordeel = self._alle_e(tmp_path, maak)["proefoordeel"]
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert oordeel["e_voorwaarde_behouden"] == [0, 3]
+
+    @pytest.mark.parametrize(
+        "waarde", ["ook zonder storing", "storing is optioneel", "alleen bij storing"]
+    )
+    def test_e_als_m_kenmerk_is_automatisch_niet_geslaagd_zonder_stop(
+        self, tmp_path, waarde
+    ):
+        """Zonder onverwerkte voorwaarde geeft bepaal review_required: M-d fout, dus
+        deterministisch niet geslaagd; geen lexicale kritiek en geen stop meer."""
+        uit = self._alle_e(tmp_path, lambda v: _e_met_m(v, waarde))
+        e1 = next(r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|1")
+        assert e1["score"]["voorwaarde_status"] == "handmatig_beoordelen"
+        assert e1["runoordeel"]["categorie"] == "niet_geslaagd"
+        assert e1["acceptatie"]["geaccepteerd"] is False
+        oordeel = uit["proefoordeel"]
+        assert (oordeel["oordeel"], oordeel["m_d_juist"]) == ("tussengebied", 9)
+        assert oordeel["handmatig_beoordelen"] == [] and oordeel["kritiek"] == []
+
+    def test_weggevallen_voorwaarde_is_automatisch_niet_geslaagd(self, tmp_path):
         def antwoord(naam, n, verg):
             if naam == "E" and n == 2:
                 ruw = _e(verg, ("bevestigd", ["Uitleen:"]))
@@ -1000,19 +971,29 @@ class TestInterpretatieFase:
             return json.dumps(ruw, ensure_ascii=False)
 
         provider = _R18Provider(_items(), antwoord=antwoord)
-        with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
-            _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
-        assert len(provider.berichten) == 11
+        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
         (e2,) = [r for r in _records(tmp_path) if r["sleutel"] == "interpretatie|E|2"]
         assert e2["score"]["m_d"]["uitkomst"] == "review_required"
-        # Aanvulling v2: review_required is voor E geen toegestane uitkomst meer.
         assert e2["score"]["m_d"]["ok"] is False
-        assert e2["runoordeel"]["m_d_telt"] is False
-        assert e2["runoordeel"]["kritiek"] == ["E: voorwaarde weggevallen"]
-        uit = _samenvatting_i(tmp_path)
-        assert uit["proefoordeel"]["e_voorwaarde_behouden"] == [1, 2]
-        assert uit["proefoordeel"]["oordeel"] == "afgekeurd"
-        assert uit["stop"]["niet_gestart"] == 1
+        assert (e2["runoordeel"]["categorie"], e2["runoordeel"]["kritiek"]) == (
+            "niet_geslaagd",
+            [],
+        )
+        oordeel = uit["proefoordeel"]
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert [h["sleutel"] for h in oordeel["handmatig_beoordelen"]] == [
+            "interpretatie|E|1",
+            "interpretatie|E|3",
+        ]
+
+    def test_alleen_buiten_bereik_wacht_ook_op_chris(self, tmp_path):
+        uit = self._alle_e(
+            tmp_path,
+            lambda v: _e(v, ("bevestigd", ["Uitleen:"]),
+                         buiten_bereik=[{"citaat": "bij storing", "reden": "voorwaardelijk"}]),
+        )  # fmt: skip
+        assert uit["proefoordeel"]["oordeel"] == "wacht_op_handmatige_beoordeling"
 
     def test_f7_is_apart_niet_geslaagd_en_niet_kritiek(self, tmp_path):
         def antwoord(naam, n, verg):
@@ -1037,7 +1018,8 @@ class TestInterpretatieFase:
             }
         ]
         assert uit["proefoordeel"]["kritiek"] == []
-        assert uit["proefoordeel"]["oordeel"] == "wacht_op_f7_besluit"
+        # Aanvulling v4: de E-runs wachten op Chris; dat gaat vóór het F7-besluit.
+        assert uit["proefoordeel"]["oordeel"] == "wacht_op_handmatige_beoordeling"
 
     def test_onleesbare_uitvoer_is_modelfout_en_geen_stop(self, tmp_path):
         def antwoord(naam, n, verg):
@@ -1057,8 +1039,9 @@ class TestInterpretatieFase:
         assert c1["runoordeel"]["categorie"] == "geen_interpretatie"
         assert c1["afsluitstatus"] == "modelfout"
         assert c1["acceptatie"]["technisch_afgerond"] is True
-        assert uit["proefoordeel"]["m_d_juist"] == 11
-        assert uit["proefoordeel"]["oordeel"] == "tussengebied"
+        # Aanvulling v4: M-d telt E pas na het oordeel van Chris (8 + 3 wachtend).
+        assert uit["proefoordeel"]["m_d_juist"] == 8
+        assert uit["proefoordeel"]["oordeel"] == "wacht_op_handmatige_beoordeling"
 
     def test_technische_fout_stopt_duurzaam_zonder_retry(self, tmp_path):
         provider = _R18Provider(_items(), fout_bij=2)
@@ -1341,11 +1324,11 @@ class TestEchteInvoer:
 
     @pytest.mark.parametrize(
         ("pad", "sha"),
-        [(I18_V2, I18_V2_SHA256), (I18_V3, I18_V3_SHA256)],
-        ids=["v2", "v3"],
+        [(I18_V2, I18_V2_SHA256), (I18_V3, I18_V3_SHA256), (I18_V4, I18_V4_SHA256)],
+        ids=["v2", "v3", "v4"],
     )
     def test_oudere_invoer_blijft_staan_maar_wordt_geweigerd(self, tmp_path, pad, sha):
-        """Aanvulling v2/v3: de runner pint -v4; -v2 en -v3 weigeren op schema en hash."""
+        """Aanvulling v2–v4: de runner pint -v5; -v2 t/m -v4 weigeren op schema en hash."""
         assert _sha(pad) == sha != runner.R18_I_INVOER_SHA256
         data = json.loads(pad.read_text(encoding="utf-8"))
         with pytest.raises(pi.InvoerfoutError, match="schema"):
@@ -1381,7 +1364,6 @@ def _score(**over) -> dict:
         "m_d": {"uitkomst": "pass", "fout": None, "verwacht": ["pass"], "ok": True},
         "voorwaarde_behouden": None,
         "voorwaarde_status": None,
-        "voorwaarde_vermeldingen": None,
         "f7_afwijkingen": [],
         "feiten": [],
     }
@@ -1418,69 +1400,48 @@ class TestRunoordeel:
         o = bs.runoordeel(score, ORAKEL_A)
         assert (o["categorie"], o["kritiek"]) == ("niet_geslaagd", [])
 
-    def test_e_telt_alleen_met_behouden_voorwaarde(self):
+    @pytest.mark.parametrize(
+        "status", ["behouden", "ontkend", "weggevallen", "handmatig_beoordelen", None]
+    )
+    def test_e_met_juiste_uitkomst_wacht_altijd_op_chris(self, status):
+        """Aanvulling v4: welke status de score ook claimt, E met error/buiten_bereik
+        wacht op het oordeel van Chris; M-d telt pas na dat oordeel."""
         orakel = mk18.ORAKELS["E"]
-        md = {
-            "uitkomst": "error",
-            "fout": "buiten_bereik",
-            "verwacht": orakel["uitkomst"],
-            "ok": True,
-        }
-        behouden = bs.runoordeel(_score(m_d=md, voorwaarde_status="behouden"), orakel)
-        weg = bs.runoordeel(_score(m_d=md, voorwaarde_status="weggevallen"), orakel)
-        handmatig = bs.runoordeel(
-            _score(m_d=md, voorwaarde_status="handmatig_beoordelen"), orakel
-        )
-        assert (behouden["categorie"], behouden["m_d_telt"]) == ("geslaagd", True)
-        assert (weg["categorie"], weg["m_d_telt"]) == ("kritiek", False)
-        assert weg["kritiek"] == ["E: voorwaarde weggevallen"]
-        assert (
-            handmatig["categorie"],
-            handmatig["m_d_telt"],
-            handmatig["kritiek"],
-        ) == (
+        md = {"uitkomst": "error", "fout": "buiten_bereik",
+              "verwacht": orakel["uitkomst"], "ok": True}  # fmt: skip
+        o = bs.runoordeel(_score(m_d=md, voorwaarde_status=status), orakel)
+        assert (o["categorie"], o["m_d_telt"], o["kritiek"]) == (
             "handmatig_beoordelen",
             False,
             [],
         )
-
-    @pytest.mark.parametrize("status", ["behouden", "handmatig_beoordelen"])
-    def test_e_review_required_telt_nooit(self, status):
-        """Aanvulling v2: review_required is voor E geen juiste uitkomst meer."""
-        orakel = mk18.ORAKELS["E"]
-        assert "review_required" not in orakel["uitkomst"]
-        md = {"uitkomst": "review_required", "fout": None,
-              "verwacht": orakel["uitkomst"], "ok": False}  # fmt: skip
-        o = bs.runoordeel(_score(m_d=md, voorwaarde_status=status), orakel)
-        assert o["m_d_telt"] is False and o["categorie"] != "geslaagd"
+        assert o["handmatig"] == [bs.HANDMATIG_E]
+        assert (o["voorwaarde_status"], o["voorwaarde_behouden"]) == (
+            "handmatig_beoordelen",
+            False,
+        )
 
     @pytest.mark.parametrize(
-        ("uitkomst", "fout", "categorie"),
+        ("uitkomst", "fout"),
         [
-            ("review_required", None, "kritiek"),
-            ("pass", None, "kritiek"),
-            ("error", "schemafout", "kritiek"),
-            ("error", "buiten_bereik", "niet_geslaagd"),
+            ("review_required", None),
+            ("pass", None),
+            ("fail", None),
+            ("error", "schemafout"),
         ],
     )
-    def test_ontkende_voorwaarde_kritiek_tenzij_buiten_bereik(
-        self, uitkomst, fout, categorie
-    ):
+    @pytest.mark.parametrize("status", ["behouden", "ontkend", "weggevallen"])
+    def test_e_met_m_d_fout_is_automatisch_niet_geslaagd(self, uitkomst, fout, status):
         orakel = mk18.ORAKELS["E"]
         md = {"uitkomst": uitkomst, "fout": fout, "verwacht": orakel["uitkomst"],
-              "ok": f"{uitkomst}/{fout}" in orakel["uitkomst"] or uitkomst in orakel["uitkomst"]}  # fmt: skip
-        o = bs.runoordeel(_score(m_d=md, voorwaarde_status="ontkend"), orakel)
-        assert (o["categorie"], o["m_d_telt"]) == (categorie, False)
-        if categorie == "kritiek":
-            assert o["kritiek"] == ["E: voorwaarde ontkend of opgeheven"]
-
-    def test_plan_orakel_e_zonder_vereiste_telt_review_required_ook_niet_zonder(self):
-        """Ook zonder het veld voorwaarde_vereist_voor is een weggevallen voorwaarde
-        bij E kritiek (deel C)."""
-        md = {"uitkomst": "review_required", "fout": None,
-              "verwacht": ORAKEL_E["uitkomst"], "ok": True}  # fmt: skip
-        o = bs.runoordeel(_score(m_d=md, voorwaarde_status="weggevallen"), ORAKEL_E)
-        assert o["categorie"] == "kritiek"
+              "ok": False}  # fmt: skip
+        o = bs.runoordeel(_score(m_d=md, voorwaarde_status=status), orakel)
+        assert (o["categorie"], o["m_d_telt"], o["kritiek"], o["handmatig"]) == (
+            "niet_geslaagd",
+            False,
+            [],
+            [],
+        )
 
     def test_f7_apart(self):
         score = _score(m_b_dragend_ok=False, m_c_dragend_ok=False,
@@ -1564,7 +1525,7 @@ class TestProefoordeel:
             runs[i].update(categorie="handmatig_beoordelen", m_d_telt=False,
                            voorwaarde_behouden=False,
                            voorwaarde_status="handmatig_beoordelen",
-                           handmatig=["E: voorwaarde niet eenduidig behouden"],
+                           handmatig=[bs.HANDMATIG_E],
                            sleutel=f"interpretatie|E|{i - 8}")  # fmt: skip
         return runs
 
@@ -1572,8 +1533,7 @@ class TestProefoordeel:
         uit = bs.proefoordeel(self._handmatig(self._runs(12), 11))
         assert uit["oordeel"] == "wacht_op_handmatige_beoordeling"
         assert uit["handmatig_beoordelen"] == [
-            {"sleutel": "interpretatie|E|3",
-             "redenen": ["E: voorwaarde niet eenduidig behouden"]}
+            {"sleutel": "interpretatie|E|3", "redenen": [bs.HANDMATIG_E]}
         ]  # fmt: skip
         assert uit["kritiek"] == []
         assert uit["m_d_juist"] == 11
