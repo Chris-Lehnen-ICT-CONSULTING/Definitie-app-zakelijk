@@ -777,7 +777,7 @@ R17 = replace(
     voorganger=R16,
     cumulatief_max=408,
 )
-#: Ronde 18 (plan bewijseenheden, deel B; nog geen budgetbesluit): interpretatie-
+#: Ronde 18 (plan bewijseenheden, deel B; budget akkoord Chris 29-09): interpretatie-
 #: proef op `ess05-bewijsregels/6`, prompt /4. Twee onafhankelijke fases:
 #: `interpretatie` (R18A, 4 gevallen × 3 herhalingen, alleen `interpreteer`) en
 #: `lokale_verificatie` (R18B, 6 pakketten); max 18 modelstappen, reserve 0;

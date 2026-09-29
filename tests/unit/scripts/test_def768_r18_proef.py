@@ -8,10 +8,11 @@ retry of cache, scorer in het record, acceptatie per run volgens deel C) en
 R17-interpretaties A en C). Budget: 18 aanroepen, cumulatief 399 → max 417
 binnen 427, gecontroleerd tegen het R17-grootboek.
 
-Veiligheid: er is GEEN budgetbesluit en GEEN freeze. Zonder gepind besluit
-start geen enkele route een netwerkaanroep (`--echt` en een echte omgeving
-weigeren vóór client en grootboek; een niet-echte run draait onder
-`geen_netwerk`). Alle providers hier zijn nep; geen netwerk, geen betaalde call.
+Veiligheid: het budgetbesluit (akkoord Chris 29-09, deel C) is op hash gepind;
+er is nog GEEN freeze. Een besluit met een afwijkende hash of inhoud weigert
+vóór client en grootboek (`--echt` en een echte omgeving); een niet-echte run
+draait altijd onder `geen_netwerk`, ook met gepind besluit. Alle providers hier
+zijn nep; geen netwerk, geen betaalde call, geen echt grootboek.
 """
 
 from __future__ import annotations
@@ -115,6 +116,11 @@ I18_V1 = R18_MAP / "bewijsregel-invoer-v1.json"
 I18_V1_SHA256 = "fe6bd5d1ce58405cc4560ce0956996b4bc0d7e3d3bbefe086f9b9fdc04873598"
 LOGS = ROOT / "logs" / "def768"
 BESLUIT18 = LOGS / "ronde18-budgetbesluit-v1.json"
+#: Het besluit bij het antwoord "akkoord" van Chris (29-09, deel C).
+BESLUIT18_SHA256 = "b1ef6342892459c1b6619006bb70451bfbfd98f1d944ca94ecae8982575cc9e3"
+OPDRACHT18 = LOGS / "ronde18-gebruikersopdracht-v1.json"
+#: Een hash die niet de gepinde is: het besluit moet dan weigeren.
+ANDERE_HASH = "0" * 64
 #: De kop van het afgesloten R17-grootboek (3 calls, 0 open), gelezen 28-09.
 R17_KOP_SHA256 = "b1fa47de331d578bdc9da38e76583a2b4e63bcecd74730374ad1cbe76b4e171b"
 #: De werkelijke R17-kosten (3 SDK-calls, USD 0,152390).
@@ -140,6 +146,21 @@ r18_invoer_nodig = pytest.mark.skipif(
     not (I18.is_file() and L18.is_file() and GECORRIGEERD.is_dir()),
     reason="git-ignored R17/R18-invoer ontbreekt",
 )
+#: De R18-controle toetst ook de besluiten van R17 t/m R8 en de payloadtoestemming.
+_BESLUITBESTANDEN18 = (
+    OPDRACHT18,
+    TOESTEMMING,
+    *(v.budgetbesluit for v in runner.PROEVEN.values() if v.budgetbesluit is not None),
+)
+besluit18_nodig = pytest.mark.skipif(
+    not all(p.is_file() for p in _BESLUITBESTANDEN18),
+    reason="git-ignored R8–R18-besluiten ontbreken",
+)
+
+
+def _r18_met_hash(sha256: str) -> runner.Proef:
+    """De geregistreerde R18, maar met een andere gepinde besluithash."""
+    return dataclasses.replace(runner.PROEVEN["R18"], budgetbesluit_sha256=sha256)
 
 
 # --- hulpen: invoer zonder git-ignored bestanden ----------------------------------------------
@@ -434,7 +455,7 @@ class TestIdentiteit:
 
 
 class TestRegistratie:
-    def test_r18_geregistreerd_zonder_besluit(self):
+    def test_r18_geregistreerd_met_gepind_besluit(self):
         proef = runner.PROEVEN["R18"]
         assert proef.identiteit is gb.R18
         assert (proef.echt_toegestaan, proef.freeze_vereist) == (True, True)
@@ -443,9 +464,13 @@ class TestRegistratie:
         assert proef.l_invoer_sha256 == runner.R18_L_INVOER_SHA256
         assert (proef.t_ontwikkelinvoer_sha256, proef.v_invoer_sha256,
                 proef.b_invoer_sha256) == (None, None, None)  # fmt: skip
-        # Geen budgetbesluit: pad vastgelegd, hash niet; elke echte call weigert.
+        # Budgetbesluit (akkoord Chris 29-09): pad en hash gepind.
         assert proef.budgetbesluit == BESLUIT18 == runner.R18_BUDGETBESLUIT
-        assert proef.budgetbesluit_sha256 is None is runner.R18_BUDGETBESLUIT_SHA256
+        assert (
+            proef.budgetbesluit_sha256
+            == BESLUIT18_SHA256
+            == runner.R18_BUDGETBESLUIT_SHA256
+        )
         assert (proef.payloadtoestemming, proef.payloadtoestemming_sha256) == (
             TOESTEMMING,
             TOESTEMMING_SHA256,
@@ -512,15 +537,78 @@ class TestRegistratie:
         r15 = runner.freezevelden(omg, runner.PROEVEN["R15"], "l")
         assert "bewijsregel_version" not in r15
 
-    def test_besluit_zonder_gepinde_hash_weigert_ook_als_er_een_bestand_is(
-        self, tmp_path
-    ):
-        with pytest.raises(gb.BudgetSchendingError, match="geen budgetbesluit"):
-            runner.controleer_budgetbesluit(runner.PROEVEN["R18"])
+    @besluit18_nodig
+    def test_gepind_besluit_past_op_r18_en_draagt_akkoord(self):
+        assert _sha(BESLUIT18) == BESLUIT18_SHA256
+        data = json.loads(BESLUIT18.read_text(encoding="utf-8"))
+        bron = json.loads(OPDRACHT18.read_text(encoding="utf-8"))
+        assert data["bron_sha256"] == _sha(OPDRACHT18)
+        assert data["gebruikersantwoord"] == bron["gebruikersantwoord"] == "akkoord"
+        assert data["gestelde_vraag"] == bron["gestelde_vraag"]
+        assert (data["extra_modelaanroepen_max"], data["cumulatief_max"],
+                data["historisch_verbruik"], data["reserve"]) == (18, 417, 399, 0)  # fmt: skip
+        assert data["fasen_modelstappen_max"] == {
+            "interpretatie": 12,
+            "lokale_verificatie": 6,
+        }
+        assert runner._nusd(data["kostenbudget_usd"]) == 6_030_000_000
+        assert runner._nusd(data["kaderrest_usd"]) == KADERREST18_NUSD
+        assert runner._nusd(data["r17_verbruik_usd"]) == R17_KOSTEN_NUSD
+        assert data["r17_verbruik_modelstappen"] == 3
+        assert data["r17_grootboekkop_sha256"] == R17_KOP_SHA256
+        assert data["i_invoer_sha256"] == I18_SHA256
+        for plan in data["plan"]:
+            assert _sha(ROOT / plan["pad"]) == plan["sha256"], plan["pad"]
+        assert len(data["plan"]) == 8
+        assert (
+            runner.controleer_budgetbesluit(runner.PROEVEN["R18"]) == BESLUIT18_SHA256
+        )
+
+    @besluit18_nodig
+    def test_afwijkende_hash_weigert_het_gepinde_besluit(self):
+        with pytest.raises(gb.BudgetSchendingError, match="wijkt af"):
+            runner.controleer_budgetbesluit(_r18_met_hash(ANDERE_HASH))
+
+    @besluit18_nodig
+    @pytest.mark.parametrize(
+        "anders",
+        [
+            {"extra_modelaanroepen_max": 19},
+            {"cumulatief_max": 418},
+            {"historisch_verbruik": 398},
+            {"reserve": 1},
+            {"fasen_modelstappen_max": {"interpretatie": 13, "lokale_verificatie": 5}},
+            {"kostenbudget_usd": "6.500000"},
+            {"kaderrest_usd": "21.798866"},
+            {"r17_verbruik_usd": "0.152391"},
+            {"r17_verbruik_usd": None},
+            {"r17_verbruik_modelstappen": 4},
+            {"gebruikersantwoord": ""},
+        ],
+    )
+    def test_afwijkend_besluit_geweigerd(self, tmp_path, anders):
+        """Ook met de juiste hash van het afwijkende bestand: de inhoud moet passen."""
+        data = json.loads(BESLUIT18.read_text(encoding="utf-8"))
+        for sleutel, waarde in anders.items():
+            if waarde is None:
+                data.pop(sleutel)
+            else:
+                data[sleutel] = waarde
+        pad = tmp_path / "besluit.json"
+        pad.write_text(json.dumps(data), encoding="utf-8")
+        proef = dataclasses.replace(
+            runner.PROEVEN["R18"], budgetbesluit=pad, budgetbesluit_sha256=_sha(pad)
+        )
+        with pytest.raises(gb.BudgetSchendingError, match="past niet"):
+            runner.controleer_budgetbesluit(proef)
+
+    def test_zonder_gepinde_hash_weigert_ook_als_er_een_bestand_is(self, tmp_path):
         pad = tmp_path / "besluit.json"
         pad.write_text(json.dumps({"type": "gebruikersgoedkeuring-proefbudget"}),
                        encoding="utf-8")  # fmt: skip
-        proef = dataclasses.replace(runner.PROEVEN["R18"], budgetbesluit=pad)
+        proef = dataclasses.replace(
+            runner.PROEVEN["R18"], budgetbesluit=pad, budgetbesluit_sha256=None
+        )
         with pytest.raises(gb.BudgetSchendingError, match="geen budgetbesluit"):
             runner.controleer_budgetbesluit(proef)
 
@@ -530,19 +618,26 @@ class TestRegistratie:
         assert "scripts/ess05/bewijsscorer.py" in runner.codemanifest()
 
 
-# --- veiligheid: geen netwerk zonder budgetbesluit --------------------------------------------
+# --- veiligheid: geen netwerk buiten een passend besluit en --echt ----------------------------
 
 
 def _geen_live(*_a, **_k):
-    raise AssertionError("live_omgeving mag zonder budgetbesluit nooit gebouwd worden")
+    raise AssertionError(
+        "live_omgeving mag zonder passend besluit nooit gebouwd worden"
+    )
 
 
-class TestGeenNetwerkZonderBesluit:
+class TestGeenNetwerkZonderPassendBesluit:
+    """Afwijkende besluithash: weigeren vóór client en grootboek. Niet-echt: nooit
+    netwerk, ook met het gepinde besluit. Een echte run met het gepinde besluit
+    wordt hier bewust NIET gestart (die zou het echte R18-grootboek raken)."""
+
     @pytest.mark.parametrize("fase", ["interpretatie", "lokale_verificatie"])
-    def test_cli_echt_weigert_voor_client_en_grootboek(
+    def test_cli_echt_met_afwijkende_hash_weigert_voor_client_en_grootboek(
         self, tmp_path, monkeypatch, fase
     ):
         monkeypatch.setattr(runner, "live_omgeving", _geen_live)
+        monkeypatch.setitem(runner.PROEVEN, "R18", _r18_met_hash(ANDERE_HASH))
         grootboek = runner.PROEVEN["R18"].opslag.grootboek
         bestond = grootboek.exists()
         pad = tmp_path / "invoer.json"
@@ -552,12 +647,16 @@ class TestGeenNetwerkZonderBesluit:
                          "--echt", "--freeze", str(tmp_path / "f.json")])  # fmt: skip
         assert grootboek.exists() is bestond is False
 
-    def test_echte_omgeving_i_fase_weigert_voor_elke_call(self, tmp_path):
+    def test_echte_omgeving_i_fase_met_afwijkende_hash_weigert_voor_elke_call(
+        self, tmp_path, monkeypatch
+    ):
         provider = _R18Provider(_items())
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
-        proef = runner.PROEVEN["R18"]
+        proef = _r18_met_hash(ANDERE_HASH)
+        monkeypatch.setitem(runner.PROEVEN, "R18", proef)
         pad = _i_invoer(tmp_path)
-        with pytest.raises(gb.BudgetSchendingError, match="geen budgetbesluit"):
+        # Zonder de git-ignored logs: "ontbreekt"; met: "wijkt af".
+        with pytest.raises(gb.BudgetSchendingError, match=r"wijkt af|ontbreekt"):
             asyncio.run(
                 runner.voer_i_fase(omg, gevallenpad=pad, uitmap=tmp_path / "uit",
                                    opslag=proef.opslag, proef=proef,
@@ -567,12 +666,15 @@ class TestGeenNetwerkZonderBesluit:
         assert not proef.opslag.grootboek.exists()
         assert not (tmp_path / "uit").exists()
 
-    def test_echte_omgeving_l_fase_weigert_voor_elke_call(self, tmp_path):
+    def test_echte_omgeving_l_fase_met_afwijkende_hash_weigert_voor_elke_call(
+        self, tmp_path, monkeypatch
+    ):
         provider = _R18Provider(_items())
         omg = dataclasses.replace(_omgeving8(provider), echt=True)
-        proef = runner.PROEVEN["R18"]
+        proef = _r18_met_hash(ANDERE_HASH)
+        monkeypatch.setitem(runner.PROEVEN, "R18", proef)
         pad, _ = _l_invoer(tmp_path)
-        with pytest.raises(gb.BudgetSchendingError, match="geen budgetbesluit"):
+        with pytest.raises(gb.BudgetSchendingError, match=r"wijkt af|ontbreekt"):
             asyncio.run(
                 runner.voer_l_fase(omg, gevallenpad=pad, uitmap=tmp_path / "uit",
                                    opslag=proef.opslag, proef=proef,
@@ -581,7 +683,10 @@ class TestGeenNetwerkZonderBesluit:
         assert provider.berichten == [] and provider.aanroepen == []
         assert not proef.opslag.grootboek.exists()
 
-    def test_niet_echte_i_run_zonder_besluit_draait_onder_geen_netwerk(self, tmp_path):
+    def test_niet_echte_i_run_met_gepind_besluit_draait_onder_geen_netwerk(
+        self, tmp_path
+    ):
+        assert runner.PROEVEN["R18"].budgetbesluit_sha256 == BESLUIT18_SHA256
         provider = _R18Provider(_items(), netwerkpoging=True)
         oud = socket.create_connection
         _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path), max_calls=2)
@@ -589,11 +694,28 @@ class TestGeenNetwerkZonderBesluit:
         assert all("netwerk is geblokkeerd" in f for f in provider.netwerkfouten)
         assert socket.create_connection is oud
 
-    def test_niet_echte_l_run_zonder_besluit_draait_onder_geen_netwerk(self, tmp_path):
+    def test_niet_echte_l_run_met_gepind_besluit_draait_onder_geen_netwerk(
+        self, tmp_path
+    ):
+        assert runner.PROEVEN["R18"].budgetbesluit_sha256 == BESLUIT18_SHA256
         provider = _R18Provider(_items(), netwerkpoging=True)
         _l18(_omgeving8(provider), tmp_path, max_calls=1)
         assert provider.netwerkfouten
         assert all("netwerk is geblokkeerd" in f for f in provider.netwerkfouten)
+
+    @pytest.mark.parametrize("sha256", [None, ANDERE_HASH, BESLUIT18_SHA256])
+    def test_netwerkgrens_blokkeert_elke_niet_echte_run(self, sha256):
+        omg = _omgeving8(_R18Provider(_items()))
+        oud = socket.create_connection
+        with runner._netwerkgrens(_r18_met_hash(sha256), omg):
+            assert socket.create_connection is not oud
+        assert socket.create_connection is oud
+
+    def test_netwerkgrens_laat_een_echte_run_met_gepind_besluit_door(self):
+        omg = dataclasses.replace(_omgeving8(_R18Provider(_items())), echt=True)
+        oud = socket.create_connection
+        with runner._netwerkgrens(runner.PROEVEN["R18"], omg):
+            assert socket.create_connection is oud
 
     def test_andere_fases_bestaan_niet_in_r18(self, tmp_path):
         omg = _omgeving8(_R18Provider(_items()))

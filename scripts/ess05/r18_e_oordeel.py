@@ -31,7 +31,7 @@ geven `OordeelfoutError`.
     .venv/bin/python scripts/ess05/r18_e_oordeel.py eindoordeel --calls DIR [DIR ...] \\
         [--invoer INVOER.json] --oordeel OORDEEL.json --doel EINDOORDEEL.json
 
-Standaardinvoer: `bewijsregel-invoer-v5.json`. Een doel wordt nooit
+Standaardinvoer: `bewijsregel-invoer-v6.json`. Een doel wordt nooit
 overschreven; geen netwerk, geen modelaanroep.
 """
 

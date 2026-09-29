@@ -407,16 +407,16 @@ def geen_netwerk() -> Iterator[None]:
 
 
 @contextlib.contextmanager
-def _netwerkgrens(proef: Proef) -> Iterator[None]:
-    """R18: zonder gepind budgetbesluit nooit netwerk, ook niet buiten `--echt`.
+def _netwerkgrens(proef: Proef, omg: Omgeving) -> Iterator[None]:
+    """R18: netwerk alleen voor een echte run met gepind budgetbesluit.
 
-    Een echte run weigert dan al in `controleer_budgetbesluit`; deze grens dekt
-    daarnaast elke niet-echte run (bv. een programmatisch gebouwde omgeving met
-    een echte client maar `echt=False`): die draait onder `geen_netwerk`.
+    Een echte run zonder passend besluit weigert al in `controleer_budgetbesluit`;
+    deze grens dekt daarnaast elke niet-echte run (bv. een programmatisch
+    gebouwde omgeving met een echte client maar `echt=False`), ook nu het
+    besluit gepind is: die draait onder `geen_netwerk`.
     """
-    if (
-        proef.identiteit.kostenbewaking is not None
-        and proef.budgetbesluit_sha256 is None
+    if proef.identiteit.kostenbewaking is not None and (
+        proef.budgetbesluit_sha256 is None or not omg.echt
     ):
         with geen_netwerk():
             yield
@@ -770,11 +770,14 @@ R16_KOP_SHA256 = "58f5a17ec921d67e66899882441c8629fae9a41476d3485c697cd3614141ce
 R18_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18"
 R18_I_INVOER_SHA256 = "4ff5d48480c42ce6807ddd633452de7a11eb1f472eee185755868b03476cf733"
 R18_L_INVOER_SHA256 = "a36172a04981aef5bc712a77cc51dd9f1846bf7e7c9d16222e0bd4a5ac005b81"
-#: Ronde 18: NOG GEEN budgetbesluit. Het pad ligt vast; het besluit wordt pas
-#: na een "go" van Chris geschreven en daarna hier op hash gepind. Tot dan is de
-#: hash None en weigert `controleer_budgetbesluit` elke echte call.
+#: Ronde 18: het besluit van de coördinator bij het antwoord "akkoord" van Chris
+#: (29-09, deel C, ronde18-gebruikersopdracht-v1.json) op het budget van 18
+#: aanroepen, gepind op pad en hash. Buiten `--echt` blijft netwerk geblokkeerd
+#: (`_netwerkgrens`).
 R18_BUDGETBESLUIT = PROJECT_ROOT / "logs" / "def768" / "ronde18-budgetbesluit-v1.json"
-R18_BUDGETBESLUIT_SHA256: str | None = None
+R18_BUDGETBESLUIT_SHA256: str | None = (
+    "b1ef6342892459c1b6619006bb70451bfbfd98f1d944ca94ecae8982575cc9e3"
+)
 #: Ronde 18: bewijsregels v6, prompt /4 — de berekende contractidentiteit
 #: (`Ess05BewijsregelService.contractidentiteit()`, 28-09), letterlijk gepind.
 R18_BEWIJSREGEL_CONTRACT = MappingProxyType(
@@ -1108,7 +1111,8 @@ PROEVEN = {
     ),
     # Ronde 18: R18A (interpretatie, 12) en R18B (lokale controle, 6) op
     # bewijsregels v6; eigen invoer, contract, kaderrest en de kop van het
-    # R17-grootboek. Zonder gepind budgetbesluit: geen echte call, geen netwerk.
+    # R17-grootboek. Budgetbesluit gepind (akkoord 29-09); buiten een echte run
+    # nooit netwerk.
     "R18": Proef(
         "R18",
         gb.R18,
@@ -3768,7 +3772,7 @@ async def voer_l_fase(
     """R15: de vastgelegde lokale controles, elk één afzonderlijk verzoek.
 
     R18B: ook het bewijsregelcontract (de pakketten komen uit de bewijsregels)
-    en, zonder gepind besluit, geen netwerk (`_netwerkgrens`).
+    en, buiten een echte run met gepind besluit, geen netwerk (`_netwerkgrens`).
     """
     _fase_van(proef, fase, L_FASES)
     _controleer_opslag(omg, opslag, proef)
@@ -3805,7 +3809,7 @@ async def voer_l_fase(
         config_sha256=config_sha,
     )
     deadline = _Deadline(totaal_deadline)
-    with _netwerkgrens(proef), gb.Proefslot(opslag.slot):
+    with _netwerkgrens(proef, omg), gb.Proefslot(opslag.slot):
         vorige = _lees_voorganger(omg, proef, voorganger_opslag)
         if omg.echt:
             _controleer_voorgangerkop(proef, vorige)
@@ -4789,7 +4793,7 @@ async def voer_i_fase(
         config_sha256=config_sha,
     )
     deadline = _Deadline(totaal_deadline)
-    with _netwerkgrens(proef), gb.Proefslot(opslag.slot):
+    with _netwerkgrens(proef, omg), gb.Proefslot(opslag.slot):
         vorige = _lees_voorganger(omg, proef, voorganger_opslag)
         if omg.echt:
             _controleer_voorgangerkop(proef, vorige)
@@ -5609,8 +5613,8 @@ def _parser() -> argparse.ArgumentParser:
             "cumulatief max 408) is dezelfde proef op bewijsregels/5 en prompt /3; "
             f"R18 ({gb.R18.proef_id}, opslag {PROEVEN['R18'].opslag.root}, "
             "cumulatief max 417) is de interpretatieproef (12 interpretatie) plus "
-            "de lokale controle (6 lokale_verificatie); geregistreerd zonder "
-            "budgetbesluit, dus --echt weigert"
+            "de lokale controle (6 lokale_verificatie; max USD 6,03, reserve 0), "
+            "met gepind budgetbesluit (akkoord 29-09); --echt vereist --freeze"
         ),
     )
     p.add_argument(
