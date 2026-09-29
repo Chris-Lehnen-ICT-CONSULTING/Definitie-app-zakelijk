@@ -493,7 +493,7 @@ class Ess05VerificationService:
             timeout_seconds=self._timeout_seconds,
             attributie_basis=basis,
         )
-        gemeenschappelijk = {
+        gemeenschappelijk: dict[str, Any] = {
             "attributie": dict(aanroep.attributie),
             "invoer": invoer,
             "raw_hash": aanroep.raw_hash,

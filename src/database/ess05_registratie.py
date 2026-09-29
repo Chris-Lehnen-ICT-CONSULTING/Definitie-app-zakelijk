@@ -240,7 +240,9 @@ def _importhistorie_lege_ruimte(waarde: Any) -> list[dict[str, Any]]:
     items = waarde if isinstance(waarde, list) else [waarde]
     return [
         (
-            deepcopy(item)
+            # dict(...) is voor een dict (de JSON-vorm) dezelfde waarde en houdt
+            # het item bij het gedeclareerde `dict`-type.
+            dict(deepcopy(item))
             if isinstance(item, Mapping) and "lege_ruimte" in item
             else {"lege_ruimte": deepcopy(item), "herkomst": "import", "actueel": False}
         )

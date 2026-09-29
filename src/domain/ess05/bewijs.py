@@ -569,11 +569,11 @@ def _samenhangfout(
                 "een lege kenmerkenlijst strookt niet met een onderscheiden buur",
             ),
             (
-                lambda: set(index.bewijs) - bewijs,
+                lambda: bool(set(index.bewijs) - bewijs),
                 f"ongebruikte bewijsplaats(en): {sorted(set(index.bewijs) - bewijs)}",
             ),
             (
-                lambda: set(index.claims) - claims,
+                lambda: bool(set(index.claims) - claims),
                 f"ongebruikte claim(s): {sorted(set(index.claims) - claims)}",
             ),
         )
@@ -1195,7 +1195,9 @@ def valideer_antwoord(
     fouten: list[dict[str, Any]] = []
     for item in vlak["evidence"]:
         positie, reden = _plaatsbepaling(item, materiaal)
-        if reden is not None:
+        # `_plaatsbepaling` geeft (begin, None) of (None, reden): geen positie
+        # betekent altijd een reden.
+        if positie is None:
             fouten.append(
                 {"reason": reden, "detail": f"{item['id']}: {item['quote'][:120]}"}
             )
@@ -1255,7 +1257,9 @@ def _controlefout(item: Mapping[str, Any], pad: str) -> str | None:
     )
 
 
-def _niet_goed(soort: str, melding: str, bevindingen=()) -> Verificatieuitkomst:
+def _niet_goed(
+    soort: str, melding: str, bevindingen: Iterable[dict[str, str]] = ()
+) -> Verificatieuitkomst:
     return Verificatieuitkomst(False, soort, melding, tuple(bevindingen))
 
 

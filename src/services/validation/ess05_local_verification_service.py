@@ -240,7 +240,7 @@ class Ess05LocalVerificationService:
                 "tokens_used": None,
             },
         )
-        basis = {
+        basis: dict[str, Any] = {
             "attributie": dict(aanroep.attributie),
             "invoer": self.invoer(pakket, system, prompt),
             "raw_hash": aanroep.raw_hash,

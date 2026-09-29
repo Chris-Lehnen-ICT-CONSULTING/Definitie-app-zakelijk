@@ -411,14 +411,6 @@ def _herbind_regel(
 _ESS05 = "ESS-05"
 
 
-def _contextlijsten(definition: Definition) -> dict[str, list[str]]:
-    return {
-        "organisatorische_context": list(definition.organisatorische_context or []),
-        "juridische_context": list(definition.juridische_context or []),
-        "wettelijke_basis": list(definition.wettelijke_basis or []),
-    }
-
-
 def ess05_actieve_buren_van(
     definition: Definition, buren_van_toetsing: Any
 ) -> tuple[tuple[Any, ...], tuple[str, ...]]:
