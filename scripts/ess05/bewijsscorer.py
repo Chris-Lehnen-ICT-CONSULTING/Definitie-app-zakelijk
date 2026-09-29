@@ -43,7 +43,10 @@ Acceptatie volgens deel C van het plan (taak B3): `runoordeel` deelt één run
 in (geslaagd, kritiek, handmatig_beoordelen, f7, niet_geslaagd,
 geen_interpretatie), `proefoordeel` telt de runs van een interpretatieproef en
 geeft het automatische oordeel; met E-runs is dat nooit `geslaagd`.
-`eindoordeel` past het oordeel van Chris toe (aanvulling v4, `EINDREGEL`).
+`eindoordeel` past het oordeel van Chris toe (aanvulling v4, `EINDREGEL`) en
+weigert eerst elke runverzameling die niet precies `PROEFSLEUTELS` is of
+E-metadata draagt die niet bij de sleutel past (`controleer_runs`, aanvulling
+v5, Codex-hercontrole v4 B5/B6).
 """
 
 from __future__ import annotations
@@ -63,9 +66,11 @@ __all__ = [
     "E_OORDEELSCHEMA",
     "E_OORDELEN",
     "HANDMATIG_E",
+    "PROEFSLEUTELS",
     "OordeelfoutError",
     "OrakelfoutError",
     "controleer_orakel",
+    "controleer_runs",
     "eindoordeel",
     "proefoordeel",
     "runoordeel",
@@ -338,6 +343,13 @@ def scoor(
 
 #: Deel C, bij 12 runs: geslaagd vanaf 11 juiste M-d, afgekeurd bij 8 of minder.
 RUNS_VERWACHT, M_D_MIN, M_D_AFKEUR = 12, 11, 8
+#: Aanvulling v5 (Codex-hercontrole v4, B5): de vaste runverzameling van R18A,
+#: A/C/D/E × herhaling 1–3; E is de casus met de voorwaarde.
+PROEFITEMS, E_ITEM, HERHALINGEN = ("A", "C", "D", "E"), "E", 3
+PROEFSLEUTELS = tuple(
+    f"interpretatie|{n}|{h}" for n in PROEFITEMS for h in range(1, HERHALINGEN + 1)
+)
+E_SLEUTELS = tuple(s for s in PROEFSLEUTELS if s.split("|")[1] == E_ITEM)
 _GRENS = (
     "11/12 geeft een ondergrens van circa 66% (95%, eenzijdig); dit is geen "
     "productiebetrouwbaarheid"
@@ -564,18 +576,82 @@ def _met_oordeel(run: Mapping[str, Any], status: str | None) -> dict[str, Any]:
     }
 
 
-def eindoordeel(runs: Sequence[Mapping[str, Any]], oordelen: Any) -> dict[str, Any]:
-    """Aanvulling v4: het proefoordeel na het oordeel van Chris over elke E-run.
+_SHA256 = re.compile(r"[0-9a-f]{64}")
 
-    `runs`: elk een `runoordeel` plus `sleutel` en, voor E, `e_uitvoer_sha256`
-    (de sha256 van de ruwe modeluitvoer die Chris beoordeelde; `None` zonder
-    gescoorde uitvoer). Elke E-run met uitvoer heeft precies één oordeel nodig
-    (`OordeelfoutError` anders). Beslisregel: `EINDREGEL`.
+
+def _strijdig_e(run: Mapping[str, Any]) -> str | None:
+    """Waarom de metadata van een E-run niet bij E past (None als ze past).
+
+    Automatisch is een E-run nooit geslaagd en nooit behouden; wie op het
+    oordeel wacht, heeft de hash van zijn beoordeelde uitvoer.
     """
+    wacht = run.get("categorie") == "handmatig_beoordelen"
+    if run.get("voorwaarde_behouden") is not False:
+        return "voorwaarde_behouden is niet False"
+    if run.get("categorie") == "geslaagd" or run.get("m_d_telt") is not False:
+        return "automatisch geslaagd of M-d telt"
+    if run.get("voorwaarde_status") not in ("handmatig_beoordelen", None):
+        return f"voorwaarde_status {run.get('voorwaarde_status')!r}"
+    if wacht != (run.get("handmatig") == [HANDMATIG_E]):
+        return "handmatig past niet bij de categorie"
+    sha = run.get("e_uitvoer_sha256")
+    if wacht and not (isinstance(sha, str) and _SHA256.fullmatch(sha)):
+        return "wacht op het oordeel zonder e_uitvoer_sha256"
+    return None
+
+
+def _strijdig_niet_e(run: Mapping[str, Any]) -> str | None:
+    """Waarom een niet-E-run E-metadata draagt (None als hij die niet draagt)."""
+    for veld in ("voorwaarde_behouden", "voorwaarde_status", "e_uitvoer_sha256"):
+        if run.get(veld) is not None:
+            return f"{veld} is gezet"
+    if HANDMATIG_E in (run.get("handmatig") or []):
+        return "wacht op het E-oordeel"
+    return None
+
+
+def controleer_runs(runs: Any) -> None:
+    """Aanvulling v5 (Codex-hercontrole v4, B5/B6): weigert tenzij `runs` precies
+    de runverzameling `PROEFSLEUTELS` is — unieke sleutels, geen onbekende of
+    ontbrekende run — en de metadata van elke run past bij zijn casus (E uit de
+    sleutel, niet uit de metadata). Duplicaten worden vóór elke dict-omzetting
+    geteld."""
+    if not isinstance(runs, (list, tuple)):
+        raise OordeelfoutError("runs: geen lijst")
+    for i, r in enumerate(runs):
+        if not isinstance(r, Mapping) or not isinstance(r.get("sleutel"), str):
+            raise OordeelfoutError(f"runs[{i}]: geen run met een sleutel")
+    telling = Counter(r["sleutel"] for r in runs)
+    dubbel = sorted(s for s, n in telling.items() if n > 1)
+    if dubbel:
+        raise OordeelfoutError(f"dubbele runs {dubbel}")
+    onbekend = sorted(set(telling) - set(PROEFSLEUTELS))
+    if onbekend:
+        raise OordeelfoutError(f"onbekende runs {onbekend}")
+    ontbrekend = [s for s in PROEFSLEUTELS if s not in telling]
+    if ontbrekend:
+        raise OordeelfoutError(f"ontbrekende runs {ontbrekend}")
+    for r in runs:
+        reden = (_strijdig_e if r["sleutel"] in E_SLEUTELS else _strijdig_niet_e)(r)
+        if reden:
+            raise OordeelfoutError(f"{r['sleutel']}: strijdige metadata ({reden})")
+
+
+def eindoordeel(runs: Sequence[Mapping[str, Any]], oordelen: Any) -> dict[str, Any]:
+    """Aanvulling v4/v5: het proefoordeel na het oordeel van Chris over elke E-run.
+
+    `runs`: precies `PROEFSLEUTELS` (`controleer_runs`), elk een `runoordeel`
+    plus `sleutel` en, voor E, `e_uitvoer_sha256` (de sha256 van de ruwe
+    modeluitvoer die Chris beoordeelde; `None` zonder gescoorde uitvoer). Elke
+    E-run met uitvoer heeft precies één oordeel nodig (`OordeelfoutError`
+    anders); geslaagd vereist dus drie afzonderlijke oordelen 'behouden', elk
+    aan de hash van de eigen uitvoer gebonden. Beslisregel: `EINDREGEL`.
+    """
+    controleer_runs(runs)
     te_beoordelen = {
         r["sleutel"]: r["e_uitvoer_sha256"]
         for r in runs
-        if r["voorwaarde_behouden"] is not None and r.get("e_uitvoer_sha256")
+        if r["sleutel"] in E_SLEUTELS and r["e_uitvoer_sha256"] is not None
     }
     statussen = _controleer_oordelen(oordelen, te_beoordelen)
     na = [_met_oordeel(r, statussen.get(r["sleutel"])) for r in runs]

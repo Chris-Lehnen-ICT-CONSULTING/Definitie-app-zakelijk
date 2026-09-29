@@ -702,8 +702,17 @@ def _oordelen(runs, statussen, **over):
     }  # fmt: skip
 
 
+def _niet_e_runs() -> list[dict]:
+    """A, C en D × herhaling 1–3 (aanvulling v5: de sleutels van de echte proef),
+    elk met het geslaagde runoordeel van A."""
+    (a,) = _a_runs(1)
+    return [
+        {**a, "sleutel": f"interpretatie|{n}|{h}"} for n in "ACD" for h in (1, 2, 3)
+    ]
+
+
 def _proef(*makers):
-    return _a_runs(9) + _e_runs(makers or [_v("bij storing")] * 3)
+    return _niet_e_runs() + _e_runs(makers or [_v("bij storing")] * 3)
 
 
 class TestEindoordeel:
@@ -841,6 +850,111 @@ class TestEindoordeel:
         del data["oordelen"][0]["beoordelaar"]
         with pytest.raises(bs.OordeelfoutError, match="velden"):
             bs.eindoordeel(runs, data)
+
+
+PROEF_E = ("interpretatie|E|1", "interpretatie|E|2", "interpretatie|E|3")
+
+
+def _leeg_oordeel() -> dict:
+    return {"schema": bs.E_OORDEELSCHEMA, "oordelen": []}
+
+
+class TestRunverzameling:
+    """Codex-hercontrole v4, B5 en B6 (aanvulling v5): `eindoordeel` weigert
+    tenzij de runs precies A/C/D/E × herhaling 1–3 zijn, uniek en met E-metadata
+    die bij de E-sleutel past; E volgt uit de vaste proefstructuur."""
+
+    def test_proefstructuur(self):
+        assert (
+            tuple(f"interpretatie|{n}|{h}" for n in "ACDE" for h in (1, 2, 3))
+            == bs.PROEFSLEUTELS
+        )
+        assert bs.E_SLEUTELS == PROEF_E
+        assert len(bs.PROEFSLEUTELS) == bs.RUNS_VERWACHT
+
+    def test_codex_e1_driemaal_met_een_oordeel_geweigerd(self):
+        """B5: 9 A/C/D + E1 driemaal, één oordeel voor E1 gaf geslaagd, M-d 12, E 3/3."""
+        (e1,) = _e_runs([_v("bij storing")])
+        runs = _niet_e_runs() + [e1, dict(e1), dict(e1)]
+        data = _oordelen([e1], ["behouden"])
+        with pytest.raises(bs.OordeelfoutError, match="dubbele run"):
+            bs.eindoordeel(runs, data)
+
+    def test_codex_twaalf_niet_e_runs_met_leeg_oordeel_geweigerd(self):
+        """B5: twaalf niet-E-runs plus een leeg oordeelbestand gaf geslaagd."""
+        with pytest.raises(bs.OordeelfoutError, match="runs"):
+            bs.eindoordeel(_a_runs(12), _leeg_oordeel())
+
+    def test_twaalf_niet_e_runs_onder_de_juiste_sleutels_geweigerd(self):
+        (a,) = _a_runs(1)
+        runs = [{**a, "sleutel": s} for s in bs.PROEFSLEUTELS]
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, _leeg_oordeel())
+
+    @pytest.mark.parametrize(
+        "over",
+        [{"voorwaarde_behouden": None, "voorwaarde_status": None, "categorie": "geslaagd",
+          "m_d_telt": True, "handmatig": []},
+         {"categorie": "geslaagd", "m_d_telt": True, "handmatig": []},
+         {"voorwaarde_behouden": True},
+         {"e_uitvoer_sha256": None}],
+        ids=["als-niet-e", "geslaagd", "behouden", "zonder-hash"],
+    )  # fmt: skip
+    def test_codex_gewijzigde_e_metadata_geweigerd(self, over):
+        """B6 (directe route): E-metadata die niet bij een E-run past."""
+        runs = _proef()
+        runs[10] = {**runs[10], **over}
+        data = _oordelen(runs[:10] + runs[11:], ["behouden"] * 2)
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, data)
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, _leeg_oordeel())
+
+    @pytest.mark.parametrize(
+        "over",
+        [{"voorwaarde_behouden": False}, {"voorwaarde_status": "handmatig_beoordelen"},
+         {"e_uitvoer_sha256": "a" * 64}, {"handmatig": [bs.HANDMATIG_E]}],
+    )  # fmt: skip
+    def test_e_metadata_op_een_niet_e_run_geweigerd(self, over):
+        runs = _proef()
+        runs[4] = {**runs[4], **over}
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, _oordelen(runs[9:], ["behouden"] * 3))
+
+    def test_ontbrekende_run_geweigerd(self):
+        runs = _proef()
+        del runs[4]
+        with pytest.raises(bs.OordeelfoutError, match="ontbrekende runs"):
+            bs.eindoordeel(runs, _oordelen(runs[8:], ["behouden"] * 3))
+
+    @pytest.mark.parametrize("sleutel", ["interpretatie|E|4", "interpretatie|B|1",
+                                         "bewijsregels|A|1"])  # fmt: skip
+    def test_onbekende_run_geweigerd(self, sleutel):
+        runs = _proef()
+        runs.append({**runs[0], "sleutel": sleutel})
+        with pytest.raises(bs.OordeelfoutError, match="onbekende runs"):
+            bs.eindoordeel(runs, _oordelen(runs[9:12], ["behouden"] * 3))
+
+    def test_e_vervangt_een_andere_run_geweigerd(self):
+        """Elf echte runs plus E1 onder de sleutel van D3: strijdig."""
+        runs = _proef()
+        runs[8] = {**runs[9], "sleutel": "interpretatie|D|3"}
+        with pytest.raises(bs.OordeelfoutError, match="strijdig"):
+            bs.eindoordeel(runs, _oordelen(runs[9:], ["behouden"] * 3))
+
+    @pytest.mark.parametrize("runs", [None, "x", {}, [1], [{"sleutel": 3}]])
+    def test_ongeldige_runs_geweigerd(self, runs):
+        with pytest.raises(bs.OordeelfoutError, match="runs"):
+            bs.eindoordeel(runs, _leeg_oordeel())
+
+    def test_geslaagd_vereist_drie_verschillende_beoordeelde_e_runs(self):
+        runs = _proef()
+        uit = bs.eindoordeel(runs, _oordelen(runs, ["behouden"] * 3))
+        assert uit["oordeel"] == "geslaagd"
+        assert [e["run"] for e in uit["e_oordelen"]] == list(bs.E_SLEUTELS)
+        assert [e["e_uitvoer_sha256"] for e in uit["e_oordelen"]] == [
+            r["e_uitvoer_sha256"] for r in runs[9:]
+        ]
 
 
 # --- orakelstructuur vereist/toegestaan (Codex-review B3/B4, aanvulling C3) -----------------

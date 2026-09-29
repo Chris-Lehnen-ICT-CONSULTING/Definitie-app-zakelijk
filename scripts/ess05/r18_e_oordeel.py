@@ -1,4 +1,4 @@
-"""DEF-768 R18A — het voorwaardeoordeel van Chris bij casus E (aanvulling v4).
+"""DEF-768 R18A — het voorwaardeoordeel van Chris bij casus E (aanvulling v4/v5).
 
 Besluit optie 2 (Codex-hercontrole v3): de scorer beoordeelt de voorwaarde bij
 E nooit automatisch. Na de proef beoordeelt Chris elke gescoorde E-run:
@@ -15,15 +15,24 @@ E nooit automatisch. Na de proef beoordeelt Chris elke gescoorde E-run:
    plus het oordeelbestand; weigert ontbrekende, dubbele, onbekende of
    hash-afwijkende oordelen (`OordeelfoutError`) en schrijft dan niets.
 
-De runs komen uit de callrecords van de fase (`<uitmap>/interpretatie-*/calls`),
-alleen de geregistreerde (met `acceptatie`); de sha256 van elke ruwe
-modeluitvoer wordt opnieuw berekend en moet met het record overeenkomen.
+Aanvulling v5 (Codex-hercontrole v4, B5/B6): de runs worden niet uit de
+opgeslagen metadata overgenomen. De invoer moet de gepinde R18A-invoer zijn
+(`run_ess05_proef.R18_I_INVOER_SHA256`) met precies A/C/D/E × 3; E is het item
+met de voorwaarde in die invoer. Elk geregistreerd callrecord (met
+`acceptatie`) moet bij zijn casus passen (fase, item_id, herhaling, sleutel,
+invoerhash, gevalhash, prompt, orakel, reservering) en de sha256 van zijn ruwe
+uitvoer; score en runoordeel worden met de huidige scorer uit die gehashte
+tekst herberekend en moeten gelijk zijn aan wat is opgeslagen. Elke afwijking,
+een dubbele run of reservering en een onvolledige proef (`controleer_runs`)
+geven `OordeelfoutError`.
 
-    .venv/bin/python scripts/ess05/r18_e_oordeel.py blad --calls DIR [DIR ...] --doel BLAD.md
+    .venv/bin/python scripts/ess05/r18_e_oordeel.py blad --calls DIR [DIR ...] \\
+        [--invoer INVOER.json] --doel BLAD.md
     .venv/bin/python scripts/ess05/r18_e_oordeel.py eindoordeel --calls DIR [DIR ...] \\
-        --oordeel OORDEEL.json --doel EINDOORDEEL.json
+        [--invoer INVOER.json] --oordeel OORDEEL.json --doel EINDOORDEEL.json
 
-Een doel wordt nooit overschreven; geen netwerk, geen modelaanroep.
+Standaardinvoer: `bewijsregel-invoer-v5.json`. Een doel wordt nooit
+overschreven; geen netwerk, geen modelaanroep.
 """
 
 from __future__ import annotations
@@ -33,7 +42,9 @@ import hashlib
 import json
 import re
 import sys
+from collections import Counter
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -41,10 +52,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import bewijsscorer as bs
+import maak_r18_bewijsregel_invoer as mk18
+import run_ess05_proef as runner
 
-__all__ = ["beoordelingsblad", "lees_runs", "main"]
+from services.validation.ai_beoordeling_transport import parse_modeluitvoer
+from services.validation.ess05_bewijsregel_service import (
+    _ontsnap,
+    bouw_interpretatieprompt,
+)
+from services.validation.ess05_verification_service import prompthash
+
+__all__ = ["INVOER", "beoordelingsblad", "lees_runs", "main"]
 
 CALLSCHEMA = "def768-ess05-interpretatiecall/1"
+#: De R18A-invoer die de runner pint (`R18_I_INVOER_SHA256`).
+INVOER = mk18.DOEL
 _GEEN_UITVOER = "Geen gescoorde uitvoer: geen oordeel nodig; telt als niet behouden."
 
 
@@ -52,63 +74,214 @@ def _sha(tekst: str) -> str:
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
 
 
-def _lees_records(callmappen: Sequence[Path]) -> list[tuple[Path, dict[str, Any]]]:
-    """(pad, record) van elke geregistreerde interpretatierun, op volgnummer."""
-    records: list[tuple[Path, dict[str, Any]]] = []
+def _json(waarde: Any) -> Any:
+    """Vergelijkbare vorm (tuples als lijsten), zoals het callrecord hem opslaat."""
+    return json.loads(json.dumps(waarde, ensure_ascii=False))
+
+
+@dataclass(frozen=True)
+class _Casus:
+    """Eén item van de gepinde invoer: gevalinhoud, orakel en prompt."""
+
+    item: Mapping[str, Any]
+    vergelijking: Any
+    prompt: tuple[str, str]
+    is_e: bool
+
+
+@dataclass(frozen=True)
+class _Run:
+    """Een gecontroleerd callrecord met het herberekende runoordeel."""
+
+    pad: Path
+    record: Mapping[str, Any]
+    run: dict[str, Any]
+    tekst: str | None
+
+
+def _fout(msg: str) -> bs.OordeelfoutError:
+    return bs.OordeelfoutError(msg)
+
+
+def _lees_invoer(pad: Path) -> dict[str, _Casus]:
+    """De gepinde R18A-invoer: hash, schema, proefstructuur en binding aan de code."""
+    data_bytes = Path(pad).read_bytes()
+    sha = hashlib.sha256(data_bytes).hexdigest()
+    if sha != runner.R18_I_INVOER_SHA256:
+        msg = (
+            f"{pad}: sha256 {sha} is niet de gepinde R18A-invoer "
+            f"({runner.R18_I_INVOER_SHA256})"
+        )
+        raise _fout(msg)
+    data = json.loads(data_bytes)
+    items = data.get("items") if isinstance(data, Mapping) else None
+    if data.get("schema") != mk18.INVOERSCHEMA or not isinstance(items, list):
+        raise _fout(f"{pad}: geen R18A-invoer met schema {mk18.INVOERSCHEMA}")
+    if not all(isinstance(i, Mapping) and isinstance(i.get("orakel"), Mapping)
+               for i in items):  # fmt: skip
+        raise _fout(f"{pad}: items zonder orakel")
+    ids = [i.get("id") for i in items]
+    e_ids = [i["id"] for i in items if "voorwaarde" in i["orakel"]]
+    if (
+        sorted(map(str, ids)) != sorted(bs.PROEFITEMS)
+        or len(set(ids)) != len(ids)
+        or e_ids != [bs.E_ITEM]
+        or any(i.get("herhalingen") != bs.HERHALINGEN for i in items)
+    ):
+        msg = (
+            f"{pad}: invoer past niet op de proefstructuur (items {ids}, "
+            f"E-casus {e_ids}; verwacht {list(bs.PROEFITEMS)} × {bs.HERHALINGEN}, "
+            f"E = {bs.E_ITEM})"
+        )
+        raise _fout(msg)
+    casussen = {}
+    for item in items:
+        vergelijking = mk18.vergelijkingsinvoer(item)
+        prompt = bouw_interpretatieprompt(vergelijking)
+        if prompthash(*prompt) != item.get("prompt_sha256"):
+            raise _fout(f"{pad}: {item['id']}: prompt_sha256 past niet op de prompt")
+        try:
+            bs.controleer_orakel(item["orakel"], vergelijking)
+        except bs.OrakelfoutError as exc:
+            raise _fout(f"{pad}: {item['id']}: {exc}") from exc
+        casussen[item["id"]] = _Casus(
+            item, vergelijking, prompt, item["id"] == bs.E_ITEM
+        )
+    return casussen
+
+
+def _controleer_record(
+    pad: Path, record: Mapping[str, Any], casus: _Casus
+) -> str | None:
+    """Het record past bij zijn casus en de gepinde invoer; geeft de ruwe tekst."""
+    sleutel, herhaling = record.get("sleutel"), record.get("herhaling")
+    item = casus.item
+    if (
+        isinstance(herhaling, bool)
+        or not isinstance(herhaling, int)
+        or not 1 <= herhaling <= bs.HERHALINGEN
+    ):
+        raise _fout(f"{pad}: herhaling {herhaling!r} ligt niet in 1–{bs.HERHALINGEN}")
+    if sleutel != f"interpretatie|{item['id']}|{herhaling}":
+        msg = f"{pad}: sleutel {sleutel!r} past niet bij item_id {item['id']!r} en herhaling {herhaling}"
+        raise _fout(msg)
+    if record.get("invoerbestand_sha256") != runner.R18_I_INVOER_SHA256:
+        raise _fout(f"{pad}: invoerbestand_sha256 is niet de gepinde R18A-invoer")
+    if record.get("geval_sha256") != item["geval_sha256"]:
+        raise _fout(f"{pad}: geval_sha256 past niet bij item {item['id']}")
+    prompt = record.get("prompt")
+    if not isinstance(prompt, Mapping) or (
+        (prompt.get("system"), prompt.get("user"), prompt.get("sha256"))
+        != (*casus.prompt, item["prompt_sha256"])
+    ):
+        raise _fout(f"{pad}: prompt past niet bij item {item['id']}")
+    if _json(record.get("orakel")) != _json(item["orakel"]):
+        raise _fout(f"{pad}: orakel past niet bij item {item['id']}")
+    stappen = record.get("reserveringen")
+    if not (isinstance(stappen, list) and len(stappen) == 1
+            and isinstance(stappen[0], Mapping)):  # fmt: skip
+        raise _fout(f"{pad}: niet precies één reservering")
+    stap = stappen[0]
+    if (stap.get("seq"), stap.get("poging")) != (record.get("seq"), sleutel):
+        raise _fout(f"{pad}: reservering (seq, poging) past niet bij het record")
+    tekst = stap.get("ruw_antwoord")
+    if tekst is not None and (
+        not isinstance(tekst, str) or _sha(tekst) != stap.get("ruw_antwoord_sha256")
+    ):
+        raise _fout(f"{pad}: ruw_antwoord_sha256 klopt niet met de ruwe uitvoer")
+    return tekst
+
+
+def _herbereken(
+    pad: Path, record: Mapping[str, Any], casus: _Casus, tekst: str | None
+) -> dict[str, Any]:
+    """Score en runoordeel opnieuw uit de gehashte ruwe tekst, zoals de runner
+    (`_i_score`: alleen als de dienst de uitvoer parste); wijkt het opgeslagen
+    af, dan is de metadata strijdig."""
+    registratie = record.get("interpretatie")
+    if isinstance(registratie, Mapping) and "ruw_antwoord" in registratie:
+        if registratie["ruw_antwoord"] != tekst:
+            msg = f"{pad}: strijdige metadata: interpretatie.ruw_antwoord is niet de gehashte tekst"
+            raise _fout(msg)
+    score = None
+    if isinstance(registratie, Mapping) and "ruw" in registratie:
+        geparsed = parse_modeluitvoer(tekst)
+        if geparsed is None or _json(geparsed) != _json(registratie["ruw"]):
+            msg = f"{pad}: strijdige metadata: interpretatie.ruw is niet de geparste ruwe uitvoer"
+            raise _fout(msg)
+        try:
+            score = bs.scoor(
+                _ontsnap(geparsed), casus.vergelijking, casus.item["orakel"]
+            )
+        except Exception:  # zoals de runner: een scorerfout is geen score
+            score = None
+    oordeel = bs.runoordeel(score, casus.item["orakel"])
+    if _json(record.get("score")) != _json(score) or _json(
+        record.get("runoordeel")
+    ) != _json(oordeel):
+        msg = (
+            f"{pad}: strijdige metadata: opgeslagen score of runoordeel wijkt af "
+            "van de herberekening uit de ruwe uitvoer"
+        )
+        raise _fout(msg)
+    return {
+        "sleutel": record["sleutel"],
+        **oordeel,
+        "e_uitvoer_sha256": (
+            _sha(tekst)
+            if casus.is_e and score is not None and tekst is not None
+            else None
+        ),
+    }
+
+
+def _uniek(
+    records: Sequence[tuple[Path, Mapping[str, Any]]], veld: str, wat: str
+) -> None:
+    telling = Counter(r.get(veld) for _, r in records if r.get(veld) is not None)
+    dubbel = sorted(str(w) for w, n in telling.items() if n > 1)
+    if dubbel:
+        raise _fout(f"{wat} ({veld} {dubbel})")
+
+
+def _lees(callmappen: Sequence[Path], invoer: Path) -> list[_Run]:
+    """Elke geregistreerde run, gecontroleerd en herberekend, op volgnummer;
+    daarna moet de verzameling precies de proef zijn (`controleer_runs`)."""
+    casussen = _lees_invoer(invoer)
+    records: list[tuple[Path, Mapping[str, Any]]] = []
     for map_ in callmappen:
         for pad in sorted(Path(map_).glob("*.json")):
             record = json.loads(pad.read_text(encoding="utf-8"))
             if (
-                record.get("schema") != CALLSCHEMA
+                not isinstance(record, Mapping)
+                or record.get("schema") != CALLSCHEMA
                 or record.get("fase") != "interpretatie"
             ):
                 msg = f"{pad}: geen interpretatie-callrecord ({CALLSCHEMA})"
-                raise bs.OordeelfoutError(msg)
-            for stap in record.get("reserveringen") or []:
-                tekst = stap.get("ruw_antwoord")
-                if isinstance(tekst, str) and _sha(tekst) != stap.get(
-                    "ruw_antwoord_sha256"
-                ):
-                    msg = f"{pad}: ruw_antwoord_sha256 klopt niet met de ruwe uitvoer"
-                    raise bs.OordeelfoutError(msg)
+                raise _fout(msg)
             if record.get("acceptatie") is not None:
                 records.append((pad, record))
     if not records:
-        raise bs.OordeelfoutError(f"geen callrecords in {[str(m) for m in callmappen]}")
-    gezien: set[str] = set()
-    for pad, record in records:
-        if record["sleutel"] in gezien:
-            raise bs.OordeelfoutError(f"{pad}: dubbele run {record['sleutel']!r}")
-        gezien.add(record["sleutel"])
-    return sorted(records, key=lambda pr: (pr[1]["seq"] is None, pr[1]["seq"] or 0))
-
-
-def _e_uitvoer(record: Mapping[str, Any]) -> str | None:
-    """De beoordeelde E-uitvoer (ruwe modeltekst), alleen bij een gescoorde E-run."""
-    if record["runoordeel"]["voorwaarde_behouden"] is None or record["score"] is None:
-        return None
-    stappen = record.get("reserveringen") or []
-    tekst = stappen[0].get("ruw_antwoord") if stappen else None
-    return tekst if isinstance(tekst, str) else None
-
-
-def _runs(records: Sequence[tuple[Path, Mapping[str, Any]]]) -> list[dict[str, Any]]:
+        raise _fout(f"geen callrecords in {[str(m) for m in callmappen]}")
+    _uniek(records, "sleutel", "dubbele run")
+    _uniek(records, "seq", "dubbele reservering")
     runs = []
-    for _, record in records:
-        tekst = _e_uitvoer(record)
-        runs.append(
-            {
-                "sleutel": record["sleutel"],
-                **record["runoordeel"],
-                "e_uitvoer_sha256": _sha(tekst) if tekst is not None else None,
-            }
-        )
+    for pad, record in sorted(records, key=lambda pr: pr[1].get("seq") or 0):
+        casus = casussen.get(record.get("item_id"))
+        if casus is None:
+            raise _fout(f"{pad}: onbekende item_id {record.get('item_id')!r}")
+        tekst = _controleer_record(pad, record, casus)
+        runs.append(_Run(pad, record, _herbereken(pad, record, casus, tekst), tekst))
+    bs.controleer_runs([r.run for r in runs])
     return runs
 
 
-def lees_runs(callmappen: Sequence[Path]) -> list[dict[str, Any]]:
-    """Elke geregistreerde run: `runoordeel`, `sleutel` en voor E `e_uitvoer_sha256`."""
-    return _runs(_lees_records(callmappen))
+def lees_runs(
+    callmappen: Sequence[Path], invoer: Path = INVOER
+) -> list[dict[str, Any]]:
+    """Elke run van de proef, herberekend: `runoordeel`, `sleutel` en voor E
+    `e_uitvoer_sha256`; weigert zoals `_lees`."""
+    return [r.run for r in _lees(callmappen, invoer)]
 
 
 # --- beoordelingsblad -----------------------------------------------------------------------
@@ -156,11 +329,11 @@ def _antwoordtabel(ruw: Any, eenheden: Mapping[str, str]) -> list[str]:
     return regels
 
 
-def _e_sectie(pad: Path, record: Mapping[str, Any]) -> list[str]:
-    run = record["runoordeel"]
+def _e_sectie(r: _Run) -> list[str]:
+    pad, record, run = r.pad, r.record, r.run
     md = (record["score"] or {}).get("m_d") or {}
     dienst = record.get("dienstuitkomst") or {}
-    tekst = _e_uitvoer(record)
+    tekst = r.tekst if run["e_uitvoer_sha256"] else None
     regels = [
         f"## {record['sleutel']}",
         "",
@@ -236,12 +409,11 @@ def _sjabloon(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
-def beoordelingsblad(callmappen: Sequence[Path]) -> str:
-    """Het beoordelingsblad (markdown) voor de E-runs van deze callmappen."""
-    records = _lees_records(callmappen)
-    e_records = [
-        (p, r) for p, r in records if r["runoordeel"]["voorwaarde_behouden"] is not None
-    ]
+def beoordelingsblad(callmappen: Sequence[Path], invoer: Path = INVOER) -> str:
+    """Het beoordelingsblad (markdown) voor de E-runs van deze callmappen; weigert
+    zoals `lees_runs` (alleen een volledige, consistente proef)."""
+    records = _lees(callmappen, invoer)
+    e_records = [r for r in records if r.run["sleutel"] in bs.E_SLEUTELS]
     regels = [
         "# R18A — beoordelingsblad casus E (voorwaardeoordeel van Chris)",
         "",
@@ -258,8 +430,8 @@ def beoordelingsblad(callmappen: Sequence[Path]) -> str:
         f"Runs in de callrecords: {len(records)}; E-runs: {len(e_records)}.",
         "",
     ]
-    for pad, record in e_records:
-        regels.extend(_e_sectie(pad, record))
+    for r in e_records:
+        regels.extend(_e_sectie(r))
     regels += [
         "## Oordeelbestand (sjabloon)",
         "",
@@ -269,7 +441,7 @@ def beoordelingsblad(callmappen: Sequence[Path]) -> str:
         ),
         "",
         "```json",
-        json.dumps(_sjabloon(_runs(records)), ensure_ascii=False, indent=2),
+        json.dumps(_sjabloon([r.run for r in records]), ensure_ascii=False, indent=2),
         "```",
         "",
     ]
@@ -293,6 +465,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     eind = sub.add_parser("eindoordeel", help="proefoordeel plus het oordeel van Chris")
     for s in (blad, eind):
         s.add_argument("--calls", type=Path, nargs="+", required=True)
+        s.add_argument("--invoer", type=Path, default=INVOER)
         s.add_argument("--doel", type=Path, required=True)
     eind.add_argument("--oordeel", type=Path, required=True)
     args = p.parse_args(argv)
@@ -300,10 +473,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         msg = f"doel bestaat al: {args.doel}"
         raise FileExistsError(msg)
     if args.opdracht == "blad":
-        tekst = beoordelingsblad(args.calls)
+        tekst = beoordelingsblad(args.calls, args.invoer)
     else:
+        runs = lees_runs(args.calls, args.invoer)
         oordelen = json.loads(args.oordeel.read_text(encoding="utf-8"))
-        uit = bs.eindoordeel(lees_runs(args.calls), oordelen)
+        uit = bs.eindoordeel(runs, oordelen)
+        uit["invoerbestand_sha256"] = runner.R18_I_INVOER_SHA256
         uit["oordeelbestand_sha256"] = _sha(args.oordeel.read_text(encoding="utf-8"))
         tekst = json.dumps(uit, ensure_ascii=False, indent=2) + "\n"
     _schrijf(args.doel, tekst)
