@@ -447,7 +447,11 @@ class TestKetenDoorDeApp:
         assert run.resultaat["rule_results"]["ESS-05"]["review"]["question"]
 
     def test_technische_fout_reist_mee_als_error(self, monkeypatch):
-        run = _valideer(monkeypatch, "pass", [_buur(BUUR_C)], ai=_SpyAI("geen json"))
+        # Robuustheid P1 (punt 4): alleen een echte storing is `error`; onleesbare
+        # modeluitvoer ("geen json") is sindsdien review_required
+        # (test_def768_robuustheid_melding.py).
+        ai = _SpyAI({}, fout=RuntimeError("storing"))
+        run = _valideer(monkeypatch, "pass", [_buur(BUUR_C)], ai=ai)
         assert run.resultaat["rule_statuses"]["ESS-05"] == "error"
         assert run.resultaat["ess05_assessment"]["status"] == "error"
 

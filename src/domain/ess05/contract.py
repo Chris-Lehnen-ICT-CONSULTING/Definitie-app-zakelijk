@@ -104,6 +104,7 @@ __all__ = [
     "lege_ruimte_geldig",
     "materiaalhashes",
     "normaliseer_buren",
+    "onbruikbare_modeluitvoer",
     "pas_verificatie_toe",
     "repositoryrijen_uit",
     "stel_actieve_buren_samen",
@@ -170,6 +171,53 @@ _ACTIE_FOUT = (
     "Controleer opnieuw. Blijft dit terugkomen, meld het dan als technisch probleem."
 )
 _ACTIE_INVOER = "Vul term, definitie en context in en toets opnieuw."
+_ACTIE_HANDMATIG = (
+    "Beoordeel zelf of de definitie zich voldoende onderscheidt van de verwante "
+    "begrippen. Toets opnieuw na een wijziging van tekst, context of verwante "
+    "begrippen."
+)
+
+#: Robuustheid P1 (punt 4, besluit Chris 29-09): fouttypen van een
+#: `ess05/3`-beoordeling waarbij de modeluitvoer inhoudelijk onbruikbaar is,
+#: met een korte reden voor de gebruiker. De app toont dan `review_required`
+#: ("beoordeel handmatig"), geen technisch probleem. Elk ander fouttype
+#: (transport, timeout, weigering, afkapping, invoerlimiet, burenlookup,
+#: teller) blijft `error`. Fail-closed: een onbekend type is technisch.
+_ONBRUIKBAAR: dict[str, str] = {
+    "malformed_response": "het antwoord van de AI was geen leesbaar JSON-object",
+    "schemafout": "het antwoord van de AI had niet de afgesproken vorm",
+    "citaatfout": "de AI verwees naar tekst die niet zo in het materiaal staat",
+    "onderwerpfout": "de AI koppelde bewijs aan een ander begrip",
+    "contextfout": "de AI gebruikte een feit uit een andere context",
+    "kerndekking_onvolledig": "de AI dekte niet de hele definitie af",
+    "doeldekking_onvolledig": "de AI beantwoordde niet alle verplichte vragen",
+    "betekenisfout": "de AI noemde betekeniskenmerken zonder onderbouwing",
+    "buiten_bereik": (
+        "de definitie bevat een constructie die de automatische beoordeling niet "
+        "ondersteunt"
+    ),
+    "inconsistent": "de AI gaf tegenstrijdige antwoorden",
+    "dekking_ontbreekt": (
+        "het materiaal is maar deels meegegeven, dus 'niet besproken' bewijst niets"
+    ),
+    FOUT_CONTROLE: "een controle bevestigde de interpretatie van de AI niet",
+    "controle_malformed_response": "een controle gaf geen bruikbaar antwoord",
+    "controle_packet_hash_mismatch": "een controle gaf geen bruikbaar antwoord",
+}
+
+
+def onbruikbare_modeluitvoer(assessment: Any) -> bool:
+    """Of een `ess05/3`-beoordeling faalde op inhoudelijk onbruikbare modeluitvoer
+    (dan `review_required`), en niet op een technische storing (dan `error`)."""
+    if not isinstance(assessment, Mapping):
+        return False
+    fout = assessment.get("error")
+    return (
+        assessment.get("contract_version") == app.DOCUMENTVERSIE
+        and assessment.get("status") == "error"
+        and isinstance(fout, Mapping)
+        and _tekst(fout.get("type")) in _ONBRUIKBAAR
+    )
 
 
 def _tekst(waarde: Any) -> str:
@@ -924,6 +972,8 @@ def _lege_samenvatting() -> dict[str, Any]:
         "expected_binding": None,
         "verification": None,
         "rejected": 0,
+        # Robuustheid P1 (punt 4): onbruikbare modeluitvoer, geen storing.
+        "unusable": False,
     }
 
 
@@ -935,8 +985,13 @@ def _statusafwijzing(assessment: Mapping[str, Any]) -> str | None:
         fout = assessment.get("error")
         fout = fout if isinstance(fout, Mapping) else {}
         fase = _tekst(fout.get("phase"))
+        soort = (
+            "AI-uitvoer niet bruikbaar"
+            if onbruikbare_modeluitvoer(assessment)
+            else "technische fout"
+        )
         return (
-            f"technische fout ({_tekst(fout.get('type')) or 'unknown'}"
+            f"{soort} ({_tekst(fout.get('type')) or 'unknown'}"
             f"{f', fase {fase}' if fase else ''}): {_tekst(fout.get('message'))}"
         ).strip()
     if status != "assessed":
@@ -1046,6 +1101,7 @@ def _vul_samenvatting(
     fout = _gebonden(assessment, "error")
     samenvatting["error_type"] = _tekst(fout.get("type")) or None
     samenvatting["phase"] = _tekst(fout.get("phase")) or None
+    samenvatting["unusable"] = onbruikbare_modeluitvoer(assessment)
 
 
 def _afleidingsafwijzing(
@@ -1818,6 +1874,16 @@ def _uitkomst_uit_oordeel(
     review: dict[str, Any],
 ) -> Ess05Uitkomst:
     """Technische fout, open (niet of historisch beoordeeld) of samengevoegd oordeel."""
+    if samenvatting.get("unusable"):
+        # Robuustheid P1 (punt 4): onbruikbare modeluitvoer is geen storing maar
+        # een open punt voor de gebruiker, met een korte reden.
+        soort = _tekst(samenvatting.get("error_type"))
+        reden = (
+            "De AI kon dit niet betrouwbaar automatisch beoordelen; beoordeel "
+            f"handmatig. Reden: {_ONBRUIKBAAR[soort]} ({soort})."
+        )
+        deel = _samenvatting_deel(STATUS_OPEN, reden, _ACTIE_HANDMATIG)
+        return Ess05Uitkomst(STATUS_OPEN, fingerprint, (deel,), review)
     if samenvatting.get("status") == "error":
         if samenvatting.get("error_type") == FOUT_SEMANTISCH:
             reden = (

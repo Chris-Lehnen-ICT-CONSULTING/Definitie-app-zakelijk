@@ -396,6 +396,12 @@ def _beoordelingsstatusregel(
     """Een niet-uitgevoerde AI-beoordeling: technisch mislukt, geen bronnen,
     geen dienst. None als de status daar niet over gaat."""
     naam = _beoordelingsnaam(beoordeling)
+    if status == "error" and beoordeling.get("unusable"):
+        # DEF-768 robuustheid P1 (punt 4): onbruikbare modeluitvoer, geen storing.
+        return (
+            f"🤖 {naam} niet bruikbaar{attributie}: "
+            f"{beoordeling.get('reason') or 'geen details'}"
+        )
     if status == "error":
         return (
             f"⚙️ {naam} technisch mislukt"
