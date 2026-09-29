@@ -435,4 +435,5 @@ class TestRouter:
         container.model_router = lambda: router
         svc = ServiceContainer.ess05_assessment_service(container)
         assert svc.binding().verification_model == "routed-ess05_verification"
-        assert svc.verification_service._ai_service is ai
+        # Stap 2: de lokale controle is de verificatiestap van de app-route.
+        assert svc.controle._ai_service is ai

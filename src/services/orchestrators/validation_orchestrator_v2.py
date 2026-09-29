@@ -750,7 +750,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         een fout een technische fout — nooit stil een pass (DEF-768)."""
         if self.ess05_assessment_service is None:
             logger.warning(
-                "DEF-768: geen Ess05AssessmentService geïnjecteerd; ESS-05 blijft "
+                "DEF-768: geen ESS-05-beoordelingsdienst geïnjecteerd; ESS-05 blijft "
                 "open (correlation_id=%s)",
                 correlation_id,
             )

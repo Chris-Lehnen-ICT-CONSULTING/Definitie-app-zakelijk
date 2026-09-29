@@ -15,7 +15,7 @@ from typing import Any, cast
 
 from database.models import DefinitieRecord
 from domain.ess03.contract import Beoordelingsbinding, Intentie
-from domain.ess05.contract import Ess05Beoordelingsbinding
+from domain.ess05.contract import Ess05Binding
 from domain.int01.opslag import niet_toepasbaar_detail, tekstvingerafdruk
 from domain.int03.contract import Beoordelingsbinding as Int03Binding
 from services.definition_edit_repository import DefinitionEditRepository
@@ -442,7 +442,7 @@ def ess05_actieve_buren_van(
 def ess05_uitkomst_van_definition(
     definition: Definition,
     buren_van_toetsing: Any,
-    binding: Ess05Beoordelingsbinding | None = None,
+    binding: Ess05Binding | None = None,
     *,
     assessment: Any = _ONGEZET,
 ) -> dict[str, Any]:
@@ -484,7 +484,7 @@ def herbind_ess05_in_validatieresultaat(
     resultaat: Mapping[str, Any],
     kandidaat: Definition,
     *,
-    binding: Ess05Beoordelingsbinding | None,
+    binding: Ess05Binding | None,
 ) -> dict[str, Any]:
     """Het validatieresultaat met ESS-05 afgespeeld op de kandidaat zoals die nú is.
 
@@ -512,7 +512,7 @@ def bindingsafwijzing_ess05(
     definition: Definition,
     buren_van_toetsing: Any,
     *,
-    binding: Ess05Beoordelingsbinding | None = None,
+    binding: Ess05Binding | None = None,
 ) -> str | None:
     """Waarom een ESS-05-sessiebeoordeling níet bij de op te slaan kandidaat hoort, of None.
 
@@ -572,7 +572,7 @@ def _neem_ess05_beoordeling_op(
     assessment: Mapping[str, Any] | None,
     definition: Definition,
     buren_van_toetsing: Any,
-    binding: Ess05Beoordelingsbinding | None,
+    binding: Ess05Binding | None,
 ) -> tuple[bool, str | None]:
     """Zet een bindende ESS-05-sessiebeoordeling als actueel bewijs op de kandidaat."""
     if assessment is None:
@@ -1118,7 +1118,7 @@ class DefinitionEditService:
         categoriekeuze: Mapping[str, Any] | None = None,
         ess05_assessment: Mapping[str, Any] | None = None,
         ess05_actieve_buren: Any = None,
-        ess05_binding: Ess05Beoordelingsbinding | None = None,
+        ess05_binding: Ess05Binding | None = None,
         int03_assessment: Mapping[str, Any] | None = None,
         int03_binding: Int03Binding | None = None,
     ) -> dict[str, Any]:

@@ -63,6 +63,7 @@ __all__ = [
     "Vergelijkingsinvoer",
     "bepaal",
     "bewijsdiagnose",
+    "buurweergave",
     "controle_eenheden",
     "pas_regels_toe",
     "regelcontract",
@@ -1190,37 +1191,41 @@ def render(uitkomst: Regeluitkomst) -> str:
             "Uitkomst: open — het aangeleverde materiaal draagt het oordeel niet volledig."
         ),
     }[uitkomst.uitkomst]
-    per_id = {k.id: k for k in uitkomst.kenmerken}
     regels = [kop]
     for buur in uitkomst.buren:
         regels.append(f"Ten opzichte van {buur.term}:")
-        regels += [
-            f"- {_aspectzin(a, buur.term, uitkomst.term)}" for a in buur.aspecten
-        ]
-        for g in buur.groepen:
-            if g.id == buur.buur_id:
-                continue
-            regels.append(
-                f"- Deelgroep '{g.omschrijving}': {_groepzin(g, per_id, uitkomst.term)}"
-            )
-        geheel = buur.groepen[0] if buur.groepen else None
-        if (
-            buur.oordeel == "niet_onderscheiden"
-            and geheel
-            and geheel.oordeel == "tegengeval"
-        ):
-            regels.append(
-                f"- Elk geval van {buur.term}: {_groepzin(geheel, per_id, uitkomst.term)}"
-            )
-        if buur.oordeel == "onderscheiden":
-            regels.append(
-                f"De kern grenst {buur.term} af"
-                + ("; gedeelde gevallen blijven mogelijk." if buur.overlap else ".")
-            )
-        elif buur.oordeel == "open":
-            regels.append(
-                f"Ten opzichte van {buur.term} is geen afgrenzing vastgesteld; geen "
-                "uitspraak over andere mogelijke verschillen."
-            )
+        regels += buurweergave(uitkomst, buur)
     regels.append(BEREIKZIN)
     return "\n".join(regels)
+
+
+def buurweergave(uitkomst: Regeluitkomst, buur: Buuroordeel) -> list[str]:
+    """De weergave van één buur, zoals `render` haar onder zijn kop toont."""
+    per_id = {k.id: k for k in uitkomst.kenmerken}
+    regels = [f"- {_aspectzin(a, buur.term, uitkomst.term)}" for a in buur.aspecten]
+    for g in buur.groepen:
+        if g.id == buur.buur_id:
+            continue
+        regels.append(
+            f"- Deelgroep '{g.omschrijving}': {_groepzin(g, per_id, uitkomst.term)}"
+        )
+    geheel = buur.groepen[0] if buur.groepen else None
+    if (
+        buur.oordeel == "niet_onderscheiden"
+        and geheel
+        and geheel.oordeel == "tegengeval"
+    ):
+        regels.append(
+            f"- Elk geval van {buur.term}: {_groepzin(geheel, per_id, uitkomst.term)}"
+        )
+    if buur.oordeel == "onderscheiden":
+        regels.append(
+            f"De kern grenst {buur.term} af"
+            + ("; gedeelde gevallen blijven mogelijk." if buur.overlap else ".")
+        )
+    elif buur.oordeel == "open":
+        regels.append(
+            f"Ten opzichte van {buur.term} is geen afgrenzing vastgesteld; geen "
+            "uitspraak over andere mogelijke verschillen."
+        )
+    return regels

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     from services.synonym_orchestrator import SynonymOrchestrator
     from services.synonym_suggester import SynonymSuggester
     from services.validation.ess03_assessment_service import Ess03AssessmentService
-    from services.validation.ess05_assessment_service import Ess05AssessmentService
+    from services.validation.ess05_bewijsregel_service import Ess05BewijsregelService
     from services.validation.int02_assessment_service import (
         Budget,
         Int02AssessmentService,
@@ -335,32 +335,27 @@ class ServiceContainer:
             "Ess03AssessmentService", self._instances["ess03_assessment_service"]
         )
 
-    def ess05_assessment_service(self) -> "Ess05AssessmentService":
+    def ess05_assessment_service(self) -> "Ess05BewijsregelService":
         """De AI-onderscheidsbeoordeling voor ESS-05 (DEF-768), singleton.
 
-        Zelfde opzet als ESS-03: op de gedeelde AIServiceV2 en de ModelRouter
-        (taak `validation`); één instantie (en één interne cache) voor editor
-        en generatie. De semantische verificatie (ADR-003) is een afzonderlijke
-        dienst met eigen taak `ess05_verification` op dezelfde AI-dienst en
-        router.
+        Sinds stap 2 (plan 2026-09-29 app-aansluiting, besluit Chris) de
+        bewijsregelroute: één interpretatie (taak `validation`) plus lokale
+        controles (`Ess05LocalVerificationService`, taak `ess05_verification`),
+        op de gedeelde AIServiceV2 en de ModelRouter; één instantie voor editor
+        en generatie. Er is één ESS-05-route, zonder schakelaar.
         """
         if "ess05_assessment_service" not in self._instances:
-            from services.validation.ess05_assessment_service import (
-                Ess05AssessmentService,
-            )
-            from services.validation.ess05_verification_service import (
-                Ess05VerificationService,
+            from services.validation.ess05_bewijsregel_service import (
+                Ess05BewijsregelService,
             )
 
-            self._instances["ess05_assessment_service"] = Ess05AssessmentService(
-                self.ai_service(),
-                model_router=self.model_router(),
-                verification_service=Ess05VerificationService(
+            self._instances["ess05_assessment_service"] = (
+                Ess05BewijsregelService.voor_app(
                     self.ai_service(), model_router=self.model_router()
-                ),
+                )
             )
         return cast(
-            "Ess05AssessmentService", self._instances["ess05_assessment_service"]
+            "Ess05BewijsregelService", self._instances["ess05_assessment_service"]
         )
 
     def int03_assessment_service(self) -> "Int03AssessmentService":

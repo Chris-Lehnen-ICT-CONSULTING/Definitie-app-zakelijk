@@ -6,10 +6,12 @@ beoordeelt via `domain.ess05.contract.beoordeel_onderscheid` of de kern het
 begrip in deze context kenbaar onderscheidt van zijn verwante begrippen.
 Deze evaluator is synchroon en zuiver; de AI-beoordeling en de actieve
 burenlijst worden door de async wrapper (`ValidationOrchestratorV2` →
-`Ess05AssessmentService`) voorbereid en reizen mee in de metadata:
+`Ess05BewijsregelService`, sinds DEF-768 stap 2) voorbereid en reizen mee in
+de metadata:
 
 - `ess05_assessment` — het beoordelingsdocument (of None);
-- `ess05_binding` — de actuele beoordelingsbinding van de dienst;
+- `ess05_binding` — de actuele beoordelingsbinding van de dienst (de
+  bewijsregelbinding; een ess05/2-binding blijft leesbaar);
 - `ess05_actieve_buren` — de actieve burenlijst (gebruiker, bron,
   repository, model); zonder die sleutel de opgeslagen `ess05_buren`;
 - `ess05_uitgesloten_termen` — afgewezen buurtermen;
@@ -31,9 +33,9 @@ from domain.ess05.contract import (
     STATUS_FAIL,
     STATUS_NOT_EVALUATED,
     STATUS_PASS,
-    Ess05Beoordelingsbinding,
     Ess05Uitkomst,
     beoordeel_onderscheid,
+    binding_uit_dict,
 )
 from services.validation.evaluators.base import (
     EvaluationDeps,
@@ -87,9 +89,9 @@ class DistinctionAssessmentEvaluator:
             buren=buren,
             lege_ruimte=metadata.get("ess05_lege_ruimte"),
             assessment=metadata.get("ess05_assessment"),
-            # ESS-05-eigen binding (ADR-003): alle tien velden, fail-closed;
-            # de ESS-03-parser zou de verificatiebinding stil laten wegvallen.
-            binding=Ess05Beoordelingsbinding.uit_dict(metadata.get("ess05_binding")),
+            # ESS-05-eigen binding, fail-closed: exact de velden van een van
+            # beide routes; de ESS-03-parser zou velden stil laten wegvallen.
+            binding=binding_uit_dict(metadata.get("ess05_binding")),
             uitgesloten_termen=metadata.get("ess05_uitgesloten_termen") or (),
         )
         return _naar_outcome(record, deps, uitkomst)

@@ -285,16 +285,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     def ess05_assessment_service(self) -> Any:
         """De AI-onderscheidsbeoordeling voor ESS-05 (DEF-768), lazy op de gedeelde AI-service.
 
+        De bewijsregelroute (stap 2): interpretatie plus lokale controles.
         Provider-agnostisch via `AIServiceInterface.generate_definition` en de
-        ModelRouter (taak `validation`); hier staat geen modelnaam.
+        ModelRouter (taken `validation` en `ess05_verification`); hier staat
+        geen modelnaam.
         """
         if self._ess05_assessment_service is None:
             from services.ai.model_router import ModelRouter
-            from services.validation.ess05_assessment_service import (
-                Ess05AssessmentService,
+            from services.validation.ess05_bewijsregel_service import (
+                Ess05BewijsregelService,
             )
 
-            self._ess05_assessment_service = Ess05AssessmentService(
+            self._ess05_assessment_service = Ess05BewijsregelService.voor_app(
                 self.ai_service, model_router=ModelRouter.from_config()
             )
         return self._ess05_assessment_service

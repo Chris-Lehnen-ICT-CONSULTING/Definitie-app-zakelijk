@@ -168,7 +168,12 @@ async def test_canonieke_en_repositoryburen_staan_als_data_in_de_generatieprompt
     # G en T zien dezelfde buren (zelfde samenstelling en herkomst).
     t_prompts = [o.prompt for o in omgeving.client.oproepen_van(ESS05_SOORT)]
     assert t_prompts, "geen ESS-05-toetsing van de kandidaat"
-    t_ids = {m.group(1) for m in re.finditer(r'<buur id="([^"]+)"', t_prompts[-1])}
+    # Stap 2: T is de interpretatieprompt van de bewijsregelroute; elke buur
+    # reist daar als eigen materiaal `neighbour:<id>` mee.
+    t_ids = {
+        m.group(1)
+        for m in re.finditer(r'<materiaal id="neighbour:([^"]+)"', t_prompts[-1])
+    }
     assert t_ids == set(gezien)
 
 

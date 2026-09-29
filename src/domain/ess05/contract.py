@@ -26,6 +26,13 @@ uitkomst. Modelvoorstellen blijven onbevestigd (K-1); zonder bevestigde buur
 is de regel open met precies één vraag, tenzij een deskundige de lege
 vergelijkingsruimte gemotiveerd en versiegebonden bevestigt (K-2). Geen
 cijfer, geen blokkade, geen automatische herschrijving.
+
+Sinds DEF-768 stap 2 (plan 2026-09-29 app-aansluiting, besluit Chris A–D)
+levert de app het document `ess05/3` van de bewijsregelroute
+(`domain.ess05.app_bewijsregels`). Het app-bevestigingsbeleid hierboven blijft
+gelden als afbeelding na de regels (B); modelvoorstellen bestaan in die route
+niet (A). Een `ess05/2`-document is verouderd: toets opnieuw (D). De
+ess05/2-code hieronder blijft staan tot een afzonderlijk verwijderbesluit.
 """
 
 from __future__ import annotations
@@ -41,7 +48,7 @@ from typing import Any
 from domain.context.contract import CONTEXT_VELDEN, Deeluitkomst
 from domain.context.normalisatie import canoniseer_contextlijst, contextsleutel
 from domain.ess03.contract import Intentie, materiaalhashes
-from domain.ess05 import bewijs
+from domain.ess05 import app_bewijsregels as app, bewijs, bewijsregels as br
 from domain.ess05.bewijs import (
     ANTWOORDSCHEMA,
     CONCEPTSCHEMA,
@@ -63,6 +70,7 @@ __all__ = [
     "CONTRACTVERSIE",
     "FASE_BEOORDELING",
     "FASE_VERIFICATIE",
+    "FOUT_CONTROLE",
     "FOUT_SEMANTISCH",
     "HERKOMSTEN",
     "ONDERDEEL_ONDERSCHEID",
@@ -74,6 +82,7 @@ __all__ = [
     "STATUS_PASS",
     "Buur",
     "Ess05Beoordelingsbinding",
+    "Ess05Binding",
     "Ess05Concept",
     "Ess05Uitkomst",
     "GevalideerdOnderscheid",
@@ -85,6 +94,7 @@ __all__ = [
     "beoordelingsmateriaal",
     "bereken_ess05_vingerafdruk",
     "betekenismateriaal",
+    "binding_uit_dict",
     "bindingscontext",
     "bronverwijzing",
     "buur_id",
@@ -109,6 +119,8 @@ CONTRACTVERSIE = "ess05/2"
 #: Foutsoort: de verifier keurde het concept niet (volledig) goed. Onbruikbare
 #: modeluitvoer, géén oordeel over de definitie.
 FOUT_SEMANTISCH = "semantic_verification_failed"
+#: Idem voor de bewijsregelroute: een lokale controle keurde de interpretatie niet.
+FOUT_CONTROLE = "semantische_controle_mislukt"
 FASE_BEOORDELING = "assessment"
 FASE_VERIFICATIE = "verification"
 
@@ -612,6 +624,19 @@ class Ess05Beoordelingsbinding:
         return cls(**{v: waarde[v] for v in velden})
 
 
+#: De binding van een van beide ESS-05-routes. Sinds DEF-768 stap 2 levert de
+#: app de bewijsregelbinding (`ess05/3`); de ess05/2-binding blijft bestaan
+#: voor de oude, niet meer aangesloten route en haar documenten.
+Ess05Binding = Ess05Beoordelingsbinding | app.Ess05Bewijsregelbinding
+
+
+def binding_uit_dict(waarde: Any) -> Ess05Binding | None:
+    """De binding uit haar opgeslagen vorm, welke route ook (fail-closed)."""
+    return app.Ess05Bewijsregelbinding.uit_dict(
+        waarde
+    ) or Ess05Beoordelingsbinding.uit_dict(waarde)
+
+
 # --- beoordelingsdocumenten ----------------------------------------------------------
 
 
@@ -1108,6 +1133,131 @@ def _geverifieerd_oordeel(
     return oordeel, "", verificatie
 
 
+def _bewijsregelafwijzing(
+    assessment: Mapping[str, Any],
+    samenvatting: Mapping[str, Any],
+    fingerprint: str,
+    materiaal: Mapping[str, str],
+    context: Mapping[str, Any],
+    binding: Ess05Binding | None,
+) -> str | None:
+    """Waarom een document niet als actueel `ess05/3`-oordeel mag gelden, of None.
+
+    Een ess05/2-document is verouderd (besluit D): de oude route is niet meer
+    aangesloten en wordt niet afgespeeld.
+    """
+    versie = assessment.get("contract_version")
+    invoer = _gebonden(assessment, "input")
+    opgeslagen = _gebonden(assessment, "binding")
+    return _eerste_fout(
+        (
+            (
+                lambda: versie != app.DOCUMENTVERSIE,
+                (
+                    f"verouderd — toets opnieuw: deze beoordeling (contractversie "
+                    f"{versie!r}) komt van de vorige ESS-05-route"
+                ),
+            ),
+            (
+                lambda: _tekst(assessment.get("fingerprint")) != fingerprint,
+                (
+                    "eerdere beoordeling geldt niet meer: tekst, context, term, "
+                    "bedoelde betekenis, bronnen of verwante begrippen zijn gewijzigd"
+                ),
+            ),
+            (
+                lambda: binding is None,
+                "actuele beoordelingsbinding onbekend (geen ESS-05-dienst beschikbaar)",
+            ),
+            (
+                lambda: not isinstance(binding, app.Ess05Bewijsregelbinding),
+                (
+                    "verouderd — toets opnieuw: de actuele binding hoort bij een "
+                    "andere ESS-05-route"
+                ),
+            ),
+        )
+    ) or _eerste_fout(
+        (
+            *(
+                (
+                    lambda veld=veld, verwacht=verwacht: opgeslagen.get(veld)
+                    != verwacht,
+                    (
+                        f"beoordeling hoort bij {veld} {opgeslagen.get(veld)!r}; "
+                        f"actueel is {verwacht!r}"
+                    ),
+                )
+                for veld, verwacht in (binding.als_dict() if binding else {}).items()
+            ),
+            (
+                lambda: (
+                    assessment.get("interpretation") is not None
+                    and not samenvatting.get("model")
+                )
+                or (
+                    bool(assessment.get("controls"))
+                    and not samenvatting.get("verification_model")
+                ),
+                "interpretatie of controle zonder benoemd model (herkomst onbekend)",
+            ),
+            (
+                lambda: invoer.get("materiaal") != materiaalhashes(materiaal),
+                "materiaal gewijzigd sinds de beoordeling",
+            ),
+            (
+                lambda: any(invoer.get(k) != v for k, v in context.items()),
+                (
+                    "buurbevestiging of afgewezen voorstellen gewijzigd sinds de "
+                    "beoordeling; toets opnieuw"
+                ),
+            ),
+        )
+    )
+
+
+def _valideer_bewijsregels(
+    assessment: Mapping[str, Any],
+    samenvatting: dict[str, Any],
+    fingerprint: str,
+    materiaal: Mapping[str, str],
+    buren: tuple[Buur, ...],
+    *,
+    begrip: str,
+    uitgesloten: tuple[str, ...],
+    binding: Ess05Binding | None,
+) -> tuple[app.Bewijsregeloordeel | None, dict[str, Any]]:
+    """Replay van een `ess05/3`-document: binding en materiaal, dan de regels opnieuw."""
+    reden = _bewijsregelafwijzing(
+        assessment,
+        samenvatting,
+        fingerprint,
+        materiaal,
+        bindingscontext(buren, uitgesloten),
+        binding,
+    )
+    if reden is not None:
+        samenvatting.update({"reason": reden, "historical": binding is not None})
+        return None, samenvatting
+    invoer = br.Vergelijkingsinvoer(
+        begrip, materiaal, tuple((b.id, b.term) for b in buren)
+    )
+    oordeel, reden = app.speel_af(assessment, invoer)
+    controles = assessment.get("controls")
+    samenvatting["verification"] = {
+        "approved": oordeel is not None,
+        "type": "lokale_controles",
+        "controls": len(controles) if isinstance(controles, list) else 0,
+    }
+    if oordeel is None:
+        samenvatting["reason"] = (
+            f"beoordeling zonder geldige bewijsregelcontrole: {reden}"
+        )
+        return None, samenvatting
+    samenvatting["applied"] = True
+    return oordeel, samenvatting
+
+
 def _valideer_beoordeling(
     assessment: Any,
     fingerprint: str,
@@ -1116,8 +1266,8 @@ def _valideer_beoordeling(
     *,
     begrip: str,
     uitgesloten_termen: Iterable[str],
-    binding: Ess05Beoordelingsbinding | None,
-) -> tuple[GevalideerdOnderscheid | None, dict[str, Any]]:
+    binding: Ess05Binding | None,
+) -> tuple[GevalideerdOnderscheid | app.Bewijsregeloordeel | None, dict[str, Any]]:
     samenvatting = _lege_samenvatting()
     samenvatting["expected_binding"] = binding.als_dict() if binding else None
     if not isinstance(assessment, Mapping):
@@ -1129,16 +1279,31 @@ def _valideer_beoordeling(
         samenvatting["reason"] = reden
         return None, samenvatting
     uitgesloten = tuple(uitgesloten_termen)
+    if assessment.get("contract_version") == app.DOCUMENTVERSIE or isinstance(
+        binding, app.Ess05Bewijsregelbinding
+    ):
+        return _valideer_bewijsregels(
+            assessment,
+            samenvatting,
+            fingerprint,
+            materiaal,
+            buren,
+            begrip=begrip,
+            uitgesloten=uitgesloten,
+            binding=binding,
+        )
+    # Hier is de binding de ess05/2-binding of None (de tak hierboven nam de rest).
+    oud = binding if isinstance(binding, Ess05Beoordelingsbinding) else None
     reden = _actualiteitsafwijzing(
         assessment,
         samenvatting,
         fingerprint,
         materiaal,
         bindingscontext(buren, uitgesloten),
-        binding,
+        oud,
     )
     if reden is not None:
-        samenvatting.update({"reason": reden, "historical": binding is not None})
+        samenvatting.update({"reason": reden, "historical": oud is not None})
         return None, samenvatting
     oordeel, reden, verificatie = _geverifieerd_oordeel(
         assessment,
@@ -1147,7 +1312,7 @@ def _valideer_beoordeling(
         begrip=begrip,
         uitgesloten_termen=uitgesloten,
         # Na de actualiteitscontrole is er altijd een binding.
-        antwoordschema=binding.answer_schema_version if binding else ANTWOORDSCHEMA,
+        antwoordschema=oud.answer_schema_version if oud else ANTWOORDSCHEMA,
     )
     samenvatting["verification"] = verificatie
     if oordeel is None:
@@ -1168,15 +1333,16 @@ def beoordelingsafwijzing(
     *,
     intentie: Intentie | None,
     buren: Any,
-    binding: Ess05Beoordelingsbinding,
+    binding: Ess05Binding,
     uitgesloten_termen: Iterable[str] = (),
 ) -> str | None:
     """Waarom `assessment` níet als actueel ESS-05-bewijs mag gelden, of None.
 
     Dezelfde volledige controle als de replay (ADR-003): contractversie,
-    vingerafdruk, alle tien bindingsvelden, materiaal, bindingscontext en een
-    opnieuw afgeleid, semantisch goedgekeurd oordeel. Alleen `None` als de
-    replay het oordeel daadwerkelijk zou toepassen.
+    vingerafdruk, alle bindingsvelden, materiaal, bindingscontext en een
+    opnieuw afgeleid, gecontroleerd oordeel (ess05/2: semantisch goedgekeurd
+    concept; ess05/3: interpretatie plus lokale controles). Alleen `None` als
+    de replay het oordeel daadwerkelijk zou toepassen.
     """
     try:
         actief = normaliseer_buren(buren)
@@ -1298,18 +1464,31 @@ def _kies_vraag(
 ) -> str | None:
     """Precies één vraag, in vaste prioriteit; None als niets open staat."""
     per_buur = {n["neighbour_id"]: n["distinction"] for n in oordeel.neighbours}
+    return _vraag_uit(
+        begrip, per_buur, oordeel.question, buren, [v["term"] for v in voorstellen]
+    )
+
+
+def _vraag_uit(
+    begrip: str,
+    per_buur: Mapping[str, str],
+    modelvraag: str | None,
+    buren: Mapping[str, Buur],
+    voorsteltermen: list[str],
+) -> str | None:
+    """De ene vraag van het app-beleid, voor beide routes (besluit B)."""
     onduidelijk = [
         b for b in buren.values() if b.bevestigd and per_buur[b.id] == "unclear"
     ]
     if onduidelijk:
-        return oordeel.question or (
+        return modelvraag or (
             f"Wat onderscheidt {_q(begrip)} in deze context van {_q(onduidelijk[0].term)}?"
         )
     onbevestigd = [
         b.term
         for b in buren.values()
         if not b.bevestigd and b.herkomst in _ONBEVESTIGD_VOORSTEL
-    ] + [v["term"] for v in voorstellen]
+    ] + voorsteltermen
     if onbevestigd:
         termen = ", ".join(_q(t) for t in onbevestigd)
         return f"Zijn {termen} verwante begrippen die deze definitie moet uitsluiten?"
@@ -1395,6 +1574,111 @@ def _samenvoegen(
     )
 
 
+#: Buuroordeel van de bewijsregels → onderscheid in de termen van het app-beleid.
+_ONDERSCHEID_VAN = {
+    "onderscheiden": "distinguished",
+    "niet_onderscheiden": "not_distinguished",
+    "open": "unclear",
+}
+
+
+def _bewijsregelbuurdeel(
+    buur: Buur, oordeel: br.Buuroordeel, regels: br.Regeluitkomst
+) -> Deeluitkomst:
+    """Eén buur van de bewijsregelroute als deeluitkomst, met het app-beleid (B)."""
+    status = _buurstatus(buur, _ONDERSCHEID_VAN[oordeel.oordeel])
+    herkomst = f"{buur.herkomst}, {'bevestigd' if buur.bevestigd else 'onbevestigd'}"
+    delen = [
+        f"Ten opzichte van {_q(buur.term)} ({herkomst}):",
+        *br.buurweergave(regels, oordeel),
+    ]
+    if oordeel.oordeel == "niet_onderscheiden" and not buur.bevestigd:
+        delen.append(
+            "Deze buur is nog niet bevestigd: bevestig of wijs haar af; pas een "
+            "bevestigde buur maakt dit een 'voldoet niet'."
+        )
+    kenmerken = {k.id: k for k in regels.kenmerken}
+    citaten = [
+        kenmerken[a.kenmerk_id].citaat
+        for a in oordeel.aspecten
+        if a.aspect == "afgrenzend" and kenmerken[a.kenmerk_id].citaat
+    ]
+    actie = {STATUS_PASS: _ACTIE_PASS, STATUS_FAIL: _ACTIE_FAIL}.get(
+        status, _ACTIE_VRAAG
+    )
+    return Deeluitkomst(
+        id=f"{_BUURPREFIX}{buur.id}",
+        status=status,
+        reason=" ".join(delen),
+        action=actie,
+        evidence=citaten[0] if citaten else None,
+        context_value=buur.term,
+        field=BASIS_ASSESSMENT,
+    )
+
+
+def _samenvoegen_bewijsregels(
+    begrip: str,
+    oordeel: app.Bewijsregeloordeel,
+    buren: tuple[Buur, ...],
+    model: str,
+) -> tuple[str, list[Deeluitkomst], str | None]:
+    """(status, onderdelen, vraag) van de bewijsregelroute onder het app-beleid (B).
+
+    Kern zonder kenmerk → fail; niet onderscheiden van een bevestigde buur →
+    fail; anders de ene vraag van het app-beleid (onbevestigde buur, open
+    oordeel, geen bevestigde buur) → open; anders voldoet. Zonder buren (D)
+    is er geen AI-aanroep en is de vraag welke verwante begrippen er zijn.
+    Modelvoorstellen bestaan in deze route niet (A).
+    """
+    regels = oordeel.regels
+    if regels is None:
+        reden = (
+            f"ESS-05 — Open: {_VRAAG_GEEN_BUREN} Er zijn in deze context geen "
+            "verwante begrippen bekend; er is geen AI-beoordeling uitgevoerd."
+        )
+        return (
+            STATUS_OPEN,
+            [_samenvatting_deel(STATUS_OPEN, reden, _ACTIE_VRAAG)],
+            _VRAAG_GEEN_BUREN,
+        )
+    kop = f"Beoordeling met bewijsregels ({model})."
+    if regels.kern_zonder_kenmerk:
+        reden = (
+            "ESS-05 — Voldoet niet: de kern drukt naast het bovenbegrip geen "
+            f"kenmerk uit. {kop}"
+        )
+        return STATUS_FAIL, [_samenvatting_deel(STATUS_FAIL, reden, _ACTIE_FAIL)], None
+    per_id = {b.id: b for b in buren}
+    buurdelen = [
+        _bewijsregelbuurdeel(per_id[b.buur_id], b, regels) for b in regels.buren
+    ]
+    niet = [
+        per_id[b.buur_id]
+        for b in regels.buren
+        if b.oordeel == "niet_onderscheiden" and per_id[b.buur_id].bevestigd
+    ]
+    if niet:
+        opsomming = ", ".join(_q(b.term) for b in niet)
+        reden = f"ESS-05 — Voldoet niet: niet onderscheiden van {opsomming}. {kop}"
+        deel = _samenvatting_deel(STATUS_FAIL, reden, _ACTIE_FAIL)
+        return STATUS_FAIL, [deel, *buurdelen], None
+    per_buur = {b.buur_id: _ONDERSCHEID_VAN[b.oordeel] for b in regels.buren}
+    vraag = _vraag_uit(begrip, per_buur, None, per_id, [])
+    if vraag is not None:
+        reden = f"ESS-05 — Open: {vraag} {kop}"
+        deel = _samenvatting_deel(STATUS_OPEN, reden, _ACTIE_VRAAG)
+        return STATUS_OPEN, [deel, *buurdelen], vraag
+    reden = (
+        f"ESS-05 — Voldoet: onderscheiden van alle bevestigde verwante begrippen. {kop}"
+    )
+    return (
+        STATUS_PASS,
+        [_samenvatting_deel(STATUS_PASS, reden, _ACTIE_PASS), *buurdelen],
+        None,
+    )
+
+
 def _lege_ruimte_afwijzing(lege_ruimte: Any, fingerprint: str) -> str | None:
     if not isinstance(lege_ruimte, Mapping):
         return "geen bevestiging van een lege vergelijkingsruimte"
@@ -1430,7 +1714,7 @@ def beoordeel_onderscheid(
     buren: Any = None,
     lege_ruimte: Any = None,
     assessment: Any = None,
-    binding: Ess05Beoordelingsbinding | None = None,
+    binding: Ess05Binding | None = None,
     uitgesloten_termen: Iterable[str] = (),
 ) -> Ess05Uitkomst:
     """De ESS-05-uitkomst van één kandidaattekst (replay, zonder AI-aanroep)."""
@@ -1520,7 +1804,7 @@ def _ontbrekende_invoer(
 
 def _uitkomst_uit_oordeel(
     begrip: str,
-    oordeel: GevalideerdOnderscheid | None,
+    oordeel: GevalideerdOnderscheid | app.Bewijsregeloordeel | None,
     samenvatting: Mapping[str, Any],
     actief: tuple[Buur, ...],
     fingerprint: str,
@@ -1534,6 +1818,13 @@ def _uitkomst_uit_oordeel(
                 "verificatie keurde het modeloordeel niet goed. Dit is geen oordeel "
                 "over de definitie en er is geen inhoudelijke uitkomst gegeven "
                 f"({samenvatting.get('reason')})."
+            )
+        elif samenvatting.get("error_type") == FOUT_CONTROLE:
+            reden = (
+                "De ESS-05-controle leverde geen bruikbaar oordeel: een lokale "
+                "controle keurde de interpretatie van het materiaal niet goed. Dit is "
+                "geen oordeel over de definitie en er is geen inhoudelijke uitkomst "
+                f"gegeven ({samenvatting.get('reason')})."
             )
         else:
             reden = (
@@ -1558,6 +1849,15 @@ def _uitkomst_uit_oordeel(
         )
         return Ess05Uitkomst(STATUS_OPEN, fingerprint, (deel,), review)
 
+    if isinstance(oordeel, app.Bewijsregeloordeel):
+        model = (
+            f"interpretatie door {samenvatting.get('model') or 'onbekend model'}; "
+            "lokaal gecontroleerd door "
+            f"{samenvatting.get('verification_model') or 'onbekend model'}"
+        )
+        status, delen, vraag = _samenvoegen_bewijsregels(begrip, oordeel, actief, model)
+        review.update({"question": vraag, "proposals": []})
+        return Ess05Uitkomst(status, fingerprint, tuple(delen), review)
     model = (
         f"{samenvatting.get('model') or 'onbekend model'}; semantisch geverifieerd "
         f"door {samenvatting.get('verification_model') or 'onbekend model'}"

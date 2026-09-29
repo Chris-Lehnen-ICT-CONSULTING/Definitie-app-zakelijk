@@ -354,22 +354,23 @@ def test_definition_orchestrator_bouwt_de_dienst_lazy_op_de_ai_service(monkeypat
     orch = module.DefinitionOrchestratorV2(
         ai_service=ai, cleaning_service=object(), repository=_Repo()
     )
-    from services.validation.ess05_assessment_service import Ess05AssessmentService
+    # Stap 2 (plan 2026-09-29 app-aansluiting): de bewijsregelroute is de dienst.
+    from services.validation.ess05_bewijsregel_service import Ess05BewijsregelService
 
     dienst = orch.ess05_assessment_service
-    assert isinstance(dienst, Ess05AssessmentService)
+    assert isinstance(dienst, Ess05BewijsregelService)
     assert dienst._ai_service is ai
     assert orch.ess05_assessment_service is dienst
 
 
 def test_container_levert_een_gedeelde_dienst(monkeypatch):
     from services.container import ServiceContainer
-    from services.validation.ess05_assessment_service import Ess05AssessmentService
+    from services.validation.ess05_bewijsregel_service import Ess05BewijsregelService
 
     container = ServiceContainer.__new__(ServiceContainer)
     container._instances = {}
     monkeypatch.setattr(container, "ai_service", lambda: object(), raising=False)
     monkeypatch.setattr(container, "model_router", lambda: None, raising=False)
     dienst = container.ess05_assessment_service()
-    assert isinstance(dienst, Ess05AssessmentService)
+    assert isinstance(dienst, Ess05BewijsregelService)
     assert container.ess05_assessment_service() is dienst

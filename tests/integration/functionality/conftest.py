@@ -141,18 +141,17 @@ def ess03_bevroren_antwoord(prompt: str) -> str:
     return json.dumps(antwoord, ensure_ascii=False)
 
 
-#: DEF-768: de gebruikersprompt van de ESS-05-beoordeling is herkenbaar aan de
-#: vaste kernregel uit `ess05_assessment_service.bouw_beoordelingsprompt`.
+#: DEF-768 stap 2: de ESS-05-beoordeling van de app is de bewijsregelroute; haar
+#: eerste (en zonder geldige interpretatie enige) aanroep is de interpretatie,
+#: herkenbaar aan de vaste begripsregel uit
+#: `ess05_bewijsregel_service.bouw_interpretatieprompt`.
 ESS05_SOORT = "ess05"
-_ESS05_KERNREGEL = re.compile(
-    r"^Definitiekern \(te toetsen, ongewijzigd\): ", re.MULTILINE
-)
-_ESS05_BUUR_ID = re.compile(r'^<buur id="([^"]+)"', re.MULTILINE)
+_ESS05_BEGRIPREGEL = re.compile(r"^Te interpreteren begrip: ", re.MULTILINE)
 
 
 def is_ess05_beoordelingsprompt(prompt: str) -> bool:
-    """Is dit de gebruikersprompt van de ESS-05-beoordeling (DEF-768)?"""
-    return _ESS05_KERNREGEL.search(prompt) is not None
+    """Is dit de interpretatieprompt van de ESS-05-beoordeling (DEF-768)?"""
+    return _ESS05_BEGRIPREGEL.search(prompt) is not None
 
 
 #: ADR-003: de tweede ESS-05-stap (semantische verificatie) is herkenbaar aan
@@ -169,36 +168,16 @@ def is_ess05_verificatieprompt(prompt: str) -> bool:
 
 
 def ess05_bevroren_antwoord(prompt: str) -> str:
-    """Het bevroren ESS-05-conceptoordeel (`/2`) zonder inhoudelijk oordeel.
+    """Het bevroren ESS-05-interpretatieantwoord: bewust géén geldige interpretatie.
 
-    Geen modelkwaliteit en geen oordeel: het kernkenmerk is de volledige kern
-    (geen afgeleide `lacks_differentia`), elke aangeleverde buur krijgt precies
-    één keer `unclear` met een gemarkeerde onzekerheid, geen voorstel en geen
-    vraag. De app maakt daar zelf 'nog te beoordelen' van — zonder bevestigde
-    buur of met een onbeslist onderscheid nooit een pass.
+    Geen modelkwaliteit en geen oordeel. Een algemene geldige interpretatie
+    vraagt citaten die elk woord van de getoetste definitie dekken; die levert
+    deze grens niet. De app maakt er een technische fout van (`error`, geen
+    controle-aanroep) — nooit een pass of fail. Deze suite toetst met ESS-05
+    alleen wat de toetsing ontvangt (buren, materiaal), niet het oordeel.
     """
-    from tests.fixtures.def768_fakes import antwoord_uit_spec, materiaal_uit_prompt
-
-    spec = {
-        "lacks_differentia": False,
-        "reason": "Bevroren proefantwoord: geen inhoudelijk onderscheidsoordeel.",
-        "neighbours": [
-            {
-                "neighbour_id": buur_id,
-                "distinction": "unclear",
-                "distinguishing_feature_quote": None,
-                "missing_feature": None,
-                "reason": "Bevroren proefantwoord: niet beoordeeld.",
-                "uncertainty": "Bevroren proefantwoord: onderscheid niet bepaald.",
-            }
-            for buur_id in _ESS05_BUUR_ID.findall(prompt)
-        ],
-        "proposed_neighbours": [],
-        "question": None,
-    }
-    # Modelantwoord `ess05-answer/2`: genest, citaat-eerst, zonder ID's en posities.
-    antwoord = antwoord_uit_spec(spec, materiaal_uit_prompt(prompt))
-    return json.dumps(antwoord, ensure_ascii=False)
+    del prompt
+    return json.dumps({"schema_version": "ess05-interpretatie/3"})
 
 
 def ess05_bevroren_verificatie(prompt: str) -> str:
@@ -405,9 +384,10 @@ class BevrorenAIClient:
     De ESS-03-beoordelingsprompt (DEF-766, soort ``ess03``) krijgt in ``geldig``
     en ``tekort`` het gesloten antwoord uit `ess03_bevroren_antwoord`; in
     ``leeg`` een lege respons, die de dienst als technische fout meldt.
-    De ESS-05-beoordelingsprompt (DEF-768, soort ``ess05``) idem met
-    `ess05_bevroren_antwoord`; de verificatieprompt (ADR-003, soort
-    ``ess05_verificatie``) met `ess05_bevroren_verificatie`. De
+    De ESS-05-interpretatieprompt (DEF-768 stap 2, soort ``ess05``) krijgt
+    `ess05_bevroren_antwoord` (geen geldige interpretatie → technische fout);
+    de verificatieprompt van de vorige route (ADR-003, soort
+    ``ess05_verificatie``) `ess05_bevroren_verificatie`. De
     INT-03-beoordelingsprompt (DEF-772, soort ``int03``) idem met
     `int03_bevroren_antwoord` (`pass`/`clear` voor de bevroren definitie).
     """

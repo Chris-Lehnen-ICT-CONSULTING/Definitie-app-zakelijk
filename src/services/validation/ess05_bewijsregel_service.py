@@ -20,21 +20,30 @@ Transport zoals de bestaande ESS-05-stappen (`eenmalige_aanroep`): één poging,
 geen cache of SDK-retries, deadline, tokengrens, aanroepgrens per verzoek.
 Er is geen herstel-, consensus- of retrylus.
 
-Grens: deze dienst is een mechanisme voor een begrensde proef; de standaard
-ESS-05-keten gebruikt haar niet. Interpretatie en controle gebruiken hetzelfde
+App (DEF-768 stap 2, plan `2026-09-29-DEF-768-ess05-app-aansluiting-plan-v1`
+met aanvulling v1): dit is de ESS-05-dienst van de app. `assess` bouwt uit
+term, tekst, context, bronnen en actieve buren de `Vergelijkingsinvoer`, voert
+één beoordeling uit en levert het document `ess05/3`; `binding` levert de
+actuele binding. Zonder actieve buren volgt geen aanroep (besluit D). Het
+contract (`domain.ess05.contract`) speelt het document af en past het
+app-bevestigingsbeleid toe. Interpretatie en controle gebruiken hetzelfde
 model: scheiding van verzoeken is geen onafhankelijkheid van modelfouten.
 """
 
 from __future__ import annotations
 
-import html
-from collections.abc import Mapping
+import hashlib
+import logging
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 from xml.sax.saxutils import escape, quoteattr
 
-from domain.ess05 import bewijsregels as br
+from domain.ess03.contract import Intentie, materiaalhashes
+from domain.ess05 import app_bewijsregels as app, bewijsregels as br, contract as ec
 from domain.ess05.bewijs import _label
+from domain.sources.normalisatie import canoniseer_bronnen
 from services.validation.ai_beoordeling_transport import parse_modeluitvoer
 from services.validation.ess05_local_verification_service import (
     Ess05LocalVerificationService,
@@ -45,6 +54,8 @@ from services.validation.ess05_verification_service import (
     prompthash,
     transportfout,
 )
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "Bewijsregelresultaat",
@@ -160,15 +171,9 @@ def bouw_interpretatieprompt(invoer: br.Vergelijkingsinvoer) -> tuple[str, str]:
     return interpretatiesysteemprompt(), "\n".join(regels)
 
 
-def _ontsnap(waarde: Any) -> Any:
-    """Tekens die de prompt ontsnapte, terug naar de letterlijke materiaaltekst."""
-    if isinstance(waarde, str):
-        return html.unescape(waarde)
-    if isinstance(waarde, list):
-        return [_ontsnap(w) for w in waarde]
-    if isinstance(waarde, dict):
-        return {k: _ontsnap(v) for k, v in waarde.items()}
-    return waarde
+#: Tekens die de prompt ontsnapte, terug naar de letterlijke materiaaltekst; één
+#: definitie voor dienst en app-replay (`domain.ess05.app_bewijsregels`).
+_ontsnap = app.ontsnap
 
 
 @dataclass(frozen=True)
@@ -214,16 +219,217 @@ class Ess05BewijsregelService:
         model_router: Any | None = None,
         timeout_seconds: int = 60,
         max_tokens: int = 3000,
+        max_passage_chars: int = 8000,
     ) -> None:
         self._ai_service = ai_service
         self._controle = controle
         self._model_router = model_router
         self.timeout_seconds = int(timeout_seconds)
         self.max_tokens = int(max_tokens)
+        #: Zoals de vorige app-route: een langere passage wordt nooit afgekapt maar
+        #: is een technische fout, dus het gebonden materiaal is altijd volledig.
+        self.max_passage_chars = max(1, int(max_passage_chars))
+
+    @classmethod
+    def voor_app(
+        cls, ai_service: Any, *, model_router: Any | None = None
+    ) -> Ess05BewijsregelService:
+        """De ESS-05-dienst van de app: interpretatie plus lokale controle."""
+        return cls(
+            ai_service,
+            controle=Ess05LocalVerificationService(
+                ai_service, model_router=model_router
+            ),
+            model_router=model_router,
+        )
 
     @property
     def controle(self) -> Ess05LocalVerificationService:
         return self._controle
+
+    def binding(self) -> app.Ess05Bewijsregelbinding:
+        """De actuele binding van interpretatie en controle, zonder netwerk."""
+        provider, model = self.modelsleutel()
+        v_provider, v_model = self._controle.modelsleutel()
+        return app.Ess05Bewijsregelbinding(
+            prompt_version=self.PROMPT_VERSION,
+            system_prompt_sha256=prompthash(interpretatiesysteemprompt(), ""),
+            verification_prompt_version=self._controle.PROMPT_VERSION,
+            provider=provider,
+            model=model,
+            verification_provider=v_provider,
+            verification_model=v_model,
+        )
+
+    async def assess(
+        self,
+        begrip: str,
+        tekst: str,
+        contexten: Mapping[str, Any] | None,
+        bronnen_ruw: Any,
+        *,
+        buren: Iterable[Any] = (),
+        intentie: Intentie | None = None,
+        uitgesloten_termen: Iterable[str] = (),
+        correlation_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Het store-ready `ess05/3`-document van één beoordeling; nooit een exception
+        voor een modelfout. Zonder actieve buren geen aanroep (besluit D)."""
+        bronnen = canoniseer_bronnen(bronnen_ruw)
+        actief = ec.normaliseer_buren(list(buren))
+        uitgesloten = tuple(uitgesloten_termen)
+        materiaal = ec.beoordelingsmateriaal(
+            begrip, tekst, bronnen, actief, contexten=contexten, intentie=intentie
+        )
+        document = self._leeg_document(
+            ec.bereken_ess05_vingerafdruk(
+                begrip, tekst, contexten, bronnen, intentie=intentie, buren=actief
+            )
+        )
+        document["input"] = {
+            "intentie": (intentie or Intentie()).als_dict(),
+            "materiaal": materiaalhashes(materiaal),
+            **ec.bindingscontext(actief, uitgesloten),
+            "buren": [b.als_dict() for b in actief],
+            "uitgesloten_termen": list(uitgesloten),
+            "max_passage_chars": self.max_passage_chars,
+        }
+        te_lang = [
+            locatie
+            for locatie, inhoud in materiaal.items()
+            if locatie != "definition" and len(inhoud) > self.max_passage_chars
+        ]
+        if te_lang:
+            return self._foutdocument(
+                document,
+                "input_truncated",
+                f"passage(s) overschrijden de grens van {self.max_passage_chars} "
+                f"tekens: {', '.join(te_lang)}. Er is geen inhoudelijk oordeel gegeven.",
+                correlation_id,
+            )
+        if not actief:
+            document["status"] = "assessed"
+            return document
+        resultaat = await self.beoordeel(
+            br.Vergelijkingsinvoer(
+                begrip, materiaal, tuple((b.id, b.term) for b in actief)
+            )
+        )
+        self._registreer(document, resultaat)
+        if resultaat.fout is not None:
+            return self._foutdocument(
+                document, resultaat.fout.soort, resultaat.fout.melding, correlation_id
+            )
+        document["status"] = "assessed"
+        return document
+
+    def _leeg_document(self, fingerprint: str) -> dict[str, Any]:
+        binding = self.binding()
+        document = ec.beoordeling_technische_fout(
+            fingerprint, "unknown", "", prompt_version=self.PROMPT_VERSION
+        )
+        document.update(
+            {
+                "contract_version": app.DOCUMENTVERSIE,
+                "status": None,
+                "error": None,
+                "binding": binding.als_dict(),
+                "verification_prompt_version": binding.verification_prompt_version,
+                "schema_version": binding.schema_version,
+                "verification_schema_version": binding.verification_schema_version,
+                "renderer_version": binding.renderer_version,
+                "rule_version": binding.rule_version,
+                "assessed_at": datetime.now(UTC).isoformat(),
+                "interpretation": None,
+                "controls": [],
+                "rules": None,
+            }
+        )
+        document["attribution"].update(
+            {
+                "provider": binding.provider,
+                "model": binding.model,
+                "task_type": self.TASK_TYPE,
+            }
+        )
+        document["verification_attribution"].update(
+            {
+                "provider": binding.verification_provider,
+                "model": binding.verification_model,
+                "task_type": self._controle.TASK_TYPE,
+            }
+        )
+        return document
+
+    @staticmethod
+    def _registreer(document: dict[str, Any], resultaat: Bewijsregelresultaat) -> None:
+        """Ruwe interpretatie, elke controle en de regelsamenvatting in het document."""
+        registratie = resultaat.interpretatie
+        if registratie.get("aangeroepen"):
+            ruw = registratie.get("ruw_antwoord")
+            document["attribution"] = dict(registratie.get("attributie") or {})
+            document["interpretation"] = {
+                "prompt_version": registratie.get("prompt_version"),
+                "prompt_sha256": registratie.get("prompt_sha256"),
+                "raw_response": ruw,
+                "raw_response_sha256": (
+                    hashlib.sha256(ruw.encode("utf-8")).hexdigest()
+                    if isinstance(ruw, str)
+                    else None
+                ),
+                "elapsed_seconds": round(float(registratie.get("verstreken") or 0), 3),
+            }
+        document["controls"] = [
+            {
+                "name": naam,
+                "packet_hash": controle.invoer.get("packet_hash"),
+                "outcome": controle.uitkomst,
+                "finding": controle.bevinding,
+                "error": controle.fout,
+                "raw": dict(controle.ruw) if controle.ruw is not None else None,
+                "raw_response_sha256": controle.raw_hash,
+                "attribution": dict(controle.attributie),
+                "verified_at": controle.verified_at,
+            }
+            for naam, controle in resultaat.controles
+        ]
+        if resultaat.controles:
+            document["verification_attribution"] = dict(
+                resultaat.controles[-1][1].attributie
+            )
+        if resultaat.regels is not None:
+            document["rules"] = {
+                "outcome": resultaat.uitkomst,
+                "neighbours": {b.buur_id: b.oordeel for b in resultaat.regels.buren},
+                "text": resultaat.tekst,
+            }
+
+    def _foutdocument(
+        self,
+        document: dict[str, Any],
+        soort: str,
+        melding: str,
+        correlation_id: str | None,
+    ) -> dict[str, Any]:
+        """Technische fout of afgewezen controle; nooit een inhoudelijk oordeel."""
+        fase = "control" if document["controls"] else "interpretation"
+        logger.warning(
+            "ESS-05 (%s, fase %s): %s",
+            soort,
+            fase,
+            melding,
+            extra={
+                "component": "ess05_bewijsregel_service",
+                "correlation_id": correlation_id,
+            },
+        )
+        document.update(
+            {
+                "status": "error",
+                "error": {"type": soort, "message": melding, "phase": fase},
+            }
+        )
+        return document
 
     def modelsleutel(self) -> tuple[str | None, str | None]:
         if self._model_router is not None:
