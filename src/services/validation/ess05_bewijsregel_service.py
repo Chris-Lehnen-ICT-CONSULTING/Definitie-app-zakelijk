@@ -1,6 +1,6 @@
 """ESS-05 — broninterpretatie plus gebonden controle voor `ess05-bewijsregels/7` (DEF-768).
 
-Contract: `docs/technisch/ess05-bewijsregels-contract-v6.md` (delta op v5). Eén beoordeling:
+Contract: `docs/technisch/ess05-bewijsregels-contract-v7.md` (delta op v6). Eén beoordeling:
 
 1. **Interpretatie**: precies één aanroep via `AIServiceInterface.generate_definition`
    op de geconfigureerde ESS-05-beoordelingsroute (`task_type="validation"`, de

@@ -1,6 +1,6 @@
-"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/6` (DEF-768).
+"""ESS-05 — beperkte bewijsregels `ess05-bewijsregels/7` (DEF-768).
 
-Contract: `docs/technisch/ess05-bewijsregels-contract-v6.md` (delta op v5). Pure domeinlogica,
+Contract: `docs/technisch/ess05-bewijsregels-contract-v7.md` (delta op v6). Pure domeinlogica,
 zonder AI-client, Streamlit of database.
 
 Het model interpreteert bronnen tot getypeerde feiten (`ess05-interpretatie/3`);
